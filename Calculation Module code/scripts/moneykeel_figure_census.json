@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "afternoon"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "afternoon"
     },
     {
      "k": "t",
@@ -528,7 +528,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "afternoon"
     },
     {
      "k": "t",
@@ -18024,7 +18024,7 @@
     },
     {
      "k": "t",
-     "s": "Counted inside this account's total — listed here so nothing is hidden. A holding's return is what its own price did in this window; the income it paid sits on the line beneath it. Income sits with the holding that earned it"
+     "s": "Counted inside this account's total — listed here so nothing is hidden. A holding's return is what its own price did in this window, its dividends included; the income it paid is also on the line beneath it. Income sits with the holding that earned it"
     },
     {
      "k": "t",
@@ -18522,7 +18522,7 @@
     },
     {
      "k": "t",
-     "s": "Counted inside this account's total — listed here so nothing is hidden. A holding's return is what its own price did in this window; the income it paid sits on the line beneath it. Income sits with the holding that earned it"
+     "s": "Counted inside this account's total — listed here so nothing is hidden. A holding's return is what its own price did in this window, its dividends included; the income it paid is also on the line beneath it. Income sits with the holding that earned it"
     },
     {
      "k": "t",
@@ -38784,7 +38784,7 @@
    "renders": 1
   },
   {
-   "site": "src/screens/HomeScreen.tsx:304",
+   "site": "src/screens/HomeScreen.tsx:306",
    "routes": [
     "/home"
    ],
@@ -38801,7 +38801,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/HomeScreen.tsx:309",
+   "site": "src/screens/HomeScreen.tsx:311",
    "routes": [
     "/home"
    ],
@@ -38818,7 +38818,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/HomeScreen.tsx:418",
+   "site": "src/screens/HomeScreen.tsx:421",
    "routes": [
     "/home"
    ],
@@ -38837,7 +38837,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:421",
+   "site": "src/screens/HomeScreen.tsx:424",
    "routes": [
     "/home"
    ],
@@ -38856,7 +38856,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:505",
+   "site": "src/screens/HomeScreen.tsx:508",
    "routes": [
     "/home"
    ],
@@ -38875,7 +38875,7 @@
    "renders": 21
   },
   {
-   "site": "src/screens/HomeScreen.tsx:518",
+   "site": "src/screens/HomeScreen.tsx:521",
    "routes": [
     "/home"
    ],
@@ -38893,7 +38893,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:519",
+   "site": "src/screens/HomeScreen.tsx:522",
    "routes": [
     "/home"
    ],
@@ -38910,7 +38910,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:522",
+   "site": "src/screens/HomeScreen.tsx:525",
    "routes": [
     "/home"
    ],

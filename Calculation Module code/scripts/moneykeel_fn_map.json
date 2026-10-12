@@ -168,12 +168,6 @@
   "NET_WORTH": [
    "buildNetWorth"
   ],
-  "ALLOCATION_BY_HOLDING_KIND": [
-   "allocation"
-  ],
-  "WHAT_DROVE_THE_RETURN": [
-   "attribution"
-  ],
   "BENCHMARK_FOR_KIND": [
    "benchmarkTicker"
   ],
@@ -200,9 +194,6 @@
   ],
   "BENCHMARK_RETURN_BLENDED": [
    "portfolioBenchReturn"
-  ],
-  "VALUE_WEIGHTED_RETURN": [
-   "portfolioPeriodReturn"
   ],
   "REALISED_GAIN": [
    "realizedFromLedger"
@@ -338,9 +329,6 @@
   ],
   "RETURN_SINCE_A_DATE": [
    "periodReturnSince"
-  ],
-  "PORTFOLIO_TREND_LINE": [
-   "portfolioTrend"
   ],
   "POT_AT_RETIREMENT": [
    "projectNestEgg"
@@ -499,7 +487,6 @@
   "addNotificationResponseListener": "MK-XS-F-090",
   "affectedAccountIds": "MK-CF-F-113",
   "allocatableThisMonth": "MK-CF-F-006",
-  "allocation": "MK-PF-F-017",
   "alternativesSummary": "MK-NW-F-002",
   "alternativesTotal": "MK-NW-F-019",
   "analyzeExpenses": "MK-XS-F-057",
@@ -516,10 +503,8 @@
   "assetClassOf": "MK-NW-F-011",
   "assetKind": "MK-NW-F-007",
   "assetsFromOnboarding": "MK-NW-F-040",
-  "attribution": "MK-PF-F-016",
   "authenticate": "MK-XS-F-035",
   "availableToSaveSummary": "MK-PL-F-016",
-  "avgCost": "MK-PF-F-003",
   "balancesHidden": "MK-ST-F-046",
   "benchmarkInfo": "MK-NW-F-036",
   "benchmarkReturn": "MK-NW-F-034",
@@ -758,7 +743,6 @@
   "paymentToClearBy": "MK-CF-F-030",
   "payoffPlan": "MK-CF-F-034",
   "pendingUpload": "MK-ST-F-037",
-  "periodDollarDelta": "MK-PF-F-021",
   "periodReturn": "MK-PF-F-010",
   "periodReturnSince": "MK-PF-F-011",
   "personalFlowTotals": "MK-ST-F-013",
@@ -769,8 +753,6 @@
   "plannedMonthlySpend": "MK-CF-F-002",
   "portfolioActualReturn": "MK-NW-F-004",
   "portfolioBenchReturn": "MK-PF-F-020",
-  "portfolioPeriodReturn": "MK-PF-F-019",
-  "portfolioTrend": "MK-PF-F-018",
   "priceFreshness": "MK-XS-F-082",
   "primaryCarIdOf": "MK-NW-F-031",
   "profileFromOnboarding": "MK-XS-F-026",

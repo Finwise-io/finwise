@@ -572,7 +572,8 @@
    "difference": "today-value weights 0.545455/0.454545 vs start-value 0.5/0.5 (DEC-1669, DEC-3035b)",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-016 attribution — five cases › easy · Two holdings, one up twenty percent"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-016 attribution — five cases › easy · Two holdings, one up twenty percent",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-016",
@@ -602,7 +603,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-016 attribution — five cases › easy · One holding: its contribution is its return"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-016 attribution — five cases › easy · One holding: its contribution is its return",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-016",
@@ -648,7 +650,8 @@
    "difference": "today-value weights over all 25,000 incl. the REIT vs start weights over the two with a return (DEC-1669, DEC-3035b)",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-016 attribution — five cases › complex · A holding with no return sits in the total"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-016 attribution — five cases › complex · A holding with no return sits in the total",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-016",
@@ -726,7 +729,8 @@
    "difference": "today-value weights vs start-value weights (DEC-1669, DEC-3035b)",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-016 attribution — five cases › complex · Four holdings, sorted largest first"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-016 attribution — five cases › complex · Four holdings, sorted largest first",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-016",
@@ -738,7 +742,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-016 attribution — five cases › edge · Nothing held"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-016 attribution — five cases › edge · Nothing held",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-017",
@@ -784,7 +789,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-017 allocation — five cases › easy · Sixty-forty"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-017 allocation — five cases › easy · Sixty-forty",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-017",
@@ -814,7 +820,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-017 allocation — five cases › easy · Cash only"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-017 allocation — five cases › easy · Cash only",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-017",
@@ -892,7 +899,8 @@
    "difference": "pct rounded to one decimal inside (66.8 vs 66.790228) — DEC-0300; values and order agree",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-017 allocation — five cases › complex · Linked and hand-entered holdings with cash in the account"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-017 allocation — five cases › complex · Linked and hand-entered holdings with cash in the account",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-017",
@@ -954,7 +962,8 @@
    "difference": "pct 33.3 each vs 33.333333 — DEC-0300; the auditor's shown 33.4 (largest remainder) is an unsettled display rule",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-017 allocation — five cases › complex · Three equal slices"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-017 allocation — five cases › complex · Three equal slices",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-017",
@@ -966,7 +975,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-017 allocation — five cases › edge · Nothing held and no cash"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-017 allocation — five cases › edge · Nothing held and no cash",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-018",
@@ -1014,7 +1024,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-018 portfolioTrend — five cases › easy · One fund held all year"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-018 portfolioTrend — five cases › easy · One fund held all year",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-018",
@@ -1026,7 +1037,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-018 portfolioTrend — five cases › easy · No holdings"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-018 portfolioTrend — five cases › easy · No holdings",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-018",
@@ -1059,7 +1071,8 @@
    "difference": "first value 8,000 (today's 20 QQQ priced at the start) vs 1,000; open question: should the trend show shares actually held on each date? No decision; no screen calls portfolioTrend",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-018 portfolioTrend — five cases › complex · A second fund bought in June"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-018 portfolioTrend — five cases › complex · A second fund bought in June",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-018",
@@ -1105,7 +1118,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-018 portfolioTrend — five cases › complex · Two funds with broker-style fractional shares"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-018 portfolioTrend — five cases › complex · Two funds with broker-style fractional shares",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-018",
@@ -1129,7 +1143,8 @@
    "difference": "13 points of $0 vs refuse: a holding with no price counts as zero (tenet 3, DEC-3523)",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-018 portfolioTrend — five cases › edge · Holdings but no prices at all"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-018 portfolioTrend — five cases › edge · Holdings but no prices at all",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-019",
@@ -1144,7 +1159,8 @@
    "difference": "0.666667 (today-weighted) vs 0.50 (start-weighted) — DEC-1669, DEC-3035b",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-019 portfolioPeriodReturn — five cases › easy · One fund doubled, one flat"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-019 portfolioPeriodReturn — five cases › easy · One fund doubled, one flat",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-019",
@@ -1159,7 +1175,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-019 portfolioPeriodReturn — five cases › easy · One holding"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-019 portfolioPeriodReturn — five cases › easy · One holding",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-019",
@@ -1174,7 +1191,8 @@
    "difference": "-0.006537 vs -0.02381 — DEC-1669, DEC-3035b",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-019 portfolioPeriodReturn — five cases › complex · A holding with no return is left out"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-019 portfolioPeriodReturn — five cases › complex · A holding with no return is left out",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-019",
@@ -1189,7 +1207,8 @@
    "difference": "0.055264 vs 0.05196 — DEC-1669, DEC-3035b; disagrees with MK-NW-F-084 on the same holdings",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-019 portfolioPeriodReturn — five cases › complex · Four holdings, three months"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-019 portfolioPeriodReturn — five cases › complex · Four holdings, three months",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-019",
@@ -1201,7 +1220,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-019 portfolioPeriodReturn — five cases › edge · No holding has a return"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-019 portfolioPeriodReturn — five cases › edge · No holding has a return",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-020",
@@ -1288,7 +1308,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-021 periodDollarDelta — five cases › easy · Up five percent, nothing moved"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-021 periodDollarDelta — five cases › easy · Up five percent, nothing moved",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-021",
@@ -1303,7 +1324,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-021 periodDollarDelta — five cases › easy · Down ten percent"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-021 periodDollarDelta — five cases › easy · Down ten percent",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-021",
@@ -1318,7 +1340,8 @@
    "difference": "4,000 vs 3,010 — the return is charged to money deposited 9 days before the end (DEC-1669: money added is never earned)",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-021 periodDollarDelta — five cases › complex · A large deposit nine days before the end"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-021 periodDollarDelta — five cases › complex · A large deposit nine days before the end",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-021",
@@ -1333,7 +1356,8 @@
    "difference": "6,840 vs 6,840.4824 — rounded inside the function (DEC-0300); the screen shows $6,840 either way",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-021 periodDollarDelta — five cases › complex · A large account, small return, nothing moved"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-021 periodDollarDelta — five cases › complex · A large account, small return, nothing moved",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-PF-F-021",
@@ -1345,7 +1369,8 @@
    "difference": "0 vs refuse — tenet 3 (DEC-3523): unknown is not zero",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-021 periodDollarDelta — five cases › edge · The return is not a number"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-021 periodDollarDelta — five cases › edge · The return is not a number",
+   "settled": "REMOVED 2026-10-12 by DEC-4642 (\"3,4, 8-approved\"): the function left the code — no screen called it — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-084",

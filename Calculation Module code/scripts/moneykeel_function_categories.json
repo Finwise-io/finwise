@@ -284,11 +284,6 @@
   "file": "src/domain/budget/index.ts",
   "category": "2 · DISPLAYED"
  },
- "allocation": {
-  "id": "MK-PF-F-017",
-  "file": "src/domain/performance/index.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
  "altPartsOf": {
   "id": "MK-NW-F-113",
   "file": "src/domain/alternatives/index.ts",
@@ -414,11 +409,6 @@
   "file": "src/domain/assets/index.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
- "attribution": {
-  "id": "MK-PF-F-016",
-  "file": "src/domain/performance/index.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
  "authenticate": {
   "id": "MK-XS-F-035",
   "file": "src/services/appLock.ts",
@@ -432,11 +422,6 @@
  "availableToSaveSummary": {
   "id": "MK-PL-F-016",
   "file": "src/domain/goals/index.ts",
-  "category": "2 · DISPLAYED"
- },
- "avgCost": {
-  "id": "MK-PF-F-003",
-  "file": "src/domain/performance/index.ts",
   "category": "2 · DISPLAYED"
  },
  "balancesHidden": {
@@ -787,7 +772,7 @@
  "coverageFor": {
   "id": "MK-ST-F-004",
   "file": "Calculation Module code/engines/coverage.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "covers": {
   "id": "MK-ST-F-035",
@@ -2284,11 +2269,6 @@
   "file": "src/domain/income/limits.ts",
   "category": "3 · DEPENDENT"
  },
- "periodDollarDelta": {
-  "id": "MK-PF-F-021",
-  "file": "src/domain/performance/index.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
  "periodReturn": {
   "id": "MK-PF-F-010",
   "file": "src/domain/performance/index.ts",
@@ -2364,16 +2344,6 @@
   "file": "src/domain/performance/index.ts",
   "category": "2 · DISPLAYED"
  },
- "portfolioPeriodReturn": {
-  "id": "MK-PF-F-019",
-  "file": "src/domain/performance/index.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
- "portfolioTrend": {
-  "id": "MK-PF-F-018",
-  "file": "src/domain/performance/index.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
  "prettyDate": {
   "id": "MK-XS-F-118",
   "file": "src/domain/gaps/index.ts",
@@ -2397,6 +2367,11 @@
  "priceFreshness": {
   "id": "MK-XS-F-082",
   "file": "src/services/marketData.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "priceHistoryShortSentence": {
+  "id": "MK-PF-F-045",
+  "file": "src/domain/performance/index.ts",
   "category": "2 · DISPLAYED"
  },
  "pricedGainOf": {
@@ -2849,6 +2824,11 @@
   "file": "src/domain/income/salary-months.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
+ "saleShortOfPurchasesSentence": {
+  "id": "MK-PF-F-046",
+  "file": "src/domain/performance/realized.ts",
+  "category": "2 · DISPLAYED"
+ },
  "sampleAskLine": {
   "id": "MK-PL-F-028",
   "file": "src/domain/planning/hub.ts",
@@ -3122,7 +3102,7 @@
  "startDateFor": {
   "id": "MK-PF-F-008",
   "file": "src/domain/performance/index.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "startValues": {
   "id": "MK-PF-F-044",

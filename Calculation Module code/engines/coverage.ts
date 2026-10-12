@@ -43,9 +43,9 @@ const MONTHS = ['January','February','March','April','May','June','July','August
  *
  * Called by ... MK-ST-F-003 dayWords · MK-ST-F-004 coverageFor
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
  *               MK-ST-F-004 coverageFor · MK-ST-F-003 dayWords
- *               MK-ST-F-005 measuredFromLabel
+ *               MK-ST-F-005 measuredFromLabel · MK-PF-F-045 priceHistoryShortSentence
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -71,8 +71,9 @@ export function monthWords(iso: string | null): string {
  *
  * Called by ... MK-ST-F-004 coverageFor · MK-ST-F-005 measuredFromLabel
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
  *               MK-ST-F-004 coverageFor · MK-ST-F-005 measuredFromLabel
+ *               MK-PF-F-045 priceHistoryShortSentence
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -91,7 +92,7 @@ export function dayWords(iso: string | null): string {
  * The sentence is written for someone with no finance background and no interest in how the app
  * stores anything. It says what we have, not what we do.
  */
-/* ─ MK-ST-F-004 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-ST-F-004 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * coverageFor
  *
  * Answers ..... What can we honestly say about a window starting on `from`?
@@ -109,7 +110,10 @@ export function dayWords(iso: string | null): string {
  *     sentence = ''
  *     has monthly only = daily from ≠ nothing and start < daily from
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-PF-F-045 priceHistoryShortSentence
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PF-F-045 priceHistoryShortSentence
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

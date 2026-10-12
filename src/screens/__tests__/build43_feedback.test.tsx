@@ -48,15 +48,9 @@ test('#3 · Home: holdings without prices say so instead of hiding the line', ()
   expect(screen.getByText(/as of \w{3} \d|updated/)).toBeOnTheScreen();
 });
 
-test('#3 · the hero change is DOLLARS+percent from ONE source — the approved wireframe\'s own numbers round-trip', () => {
-  const { periodDollarDelta } = require('../../domain/performance');
-  // wireframe: hero $843,700 · "up $11,200 this month" → the return that produced it gives back $11,200
-  const ret = 11200 / (843700 - 11200);
-  // unrounded since 2026-10-11 (DEC-0300: round once, at display — outside review Claude Performance)
-  expect(periodDollarDelta(843700, ret)).toBeCloseTo(11200, 6);
-  expect(periodDollarDelta(843700, 0)).toBe(0);
-  expect(periodDollarDelta(0, 0.05)).toBe(0);
-});
+// '#3 · the hero change is DOLLARS+percent from ONE source' pinned MK-PF-F-021 periodDollarDelta. That function was
+// removed on 2026-10-12 (his approval, DEC-4642): no screen called it — the dollars on Home and Performance are
+// the wealth generated of MK-NW-O-008 thePerformance, beside the percent from the same answer.
 
 test('#3 · Net worth: a first-day account shows the tracking line, not a bare number', () => {
   freshWorker();

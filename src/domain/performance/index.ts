@@ -4,6 +4,9 @@
 // Price data comes from a swappable PriceProvider (see services/marketData.ts) so the model and UI
 // never need rework if we change data source later.
 import type { EntityId } from '../_shared/ids';
+import { plural } from '../_shared/plural';
+import { dateShown } from '../_shared/dates';
+import { coverageFor } from '../../../Calculation Module code/engines/coverage';
 
 /** One purchase lot — shares bought at a price on a date (enables true cost-basis ROI). */
 export interface Lot {
@@ -54,9 +57,8 @@ export const OPTION_CONTRACT_MULTIPLIER = 100;
  *     1   otherwise
  *
  * Called by ... MK-NW-F-128 heldValueOf · MK-NW-O-006 theHolding
- *               MK-PF-F-002 costBasis · MK-PF-F-003 avgCost
- *               MK-PF-F-004 marketValue · MK-PF-F-006 capGains
- *               MK-PF-F-028 realizedFromLedger
+ *               MK-PF-F-002 costBasis · MK-PF-F-004 marketValue
+ *               MK-PF-F-006 capGains · MK-PF-F-028 realizedFromLedger
  *
  * Reaches ..... 78 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
@@ -64,10 +66,10 @@ export const OPTION_CONTRACT_MULTIPLIER = 100;
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
  *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-PF-F-003 avgCost
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PF-F-014 buildPerformance
  *               … and 60 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -101,8 +103,8 @@ export function contractMultiplier(p: Pick<Position, 'kind' | 'multiplier'>): nu
  *
  * Called by ... MK-PF-F-033 quantityWithUnit
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-PF-F-033 quantityWithUnit
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-PF-F-033 quantityWithUnit · MK-PF-F-046 saleShortOfPurchasesSentence
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -132,7 +134,10 @@ export function quantityUnit(p: Pick<Position, 'kind' | 'unit'>): QuantityUnit {
  *     unit = quantity unit(p)
  *     the answer = `${format(qty)} ${qty = 1 ? unit.replace( ÷ s$ ÷ , '') : unit}`
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-PF-F-046 saleShortOfPurchasesSentence
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PF-F-046 saleShortOfPurchasesSentence
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -169,20 +174,19 @@ export const PERIODS: Period[] = ['1M', '3M', '6M', 'YTD', '1Y', '2Y'];
  *     total shares(holding) = Σ over every lot of (shares, or 0 when missing)
  *
  * Called by ... MK-CF-F-111 applyTransaction · MK-NW-F-128 heldValueOf
- *               MK-NW-O-006 theHolding · MK-PF-F-003 avgCost
- *               MK-PF-F-004 marketValue · MK-PF-F-018 portfolioTrend
+ *               MK-NW-O-006 theHolding · MK-PF-F-004 marketValue
  *
- * Reaches ..... 77 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 75 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-080 HOLD · MK-NW-F-082 NW
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
  *               MK-NW-F-100 TREND · MK-CF-F-111 applyTransaction
  *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-111 assetsStateFrom
- *               MK-PF-F-003 avgCost · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               … and 59 more — the full list is on functions_from_code
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               … and 57 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -219,10 +223,10 @@ export function totalShares(p: Position): number | null {
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-100 TREND
  *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-111 assetsStateFrom
- *               MK-PF-F-003 avgCost · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PF-F-014 buildPerformance
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PF-F-014 buildPerformance · MK-PL-F-053 buildRetirementState
  *               … and 54 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -239,9 +243,9 @@ const unknownFigure = (v: unknown): boolean => v == null || typeof v !== 'number
  * Formula .....
  *     cost basis(holding) = Σ over every lot of (shares × cost per share)
  *
- * Called by ... MK-NW-O-006 theHolding · MK-PF-F-003 avgCost
- *               MK-PF-F-005 unrealizedGain · MK-PF-F-007 totalROI
- *               MK-PF-F-014 buildPerformance · MK-PL-F-081 taxableGainShare
+ * Called by ... MK-NW-O-006 theHolding · MK-PF-F-005 unrealizedGain
+ *               MK-PF-F-007 totalROI · MK-PF-F-014 buildPerformance
+ *               MK-PL-F-081 taxableGainShare · MK-XS-F-102 ingestSync
  *               MK-XS-F-174 recomputeBalances
  *
  * Reaches ..... 70 functions. Change the arithmetic above and these change with it:
@@ -250,10 +254,10 @@ const unknownFigure = (v: unknown): boolean => v == null || typeof v !== 'number
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-100 TREND
  *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-111 assetsStateFrom
- *               MK-PF-F-003 avgCost · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PF-F-014 buildPerformance
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PF-F-014 buildPerformance · MK-PL-F-053 buildRetirementState
  *               … and 52 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -278,40 +282,6 @@ export function costBasis(p: Position): number | null {
   return t * contractMultiplier(p);
 }
 
-/** The average price paid per share of a holding: its total cost divided by the shares held, or nothing when no shares are held or a figure is not entered. */
-/* ─ MK-PF-F-003 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
- * avgCost
- *
- * Answers ..... The average price paid per share of a holding: its total cost divided by the shares held, or nothing when no shares are held or a figure is not entered.
- *
- * Formula .....
- *     sh = total shares(p)
- *     basis = cost basis(p)
- *     nothing   when sh = nothing (or not (sh > 0) (or basis = nothing when missing or zero) when missing or zero)
- *     the answer = basis ÷ (sh × contract multiplier(p))
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... MK-NW-M-032
- * Reads ....... MK-XS-I-004 holding quantity (shares)
- *               MK-XS-I-007 purchase price and date (per lot)
- *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
- * Ruled by .... DEC-0264 · DEC-0310
- *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
- *               Change the arithmetic and one of those stops being obeyed — read them first.
- *
- * Formula also on the master file · functions_from_code · MK-PF-F-003
- * Changed ..... 2026-06-05 (d925b9e)
- */
-export function avgCost(p: Position): number | null {
-  const sh = totalShares(p);
-  const basis = costBasis(p);
-  // with no shares held there is no average price — $0.00 read as "paid nothing"; and an unknown count or cost
-  // gives an unknown average (tenet 3, DEC-3523; outside review Claude Performance, 2026-10-11)
-  if (sh == null || !(sh > 0) || basis == null) return null;
-  // per share, the unit a price is quoted in: the cost carries an option's contract multiplier, so it comes back out here
-  return basis / (sh * contractMultiplier(p));
-}
 /* ─ MK-PF-F-004 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * marketValue
  *
@@ -493,47 +463,101 @@ export function totalROI(p: Position, price: number | null | undefined): number 
 // ---- period returns from a price series (price return of the security itself) ----
 
 /** The date a period starts from, counted back from today: one, three or six months, the start of this year, one year or two years. */
-/* ─ MK-PF-F-008 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-PF-F-008 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * startDateFor
  *
  * Answers ..... The date a period starts from, counted back from today: one, three or six months, the start of this year, one year or two years.
  *
  * Formula .....
  *     the date now.get full year(), 0, 1   when period = 'YTD'
- *     back = '1 m': 1 = '1 m': 1
- *     '3 m': 3 = '3 m': 3
- *     '6 m': 6 = '6 m': 6
- *     '1 y': 12 = '1 y': 12
- *     '2 y': 24 = '2 y': 24
- *     the date now   when back[period] = nothing
- *     the answer = months before(now, back[period])
+ *     back = WINDOW_MONTHS[period]
+ *     nothing   when back = nothing
+ *     the answer = months before(now, back)
  *
- * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-018 portfolioTrend
- *               MK-PF-F-039 periodReturnParts
+ * Called by ... MK-NW-F-090 windowStartKey · MK-PF-F-014 buildPerformance
+ *               MK-PF-F-039 periodReturnParts · MK-PF-F-045 priceHistoryShortSentence
  *
- * Reaches ..... 20 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-PF-F-016 attribution · MK-PF-F-014 buildPerformance
- *               MK-NW-F-084 categoryEarnings · MK-NW-F-127 gainOfRow
- *               MK-PF-F-021 periodDollarDelta · MK-PF-F-010 periodReturn
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-127 gainOfRow · MK-PF-F-010 periodReturn
  *               MK-PF-F-039 periodReturnParts · MK-PF-F-038 periodTotalReturn
- *               MK-PF-F-020 portfolioBenchReturn · MK-PF-F-019 portfolioPeriodReturn
- *               MK-PF-F-018 portfolioTrend · MK-NW-F-091 pricedGainOf
- *               … and 2 more — the full list is on functions_from_code
+ *               MK-PF-F-020 portfolioBenchReturn · MK-PF-F-045 priceHistoryShortSentence
+ *               MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
+ *               MK-NW-F-090 windowStartKey · MK-PF-F-043 windowTotalOfRow
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-008
  * Changed ..... 2026-08-18 (98a342a)
  */
-export function startDateFor(period: Period, now: Date): Date {
+export function startDateFor(period: Period, now: Date): Date | null {
   if (period === 'YTD') return new Date(now.getFullYear(), 0, 1);
-  const back: Record<string, number> = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12, '2Y': 24 };
-  if (back[period] == null) return new Date(now);
-  return monthsBefore(now, back[period]);
+  // A WINDOW NAME THE APP DOES NOT HAVE GIVES NO START (his approval, 2026-10-12, DEC-4640): "5Y" read as
+  // today here and as twelve months back in MK-NW-F-090 windowStartKey — two guesses for one question. Now
+  // both refuse, and whatever asked for that window shows no figure. The screens offer only known names.
+  const back = WINDOW_MONTHS[period];
+  if (back == null) return null;
+  return monthsBefore(now, back);
 }
+
+/** The sentence written wherever a holding's window figure is shown and its prices begin after the window opens: how many months the prices reach, against the window the chip names. Empty when the prices reach back, and for a window the app does not name. */
+/* ─ MK-PF-F-045 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * priceHistoryShortSentence
+ *
+ * Answers ..... The sentence written wherever a holding's window figure is shown and its prices begin after the window opens: how many months the prices reach, against the window the chip names.
+ *
+ * Formula .....
+ *     named = NAMED[period]
+ *     ''   when named is missing (or window start is missing (or ! ÷ ^\d{4}-\d{2}-\d{2}$ ÷ .test(today) when missing or zero) when missing or zero)
+ *     coverage = the first 10) })), window start, today of coverage for((points ?? []).filter((x) => ÷ ^\d{4}-\d{2}-\d{2} ÷ .test(string(date ?? ''))).map((x) => ({ date: string(date)
+ *     ''   when coverage.covers (or coverage.from is missing when missing or zero)
+ *     first = coverage.from
+ *     months = max(0, (ty − fy) × 12 + tm − fm − (td < fd ? 1 : 0))
+ *     the answer = `prices for this holding go back ${plural(months, 'month')}, so the ${label} figure covers ${plural(months, 'month')} — not ${words}.`
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-045
+ * Changed ..... not in git yet (—)
+ */
+export function priceHistoryShortSentence(
+  points: { date: string }[] | null | undefined, windowStart: string | null, period: string, today: string,
+): string {
+  // ONE SENTENCE, ONE PLACE (his approval, 2026-10-12, DEC-4641: "1, 2 - approved"). A holding whose prices
+  // begin after the window opens is still measured from its first price; the sentence the Holding page already
+  // printed says so — and it was written on that screen only, so the Account page printed the same shorter
+  // figure under the longer name with no sentence. Both screens now ask this function. Wording unchanged from
+  // the approved drawing (holding-detail v02, phone 3).
+  const NAMED: Record<string, [string, string]> = {
+    '1M': ['1-month', 'a month'], '3M': ['3-month', 'three months'], '6M': ['6-month', 'six months'],
+    YTD: ['year-so-far', 'the whole year so far'], '1Y': ['1-year', 'a year'], '2Y': ['2-year', 'two years'],
+    // "Since" names the record's first day, the day before the window opens — as its chip does ("Since Jul 19, 2026")
+    SINCE: ['Since', `since ${windowStart ? dateShown(new Date(Date.parse(`${windowStart}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10)) : ''}`],
+  };
+  const named = NAMED[period];
+  if (!named || !windowStart || !/^\d{4}-\d{2}-\d{2}$/.test(today)) return '';
+  // how far back the prices reach is the ONE coverage function's answer (MK-ST-F-004 coverageFor), never a rewrite
+  const coverage = coverageFor((points ?? []).filter((x) => /^\d{4}-\d{2}-\d{2}/.test(String(x?.date ?? ''))).map((x) => ({ date: String(x.date).slice(0, 10) })), windowStart, today);
+  if (coverage.covers || !coverage.from) return '';
+  const first = coverage.from;
+  const [fy, fm, fd] = first.split('-').map(Number);
+  const [ty, tm, td] = today.split('-').map(Number);
+  const months = Math.max(0, (ty - fy) * 12 + tm - fm - (td < fd ? 1 : 0));
+  const [label, words] = named;
+  return `Prices for this holding go back ${plural(months, 'month')}, so the ${label} figure covers ${plural(months, 'month')} — not ${words}.`;
+}
+
+/** How many months back each window name reaches. ONE table: MK-PF-F-008 startDateFor and MK-NW-F-090
+ *  windowStartKey both read it, so a name is either known to both or refused by both (DEC-4640, 2026-10-12). */
+export const WINDOW_MONTHS: Readonly<Record<string, number>> = Object.freeze({ '1M': 1, '3M': 3, '6M': 6, '1Y': 12, '2Y': 24 });
 
 /** THE ONE RULE FOR "N MONTHS BACK" (his approval, 2026-10-10, DEC-3768b): the same day of the earlier month,
  *  or that month's last day when the day does not exist there — Mar 31 less one month is Feb 28, and Feb 29
@@ -551,20 +575,19 @@ export function startDateFor(period: Period, now: Date): Date {
  *     d = the date now
  *     the answer = d
  *
- * Called by ... MK-NW-F-090 windowStartKey · MK-PF-F-008 startDateFor
- *               MK-PF-F-022 factorOverMonths
+ * Called by ... MK-PF-F-008 startDateFor · MK-PF-F-022 factorOverMonths
  *
- * Reaches ..... 26 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 23 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-081 LB
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-093 QUIET_PERF · MK-PF-F-016 attribution
- *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
- *               MK-PF-F-022 factorOverMonths · MK-NW-F-127 gainOfRow
- *               MK-PF-F-023 lookBack · MK-PF-F-021 periodDollarDelta
+ *               MK-NW-F-093 QUIET_PERF · MK-PF-F-014 buildPerformance
+ *               MK-NW-F-084 categoryEarnings · MK-PF-F-022 factorOverMonths
+ *               MK-NW-F-127 gainOfRow · MK-PF-F-023 lookBack
  *               MK-PF-F-010 periodReturn · MK-PF-F-039 periodReturnParts
  *               MK-PF-F-038 periodTotalReturn · MK-PF-F-020 portfolioBenchReturn
- *               … and 8 more — the full list is on functions_from_code
+ *               MK-PF-F-045 priceHistoryShortSentence · MK-NW-F-091 pricedGainOf
+ *               … and 5 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -591,17 +614,15 @@ export function monthsBefore(now: Date, months: number): Date {
  *
  * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-039 periodReturnParts
  *
- * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-PF-F-016 attribution · MK-PF-F-014 buildPerformance
- *               MK-NW-F-084 categoryEarnings · MK-NW-F-127 gainOfRow
- *               MK-PF-F-021 periodDollarDelta · MK-PF-F-010 periodReturn
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-127 gainOfRow · MK-PF-F-010 periodReturn
  *               MK-PF-F-039 periodReturnParts · MK-PF-F-038 periodTotalReturn
- *               MK-PF-F-020 portfolioBenchReturn · MK-PF-F-019 portfolioPeriodReturn
- *               MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
- *               … and 1 more — the full list is on functions_from_code
+ *               MK-PF-F-020 portfolioBenchReturn · MK-NW-F-091 pricedGainOf
+ *               MK-NW-O-008 thePerformance · MK-PF-F-043 windowTotalOfRow
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -626,20 +647,18 @@ function dayBefore(d: Date): Date {
  *     chosen = nothing
  *     the answer = chosen (or pts[0].close when missing)
  *
- * Called by ... MK-PF-F-011 periodReturnSince · MK-PF-F-018 portfolioTrend
- *               MK-PF-F-039 periodReturnParts
+ * Called by ... MK-PF-F-011 periodReturnSince · MK-PF-F-039 periodReturnParts
  *
- * Reaches ..... 21 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-PF-F-016 attribution · MK-PF-F-014 buildPerformance
- *               MK-NW-F-084 categoryEarnings · MK-NW-F-127 gainOfRow
- *               MK-PF-F-021 periodDollarDelta · MK-PF-F-010 periodReturn
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-127 gainOfRow · MK-PF-F-010 periodReturn
  *               MK-PF-F-039 periodReturnParts · MK-PF-F-011 periodReturnSince
  *               MK-PF-F-038 periodTotalReturn · MK-PF-F-020 portfolioBenchReturn
- *               MK-PF-F-019 portfolioPeriodReturn · MK-PF-F-018 portfolioTrend
- *               … and 3 more — the full list is on functions_from_code
+ *               MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
+ *               MK-PF-F-043 windowTotalOfRow
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -711,17 +730,17 @@ export function closeOnOrBefore(series: PriceSeries | null | undefined, isoDate:
  * Called by ... MK-PF-F-011 periodReturnSince · MK-PF-F-014 buildPerformance
  *               MK-PF-F-039 periodReturnParts · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 78 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 75 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-082 NW
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
  *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-PF-F-016 attribution
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               … and 60 more — the full list is on functions_from_code
+ *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PF-F-014 buildPerformance
+ *               … and 57 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -747,18 +766,16 @@ export function latestClose(series: PriceSeries | null | undefined): number | nu
  *     total   otherwise
  *
  * Called by ... MK-NW-F-084 categoryEarnings · MK-NW-F-127 gainOfRow
- *               MK-PF-F-014 buildPerformance · MK-PF-F-021 periodDollarDelta
- *               MK-PF-F-043 windowTotalOfRow
+ *               MK-PF-F-014 buildPerformance · MK-PF-F-043 windowTotalOfRow
  *
- * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-PF-F-016 attribution · MK-PF-F-014 buildPerformance
- *               MK-NW-F-084 categoryEarnings · MK-NW-F-127 gainOfRow
- *               MK-PF-F-021 periodDollarDelta · MK-PF-F-020 portfolioBenchReturn
- *               MK-PF-F-019 portfolioPeriodReturn · MK-NW-F-091 pricedGainOf
- *               MK-NW-O-008 thePerformance · MK-PF-F-043 windowTotalOfRow
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-127 gainOfRow · MK-PF-F-020 portfolioBenchReturn
+ *               MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
+ *               MK-PF-F-043 windowTotalOfRow
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -815,7 +832,9 @@ export function periodTotalReturn(series: PriceSeries | null | undefined, period
  * Formula .....
  *     nothing   when series is missing (or not (count of series.points) when missing or zero)
  *     end = latest close(series)
- *     beginning = day before(start date for(period, now))
+ *     opens = start date for(period, now)
+ *     nothing   when opens = nothing
+ *     beginning = day before(opens)
  *     start = close as of(series, beginning)
  *     nothing   when end = nothing (or start = nothing (or start ≤ 0 when missing or zero) when missing or zero)
  *     total = end ÷ start − 1
@@ -823,24 +842,20 @@ export function periodTotalReturn(series: PriceSeries | null | undefined, period
  *     years = 1   when period ! = '2Y'
  *     first = the date series.points[0].date), last = new date(series.points[series.points.length − 1].date
  *     reaches = first.get time() ≤ beginning.get time()
- *     years = 2   if reaches
- *     (last.get time() − first.get time()) ÷ (365.25 × 86400000)   otherwise
- *     the answer = { total, years }
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-PF-F-010 periodReturn · MK-PF-F-014 buildPerformance
  *               MK-PF-F-038 periodTotalReturn
  *
- * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-PF-F-016 attribution · MK-PF-F-014 buildPerformance
- *               MK-NW-F-084 categoryEarnings · MK-NW-F-127 gainOfRow
- *               MK-PF-F-021 periodDollarDelta · MK-PF-F-010 periodReturn
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-127 gainOfRow · MK-PF-F-010 periodReturn
  *               MK-PF-F-038 periodTotalReturn · MK-PF-F-020 portfolioBenchReturn
- *               MK-PF-F-019 portfolioPeriodReturn · MK-NW-F-091 pricedGainOf
- *               MK-NW-O-008 thePerformance · MK-PF-F-043 windowTotalOfRow
+ *               MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
+ *               MK-PF-F-043 windowTotalOfRow
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -854,7 +869,9 @@ function periodReturnParts(series: PriceSeries | null | undefined, period: Perio
   // THE BEGINNING IS THE CLOSE OF THE DAY BEFORE THE PERIOD'S FIRST DAY (DEC-0315, Q3: both boundary days are
   // inside the window). It was the close ON the first day, so that day's own move was left out — +7.84% where
   // +10.00% is right (outside review Claude Performance, 2026-10-11). The door's walk reads the same day.
-  const beginning = dayBefore(startDateFor(period, now));
+  const opens = startDateFor(period, now);
+  if (opens == null) return null;   // a window name the app does not have: no figure (DEC-4640)
+  const beginning = dayBefore(opens);
   const start = closeAsOf(series, beginning);
   if (end == null || start == null || start <= 0) return null;
   const total = end / start - 1;
@@ -1044,21 +1061,25 @@ export interface PerformanceRow {
  * Answers ..... Build the per-holding rows for a period from positions + a price-series lookup.
  *
  * Formula .....
- *     period start = iso day(start date for(period, now))
+ *     given = window start   if window start ≠ nothing and ÷ ^\d{4}-\d{2}-\d{2}$ ÷ .test(window start)
+ *     nothing   otherwise
+ *     opens = the date `${given}T12:00:00`   if given
+ *     start date for(period, now)   otherwise
+ *     period start = nothing   if opens = nothing
+ *     iso day(opens)   otherwise
+ *     begin iso = nothing   if opens = nothing
+ *     iso day(day before(opens))   otherwise
+ *     ret = period return since(s, begin iso, now)   if begin iso
+ *     nothing   otherwise   if (s: price series | nothing | undefined) => given
+ *     period return(s, period, now)   otherwise
+ *     total = period return since(s, begin iso, now)   if begin iso
+ *     nothing   otherwise   if (s: price series | nothing | undefined) => given
+ *     period total return(s, period, now)   otherwise
  *     series = price of(ticker)
  *     price = latest close(series)
- *     bought = earliest purchase date(p) (or purchase date of.(p) (or nothing when missing) when missing)
- *     capped = bought ≠ nothing and bought ≥ period start
- *     pr = return since purchases(p, series, price, bought!)   if capped
- *     period return(series, period, now)   otherwise
- *     pr total = pr   if capped
- *     period total return(series, period, now)   otherwise
- *     bench ticker = benchmark ticker(p)
- *     bench series = price of(bench ticker)   if bench ticker
- *     nothing   otherwise
- *     pts = series.points (or none when missing)
- *     first iso = pts[0].date   if count of pts
- *     nothing   otherwise
+ *     lot date = earliest purchase date(p)
+ *     bought = lot date (or purchase date of.(p) (or nothing when missing) when missing)
+ *     capped = bought ≠ nothing and period start ≠ nothing and (given and lot date = nothing ? bought > period start : bought ≥ period start)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-O-008 thePerformance
@@ -1084,22 +1105,37 @@ export function buildPerformance(
   period: Period,
   now = new Date(),
   purchaseDateOf?: (p: Position) => string | null,
+  windowStart?: string | null,
 ): PerformanceRow[] {
   // the period's first day as the person's own calendar day (TZ-1) — never through UTC
-  const periodStart = isoDay(startDateFor(period, now));
+  // a window name the app does not have opens nowhere: every row's window figures are unknown (DEC-4640)
+  // "SINCE" HAS NO FIXED LENGTH — its first day is the record's, which only the caller knows, so the caller hands it
+  // over (windowStart). Before 2026-10-12 startDateFor read "SINCE" as TODAY, and every holding's "Since" figure was
+  // that one day's move — a guessed start under the Since label (found applying DEC-4640). A window handed over this
+  // way is the window's own total, never a yearly rate.
+  const given = windowStart != null && /^\d{4}-\d{2}-\d{2}$/.test(windowStart) ? windowStart : null;
+  const opens = given ? new Date(`${given}T12:00:00`) : startDateFor(period, now);
+  const periodStart = opens == null ? null : isoDay(opens);
+  const beginISO = opens == null ? null : isoDay(dayBefore(opens));
+  const ret = (s: PriceSeries | null | undefined) => given ? (beginISO ? periodReturnSince(s, beginISO, now) : null) : periodReturn(s, period, now);
+  const total = (s: PriceSeries | null | undefined) => given ? (beginISO ? periodReturnSince(s, beginISO, now) : null) : periodTotalReturn(s, period, now);
   return (positions ?? []).map((p) => {
     const series = priceOf(p.ticker);
     const price = latestClose(series);
-    const bought = earliestPurchaseDate(p) ?? purchaseDateOf?.(p) ?? null;
+    const lotDate = earliestPurchaseDate(p);
+    const bought = lotDate ?? purchaseDateOf?.(p) ?? null;
     // A PURCHASE ON THE PERIOD'S FIRST DAY IS INSIDE IT (DEC-0315, Q3: both boundary days are inside, and the
     // beginning is the close of the day before, when this money was not yet held) — it read '>' (outside
     // review Claude Performance, 2026-10-11)
-    const capped = bought != null && bought >= periodStart;
+    // For "Since" (a window handed over), a stand-in date the caller supplies for a holding with no dated purchase is
+    // the record's own first day — the holding is part of the beginning value, not bought inside the window — so only a
+    // stand-in AFTER the first day caps it.
+    const capped = bought != null && periodStart != null && (given && lotDate == null ? bought > periodStart : bought >= periodStart);
     // A HOLDING BOUGHT INSIDE THE WINDOW IS TIME-WEIGHTED FROM ITS PURCHASES (DEC-1669): split at each purchase,
     // each piece's growth multiplied — bought at $200 and again at $250, now $260, is +30.00%, not the +15.56%
     // return on cost (outside review Claude Performance, 2026-10-11). One purchase day gives the return on cost.
-    const pr = capped ? returnSincePurchases(p, series, price, bought!) : periodReturn(series, period, now);
-    const prTotal = capped ? pr : periodTotalReturn(series, period, now);
+    const pr = capped ? returnSincePurchases(p, series, price, bought!) : ret(series);
+    const prTotal = capped ? pr : total(series);
     const benchTicker = benchmarkTicker(p);
     const benchSeries = benchTicker ? priceOf(benchTicker) : null;
     // THE MARKET OVER THE SAME DATES WHEN THIS HOLDING'S PRICES DO NOT REACH BACK. The holding is then measured from
@@ -1109,14 +1145,14 @@ export function buildPerformance(
     // audit v02, 2026-10-11 — Holding detail v02 draws "VS THE STOCK MARKET · SAME DATES").
     const pts = series?.points ?? [];
     const firstISO = pts.length ? pts[0].date : null;
-    const short = !capped && firstISO != null && new Date(firstISO).getTime() > dayBefore(startDateFor(period, now)).getTime();
+    const short = !capped && firstISO != null && opens != null && new Date(firstISO).getTime() > dayBefore(opens).getTime();
     const benchSameDays = short && benchTicker != null ? periodReturnSince(benchSeries, firstISO!, now) : null;
     const spanYears = short ? (new Date(pts[pts.length - 1].date).getTime() - new Date(firstISO!).getTime()) / (365.25 * 86_400_000) : 1;
     const benchReturn = benchTicker == null ? null : capped
       ? periodReturnSince(benchSeries, bought!, now)
-      : short ? (benchSameDays == null ? null : period === '2Y' && spanYears > 1 ? Math.pow(1 + benchSameDays, 1 / spanYears) - 1 : benchSameDays)
-      : periodReturn(benchSeries, period, now);
-    const benchTotal = benchTicker == null ? null : capped ? benchReturn : short ? benchSameDays : periodTotalReturn(benchSeries, period, now);
+      : short ? (benchSameDays == null ? null : !given && period === '2Y' && spanYears > 1 ? Math.pow(1 + benchSameDays, 1 / spanYears) - 1 : benchSameDays)
+      : ret(benchSeries);
+    const benchTotal = benchTicker == null ? null : capped ? benchReturn : short ? benchSameDays : total(benchSeries);
     return {
       position: p, price,
       marketValue: marketValue(p, price), costBasis: costBasis(p), gain: unrealizedGain(p, price),
@@ -1277,38 +1313,6 @@ export function topHoldingConcentration(rows: PerformanceRow[]): { ticker: strin
   return share >= 25 ? { ticker: top.position.ticker, pct: Math.round(share), value: topValue } : null;
 }
 
-/** Per-holding contribution to the portfolio's period return = weight × the holding's return (pts).
- *  The contributions sum (approx) to the portfolio return; sorted best→worst for winners/detractors. */
-/* ─ MK-PF-F-016 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
- * attribution
- *
- * Answers ..... Per-holding contribution to the portfolio's period return = weight × the holding's return (pts).
- *
- * Formula .....
- *     usable = start values(rows, window total of row)
- *     total = Σ over usable of (start)
- *     []   when total ≤ 0
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Formula also on the master file · functions_from_code · MK-PF-F-016
- * Changed ..... 2026-06-06 (780f80d)
- */
-export function attribution(rows: PerformanceRow[]): { position: Position; contribution: number; weight: number }[] {
-  // WEIGHED BY WHAT EACH HOLDING WAS WORTH WHEN THE WINDOW BEGAN — value now ÷ (1 + its window total) — so the
-  // contributions add up to the portfolio's own growth, Σ now ÷ Σ start − 1 (DEC-1669, DEC-3035b; the same fix
-  // as MK-NW-F-084). Weighed by today's values, $6,000 at +20% and $5,000 flat read +10.91% where $10,000 became
-  // $11,000 = +10% (outside review Claude Performance, 2026-10-11). A holding with no return has no start
-  // value, so it is out of the weights, never in them as 0.
-  const usable = startValues(rows, windowTotalOfRow);
-  const total = usable.reduce((t, u) => t + u.start, 0);
-  if (total <= 0) return [];
-  return usable
-    .map((u) => ({ position: u.row.position, weight: u.start / total, contribution: (u.start / total) * u.ret }))
-    .sort((a, b) => b.contribution - a.contribution);
-}
 
 /** A ROW'S WINDOW TOTAL — the one rule for reading a holding's return as the window's own total, never a yearly
  *  rate. A row that carries its total (buildPerformance writes it) is read as written; one that does not is a
@@ -1328,13 +1332,12 @@ export function attribution(rows: PerformanceRow[]): { position: Position; contr
  * Called by ... MK-NW-F-084 categoryEarnings · MK-NW-F-127 gainOfRow
  *               MK-PF-F-020 portfolioBenchReturn · MK-PF-F-043 windowTotalOfRow
  *
- * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-PF-F-016 attribution · MK-NW-F-084 categoryEarnings
- *               MK-NW-F-127 gainOfRow · MK-PF-F-020 portfolioBenchReturn
- *               MK-PF-F-019 portfolioPeriodReturn · MK-NW-F-091 pricedGainOf
+ *               MK-NW-F-084 categoryEarnings · MK-NW-F-127 gainOfRow
+ *               MK-PF-F-020 portfolioBenchReturn · MK-NW-F-091 pricedGainOf
  *               MK-NW-O-008 thePerformance · MK-PF-F-043 windowTotalOfRow
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -1356,12 +1359,10 @@ export function windowTotal(rate: number | null | undefined, total: number | nul
  * Formula .....
  *     window total(period return, period total)
  *
- * Called by ... MK-PF-F-016 attribution · MK-PF-F-019 portfolioPeriodReturn
- *               MK-PF-F-020 portfolioBenchReturn
+ * Called by ... MK-PF-F-020 portfolioBenchReturn
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-PF-F-016 attribution
- *               MK-PF-F-020 portfolioBenchReturn · MK-PF-F-019 portfolioPeriodReturn
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-PF-F-020 portfolioBenchReturn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1381,12 +1382,10 @@ const windowTotalOfRow = (r: PerformanceRow): number | null => windowTotal(r.per
  *     ret = ret of(r)
  *     the answer = out
  *
- * Called by ... MK-PF-F-016 attribution · MK-PF-F-019 portfolioPeriodReturn
- *               MK-PF-F-020 portfolioBenchReturn
+ * Called by ... MK-PF-F-020 portfolioBenchReturn
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-PF-F-016 attribution
- *               MK-PF-F-020 portfolioBenchReturn · MK-PF-F-019 portfolioPeriodReturn
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-PF-F-020 portfolioBenchReturn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1403,144 +1402,8 @@ function startValues(rows: PerformanceRow[], retOf: (r: PerformanceRow) => numbe
   return out;
 }
 
-/** Current allocation by asset kind (+ a cash slice), as value + % of the portfolio. */
-export interface AllocSlice { key: string; value: number; pct: number; }
-/* ─ MK-PF-F-017 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
- * allocation
- *
- * Answers ..... How is my invested money spread?
- *
- * Formula .....
- *     []   when rows.some((r) => market value = nothing)
- *     by kind = {}
- *     total = Σ over object.values(by kind) of (each)+ max(0, cash)
- *     []   when total ≤ 0
- *     slices = for each of object.entries(by kind): [key, v]) => ({ key, value: (v), pct: (v ÷ total) × 100 }
- *     the answer = slices.sort((a, b) => value − value)
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-049 bond price — what the bond is worth today
- *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
- *
- * Decides .....
- *     · If by kind[k] is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · Never lets cash fall below 0.
- *
- * Formula also on the master file · functions_from_code · MK-PF-F-017
- * Changed ..... 2026-06-06 (91a665e)
- */
-export function allocation(rows: PerformanceRow[], cash = 0): AllocSlice[] {
-  // a holding worth something unknown leaves every slice's share unknown: no split is drawn (tenet 3, DEC-3523)
-  if (rows.some((r) => r.marketValue == null)) return [];
-  const byKind: Record<string, number> = {};
-  rows.forEach((r) => { const k = r.position.kind ?? 'other_asset'; byKind[k] = (byKind[k] || 0) + (r.marketValue as number); });
-  const total = Object.values(byKind).reduce((t, v) => t + v, 0) + Math.max(0, cash);
-  if (total <= 0) return [];
-  // each share at full precision — rounded once, where it is shown (DEC-0300); it was rounded to one decimal
-  // here (outside review Claude Performance, 2026-10-11)
-  const slices: AllocSlice[] = Object.entries(byKind).map(([key, v]) => ({ key, value: (v), pct: (v / total) * 100 }));
-  if (cash > 0) slices.push({ key: 'cash', value: (cash), pct: (cash / total) * 100 });
-  return slices.sort((a, b) => b.value - a.value);
-}
 
-/** Portfolio value over time vs a benchmark rebased to the same starting value.
- *  Uses CURRENT holdings across the window (growth-of-holdings view; ignores past buys/sells). */
-export interface TrendPoint { date: string; value: number; bench: number; }
-/* ─ MK-PF-F-018 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
- * portfolioTrend
- *
- * Answers ..... How has my portfolio moved over the period, against its benchmark?
- *
- * Formula .....
- *     []   when count of !positions?
- *     start = start date for(period, now)
- *     span = now.get time() − start.get time()
- *     []   when span ≤ 0
- *     n = 12
- *     dates = array.from({ length: N + 1 }, (_, i) => new date(start.get time() + (span × i) ÷ N))
- *     bench series = price of(bench ticker sym)
- *     []   when positions.some((p) => total shares(p) = nothing)
- *     value at = (d: date) => positions.reduce((t, p) => { const c = close as of(price of(ticker), d); return t + (c = nothing ? 0 : (total shares(p) as number) × c); }, 0)
- *     v0 = value at(dates[0])
- *     b0 = close as of(bench series, dates[0])
- *     … the first steps only — the rest of the body needs reading by hand.
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-004 holding quantity (shares)
- *               MK-XS-I-005 holding price
- *
- * Decides .....
- *     · Uses a built-in n of 12.
- *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *
- * Formula also on the master file · functions_from_code · MK-PF-F-018
- * Changed ..... 2026-06-06 (91a665e)
- */
-export function portfolioTrend(
-  positions: Position[],
-  priceOf: (t: string) => PriceSeries | null | undefined,
-  period: Period,
-  benchTickerSym = 'SPY',
-  now = new Date(),
-): TrendPoint[] {
-  if (!positions?.length) return [];
-  const start = startDateFor(period, now);
-  const span = now.getTime() - start.getTime();
-  if (span <= 0) return [];
-  const N = 12;
-  const dates = Array.from({ length: N + 1 }, (_, i) => new Date(start.getTime() + (span * i) / N));
-  const benchSeries = priceOf(benchTickerSym);
-  // a holding whose share count is not on record cannot be drawn: no line rather than a line without it (tenet 3)
-  if (positions.some((p) => totalShares(p) == null)) return [];
-  const valueAt = (d: Date) => positions.reduce((t, p) => { const c = closeAsOf(priceOf(p.ticker), d); return t + (c == null ? 0 : (totalShares(p) as number) * c); }, 0);
-  const v0 = valueAt(dates[0]);
-  const b0 = closeAsOf(benchSeries, dates[0]);
-  return dates.map((d) => {
-    const value = (valueAt(d));
-    const braw = closeAsOf(benchSeries, d);
-    const bench = (b0 && braw != null && v0 > 0) ? (v0 * (braw / b0)) : value;
-    return { date: d.toISOString().slice(0, 10), value, bench };
-  });
-}
 
-/** Value-weighted portfolio period return across holdings that have one (decimal), or null. */
-/* ─ MK-PF-F-019 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
- * portfolioPeriodReturn
- *
- * Answers ..... Value-weighted portfolio period return across holdings that have one (decimal), or null.
- *
- * Formula .....
- *     usable = start values(rows, window total of row)
- *     start = Σ over usable of (start)
- *     now = Σ over usable of (row.market value as number)
- *     nothing   when start ≤ 0
- *     the answer = now ÷ start − 1
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Second verification G18, 2026-09-08: this is the value-weighted average of holding returns, not a Dietz return.
- *
- * Formula also on the master file · functions_from_code · MK-PF-F-019
- * Changed ..... 2026-07-29 (13c9be6)
- */
-export function portfolioPeriodReturn(rows: PerformanceRow[]): number | null {
-  // Σ now ÷ Σ start − 1, each holding's start = value now ÷ (1 + its window total) — weighed by what each was
-  // worth when the window began (DEC-1669, DEC-3035b, the MK-NW-F-084 fix): $1,000 + $1,000 became $2,000 +
-  // $1,000 = +50%; weighed by today's values it read +66.67% (outside review Claude Performance, 2026-10-11).
-  // Still value-weighted (DEC-0248), by the value at the start. The window's own total, never a yearly rate.
-  const usable = startValues(rows, windowTotalOfRow);
-  const start = usable.reduce((t, u) => t + u.start, 0);
-  const now = usable.reduce((t, u) => t + (u.row.marketValue as number), 0);
-  if (start <= 0) return null;
-  return now / start - 1;
-}
 
 /** Value-weighted benchmark ("the market, matched to your mix") return across holdings that have
  *  one (decimal), or null. Walk row 5 (audit Strategy #5): Home and Invest both say "the market:
@@ -1579,29 +1442,3 @@ export function portfolioBenchReturn(rows: PerformanceRow[]): number | null {
   return usable.reduce((t, u) => t + (u.bench as number) * u.start, 0) / total;
 }
 
-/** The DOLLAR change implied by a period return on today's total — the approved Home hero shows
- *  "up $11,200 (1.4%) this month": dollars AND percent from the SAME measured return, so the two
- *  figures can never disagree (one concept, one source). currentTotal / (1+ret) is the period-start
- *  value; the delta is what that grew (or shrank) by. */
-/* ─ MK-PF-F-021 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
- * periodDollarDelta
- *
- * Answers ..... The DOLLAR change implied by a period return on today's total — the approved Home hero shows "up $11,200 (1.4%) this month": dollars AND percent from the SAME measured return, so the two figures can never disagree (one concept, one source).
- *
- * Formula .....
- *     nothing   when period return = nothing (or !number.is finite(current total) (or !number.is finite(period return) (or period return ≤ -1 when missing or zero) when missing or zero) when missing or zero)
- *     current total × period return ÷ (1 + period return)
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Formula also on the master file · functions_from_code · MK-PF-F-021
- * Changed ..... 2026-07-19 (aa0b14c)
- */
-export function periodDollarDelta(currentTotal: number, periodReturn: number | null): number | null {
-  // UNKNOWN IS NOT ZERO (tenet 3, DEC-3523): a return that is not a number gives no dollars, never a flat $0; and
-  // nothing rounds inside (DEC-0300) — both read otherwise until the outside review (Claude Performance, 2026-10-11).
-  if (periodReturn == null || !Number.isFinite(currentTotal) || !Number.isFinite(periodReturn) || periodReturn <= -1) return null;
-  return currentTotal * periodReturn / (1 + periodReturn);
-}

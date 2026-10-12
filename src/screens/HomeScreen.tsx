@@ -179,6 +179,8 @@ export default function HomeScreen() {
   // ONE DOOR (MK-NW-O-008 thePerformance, Q-PF-1 ruled 2026-09-27: "yes"). The door's header has
   // said since that day that Home's return and Performance's can never disagree. They did: Home
   // called portfolioPeriodReturn, which counts PRICE CHANGE ONLY, while Performance's 1M chip counts
+  // (corrected 2026-10-12: those prices were dividend-adjusted closes, so the holdings' dividends were in it; the
+  // difference was the method, a holding-weighted price move against the walk — DEC-4645)
   // wealth generated — dividends and interest included. On one test household the same month read
   // +3.57% here and +3.69% there, a tap apart. Home now asks the door the same question (B-112).
   const oneMonth = useMemo(() => {
@@ -334,7 +336,8 @@ export default function HomeScreen() {
                     only, because no price feed we hold gives an index's dividends. Without the
                     clarifier the gap read as skill when part of it is simply income the index side
                     cannot see. Written "dividends and interest" — the words the walk, the category
-                    table and the glossary already use for these two. */}
+                    table and the glossary already use for these two.
+                    Corrected 2026-10-12: the market figure uses SPY and AGG adjusted closes, which include their dividends and interest. His approved wording above stays word for word (DEC-4645). */}
                 <DotJoined style={styles.heroVs} parts={[
                   `you ${signedPct(youReturn)} (including dividends and interest)`,
                   `market ${signedPct(marketReturn)}`,

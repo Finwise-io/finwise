@@ -81,9 +81,9 @@ export interface HoldingAnswer {
  * Reaches ..... 1 function. Change the arithmetic above and these change with it:
  *               MK-NW-F-080 HOLD
  *
- * Serves ...... MK-NW-M-029 · MK-NW-M-030 · MK-NW-M-031 · MK-NW-M-033
- *               MK-NW-M-034 · MK-NW-M-035 · MK-NW-M-036 · MK-NW-M-037
- *               MK-NW-M-059 · MK-NW-M-060 · MK-NW-M-061
+ * Serves ...... MK-NW-M-029 · MK-NW-M-030 · MK-NW-M-031 · MK-NW-M-032
+ *               MK-NW-M-033 · MK-NW-M-034 · MK-NW-M-035 · MK-NW-M-036
+ *               MK-NW-M-037 · MK-NW-M-059 · MK-NW-M-060 · MK-NW-M-061
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-005 holding price
  *               MK-XS-I-007 purchase price and date (per lot)
@@ -92,8 +92,8 @@ export interface HoldingAnswer {
  *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
- * Ruled by .... DEC-0092 · DEC-0108 · DEC-0152 · DEC-0165 · DEC-0301 · DEC-0475
- *               DEC-0476
+ * Ruled by .... DEC-0092 · DEC-0108 · DEC-0152 · DEC-0165 · DEC-0264 · DEC-0301
+ *               DEC-0310 · DEC-0475 · DEC-0476
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *

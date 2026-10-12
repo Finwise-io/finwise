@@ -27,10 +27,11 @@
  * places (1e-9 of a dollar or of a share) — and to the judge's own stated figure at the precision the judge stated.
  */
 import {
-  totalShares, contractMultiplier, costBasis, avgCost, marketValue, unrealizedGain, capGains, totalROI,
+  totalShares, contractMultiplier, costBasis, marketValue, unrealizedGain, capGains, totalROI,
   earliestPurchaseDate, quantityUnit, quantityWithUnit, type Position,
 } from '../../../src/domain/performance';
-import { realizedFromLedger } from '../../../src/domain/performance/realized';
+import { realizedFromLedger, saleShortOfPurchasesSentence } from '../../../src/domain/performance/realized';
+import { theHolding } from './holding';
 
 const NOW = (iso = '2026-10-10') => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); };
 const refuses = (v: unknown) => expect(v == null).toBe(true);
@@ -81,7 +82,11 @@ describe('MK-PF-F-002 costBasis — five cases', () => {
   });
 });
 
-describe('MK-PF-F-003 avgCost — five cases', () => {
+// RE-POINTED 2026-10-12 by DEC-4642 (his approval: "3,4, 8-approved"): MK-PF-F-003 avgCost left the code — no screen
+// called it; the Holding page's "Price paid (average)" is MK-NW-O-006 theHolding's avgPaidPerShare, the same arithmetic
+// (what was paid ÷ (shares × the contract multiplier)). The judge's five cases, answers unchanged, now run on it.
+const avgCost = (p: Position) => theHolding({ position: p, accountId: 'a', price: null, transactions: [] }).avgPaidPerShare;
+describe('MK-PF-F-003 avgCost — five cases (on MK-NW-O-006 avgPaidPerShare since 2026-10-12)', () => {
   test('easy · Two equal lots at different prices', () => { expect(avgCost(pos({ kind: 'stock', lots: [{ shares: 10, cost: 50 }, { shares: 10, cost: 70 }] }))).toBe(60); });
   test('easy · Option average comes back per share', () => { expect(avgCost(pos({ kind: 'option', lots: [{ shares: 2, cost: 3.5 }] }))).toBe(3.5); });
   test('complex · Three lots, kept unrounded until shown', () => { expect(avgCost(pos({ kind: 'stock', lots: THREE_LOTS }))).toBeCloseTo(180.66, 9); });
@@ -184,11 +189,11 @@ describe('MK-PF-F-028 realizedFromLedger — five cases', () => {
   };
   test('easy · One buy, one sale', () => {
     expect(run('MSFT', 'Brokerage', [{ type: 'buy', date: '2026-02-01', shares: 10, price: 50 }, { type: 'sale', date: '2026-08-01', shares: 10, price: 60 }]))
-      .toEqual({ realizedAllTime: 100, realizedThisYear: 100, sellsCounted: 1, sellsWithoutBasis: 0 });
+      .toEqual({ realizedAllTime: 100, realizedThisYear: 100, sellsCounted: 1, sellsWithoutBasis: 0, shortOfPurchases: [] });
   });
   test('easy · First in, first out', () => {
     expect(run('KO', 'Brokerage', [{ type: 'buy', date: '2025-01-10', shares: 10, price: 50 }, { type: 'buy', date: '2025-06-10', shares: 10, price: 80 },
-      { type: 'sale', date: '2026-03-01', shares: 10, price: 90 }])).toEqual({ realizedAllTime: 400, realizedThisYear: 400, sellsCounted: 1, sellsWithoutBasis: 0 });
+      { type: 'sale', date: '2026-03-01', shares: 10, price: 90 }])).toEqual({ realizedAllTime: 400, realizedThisYear: 400, sellsCounted: 1, sellsWithoutBasis: 0, shortOfPurchases: [] });
   });
   test('complex · Opening position, two sales across a year end, another account ignored', () => {
     const r = run('VTI', 'Brokerage A', [
@@ -216,9 +221,16 @@ describe('MK-PF-F-028 realizedFromLedger — five cases', () => {
   // UNCLEAR: app counts the partly matched sale in both tallies (reading 1: sales counted 1, without a cost 1; gain
   // $200). Open question: does a sale only partly matched to recorded purchases count as a "sale counted"? Searched:
   // rulings-for.py "realized", "sale" + "basis", "nothing sold" (DEC-1559 covers the no-sale wording only).
+  // SETTLED 2026-10-12 by DEC-4643 ("3,4, 8-approved"): the sale is counted ONCE — sales counted 1, sales with no
+  // purchase on record behind any share 0 — its gain is the matched part's, 10 × ($70 − $50) = $200, and the 5 shares
+  // with no price paid on record are named on it: "$200 gain on 10 of 15 shares sold; what you paid for the other 5 is
+  // not on record." (Before: sellsCounted 1 AND sellsWithoutBasis 1, which the page read as two sales.)
   test('edge · A sale bigger than the purchases on record', () => {
-    expect(run('T', 'Brokerage', [{ type: 'buy', date: '2026-01-05', shares: 10, price: 50 }, { type: 'sale', date: '2026-06-01', shares: 15, price: 70 }]))
-      .toEqual({ realizedAllTime: 200, realizedThisYear: 200, sellsCounted: 1, sellsWithoutBasis: 1 });
+    const r = run('T', 'Brokerage', [{ type: 'buy', date: '2026-01-05', shares: 10, price: 50 }, { type: 'sale', date: '2026-06-01', shares: 15, price: 70 }]);
+    expect(r).toEqual({ realizedAllTime: 200, realizedThisYear: 200, sellsCounted: 1, sellsWithoutBasis: 0,
+      shortOfPurchases: [{ date: '2026-06-01', sold: 15, matched: 10, gain: 200 }] });
+    expect(saleShortOfPurchasesSentence(r.shortOfPurchases[0], pos({ kind: 'stock' }), (n) => `$${n.toLocaleString('en-US')}`))
+      .toBe('$200 gain on 10 of 15 shares sold; what you paid for the other 5 is not on record.');
   });
 });
 

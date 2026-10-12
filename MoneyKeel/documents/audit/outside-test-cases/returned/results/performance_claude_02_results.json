@@ -221,7 +221,8 @@
    },
    "difference": null,
    "formula_gives_match": null,
-   "note": ""
+   "note": "",
+   "settled": "RE-POINTED 2026-10-12 by DEC-4642: avgCost was removed (no screen called it); this case runs, answer unchanged, on MK-NW-O-006 theHolding's average paid per share."
   },
   {
    "id": "MK-PF-F-003",
@@ -235,7 +236,8 @@
    },
    "difference": null,
    "formula_gives_match": null,
-   "note": ""
+   "note": "",
+   "settled": "RE-POINTED 2026-10-12 by DEC-4642: avgCost was removed (no screen called it); this case runs, answer unchanged, on MK-NW-O-006 theHolding's average paid per share."
   },
   {
    "id": "MK-PF-F-003",
@@ -249,7 +251,8 @@
    },
    "difference": null,
    "formula_gives_match": null,
-   "note": ""
+   "note": "",
+   "settled": "RE-POINTED 2026-10-12 by DEC-4642: avgCost was removed (no screen called it); this case runs, answer unchanged, on MK-NW-O-006 theHolding's average paid per share."
   },
   {
    "id": "MK-PF-F-003",
@@ -263,7 +266,8 @@
    },
    "difference": null,
    "formula_gives_match": null,
-   "note": ""
+   "note": "",
+   "settled": "RE-POINTED 2026-10-12 by DEC-4642: avgCost was removed (no screen called it); this case runs, answer unchanged, on MK-NW-O-006 theHolding's average paid per share."
   },
   {
    "id": "MK-PF-F-003",
@@ -274,7 +278,8 @@
    "expected": "REFUSES",
    "difference": "$0.00 vs refusal",
    "formula_gives_match": true,
-   "note": "src/domain/performance/index.ts:262."
+   "note": "src/domain/performance/index.ts:262.",
+   "settled": "RE-POINTED 2026-10-12 by DEC-4642: avgCost was removed (no screen called it); this case runs, answer unchanged, on MK-NW-O-006 theHolding's average paid per share."
   },
   {
    "id": "MK-PF-F-004",
@@ -754,7 +759,8 @@
    "expected": "RULE UNCLEAR",
    "difference": null,
    "formula_gives_match": null,
-   "note": "UNCLEAR: app = reading 1 (counted in both tallies). Open question: does a partly matched sale count as a \"sale counted\"? No decision found."
+   "note": "UNCLEAR: app = reading 1 (counted in both tallies). Open question: does a partly matched sale count as a \"sale counted\"? No decision found.",
+   "settled": "SETTLED 2026-10-12 by DEC-4643 (\"3,4, 8-approved\"): the sale is counted once — sales counted 1, sales without a purchase 0 — gain $200 on the 10 matched shares, and the 5 with no price paid on record named: \"$200 gain on 10 of 15 shares sold; what you paid for the other 5 is not on record.\""
   },
   {
    "id": "MK-PF-F-032",

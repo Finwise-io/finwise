@@ -449,7 +449,10 @@ def published_tables():
 # typed here, so every id they name is checked against today's cards before anything is written.
 
 CC_REMOVED = {'MK-NW-F-102': 'rateWhereItRefuses', 'MK-PF-F-024': 'userFlows', 'MK-PF-F-025': 'historyIsComplete',
-              'MK-PF-F-026': 'moneyWeightedReturn', 'MK-PF-F-027': 'isMoneyWeighted', 'MK-PF-F-030': 'npv'}
+              'MK-PF-F-026': 'moneyWeightedReturn', 'MK-PF-F-027': 'isMoneyWeighted', 'MK-PF-F-030': 'npv',
+              # removed 2026-10-12 by his approval DEC-4642 ("3,4, 8-approved"): no screen called them
+              'MK-PF-F-003': 'avgCost', 'MK-PF-F-016': 'attribution', 'MK-PF-F-017': 'allocation',
+              'MK-PF-F-018': 'portfolioTrend', 'MK-PF-F-019': 'portfolioPeriodReturn', 'MK-PF-F-021': 'periodDollarDelta'}
 
 CC_BATCHES = {
     'PF': [
@@ -457,14 +460,13 @@ CC_BATCHES = {
         ['MK-NW-O-008', 'MK-ST-F-081', 'MK-ST-F-082', 'MK-ST-F-080', 'MK-NW-F-090', 'MK-NW-F-092', 'MK-NW-F-103',
          'MK-NW-F-104', 'MK-NW-F-105', 'MK-NW-F-091', 'MK-NW-F-127', 'MK-NW-F-128', 'MK-NW-F-129', 'MK-NW-F-130'],
         # 02 — one holding: shares, cost, value, gain, and the unit beside its quantity
-        ['MK-PF-F-001', 'MK-PF-F-031', 'MK-PF-F-002', 'MK-PF-F-003', 'MK-PF-F-004', 'MK-PF-F-005', 'MK-PF-F-006',
-         'MK-PF-F-007', 'MK-PF-F-012', 'MK-PF-F-028', 'MK-PF-F-032', 'MK-PF-F-033'],
+        ['MK-PF-F-001', 'MK-PF-F-031', 'MK-PF-F-002', 'MK-PF-F-004', 'MK-PF-F-005', 'MK-PF-F-006',
+         'MK-PF-F-007', 'MK-PF-F-012', 'MK-PF-F-028', 'MK-PF-F-046', 'MK-PF-F-032', 'MK-PF-F-033'],
         # 03 — the portfolio page: each holding against its yardstick, and the portfolio built from them
-        ['MK-PF-F-014', 'MK-PF-F-013', 'MK-PF-F-015', 'MK-PF-F-016', 'MK-PF-F-017', 'MK-PF-F-018', 'MK-PF-F-019',
-         'MK-PF-F-020', 'MK-PF-F-021', 'MK-NW-F-084'],
+        ['MK-PF-F-014', 'MK-PF-F-013', 'MK-PF-F-015', 'MK-PF-F-020', 'MK-NW-F-084'],
         # 04 — prices and period returns, and the look-back that is built on them
         ['MK-NW-O-007', 'MK-PF-F-023', 'MK-PF-F-022', 'MK-PF-F-008', 'MK-PF-F-009', 'MK-PF-F-010', 'MK-PF-F-011',
-         'MK-PF-F-029', 'MK-PF-F-034'],
+         'MK-PF-F-029', 'MK-PF-F-034', 'MK-PF-F-045'],
     ],
 }
 

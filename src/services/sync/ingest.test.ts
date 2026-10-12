@@ -78,7 +78,15 @@ test('options itemize as display rows; the total is untouched (their value is al
   expect(a.option_holdings).toHaveLength(1);
   expect(a.option_holdings![0].label).toBe('AAPL $220 call · exp Jan 16 2027');
   expect(a.option_holdings![0].value).toBe(1300);
+  expect(a.option_holdings![0].multiplier).toBe(100);   // the shares per contract travel with the row (DEC-4646)
   expect(a.balance).toBe(50000);                    // never balance + option value
+});
+
+test('a mini option is stored at 10 shares a contract, as the broker says (DEC-4646, 2026-10-12)', () => {
+  const r = ingestSync([], {}, [payload({ optionPositions: [
+    { symbol: { option_symbol: { option_type: 'CALL', strike_price: 220, expiration_date: '2027-01-16', underlying_symbol: { raw_symbol: 'AAPL' }, is_mini_option: true } }, units: 2, price: 6.5 },
+  ] })], NOW);
+  expect(r.accounts[0].option_holdings![0]).toMatchObject({ value: 130, multiplier: 10 });
 });
 
 test('SPLIT arrives as a visible ADJUSTMENT row; SKIP types never reach the ledger', () => {

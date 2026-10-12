@@ -27,7 +27,6 @@ const ROOT = path.join(__dirname, '..', '..');
 const FUNCTIONS: [string, string, string][] = [
   ['MK-PF-F-001', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-002', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-PF-F-003', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-004', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-005', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-006', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
@@ -40,26 +39,36 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-PF-F-013', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-014', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-015', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-PF-F-016', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-PF-F-017', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-PF-F-018', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-PF-F-019', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-020', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-PF-F-021', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-022', 'src/domain/performance/lookBack.ts', 'Calculation Module code/probes/performance-portfolio.probe.test.ts'],
   ['MK-PF-F-023', 'src/domain/performance/lookBack.ts', 'Calculation Module code/probes/performance-portfolio.probe.test.ts'],
-  ['MK-PF-F-028', 'src/domain/performance/realized.ts', 'src/domain/performance/realized.test.ts'],
+  ['MK-PF-F-028', 'src/domain/performance/realized.ts', 'MoneyKeel/functions/networth-and-performance/outside_performance_claude_02.test.ts'],
   ['MK-PF-F-029', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-031', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-032', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-033', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-034', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-PF-F-035', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-PF-F-036', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-PF-F-037', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-PF-F-038', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-PF-F-039', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-PF-F-040', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-PF-F-041', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-PF-F-042', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-PF-F-043', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-PF-F-044', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-PF-F-045', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-PF-F-046', 'src/domain/performance/realized.ts', 'MoneyKeel/functions/networth-and-performance/outside_performance_claude_02.test.ts'],
 ];
 
 describe('every Performance function traces to its proof in one hop (step 3.c)', () => {
   it('the table covers every Performance function in the code — and says how many', () => {
-    // 29, not 34 (2026-10-04): the five functions of the money-weighted rate were removed with it (DEC-1669)
-    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(29);
+    // 29, not 34 (2026-10-04): the five functions of the money-weighted rate were removed with it (DEC-1669).
+    // 35 on 2026-10-12: six unused functions removed (DEC-4642 — MK-PF-F-003, 016, 017, 018, 019, 021), the
+    // eleven helpers MK-PF-F-035..044 that were missing from this table added, and MK-PF-F-045 / 046 new
+    // (DEC-4641, DEC-4643). MK-PF-F-026 is a retired number the code only mentions in a comment.
+    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(35);
     expect(new Set(FUNCTIONS.map((r) => r[0])).size).toBe(FUNCTIONS.length);
   });
 

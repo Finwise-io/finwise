@@ -613,7 +613,8 @@
    "difference": "0.034 measured from the first price (4 May) vs refuse; the fallback is deliberate; open question: may a 1Y figure start at a later first price?",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-010 periodReturn — five cases › complex · A one-year period for a fund launched five months ago"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-010 periodReturn — five cases › complex · A one-year period for a fund launched five months ago",
+   "settled": "SETTLED 2026-10-12 by DEC-4641 (\"1, 2 - approved\"): the figure is measured from the holding's first price, and wherever it is shown the screen says so (\"Prices for this holding go back N months, so the 1-year figure covers N months — not a year.\"). The judge's REFUSES is not the rule; the app's answer is asserted."
   },
   {
    "id": "MK-PF-F-010",
@@ -700,7 +701,8 @@
    "difference": "0.034 from the first price after the purchase date vs refuse; same open question",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-011 periodReturnSince — five cases › edge · Purchase before the price record begins"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-011 periodReturnSince — five cases › edge · Purchase before the price record begins",
+   "settled": "SETTLED 2026-10-12 by DEC-4641 (\"1, 2 - approved\"): the figure is measured from the holding's first price, and wherever it is shown the screen says so (\"Prices for this holding go back N months, so the 1-year figure covers N months — not a year.\"). The judge's REFUSES is not the rule; the app's answer is asserted."
   },
   {
    "id": "MK-PF-F-029",
@@ -769,7 +771,8 @@
    "difference": "25.00 (first close, five months after the target) vs refuse; same open question",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-029 closeAsOf — five cases › edge · Target before the first price on record"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-029 closeAsOf — five cases › edge · Target before the first price on record",
+   "settled": "SETTLED 2026-10-12 by DEC-4641 (\"1, 2 - approved\"): the figure is measured from the holding's first price, and wherever it is shown the screen says so (\"Prices for this holding go back N months, so the 1-year figure covers N months — not a year.\"). The judge's REFUSES is not the rule; the app's answer is asserted."
   },
   {
    "id": "MK-PF-F-034",

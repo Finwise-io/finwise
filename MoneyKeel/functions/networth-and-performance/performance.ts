@@ -20,7 +20,7 @@
 //     brokerage statements do the same). His ruling: show BOTH, and label them.
 import { availableCash } from '../../../src/domain/transactions';
 import { declareFigures } from '../_figure-spec';
-import { portfolioBenchReturn, monthsBefore, contractMultiplier, totalShares, windowTotal } from '../../../src/domain/performance';
+import { portfolioBenchReturn, startDateFor, contractMultiplier, totalShares, windowTotal, type Period } from '../../../src/domain/performance';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import { buildChangeWalk, type ChangeWalk } from '../../../src/domain/history';
 import { personalFlowTotals } from '../../../Calculation Module code/engines/ledger';
@@ -65,7 +65,8 @@ export interface WindowFigures {
  *
  *  The door's own header has said since 2026-09-27 that "the return on Home's card and the return on
  *  Performance can never disagree". They did. Performance called this door; Home kept a return of its
- *  own, from price change only, and the two screens showed 3.57% and 3.69% for the same month on the
+ *  own, from price change only (corrected 2026-10-12: "price change" there was the holdings' dividend-adjusted closes,
+ *  so their dividends were in it — the two differed because the method differed, DEC-4645), and the two screens showed 3.57% and 3.69% for the same month on the
  *  same household. The reason Home was never wired is that the three inputs the door needs lived
  *  inside PerformanceScreen as local helpers, so there was nothing Home could call. They live here
  *  now, and both screens call them.
@@ -97,13 +98,7 @@ export interface WindowFigures {
  *     the answer:
  *     after   if after ≤ today
  *     today   otherwise
- *     months = '1 m': 1 = '1 m': 1
- *     '3 m': 3 = '3 m': 3
- *     '6 m': 6 = '6 m': 6
- *     '1 y': 12 = '1 y': 12
- *     '2 y': 24 = '2 y': 24
- *     `${today.slice(0, 4)}-01 − 01`   when period = 'YTD'
- *     back = months[period] (or 12 when missing)
+ *     opens = start date for(period as period, new date(y, m − 1, day, 12))
  *
  * Called by ... MK-NW-O-008 thePerformance
  *
@@ -114,28 +109,26 @@ export interface WindowFigures {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
- * Decides .....
- *     · If months[period] is missing it uses 12.
- *
  * Formula also on the master file · functions_from_code · MK-NW-F-090
  * Changed ..... 2026-09-30 (08d5d52)
  */
-export function windowStartKey(period: string, recordDates: string[], today: string): string {
+export function windowStartKey(period: string, recordDates: string[], today: string): string | null {
   if (period === 'SINCE') {
     const first = recordDates.filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort()[0];
     if (!first) return today;
     const after = new Date(Date.parse(`${first}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);
     return after <= today ? after : today;
   }
-  const months: Record<string, number> = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12, '2Y': 24 };
-  if (period === 'YTD') return `${today.slice(0, 4)}-01-01`;
   // MONTHS BACK STOP AT THE MONTH'S LAST DAY (his approval, 2026-10-10, DEC-3768b): one month before Mar 31
   // is Feb 28, never Mar 3 — the calendar used to roll a missing day into the next month. ONE RULE: the same
   // function the holdings' start date and the look-back's cut-off ask (outside review Claude Performance,
   // 2026-10-11, DEC-3768b), read on the calendar day `today` names.
-  const back = months[period] ?? 12;
+  // A WINDOW NAME THE APP DOES NOT HAVE GIVES NO START (his approval, 2026-10-12, DEC-4640). It used to fall
+  // to twelve months back while MK-PF-F-008 gave today for the same name. Both now ask one function, which
+  // refuses a name it does not know, so whatever asked for that window shows no figure.
   const [y, m, day] = today.split('-').map(Number);
-  return isoLocalDate(monthsBefore(new Date(y, m - 1, day, 12), back));
+  const opens = startDateFor(period as Period, new Date(y, m - 1, day, 12));
+  return opens == null ? null : isoLocalDate(opens);
 }
 
 /** THE DAYS THE RECORD HOLDS AN INVESTMENT VALUE FOR, oldest first. "Since" opens on the first of
@@ -760,7 +753,8 @@ export function thePerformance(input: {
   // one year back to the day IS a year, though Q3 (DEC-0315) counts both its edge days in and so finds 366 of
   // them. It read 366 ÷ 365 > 1 and turned an exact year's +10.00% into +9.97% "a year" — against DEC-0237 and
   // DEC-1669: a window of a year or less is never annualised (outside review Claude Performance, 2026-10-11).
-  const longerThanAYear = windowStart != null && windowStart < windowStartKey('1Y', [], today);
+  const yearBack = windowStartKey('1Y', [], today);   // '1Y' is a name the app has, so this always answers
+  const longerThanAYear = windowStart != null && yearBack != null && windowStart < yearBack;
   const perYear = cumulative != null && longerThanAYear && years > 1 && !input.wholeRecord ? Math.pow(1 + cumulative, 1 / years) - 1 : null;
 
   return {
@@ -1369,6 +1363,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     decisions: [
       'The benchmark runs over the SAME DATES as your return — including where your window is cut short at your own purchase date. Comparing your three months against the market\'s twelve is not a comparison.',
       'Weighted by what each holding was worth when the window began, so the blend answers "the market, matched to my mix" rather than a plain average of indices — and a holding that grew does not grow its yardstick\'s weight (outside review Claude Performance, 2026-10-11, DEC-1669, DEC-3035b).',
+      'THE MARKET INCLUDES ITS DIVIDENDS AND INTEREST (DEC-4645, 2026-10-12): SPY and AGG are read through the same dividend-adjusted closes as every holding (src/services/marketData.ts, adjclose).',
     ],
     refusal: 'No benchmark can be priced over this window, so none is shown.',
     worked: {
@@ -1381,7 +1376,9 @@ export const PERFORMANCE_FIGURES = declareFigures({
       + 'The figure itself is alive, on HOME, inside the glance line "you +3.69% \u00b7 market +2.83% \u00b7 ahead by 0.85%". '
       + 'Nothing showed it on Performance. Declared 2026-09-30; hand-typed before that, so nothing compared the row with the code. '
       + 'STILL OPEN FOR HIM: the market side counts PRICE CHANGE ONLY (we hold no dividend record for an index), '
-      + 'while the "you" side beside it counts dividends and interest \u2014 so the "ahead by" is not a like-for-like gap.',
+      + 'while the "you" side beside it counts dividends and interest \u2014 so the "ahead by" is not a like-for-like gap. '
+      + 'Corrected 2026-10-12: the market figure uses SPY and AGG adjusted closes, which include their dividends and interest. Both sides of "ahead by" therefore count income, and the line is like-for-like; his approved wording stays '
+      + 'word for word (DEC-4645).',
   },
   'MK-XS-M-004': {
     label: '\u25b2 up/\u25bc down $X (Y%) this month \u00b7 Return \u00b7 YOUR RETURN', unit: 'percent-2dp', screens: ['/invest', '/home'],

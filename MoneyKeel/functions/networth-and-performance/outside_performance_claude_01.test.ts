@@ -196,6 +196,14 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
   // app's one price feed gives dividend-ADJUSTED closes (src/services/marketData.ts, adjclose), so a real holding's
   // period return already carries the dividend. Taking the dividend off the beginning as well would count it twice
   // (≈ $98,860 where ≈ $100,060 is right on the adjusted feed). Whether a holding's return carries its income needs his word.
+  // SETTLED 2026-10-12 by DEC-4644 — his existing rule, not a new one: "all return should be TWR" (2026-10-06, after
+  // DEC-1669) and "12-month return = (change in investment value + dividend + interest)/(cash + investment)" — one
+  // meaning of return, with the dividend in it ONCE. The feed's closes are dividend-adjusted, so a holding's period
+  // return already includes its dividend, and the worked-back beginning takes off that return only. BRIEF WRONG: the
+  // judge handed a price-only 5%, which the app's feed never gives; read as the feed's figure it is a total return of
+  // 5%, and the app's 101,200 / 5,000 / 3,800 is right for it (the walk adds up: 101,200 + 1,200 + 3,800 = 106,200).
+  // Fed what the adjusted closes actually give for this holding, the app reaches the judge's own 100,000 / 6,200 /
+  // 5,000 — both pinned in the tests after this one. The judge's numbers are kept here, test.failing.
   // FINDING: app gives beginning 101,200, wealth generated 5,000 and change in investment value 3,800, expected
   // beginning 100,000, wealth 6,200, change 5,000. With no record at all the beginning is worked back as ending −
   // priced gain − contributions + withdrawals: the $1,200 dividend received in the window and still in the account is
@@ -214,6 +222,33 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
     expect(w.beginning).toBeCloseTo(100000, 9);
     expect(w.wealthGenerated).toBeCloseTo(6200, 9);
     expect(w.marketChange).toBeCloseTo(5000, 9);
+  });
+  // DEC-4644 (2026-10-12): the holding's return as the feed gives it includes its dividend, and the dividend is counted once.
+  const workedBack = (periodReturn: number) => perf({ period: '3M', days: [], accounts: [linked('Brokerage', 106200, { cash_balance: 1200,
+    positions: [{ ticker: 'VTI', last_price: 105, lots: [{ shares: 1000, cost_per_share: 90 }] }] })],
+    holdings: [{ position: { ticker: 'VTI' }, marketValue: 105000, periodReturn }],
+    transactions: [{ type: 'DIVIDEND', account_id: 'Brokerage', ticker: 'VTI', date: '2026-09-15', amount: 1200 }] }).walk!;
+  test('edge · The 5% read as the feed gives it — a total return, the dividend inside it once (DEC-4644)', () => {
+    const w = workedBack(0.05);
+    // beginning = 106,200 − 105,000 × (1 − 1 ÷ 1.05) = 106,200 − 5,000 = 101,200; the dividend is not taken off again
+    expect(w.beginning).toBeCloseTo(101200, 9);
+    expect([w.dividends, w.interest]).toEqual([1200, 0]);
+    expect(w.wealthGenerated).toBeCloseTo(5000, 9);
+    expect(w.marketChange).toBeCloseTo(3800, 9);
+    // the walk adds up: dividends + change in investment value = wealth generated, and beginning + wealth = ending
+    expect(w.dividends + w.interest + w.marketChange).toBeCloseTo(w.wealthGenerated, 9);
+    expect(w.beginning + w.contributions - w.withdrawals + w.wealthGenerated).toBeCloseTo(106200, 9);
+  });
+  test('edge · What the adjusted closes give for this holding: the judge\'s own 100,000 / 6,200 / 5,000 (DEC-4644)', () => {
+    // 1,000 shares $100 → $105 paying $1.20 a share ($1,200), the dividend going ex at $100: the adjusted closes put the
+    // start at $100 × (1 − 1.20 ÷ 100) = $98.80, so the feed's return is 105 ÷ 98.80 − 1 = 6.2753%.
+    const adjusted = 105 / (100 * (1 - 1.2 / 100)) - 1;
+    const w = workedBack(adjusted);
+    expect(w.beginning).toBeCloseTo(100000, 6);          // 106,200 − 105,000 × (1 − 98.80 ÷ 105) = 106,200 − 6,200
+    expect(w.wealthGenerated).toBeCloseTo(6200, 6);
+    expect(w.marketChange).toBeCloseTo(5000, 6);         // 6,200 − 1,200: the dividend is in the total once
+    // taking the dividend off the beginning as well would read 98,800 — the double count the rule forbids
+    expect(w.beginning).not.toBeCloseTo(98800, 0);
   });
 });
 
@@ -347,7 +382,9 @@ describe('MK-NW-F-090 windowStartKey — five cases', () => {
   // FINDING: app gives '2025-10-10' (an unknown label falls to 12 months back), expected REFUSES. The same unknown
   // label gives today in MK-PF-F-008 startDateFor: two functions answer the same question two ways (tenet 4). No
   // decision says what an unknown label gives; the screen only offers known labels.
-  test.failing('edge · A label the app does not have', () => { refuses(windowStartKey('5Y', ['2024-06-03'], TODAY)); });
+  // SETTLED 2026-10-12 by DEC-4640 ("1, 2 - approved"): a window name the app does not have gives no start, so no
+  // figure. windowStartKey now asks MK-PF-F-008 startDateFor, and both refuse "5Y" (before: 2025-10-10 here, today there).
+  test('edge · A label the app does not have', () => { refuses(windowStartKey('5Y', ['2024-06-03'], TODAY)); });
 });
 
 describe('MK-NW-F-092 investmentAccountIdsOf — five cases', () => {
@@ -402,10 +439,22 @@ describe('MK-NW-F-104 closedWith — five cases', () => {
   // The judge's formula_gives (71,000) assumed the return engine carries IRA's typed 20,000 into today. It does not:
   // a typed balance stands only inside its own recorded span (first to last recorded day, time-weighted-return.ts
   // poolOn), and IRA's last recorded day is 2026-10-08, so today's total as the engine forms it is 51,000.
+  // BRIEF WRONG (marked 2026-10-12; item 5 of the Performance points, withdrawn — no decision needed): the judge's
+  // 71,000 counts the IRA's typed $20,000 TWICE — once inside today's $51,000 (Brokerage $31,000 + IRA $20,000) and
+  // once more carried into today. Run through MK-NW-O-008 thePerformance: Brokerage $30,000 + IRA typed $20,000 on
+  // 2026-10-08, Brokerage $30,450 on 2026-10-09, today Brokerage $31,000 with the IRA's $20,000 → beginning $50,000,
+  // ending $51,000, return 51,000 ÷ 50,000 − 1 = +2.00%. Correct; pinned by the next test.
   test('complex · A typed balance missing from the latest day', () => {
     const ids = new Set(['BRK', 'IRA']);
     const out = closedWith([day('2026-10-08', { BRK: 30000, IRA: 20000 }), day('2026-10-09', { BRK: 30450 })], ids, TODAY, 51000);
     expect(valueOn(out as any, ids, TODAY)).toBe(51000);
+  });
+  test('complex · The same accounts through the whole return: $50,000 became $51,000, +2.00% (2026-10-12)', () => {
+    const days = [day('2026-10-08', { BRK: 30000, IRA: 20000 }), day('2026-10-09', { BRK: 30450 })];
+    const r = perf({ period: 'SINCE', days, accounts: [linked('BRK', 31000), { ...linked('IRA', 20000), source: 'manual', kind: 'ira' }] });
+    expect([r.walk!.beginning, r.ending]).toEqual([50000, 51000]);
+    expect(r.ret!).toBeCloseTo(51000 / 50000 - 1, 12);
+    expect(r.ret!).toBeCloseTo(0.02, 6);
   });
   test('complex · Three accounts on the latest day', () => {
     const ids = new Set(['BRK', 'IRA', 'ROTH']);

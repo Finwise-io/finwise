@@ -358,7 +358,10 @@ describe('Holding detail v02', () => {
     }, { account: 'fid', position: 'p1' });
     const want = norm(upTo(P[0], /^Activity$/))
       .replace('realized from sales $# from your recorded buys and sells (oldest shares sold first).', 'realized from sales $# — nothing sold')   // 13
-      .replace('gain — short-term (under # yr)', 'gain — short-term (held # yr or less)');                                                    // 14
+      .replace('gain — short-term (under # yr)', 'gain — short-term (held # yr or less)')                                                     // 14
+      // 15: the drawing's note was false — both figures are read from dividend-adjusted closes (DEC-4645, 2026-10-12;
+      // the drawing carries a dated READ THIS FIRST line)
+      .replace('price changes only — dividends not included', 'both include dividends and interest');
     expect(want.split(' ').length).toBeGreaterThan(110);
     expect(firstDifference(want, norm(built))).toBe('');
     // 12: the drawing's own arithmetic, in the standard's precision

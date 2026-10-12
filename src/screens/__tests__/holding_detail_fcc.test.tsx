@@ -85,7 +85,9 @@ test("vs-the-market card: table rows, same-dates window words, ahead/behind in W
   expect(screen.getByText(/Your return/)).toBeOnTheScreen();
   expect(screen.getByText('The market, same dates')).toBeOnTheScreen();
   expect(screen.getByText(/(ahead|behind) by [\d.]+ points/)).toBeOnTheScreen();
-  expect(screen.getByText('price changes only — dividends not included')).toBeOnTheScreen();
+  // corrected 2026-10-12 (DEC-4645): both figures are read from dividend-adjusted closes
+  expect(screen.getByText('both include dividends and interest')).toBeOnTheScreen();
+  expect(screen.queryByText(/price changes only/)).toBeNull();
 });
 
 test('the gains card: long + short gains SUM to the header gain (estimated-tax line cut, brief §C Q12)', () => {

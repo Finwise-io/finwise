@@ -266,7 +266,8 @@
    },
    "difference": "beginning +1,200; wealth −1,200; change in value −1,200 (the dividend left in the beginning)",
    "formula_gives_match": true,
-   "note": "The worked-back beginning (no record at all) takes off the price gain but not the dividends and interest received in the window and still in the account."
+   "note": "The worked-back beginning (no record at all) takes off the price gain but not the dividends and interest received in the window and still in the account.",
+   "settled": "SETTLED 2026-10-12 by DEC-4644 (his existing rule: every return time-weighted, one meaning of return, dividends counted once) — BRIEF WRONG: the judge handed a price-only 5%; the feed gives dividend-adjusted closes, so the holding's return already carries its dividend. Read as the feed gives it, the app's 101,200 / 5,000 / 3,800 is right; fed the adjusted return for this holding (105 ÷ 98.80 − 1), the app gives the judge's 100,000 / 6,200 / 5,000. Taking the dividend off again would read 98,800."
   },
   {
    "id": "MK-ST-F-081",
@@ -612,7 +613,8 @@
    "expected": "REFUSES",
    "difference": "a date vs a refusal",
    "formula_gives_match": true,
-   "note": "Unknown label → 12 months back (performance.ts:133); MK-PF-F-008 startDateFor gives today for the same label (src/domain/performance/index.ts:462). No decision covers an unknown label."
+   "note": "Unknown label → 12 months back (performance.ts:133); MK-PF-F-008 startDateFor gives today for the same label (src/domain/performance/index.ts:462). No decision covers an unknown label.",
+   "settled": "SETTLED 2026-10-12 by DEC-4640 (\"1, 2 - approved\"): a window name the app does not have gives no start, so no figure. The app now refuses, as the judge expected; the test passes."
   },
   {
    "id": "MK-NW-F-092",
@@ -795,7 +797,8 @@
    },
    "difference": null,
    "formula_gives_match": false,
-   "note": "The judge's formula_gives (71,000) assumed the engine carries IRA's typed balance into today; a typed balance stands only inside its own recorded span (time-weighted-return.ts:160). Side observation, not this case's expectation: IRA is then read as having LEFT after 2026-10-08 and the whole ending lands on BRK, so a return over these days would read 51,000 ÷ 30,450 as growth."
+   "note": "The judge's formula_gives (71,000) assumed the engine carries IRA's typed balance into today; a typed balance stands only inside its own recorded span (time-weighted-return.ts:160). Side observation, not this case's expectation: IRA is then read as having LEFT after 2026-10-08 and the whole ending lands on BRK, so a return over these days would read 51,000 ÷ 30,450 as growth.",
+   "settled": "BRIEF WRONG, marked 2026-10-12 (item 5, withdrawn — no decision needed): the judge's formula_gives 71,000 counts the IRA's typed $20,000 twice. Through thePerformance: Brokerage $30,000 + IRA $20,000 on 2026-10-08, Brokerage $30,450 on 2026-10-09, today Brokerage $31,000 + IRA $20,000 → beginning $50,000, ending $51,000, +2.00%, correct (pinned by its own test)."
   },
   {
    "id": "MK-NW-F-104",

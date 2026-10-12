@@ -296,8 +296,10 @@ describe('MK-PF-M-010 Left in <fund> it became $X', () => {
     fromSeries: series([['2026-03-28', 100], ['2026-09-28', 102.5]]),
     toSeries: series([['2026-03-28', 50], ['2026-09-28', 58]]),
   })!;
-  test('price changes only — dividends are not in it', () => {
-    // $10,000 at 100 → 102.5 is exactly 2.5%: a dividend would have to push it above that
+  // corrected 2026-10-12 (DEC-4645): the closes handed in are the feed's dividend-adjusted ones, so a dividend is
+  // already inside them — counted once; the look-back adds nothing on top of the closes it is given
+  test('the closes it is handed carry the dividends — nothing added on top', () => {
+    // $10,000 at 100 → 102.5 is exactly 2.5%: nothing is added to what the adjusted closes say
     expect(lb().stayed.endValue).toBe(10_250);
     expect(lb().stayed.pct).toBeCloseTo(2.5, 6);
   });

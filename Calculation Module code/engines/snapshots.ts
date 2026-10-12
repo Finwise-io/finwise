@@ -347,19 +347,20 @@ export function prune(days: SnapshotDay[], today: string): SnapshotDay[] {
  *               MK-NW-F-084 categoryEarnings · MK-NW-O-002 theAccount
  *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
  *               MK-PF-F-014 buildPerformance · MK-PF-F-039 periodReturnParts
- *               MK-XS-F-009 readHistory · MK-XS-F-174 recomputeBalances
+ *               MK-PF-F-046 saleShortOfPurchasesSentence · MK-XS-F-009 readHistory
+ *               MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 82 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-211 DEBTS · MK-NW-F-082 NW
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
  *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-PF-F-016 attribution
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               … and 64 more — the full list is on functions_from_code
+ *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               … and 62 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
@@ -544,7 +545,7 @@ export function onOrBefore<T extends { date: string }>(days: T[], date: string):
  * Called by ... MK-ST-F-004 coverageFor · MK-ST-F-005 measuredFromLabel
  *               MK-ST-F-006 canAnswer · MK-ST-F-035 covers
  *
- * Reaches ..... 87 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 88 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
@@ -554,7 +555,7 @@ export function onOrBefore<T extends { date: string }>(days: T[], date: string):
  *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-111 assetsStateFrom
  *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               … and 69 more — the full list is on functions_from_code
+ *               … and 70 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

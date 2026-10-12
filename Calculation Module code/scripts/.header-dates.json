@@ -787,5 +787,7 @@
 "src/domain/performance/index.ts::periodTotalReturn": "not in git yet|\u2014",
 "src/domain/performance/index.ts::dayBefore": "not in git yet|\u2014",
 "src/domain/performance/index.ts::monthsBefore": "not in git yet|\u2014",
-"src/domain/performance/index.ts::unknownFigure": "not in git yet|\u2014"
+"src/domain/performance/index.ts::unknownFigure": "not in git yet|\u2014",
+"src/domain/performance/index.ts::priceHistoryShortSentence": "not in git yet|\u2014",
+"src/domain/performance/realized.ts::saleShortOfPurchasesSentence": "not in git yet|\u2014"
 }

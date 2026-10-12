@@ -45,6 +45,9 @@ test('a broker with holdings but no income records offers the enter-it-yourself 
   const g = gaps.find((x) => x.kind === 'no-activity')!;
   expect(g.title).toMatch(/hasn't shared dividend records/);
   expect(g.fixLabel).toBe('Enter dividends yourself');
+  // corrected 2026-10-12 (DEC-4645): the return is not "price change only" — the dividends are in it, unnamed
+  expect(g.meanwhile).toBe('Its dividends sit inside the change in investment value, not on a line of their own — we never estimate income we were not given.');
+  expect(g.meanwhile).not.toMatch(/price change only/);
 });
 
 test('history depth speaks only when the window predates what the source shared', () => {

@@ -36,8 +36,8 @@
  * (0.032787 → ±0.0000005; 14127.2371 → ±0.00005); whole-dollar and exact figures to 1e-9.
  */
 import {
-  buildPerformance, benchmarkTicker, topHoldingConcentration, attribution, allocation, portfolioTrend,
-  portfolioPeriodReturn, portfolioBenchReturn, periodDollarDelta, type PriceSeries, type PerformanceRow,
+  buildPerformance, benchmarkTicker, topHoldingConcentration,
+  portfolioBenchReturn, type PriceSeries, type PerformanceRow,
 } from '../../../src/domain/performance';
 import { categoryEarnings } from './performance';
 
@@ -170,123 +170,13 @@ describe('MK-PF-F-015 topHoldingConcentration — five cases', () => {
   });
 });
 
-describe('MK-PF-F-016 attribution — five cases', () => {
-  const view = (a: ReturnType<typeof attribution>) => a.map((x) => ({ ticker: x.position.ticker, weight: x.weight, contribution: x.contribution }));
-  const check = (a: ReturnType<typeof attribution>, e: [string, number, number][]) => {
-    const v = view(a); expect(v.map((x) => x.ticker)).toEqual(e.map((x) => x[0]));
-    e.forEach(([, w, c], i) => { near(v[i].weight, w); near(v[i].contribution, c); });
-  };
-  // FINDING: app gives VTI weight 0.545455 / contribution 0.109091, expected 0.5 / 0.10 — weights are today's values
-  // (index.ts:906). DEC-1669 + DEC-3035b (and MK-NW-F-084's fix of 2026-10-09): weigh by the value when the window began,
-  // so the contributions add up to the time-weighted portfolio return, $10,000 → $11,000 = +10%.
-  // FIXED 2026-10-11 (outside review Claude Performance, DEC-1669, DEC-3035b): weighed by the value when the window began.
-  test('easy · Two holdings, one up twenty percent', () => {
-    check(attribution([row('VTI', 6000, 0.2), row('BND', 5000, 0)]), [['VTI', 0.5, 0.1], ['BND', 0.5, 0]]);
-  });
-  test('easy · One holding: its contribution is its return', () => {
-    check(attribution([row('VTI', 10000, 0.05)]), [['VTI', 1, 0.05]]);
-  });
-  // FINDING: app gives VTI 0.484 / 0.0484 and QQQ 0.336 / −0.05376, expected 0.52381 / 0.052381 and 0.47619 / −0.07619 —
-  // today's values, divided by a total that includes the REIT with no return (index.ts:902, :906). DEC-1669 + DEC-3035b.
-  // FIXED 2026-10-11 (outside review Claude Performance, DEC-1669, DEC-3035b): start-weighted; a holding with no return is out of the weights.
-  test('complex · A holding with no return sits in the total', () => {
-    check(attribution([row('VTI', 12100, 0.1), row('QQQ', 8400, -0.16), row('REIT', 4500, null)]),
-      [['VTI', 0.52381, 0.052381], ['QQQ', 0.47619, -0.07619]]);
-  });
-  // FINDING: app gives the today-weighted figures (VTI 0.484277 / 0.054492 …), expected start-weighted (VTI 0.457914 /
-  // 0.051526 …) — DEC-1669 + DEC-3035b; the expected contributions sum to Σ now ÷ Σ start − 1 = 0.05196.
-  // FIXED 2026-10-11 (outside review Claude Performance, DEC-1669, DEC-3035b): start-weighted.
-  test('complex · Four holdings, sorted largest first', () => {
-    check(attribution([row('VTI', 31302.0, 0.112523), row('SCHD', 9880.0, 0.0233), row('BND', 14610.0, 0.0126), row('QQQ', 8844.6, -0.0412)]),
-      [['VTI', 0.457914, 0.051526], ['SCHD', 0.157136, 0.003661], ['BND', 0.234819, 0.002959], ['QQQ', 0.150131, -0.006185]]);
-  });
-  test('edge · Nothing held', () => { expect(attribution([])).toEqual([]); });
-});
-
-describe('MK-PF-F-017 allocation — five cases', () => {
-  const KEY: Record<string, string> = { stocks: 'stocks_etf', 'fixed income': 'fixed_income', other: 'other_asset', cash: 'cash' };
-  const check = (a: ReturnType<typeof allocation>, e: [string, number, number][]) => {
-    expect(a.map((s) => s.key)).toEqual(e.map((x) => KEY[x[0]]));
-    e.forEach(([, v, p], i) => { near(a[i].value, v, 9); near(a[i].pct, p); });
-  };
-  const rowsOf = (h: { kind: string | null; value: number }[]) => h.map((x, i) => row(`H${i}`, x.value, null, null, x.kind ?? undefined));
-  test('easy · Sixty-forty', () => {
-    check(allocation(rowsOf([{ kind: 'stocks', value: 60000 }, { kind: 'fixed income', value: 40000 }]), 0), [['stocks', 60000, 60], ['fixed income', 40000, 40]]);
-  });
-  test('easy · Cash only', () => { check(allocation([], 10000), [['cash', 10000, 100]]); });
-  // FINDING: app gives pct 66.8 / 23.7 / 6.0 / 3.5, expected 66.790228 / 23.712384 / 6.003405 / 3.493983 — each share is
-  // rounded to one decimal inside the function (index.ts:942). DEC-0300: round once, at display. Values and order agree.
-  // FIXED 2026-10-11 (outside review Claude Performance, DEC-0300): shares unrounded.
-  test('complex · Linked and hand-entered holdings with cash in the account', () => {
-    check(allocation(rowsOf([{ kind: 'stocks', value: 48210.55 }, { kind: 'stocks', value: 12004.18 }, { kind: 'fixed income', value: 21377.9 }, { kind: null, value: 3150.0 }]), 5412.37),
-      [['stocks', 60214.73, 66.790228], ['fixed income', 21377.9, 23.712384], ['cash', 5412.37, 6.003405], ['other', 3150.0, 3.493983]]);
-  });
-  // FINDING: app gives pct 33.3 for each slice, expected 33.333333 — rounded inside (index.ts:942), DEC-0300. The auditor's
-  // shown 33.4 / 33.3 / 33.3 (largest remainder, so the shown slices sum to 100.0) is a display rule no decision states yet.
-  // FIXED 2026-10-11 (outside review Claude Performance, DEC-0300): shares unrounded.
-  test('complex · Three equal slices', () => {
-    check(allocation(rowsOf([{ kind: 'stocks', value: 10000 }, { kind: 'fixed income', value: 10000 }]), 10000),
-      [['stocks', 10000, 33.333333], ['fixed income', 10000, 33.333333], ['cash', 10000, 33.333333]]);
-  });
-  test('edge · Nothing held and no cash', () => { expect(allocation([], 0)).toEqual([]); });
-});
-
-describe('MK-PF-F-018 portfolioTrend — five cases', () => {
-  test('easy · One fund held all year', () => {
-    const t = portfolioTrend([holding('VTI', null, [{ date: '2023-01-03', shares: 10 }])],
-      series({ VTI: [['2025-10-10', 100], ['2026-10-09', 120]], SPY: [['2025-10-10', 500], ['2026-10-09', 550]] }), '1Y', 'SPY', TODAY);
-    expect(t).toHaveLength(13);
-    expect(t[0].date).toBe('2025-10-10'); near(t[0].value, 1000, 9); near(t[0].bench, 1000, 9);
-    expect(t[12].date).toBe('2026-10-10'); near(t[12].value, 1200, 9); near(t[12].bench, 1100, 9);
-  });
-  test('easy · No holdings', () => { expect(portfolioTrend([], series({}), '6M', 'SPY', TODAY)).toEqual([]); });
-  // UNCLEAR: app gives first value 8,000 (today's 20 QQQ shares priced at the start, index.ts:996), expected 1,000 (only VTI
-  // was held then). The function's own header calls it a "growth-of-holdings view; ignores past buys/sells" and no screen
-  // calls it today. Open question: should the trend show what the portfolio WAS (shares held on each date) or what today's
-  // holdings would have done? No decision settles it (DEC-2158 is the Net worth trend, read from the daily record).
-  test.failing('complex · A second fund bought in June', () => {
-    const t = portfolioTrend([holding('VTI', null, [{ date: '2023-01-03', shares: 10 }]), holding('QQQ', null, [{ date: '2026-06-01', shares: 20, cost_per_share: 400 }])],
-      series({ VTI: [['2025-10-10', 100], ['2026-10-09', 120]], QQQ: [['2025-10-10', 350], ['2026-06-01', 400], ['2026-10-09', 440]], SPY: [['2025-10-10', 500], ['2026-10-09', 550]] }),
-      '1Y', 'SPY', TODAY);
-    near(t[0].value, 1000, 9); near(t[12].value, 10000, 9);
-  });
-  test('complex · Two funds with broker-style fractional shares', () => {
-    const t = portfolioTrend([holding('VTI', null, [{ date: '2020-01-02', shares: 23.417 }]), holding('BND', null, [{ date: '2020-01-02', shares: 104.5 }])],
-      series({ VTI: [['2025-10-10', 281.36], ['2026-10-09', 313.02]], BND: [['2025-10-10', 72.14], ['2026-10-09', 73.05]], SPY: [['2025-10-10', 571.2], ['2026-10-09', 627.33]] }),
-      '1Y', 'SPY', TODAY);
-    expect(t).toHaveLength(13);
-    near(t[0].value, 14127.2371, 4); near(t[0].bench, 14127.2371, 4); near(t[12].value, 14963.7143, 4); near(t[12].bench, 15515.4756, 4);
-  });
-  // FINDING: app gives 13 points, every value $0 and the yardstick equal to it, expected REFUSES — a holding with no price
-  // counts as zero (index.ts:996) and the yardstick falls back to the value line (:1002). Tenet 3 (DEC-3523): unknown is not
-  // zero; a flat $0 line says the holdings are worth nothing.
-  test.failing('edge · Holdings but no prices at all', () => {
-    expect(portfolioTrend([holding('VTI', null, [{ date: '2020-01-02', shares: 10 }]), holding('BND', null, [{ date: '2020-01-02', shares: 20 }])],
-      series({}), '3M', 'SPY', TODAY)).toEqual([]);
-  });
-});
-
-describe('MK-PF-F-019 portfolioPeriodReturn — five cases', () => {
-  // FINDING: app gives 0.666667, expected 0.50 — returns averaged by TODAY's values (index.ts:1033). DEC-1669 (every return
-  // time-weighted) + DEC-3035b (weigh by the value when the window began; the same fix as MK-NW-F-084, 2026-10-09):
-  // $1,000 + $1,000 became $2,000 + $1,000 = +50%. DEC-0248 ("value-weighted", 2026-09-08) predates both and still holds —
-  // a start-value weighting is value-weighted.
-  // FIXED 2026-10-11 (outside review Claude Performance, DEC-1669, DEC-3035b): Σ now ÷ Σ start − 1.
-  test('easy · One fund doubled, one flat', () => { near(portfolioPeriodReturn([row('A', 2000, 1.0), row('B', 1000, 0)]), 0.5); });
-  test('easy · One holding', () => { near(portfolioPeriodReturn([row('VTI', 10000, 0.05)]), 0.05); });
-  // FINDING: app gives −0.006537, expected −0.02381 — today-weighted (index.ts:1033); DEC-1669 + DEC-3035b: 21,000 → 20,500.
-  // FIXED 2026-10-11 (outside review Claude Performance, DEC-1669, DEC-3035b): Σ now ÷ Σ start − 1.
-  test('complex · A holding with no return is left out', () => {
-    near(portfolioPeriodReturn([row('VTI', 12100, 0.1), row('QQQ', 8400, -0.16), row('REIT', 4500, null)]), -0.02381);
-  });
-  // FINDING: app gives 0.055264, expected 0.05196 — today-weighted (index.ts:1033); DEC-1669 + DEC-3035b. MK-NW-F-084 gives
-  // the start-weighted figure for the same holdings, so the two disagree today.
-  // FIXED 2026-10-11 (outside review Claude Performance, DEC-1669, DEC-3035b): Σ now ÷ Σ start − 1, the same as MK-NW-F-084.
-  test('complex · Four holdings, three months', () => {
-    near(portfolioPeriodReturn([row('VTI', 31302.0, 0.112523), row('SCHD', 9880.0, 0.0233), row('BND', 14610.0, 0.0126), row('QQQ', 8844.6, -0.0412)]), 0.05196, 5);
-  });
-  test('edge · No holding has a return', () => { refuses(portfolioPeriodReturn([row('REIT', 4500, null), row('PRIV', 9000, null)])); });
-});
+// REMOVED 2026-10-12 by DEC-4642 (his approval: "3,4, 8-approved"): MK-PF-F-016 attribution, MK-PF-F-017 allocation,
+// MK-PF-F-018 portfolioTrend and MK-PF-F-019 portfolioPeriodReturn left the code — no screen called them. Their twenty
+// cases are no longer run; each is marked REMOVED, with this decision, in
+// MoneyKeel/documents/audit/outside-test-cases/returned/results/performance_claude_03_results.json. What took their
+// place: the return is MK-NW-O-008 thePerformance (MK-ST-F-081 timeWeightedReturn); the graph is drawn from the saved
+// daily values. Two of the twenty were open (portfolioTrend: "A second fund bought in June" UNCLEAR, "Holdings but no
+// prices at all" FINDING) and close with the function.
 
 describe('MK-PF-F-020 portfolioBenchReturn — five cases', () => {
   // FINDING: app gives 0.073333, expected 0.06 — yardstick returns averaged by TODAY's values (index.ts:1064), so the
@@ -313,28 +203,10 @@ describe('MK-PF-F-020 portfolioBenchReturn — five cases', () => {
   test('edge · No holding has a yardstick return', () => { refuses(portfolioBenchReturn([row('VTI', 10000, 0.01, null)])); });
 });
 
-describe('MK-PF-F-021 periodDollarDelta — five cases', () => {
-  test('easy · Up five percent, nothing moved', () => { near(periodDollarDelta(105000, 0.05), 5000, 9); });
-  test('easy · Down ten percent', () => { near(periodDollarDelta(90000, -0.1), -10000, 9); });
-  // NOT BUILT 2026-10-11 (outside review Claude Performance) — stopped, reported: the function is handed only today's total
-  // and a return, and those two cannot tell money added from money earned; the dollars earned need the beginning and
-  // the money moved (the walk, MK-NW-O-008). No screen calls this function.
-  // FINDING: app gives 4,000, expected 3,010 — handed today's $203,010 and the time-weighted +2.01%, the function charges the
-  // return to the $100,000 deposited on 1 Oct as if it had been there all month (index.ts:1092). DEC-1669: "money added is
-  // never counted as earned"; the dollars earned are 203,010 − 100,000 − 100,000 = 3,010 (the walk, MK-NW-O-008).
-  test.failing('complex · A large deposit nine days before the end', () => {
-    const twr = (101000 / 100000) * (203010 / 201000) - 1;   // the auditor's 0.0201, from the dated values given
-    near(periodDollarDelta(203010, twr), 3010, 9);
-  });
-  // FINDING: app gives 6,840, expected 6,840.4824 — rounded to whole dollars inside the function (index.ts:1092). DEC-0300:
-  // round once, at display (the screen shows $6,840 either way).
-  // FIXED 2026-10-11 (outside review Claude Performance, DEC-0300): not rounded inside.
-  test('complex · A large account, small return, nothing moved', () => { near(periodDollarDelta(487312.66, 0.014237), 6840.4824, 4); });
-  // FINDING: app gives 0, expected REFUSES — "0 when either input is not a number" (index.ts:1091). Tenet 3 (DEC-3523):
-  // unknown is not zero; $0 reads as "flat".
-  // FIXED 2026-10-11 (outside review Claude Performance, DEC-3523 tenet 3): null, never $0.
-  test('edge · The return is not a number', () => { refuses(periodDollarDelta(50000, null as any)); });
-});
+// REMOVED 2026-10-12 by DEC-4642: MK-PF-F-021 periodDollarDelta left the code — no screen called it. The dollars a
+// window earned are the wealth generated of MK-NW-O-008 thePerformance, which needs the beginning and the money moved.
+// Its five cases are no longer run (results file: REMOVED); the open one ("A large deposit nine days before the end",
+// FINDING, NOT BUILT) closes with the function — the walk already gives the auditor's $3,010.
 
 describe('MK-NW-F-084 categoryEarnings — five cases', () => {
   const T = (type: string, ticker: string | null, date: string, amount: number, account_id?: string) =>

@@ -18,6 +18,8 @@
  *  disagreement for five days: Home counted price change only while Performance counted dividends
  *  too (B-112). A household with a month of closes and a dividend inside the window tells them
  *  apart — this pin fails on the old code and passes on the fixed code.
+ *  (corrected 2026-10-12, DEC-4645: Home's "price change" was the holdings' dividend-adjusted closes, so their
+ *  dividends were in it; the two differed by METHOD — a holding-weighted price move against the walk.)
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
@@ -160,10 +162,16 @@ test("MK-XS-M-004 — the month's return reads the same on Home and on Performan
   // added to it, so taking the row away leaves the total unchanged. What B-112 was about is the
   // METHOD — Home used portfolioPeriodReturn, price change weighted by holding. So the pin is that
   // Home's figure is the door's and NOT that one, which holds on any day.
-  const { buildPerformance, portfolioPeriodReturn } = require('../domain/performance');
+  // MK-PF-F-019 portfolioPeriodReturn itself was removed on 2026-10-12 (his approval, DEC-4642), so the old
+  // method is written out here, as it was: each holding's window return weighted by what it was worth when the
+  // window began — Σ value today ÷ Σ (value today ÷ (1 + its return)) − 1.
+  const { buildPerformance } = require('../domain/performance');
   const positions = (INVESTOR_ACCOUNT.positions ?? []) as any[];
-  const priceOnly = portfolioPeriodReturn(
-    buildPerformance(positions, (t: string) => ({ VTI: closes('VTI', 90, 100) } as any)[t.toUpperCase()], '1M'));
+  const rowsOld = buildPerformance(positions, (t: string) => ({ VTI: closes('VTI', 90, 100) } as any)[t.toUpperCase()], '1M')
+    .filter((r: any) => r.periodReturn != null && r.marketValue > 0);
+  const priceOnly = rowsOld.length
+    ? rowsOld.reduce((s: number, r: any) => s + r.marketValue, 0) / rowsOld.reduce((s: number, r: any) => s + r.marketValue / (1 + r.periodReturn), 0) - 1
+    : null;
   expect(priceOnly).not.toBeNull();
   expect(Number(home!.replace(/[+%]/g, ''))).not.toBeCloseTo(priceOnly! * 100, 2);
 });
@@ -176,6 +184,8 @@ test("MK-XS-M-004 — the month's return reads the same on Home and on Performan
  *
  *  Why it needs a pin: without the clarifier the gap reads as skill, when part of it is simply income
  *  the market side cannot see — no price feed we hold gives an index's dividends.
+ *  Corrected 2026-10-12: the market figure uses SPY and AGG adjusted closes, which include their dividends and
+ *  interest. The line stays word for word (his approval); the reason above was wrong (DEC-4645).
  */
 test('MK-PF-M-008 — Home says WHICH figure counts dividends and interest, so the gap is not read as skill', () => {
   useStore.setState({

@@ -2,8 +2,8 @@
 // full story — what you own, what you paid, what it's worth, how it compares, and the tax facts
 // if you sold (clearly an estimate). Every number is the SAME helper the Invest main list uses;
 // nothing is recomputed differently here (r24: same row object, no recomputation).
-import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import { quantityWithUnit } from '../domain/performance';
+import { saleShortOfPurchasesSentence } from '../domain/performance/realized';
 import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
@@ -11,19 +11,19 @@ import { SectionBand } from '../components/SectionBand';
 import Svg, { Polyline } from 'react-native-svg';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
-// THE CALCULATION MODULE — say plainly when a window reaches further back than our price history.
+// Say plainly when a window reaches further back than this holding's price history (priceHistoryShortSentence).
 // Founder 2026-08-18: a chip may name a longer period than we can actually see.
-import { coverageFor } from '../../Calculation Module code/engines/coverage';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney, maskedMoney2, maskedPrice, coinQuantity, spokenMoney } from '../components/useMoney';
 import { theHolding } from '../../MoneyKeel/functions/networth-and-performance/holding';
+import { windowStartKey } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { fig, figSpoken, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { InfoDot } from '../components/UI';
 import { priceFreshness } from '../services/marketData';
 import {
   buildPerformance, benchmarkTicker,
-  PERIODS, startDateFor, type Period, type Position, type PerformanceRow,
+  PERIODS, priceHistoryShortSentence, type Period, type Position, type PerformanceRow,
 } from '../domain/performance';
 import { HoldingEditor, TransactionSheet, HistorySheet } from './PerformanceScreen';
 import type { AssetAccount } from '../domain/assets';
@@ -82,28 +82,16 @@ export default function HoldingDetailScreen() {
     () => (position ? buildPerformance([position], priceOf, period)[0] : null),
     [position, priceCache, period],
   );
-  // How far back THIS holding's price history reaches, against the window the chip asks for.
-  // A holding's return is limited by its own prices, not by the app's net-worth record.
-  const coverage = useMemo(() => {
-    const pts = (position ? priceOf(position.ticker)?.points ?? [] : []) as { date: string }[];
-    const start = new Date();
-    const back: Record<string, number> = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12, '2Y': 24 };
-    if (period === 'YTD') start.setMonth(0, 1); else start.setMonth(start.getMonth() - (back[period] ?? 12));
-    return coverageFor(pts.map((x) => ({ date: x.date })), start.toISOString().slice(0, 10),
-                       isoLocalDate(new Date()));
-  }, [position, priceCache, period]);
-
-  // The sentence the approved drawing writes for it (holding-detail v02, phone 3): how many months the
-  // prices reach, against the window the chip names — never a shorter window under the longer label.
-  const shortBy = useMemo(() => {
-    if (coverage.covers || !coverage.from) return '';
-    const first = new Date(coverage.from), now = new Date();
-    const months = Math.max(0, (now.getFullYear() - first.getFullYear()) * 12 + now.getMonth() - first.getMonth() - (now.getDate() < first.getDate() ? 1 : 0));
-    const NAMED: Record<string, [string, string]> = { '1M': ['1-month', 'a month'], '3M': ['3-month', 'three months'], '6M': ['6-month', 'six months'],
-      YTD: ['year-so-far', 'the whole year so far'], '1Y': ['1-year', 'a year'], '2Y': ['2-year', 'two years'] };
-    const [label, words] = NAMED[period] ?? NAMED['1Y'];
-    return `Prices for this holding go back ${plural(months, 'month')}, so the ${label} figure covers ${plural(months, 'month')} — not ${words}.`;
-  }, [coverage, period]);
+  // THE WINDOW'S FIRST DAY — the one rule every screen asks (MK-NW-F-090 windowStartKey), which refuses a window
+  // name the app does not have (DEC-4640, 2026-10-12). It was calculated here a second way (setMonth, and a
+  // name it did not know read as twelve months back).
+  const todayKey = isoLocalDate(new Date());
+  const windowStart = windowStartKey(period, [], todayKey);
+  // The sentence the approved drawing writes when this holding's prices begin after the window opens (holding-detail
+  // v02, phone 3) — now from ONE function, the one the Account page asks too (DEC-4641, 2026-10-12).
+  const shortBy = useMemo(
+    () => priceHistoryShortSentence(position ? priceOf(position.ticker)?.points ?? [] : [], windowStart, period, todayKey),
+    [position, priceCache, period, windowStart, todayKey]);
 
   // B47 finding 4: deleting re-renders BEFORE router.back() finishes — the not-found screen
   // flashed as an "error" while the (correct) deletion exited. Leaving = render nothing, quietly.
@@ -133,7 +121,7 @@ export default function HoldingDetailScreen() {
   });
   const shares = answer.shares;
   const basis = answer.totalPaid;
-  const rawAvg = answer.avgPaidPerShare;   // unrounded — avgCost() clips $1.132 to $1.13
+  const rawAvg = answer.avgPaidPerShare;   // unrounded — kept at full precision until shown ($1.132, not $1.13)
   const hasPrice = answer.priced;
   const closed = answer.closed;
   const value = answer.value;      // r30: no price → show what you paid
@@ -145,10 +133,9 @@ export default function HoldingDetailScreen() {
   const series = hasPrice ? priceOf(ticker) : null;
   const graphPts = useMemo(() => {
     const pts = (series?.points ?? []).filter((x: any) => x.close > 0);
-    const startIso = startDateFor(period, new Date()).toISOString().slice(0, 10);
-    const inWindow = pts.filter((x: any) => String(x.date) >= startIso);
+    const inWindow = windowStart == null ? [] : pts.filter((x: any) => String(x.date) >= windowStart);
     return inWindow.length >= 2 ? inWindow : pts.slice(-2);      // thin history: show what exists
-  }, [series, period]);
+  }, [series, period, windowStart]);
   // THE DAY'S CHANGE COMES FROM THE DOOR (2026-10-01). It was calculated here, from the price series
   // — a money figure derived inline on a screen, which is the one thing the one-door rule forbids.
   // MK-NW-O-006 theHolding computes it from the same closes; the screen only hands it the closes,
@@ -273,7 +260,10 @@ export default function HoldingDetailScreen() {
             <View style={s.tRow}><Text style={s.tL}>You are</Text>
               <Text style={[s.tV, { color: row.beatBy >= 0 ? Colors.gainText : Colors.red }]}>{row.beatBy >= 0 ? 'ahead' : 'behind'} by {Math.abs(Math.round(row.beatBy * 1000) / 10)} points</Text></View>
           )}
-          <View style={s.kickerRow}><Text style={s.note}>price changes only — dividends not included</Text><InfoDot term="benchmark" /></View>
+          {/* CORRECTED 2026-10-12 (DEC-4645): this read "price changes only — dividends not included", which was false —
+              the holding and its market yardstick (SPY or AGG) are both read from dividend-adjusted closes, so both
+              figures include their dividends and interest. The drawing (holding-detail v02) carries a dated line. */}
+          <View style={s.kickerRow}><Text style={s.note}>both include dividends and interest</Text><InfoDot term="benchmark" /></View>
           {isBondFund && <Text style={s.note}>Bond funds fall when interest rates rise — that's the mechanism, not a prediction.</Text>}
         </View>
       ) : (
@@ -310,11 +300,22 @@ export default function HoldingDetailScreen() {
           <View style={s.tRow}><Text style={s.tL}>Realized from sales</Text>
             <Text style={s.tV}>{realized.sellsCounted > 0
               ? `${realized.realizedAllTime >= 0 ? '+' : '−'}${fig('MK-NW-M-035', Math.abs(realized.realizedAllTime))} all time`
+              : realized.shortOfPurchases.length > 0
+              // sold, but no purchase on record behind any of it: not "nothing sold" (DEC-4643, 2026-10-12)
+              ? figWords('MK-NW-M-035', 'not on record')
               : `${fig('MK-NW-M-035', 0)} — nothing sold`}</Text></View>
           {/* his ruling, 2026-10-04: "$0 — nothing sold" stays; the line about how sales are matched is for when there is a sale */}
-          {realized.sellsCounted > 0 && (
-            <Text style={s.noteLine}>From your recorded buys and sells (oldest shares sold first).{realized.sellsWithoutBasis > 0 ? ` ${plural(realized.sellsWithoutBasis, 'sale')} had no recorded purchase, so its gain isn't counted.` : ''}</Text>
+          {(realized.sellsCounted > 0 || realized.shortOfPurchases.length > 0) && (
+            <Text style={s.noteLine}>From your recorded buys and sells (oldest shares sold first).</Text>
           )}
+          {/* A SALE IS COUNTED ONCE (his approval, 2026-10-12, DEC-4643): a sale bigger than the purchases on record
+              says what its matched part made and how many shares have no price paid on record — one line per sale.
+              It read "1 sale had no recorded purchase" beside a gain counted on the same sale, as if two sales. */}
+          {realized.shortOfPurchases.map((sale, i) => (
+            <Text key={`${sale.date}-${i}`} style={s.noteLine}>
+              {saleShortOfPurchasesSentence(sale, position, (n) => fig('MK-NW-M-035', n), position.kind === 'crypto' ? coinQuantity : String)}
+            </Text>
+          ))}
         </View>
       )}
 

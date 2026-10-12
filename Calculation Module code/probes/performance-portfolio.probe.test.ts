@@ -6,7 +6,7 @@
 //
 // The personal return is the most honest engine in the app: it refuses to answer rather than guess,
 // in four separate ways. It is worth documenting precisely because its refusals are the feature.
-import { attribution, allocation, topHoldingConcentration, benchmarkTicker } from '../../src/domain/performance';
+import { topHoldingConcentration, benchmarkTicker } from '../../src/domain/performance';
 import { factorOverMonths, lookBack } from '../../src/domain/performance/lookBack';
 
 const acct = (id: string) => ({ asset_id: id, label: id, tax_bucket: 'TAXABLE', balance: 0 } as any);
@@ -23,30 +23,9 @@ const NOW = Date.parse('2026-08-17T12:00:00Z');
 const row = (ticker: string, marketValue: number, periodReturn: number | null, kind = 'stocks_etf') =>
   ({ position: { position_id: ticker, ticker, kind, lots: [] }, marketValue, periodReturn } as any);
 
-describe('ATTRIBUTION / ALLOCATION / CONCENTRATION', () => {
-  // THE WEIGHT IS WHAT EACH WAS WORTH WHEN THE WINDOW BEGAN, value now ÷ (1 + its return) (outside review Claude
-  // Performance, 2026-10-11, DEC-1669, DEC-3035b): the contributions then add up to the portfolio's own growth.
-  test('each holding contributes its WEIGHT AT THE START times its return, best first', () => {
-    const a = attribution([row('VTI', 75_000, 0.10), row('BND', 25_000, 0.02)]);
-    const vti = 75_000 / 1.1, bnd = 25_000 / 1.02;
-    expect(a[0].position.ticker).toBe('VTI');
-    expect(a[0].weight).toBeCloseTo(vti / (vti + bnd), 12);
-    expect(a[0].contribution).toBeCloseTo(vti / (vti + bnd) * 0.10, 12);
-    expect(a[1].contribution).toBeCloseTo(bnd / (vti + bnd) * 0.02, 12);
-    expect(a[0].contribution + a[1].contribution).toBeCloseTo(100_000 / (vti + bnd) - 1, 12);   // = the portfolio's growth
-  });
-
-  test('a holding with no return is left out rather than counted as zero', () => {
-    // counting an unpriced holding as 0% would drag the portfolio figure down for no reason
-    expect(attribution([row('VTI', 75_000, 0.10), row('???', 25_000, null)])).toHaveLength(1);
-  });
-
-  test('allocation includes cash and the slices are percentages of the whole', () => {
-    const s = allocation([row('VTI', 75_000, 0.10)], 25_000);
-    expect(s.find((x) => x.key === 'cash')!.pct).toBe(25);
-    expect(s.reduce((t, x) => t + x.pct, 0)).toBeCloseTo(100, 1);
-  });
-
+// ATTRIBUTION and ALLOCATION (MK-PF-F-016, MK-PF-F-017) were probed here. Both were removed on 2026-10-12 (his
+// approval, DEC-4642): no screen called them.
+describe('CONCENTRATION', () => {
   // MY TEST WAS WRONG, NOT THE CODE. I asserted null for a 70% holding because it was second in my
   // list; it is the LARGEST that is measured, wherever it sits. Rewritten to test what I meant.
   test('concentration is reported only at 25% or more, and only with 2+ holdings', () => {
@@ -87,56 +66,6 @@ describe('LOOK_BACK', () => {
   });
 });
 
-// ════════════════════════════════════════════════════════════════════════════════════════════════
-// PORTFOLIO_RETURN · PORTFOLIO_TREND
-// ════════════════════════════════════════════════════════════════════════════════════════════════
-import { portfolioPeriodReturn, portfolioBenchReturn, portfolioTrend } from '../../src/domain/performance';
-
-describe('PORTFOLIO_RETURN', () => {
-  test('holdings are weighted by how much money was in them, not counted equally', () => {
-    // 90k at +10% and 10k at 0%: $81,818 + $10,000 became $100,000 = +8.91%, not the +5% an equal-weight average
-    // would give — weighed by the value when the window began (outside review Claude Performance, 2026-10-11,
-    // DEC-1669, DEC-3035b); today's values read +9.00%
-    expect(portfolioPeriodReturn([row('VTI', 90_000, 0.10), row('BND', 10_000, 0)])).toBeCloseTo(100_000 / (90_000 / 1.1 + 10_000) - 1, 12);
-  });
-
-  test('a holding with no return is excluded from BOTH the top and the bottom of the average', () => {
-    // if it were counted as 0% in the total but excluded from the weight, the answer would be wrong
-    expect(portfolioPeriodReturn([row('VTI', 90_000, 0.10), row('???', 10_000, null)])).toBeCloseTo(0.10, 4);
-  });
-
-  test('nothing usable returns NOTHING, never 0%', () => {
-    expect(portfolioPeriodReturn([])).toBeNull();
-    expect(portfolioPeriodReturn([row('???', 10_000, null)])).toBeNull();
-  });
-});
-
-describe('PORTFOLIO_TREND', () => {
-  const now = new Date('2026-08-17T12:00:00Z');
-  const px = (t: string) => ({ ticker: t, points: [
-    { date: '2025-08-01', close: 100 }, { date: '2026-02-01', close: 120 }, { date: '2026-08-17', close: 150 },
-  ] } as any);
-  const pos = (ticker: string, shares: number, purchase_date: string) =>
-    ({ position_id: ticker, ticker, lots: [{ lot_id: 'l', shares, cost_per_share: 1, purchase_date }] } as any);
-
-  test('it draws 13 points across the window, with the benchmark rebased to the same start', () => {
-    const t = portfolioTrend([pos('VTI', 10, '2020-01-01')], px, '1Y', 'SPY', now);
-    expect(t).toHaveLength(13);
-    expect(t[0].value).toBe(t[0].bench);       // both lines start together, so the shapes compare
-  });
-
-  test('DEFECT: it values every past date using TODAY\'s share count', () => {
-    // 100 shares bought LAST WEEK are shown as having been held for the whole year. The line then
-    // rises with the price from a year ago on money that was not there — a history you never had.
-    const boughtYesterday = portfolioTrend([pos('VTI', 100, '2026-08-16')], px, '1Y', 'SPY', now);
-    expect(boughtYesterday[0].value).toBe(100 * 100);          // 100 shares × the price a YEAR ago
-    // identical to a holding genuinely held all year — the two are indistinguishable on the chart:
-    const heldAllYear = portfolioTrend([pos('VTI', 100, '2020-01-01')], px, '1Y', 'SPY', now);
-    expect(boughtYesterday[0].value).toBe(heldAllYear[0].value);
-  });
-
-  test('a holding with no price on a date contributes zero rather than breaking the line', () => {
-    const noPrices = portfolioTrend([pos('ZZZ', 10, '2020-01-01')], () => null, '1Y', 'SPY', now);
-    expect(noPrices.every((p) => p.value === 0)).toBe(true);
-  });
-});
+// PORTFOLIO_RETURN and PORTFOLIO_TREND (MK-PF-F-019 portfolioPeriodReturn, MK-PF-F-018 portfolioTrend) were probed
+// here. Both were removed on 2026-10-12 (his approval, DEC-4642): the return on screen is MK-NW-O-008
+// thePerformance's time-weighted return, and the graph is drawn from the saved daily values.

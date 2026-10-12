@@ -1775,7 +1775,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-090 windowStartKey — five cases › edge · Unknown label defaults to 12 months back"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-090 windowStartKey — five cases › edge · Unknown label defaults to 12 months back",
+   "settled": "SETTLED 2026-10-12 by DEC-4640: a window name the app does not have gives no start (nothing), never twelve months back."
   },
   {
    "id": "MK-NW-F-091",

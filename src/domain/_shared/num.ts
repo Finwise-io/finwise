@@ -132,11 +132,11 @@ export const rentFigure = (v: any): number | null => {
  *               MK-NW-F-041 monthlyContributionsFromOnboarding · MK-NW-F-078 ONE
  *               MK-NW-F-081 LB · MK-NW-F-134 carValueNotEnteredNotes
  *               MK-PF-F-013 benchmarkTicker · MK-PF-F-020 portfolioBenchReturn
- *               MK-PF-F-041 isoDay · MK-PL-F-030 onCourseSentence
- *               MK-ST-F-012 toLedgerRow · MK-ST-F-044 setMoneyFormat
- *               MK-XS-F-004 buildDatedGrid
+ *               MK-PF-F-041 isoDay · MK-PF-F-046 saleShortOfPurchasesSentence
+ *               MK-PL-F-030 onCourseSentence · MK-ST-F-012 toLedgerRow
+ *               MK-ST-F-044 setMoneyFormat · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 160 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 161 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -146,7 +146,7 @@ export const rentFigure = (v: any): number | null => {
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 142 more — the full list is on functions_from_code
+ *               … and 143 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

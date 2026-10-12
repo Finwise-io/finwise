@@ -4,9 +4,10 @@
 // are the ones they can verify without trusting us: how many shares, what I paid, what it is worth,
 // what I am up. If these are wrong nothing above them can be right.
 import {
-  totalShares, costBasis, avgCost, marketValue, unrealizedGain,
+  totalShares, costBasis, marketValue, unrealizedGain,
   capGains, totalROI, latestClose, earliestPurchaseDate,
 } from '../../src/domain/performance';
+import { theHolding } from '../../MoneyKeel/functions/networth-and-performance/holding';
 
 const lot = (shares: number, cost: number, date = '2020-01-15') =>
   ({ lot_id: 'l', shares, cost_per_share: cost, purchase_date: date });
@@ -23,15 +24,14 @@ describe('HOLDING_SHARES / COST_BASIS / AVG_COST', () => {
     const p = P(lot(10, 100), lot(5, 120));
     expect(totalShares(p)).toBe(15);
     expect(costBasis(p)).toBe(1600);              // 10×100 + 5×120
-    expect(avgCost(p)).toBeCloseTo(106.67, 2);              // 1600 ÷ 15, to the cent
+    // the average paid per share is MK-NW-O-006 theHolding's avgPaidPerShare (MK-PF-F-003 avgCost removed 2026-10-12, DEC-4642)
+    expect(theHolding({ position: p, accountId: 'a', price: null, transactions: [] }).avgPaidPerShare).toBeCloseTo(1600 / 15, 12);
+    expect(theHolding({ position: P(), accountId: 'a', price: null, transactions: [] }).avgPaidPerShare).toBeNull();   // no shares held: no average
   });
 
   test('no lots is zero, not an error and not a guess', () => {
     expect(totalShares(P())).toBe(0);
     expect(costBasis(P())).toBe(0);
-    // no shares held: no average price — $0.00 read as "paid nothing" (outside review Claude Performance,
-    // 2026-10-11, DEC-3523 tenet 3)
-    expect(avgCost(P())).toBeNull();
   });
 
   test('a lot with no cost still counts toward shares — you own them either way', () => {

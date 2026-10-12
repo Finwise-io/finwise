@@ -10,7 +10,7 @@
 // the app told the founder $1.4m arrived in an account where Vanguard says nothing moved.
 import { buildChangeWalk, trendPoints, normalizeSnapshot, readHistory } from '../../src/domain/history';
 import { mapPosition, mapActivityType, netCashSleeve, activityKey, dedupeActivities } from '../../src/services/sync/snaptrade';
-import { periodReturn, portfolioPeriodReturn } from '../../src/domain/performance';
+import { periodReturn } from '../../src/domain/performance';
 
 // ════════════════════════════════════════════════════════════════════════════════════════════════
 // NW_CHANGE_WALK  ·  src/domain/history.ts:144

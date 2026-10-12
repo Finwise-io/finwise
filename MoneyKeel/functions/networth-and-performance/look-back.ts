@@ -102,7 +102,9 @@ export const LOOK_BACK_FIGURES = declareFigures({
     answers: 'What your money actually did, where it actually was.',
     formula: 'the amount × (the fund’s price today ÷ its price at the start of the window)',
     inputs: ['MK-NW-I-005 the price feed'],
-    decisions: ['Price changes only — dividends are not in it, and the screen says so.'],
+    // corrected 2026-10-12 (DEC-4645): this said "Price changes only — dividends are not in it, and the screen says
+    // so". Both were false: the look-back reads the same dividend-adjusted closes, and the screen never said it.
+    decisions: ['Dividends and distributions are in it: the closes it reads are adjusted for them (corrected 2026-10-12; it said price changes only).'],
     refusal: 'No price history over the whole window — the screen shows nothing rather than a shortened one.',
     ruled: '2026-09-28',
     worked: {

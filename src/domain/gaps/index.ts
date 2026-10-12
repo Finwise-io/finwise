@@ -226,7 +226,10 @@ export function dataGaps(
         gaps.push({
           kind: 'no-activity', accountId: a.asset_id,
           title: `${who} hasn't shared dividend records`,
-          meanwhile: 'Its return shows price change only — we never estimate income we were not given.',
+          // corrected 2026-10-12 (DEC-4645): this read "Its return shows price change only", which was false — the
+          // return is measured on the account's recorded values, and its prices are dividend-adjusted closes. What is
+          // missing without the records is the dividends' own line: they sit inside the change in investment value.
+          meanwhile: 'Its dividends sit inside the change in investment value, not on a line of their own — we never estimate income we were not given.',
           fixLabel: 'Enter dividends yourself', route: `/account-detail?id=${a.asset_id}`,
         });
       }

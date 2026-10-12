@@ -101,6 +101,7 @@ export interface AssetAccount {
     contracts: number;            // already inside `balance` (the broker's total), so these rows
     value: number;                // are DISPLAY detail, never added again to any total.
     cost_basis?: number | null;
+    multiplier?: number;          // shares per contract as the broker states it: 10 for a mini option, else 100 (DEC-4646)
   }[];
   value_as_of?: string;           // 'YYYY-MM-DD' — when a HAND-ENTERED value was last set/confirmed
                                   // (display honesty only; the balance stays the one stored number)

@@ -3136,9 +3136,9 @@
     "key": "MK-NW-M-032",
     "col": "Function ID",
     "mode": "replace",
-    "text": "MK-PF-F-003",
-    "date": "2026-09-12",
-    "why": "B16 re-verified 2026-09-12: \"Price paid (average)\" is avgCost = cost basis ÷ shares held; the row named costBasis, which returns the total."
+    "text": "MK-NW-O-006",
+    "date": "2026-10-12",
+    "why": "B16 re-verified 2026-09-12: \"Price paid (average)\" is avgCost = cost basis ÷ shares held; the row named costBasis, which returns the total. RE-POINTED 2026-10-12 (his approval DEC-4642): MK-PF-F-003 avgCost was removed — no screen called it; the Holding page prints theHolding's average paid per share (MK-NW-O-006), the same arithmetic."
   },
   {
     "tab": "networth",

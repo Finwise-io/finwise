@@ -12,7 +12,7 @@ import { SectionBand } from '../components/SectionBand';
 import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
-import { periodReturnSince, buildPerformance, startDateFor, type Period, type Position } from '../domain/performance';
+import { periodReturnSince, buildPerformance, priceHistoryShortSentence, type Period, type Position } from '../domain/performance';
 import { DateLink } from '../components/DateField';   // (DEC-4059c, 2026-10-10)
 import { EDIT_HISTORY_START, historyCoverage, assetClassOf, taxWordsOf, TAX_TYPE_NOT_STATED, holdingClassOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount, sourceWording } from '../domain/assets';
 import { theBonds, MATURITY_NOT_ENTERED } from '../../MoneyKeel/functions/networth-and-performance/bonds';
@@ -181,8 +181,9 @@ export default function AccountPortfolioScreen() {
     const start = !dataStart ? null
       : p === 'SINCE'
       ? (recordedDays.length ? windowStartKey('SINCE', recordedDays, todayKey) : movedDays[0] ?? null)
-      : iso(startDateFor(p as Period, new Date()));
-    const priced = buildPerformance(positions, priceOf, p as Period, new Date(), () => dataStart);
+      : windowStartKey(p, [], todayKey);   // one rule for a window's first day, which refuses a name it does not know (DEC-4640)
+    // "Since" hands over its own first day; it used to be read as today, one day's move (2026-10-12, DEC-4640)
+    const priced = buildPerformance(positions, priceOf, p as Period, new Date(), () => dataStart, p === 'SINCE' ? start : undefined);
     return thePerformance({
       windowStart: start,
       windowLabel: p === 'SINCE' ? (dataStart ? `since ${dateShown(dataStart)}` : 'since today') : (PHRASE[p] ?? 'this window'),
@@ -212,7 +213,7 @@ export default function AccountPortfolioScreen() {
   const cats = categoryEarnings({
     transactions: ledger,
     windowStart: now?.windowStart ?? todayKey,
-    rows: buildPerformance(positions, priceOf, period as Period, new Date(), () => dataStart) as any,
+    rows: buildPerformance(positions, priceOf, period as Period, new Date(), () => dataStart, period === 'SINCE' ? now?.windowStart ?? null : undefined) as any,
   });  const catsTotal = cats.reduce((n, b) => n + b.earned, 0);
   /** THE VALUE LINE — this account's worth on each recorded day inside the window, at most 26 points. */
   const graphPoints: { date: string; value: number }[] = [];
@@ -267,6 +268,9 @@ export default function AccountPortfolioScreen() {
   //     +2.10%), and its income is never folded into it — income sits on its own line beneath the
   //     row, where the founder put it. A LIFETIME return on cost is never printed here: that is
   //     exactly the disagreement v14 fixes;
+  //     (corrected 2026-10-12, DEC-4645: the daily closes are dividend-adjusted, so a holding's own figure DOES
+  //     include its dividends — once. The income line beneath it says how much of it came as income; nothing adds the
+  //     two. Where its prices begin after the window opens, the row says so — DEC-4641.)
   //   · a class shows its holdings' price return weighted by what each is worth;
   //   · a holding we hold no price for shows "—", never a guess.
   const statedYearlyRate = (rowClass: string): number | null => {
@@ -284,6 +288,14 @@ export default function AccountPortfolioScreen() {
     if (stated != null) return rateWords(stated);
     if (Math.round(value) === Math.round(account.balance || 0)) return acctReturnText;
     return pct2(priceReturnOf(ticker));
+  };
+  /** WHERE A HOLDING'S PRICES BEGIN AFTER THE WINDOW OPENS its figure is measured from its first price, and the
+   *  row says so — the same sentence, from the same function, as the Holding page (his approval, 2026-10-12,
+   *  DEC-4641). Only on a row whose return column shows its own price figure. */
+  const shortHistoryOf = (rowClass: string, value: number, ticker?: string): string => {
+    if (!ticker || statedYearlyRate(rowClass) != null || Math.round(value) === Math.round(account.balance || 0)) return '';
+    if (priceReturnOf(ticker) == null) return '';
+    return priceHistoryShortSentence(store.priceCache?.[String(ticker).trim().toUpperCase()]?.points, windowStart, period, todayKey);
   };
   /** A class's price return, weighted by what each holding inside it is worth. */
   const classReturnText = (rowClass: string, total: number, rowsInClass: any[]): string => {
@@ -616,6 +628,7 @@ export default function AccountPortfolioScreen() {
                       <Text style={[s.optRet, s.colRetW]}>{returnTextFor(rw.cls, rw.value, rw.ticker)}</Text>
                     </TouchableOpacity>
                     {!!incomeOf(rw) && <Text style={s.incomeLine}>{figWords('MK-NW-M-021', `Income: ${incomeOf(rw)}`)}</Text>}
+                    {!!shortHistoryOf(rw.cls, rw.value, rw.ticker) && <Text style={s.incomeLine}>{shortHistoryOf(rw.cls, rw.value, rw.ticker)}</Text>}
                   </View>
                 ))}
               </View>
@@ -631,7 +644,7 @@ export default function AccountPortfolioScreen() {
           </View>
           <Text style={s.optNote}>
             Counted inside this account's total — listed here so nothing is hidden. A holding's return is
-            what its own price did in this window; the income it paid sits on the line beneath it. Income sits with the
+            what its own price did in this window, its dividends included; the income it paid is also on the line beneath it. Income sits with the
             holding that earned it{acctIncome != null && acctIncome > 0
               ? <Text> — <Text style={s.optNoteFig}>{fig('MK-NW-M-019', acctIncome)}</Text> for this account</Text>
               : null}.

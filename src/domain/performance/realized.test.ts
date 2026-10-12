@@ -46,3 +46,30 @@ test('OPENING_POSITION rows seed basis just like buys', () => {
   ]);
   expect(r.realizedAllTime).toBe(100);
 });
+
+// DEC-4643 (his approval, 2026-10-12: "3,4, 8-approved"). A linked broker sends about two years of activity, so a sale
+// can be bigger than the purchases on record: bought 10 @ $50, sold 15 @ $70. The sale is counted ONCE.
+describe('a sale bigger than the purchases on record (DEC-4643)', () => {
+  const { saleShortOfPurchasesSentence } = require('./realized');
+  const sale = [t({ date: `${yr}-01-05`, shares: 10, price: 50 }), t({ date: `${yr}-06-01`, type: 'SELL', shares: 15, price: 70 })];
+  test('one sale, a $200 gain on the 10 matched shares, the other 5 named', () => {
+    const r = realizedFromLedger(sale);
+    expect([r.realizedAllTime, r.sellsCounted, r.sellsWithoutBasis]).toEqual([200, 1, 0]);
+    expect(r.shortOfPurchases).toEqual([{ date: `${yr}-06-01`, sold: 15, matched: 10, gain: 200 }]);
+    expect(saleShortOfPurchasesSentence(r.shortOfPurchases[0], { kind: 'stocks_etf' }, (n: number) => `$${n}`))
+      .toBe('$200 gain on 10 of 15 shares sold; what you paid for the other 5 is not on record.');
+  });
+  test('a loss on the matched part says loss; contracts keep their unit', () => {
+    const r = realizedFromLedger([t({ date: `${yr}-01-05`, shares: 2, price: 5 }), t({ date: `${yr}-03-01`, type: 'SELL', shares: 3, price: 4 })],
+      { holding: { kind: 'options' } });
+    expect(r.shortOfPurchases[0]).toEqual({ date: `${yr}-03-01`, sold: 3, matched: 2, gain: -200 });   // 2 × ($4 − $5) × 100
+    expect(saleShortOfPurchasesSentence(r.shortOfPurchases[0], { kind: 'options' }, (n: number) => `$${n}`))
+      .toBe('$200 loss on 2 of 3 contracts sold; what you paid for the other 1 is not on record.');
+  });
+  test('a sale with no purchase on record at all: counted once, no gain', () => {
+    const r = realizedFromLedger([t({ type: 'SELL', shares: 5, price: 300 })]);
+    expect([r.sellsCounted, r.sellsWithoutBasis, r.shortOfPurchases.length]).toEqual([0, 1, 1]);
+    expect(saleShortOfPurchasesSentence(r.shortOfPurchases[0], { kind: 'stocks_etf' }, (n: number) => `$${n}`))
+      .toBe('5 shares sold; what you paid for them is not on record, so no gain is counted.');
+  });
+});

@@ -91,11 +91,7 @@ export default function PerformanceScreen() {
     }
     return m;
   }, [store.transactions]);
-  const rows = useMemo(
-    () => buildPerformance(positions, priceOf, period, new Date(), (p) => earliestBuyByTicker[p.ticker.trim().toUpperCase()] ?? null),
-    [owned, priceCache, period, earliestBuyByTicker]);
   const sinceWord = (iso: string) => `since you bought · ${new Date(`${iso}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-  const anyCapped = rows.some((r) => r.cappedSince != null);
   // FINAL mock: every chip shows ITS OWN return — a window with no data shows an em-dash, never a
   // guess. Same rows and function as the headline, just run per period, so chips can't disagree with it.
   // FCC glance pin: the SAME resolved rows + helper Home's hero uses — the two can never disagree
@@ -123,7 +119,14 @@ export default function PerformanceScreen() {
   const sinceWords = dayOne ? 'today' : dateShown(recordDates[0]);
   // ONE definition of a period's start — the walk, the ledger filter and the gap checks all use it.
   // It lives in the door (MK-NW-F-090), so Home asks the same question of the same window.
-  const periodStartKey = (p: string): string => windowStartKey(p, recordDates, todayKey);
+  // a name the app does not have gives null (DEC-4640); this screen offers only the five windows below
+  const periodStartKey = (p: string): string | null => windowStartKey(p, recordDates, todayKey);
+  // EACH HOLDING'S WINDOW FIGURE OVER THE SAME WINDOW. "Since" has no fixed length, so its first day — the record's —
+  // is handed over; it used to be read as today, and each holding's Since figure was one day's move (2026-10-12, DEC-4640).
+  const holdingRowsFor = (p: string) => buildPerformance(positions, priceOf, p as Period, new Date(),
+    (q) => earliestBuyByTicker[q.ticker.trim().toUpperCase()] ?? null, p === 'SINCE' ? periodStartKey('SINCE') : undefined);
+  const rows = useMemo(() => holdingRowsFor(period), [owned, priceCache, period, earliestBuyByTicker, recordDates, todayKey]);
+  const anyCapped = rows.some((r) => r.cappedSince != null);
   const PERIOD_PHRASE: Record<string, string> = { '1M': 'past month', '3M': 'past 3 months', '6M': 'past 6 months', 'YTD': 'this year', '1Y': 'past year', '2Y': 'past 2 years' };
   // FOUND 2026-09-14: tapping "Since <date>" crashed the screen — the phrase table had no entry for it,
   // so the summary title read undefined.toUpperCase(). Every window now has words, the Since one included.
@@ -149,7 +152,7 @@ export default function PerformanceScreen() {
   const figuresFor = (p: string) => {
     const windowStart = periodStartKey(p);
     // what the priced holdings gained: used ONLY to derive a beginning the record cannot reach
-    const priced = p === period ? rows : buildPerformance(positions, priceOf, p as Period, new Date(), (q) => earliestBuyByTicker[q.ticker.trim().toUpperCase()]);
+    const priced = p === period ? rows : holdingRowsFor(p);
     const answer = thePerformance({
       windowStart, windowLabel: phraseFor(p), today: todayKey,
       // the holdings themselves: the door decides each one's gain over this window (DEC-3656, 2026-10-09)
@@ -176,6 +179,7 @@ export default function PerformanceScreen() {
     if (!days.length) return [] as { date: string; value: number }[];
     // the line starts on the day the beginning is READ for, so its first point is the walk's first row
     const start = windowFigures[period]?.beginningAsOf ?? periodStartKey(period);
+    if (start == null) return [] as { date: string; value: number }[];
     const inWindow = days.filter((d) => d.date >= start).map((d) => d.date).sort();
     const step = Math.max(1, Math.ceil(inWindow.length / 26));
     const out: { date: string; value: number }[] = [];
@@ -555,6 +559,9 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
   const [label, setLabel] = useState('');
   const [kind, setKind] = useState<string>('stocks_etf');
   const [lots, setLots] = useState<Lot[]>([]);
+  // SHARES PER CONTRACT for an option typed by hand (his approval, 2026-10-12, DEC-4646; MK-XS-I-063): 100 unless the
+  // person states otherwise — a mini option is 10. Saved to the holding's `multiplier`, which MK-PF-F-031 reads.
+  const [perContract, setPerContract] = useState('100');
   const [tickerFocus, setTickerFocus] = useState(false);
   // autocomplete: suggest common tickers as they type (hidden once it's an exact symbol match)
   const suggestions = useMemo(() => {
@@ -569,8 +576,10 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
     if (existing) {
       setAccountId(existing.accountId); setTicker(existing.position.ticker); setLabel(existing.position.label ?? '');
       setKind(existing.position.kind ?? 'stocks_etf'); setLots(existing.position.lots.length ? existing.position.lots : [blankLot()]);
+      setPerContract(String(existing.position.multiplier != null && existing.position.multiplier > 0 ? existing.position.multiplier : 100));
     } else {
       setAccountId(investAccts[0]?.asset_id ?? '__new__'); setTicker(''); setLabel(''); setKind('stocks_etf'); setLots([blankLot()]);
+      setPerContract('100');
     }
   }, [open]);
 
@@ -586,13 +595,17 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
     lotRaw[`${i}-${field}`] ?? (n ? String(n) : '');
   // new-investor friendly: only ticker + shares are required; cost/share + date are optional
   // (without cost we just can't show return-since-purchase — value & vs-benchmark still work).
-  const valid = ticker.trim().length > 0 && lots.some((l) => l.shares > 0);
+  const isOption = kind === 'options';
+  const perContractN = num(perContract);
+  const valid = ticker.trim().length > 0 && lots.some((l) => l.shares > 0) && (!isOption || perContractN > 0);
 
   const save = () => {
     const clean = lots.filter((l) => l.shares > 0).map((l) => ({ ...l, lot_id: l.lot_id || `lot_${Math.random().toString(36).slice(2, 8)}` }));
     const position: Position = {
       position_id: existing?.position.position_id ?? `pos_${Math.random().toString(36).slice(2, 8)}`,
       ticker: ticker.trim().toUpperCase(), label: label.trim() || undefined, kind, lots: clean,
+      // an option keeps the shares per contract the person typed (default 100); anything else carries none
+      ...(isOption ? { multiplier: perContractN } : {}),
     };
     onSave(accountId, position, isNew);
   };
@@ -646,7 +659,15 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
             ))}
           </View>
 
-          <Text style={styles.fieldL}>Shares you hold</Text>
+          {isOption && (
+            <>
+              <Text style={styles.fieldL}>Shares per contract</Text>
+              <TextInput style={styles.input} keyboardType="number-pad" value={perContract} onChangeText={setPerContract}
+                accessibilityLabel="Shares per contract" placeholder="100" placeholderTextColor={Colors.textTertiary} />
+              <Text style={styles.beginnerHint}>100 for a standard option; 10 for a mini option. Value and cost are multiplied by it.</Text>
+            </>
+          )}
+          <Text style={styles.fieldL}>{isOption ? 'Contracts you hold' : 'Shares you hold'}</Text>
           <Text style={styles.beginnerHint}>New to this? Just enter shares — cost &amp; date are optional (add them later for return-since-purchase).</Text>
           {lots.map((l, i) => (
             <View key={i} style={styles.lotRow}>
@@ -686,7 +707,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
           )}
 
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid} accessibilityRole="button" accessibilityLabel={isNew ? 'Add holding' : 'Save holding'} onPress={save}>
-            <Text style={styles.saveBtnT}>{isNew ? 'Add holding' : 'Save'}{valid && (costBasis({ position_id: '', ticker, lots } as Position) ?? 0) > 0 ? ` · cost ${fig('MK-NW-M-033', costBasis({ position_id: '', ticker, lots } as Position))}` : ''}</Text>
+            <Text style={styles.saveBtnT}>{isNew ? 'Add holding' : 'Save'}{valid && (costBasis({ position_id: '', ticker, lots, kind, multiplier: isOption ? perContractN : undefined } as Position) ?? 0) > 0 ? ` · cost ${fig('MK-NW-M-033', costBasis({ position_id: '', ticker, lots, kind, multiplier: isOption ? perContractN : undefined } as Position))}` : ''}</Text>
           </TouchableOpacity>
           {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete holding" onPress={onDelete}><Text style={styles.deleteLink}>Delete holding</Text></TouchableOpacity>}
           <View style={{ height: 20 }} />

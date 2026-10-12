@@ -44,6 +44,8 @@ export interface StOptionHolding {
     strike_price?: number | null;
     expiration_date?: string | null;         // 'YYYY-MM-DD'
     underlying_symbol?: { symbol?: string | null; raw_symbol?: string | null } | null;
+    // SnapTrade SDK 12.2.22: "Mini options have 10 underlying shares per contract instead of the standard 100"
+    is_mini_option?: boolean | null;
   } | null } | null;
   units?: number | null;                     // contracts (negative = short)
   price?: number | null;                     // per contract basis varies; value = units×price×multiplier
@@ -268,6 +270,7 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
  *               MK-XS-I-034 option positions — contracts, strike, expiry, put or call
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-146
  * Changed ..... not in git yet (—)
@@ -276,7 +279,7 @@ const prettyExpiry = (iso: string | null | undefined) => {
   const [y, m, d] = String(iso ?? '').split('-').map(Number);
   return y && m && d ? `${MONTHS[m - 1]} ${d} ${y}` : 'unknown expiry';
 };
-export interface MappedOption { label: string; contracts: number; value: number; costBasis: number | null }
+export interface MappedOption { label: string; contracts: number; value: number; costBasis: number | null; multiplier: number }
 /* ─ MK-XS-F-106 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * mapOptionHolding
  *
@@ -286,6 +289,8 @@ export interface MappedOption { label: string; contracts: number; value: number;
  *     os = symbol.option symbol
  *     contracts = units (or 0 when missing)
  *     nothing   when os is missing (or contracts = 0 when missing or zero)
+ *     multiplier = multiplier given (or 10   if os.is mini option = true
+ *     100   otherwise when missing)
  *     under = (os.underlying symbol.raw symbol or os.underlying symbol.symbol or os.ticker or '?').to upper case()
  *     kind word = 'put'   if os.option type = 'PUT'
  *     'call'   otherwise
@@ -310,10 +315,14 @@ export interface MappedOption { label: string; contracts: number; value: number;
  * Formula also on the master file · functions_from_code · MK-XS-F-106
  * Changed ..... 2026-07-18 (99d220a)
  */
-export function mapOptionHolding(o: StOptionHolding, multiplier = 100): MappedOption | null {
+export function mapOptionHolding(o: StOptionHolding, multiplierGiven?: number): MappedOption | null {
   const os = o.symbol?.option_symbol;
   const contracts = o.units ?? 0;
   if (!os || contracts === 0) return null;
+  // SHARES PER CONTRACT, AS THE BROKER STATES IT (his approval, 2026-10-12, DEC-4646; MK-XS-I-063, DEC-0274: "100
+  // unless the broker or the person states otherwise"). SnapTrade marks a mini option, which is 10 shares a contract;
+  // every other option is 100. It was always 100, so a mini option read ten times its value.
+  const multiplier = multiplierGiven ?? (os.is_mini_option === true ? 10 : 100);
   const under = (os.underlying_symbol?.raw_symbol || os.underlying_symbol?.symbol || os.ticker || '?').toUpperCase();
   const kindWord = os.option_type === 'PUT' ? 'put' : 'call';
   const strike = os.strike_price != null ? `$${os.strike_price}` : '';
@@ -325,6 +334,8 @@ export function mapOptionHolding(o: StOptionHolding, multiplier = 100): MappedOp
     // `average_purchase_price` is already the whole CONTRACT's dollars — it matched the actual
     // BUY_TO_OPEN cash to the cent. Multiplying it too would overstate the basis 100-fold.
     costBasis: o.average_purchase_price != null ? Math.round(o.average_purchase_price * contracts * 100) / 100 : null,
+    // carried onto the stored option row, so whatever reads it later uses the broker's figure, never a guessed 100
+    multiplier,
   };
 }
 

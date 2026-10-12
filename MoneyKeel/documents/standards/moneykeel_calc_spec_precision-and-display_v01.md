@@ -128,6 +128,19 @@ same day; `src/__tests__/guard_every_return_is_time_weighted.test.ts` fails the 
 Source of the decision: `MoneyKeel/documents/audit/outside-test-cases/returned/moneykeel_note_to_claude_code_TWR.md`.
 
 
+## His Performance decisions of 2026-10-12
+
+**His words:** *"1, 2 - approved."* and *"3,4, 8-approved."* Items 6 and 7 were rules he had already made (*"we made the rule in last session while working on NW"*).
+
+- **A window name the app does not have gives no figure (DEC-4640).** The screens offer Since, 1M, This year, 1Y and 2Y. If anything is handed another name (for example "5Y"), no window opens and no figure shows — never a guessed start. One table of window names (`WINDOW_MONTHS`) is read by MK-PF-F-008 startDateFor and MK-NW-F-090 windowStartKey, which now asks startDateFor. Before: "5Y" read as twelve months back in one and as today in the other. "Since" has no fixed length, so its first day — the record's — is handed over by the screen; it used to be read as today, so a holding's "Since" figure was one day's move.
+- **A holding whose prices begin after the window opens is measured from its first price, and says so (DEC-4641).** Wherever that holding's window figure appears, its line reads: "Prices for this holding go back 5 months, so the 1-year figure covers 5 months — not a year." One function writes it (MK-PF-F-045 priceHistoryShortSentence); the Holding page and each holding row of the Account page ask it.
+- **Six unused functions are removed (DEC-4642):** avgCost (the Holding page's average is MK-NW-O-006 theHolding), attribution, allocation, portfolioTrend (the graph is drawn from the saved daily values), portfolioPeriodReturn (the return is MK-NW-O-008 thePerformance), periodDollarDelta (the dollars are wealth generated). Their six numbers are retired, each with its reason, in `Calculation Module code/scripts/moneykeel_function_register.json`.
+- **A sale bigger than the purchases on record is counted once (DEC-4643).** A linked broker sends about two years of activity. Bought 10 at $50, sold 15 at $70: one sale, a gain of 10 × ($70 − $50) = $200 on the matched shares, and the line "$200 gain on 10 of 15 shares sold; what you paid for the other 5 is not on record." (MK-PF-F-028, MK-PF-F-046). A sale typed by hand cannot sell more than is owned.
+- **A holding's return includes its dividends once (DEC-4644 — his existing rule).** The price feed gives dividend-adjusted closes, so a holding's return already carries its dividends. Where the beginning is worked back from each holding's return, the dividends are not taken off again: 1,000 shares $100 → $105 paying $1,200, adjusted return 105 ÷ 98.80 − 1 = 6.28% → beginning $100,000; taking the dividend off again would read $98,800. The walk adds up: dividends + change in investment value = wealth generated.
+- **The market figure includes dividends and interest (DEC-4645).** Corrected 2026-10-12: the market figure uses SPY and AGG adjusted closes, which include their dividends and interest. His Home line stays word for word: "you +3.69% (including dividends and interest) · market +2.83% · ahead by 0.85%". The 2026-09-30 records (DEC-0595, DEC-0640) that called it price only carry a dated correction.
+
+Held by `src/domain/performance/start_date_month_end.test.ts`, `src/domain/performance/realized.test.ts`, `src/screens/__tests__/performance_decisions_2026_10_12.test.tsx`, `src/domain/gaps/gaps.test.ts` and the settled outside cases in `MoneyKeel/functions/networth-and-performance/outside_performance_claude_01.test.ts` … `_04.test.ts`.
+
 ## What this changes for the file
 
 - The functions tab no longer carries "rounds the answer to …" lines except where a rounding is the rule.

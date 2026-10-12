@@ -2687,14 +2687,15 @@
    ],
    "decisions": [
     "The benchmark runs over the SAME DATES as your return — including where your window is cut short at your own purchase date. Comparing your three months against the market's twelve is not a comparison.",
-    "Weighted by what each holding was worth when the window began, so the blend answers \"the market, matched to my mix\" rather than a plain average of indices — and a holding that grew does not grow its yardstick's weight (outside review Claude Performance, 2026-10-11, DEC-1669, DEC-3035b)."
+    "Weighted by what each holding was worth when the window began, so the blend answers \"the market, matched to my mix\" rather than a plain average of indices — and a holding that grew does not grow its yardstick's weight (outside review Claude Performance, 2026-10-11, DEC-1669, DEC-3035b).",
+    "THE MARKET INCLUDES ITS DIVIDENDS AND INTEREST (DEC-4645, 2026-10-12): SPY and AGG are read through the same dividend-adjusted closes as every holding (src/services/marketData.ts, adjclose)."
    ],
    "refusal": "No benchmark can be priced over this window, so none is shown.",
    "worked": {
     "given": "$40,000 of shares against a benchmark up 10% over the window, and $10,000 of bonds against one up 4% over the same days; neither holding moved, so each was worth then what it is worth now.",
     "answer": "8.80%"
    },
-   "note": "ITS SCREEN WAS WRONG UNTIL 2026-09-30. The row said /invest and called it HONEST COMPARISON — the name of a card the approved mock v14 removed on 2026-09-25 (\"not in this design, so they go\"). The figure itself is alive, on HOME, inside the glance line \"you +3.69% · market +2.83% · ahead by 0.85%\". Nothing showed it on Performance. Declared 2026-09-30; hand-typed before that, so nothing compared the row with the code. STILL OPEN FOR HIM: the market side counts PRICE CHANGE ONLY (we hold no dividend record for an index), while the \"you\" side beside it counts dividends and interest — so the \"ahead by\" is not a like-for-like gap.",
+   "note": "ITS SCREEN WAS WRONG UNTIL 2026-09-30. The row said /invest and called it HONEST COMPARISON — the name of a card the approved mock v14 removed on 2026-09-25 (\"not in this design, so they go\"). The figure itself is alive, on HOME, inside the glance line \"you +3.69% · market +2.83% · ahead by 0.85%\". Nothing showed it on Performance. Declared 2026-09-30; hand-typed before that, so nothing compared the row with the code. STILL OPEN FOR HIM: the market side counts PRICE CHANGE ONLY (we hold no dividend record for an index), while the \"you\" side beside it counts dividends and interest — so the \"ahead by\" is not a like-for-like gap. Corrected 2026-10-12: the market figure uses SPY and AGG adjusted closes, which include their dividends and interest. Both sides of \"ahead by\" therefore count income, and the line is like-for-like; his approved wording stays word for word (DEC-4645).",
    "door": "MK-NW-O-008 thePerformance"
   },
   "MK-XS-M-004": {
@@ -2849,7 +2850,7 @@
     "MK-NW-I-005 the price feed"
    ],
    "decisions": [
-    "Price changes only — dividends are not in it, and the screen says so."
+    "Dividends and distributions are in it: the closes it reads are adjusted for them (corrected 2026-10-12; it said price changes only)."
    ],
    "refusal": "No price history over the whole window — the screen shows nothing rather than a shortened one.",
    "ruled": "2026-09-28",

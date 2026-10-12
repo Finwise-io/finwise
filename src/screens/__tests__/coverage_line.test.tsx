@@ -21,13 +21,23 @@ const door = () => fs.readFileSync(
   path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'functions', 'networth-and-performance', 'performance.ts'), 'utf8');
 
 describe('COVERAGE IS STATED ON EVERY SCREEN THAT OFFERS A WINDOW', () => {
-  for (const f of SCREENS) {
-    test(`${f} computes coverage from the function and renders the sentence`, () => {
+  // THE SENTENCE MOVED INTO ONE FUNCTION ON 2026-10-12 (his approval, DEC-4641): MK-PF-F priceHistoryShortSentence
+  // asks the coverage engine, and every screen that prints a holding's window figure asks IT — the Holding page and,
+  // since that day, each holding row of the Account page. So the engine pin reads the function, and the screens are
+  // pinned to call it and to print only a sentence that is there.
+  test('the one sentence function computes coverage from the engine', () => {
+    const src = fs.readFileSync(path.join(__dirname, '..', '..', 'domain', 'performance', 'index.ts'), 'utf8');
+    const fn = src.slice(src.indexOf('export function priceHistoryShortSentence'), src.indexOf('export const WINDOW_MONTHS'));
+    expect(src).toContain('engines/coverage');            // the ONE function, not a local rewrite
+    expect(fn).toMatch(/coverageFor\(/);
+    expect(fn).toMatch(/if \(coverage\.covers \|\| !coverage\.from\) return '';/);   // silent when the prices cover the window
+  });
+  for (const f of [...SCREENS, 'AccountPortfolioScreen.tsx']) {
+    test(`${f} asks the one sentence function and renders the sentence only when there is one`, () => {
       const src = read(f);
-      expect(src).toContain("engines/coverage");          // the ONE function, not a local rewrite
-      expect(src).toMatch(/coverageFor\(/);
-      expect(src).toMatch(/if \(coverage\.covers \|\| !coverage\.from\) return '';/);   // silent when the prices cover the window
-      expect(src).toMatch(/shortBy !== ''/);                // and the sentence is printed only when there is one (the drawing's words, 2026-10-04)
+      expect(src).toMatch(/priceHistoryShortSentence\(/);
+      expect(src).not.toMatch(/Prices for this holding go back/);   // the words live in the function only
+      expect(src).toMatch(f === 'HoldingDetailScreen.tsx' ? /shortBy !== ''/ : /!!shortHistoryOf\(/);
     });
   }
 

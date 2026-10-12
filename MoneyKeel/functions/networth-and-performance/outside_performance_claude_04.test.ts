@@ -34,7 +34,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
-import { startDateFor, latestClose, periodReturn, periodReturnSince, closeOnOrBefore, type PriceSeries } from '../../../src/domain/performance';
+import { startDateFor, latestClose, periodReturn, periodReturnSince, closeOnOrBefore, priceHistoryShortSentence, type PriceSeries } from '../../../src/domain/performance';
 import { factorOverMonths, lookBack } from '../../../src/domain/performance/lookBack';
 import { theLookBack } from './look-back';
 
@@ -53,7 +53,7 @@ const closeAsOf: (series: PriceSeries | null | undefined, target: Date) => numbe
 // ── helpers ─────────────────────────────────────────────────────────────────────────────────────────
 const D = (iso: string) => { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d, 12); };
 const TODAY = D('2026-10-10');
-const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const iso = (d: Date | null) => d == null ? null : `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const refuses = (v: unknown) => expect(v == null).toBe(true);
 const near = (a: number | null | undefined, e: number, dp = 6) => {
   expect(a).not.toBeNull(); expect(a).not.toBeUndefined();
@@ -186,8 +186,15 @@ describe('MK-PF-F-010 periodReturn — five cases', () => {
   // fallback is deliberate (closeAsOf "target predates the series → first available"; the 2Y branch says the figure "covers
   // only that span"). DEC-0230 ("we never back-fill a year we didn't record") speaks of the daily record, not prices.
   // Open question: may a 1Y figure be measured from a later first price, or must it refuse when prices do not reach back?
-  test.failing('complex · A one-year period for a fund launched five months ago', () => {
-    refuses(periodReturn(S([['2026-05-04', 25.0], ['2026-07-15', 25.4], ['2026-10-09', 25.85]]), '1Y', TODAY));
+  // SETTLED 2026-10-12 by DEC-4641 ("1, 2 - approved"): the figure is measured from the holding's first price, and
+  // wherever it is shown the screen says so — "Prices for this holding go back 5 months, so the 1-year figure covers
+  // 5 months — not a year." (MK-PF-F-045 priceHistoryShortSentence). The auditor's REFUSES is not the rule; the app's
+  // 25.85 ÷ 25.00 − 1 = 3.40% is asserted, with the sentence beside it.
+  test('complex · A one-year period for a fund launched five months ago', () => {
+    const s = S([['2026-05-04', 25.0], ['2026-07-15', 25.4], ['2026-10-09', 25.85]]);
+    near(periodReturn(s, '1Y', TODAY), 25.85 / 25 - 1);
+    expect(priceHistoryShortSentence(s!.points, '2025-10-10', '1Y', '2026-10-10'))
+      .toBe('Prices for this holding go back 5 months, so the 1-year figure covers 5 months — not a year.');
   });
   test('edge · Exactly one year: a total, not a yearly rate', () => {
     near(periodReturn(S([['2025-10-09', 500.0], ['2025-10-10', 500.0], ['2026-10-09', 550.0]]), '1Y', TODAY), 0.1);
@@ -207,8 +214,10 @@ describe('MK-PF-F-011 periodReturnSince — five cases', () => {
   });
   // UNCLEAR: app gives 0.034 (from the first close on record, 2 March, index.ts:680 → :506), expected REFUSES — the same
   // deliberate fallback as MK-PF-F-010 / MK-PF-F-029. Open question: may "since you bought it" start at a later first price?
-  test.failing('edge · Purchase before the price record begins', () => {
-    refuses(periodReturnSince(S([['2026-03-02', 25.0], ['2026-10-09', 25.85]]), '2026-01-05', TODAY));
+  // SETTLED 2026-10-12 by DEC-4641: measured from the first price on record (2 March), 25.85 ÷ 25.00 − 1 = 3.40% —
+  // the same rule as MK-PF-F-010 above; the auditor's REFUSES is not the rule.
+  test('edge · Purchase before the price record begins', () => {
+    near(periodReturnSince(S([['2026-03-02', 25.0], ['2026-10-09', 25.85]]), '2026-01-05', TODAY), 25.85 / 25 - 1);
   });
 });
 
@@ -223,8 +232,11 @@ describe('MK-PF-F-029 closeAsOf — five cases', () => {
   });
   // UNCLEAR: app gives 25.00 (the first close, dated five months after the target, index.ts:506), expected REFUSES — the
   // fallback is written in on purpose; closeOnOrBefore (MK-PF-F-034) is the no-fallback twin. Open question as MK-PF-F-010.
-  test.failing('edge · Target before the first price on record', () => {
-    refuses(closeAsOf(S([['2026-03-02', 25.0], ['2026-10-09', 25.85]]), D('2025-10-10')));
+  // SETTLED 2026-10-12 by DEC-4641: the first close stands in for a target before it — that is how a window figure
+  // is measured from the holding's first price, and the screen names the shorter span. closeOnOrBefore (MK-PF-F-034)
+  // stays the no-stand-in twin. The auditor's REFUSES is not the rule; the app's $25.00 is asserted.
+  test('edge · Target before the first price on record', () => {
+    expect(closeAsOf(S([['2026-03-02', 25.0], ['2026-10-09', 25.85]]), D('2025-10-10'))).toBe(25);
   });
 });
 

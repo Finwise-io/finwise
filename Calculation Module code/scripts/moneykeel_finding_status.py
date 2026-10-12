@@ -207,7 +207,8 @@ STATUS = {
    'The formula on MK-NW-M-008 / MK-NW-M-020 is read from accountClassBreakdown and opens with "nothing when the account is not CONNECTED".',
    'The formula-agreement gate.'),
  'B16': ('FIXED', '2026-09-12',
-   'MK-NW-M-032 "Price paid (average)" names MK-PF-F-003 avgCost = cost basis ÷ shares.',
+   'MK-NW-M-032 "Price paid (average)" names MK-PF-F-003 avgCost = cost basis ÷ shares. Since 2026-10-12 (DEC-4642) it names '
+   'MK-NW-O-006 theHolding (its average paid per share, the same arithmetic): avgCost was removed, no screen called it.',
    'The override on the row.'),
  'B17': ('FIXED', '2026-09-12',
    'The seven Income rows name MK-CF-O-004 incomeSummary — per source, gross and take-home, a year and a month — the Build 54 orchestrator, not totalGrossAnnual.',

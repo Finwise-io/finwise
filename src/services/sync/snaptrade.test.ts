@@ -75,6 +75,19 @@ describe('mapOptionHolding — G2 closure: options are itemized rows, plain-Engl
     expect(m.value).toBe(1240);            // price is per SHARE → ×100 for the contract
     expect(m.costBasis).toBe(4180.25);     // already whole-contract dollars — never ×100 again
   });
+  // DEC-4646 (his approval, 2026-10-12: "3,4, 8-approved"): the broker's own shares per contract — 10 for a mini
+  // option (SnapTrade's is_mini_option), else 100 — values the row and is carried onto it
+  test('a mini option is 10 shares a contract; the multiplier is carried onto the row', () => {
+    const base = { option_type: 'CALL' as const, strike_price: 220, expiration_date: '2027-01-16', underlying_symbol: { raw_symbol: 'AAPL' } };
+    const mini = mapOptionHolding({ symbol: { option_symbol: { ...base, is_mini_option: true } }, units: 2, price: 6.5, average_purchase_price: 41 })!;
+    expect(mini.value).toBe(130);           // 6.5/share × 2 contracts × 10
+    expect(mini.multiplier).toBe(10);
+    expect(mini.costBasis).toBe(82);        // per contract already — unchanged by the multiplier
+    const std = mapOptionHolding({ symbol: { option_symbol: { ...base, is_mini_option: false } }, units: 2, price: 6.5 })!;
+    expect([std.value, std.multiplier]).toEqual([1300, 100]);
+    const unsaid = mapOptionHolding({ symbol: { option_symbol: base }, units: 2, price: 6.5 })!;
+    expect([unsaid.value, unsaid.multiplier]).toEqual([1300, 100]);
+  });
   test('a short put is labeled as short', () => {
     const m = mapOptionHolding({ symbol: { option_symbol: { option_type: 'PUT', strike_price: 90, expiration_date: '2026-12-18', underlying_symbol: { raw_symbol: 'F' } } }, units: -1, price: 2 })!;
     expect(m.label).toContain('put');

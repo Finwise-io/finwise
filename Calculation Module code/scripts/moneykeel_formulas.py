@@ -500,7 +500,9 @@ QUESTIONS_BY_METRIC = {
   'while the MARKET figure is the index\'s PRICE only, because no price feed we have gives an index\'s dividends. '
   'So "ahead by" flatters you by roughly the dividend yield. Three ways out: (a) leave it and say underneath that '
   'the market figure is price only; (b) compare price against price, which means Home shows a return that disagrees '
-  'with Performance again; (c) buy a total-return index feed. Which?'],
+  'with Performance again; (c) buy a total-return index feed. Which?'
+  ' [Corrected 2026-10-12: the market figure uses SPY and AGG adjusted closes, which include their dividends and interest.'
+  ' The premise above was wrong; his approved line stands word for word (DEC-4645).]'],
  'MK-XS-M-004': ['Q52 — MK-PF-F-026 moneyWeightedReturn is a true personal return \u2014 it solves for the rate that makes '
   'what you paid in, on the days you paid it in, equal what you have now. It is built, correct and reached by NO SCREEN: '
   'the card that showed it was removed by the Performance design you approved on 2026-09-25. The Return the screen does '

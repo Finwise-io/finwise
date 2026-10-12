@@ -259,7 +259,8 @@ export function ingestSync(
       positions: p.positions != null
         ? [...positions, ...((prior?.positions ?? []) as any[]).filter((x) => x.added_by === 'user' && !positions.some((y) => y.ticker === x.ticker))]
         : prior?.positions,
-      option_holdings: optionRows.length ? optionRows.map((o) => ({ label: o.label, contracts: o.contracts, value: o.value, cost_basis: o.costBasis })) : undefined,
+      // the shares per contract the broker states — 10 for a mini option, else 100 (DEC-4646, 2026-10-12)
+      option_holdings: optionRows.length ? optionRows.map((o) => ({ label: o.label, contracts: o.contracts, value: o.value, cost_basis: o.costBasis, multiplier: o.multiplier })) : undefined,
       source: 'connected',
       connection_id: st.brokerage_authorization,
       last_synced: st.sync_status?.holdings?.last_successful_sync ?? nowIso,

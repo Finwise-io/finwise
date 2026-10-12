@@ -72,7 +72,9 @@ MK-NW-F-027 accountClassBreakdown. The parts always add up to the account's bala
 
 - **A linked account.** Its uninvested cash is cash. Each priced holding is shares × price under its
   class. Each option is its value as synced — contracts × price per share × 100 (owner, Q06,
-  2026-08-26) — under Alternatives. If the parts fall short of the balance and a holding has **no
+  2026-08-26) — under Alternatives. **Shares per contract (DEC-4646, 2026-10-12: "3,4, 8-approved"):** 10 when the
+  broker (SnapTrade) marks it a mini option, else 100, stored with the option; an option typed by hand has a "Shares per
+  contract" box, 100 unless changed, saved with the holding (MK-XS-I-063, read by MK-PF-F-031 contractMultiplier). If the parts fall short of the balance and a holding has **no
   price**, the difference is that holding's and goes under its class (Unclassified when unpriced
   holdings span classes) — never cash. With every holding priced, a difference no bigger than the
   larger of $1 or 1% of the balance is cash when positive (owner, 2026-08-11, DEC-0095: "why is cash
@@ -303,6 +305,7 @@ deleted is shown as nothing saved — the first-day screen — never as $0 owned
 - **A count written in words** takes its plural from one list of every counted word and its plural — "2 Treasuries", "0 properties" — and a test refuses a word not on it (DEC-4082). The risk swing of Will my money last is parked until the Plan module (DEC-4082, tracker).
 - **The empty Debts door reads "Add your debts ›"** everywhere (DEC-4528).
 - **A property's edit sheet never asks "What's it invested in?"** (DEC-4529).
+- **An option's shares per contract** come from the broker (10 for a mini option, else 100) or from the person ("Shares per contract", default 100) — never a guessed 100 (DEC-4646, 2026-10-12).
 
 ## Status and enforcement
 

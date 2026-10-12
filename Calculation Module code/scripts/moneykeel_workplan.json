@@ -2902,13 +2902,13 @@
   {
    "task": "Claude's outside audit of Performance (4 batches, 225 cases, 45 functions incl. the time-weighted-return engine)",
    "todo": "Run every case against the app; fix what his existing rules settle; bring the rest to him one at a time — AFTER Net worth is launch-ready (his order, 2026-10-11).",
-   "status": "PAUSED by his order (one module at a time) — 225 of 225 run: 170 pass; 40 app errors fixed under his rules; open: 6 decision points (unknown window name, prices starting late, the trend function, partly matched sale, typed balance missing on the last record day; 0% CD settled by his rule), whether a holding's return includes its dividends, and the Home market line's 'including dividends' wording",
+   "status": "IN PROGRESS — his answers of 2026-10-12 built (DEC-4640 … DEC-4646): the 6 decision points and the two dividend questions are closed — unknown window name refuses, prices starting late are measured and named, six unused functions removed, a partly matched sale counted once, the typed-balance case was the judge's double count (withdrawn), a holding's return carries its dividends once, the market figure's record corrected, option shares per contract",
    "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/results/performance_claude_0{1..4}_results.json",
    "date": "2026-10-11",
-   "comments": "Briefs v02 in to-send/moneykeel_brief_performance_0N_claude-code_v02.md.",
+   "comments": "Briefs v02 in to-send/moneykeel_brief_performance_0N_claude-code_v02.md. 2026-10-12: 35 outside cases settled or removed (1 + 3 + 25 removed + 5 re-pointed + 1 + 1 + 1 brief wrong); results files carry a 'settled' line on each. Not committed.",
    "_written": {
-    "status": "PAUSED by his order (one module at a time) — 225 of 225 run: 170 pass; 40 app errors fixed under his rules; open: 6 decision points (unknown window name, prices starting late, the trend function, partly matched sale, typed balance missing on the last record day; 0% CD settled by his rule), whether a holding's return includes its dividends, and the Home market line's 'including dividends' wording",
-    "comments": "Briefs v02 in to-send/moneykeel_brief_performance_0N_claude-code_v02.md."
+    "status": "IN PROGRESS — his answers of 2026-10-12 built (DEC-4640 … DEC-4646): the 6 decision points and the two dividend questions are closed — unknown window name refuses, prices starting late are measured and named, six unused functions removed, a partly matched sale counted once, the typed-balance case was the judge's double count (withdrawn), a holding's return carries its dividends once, the market figure's record corrected, option shares per contract",
+    "comments": "Briefs v02 in to-send/moneykeel_brief_performance_0N_claude-code_v02.md. 2026-10-12: 35 outside cases settled or removed (1 + 3 + 25 removed + 5 re-pointed + 1 + 1 + 1 brief wrong); results files carry a 'settled' line on each. Not committed."
    }
   },
   {
@@ -2917,10 +2917,22 @@
    "status": "DONE 2026-10-11 — findings to act on module by module (Net worth first)",
    "ref": "MoneyKeel/documents/audit/moneykeel_audit_inputs-and-use_v01.xlsx · …_summary_v01.md",
    "date": "2026-10-11",
-   "comments": "Net worth: option contract size (MK-XS-I-063) set by nothing; 6% / 7% / ±1% with no decision (MK-NW-F-034, F-040, F-064); 10 tests-only and 2 unused functions; 7 figures printed under another ID.",
+   "comments": "Net worth: option contract size (MK-XS-I-063) set by nothing; 6% / 7% / ±1% with no decision (MK-NW-F-034, F-040, F-064); 10 tests-only and 2 unused functions; 7 figures printed under another ID. 2026-10-12: option contract size (MK-XS-I-063) now set by the broker (mini option 10) or the person (DEC-4646); MK-PF-F-003 / 016 / 017 / 018 / 019 / 021 removed (DEC-4642).",
    "_written": {
     "status": "DONE 2026-10-11 — findings to act on module by module (Net worth first)",
-    "comments": "Net worth: option contract size (MK-XS-I-063) set by nothing; 6% / 7% / ±1% with no decision (MK-NW-F-034, F-040, F-064); 10 tests-only and 2 unused functions; 7 figures printed under another ID."
+    "comments": "Net worth: option contract size (MK-XS-I-063) set by nothing; 6% / 7% / ±1% with no decision (MK-NW-F-034, F-040, F-064); 10 tests-only and 2 unused functions; 7 figures printed under another ID. 2026-10-12: option contract size (MK-XS-I-063) now set by the broker (mini option 10) or the person (DEC-4646); MK-PF-F-003 / 016 / 017 / 018 / 019 / 021 removed (DEC-4642)."
+   }
+  },
+  {
+   "task": "Performance decisions of 2026-10-12 — eight items, built (his: \"1, 2 - approved.\" · \"3,4, 8-approved.\")",
+   "todo": "1 unknown window name refuses (DEC-4640) · 2 prices starting late: measured from the first price, the line wherever the figure shows (DEC-4641) · 3 six unused functions removed (DEC-4642) · 4 a sale bigger than the purchases counted once (DEC-4643) · 5 withdrawn: the judge double-counted the IRA (+2.00% is right) · 6 dividends counted once (DEC-4644, his existing rule) · 7 the market figure's 'price only' record corrected (DEC-4645) · 8 option shares per contract (DEC-4646)",
+   "status": "DONE 2026-10-12 — code, tests, function rules, standards, changelog, drawings' READ THIS FIRST lines; not committed",
+   "ref": "src/screens/__tests__/performance_decisions_2026_10_12.test.tsx · src/domain/performance/start_date_month_end.test.ts · src/domain/performance/realized.test.ts · MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md",
+   "date": "2026-10-12",
+   "comments": "Found while applying item 1: 'Since' was read as today, so each holding's Since figure (the category returns under the walk) was one day's move. Since now hands over its own first day.",
+   "_written": {
+    "status": "DONE 2026-10-12 — code, tests, function rules, standards, changelog, drawings' READ THIS FIRST lines; not committed",
+    "comments": "Found while applying item 1: 'Since' was read as today, so each holding's Since figure (the category returns under the walk) was one day's move. Since now hands over its own first day."
    }
   }
  ]

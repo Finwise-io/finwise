@@ -1,7 +1,7 @@
 import {
-  costBasis, totalShares, avgCost, marketValue, unrealizedGain, totalROI,
-  periodReturn, latestClose, buildPerformance, portfolioPeriodReturn, benchmarkTicker,
-  attribution, allocation, portfolioTrend, capGains,
+  costBasis, totalShares, marketValue, unrealizedGain, totalROI,
+  periodReturn, latestClose, buildPerformance, benchmarkTicker,
+  capGains,
   type Position, type PriceSeries,
 } from './index';
 
@@ -15,10 +15,10 @@ const series = (ticker: string, points: [string, number][]): PriceSeries => ({ t
 
 describe('performance — cost basis & value', () => {
   const p = pos('AAPL', 'stocks_etf', [[10, 100, '2024-01-02'], [5, 120, '2024-06-01']]);  // 15 sh, basis 1600
-  test('shares, basis, avg cost', () => {
+  // the average cost is MK-NW-O-006 theHolding's avgPaidPerShare since MK-PF-F-003 avgCost was removed (DEC-4642, 2026-10-12)
+  test('shares, basis', () => {
     expect(totalShares(p)).toBe(15);
     expect(costBasis(p)).toBe(1600);
-    expect(avgCost(p)).toBeCloseTo(106.67, 2);
   });
   test('market value, gain, total ROI at a price', () => {
     expect(marketValue(p, 200)).toBe(3000);
@@ -83,43 +83,11 @@ describe('performance — table + benchmark comparison', () => {
     expect(row.benchReturn).toBeCloseTo(0.12, 4);
     expect(row.beatBy).toBeCloseTo(0.08, 4);                    // +8 pts vs SPY
   });
-  test('portfolio period return is value-weighted', () => {
-    const rows = buildPerformance(positions, priceOf, '1Y', now);
-    expect(portfolioPeriodReturn(rows)).toBeCloseTo(0.20, 4);
-  });
 });
 
-describe('performance — attribution + allocation', () => {
-  const now = new Date('2025-06-01');
-  const prices: Record<string, PriceSeries> = {
-    AAPL: series('AAPL', [['2024-06-01', 100], ['2025-06-01', 130]]),  // +30%
-    BND: series('BND', [['2024-06-01', 100], ['2025-06-01', 95]]),     // −5%
-    SPY: series('SPY', [['2024-06-01', 100], ['2025-06-01', 110]]),
-    AGG: series('AGG', [['2024-06-01', 100], ['2025-06-01', 100]]),
-  };
-  const priceOf = (t: string) => prices[t];
-  const positions = [
-    pos('AAPL', 'stocks_etf', [[30, 50, '2023-01-01']]),   // 30×130 = 3900 mkt
-    pos('BND', 'fixed_income', [[10, 100, '2023-01-01']]), // 10×95  = 950 mkt
-  ];
-  const rows = buildPerformance(positions, priceOf, '1Y', now);
-
-  test('attribution: AAPL is the top contributor, BND a detractor; sums ~ portfolio return', () => {
-    const a = attribution(rows);
-    expect(a[0].position.ticker).toBe('AAPL');
-    expect(a[a.length - 1].position.ticker).toBe('BND');
-    expect(a[a.length - 1].contribution).toBeLessThan(0);
-    const sum = a.reduce((t, x) => t + x.contribution, 0);
-    expect(sum).toBeCloseTo(portfolioPeriodReturn(rows) as number, 3);
-  });
-
-  test('allocation: by kind + cash, percentages of total', () => {
-    const slices = allocation(rows, 1450);              // 3900 + 950 + 1450 = 6300
-    const cash = slices.find((s) => s.key === 'cash')!;
-    expect(cash.pct).toBeCloseTo(23.0, 1);
-    expect(slices.reduce((t, s) => t + s.pct, 0)).toBeCloseTo(100, 0);
-  });
-
+// MK-PF-F-016 attribution, MK-PF-F-017 allocation, MK-PF-F-018 portfolioTrend, MK-PF-F-019 portfolioPeriodReturn and
+// MK-PF-F-021 periodDollarDelta were removed on 2026-10-12 (his approval, DEC-4642): no screen called them.
+describe('performance — capital gains', () => {
   test('capGains: splits long- vs short-term by holding period', () => {
     const now = new Date(2026, 0, 1);
     const p = pos('AAPL', 'stocks_etf', [[10, 100, '2024-06-01'], [5, 100, '2025-10-01']]);  // 10sh held >1y, 5sh <1y
@@ -128,15 +96,6 @@ describe('performance — attribution + allocation', () => {
     expect(cg.shortGain).toBeCloseTo(150, 0);         // 5 × 30
   });
 
-  test('portfolioTrend: value + rebased benchmark over time', () => {
-    const p2 = [pos('AAPL', 'stocks_etf', [[10, 50, '2023-01-01']])];   // 10 shares
-    const trend = portfolioTrend(p2, priceOf, '1Y', 'SPY', now);
-    expect(trend.length).toBe(13);                        // N+1 sample points
-    expect(trend[trend.length - 1].value).toBeCloseTo(10 * 130, 0);   // ends at 10×130
-    // benchmark rebased to the portfolio's starting value
-    expect(trend[0].bench).toBeCloseTo(trend[0].value, 0);
-    expect(trend[trend.length - 1].bench).toBeGreaterThan(trend[0].bench);  // SPY rose over the window
-  });
 });
 
 // NO "−1 contracts" (outside review Claude Performance, 2026-10-11, DEC-3523 tenet 3): the app has no words for a

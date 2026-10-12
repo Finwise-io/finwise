@@ -500,7 +500,9 @@ describe('MK-NW-F-090 windowStartKey — five cases', () => {
     expect(windowStartKey('1M', [], '2026-10-09')).toBe('2026-09-09');   // an ordinary day is unchanged
   });
   test('complex · Since with no records starts today', () => { expect(windowStartKey('SINCE', [], '2026-10-09')).toBe('2026-10-09'); });
-  test('edge · Unknown label defaults to 12 months back', () => { expect(windowStartKey('Lifetime', [], '2026-10-09')).toBe('2025-10-09'); });
+  // SETTLED 2026-10-12 by DEC-4640 ("1, 2 - approved"): a window name the app does not have gives no start — no figure,
+  // never a guessed one. OpenAI's '2025-10-09' recorded the old twelve-months-back guess; the answer is now nothing.
+  test('edge · Unknown label defaults to 12 months back', () => { expect(windowStartKey('Lifetime', [], '2026-10-09')).toBeNull(); });
 });
 
 describe('MK-NW-F-091 pricedGainOf — five cases', () => {
