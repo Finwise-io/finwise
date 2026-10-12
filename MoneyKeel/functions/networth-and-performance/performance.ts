@@ -247,7 +247,7 @@ export type GainRow = {
  *     mv × (1 − 1 ÷ (1 + pr))   if mv > 0
  *     0   otherwise   when pr ≠ nothing
  *     mv × (1 − 1 ÷ math.pow(1 + coupon rate, years))   if mv > 0
- *     0   otherwise   when coupon rate ≠ nothing and coupon rate > 0
+ *     0   otherwise   when coupon rate ≠ nothing and number.is finite(coupon rate) and coupon rate ≥ 0
  *     the answer:
  *     0   if held value of(r) = 0
  *     nothing   otherwise
@@ -277,7 +277,9 @@ function gainOfRow(r: GainRow, years: number): number | null {
   // $1,100 (outside review Claude Performance, 2026-10-11, MK-NW-F-091/F-127). One rule: windowTotal.
   const pr = windowTotal(r.periodReturn, r.periodTotal, years);
   if (pr != null) return mv > 0 ? mv * (1 - 1 / (1 + pr)) : 0;
-  if (r.couponRate != null && r.couponRate > 0) return mv > 0 ? mv * (1 - 1 / Math.pow(1 + r.couponRate, years)) : 0;
+  // AN ENTERED 0% IS A RATE OF 0%, gaining $0; a rate never entered (null) stays unknown below (DEC-2748b, 2026-10-12:
+  // "a typed 0 rate is a zero-coupon bond" / "a face value or rate that was never entered stays blank")
+  if (r.couponRate != null && Number.isFinite(r.couponRate) && r.couponRate >= 0) return mv > 0 ? mv * (1 - 1 / Math.pow(1 + r.couponRate, years)) : 0;
   // holds nothing: gained nothing. Holds something, or holds shares no one has priced: unknown (DEC-3656)
   return heldValueOf(r) === 0 ? 0 : null;
 }
@@ -563,7 +565,6 @@ function closedWith(days: any[], ids: Set<string>, today: string, ending: number
  *
  * Decides .....
  *     · If ending is missing it uses 0.
- *     · If coupon rate is missing it uses 0.
  *     · If g is missing it uses 0.
  *     · If priced gain is missing it uses 0.
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
@@ -695,7 +696,8 @@ export function thePerformance(input: {
     .map((a: any) => ({
       name: names.get(a.asset_id) ?? a.label ?? 'this account',
       marketValue: a.balance,
-      couponRate: isCertificateOfDeposit(a) && (a.coupon_rate ?? 0) > 0 ? a.coupon_rate : null,
+      // a CD's entered rate, 0% included; no rate entered → null, so its gain stays unknown (DEC-2748b, 2026-10-12)
+      couponRate: isCertificateOfDeposit(a) && a.coupon_rate != null && Number.isFinite(a.coupon_rate) && a.coupon_rate >= 0 ? a.coupon_rate : null,
       periodReturn: null,
     }));
   const gainRows: GainRow[] = [...(input.holdings ?? []), ...instrumentRows];
@@ -919,7 +921,9 @@ export function categoryEarnings(input: {
   const held = (input.bonds ?? []).filter((b) => (b.balance ?? 0) > 0);
   // a bond held as a holding INSIDE an account states no rate here, so the category cannot speak for it
   const bondHoldings = rows.filter((x) => categoryOf(x.position) === 'bonds');
-  const allState = held.length > 0 && bondHoldings.length === 0 && held.every((b) => (b.coupon_rate ?? 0) > 0);
+  // an entered 0% STATES a rate (0.00%/year); only a rate never entered leaves the bond silent (DEC-2748b, 2026-10-12)
+  const allState = held.length > 0 && bondHoldings.length === 0
+    && held.every((b) => b.coupon_rate != null && Number.isFinite(b.coupon_rate) && b.coupon_rate >= 0);
   const heldTotal = held.reduce((t, b) => t + (b.balance ?? 0), 0);
   // THE ACCOUNTS THAT ARE A BOND OR A CD: interest recorded on one of them, naming no holding, is that bond's or
   // CD's interest — Bonds & CDs, never "Cash in this account" (DEC-0051 a CD is Bonds & CDs and pays interest;

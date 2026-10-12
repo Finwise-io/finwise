@@ -496,13 +496,12 @@ describe('MK-NW-F-127 gainOfRow — five cases', () => {
   test('complex · Two-year window, yearly rate on the row', () => {
     expect(gainOfRow({ position: { ticker: 'SCHD' }, marketValue: 8820, periodReturn: 0.05 }, 2)!).toBeCloseTo(820, 9);
   });
-  // UNCLEAR: app gives nothing (unknown) — a 0% stated rate is not "a rate above zero", and the holding holds $10,000;
-  // thePerformance also hands a CD's rate in only when it is above zero (performance.ts:659), so MK-NW-F-091 and this
-  // function agree (pricedGainOf calls this function). Open question: is a CD's stated 0% a rate (gain $0) or no rate?
-  // Searched: rulings-for.py "CD rate", "stated rate", DEC-3656 (speaks of a stated rate, not of 0%), DEC-2748c (a
-  // year's interest with no rate is $0 — about interest income, not the window's gain).
+  // SETTLED 2026-10-12 by DEC-2748b ("a typed 0 rate is a zero-coupon bond" / "a face value or rate that was never
+  // entered stays blank"): an ENTERED 0% is a rate of 0%, so the CD gained $0 over the window; a rate never entered
+  // (couponRate null) stays unknown. Before: the app read 0% as "no rate" and refused (unknown).
   test('edge · A CD whose stated rate is 0%', () => {
-    refuses(gainOfRow({ name: 'Promo CD', marketValue: 10000, periodReturn: null, couponRate: 0 }, 1));
+    expect(gainOfRow({ name: 'Promo CD', marketValue: 10000, periodReturn: null, couponRate: 0 }, 1)).toBe(0);
+    refuses(gainOfRow({ name: 'Promo CD', marketValue: 10000, periodReturn: null, couponRate: null }, 1));
   });
 });
 

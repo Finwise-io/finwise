@@ -188,7 +188,8 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           // the ledger row lowers the value (the one writer); onSave carries only the non-balance fields
           if (bond) recordTransaction?.({ type: 'SELL', account_id: bond.asset_id, amount: sold, date: isoLocalDate(new Date()), note: 'Bond sale' });
           onSave({ label: label.trim(), tax_bucket: bucket as TaxBucket, institution: institution.trim() || undefined,
-            coupon_rate: num(coupon) / 100, maturity_date: maturity.trim(), accrued_interest: accrued.trim() === '' ? undefined : num(accrued),
+            coupon_rate: coupon.trim() === '' ? undefined : num(coupon) / 100,   // DEC-2748b: an empty box is unknown, not 0%
+            maturity_date: maturity.trim(), accrued_interest: accrued.trim() === '' ? undefined : num(accrued),
             face_value: r2(num(face) * (newVal / cur)), ...cdField, ...(bond ? {} : { balance: newVal }) });
         } },
       ],
@@ -204,7 +205,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
   };
   const save = () => onSave({
     label: label.trim(), tax_bucket: bucket as TaxBucket, institution: institution.trim() || undefined,
-    face_value: num(face), coupon_rate: num(coupon) / 100, maturity_date: maturity.trim(), accrued_interest: accrued.trim() === '' ? undefined : num(accrued),
+    face_value: num(face), coupon_rate: coupon.trim() === '' ? undefined : num(coupon) / 100, /* DEC-2748b */ maturity_date: maturity.trim(), accrued_interest: accrued.trim() === '' ? undefined : num(accrued),
     balance: num(value) > 0 ? num(value) : num(face),   // default value to face if blank
     value_as_of: valueAsOf || fmtISO(new Date()),       // walk row 4: every manual value carries its date
     ...cdField,
@@ -265,7 +266,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           <TextInput style={styles.input} keyboardType="decimal-pad" value={value} onChangeText={setValue} placeholder="the value on your statement" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Value as of</Text>
           <DateField value={valueAsOf} onChange={setValueAsOf} label="value as of" style={styles.input} />
-          {valid && num(face) > 0 && <Text style={styles.note}>~{figPer('MK-NW-M-056', num(face) * (num(coupon) / 100))} in coupon income.</Text>}
+          {valid && num(face) > 0 && coupon.trim() !== '' && <Text style={styles.note}>~{figPer('MK-NW-M-056', num(face) * (num(coupon) / 100))} in coupon income.</Text>}
           <Text style={styles.fieldL}>Account</Text>
           <View style={styles.chips}>{ACCT_TYPES.map((t) => (
             <TouchableOpacity key={t.bucket} accessibilityRole="button" accessibilityLabel={`Account type ${t.label}`} accessibilityState={{ selected: bucket === t.bucket }} style={[styles.chip, bucket === t.bucket && styles.chipOn]} onPress={() => setBucket(t.bucket)}><Text style={[styles.chipT, bucket === t.bucket && styles.chipTOn]}>{t.label}</Text></TouchableOpacity>

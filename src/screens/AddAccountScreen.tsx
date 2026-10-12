@@ -119,7 +119,7 @@ export default function AddAccountScreen() {
       kind: cls === 'alts' ? altType : KIND_BY_CLASS[cls],
       tax_bucket: cls === 'cash' ? 'CASH' : cls === 'property' ? 'PROPERTY' : wrapper || undefined,
     };
-    if (cls === 'bonds') { base.asset_class = 'bonds'; base.face_value = num(face) || undefined; base.coupon_rate = num(coupon) > 0 ? num(coupon) / 100 : undefined; base.maturity_date = maturity.trim() || undefined; if (isCd) base.cd_bought = cdBought; }   // (DEC-3837, 2026-10-10)
+    if (cls === 'bonds') { base.asset_class = 'bonds'; base.face_value = num(face) || undefined; base.coupon_rate = coupon.trim() === '' ? undefined : num(coupon) / 100; /* DEC-2748b: a typed 0% is 0%, an empty box is unknown */ base.maturity_date = maturity.trim() || undefined; if (isCd) base.cd_bought = cdBought; }   // (DEC-3837, 2026-10-10)
     if (cls === 'alts') base.asset_class = 'alternatives';
     if (cls === 'property') {
       base.re_use = livedIn ? 'primary' : 'secondary';

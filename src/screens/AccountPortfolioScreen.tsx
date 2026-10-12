@@ -270,8 +270,9 @@ export default function AccountPortfolioScreen() {
   //   · a class shows its holdings' price return weighted by what each is worth;
   //   · a holding we hold no price for shows "—", never a guess.
   const statedYearlyRate = (rowClass: string): number | null => {
-    const r = account.coupon_rate ?? 0;
-    return rowClass === 'bonds' && r > 0 ? r : null;
+    // an entered 0% prints 0.00%/year, matching Bonds & CDs on Performance; no rate entered → null (DEC-2748b, 2026-10-12)
+    const r = account.coupon_rate;
+    return rowClass === 'bonds' && r != null && Number.isFinite(r) && r >= 0 ? r : null;
   };
   /** A holding's own price move over the window the header names — nothing else folded in. */
   const priceReturnOf = (ticker?: string): number | null => {
