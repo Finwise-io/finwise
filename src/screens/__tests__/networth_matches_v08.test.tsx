@@ -83,7 +83,10 @@ const setup = (over: any = {}) => { useStore.getState().resetAll(); useStore.set
 const KNOWN = (built: string) => built.replace(/ # months at your planned spend — \$# cash ÷ \$#\/month both include \$#\/month of debt payments you cannot stop\./, '')
   // HIS RULE, 2026-10-04 (DEC-1923): the drawn household owns its home with the mortgage in Debts and a
   // Rent / Mortgage budget line, so the mortgage is counted from Debts and the card says the line is not.
-  .replace(" your rent / mortgage budget line is not counted here: your home's mortgage, home mortgage, is in debts and is counted from there.", '');
+  .replace(" your rent / mortgage budget line is not counted here: your home's mortgage, home mortgage, is in debts and is counted from there.", '')
+  // HIS RULING, 2026-10-11 (DEC-4528, a READ THIS FIRST row on v08): the empty Debts door reads "Add your debts ›",
+  // the wording of the approved empty-state drawing; state C drew "Add a mortgage, card, or loan ›".
+  .replace('nothing entered yet. add your debts emergency fund', 'nothing entered yet. add a mortgage, card, or loan emergency fund');
 const compare = (_name: string, drawn: string[], built: string[], minWords = 35) => {
   const want = norm(drawn), got = KNOWN(norm(built));
   expect(want.split(' ').length).toBeGreaterThanOrEqual(minWords);   // a state that read as empty would match anything

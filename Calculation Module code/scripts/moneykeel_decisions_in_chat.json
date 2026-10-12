@@ -771,6 +771,41 @@
    "not_a_repeat_of": "DEC-1669 — that one says every return is time-weighted; this one is how the time-weighted return treats a day money moved.",
    "proof": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_01.test.ts",
    "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_precision-and-display_v01.md"
+  },
+  {
+   "decided": "2026-10-11",
+   "answers": [],
+   "tab": "networth-and-performance",
+   "status": "RULED",
+   "type": "COPY",
+   "screens": "/networth",
+   "his_words": "1: \"Add your debts >\" 2: don't understand",
+   "subject": "The empty Debts door reads \"Add your debts ›\"",
+   "plain": "With no debt entered, the Debts section's door reads \"Add your debts ›\" — the wording of the approved empty-state drawing. Before: Net worth v08 state C drew \"Add a mortgage, card, or loan ›\" while the empty-state drawing drew \"Add your debts ›\".",
+   "means": "Said in chat on 2026-10-11, settling two approved wordings found by the line-by-line drawing check.",
+   "governs": "MK-NW-M-009 · the Net worth Debts section",
+   "changed": "The Net worth Debts door reads \"Add your debts ›\".",
+   "apply_steps": "1. The Debts door reads \"Add your debts ›\". 2. Screen test. 3. READ THIS FIRST row on Net worth v08. 4. Changelog row.",
+   "proof": "src/screens/__tests__/mock_match_audit_2026_10_11.test.tsx",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md"
+  },
+  {
+   "decided": "2026-10-11",
+   "answers": [],
+   "tab": "networth-and-performance",
+   "status": "RULED",
+   "type": "DESIGN",
+   "screens": "/networth · /bonds · /other-investments · /holding-detail",
+   "his_words": "agree - leave the drawing, add line detailing correction. Make sure to have the same level of details so one can understand. ok",
+   "subject": "Errors in approved drawings are corrected by a dated line on the drawing, not by redrawing; the home's edit sheet does not ask what a house is invested in",
+   "plain": "Where an approved drawing shows a figure that is wrong and the app is right, the drawing is left as drawn and its READ THIS FIRST box gets a line naming the figure, what the drawing shows, what is right, and why, with the arithmetic — Net worth v08 B −0.40% → −0.41%; E (Aug 4) → (Aug 11); F 7 days → 14 days; Bonds v02 years left 2y/4y/1y → 1y/3y/0y; Other investments v02 \"Annuity\" → \"Annuities\"; Holding detail v02 gain $7,400.00 + $1,957.60 → $7,384 + $1,974 in whole dollars. And the edit sheet of a home (any property) no longer asks \"What's it invested in?\".",
+   "means": "Said in chat on 2026-10-11 after the line-by-line drawing check v02.",
+   "governs": "Net worth v08 · Bonds v02 · Other investments v02 · Holding detail v02 · the Net worth account editor sheet",
+   "changed": "Six correction lines on four drawings; the property edit sheet drops the invested-in question.",
+   "apply_steps": "1. One correction line per figure, each with what is drawn, what is right and the arithmetic. 2. Remove the invested-in question for property in the editor sheet, with a screen test. 3. Changelog row.",
+   "not_a_repeat_of": "DEC-4327, DEC-4350 — those are about sign-up rent; this one is drawing corrections.",
+   "proof": "src/screens/__tests__/mock_match_audit_2026_10_11.test.tsx",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_pres_spec_screen-design-standard_v01.md"
   }
  ]
 }

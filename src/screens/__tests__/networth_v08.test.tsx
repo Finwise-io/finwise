@@ -42,8 +42,9 @@ describe('first day (state C)', () => {
     expect(at('Link it (read-only)')).toBeLessThan(at('Add by hand'));
     expect(at('Add by hand')).toBeLessThan(at('Import from a file'));
     expect(at('Import from a file')).toBeLessThan(at('or walk through it step by step'));
-    for (const old of ['Connect a brokerage', 'Add a file from your bank', 'Type it yourself', 'Add your debts ›']) expect(v).not.toContain(old);
-    expect(v).toContain('Add a mortgage, card, or loan');
+    for (const old of ['Connect a brokerage', 'Add a file from your bank', 'Type it yourself', 'Add a mortgage, card, or loan']) expect(v).not.toContain(old);
+    // MOVED 2026-10-11 by DEC-4528: the debts door read "Add a mortgage, card, or loan"; it now reads "Add your debts" + its ›
+    expect(v).toContain('Add your debts');
   });
 
   test('each door opens its own place in one tap', () => {

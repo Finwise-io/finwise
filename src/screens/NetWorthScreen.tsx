@@ -41,7 +41,9 @@ import { willItLastInputs } from '../domain/retirement/willItLast';
 import { projectNestEgg } from '../domain/retirement';
 import { KeyboardAwareSheet } from '../components/KeyboardAwareSheet';   // Theme 3: shared keyboard-safe sheet
 import { InfoDot, EmptyNote } from '../components/UI';
-import { ADD_ACCOUNT_DOORS, ADD_ACCOUNT_QUESTION } from '../constants/doors';
+import { ADD_ACCOUNT_DOORS, ADD_ACCOUNT_QUESTION, EMPTY_DOORS } from '../constants/doors';
+// the empty-debts door's words, without the arrow (the row draws its own ›) — one wording everywhere (DEC-4528, 2026-10-11)
+const DEBTS_DOOR_WORDS = EMPTY_DOORS.debts.label.replace(/ ›$/, '');
 import { type GlossaryTerm } from '../domain/glossary';
 import { HeroAmount } from '../components/HeroAmount';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
@@ -525,7 +527,7 @@ export default function NetWorthScreen() {
       </View>
       <View style={styles.card}>
         {liabilities.length === 0
-          ? <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add a debt" onPress={() => setDebtSheet({ open: true })}><Text style={styles.empty}>Add a debt →</Text></TouchableOpacity>
+          ? <TouchableOpacity accessibilityRole="button" accessibilityLabel={DEBTS_DOOR_WORDS} onPress={() => setDebtSheet({ open: true })}><Text style={styles.empty}>{EMPTY_DOORS.debts.label}</Text></TouchableOpacity>   /* was "Add a debt →" (DEC-4528, 2026-10-11) */
           : (<>
             {liabilities.map((d, i) => {
               const hot = d.interest_rate_apr > TOXIC_APR;
@@ -636,9 +638,11 @@ export default function NetWorthScreen() {
           <SectionBand title="DEBTS" infoTerm="debt" value={fig('MK-NW-M-009', 0)} trailing={RIGHT_SLOT} />
           {/* the same one line: the door is the row right below it, so it is not repeated (v08) */}
           <Text style={[styles.firstDayAsk, styles.ledgerPad]}>Nothing entered yet.</Text>
-          <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel="Add a mortgage, card, or loan"
+          {/* the debts door reads the one wording every empty-debts door uses: "Add your debts ›" — it read
+              "Add a mortgage, card, or loan" (DEC-4528, 2026-10-11) */}
+          <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel={DEBTS_DOOR_WORDS}
             onPress={() => setDebtSheet({ open: true })}>
-            <Text style={styles.doorTxt}>Add a mortgage, card, or loan</Text>
+            <Text style={styles.doorTxt}>{DEBTS_DOOR_WORDS}</Text>
             <Text style={styles.arrowSlot}>›</Text>
           </TouchableOpacity>
 
@@ -1199,6 +1203,10 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
   const lbl = (fallback: string) => inst.trim() || fallback;
   // a retirement account says which kind it is by the person's tap — nothing is chosen for them (DEC-4036f, 2026-10-10)
   const needsKind = step === 'retirement' && !wrapper;
+  // A PROPERTY IS NOT INVESTED IN ANYTHING (DEC-4529, 2026-10-11): a home, real estate, land, a vehicle or
+  // other personal property is never asked "What's it invested in?", and its edit saves no class from it.
+  const isProperty = !!editing && (editing.tax_bucket === 'PROPERTY'
+    || assetClassOf(editing) === 'real_estate' || assetClassOf(editing) === 'personal_property');
   const save = () => {
     if (needsKind) return;
     let patch: Partial<AssetAccount> = { institution: inst.trim(), balance: v };
@@ -1234,6 +1242,10 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
       // THE PERSON PICKED A CLASS: it is marked theirs, so the class sweep never changes it; a maturity
       // date decides the class instead of the pick (outside review OpenAI final, 2026-10-09, DEC-2748h)
       const picked = !byDate && inside !== 'mixed' && inside !== editing.asset_class;
+      if (isProperty) {   // the question is not on a property's sheet, so nothing from it is saved (DEC-4529, 2026-10-11)
+        store.updateAsset?.(editing.asset_id, { institution: inst.trim(), balance: v });
+        onClose(); return;
+      }
       store.updateAsset?.(editing.asset_id, {
         institution: inst.trim(), balance: v, asset_class: inside === 'mixed' ? undefined : inside,
         ...(picked ? { class_source: 'user' as const } : inside === 'mixed' && editing.asset_class ? { class_source: undefined } : {}),
@@ -1317,10 +1329,13 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
               <Text style={sh.lbl}>Matures (CDs and dated bonds count under Bonds & CDs)</Text>
               <DateField value={maturity} onChange={setMaturity} label="maturity date" initial={TEN_YEARS_OUT()} minimumDate={new Date(2000, 0, 1)} style={sh.input} />
             </>)}
+            {/* not asked of a home, real estate, land, a vehicle or other personal property (DEC-4529, 2026-10-11) */}
+            {!isProperty && (<>
             <Text style={sh.clsLabel}>What's it invested in?</Text>
             <View style={sh.chips}>{INSIDE_OPTS.map((o) => (
               <TouchableOpacity key={o.key} accessibilityRole="button" accessibilityLabel={o.label} style={[sh.chip, inside === o.key && sh.chipOn]} onPress={() => setInside(o.key)}><Text style={sh.chipTxt}>{o.label}</Text></TouchableOpacity>
             ))}</View>
+            </>)}
             {/* THE ITEMIZE DOOR MOVED TO THE ACCOUNT PORTFOLIO (2026-10-01).
                 It used to sit here, in the edit sheet, which could only be reached by tapping an
                 account row, opening Account detail and pressing an Edit button that exists in no

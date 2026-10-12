@@ -345,7 +345,7 @@ in `notes` saying why.
 14. 2026-10-07 — "build it per mockup 07 where under each class you list each account Vanguard-0008 $45000, Chase - 0333 $34000." Under each class heading, every account that holds money in that class is listed with only its part in that class, so the rows add up to the heading.
 15. 2026-07-01 — "Investment = stock + etfs + bonds + alternatives? It does not include cash or cash equivalents - Right?" Investments do not include cash; Home and Net worth show one Investments figure.
 
-# The rules decided in the outside reviews — 90, each in force
+# The rules decided in the outside reviews — 93, each in force
 
 From the owner's decision log. Job 3 checks each one.
 
@@ -529,6 +529,12 @@ From the owner's decision log. Job 3 checks each one.
   Governs: the onboarding rent step · MK-NW-F-116 rentedIdsOf
 - **DEC-4350** (2026-10-11) — Sign-up asks for rent before any property can exist, so its rent step carries a door: "Add the property first ›". It opens Add an account set to Real estate; saving brings the person back to the rent step, which asks "Which property is it?"; once picked, the rent counts at once. About 3 taps plus typing, without leaving sign-up. Before: the rent was kept but counted nowhere until the person added the property in Net worth and picked it on the Income screen, about 7 taps after sign-up.  
   Governs: the onboarding rent step · Add an account · MK-NW-F-116 rentedIdsOf
+- **DEC-4439** (2026-10-11) — The time-weighted return counts money that arrives on a day as there for that whole day, and money taken out as gone for that whole day: that day's growth is the evening value ÷ (the previous evening's value + money added − money taken out) − 1. A new account opened with $10,000 and worth $10,050 that evening returned +0.50% that day (+$50); worth $9,800, −2.00% (−$200). Vanguard worth $50,000, $10,000 added in the morning, $60,300 that evening: +0.50% (the $300 was earned on $60,000). Before: the money counted as arriving at the end of the day — the first deposit into a new account could not be measured at all, a value below the money just added was refused as a broken record, and the Vanguard day read +0.60%.  
+  Governs: MK-ST-F-081 timeWeightedReturn · MK-ST-F-082 movementsOf · MK-NW-F-105 whyNoReturn · MK-NW-O-008 thePerformance
+- **DEC-4528** (2026-10-11) — With no debt entered, the Debts section's door reads "Add your debts ›" — the wording of the approved empty-state drawing. Before: Net worth v08 state C drew "Add a mortgage, card, or loan ›" while the empty-state drawing drew "Add your debts ›".  
+  Governs: MK-NW-M-009 · the Net worth Debts section
+- **DEC-4529** (2026-10-11) — Where an approved drawing shows a figure that is wrong and the app is right, the drawing is left as drawn and its READ THIS FIRST box gets a line naming the figure, what the drawing shows, what is right, and why, with the arithmetic — Net worth v08 B −0.40% → −0.41%; E (Aug 4) → (Aug 11); F 7 days → 14 days; Bonds v02 years left 2y/4y/1y → 1y/3y/0y; Other investments v02 "Annuity" → "Annuities"; Holding detail v02 gain $7,400.00 + $1,957.60 → $7,384 + $1,974 in whole dollars. And the edit sheet of a home (any property) no longer asks "What's it invested in?".  
+  Governs: Net worth v08 · Bonds v02 · Other investments v02 · Holding detail v02 · the Net worth account editor sheet
 
 # The screen register — 71 figures on /analytics, /networth, /account-detail, /bonds, /other-investments, /itemize, /holding-detail, /add-account
 
@@ -1844,7 +1850,7 @@ What each figure on the Net worth screens is, how it is worked, and what it says
    "/invest"
   ],
   "answers": "How much this one account grew over the window you picked, with money you added or took out left out. Shown per year when the window is longer than a year.",
-  "formula": "split the window at every day money moved in or out; each piece = the value just before the next movement ÷ the value just after the last one (the record holds one value a day, taken after that day’s money moved, so just before = that day’s value − the movement); multiply the pieces and take 1 off — a time-weighted return; a window longer than a year is turned into a yearly rate: (1 + the return)^(365 ÷ days) − 1",
+  "formula": "split the window at every day money moved in or out; each day’s link = that evening’s value ÷ (the previous evening’s value + money added that day − money taken out that day) — money that moves on a day counts for that whole day (DEC-4439); multiply the pieces and take 1 off — a time-weighted return; a window longer than a year is turned into a yearly rate: (1 + the return)^(365 ÷ days) − 1",
   "inputs": [
    "MK-NW-I-003 the recorded history",
    "MK-NW-I-004 the activity records"
@@ -1855,7 +1861,7 @@ What each figure on the Net worth screens is, how it is worked, and what it says
    "WHERE IT CANNOT BE MEASURED IT SHOWS NO PERCENT, and never another method in its place.",
    "ONE METHOD WITH THE PORTFOLIO: the same door the Performance tab calls, asked for this one account."
   ],
-  "refusal": "No percent, and a sentence saying why: the record does not reach the start, money moved on a day with no recorded value, shares were moved in or out, or the value that day is less than the money added. It never shows another kind of figure in its place.",
+  "refusal": "No percent, and a sentence saying why: the record does not reach the start, money moved on a day with no recorded value, shares were moved in or out, or there was nothing to grow from that day (the previous evening plus the money moved is zero or less while the day holds a value). It never shows another kind of figure in its place.",
   "worked": {
    "given": "An account worth $30,000 on 31 Dec 2025 (100 VTI at $260 plus $4,000 cash) and $32,000 on 28 Sep 2026, with nothing paid in or taken out and $825 of it arriving as dividends.",
    "answer": "+6.67%"

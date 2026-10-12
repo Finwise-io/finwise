@@ -27,9 +27,15 @@
  *     under a live price.
  * 10. Holding detail v02 draws "VS THE STOCK MARKET · SAME DATES". With prices that do not reach back, the holding
  *     was measured from its first close and the market over the whole window (+0.96% beside +22.40%).
+ *
+ *  FOUNDER RULINGS, same day:
+ * 11. DEC-4528 (his words '"Add your debts >"'): with no debt entered, every empty Debts door reads "Add your debts ›".
+ *     The first-day Net worth (v08 state C) read "Add a mortgage, card, or loan ›"; the step-by-step walk read "Add a debt →".
+ * 12. DEC-4529: the account editor never asks "What's it invested in?" of a home, real estate, land, a vehicle or other
+ *     personal property, and saves nothing from that question for one. An investment account still asks it.
  */
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react-native';
+import { act, render, screen, fireEvent } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import { useStore } from '../../store/useStore';
 import { employedPartner } from '../../testing/personas';
@@ -222,5 +228,70 @@ describe('9–10 · Holding detail: a purchase with no price paid, and prices th
     const lines = show();
     const y = lines.indexOf('Your return, past year');
     expect(lines.slice(y, y + 6)).toEqual(['Your return, past year', '+0.96%', 'The market, same dates', '+0.33%', 'You are', 'ahead by 0.6 points']);
+  });
+});
+
+// ─────────────────────────────── founder rulings, 2026-10-11 ───────────────────────────────
+describe('11 · DEC-4528: every empty Debts door reads "Add your debts ›" (DEC-4528, 2026-10-11)', () => {
+  test('first day (v08 state C): the debts door reads "Add your debts" with its ›, never "Add a mortgage, card, or loan"', () => {
+    useStore.getState().resetAll(); mockParams = {};
+    useStore.getState().setOnboardingProfile(employedPartner as any);
+    render(<NetWorth />);
+    const lines = builtLines(screen.toJSON());
+    const at = lines.lastIndexOf('DEBTS');
+    expect(lines.slice(at + 1)).toEqual(expect.arrayContaining(['Add your debts']));
+    expect(lines[lines.indexOf('Add your debts', at) + 1]).toBe('›');
+    expect(lines.join('\n')).not.toMatch(/mortgage, card, or loan|Add a debt/);
+  });
+  test('with accounts and no debts: "Nothing entered yet. Add your debts ›"', () => {
+    setup({ liabilities: [] });
+    render(<NetWorth />);
+    expect(builtLines(screen.toJSON())).toContain('Nothing entered yet. Add your debts ›');
+  });
+  test('the step-by-step walk\'s Debts step reads "Add your debts ›", not "Add a debt →"', () => {
+    useStore.getState().resetAll(); mockParams = {};
+    useStore.getState().setOnboardingProfile(employedPartner as any);
+    render(<NetWorth />);
+    fireEvent.press(screen.getByText('or walk through it step by step'));
+    for (let i = 0; i < 12 && !screen.queryByText('Add your debts ›'); i++) {
+      const next = screen.queryByText('Next →');
+      if (!next) break;
+      fireEvent.press(next);
+    }
+    // the profile seeds its debts into the walk; with none entered the step shows the one door wording
+    act(() => { useStore.setState({ liabilities: [] } as any); });
+    expect(screen.getAllByText('Add your debts ›').length).toBeGreaterThan(0);
+    expect(screen.queryByText('Add a debt →')).toBeNull();
+  });
+});
+
+describe('12 · DEC-4529: a property is never asked what it is invested in (DEC-4529, 2026-10-11)', () => {
+  const PROPS: [string, any][] = [
+    ['a home', { asset_id: 'p', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 450000, asset_class: 'real_estate' }],
+    ['real estate', { asset_id: 'p', label: 'Rental', kind: 'real_estate', tax_bucket: 'PROPERTY', balance: 300000 }],
+    ['land', { asset_id: 'p', label: 'Lot', kind: 'land', tax_bucket: 'PROPERTY', balance: 80000 }],
+    ['a vehicle', { asset_id: 'p', label: 'Car', kind: 'vehicle', tax_bucket: 'PROPERTY', balance: 20000 }],
+    ['other personal property', { asset_id: 'p', label: 'Jewelry', kind: 'jewelry', tax_bucket: 'PROPERTY', balance: 5000, asset_class: 'personal_property' }],
+  ];
+  const openEditor = (acct: any) => {
+    setup({ assetAccounts: [acct] });
+    const updateAsset = jest.fn();
+    useStore.setState({ updateAsset } as any);
+    mockParams = { edit: acct.asset_id };
+    render(<NetWorth />);
+    return updateAsset;
+  };
+  test.each(PROPS)('%s: the editor has no "What\'s it invested in?", and Save writes only the name and value', (_n, acct) => {
+    const updateAsset = openEditor(acct);
+    expect(screen.getByText('Edit account')).toBeTruthy();
+    expect(screen.queryByText("What's it invested in?")).toBeNull();
+    for (const chip of ['Stocks / Funds', 'Bonds', 'Cash']) expect(screen.queryByLabelText(chip)).toBeNull();
+    fireEvent.press(screen.getByLabelText('Save account'));
+    expect(updateAsset).toHaveBeenCalledTimes(1);
+    expect(Object.keys(updateAsset.mock.calls[0][1]).sort()).toEqual(['balance', 'institution']);
+  });
+  test('an investment account still asks it', () => {
+    openEditor({ asset_id: 'b', label: 'Fidelity', institution: 'Fidelity', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 1000 });
+    expect(screen.getByText("What's it invested in?")).toBeTruthy();
   });
 });
