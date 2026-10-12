@@ -289,6 +289,21 @@ MK-NW-F-056 bondInfo to MK-NW-F-064 bondRateSensitivity, MK-NW-F-112 yearlyInter
 MK-NW-F-044 getAssetsState, MK-NW-F-111 assetsStateFrom. A saved record whose accounts were all
 deleted is shown as nothing saved — the first-day screen — never as $0 owned with an average return.
 
+## 14. His answers on OpenAI's open points, and what followed (2026-10-10 / 11)
+
+- **A bond or CD with no maturity date** keeps counting its interest — no date means unknown, not matured (DEC-0332); its row reads "maturity date not entered" (DEC-4036b). Treasury $10,000 at 4%, no date: $400 a year.
+- **"CD" is read only from an account's own name or type**, never its institution's name — a brokerage account at "CD Capital" is not a CD (DEC-4036c).
+- **Tax by what the account is:** a 529 is always tax-free for education and an HSA always pre-tax going in, whatever setting or bucket is stored (DEC-4036d, DEC-4036e). An account with no tax type chosen is never assumed taxable: its page reads "tax type not stated — choose ›", and no form preselects Taxable (DEC-4036f). Withdrawal planning, which needs a bucket, counts it taxable and names it: "Brokerage — tax type not stated; counted as taxable until you choose." It reads tax the way the account page does, so a 401(k) with no stored type is pre-tax there (DEC-4105).
+- **The old sign-up answer "savings or portfolio"** is Unclassified and asked: "Is this cash savings or investments?" (DEC-4036g).
+- **Money in an alternatives part no priced holding explains** reads "$1,500 asset type not classified" — no growth rate; the rate and growth cover the classified part and say so (DEC-4036h).
+- **An overdrawn hand-built account is negative cash:** balance −$100 with a cash field of $50 is Cash −$100 (DEC-4036i).
+- **A vehicle with no value** is never picked as the car you drive while another has one, and the screen says: "Car A's value not entered — it may be the car you drive." (DEC-4036j). **The retirement money names what it leaves out:** "leaves out Linked 401(k) — Value not entered" (DEC-4036k).
+- **Every bond or CD date comes from a date picker** (DEC-4059b). **A history start date that cannot be read** says "History start date cannot be read. Edit date", and the person's date is kept through every sync (DEC-4059c).
+- **Rent needs its property:** a rent entry is not counted until its property is picked (DEC-4059d). Sign-up asks "Which property is it?" when a property exists (DEC-4327), and otherwise offers "Add the property first ›", which returns to the rent step — about 4 taps, without leaving sign-up (DEC-4350).
+- **A count written in words** takes its plural from one list of every counted word and its plural — "2 Treasuries", "0 properties" — and a test refuses a word not on it (DEC-4082). The risk swing of Will my money last is parked until the Plan module (DEC-4082, tracker).
+- **The empty Debts door reads "Add your debts ›"** everywhere (DEC-4528).
+- **A property's edit sheet never asks "What's it invested in?"** (DEC-4529).
+
 ## Status and enforcement
 
 Built and tested 2026-10-05 to 2026-10-07 (the outside review of Net worth batches 2, 3, 4 and 5, the second-round

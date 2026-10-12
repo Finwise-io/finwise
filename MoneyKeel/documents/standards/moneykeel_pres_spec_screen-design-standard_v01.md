@@ -177,6 +177,8 @@ This document holds every rule a new or changed screen must meet, and the order 
 
 ---
 
+**A figure an approved drawing gets wrong** (his ruling, 2026-10-11, DEC-4529: *"leave the drawing, add line detailing correction. Make sure to have the same level of details so one can understand"*). The phone is not redrawn. Its READ THIS FIRST box gets a dated line that names the state, quotes what the drawing shows, gives the right words or figure in bold, and shows the arithmetic or the reason — e.g. *"state B — "−0.40%" should read −0.41%: −$1,480 ÷ $364,632 = −0.406%, two decimals."* The app already shows the right figure; the line makes the drawing stop disagreeing with it.
+
 ## 5. The checklist — walked on the screenshot before anything is sent
 
 - [ ] 0. Every screen in the mock was started from its last approved design, the approval is named on the mock, and every place the code differs from that design was reported first.
