@@ -210,8 +210,17 @@ export function theNetWorth(input: {
       const ids = new Set(measured.map((a) => String(a.asset_id)));
       if (!ids.size) return null;
       const moved = movementsOf(input.transactions ?? [], ids);
+      // A HOLDING WITH NO PRICE TODAY STAYS OUT OF THE CHANGE LINE — the promise the fix sheet makes (Net worth
+      // v08, state F: "Meanwhile we show what you paid — it stays out of the change line, and we say so"). Today's
+      // record values such a holding at what was paid (buildDayFromAccounts, MK-ST-F-028: no last price → the cost),
+      // so it is taken out of every day of the window, the start day included: LCTX priced $1,930 on the start day
+      // and unpriced today read +0.26% where +0.53% is right, and LCTX first recorded today at its $965 cost read
+      // +0.80% (mock-match audit v02, 2026-10-11).
+      const todayDay = buildDayFromAccounts(accounts as any, today, `${today}T00:00:00Z`);
+      const unpriced = new Set(todayDay.holdings.filter((h) => h.price == null).map((h) => `${h.accountId}|${h.securityKey}`));
+      const priced = (d: any) => (unpriced.size ? { ...d, holdings: (d.holdings ?? []).filter((h: any) => !unpriced.has(`${h.accountId}|${h.securityKey}`)) } : d);
       return timeWeightedReturn({
-        days: recordDay(((input.snapshotDays ?? []) as any[]).filter((d) => d?.date !== today), buildDayFromAccounts(accounts as any, today, `${today}T00:00:00Z`)),
+        days: recordDay(((input.snapshotDays ?? []) as any[]).filter((d) => d?.date !== today), todayDay).map(priced),
         accountIds: ids,
         cashIds: new Set(measured.filter((a) => assetClassOf(a) === 'cash').map((a) => String(a.asset_id))),
         flows: moved.flows, interest: moved.interest, sharesMoved: moved.sharesMoved,

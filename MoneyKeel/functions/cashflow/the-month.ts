@@ -185,10 +185,11 @@ const MONTH = () => theMonth(EXAMPLE);
  * Called by ... MK-CF-F-036 buildDebtState · MK-CF-O-001 basePay
  *               MK-CF-O-006 theCreditLine · MK-NW-F-002 alternativesSummary
  *               MK-NW-F-028 classPortionLabel · MK-NW-F-101 PLAN
- *               MK-PF-F-005 unrealizedGain · MK-PF-F-015 topHoldingConcentration
- *               MK-ST-F-081 timeWeightedReturn · MK-XS-F-002 dataGaps
- *               MK-XS-F-004 buildDatedGrid · MK-XS-F-058 parseReceipt
- *               MK-XS-F-094 parseReceiptText · MK-XS-F-096 pickReceipt
+ *               MK-NW-O-003 theNetWorth · MK-PF-F-005 unrealizedGain
+ *               MK-PF-F-015 topHoldingConcentration · MK-ST-F-081 timeWeightedReturn
+ *               MK-XS-F-002 dataGaps · MK-XS-F-004 buildDatedGrid
+ *               MK-XS-F-058 parseReceipt · MK-XS-F-094 parseReceiptText
+ *               MK-XS-F-096 pickReceipt
  *
  * Reaches ..... 51 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
@@ -225,7 +226,7 @@ export const THE_MONTH_FIGURES = declareFigures({
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,
-      answer: '-$3,400/month',
+      answer: '−$3,400/month',
       run: () => line('planned', 'Expenses'),
     },
   },
@@ -270,7 +271,7 @@ export const THE_MONTH_FIGURES = declareFigures({
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,
-      answer: '-$250',
+      answer: '−$250',
       run: () => line('planned', 'Car loan'),
     },
   },

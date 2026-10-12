@@ -346,8 +346,8 @@ export function prune(days: SnapshotDay[], today: string): SnapshotDay[] {
  * Called by ... MK-CF-F-211 DEBTS · MK-NW-F-075 ACC
  *               MK-NW-F-084 categoryEarnings · MK-NW-O-002 theAccount
  *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
- *               MK-PF-F-039 periodReturnParts · MK-XS-F-009 readHistory
- *               MK-XS-F-174 recomputeBalances
+ *               MK-PF-F-014 buildPerformance · MK-PF-F-039 periodReturnParts
+ *               MK-XS-F-009 readHistory · MK-XS-F-174 recomputeBalances
  *
  * Reaches ..... 82 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH

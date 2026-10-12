@@ -589,7 +589,7 @@ export function monthsBefore(now: Date, months: number): Date {
  *     x = the date d
  *     the answer = x
  *
- * Called by ... MK-PF-F-039 periodReturnParts
+ * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-039 periodReturnParts
  *
  * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
@@ -828,7 +828,8 @@ export function periodTotalReturn(series: PriceSeries | null | undefined, period
  *     the answer = { total, years }
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-PF-F-010 periodReturn · MK-PF-F-038 periodTotalReturn
+ * Called by ... MK-PF-F-010 periodReturn · MK-PF-F-014 buildPerformance
+ *               MK-PF-F-038 periodTotalReturn
  *
  * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
@@ -1055,9 +1056,10 @@ export interface PerformanceRow {
  *     bench ticker = benchmark ticker(p)
  *     bench series = price of(bench ticker)   if bench ticker
  *     nothing   otherwise
- *     bench total = nothing   if bench ticker = nothing
- *     bench return   if capped
- *     period total return(bench series, period, now)   otherwise   otherwise
+ *     pts = series.points (or none when missing)
+ *     first iso = pts[0].date   if count of pts
+ *     nothing   otherwise
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-O-008 thePerformance
  *
@@ -1100,10 +1102,21 @@ export function buildPerformance(
     const prTotal = capped ? pr : periodTotalReturn(series, period, now);
     const benchTicker = benchmarkTicker(p);
     const benchSeries = benchTicker ? priceOf(benchTicker) : null;
+    // THE MARKET OVER THE SAME DATES WHEN THIS HOLDING'S PRICES DO NOT REACH BACK. The holding is then measured from
+    // its first close on record (periodReturnParts), so the market is measured from that same day, and over 2Y made
+    // yearly over the same span. It was measured over the whole window: a holding with two days of prices read
+    // "Your return, past year +0.96%" beside "The market, same dates +22.40%", a year of the market (mock-match
+    // audit v02, 2026-10-11 — Holding detail v02 draws "VS THE STOCK MARKET · SAME DATES").
+    const pts = series?.points ?? [];
+    const firstISO = pts.length ? pts[0].date : null;
+    const short = !capped && firstISO != null && new Date(firstISO).getTime() > dayBefore(startDateFor(period, now)).getTime();
+    const benchSameDays = short && benchTicker != null ? periodReturnSince(benchSeries, firstISO!, now) : null;
+    const spanYears = short ? (new Date(pts[pts.length - 1].date).getTime() - new Date(firstISO!).getTime()) / (365.25 * 86_400_000) : 1;
     const benchReturn = benchTicker == null ? null : capped
       ? periodReturnSince(benchSeries, bought!, now)
+      : short ? (benchSameDays == null ? null : period === '2Y' && spanYears > 1 ? Math.pow(1 + benchSameDays, 1 / spanYears) - 1 : benchSameDays)
       : periodReturn(benchSeries, period, now);
-    const benchTotal = benchTicker == null ? null : capped ? benchReturn : periodTotalReturn(benchSeries, period, now);
+    const benchTotal = benchTicker == null ? null : capped ? benchReturn : short ? benchSameDays : periodTotalReturn(benchSeries, period, now);
     return {
       position: p, price,
       marketValue: marketValue(p, price), costBasis: costBasis(p), gain: unrealizedGain(p, price),

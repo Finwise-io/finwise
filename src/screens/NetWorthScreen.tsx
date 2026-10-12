@@ -963,7 +963,10 @@ export default function NetWorthScreen() {
 
         {/* DEBTS — minus numbers, the word carries the meaning */}
         <SectionBand title="DEBTS" infoTerm="debt" trailing={RIGHT_SLOT}
-          value={dState.total_debt_balance > 0 ? `−${fig('MK-NW-M-009', Math.round(dState.total_debt_balance))}` : undefined} />
+          value={dState.total_debt_balance > 0 ? `−${fig('MK-NW-M-009', Math.round(dState.total_debt_balance))}`
+            // nothing entered: the figure stays $0 with the line under it (Q48 empty-state mock frame 1, and v08 state C
+            // "DEBTS $0"). It printed no figure at all once any account was entered (mock-match audit v02, 2026-10-11).
+            : liabilities.length === 0 ? fig('MK-NW-M-009', 0) : undefined} />
           {liabilities.length === 0 && <View style={styles.ledgerPad}><EmptyNote door="debts" onPress={() => setDebtSheet({ open: true })} /></View>}   {/* Q48: nothing entered — a "no debts" answer does not exist yet, so an entered none cannot be told apart (question for the founder) */}
           {/* the debts' own composition bar (founder Q6, 2026-08-11) — the same shape as the assets
               bar above, in the warning family so the two sections can never be misread for each other */}

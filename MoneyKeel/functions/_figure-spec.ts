@@ -50,8 +50,10 @@ export type FigureUnit =
  *
  * Formula .....
  *     spec.refusal   when value = nothing (or !number.is finite(value) when missing or zero)
- *     body + (opts.spoken ? ` a ${spec.per}` : ` ÷ ${spec.per}`)   when opts.with period and spec.per
- *     body
+ *     signed = body.replace( ÷ ^- ÷ , '−')   if spec.unit = 'money' (or spec.unit = 'money − compact' (or spec.unit = 'money − cents' when missing or zero) when missing or zero)
+ *     body   otherwise
+ *     signed + (opts.spoken ? ` a ${spec.per}` : ` ÷ ${spec.per}`)   when opts.with period and spec.per
+ *     the answer = signed
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -78,8 +80,12 @@ export function writeFigure(spec: FigureSpec, value: number | null, opts?: { spo
     : spec.unit === 'months' ? plural(value, 'month', (Math.round(value * 10) / 10).toFixed(1))
     : spec.unit === 'age' ? `${value}`
     : `${value}`;
-  if (opts?.withPeriod && spec.per) return body + (opts.spoken ? ` a ${spec.per}` : `/${spec.per}`);
-  return body;
+  // A NEGATIVE AMOUNT IS WRITTEN WITH THE MINUS SIGN "−", never the hyphen "-" the number formatter gives: every
+  // approved drawing and the design guidelines write "−$100" (Net worth v08 READ THIS FIRST 2026-10-10, DEC-4036i:
+  // "counts as Cash −$100"). Found by the mock-match audit v02, 2026-10-11: an overdrawn account's row read "-$100".
+  const signed = spec.unit === 'money' || spec.unit === 'money-compact' || spec.unit === 'money-cents' ? body.replace(/^-/, '−') : body;
+  if (opts?.withPeriod && spec.per) return signed + (opts.spoken ? ` a ${spec.per}` : `/${spec.per}`);
+  return signed;
 }
 
 export interface FigureSpec {

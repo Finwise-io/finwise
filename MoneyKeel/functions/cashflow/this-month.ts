@@ -537,7 +537,7 @@ export const FIGURES = declareFigures({
     refusal: 'Shows $0 until expenses or debts are entered.',
     worked: {
       given: GIVEN,
-      answer: '-$6,050/month',
+      answer: '−$6,050/month',
       run: () => workedLineAmount('planned', 'Expenses') + workedLineAmount('planned', 'Mortgage') + workedLineAmount('planned', 'Car loan'),
     },
   },
@@ -564,7 +564,7 @@ export const FIGURES = declareFigures({
     refusal: 'The list is replaced by the door to enter income or expenses when nothing is entered.',
     worked: {
       given: GIVEN,
-      answer: '-$2,400/month',
+      answer: '−$2,400/month',
       run: () => workedLineAmount('planned', 'Mortgage'),
     },
   },
@@ -593,7 +593,7 @@ export const FIGURES = declareFigures({
     refusal: 'Shows $0 until an expense is logged or a debt is entered.',
     worked: {
       given: GIVEN,
-      answer: '-$3,248/month',
+      answer: '−$3,248/month',
       run: () => workedLineAmount('actual', 'Expenses entered by hand') + workedLineAmount('actual', 'Mortgage') + workedLineAmount('actual', 'Car loan'),
     },
   },
@@ -620,7 +620,7 @@ export const FIGURES = declareFigures({
     refusal: 'The list is replaced by the door to record income when nothing is recorded.',
     worked: {
       given: GIVEN,
-      answer: '-$250/month',
+      answer: '−$250/month',
       run: () => workedLineAmount('actual', 'Car loan'),
     },
   },

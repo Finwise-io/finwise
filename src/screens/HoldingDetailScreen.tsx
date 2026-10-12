@@ -53,6 +53,11 @@ const dateWords = (iso: string) => {
   return m >= 1 && m <= 12 ? `${MO[m - 1]} ${d}, ${y}` : String(iso);
 };
 
+/** IF YOU SOLD TODAY, A GAIN THAT CANNOT BE WORKED OUT. The section is drawn only when there is a price today, so a
+ *  gain is refused here only because a purchase lacks its price paid or share count — and the line says that. It
+ *  printed the figure's whole refusal, which begins "No price today", under a live price (mock-match audit v02, 2026-10-11). */
+const GAIN_NOT_STATED = 'Not stated — a purchase has no price paid or share count on record.';
+
 export default function HoldingDetailScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ account?: string; position?: string; period?: string }>();
@@ -286,7 +291,10 @@ export default function HoldingDetailScreen() {
           <TouchableOpacity accessibilityRole="button" key={l.lot_id} style={s.lotRow} onPress={() => setEditOpen(true)}
             accessibilityLabel={`${l.shares} shares at ${figSpoken('MK-NW-M-061', l.cost_per_share)} on ${dateWords(l.purchase_date)}. Opens the editor.`}>
             <Text style={s.lotDate}>{dateWords(l.purchase_date)}</Text>
-            <Text style={s.lotShares}>{l.shares} sh @ {fig('MK-NW-M-061', l.cost_per_share)}</Text>
+            <Text style={s.lotShares}>{l.shares} sh @ {l.cost_per_share != null && Number.isFinite(l.cost_per_share) ? fig('MK-NW-M-061', l.cost_per_share)
+              // a purchase with no price paid says so (READ THIS FIRST 2026-10-11 on holding-detail v02: "each line says
+              // what is missing"); it printed the figure's other refusal, "No purchases recorded — the section is not drawn."
+              : figWords('MK-NW-M-061', 'no purchase price recorded')}</Text>
           </TouchableOpacity>
         ))}
         <View style={[s.tRow, s.tTotal]}><Text style={[s.tL, { fontWeight: '800', color: Colors.textPrimary }]}>Total paid</Text><Text style={s.tV}>{fig('MK-NW-M-033', basis)}</Text></View>
@@ -314,8 +322,8 @@ export default function HoldingDetailScreen() {
       {cg && !closed && (
         <View style={s.card}>
           <SectionBand inCard inset={20} title="IF YOU SOLD TODAY" />
-          <View style={s.tRow}><Text style={s.tL}>Gain — long-term (held over 1 yr)</Text><Text style={s.tV}>{cg.longGain == null ? fig('MK-NW-M-036', null) : `${cg.longGain >= 0 ? '+' : '−'}${fig('MK-NW-M-036', Math.abs(cg.longGain))}`}</Text></View>
-          {cg.shortGain !== 0 && <View style={s.tRow}><Text style={s.tL}>Gain — short-term (held 1 yr or less)</Text><Text style={s.tV}>{cg.shortGain == null ? fig('MK-NW-M-037', null) : `${cg.shortGain >= 0 ? '+' : '−'}${fig('MK-NW-M-037', Math.abs(cg.shortGain))}`}</Text></View>}
+          <View style={s.tRow}><Text style={s.tL}>Gain — long-term (held over 1 yr)</Text><Text style={s.tV}>{cg.longGain == null ? figWords('MK-NW-M-036', GAIN_NOT_STATED) : `${cg.longGain >= 0 ? '+' : '−'}${fig('MK-NW-M-036', Math.abs(cg.longGain))}`}</Text></View>
+          {cg.shortGain !== 0 && <View style={s.tRow}><Text style={s.tL}>Gain — short-term (held 1 yr or less)</Text><Text style={s.tV}>{cg.shortGain == null ? figWords('MK-NW-M-037', GAIN_NOT_STATED) : `${cg.shortGain >= 0 ? '+' : '−'}${fig('MK-NW-M-037', Math.abs(cg.shortGain))}`}</Text></View>}
         </View>
       )}
 

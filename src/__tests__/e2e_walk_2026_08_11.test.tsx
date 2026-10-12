@@ -362,7 +362,8 @@ test('E4 debts bigger than savings — the top reads negative and the fall is no
   expect(netWorth()).toBe(-50000);
   render(React.createElement(screens.NW()));
   noNonsense();
-  expect(screen.getByText(/-\$50,000/)).toBeOnTheScreen();
+  // written with the minus sign "−", as every approved drawing writes it (mock-match audit v02, 2026-10-11); it read "-$50,000"
+  expect(screen.getByText(/−\$50,000/)).toBeOnTheScreen();
   // a negative total must never be shown with a + in front of it
   expect(visible().some((s) => /\+\$50,000/.test(s))).toBe(false);
 });

@@ -681,7 +681,7 @@
    "refusal": "Shows $0 until expenses or debts are entered.",
    "worked": {
     "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget. Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid.",
-    "answer": "-$6,050/month"
+    "answer": "−$6,050/month"
    },
    "door": "MK-CF-O-003 thisMonth"
   },
@@ -724,7 +724,7 @@
    "refusal": "The list is replaced by the door to enter income or expenses when nothing is entered.",
    "worked": {
     "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget. Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid.",
-    "answer": "-$2,400/month"
+    "answer": "−$2,400/month"
    },
    "door": "MK-CF-O-003 thisMonth"
   },
@@ -774,7 +774,7 @@
    "refusal": "Shows $0 until an expense is logged or a debt is entered.",
    "worked": {
     "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget. Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid.",
-    "answer": "-$3,248/month"
+    "answer": "−$3,248/month"
    },
    "door": "MK-CF-O-003 thisMonth"
   },
@@ -817,7 +817,7 @@
    "refusal": "The list is replaced by the door to record income when nothing is recorded.",
    "worked": {
     "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget. Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid.",
-    "answer": "-$250/month"
+    "answer": "−$250/month"
    },
    "door": "MK-CF-O-003 thisMonth"
   },
@@ -3255,7 +3255,7 @@
    "ruled": "2026-09-27",
    "worked": {
     "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget ($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid. The Plan already promises $300/month to the emergency fund.",
-    "answer": "-$3,400/month"
+    "answer": "−$3,400/month"
    },
    "door": "MK-CF-O-010 theMonth"
   },
@@ -3331,7 +3331,7 @@
    "ruled": "2026-09-27",
    "worked": {
     "given": "September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget ($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid. The Plan already promises $300/month to the emergency fund.",
-    "answer": "-$250"
+    "answer": "−$250"
    },
    "door": "MK-CF-O-010 theMonth"
   },

@@ -2774,6 +2774,10 @@
      "s": "ⓘ"
     },
     {
+     "k": "t",
+     "s": "$0"
+    },
+    {
      "k": "a",
      "s": "Nothing entered yet. Add your debts ›"
     },
@@ -3026,6 +3030,10 @@
     {
      "k": "t",
      "s": "ⓘ"
+    },
+    {
+     "k": "t",
+     "s": "$0"
     },
     {
      "k": "a",
@@ -21418,7 +21426,7 @@
     },
     {
      "k": "t",
-     "s": "Lowest point -$3,600 (Sep ’27). The biggest cause: Everyday expenses ($3,600) in Oct."
+     "s": "Lowest point −$3,600 (Sep ’27). The biggest cause: Everyday expenses ($3,600) in Oct."
     },
     {
      "k": "t",
@@ -21438,7 +21446,7 @@
     },
     {
      "k": "a",
-     "s": "Oct 2026: in $3,500 a month, out $3,600 a month, ending balance -$100 — short. Opens the month's detail."
+     "s": "Oct 2026: in $3,500 a month, out $3,600 a month, ending balance −$100 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21458,7 +21466,7 @@
     },
     {
      "k": "t",
-     "s": "-$100"
+     "s": "−$100"
     },
     {
      "k": "t",
@@ -21466,7 +21474,7 @@
     },
     {
      "k": "a",
-     "s": "Nov 2026: in $3,500 a month, out $3,600 a month, ending balance -$200 — short. Opens the month's detail."
+     "s": "Nov 2026: in $3,500 a month, out $3,600 a month, ending balance −$200 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21486,7 +21494,7 @@
     },
     {
      "k": "t",
-     "s": "-$200"
+     "s": "−$200"
     },
     {
      "k": "t",
@@ -21494,7 +21502,7 @@
     },
     {
      "k": "a",
-     "s": "Dec 2026: in $3,500 a month, out $3,600 a month, ending balance -$300 — short. Opens the month's detail."
+     "s": "Dec 2026: in $3,500 a month, out $3,600 a month, ending balance −$300 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21514,7 +21522,7 @@
     },
     {
      "k": "t",
-     "s": "-$300"
+     "s": "−$300"
     },
     {
      "k": "t",
@@ -21522,7 +21530,7 @@
     },
     {
      "k": "a",
-     "s": "Jan ’27 2027: in $3,500 a month, out $3,600 a month, ending balance -$400 — short. Opens the month's detail."
+     "s": "Jan ’27 2027: in $3,500 a month, out $3,600 a month, ending balance −$400 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21542,7 +21550,7 @@
     },
     {
      "k": "t",
-     "s": "-$400"
+     "s": "−$400"
     },
     {
      "k": "t",
@@ -21550,7 +21558,7 @@
     },
     {
      "k": "a",
-     "s": "Feb ’27 2027: in $3,500 a month, out $3,600 a month, ending balance -$500 — short. Opens the month's detail."
+     "s": "Feb ’27 2027: in $3,500 a month, out $3,600 a month, ending balance −$500 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21570,7 +21578,7 @@
     },
     {
      "k": "t",
-     "s": "-$500"
+     "s": "−$500"
     },
     {
      "k": "t",
@@ -21578,7 +21586,7 @@
     },
     {
      "k": "a",
-     "s": "Mar ’27 2027: in $3,500 a month, out $3,600 a month, ending balance -$600 — short. Opens the month's detail."
+     "s": "Mar ’27 2027: in $3,500 a month, out $3,600 a month, ending balance −$600 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21598,7 +21606,7 @@
     },
     {
      "k": "t",
-     "s": "-$600"
+     "s": "−$600"
     },
     {
      "k": "t",
@@ -21606,7 +21614,7 @@
     },
     {
      "k": "a",
-     "s": "Apr ’27 2027: in $3,500 a month, out $3,600 a month, ending balance -$700 — short. Opens the month's detail."
+     "s": "Apr ’27 2027: in $3,500 a month, out $3,600 a month, ending balance −$700 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21626,7 +21634,7 @@
     },
     {
      "k": "t",
-     "s": "-$700"
+     "s": "−$700"
     },
     {
      "k": "t",
@@ -21634,7 +21642,7 @@
     },
     {
      "k": "a",
-     "s": "May ’27 2027: in $3,500 a month, out $3,600 a month, ending balance -$800 — short. Opens the month's detail."
+     "s": "May ’27 2027: in $3,500 a month, out $3,600 a month, ending balance −$800 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21654,7 +21662,7 @@
     },
     {
      "k": "t",
-     "s": "-$800"
+     "s": "−$800"
     },
     {
      "k": "t",
@@ -21662,7 +21670,7 @@
     },
     {
      "k": "a",
-     "s": "Jun ’27 2027: in $3,500 a month, out $6,000 a month, ending balance -$3,300 — short. Opens the month's detail."
+     "s": "Jun ’27 2027: in $3,500 a month, out $6,000 a month, ending balance −$3,300 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21682,7 +21690,7 @@
     },
     {
      "k": "t",
-     "s": "-$3,300"
+     "s": "−$3,300"
     },
     {
      "k": "t",
@@ -21690,7 +21698,7 @@
     },
     {
      "k": "a",
-     "s": "Jul ’27 2027: in $3,500 a month, out $3,600 a month, ending balance -$3,400 — short. Opens the month's detail."
+     "s": "Jul ’27 2027: in $3,500 a month, out $3,600 a month, ending balance −$3,400 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21710,7 +21718,7 @@
     },
     {
      "k": "t",
-     "s": "-$3,400"
+     "s": "−$3,400"
     },
     {
      "k": "t",
@@ -21718,7 +21726,7 @@
     },
     {
      "k": "a",
-     "s": "Aug ’27 2027: in $3,500 a month, out $3,600 a month, ending balance -$3,500 — short. Opens the month's detail."
+     "s": "Aug ’27 2027: in $3,500 a month, out $3,600 a month, ending balance −$3,500 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21738,7 +21746,7 @@
     },
     {
      "k": "t",
-     "s": "-$3,500"
+     "s": "−$3,500"
     },
     {
      "k": "t",
@@ -21746,7 +21754,7 @@
     },
     {
      "k": "a",
-     "s": "Sep ’27 2027: in $3,500 a month, out $3,600 a month, ending balance -$3,600 — short. Opens the month's detail."
+     "s": "Sep ’27 2027: in $3,500 a month, out $3,600 a month, ending balance −$3,600 — short. Opens the month's detail."
     },
     {
      "k": "t",
@@ -21766,7 +21774,7 @@
     },
     {
      "k": "t",
-     "s": "-$3,600"
+     "s": "−$3,600"
     },
     {
      "k": "t",
@@ -37741,7 +37749,7 @@
  },
  "callsites": [
   {
-   "site": "MoneyKeel/functions/_figure-spec.ts:72",
+   "site": "MoneyKeel/functions/_figure-spec.ts:74",
    "routes": [
     "/account-detail",
     "/analytics",
@@ -37822,10 +37830,10 @@
     "$45,000",
     "$0"
    ],
-   "renders": 1257
+   "renders": 1260
   },
   {
-   "site": "MoneyKeel/functions/_figure-spec.ts:74",
+   "site": "MoneyKeel/functions/_figure-spec.ts:76",
    "routes": [
     "/holding-detail"
    ],
