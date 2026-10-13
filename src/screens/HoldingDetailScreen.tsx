@@ -373,7 +373,8 @@ const s = StyleSheet.create({
   sub: { fontSize: 15, color: Colors.textSecondary, marginBottom: Spacing.md },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg, marginBottom: Spacing.md },
   big: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary },
-  gainLine: { fontSize: 15, fontWeight: '800', marginTop: 2 },
+  // the text colour unless a change colours it — "Holding liquidated …" had none, so it fell to the platform's black (drawing check 2026-10-12)
+  gainLine: { fontSize: 15, fontWeight: '800', marginTop: 2, color: Colors.textPrimary },
   metaLine: { fontSize: 13, color: Colors.textSecondary, marginTop: 4 },
   warn: { color: Colors.amber },
   kicker: { fontSize: 13, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.6, marginBottom: 6 },

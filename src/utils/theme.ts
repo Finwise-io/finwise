@@ -47,6 +47,14 @@ export const Colors = {
   // (founder pick C, 2026-07-31: darker beats lighter for 55-70 eyes)
   sepDot: '#3A3A36',
 
+  // A WINDOW THAT SHOWS NO FIGURE, AT REST (Performance v14, approved 2026-09-25, and v17, approved
+  // 2026-10-01: "greyed to —"). The window's name and its dash are drawn lighter than any other text,
+  // because the control cannot be used: a disabled control is outside the 4.5:1 floor for small text
+  // (WCAG 1.4.3 exempts inactive components). Found by the drawing check of 2026-10-12 — the build
+  // drew them in textTertiary, the same grey as a window that answers.
+  textDisabled: '#A8A8A2',
+  textDisabledFaint: '#C2C2BB',
+
   // light text tint on dark (primaryDeep) hero cards
   onDeepTint: '#BEE7D8',
 

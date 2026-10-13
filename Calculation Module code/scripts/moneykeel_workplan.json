@@ -2934,6 +2934,18 @@
     "status": "DONE 2026-10-12 — code, tests, function rules, standards, changelog, drawings' READ THIS FIRST lines; not committed",
     "comments": "Found while applying item 1: 'Since' was read as today, so each holding's Since figure (the category returns under the walk) was one day's move. Since now hands over its own first day."
    }
+  },
+  {
+   "task": "Performance line-by-line drawing check (v17 phones 1, 3, 4, 5 · Look back v01 · Holding detail v02), against 02adb375",
+   "todo": "Every visible word AND figure of each phone against the screen rendered on the drawing's own day; then colours, sizes, weights; fix what the code gets wrong, each with a test; drawing arithmetic checked (DEC-4529). Phone 2, the account page, is out of scope: it is the redraw row of 2026-10-11.",
+   "status": "DONE 2026-10-12 — 11 code fixes (window control colours, one-line notes, 13-point date and labels, walk weights, withdrawals not red, notes' grey, category table, graph dates over a year, gridlines that hold the line, day-one frame, Holding liquidated colour); no drawing arithmetic error found; not committed",
+   "ref": "MoneyKeel/documents/audit/moneykeel_audit_mock-match_performance_2026-10-12_v01.md · src/screens/__tests__/perf_mock_match_2026_10_12.test.tsx",
+   "date": "2026-10-12",
+   "comments": "Phones 1 and 3 now match the drawing figure for figure, not only word for word: the test builds a household whose record gives the drawn $100,000 → $123,000, +0.41%, +4.90%, 7.46%, 6.88%, $38,000 → $52,704 and the rest.",
+   "_written": {
+    "status": "DONE 2026-10-12 — 11 code fixes (window control colours, one-line notes, 13-point date and labels, walk weights, withdrawals not red, notes' grey, category table, graph dates over a year, gridlines that hold the line, day-one frame, Holding liquidated colour); no drawing arithmetic error found; not committed",
+    "comments": "Phones 1 and 3 now match the drawing figure for figure, not only word for word: the test builds a household whose record gives the drawn $100,000 → $123,000, +0.41%, +4.90%, 7.46%, 6.88%, $38,000 → $52,704 and the rest."
+   }
   }
  ]
 }

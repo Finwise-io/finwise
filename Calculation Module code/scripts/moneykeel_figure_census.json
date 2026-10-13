@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-12",
+ "generated": "2026-10-13",
  "states": [
   "worker",
   "rich",
@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -528,7 +528,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -3765,6 +3765,14 @@
      "s": "$120,000"
     },
     {
+     "k": "a",
+     "s": "Open Retirement (Traditional) — this account's own page"
+    },
+    {
+     "k": "t",
+     "s": "›"
+    },
+    {
      "k": "t",
      "s": "✍️"
     },
@@ -3863,6 +3871,14 @@
     {
      "k": "t",
      "s": "$45,000"
+    },
+    {
+     "k": "a",
+     "s": "Open Investments — this account's own page"
+    },
+    {
+     "k": "t",
+     "s": "›"
     },
     {
      "k": "t",
@@ -4315,6 +4331,14 @@
      "s": "$300,000"
     },
     {
+     "k": "a",
+     "s": "Open Vanguard Brokerage — this account's own page"
+    },
+    {
+     "k": "t",
+     "s": "›"
+    },
+    {
      "k": "t",
      "s": "🔗"
     },
@@ -4415,6 +4439,14 @@
      "s": "$400,000"
     },
     {
+     "k": "a",
+     "s": "Open Fidelity Traditional IRA — this account's own page"
+    },
+    {
+     "k": "t",
+     "s": "›"
+    },
+    {
      "k": "t",
      "s": "✍️"
     },
@@ -4513,6 +4545,14 @@
     {
      "k": "t",
      "s": "$9,800"
+    },
+    {
+     "k": "a",
+     "s": "Open TreasuryDirect Treasury note — this account's own page"
+    },
+    {
+     "k": "t",
+     "s": "›"
     },
     {
      "k": "t",
@@ -4919,6 +4959,14 @@
     {
      "k": "t",
      "s": "$250,000"
+    },
+    {
+     "k": "a",
+     "s": "Open Savings / portfolio — this account's own page"
+    },
+    {
+     "k": "t",
+     "s": "›"
     },
     {
      "k": "t",

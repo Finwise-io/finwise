@@ -44,6 +44,8 @@ import { AltEditor } from './OtherInvestmentsScreen';
 import { isoLocalDate, dateShown } from '../domain/_shared/dates';
 import { rebuiltSentence } from '../../Calculation Module code/engines/rebuild-history';
 
+/** the width of the right gutter: an arrow column, as on Net worth (ARROW 16) */
+const GUTTER = 16;
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 // Q49 (founder, 2026-09-09): two decimals on every return — one rounding, at display.
 const pct = (v: number | null) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${(v * 100).toFixed(2)}%`);
@@ -246,23 +248,28 @@ export default function PerformanceScreen() {
     <>
       {[
         { l: `Beginning market value (${beginWords})`, v: w.beginning, m: ids.begin },
-        { l: 'Contributions', v: w.contributions, m: ids.line },
-        { l: 'Withdrawals', v: -w.withdrawals, m: ids.line },
+        { l: 'Contributions', v: w.contributions, m: ids.line, flow: true },
+        { l: 'Withdrawals', v: -w.withdrawals, m: ids.line, flow: true },
         { l: 'Wealth generated', v: w.wealthGenerated, strong: true, m: ids.wealth },
         { l: 'Dividends', v: w.dividends, indent: true, m: ids.line },
         { l: 'Interest', v: w.interest, indent: true, m: ids.line },
         { l: 'Change in investment value', v: w.marketChange, indent: true, m: ids.line },
       ].map((r) => (
         <View key={r.l} style={[styles.walkRow, (r as any).indent && { paddingLeft: 20 }]}>
-          <Text style={[styles.walkL, (r as any).indent && { color: Colors.textSecondary }, (r as any).strong && { fontWeight: '800' }]}>{r.l}</Text>
-          <Text style={[styles.walkV, (r as any).strong && { fontWeight: '800' }, r.v < 0 && { color: Colors.red }]}>
+          {/* v17's weights (drawing check 2026-10-12): the strong label is a plain <b>, 700; its figure 900.
+              Money taken out is not a loss, so Withdrawals stays in the text colour (v17 phone 3, "−$1,200") —
+              red is for a figure that fell. It printed red, the Net worth walk's defect of 2026-10-11 again. */}
+          <Text style={[styles.walkL, (r as any).indent && { color: Colors.textSecondary }, (r as any).strong && { fontWeight: '700' }]}>{r.l}</Text>
+          <Text style={[styles.walkV, (r as any).strong && { fontWeight: '900' }, r.v < 0 && !(r as any).flow && { color: Colors.red }]}>
             {r.v < 0 ? '−' : ''}{fig(r.m, Math.abs(r.v))}
           </Text>
+          <View testID="right-gutter" style={styles.gutter} />
         </View>
       ))}
       <View style={[styles.walkRow, styles.walkTotal]}>
-        <Text style={[styles.walkL, { fontWeight: '800' }]}>Ending market value ({endWords})</Text>
-        <Text style={[styles.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{fig(ids.end, w.ending)}</Text>
+        <Text style={[styles.walkL, { fontWeight: '700' }]}>Ending market value ({endWords})</Text>
+        <Text style={[styles.walkV, { fontWeight: '900', color: Colors.primaryDark }]}>{fig(ids.end, w.ending)}</Text>
+        <View testID="right-gutter" style={styles.gutter} />
       </View>
     </>
   );
@@ -291,7 +298,7 @@ export default function PerformanceScreen() {
 
       {/* SUMMARY — the trio on one row, what the Return is in words, where the history came from, the line */}
       <View style={styles.card}>
-        <SectionBand inCard title={`SUMMARY · ${phraseFor(period).toUpperCase()}`} infoTerm="performanceSummary" />
+        <SectionBand inCard gutter={GUTTER} title={`SUMMARY · ${phraseFor(period).toUpperCase()}`} infoTerm="performanceSummary" />
         <View style={styles.trioRow}>
           <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{fig('MK-PF-M-001', now.ending)}</Text></View>
           {/* no beginning the record can read, no wealth generated — a dash, never a figure worked back from today (Performance v17) */}
@@ -327,13 +334,15 @@ export default function PerformanceScreen() {
             <Note term="moneyAddedIsNotReturn">time-weighted, so money you added never counts as return</Note>
           </>
         ) : (
-          <>
-            <Note term="windowReturn">Return is for the window you picked ({beginWords} → {endWords}) — not a yearly rate</Note>
-            <Note term="moneyAddedIsNotReturn">time-weighted, so money you added never counts as return</Note>
-          </>
+          /* ONE LINE, TWO DOTS, A "·" BETWEEN (v17 phone 3 — drawing check 2026-10-12): it was two rows with no "·" */
+          <NoteLine parts={[
+            { term: 'windowReturn', text: `Return is for the window you picked (${beginWords} → ${endWords}) — not a yearly rate` },
+            { term: 'moneyAddedIsNotReturn', text: 'time-weighted, so money you added never counts as return' },
+          ]} />
         )}
         {/* WHERE THE HISTORY CAME FROM (mock v14 mark 13): a rebuilt line names its source and first day */}
-        {!!rebuilt && !dayOne && <Note term="rebuiltHistory">↺ {rebuilt.sentence}</Note>}
+        {/* drawn at the row size, 13 (v17 phone 3, .emptynote) — it was an 11-point footnote */}
+        {!!rebuilt && !dayOne && <Note term="rebuiltHistory" size={13}>↺ {rebuilt.sentence}</Note>}
         {/* the value graph lives INSIDE the summary card, with a Y axis (mock v14 mark 11), drawn ONLY
             from days we have a record for — never today's share count priced at old dates */}
         <ValueGraph points={dayOne ? [] : graphPoints} dayOneValue={fig('MK-PF-M-001', now.ending)} today={todayKey}
@@ -347,8 +356,8 @@ export default function PerformanceScreen() {
       {/* THE WALK — how the beginning became the ending, every account together */}
       <View style={styles.card}>
         {dayOne || walk == null
-          ? <SectionBand inCard title="HOW TODAY'S VALUE STANDS · ALL ACCOUNTS" value={fig('MK-PF-M-001', now.ending)} />
-          : <SectionBand inCard title={figWords('MK-PF-M-003', `HOW ${fig('MK-PF-M-018', walk.beginning)} BECAME ${fig('MK-PF-M-001', walk.ending)} · ALL ACCOUNTS`)} />}
+          ? <SectionBand inCard gutter={GUTTER} title="HOW TODAY'S VALUE STANDS · ALL ACCOUNTS" value={fig('MK-PF-M-001', now.ending)} />
+          : <SectionBand inCard gutter={GUTTER} title={figWords('MK-PF-M-003', `HOW ${fig('MK-PF-M-018', walk.beginning)} BECAME ${fig('MK-PF-M-001', walk.ending)} · ALL ACCOUNTS`)} />}
         {walk == null
           ? <Text style={styles.sumNote}>{now.sentence}</Text>
           : walkRows(walk, { begin: 'MK-PF-M-018', line: 'MK-PF-M-019', wealth: 'MK-PF-M-002', end: 'MK-PF-M-001' })}
@@ -395,6 +404,9 @@ export default function PerformanceScreen() {
                 accessibilityLabel={`${label}, ${figSaid('MK-PF-M-005', acct.balance || 0)}.${dayOne ? '' : ` ${isOpen ? 'Collapses' : 'Expands'} its walk.`}`}>
                 <SectionBand inCard title={`${dayOne ? '' : isOpen ? '▾ ' : '▸ '}${label}`} value={fig('MK-PF-M-005', acct.balance || 0)}
                   onTitlePress={() => router.push(`/account-detail?id=${id}` as any)}
+                  /* v17 draws "›" after every account bar: the bar opens that account's page (frame 2). It sits in the
+                     right gutter every money row keeps, so the bar total stays on the rows' edge (DEC-0093) */
+                  gutter={GUTTER} onChevronPress={() => router.push(`/account-detail?id=${id}` as any)}
                   titleHint={`Open ${label} — this account's own page`} />
               </TouchableOpacity>
               {!isOpen ? (
@@ -414,6 +426,7 @@ export default function PerformanceScreen() {
                       <View style={[styles.walkRow, styles.walkTotal]}>
                         <Text style={styles.walkL}>Return</Text>
                         <Text style={[styles.walkV, { color: oneReturn == null ? Colors.textTertiary : (one.ret ?? 0) >= 0 ? Colors.gainText : Colors.red }]}>{oneReturn ?? '—'}</Text>
+                        <View testID="right-gutter" style={styles.gutter} />
                       </View>
                       {/* printed because both taps are real: the arrow collapses, the name opens the account */}
                       <Text style={styles.sumNote}>Tap ▾ to collapse · tap the name to open this account's portfolio ›</Text>
@@ -442,11 +455,12 @@ export default function PerformanceScreen() {
         const total = shown.reduce((n, b) => n + b.earned, 0);
         return (
           <View style={styles.card}>
-            <SectionBand inCard title="WHAT EACH CATEGORY EARNED" value={phraseFor(period).toUpperCase()} />
+            <SectionBand inCard gutter={GUTTER} title="WHAT EACH CATEGORY EARNED" value={phraseFor(period).toUpperCase()} />
             <View style={styles.catHead}>
               <Text style={styles.catHeadL}>CATEGORY</Text>
               <Text style={styles.catHeadV}>EARNED</Text>
               <Text style={styles.catHeadR}>RETURN</Text>
+              <View testID="right-gutter" style={styles.gutter} />
             </View>
             {shown.map((b) => {
               const ret = b.ret == null ? '—' : `${fig('MK-PF-M-006', b.ret)}${b.yearly ? '/year' : ''}`;
@@ -459,22 +473,26 @@ export default function PerformanceScreen() {
                     {b.key === 'cash' && !dayOne && <InfoDot size={13} term="cashInAccount" />}
                   </View>
                   <Text style={[styles.catV, !dayOne && { color: Colors.gainText }]}>{fig('MK-PF-M-007', b.earned)}</Text>
-                  <Text style={[styles.catR, b.ret == null && { color: Colors.textTertiary }]}>{ret}</Text>
+                  <Text style={[styles.catR, b.ret == null && { color: Colors.textSecondary }]}>{ret}</Text>
+                  {/* no "›": a category row opens no approved screen (DEC-0128) — the gutter stays empty */}
+                  <View testID="right-gutter" style={[styles.gutter, styles.gutterInGap]} />
                 </View>
               );
             })}
             <View style={[styles.catRow, styles.walkTotal]}>
-              <Text style={[styles.catL, { fontWeight: '800', marginLeft: 14, flex: 1 }]}>All categories</Text>
-              <Text style={[styles.catV, { fontWeight: '800' }]}>{fig('MK-PF-M-007', total)}</Text>
+              <Text style={[styles.catL, { fontWeight: '700', marginLeft: 14, flex: 1 }]}>All categories</Text>
+              <Text style={[styles.catV, { fontWeight: '900' }]}>{fig('MK-PF-M-007', total)}</Text>
               <Text style={styles.catR}> </Text>
+              <View testID="right-gutter" style={[styles.gutter, styles.gutterInGap]} />
             </View>
             {dayOne ? (
               <Note term="earnedInWindow">Fills in with your first dividend or interest record. A file import carries no activity — that line will say so rather than show a false $0.</Note>
             ) : (
-              <>
-                <Note term="earnedInWindow">Earned = dividends + interest received in this window</Note>
-                <Note term="yearlyPace">a /year figure is that category’s yearly pace</Note>
-              </>
+              /* one line with a "·" between, as v17 phones 1 and 3 draw it (drawing check 2026-10-12) */
+              <NoteLine parts={[
+                { term: 'earnedInWindow', text: 'Earned = dividends + interest received in this window' },
+                { term: 'yearlyPace', text: 'a /year figure is that category’s yearly pace' },
+              ]} />
             )}
           </View>
         );
@@ -728,11 +746,27 @@ const blankLot = (): Lot => ({ lot_id: `lot_${Math.random().toString(36).slice(2
  *  Shape note worth keeping: a 12-point radius on a 26-point-tall chip IS a semicircle. The app's
  *  radio buttons are 42 tall with that radius, which is why they read as corners; so is a segment. */
 /** A quiet line under a card's figures, with its ⓘ where the drawing puts it: at the end of the words. */
-function Note({ term, children }: { term: GlossaryTerm; children: React.ReactNode }) {
+function Note({ term, children, size = 11 }: { term: GlossaryTerm; children: React.ReactNode; size?: 11 | 13 }) {
   return (
     <View style={styles.noteRow}>
-      <Text style={styles.noteT}>{children}</Text>
-      <InfoDot size={11} term={term} />
+      <Text style={[styles.noteT, size === 13 && { fontSize: 13, lineHeight: 18 }]}>{children}</Text>
+      <InfoDot size={size} term={term} />
+    </View>
+  );
+}
+
+/** Two quiet notes on ONE line, each with its ⓘ, a "·" between — "… a yearly rate ⓘ · time-weighted, so … ⓘ"
+ *  (Performance v17, phones 1 and 3). The pieces wrap as words do; nothing starts a row of its own. */
+function NoteLine({ parts }: { parts: { term: GlossaryTerm; text: string }[] }) {
+  return (
+    <View style={[styles.noteRow, { flexWrap: 'wrap' }]}>
+      {parts.map((p, i) => (
+        <React.Fragment key={p.term}>
+          {i > 0 && <Text style={styles.noteT}>·</Text>}
+          <Text style={styles.noteT}>{p.text}</Text>
+          <InfoDot size={11} term={p.term} />
+        </React.Fragment>
+      ))}
     </View>
   );
 }
@@ -767,8 +801,11 @@ function WindowSelector({ windows, chosen, figures, onPick }: {
               accessibilityRole="button" accessibilityState={{ selected: on, disabled: uncovered }}
               accessibilityLabel={`Show ${w.label}${ret == null ? ', no data for that window yet' : `, ${fig('MK-PF-M-017', ret)}${perYear ? ' a year' : ''}`}`}
               onPress={() => onPick(w.key)}>
-              <Text numberOfLines={1} style={[styles.segK, on && styles.segOnT, ret == null && !on && styles.segRest]}>{w.label}</Text>
-              <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.segV, on && styles.segOnT, ret == null && styles.segRest]}>
+              {/* THE COLOURS v17 DRAWS (drawing check, 2026-10-12): a window at rest names itself in the tertiary grey;
+                  one with no figure is greyed lighter still, name and dash (.segNo); the CHOSEN window is green even
+                  when its figure is a dash (.segOn .segV — day one). The dash of the chosen window used to turn grey. */}
+              <Text numberOfLines={1} style={[styles.segK, on && styles.segOnT, ret == null && !on && styles.segNoK]}>{w.label}</Text>
+              <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.segV, on && styles.segOnT, ret == null && !on && styles.segNoV]}>
                 {ret == null ? '—' : fig('MK-PF-M-017', ret)}
               </Text>
             </TouchableOpacity>
@@ -996,24 +1033,27 @@ const styles = StyleSheet.create({
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
   catDot: { width: 8, height: 8, borderRadius: 4 },
   catHead: { flexDirection: 'row', alignItems: 'center', paddingTop: 6, paddingBottom: 2 },
-  catHeadL: { flex: 1, fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
-  catHeadV: { width: 84, textAlign: 'right', fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
-  catHeadR: { width: 64, textAlign: 'right', fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
+  // v17: CATEGORY 800, EARNED and RETURN 700, all three in the secondary grey (drawing check 2026-10-12)
+  catHeadL: { flex: 1, fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.4 },
+  catHeadV: { width: 84, textAlign: 'right', fontSize: 11, fontWeight: '700', color: Colors.textSecondary, letterSpacing: 0.4 },
+  catHeadR: { width: 64, textAlign: 'right', fontSize: 11, fontWeight: '700', color: Colors.textSecondary, letterSpacing: 0.4 },
   catRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 7, gap: 6 },
   catL: { flex: 1, fontSize: 13, color: Colors.textPrimary },
   catName: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 4 },
   catLabel: { fontSize: 13, color: Colors.textPrimary },
   // a quiet line with its ⓘ at the end of the words (Performance v17)
   noteRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 4, marginTop: 4 },
-  noteT: { flexShrink: 1, fontSize: 11, color: Colors.textTertiary, lineHeight: 15 },
-  catV: { width: 84, textAlign: 'right', fontSize: 13, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  // the notes are v17's .mut — the secondary grey (drawing check 2026-10-12; they were tertiary)
+  noteT: { flexShrink: 1, fontSize: 11, color: Colors.textSecondary, lineHeight: 15 },
+  catV: { width: 84, textAlign: 'right', fontSize: 13, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   catR: { width: 64, textAlign: 'right', fontSize: 13, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
-  headDate: { fontSize: 11, color: Colors.textSecondary },
+  // v17 draws the date and the trio's labels at 12, which the one type scale takes UP to 13 (DEC-0059); both were 11
+  headDate: { fontSize: 13, color: Colors.textSecondary },
   trioRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, paddingTop: 4 },
   trioCell: { minWidth: 96 },
-  sumLbl: { fontSize: 11, color: Colors.textSecondary },
+  sumLbl: { fontSize: 13, color: Colors.textSecondary },
   sumValBig: { fontSize: 20, fontWeight: '800', color: Colors.primaryDark, fontVariant: ['tabular-nums'] },
-  sumNote: { fontSize: 11, color: Colors.textTertiary, marginTop: 4, lineHeight: 15 },
+  sumNote: { fontSize: 11, color: Colors.textSecondary, marginTop: 4, lineHeight: 15 },
   walkRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6 },
   walkL: { flex: 1, fontSize: 13, color: Colors.textPrimary, paddingRight: 16 },
   walkV: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'], minWidth: 92, textAlign: 'right' },
@@ -1084,12 +1124,17 @@ const styles = StyleSheet.create({
   segWide: { flex: 1.55 },                       // the Since window carries a date, so it gets the room
   segOn: { backgroundColor: Colors.white, ...Shadows.card },
   segDivider: { width: 1, marginVertical: 12, backgroundColor: Colors.border },
-  segK: { fontSize: 11, fontWeight: '700', color: Colors.textSecondary },
+  segK: { fontSize: 11, fontWeight: '700', color: Colors.textTertiary },
   segV: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   segOnT: { color: Colors.primaryDark },
-  segRest: { color: Colors.textTertiary },
+  segNoK: { color: Colors.textDisabled },
+  segNoV: { color: Colors.textDisabledFaint },
   segPer: { fontSize: 11, fontWeight: '700', color: Colors.textSecondary, marginTop: -1 },
   axisDay: { fontSize: 11, color: Colors.textSecondary },
+  // THE RIGHT GUTTER every money row on this screen ends in (DEC-0093: one right edge). A row that opens something carries
+  // "›" in it — on this screen, only an account bar (v17); every other row leaves it empty, so all figures share one edge.
+  gutter: { width: GUTTER },
+  gutterInGap: { marginLeft: -6 },   // a category row spaces its cells 6 apart; the gutter sits flush, as on every other row
   walkChip: { paddingHorizontal: Spacing.base, paddingTop: 4 },
   // the add-an-account sheet — the same shape Net worth uses, so one question looks like one question
   chooserBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
@@ -1101,7 +1146,7 @@ const styles = StyleSheet.create({
   periodPill: { flex: 1, alignItems: 'center', paddingVertical: 7, borderRadius: Radii.pill, backgroundColor: Colors.cardBg },
   // the coverage sentence: quiet, wraps rather than truncating — a limit stated in half a sentence
   // is worse than not stating it at all.
-  coverageLine: { fontSize: 11, color: Colors.textTertiary, lineHeight: 16, marginTop: 8, marginHorizontal: 2 },
+  coverageLine: { fontSize: 11, color: Colors.textSecondary, lineHeight: 16, marginTop: 8, marginHorizontal: 2 },
   periodPillOn: { backgroundColor: Colors.primary },
   periodT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   periodTOn: { color: Colors.white },

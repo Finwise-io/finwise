@@ -8,7 +8,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors, Spacing } from '../utils/theme';
 import { InfoDot } from './UI';
 
-export function SectionBand({ title, value, light, inCard, inset = Spacing.md, infoTerm, trailing = 0, quiet, onTitlePress, titleHint }: {
+export function SectionBand({ title, value, light, inCard, inset = Spacing.md, infoTerm, trailing = 0, quiet, onTitlePress, titleHint, gutter, onChevronPress }: {
   title: string; value?: string; light?: boolean; inCard?: boolean; inset?: number; infoTerm?: string;
   /** THE NAME IS ITS OWN DOOR (founder, 2026-09-27: "build it" — approved mock v14, first phone,
    *  "Tap ▾ to collapse · tap the name to open this account's portfolio ›"). One bar, two jobs: the
@@ -28,6 +28,13 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
    *  app background and fails the 4.5:1 floor for small text. The deep green measures 8.74:1 and is
    *  the accessible choice — the same lesson the band itself already carries. */
   quiet?: boolean;
+  /** THE RIGHT GUTTER, EXACT (Performance, 2026-10-12 — DEC-0093, one right edge). A screen whose every money row ends in a
+   *  fixed-width column passes that width here: the total ends where the band's content ends, then the same column follows,
+   *  so the total lands on the rows' edge. `trailing` reached for the same thing but added the card inset a second time,
+   *  which left Performance's bar totals 12 points left of the walk's figures. */
+  gutter?: number;
+  /** "›" in the gutter, for a bar that opens a screen (v17: each account bar opens that account's page). */
+  onChevronPress?: () => void;
 }) {
   const valuePad = (inCard ? inset : 0) + trailing;
 
@@ -68,7 +75,15 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
       <View style={{ flex: 1 }} />
       {/* founder gap 4 (2026-08-10): the band bleeds to the card edge while rows are inset, so the
           value carries the same inset back — every number on the screen shares ONE right edge. */}
-      {value != null && <Text style={[s.value, light && s.textLight, valuePad > 0 && { marginRight: valuePad }]}>{value}</Text>}
+      {value != null && <Text style={[s.value, light && s.textLight, gutter == null && valuePad > 0 && { marginRight: valuePad }]}>{value}</Text>}
+      {gutter != null && (
+        <View testID="right-gutter" style={{ width: gutter, alignItems: 'flex-end', marginLeft: -6 }}>
+          {!!onChevronPress && (
+            <Text onPress={onChevronPress} suppressHighlighting accessibilityRole="button" accessibilityLabel={titleHint ?? `Open ${title}`}
+              style={[s.value, light && s.textLight]}>›</Text>
+          )}
+        </View>
+      )}
     </View>
   );
 }
