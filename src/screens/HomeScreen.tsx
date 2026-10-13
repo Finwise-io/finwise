@@ -28,7 +28,7 @@ import { requiredPayment } from '../domain/debt';   // the due-soon alert names 
 // insights"). Home built its own net worth from its own assets state while the Net worth tab
 // built another — two assemblies of one question, on the two screens a person compares first.
 import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
-import { thePerformance, windowStartKey, pricedGainOf, investmentAccountIdsOf } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { thePerformance, windowStartKey, investmentAccountIdsOf } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { resolveLens } from '../domain/profile/lens';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { milestoneCrossed, milestoneFloor, milestoneLabel } from '../domain/milestones';
@@ -188,7 +188,10 @@ export default function HomeScreen() {
     return thePerformance({
       windowStart: windowStartKey('1M', Object.keys((store.invDaily ?? {}) as Record<string, number>), today),
       windowLabel: 'past month', today,
-      pricedGain: pricedGainOf(perfRows as any),
+      // the holdings themselves, as Performance hands them over (DEC-5068, 2026-10-13): where no daily record reaches
+      // back, the month is worked back from each holding's price history, and Home's return is the one Performance's
+      // 1M window shows — the return of the holdings with a history, the rest named beneath it
+      holdings: perfRows as any,
       transactions: (store.transactions ?? []) as any[],
       snapshotDays: (store as any).snapshotDays ?? [],
       investmentAccountIds: investmentAccountIdsOf(resolvedRows.accounts as any, assetClassOf),
@@ -205,7 +208,7 @@ export default function HomeScreen() {
     [uid, resolvedRows.accounts, resolvedRows.liabilities]);
   const youReturn = oneMonth.ret;                               // the door's 1M figure, the one Performance prints
   // and the dollars behind it — never re-derived from the %. Shown only beside a return, and a return
-  // exists only where the walk does (a window the record reaches), so the 0 here is never printed.
+  // exists only where the walk does (a window the record reaches, or one worked back — DEC-5068), so the 0 here is never printed.
   const youDollar = oneMonth.walk?.wealthGenerated ?? 0;
   const marketReturn = useMemo(() => portfolioBenchReturn(perfRows), [perfRows]);   // the ONE shared formula (walk row 5)
   const freshness = positions.length > 0 ? priceFreshness(store.pricesFetchedAt, Date.now()) : null;
@@ -327,6 +330,8 @@ export default function HomeScreen() {
                 {investTotal > 0 ? 'change shows once your holdings have prices' : 'nothing invested yet — connect or add an account to start'}
               </Text>
             )}
+            {/* the holding left out of the month's figures above, in the words Performance uses (DEC-5068, 2026-10-13) */}
+            {youReturn != null && !!oneMonth.notIncluded && <Text style={styles.freshness}>{oneMonth.notIncluded}</Text>}
             {youReturn != null && marketReturn != null && (
               <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
                 {/* HIS RULING ON Q51 (2026-09-30): "you +3.69% (including dividend and interest),

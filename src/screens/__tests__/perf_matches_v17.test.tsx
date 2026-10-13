@@ -18,6 +18,7 @@ import * as path from 'path';
 import PerformanceScreen from '../PerformanceScreen';
 import { useStore } from '../../store/useStore';
 import { isoLocalDate } from '../../domain/_shared/dates';
+import { buildDayFromAccounts } from '../../../Calculation Module code/engines/snapshots';
 
 jest.mock('../../services/sync/snaptradeSync', () => ({ runSnapTradeSync: jest.fn() }));
 jest.mock('expo-router', () => ({
@@ -91,13 +92,20 @@ const STATES: Record<number, () => void> = {
     invDaily: { [monthsAgo(26)]: 38_000, [TODAY]: 52_704 }, rebuiltFrom: { etr: monthsAgo(26) },
     priceCache: { VTI: series('VTI', 260, 400, monthsAgo(26)) }, pricesFetchedAt: new Date().toISOString(),
   } as any),
-  // phone 4 — day one, two hand-entered accounts, nothing recorded
-  4: () => useStore.setState({
-    assetAccounts: [acct('van', 'Vanguard', 'BROKERAGE', 301_610, undefined, [pos('p1', 'VTI', 900, 330, 300, TODAY), pos('p3', 'KEYBANK CD 4.00%', 4610, 1, 1, TODAY, 'bond')], 0),
-                    acct('etr', 'E*TRADE', 'ACCOUNT 1', 52_704, undefined, [pos('p2', 'VOO', 90, 550, 500, TODAY)], 3_204)],
-    transactions: [], snapshotDays: [], invDaily: {},
+  // phone 4 — day one, two hand-entered accounts, nothing recorded before today
+  // DAY ONE AS THE APP HAS IT: Home writes today's values to the daily record the moment it opens (captureDailyNw), so on
+  // day one the record exists and begins today — every earlier window is one the record cannot reach and is greyed
+  // (DEC-3035i). With NO record at all those windows would be worked back from the holdings (DEC-5068); that state is
+  // held by dec_worked_back_known_holdings.test.tsx.
+  4: () => {
+    const accounts = [acct('van', 'Vanguard', 'BROKERAGE', 301_610, undefined, [pos('p1', 'VTI', 900, 330, 300, TODAY), pos('p3', 'KEYBANK CD 4.00%', 4610, 1, 1, TODAY, 'bond')], 0),
+                      acct('etr', 'E*TRADE', 'ACCOUNT 1', 52_704, undefined, [pos('p2', 'VOO', 90, 550, 500, TODAY)], 3_204)];
+    return useStore.setState({
+    assetAccounts: accounts,
+    transactions: [], snapshotDays: [buildDayFromAccounts(accounts as any, TODAY, `${TODAY}T09:00:00Z`)], invDaily: {},
     priceCache: { VTI: series('VTI', 330, 330, TODAY), VOO: series('VOO', 550, 550, TODAY) }, pricesFetchedAt: new Date().toISOString(),
-  } as any),
+  } as any);
+  },
   // phone 5 — no accounts yet
   5: () => useStore.setState({ assetAccounts: [], transactions: [], snapshotDays: [], invDaily: {}, priceCache: {} } as any),
 };

@@ -239,8 +239,12 @@ export default function PerformanceScreen() {
   const nothingEntered = positions.length === 0 && bondAccts.length === 0 && altAccts.length === 0 && untracked.length === 0;
   const now = windowFigures[period] ?? figuresFor(period);
   const { walk } = now;
-  const beginWords = dayOne ? 'today' : dateShown(now.beginningAsOf);
-  const endWords = dayOne ? 'today' : dateShown(todayKey);
+  // A WINDOW WORKED BACK FROM TODAY IS NOT DAY ONE (DEC-5068, 2026-10-13): with no daily record yet, every window but
+  // "Since" opens before today, and its beginning is worked back from today's values and each holding's price history.
+  // Its summary, walk, cards and categories read as any other window's, and the sentence names what is left out.
+  const dayOneView = dayOne && !now.workedBack;
+  const beginWords = dayOneView ? 'today' : dateShown(now.beginningAsOf);
+  const endWords = dayOneView ? 'today' : dateShown(todayKey);
   const shownReturn = now.ret;
   const yearsWord = now.years >= 1.9 && now.years < 2.1 ? 'two years' : `${now.years.toFixed(1)} years`;
   const stale = positions.length > 0 ? priceFreshness(store.pricesFetchedAt, Date.now()) : null;
@@ -293,8 +297,9 @@ export default function PerformanceScreen() {
       <WindowSelector windows={WINDOWS} chosen={period as string} figures={windowFigures} onPick={(k) => setPeriod(k as Period)} />
       {/* founder ruling 2026-08-18: the 2Y figure is a yearly rate, so it sits fairly beside 1Y — and
           the screen says so under the control (mock v14 mark 15), wherever 2Y has a figure to show */}
-      {/* only where the record reaches back over 2Y: a window it cannot reach is greyed, its figure unprinted (DEC-5068) */}
-      {windowFigures['2Y']?.perYear != null && windowFigures['2Y']?.covered && (
+      {/* only where 2Y has a figure: read from the record, or worked back (DEC-5068); a window the record exists for but
+          cannot reach is greyed, its figure unprinted (DEC-3035i) */}
+      {windowFigures['2Y']?.perYear != null && (windowFigures['2Y']?.covered || windowFigures['2Y']?.workedBack) && (
         <Text style={styles.coverageLine}>2Y is shown per year, so it sits fairly beside 1Y</Text>
       )}
 
@@ -306,7 +311,7 @@ export default function PerformanceScreen() {
           {/* no beginning the record can read, no wealth generated — a dash, never a figure worked back from today (Performance v17) */}
           <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text>{walk == null
             ? <Text style={[styles.sumValBig, { color: Colors.textTertiary }]}>—</Text>
-            : <Text style={[styles.sumValBig, { color: dayOne ? Colors.textTertiary : walk.wealthGenerated >= 0 ? Colors.gainText : Colors.red }]}>{walk.wealthGenerated < 0 ? '−' : ''}{fig('MK-PF-M-002', Math.abs(walk.wealthGenerated))}</Text>}</View>
+            : <Text style={[styles.sumValBig, { color: dayOneView ? Colors.textTertiary : walk.wealthGenerated >= 0 ? Colors.gainText : Colors.red }]}>{walk.wealthGenerated < 0 ? '−' : ''}{fig('MK-PF-M-002', Math.abs(walk.wealthGenerated))}</Text>}</View>
           {/* MARKS 16 AND 18, approved as mock v17 (2026-09-30). 16: where the window return
               refuses, the EXACT rate per year stands in its place instead of an em-dash — the
               person actively adding money is the one who most needs a rate and used to get
@@ -320,8 +325,11 @@ export default function PerformanceScreen() {
           /* Q48 (MK-PF-M-005..008): $0 above, the one line, the door. Mock v14 mark 9: the line opens
              the SAME three ways to add an account Net worth opens. */
           <EmptyNote door="accounts" onPress={() => setAddChooser(true)} />
-        ) : dayOne ? (
+        ) : dayOneView ? (
           <Note term="dayOne">Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see.</Note>
+        ) : now.workedBack ? (
+          /* the beginning was worked back, not read: say so, as the account page does (DEC-5068) */
+          <Text style={styles.sumNote}>Your daily record does not reach back to {dateShown(now.beginningAsOf)} yet, so the beginning is worked back from today's values and each holding's price history.</Text>
         ) : now.sentence ? (
           /* a return that cannot be measured shows no percent and says why (owner, 2026-10-04: every
              return is time-weighted, and nothing stands in for one) */
@@ -343,10 +351,10 @@ export default function PerformanceScreen() {
           ]} />
         )}
         {/* below the summary, the holding left out of Wealth generated and Return (DEC-5068, 2026-10-13) */}
-        {!dayOne && !!now.notIncluded && <Text style={styles.sumNote}>{now.notIncluded}</Text>}
+        {!dayOneView && !!now.notIncluded && <Text style={styles.sumNote}>{now.notIncluded}</Text>}
         {/* WHERE THE HISTORY CAME FROM (mock v14 mark 13): a rebuilt line names its source and first day */}
         {/* drawn at the row size, 13 (v17 phone 3, .emptynote) — it was an 11-point footnote */}
-        {!!rebuilt && !dayOne && <Note term="rebuiltHistory" size={13}>↺ {rebuilt.sentence}</Note>}
+        {!!rebuilt && !dayOneView && <Note term="rebuiltHistory" size={13}>↺ {rebuilt.sentence}</Note>}
         {/* the value graph lives INSIDE the summary card, with a Y axis (mock v14 mark 11), drawn ONLY
             from days we have a record for — never today's share count priced at old dates */}
         <ValueGraph points={dayOne ? [] : graphPoints} dayOneValue={fig('MK-PF-M-001', now.ending)} today={todayKey}
@@ -368,7 +376,7 @@ export default function PerformanceScreen() {
         {walk == null
           ? <Text style={styles.sumNote}>{now.sentence}</Text>
           : walkRows(walk, { begin: 'MK-PF-M-018', line: 'MK-PF-M-019', wealth: 'MK-PF-M-002', end: 'MK-PF-M-001' })}
-        {dayOne
+        {dayOneView
           ? <Text style={styles.sumNote}>Every line fills in as days pass — the structure never changes.</Text>
           : !!rebuilt?.who && (
             <Text style={styles.sumNote}>Every line here comes from {rebuilt.who}’s own records. A hand-entered account or a cash balance has none, so it starts the day you enter it — and says so.</Text>
@@ -402,15 +410,15 @@ export default function PerformanceScreen() {
           const w = one.walk;
           // the drawing opens the first account when there are several (phone 1) and leaves a lone one
           // closed (phone 3); on day one every walk is open and there is nothing to collapse (phone 4)
-          const isOpen = dayOne || (openAcctWalk[id] ?? (i === 0 && list.length > 1));
+          const isOpen = dayOneView || (openAcctWalk[id] ?? (i === 0 && list.length > 1));
           const src = sourceWords(acct);
           const oneReturn = one.ret != null ? fig('MK-PF-M-016', one.ret) : null;
           return (
             <View key={id} style={styles.card}>
-              <TouchableOpacity accessibilityRole="button" activeOpacity={0.85} disabled={dayOne}
+              <TouchableOpacity accessibilityRole="button" activeOpacity={0.85} disabled={dayOneView}
                 onPress={() => setOpenAcctWalk((m) => ({ ...m, [id]: !isOpen }))}
-                accessibilityLabel={`${label}, ${figSaid('MK-PF-M-005', acct.balance || 0)}.${dayOne ? '' : ` ${isOpen ? 'Collapses' : 'Expands'} its walk.`}`}>
-                <SectionBand inCard title={`${dayOne ? '' : isOpen ? '▾ ' : '▸ '}${label}`} value={fig('MK-PF-M-005', acct.balance || 0)}
+                accessibilityLabel={`${label}, ${figSaid('MK-PF-M-005', acct.balance || 0)}.${dayOneView ? '' : ` ${isOpen ? 'Collapses' : 'Expands'} its walk.`}`}>
+                <SectionBand inCard title={`${dayOneView ? '' : isOpen ? '▾ ' : '▸ '}${label}`} value={fig('MK-PF-M-005', acct.balance || 0)}
                   onTitlePress={() => router.push(`/account-detail?id=${id}` as any)}
                   /* v17 draws "›" after every account bar: the bar opens that account's page (frame 2). It sits in the
                      right gutter every money row keeps, so the bar total stays on the rows' edge (DEC-0093) */
@@ -424,14 +432,14 @@ export default function PerformanceScreen() {
                     {src.icon} {src.text}{w ? ` · wealth generated ${w.wealthGenerated < 0 ? '−' : ''}${fig('MK-PF-M-014', Math.abs(w.wealthGenerated))}` : ''}{oneReturn ? ` · return ${oneReturn}` : ''}
                   </Text>
                   {/* below the figures it qualifies: the holding left out of them (DEC-5068, 2026-10-13) */}
-                  {!dayOne && !!one.notIncluded && <Text style={styles.sumNote}>{one.notIncluded}</Text>}
+                  {!dayOneView && !!one.notIncluded && <Text style={styles.sumNote}>{one.notIncluded}</Text>}
                 </>
               ) : (
                 <>
                   <View style={styles.walkChip}><SourceChip account={acct} /></View>
-                  {!dayOne && !!one.sentence && <Text style={styles.sumNote}>{one.sentence}</Text>}
+                  {!dayOneView && !!one.sentence && <Text style={styles.sumNote}>{one.sentence}</Text>}
                   {w && walkRows(w, { begin: 'MK-PF-M-013', line: 'MK-PF-M-015', wealth: 'MK-PF-M-014', end: 'MK-PF-M-004' })}
-                  {dayOne ? (
+                  {dayOneView ? (
                     <Text style={styles.sumNote}>Every line fills in as days pass — the structure never changes.</Text>
                   ) : (
                     <>
@@ -463,7 +471,7 @@ export default function PerformanceScreen() {
           windowStart: now.windowStart,
           rows: rows as any,
           bonds: bondAccts as any,
-          dayOne,
+          dayOne: dayOneView,
         });
         if (!shown.length) return null;
         const total = shown.reduce((n, b) => n + b.earned, 0);
@@ -484,9 +492,9 @@ export default function PerformanceScreen() {
                   <View style={[styles.catDot, { backgroundColor: (ClassMarkColors as any)[b.key] }]} />
                   <View style={styles.catName}>
                     <Text style={styles.catLabel}>{b.label}</Text>
-                    {b.key === 'cash' && !dayOne && <InfoDot size={13} term="cashInAccount" />}
+                    {b.key === 'cash' && !dayOneView && <InfoDot size={13} term="cashInAccount" />}
                   </View>
-                  <Text style={[styles.catV, !dayOne && { color: Colors.gainText }]}>{fig('MK-PF-M-007', b.earned)}</Text>
+                  <Text style={[styles.catV, !dayOneView && { color: Colors.gainText }]}>{fig('MK-PF-M-007', b.earned)}</Text>
                   <Text style={[styles.catR, b.ret == null && { color: Colors.textSecondary }]}>{ret}</Text>
                   {/* no "›": a category row opens no approved screen (DEC-0128) — the gutter stays empty */}
                   <View testID="right-gutter" style={[styles.gutter, styles.gutterInGap]} />
@@ -499,7 +507,7 @@ export default function PerformanceScreen() {
               <Text style={styles.catR}> </Text>
               <View testID="right-gutter" style={[styles.gutter, styles.gutterInGap]} />
             </View>
-            {dayOne ? (
+            {dayOneView ? (
               <Note term="earnedInWindow">Fills in with your first dividend or interest record. A file import carries no activity — that line will say so rather than show a false $0.</Note>
             ) : (
               /* one line with a "·" between, as v17 phones 1 and 3 draw it (drawing check 2026-10-12) */
@@ -788,7 +796,7 @@ function NoteLine({ parts }: { parts: { term: GlossaryTerm; text: string }[] }) 
 function WindowSelector({ windows, chosen, figures, onPick }: {
   windows: { key: string; label: string }[];
   chosen: string;
-  figures: Record<string, { ret: number | null; perYear?: number | null; covered?: boolean }>;
+  figures: Record<string, { ret: number | null; perYear?: number | null; covered?: boolean; workedBack?: boolean }>;
   onPick: (key: string) => void;
 }) {
   return (
@@ -801,10 +809,11 @@ function WindowSelector({ windows, chosen, figures, onPick }: {
         // in for a time-weighted return (owner, 2026-10-04; mark 16's stand-in rate is gone).
         // A WINDOW THE RECORD CANNOT COVER IS GREYED TO AN EM-DASH AND CANNOT BE PICKED (v17: "the
         // screen states nothing rather than a guess"). Picking it would open a walk whose beginning
-        // nobody recorded. Since DEC-5068 (2026-10-13) the door gives such a window the return of the holdings
-        // with a price history; across every account together the window stays greyed as v17 draws it, so its
-        // figure is not printed on a chip that cannot be opened to the sentence that qualifies it.
-        const uncovered = figures[w.key]?.covered === false && !on;
+        // nobody recorded (DEC-3035i: the record exists but begins after the window opens).
+        // A window WORKED BACK (no record of these accounts at all) is not greyed: it shows the holdings' figures
+        // and the sentence under them, as each account's card does (DEC-5068). One the record exists for but cannot
+        // reach stays greyed (DEC-3035i).
+        const uncovered = figures[w.key]?.covered === false && !figures[w.key]?.workedBack && !on;
         const ret = uncovered ? null : figures[w.key]?.ret ?? null;
         const perYear = !uncovered && figures[w.key]?.perYear != null;
         const divider = i > 0 && !on && chosen !== windows[i - 1].key;

@@ -75,7 +75,9 @@ describe('PERFORMANCE: A WINDOW THE RECORD CANNOT COVER SHOWS NOTHING AND CANNOT
   });
   test('the screen greys it and takes it out of reach', () => {
     const src = read('PerformanceScreen.tsx');
-    expect(src).toMatch(/const uncovered = figures\[w\.key\]\?\.covered === false && !on;/);
+    // a window the record EXISTS for but cannot reach is greyed (DEC-3035i); one with no record at all is worked back and
+    // shows its figures (DEC-5068, 2026-10-13)
+    expect(src).toMatch(/const uncovered = figures\[w\.key\]\?\.covered === false && !figures\[w\.key\]\?\.workedBack && !on;/);
     expect(src).toMatch(/disabled=\{uncovered\}/);
     expect(src).not.toMatch(/coverage\.sentence/);       // no shorter period under a longer label
   });

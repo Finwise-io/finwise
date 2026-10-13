@@ -19,6 +19,7 @@ import * as path from 'path';
 import { useStore } from '../../store/useStore';
 import { Colors } from '../../utils/theme';
 import { niceTicks } from '../../components/ValueGraph';
+import { buildDayFromAccounts } from '../../../Calculation Module code/engines/snapshots';
 
 jest.mock('../../services/sync/snaptradeSync', () => ({ runSnapTradeSync: jest.fn() }));
 let mockParams: Record<string, string> = {};
@@ -115,10 +116,15 @@ function phone3() {
 /** PHONE 4 — Aug 4, 2026, day one: Vanguard $301,610 and E*TRADE $52,704, both typed by hand. PHONE 5 — nothing. */
 function phone4() {
   const T = '2026-08-04';
+  const accounts = [acct('van', 'Vanguard', 'BROKERAGE', 301_610, false, T, [pos('p1', 'VTI', 900, 330, 300, T), pos('p3', 'KEYBANK CD 4.00%', 4610, 1, 1, T, 'bond')], 0),
+                    acct('etr', 'E*TRADE', 'ACCOUNT 1', 52_704, false, T, [pos('p2', 'VOO', 90, 550, 500, T)], 3_204)];
+  // DAY ONE AS THE APP HAS IT: Home writes today's values to the daily record the moment it opens (captureDailyNw), so on
+  // day one the record exists and begins today — every earlier window is one the record cannot reach and is greyed
+  // (DEC-3035i). With NO record at all those windows would be worked back from the holdings (DEC-5068); that state is
+  // held by dec_worked_back_known_holdings.test.tsx.
   return { today: T, state: {
-    assetAccounts: [acct('van', 'Vanguard', 'BROKERAGE', 301_610, false, T, [pos('p1', 'VTI', 900, 330, 300, T), pos('p3', 'KEYBANK CD 4.00%', 4610, 1, 1, T, 'bond')], 0),
-                    acct('etr', 'E*TRADE', 'ACCOUNT 1', 52_704, false, T, [pos('p2', 'VOO', 90, 550, 500, T)], 3_204)],
-    transactions: [], snapshotDays: [], invDaily: {},
+    assetAccounts: accounts,
+    transactions: [], snapshotDays: [buildDayFromAccounts(accounts as any, T, `${T}T09:00:00Z`)], invDaily: {},
     priceCache: { VTI: closes('VTI', [[T, 330]]), VOO: closes('VOO', [[T, 550]]) }, pricesFetchedAt: `${T}T11:00:00Z`,
   } };
 }

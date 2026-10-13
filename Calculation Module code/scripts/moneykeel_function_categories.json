@@ -2382,7 +2382,7 @@
  "pricedGainOf": {
   "id": "MK-NW-F-091",
   "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
-  "category": "2 · DISPLAYED"
+  "category": "3 · DEPENDENT"
  },
  "pricedLikeBond": {
   "id": "MK-NW-F-131",

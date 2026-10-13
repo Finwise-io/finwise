@@ -136,9 +136,12 @@ history." (several: "… do not include the gains of Treasury 2031 and Muni 2029
 history."). Worked example: $50,000 = VTI $40,000 (+10% over the past year) + Treasury 2031 $10,000 typed
 by hand, no money moved — VTI gained 40,000 × (1 − 1 ÷ 1.10) = $3,636.36, beginning $46,363.64, Wealth
 generated $3,636, Return +10.00%. The account page's note reads "Your daily record does not reach back to
-<day> yet, so the beginning is worked back from today's values and each holding's price history." Across
-every account together the Performance tab still greys a window its record cannot reach (Performance
-v17), and Home's month figure matches it. Where the record does reach back, Return is the measured
+<day> yet, so the beginning is worked back from today's values and each holding's price history." Every
+account together on the Performance tab reads the same way: a worked-back window is not greyed, and its
+summary, walk and window button show these figures and the sentence, so the summary is the sum of the
+account cards. A window whose record exists but begins after it opens stays greyed (DEC-3035i), also when
+only some accounts have a record. Home writes today's record when it opens, so Home's month is such a
+window, and Home and the Performance tab's 1M window both show no figure. Where the record does reach back, Return is the measured
 time-weighted return of the accounts (DEC-1669, DEC-4439), unchanged. Day one opens every window today.
 
 A balance that was never entered stays in view and reads "Value not entered" (his wording, DEC-3657):

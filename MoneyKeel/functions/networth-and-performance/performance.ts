@@ -61,6 +61,11 @@ export interface WindowFigures {
    *  2026-10-13): "Wealth generated and Return do not include Treasury 2031's gains, as it has no price
    *  history." Wealth generated and Return are still shown, from the holdings with a history. Empty otherwise. */
   notIncluded: string;
+  /** True where the beginning is worked back from today: a window that does not open today and no daily record of
+   *  these accounts at all (DEC-3656). Its figures are shown as the record's own are — the window is not greyed —
+   *  with notIncluded beneath them (DEC-5068, 2026-10-13). A record that exists but begins too late is not this
+   *  (DEC-3035i). */
+  workedBack: boolean;
 }
 
 /** THE THREE THINGS A SCREEN NEEDED TO ASK THIS DOOR, and calculated for itself until 2026-09-30.
@@ -170,7 +175,7 @@ export function investmentRecordDates(snapshotDays: any[], investmentAccountIds:
  *  unknown one adds nothing and is named, while the others still count (DEC-5068, 2026-10-13). */
 
 /** What the holdings gained over the period in dollars: the true gain for a holding bought inside the period, the price move's share of today's value for one with a price history, the stated rate's share for a CD — and nothing (unknown) when any holding has neither. */
-/* ─ MK-NW-F-091 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-NW-F-091 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * pricedGainOf
  *
  * Answers ..... What the holdings gained over the period in dollars: the true gain for a holding bought inside the period, the price move's share of today's value for one with a price history, the stated rate's share for a CD — and nothing (unknown) when any holding has neither.
@@ -847,7 +852,7 @@ export function thePerformance(input: {
     ret: perYear ?? cumulative,
     cumulative, perYear, years,
     sentence: covered ? whyNoReturn(verdict) : cannotReach,
-    notIncluded,
+    notIncluded, workedBack,
   };
 }
 

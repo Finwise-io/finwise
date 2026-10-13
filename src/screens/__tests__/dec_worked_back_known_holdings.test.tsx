@@ -16,6 +16,8 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import AccountPortfolioScreen from '../AccountPortfolioScreen';
 import PerformanceScreen from '../PerformanceScreen';
+import HomeScreen from '../HomeScreen';
+import { employedPartner } from '../../testing/personas';
 import { useStore } from '../../store/useStore';
 import { isoLocalDate, dateShown } from '../../domain/_shared/dates';
 
@@ -30,6 +32,8 @@ jest.mock('expo-router', () => ({
 
 const TODAY = isoLocalDate(new Date());
 const daysAgo = (n: number) => { const d = new Date(`${TODAY}T12:00:00`); d.setDate(d.getDate() - n); return isoLocalDate(d); };
+/** one year back to the day, then the day before it — on the calendar, so a leap year cannot shift it */
+const yearAndADayBack = () => { const d = new Date(`${TODAY}T12:00:00`); d.setFullYear(d.getFullYear() - 1); d.setDate(d.getDate() - 1); return isoLocalDate(d); };
 const SENTENCE = "Wealth generated and Return do not include Treasury 2031's gains, as it has no price history.";
 
 /** the $50,000 account, typed by hand, holding VTI (priced) and Treasury 2031 (no price history) */
@@ -113,5 +117,55 @@ describe('the Performance tab, that account\'s card (DEC-5068, 2026-10-13)', () 
     expect(screen.getAllByText('+10.00%').length).toBeGreaterThan(0);          // its Return row
     expect(screen.getAllByText('Change in investment value').length).toBeGreaterThan(0);
     expect(screen.getAllByText(`Beginning market value (${dateShown(start)})`).length).toBeGreaterThan(0);
+  });
+});
+
+describe('the Performance tab, all accounts together, worked back (DEC-5068 — the summary agrees with the card)', () => {
+  test('the single $50,000 account, no daily record, past year: summary $3,636 / +10.00%, the sentence, the walk, and the card the same', () => {
+    seed([SCHWAB]);
+    render(<PerformanceScreen />);
+    // the past-year window is worked back, so it is not greyed: it carries the return and can be picked
+    const oneYear = screen.getAllByRole('button').find((b) => /^Show 1Y, /.test(b.props.accessibilityLabel ?? ''));
+    expect(oneYear).toBeTruthy();
+    expect(oneYear!.props.accessibilityLabel).toBe('Show 1Y, +10.00%');
+    expect(oneYear!.props.accessibilityState?.disabled).toBe(false);
+    fireEvent.press(oneYear!);
+
+    // THE SUMMARY: Ending value $50,000 · Wealth generated $3,636 · Return +10.00%, then the note and the sentence
+    expect(screen.getByText('SUMMARY · PAST YEAR')).toBeOnTheScreen();
+    expect(screen.getAllByText('$3,636').length).toBeGreaterThanOrEqual(3);   // summary, the walk's Wealth generated and its change in value
+    expect(screen.getAllByText('+10.00%').length).toBeGreaterThanOrEqual(2);  // the summary's Return and the window's chip
+    expect(screen.getByText(/so the beginning is worked back from today's values and each holding's price history\.$/)).toBeOnTheScreen();
+    expect(screen.queryByText(/^Day one:/)).toBeNull();                       // a worked-back window is not day one
+    // the sentence: once under the summary, once under the account's card
+    expect(screen.getAllByText(SENTENCE).length).toBe(2);
+
+    // THE WALK, all accounts: titled by DEC-5136, beginning $46,364
+    expect(screen.getByText('HOW $46,364 BECAME $50,000 · ALL ACCOUNTS')).toBeOnTheScreen();
+    // the beginning is read for the day BEFORE the window opens (DEC-0315), a year and a day back
+    expect(screen.getByText(`Beginning market value (${dateShown(yearAndADayBack())})`)).toBeOnTheScreen();
+    expect(screen.getAllByText('$46,364').length).toBeGreaterThanOrEqual(1);
+
+    // THE CARD (one account, so it is the whole): the same $3,636 and +10.00% — the summary is the sum of the cards
+    expect(screen.getByText(/· wealth generated \$3,636 · return \+10\.00%$/)).toBeOnTheScreen();
+  });
+
+  test('Home and Performance agree for the same household: Home writes today\'s record on opening, so the month is a window the record exists for but cannot reach, and BOTH show no figure (DEC-3035i)', () => {
+    useStore.getState().resetAll();
+    useStore.setState({ onboardingComplete: true, onboardingProfile: { ...employedPartner, monthlySpending: '4500' }, hideBalances: false,
+      assetAccounts: [SCHWAB], transactions: [], snapshotDays: [], invDaily: {}, priceCache: { VTI: VTI_SERIES },
+      pricesFetchedAt: new Date().toISOString() } as any);
+    render(<HomeScreen />);
+    // Home records today's values the moment it opens (captureDailyNw): the record now begins today
+    expect(((useStore.getState() as any).snapshotDays ?? []).map((d: any) => d.date)).toEqual([TODAY]);
+    expect(screen.queryByText(/▲ up|▼ down/)).toBeNull();
+    expect(screen.getByText('change shows once your holdings have prices')).toBeOnTheScreen();
+    expect(screen.queryByText(SENTENCE)).toBeNull();
+    screen.unmount();
+    // the same store on Performance: the month window is greyed to "—", not worked back
+    render(<PerformanceScreen />);
+    const oneMonth = screen.getAllByRole('button').find((b) => /^Show 1M, /.test(b.props.accessibilityLabel ?? ''));
+    expect(oneMonth!.props.accessibilityLabel).toBe('Show 1M, no data for that window yet');
+    expect(oneMonth!.props.accessibilityState?.disabled).toBe(true);
   });
 });
