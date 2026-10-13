@@ -879,11 +879,15 @@ def main():
         screens = sys.argv[sys.argv.index('--screens') + 1].split(',') if '--screens' in sys.argv else []
         chosen = [c for c in testable if c['card']['id'].startswith(f'MK-{prefix}-') or c['card']['id'] in also]
         chosen.sort(key=lambda c: c['card']['id'])
-        assert len(chosen) >= 90, f'only {len(chosen)} cards for {prefix} — the reader has gone blind'
+        # each module's own floor (Performance added 2026-10-13: its first whole-module re-run; NW's floor unchanged)
+        module_name = {'NW': 'Net worth', 'PF': 'Performance'}[prefix]
+        floor = {'NW': 90, 'PF': 40}[prefix]
+        assert len(chosen) >= floor, f'only {len(chosen)} cards for {prefix} — the reader has gone blind'
+        version = sys.argv[sys.argv.index('--version') + 1] if '--version' in sys.argv else 'v01'
         here = os.path.dirname(os.path.abspath(__file__))
         dec = json.load(open(os.path.join(here, 'moneykeel_decisions.json')))['rows']
         reviews = [r for r in dec if str(r.get('decided', '')) >= '2026-10-04' and str(r.get('in_use') or 'IN USE').startswith('IN USE')
-                   and r.get('type') in ('RULE', 'DESIGN', 'CALCULATION', 'COPY') and r.get('tab') in ('networth', 'networth-and-performance')]
+                   and r.get('type') in ('RULE', 'DESIGN', 'CALCULATION', 'COPY') and r.get('tab') in {'NW': ('networth', 'networth-and-performance'), 'PF': ('performance', 'networth-and-performance')}[prefix]]
         # A RE-RUN names what changed since the judge last saw the module (founder, 2026-10-11: "files ready to feed to
         # OpenAI for re-run"): every card whose formula was re-read after the commit the last brief went out at.
         since = sys.argv[sys.argv.index('--rerun-since') + 1] if '--rerun-since' in sys.argv else None
@@ -901,12 +905,12 @@ def main():
         label = f'{prefix.lower()} module final'
         parts = 4
         per = -(-len(chosen) // parts)
-        head = [f'Written for: {who}, as the outside judge of the whole Net worth module, once, at the end. You have not seen any '
+        head = [f'Written for: {who}, judging the whole {module_name} module, once, at the end. You have not seen any '
                 'earlier review of it and none is given here: judge it as if for the first time.', '',
                 '# What this is', '',
-                f'The last independent test of the Net worth module before the owner builds it. {len(chosen)} functions, every one '
+                f'The last independent test of the {module_name} module before the owner builds it. {len(chosen)} functions, every one '
                 'as it is in the app today; the rules the owner has decided for them; every figure its screens print; and the '
-                'tenets every figure must meet. Six earlier batches were each judged by an outside model and corrected. This '
+                'tenets every figure must meet. Earlier batches were each judged by an outside model and corrected. This '
                 'check is to find what is still wrong, still unsaid, or still not true to the tenets — anywhere in the module.', '',
                 '# The tenets — every function and every figure must meet them', '', tenets, '',
                 '# Your four jobs', '',
@@ -937,13 +941,13 @@ def main():
                 '# The general brief — how a card is read and how a case is worked', '', brief, '', '---', '',
                 '# What the owner has ruled — settled, in his words', '']
         if since:
-            head = [f'**THIS IS A RE-RUN.** You judged this module once (brief v01). The app has been corrected since, against your findings and the owner\'s new decisions. Judge every card again from scratch. These {len(changed_ids)} cards changed since you last saw them — look hardest at them: ' + ', '.join(changed_ids) + '.', ''] + head
+            head = [f'**THIS IS A RE-RUN.** This module was judged once before, in batches, by an outside model. The app has been corrected since, against those findings and the owner\'s new decisions. Judge every card from scratch. These {len(changed_ids)} cards changed since that review — look hardest at them: ' + ', '.join(changed_ids) + '.', ''] + head
         head += [f'{i}. {r["date"]} — "{r["words"]}" {r["about"]}' for i, r in enumerate(rulings, 1)]
         head += ['', f'# The rules decided in the outside reviews — {len(reviews)}, each in force', '',
                  'From the owner\'s decision log. Job 3 checks each one.', '']
         head += [f'- **{r["id"]}** ({r.get("decided")}) — {str(r.get("plain", "")).strip()}  \n  Governs: {r.get("governs", "")}' for r in reviews]
         head += ['', f'# The screen register — {len(shown)} figures on {", ".join(screens)}', '',
-                 'What each figure on the Net worth screens is, how it is worked, and what it says when it cannot be. Job 4 checks each.', '',
+                 f'What each figure on the {module_name} screens is, how it is worked, and what it says when it cannot be. Job 4 checks each.', '',
                  '```json', json.dumps({k: {f: v.get(f) for f in ('label', 'screens', 'answers', 'formula', 'inputs', 'decisions', 'refusal', 'worked')} for k, v in sorted(shown.items())}, indent=1, ensure_ascii=False, default=str), '```', ''] + tables
         types = {}
         for c in chosen:
@@ -953,7 +957,7 @@ def main():
         if lean:
             head += ['## Formulas the cards lean on', '', f'{len(lean)} functions outside the module named by the formulas. Use them to work answers; do not judge them.', '',
                      '```json', json.dumps(lean, indent=1, ensure_ascii=False), '```', '']
-        stem = f'moneykeel_audit_module_{prefix.lower()}_for-{who.lower().replace(" ", "-")}_v01'
+        stem = f'moneykeel_audit_module_{prefix.lower()}_for-{who.lower().replace(" ", "-")}_{version}'
         open(os.path.join(send_dir, stem + '.md'), 'w', encoding='utf8').write('\n'.join(head))
         for i in range(parts):
             group = chosen[i * per:(i + 1) * per]
