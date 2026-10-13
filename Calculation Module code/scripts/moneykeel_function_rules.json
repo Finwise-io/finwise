@@ -1263,12 +1263,13 @@
   },
   "MK-NW-F-009": {
    "name": "maturityClass",
-   "rule": "Bonds & CDs when a maturity date is given that reads as a real calendar day — a full date (year-month-day), or a year and month alone, read as that month's first day; cash when none is. An empty or blank date counts as none, and so does a text that is not a real date (words such as 'tomorrow-ish', or a day that does not exist such as February 30) — owner rule DEC-4059b/c, 2026-10-10: dates are picked, never typed. It does not look at whether the date has passed.",
-   "read_from": "20fdb7ca71",
+   "rule": "Bonds & CDs when a maturity date is given that is a date by the one reading of a maturity date (MK-NW-F-124 maturityParts): spaces round the text are ignored; then it must be a year, a two-digit month and a two-digit day joined by dashes, or a year and two-digit month alone, read as that month's first day; the month must be 1 to 12 and the day must exist in that month. Anything else — a one-digit month or day, words such as 'tomorrow', a time or other text after the day, a day that does not exist such as February 30 — is no date; cash when none is. An empty or blank date counts as none (owner rule DEC-4059b/c, 2026-10-10: dates are picked, never typed). It does not look at whether the date has passed.",
+   "read_from": "d5f4a55d78",
    "sent_as": "79490b70d3",
    "figures_checked_by_hand": {
     "4059": "not a figure: the number of the owner decision DEC-4059b/c (2026-10-10) that this rule follows",
-    "30": "not a figure the function uses: February 30, an example of a day that does not exist (the function asks MK-NW-F-068 prettyDay, which checks the day against the days in that month)"
+    "30": "not a figure the function uses: February 30, an example of a day that does not exist",
+    "124": "not a figure: the identifier MK-NW-F-124 of maturityParts, the one reading this function asks"
    }
   },
   "MK-NW-F-010": {
@@ -1599,12 +1600,13 @@
   },
   "MK-NW-F-056": {
    "name": "bondInfo",
-   "rule": "Reads a bond's facts off its account: face value (not entered when missing or zero or less), yearly rate (not entered when missing; a typed zero is kept), maturity date, value (the balance), accrued interest (not entered when missing), whether it is a CD — its kind is a CD, or its own name says CD or certificate of deposit; its institution is never read for this (DEC-4036c, 2026-10-10) — and where a CD was bought: through a broker only when the person said so, otherwise from the bank (DEC-3837, 2026-10-10).",
-   "read_from": "b7afeba505",
+   "rule": "Reads a bond's facts off its account: face value (not entered when missing or zero or less), yearly rate (not entered when missing; a typed zero is kept), maturity date — by the one reading of a maturity date (MK-NW-F-124 maturityParts), written back as year-month-day with two-digit month and day (a year and month alone becomes that month's first day), and empty when the text is no date — value (the balance), accrued interest (not entered when missing), whether it is a CD — its kind is a CD, or its own name says CD or certificate of deposit; its institution is never read for this (DEC-4036c, 2026-10-10) — and where a CD was bought: through a broker only when the person said so, otherwise from the bank (DEC-3837, 2026-10-10).",
+   "read_from": "68f18fc59c",
    "sent_as": "5a6cacedd3",
    "figures_checked_by_hand": {
     "3837": "not a figure: the number of the owner decision DEC-3837 (2026-10-10) that this rule follows",
-    "4036": "not a figure: the number of the owner decision DEC-4036c (2026-10-10) that this rule follows"
+    "4036": "not a figure: the number of the owner decision DEC-4036c (2026-10-10) that this rule follows",
+    "124": "not a figure: the identifier MK-NW-F-124 of maturityParts, the one reading this function asks"
    }
   },
   "MK-NW-F-057": {
@@ -1636,9 +1638,12 @@
   },
   "MK-NW-F-061": {
    "name": "bondSummary",
-   "rule": "Count = how many bonds. Total value = each value added up. Total face value = each face value added up, a face not entered counting as zero (the bonds without one are named apart by theBonds). Interest in a year = yearlyInterestNow of each, added up: a bond past its maturity date counts $0, and a bond with no rate counts as zero. Average yield is over the bonds that have a value today AND a rate AND are not past their maturity date: their yearlyInterest ÷ their value today as entered; nothing when no bond qualifies. Next maturity = the earliest maturity date AFTER today, by the calendar — a bond maturing today has matured and is not next.",
-   "read_from": "b7660d6c2a",
-   "sent_as": "95c273f536"
+   "rule": "Count = how many bonds. Total value = each value added up. Total face value = each face value added up, a face not entered counting as zero (the bonds without one are named apart by theBonds). Interest in a year = yearlyInterestNow of each, added up: a bond past its maturity date counts $0, and a bond with no rate counts as zero. Average yield is over the bonds that have a value today AND a rate AND are not past their maturity date: their yearlyInterest ÷ their value today as entered; nothing when no bond qualifies. Next maturity = the earliest maturity date AFTER today, by the calendar — a bond maturing today has matured and is not next. Each date is read by the one reading of a maturity date (MK-NW-F-124 maturityParts) and written year-month-day; a text that is no date is never next.",
+   "read_from": "2661983298",
+   "sent_as": "95c273f536",
+   "figures_checked_by_hand": {
+    "124": "not a figure: the identifier MK-NW-F-124 of maturityParts, the one reading this function asks"
+   }
   },
   "MK-NW-F-062": {
    "name": "couponIncomeAnnual",
@@ -1680,7 +1685,7 @@
   },
   "MK-NW-F-067": {
    "name": "plural",
-   "rule": "The count followed by the noun: the noun for exactly 1, otherwise its plural from the one list of words the app counts in words, PLURAL_WORDS (his ruling, 2026-10-10) — Treasury → Treasuries, property → properties, every other word on it adds s; zero takes the plural. The count is written as the caller gives it (a formatted figure or a number word) when one is given, otherwise the number. A word not on the list is refused (an error) in tests and development, never given a guessed s; a release build writes the word unchanged.",
+   "rule": "The count followed by the noun: the noun for exactly 1, otherwise its plural from the one list of words the app counts in words, PLURAL_WORDS (his ruling, 2026-10-10) — Treasury → Treasuries, property → properties, the verb has → have, every other word on it adds s; zero takes the plural. The count is written as the caller gives it (a formatted figure or a number word) when one is given, otherwise the number. A word not on the list is refused (an error) in tests and development, never given a guessed s; a release build writes the word unchanged.",
    "read_from": "0c819a6f4b",
    "sent_as": "34baa1b4c1"
   },
@@ -1780,11 +1785,12 @@
   },
   "MK-NW-O-001": {
    "name": "theBonds",
-   "rule": "Takes every account that is a bond or CD. Rows are sorted by maturity date, soonest first, with any that has no date last. Count, total value, total face value, interest in a year, average yield and next maturity come from bondSummary. When one bond is opened it also gives: matured = its maturity date is today or earlier, by the calendar (a bond with no date has not matured — it is unknown); a matured bond gives no yield to maturity and no rate-move figure; and what a move in interest rates would do to its value (bondRateSensitivity) — except for a CD bought from the bank, where no figure is given and a sentence says a CD is not traded and is worth its balance until it matures; a CD bought through a broker gets the figure like a bond and no sentence (DEC-3837, 2026-10-10). It also names the bonds the average yield leaves out — those with no value today, and, apart, those with a value but no rate entered — and the bonds with no face value entered, so a screen can say which.",
-   "read_from": "1b4aaded96",
+   "rule": "Takes every account that is a bond or CD. Rows are sorted by maturity date, soonest first, with any that has no date last — the date read by the one reading of a maturity date (MK-NW-F-124 maturityParts), so a text that is no date sorts with the ones that have none. Count, total value, total face value, interest in a year, average yield and next maturity come from bondSummary. When one bond is opened it also gives: matured = its maturity date is today or earlier, by the calendar (a bond with no date has not matured — it is unknown); a matured bond gives no yield to maturity and no rate-move figure; and what a move in interest rates would do to its value (bondRateSensitivity) — except for a CD bought from the bank, where no figure is given and a sentence says a CD is not traded and is worth its balance until it matures; a CD bought through a broker gets the figure like a bond and no sentence (DEC-3837, 2026-10-10). It also names the bonds the average yield leaves out — those with no value today, and, apart, those with a value but no rate entered — and the bonds with no face value entered, so a screen can say which.",
+   "read_from": "71f8d3d428",
    "sent_as": "ac38213b75",
    "figures_checked_by_hand": {
-    "3837": "not a figure: the number of the owner decision DEC-3837 (2026-10-10) that this rule follows"
+    "3837": "not a figure: the number of the owner decision DEC-3837 (2026-10-10) that this rule follows",
+    "124": "not a figure: the identifier MK-NW-F-124 of maturityParts, the one reading this function asks"
    }
   },
   "MK-NW-O-002": {
@@ -2110,8 +2116,12 @@
   },
   "MK-NW-F-124": {
    "name": "maturityParts",
-   "rule": "A maturity date read as a real calendar day: its year, month and day, when the date is written year-month-day and that day exists on the calendar. Nothing when there is no date, it is written another way, or the day does not exist (a day past the end of its month, or a month past December).",
-   "read_from": "69f9d98e84"
+   "rule": "A maturity date read as a real calendar day: its year, month and day. This is the one reading of a maturity date (MK-NW-F-124 maturityParts): spaces round the text are ignored; then it must be a year, a two-digit month and a two-digit day joined by dashes, or a year and two-digit month alone, read as that month's first day; the month must be 1 to 12 and the day must exist in that month. Anything else — a one-digit month or day, words such as 'tomorrow', a time or other text after the day, a day that does not exist such as February 30 — is no date, and the answer is nothing. Every function that reads a maturity date asks this one (outside review OpenAI re-run part 4, 2026-10-13), so a text is a date to all of them or to none.",
+   "read_from": "58971f6cf4",
+   "figures_checked_by_hand": {
+    "30": "not a figure the function uses: February 30, an example of a day that does not exist",
+    "124": "not a figure: this function's own identifier MK-NW-F-124"
+   }
   },
   "MK-NW-F-125": {
    "name": "isPastMaturity",
@@ -2167,8 +2177,11 @@
   },
   "MK-NW-F-130": {
    "name": "cannotWorkBackSentence",
-   "rule": "The sentence when the beginning cannot be worked back: \"The beginning can't be worked back: <names> has no price history.\" Each name is listed once, however many times it is handed in. With several names, they are joined by commas with \"and\" before the last, and the verb is \"have\". With no name, \"a holding\".",
-   "read_from": "624f1dc4a8"
+   "rule": "The sentence when the beginning cannot be worked back: \"The beginning can't be worked back: <names> has no price history.\" Spaces round each name are removed and a blank name is dropped; then each name is listed once, however many times it is handed in. With several names, they are joined by commas with \"and\" before the last. With no name left, \"a holding\". The verb is \"has\" for one name (or \"a holding\") and \"have\" for several, from the one list of words and plurals (MK-NW-F-067 plural).",
+   "read_from": "b088ec3313",
+   "figures_checked_by_hand": {
+    "067": "not a figure: the identifier MK-NW-F-067 of plural, which this function asks"
+   }
   },
   "MK-NW-F-131": {
    "name": "pricedLikeBond",

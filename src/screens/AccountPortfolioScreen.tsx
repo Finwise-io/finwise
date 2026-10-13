@@ -28,7 +28,7 @@ import TopBar from '../components/TopBar';
 // Performance screen calls, so an account's figures and the portfolio's can never disagree.
 import { valueOn } from '../../Calculation Module code/engines/snapshots';
 
-import { isoLocalDate as iso, dateShown } from '../domain/_shared/dates';
+import { isoLocalDate as iso, dateShown, maturityParts } from '../domain/_shared/dates';   // maturityParts: the one reading of a maturity date (MK-NW-F-124, 2026-10-13)
 
 type ActionType = 'DEPOSIT' | 'WITHDRAWAL' | 'TRANSFER' | 'DIVIDEND' | 'INTEREST' | 'COUPON';
 const ACTION_LABEL: Record<ActionType, string> = {
@@ -113,6 +113,12 @@ export default function AccountPortfolioScreen() {
   }
 
   const cls = assetClassOf(account);
+  // MATURED, BY THE ONE READING OF A MATURITY DATE (MK-NW-F-124, 2026-10-13): the banner compared the stored text with
+  // today's as strings, so ' 2028-02-09 ' read as matured and '2028-2-09' did not, whatever the Bonds facts said. It is
+  // now the bond's own facts from the door (MK-NW-O-001 theBonds: matured = years left is zero), and the day is written
+  // from the same reading.
+  const bondOne = cls === 'bonds' ? theBonds({ accounts: [account], accountId: String(account.asset_id) }).one : null;
+  const maturedOn = bondOne?.matured ? maturityParts(bondOne.maturity) : null;
   const source = account.source ?? 'manual';
   // walk row 8: the ONE source sentence (detail keeps its read-only clarifier for connected)
   const sourceChip = source === 'connected' ? `${sourceWording(account).split(' · ')[0]} · read-only` : sourceWording(account);
@@ -654,9 +660,9 @@ export default function AccountPortfolioScreen() {
 
       {/* MATURED BOND (mock approved 2026-07-31): a dated banner with the three real outcomes —
           the money must not sit labeled as a growing bond after its maturity date */}
-      {cls === 'bonds' && account.maturity_date && account.maturity_date <= iso(new Date()) && (account.balance || 0) > 0 && (
+      {maturedOn && (account.balance || 0) > 0 && (
         <View style={s.maturedCard}>
-          <Text style={s.maturedTitle}>⏰ This {assetKind(account.kind)?.id === 'cd' ? 'CD' : 'bond'} matured {new Date(`${account.maturity_date}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.</Text>
+          <Text style={s.maturedTitle}>⏰ This {assetKind(account.kind)?.id === 'cd' ? 'CD' : 'bond'} matured {new Date(maturedOn[0], maturedOn[1] - 1, maturedOn[2], 12).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.</Text>
           <Text style={s.maturedBody}>The money isn't growing here anymore — record what happened so your numbers stay true.</Text>
           <TouchableOpacity accessibilityRole="button" style={s.maturedOpt}
             accessibilityLabel="Paid out to my bank — records the payout"

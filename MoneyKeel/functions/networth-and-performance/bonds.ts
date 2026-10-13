@@ -17,7 +17,7 @@ import { formatMoney } from '../../../src/domain/_shared/money';
 import type { AssetAccount } from '../../../src/domain/assets';
 import {
   isBond, bondInfo, yearlyInterest, yearlyInterestNow, yearsToMaturity, currentYield, approxYTM,
-  bondSummary, accruedInterestCaveat, bondRateSensitivity, pricedLikeBond,
+  bondSummary, accruedInterestCaveat, bondRateSensitivity, pricedLikeBond, maturityParts,
   type BondInfo, type RateSensitivity,
 } from '../../../src/domain/bonds';
 
@@ -182,6 +182,7 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
  * Formula .....
  *     now = input.today (or new date() when missing)
  *     held = input.accounts (or none when missing) where is bond
+ *     maturity day = (m: string) => { const p = maturity parts(m); return p ? date.UTC(p[0], p[1] − 1, p[2]) : infinity; }
  *     sum = bond summary(held.map(bond info), now)
  *     one = nothing
  *     b = bond info(opened)
@@ -227,11 +228,13 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
 export function theBonds(input: BondsInput): Bonds {
   const now = input.today ?? new Date();
   const held = (input.accounts ?? []).filter(isBond);
+  const maturityDay = (m: string) => { const p = maturityParts(m); return p ? Date.UTC(p[0], p[1] - 1, p[2]) : Infinity; };
   // SOONEST-MATURING FIRST — his ruling, 2026-10-04: "sort by soonest maturing first". The approved
   // drawing (bonds v02) lists its three in another order; the ruling is newer and is the design.
   // Sorted once, in the door, so the Bonds screen and any other reader show the same list.
   const rows = held.map((a) => rowOf(a, now))
-    .sort((x, y) => (Date.parse(x.maturity) || Infinity) - (Date.parse(y.maturity) || Infinity));
+    // by the one reading of a maturity date (MK-NW-F-124, 2026-10-13): a text that is no date sorts with the dateless, last
+    .sort((x, y) => (maturityDay(x.maturity) - maturityDay(y.maturity)) || 0);
   const sum = bondSummary(held.map(bondInfo), now);
 
   let one: OneBond | null = null;

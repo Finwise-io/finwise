@@ -4,7 +4,10 @@
 import { plural } from '../_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import type { AssetAccount } from '../assets';
 import { assetClassOf } from '../assets';
-import { isoLocalDate } from '../_shared/dates';
+import { isoLocalDate, maturityParts } from '../_shared/dates';
+// THE ONE READING OF A MATURITY DATE lives beside the other date helpers, so the class of an account (assets) and
+// the holding-class rules read it too; it is still offered from here, where it always was (MK-NW-F-124, 2026-10-13)
+export { maturityParts };
 
 export interface BondInfo {
   /** What it pays back at maturity — as entered, or null when never entered (outside review, 2026-10-07: a face read as $0 made a −274% yield). */
@@ -142,7 +145,10 @@ export function bondInfo(a: AssetAccount): BondInfo {
   // to maturity of −274%, and a bond with no rate showed a current yield of 0.00% instead of nothing.
   return { face: a.face_value != null && a.face_value > 0 ? a.face_value : null,
            couponRate: a.coupon_rate == null ? null : a.coupon_rate,
-           maturity: a.maturity_date || '', value: a.balance || 0,
+           // THE MATURITY DATE BY THE ONE READING (MK-NW-F-124, 2026-10-13): a real day, written year-month-day, or
+           // nothing — so a text that is no date reads "maturity date not entered" on every screen, never as written
+           maturity: ((p) => (p ? `${p[0]}-${String(p[1]).padStart(2, '0')}-${String(p[2]).padStart(2, '0')}` : ''))(maturityParts(a.maturity_date)),
+           value: a.balance || 0,
            accruedInterest: a.accrued_interest == null ? null : a.accrued_interest,
            // A CD IS TOLD BY THE ACCOUNT'S OWN NAME OR TYPE, NEVER ITS INSTITUTION (DEC-4036c, 2026-10-10): a
            // brokerage account at "CD Capital" is not a CD — the institution names the firm, not what is held.
@@ -225,52 +231,6 @@ export function yearlyInterest(b: BondInfo): number | null {
   if (b.couponRate == null) return null;
   return b.face != null ? b.face * b.couponRate : b.value * b.couponRate;
 }
-/** A maturity date read as a real calendar day (year, month, day), or nothing when it is missing or impossible. */
-/* ─ MK-NW-F-124 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
- * maturityParts
- *
- * Answers ..... A maturity date read as a real calendar day (year, month, day), or nothing when it is missing or impossible.
- *
- * Formula .....
- *     m = ÷ ^\s × (\d{4}) − (\d{1,2}) − (\d{1,2})(?!\d) ÷ .exec(string(maturity ?? ''))
- *     nothing   when m is missing
- *     y = m[1]), mo = number(m[2]), d = number(m[3] read as a number
- *     t = the date date.UTC(y, mo − 1, d)
- *     nothing   when get utcfull year() ! = y (or get utcmonth() ! = mo − 1 (or get utcdate() ! = d when missing or zero) when missing or zero)
- *     the answer = [y, mo, d]
- *
- * Called by ... MK-NW-F-058 yearsToMaturity · MK-NW-F-119 estimatedAccrued
- *               MK-NW-F-125 isPastMaturity
- *
- * Reaches ..... 95 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
- *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
- *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 77 more — the full list is on functions_from_code
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-013 bond maturity date
- *
- * Formula also on the master file · functions_from_code · MK-NW-F-124
- * Changed ..... not in git yet (—)
- */
-export function maturityParts(maturity: string): [number, number, number] | null {
-  // AN IMPOSSIBLE DATE IS NO DATE (outside review OpenAI final, 2026-10-09, DEC-0332): '2026-02-30' used to roll
-  // over to 2 March and read as matured. The day must come back as the same year, month and day it was typed.
-  const m = /^\s*(\d{4})-(\d{1,2})-(\d{1,2})(?!\d)/.exec(String(maturity ?? ''));
-  if (!m) return null;
-  const y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
-  const t = new Date(Date.UTC(y, mo - 1, d));
-  if (t.getUTCFullYear() !== y || t.getUTCMonth() !== mo - 1 || t.getUTCDate() !== d) return null;
-  return [y, mo, d];
-}
-
 /** Whether a bond or CD is past its maturity date — the day after it, by the calendar. No date, or an impossible one, is unknown, not matured. */
 /* ─ MK-NW-F-125 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * isPastMaturity
@@ -659,7 +619,6 @@ export interface BondSummary { count: number; totalValue: number; totalFace: num
  *     clean value = Σ over priced of (clean(each))
  *     avg yield = Σ over clean value > 0 ? priced of (yearly interest(each) (or 0 when missing))÷ clean value : nothing
  *     today = iso local date(now)
- *     future = for each of list: maturity where boolean where string(each).slice(0, 10) > today, in order
  *     the answer:
  *     count = count of list
  *     total value = total value
@@ -667,7 +626,6 @@ export interface BondSummary { count: number; totalValue: number; totalFace: num
  *     annual coupon = coupon
  *     avg yield = avg yield
  *     next maturity = the first of future (or nothing when missing)
- *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-O-001 theBonds
  *
@@ -714,7 +672,10 @@ export function bondSummary(bonds: BondInfo[], now: Date = new Date()): BondSumm
   // NEXT TO MATURE IS THE EARLIEST DATE AFTER TODAY — by the calendar, not the clock. A bond maturing
   // today has matured; it cannot also be next (the same review).
   const today = isoLocalDate(now);
-  const future = list.map((b) => b.maturity).filter(Boolean).filter((m) => String(m).slice(0, 10) > today).sort();
+  // read by the one reading of a maturity date (MK-NW-F-124, 2026-10-13): a text that is no date is not next, and
+  // the date is written back the one way, year-month-day
+  const future = list.map((b) => maturityParts(b.maturity)).filter((p): p is [number, number, number] => p != null)
+    .map(([y, m, d]) => `${y}-${String(m).padStart(2, '0')}-${String(d).padStart(2, '0')}`).filter((m) => m > today).sort();
   return { count: list.length, totalValue, totalFace, annualCoupon: coupon, avgYield, nextMaturity: future[0] ?? null };
 }
 /** Total annual coupon income across the user's INDIVIDUAL bonds (kept for the Bonds screen summary). */

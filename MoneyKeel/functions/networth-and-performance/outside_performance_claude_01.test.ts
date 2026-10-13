@@ -50,12 +50,14 @@ import { timeWeightedReturn, movementsOf } from '../../../Calculation Module cod
 import { valueOn } from '../../../Calculation Module code/engines/snapshots';
 import { dateShown } from '../../../src/domain/_shared/dates';
 import { contractMultiplier, totalShares, windowTotal } from '../../../src/domain/performance';
+import { plural } from '../../../src/domain/_shared/plural';
 
 // ── the functions the app does not export, compiled from their own source text ──────────────────────
 // The functions performance.ts imports are handed to the compiled text under the same names, so it runs as
 // written (added 2026-10-11: heldValueOf and gainOfRow now ask the one rule for shares, the contract multiplier
 // and a window's own total — outside review Claude Performance). Nothing here changes an expected answer.
-const IMPORTED: Record<string, unknown> = { contractMultiplier, totalShares, windowTotal };
+// plural joined on 2026-10-13: cannotWorkBackSentence takes its has / have from the one list (MK-NW-F-130)
+const IMPORTED: Record<string, unknown> = { contractMultiplier, totalShares, windowTotal, plural };
 const compile = (file: string, parts: { start: RegExp; end: string }[], name: string) => {
   const text = fs.readFileSync(path.join(__dirname, file), 'utf8');
   const code = parts.map(({ start, end }) => {

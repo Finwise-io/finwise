@@ -15,13 +15,15 @@ import { type AssetAccount, type TaxBucket } from '../domain/assets';
 import { theBonds, MATURITY_NOT_ENTERED } from '../../MoneyKeel/functions/networth-and-performance/bonds';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { DotJoined } from '../components/SepDot';
-import { isoLocalDate } from '../domain/_shared/dates';
+import { isoLocalDate, maturityParts } from '../domain/_shared/dates';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 // ISO date helpers (local components, no TZ shift) for the maturity date picker
 const fmtISO = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-const parseISO = (s: string) => { const [y, m, dd] = (s || '').split('-').map(Number); return y ? new Date(y, (m || 1) - 1, dd || 1) : new Date(); };
-const humanDate = (s: string) => (s ? parseISO(s).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '');
+// read by the one reading of a maturity date (MK-NW-F-124, 2026-10-13): a text that is no date is never shown as
+// today's date or a guessed one — the picker opens on its default day and the text is shown as it was stored
+const parseISO = (s: string) => { const p = maturityParts(s); return p ? new Date(p[0], p[1] - 1, p[2]) : new Date(); };
+const humanDate = (s: string) => (maturityParts(s) ? parseISO(s).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : s);
 const pct = (v: number | null) => (v == null ? '—' : `${(v * 100).toFixed(2)}%`);
 const ACCT_TYPES: { label: string; bucket: TaxBucket }[] = [
   { label: 'Taxable', bucket: 'TAXABLE' }, { label: 'Trad IRA / 401k', bucket: 'PRE_TAX' }, { label: 'Roth', bucket: 'ROTH' },

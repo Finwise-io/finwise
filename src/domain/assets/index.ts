@@ -9,7 +9,7 @@ import { emit } from '../_shared/eventBus';
 import { employerMatchMonthly } from '../income/onboarding';
 import { annual401kLimit, ageAttainedInYear } from '../income/limits';
 import { ageLabel, isStale } from '../_shared/freshness';
-import { isoLocalDate } from '../_shared/dates';   // (DEC-4059c, 2026-10-10) today, as the person's own calendar has it
+import { isoLocalDate, maturityParts } from '../_shared/dates';   // (DEC-4059c, 2026-10-10) today, as the person's own calendar has it
 import { plural } from '../_shared/plural';   // (DEC-4082, 2026-10-10) one list of words and plurals
 export { plural, PLURAL_WORDS, type CountedWord } from '../_shared/plural';
 
@@ -386,7 +386,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  *
  * Called by ... MK-NW-F-120 classEvidenceOf · MK-NW-F-123 holdingNameEvidence
  *
- * Reaches ..... 204 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 221 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -396,7 +396,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 186 more — the full list is on functions_from_code
+ *               … and 203 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -416,14 +416,12 @@ export function incomeBearingClassOf(label?: string): AssetClass | null {
  * Answers ..... FOUNDER RULE 2026-08-04 (supersedes build-34 #8's 12-month split): ANY maturity-dated instrument is a BOND — it pays interest, so it must sit in the measured bucket regardless of how soon it matures.
  *
  * Formula .....
- *     t = string(maturity date ?? '').trim()
- *     the answer:
- *     'bonds'   if t and pretty day( ÷ ^\d{4}-\d{2}$ ÷ .test(t) ? `${t}-01` : t)
+ *     'bonds'   if maturity parts(maturity date)
  *     'cash'   otherwise
  *
- * Called by ... MK-NW-F-120 classEvidenceOf
+ * Called by ... MK-NW-F-120 classEvidenceOf · MK-NW-F-124 maturityParts
  *
- * Reaches ..... 203 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 220 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -433,7 +431,7 @@ export function incomeBearingClassOf(label?: string): AssetClass | null {
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 185 more — the full list is on functions_from_code
+ *               … and 202 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -444,8 +442,9 @@ export function maturityClass(maturityDate?: string | null): 'cash' | 'bonds' {
   // AN UNREADABLE MATURITY TEXT IS NO DATE (SETTLED 2026-10-10 by DEC-4059b/c): a date is picked, never typed,
   // so a stored text that is not a real calendar day — "tomorrow-ish" — is read as no date, never as a bond.
   // A month alone ('2027-06', what the old typed box asked for) is read as that month's first day.
-  const t = String(maturityDate ?? '').trim();
-  return t && prettyDay(/^\d{4}-\d{2}$/.test(t) ? `${t}-01` : t) ? 'bonds' : 'cash';
+  // The reading is the one every maturity reader asks (MK-NW-F-124 maturityParts, 2026-10-13), so a date that is no
+  // date here is no date to the interest, the years left and the matured test either.
+  return maturityParts(maturityDate) ? 'bonds' : 'cash';
 }
 
 /** The person picked how this account is taxed — what kind of account does that make it, and which tax bucket?
@@ -510,7 +509,7 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string | undefine
  *
  * Called by ... MK-NW-F-011 assetClassOf · MK-NW-F-053 correctClassOf
  *
- * Reaches ..... 203 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 220 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -520,7 +519,7 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string | undefine
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 185 more — the full list is on functions_from_code
+ *               … and 202 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -575,7 +574,7 @@ export function classEvidenceOf(a: AssetAccount): AssetClass | null {
  *               MK-NW-F-117 propertyUseMap · MK-NW-F-137 asksCashOrInvestments
  *               MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 203 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 220 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -585,7 +584,7 @@ export function classEvidenceOf(a: AssetAccount): AssetClass | null {
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 185 more — the full list is on functions_from_code
+ *               … and 202 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -2986,19 +2985,10 @@ const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep
  *     ''   when mo < 1 (or mo > 12 (or d < 1 (or d > new date(date.UTC(y, mo, 0)).get utcdate() when missing or zero) when missing or zero) when missing or zero)
  *     the answer = `${MONTH_ABBR[mo − 1]} ${d}, ${y}`
  *
- * Called by ... MK-NW-F-009 maturityClass · MK-NW-F-046 historyCoverage
+ * Called by ... MK-NW-F-046 historyCoverage
  *
- * Reaches ..... 203 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
- *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 185 more — the full list is on functions_from_code
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-002 dataGaps · MK-NW-F-046 historyCoverage
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

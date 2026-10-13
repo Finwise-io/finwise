@@ -16,6 +16,8 @@
 // The class vocabulary is the founder's five buckets, minus physical assets which never pass
 // through here: cash · stocks_etf (Stocks / Funds) · bonds (Bonds & CDs) · alternatives.
 
+import { maturityParts } from '../../src/domain/_shared/dates';   // the one reading of a maturity date (MK-NW-F-124, 2026-10-13)
+
 export type HoldingClass = 'cash' | 'stocks_etf' | 'bonds' | 'alternatives';
 
 // ── the name evidence, in ONE place ────────────────────────────────────────────────────────────
@@ -78,7 +80,7 @@ const BOND_WORD_COMPANY_RE = /\b(treasury|treas|bond|note|muni)\s+(wines?|estate
  *
  * Called by ... MK-NW-F-008 incomeBearingClassOf · MK-ST-F-011 classifyHoldingClass
  *
- * Reaches ..... 209 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 222 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -88,7 +90,7 @@ const BOND_WORD_COMPANY_RE = /\b(treasury|treas|bond|note|muni)\s+(wines?|estate
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 191 more — the full list is on functions_from_code
+ *               … and 204 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-013 bond maturity date
@@ -182,7 +184,7 @@ const TAG_CLASS: Record<string, HoldingClass> = {
  *     why = 'the institution\'s own words for it'   when by name
  *     cls = 'bonds'
  *     source = 'maturity'
- *     why = 'it carries a maturity date'   when maturity date and string(maturity date).trim()
+ *     why = 'it carries a maturity date'   when maturity parts(maturity date)
  *     cls = 'stocks_etf'
  *     source = 'flag'
  *     why = 'the broker\'s cash − equivalent flag — a money − market fund
@@ -223,7 +225,8 @@ export function classifyHoldingClass(e: ClassEvidence): ClassVerdict {
   const evident = ((): Omit<ClassVerdict, 'flagged'> => {
     const byName = nameEvidence(`${e.ticker ?? ''} ${e.name ?? ''}`);
     if (byName) return { cls: byName, source: 'name', why: 'the institution\'s own words for it' };
-    if (e.maturityDate && String(e.maturityDate).trim()) return { cls: 'bonds', source: 'maturity', why: 'it carries a maturity date' };
+    // a maturity date counts only when it reads as a date — the one reading every maturity reader asks (MK-NW-F-124, 2026-10-13)
+    if (maturityParts(e.maturityDate)) return { cls: 'bonds', source: 'maturity', why: 'it carries a maturity date' };
     if (e.cashEquivalent) return { cls: 'stocks_etf', source: 'flag', why: 'the broker\'s cash-equivalent flag — a money-market fund, measured where its income lands' };
     const tag = TAG_CLASS[String(e.brokerTag ?? '').toLowerCase()];
     if (tag) return { cls: tag, source: 'broker-tag', why: 'the broker\'s type tag — fallback only, a name would have outranked it' };

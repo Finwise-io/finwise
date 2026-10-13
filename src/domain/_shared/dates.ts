@@ -76,3 +76,55 @@ export function dateShown(iso: string | null | undefined): string {
   const [y, m, d] = String(iso).slice(0, 10).split('-').map(Number);
   return y ? `${MONTH_SHORT[(m || 1) - 1]} ${d}, ${y}` : '';
 }
+
+/** A maturity date read as a real calendar day (year, month, day), or nothing when it is missing, written another way, or impossible. */
+/* ─ MK-NW-F-124 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * maturityParts
+ *
+ * Answers ..... A maturity date read as a real calendar day (year, month, day), or nothing when it is missing, written another way, or impossible.
+ *
+ * Formula .....
+ *     m = ÷ ^(\d{4}) − (\d{2})(?:-(\d{2}))?$ ÷ .exec(string(maturity ?? '').trim())
+ *     nothing   when m is missing
+ *     y = m[1]), mo = number(m[2]), d = m[3] = nothing ? 1 : number(m[3] read as a number
+ *     nothing   when mo < 1 (or mo > 12 (or d < 1 (or d > new date(date.UTC(y, mo, 0)).get utcdate() when missing or zero) when missing or zero) when missing or zero)
+ *     the answer = [y, mo, d]
+ *
+ * Called by ... MK-NW-F-009 maturityClass · MK-NW-F-056 bondInfo
+ *               MK-NW-F-058 yearsToMaturity · MK-NW-F-061 bondSummary
+ *               MK-NW-F-119 estimatedAccrued · MK-NW-F-125 isPastMaturity
+ *               MK-NW-O-001 theBonds · MK-ST-F-011 classifyHoldingClass
+ *
+ * Reaches ..... 220 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
+ *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
+ *               … and 202 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-013 bond maturity date
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-124
+ * Changed ..... not in git yet (—)
+ */
+export function maturityParts(maturity?: string | null): [number, number, number] | null {
+  // ONE READING OF A MATURITY DATE, EVERYWHERE (outside review OpenAI re-run part 4, MK-NW-F-124, SETTLED 2026-10-13;
+  // tenet 4). Every function that reads a maturity date asks this one: whether it is a bond (MK-NW-F-009 maturityClass),
+  // whether it has matured, the years left, the interest earned so far, which matures next, the order on the Bonds
+  // screen. '2028-2-09' used to be no date to maturityClass and 9 Feb 2028 to the interest, so the bond was not called a
+  // bond while its interest used the date. A date is a picked day, never typed (DEC-4059b/c): year-month-day with a
+  // two-digit month and day, or a year and month alone read as that month's first day (the old typed box asked for
+  // that); spaces round it do not unmake it. A day past the end of its month or a month past December is no date, and
+  // never rolls into the next month (DEC-0332). Anything else is no date.
+  const m = /^(\d{4})-(\d{2})(?:-(\d{2}))?$/.exec(String(maturity ?? '').trim());
+  if (!m) return null;
+  const y = Number(m[1]), mo = Number(m[2]), d = m[3] == null ? 1 : Number(m[3]);
+  if (mo < 1 || mo > 12 || d < 1 || d > new Date(Date.UTC(y, mo, 0)).getUTCDate()) return null;
+  return [y, mo, d];
+}

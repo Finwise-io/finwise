@@ -16,6 +16,8 @@ export const PLURAL_WORDS = {
   day: 'days',
   debt: 'debts',
   goal: 'goals',
+  // a verb agrees with its count too: "Treasury has", "Apple and Gold have" (MK-NW-F-130, 2026-10-13)
+  has: 'have',
   holding: 'holdings',
   item: 'items',
   month: 'months',
@@ -48,12 +50,12 @@ export type CountedWord = keyof typeof PLURAL_WORDS;
  * Called by ... MK-CF-O-019 theIncomeManager · MK-HM-F-006 money0
  *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-028 classPortionLabel
  *               MK-NW-F-046 historyCoverage · MK-NW-F-052 buildItemizedAccounts
- *               MK-NW-F-070 accruedInterestCaveat · MK-PF-F-045 priceHistoryShortSentence
- *               MK-PL-F-063 fraLabel · MK-ST-F-075 agoLabel
- *               MK-XS-F-002 dataGaps · MK-XS-F-003 gapsHeadline
- *               MK-XS-F-183 writeFigure
+ *               MK-NW-F-070 accruedInterestCaveat · MK-NW-F-130 cannotWorkBackSentence
+ *               MK-PF-F-045 priceHistoryShortSentence · MK-PL-F-063 fraLabel
+ *               MK-ST-F-075 agoLabel · MK-XS-F-002 dataGaps
+ *               MK-XS-F-003 gapsHeadline · MK-XS-F-183 writeFigure
  *
- * Reaches ..... 106 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 107 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -63,7 +65,7 @@ export type CountedWord = keyof typeof PLURAL_WORDS;
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 88 more — the full list is on functions_from_code
+ *               … and 89 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

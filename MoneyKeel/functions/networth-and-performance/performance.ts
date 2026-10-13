@@ -29,6 +29,7 @@ import { valueOn, covers as snapshotCovers, buildDayFromAccounts, accountValuesO
 import { timeWeightedReturn, movementsOf, type TimeWeightedVerdict } from '../../../Calculation Module code/engines/time-weighted-return';
 import { dateShown, isoLocalDate } from '../../../src/domain/_shared/dates';
 import { accountDisplayNames } from '../../../src/domain/assets';
+import { plural } from '../../../src/domain/_shared/plural';
 import { isCertificateOfDeposit } from './bonds';
 
 export interface WindowFigures {
@@ -372,8 +373,8 @@ function gainRowName(r: GainRow): string {
  * Answers ..... THE SENTENCE where the beginning cannot be worked back (DEC-3656, 2026-10-09, his wording).
  *
  * Formula .....
- *     once = [...new set(names)]
- *     the answer = `the beginning can't be worked back: ${list} ${once.length > 1 ? 'have' : 'has'} no price history.`
+ *     once = [...new set(names.map((n) => string(n ?? '').trim()).filter((n) => n ! = ''))]
+ *     the answer = `the beginning can't be worked back: ${plural(math.max(once.length, 1), 'has', list)} no price history.`
  *
  * Called by ... MK-NW-O-008 thePerformance
  *
@@ -384,15 +385,23 @@ function gainRowName(r: GainRow): string {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
+ * Decides .....
+ *     · Never lets length fall below 1.
+ *
  * Formula also on the master file · functions_from_code · MK-NW-F-130
  * Changed ..... not in git yet (—)
  */
 function cannotWorkBackSentence(names: string[]): string {
-  // one fund held in two accounts is named once (outside review Claude Performance, 2026-10-11, DEC-3656)
-  const once = [...new Set(names)];
+  // one fund held in two accounts is named once (outside review Claude Performance, 2026-10-11, DEC-3656). A blank
+  // name is no name: it is dropped before the names are counted, so '', 'Treasury', 'Treasury' reads "Treasury has",
+  // never "  and Treasury have" (outside review OpenAI re-run part 4, MK-NW-F-130, SETTLED 2026-10-13). Names all
+  // blank still give the sentence, about "a holding": the caller only asks when a holding's gain is unknown, and an
+  // empty answer would let it work the beginning back anyway.
+  const once = [...new Set(names.map((n) => String(n ?? '').trim()).filter((n) => n !== ''))];
   const list = once.length <= 1 ? (once[0] ?? 'a holding')
     : `${once.slice(0, -1).join(', ')} and ${once[once.length - 1]}`;
-  return `The beginning can't be worked back: ${list} ${once.length > 1 ? 'have' : 'has'} no price history.`;
+  // has / have from the one list of words and plurals (DEC-4082): one name, or none, is singular
+  return `The beginning can't be worked back: ${plural(Math.max(once.length, 1), 'has', list)} no price history.`;
 }
 
 /** MK-NW-F-092 · Which accounts this door measures: the invested ones. Cash and property are not

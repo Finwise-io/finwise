@@ -1881,8 +1881,8 @@
  },
  "maturityParts": {
   "id": "MK-NW-F-124",
-  "file": "src/domain/bonds/index.ts",
-  "category": "3 · DEPENDENT"
+  "file": "src/domain/_shared/dates.ts",
+  "category": "2 · DISPLAYED"
  },
  "measuredFromLabel": {
   "id": "MK-ST-F-005",
