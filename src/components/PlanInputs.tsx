@@ -51,7 +51,9 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
   const bigCosts = store.bigCosts ?? [];
   const names = accountDisplayNames(accounts);
   const carId = primaryCarIdOf(accounts);
-  const homeId = primaryHomeIdOf(accounts);   // the home lived in, by the one rule (DEC-1926)
+  // the home lived in, by the one rule (DEC-1926), read with the Income screen's rent entries as Net worth reads it (DEC-4913)
+  const rentals = Array.isArray(op.rentals) ? op.rentals : null;
+  const homeId = primaryHomeIdOf(accounts, rentals);
 
   const age = op.birthYear ? THIS_YEAR - Number(op.birthYear) : null;
   const [ageText, setAgeText] = useState(age != null ? String(age) : '');
@@ -82,8 +84,8 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
   const dirty = draft.retireAge !== committed.retireAge
     || draft.horizonAge !== committed.horizonAge
     || draft.extraMonthly !== committed.extraMonthly;
-  const counted = retirementEarmarkedValue(accounts);
-  const leavesOut = earmarkLeavesOutWords(accounts, names);   // (DEC-4036k, 2026-10-10)
+  const counted = retirementEarmarkedValue(accounts, rentals);
+  const leavesOut = earmarkLeavesOutWords(accounts, names, rentals);   // (DEC-4036k, 2026-10-10)
   const carNotes = carValueNotEnteredNotes(accounts, names);   // (DEC-4036j, 2026-10-10)
 
   return (

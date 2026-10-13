@@ -586,9 +586,12 @@
   },
   "MK-CF-F-107": {
    "name": "buildPaycheckYear",
-   "rule": "Guaranteed rows from guaranteedRows; savings = the figure given, otherwise the accounts set aside for retirement. Safe draw = solveSafeDraw, with average guaranteed income in a month = the rows' total ÷ 12. Draw flag: high when safe draw × 12 ÷ savings is above 4.5%; ok otherwise; none with no savings or no draw. For each of twelve months from the current one: guaranteed total = that month's rows; bills = that month's big bills, everyday expenses left out; safe to spend = guaranteed total + safe draw − bills. This year = the twelve added.",
-   "read_from": "78e54bc318",
-   "sent_as": "78e54bc318"
+   "rule": "Guaranteed rows from guaranteedRows; savings = the figure given, otherwise the accounts set aside for retirement (retirementEarmarkedValue, handed the profile's rent entries, DEC-4913). Safe draw = solveSafeDraw, with average guaranteed income in a month = the rows' total ÷ 12. Draw flag: high when safe draw × 12 ÷ savings is above 4.5%; ok otherwise; none with no savings or no draw. For each of twelve months from the current one: guaranteed total = that month's rows; bills = that month's big bills, everyday expenses left out; safe to spend = guaranteed total + safe draw − bills. This year = the twelve added.",
+   "read_from": "6a8656383f",
+   "sent_as": "78e54bc318",
+   "figures_checked_by_hand": {
+    "4913": "not a figure: the owner decision id DEC-4913 (2026-10-13), named in the rule"
+   }
   },
   "MK-CF-F-108": {
    "name": "isMoneyOut",
@@ -1432,9 +1435,15 @@
   },
   "MK-NW-F-033": {
    "name": "retirementEarmarkedValue",
-   "rule": "Every account's earmarked amount (earmarkedAmount) added up, with the car driven found by primaryCarIdOf and the home lived in by primaryHomeIdOf.",
-   "read_from": "299d3a9499",
-   "sent_as": "9ebbf6e41d"
+   "rule": "Every account's earmarked amount (earmarkedAmount) added up, with the car driven found by primaryCarIdOf and the home lived in by primaryHomeIdOf, handed the Income screen's rent entries when the caller has them (DEC-4913, 2026-10-13). Example: A $400,000 with no use stated, B $300,000 marked the home with rent entered for B → $700,000 (B a rental, A a second home, no home). Not handed the rent entries, the stored home mark decides: $400,000.",
+   "read_from": "9befa97392",
+   "sent_as": "9ebbf6e41d",
+   "figures_checked_by_hand": {
+    "4913": "not a figure: the owner decision id DEC-4913 (2026-10-13), named in the rule",
+    "$400,000": "the example's first property (owner's case, DEC-4913), not a figure the code holds; also the total when no rent entries are handed in (B the home, left out)",
+    "$300,000": "the example's second property (owner's case, DEC-4913), not a figure the code holds",
+    "$700,000": "the example's answer worked by hand: $400,000 + $300,000, both counted at 100% (DEC-0100); pinned by recheck_2026-10-13.test.ts"
+   }
   },
   "MK-NW-F-034": {
    "name": "benchmarkReturn",
@@ -1444,9 +1453,12 @@
   },
   "MK-NW-F-035": {
    "name": "blendedVolatility",
-   "rule": "Over exactly the accounts the nest egg counts: each account's volatility — the person's own figure for its kind, else the app's figure for the kind, else 12% — averaged, weighted by its earmarked amount. No answer when nothing is earmarked (the Plan then uses the band its growth rate implies, chosen at its call site). It is a weighted average of the parts, which is the portfolio's own volatility only when the parts move together; a table of how the classes move together is not yet built.",
-   "read_from": "57bd0554a4",
-   "sent_as": "7666b801c9"
+   "rule": "Over exactly the accounts the nest egg counts, the home read the same way (handed the rent entries when the caller has them, DEC-4913): each account's volatility — the person's own figure for its kind, else the app's figure for the kind, else 12% — averaged, weighted by its earmarked amount. No answer when nothing is earmarked (the Plan then uses the band its growth rate implies, chosen at its call site). It is a weighted average of the parts, which is the portfolio's own volatility only when the parts move together; a table of how the classes move together is not yet built.",
+   "read_from": "52271c7510",
+   "sent_as": "7666b801c9",
+   "figures_checked_by_hand": {
+    "4913": "not a figure: the owner decision id DEC-4913 (2026-10-13), named in the rule"
+   }
   },
   "MK-NW-F-036": {
    "name": "benchmarkInfo",
@@ -1456,9 +1468,12 @@
   },
   "MK-NW-F-037": {
    "name": "blendedReturn",
-   "rule": "Over exactly the accounts the nest egg counts (every account, each weighted by its earmarked amount — the home lived in, the car driven and a 529 weigh nothing by default, a rental weighs its full value): the benchmark yearly rate of each account's kind (benchmarkReturn), averaged, weighted by its earmarked amount. No answer when the earmarked total is zero — the Plan then chooses its own 6% at its call site, and says so there.",
-   "read_from": "77b34bd362",
-   "sent_as": "f900a328b0"
+   "rule": "Over exactly the accounts the nest egg counts (every account, each weighted by its earmarked amount — the home lived in, the car driven and a 529 weigh nothing by default, a rental weighs its full value; the home is read with the rent entries when the caller hands them in, DEC-4913): the benchmark yearly rate of each account's kind (benchmarkReturn), averaged, weighted by its earmarked amount. No answer when the earmarked total is zero — the Plan then chooses its own 6% at its call site, and says so there.",
+   "read_from": "87b23facd6",
+   "sent_as": "f900a328b0",
+   "figures_checked_by_hand": {
+    "4913": "not a figure: the owner decision id DEC-4913 (2026-10-13), named in the rule"
+   }
   },
   "MK-NW-F-038": {
    "name": "earmarkedKinds",
@@ -1710,11 +1725,15 @@
   },
   "MK-NW-F-084": {
    "name": "categoryEarnings",
-   "rule": "Uses the dividend and interest records dated on or after the period's first day, amounts taken as positive. A record that names a ticker goes to that holding's category: bond → Bonds & CDs; cash → Cash in this account; anything else → Stocks / Funds; a ticker with no holding on record → Stocks / Funds for a dividend, Bonds & CDs for interest. A record that names NO ticker → Stocks / Funds for a dividend; for interest, Bonds & CDs when the record's account is a bond or CD account handed in, else Cash in this account. A category's return, over the holdings with a value above zero and a period return above −100%: each holding's value at the start = its value now ÷ (1 + its return over the whole period, never a yearly rate); return = the values now added up ÷ the values at the start added up − 1. Nothing when no holding qualifies. Bonds & CDs shows a stated YEARLY rate instead — each bond account's rate weighted by its balance — when every bond account with a balance states a rate and no bond is held as a holding. An entered 0% states a rate of 0% (DEC-2748b, 2026-10-12); a rate never entered states none. On day one all three categories are returned with no return; any other day only the categories that earned more than zero.",
-   "read_from": "a5aae970d7",
+   "rule": "Uses the dividend and interest records dated on or after the period's first day, amounts taken as positive. A record that names a ticker goes to that holding's category: bond → Bonds & CDs; cash → Cash in this account; anything else → Stocks / Funds; a ticker with no holding on record → Stocks / Funds for a dividend, Bonds & CDs for interest. A record that names NO ticker → Stocks / Funds for a dividend; for interest, Bonds & CDs when the record's account is a bond or CD account handed in, else Cash in this account. A category's return, over the holdings with a value above zero and a period return above −100%: each holding's value at the start = its value now ÷ (1 + its return over the whole period, never a yearly rate); return = the values now added up ÷ the values at the start added up − 1. Nothing when no holding qualifies. Bonds & CDs shows a stated YEARLY rate instead — each bond account's rate weighted by its balance — when every bond account with a balance states a rate and no bond is held as a holding — a bond holding row worth exactly $0 holds nothing and does not count; one whose worth is not known still does. Example: a bond account of $10,000 at 4%, one bond holding row worth $0, $100 of interest → Bonds & CDs $100 at 4.00%/year. An entered 0% states a rate of 0% (DEC-2748b, 2026-10-12); a rate never entered states none. On day one all three categories are returned with no return; any other day only the categories that earned more than zero.",
+   "read_from": "aa1bacc58d",
    "sent_as": "f1c50cadca",
    "figures_checked_by_hand": {
-    "2748": "not a figure: the owner decision id DEC-2748b (2026-10-12), named in the code comment"
+    "2748": "not a figure: the owner decision id DEC-2748b (2026-10-12), named in the code comment",
+    "$10,000": "the example's bond account balance, not a figure the code holds",
+    "4%": "the example's stated bond rate, not a figure the code holds",
+    "$100": "the example's interest received, not a figure the code holds",
+    "4.00%": "the example's answer worked by hand: the one bond account's stated 4% weighted by its balance; pinned by outside_networth_rerun_openai_03.test.ts"
    }
   },
   "MK-NW-F-090": {
@@ -1745,9 +1764,13 @@
   },
   "MK-NW-F-094": {
    "name": "ledgerGroups",
-   "rule": "Groups the accounts for the Net worth list, by asset-class label or by institution. By class: an account with a class split (accountClassBreakdown) is a row under EVERY class it has a part in, at that part; any other account is one row, whole, under its one class. Each group's total = its rows added up (his ruling, 2026-10-07: the rows under a heading add up to the heading). By institution (an account with no institution goes under No institution set; names are matched trimmed, capitals ignored, and the group shows the first spelling seen): each account is one row at its balance, a group's total = those balances added up, and the group lists the classes inside it with their totals, from the same split, largest first. Group totals by class equal the class rows; both views add to everything owned.",
-   "read_from": "fa59639d46",
-   "sent_as": "75306e7a08"
+   "rule": "Groups the accounts for the Net worth list, by asset-class label or by institution. By class: an account with a class split (accountClassBreakdown) is a row under EVERY class it has a part in, at that part; any other account is one row, whole, under its one class. Each group's total = its rows added up (his ruling, 2026-10-07: the rows under a heading add up to the heading). By institution (an account with no institution goes under No institution set; names are matched trimmed, capitals ignored, and the group shows the first spelling seen): each account is one row at its balance, a group's total = those balances added up, and the group lists the classes inside it with their totals, from the same split, largest first. An account with no balance entered is a row of nothing (not known), never $0 (DEC-3279e), and adds nothing to its group's total, which stays the sum of what is known: a Bank group of one account with no balance and one of $100 totals $100. Group totals by class equal the class rows; both views add to everything owned.",
+   "read_from": "a918c7e25b",
+   "sent_as": "75306e7a08",
+   "figures_checked_by_hand": {
+    "3279": "not a figure: the owner decision id DEC-3279e (2026-10-09), named in the rule",
+    "$100": "the example's one known balance and its group total, worked by hand; pinned by outside_networth_rerun_openai_03.test.ts, not a figure the code holds"
+   }
   },
   "MK-NW-F-103": {
    "name": "investmentRecordDates",
@@ -1993,9 +2016,13 @@
   },
   "MK-NW-F-107": {
    "name": "propertyUses",
-   "rule": "For each property: what it is used for, as propertyUseMap reads it, handed the rent entries from the Income screen (none handed in when the person has none on record). Owner rule, 2026-10-04: \"unless rental income is added on the income screen, assume property is second or vacation home.\" RENTAL = a rent entry names it — or, only when no rent entries are handed in at all, it is stored as a rental. HOME = the one marked as the home lived in; with none marked and no use stated on any, the one entered first. SECOND = every other property, except that a rent entry naming no property makes the one remaining property a rental when there is exactly one.",
+   "rule": "For each property: what it is used for, as propertyUseMap reads it, handed the rent entries from the Income screen (none handed in when the person has none on record). Owner rule, 2026-10-04: \"unless rental income is added on the income screen, assume property is second or vacation home.\" RENTAL = a rent entry names it — or, only when no rent entries are handed in at all, it is stored as a rental. HOME = the one marked as the home lived in; with none marked and no use stated on any, the one entered first. SECOND = every other property. A rent entry that names no property is not rent: it makes no property a rental (DEC-4059d, 2026-10-10). A use stated on any property stops the entered-first choice of the home (DEC-4913, 2026-10-13).",
    "read_from": "361715a9bb",
-   "sent_as": ""
+   "sent_as": "",
+   "figures_checked_by_hand": {
+    "4059": "not a figure: the owner decision id DEC-4059d (2026-10-10), named in the rule",
+    "4913": "not a figure: the owner decision id DEC-4913 (2026-10-13), named in the rule"
+   }
   },
   "MK-CF-O-020": {
    "name": "theBudgetCounted",
@@ -2192,13 +2219,16 @@
   },
   "MK-NW-F-135": {
    "name": "earmarkLeavesOut",
-   "rule": "The accounts the retirement money leaves out because their value is not entered while their retirement share is above zero (the share saved, else the share it would have by default), each by its shown name, else its label, else its institution, else \"An account\".",
-   "read_from": "47c69895b1"
+   "rule": "The accounts the retirement money leaves out because their value is not entered while their retirement share is above zero (the share saved, else the share it would have by default, the home read with the rent entries when the caller hands them in, DEC-4913), each by its shown name, else its label, else its institution, else \"An account\".",
+   "read_from": "0bbf7f87dc",
+   "figures_checked_by_hand": {
+    "4913": "not a figure: the owner decision id DEC-4913 (2026-10-13), named in the rule"
+   }
   },
   "MK-NW-F-136": {
    "name": "earmarkLeavesOutWords",
-   "rule": "The words under the retirement money: \"leaves out <names, joined by commas> — Value not entered\" when any account is left out; nothing when none is.",
-   "read_from": "0516e4f978"
+   "rule": "The words under the retirement money: \"leaves out <names, joined by commas> — Value not entered\" when any account is left out (earmarkLeavesOut, handed the same rent entries); nothing when none is.",
+   "read_from": "7a543c0a95"
   },
   "MK-NW-F-137": {
    "name": "asksCashOrInvestments",

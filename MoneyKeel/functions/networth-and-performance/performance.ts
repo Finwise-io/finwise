@@ -85,11 +85,11 @@ export interface WindowFigures {
  *  BACK-FILLED. The account page has always done it this way; the Performance tab did not, and the
  *  Performance tab opens on this window. */
 
-/** The first day of a period: the day after the record's first day for Since, 1 January for This year, and the same day one month, one year or two years back for the others. */
+/** The first day of a period: the day after the record's first day for Since, 1 January for This year, the same day 1, 3, 6, 12 or 24 months back for 1M, 3M, 6M, 1Y and 2Y, and nothing for a window name the app does not have (DEC-4640) — no start, so no figure. */
 /* ─ MK-NW-F-090 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * windowStartKey
  *
- * Answers ..... The first day of a period: the day after the record's first day for Since, 1 January for This year, and the same day one month, one year or two years back for the others.
+ * Answers ..... The first day of a period: the day after the record's first day for Since, 1 January for This year, the same day 1, 3, 6, 12 or 24 months back for 1M, 3M, 6M, 1Y and 2Y, and nothing for a window name the app does not have (DEC-4640) — no start, so no figure.
  *
  * Formula .....
  *     first = record dates where ÷ ^\d{4}-\d{2}-\d{2}$ ÷ .test(each)the first of , in order
@@ -913,8 +913,11 @@ export function categoryEarnings(input: {
   // It is the same stated rate the account page prints beside the bond, so the two cannot disagree.
   // One bond with no stated rate and the category falls back to what its prices did, or to nothing.
   const held = (input.bonds ?? []).filter((b) => (b.balance ?? 0) > 0);
-  // a bond held as a holding INSIDE an account states no rate here, so the category cannot speak for it
-  const bondHoldings = rows.filter((x) => categoryOf(x.position) === 'bonds');
+  // a bond held as a holding INSIDE an account states no rate here, so the category cannot speak for it. A bond row
+  // worth exactly $0 holds no shares (marketValue is 0 only when none are held) — it holds nothing, so it does not hide
+  // the rate the bond account states: $10,000 at 4% with a sold-out bond row reads 4.00%/year (outside review OpenAI
+  // re-run 03, MK-NW-F-084, 2026-10-13). A row whose worth is not known (null) may still hold shares, and still counts.
+  const bondHoldings = rows.filter((x) => categoryOf(x.position) === 'bonds' && x.marketValue !== 0);
   // an entered 0% STATES a rate (0.00%/year); only a rate never entered leaves the bond silent (DEC-2748b, 2026-10-12)
   const allState = held.length > 0 && bondHoldings.length === 0
     && held.every((b) => b.coupon_rate != null && Number.isFinite(b.coupon_rate) && b.coupon_rate >= 0);

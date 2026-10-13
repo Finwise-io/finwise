@@ -22,7 +22,7 @@ import { maskedMoney } from '../components/useMoney';
 import { simulate, projectNestEgg, solveRetireAge, retirementSpendMonthly } from '../domain/retirement';
 import { colFactor } from '../domain/retirement/col';
 import { ssBenefitAt } from '../domain/retirement/ssTiming';
-import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, primaryCarIdOf, primaryHomeIdOf, earmarkLeavesOutWords, carValueNotEnteredNotes, accountDisplayNames, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
+import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, primaryCarIdOf, primaryHomeIdOf, earmarkLeavesOutWords, carValueNotEnteredNotes, accountDisplayNames, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount, type RentEntry } from '../domain/assets';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { CountedTaxableLines } from '../components/CountedTaxableLines';   // (DEC-4105, 2026-10-10)
 import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, rmdDivisorAtAge, rmdStartAgeFor, rateBandWords } from '../domain/decumulation';
@@ -65,15 +65,17 @@ export default function RetirementCockpit() {
 
   // ---- data-derived ----
   const age = ageAttainedInYear(num(op.birthYear) || null) ?? 45;   // G9: every rule and projection runs on the year-attained age; the 45 stand-in for a missing birth year is an open R2 item
-  const nestEgg = retirementEarmarkedValue(assets);
+  // the Income screen's rent entries decide the home on every Plan figure, as Net worth reads it (DEC-4913, 2026-10-13)
+  const rentals = Array.isArray(op.rentals) ? op.rentals : null;
+  const nestEgg = retirementEarmarkedValue(assets, rentals);
   // THE NEST EGG NAMES WHAT IT LEAVES OUT (DEC-4036k, 2026-10-10): an account whose value is not entered adds $0
   // while its share would count, so every place the nest egg is printed says "leaves out <name> — Value not entered".
-  const leavesOut = earmarkLeavesOutWords(assets, accountDisplayNames(assets));
+  const leavesOut = earmarkLeavesOutWords(assets, accountDisplayNames(assets), rentals);
   // Money you want to LEAVE behind isn't spendable in retirement — reserve it so "will it last"
   // reflects what you can actually draw down. (nestEgg = what you have; spendableEgg = what you can spend.)
   const bequest = num(op.legacyTarget);
   const spendableEgg = Math.max(0, nestEgg - bequest);
-  const benchBlended = blendedReturn(assets) ?? 0.06;                  // historic blended benchmark — NOT editable; 6% only when nothing is set aside
+  const benchBlended = blendedReturn(assets, undefined, rentals) ?? 0.06;                  // historic blended benchmark — NOT editable; 6% only when nothing is set aside
   const actualBlended = portfolioActualReturn(assets);                 // weighted actual TTM from per-holding entries (may be null)
   const returnBasis: 'benchmark' | 'actual' | 'scenario' = A.returnBasis ?? 'benchmark';
   // growth rate that drives the projection + heroes — user picks which basis to use
@@ -164,9 +166,9 @@ export default function RetirementCockpit() {
 
   // donut segments (earmarked, grouped by section, Net-Worth colors)
   // the household's home and the car you drive, read once, so a second property counts and the car you
-  // drive does not (outside review OpenAI final, 2026-10-09, DEC-2747e · DEC-2746b · DEC-3035p). No rent
-  // entries here: the nest egg (retirementEarmarkedValue) reads none, and the donut must add up to it.
-  const carId = primaryCarIdOf(assets), homeId = primaryHomeIdOf(assets);
+  // drive does not (outside review OpenAI final, 2026-10-09, DEC-2747e · DEC-2746b · DEC-3035p). The same
+  // rent entries the nest egg reads (DEC-4913, 2026-10-13), so the donut adds up to it.
+  const carId = primaryCarIdOf(assets), homeId = primaryHomeIdOf(assets, rentals);
   const earmarked = assets.filter((a) => earmarkedAmount(a, carId, homeId) > 0);
   const bySection: Record<string, { amt: number; full: boolean }> = {};
   earmarked.forEach((a) => {
@@ -813,7 +815,7 @@ export default function RetirementCockpit() {
       <Text style={styles.foot}>Test retiring earlier, saving more, market ups & downs.</Text>
       <View style={{ height: 40 }} />
 
-      <EarmarkSheet open={earmarkOpen} onClose={() => setEarmarkOpen(false)} assets={assets} nestEgg={nestEgg}
+      <EarmarkSheet open={earmarkOpen} onClose={() => setEarmarkOpen(false)} assets={assets} nestEgg={nestEgg} rentals={rentals}
         onSet={(id, pct) => store.updateAsset(id, { retirement_pct: pct })} onDone={() => setEarmarkOpen(false)} />
       <SsEditor open={ssOpen} onClose={() => setSsOpen(false)} A={A} ssDefault={ssBase?.monthly ?? 0} onApply={(patch) => { commit(patch); setSsOpen(false); }} />
       <TtmEditor account={ttmEdit} onClose={() => setTtmEdit(null)} benchmark={ttmEdit ? benchmarkReturn(ttmEdit.kind) : 0}
@@ -944,16 +946,18 @@ function Donut({ segments, size = 124, stroke = 16, children, label }: { segment
 }
 
 // ───────────────────────── Earmark sheet ─────────────────────────
-export function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone }: {
+export function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone, rentals }: {
   open: boolean; onClose: () => void; assets: AssetAccount[]; nestEgg: number; onSet: (id: string, pct: number | null) => void; onDone: () => void;
+  /** the Income screen's rent entries, so the home here is the one the nest egg reads (DEC-4913, 2026-10-13) */
+  rentals?: RentEntry[] | null;
 }) {
   // the same home and car the Plan donut uses (outside review OpenAI final, 2026-10-09, DEC-2747e · DEC-2746b)
-  const carId = primaryCarIdOf(assets), homeId = primaryHomeIdOf(assets);
+  const carId = primaryCarIdOf(assets), homeId = primaryHomeIdOf(assets, rentals);
   // the car you drive is picked among vehicles with a value; one with none may be it, and the sheet says so (DEC-4036j,
   // 2026-10-10) · the nest egg names an account it leaves out for a value not entered (DEC-4036k, 2026-10-10)
   const names = accountDisplayNames(assets);
   const carNotes = carValueNotEnteredNotes(assets, names);
-  const leavesOut = earmarkLeavesOutWords(assets, names);
+  const leavesOut = earmarkLeavesOutWords(assets, names, rentals);
   return (
     <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />

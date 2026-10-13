@@ -105,7 +105,7 @@ export interface PlanDoor {
  *     has age = number(birth year) > 1900 (or number(age) > 0 when missing or zero)
  *     has spend = number(monthly expenses) > 0 (or number(spend monthly) > 0 when missing or zero)
  *     total = Σ over accounts (or none when missing) of (balance (or 0 when missing or zero))
- *     earmarked = retirement earmarked value(accounts ?? [])
+ *     earmarked = retirement earmarked value(accounts ?? [], array.is array(rentals) ? rentals : nothing)
  *     has have = earmarked > 0
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -131,7 +131,8 @@ export function planDoor(op: Record<string, any> | null, accounts: AssetAccount[
   // EARMARKED for retirement. Someone whose only asset is the home they live in looked complete to
   // this door and produced no odds at all — landing on a bare "See your plan ›", the very fallback
   // we removed everywhere else. The gate now means what the odds mean.
-  const earmarked = retirementEarmarkedValue(accounts ?? []);
+  // the rent entries decide the home, as Net worth reads it (DEC-4913, 2026-10-13)
+  const earmarked = retirementEarmarkedValue(accounts ?? [], Array.isArray(a.rentals) ? a.rentals : null);
   const hasHave = earmarked > 0;
   if (!hasAge) missing.push('your age');
   if (!hasSpend) missing.push('what you spend');

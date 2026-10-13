@@ -70,7 +70,7 @@ export function useInsights(limit?: number): Insight[] {
     const topHolding = topHoldingConcentration(buildPerformance(allPositions, priceOf, '1Y'));
     const toxic = liabilities.reduce((m: any, d: any) => (d.interest_rate_apr > (m?.interest_rate_apr ?? 0) ? d : m), null);
     const actual = portfolioActualReturn(accounts);
-    const bench = blendedReturn(accounts);
+    const bench = blendedReturn(accounts, undefined, Array.isArray(op?.rentals) ? op.rentals : null);   // the home as Net worth reads it (DEC-4913)
     const gross = totalGrossAnnual(op);
     const nm = (a: any) => a.institution?.trim() || a.label;
     const shareOf = (v: number) => (investable > 0 ? `${money(v)} · ${Math.round((v / investable) * 100)}%` : money(v));

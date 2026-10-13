@@ -465,7 +465,7 @@ describe('MK-NW-F-094 ledgerGroups — five cases', () => {
     expect(Object.fromEntries(g.map((x) => [x.label, [...x.accountIds].sort()]))).toEqual({
       Cash: ['chase', 'schwab'], 'Stocks / Funds': ['schwab'], 'Bonds & CDs': ['cd', 'schwab'] });   // his ruling 2026-10-07: under each class, each account with its part
     // and the rows under each heading add up to it
-    for (const x of g) expect(x.rows.reduce((t, r) => t + r.amount, 0)).toBeCloseTo(x.total, 2);
+    for (const x of g) expect(x.rows.reduce((t, r) => t + (r.amount ?? 0), 0)).toBeCloseTo(x.total, 2);   // a row of null (no balance) adds nothing (DEC-3279e)
   });
   test('edge · An institution typed as spaces only', () => {
     // RULE UNCLEAR: reading A blank is none (one group 7,000) or reading B blank is a name

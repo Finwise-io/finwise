@@ -67,11 +67,35 @@ describe('MK-NW-F-045 sourceWording — the last successful sync, not the price 
   });
 });
 
-describe('DEC-4913 — what the Plan counts today, until its callers hand in the rent entries', () => {
-  test('the Plan nest egg reads no rent entries, so B\'s home mark still decides: $400,000 counted (Net worth reading: $700,000)', () => {
-    // the standard records this as not yet wired (Plan build); this pins the number so the gap cannot move silently
+describe('DEC-4913 — the Plan\'s retirement money is handed the rent entries, as Net worth reads them', () => {
+  test('handed the profile\'s rent entries, B is a rental and A a second home: $700,000 (it was $400,000 before the Plan was wired)', () => {
+    // SETTLED 2026-10-13: every Plan caller now hands in the Income screen's rent entries (profile rentals), so B's home
+    // mark no longer decides there. The cross-screen agreement is held by
+    // src/screens/__tests__/dec4913_retirement_money_agreement.test.tsx (Net worth vs Plan, same household, $700,000).
     const A: any = { asset_id: 'A', label: 'A', kind: 'home', tax_bucket: 'PROPERTY', balance: 400000 };
     const B: any = { asset_id: 'B', label: 'B', kind: 'home', tax_bucket: 'PROPERTY', balance: 300000, re_use: 'primary' };
+    const rentals = [{ property_id: 'B', income: 1400, expenses: 0 }];
+    expect(retirementEarmarkedValue([A, B], rentals)).toBe(700000);
+    // told nothing about rent (no rent entries at all), the stored home mark still decides
     expect(retirementEarmarkedValue([A, B])).toBe(400000);
+  });
+});
+
+describe('the cards say what the code does (2026-10-13)', () => {
+  const rules = () => JSON.parse(fs.readFileSync(path.join(ROOT, 'Calculation Module code/scripts/moneykeel_function_rules.json'), 'utf8')).rules;
+  test('MK-NW-F-090 windowStartKey: any other window name gives nothing (DEC-4640) — card and the code\'s own description', () => {
+    expect(rules()['MK-NW-F-090'].rule).toMatch(/Any other label: nothing/);
+    expect(rules()['MK-NW-F-090'].rule).not.toMatch(/12 months back, the same/);
+    const src = fs.readFileSync(path.join(ROOT, 'MoneyKeel/functions/networth-and-performance/performance.ts'), 'utf8');
+    expect(src).toMatch(/nothing for a window name the app does not have \(DEC-4640\)/);
+  });
+  test('MK-NW-F-107 propertyUses: a rent entry naming no property is not rent (DEC-4059d) — the old exception is gone', () => {
+    expect(rules()['MK-NW-F-107'].rule).not.toMatch(/makes the one remaining property a rental/);
+    expect(rules()['MK-NW-F-107'].rule).toMatch(/names no property is not rent: it makes no property a rental \(DEC-4059d/);
+  });
+  test('MK-NW-F-084 and MK-NW-F-094 carry today\'s rules', () => {
+    expect(rules()['MK-NW-F-084'].rule).toMatch(/row worth exactly \$0 holds nothing/);
+    expect(rules()['MK-NW-F-094'].rule).toMatch(/never \$0 \(DEC-3279e\)/);
+    expect(rules()['MK-NW-F-033'].rule).toMatch(/\$700,000/);
   });
 });

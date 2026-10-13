@@ -393,8 +393,10 @@ export interface LedgerGroup {
   /** The accounts inside it, in the order they were given. */
   accountIds: string[];
   /** Each account's amount in THIS group — by class, only its part in that class; by institution, its
-   *  balance. The rows always add up to the group's total, so the heading can be checked by eye. */
-  rows: { accountId: string; amount: number }[];
+   *  balance. The rows always add up to the group's total, so the heading can be checked by eye. An account
+   *  with no balance entered is a row of null — not known, never $0 (DEC-3279e, tenet 3) — and adds nothing
+   *  to the total, which stays the sum of what is known. */
+  rows: { accountId: string; amount: number | null }[];
   /** Under an institution's name, the class mix inside it, biggest first. Empty when grouped by class. */
   mix: { key: string; total: number }[];
 }
@@ -413,6 +415,9 @@ export interface LedgerGroup {
  *     rows = []
  *     mix = [] when missing)
  *     split = account class breakdown(a)
+ *     bal = (a as any).balance
+ *     known = bal   if typeof bal = 'number' and number.is finite(bal)
+ *     nothing   otherwise
  *     shown = string((a as any).institution ?? '').trim() (or 'no institution set' when missing or zero)
  *     g = group(shown.to lower case(), shown)
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
@@ -434,7 +439,8 @@ export interface LedgerGroup {
  *               MK-XS-I-028 assumed return
  *
  * Decides .....
- *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If total is missing it uses 0.
+ *     · If known is missing it uses 0.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-094
  * Changed ..... 2026-09-30 (d31209e)
@@ -464,26 +470,31 @@ export function ledgerGroups(
   };
   for (const a of accounts ?? []) {
     const split = accountClassBreakdown(a);
-    const parts: { key: string; total: number }[] = split
+    // A BALANCE NOT ENTERED IS NOT $0 (DEC-3279e, tenet 3; outside review OpenAI re-run 03, MK-NW-F-094, 2026-10-13):
+    // its row carries null — not known — and the group total stays the sum of what is known. It used to be written
+    // as a row of $0, so any caller but the Net worth screen (which reads "Value not entered" off the account) got $0.
+    const bal = (a as any).balance;
+    const known: number | null = typeof bal === 'number' && Number.isFinite(bal) ? bal : null;
+    const parts: { key: string; total: number | null }[] = split
       ? (Object.keys(split) as (keyof typeof split)[]).filter((k) => split[k] !== 0).map((k) => ({ key: String(k), total: split[k] }))
-      : [{ key: classKeyOf(a), total: (a as any).balance || 0 }];
+      : [{ key: classKeyOf(a), total: known }];
     if (by === 'class') {
       for (const p of parts) {
         const g = group(p.key, split ? ((ASSET_CLASS_LABEL as any)[p.key] ?? classLabelOf(a)) : classLabelOf(a));
-        g.total += p.total;
+        g.total += p.total ?? 0;
         g.accountIds.push(String((a as any).asset_id));
         g.rows.push({ accountId: String((a as any).asset_id), amount: p.total });
       }
     } else {
       const shown = String((a as any).institution ?? '').trim() || 'No institution set';
       const g = group(shown.toLowerCase(), shown);
-      g.total += (a as any).balance || 0;
+      g.total += known ?? 0;
       g.accountIds.push(String((a as any).asset_id));
-      g.rows.push({ accountId: String((a as any).asset_id), amount: (a as any).balance || 0 });
+      g.rows.push({ accountId: String((a as any).asset_id), amount: known });
       for (const p of parts) {
         const m = g.mix.find((x) => x.key === p.key) ?? { key: p.key, total: 0 };
         if (!g.mix.includes(m)) g.mix.push(m);
-        m.total += p.total;
+        m.total += p.total ?? 0;
       }
     }
   }

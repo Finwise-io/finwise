@@ -159,7 +159,8 @@ export function buildSnapshot(
     // B-49: nest egg = retirement-earmarked value (excludes property, partial cash) — the same basis
     // the Retirement cockpit uses. Identical to total_asset_value for onboarding-derived accounts
     // (all 100%-earmarked), so op-only callers are unchanged.
-    start_balance: retirementEarmarkedValue(acctRows),
+    // the rent entries decide the home, as Net worth reads it (DEC-4913, 2026-10-13)
+    start_balance: retirementEarmarkedValue(acctRows, Array.isArray(a.rentals) ? a.rentals : null),
     annual_contribution: effectiveAnnualContribution(op),
     retire_monthly_spend_today: retirementSpendMonthly(a) || budget.monthly_spending,
     guaranteed_monthly_income: guaranteedMonthly,
@@ -167,7 +168,7 @@ export function buildSnapshot(
     inflation: inflationRateInForce(null).rate,   // brief Q-50 (2026-08-20) (G30, 2026-09-08): the dated default, not the feed (was 2.4 here and 2.5 elsewhere)
     // walk row 10 (audit PRD #5): the ONE expected-return figure — the same blendedReturn the
     // cockpit and will-it-last read; the snapshot's own average_target_return stays display-only.
-    mean_return: blendedReturn(acctRows) || 0.07,
+    mean_return: blendedReturn(acctRows, undefined, Array.isArray(a.rentals) ? a.rentals : null) || 0.07,
     vol_return: 0.12,
     paths: 1000,   // founder ruling 2026-09-08 (G17): 1,000 everywhere
   });

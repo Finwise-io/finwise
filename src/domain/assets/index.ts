@@ -2166,7 +2166,7 @@ export function carValueNotEnteredNotes(accounts: AssetAccount[], names?: Map<st
  * Answers ..... (DEC-4036k, 2026-10-10) The accounts the retirement money (MK-NW-F-033 retirementEarmarkedValue) leaves out because their value is not entered, though their share would count: each by its name.
  *
  * Formula .....
- *     car = primary car id of(accounts), home = primary home id of(accounts)
+ *     car = primary car id of(accounts), home = primary home id of(accounts, rentals)
  *
  * Called by ... MK-NW-F-136 earmarkLeavesOutWords
  *
@@ -2180,8 +2180,9 @@ export function carValueNotEnteredNotes(accounts: AssetAccount[], names?: Map<st
  * Formula also on the master file · functions_from_code · MK-NW-F-135
  * Changed ..... not in git yet (—)
  */
-export function earmarkLeavesOut(accounts: AssetAccount[], names?: Map<string, string>): string[] {
-  const car = primaryCarIdOf(accounts), home = primaryHomeIdOf(accounts);
+export function earmarkLeavesOut(accounts: AssetAccount[], names?: Map<string, string>, rentals?: RentEntry[] | null): string[] {
+  // handed the Income screen's rent entries, the home is read as Net worth reads it (DEC-4913, 2026-10-13)
+  const car = primaryCarIdOf(accounts), home = primaryHomeIdOf(accounts, rentals);
   return (accounts ?? []).filter((a) => !valueEntered(a)
     && (a.retirement_pct == null ? earmarkDefault(a, car, home) : a.retirement_pct) > 0)
     .map((a) => names?.get(a.asset_id) ?? (a.label || a.institution || 'An account'));
@@ -2194,7 +2195,7 @@ export function earmarkLeavesOut(accounts: AssetAccount[], names?: Map<string, s
  * Answers ..... (DEC-4036k, 2026-10-10) What the retirement money says under it: "leaves out <account name> — Value not entered" (the DEC-3657 words).
  *
  * Formula .....
- *     out = earmark leaves out(accounts, names)
+ *     out = earmark leaves out(accounts, names, rentals)
  *     the answer:
  *     `leaves out ${out.join(', ')} — value not entered`   if count of out
  *     nothing   otherwise
@@ -2206,8 +2207,8 @@ export function earmarkLeavesOut(accounts: AssetAccount[], names?: Map<string, s
  * Formula also on the master file · functions_from_code · MK-NW-F-136
  * Changed ..... not in git yet (—)
  */
-export function earmarkLeavesOutWords(accounts: AssetAccount[], names?: Map<string, string>): string | null {
-  const out = earmarkLeavesOut(accounts, names);
+export function earmarkLeavesOutWords(accounts: AssetAccount[], names?: Map<string, string>, rentals?: RentEntry[] | null): string | null {
+  const out = earmarkLeavesOut(accounts, names, rentals);
   return out.length ? `leaves out ${out.join(', ')} — Value not entered` : null;
 }
 
@@ -2260,7 +2261,7 @@ export function earmarkedAmount(a: AssetAccount, primaryCarId?: string, primaryH
  * Answers ..... Total nest egg = sum of each account's retirement-earmarked portion.
  *
  * Formula .....
- *     car = primary car id of(accounts), home = primary home id of(accounts)
+ *     car = primary car id of(accounts), home = primary home id of(accounts, rentals)
  *     the answer = Σ over accounts (or none when missing) of (earmarked amount(each, car, home))
  *
  * Called by ... MK-CF-F-107 buildPaycheckYear · MK-NW-F-134 carValueNotEnteredNotes
@@ -2284,8 +2285,11 @@ export function earmarkedAmount(a: AssetAccount, primaryCarId?: string, primaryH
  * Formula also on the master file · functions_from_code · MK-NW-F-033
  * Changed ..... 2026-08-11 (83acb7e)
  */
-export function retirementEarmarkedValue(accounts: AssetAccount[]): number {
-  const car = primaryCarIdOf(accounts), home = primaryHomeIdOf(accounts);
+export function retirementEarmarkedValue(accounts: AssetAccount[], rentals?: RentEntry[] | null): number {
+  // THE RENT ENTRIES DECIDE THE HOME HERE TOO (DEC-4913, 2026-10-13): handed the Income screen's rent entries,
+  // the home is read exactly as Net worth reads it — B marked the home with rent entered is a rental, A a
+  // second home, both count: $400,000 + $300,000 = $700,000. Not handed them, the stored use decides.
+  const car = primaryCarIdOf(accounts), home = primaryHomeIdOf(accounts, rentals);
   return ((accounts ?? []).reduce((t, a) => t + earmarkedAmount(a, car, home), 0));
 }
 
@@ -2369,7 +2373,7 @@ export const VOLATILITY_META: Record<string, { source: string; period: string; e
  * Answers ..... The volatility of THIS portfolio — each account's own class volatility, weighted the way the money actually is (the same weighting `blendedReturn` uses, so the pair always describes one portfolio).
  *
  * Formula .....
- *     car = primary car id of(accounts), home = primary home id of(accounts)
+ *     car = primary car id of(accounts), home = primary home id of(accounts, rentals)
  *     items = accounts (or none when missing)
  *     total = Σ over items of (earmarked amount(each, car, home))
  *     nothing   when total ≤ 0
@@ -2395,8 +2399,8 @@ export const VOLATILITY_META: Record<string, { source: string; period: string; e
  * Formula also on the master file · functions_from_code · MK-NW-F-035
  * Changed ..... 2026-08-11 (83acb7e)
  */
-export function blendedVolatility(accounts: AssetAccount[], overrides?: Record<string, number>): number | null {
-  const car = primaryCarIdOf(accounts), home = primaryHomeIdOf(accounts);
+export function blendedVolatility(accounts: AssetAccount[], overrides?: Record<string, number>, rentals?: RentEntry[] | null): number | null {
+  const car = primaryCarIdOf(accounts), home = primaryHomeIdOf(accounts, rentals);   // the same home the nest egg reads (DEC-4913)
   const items = accounts ?? [];   // the same money the nest egg counts (2026-10-07) — see blendedReturn
   const total = items.reduce((t, a) => t + earmarkedAmount(a, car, home), 0);
   if (total <= 0) return null;    // nothing set aside, no portfolio to measure — the 12% here was invented (outside review, 2026-10-07)
@@ -2477,7 +2481,7 @@ export function benchmarkInfo(kind: string | undefined, overrides?: Record<strin
  * Answers ..... Blended expected return across the EARMARKED nest egg, weighted by each holding's share.
  *
  * Formula .....
- *     car = primary car id of(accounts), home = primary home id of(accounts)
+ *     car = primary car id of(accounts), home = primary home id of(accounts, rentals)
  *     items = accounts (or none when missing)
  *     total = Σ over items of (earmarked amount(each, car, home))
  *     nothing   when total ≤ 0
@@ -2499,13 +2503,13 @@ export function benchmarkInfo(kind: string | undefined, overrides?: Record<strin
  * Formula also on the master file · functions_from_code · MK-NW-F-037
  * Changed ..... 2026-08-11 (83acb7e)
  */
-export function blendedReturn(accounts: AssetAccount[], overrides?: Record<string, number>): number | null {
+export function blendedReturn(accounts: AssetAccount[], overrides?: Record<string, number>, rentals?: RentEntry[] | null): number | null {
   // OVER EXACTLY THE MONEY THE NEST EGG COUNTS (outside review, 2026-10-07). Property was left out here
   // while MK-NW-F-033 retirementEarmarkedValue counts a rental at 100% — so a $520,000 rental was grown
   // at a rate made only from the 401(k) and the savings. The home lived in and the car driven weigh
   // nothing (their default share is 0), so they fall out on their own. And with nothing set aside
   // there is no blended return: the 6% that stood here was an invented figure.
-  const car = primaryCarIdOf(accounts), home = primaryHomeIdOf(accounts);
+  const car = primaryCarIdOf(accounts), home = primaryHomeIdOf(accounts, rentals);   // the same home the nest egg reads (DEC-4913)
   const items = accounts ?? [];
   const total = items.reduce((t, a) => t + earmarkedAmount(a, car, home), 0);
   if (total <= 0) return null;

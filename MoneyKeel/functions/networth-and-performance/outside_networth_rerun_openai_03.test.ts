@@ -344,26 +344,22 @@ describe('MK-NW-F-084 categoryEarnings — five cases', () => {
     expect(by(c)).toEqual({ 'Stocks / Funds': { earned: 0, ret: null, yearly: false }, 'Bonds & CDs': { earned: 0, ret: null, yearly: false },
       'Cash in this account': { earned: 0, ret: null, yearly: false } });
   });
-  // FINDING: app gives Bonds & CDs $100 with NO return; expected the stated 4.00%/year. The card: Bonds & CDs shows the
-  // stated yearly rate "when every bond account with a balance states a rate and NO BOND IS HELD AS A HOLDING". The one
-  // bond row here is worth $0 — it holds nothing (buildPerformance writes marketValue 0 only when no shares are held,
-  // src/domain/performance/index.ts:322; the module's own gainOfRow reads $0 as "holds nothing"). categoryEarnings counts
-  // every Bonds row, whatever it holds (performance.ts `bondHoldings = rows.filter(categoryOf === 'bonds')`), so a sold-out
-  // bond position hides the rate the bond account states.
-  test.failing('edge · No eligible positive return rows yields no category return; yearly bond rate fallback', () => {
+  // SETTLED 2026-10-13: a bond row worth exactly $0 holds no shares (buildPerformance writes marketValue 0 only when none
+  // are held, src/domain/performance/index.ts marketValue), so it holds nothing and no longer hides the rate the bond
+  // account states. categoryEarnings counts a Bonds row as a holding only when its worth is not $0 (performance.ts
+  // `bondHoldings`); a row whose worth is not known (null) may still hold shares and still counts. $10,000 at 4%, a
+  // sold-out bond row, $100 of interest → Bonds & CDs $100 at 4.00%/year.
+  test('edge · No eligible positive return rows yields no category return; yearly bond rate fallback', () => {
     const c = categoryEarnings({ transactions: [{ type: 'INTEREST', amount: 100, date: '2026-02-01', account_id: 'b1' }], windowStart: '2026-01-01',
       rows: [{ position: { kind: 'fixed_income', asset_class: 'bond' }, marketValue: 0, periodReturn: null }],
       bonds: [{ asset_id: 'b1', balance: 10000, coupon_rate: 0.04 }], dayOne: false });
     expect(by(c)).toEqual({ 'Bonds & CDs': { earned: 100, ret: 0.04, yearly: true } });
   });
-  test('edge · the app\'s answer today: $100 under Bonds & CDs, no return', () => {
+  test('edge · a bond row whose worth is NOT known still hides the stated rate — it may hold shares', () => {
     const c = categoryEarnings({ transactions: [{ type: 'INTEREST', amount: 100, date: '2026-02-01', account_id: 'b1' }], windowStart: '2026-01-01',
-      rows: [{ position: { kind: 'fixed_income', asset_class: 'bond' }, marketValue: 0, periodReturn: null }],
+      rows: [{ position: { kind: 'fixed_income', asset_class: 'bond' }, marketValue: null as any, periodReturn: null }],
       bonds: [{ asset_id: 'b1', balance: 10000, coupon_rate: 0.04 }], dayOne: false });
     expect(by(c)).toEqual({ 'Bonds & CDs': { earned: 100, ret: null, yearly: false } });
-    // with no bond row at all, the same accounts show the stated 4.00%/year — the rule itself is built
-    expect(by(categoryEarnings({ transactions: [{ type: 'INTEREST', amount: 100, date: '2026-02-01', account_id: 'b1' }], windowStart: '2026-01-01',
-      rows: [], bonds: [{ asset_id: 'b1', balance: 10000, coupon_rate: 0.04 }], dayOne: false }))).toEqual({ 'Bonds & CDs': { earned: 100, ret: 0.04, yearly: true } });
   });
 });
 
@@ -377,7 +373,7 @@ describe('MK-NW-F-090 windowStartKey — five cases', () => {
   // SPECIFICATION_CONFLICT → BRIEF WRONG: OpenAI follows the card, which says "Any other label: 12 months back, the same
   // way" (v02 cards part 3, MK-NW-F-090). His later ruling DEC-4640 (2026-10-12, "1, 2 - approved") says a window name
   // the app does not have gives NO figure — never a guessed one — and the code follows it (performance.ts: startDateFor
-  // refuses an unknown name, windowStartKey returns null). The newer ruling governs; the card text is stale. (Its own
+  // refuses an unknown name, windowStartKey returns null). The newer ruling governs; the card text was stale and is corrected 2026-10-13 (function rules + the code's own description now say: nothing). (Its own
   // month-end clamp is right: 12 months before 2024-02-29 IS 2023-02-28, as '1Y' gives.)
   test.failing('edge · Unknown label defaults to 12 months back', () => { expect(windowStartKey('weird', [], '2024-02-29')).toBe('2023-02-28'); });
   test('edge · Unknown label — the app\'s answer, by DEC-4640', () => {
@@ -441,21 +437,21 @@ describe('MK-NW-F-094 ledgerGroups — five cases', () => {
     expect(g.map((x) => ({ group: x.label, total: x.total, classes: Object.fromEntries(x.mix.map((m) => [(ASSET_CLASS_LABEL as any)[m.key], m.total])) })))
       .toEqual([{ group: 'No institution set', total: 50, classes: { Unclassified: 50 } }]);
   });
-  // FINDING (in the function, not on screen): app gives the Bank group total $100 — right — but writes the account
-  // with no balance as a row of $0 (net-worth.ts `amount: balance || 0`), with nothing saying it is unknown. The card:
-  // "each account is one row at its balance"; DEC-3279e / tenet 3: a missing balance is never $0. The screen does not
-  // show the $0 — it draws that row from the account itself and reads 'Value not entered' (NetWorthScreen.tsx:392-411)
-  // — so what the person sees agrees; the door's own row is the defect, and any other caller of it gets a $0.
+  // SETTLED 2026-10-13: the account with no balance is no longer written as a row of $0 (DEC-3279e, tenet 3). Its row
+  // carries null — not known — and the Bank group total stays the known sum, $100 (net-worth.ts ledgerGroups). The
+  // screen still reads "Value not entered" off the account itself (NetWorthScreen.tsx assetRow), and its totals are
+  // unchanged; the screen check is in src/screens/__tests__/nw_ledger_no_balance.test.tsx.
   const missing = () => groups([acct({ asset_id: 'a', institution: 'Bank', kind: 'checking', asset_class: 'cash', balance: null }),
     acct({ asset_id: 'b', institution: 'Bank', kind: 'checking', asset_class: 'cash', balance: 100 })], 'institution');
-  test.failing('edge · Unknown balance cannot be fabricated into row or total', () => {
+  test('edge · Unknown balance cannot be fabricated into row or total', () => {
     const g = missing();
     expect(g.map((x) => x.total)).toEqual([100]);
     expect(g[0].rows.find((r) => r.accountId === 'a')!.amount).toBeNull();
   });
-  test('edge · the app\'s answer today: known total $100, the unknown row written as $0', () => {
-    const g = missing();
-    expect(g.map((x) => ({ label: x.label, total: x.total, rows: x.rows }))).toEqual([{ label: 'Bank', total: 100, rows: [{ accountId: 'a', amount: 0 }, { accountId: 'b', amount: 100 }] }]);
+  test('edge · by class too: the row is null, the Cash total the known $100', () => {
+    const g = groups([acct({ asset_id: 'a', kind: 'checking', asset_class: 'cash', balance: null }),
+      acct({ asset_id: 'b', kind: 'checking', asset_class: 'cash', balance: 100 })], 'class');
+    expect(g.map((x) => ({ label: x.label, total: x.total, rows: x.rows }))).toEqual([{ label: 'Cash', total: 100, rows: [{ accountId: 'a', amount: null }, { accountId: 'b', amount: 100 }] }]);
   });
 });
 
@@ -556,7 +552,7 @@ describe('MK-NW-F-107 propertyUses — five cases', () => {
   // that a rent entry naming no property makes the one remaining property a rental when there is exactly one" — read
   // literally, p2 (the one property left once p1 is the home) would be a RENTAL. His ruling DEC-4059d (2026-10-10) and
   // card MK-NW-F-115 say an entry that names no property is not rent; the code follows them (assets/index.ts
-  // propertyUseMap: "AN ENTRY WITH NO PROPERTY MAKES NOTHING A RENTAL"). The ruling governs; the F-107 card text is stale.
+  // propertyUseMap: "AN ENTRY WITH NO PROPERTY MAKES NOTHING A RENTAL"). The ruling governs; the F-107 card text was stale and is corrected 2026-10-13 (an entry naming no property is not rent).
   test('complex · Rent entry naming no property only promotes unique remaining property', () => {
     expect(usesOf(propertyUses(entered([home('p1', 'primary'), home('p2', 'secondary')]), [{ property_id: null, income: 1000 }]))).toEqual({ p1: 'HOME', p2: 'SECOND' });
   });

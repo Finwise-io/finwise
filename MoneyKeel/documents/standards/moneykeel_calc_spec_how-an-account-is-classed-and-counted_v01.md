@@ -211,8 +211,12 @@ should not count."*
   one property, the cash-flow budget and the retirement share alike. Handed the Income screen's rent
   entries, a property is a rental only when an entry names it (DEC-1926) — a house marked as the home
   but rented out is a rental. A household with no home is told so (null), so an unstated property
-  beside a stated second home is a second home, counted toward retirement. NOT YET WIRED: the Plan's
-  callers do not hand in the rent entries, so there the stored use still decides (Plan build).
+  beside a stated second home is a second home, counted toward retirement. WIRED 2026-10-13 (DEC-4913): every
+  caller of the retirement money hands in the profile's rent entries, as Net worth does — the Plan inputs, the
+  Retirement cockpit and its earmark sheet, the odds (will it last), the snapshot, the Plan door, the paycheck and
+  the Insights benchmark — so A $400,000 + B $300,000 = $700,000 on every screen. A caller with no rent entries on
+  record hands in none, and the stored use decides. The tax-type split (MK-PL-F-001) needs none: it never counts a
+  property. Held by `src/screens/__tests__/dec4913_retirement_money_agreement.test.tsx`.
 
 ## 9. Itemising a lump into holdings
 

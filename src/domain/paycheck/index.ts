@@ -193,7 +193,7 @@ export function solveSafeDraw(nestEgg: number, guaranteedMonthlyAvg: number, sim
  * Formula .....
  *     now = opts.now (or new date() when missing)
  *     rows = guaranteed rows(op, now)
- *     nest egg = opts.nest egg (or retirement earmarked value(opts.accounts ?? []) when missing)
+ *     nest egg = opts.nest egg (or retirement earmarked value(opts.accounts ?? [], array.is array((op as any).rentals) ? (op as any).rentals : nothing) when missing)
  *     guaranteed annual = Σ over rows of (amount)
  *     draw from savings = solve draw from savings(nest egg, guaranteed annual ÷ 12, opts.sim, opts.chance floor ?? 80)
  *     grid = build dated grid(op, { now, liabilities: opts.liabilities, guaranteed income: rows })
@@ -225,7 +225,8 @@ export function solveSafeDraw(nestEgg: number, guaranteedMonthlyAvg: number, sim
 export function buildPaycheckYear(op: OnboardingProfile | null, opts: PaycheckOptions): PaycheckYear {
   const now = opts.now ?? new Date();
   const rows = guaranteedRows(op, now);
-  const nestEgg = (opts.nestEgg ?? retirementEarmarkedValue(opts.accounts ?? []));
+  // the rent entries decide the home, as Net worth reads it (DEC-4913, 2026-10-13)
+  const nestEgg = (opts.nestEgg ?? retirementEarmarkedValue(opts.accounts ?? [], Array.isArray((op as any)?.rentals) ? (op as any).rentals : null));
   const guaranteedAnnual = rows.reduce((t, r) => t + r.amount, 0);
   const safeDraw = solveSafeDraw(nestEgg, guaranteedAnnual / 12, opts.sim, opts.chanceFloor ?? 80);
   const drawRateFlag: PaycheckYear['drawRateFlag'] =

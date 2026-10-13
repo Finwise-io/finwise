@@ -447,7 +447,7 @@ export default function NetWorthScreen() {
       const byId = new Map(rows.map((a) => [String(a.asset_id), a]));
       const ledger = ledgerGroups(rows, invGroup === 'type' ? 'class' : 'institution', classLabel, assetClassOf);
       const groups: Record<string, AssetAccount[]> = {};
-      const amountOf: Record<string, Map<string, number>> = {};   // each account's part in this group (his ruling, 2026-10-07)
+      const amountOf: Record<string, Map<string, number | null>> = {};   // each account's part in this group (his ruling, 2026-10-07); null = no balance entered (DEC-3279e)
       const totalOf: Record<string, number> = {};
       const mixOf: Record<string, { key: string; total: number }[]> = {};
       for (const g of ledger) {

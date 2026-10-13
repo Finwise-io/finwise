@@ -156,13 +156,14 @@ export function displayOdds(chance: number): number {
  *     a = assumptions (or none when missing)
  *     age = age attained in year(num or zero(op.birth year) or nothing)
  *     nothing   when age = nothing
- *     nest egg = retirement earmarked value(accounts)
+ *     rentals = op.rentals   if array.is array(op.rentals)
+ *     nothing   otherwise
+ *     nest egg = retirement earmarked value(accounts, rentals)
  *     bequest = num or zero(op.legacy target)
  *     spendable egg = max(0, nest egg − bequest)
- *     bench blended = blended return(accounts) (or 0.06 when missing)
+ *     bench blended = blended return(accounts, undefined, rentals) (or 0.06 when missing)
  *     actual blended = portfolio actual return(accounts)
  *     return basis = A.return basis (or 'benchmark' when missing)
- *     scenario return = A.expected return (or bench blended when missing)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-O-017 futurePaycheck · MK-PL-F-068 selectWillItLast
@@ -199,13 +200,15 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
   const age = ageAttainedInYear(numOrZero(op.birthYear) || null);   // G9: the plan steps calendar YEARS, so its age is the one attained this year — the birthday-aware age is for what a person reads (ageToday)
   if (age == null) return null;
 
-  const nestEgg = retirementEarmarkedValue(a.accounts);
+  // the Income screen's rent entries decide the home, as Net worth reads it (DEC-4913, 2026-10-13)
+  const rentals = Array.isArray(op.rentals) ? op.rentals : null;
+  const nestEgg = retirementEarmarkedValue(a.accounts, rentals);
   const bequest = numOrZero(op.legacyTarget);
   const spendableEgg = Math.max(0, nestEgg - bequest);
 
   // with nothing set aside for retirement there is no blended return (MK-NW-F-037); the plan still needs a
   // rate to run on, and the generic 6% is that rate, chosen here and not inside the function
-  const benchBlended = blendedReturn(a.accounts) ?? 0.06;
+  const benchBlended = blendedReturn(a.accounts, undefined, rentals) ?? 0.06;
   const actualBlended = portfolioActualReturn(a.accounts);
   const returnBasis: 'benchmark' | 'actual' | 'scenario' = A.returnBasis ?? 'benchmark';
   const scenarioReturn = A.expectedReturn ?? benchBlended;
@@ -273,7 +276,7 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
     mean_return: growthRate,
     // 2026-08-11: the portfolio's OWN volatility, weighted like its return — not `return × 1.7`.
     // The scenario rule still applies when the user has typed a return with nothing held yet.
-    vol_return: blendedVolatility(a.accounts ?? []) ?? volOf(growthRate),   // nothing set aside → the rate's own band, chosen here
+    vol_return: blendedVolatility(a.accounts ?? [], undefined, rentals) ?? volOf(growthRate),   // nothing set aside → the rate's own band, chosen here
     paths: 1000, seed: 42,   // B6: at 400 draws an 85% result carries ±3.5 points
   } as RetirementInputs;
 }
@@ -291,7 +294,7 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
  * Formula .....
  *     op = op (or none when missing)
  *     inputs = will it last inputs(a)
- *     nest egg = retirement earmarked value(accounts)
+ *     nest egg = retirement earmarked value(accounts, array.is array(op.rentals) ? op.rentals : nothing)
  *     spend known = (retirement spend monthly(op) or num or zero(op.monthly expenses)) > 0 (or (assumptions.spend monthly ?? nothing) ≠ nothing when missing or zero)
  *     captured = inputs ≠ nothing and spend known and nest egg > 0
  *     the answer:
@@ -318,7 +321,7 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
 export function selectWillItLast(a: WillItLastArgs): WillItLastResult {
   const op = a.op ?? {};
   const inputs = willItLastInputs(a);
-  const nestEgg = retirementEarmarkedValue(a.accounts);
+  const nestEgg = retirementEarmarkedValue(a.accounts, Array.isArray(op.rentals) ? op.rentals : null);   // the same home as the inputs (DEC-4913)
   const spendKnown = (retirementSpendMonthly(op) || numOrZero(op.monthlySpending)) > 0 || (a.assumptions?.spendMonthly ?? null) != null;
   const captured = inputs != null && spendKnown && nestEgg > 0;
   if (!captured || !inputs) {
