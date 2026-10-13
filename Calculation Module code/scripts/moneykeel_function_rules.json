@@ -1849,8 +1849,8 @@
   },
   "MK-PF-F-009": {
    "name": "latestClose",
-   "rule": "The close of the last price on record; nothing when there are no prices.",
-   "read_from": "c4c3f36626",
+   "rule": "The close on the latest date on record, in whatever order the prices are listed; nothing when there are no prices.",
+   "read_from": "04dafaeb48",
    "sent_as": "c4c3f36626"
   },
   "MK-PF-F-010": {
@@ -1941,14 +1941,14 @@
   },
   "MK-PF-F-033": {
    "name": "quantityWithUnit",
-   "rule": "The quantity followed by its unit (quantityUnit); the unit loses its final s when the quantity is exactly 1. Nothing (refused) when the quantity is not on record, not a number, or below zero — the app has no words for a short (written) position.",
-   "read_from": "250ffb4f88",
+   "rule": "The quantity followed by its unit (quantityUnit); the unit loses its final s when the quantity is 1 or minus 1. A quantity below zero is a written (short) position and keeps its minus sign (\"-1 contract\"). Nothing (refused) when the quantity is not on record or not a number.",
+   "read_from": "965d2fa851",
    "sent_as": "8142a5a387"
   },
   "MK-PF-F-034": {
    "name": "closeOnOrBefore",
-   "rule": "The close of the last price dated on or before the given day. Nothing when there is none, when there are no prices, or when the day is not written as year-month-day.",
-   "read_from": "af06794918",
+   "rule": "The close of the latest price dated on or before the given day, in whatever order the prices are listed. Nothing when there is none, when there are no prices, or when the day is not written as year-month-day.",
+   "read_from": "d5b2699ca3",
    "sent_as": "af06794918"
   },
   "MK-CF-O-019": {

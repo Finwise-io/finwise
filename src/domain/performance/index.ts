@@ -130,9 +130,9 @@ export function quantityUnit(p: Pick<Position, 'kind' | 'unit'>): QuantityUnit {
  * Answers ..... "3 shares", "1 coin", "2 contracts" — the quantity printed with its unit, singular when it is one.
  *
  * Formula .....
- *     nothing   when qty = nothing (or !number.is finite(qty) (or qty < 0 when missing or zero) when missing or zero)
+ *     nothing   when qty = nothing (or !number.is finite(qty) when missing or zero)
  *     unit = quantity unit(p)
- *     the answer = `${format(qty)} ${qty = 1 ? unit.replace( ÷ s$ ÷ , '') : unit}`
+ *     the answer = `${format(qty)} ${math.abs(qty) = 1 ? unit.replace( ÷ s$ ÷ , '') : unit}`
  *
  * Called by ... MK-PF-F-046 saleShortOfPurchasesSentence
  *
@@ -148,12 +148,13 @@ export function quantityUnit(p: Pick<Position, 'kind' | 'unit'>): QuantityUnit {
  * Changed ..... not in git yet (—)
  */
 export function quantityWithUnit(p: Pick<Position, 'kind' | 'unit'>, qty: number | null, format: (n: number) => string = String): string | null {
-  // NO "−1 contracts": a quantity below zero (a written, short position) has no words in the app to say so, and a
-  // quantity not on record has no number — both refuse rather than print something that reads wrong (tenet 3,
-  // DEC-3523; outside review Claude Performance, 2026-10-11)
-  if (qty == null || !Number.isFinite(qty) || qty < 0) return null;
+  // A quantity not on record has no number, so it refuses (tenet 3, DEC-3523). A quantity below zero is a written
+  // (short) position, as a linked broker sends it and as the holding's own name already says "(short)": it keeps its
+  // minus sign and its unit, singular at one either way — "-1 contract", never "-1 contracts" (DEC-0277, the unit
+  // beside every quantity; outside review Claude Performance, 2026-10-12)
+  if (qty == null || !Number.isFinite(qty)) return null;
   const unit = quantityUnit(p);
-  return `${format(qty)} ${qty === 1 ? unit.replace(/s$/, '') : unit}`;
+  return `${format(qty)} ${Math.abs(qty) === 1 ? unit.replace(/s$/, '') : unit}`;
 }
 
 /** A daily close series, oldest→newest, for return math. */
@@ -689,7 +690,10 @@ function closeAsOf(series: PriceSeries | null | undefined, target: Date): number
  *     pts = series.points (or none when missing)
  *     nothing   when count of pts is missing (or ! ÷ ^\d{4}-\d{2}-\d{2}$ ÷ .test(iso date) when missing or zero)
  *     chosen = nothing
- *     the answer = chosen
+ *     day = the first 10 of string(date)
+ *     the answer:
+ *     chosen.close   if chosen
+ *     nothing   otherwise
  *
  * Called by ... MK-PF-F-040 returnSincePurchases · MK-XS-F-175 uid
  *
@@ -714,9 +718,13 @@ function closeAsOf(series: PriceSeries | null | undefined, target: Date): number
 export function closeOnOrBefore(series: PriceSeries | null | undefined, isoDate: string): number | null {
   const pts = series?.points ?? [];
   if (!pts.length || !/^\d{4}-\d{2}-\d{2}$/.test(isoDate)) return null;
-  let chosen: number | null = null;
-  for (const p of pts) { if (String(p.date).slice(0, 10) <= isoDate) chosen = p.close; else break; }
-  return chosen;
+  // the latest close on or before the date, whatever order the list arrived in (outside review Claude Performance, 2026-10-12)
+  let chosen: { day: string; close: number } | null = null;
+  for (const p of pts) {
+    const day = String(p.date).slice(0, 10);
+    if (day <= isoDate && (chosen == null || day >= chosen.day)) chosen = { day, close: p.close };
+  }
+  return chosen ? chosen.close : null;
 }
 /* ─ MK-PF-F-009 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * latestClose
@@ -749,8 +757,10 @@ export function closeOnOrBefore(series: PriceSeries | null | undefined, isoDate:
  * Changed ..... 2026-06-05 (d925b9e)
  */
 export function latestClose(series: PriceSeries | null | undefined): number | null {
-  const pts = series?.points ?? [];
-  return pts.length ? pts[pts.length - 1].close : null;
+  // the close on the LATEST DATE, whatever order the list arrived in (outside review Claude Performance, 2026-10-12)
+  const pts = (series?.points ?? []).filter((p) => /^\d{4}-\d{2}-\d{2}/.test(String(p?.date ?? '')));
+  if (!pts.length) return null;
+  return pts.reduce((a, b) => (String(b.date).slice(0, 10) >= String(a.date).slice(0, 10) ? b : a)).close;
 }
 /** Price return of a ticker over a period (decimal). null if insufficient data. */
 /* ─ MK-PF-F-010 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT

@@ -167,7 +167,9 @@ export async function fetchPriceSeries(
   const out: Record<string, PriceSeries> = {};
   unique.forEach((t, i) => {
     const r = results[i];
-    if (r.status === 'fulfilled' && r.value) out[t] = r.value;
+    // every price list leaves here OLDEST FIRST, whatever order a provider sent it in — the one place the order is
+    // made true, so no price function has to guess (outside review Claude Performance, 2026-10-12)
+    if (r.status === 'fulfilled' && r.value) out[t] = { ...r.value, points: [...r.value.points].sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0)) };
   });
   return out;
 }

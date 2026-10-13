@@ -157,9 +157,8 @@ describe('MK-PF-F-007 totalROI — five cases', () => {
   test('easy · No price: no return', () => { refuses(totalROI(pos({ lots: [{ date: '2026-01-05', shares: 10, cost: 50 }] }), null)); });
   // BRIEF WRONG: 0.30 — right is 0.155556 (700 ÷ 4,500) because this figure is the return ON COST of one holding, which
   // DEC-1669 itself sets apart: "'Return on cost' on one holding is a different question and keeps its own name." It is
-  // printed beside the gain since purchase (HoldingDetailScreen.tsx:235, "percent since purchase" spoken at :173), not
-  // as a window return. (Open point, not this case: buildPerformance uses it as a capped holding's window return,
-  // src/domain/performance/index.ts:830 — see the results file.)
+  // printed beside the gain since purchase, not as a window return. (Checked 2026-10-12: a holding bought inside the
+  // window gets its window return from returnSincePurchases, time-weighted from purchase to purchase, not from this figure.)
   test.failing('complex · Bought twice at different prices', () => {
     expect(totalROI(pos({ lots: [{ date: '2026-01-15', shares: 10, cost: 200 }, { date: '2026-06-15', shares: 10, cost: 250 }] }), 260)!).toBeCloseTo(0.3, 12);
   });
@@ -256,10 +255,7 @@ describe('MK-PF-F-033 quantityWithUnit — five cases', () => {
   test("complex · The person's own unit, one and many", () => {
     expect([quantityWithUnit(pos({ kind: 'alternative', unit: 'units' }), 1), quantityWithUnit(pos({ kind: 'alternative', unit: 'units' }), 250)]).toEqual(['1 unit', '250 units']);
   });
-  // 2026-10-11 (outside review Claude Performance, DEC-3523 tenet 3): the app no longer prints '-1 contracts' — a
-  // quantity below zero has no words in the app for a short (written) position, so quantityWithUnit refuses (null).
-  // The judge's '-1 contract' is kept as written and stays failing: no decision names that label.
-  // FINDING: app gives '-1 contracts', expected '-1 contract' — the unit is made singular only at exactly +1. Low:
-  // reaches a person only if a short (written) position's negative quantity is ever stored.
-  test.failing('edge · A written call: minus one contract', () => { expect(quantityWithUnit(pos({ kind: 'option' }), -1)).toBe('-1 contract'); });
+  // SETTLED 2026-10-12 by DEC-0277 (the unit beside every quantity): a written (short) option keeps its minus sign and
+  // its unit, singular at one either way, as the linked broker sends it and as the holding's name says "(short)".
+  test('edge · A written call: minus one contract', () => { expect(quantityWithUnit(pos({ kind: 'option' }), -1)).toBe('-1 contract'); });
 });

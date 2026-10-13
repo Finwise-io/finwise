@@ -161,3 +161,12 @@ describe('isPlausibleTicker', () => {
     ['', '   ', 'my apple shares', '12345', 'AAPL!!'].forEach((t) => expect(isPlausibleTicker(t)).toBe(false));
   });
 });
+
+// every price list leaves fetchPriceSeries oldest first, whatever order the provider sent (2026-10-12)
+test('a provider that sends newest first still arrives oldest first', async () => {
+  const { fetchPriceSeries } = require('./marketData');
+  const provider = { fetchSeries: async (t: string) => ({ ticker: t, points: [
+    { date: '2026-10-09', close: 213.47 }, { date: '2026-10-07', close: 212.66 }, { date: '2026-10-08', close: 210.93 }] }) };
+  const out = await fetchPriceSeries(['vti'], provider);
+  expect(out.VTI.points.map((p: any) => p.date)).toEqual(['2026-10-07', '2026-10-08', '2026-10-09']);
+});

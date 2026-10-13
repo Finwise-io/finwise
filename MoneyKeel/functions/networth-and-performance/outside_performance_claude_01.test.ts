@@ -204,7 +204,10 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
   // 5%, and the app's 101,200 / 5,000 / 3,800 is right for it (the walk adds up: 101,200 + 1,200 + 3,800 = 106,200).
   // Fed what the adjusted closes actually give for this holding, the app reaches the judge's own 100,000 / 6,200 /
   // 5,000 — both pinned in the tests after this one. The judge's numbers are kept here, test.failing.
-  // FINDING: app gives beginning 101,200, wealth generated 5,000 and change in investment value 3,800, expected
+  // SETTLED 2026-10-12 by DEC-4644: the judge's 5% is a PRICE-ONLY return, which the app's price feed never gives (its
+  // adjusted closes include the dividend, 6.28% here); fed the feed's own return, the app gives the judge's 100,000 /
+  // 6,200 / 5,000 (the test after this one). Kept failing, as written, so the price-only reading stays visible.
+  // Was: app gives beginning 101,200, wealth generated 5,000 and change in investment value 3,800, expected
   // beginning 100,000, wealth 6,200, change 5,000. With no record at all the beginning is worked back as ending −
   // priced gain − contributions + withdrawals: the $1,200 dividend received in the window and still in the account is
   // left in the beginning, so the walk's "change in investment value" (3,800) contradicts the 5,000 price gain it was

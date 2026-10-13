@@ -161,10 +161,9 @@ describe('MK-PF-F-009 latestClose — five cases', () => {
   test('complex · Today is a Saturday; the last close is Friday\'s', () => {
     expect(latestClose(S([['2026-10-06', 211.08], ['2026-10-07', 212.66], ['2026-10-08', 210.93], ['2026-10-09', 213.47]]))).toBe(213.47);
   });
-  // UNCLEAR: app gives 212.66 (the last item of the list, index.ts:584), expected 213.47 (the latest date). The app's one
-  // price feed builds its list oldest first (marketData.ts:66-71, Yahoo's timestamps in order), so this input cannot arrive
-  // today. Open question: is "oldest first" a stated contract of every price series, or must each price function sort?
-  test.failing('complex · A feed that sends newest first', () => {
+  // SETTLED 2026-10-12: the latest close is the close on the latest DATE, in any order (latestClose), and every
+  // price list is put oldest first where it enters the app (fetchPriceSeries, marketData.ts). The judge's 213.47 holds.
+  test('complex · A feed that sends newest first', () => {
     expect(latestClose(S([['2026-10-09', 213.47], ['2026-10-08', 210.93], ['2026-10-07', 212.66]]))).toBe(213.47);
   });
   test('edge · No prices', () => { refuses(latestClose(S([]))); });

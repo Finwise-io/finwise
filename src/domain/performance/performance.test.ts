@@ -98,11 +98,12 @@ describe('performance — capital gains', () => {
 
 });
 
-// NO "−1 contracts" (outside review Claude Performance, 2026-10-11, DEC-3523 tenet 3): the app has no words for a
-// short (written) position, so a quantity below zero — or one not on record — refuses rather than reading wrong.
-test('a quantity below zero, or not on record, has no words', () => {
+// A written (short) option keeps its minus sign and its unit, singular at one (DEC-0277, 2026-10-12); a quantity not
+// on record still has no words.
+test('a quantity below zero keeps its unit; one not on record has no words', () => {
   const { quantityWithUnit } = require('./index');
-  expect(quantityWithUnit({ kind: 'options' }, -1)).toBeNull();
+  expect(quantityWithUnit({ kind: 'options' }, -1)).toBe('-1 contract');
+  expect(quantityWithUnit({ kind: 'options' }, -3)).toBe('-3 contracts');
   expect(quantityWithUnit({ kind: 'options' }, null)).toBeNull();
   expect(quantityWithUnit({ kind: 'options' }, 2)).toBe('2 contracts');
 });
