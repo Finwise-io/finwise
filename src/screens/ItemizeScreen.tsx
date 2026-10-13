@@ -77,7 +77,7 @@ export default function ItemizeScreen() {
     if (!canAdd) return;
     const h: ItemHolding = { cls: pickDef.cls, kind: pickDef.kind, label: name.trim(), value: num(val) };
     if (pickDef.cls === 'stocks_etf') h.ticker = name.trim().toUpperCase();
-    if (pickDef.cls === 'bonds') { if (num(coupon) > 0) h.couponRate = num(coupon) / 100; if (maturity.trim()) h.maturityDate = maturity.trim(); if (num(face) > 0) h.faceValue = num(face); }
+    if (pickDef.cls === 'bonds') { if (coupon.trim() !== '') h.couponRate = num(coupon) / 100; /* DEC-2748b: a typed 0% is 0%, an empty box is unknown */ if (maturity.trim()) h.maturityDate = maturity.trim(); if (num(face) > 0) h.faceValue = num(face); }
     setItems((xs) => [...xs, h]);
     setName(''); setVal(''); setCoupon(''); setMaturity(''); setFace('');
   };
