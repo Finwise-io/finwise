@@ -1249,9 +1249,14 @@
   },
   "MK-NW-F-008": {
    "name": "incomeBearingClassOf",
-   "rule": "From the account's name, capitals ignored, whole words only (put is not Putnam; cd is not ABCD), first match wins. Money market (also mmkt, mmf, or the ticker of a money-market fund) → Stocks / Funds — read before the sweep words, so a money-market settlement fund is the fund (the owner's rule of 2026-08-04). Then the words sweep or settlement → cash. The ticker of a Treasury-bill fund → Bonds & CDs. An option — an option code, a dated option, or the words put or call → Alternatives. Crypto — a coin's ticker, or the words bitcoin, ethereum or crypto → Alternatives. A commodity fund's ticker, or the words gold, silver, platinum, palladium or commodity unless the name is a company's → Alternatives. The words currency or forex, or the tickers FXE or FXY → Alternatives. The words CD, certificate of deposit, T-bill, Treasury bill, bond, note, treasury, muni, debenture or coupon — or a percent followed by the word due or a year → Bonds & CDs. Otherwise nothing: the name gives no evidence.",
+   "rule": "From the account's name, capitals ignored, whole words only (put is not Putnam; cd is not ABCD), first match wins. Money market (also mmkt, mmf, or the ticker of a money-market fund) → Stocks / Funds — read before the sweep words, so a money-market settlement fund is the fund (the owner's rule of 2026-08-04). Then the words sweep or settlement → cash. The ticker of a Treasury-bill fund → Bonds & CDs. An option — an option code, a dated option, or the words put or call → Alternatives. Crypto — a coin's ticker, or the words bitcoin, ethereum or crypto → Alternatives. A commodity fund's ticker, or the words gold, silver, platinum, palladium or commodity unless the name is a company's → Alternatives. The words currency or forex, or the tickers FXE or FXY → Alternatives. The words CD, certificate of deposit, T-bill or Treasury bill → Bonds & CDs. The words bond, note, treasury, treas, UST, muni, debenture or coupon → Bonds & CDs, EXCEPT in a company's name (owner rule DEC-2747d): the name carries a company word (Corp, Corporation, Inc, Ltd, plc, Company, Mining, Resources), or the bond word is followed straight away by a business word (Wine, Wines, Estates, Group, Holdings, Brands, Partners, Properties, Industries, Hotels, Foods, Energy, Technologies, Systems, Pharmaceuticals, Enterprises) — so Treasury Wine Estates, with or without Ltd, is nothing. Whatever the name: a percent followed by the word due or a year, or a percent right beside a bond word (4.5% Bond, Notes 3.85%) → Bonds & CDs, so Apple Corp 4.5% Bond is a bond. Otherwise nothing: the name gives no evidence.",
    "read_from": "bb843812cc",
-   "sent_as": "bb843812cc"
+   "sent_as": "bb843812cc",
+   "figures_checked_by_hand": {
+    "2747": "not a figure: the number of the owner decision DEC-2747d (2026-10-07) that this rule follows",
+    "4.5%": "not a figure the function holds: an example name, \"Apple Corp 4.5% Bond\" — the function reads any percent beside a bond word (holding-class.ts COUPON_BOND_RE)",
+    "3.85%": "not a figure the function holds: an example name, \"Notes 3.85%\" — the function reads any percent beside a bond word (holding-class.ts COUPON_BOND_RE)"
+   }
   },
   "MK-NW-F-009": {
    "name": "maturityClass",
@@ -1289,7 +1294,7 @@
   },
   "MK-NW-F-013": {
    "name": "realEstateUseOf",
-   "rule": "An account that is not real estate has no use (no answer). Land stated as land is land. Asked about one property with neither the household nor the rent entries: its stated use, else the home. Given the household or the rent entries: what propertyUseMap says of it — home is the home lived in, rental is a rental (only when a rent entry handed in names it), anything else is a second home.",
+   "rule": "An account that is not real estate has no use (no answer). Land stated as land is land. Asked about one property with neither the household nor the rent entries: its stated use, else the home. Given the household or the rent entries: what propertyUseMap says of it — home is the home lived in, rental is a rental (only when a rent entry handed in names it), anything else is a second home. The entered-first property is made the home only when no property carries a stated use (owner, 2026-10-13).",
    "read_from": "e0864b88ae",
    "sent_as": "036545ad7c"
   },
@@ -1301,9 +1306,12 @@
   },
   "MK-NW-F-015": {
    "name": "totalAssets",
-   "rule": "Every account's balance added up; a missing balance counts as zero.",
+   "rule": "Every account's balance added up. A missing balance is left out (adds nothing); the amber box names the account (owner rule DEC-3279e). A typed $0 is a value and is added; a negative balance (an overdraft) is added as it is.",
    "read_from": "def8ba03e1",
-   "sent_as": "def8ba03e1"
+   "sent_as": "def8ba03e1",
+   "figures_checked_by_hand": {
+    "3279": "not a figure: the number of the owner decision DEC-3279e (2026-10-08) that this rule follows"
+   }
   },
   "MK-NW-F-016": {
    "name": "cashTotal",
@@ -1442,8 +1450,8 @@
   },
   "MK-NW-F-036": {
    "name": "benchmarkInfo",
-   "rule": "The rate from benchmarkReturn, with where it came from. Edited = the person set a rate for that kind (0 included): then the source reads Your custom estimate, the period is blank and estimate is true (a person's own rate is an assumption). Otherwise the source and period on record for that kind, and estimate = whether that record is marked an assumption rather than a measured index; a kind with no record reads Generic blended estimate, period blank, estimate true.",
-   "read_from": "dd82a52006",
+   "rule": "The rate from benchmarkReturn, with where it came from. Edited = the person set a rate for that kind (0 included): then the source reads Your custom estimate, the period is blank and estimate is true (a person's own rate is an assumption). Otherwise the source and period on record for that kind, and estimate = whether that record is marked an assumption rather than a measured index; a kind with no record reads Generic blended estimate, period blank, estimate true. Blank is the empty text \"\" — never a dash; a screen that prints the period shows nothing, or its own mark, when it is blank.",
+   "read_from": "3c2e7a1335",
    "sent_as": "831903f76b"
   },
   "MK-NW-F-037": {
@@ -1460,9 +1468,12 @@
   },
   "MK-NW-F-039": {
    "name": "buildAssetsState",
-   "rule": "A balance that is missing (blank, or not a number) is left out. Total = the balances that are there, added up. Each account's share = its balance ÷ total × 100, or 0 when the total is 0 or its balance is missing (an overdrawn account has a negative share; the shares still add to 100). Average target return = each account's target return weighted by its balance; no answer when the total is 0.",
+   "rule": "A balance that is missing (blank, or not a number) is left out. Total = the balances that are there, added up. Each account's share = its balance ÷ total × 100, or 0 when the total is zero or less, or its balance is missing (an overdrawn account has a negative share; with a total above zero the shares still add to 100). Average target return = each account's target return weighted by its balance; no answer when the total is zero or less — an average weighted by a negative total means nothing. Example: one overdrawn account at −$50 → total −$50, its share 0%, no average return.",
    "read_from": "4f5e5836b0",
-   "sent_as": "ce4459f8e0"
+   "sent_as": "ce4459f8e0",
+   "figures_checked_by_hand": {
+    "$50": "not a figure the function holds: a worked example, one overdrawn account at −$50 (pinned in recheck_2026-10-13.test.ts)"
+   }
   },
   "MK-NW-F-040": {
    "name": "assetsFromOnboarding",
@@ -1498,9 +1509,12 @@
   },
   "MK-NW-F-045": {
    "name": "sourceWording",
-   "rule": "Linked account: Linked — or Linked · N days old when its last successful update is 4 or more days old, and Linked · not updated yet when no update is on record (no age is invented). Imported account: Imported, by the same test. Anything else: By hand · you update it. The timestamp read is the account's last successful sync.",
+   "rule": "Linked account: Linked — or Linked · N days old when its last successful update is 4 or more days old, and Linked · not updated yet when no update is on record (no age is invented). Imported account: Imported, by the same test. Anything else: By hand · you update it. The timestamp read is the account's last successful sync (MK-XS-I-066), never the time prices were fetched.",
    "read_from": "42407a87b2",
-   "sent_as": "42407a87b2"
+   "sent_as": "42407a87b2",
+   "figures_checked_by_hand": {
+    "066": "not a figure: part of the input identifier MK-XS-I-066 (last successful update of an account)"
+   }
   },
   "MK-NW-F-046": {
    "name": "historyCoverage",
@@ -2006,7 +2020,7 @@
   },
   "MK-NW-F-110": {
    "name": "primaryHomeIdOf",
-   "rule": "The property propertyUseMap reads as the home lived in, handed the rent entries when the caller has them. Nothing (null) when the household has no home — which is not the same as not being asked.",
+   "rule": "The property propertyUseMap reads as the home lived in, handed the rent entries when the caller has them. Nothing (null) when the household has no home — which is not the same as not being asked. Example (owner, 2026-10-13): B marked the home with a rent entry naming B, A with no use stated → null (B is a rental, A a second home).",
    "read_from": "5247bdf736",
    "sent_as": ""
   },
@@ -2048,8 +2062,8 @@
   },
   "MK-NW-F-117": {
    "name": "propertyUseMap",
-   "rule": "For each real-estate account: rental when a live rent entry names it, or — only when no rent entries were handed in at all (unknown, not none) — when it is stored as a rental. Of the rest: the one marked as the home lived in is home; with none marked and no other use stated (a stored 'rental' word does not count here), the one entered first (last in the list) that is not stored as a rental is home — a property stored as a rental is never made the home this way. Every other property is a second home. A rent entry that names no property makes no property a rental (owner rule DEC-4059d, 2026-10-10 — it used to make the one other property a rental when exactly one remained).",
-   "read_from": "e534c8c425",
+   "rule": "For each real-estate account: rental when a live rent entry names it, or — only when no rent entries were handed in at all (unknown, not none) — when it is stored as a rental. Of the rest: the one marked as the home lived in is home. With none of the rest marked, the one entered first (last in the list) that is not stored as a rental is home — but ONLY when no property at all carries a stated use other than rental (owner, 2026-10-13: a 'primary' mark on a property a rent entry made a rental still counts as a stated use, so it stops this; a stored 'rental' word does not). A property stored as a rental is never made the home this way. Every other property is a second home. A rent entry that names no property makes no property a rental (owner rule DEC-4059d, 2026-10-10 — it used to make the one other property a rental when exactly one remained).",
+   "read_from": "2456220745",
    "figures_checked_by_hand": {
     "4059": "not a figure: the number of the owner decision DEC-4059d (2026-10-10) that this rule follows"
    }

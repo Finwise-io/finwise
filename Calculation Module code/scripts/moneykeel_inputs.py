@@ -19,7 +19,7 @@ FIELDS = {
  'MK-XS-I-003': ['institution'],
  'MK-XS-I-004': ['shares', 'totalShares', 'quantity'],
  'MK-XS-I-005': ['last_price', 'close', 'latestClose', 'priceOf'],
- 'MK-XS-I-006': ['fetchedAt', 'last_synced', 'pricesFetchedAt'],
+ 'MK-XS-I-006': ['fetchedAt', 'pricesFetchedAt'],   # last_synced moved to its own input, MK-XS-I-066 (2026-10-13)
  'MK-XS-I-007': ['cost_per_share', 'purchase_date', 'cost_basis', 'costBasis'],
  'MK-XS-I-008': [r't\.amount', r'txn\.amount', r'transaction\.amount'],
  'MK-XS-I-009': [r't\.date', r'txn\.date', 'posted_at'],
@@ -103,6 +103,10 @@ NEW = {
                  'typed by the person on the holding; otherwise the unit the kind implies', ['unit', 'quantityUnit', 'quantityWithUnit']),
  'MK-XS-I-065': ('accrued interest on a bond — interest earned since the last coupon',
                  'typed by the person on the Bonds screen (optional)', ['accrued_interest', 'accruedInterest', 'accruedInterestCaveat']),
+ # 2026-10-13 — outside re-run: the time an account last updated is not the time prices were fetched. It sat under
+ # MK-XS-I-006 (price fetched at), so MK-NW-F-045 sourceWording's card named the price time while it reads the sync.
+ 'MK-XS-I-066': ('last successful update of a linked or imported account',
+                 'set by the connection on each successful sync, or when a file is imported', ['last_synced']),
 }
 
 # MoneyKeel/functions added 2026-08-27 — new calculations live there, and a folder the sweep

@@ -684,7 +684,7 @@ export default function RetirementCockpit() {
                   <Text style={styles.instName} numberOfLines={1}>{a.institution?.trim() || a.label}</Text>
                   {uncategorized
                     ? <Text style={styles.instWarn} numberOfLines={1}>{moneyCompact(earmarkedAmount(a, carId, homeId), 'M')} · ⚠ Set a type ›</Text>
-                    : <Text style={styles.instSrc} numberOfLines={2}>{assetKind(a.kind)?.label} · {moneyCompact(earmarkedAmount(a, carId, homeId), 'M')}{simple ? '' : ` · ${info.source} · ${info.period}${info.estimate ? ' · est.' : ''}`}</Text>}
+                    : <Text style={styles.instSrc} numberOfLines={2}>{assetKind(a.kind)?.label} · {moneyCompact(earmarkedAmount(a, carId, homeId), 'M')}{simple ? '' : ` · ${info.source}${info.period ? ` · ${info.period}` : ''}${info.estimate ? ' · est.' : ''}`}</Text>}
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.tColNum} onPress={() => setTtmEdit(a)}>
                   {ttm == null

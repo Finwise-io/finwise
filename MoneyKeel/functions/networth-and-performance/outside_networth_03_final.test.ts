@@ -213,7 +213,7 @@ describe('MK-NW-F-036 benchmarkInfo — five cases', () => {
   test('easy · Kind with no record', () => {
     const i = benchmarkInfo('art', {});
     expect([i.ret, i.source, i.edited, i.estimate]).toEqual([expect.closeTo(0.06, 9), 'Generic blended estimate', false, true]);
-    expect(i.period).toBe('—');   // HELD AT THE APP'S ANSWER — the card itself writes 'no period' as an em-dash; the same meaning, no number changes
+    expect(i.period).toBe('');   // SETTLED 2026-10-13 by DEC-0264: no period is blank '' — the dash is a screen's mark
   });
   test('easy · Known kind, not edited', () => {
     const i = benchmarkInfo('brokerage', {});
@@ -223,19 +223,19 @@ describe('MK-NW-F-036 benchmarkInfo — five cases', () => {
     const i = benchmarkInfo('home', { home: 0.035 });
     expect([i.ret, i.source, i.edited]).toEqual([expect.closeTo(0.035, 9), 'Your custom estimate', true]);
     expect(i.estimate).toBe(true);
-    expect(i.period).toBe('—');   // HELD AT THE APP'S ANSWER — the card itself writes 'no period' as an em-dash; the same meaning, no number changes
+    expect(i.period).toBe('');   // SETTLED 2026-10-13 by DEC-0264: no period is blank '' — the dash is a screen's mark
   });
   test('complex · Override saved under a capitalised key', () => {
     const o = { checking: 0 };
     const C = benchmarkInfo('Checking', o), c = benchmarkInfo('checking', o);
     expect([C.ret, C.source, C.edited, C.estimate]).toEqual([expect.closeTo(0.06, 9), 'Generic blended estimate', false, true]);
     expect([c.ret, c.source, c.edited]).toEqual([0, 'Your custom estimate', true]);
-    expect([C.period, c.period]).toEqual(['—', '—']);   // HELD AT THE APP'S ANSWER — the card writes 'no period' as an em-dash
+    expect([C.period, c.period]).toEqual(['', '']);   // SETTLED 2026-10-13 by DEC-0264: no period is blank ''
   });
   test('edge · Override of exactly zero on a negative-rate kind', () => {
     const i = benchmarkInfo('vehicle', { vehicle: 0 });
     expect([i.ret, i.source, i.edited]).toEqual([0, 'Your custom estimate', true]);
-    expect(i.period).toBe('—');   // HELD AT THE APP'S ANSWER — the card itself writes 'no period' as an em-dash; the same meaning, no number changes
+    expect(i.period).toBe('');   // SETTLED 2026-10-13 by DEC-0264: no period is blank '' — the dash is a screen's mark
   });
 });
 

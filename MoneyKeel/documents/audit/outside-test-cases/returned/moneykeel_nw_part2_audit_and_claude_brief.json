@@ -1,0 +1,3310 @@
+{
+  "batch": "nw module final — part 2",
+  "audit_scope": {
+    "card_file": "moneykeel_audit_module_nw_for-openai_v02_cards-part-2-of-4(1).md",
+    "brief_file": "moneykeel_audit_module_nw_for-openai_v02(1).md",
+    "cards_reviewed": 30,
+    "test_cases": 150,
+    "method": "Independent formula/specification review against card formula text and governing brief; five hand-worked cases per card (2 easy, 2 complex, 1 edge).",
+    "important_limit": "The supplied files contain formula descriptions and types, not implementation source code. This deliverable cannot assert that the running implementation passes or fails; Claude Code must map and execute cases against actual functions. Some cases are conditional on exact enums/helpers noted in each card.",
+    "changed_flag_note": "The Part 2 card source does not mark which functions changed since the prior audit, so changed_since_prior_audit is null rather than inferred."
+  },
+  "executive_findings": [
+    {
+      "severity": "High",
+      "card": "MK-NW-F-060 approxYTM",
+      "finding": "Numerical solver and bank-CD/broker-CD branching are high-risk; the card alone does not define priceAtYield coupon timing and bracket details. Validate against DEC-3837 and independent known-value cases."
+    },
+    {
+      "severity": "High",
+      "card": "MK-NW-F-052 buildItemizedAccounts",
+      "finding": "Mutation/creation path must refuse the entire operation when any item value is unknown; must preserve metadata and never invent face value from market value."
+    },
+    {
+      "severity": "High",
+      "card": "MK-NW-F-046 historyCoverage",
+      "finding": "Invalid/future user-entered history start must produce unreadable refusal without fabricated duration; date arithmetic and wording have many boundaries."
+    },
+    {
+      "severity": "Medium",
+      "card": "MK-NW-F-039 buildAssetsState",
+      "finding": "Signed negative balances make percentages exceed 100% or negative; exact-zero total has a separate zero-share/null-return branch. Test explicitly."
+    },
+    {
+      "severity": "Medium",
+      "card": "MK-NW-F-034 benchmarkReturn / MK-NW-F-036 benchmarkInfo",
+      "finding": "Zero-valued overrides must count as present; exact case-sensitive kind matching and provenance override rules are important."
+    },
+    {
+      "severity": "Medium",
+      "card": "MK-NW-F-045 sourceWording",
+      "finding": "The card’s inputs list mentions a fetched-price field, while its rule says last successful sync; verify implementation reads the intended timestamp field and uses an exact 4-day threshold."
+    },
+    {
+      "severity": "Medium",
+      "card": "MK-NW-F-047 uberGroupOf",
+      "finding": "Card taxonomy uses “Unclassified” but brief AssetClass type uses “mixed”; verify mapping and tests against actual runtime enum."
+    },
+    {
+      "severity": "Medium",
+      "card": "MK-NW-F-061 bondSummary",
+      "finding": "Missing face is aggregated as zero but must be disclosed separately; missing coupon-rate handling and average-yield eligibility need helper-level checks."
+    }
+  ],
+  "cards": [
+    {
+      "id": "MK-NW-F-031",
+      "name": "primaryCarIdOf",
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "Choose only vehicle-kind accounts; prefer those with entered balances, maximum balance, lexicographically lower textual id on ties; if no vehicle has a balance, consider all vehicles; undefined if none.",
+      "findings": "Implementation source is absent, so tie-break and missing-value behavior need execution confirmation. Do not treat a missing balance as zero when any vehicle has a value.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "One vehicle among unrelated assets",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "car1",
+                "kind": "vehicle",
+                "balance": 12000
+              },
+              {
+                "asset_id": "home",
+                "kind": "home",
+                "balance": 300000
+              }
+            ]
+          },
+          "expected": "car1",
+          "hand_calculation": "Only vehicle-kind candidate is car1."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Highest valued vehicle wins",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "car1",
+                "kind": "vehicle",
+                "balance": 9000
+              },
+              {
+                "asset_id": "car2",
+                "kind": "vehicle",
+                "balance": 14000
+              }
+            ]
+          },
+          "expected": "car2",
+          "hand_calculation": "14000 > 9000."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Missing value must not outrank entered value",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "carA",
+                "kind": "vehicle",
+                "balance": null
+              },
+              {
+                "asset_id": "carB",
+                "kind": "vehicle",
+                "balance": 8000
+              }
+            ]
+          },
+          "expected": "carB",
+          "hand_calculation": "Only carB has an entered value."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Tie uses id as text, not numeric ordering",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "10",
+                "kind": "vehicle",
+                "balance": 5000
+              },
+              {
+                "asset_id": "2",
+                "kind": "vehicle",
+                "balance": 5000
+              }
+            ]
+          },
+          "expected": "10",
+          "hand_calculation": "Text comparison: \"10\" sorts before \"2\"."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "No vehicle returns undefined",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "ring",
+                "kind": "valuables",
+                "balance": 1000
+              }
+            ]
+          },
+          "expected": null,
+          "hand_calculation": "No vehicle-kind account exists."
+        }
+      ],
+      "source_refs": [
+        "DEC-4036j"
+      ]
+    },
+    {
+      "id": "MK-NW-F-032",
+      "name": "earmarkedAmount",
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_RULES; DEFAULT BRANCH NEEDS CODE TEST",
+      "formula_in_words_reviewed": "Balance multiplied by explicit retirement_pct when present (0–100); otherwise use earmarkDefault with primary-car/home context.",
+      "findings": "The supplied formula does not state how invalid persisted percentages outside 0–100 are normalized. Test clamping vs validation; do not silently assume. Negative balances also need an explicit policy.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Explicit half earmarked",
+          "inputs": {
+            "account": {
+              "balance": 10000,
+              "retirement_pct": 50,
+              "kind": "brokerage"
+            },
+            "primaryCarId": null,
+            "primaryHomeId": null
+          },
+          "expected": 5000,
+          "hand_calculation": "10000 × 50% = 5000."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Explicit zero is not absent",
+          "inputs": {
+            "account": {
+              "balance": 12000,
+              "retirement_pct": 0,
+              "kind": "brokerage"
+            },
+            "primaryCarId": null,
+            "primaryHomeId": null
+          },
+          "expected": 0,
+          "hand_calculation": "12000 × 0% = 0."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Full earmark",
+          "inputs": {
+            "account": {
+              "balance": 2500,
+              "retirement_pct": 100,
+              "kind": "savings"
+            },
+            "primaryCarId": null,
+            "primaryHomeId": null
+          },
+          "expected": 2500,
+          "hand_calculation": "2500 × 100% = 2500."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Default for driven car",
+          "inputs": {
+            "account": {
+              "asset_id": "car1",
+              "balance": 20000,
+              "kind": "vehicle",
+              "retirement_pct": null
+            },
+            "primaryCarId": "car1",
+            "primaryHomeId": null
+          },
+          "expected": 0,
+          "hand_calculation": "Per brief default, primary car is 0% earmarked."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Default for primary home vs rental needs explicit context",
+          "inputs": {
+            "account": {
+              "asset_id": "home1",
+              "balance": 300000,
+              "kind": "home",
+              "retirement_pct": null
+            },
+            "primaryCarId": null,
+            "primaryHomeId": "home1"
+          },
+          "expected": 0,
+          "hand_calculation": "Per brief default, lived-in home is 0%; verify actual default mapping."
+        }
+      ],
+      "source_refs": [
+        "DEC-4036j",
+        "DEC-4036k"
+      ]
+    },
+    {
+      "id": "MK-NW-F-033",
+      "name": "retirementEarmarkedValue",
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_DEPENDENCIES; AGGREGATION EDGE TESTS REQUIRED",
+      "formula_in_words_reviewed": "Sum earmarkedAmount for all accounts, deriving primary car and primary home first.",
+      "findings": "Confirm missing/non-numeric balances cannot silently become zero before earmark calculation; account balance type in interface is number but import paths may violate it.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Sum two explicit earmarks",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a",
+                "kind": "brokerage",
+                "balance": 10000,
+                "retirement_pct": 50
+              },
+              {
+                "asset_id": "b",
+                "kind": "ira",
+                "balance": 5000,
+                "retirement_pct": 100
+              }
+            ]
+          },
+          "expected": 10000,
+          "hand_calculation": "10000×0.5 + 5000×1 = 10000."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Zero earmarks yield zero",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a",
+                "kind": "529",
+                "balance": 4000,
+                "retirement_pct": 0
+              }
+            ]
+          },
+          "expected": 0,
+          "hand_calculation": "4000×0 = 0."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Primary car excluded by default, other car retained",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "carA",
+                "kind": "vehicle",
+                "balance": 20000,
+                "retirement_pct": null
+              },
+              {
+                "asset_id": "carB",
+                "kind": "vehicle",
+                "balance": 8000,
+                "retirement_pct": null
+              }
+            ]
+          },
+          "expected": 8000,
+          "hand_calculation": "carA is primary by value (0% default); second vehicle default 100%: 8000."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Mix explicit percentage and default",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a",
+                "kind": "brokerage",
+                "balance": 10000,
+                "retirement_pct": 25
+              },
+              {
+                "asset_id": "home",
+                "kind": "home",
+                "balance": 250000,
+                "retirement_pct": null
+              }
+            ]
+          },
+          "expected": 2500,
+          "hand_calculation": "Brokerage 2500; primary home default 0; total 2500."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Empty accounts",
+          "inputs": {
+            "accounts": []
+          },
+          "expected": 0,
+          "hand_calculation": "Empty sum = 0."
+        }
+      ],
+      "source_refs": [
+        "DEC-4036j",
+        "DEC-4036k"
+      ]
+    },
+    {
+      "id": "MK-NW-F-034",
+      "name": "benchmarkReturn",
+      "changed_since_prior_audit": null,
+      "formula_review": "CARD IS SPECIFIC; CHECK IMPLEMENTATION TABLE AND EXACT MATCH",
+      "formula_in_words_reviewed": "Use exact-kind override if present (including zero); otherwise use stated ASSET_KINDS return default; unknown/missing kind = 6%.",
+      "findings": "Audit code must verify exact values for all listed kinds, exact case-sensitive matching, and whether an override of 0 is preserved rather than treated as falsy.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Known default stocks and funds",
+          "inputs": {
+            "kind": "stocks_funds",
+            "overrides": {}
+          },
+          "expected": 0.104,
+          "hand_calculation": "Card specifies stocks and funds default 10.4%; confirm actual enum key spelling."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Override is used",
+          "inputs": {
+            "kind": "checking",
+            "overrides": {
+              "checking": 0.03
+            }
+          },
+          "expected": 0.03,
+          "hand_calculation": "Explicit override 3% replaces 0.5% default."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Zero override counts as set",
+          "inputs": {
+            "kind": "checking",
+            "overrides": {
+              "checking": 0
+            }
+          },
+          "expected": 0,
+          "hand_calculation": "Explicit zero is present; it must not fall through to 0.5%."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Unknown kind uses 6%",
+          "inputs": {
+            "kind": "mystery_kind",
+            "overrides": {}
+          },
+          "expected": 0.06,
+          "hand_calculation": "Unknown-kind fallback is 6%."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Case-sensitive key mismatch falls back",
+          "inputs": {
+            "kind": "Checking",
+            "overrides": {
+              "checking": 0.03
+            }
+          },
+          "expected": 0.06,
+          "hand_calculation": "Exact matching means capitalized unmatched kind is unknown; fallback 6%."
+        }
+      ],
+      "source_refs": [
+        "ASSET_KINDS defaults",
+        "exact-kind matching rule"
+      ]
+    },
+    {
+      "id": "MK-NW-F-035",
+      "name": "blendedVolatility",
+      "changed_since_prior_audit": null,
+      "formula_review": "FORMULA CONSISTENT; MODEL LIMITATION EXPLICIT",
+      "formula_in_words_reviewed": "Weighted average of per-kind volatility over accounts’ retirement-earmarked amounts; override then built-in figure then 12%; null when total earmarked amount is zero.",
+      "findings": "This is not covariance-aware portfolio volatility; the card explicitly says correlations are not modeled. Confirm same earmark weights and null behavior as blendedReturn.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "One account weighted fully",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "stocks_funds",
+                "balance": 10000,
+                "retirement_pct": 100
+              }
+            ],
+            "overrides": {}
+          },
+          "expected": 0.12,
+          "hand_calculation": "Fallback 12% if no kind-specific volatility figure exists; for executable test substitute the actual known stocks_funds default from source.",
+          "assertion_notes": "Expected value is conditional on no stored default for stocks_funds; Claude must inspect volatility table."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Two equal weights with 10% and 20%",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "A",
+                "balance": 100,
+                "retirement_pct": 100
+              },
+              {
+                "kind": "B",
+                "balance": 100,
+                "retirement_pct": 100
+              }
+            ],
+            "overrides": {
+              "A": 0.1,
+              "B": 0.2
+            }
+          },
+          "expected": 0.15,
+          "hand_calculation": "(100×0.10 + 100×0.20) / 200 = 0.15."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Unequal weights",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "A",
+                "balance": 300,
+                "retirement_pct": 100
+              },
+              {
+                "kind": "B",
+                "balance": 100,
+                "retirement_pct": 100
+              }
+            ],
+            "overrides": {
+              "A": 0.1,
+              "B": 0.2
+            }
+          },
+          "expected": 0.125,
+          "hand_calculation": "(300×0.10 + 100×0.20) / 400 = 0.125."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Zero earmarked account must not affect blend",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "A",
+                "balance": 100,
+                "retirement_pct": 100
+              },
+              {
+                "kind": "B",
+                "balance": 900,
+                "retirement_pct": 0
+              }
+            ],
+            "overrides": {
+              "A": 0.08,
+              "B": 0.5
+            }
+          },
+          "expected": 0.08,
+          "hand_calculation": "Only A has positive earmarked weight; result 8%."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "No earmarked amount returns null",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "A",
+                "balance": 100,
+                "retirement_pct": 0
+              }
+            ],
+            "overrides": {
+              "A": 0.1
+            }
+          },
+          "expected": null,
+          "hand_calculation": "Total weight is zero; no answer."
+        }
+      ],
+      "source_refs": [
+        "retirement earmark weighting"
+      ]
+    },
+    {
+      "id": "MK-NW-F-036",
+      "name": "benchmarkInfo",
+      "changed_since_prior_audit": null,
+      "formula_review": "PROVENANCE RULES CLEAR; SOURCE TABLE MUST BE VERIFIED",
+      "formula_in_words_reviewed": "Return benchmarkReturn(kind) plus provenance: override including zero gives custom source, blank period, edited=true, estimate=true; else use stored source/period/estimate; absent record generic estimate.",
+      "findings": "A return override and a provenance record can disagree; override must dominate provenance. Ensure no stored period leaks into custom override result.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Custom positive override",
+          "inputs": {
+            "kind": "checking",
+            "overrides": {
+              "checking": 0.02
+            },
+            "benchmarkRecord": {
+              "source": "Measured index",
+              "period": "2020–2025",
+              "estimate": false
+            }
+          },
+          "expected": {
+            "ret": 0.02,
+            "source": "Your custom estimate",
+            "period": "",
+            "edited": true,
+            "estimate": true
+          },
+          "hand_calculation": "Custom override supersedes record metadata."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Custom zero override",
+          "inputs": {
+            "kind": "checking",
+            "overrides": {
+              "checking": 0
+            }
+          },
+          "expected": {
+            "ret": 0,
+            "source": "Your custom estimate",
+            "period": "",
+            "edited": true,
+            "estimate": true
+          },
+          "hand_calculation": "Zero is an entered override."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Recorded measured benchmark",
+          "inputs": {
+            "kind": "stocks_funds",
+            "overrides": {},
+            "benchmarkRecord": {
+              "ret": 0.104,
+              "source": "S&P broad-market index",
+              "period": "2015–2025",
+              "estimate": false
+            }
+          },
+          "expected": {
+            "ret": 0.104,
+            "source": "S&P broad-market index",
+            "period": "2015–2025",
+            "edited": false,
+            "estimate": false
+          },
+          "hand_calculation": "Use record metadata when no override; ret from benchmarkReturn must agree."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Recorded assumption",
+          "inputs": {
+            "kind": "other",
+            "overrides": {},
+            "benchmarkRecord": {
+              "ret": 0.05,
+              "source": "Generic estimate",
+              "period": "",
+              "estimate": true
+            }
+          },
+          "expected": {
+            "ret": 0.05,
+            "source": "Generic estimate",
+            "period": "",
+            "edited": false,
+            "estimate": true
+          },
+          "hand_calculation": "Estimate flag follows record."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "No record and unknown kind",
+          "inputs": {
+            "kind": "unknown",
+            "overrides": {}
+          },
+          "expected": {
+            "ret": 0.06,
+            "source": "Generic blended estimate",
+            "period": "",
+            "edited": false,
+            "estimate": true
+          },
+          "hand_calculation": "Generic fallback is an assumption; no period."
+        }
+      ],
+      "source_refs": [
+        "benchmarkReturn",
+        "benchmark metadata rules"
+      ]
+    },
+    {
+      "id": "MK-NW-F-037",
+      "name": "blendedReturn",
+      "changed_since_prior_audit": null,
+      "formula_review": "FORMULA CONSISTENT; VERIFY KIND MAPPING AND WEIGHTING",
+      "formula_in_words_reviewed": "Weighted average of benchmarkReturn(kind) over retirement-earmarked account amounts; null when total earmarked amount is zero.",
+      "findings": "The weighted result depends on benchmarkReturn and earmark defaults. A zero-amount or zero-earmark account must not affect the average; do not substitute the Plan’s separate 6% fallback inside this function.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "One fully earmarked account",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "checking",
+                "balance": 1000,
+                "retirement_pct": 100
+              }
+            ],
+            "overrides": {}
+          },
+          "expected": 0.005,
+          "hand_calculation": "Checking benchmark 0.5%."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Equal weights blend 10% and 4%",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "A",
+                "balance": 100,
+                "retirement_pct": 100
+              },
+              {
+                "kind": "B",
+                "balance": 100,
+                "retirement_pct": 100
+              }
+            ],
+            "overrides": {
+              "A": 0.1,
+              "B": 0.04
+            }
+          },
+          "expected": 0.07,
+          "hand_calculation": "(100×10% + 100×4%) / 200 = 7%."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Unequal weighted rates",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "A",
+                "balance": 300,
+                "retirement_pct": 100
+              },
+              {
+                "kind": "B",
+                "balance": 100,
+                "retirement_pct": 100
+              }
+            ],
+            "overrides": {
+              "A": 0.1,
+              "B": 0.04
+            }
+          },
+          "expected": 0.085,
+          "hand_calculation": "(300×10% + 100×4%) / 400 = 8.5%."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Home/529 default exclusions",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "home",
+                "balance": 300000,
+                "retirement_pct": 0
+              },
+              {
+                "kind": "529",
+                "balance": 50000,
+                "retirement_pct": 0
+              },
+              {
+                "kind": "checking",
+                "balance": 10000,
+                "retirement_pct": 100
+              }
+            ],
+            "overrides": {}
+          },
+          "expected": 0.005,
+          "hand_calculation": "Only checking has positive earmark; blended rate 0.5%."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "No positive earmark returns null",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "home",
+                "balance": 300000,
+                "retirement_pct": 0
+              }
+            ],
+            "overrides": {}
+          },
+          "expected": null,
+          "hand_calculation": "Denominator is zero; Plan-level fallback is outside this function."
+        }
+      ],
+      "source_refs": [
+        "DEC-4036k"
+      ]
+    },
+    {
+      "id": "MK-NW-F-038",
+      "name": "earmarkedKinds",
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT; OUTPUT ORDER NOT SPECIFIED",
+      "formula_in_words_reviewed": "Distinct account kinds with positive earmarked amount, excluding property; missing kind is represented as other.",
+      "findings": "Card says distinct kinds but does not state output ordering. Claude should check whether order is stable and whether tests should assert set equality or a documented order.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "One kind",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "checking",
+                "balance": 100,
+                "retirement_pct": 100,
+                "asset_class": "cash"
+              }
+            ]
+          },
+          "expected": [
+            "checking"
+          ],
+          "hand_calculation": "Only one positive-earmark non-property kind."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Duplicates collapse",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "stocks_funds",
+                "balance": 100,
+                "retirement_pct": 100
+              },
+              {
+                "kind": "stocks_funds",
+                "balance": 200,
+                "retirement_pct": 50
+              }
+            ]
+          },
+          "expected": [
+            "stocks_funds"
+          ],
+          "hand_calculation": "Repeated kind appears once."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Exclude property and zero earmark",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "home",
+                "balance": 100000,
+                "retirement_pct": 100,
+                "asset_class": "real_estate"
+              },
+              {
+                "kind": "crypto",
+                "balance": 100,
+                "retirement_pct": 0
+              },
+              {
+                "kind": "ira",
+                "balance": 100,
+                "retirement_pct": 100
+              }
+            ]
+          },
+          "expected": [
+            "ira"
+          ],
+          "hand_calculation": "Property excluded regardless of positive earmark; zero-weight crypto excluded."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Missing kind becomes other",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": null,
+                "balance": 100,
+                "retirement_pct": 100,
+                "asset_class": "alternatives"
+              },
+              {
+                "kind": "gold",
+                "balance": 100,
+                "retirement_pct": 100,
+                "asset_class": "alternatives"
+              }
+            ]
+          },
+          "expected": [
+            "other",
+            "gold"
+          ],
+          "hand_calculation": "Missing kind maps to other; gold remains its own kind.",
+          "assertion_notes": "Assert as a set unless implementation contract fixes order."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "No qualifying accounts",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "home",
+                "balance": 100000,
+                "retirement_pct": 100,
+                "asset_class": "real_estate"
+              },
+              {
+                "kind": "checking",
+                "balance": 100,
+                "retirement_pct": 0
+              }
+            ]
+          },
+          "expected": [],
+          "hand_calculation": "No non-property account has positive earmark."
+        }
+      ],
+      "source_refs": [
+        "kind distinctness",
+        "property exclusion"
+      ]
+    },
+    {
+      "id": "MK-NW-F-039",
+      "name": "buildAssetsState",
+      "changed_since_prior_audit": null,
+      "formula_review": "FORMULA SPECIFICATION HAS A SIGNED-DENOMINATOR RISK",
+      "formula_in_words_reviewed": "Ignore missing/non-numeric balances; total entered balances; portfolio percentage = balance/total×100 (0 if total=0 or balance missing); weighted target return by balance, null when total=0.",
+      "findings": "The claim that shares still add to 100 with negative balances is only true for a nonzero signed total. When total is zero due to offsetting balances, all shares are stated as 0 and do not sum to 100; this is consistent with the explicit zero-total branch but should be tested. Negative balances can yield unintuitive weights and weighted return.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Two positive balances",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a",
+                "balance": 100,
+                "target_return": 0.05
+              },
+              {
+                "asset_id": "b",
+                "balance": 300,
+                "target_return": 0.1
+              }
+            ]
+          },
+          "expected": {
+            "total_asset_value": 400,
+            "portfolio_percentage": {
+              "a": 25,
+              "b": 75
+            },
+            "average_target_return": 0.0875
+          },
+          "hand_calculation": "Total 400; weights 25%,75%; return=(100×.05+300×.10)/400=8.75%."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Missing balance excluded",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a",
+                "balance": 100,
+                "target_return": 0.05
+              },
+              {
+                "asset_id": "b",
+                "balance": null,
+                "target_return": 0.2
+              }
+            ]
+          },
+          "expected": {
+            "total_asset_value": 100,
+            "portfolio_percentage": {
+              "a": 100,
+              "b": 0
+            },
+            "average_target_return": 0.05
+          },
+          "hand_calculation": "Only entered $100 contributes; missing balance gets 0% share but is not zero-valued evidence."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Negative account balance signed share",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a",
+                "balance": 100,
+                "target_return": 0.1
+              },
+              {
+                "asset_id": "b",
+                "balance": -20,
+                "target_return": 0.05
+              }
+            ]
+          },
+          "expected": {
+            "total_asset_value": 80,
+            "portfolio_percentage": {
+              "a": 125,
+              "b": -25
+            },
+            "average_target_return": 0.1125
+          },
+          "hand_calculation": "Total 80; shares 125% and −25%; weighted return=(10−1)/80=11.25%."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Offsetting balances produce zero total",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a",
+                "balance": 100,
+                "target_return": 0.1
+              },
+              {
+                "asset_id": "b",
+                "balance": -100,
+                "target_return": 0.05
+              }
+            ]
+          },
+          "expected": {
+            "total_asset_value": 0,
+            "portfolio_percentage": {
+              "a": 0,
+              "b": 0
+            },
+            "average_target_return": null
+          },
+          "hand_calculation": "Total zero triggers zero shares and null average return."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Empty accounts",
+          "inputs": {
+            "accounts": []
+          },
+          "expected": {
+            "total_asset_value": 0,
+            "accounts": [],
+            "average_target_return": null
+          },
+          "hand_calculation": "No holdings; total zero, average undefined."
+        }
+      ],
+      "source_refs": [
+        "Unknown is not zero",
+        "AssetsState type"
+      ]
+    },
+    {
+      "id": "MK-NW-F-040",
+      "name": "assetsFromOnboarding",
+      "changed_since_prior_audit": null,
+      "formula_review": "RULES EXPLICIT; INPUT FIELD MAPPING NEEDS CODE VERIFICATION",
+      "formula_in_words_reviewed": "Create up to four accounts from entered onboarding values; skip blank/negative, preserve typed zero; first three mapped to 401(k), Roth IRA, taxable stocks/funds at 7%; savings-or-portfolio becomes Unclassified, no tax type, target return 0 and pending classification question.",
+      "findings": "Potential gap: typed zero is kept, but account creation identity/labels and re-seeding behavior should be tested. Savings/portfolio must not be silently classified as stocks/funds.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Traditional retirement only",
+          "inputs": {
+            "op": {
+              "traditionalRetirementSavings": 10000
+            }
+          },
+          "expected": [
+            {
+              "kind": "401k",
+              "balance": 10000,
+              "tax_bucket": "pre_tax",
+              "target_return": 0.07
+            }
+          ],
+          "hand_calculation": "One pre-tax 401(k) at $10,000 and 7% target."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Typed zero is retained",
+          "inputs": {
+            "op": {
+              "rothRetirementSavings": 0
+            }
+          },
+          "expected": [
+            {
+              "kind": "roth_ira",
+              "balance": 0,
+              "tax_bucket": "roth",
+              "target_return": 0.07
+            }
+          ],
+          "hand_calculation": "Zero is a provided answer, not a blank."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Skip negative and blank, keep investment holding",
+          "inputs": {
+            "op": {
+              "traditionalRetirementSavings": -1,
+              "rothRetirementSavings": null,
+              "investmentHoldings": 2500
+            }
+          },
+          "expected": [
+            {
+              "kind": "stocks_funds",
+              "balance": 2500,
+              "tax_bucket": "taxable",
+              "target_return": 0.07
+            }
+          ],
+          "hand_calculation": "Negative and blank omitted; investment holding becomes taxable stocks/funds."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Savings-or-portfolio remains unclassified",
+          "inputs": {
+            "op": {
+              "savingsOrPortfolio": 15000
+            }
+          },
+          "expected": [
+            {
+              "kind": null,
+              "asset_class": "mixed",
+              "balance": 15000,
+              "tax_bucket": null,
+              "target_return": 0,
+              "needs_classification_question": true
+            }
+          ],
+          "hand_calculation": "Preserve uncertainty; ask whether cash savings or investments."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Null onboarding object creates no accounts",
+          "inputs": {
+            "op": null
+          },
+          "expected": [],
+          "hand_calculation": "No answers, no seeded accounts."
+        }
+      ],
+      "source_refs": [
+        "DEC-4036g",
+        "DEC-4036f"
+      ]
+    },
+    {
+      "id": "MK-NW-F-041",
+      "name": "monthlyContributionsFromOnboarding",
+      "changed_since_prior_audit": null,
+      "formula_review": "FORMULA SPECIFICATION CLEAR; FIELD SEMANTICS AND CAPS NEED CODE TEST",
+      "formula_in_words_reviewed": "Return null if no contribution question answered; otherwise monthly total = capped 401(k) elective amount/12 + entered Roth + investing + employer match (percentage of capped 401(k) or stated dollars); exclude property savings. Age attained during 2026 determines annual cap.",
+      "findings": "2026 age-band boundaries and match ordering are material. Employer percentage is applied after 401(k) cap. A match-only answer is not necessarily null if the match question counts as answered; test it explicitly.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "No contribution questions answered",
+          "inputs": {
+            "op": {}
+          },
+          "expected": null,
+          "hand_calculation": "No 401(k), Roth, investing or match answer → null."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Simple Roth and investing",
+          "inputs": {
+            "op": {
+              "rothContributionMonthly": 200,
+              "investingMonthly": 100
+            }
+          },
+          "expected": 300,
+          "hand_calculation": "200 + 100 = $300/month."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "401(k) cap under age 50",
+          "inputs": {
+            "op": {
+              "birthYear": 1980,
+              "traditional401kMonthly": 3000,
+              "employerMatchPct": 50
+            }
+          },
+          "expected": 3062.5,
+          "hand_calculation": "Age 46 in 2026; annual elective cap $24,500 → monthly 2041.6667; match 50% of capped amount = 1020.8333; total 3062.50/month."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Age 60–63 cap and dollar match",
+          "inputs": {
+            "op": {
+              "birthYear": 1964,
+              "traditional401kMonthly": 4000,
+              "employerMatchDollarsMonthly": 250
+            }
+          },
+          "expected": 3229.1666666666665,
+          "hand_calculation": "Age 62 in 2026; cap $35,750/year = $2,979.1667/month; +$250 match = $3,229.1667/month."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Property savings excluded even if large",
+          "inputs": {
+            "op": {
+              "propertySavingsMonthly": 1000
+            }
+          },
+          "expected": null,
+          "hand_calculation": "Property savings is not a retirement contribution; no recognized retirement question answered."
+        }
+      ],
+      "source_refs": [
+        "2026 elective deferral limits",
+        "age attained in 2026"
+      ]
+    },
+    {
+      "id": "MK-NW-F-044",
+      "name": "getAssetsState",
+      "changed_since_prior_audit": null,
+      "formula_review": "BEHAVIOR CLEAR; STORAGE FAILURE MODES NEED INTEGRATION TEST",
+      "formula_in_words_reviewed": "Load saved assets and return assetsStateFrom; return nothing when no saved document or empty account list.",
+      "findings": "Unit cases cannot prove database access, uid isolation, or distinction between absent document and read failure. Test these against repository/storage layer.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Saved non-empty accounts",
+          "inputs": {
+            "uid": "u1",
+            "savedDoc": {
+              "accounts": [
+                {
+                  "balance": 100,
+                  "target_return": 0.05
+                }
+              ]
+            }
+          },
+          "expected": "assetsStateFrom(accounts)",
+          "hand_calculation": "Delegates to assetsStateFrom; assert its state for one account."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Saved empty list",
+          "inputs": {
+            "uid": "u1",
+            "savedDoc": {
+              "accounts": []
+            }
+          },
+          "expected": null,
+          "hand_calculation": "Empty saved list returns nothing."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "No saved document",
+          "inputs": {
+            "uid": "u1",
+            "savedDoc": null
+          },
+          "expected": null,
+          "hand_calculation": "No document returns nothing."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Different uid must not leak account data",
+          "inputs": {
+            "uid": "u2",
+            "storageHasOnly": {
+              "u1": {
+                "accounts": [
+                  {
+                    "balance": 100
+                  }
+                ]
+              }
+            },
+            "savedDoc": null
+          },
+          "expected": null,
+          "hand_calculation": "u2 has no saved doc; must not return u1 data."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Storage read error",
+          "inputs": {
+            "uid": "u1",
+            "storageError": "permission-denied"
+          },
+          "expected": "propagate or documented error",
+          "hand_calculation": "The card does not specify error handling; assert existing repository contract rather than swallowing the failure."
+        }
+      ],
+      "source_refs": [
+        "storage contract"
+      ]
+    },
+    {
+      "id": "MK-NW-F-045",
+      "name": "sourceWording",
+      "changed_since_prior_audit": null,
+      "formula_review": "THRESHOLD RULE CLEAR; TIMESTAMP SEMANTICS NEED TEST",
+      "formula_in_words_reviewed": "Connected/imported accounts say Linked/Imported, with “N days old” when last successful sync is at least 4 days old; missing sync says not updated yet; otherwise manual wording.",
+      "findings": "Boundary is 4 days (not >4); verify age uses last_synced and the supplied now, timezone/date rounding and future timestamps. Card inputs list price-fetched field but formula says last successful sync, a field mapping mismatch to resolve.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Connected synced recently",
+          "inputs": {
+            "account": {
+              "source": "connected",
+              "last_synced": "2026-10-10T12:00:00Z"
+            },
+            "now": "2026-10-13T12:00:00Z"
+          },
+          "expected": "Linked",
+          "hand_calculation": "Exactly 3 days old, below 4-day threshold."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Imported account at 4-day threshold",
+          "inputs": {
+            "account": {
+              "source": "imported",
+              "last_synced": "2026-10-09T12:00:00Z"
+            },
+            "now": "2026-10-13T12:00:00Z"
+          },
+          "expected": "Imported · 4 days old",
+          "hand_calculation": "Exactly 4 days old meets stale threshold."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Connected with no sync timestamp",
+          "inputs": {
+            "account": {
+              "source": "connected"
+            },
+            "now": "2026-10-13T12:00:00Z"
+          },
+          "expected": "Linked · not updated yet",
+          "hand_calculation": "No timestamp; no age invented."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Manual account ignores stale timestamp",
+          "inputs": {
+            "account": {
+              "source": "manual",
+              "last_synced": "2026-01-01T00:00:00Z"
+            },
+            "now": "2026-10-13T12:00:00Z"
+          },
+          "expected": "By hand · you update it",
+          "hand_calculation": "Manual wording is fixed."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Exactly 4 days with time boundary",
+          "inputs": {
+            "account": {
+              "source": "connected",
+              "last_synced": "2026-10-09T23:59:59Z"
+            },
+            "now": "2026-10-13T00:00:00Z"
+          },
+          "expected": "Linked",
+          "hand_calculation": "Elapsed time is 3 days plus 1 second; verify exact elapsed-day policy does not prematurely say 4 days old."
+        }
+      ],
+      "source_refs": [
+        "sourceWording card",
+        "AssetAccount.last_synced"
+      ]
+    },
+    {
+      "id": "MK-NW-F-046",
+      "name": "historyCoverage",
+      "changed_since_prior_audit": null,
+      "formula_review": "DETAILED SPEC; CALENDAR/ROUNDING WORDING NEEDS CAREFUL TESTS",
+      "formula_in_words_reviewed": "Manual account says no activity records; otherwise use user-entered history start ahead of sync date; reject invalid/future dates; return null when history covers requested window; otherwise calculate months to today rounded down to one decimal and produce sentence from whole months.",
+      "findings": "Potential ambiguity: month coverage formula says whole months from start to today plus days/days-in-that-month, but month/day boundaries need one deterministic convention. The “history starts on/before period first day” branch should be tested before partial-month wording.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Manual source always has no activity history",
+          "inputs": {
+            "account": {
+              "source": "manual",
+              "last_synced": "2026-01-01"
+            },
+            "windowStart": "2026-01-01",
+            "now": "2026-10-13"
+          },
+          "expected": {
+            "kind": "none",
+            "from": null,
+            "monthsCovered": null,
+            "sentence": "No activity records entered by hand."
+          },
+          "hand_calculation": "Manual account returns no activity-record sentence, regardless of sync-like data."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "History begins before requested window",
+          "inputs": {
+            "account": {
+              "source": "connected",
+              "history_start": "2025-01-01"
+            },
+            "windowStart": "2026-01-01",
+            "now": "2026-10-13"
+          },
+          "expected": null,
+          "hand_calculation": "Start on/before windowStart means no coverage warning."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "User-entered date outranks synced date",
+          "inputs": {
+            "account": {
+              "source": "connected",
+              "history_start": "2026-06-01",
+              "synced_history_start": "2026-01-01"
+            },
+            "windowStart": "2026-01-01",
+            "now": "2026-10-13"
+          },
+          "expected": {
+            "kind": "partial",
+            "from": "2026-06-01",
+            "monthsCovered": 4.3,
+            "sentence": "History starts 1 June 2026; 4 months of history."
+          },
+          "hand_calculation": "From 2026-06-01 to 2026-10-13: 4 whole months plus 12/31 of October = 4.387..., rounded down to one decimal = 4.3.",
+          "assertion_notes": "Sentence template is schematic; assert exact product string only after checking the one shared wording list and implementation contract."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Invalid date is refused",
+          "inputs": {
+            "account": {
+              "source": "connected",
+              "history_start": "2026-02-30"
+            },
+            "windowStart": "2026-01-01",
+            "now": "2026-10-13"
+          },
+          "expected": {
+            "kind": "unreadable",
+            "from": null,
+            "monthsCovered": null,
+            "sentence": "History start date cannot be read. Edit date"
+          },
+          "hand_calculation": "No month figure or start date on invalid date."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Future date is refused",
+          "inputs": {
+            "account": {
+              "source": "connected",
+              "history_start": "2026-12-01"
+            },
+            "windowStart": "2026-01-01",
+            "now": "2026-10-13"
+          },
+          "expected": {
+            "kind": "unreadable",
+            "from": null,
+            "monthsCovered": null,
+            "sentence": "History start date cannot be read. Edit date"
+          },
+          "hand_calculation": "Future date must not become “a few days”."
+        }
+      ],
+      "source_refs": [
+        "DEC-4059c"
+      ]
+    },
+    {
+      "id": "MK-NW-F-047",
+      "name": "uberGroupOf",
+      "changed_since_prior_audit": null,
+      "formula_review": "CARD AND ASSETCLASS TAXONOMY NEED ALIGNMENT",
+      "formula_in_words_reviewed": "Map cash→Cash; stocks_etf, bonds, alternatives, mixed/unclassified→Investments; real_estate and personal_property→Personal property.",
+      "findings": "Card names Unclassified while current AssetClass union shown in brief has mixed, not an explicit unclassified member. Confirm runtime enum/string mapping and behavior for unsupported class values.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Cash class",
+          "inputs": {
+            "cls": "cash"
+          },
+          "expected": "Cash",
+          "hand_calculation": "Direct mapping."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Bond class",
+          "inputs": {
+            "cls": "bonds"
+          },
+          "expected": "Investments",
+          "hand_calculation": "Bonds & CDs belong to Investments."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Alternative class",
+          "inputs": {
+            "cls": "alternatives"
+          },
+          "expected": "Investments",
+          "hand_calculation": "Alternatives belong to Investments."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Real estate class",
+          "inputs": {
+            "cls": "real_estate"
+          },
+          "expected": "Personal property",
+          "hand_calculation": "Group is labeled Personal property on this screen."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Mixed/unclassified representation",
+          "inputs": {
+            "cls": "mixed"
+          },
+          "expected": "Investments",
+          "hand_calculation": "Confirm mixed is the runtime representation of Unclassified."
+        }
+      ],
+      "source_refs": [
+        "AssetClass type",
+        "DEC-4036g"
+      ]
+    },
+    {
+      "id": "MK-NW-F-048",
+      "name": "uberGroupRows",
+      "changed_since_prior_audit": null,
+      "formula_review": "INVARIANT IS CLEAR; INPUT ORDER AND UNKNOWN CLASS NEED TEST",
+      "formula_in_words_reviewed": "Group incoming class rows into Cash, Investments, Personal property in that order; preserve class-row order within group; omit empty groups; group totals equal component sums and sum to all rows.",
+      "findings": "The card says groups add to What you own; negative totals should be retained. Verify no row is dropped or duplicated and group order is stable.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "One class per group",
+          "inputs": {
+            "classRows": [
+              {
+                "key": "cash",
+                "label": "Cash",
+                "total": 100
+              },
+              {
+                "key": "stocks_etf",
+                "label": "Stocks / Funds",
+                "total": 200
+              },
+              {
+                "key": "real_estate",
+                "label": "Real estate",
+                "total": 300
+              }
+            ]
+          },
+          "expected": [
+            {
+              "group": "Cash",
+              "total": 100
+            },
+            {
+              "group": "Investments",
+              "total": 200
+            },
+            {
+              "group": "Personal property",
+              "total": 300
+            }
+          ],
+          "hand_calculation": "Totals equal row totals; expected group order fixed."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Empty input",
+          "inputs": {
+            "classRows": []
+          },
+          "expected": [],
+          "hand_calculation": "No groups with no classes."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Multiple investment classes preserve row order",
+          "inputs": {
+            "classRows": [
+              {
+                "key": "alternatives",
+                "label": "Alternatives",
+                "total": 40
+              },
+              {
+                "key": "bonds",
+                "label": "Bonds & CDs",
+                "total": 60
+              },
+              {
+                "key": "cash",
+                "label": "Cash",
+                "total": 10
+              }
+            ]
+          },
+          "expected": [
+            {
+              "group": "Cash",
+              "total": 10
+            },
+            {
+              "group": "Investments",
+              "total": 100
+            }
+          ],
+          "hand_calculation": "Group order Cash then Investments; investment classes keep incoming order alternatives, bonds."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Negative row total reconciles",
+          "inputs": {
+            "classRows": [
+              {
+                "key": "cash",
+                "label": "Cash",
+                "total": 100
+              },
+              {
+                "key": "bonds",
+                "label": "Bonds & CDs",
+                "total": -20
+              }
+            ]
+          },
+          "expected": [
+            {
+              "group": "Cash",
+              "total": 100
+            },
+            {
+              "group": "Investments",
+              "total": -20
+            }
+          ],
+          "hand_calculation": "Do not clamp negative amounts; combined total 80."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Only personal property rows",
+          "inputs": {
+            "classRows": [
+              {
+                "key": "personal_property",
+                "label": "Personal property",
+                "total": 0
+              }
+            ]
+          },
+          "expected": [
+            {
+              "group": "Personal property",
+              "total": 0
+            }
+          ],
+          "hand_calculation": "A present zero-total class still makes its group non-empty."
+        }
+      ],
+      "source_refs": [
+        "uberGroupOf"
+      ]
+    },
+    {
+      "id": "MK-NW-F-049",
+      "name": "itemizedTotal",
+      "changed_since_prior_audit": null,
+      "formula_review": "SPEC CONSISTENT WITH UNKNOWN-IS-NOT-ZERO",
+      "formula_in_words_reviewed": "Sum values that are present using exact decimal arithmetic; omit missing/null values; negative values count.",
+      "findings": "Money should not be summed in binary floating-point if exact decimal reconciliation is required. Ensure null holdings are counted separately by itemizeMissingCount, not included as zero in semantic output.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Two values",
+          "inputs": {
+            "items": [
+              {
+                "value": 10.25
+              },
+              {
+                "value": 2.5
+              }
+            ]
+          },
+          "expected": 12.75,
+          "hand_calculation": "10.25 + 2.50 = 12.75."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Missing value omitted",
+          "inputs": {
+            "items": [
+              {
+                "value": 10
+              },
+              {
+                "value": null
+              },
+              {
+                "value": 5
+              }
+            ]
+          },
+          "expected": 15,
+          "hand_calculation": "10 + 5 = 15; null is not a known zero."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Negative value counts",
+          "inputs": {
+            "items": [
+              {
+                "value": 100
+              },
+              {
+                "value": -20
+              },
+              {
+                "value": 5.5
+              }
+            ]
+          },
+          "expected": 85.5,
+          "hand_calculation": "100 − 20 + 5.5 = 85.5."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Exact cents do not accumulate binary error",
+          "inputs": {
+            "items": [
+              {
+                "value": 0.1
+              },
+              {
+                "value": 0.2
+              },
+              {
+                "value": 0.3
+              }
+            ]
+          },
+          "expected": 0.6,
+          "hand_calculation": "Exact decimal sum = 0.60."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "All missing and empty list",
+          "inputs": {
+            "items": [
+              {
+                "value": null
+              },
+              {
+                "value": null
+              }
+            ]
+          },
+          "expected": 0,
+          "hand_calculation": "No present values contribute; missing count must remain 2 outside this function."
+        }
+      ],
+      "source_refs": [
+        "DEC-3390?",
+        "Unknown is not zero",
+        "exact decimals"
+      ]
+    },
+    {
+      "id": "MK-NW-F-050",
+      "name": "itemizeRemainder",
+      "changed_since_prior_audit": null,
+      "formula_review": "SPEC CLEAR; LUMP BALANCE MUST BE ENTERED",
+      "formula_in_words_reviewed": "Subtract exact-decimal itemizedTotal from the entered lump balance; positive means unallocated, negative means holdings exceed lump; exact equality must be exactly zero.",
+      "findings": "The signature requires number, so it cannot represent unknown lump balance; caller must not invoke it until balance is known. Decimal rounding/tolerance must not create residual cents.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Positive remainder",
+          "inputs": {
+            "lumpBalance": 1000,
+            "items": [
+              {
+                "value": 300
+              },
+              {
+                "value": 200
+              }
+            ]
+          },
+          "expected": 500,
+          "hand_calculation": "1000 − (300+200) = 500."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Exact match",
+          "inputs": {
+            "lumpBalance": 100,
+            "items": [
+              {
+                "value": 60
+              },
+              {
+                "value": 40
+              }
+            ]
+          },
+          "expected": 0,
+          "hand_calculation": "100 − 100 = exactly 0."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Holdings exceed lump",
+          "inputs": {
+            "lumpBalance": 100,
+            "items": [
+              {
+                "value": 80
+              },
+              {
+                "value": 40
+              }
+            ]
+          },
+          "expected": -20,
+          "hand_calculation": "100 − 120 = −20."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Missing value omitted from itemized total",
+          "inputs": {
+            "lumpBalance": 100,
+            "items": [
+              {
+                "value": 40
+              },
+              {
+                "value": null
+              }
+            ]
+          },
+          "expected": 60,
+          "hand_calculation": "Known holdings total 40; remainder 60, but caller must not present it as final while any value is missing."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Cent precision equality",
+          "inputs": {
+            "lumpBalance": 0.3,
+            "items": [
+              {
+                "value": 0.1
+              },
+              {
+                "value": 0.2
+              }
+            ]
+          },
+          "expected": 0,
+          "hand_calculation": "Exact decimal arithmetic should produce exact zero, not a tiny fraction."
+        }
+      ],
+      "source_refs": [
+        "DEC-4036?",
+        "exact decimal itemization"
+      ]
+    },
+    {
+      "id": "MK-NW-F-051",
+      "name": "itemizedResultTotal",
+      "changed_since_prior_audit": null,
+      "formula_review": "FORMULA EQUIVALENCE HOLDS IF INPUTS ARE COMPLETE; MISSING-VALUE UI SEMANTICS CRITICAL",
+      "formula_in_words_reviewed": "Itemized total plus positive remainder; equivalently max(entered lump balance, sum of entered holding values), where null values are omitted in the sum but should block committing itemization.",
+      "findings": "For incomplete itemization, the screen can preview a number, but must not imply the remainder is final. If any holding value is null, test whether preview still reflects known holdings and whether the UI marks it provisional.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Holdings below lump retain original total",
+          "inputs": {
+            "lump": {
+              "balance": 1000
+            },
+            "items": [
+              {
+                "value": 300
+              },
+              {
+                "value": 200
+              }
+            ]
+          },
+          "expected": 1000,
+          "hand_calculation": "Itemized 500 + positive remainder 500 = 1000."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Holdings equal lump",
+          "inputs": {
+            "lump": {
+              "balance": 100
+            },
+            "items": [
+              {
+                "value": 60
+              },
+              {
+                "value": 40
+              }
+            ]
+          },
+          "expected": 100,
+          "hand_calculation": "100 total."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Holdings exceed lump",
+          "inputs": {
+            "lump": {
+              "balance": 100
+            },
+            "items": [
+              {
+                "value": 80
+              },
+              {
+                "value": 40
+              }
+            ]
+          },
+          "expected": 120,
+          "hand_calculation": "No positive remainder; result is holdings sum 120."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Negative holding value included",
+          "inputs": {
+            "lump": {
+              "balance": 100
+            },
+            "items": [
+              {
+                "value": 120
+              },
+              {
+                "value": -10
+              }
+            ]
+          },
+          "expected": 110,
+          "hand_calculation": "Holdings sum 110 exceeds lump; result 110."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "One missing value should be provisional / not committable",
+          "inputs": {
+            "lump": {
+              "balance": 100
+            },
+            "items": [
+              {
+                "value": 40
+              },
+              {
+                "value": null
+              }
+            ]
+          },
+          "expected": 100,
+          "hand_calculation": "Preview under known data remains at lump total; buildItemizedAccounts must refuse commit while any value is missing."
+        }
+      ],
+      "source_refs": [
+        "itemize flow",
+        "Unknown is not zero"
+      ]
+    },
+    {
+      "id": "MK-NW-F-052",
+      "name": "buildItemizedAccounts",
+      "changed_since_prior_audit": null,
+      "formula_review": "HIGH-CONSEQUENCE MAPPING; METADATA PRESERVATION MUST BE VERIFIED IN CODE",
+      "formula_in_words_reviewed": "Refuse to build any accounts if any holding value is missing. Otherwise create one account per holding with required labels/metadata/class benchmark; bond fields only when entered; positive unallocated remainder becomes a cash account at cash-management benchmark.",
+      "findings": "Test no partial creation when one value missing, exact metadata carry-through, wrapper preservation, never invent face value from market value, and positive remainder only. Confirm tax bucket and wrapper field names.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Single stock holding with remainder",
+          "inputs": {
+            "lump": {
+              "label": "Fidelity",
+              "institution": "Fidelity",
+              "balance": 1000,
+              "tax_bucket": "taxable",
+              "retirement_pct": 50,
+              "source": "manual",
+              "kind": "brokerage"
+            },
+            "items": [
+              {
+                "cls": "stocks_etf",
+                "label": "AAPL",
+                "ticker": "AAPL",
+                "value": 600
+              }
+            ]
+          },
+          "expected": [
+            {
+              "label": "AAPL",
+              "balance": 600,
+              "asset_class": "stocks_etf",
+              "target_return": "benchmarkReturn(stocks_funds)"
+            },
+            {
+              "label": "Fidelity cash",
+              "balance": 400,
+              "retirement_pct": 50,
+              "source": "manual",
+              "target_return": "benchmarkReturn(cash_management)"
+            }
+          ],
+          "hand_calculation": "Remainder 1000−600=400; two accounts expected."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Holding label fallback to ticker then Holding",
+          "inputs": {
+            "lump": {
+              "label": "Broker",
+              "institution": "Broker",
+              "balance": 100,
+              "tax_bucket": "taxable"
+            },
+            "items": [
+              {
+                "cls": "stocks_etf",
+                "label": "",
+                "ticker": "XYZ",
+                "value": 100
+              }
+            ]
+          },
+          "expected": [
+            {
+              "label": "XYZ",
+              "balance": 100
+            }
+          ],
+          "hand_calculation": "Empty label uses ticker."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Missing value refuses entire build",
+          "inputs": {
+            "lump": {
+              "label": "Broker",
+              "balance": 100
+            },
+            "items": [
+              {
+                "cls": "stocks_etf",
+                "label": "A",
+                "value": 60
+              },
+              {
+                "cls": "bonds",
+                "label": "B",
+                "value": null
+              }
+            ]
+          },
+          "expected": "REFUSE; no accounts created",
+          "hand_calculation": "Any missing holding value blocks commit; preserve original account unchanged."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Bond fields remain only if entered",
+          "inputs": {
+            "lump": {
+              "label": "Broker",
+              "institution": "Broker",
+              "balance": 1000,
+              "tax_bucket": "taxable"
+            },
+            "items": [
+              {
+                "cls": "bonds",
+                "label": "Treasury",
+                "value": 950,
+                "couponRate": 0.04,
+                "maturityDate": "2030-01-01"
+              }
+            ]
+          },
+          "expected": [
+            {
+              "label": "Treasury",
+              "balance": 950,
+              "coupon_rate": 0.04,
+              "maturity_date": "2030-01-01",
+              "face_value": null
+            }
+          ],
+          "hand_calculation": "Do not use value 950 as face value when face was not entered."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "No positive remainder creates no cash account",
+          "inputs": {
+            "lump": {
+              "label": "Broker",
+              "institution": "Broker",
+              "balance": 100,
+              "tax_bucket": "taxable"
+            },
+            "items": [
+              {
+                "cls": "stocks_etf",
+                "label": "A",
+                "value": 120
+              }
+            ]
+          },
+          "expected": [
+            {
+              "label": "A",
+              "balance": 120
+            }
+          ],
+          "hand_calculation": "Holdings exceed lump by 20; no negative cash account is created."
+        }
+      ],
+      "source_refs": [
+        "DEC-2748b",
+        "DEC-4036f",
+        "DEC-3837"
+      ]
+    },
+    {
+      "id": "MK-NW-F-053",
+      "name": "correctClassOf",
+      "changed_since_prior_audit": null,
+      "formula_review": "ORDER OF RULES MATERIAL; USER CHOICE MUST WIN",
+      "formula_in_words_reviewed": "Respect explicit user-selected class; otherwise maturity date implies bonds; name evidence can classify except property-bucket names; money-market account→stocks/funds; CD→bonds/CDs; return null if no correction.",
+      "findings": "Potential ambiguity: invalid maturity dates vs merely present maturity_date. Rule elsewhere says invalid dates treated absent; ensure class correction validates calendar date before using maturity presence. Name evidence exclusions for property need strong negative tests.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Explicit chosen class wins",
+          "inputs": {
+            "account": {
+              "asset_class": "cash",
+              "kind": "cd",
+              "label": "Certificate of Deposit",
+              "maturity_date": "2030-01-01"
+            }
+          },
+          "expected": null,
+          "hand_calculation": "User-chosen class is authoritative; no correction."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Valid maturity implies bonds",
+          "inputs": {
+            "account": {
+              "asset_class": null,
+              "kind": "stocks_funds",
+              "label": "Generic asset",
+              "maturity_date": "2030-01-01"
+            }
+          },
+          "expected": "bonds",
+          "hand_calculation": "Maturity date takes precedence over name."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Money-market account maps to stocks/funds",
+          "inputs": {
+            "account": {
+              "asset_class": null,
+              "kind": "money_market",
+              "label": "Money market"
+            }
+          },
+          "expected": "stocks_etf",
+          "hand_calculation": "Money-market funds are investments, not cash."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Property name must not be classified from institution/name evidence",
+          "inputs": {
+            "account": {
+              "asset_class": null,
+              "kind": "other",
+              "label": "123 Main Street Home"
+            }
+          },
+          "expected": null,
+          "hand_calculation": "Property/place names are excluded from name-based classification; confirm property classifier semantics."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Invalid maturity date treated absent",
+          "inputs": {
+            "account": {
+              "asset_class": null,
+              "kind": "other",
+              "label": "Generic asset",
+              "maturity_date": "2026-02-30"
+            }
+          },
+          "expected": null,
+          "hand_calculation": "Invalid date should not alone force bonds; then remaining name/kind rules decide."
+        }
+      ],
+      "source_refs": [
+        "DEC-2484i",
+        "DEC-0051",
+        "invalid maturity-date rule"
+      ]
+    },
+    {
+      "id": "MK-NW-F-054",
+      "name": "reclassifyAccounts",
+      "changed_since_prior_audit": null,
+      "formula_review": "COMPLEX MUTATION LOGIC; COUNTING AND NO-OP IDEMPOTENCE NEED TEST",
+      "formula_in_words_reviewed": "For unconfirmed accounts only, apply correctClassOf when user did not choose class; cash tax bucket clears to unstated when moving away from cash. Reclassify holdings only when no user class/pending answer and ticker/name evidence indicates non-cash class; return updated accounts and count changes.",
+      "findings": "Test that confirmed accounts and user-classed/pending holdings are untouched; tax type is not silently made taxable; running twice should not keep incrementing changed count.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Unconfirmed misclassified CD account",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a",
+                "confirmed": false,
+                "asset_class": null,
+                "kind": "cd",
+                "label": "CD",
+                "tax_bucket": "taxable"
+              }
+            ]
+          },
+          "expected": {
+            "changed": 1,
+            "class": "bonds"
+          },
+          "hand_calculation": "One account class correction expected."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Confirmed account left untouched",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a",
+                "confirmed": true,
+                "asset_class": "cash",
+                "kind": "cd",
+                "label": "CD",
+                "tax_bucket": "taxable"
+              }
+            ]
+          },
+          "expected": {
+            "changed": 0,
+            "class": "cash"
+          },
+          "hand_calculation": "Confirmed accounts remain exactly as-is."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Moving cash to investments clears tax bucket",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a",
+                "confirmed": false,
+                "asset_class": null,
+                "kind": "money_market",
+                "label": "Money market",
+                "tax_bucket": "taxable"
+              }
+            ]
+          },
+          "expected": {
+            "changed": 1,
+            "class": "stocks_etf",
+            "tax_bucket": "not_stated"
+          },
+          "hand_calculation": "DEC-4036f: must not assume taxable when class changes from cash."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "User-classed holding not rewritten",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a",
+                "confirmed": false,
+                "asset_class": "stocks_etf",
+                "positions": [
+                  {
+                    "ticker": "BND",
+                    "name": "Bond ETF",
+                    "asset_class_chosen": true,
+                    "tag": "stock_etf"
+                  }
+                ]
+              }
+            ]
+          },
+          "expected": {
+            "changed": 0,
+            "holdingTag": "stock_etf"
+          },
+          "hand_calculation": "User’s classification or pending answer prevents automatic retag."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Idempotent second run",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a",
+                "confirmed": false,
+                "asset_class": "bonds",
+                "kind": "treasury",
+                "label": "Treasury",
+                "tax_bucket": "not_stated"
+              }
+            ]
+          },
+          "expected": {
+            "changed": 0,
+            "class": "bonds"
+          },
+          "hand_calculation": "Already corrected account should not change again."
+        }
+      ],
+      "source_refs": [
+        "DEC-4036f",
+        "classification ordering"
+      ]
+    },
+    {
+      "id": "MK-NW-F-055",
+      "name": "isBond",
+      "changed_since_prior_audit": null,
+      "formula_review": "SIMPLE DELEGATION; TEST DERIVED AND EXPLICIT CLASS",
+      "formula_in_words_reviewed": "True exactly when assetClassOf(account) is Bonds & CDs.",
+      "findings": "Ensure uses normalized/derived assetClassOf rather than only raw asset_class, and does not classify all accounts held at a CD-named institution as bonds.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Explicit bonds class",
+          "inputs": {
+            "account": {
+              "asset_class": "bonds",
+              "kind": "treasury"
+            }
+          },
+          "expected": true,
+          "hand_calculation": "Class is bonds."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Explicit stocks class overrides bond-like name",
+          "inputs": {
+            "account": {
+              "asset_class": "stocks_etf",
+              "kind": "stocks_funds",
+              "label": "Bond Fund"
+            }
+          },
+          "expected": false,
+          "hand_calculation": "assetClassOf returns explicit class."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "CD kind with missing class derives bonds",
+          "inputs": {
+            "account": {
+              "asset_class": null,
+              "kind": "cd",
+              "label": "Certificate of deposit"
+            }
+          },
+          "expected": true,
+          "hand_calculation": "Derived class for CD is bonds."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Institution name alone is not a CD",
+          "inputs": {
+            "account": {
+              "asset_class": null,
+              "kind": "brokerage",
+              "label": "Brokerage account",
+              "institution": "CD Capital"
+            }
+          },
+          "expected": false,
+          "hand_calculation": "Institution is not account name/type evidence."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Cash class false",
+          "inputs": {
+            "account": {
+              "asset_class": "cash",
+              "kind": "checking"
+            }
+          },
+          "expected": false,
+          "hand_calculation": "Cash is not bonds."
+        }
+      ],
+      "source_refs": [
+        "DEC-4036c",
+        "DEC-0051"
+      ]
+    },
+    {
+      "id": "MK-NW-F-056",
+      "name": "bondInfo",
+      "changed_since_prior_audit": null,
+      "formula_review": "RULES EXPLICIT; INVALID DATES AND ZERO SEMANTICS CRITICAL",
+      "formula_in_words_reviewed": "Project face (only positive entered), coupon rate (preserve typed zero), maturity, value, accrued interest, CD status from account kind/name only (not institution), and CD purchase venue defaults to bank unless explicitly broker.",
+      "findings": "Face missing/zero/negative should be null; coupon zero must remain 0; institution must never determine CD status; default venue bank is material to YTM behavior.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Ordinary bond fields preserved",
+          "inputs": {
+            "account": {
+              "kind": "treasury",
+              "label": "Treasury note",
+              "institution": "Broker",
+              "balance": 980,
+              "face_value": 1000,
+              "coupon_rate": 0.04,
+              "maturity_date": "2030-01-01",
+              "accrued_interest": 3
+            }
+          },
+          "expected": {
+            "face": 1000,
+            "couponRate": 0.04,
+            "maturity": "2030-01-01",
+            "value": 980,
+            "accruedInterest": 3,
+            "isCd": false,
+            "cdBought": "bank"
+          },
+          "hand_calculation": "Copies entered bond fields; non-CD defaults venue to bank but isCd false."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Zero coupon rate is kept",
+          "inputs": {
+            "account": {
+              "kind": "treasury",
+              "label": "Zero coupon bond",
+              "balance": 900,
+              "face_value": 1000,
+              "coupon_rate": 0
+            }
+          },
+          "expected": {
+            "face": 1000,
+            "couponRate": 0,
+            "value": 900
+          },
+          "hand_calculation": "Typed 0 rate is a real zero coupon, not missing."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Missing or nonpositive face omitted",
+          "inputs": {
+            "account": {
+              "kind": "treasury",
+              "label": "Treasury",
+              "balance": 900,
+              "face_value": 0,
+              "coupon_rate": 0.04
+            }
+          },
+          "expected": {
+            "face": null,
+            "couponRate": 0.04
+          },
+          "hand_calculation": "Face 0 is not accepted as entered face; output null."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "CD determined from account name, not institution",
+          "inputs": {
+            "account": {
+              "kind": "brokerage",
+              "label": "Investment account",
+              "institution": "CD Capital",
+              "balance": 1000
+            }
+          },
+          "expected": {
+            "isCd": false,
+            "cdBought": "bank"
+          },
+          "hand_calculation": "Institution contains CD but account does not."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Broker CD is identified from account kind/name and venue",
+          "inputs": {
+            "account": {
+              "kind": "cd",
+              "label": "Brokered CD",
+              "institution": "Fidelity",
+              "balance": 9850,
+              "face_value": 10000,
+              "coupon_rate": 0.042,
+              "maturity_date": "2028-10-13",
+              "cd_bought": "broker"
+            }
+          },
+          "expected": {
+            "isCd": true,
+            "cdBought": "broker",
+            "face": 10000
+          },
+          "hand_calculation": "Broker CD must be marked CD and broker-purchased."
+        }
+      ],
+      "source_refs": [
+        "DEC-2748b",
+        "DEC-4036c",
+        "DEC-3837"
+      ]
+    },
+    {
+      "id": "MK-NW-F-057",
+      "name": "annualCoupon",
+      "changed_since_prior_audit": null,
+      "formula_review": "FORMULA CLEAR; MISSING VS ZERO DISTINCTION REQUIRED",
+      "formula_in_words_reviewed": "Return face value × annual coupon rate only when both fields were entered; otherwise null.",
+      "findings": "Face and rate missing should produce null; a typed zero coupon produces 0 if face is known. Matured-bond handling belongs in yearlyInterestNow/summary, not necessarily this primitive.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Standard coupon",
+          "inputs": {
+            "bond": {
+              "face": 10000,
+              "couponRate": 0.04
+            }
+          },
+          "expected": 400,
+          "hand_calculation": "10000×0.04=$400/year."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Zero coupon rate is known",
+          "inputs": {
+            "bond": {
+              "face": 10000,
+              "couponRate": 0
+            }
+          },
+          "expected": 0,
+          "hand_calculation": "10000×0=$0/year."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Fractional cents retained or exact precision",
+          "inputs": {
+            "bond": {
+              "face": 1234.56,
+              "couponRate": 0.0375
+            }
+          },
+          "expected": 46.296,
+          "hand_calculation": "1234.56×0.0375=46.296; display rounding is separate."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Missing face means unknown coupon",
+          "inputs": {
+            "bond": {
+              "face": null,
+              "couponRate": 0.04
+            }
+          },
+          "expected": null,
+          "hand_calculation": "Face was never entered; do not assume zero."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Missing rate is unknown, not zero",
+          "inputs": {
+            "bond": {
+              "face": 10000,
+              "couponRate": null
+            }
+          },
+          "expected": null,
+          "hand_calculation": "No rate entered returns null."
+        }
+      ],
+      "source_refs": [
+        "DEC-2748b",
+        "Unknown is not zero"
+      ]
+    },
+    {
+      "id": "MK-NW-F-058",
+      "name": "yearsToMaturity",
+      "changed_since_prior_audit": null,
+      "formula_review": "FORMULA SPECIFIED; ANNIVERSARY AND LEAP-DAY LOGIC NEED EXECUTION TESTS",
+      "formula_in_words_reviewed": "Count whole years back from maturity while maturity remains on/after today, then add days to next anniversary divided by that year’s days; date-only comparison; 0 if today/past; null if no date or invalid calendar date.",
+      "findings": "Do not use hours/time-of-day; a non-existent anniversary date must not roll forward. Exact date arithmetic around leap days and maturity today needs validation.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "One year exactly",
+          "inputs": {
+            "maturity": "2027-10-13",
+            "now": "2026-10-13T15:00:00"
+          },
+          "expected": 1.0,
+          "hand_calculation": "Same calendar date one year later is exactly 1."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Maturity today",
+          "inputs": {
+            "maturity": "2026-10-13",
+            "now": "2026-10-13T23:59:00"
+          },
+          "expected": 0,
+          "hand_calculation": "Date-only comparison makes it matured today."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Past maturity",
+          "inputs": {
+            "maturity": "2025-10-13",
+            "now": "2026-10-13T00:01:00"
+          },
+          "expected": 0,
+          "hand_calculation": "Past dates return zero, not negative years."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Missing or invalid date",
+          "inputs": {
+            "maturity": "2026-02-30",
+            "now": "2026-01-01T00:00:00"
+          },
+          "expected": null,
+          "hand_calculation": "Invalid calendar date returns null."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "One day before one-year anniversary",
+          "inputs": {
+            "maturity": "2027-10-12",
+            "now": "2026-10-13T23:59:59"
+          },
+          "expected": 0.9972602739726028,
+          "hand_calculation": "Maturity is one day before the next anniversary: 364 days / 365 days in the anniversary year = 0.99726027. Confirm implementation denominator convention across leap-day cases."
+        }
+      ],
+      "source_refs": [
+        "DEC-3279b",
+        "DEC-3279c",
+        "DEC-2748g"
+      ]
+    },
+    {
+      "id": "MK-NW-F-059",
+      "name": "currentYield",
+      "changed_since_prior_audit": null,
+      "formula_review": "FORMULA CLEAR; RATE MISSING AND ZERO VALUE NEED TESTS",
+      "formula_in_words_reviewed": "Annual interest divided by entered market value; accrued interest excluded; null when coupon rate not entered or value ≤0.",
+      "findings": "Card says yearlyInterest ÷ value; yearlyInterest must remain unknown if coupon rate is missing, not turn missing into zero. Ensure accrued interest does not enter denominator.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Standard current yield",
+          "inputs": {
+            "bond": {
+              "face": 10000,
+              "couponRate": 0.045,
+              "value": 24200
+            }
+          },
+          "expected": 0.0185950413,
+          "hand_calculation": "Annual interest 450 / statement value 24200 ≈ 1.8595%."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Value is statement market value",
+          "inputs": {
+            "bond": {
+              "face": 25000,
+              "couponRate": 0.045,
+              "value": 24200,
+              "accruedInterest": 1119
+            }
+          },
+          "expected": 0.0464876033,
+          "hand_calculation": "Annual interest 1125 / 24200 ≈ 4.6488%; accrued interest is excluded from value denominator."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Zero coupon rate yields zero when value positive",
+          "inputs": {
+            "bond": {
+              "face": 10000,
+              "couponRate": 0,
+              "value": 9500
+            }
+          },
+          "expected": 0,
+          "hand_calculation": "Known coupon is zero; yield = 0 / 9500 = 0."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "No coupon rate entered",
+          "inputs": {
+            "bond": {
+              "face": 10000,
+              "couponRate": null,
+              "value": 9500
+            }
+          },
+          "expected": null,
+          "hand_calculation": "Unknown yearly interest; null rather than 0%."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Nonpositive value refuses yield",
+          "inputs": {
+            "bond": {
+              "face": 10000,
+              "couponRate": 0.04,
+              "value": 0
+            }
+          },
+          "expected": null,
+          "hand_calculation": "Value <=0 yields null."
+        }
+      ],
+      "source_refs": [
+        "DEC-3390",
+        "DEC-2748b"
+      ]
+    },
+    {
+      "id": "MK-NW-F-060",
+      "name": "approxYTM",
+      "changed_since_prior_audit": null,
+      "formula_review": "HIGH-RISK NUMERICAL/BRANCHING FORMULA; PRICE CONVENTION NEEDS TESTS",
+      "formula_in_words_reviewed": "Null without valid future maturity or after maturity. Bank CD uses entered coupon rate directly (null if missing). Bonds and broker CDs require face, rate and positive value; solve yield where priceAtYield equals statement value plus entered or estimated accrued interest, using 200 bisections.",
+      "findings": "Need test bank vs broker CD branch, no maturity/matured, missing face/rate, zero value, accrued-interest fallback, convergence bracket and monotonicity. Expected numeric YTM should be independently computed using the same coupon schedule convention in the code; card alone does not provide priceAtYield details.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Bank CD returns stated rate",
+          "inputs": {
+            "bond": {
+              "isCd": true,
+              "cdBought": "bank",
+              "couponRate": 0.042,
+              "face": null,
+              "value": 10000,
+              "maturity": "2028-10-13"
+            },
+            "now": "2026-10-13"
+          },
+          "expected": 0.042,
+          "hand_calculation": "Bank CD YTM is its entered rate, regardless of face value."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "No maturity date refuses",
+          "inputs": {
+            "bond": {
+              "isCd": false,
+              "couponRate": 0.04,
+              "face": 10000,
+              "value": 9800,
+              "maturity": ""
+            },
+            "now": "2026-10-13"
+          },
+          "expected": null,
+          "hand_calculation": "No maturity date means no YTM."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Broker CD uses bond pricing, not coupon rate shortcut",
+          "inputs": {
+            "bond": {
+              "isCd": true,
+              "cdBought": "broker",
+              "couponRate": 0.042,
+              "face": 10000,
+              "value": 9850,
+              "maturity": "2028-10-13",
+              "accruedInterest": 0
+            },
+            "now": "2026-10-13"
+          },
+          "expected": "approximately 0.050 (about 5.0%, per DEC-3837 example)",
+          "hand_calculation": "Must solve price equation using face, coupon, current value and remaining maturity; do not simply return 4.2%."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Missing coupon rate refuses bond YTM",
+          "inputs": {
+            "bond": {
+              "isCd": false,
+              "couponRate": null,
+              "face": 10000,
+              "value": 9800,
+              "maturity": "2028-10-13"
+            },
+            "now": "2026-10-13"
+          },
+          "expected": null,
+          "hand_calculation": "Rate never entered → null, not zero-coupon bond."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Matured bond returns null",
+          "inputs": {
+            "bond": {
+              "isCd": false,
+              "couponRate": 0.04,
+              "face": 10000,
+              "value": 10000,
+              "maturity": "2026-10-12"
+            },
+            "now": "2026-10-13"
+          },
+          "expected": null,
+          "hand_calculation": "Maturity is past; no yield estimate."
+        }
+      ],
+      "source_refs": [
+        "DEC-3390",
+        "DEC-3837",
+        "DEC-3279c"
+      ]
+    },
+    {
+      "id": "MK-NW-F-061",
+      "name": "bondSummary",
+      "changed_since_prior_audit": null,
+      "formula_review": "AGGREGATION RULES CLEAR; UNKNOWN-VS-ZERO DISPLAY MUST REMAIN SEPARATE",
+      "formula_in_words_reviewed": "Aggregate count, value, face (missing face counts zero only in total but separately identified), annual interest (matured bonds zero; missing rate zero in aggregate), average yield only over bonds with positive value/rate/not matured; next maturity is earliest future date.",
+      "findings": "Potential tension: totalFace sums missing face as zero but separately names bonds without face; this is allowed only if UI labels omissions. Average yield inclusion needs positive value and rate; ensure typed zero rate qualifies and yields 0% rather than being treated missing.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "One qualifying bond",
+          "inputs": {
+            "bonds": [
+              {
+                "face": 10000,
+                "couponRate": 0.04,
+                "value": 9800,
+                "maturity": "2027-10-13"
+              }
+            ],
+            "now": "2026-10-13"
+          },
+          "expected": {
+            "count": 1,
+            "totalValue": 9800,
+            "totalFace": 10000,
+            "annualCoupon": 400,
+            "avgYield": 0.04081632653061224,
+            "nextMaturity": "2027-10-13"
+          },
+          "hand_calculation": "Coupon 400; yield 400/9800≈4.0816%; one future maturity."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "Missing face separately identified",
+          "inputs": {
+            "bonds": [
+              {
+                "face": null,
+                "couponRate": 0.04,
+                "value": 9800,
+                "maturity": "2027-10-13"
+              }
+            ],
+            "now": "2026-10-13"
+          },
+          "expected": {
+            "count": 1,
+            "totalValue": 9800,
+            "totalFace": 0,
+            "annualCoupon": 0,
+            "avgYield": 0.04081632653061224,
+            "nextMaturity": "2027-10-13",
+            "faceNotEntered": 1
+          },
+          "hand_calculation": "Per card totalFace uses 0 for aggregation but the bond must be named as face not entered; annual coupon cannot be computed without face if yearlyInterest depends on face.",
+          "assertion_notes": "Important dependency: expected annualCoupon depends on how yearlyInterestNow treats missing face; inspect actual helper."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Matured bond contributes zero interest and is not next maturity",
+          "inputs": {
+            "bonds": [
+              {
+                "face": 10000,
+                "couponRate": 0.04,
+                "value": 10000,
+                "maturity": "2026-10-12"
+              },
+              {
+                "face": 5000,
+                "couponRate": 0.05,
+                "value": 4900,
+                "maturity": "2028-01-01"
+              }
+            ],
+            "now": "2026-10-13"
+          },
+          "expected": {
+            "count": 2,
+            "totalValue": 14900,
+            "totalFace": 15000,
+            "annualCoupon": 250,
+            "nextMaturity": "2028-01-01"
+          },
+          "hand_calculation": "Matured first bond coupon 0; second coupon 250."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Typed zero coupon rate qualifies in yield average",
+          "inputs": {
+            "bonds": [
+              {
+                "face": 10000,
+                "couponRate": 0,
+                "value": 10000,
+                "maturity": "2027-10-13"
+              },
+              {
+                "face": 10000,
+                "couponRate": 0.05,
+                "value": 10000,
+                "maturity": "2028-10-13"
+              }
+            ],
+            "now": "2026-10-13"
+          },
+          "expected": {
+            "count": 2,
+            "totalValue": 20000,
+            "totalFace": 20000,
+            "annualCoupon": 500,
+            "avgYield": 0.025,
+            "nextMaturity": "2027-10-13"
+          },
+          "hand_calculation": "Yields 0% and 5%, average = 2.5%; if average is weighted by value this matches equal values, otherwise verify simple average as card implies."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "No bond qualifies for average yield",
+          "inputs": {
+            "bonds": [
+              {
+                "face": 10000,
+                "couponRate": null,
+                "value": 9800,
+                "maturity": "2027-10-13"
+              }
+            ],
+            "now": "2026-10-13"
+          },
+          "expected": {
+            "avgYield": null,
+            "nextMaturity": "2027-10-13"
+          },
+          "hand_calculation": "No rate entered means no average yield; future maturity still appears."
+        }
+      ],
+      "source_refs": [
+        "DEC-2748b",
+        "DEC-2748d",
+        "DEC-3390"
+      ]
+    },
+    {
+      "id": "MK-NW-F-062",
+      "name": "couponIncomeAnnual",
+      "changed_since_prior_audit": null,
+      "formula_review": "AGGREGATE RULE CLEAR; MISSING RATE MUST BE NAMED ELSEWHERE",
+      "formula_in_words_reviewed": "Sum yearlyInterestNow over accounts classified as bonds/CDs; matured accounts contribute zero; missing rates contribute zero to this aggregate.",
+      "findings": "The function returns a number, so unknown rate is counted as zero in total by rule, but UI must separately disclose missing rates (DEC-2748b). Ensure account classification uses isBond/assetClassOf.",
+      "test_cases": [
+        {
+          "case_id": 1,
+          "class": "Easy",
+          "description": "Two known coupons sum",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_class": "bonds",
+                "face_value": 10000,
+                "coupon_rate": 0.04,
+                "maturity_date": "2028-01-01",
+                "balance": 9800
+              },
+              {
+                "asset_class": "bonds",
+                "face_value": 5000,
+                "coupon_rate": 0.05,
+                "maturity_date": "2028-01-01",
+                "balance": 4900
+              }
+            ],
+            "now": "2026-10-13"
+          },
+          "expected": 650,
+          "hand_calculation": "400 + 250 = $650/year."
+        },
+        {
+          "case_id": 2,
+          "class": "Easy",
+          "description": "No bonds",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_class": "cash",
+                "balance": 10000
+              }
+            ],
+            "now": "2026-10-13"
+          },
+          "expected": 0,
+          "hand_calculation": "No bond/CD accounts → 0."
+        },
+        {
+          "case_id": 3,
+          "class": "Complex",
+          "description": "Matured bond interest is zero",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_class": "bonds",
+                "face_value": 10000,
+                "coupon_rate": 0.04,
+                "maturity_date": "2026-10-12",
+                "balance": 10000
+              },
+              {
+                "asset_class": "bonds",
+                "face_value": 5000,
+                "coupon_rate": 0.05,
+                "maturity_date": "2028-01-01",
+                "balance": 5000
+              }
+            ],
+            "now": "2026-10-13"
+          },
+          "expected": 250,
+          "hand_calculation": "Matured $10k bond contributes 0; future bond contributes $250."
+        },
+        {
+          "case_id": 4,
+          "class": "Complex",
+          "description": "Missing rate contributes zero in total but remains unknown",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_class": "bonds",
+                "face_value": 10000,
+                "coupon_rate": null,
+                "maturity_date": "2028-01-01",
+                "balance": 9800
+              },
+              {
+                "asset_class": "bonds",
+                "face_value": 5000,
+                "coupon_rate": 0.05,
+                "maturity_date": "2028-01-01",
+                "balance": 4900
+              }
+            ],
+            "now": "2026-10-13"
+          },
+          "expected": 250,
+          "hand_calculation": "Unknown-rate bond contributes zero to aggregate per card; separate UI must disclose its rate was not entered."
+        },
+        {
+          "case_id": 5,
+          "class": "Edge",
+          "description": "Typed zero coupon does not mean missing rate",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_class": "bonds",
+                "face_value": 10000,
+                "coupon_rate": 0,
+                "maturity_date": "2028-01-01",
+                "balance": 10000
+              }
+            ],
+            "now": "2026-10-13"
+          },
+          "expected": 0,
+          "hand_calculation": "Known zero coupon contributes $0; state differs from no rate even though aggregate numeric total matches."
+        }
+      ],
+      "source_refs": [
+        "DEC-2748b",
+        "DEC-2748d"
+      ]
+    }
+  ],
+  "case_count_by_class": {
+    "Easy": 60,
+    "Complex": 60,
+    "Edge": 30
+  },
+  "claude_execution_notes": [
+    "Read the card file and governing brief; use the exact function names and signatures shown on each card, not invented calcFxxx names.",
+    "Find implementation and tests in repository; adapt fixture field names to actual TypeScript types without changing business semantics or expected values.",
+    "Where a case has conditional expected output or a note says inspect helper/enum, resolve it from actual source before executing and record the resolution. Do not silently guess.",
+    "Use fixed `now` values for date functions; avoid wall-clock dependence.",
+    "Compare numeric outputs with a documented tolerance appropriate to money/rates. Use exact decimal assertions for itemization; compare object fields and strings exactly where specified.",
+    "Report each case PASS/FAIL/BLOCKED, actual output, expected output, source path/function, and reason. Never edit production code as part of the audit run.",
+    "Run integration tests for getAssetsState (uid isolation, absent document, empty list, storage errors) and reclassifyAccounts/buildItemizedAccounts mutation paths.",
+    "The audit review is not evidence that code has been executed. Attach actual run logs and do not call specification findings confirmed implementation bugs until a case fails."
+  ]
+}

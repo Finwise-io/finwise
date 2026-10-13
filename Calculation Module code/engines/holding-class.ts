@@ -46,6 +46,14 @@ const CD_TBILL_RE = /\b(cd|certificate of deposit|t-?bills?|treasury bills?)\b/i
 const FIXED_INCOME_RE = /\b(bond|note|treasury|treas|t-note|muni|debenture|cpn|zero cpn)\b/i;   // TREAS/CPN: Fidelity positions export, seen 2026-08-20
 // a coupon-with-maturity shape ("1.625% … DUE 2026") is a bond however the broker tagged it
 const COUPON_MATURITY_RE = /\d(\.\d+)?%.*\b(DUE|20\d\d)\b/i;
+// A COUPON BESIDE A BOND WORD IS A BOND, WHOEVER ISSUED IT (outside re-run, 2026-10-13): "Apple Corp 4.5% Bond" —
+// the percent says the word Bond is the instrument, so the company word does not switch it off.
+const COUPON_BOND_RE = /\d(\.\d+)?\s*%\s*(bonds?|notes?|debentures?|cpn)\b|\b(bonds?|notes?|debentures?)\s+\d(\.\d+)?\s*%/i;
+// A BOND WORD THAT STARTS A COMPANY'S NAME IS THE NAME (DEC-2747d, re-run 2026-10-13): a bond word followed
+// straight away by a business word — "Treasury Wine Estates", "Bond Brands Group" — names a company, with or
+// without Ltd after it. A real Treasury is followed by a type, a term or a year ("Treasury Bond 10Y",
+// "Treasury 2031", "TREAS NOTE"), never by one of these words.
+const BOND_WORD_COMPANY_RE = /\b(treasury|treas|bond|note|muni)\s+(wines?|estates?|group|holdings?|brands?|partners|properties|industries|hotels?|foods?|energy|technologies|systems|pharmaceuticals?|enterprises?)\b/i;
 
 /** What the NAME (symbol + description together) says, or null when it says nothing.
  *  Ordered specific-before-general, same discipline as the event table. */
@@ -70,7 +78,7 @@ const COUPON_MATURITY_RE = /\d(\.\d+)?%.*\b(DUE|20\d\d)\b/i;
  *
  * Called by ... MK-NW-F-008 incomeBearingClassOf · MK-ST-F-011 classifyHoldingClass
  *
- * Reaches ..... 210 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 209 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -80,7 +88,7 @@ const COUPON_MATURITY_RE = /\d(\.\d+)?%.*\b(DUE|20\d\d)\b/i;
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 192 more — the full list is on functions_from_code
+ *               … and 191 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-013 bond maturity date
@@ -117,9 +125,12 @@ export function nameEvidence(label?: string | null): HoldingClass | null {
   // cross-path probe documented that gap; the word and the two seen tickers (FXE, FXY) close it.
   if (/\b(currency|currencies|currencyshares|forex)\b/i.test(t) || words.some((w) => w === 'FXE' || w === 'FXY')) return 'alternatives';
   // a bond word inside a COMPANY name (Treasury Wine Estates Ltd) is a share, not a bond — the same
-  // company test the commodity words use; a coupon with a year is a bond whatever the name
-  if (CD_TBILL_RE.test(t) || (FIXED_INCOME_RE.test(t) && !COMPANY_WORDS.test(t)) || COUPON_MATURITY_RE.test(t)
-    || /CERTIFICATE OF DEP|T[- ]BILL/i.test(t)) return 'bonds';
+  // company test the commodity words use, plus a bond word followed by a business word (Treasury Wine
+  // Estates, no Ltd). A coupon with a year, or a coupon beside a bond word, is a bond whatever the name.
+  // UST is the market's short name for a US Treasury ("UST 2031").
+  const aCompany = COMPANY_WORDS.test(t) || BOND_WORD_COMPANY_RE.test(t);
+  if (CD_TBILL_RE.test(t) || ((FIXED_INCOME_RE.test(t) || words.includes('UST')) && !aCompany) || COUPON_MATURITY_RE.test(t)
+    || COUPON_BOND_RE.test(t) || /CERTIFICATE OF DEP|T[- ]BILL/i.test(t)) return 'bonds';
   return null;
 }
 

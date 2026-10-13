@@ -1,0 +1,3514 @@
+{
+  "batch": "nw module final — part 3",
+  "audit_scope": {
+    "source_card_file": "moneykeel_audit_module_nw_for-openai_v02_cards-part-3-of-4(1).md",
+    "cards_reviewed": 30,
+    "case_count": 150,
+    "case_classes": {
+      "Easy": 60,
+      "Complex": 60,
+      "Edge": 30
+    },
+    "basis": "Independent review of the supplied function cards and main decision brief. The implementation repository was not supplied; these are oracle cases, not executed application tests.",
+    "case_design": "Five cases per card: two straightforward, two interaction/complex, one boundary or edge. Conceptual input keys and expected object shapes must be mapped to the real TypeScript interfaces by Claude Code without changing intended behavior."
+  },
+  "executive_findings": [
+    {
+      "severity": "HIGH",
+      "area": "Unknown-value propagation",
+      "cards": [
+        "MK-NW-F-066",
+        "MK-NW-F-091",
+        "MK-NW-F-094",
+        "MK-NW-F-112"
+      ],
+      "finding": "Missing balance/rate/return must remain distinguishable from numeric zero. pricedGainOf returns null for the whole total if any positive holding has no knowable gain. The card says yearlyInterest returns null for missing rate, while the main brief says annual interest is counted as $0 and disclosed; verify this helper-vs-display distinction rather than flattening unknown into a known 0% yield."
+    },
+    {
+      "severity": "HIGH",
+      "area": "Bond/CD calculations",
+      "cards": [
+        "MK-NW-F-063",
+        "MK-NW-F-064",
+        "MK-NW-F-069",
+        "MK-NW-F-070",
+        "MK-NW-F-072"
+      ],
+      "finding": "Maturity, missing face/rate, bank-versus-broker CD treatment, priceAtYield, accrued interest and summary reconciliation interact. Exact pricing/sensitivity outputs require real helper execution; do not replace source conventions with a generic bond calculator."
+    },
+    {
+      "severity": "HIGH",
+      "area": "Classification precedence",
+      "cards": [
+        "MK-NW-F-071",
+        "MK-NW-F-109",
+        "MK-NW-F-113"
+      ],
+      "finding": "CD detection must ignore institution; money-market funds are Stocks / Funds, not cash; unclassified alternatives remainder is not “other” and must not receive a rate."
+    },
+    {
+      "severity": "HIGH",
+      "area": "Performance window and returns",
+      "cards": [
+        "MK-NW-F-084",
+        "MK-NW-F-090",
+        "MK-NW-F-091",
+        "MK-NW-F-103",
+        "MK-NW-F-104",
+        "MK-NW-F-105"
+      ],
+      "finding": "Window start, transaction category mapping, known-gain coverage, recorded investment dates, synthetic closing snapshot and no-return reasons need integrated regression tests. DEC-2440 says every return is time-weighted; this part covers adjacent support functions, not the full return engine."
+    },
+    {
+      "severity": "MEDIUM",
+      "area": "Property/debt relationship",
+      "cards": [
+        "MK-NW-F-106",
+        "MK-NW-F-107",
+        "MK-NW-F-110",
+        "MK-NW-F-115",
+        "MK-NW-F-116"
+      ],
+      "finding": "Mortgage/property mapping must not guess when ambiguous. Rent entries without a property identifier are excluded; primary-home fallback is conditional, not universal."
+    },
+    {
+      "severity": "MEDIUM",
+      "area": "Strict display/input helpers",
+      "cards": [
+        "MK-NW-F-067",
+        "MK-NW-F-068",
+        "MK-NW-F-108",
+        "MK-NW-F-111",
+        "MK-NW-F-114"
+      ],
+      "finding": "Plural word allow-list, timezone-independent date formatting, tax wording overrides, empty state null semantics, and strict rent parsing have explicit boundary conditions."
+    }
+  ],
+  "cards": [
+    {
+      "id": "MK-NW-F-063",
+      "name": "interestIncomeAnnual",
+      "kind": "function",
+      "what_it_is_for": "The interest every bond, CD and rate-paying cash account pays in a year, added up, counting nothing for a holding that states no rate.",
+      "formula_in_words": "For a bond or CD: nothing when it is past its maturity date (isPastMaturity, by the calendar; no date or an impossible one is not past); otherwise yearlyInterest (face × rate; with no face, balance × rate; with no rate, nothing). For a cash account that states a rate: balance × rate. Nothing for anything else. Added up over every account.",
+      "handed": "export function interestIncomeAnnual(accounts: AssetAccount[], now: Date = new Date()): number",
+      "inputs_it_reads": [
+        "MK-XS-I-001 account balance",
+        "MK-XS-I-012 bond coupon rate"
+      ],
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "For a bond or CD: nothing when it is past its maturity date (isPastMaturity, by the calendar; no date or an impossible one is not past); otherwise yearlyInterest (face × rate; with no face, balance × rate; with no rate, nothing). For a cash account that states a rate: balance × rate. Nothing for anything else. Added up over every account.",
+      "findings": "Check that missing rate remains unknown per yearlyInterest (null is distinct from explicit zero); no-date/impossible maturity is not considered matured. Confirm cash rate field shape. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Bond face × coupon rate",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "bond",
+                "face_value": 10000,
+                "coupon_rate": 0.04,
+                "maturity_date": "2030-01-01"
+              }
+            ],
+            "now": "2026-10-13"
+          },
+          "expected": 400,
+          "hand_calculation": "$10,000 × 4% = $400.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Rate-paying cash account plus bond",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "bond",
+                "face_value": 20000,
+                "coupon_rate": 0.05,
+                "maturity_date": "2030-01-01"
+              },
+              {
+                "kind": "cash",
+                "balance": 5000,
+                "rate": 0.02
+              }
+            ],
+            "now": "2026-10-13"
+          },
+          "expected": 1100,
+          "hand_calculation": "Bond $1,000 + cash $100 = $1,100.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Missing face falls back to balance",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "bond",
+                "face_value": null,
+                "balance": 8000,
+                "coupon_rate": 0.03,
+                "maturity_date": "2030-01-01"
+              }
+            ],
+            "now": "2026-10-13"
+          },
+          "expected": 240,
+          "hand_calculation": "No face, so $8,000 × 3% = $240.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Matured bond excluded; no date is not matured",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "bond",
+                "face_value": 10000,
+                "coupon_rate": 0.05,
+                "maturity_date": "2026-01-01"
+              },
+              {
+                "kind": "bond",
+                "face_value": 5000,
+                "coupon_rate": 0.04,
+                "maturity_date": null
+              }
+            ],
+            "now": "2026-10-13"
+          },
+          "expected": 200,
+          "hand_calculation": "Matured bond contributes $0; undated bond is not past maturity and contributes $5,000 × 4% = $200.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Unknown rates and non-bond non-cash assets add nothing",
+          "inputs": {
+            "accounts": [
+              {
+                "kind": "bond",
+                "face_value": 10000,
+                "coupon_rate": null,
+                "maturity_date": "2030-01-01"
+              },
+              {
+                "kind": "stocks",
+                "balance": 90000
+              },
+              {
+                "kind": "cash",
+                "balance": 2000,
+                "rate": null
+              }
+            ],
+            "now": "2026-10-13"
+          },
+          "expected": 0,
+          "hand_calculation": "No known rate-paying eligible account; total $0.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-064",
+      "name": "bondRateSensitivity",
+      "kind": "function",
+      "what_it_is_for": "What happens to this bond if interest rates move?",
+      "formula_in_words": "Nothing for a CD bought from the bank (pricedLikeBond says no; a CD bought through a broker is priced like a bond, DEC-3837, 2026-10-10), when the yield to maturity is unknown, when the bond cannot be priced (matured or no date), or when the face value or rate was not entered or is zero or less. For rates one percentage point UP and one DOWN: the change = priceAtYield at the yield to maturity plus or minus one point (never below 0.01%) less priceAtYield at the yield to maturity itself. The new price = today's value + that change. It gives a range from 1% under to 1% over the new price, and the change, each rounded in proportion to the bond: to the nearest $1,000 for a bond worth $100,000 or more, the nearest $100 from $10,000, the nearest $10 from $1,000, and so on down.",
+      "handed": "export function bondRateSensitivity(b: BondInfo, now: Date = new Date()): RateSensitivity | null",
+      "inputs_it_reads": [
+        "MK-XS-I-011 bond face value",
+        "MK-XS-I-012 bond coupon rate",
+        "MK-XS-I-049 bond price — what the bond is worth today"
+      ],
+      "figures_it_feeds": [
+        {
+          "id": "MK-NW-M-028",
+          "words_on_screen": "Rates rise 1% → value roughly $X–$Y",
+          "unit": "words",
+          "what_it_answers": "Roughly what this bond would be worth if interest rates moved one percent either way.",
+          "when_it_refuses": "Refused for a CD bought from the bank, for a matured bond, and for anything with no coupon or no maturity — and for a bank CD it says plainly why nothing happens.",
+          "shown_on": [
+            "/account-detail"
+          ]
+        }
+      ],
+      "rules": [
+        {
+          "said_by": "owner",
+          "decision": "DEC-0071",
+          "date": "2026-08-11",
+          "words": "put % and labels on donut"
+        },
+        {
+          "said_by": "author",
+          "about": "MK-NW-M-028",
+          "words": "An estimate, and it wears the estimate label."
+        },
+        {
+          "said_by": "author",
+          "about": "MK-NW-M-028",
+          "words": "FOUNDER 2026-09-27: a CD bought from the bank gets no estimate. It is not traded, so its value does not move with rates; the screen says that instead."
+        },
+        {
+          "said_by": "author",
+          "about": "MK-NW-M-028",
+          "words": "DEC-3837, 2026-10-10: a CD bought through a broker trades, so it gets the estimate like a bond. A CD whose answer was never given is read as bought from the bank."
+        }
+      ],
+      "changed_since_prior_audit": null,
+      "formula_review": "INCOMPLETE_SPECIFICATION_OR_INTEGRATION_RISK",
+      "formula_in_words_reviewed": "Nothing for a CD bought from the bank (pricedLikeBond says no; a CD bought through a broker is priced like a bond, DEC-3837, 2026-10-10), when the yield to maturity is unknown, when the bond cannot be priced (matured or no date), or when the face value or rate was not entered or is zero or less. For rates one percentage point UP and one DOWN: the change = priceAtYield at the yield to maturity plus or minus one point (never below 0.01%) less priceAtYield at the yield to maturity itself. The new price = today's value + that change. It gives a range from 1% under to 1% over the new price, and the change, each rounded in proportion to the bond: to the nearest $1,000 for a bond worth $100,000 or more, the nearest $100 from $10,000, the nearest $10 from $1,000, and so on down.",
+      "findings": "High-risk: rounding scale wording is ambiguous at thresholds; clarify whether “nearest $1,000 from $100,000” applies to range endpoints and delta separately. Broker-CD eligibility and bank-CD refusal must match DEC-3837. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Ordinary bond has a sensitivity estimate",
+          "inputs": {
+            "bond": {
+              "kind": "bond",
+              "face_value": 10000,
+              "coupon_rate": 0.04,
+              "maturity_date": "2030-10-13",
+              "market_value": 10000,
+              "ytm": 0.04
+            },
+            "now": "2026-10-13"
+          },
+          "expected": "Non-null sensitivity object; prices and rounded deltas from priceAtYield at 3.01%, 4%, 5%.",
+          "hand_calculation": "At least the face/rate/date/YTM prerequisites exist; calculate each scenario from priceAtYield, then apply scale-based rounding.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Bank CD refused with explicit reason",
+          "inputs": {
+            "bond": {
+              "kind": "cd",
+              "purchase_channel": "bank",
+              "face_value": 10000,
+              "coupon_rate": 0.04,
+              "maturity_date": "2028-10-13",
+              "market_value": 10000,
+              "ytm": 0.04
+            },
+            "now": "2026-10-13"
+          },
+          "expected": null,
+          "hand_calculation": "Bank-purchased CD is not priced like a bond; sensitivity returns null.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Broker CD eligible like bond",
+          "inputs": {
+            "bond": {
+              "kind": "cd",
+              "purchase_channel": "broker",
+              "face_value": 10000,
+              "coupon_rate": 0.04,
+              "maturity_date": "2028-10-13",
+              "market_value": 9850,
+              "ytm": 0.05
+            },
+            "now": "2026-10-13"
+          },
+          "expected": "Non-null sensitivity object",
+          "hand_calculation": "Broker CD is priced like a bond; prerequisites are present. Exact outputs must use actual priceAtYield convention and helper implementation.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Missing or nonpositive face/rate refuses",
+          "inputs": {
+            "bond": {
+              "kind": "bond",
+              "face_value": null,
+              "coupon_rate": 0,
+              "maturity_date": "2030-01-01",
+              "market_value": 10000,
+              "ytm": 0.04
+            },
+            "now": "2026-10-13"
+          },
+          "expected": null,
+          "hand_calculation": "Face is missing and coupon rate is not positive, either of which independently refuses sensitivity.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Matured or undated bond refuses",
+          "inputs": {
+            "bond": {
+              "kind": "bond",
+              "face_value": 10000,
+              "coupon_rate": 0.04,
+              "maturity_date": null,
+              "market_value": 10000,
+              "ytm": 0.04
+            },
+            "now": "2026-10-13"
+          },
+          "expected": null,
+          "hand_calculation": "No maturity date means it cannot be priced; return null.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": [
+        "DEC-0071"
+      ]
+    },
+    {
+      "id": "MK-NW-F-065",
+      "name": "buildNetWorth",
+      "kind": "function",
+      "what_it_is_for": "Net worth from two totals: everything owned less everything owed.",
+      "formula_in_words": "Net worth = total assets − total debt, returned with both totals.",
+      "handed": "export function buildNetWorth(uid: UserId, grossAssets: number, grossDebt: number): NetWorthState",
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "Net worth = total assets − total debt, returned with both totals.",
+      "findings": "Formula is simple. Verify state field names and preserve negative net worth; no clamping. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Assets exceed debt",
+          "inputs": {
+            "uid": "u1",
+            "grossAssets": 125000,
+            "grossDebt": 25000
+          },
+          "expected": {
+            "totalAssets": 125000,
+            "totalDebt": 25000,
+            "netWorth": 100000
+          },
+          "hand_calculation": "$125,000 − $25,000 = $100,000.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Debt exceeds assets",
+          "inputs": {
+            "uid": "u1",
+            "grossAssets": 20000,
+            "grossDebt": 45000
+          },
+          "expected": {
+            "totalAssets": 20000,
+            "totalDebt": 45000,
+            "netWorth": -25000
+          },
+          "hand_calculation": "$20,000 − $45,000 = −$25,000.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Zero totals",
+          "inputs": {
+            "uid": "u1",
+            "grossAssets": 0,
+            "grossDebt": 0
+          },
+          "expected": {
+            "totalAssets": 0,
+            "totalDebt": 0,
+            "netWorth": 0
+          },
+          "hand_calculation": "0 − 0 = 0.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Fractional cents preserve arithmetic per implementation precision",
+          "inputs": {
+            "uid": "u1",
+            "grossAssets": 100.25,
+            "grossDebt": 30.1
+          },
+          "expected": {
+            "totalAssets": 100.25,
+            "totalDebt": 30.1,
+            "netWorth": 70.15
+          },
+          "hand_calculation": "$100.25 − $30.10 = $70.15; check rounding/storage behavior.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Negative debt input is not silently normalized",
+          "inputs": {
+            "uid": "u1",
+            "grossAssets": 1000,
+            "grossDebt": -50
+          },
+          "expected": {
+            "totalAssets": 1000,
+            "totalDebt": -50,
+            "netWorth": 1050
+          },
+          "hand_calculation": "Formula is literal subtraction; this test detects hidden clamping/normalization.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-066",
+      "name": "sumWhere",
+      "kind": "function",
+      "what_it_is_for": "Adds up the balances of the accounts that pass a given test.",
+      "formula_in_words": "Over the accounts that pass the given test: the total = the balances that exist, added up (a negative balance counts), and beside it how many have no balance. A missing balance is never counted as zero. Nothing passing the test is a total of 0 with nothing missing.",
+      "handed": "export function sumWhere(accounts: AssetAccount[], pred: (a: AssetAccount) => boolean): { total: number; missingCount: number }",
+      "inputs_it_reads": [
+        "MK-XS-I-001 account balance"
+      ],
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "Over the accounts that pass the given test: the total = the balances that exist, added up (a negative balance counts), and beside it how many have no balance. A missing balance is never counted as zero. Nothing passing the test is a total of 0 with nothing missing.",
+      "findings": "Unknown-is-not-zero contract is explicit. Verify predicate is applied before counting missing values; negative and explicit zero balances must remain included. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Sum matching positive balances",
+          "inputs": {
+            "accounts": [
+              {
+                "balance": 100
+              },
+              {
+                "balance": 200
+              },
+              {
+                "balance": 50
+              }
+            ],
+            "predicate": "all"
+          },
+          "expected": {
+            "total": 350,
+            "missingCount": 0
+          },
+          "hand_calculation": "$100 + $200 + $50 = $350.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "No matching accounts",
+          "inputs": {
+            "accounts": [
+              {
+                "balance": 100
+              }
+            ],
+            "predicate": "none"
+          },
+          "expected": {
+            "total": 0,
+            "missingCount": 0
+          },
+          "hand_calculation": "No account passes: total 0, no missing values.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Missing balance counted separately, not as zero",
+          "inputs": {
+            "accounts": [
+              {
+                "balance": 100
+              },
+              {
+                "balance": null
+              },
+              {
+                "balance": 50
+              }
+            ],
+            "predicate": "all"
+          },
+          "expected": {
+            "total": 150,
+            "missingCount": 1
+          },
+          "hand_calculation": "Known sum is $150; one selected account has no balance.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Negative balance is included",
+          "inputs": {
+            "accounts": [
+              {
+                "balance": 500
+              },
+              {
+                "balance": -100
+              }
+            ],
+            "predicate": "all"
+          },
+          "expected": {
+            "total": 400,
+            "missingCount": 0
+          },
+          "hand_calculation": "$500 + (−$100) = $400.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Missing and negative balances together",
+          "inputs": {
+            "accounts": [
+              {
+                "balance": -25
+              },
+              {
+                "balance": null
+              },
+              {
+                "balance": 0
+              }
+            ],
+            "predicate": "all"
+          },
+          "expected": {
+            "total": -25,
+            "missingCount": 1
+          },
+          "hand_calculation": "Known balances sum to −$25; missing count 1; explicit zero remains known zero.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-067",
+      "name": "plural",
+      "kind": "function",
+      "what_it_is_for": "Writes a count with its noun, singular for one and plural otherwise: 1 CD, 3 CDs.",
+      "formula_in_words": "The count followed by the noun: the noun for exactly 1, otherwise its plural from the one list of words the app counts in words, PLURAL_WORDS (his ruling, 2026-10-10) — Treasury → Treasuries, property → properties, every other word on it adds s; zero takes the plural. The count is written as the caller gives it (a formatted figure or a number word) when one is given, otherwise the number. A word not on the list is refused (an error) in tests and development, never given a guessed s; a release build writes the word unchanged.",
+      "handed": "export function plural(n: number, word: CountedWord, shown: string | number = n): string",
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "The count followed by the noun: the noun for exactly 1, otherwise its plural from the one list of words the app counts in words, PLURAL_WORDS (his ruling, 2026-10-10) — Treasury → Treasuries, property → properties, every other word on it adds s; zero takes the plural. The count is written as the caller gives it (a formatted figure or a number word) when one is given, otherwise the number. A word not on the list is refused (an error) in tests and development, never given a guessed s; a release build writes the word unchanged.",
+      "findings": "Plural list and unknown-word behavior are explicit. Release fallback differs from test/development; test environments/build mode matter. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Singular one",
+          "inputs": {
+            "n": 1,
+            "word": "CD",
+            "shown": 1
+          },
+          "expected": "1 CD",
+          "hand_calculation": "Exactly one takes singular noun.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Plural count",
+          "inputs": {
+            "n": 3,
+            "word": "CD",
+            "shown": 3
+          },
+          "expected": "3 CDs",
+          "hand_calculation": "Three takes plural form.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Special plural Treasury",
+          "inputs": {
+            "n": 2,
+            "word": "Treasury",
+            "shown": "2"
+          },
+          "expected": "2 Treasuries",
+          "hand_calculation": "Treasury uses the declared special plural.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Zero plural and formatted shown value",
+          "inputs": {
+            "n": 0,
+            "word": "property",
+            "shown": "0"
+          },
+          "expected": "0 properties",
+          "hand_calculation": "Zero is not exactly one; property → properties.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Unknown word is refused in test/development",
+          "inputs": {
+            "n": 2,
+            "word": "widget",
+            "shown": 2
+          },
+          "expected": "throws in test/development; release returns \"2 widget\"",
+          "hand_calculation": "The word is outside PLURAL_WORDS; no guessed plural in tests/development.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-068",
+      "name": "prettyDay",
+      "kind": "function",
+      "what_it_is_for": "Writes a date as month, day and year: Aug 4, 2026.",
+      "formula_in_words": "Reads a date written year-month-day as a calendar date — never through a clock or a time zone — and writes the short month name (Jan … Dec, Sep not Sept), the day without a leading zero, a comma and the year. An empty or impossible date gives nothing.",
+      "handed": "export function prettyDay(iso: string): string",
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "Reads a date written year-month-day as a calendar date — never through a clock or a time zone — and writes the short month name (Jan … Dec, Sep not Sept), the day without a leading zero, a comma and the year. An empty or impossible date gives nothing.",
+      "findings": "Calendar parsing must not use timezone conversion; malformed ISO strings must return empty string. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "ISO date formats short month",
+          "inputs": {
+            "iso": "2026-08-04"
+          },
+          "expected": "Aug 4, 2026",
+          "hand_calculation": "Calendar date formats as abbreviated month, day without leading zero, comma, year.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "September is Sep, not Sept",
+          "inputs": {
+            "iso": "2026-09-09"
+          },
+          "expected": "Sep 9, 2026",
+          "hand_calculation": "Explicit month abbreviation rule.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Leap day",
+          "inputs": {
+            "iso": "2024-02-29"
+          },
+          "expected": "Feb 29, 2024",
+          "hand_calculation": "Valid leap day; preserve calendar date.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Impossible date gives empty string",
+          "inputs": {
+            "iso": "2026-02-30"
+          },
+          "expected": "",
+          "hand_calculation": "February 30 is invalid.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Empty date gives empty string",
+          "inputs": {
+            "iso": ""
+          },
+          "expected": "",
+          "hand_calculation": "No date supplied.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-069",
+      "name": "priceAtYield",
+      "kind": "function",
+      "what_it_is_for": "Price the bond's future cash flows at a given annual yield (yearly approximation).",
+      "formula_in_words": "Nothing when the bond has matured or has no maturity date, when no face value above zero was entered, or when 1 + yield is zero or less. Otherwise t = yearsToMaturity, exact; the yearly coupon (face × rate; zero when no rate was entered) falls on each maturity anniversary, at t, t − 1, … down to the last above zero; price = each coupon ÷ (1 + yield) to the power of its time, added up, plus face ÷ (1 + yield) to the power t.",
+      "handed": "export function priceAtYield(b: BondInfo, y: number, now: Date): number | null",
+      "inputs_it_reads": [
+        "MK-XS-I-011 bond face value",
+        "MK-XS-I-013 bond maturity date",
+        "MK-XS-I-049 bond price — what the bond is worth today"
+      ],
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "Nothing when the bond has matured or has no maturity date, when no face value above zero was entered, or when 1 + yield is zero or less. Otherwise t = yearsToMaturity, exact; the yearly coupon (face × rate; zero when no rate was entered) falls on each maturity anniversary, at t, t − 1, … down to the last above zero; price = each coupon ÷ (1 + yield) to the power of its time, added up, plus face ÷ (1 + yield) to the power t.",
+      "findings": "Independent calculation matches the stated annual approximation. Confirm exact fractional-year coupon schedule and anniversary/day-count convention, especially non-anniversary “now”. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Zero-coupon bond price",
+          "inputs": {
+            "bond": {
+              "face_value": 1000,
+              "coupon_rate": 0,
+              "maturity_date": "2027-10-13"
+            },
+            "yield": 0.05,
+            "now": "2026-10-13"
+          },
+          "expected": 952.38,
+          "hand_calculation": "t = 1 year; $1,000 / 1.05 = $952.38.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Annual coupon plus principal",
+          "inputs": {
+            "bond": {
+              "face_value": 1000,
+              "coupon_rate": 0.05,
+              "maturity_date": "2027-10-13"
+            },
+            "yield": 0.05,
+            "now": "2026-10-13"
+          },
+          "expected": 1000,
+          "hand_calculation": "t=1; coupon $50/1.05 plus principal $1,000/1.05 = $1,000.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Two years with coupon payments at anniversaries",
+          "inputs": {
+            "bond": {
+              "face_value": 1000,
+              "coupon_rate": 0.04,
+              "maturity_date": "2028-10-13"
+            },
+            "yield": 0.05,
+            "now": "2026-10-13"
+          },
+          "expected": 981.41,
+          "hand_calculation": "t=2; $40/1.05 + $1,040/1.05² = about $981.41.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Matured or undated returns null",
+          "inputs": {
+            "bond": {
+              "face_value": 1000,
+              "coupon_rate": 0.05,
+              "maturity_date": "2026-10-12"
+            },
+            "yield": 0.05,
+            "now": "2026-10-13"
+          },
+          "expected": null,
+          "hand_calculation": "Past maturity; cannot price.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Invalid discount base returns null",
+          "inputs": {
+            "bond": {
+              "face_value": 1000,
+              "coupon_rate": 0.05,
+              "maturity_date": "2027-10-13"
+            },
+            "yield": -1,
+            "now": "2026-10-13"
+          },
+          "expected": null,
+          "hand_calculation": "1 + yield = 0, so invalid discount base.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-070",
+      "name": "accruedInterestCaveat",
+      "kind": "function",
+      "what_it_is_for": "The note shown beside a bond's yield when its accrued interest was not entered, or nothing when it was.",
+      "formula_in_words": "When accrued interest was not entered and estimatedAccrued gives an estimate (a bond or a CD bought through a broker that pays interest, not a CD bought from the bank, not matured, not on a coupon day): his words — Added estimated $<the estimate, whole dollars> in accrued interest to bond value at <the rate>% coupon for <days> days (1 day for one; the plural from plural, the one list of words — his ruling of 2026-10-10) to calculate YTM. If this is not accurate, enter actual accrued interest. Otherwise nothing.",
+      "handed": "export function accruedInterestCaveat(b: BondInfo, now: Date = new Date()): string | null",
+      "inputs_it_reads": [
+        "MK-XS-I-012 bond coupon rate",
+        "MK-XS-I-049 bond price — what the bond is worth today",
+        "MK-XS-I-065 accrued interest on a bond — interest earned since the last coupon"
+      ],
+      "changed_since_prior_audit": null,
+      "formula_review": "INCOMPLETE_SPECIFICATION_OR_INTEGRATION_RISK",
+      "formula_in_words_reviewed": "When accrued interest was not entered and estimatedAccrued gives an estimate (a bond or a CD bought through a broker that pays interest, not a CD bought from the bank, not matured, not on a coupon day): his words — Added estimated $<the estimate, whole dollars> in accrued interest to bond value at <the rate>% coupon for <days> days (1 day for one; the plural from plural, the one list of words — his ruling of 2026-10-10) to calculate YTM. If this is not accurate, enter actual accrued interest. Otherwise nothing.",
+      "findings": "Exact caveat depends on estimatedAccrued and coupon-day logic. Need actual helper output for amount/days; bank CDs and actual accrued interest must suppress caveat. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "No caveat when actual accrued interest entered",
+          "inputs": {
+            "bond": {
+              "coupon_rate": 0.04,
+              "market_value": 9900,
+              "accrued_interest": 120,
+              "maturity_date": "2028-10-13",
+              "kind": "bond"
+            },
+            "now": "2026-10-13"
+          },
+          "expected": null,
+          "hand_calculation": "Actual accrued interest is entered; no estimate caveat.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Estimated accrued interest yields explanatory caveat",
+          "inputs": {
+            "bond": {
+              "coupon_rate": 0.04,
+              "market_value": 9900,
+              "accrued_interest": null,
+              "maturity_date": "2028-10-13",
+              "kind": "bond",
+              "estimated_accrued": 40,
+              "days_since_coupon": 90
+            },
+            "now": "2026-10-13"
+          },
+          "expected": "Added estimated $40 in accrued interest to bond value at 4% coupon for 90 days to calculate YTM. If this is not accurate, enter actual accrued interest.",
+          "hand_calculation": "Use supplied estimate, whole-dollar amount, rate and day count; exact punctuation/casing must match card text.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Bank CD excluded from estimate caveat",
+          "inputs": {
+            "bond": {
+              "kind": "cd",
+              "purchase_channel": "bank",
+              "coupon_rate": 0.04,
+              "market_value": 10000,
+              "accrued_interest": null,
+              "maturity_date": "2028-10-13"
+            },
+            "now": "2026-10-13"
+          },
+          "expected": null,
+          "hand_calculation": "Bank-purchased CD is excluded.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Coupon day excluded",
+          "inputs": {
+            "bond": {
+              "kind": "bond",
+              "coupon_rate": 0.04,
+              "market_value": 9900,
+              "accrued_interest": null,
+              "maturity_date": "2028-10-13",
+              "is_coupon_day": true,
+              "estimated_accrued": 0
+            },
+            "now": "2026-10-13"
+          },
+          "expected": null,
+          "hand_calculation": "Coupon day is an explicit exclusion.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Matured or no rate yields no estimate caveat",
+          "inputs": {
+            "bond": {
+              "kind": "bond",
+              "coupon_rate": null,
+              "market_value": 9900,
+              "accrued_interest": null,
+              "maturity_date": "2026-01-01"
+            },
+            "now": "2026-10-13"
+          },
+          "expected": null,
+          "hand_calculation": "No usable coupon estimate and bond is matured.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-071",
+      "name": "isCertificateOfDeposit",
+      "kind": "function",
+      "what_it_is_for": "Whether an account is a certificate of deposit, judged from its name.",
+      "formula_in_words": "True when bondInfo says the account is a CD: its kind is a CD, or its own name contains the whole word CD, or the words certificate of deposit, in any capitals. The institution's name is never read: a brokerage account at CD Capital is not a CD (DEC-4036c, 2026-10-10).",
+      "handed": "export function isCertificateOfDeposit(a: Pick<AssetAccount, 'label'> & { institution?: string; kind?: string }): boolean",
+      "inputs_it_reads": [
+        "MK-XS-I-003 institution name",
+        "MK-XS-I-011 bond face value",
+        "MK-XS-I-012 bond coupon rate",
+        "MK-XS-I-013 bond maturity date",
+        "MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest"
+      ],
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "True when bondInfo says the account is a CD: its kind is a CD, or its own name contains the whole word CD, or the words certificate of deposit, in any capitals. The institution's name is never read: a brokerage account at CD Capital is not a CD (DEC-4036c, 2026-10-10).",
+      "findings": "Card says whole word “CD” and phrase matching; verify word-boundary behavior and whether kind field is normalized. Institution must not influence classification. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Kind explicitly CD",
+          "inputs": {
+            "label": "Brokered deposit",
+            "kind": "cd",
+            "institution": "Example Bank"
+          },
+          "expected": true,
+          "hand_calculation": "CD kind alone is sufficient.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Whole word CD in own label, case-insensitive",
+          "inputs": {
+            "label": "My cd ladder",
+            "kind": "other",
+            "institution": "Bank"
+          },
+          "expected": true,
+          "hand_calculation": "Own label contains whole word cd.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Certificate of deposit phrase in own label",
+          "inputs": {
+            "label": "Certificate of Deposit 2028",
+            "kind": "other"
+          },
+          "expected": true,
+          "hand_calculation": "Phrase matches without regard to capitalization.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Institution name alone must not trigger CD",
+          "inputs": {
+            "label": "Taxable brokerage",
+            "kind": "investment",
+            "institution": "CD Capital"
+          },
+          "expected": false,
+          "hand_calculation": "Institution is explicitly ignored.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Substring inside a larger word is not whole word",
+          "inputs": {
+            "label": "CDsavings?",
+            "kind": "investment",
+            "institution": "Bank"
+          },
+          "expected": false,
+          "hand_calculation": "The card requires whole word CD or certificate of deposit; confirm plural token boundary behavior against implementation.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-072",
+      "name": "rowOf",
+      "kind": "function",
+      "what_it_is_for": "One bond's row for the Bonds screen: its face value, yearly interest rate, interest paid in a year, maturity date and years left.",
+      "formula_in_words": "One row for one bond: face value and yearly interest rate (each not entered when it was not), interest paid in a year (yearlyInterestNow: face × rate; with no face, value × rate; with no rate, not entered; $0 once past its maturity date, so the rows add up to the summary), maturity date, years left (yearsToMaturity — exact, never below zero), current yield, yield to maturity (approxYTM — solved exactly; nothing when matured), value, whether it is a CD, whether it is priced like a bond (pricedLikeBond: a bond, or a CD bought through a broker), and the accrued-interest note (accruedInterestCaveat, worked for today). The heading is the institution when it is not blank after trimming, otherwise the account's name.",
+      "handed": "export const rowOf = (a: AssetAccount, now: Date): BondRow",
+      "inputs_it_reads": [
+        "MK-XS-I-003 institution name",
+        "MK-XS-I-011 bond face value",
+        "MK-XS-I-012 bond coupon rate",
+        "MK-XS-I-013 bond maturity date",
+        "MK-XS-I-049 bond price — what the bond is worth today",
+        "MK-XS-I-065 accrued interest on a bond — interest earned since the last coupon"
+      ],
+      "changed_since_prior_audit": null,
+      "formula_review": "INCOMPLETE_SPECIFICATION_OR_INTEGRATION_RISK",
+      "formula_in_words_reviewed": "One row for one bond: face value and yearly interest rate (each not entered when it was not), interest paid in a year (yearlyInterestNow: face × rate; with no face, value × rate; with no rate, not entered; $0 once past its maturity date, so the rows add up to the summary), maturity date, years left (yearsToMaturity — exact, never below zero), current yield, yield to maturity (approxYTM — solved exactly; nothing when matured), value, whether it is a CD, whether it is priced like a bond (pricedLikeBond: a bond, or a CD bought through a broker), and the accrued-interest note (accruedInterestCaveat, worked for today). The heading is the institution when it is not blank after trimming, otherwise the account's name.",
+      "findings": "Composition contract needs helper integration tests. Important: missing face/rate must remain not-entered, while past-maturity annual interest is $0 for summary reconciliation. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Bond row exposes face, rate, interest, maturity and value",
+          "inputs": {
+            "account": {
+              "label": "Treasury note",
+              "institution": "Treasury Direct",
+              "bond_info": {
+                "face_value": 10000,
+                "coupon_rate": 0.04,
+                "maturity_date": "2028-10-13",
+                "market_value": 9800
+              }
+            },
+            "now": "2026-10-13"
+          },
+          "expected": "Row with face 10000, rate 4%, yearly interest 400, maturity 2028-10-13, years left 2, value 9800.",
+          "hand_calculation": "Face × rate = $400; two calendar years remain; remaining fields depend on helper functions.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Missing face/rate remain not entered",
+          "inputs": {
+            "account": {
+              "label": "Bond X",
+              "bond_info": {
+                "face_value": null,
+                "coupon_rate": null,
+                "maturity_date": "2030-01-01",
+                "market_value": 5000
+              }
+            },
+            "now": "2026-10-13"
+          },
+          "expected": "Face and rate are not-entered states; annual interest not entered; no invented zero rate.",
+          "hand_calculation": "Missing metadata must remain distinguishable from explicit zero.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Past maturity row interest is zero and YTM absent",
+          "inputs": {
+            "account": {
+              "label": "Old bond",
+              "bond_info": {
+                "face_value": 10000,
+                "coupon_rate": 0.04,
+                "maturity_date": "2026-01-01",
+                "market_value": 10000
+              }
+            },
+            "now": "2026-10-13"
+          },
+          "expected": "yearly interest $0; years left 0; YTM absent",
+          "hand_calculation": "Maturity passed; row-level interest is zero for reconciliation and YTM is unavailable.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Blank institution falls back to account name",
+          "inputs": {
+            "account": {
+              "label": "  My Bond  ",
+              "institution": "  ",
+              "bond_info": {
+                "face_value": 1000,
+                "coupon_rate": 0.03,
+                "maturity_date": "2028-01-01",
+                "market_value": 1000
+              }
+            },
+            "now": "2026-10-13"
+          },
+          "expected": "heading uses trimmed account name \"My Bond\"",
+          "hand_calculation": "Blank-after-trim institution falls back to account label.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Broker CD gets bond pricing and caveat only when applicable",
+          "inputs": {
+            "account": {
+              "label": "Broker CD",
+              "institution": "Broker",
+              "bond_info": {
+                "kind": "cd",
+                "purchase_channel": "broker",
+                "face_value": 10000,
+                "coupon_rate": 0.04,
+                "maturity_date": "2028-10-13",
+                "market_value": 9850,
+                "accrued_interest": null
+              }
+            },
+            "now": "2026-10-13"
+          },
+          "expected": "isCD=true; pricedLikeBond=true; YTM calculated like bond; accrued-interest caveat evaluated",
+          "hand_calculation": "Broker CD should not inherit bank-CD exemption. Exact YTM/caveat output needs helper integration.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-073",
+      "name": "itemising",
+      "kind": "function",
+      "what_it_is_for": "When an account entered as one total is broken into holdings: the total to keep, the value of the holdings listed so far, and the amount still not explained by them.",
+      "formula_in_words": "Returns four things. Keep-total-at = the balance the account was entered at. Itemised = the values of the listed holdings that have one, added up. Remainder = the entered balance less that sum. Remainder-final = false when any listed holding has no value (the remainder is then not final, never called unexplained).",
+      "handed": "export function itemising(lumpBalance: number, items: ItemHolding[]): Itemising",
+      "inputs_it_reads": [
+        "MK-XS-I-001 account balance",
+        "MK-XS-I-002 account type (taxable, pre-tax, Roth)",
+        "MK-XS-I-003 institution name",
+        "MK-XS-I-004 holding quantity (shares)",
+        "MK-XS-I-005 holding price",
+        "MK-XS-I-007 purchase price and date (per lot)",
+        "MK-XS-I-028 assumed return",
+        "MK-XS-I-048 the person’s own asset-class answer"
+      ],
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "Returns four things. Keep-total-at = the balance the account was entered at. Itemised = the values of the listed holdings that have one, added up. Remainder = the entered balance less that sum. Remainder-final = false when any listed holding has no value (the remainder is then not final, never called unexplained).",
+      "findings": "Remainder is provisional if any item lacks value. Verify negative remainder behavior and do not label provisional remainder “unexplained”. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "All holdings priced; remainder final",
+          "inputs": {
+            "lumpBalance": 10000,
+            "items": [
+              {
+                "value": 4000
+              },
+              {
+                "value": 2500
+              }
+            ]
+          },
+          "expected": {
+            "keepTotalAt": 10000,
+            "itemised": 6500,
+            "remainder": 3500,
+            "remainderFinal": true
+          },
+          "hand_calculation": "$4,000 + $2,500 = $6,500; $10,000 − $6,500 = $3,500.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "One unpriced holding makes remainder non-final",
+          "inputs": {
+            "lumpBalance": 10000,
+            "items": [
+              {
+                "value": 4000
+              },
+              {
+                "value": null
+              }
+            ]
+          },
+          "expected": {
+            "keepTotalAt": 10000,
+            "itemised": 4000,
+            "remainder": 6000,
+            "remainderFinal": false
+          },
+          "hand_calculation": "Known item sum $4,000; remainder arithmetic $6,000 is provisional and must not be called unexplained.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Items exceed lump total creates negative remainder",
+          "inputs": {
+            "lumpBalance": 10000,
+            "items": [
+              {
+                "value": 7000
+              },
+              {
+                "value": 4000
+              }
+            ]
+          },
+          "expected": {
+            "keepTotalAt": 10000,
+            "itemised": 11000,
+            "remainder": -1000,
+            "remainderFinal": true
+          },
+          "hand_calculation": "$10,000 − $11,000 = −$1,000; do not silently clamp without a rule.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Empty items leaves full balance remainder",
+          "inputs": {
+            "lumpBalance": 7500,
+            "items": []
+          },
+          "expected": {
+            "keepTotalAt": 7500,
+            "itemised": 0,
+            "remainder": 7500,
+            "remainderFinal": true
+          },
+          "hand_calculation": "No item values; sum is zero and no holding is missing.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Explicit zero item is valued, missing item is not",
+          "inputs": {
+            "lumpBalance": 5000,
+            "items": [
+              {
+                "value": 0
+              },
+              {
+                "value": null
+              }
+            ]
+          },
+          "expected": {
+            "keepTotalAt": 5000,
+            "itemised": 0,
+            "remainder": 5000,
+            "remainderFinal": false
+          },
+          "hand_calculation": "Known zero adds zero; second item makes remainder non-final.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-084",
+      "name": "categoryEarnings",
+      "kind": "function",
+      "what_it_is_for": "What each category of investment paid in dividends and interest over the period, and that category's return.",
+      "formula_in_words": "Uses the dividend and interest records dated on or after the period's first day, amounts taken as positive. A record that names a ticker goes to that holding's category: bond → Bonds & CDs; cash → Cash in this account; anything else → Stocks / Funds; a ticker with no holding on record → Stocks / Funds for a dividend, Bonds & CDs for interest. A record that names NO ticker → Stocks / Funds for a dividend; for interest, Bonds & CDs when the record's account is a bond or CD account handed in, else Cash in this account. A category's return, over the holdings with a value above zero and a period return above −100%: each holding's value at the start = its value now ÷ (1 + its return over the whole period, never a yearly rate); return = the values now added up ÷ the values at the start added up − 1. Nothing when no holding qualifies. Bonds & CDs shows a stated YEARLY rate instead — each bond account's rate weighted by its balance — when every bond account with a balance states a rate and no bond is held as a holding. On day one all three categories are returned with no return; any other day only the categories that earned more than zero.",
+      "handed": "export function categoryEarnings(input: {\n  /** every record, unfiltered — this takes the window’s own */\n  transactions: any[];\n  /** the window’s first day, or null for \"since the record began\" */\n  windowStart: string | null;\n  /** each holding with its class and its own return, as buildPerformance produces them */\n  rows: { position?: { ticker?: string; kind?: string; asset_class?: string }; periodReturn?: number | null; periodTotal?: number | null; marketValue?: number }[];\n  /** Every bond or CD held as its own account: which account it is, what it is worth and the yearly rate it states. */\n  bonds?: { asset_id?: string | number; balance?: number; coupon_rate?: number }[];\n  /** DAY ONE: every category is shown at $0 — \"every line fills in as days pass, the structure never\n   *  changes\" (Performance v17, phones 4 and 5). Any other day, a category that received nothing is\n   *  left out. */\n  dayOne?: boolean;\n}): CategoryEarned[]",
+      "inputs_it_reads": [
+        "MK-XS-I-001 account balance",
+        "MK-XS-I-005 holding price",
+        "MK-XS-I-008 transaction amount",
+        "MK-XS-I-012 bond coupon rate",
+        "MK-XS-I-024 logged expenses",
+        "MK-XS-I-048 the person’s own asset-class answer",
+        "MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest"
+      ],
+      "changed_since_prior_audit": null,
+      "formula_review": "INCOMPLETE_SPECIFICATION_OR_INTEGRATION_RISK",
+      "formula_in_words_reviewed": "Uses the dividend and interest records dated on or after the period's first day, amounts taken as positive. A record that names a ticker goes to that holding's category: bond → Bonds & CDs; cash → Cash in this account; anything else → Stocks / Funds; a ticker with no holding on record → Stocks / Funds for a dividend, Bonds & CDs for interest. A record that names NO ticker → Stocks / Funds for a dividend; for interest, Bonds & CDs when the record's account is a bond or CD account handed in, else Cash in this account. A category's return, over the holdings with a value above zero and a period return above −100%: each holding's value at the start = its value now ÷ (1 + its return over the whole period, never a yearly rate); return = the values now added up ÷ the values at the start added up − 1. Nothing when no holding qualifies. Bonds & CDs shows a stated YEARLY rate instead — each bond account's rate weighted by its balance — when every bond account with a balance states a rate and no bond is held as a holding. On day one all three categories are returned with no return; any other day only the categories that earned more than zero.",
+      "findings": "Complex branching across transaction ticker, transaction type, category, holding returns, dayOne, and bond-rate fallback. Verify amounts normalized positive and date boundary inclusive. Source alone does not define exact CategoryEarned schema. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Ticker dividend maps to holding class and positive income",
+          "inputs": {
+            "transactions": [
+              {
+                "type": "dividend",
+                "ticker": "ABC",
+                "amount": 25,
+                "date": "2026-01-15"
+              }
+            ],
+            "windowStart": "2026-01-01",
+            "rows": [
+              {
+                "position": {
+                  "ticker": "ABC",
+                  "asset_class": "Stocks / Funds"
+                },
+                "marketValue": 1000,
+                "periodReturn": 0.1,
+                "periodTotal": 100
+              }
+            ],
+            "dayOne": false
+          },
+          "expected": "Stocks / Funds income $25; return calculated from qualifying rows (about 10% for this row)",
+          "hand_calculation": "Dividend with ticker maps to matching holding category; positive amount included.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Ticker with no holding: dividend stocks, interest bonds",
+          "inputs": {
+            "transactions": [
+              {
+                "type": "dividend",
+                "ticker": "MISS",
+                "amount": 10,
+                "date": "2026-01-15"
+              },
+              {
+                "type": "interest",
+                "ticker": "MISS",
+                "amount": 20,
+                "date": "2026-01-16"
+              }
+            ],
+            "windowStart": "2026-01-01",
+            "rows": [],
+            "dayOne": false
+          },
+          "expected": "Stocks / Funds earnings $10; Bonds & CDs earnings $20",
+          "hand_calculation": "Missing holding uses transaction-type-specific fallback.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Undated/out-of-window records excluded; amounts taken positive",
+          "inputs": {
+            "transactions": [
+              {
+                "type": "dividend",
+                "ticker": "ABC",
+                "amount": -10,
+                "date": "2025-12-31"
+              },
+              {
+                "type": "dividend",
+                "ticker": "ABC",
+                "amount": 5,
+                "date": "2026-01-01"
+              }
+            ],
+            "windowStart": "2026-01-01",
+            "rows": [],
+            "dayOne": false
+          },
+          "expected": "Stocks / Funds income $5 only",
+          "hand_calculation": "First day is included; earlier record excluded; use positive amount per card.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Day one returns all three categories with zero",
+          "inputs": {
+            "transactions": [],
+            "windowStart": "2026-01-01",
+            "rows": [],
+            "dayOne": true
+          },
+          "expected": "Three categories returned, each with $0 and no return",
+          "hand_calculation": "Day-one structural rule overrides omission of empty categories.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "No eligible positive return rows yields no category return; yearly bond rate fallback",
+          "inputs": {
+            "transactions": [
+              {
+                "type": "interest",
+                "amount": 100,
+                "date": "2026-02-01",
+                "account_id": "b1"
+              }
+            ],
+            "windowStart": "2026-01-01",
+            "rows": [
+              {
+                "position": {
+                  "kind": "bond",
+                  "asset_class": "Bonds & CDs"
+                },
+                "marketValue": 0,
+                "periodReturn": null
+              }
+            ],
+            "bonds": [
+              {
+                "asset_id": "b1",
+                "balance": 10000,
+                "coupon_rate": 0.04
+              }
+            ],
+            "dayOne": false
+          },
+          "expected": "Bonds & CDs shows stated yearly rate 4% when all qualifying bond accounts with balances have rates and no bond is held as a holding",
+          "hand_calculation": "Fallback is a balance-weighted stated annual rate, not an invented period return.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-090",
+      "name": "windowStartKey",
+      "kind": "function",
+      "what_it_is_for": "The first day of a period: the day after the record's first day for Since, 1 January for This year, and the same day one month, one year or two years back for the others.",
+      "formula_in_words": "Since: the day after the earliest recorded day, but never later than today; today when nothing is recorded. This year: 1 January of today's year. 1M, 3M, 6M, 1Y and 2Y: today moved back 1, 3, 6, 12 or 24 months — the same day of that month, or its last day when that month is shorter (one month before 31 March is 28 February). Any other label: 12 months back, the same way.",
+      "handed": "export function windowStartKey(period: string, recordDates: string[], today: string): string",
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "Since: the day after the earliest recorded day, but never later than today; today when nothing is recorded. This year: 1 January of today's year. 1M, 3M, 6M, 1Y and 2Y: today moved back 1, 3, 6, 12 or 24 months — the same day of that month, or its last day when that month is shorter (one month before 31 March is 28 February). Any other label: 12 months back, the same way.",
+      "findings": "Date arithmetic has known end-of-month clamp. Validate leap-year/month-end and Since future cap. Unknown labels deliberately default to 12 months. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "This year starts January 1",
+          "inputs": {
+            "period": "This year",
+            "recordDates": [
+              "2026-01-03"
+            ],
+            "today": "2026-10-13"
+          },
+          "expected": "2026-01-01",
+          "hand_calculation": "This year is Jan 1 of today year.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "One month back from month end clamps to prior month end",
+          "inputs": {
+            "period": "1M",
+            "recordDates": [],
+            "today": "2026-03-31"
+          },
+          "expected": "2026-02-28",
+          "hand_calculation": "No rollover to March 3; clamp to Feb 28.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Since starts after earliest record but not after today",
+          "inputs": {
+            "period": "Since",
+            "recordDates": [
+              "2025-04-02",
+              "2025-06-15"
+            ],
+            "today": "2026-10-13"
+          },
+          "expected": "2025-04-03",
+          "hand_calculation": "Earliest date + one day.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Since with future earliest date caps at today",
+          "inputs": {
+            "period": "Since",
+            "recordDates": [
+              "2027-01-01"
+            ],
+            "today": "2026-10-13"
+          },
+          "expected": "2026-10-13",
+          "hand_calculation": "The day after earliest would be future; cap at today.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Unknown label defaults to 12 months back",
+          "inputs": {
+            "period": "weird",
+            "recordDates": [],
+            "today": "2024-02-29"
+          },
+          "expected": "2023-02-28",
+          "hand_calculation": "Fallback is 12 months with day clamped to month end.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-091",
+      "name": "pricedGainOf",
+      "kind": "function",
+      "what_it_is_for": "What the holdings gained over the period in dollars: the true gain for a holding bought inside the period, the price move's share of today's value for one with a price history, the stated rate's share for a CD — and nothing (unknown) when any holding has neither.",
+      "formula_in_words": "Each holding's gain over the period, added up. For a holding bought inside the period: its whole gain (value − cost). For any other holding with a period return: value × (1 − 1 ÷ (1 + return)) when its value is above zero, which is today's value less its value when the period opened; nothing when it holds nothing. For a holding with no period return that states a yearly rate (only a certificate of deposit is given one): value × (1 − 1 ÷ (1 + rate) to the power years), years handed in (none handed in counts as 0, so it gains nothing). Any other holding that holds something (its value, or the broker's last price × its shares, or the value it was entered at, above zero) has a gain that cannot be known: the answer is then NOTHING — not zero — for the whole total. A holding that holds nothing gains nothing. (Owner decision DEC-3656, 2026-10-09.)",
+      "handed": "export function pricedGainOf(rows: GainRow[], years = 0): number | null",
+      "inputs_it_reads": [
+        "MK-XS-I-004 holding quantity (shares)",
+        "MK-XS-I-005 holding price",
+        "MK-XS-I-012 bond coupon rate",
+        "MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest",
+        "MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise"
+      ],
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "Each holding's gain over the period, added up. For a holding bought inside the period: its whole gain (value − cost). For any other holding with a period return: value × (1 − 1 ÷ (1 + return)) when its value is above zero, which is today's value less its value when the period opened; nothing when it holds nothing. For a holding with no period return that states a yearly rate (only a certificate of deposit is given one): value × (1 − 1 ÷ (1 + rate) to the power years), years handed in (none handed in counts as 0, so it gains nothing). Any other holding that holds something (its value, or the broker's last price × its shares, or the value it was entered at, above zero) has a gain that cannot be known: the answer is then NOTHING — not zero — for the whole total. A holding that holds nothing gains nothing. (Owner decision DEC-3656, 2026-10-09.)",
+      "findings": "DEC-3656 critical unknown propagation: one positive-value holding without return/rate makes whole gain null, not partial sum. Check bought-within-period takes precedence. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Bought within period uses whole gain",
+          "inputs": {
+            "rows": [
+              {
+                "boughtWithinPeriod": true,
+                "marketValue": 1200,
+                "cost": 1000,
+                "periodReturn": null
+              }
+            ],
+            "years": 1
+          },
+          "expected": 200,
+          "hand_calculation": "$1,200 − $1,000 = $200.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Known period return uses today value less reconstructed start value",
+          "inputs": {
+            "rows": [
+              {
+                "marketValue": 1100,
+                "periodReturn": 0.1,
+                "boughtWithinPeriod": false
+              }
+            ],
+            "years": 1
+          },
+          "expected": 100,
+          "hand_calculation": "$1,100 × (1 − 1/1.1) = $100.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Rate-only CD uses compound annual rate over years",
+          "inputs": {
+            "rows": [
+              {
+                "marketValue": 1040,
+                "periodReturn": null,
+                "annualRate": 0.04,
+                "isCD": true
+              }
+            ],
+            "years": 1
+          },
+          "expected": 40,
+          "hand_calculation": "$1,040 × (1 − 1/1.04) = $40 exactly.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Unknown gain on any positive holding makes whole total unknown",
+          "inputs": {
+            "rows": [
+              {
+                "marketValue": 1100,
+                "periodReturn": 0.1
+              },
+              {
+                "marketValue": 500,
+                "periodReturn": null,
+                "annualRate": null,
+                "isCD": false
+              }
+            ],
+            "years": 1
+          },
+          "expected": null,
+          "hand_calculation": "Second holding has positive value but no return or eligible rate; whole total is null, not $100.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Empty holdings gain nothing",
+          "inputs": {
+            "rows": [],
+            "years": 1
+          },
+          "expected": 0,
+          "hand_calculation": "No holdings exist to contribute; total is known zero.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-092",
+      "name": "investmentAccountIdsOf",
+      "kind": "function",
+      "what_it_is_for": "Which accounts count as investments: those holding stocks and funds, bonds and CDs, alternatives or a mix, and never cash or property.",
+      "formula_in_words": "The ids of the accounts whose class is Stocks / Funds, Bonds & CDs, Alternatives or Unclassified. Cash and property accounts are left out.",
+      "handed": "export function investmentAccountIdsOf(\n  accounts: { asset_id?: string | number }[],\n  classOf: (a: any) => string,\n): Set<string>",
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "The ids of the accounts whose class is Stocks / Funds, Bonds & CDs, Alternatives or Unclassified. Cash and property accounts are left out.",
+      "findings": "Confirm ID stringification and missing-ID handling; included classes exactly Stocks / Funds, Bonds & CDs, Alternatives, Unclassified. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Investment classes included",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a"
+              },
+              {
+                "asset_id": "b"
+              },
+              {
+                "asset_id": "c"
+              },
+              {
+                "asset_id": "d"
+              }
+            ],
+            "classes": {
+              "a": "Stocks / Funds",
+              "b": "Bonds & CDs",
+              "c": "Alternatives",
+              "d": "Unclassified"
+            }
+          },
+          "expected": [
+            "a",
+            "b",
+            "c",
+            "d"
+          ],
+          "hand_calculation": "All four classes are included.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Cash and real estate excluded",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "cash"
+              },
+              {
+                "asset_id": "home"
+              },
+              {
+                "asset_id": "fund"
+              }
+            ],
+            "classes": {
+              "cash": "Cash",
+              "home": "Real estate",
+              "fund": "Stocks / Funds"
+            }
+          },
+          "expected": [
+            "fund"
+          ],
+          "hand_calculation": "Only Stocks / Funds is an investment class.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Mixed ids are string-normalized",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": 123
+              },
+              {
+                "asset_id": "x"
+              }
+            ],
+            "classes": {
+              "123": "Unclassified",
+              "x": "Cash"
+            }
+          },
+          "expected": [
+            "123"
+          ],
+          "hand_calculation": "Set<string> means numeric ID should be stringified; verify actual conversion.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Missing id does not create accidental undefined entry",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": null
+              },
+              {
+                "asset_id": "ok"
+              }
+            ],
+            "classes": {
+              "ok": "Alternatives"
+            }
+          },
+          "expected": [
+            "ok"
+          ],
+          "hand_calculation": "Only a qualifying account with a usable id belongs in the set.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Unknown class is not implicitly investment class",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "x"
+              }
+            ],
+            "classes": {
+              "x": "Other unknown"
+            }
+          },
+          "expected": [],
+          "hand_calculation": "Only the four listed class labels are included.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-094",
+      "name": "ledgerGroups",
+      "kind": "function",
+      "what_it_is_for": "Groups the accounts for the Net worth list, by asset class or by institution, and gives each group its total.",
+      "formula_in_words": "Groups the accounts for the Net worth list, by asset-class label or by institution. By class: an account with a class split (accountClassBreakdown) is a row under EVERY class it has a part in, at that part; any other account is one row, whole, under its one class. Each group's total = its rows added up (his ruling, 2026-10-07: the rows under a heading add up to the heading). By institution (an account with no institution goes under No institution set; names are matched trimmed, capitals ignored, and the group shows the first spelling seen): each account is one row at its balance, a group's total = those balances added up, and the group lists the classes inside it with their totals, from the same split, largest first. Group totals by class equal the class rows; both views add to everything owned.",
+      "handed": "export function ledgerGroups(\n  accounts: AssetAccount[],\n  by: 'class' | 'institution',\n  classLabelOf: (a: AssetAccount) => string,\n  classKeyOf: (a: AssetAccount) => string,\n): LedgerGroup[]",
+      "inputs_it_reads": [
+        "MK-XS-I-001 account balance",
+        "MK-XS-I-002 account type (taxable, pre-tax, Roth)",
+        "MK-XS-I-003 institution name",
+        "MK-XS-I-014 debt balance",
+        "MK-XS-I-015 debt interest rate",
+        "MK-XS-I-016 debt minimum payment",
+        "MK-XS-I-024 logged expenses",
+        "MK-XS-I-028 assumed return"
+      ],
+      "changed_since_prior_audit": null,
+      "formula_review": "INCOMPLETE_SPECIFICATION_OR_INTEGRATION_RISK",
+      "formula_in_words_reviewed": "Groups the accounts for the Net worth list, by asset-class label or by institution. By class: an account with a class split (accountClassBreakdown) is a row under EVERY class it has a part in, at that part; any other account is one row, whole, under its one class. Each group's total = its rows added up (his ruling, 2026-10-07: the rows under a heading add up to the heading). By institution (an account with no institution goes under No institution set; names are matched trimmed, capitals ignored, and the group shows the first spelling seen): each account is one row at its balance, a group's total = those balances added up, and the group lists the classes inside it with their totals, from the same split, largest first. Group totals by class equal the class rows; both views add to everything owned.",
+      "findings": "Group totals must reconcile both views and class splits. Main concern: how unknown account balances are represented; never quietly turn missing into $0 or break total reconciliation. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Class grouping totals rows",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a",
+                "label": "A",
+                "balance": 100,
+                "class": "Cash"
+              },
+              {
+                "asset_id": "b",
+                "label": "B",
+                "balance": 200,
+                "class": "Stocks / Funds"
+              }
+            ],
+            "by": "class"
+          },
+          "expected": [
+            {
+              "group": "Cash",
+              "total": 100
+            },
+            {
+              "group": "Stocks / Funds",
+              "total": 200
+            }
+          ],
+          "hand_calculation": "Each account appears in its class; group totals equal row sums.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Class split appears in each class at split amount",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a",
+                "label": "A",
+                "balance": 1000,
+                "classSplit": {
+                  "Stocks / Funds": 600,
+                  "Bonds & CDs": 400
+                }
+              }
+            ],
+            "by": "class"
+          },
+          "expected": [
+            {
+              "group": "Stocks / Funds",
+              "total": 600
+            },
+            {
+              "group": "Bonds & CDs",
+              "total": 400
+            }
+          ],
+          "hand_calculation": "Split parts add to $1,000 and appear in both class groups.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Institution grouping trims and ignores case",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a",
+                "institution": " Vanguard ",
+                "balance": 100,
+                "class": "Cash"
+              },
+              {
+                "asset_id": "b",
+                "institution": "vanguard",
+                "balance": 200,
+                "class": "Stocks / Funds"
+              }
+            ],
+            "by": "institution"
+          },
+          "expected": [
+            {
+              "group": "Vanguard",
+              "total": 300,
+              "classes": {
+                "Cash": 100,
+                "Stocks / Funds": 200
+              }
+            }
+          ],
+          "hand_calculation": "Normalized same institution group; preserve first spelling seen.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Missing institution gets No institution set",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a",
+                "institution": " ",
+                "balance": 50,
+                "class": "Unclassified"
+              }
+            ],
+            "by": "institution"
+          },
+          "expected": [
+            {
+              "group": "No institution set",
+              "total": 50,
+              "classes": {
+                "Unclassified": 50
+              }
+            }
+          ],
+          "hand_calculation": "Blank trimmed institution uses fallback group.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Unknown balance cannot be fabricated into row or total",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "a",
+                "institution": "Bank",
+                "balance": null,
+                "class": "Cash"
+              },
+              {
+                "asset_id": "b",
+                "institution": "Bank",
+                "balance": 100,
+                "class": "Cash"
+              }
+            ],
+            "by": "institution"
+          },
+          "expected": "Known total 100 plus missing-value state retained; no silent $0 row",
+          "hand_calculation": "Check against unknown-is-not-zero invariant; card does not spell out exact missing-value shape.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-103",
+      "name": "investmentRecordDates",
+      "kind": "function",
+      "what_it_is_for": "THE DAYS THE RECORD HOLDS AN INVESTMENT VALUE FOR, oldest first.",
+      "formula_in_words": "The dates of the recorded days that hold a value for at least one of the named accounts, oldest first. Empty when no accounts are named.",
+      "handed": "export function investmentRecordDates(snapshotDays: any[], investmentAccountIds: Set<string>): string[]",
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "The dates of the recorded days that hold a value for at least one of the named accounts, oldest first. Empty when no accounts are named.",
+      "findings": "Deduplicate dates and sort chronologically; account membership must be by ID intersection and only days with values for named accounts. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Returns unique dates with values for named accounts",
+          "inputs": {
+            "snapshotDays": [
+              {
+                "date": "2026-01-01",
+                "values": {
+                  "a": 100
+                }
+              },
+              {
+                "date": "2026-01-02",
+                "values": {
+                  "a": 110
+                }
+              },
+              {
+                "date": "2026-01-02",
+                "values": {
+                  "b": 50
+                }
+              }
+            ],
+            "investmentAccountIds": [
+              "a"
+            ]
+          },
+          "expected": [
+            "2026-01-01",
+            "2026-01-02"
+          ],
+          "hand_calculation": "Both recorded days hold value for account a; output oldest first.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Exclude days only for unrelated accounts",
+          "inputs": {
+            "snapshotDays": [
+              {
+                "date": "2026-01-01",
+                "values": {
+                  "x": 100
+                }
+              },
+              {
+                "date": "2026-01-02",
+                "values": {
+                  "a": 50
+                }
+              }
+            ],
+            "investmentAccountIds": [
+              "a"
+            ]
+          },
+          "expected": [
+            "2026-01-02"
+          ],
+          "hand_calculation": "Only second day includes named account a.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Sort chronological not input order",
+          "inputs": {
+            "snapshotDays": [
+              {
+                "date": "2026-03-01",
+                "values": {
+                  "a": 3
+                }
+              },
+              {
+                "date": "2026-01-01",
+                "values": {
+                  "a": 1
+                }
+              },
+              {
+                "date": "2026-02-01",
+                "values": {
+                  "a": 2
+                }
+              }
+            ],
+            "investmentAccountIds": [
+              "a"
+            ]
+          },
+          "expected": [
+            "2026-01-01",
+            "2026-02-01",
+            "2026-03-01"
+          ],
+          "hand_calculation": "Sort oldest to newest.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "No named accounts returns empty",
+          "inputs": {
+            "snapshotDays": [
+              {
+                "date": "2026-01-01",
+                "values": {
+                  "a": 1
+                }
+              }
+            ],
+            "investmentAccountIds": []
+          },
+          "expected": [],
+          "hand_calculation": "No account IDs means no day qualifies.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Named account but no snapshot value returns empty",
+          "inputs": {
+            "snapshotDays": [
+              {
+                "date": "2026-01-01",
+                "values": {
+                  "x": 1
+                }
+              }
+            ],
+            "investmentAccountIds": [
+              "a"
+            ]
+          },
+          "expected": [],
+          "hand_calculation": "No recorded day holds a value for account a.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-104",
+      "name": "closedWith",
+      "kind": "function",
+      "what_it_is_for": "The daily record with today added to it, worth what the caller says the measured accounts are worth now.",
+      "formula_in_words": "The daily record with today added: one row per account that the latest earlier recorded day holds (of the accounts named), carrying between them the ending value handed in. The record is returned unchanged when there is no earlier day or it holds none of those accounts. It adds no arithmetic: it lets a return be measured to today when the caller gave an ending value and no accounts.",
+      "handed": "function closedWith(days: any[], ids: Set<string>, today: string, ending: number): any[]",
+      "changed_since_prior_audit": null,
+      "formula_review": "INCOMPLETE_SPECIFICATION_OR_INTEGRATION_RISK",
+      "formula_in_words_reviewed": "The daily record with today added: one row per account that the latest earlier recorded day holds (of the accounts named), carrying between them the ending value handed in. The record is returned unchanged when there is no earlier day or it holds none of those accounts. It adds no arithmetic: it lets a return be measured to today when the caller gave an ending value and no accounts.",
+      "findings": "The card’s “carrying between them the ending value” is under-specified for multiple accounts: exact allocation/schema is not described. Claude must inspect caller and actual shape before asserting exact output. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Adds today row from latest earlier day",
+          "inputs": {
+            "days": [
+              {
+                "date": "2026-10-10",
+                "values": {
+                  "a": 100,
+                  "b": 50
+                }
+              }
+            ],
+            "ids": [
+              "a",
+              "b"
+            ],
+            "today": "2026-10-13",
+            "ending": 180
+          },
+          "expected": "Original rows plus today row for a and b with total ending value 180",
+          "hand_calculation": "Caller-provided ending value is attached across latest earlier day accounts; exact distribution/schema must be verified.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "No earlier day returns unchanged",
+          "inputs": {
+            "days": [],
+            "ids": [
+              "a"
+            ],
+            "today": "2026-10-13",
+            "ending": 100
+          },
+          "expected": [],
+          "hand_calculation": "No prior day; unchanged empty record.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Earlier day contains none of named accounts returns unchanged",
+          "inputs": {
+            "days": [
+              {
+                "date": "2026-10-10",
+                "values": {
+                  "x": 100
+                }
+              }
+            ],
+            "ids": [
+              "a"
+            ],
+            "today": "2026-10-13",
+            "ending": 100
+          },
+          "expected": "Input days unchanged",
+          "hand_calculation": "No eligible prior account in latest earlier day.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Only latest earlier accounts carried forward",
+          "inputs": {
+            "days": [
+              {
+                "date": "2026-10-09",
+                "values": {
+                  "a": 80
+                }
+              },
+              {
+                "date": "2026-10-12",
+                "values": {
+                  "b": 90
+                }
+              }
+            ],
+            "ids": [
+              "a",
+              "b"
+            ],
+            "today": "2026-10-13",
+            "ending": 110
+          },
+          "expected": "Today row covers b, not stale a",
+          "hand_calculation": "Use the latest earlier recorded day, not union of historical accounts.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "No arithmetic applied to ending value",
+          "inputs": {
+            "days": [
+              {
+                "date": "2026-10-12",
+                "values": {
+                  "a": 100
+                }
+              }
+            ],
+            "ids": [
+              "a"
+            ],
+            "today": "2026-10-13",
+            "ending": 75
+          },
+          "expected": "Today ending total 75; no clamp/refusal even below previous 100",
+          "hand_calculation": "This helper only constructs the record; losses are allowed.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "kind": "function",
+      "what_it_is_for": "WHY A RETURN CANNOT BE MEASURED, in words a person reads.",
+      "formula_in_words": "The sentence shown where a time-weighted return cannot be measured; empty when it was measured. Money moved on a day with no recorded value: names the day and says a return cannot be measured across it. A movement with no date: says so. A deposit or withdrawal with no amount on record: names the day and says a return cannot be measured across it. Shares moved in or out: names the day and says the records do not say what they were worth. Nothing to grow from on a day (the previous evening's value + money added − money taken out is zero or less while that day holds a value): names the day and says which — a value recorded with nothing there the evening before and no money added, or more money taken out than was there the evening before plus the money added that day. Since DEC-4439 (2026-10-11) a value below the money added is a loss, measured, and has no sentence. Nothing invested over the period: says there is no return to state. Today's value not on record: says so. A beginning that cannot be read has no sentence here — the period is shown as not covered instead.",
+      "handed": "export function whyNoReturn(v: TimeWeightedVerdict | null): string",
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "The sentence shown where a time-weighted return cannot be measured; empty when it was measured. Money moved on a day with no recorded value: names the day and says a return cannot be measured across it. A movement with no date: says so. A deposit or withdrawal with no amount on record: names the day and says a return cannot be measured across it. Shares moved in or out: names the day and says the records do not say what they were worth. Nothing to grow from on a day (the previous evening's value + money added − money taken out is zero or less while that day holds a value): names the day and says which — a value recorded with nothing there the evening before and no money added, or more money taken out than was there the evening before plus the money added that day. Since DEC-4439 (2026-10-11) a value below the money added is a loss, measured, and has no sentence. Nothing invested over the period: says there is no return to state. Today's value not on record: says so. A beginning that cannot be read has no sentence here — the period is shown as not covered instead.",
+      "findings": "Text mappings need exact enum values and localization/punctuation confirmation. DEC-4439 makes below-deposit ending value a measured loss, not a refusal. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "No verdict gives empty explanation",
+          "inputs": {
+            "verdict": null
+          },
+          "expected": "",
+          "hand_calculation": "Null verdict means no explanation text.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Movement on day without value identifies day",
+          "inputs": {
+            "verdict": {
+              "reason": "movement_without_value",
+              "date": "2026-05-04"
+            }
+          },
+          "expected": "Sentence says return cannot be measured across May 4, 2026",
+          "hand_calculation": "A dated movement without recorded value requires a dated refusal sentence.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Undated movement names missing date",
+          "inputs": {
+            "verdict": {
+              "reason": "movement_without_date"
+            }
+          },
+          "expected": "Sentence says movement has no date and return cannot be measured",
+          "hand_calculation": "Movement with no date is distinct from movement on a specific day.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Value below deposit is measured loss, no sentence",
+          "inputs": {
+            "verdict": {
+              "reason": "value_below_money_added",
+              "date": "2026-05-04",
+              "measured": true
+            }
+          },
+          "expected": "",
+          "hand_calculation": "DEC-4439 says a value below money added is a measured loss, not refusal.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Uncovered beginning is not handled here",
+          "inputs": {
+            "verdict": {
+              "reason": "beginning_not_covered"
+            }
+          },
+          "expected": "",
+          "hand_calculation": "Card says beginning not readable has no sentence here; period is shown as not covered.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-106",
+      "name": "mortgagesByProperty",
+      "kind": "function",
+      "what_it_is_for": "Which mortgage is on which property, and which mortgages are on none.",
+      "formula_in_words": "Properties = the accounts whose class is real estate. Mortgages = the debts whose type is mortgage. Owner rule, 2026-10-04: \"It is feasible to have property without mortgage but no mortgage without property. So check should be 3 properties in NW - 3 or less mortgage.\" A mortgage is on the property it names, when that property exists and has no mortgage placed on it yet. A mortgage that names no property is placed only where there is one answer: first, on the one property without a mortgage whose name its own name begins with; then, when exactly one property is still without a mortgage and exactly one mortgage is still without a property, on that property. Every other mortgage is listed as on no property — including a second mortgage that names a property already taken. It gives: the count of properties and of mortgages; for each property its mortgage (or none) and that mortgage's required monthly payment; the mortgages on no property; whether there are none of those; and the sentence to show when there are.",
+      "handed": "export function mortgagesByProperty(accounts: AssetAccount[], debts: Debt[]): MortgageCheck",
+      "changed_since_prior_audit": null,
+      "formula_review": "INCOMPLETE_SPECIFICATION_OR_INTEGRATION_RISK",
+      "formula_in_words_reviewed": "Properties = the accounts whose class is real estate. Mortgages = the debts whose type is mortgage. Owner rule, 2026-10-04: \"It is feasible to have property without mortgage but no mortgage without property. So check should be 3 properties in NW - 3 or less mortgage.\" A mortgage is on the property it names, when that property exists and has no mortgage placed on it yet. A mortgage that names no property is placed only where there is one answer: first, on the one property without a mortgage whose name its own name begins with; then, when exactly one property is still without a mortgage and exactly one mortgage is still without a property, on that property. Every other mortgage is listed as on no property — including a second mortgage that names a property already taken. It gives: the count of properties and of mortgages; for each property its mortgage (or none) and that mortgage's required monthly payment; the mortgages on no property; whether there are none of those; and the sentence to show when there are.",
+      "findings": "Mortgage matching is intentionally conservative. Verify precedence of explicit property_id vs prefix inference, uniqueness checks, and deterministic unmatched list ordering. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Single mortgage matched to named property",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "p1",
+                "class": "Real estate",
+                "label": "Home"
+              },
+              {
+                "asset_id": "p2",
+                "class": "Real estate",
+                "label": "Cabin"
+              }
+            ],
+            "debts": [
+              {
+                "debt_id": "m1",
+                "type": "mortgage",
+                "property_id": "p1",
+                "label": "Home mortgage",
+                "minimum_payment": 1500
+              }
+            ]
+          },
+          "expected": {
+            "propertyCount": 2,
+            "mortgageCount": 1,
+            "unmatched": [],
+            "p1": "m1",
+            "p2": null
+          },
+          "hand_calculation": "Named existing property p1 receives mortgage; p2 remains mortgage-free.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Named property already assigned: second mortgage stays unmatched",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "p1",
+                "class": "Real estate",
+                "label": "Home"
+              }
+            ],
+            "debts": [
+              {
+                "debt_id": "m1",
+                "type": "mortgage",
+                "property_id": "p1",
+                "label": "First"
+              },
+              {
+                "debt_id": "m2",
+                "type": "mortgage",
+                "property_id": "p1",
+                "label": "Second"
+              }
+            ]
+          },
+          "expected": {
+            "propertyCount": 1,
+            "mortgageCount": 2,
+            "unmatched": [
+              "m2"
+            ]
+          },
+          "hand_calculation": "First eligible mortgage takes p1; second cannot double-assign property.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "One unassigned mortgage and one free property gets unique match",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "p1",
+                "class": "Real estate",
+                "label": "Cabin"
+              }
+            ],
+            "debts": [
+              {
+                "debt_id": "m1",
+                "type": "mortgage",
+                "property_id": null,
+                "label": "Cabin mortgage"
+              }
+            ]
+          },
+          "expected": {
+            "p1": "m1",
+            "unmatched": []
+          },
+          "hand_calculation": "Exactly one property and one unassigned mortgage remain; assign unique match.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Multiple possible free properties leaves mortgage unmatched",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "p1",
+                "class": "Real estate",
+                "label": "Home"
+              },
+              {
+                "asset_id": "p2",
+                "class": "Real estate",
+                "label": "Cabin"
+              }
+            ],
+            "debts": [
+              {
+                "debt_id": "m1",
+                "type": "mortgage",
+                "property_id": null,
+                "label": "Loan"
+              }
+            ]
+          },
+          "expected": {
+            "unmatched": [
+              "m1"
+            ],
+            "p1": null,
+            "p2": null
+          },
+          "hand_calculation": "No unique answer; do not guess.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Non-mortgage debts excluded; no property means mortgage unmatched",
+          "inputs": {
+            "accounts": [],
+            "debts": [
+              {
+                "debt_id": "d1",
+                "type": "credit_card"
+              },
+              {
+                "debt_id": "m1",
+                "type": "mortgage",
+                "property_id": null
+              }
+            ]
+          },
+          "expected": {
+            "propertyCount": 0,
+            "mortgageCount": 1,
+            "unmatched": [
+              "m1"
+            ]
+          },
+          "hand_calculation": "Only mortgage debts counted; a mortgage cannot be attached without property.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-107",
+      "name": "propertyUses",
+      "kind": "function",
+      "what_it_is_for": "What each property is used for: the home lived in, a rental, or a second or vacation home.",
+      "formula_in_words": "For each property: what it is used for, as propertyUseMap reads it, handed the rent entries from the Income screen (none handed in when the person has none on record). Owner rule, 2026-10-04: \"unless rental income is added on the income screen, assume property is second or vacation home.\" RENTAL = a rent entry names it — or, only when no rent entries are handed in at all, it is stored as a rental. HOME = the one marked as the home lived in; with none marked and no use stated on any, the one entered first. SECOND = every other property, except that a rent entry naming no property makes the one remaining property a rental when there is exactly one.",
+      "handed": "export function propertyUses(accounts: AssetAccount[], rentals: { income?: any; expenses?: any; property_id?: any }[] | null | undefined): Map<string, PropertyUse>",
+      "inputs_it_reads": [
+        "MK-XS-I-024 logged expenses"
+      ],
+      "changed_since_prior_audit": null,
+      "formula_review": "INCOMPLETE_SPECIFICATION_OR_INTEGRATION_RISK",
+      "formula_in_words_reviewed": "For each property: what it is used for, as propertyUseMap reads it, handed the rent entries from the Income screen (none handed in when the person has none on record). Owner rule, 2026-10-04: \"unless rental income is added on the income screen, assume property is second or vacation home.\" RENTAL = a rent entry names it — or, only when no rent entries are handed in at all, it is stored as a rental. HOME = the one marked as the home lived in; with none marked and no use stated on any, the one entered first. SECOND = every other property, except that a rent entry naming no property makes the one remaining property a rental when there is exactly one.",
+      "findings": "Potential ambiguity: rent entry naming no property can only promote a remaining property when exactly one; exact precedence between stored use, HOME, and rent map needs source-level validation. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Rent entry makes named property rental",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "p1",
+                "kind": "property",
+                "use": null
+              }
+            ],
+            "rentals": [
+              {
+                "property_id": "p1",
+                "income": 1500,
+                "expenses": 0
+              }
+            ]
+          },
+          "expected": {
+            "p1": "RENTAL"
+          },
+          "hand_calculation": "Live rent entry names p1; property is rental.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "No rent and no use: first property is home",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "p1",
+                "kind": "property",
+                "use": null
+              },
+              {
+                "asset_id": "p2",
+                "kind": "property",
+                "use": null
+              }
+            ],
+            "rentals": []
+          },
+          "expected": {
+            "p1": "HOME",
+            "p2": "SECOND"
+          },
+          "hand_calculation": "When none marked and no use stated, first entered is home; remaining property second.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Stored rental fallback only when no rent entries supplied",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "p1",
+                "kind": "property",
+                "use": "rental"
+              }
+            ],
+            "rentals": null
+          },
+          "expected": {
+            "p1": "RENTAL"
+          },
+          "hand_calculation": "No rent entries handed in at all allows stored rental state.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Rent entry naming no property only promotes unique remaining property",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "p1",
+                "kind": "property",
+                "use": "HOME"
+              },
+              {
+                "asset_id": "p2",
+                "kind": "property",
+                "use": "SECOND"
+              }
+            ],
+            "rentals": [
+              {
+                "property_id": null,
+                "income": 1000
+              }
+            ]
+          },
+          "expected": {
+            "p1": "HOME",
+            "p2": "SECOND"
+          },
+          "hand_calculation": "No property identifier is not directly attached; ambiguity/remaining-property condition must be evaluated carefully.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "No properties returns empty map",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "cash",
+                "kind": "cash"
+              }
+            ],
+            "rentals": []
+          },
+          "expected": {},
+          "hand_calculation": "No real-estate accounts means no property-use entries.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-108",
+      "name": "taxWordsOf",
+      "kind": "function",
+      "what_it_is_for": "How an account is taxed, in the words a person reads on the account's page.",
+      "formula_in_words": "The words for how an account is taxed, shown on its page. A 529 always reads tax-free for education; an HSA always reads pre-tax — tax-free for medical costs, whatever treatment is stated. Otherwise by its treatment (taxTreatmentOf): tax type not stated reads tax type not stated (DEC-4036f, 2026-10-10); tax-deferred reads pre-tax — taxed when it comes out; tax-free reads tax-free (Roth) for an account in the Roth bucket and tax-free for any other; taxable reads taxable.",
+      "handed": "export function taxWordsOf(a: AssetAccount): string",
+      "inputs_it_reads": [
+        "MK-XS-I-002 account type (taxable, pre-tax, Roth)",
+        "MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest"
+      ],
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "The words for how an account is taxed, shown on its page. A 529 always reads tax-free for education; an HSA always reads pre-tax — tax-free for medical costs, whatever treatment is stated. Otherwise by its treatment (taxTreatmentOf): tax type not stated reads tax type not stated (DEC-4036f, 2026-10-10); tax-deferred reads pre-tax — taxed when it comes out; tax-free reads tax-free (Roth) for an account in the Roth bucket and tax-free for any other; taxable reads taxable.",
+      "findings": "529 and HSA override conflicting tax-treatment data. Missing treatment stays “tax type not stated”; do not infer tax status from wrapper. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "529 always tax-free for education",
+          "inputs": {
+            "account": {
+              "kind": "529",
+              "tax_treatment": "taxable",
+              "tax_bucket": "taxable"
+            }
+          },
+          "expected": "tax-free for education",
+          "hand_calculation": "529 type overrides conflicting treatment.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "HSA always pre-tax, tax-free for medical costs",
+          "inputs": {
+            "account": {
+              "kind": "HSA",
+              "tax_treatment": "taxable",
+              "tax_bucket": "Roth"
+            }
+          },
+          "expected": "pre-tax — tax-free for medical costs",
+          "hand_calculation": "HSA type overrides conflicting treatment.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Unstated treatment stays unstated",
+          "inputs": {
+            "account": {
+              "kind": "IRA",
+              "tax_treatment": null,
+              "tax_bucket": "pre-tax"
+            }
+          },
+          "expected": "tax type not stated",
+          "hand_calculation": "No treatment is not guessed from wrapper.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Tax-deferred account words",
+          "inputs": {
+            "account": {
+              "kind": "401k",
+              "tax_treatment": "tax-deferred",
+              "tax_bucket": "pre-tax"
+            }
+          },
+          "expected": "pre-tax — taxed when it comes out",
+          "hand_calculation": "Tax-deferred mapping.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Tax-free wording depends on Roth bucket",
+          "inputs": {
+            "account": {
+              "kind": "brokerage",
+              "tax_treatment": "tax-free",
+              "tax_bucket": "Roth"
+            }
+          },
+          "expected": "tax-free (Roth)",
+          "hand_calculation": "Roth bucket adds parenthetical; other buckets say tax-free.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-109",
+      "name": "holdingClassOf",
+      "kind": "function",
+      "what_it_is_for": "What one holding inside an account is, by the one rule the split, the words under it and the account's page all use.",
+      "formula_in_words": "The class of one holding inside an account. What was stored: the broker's or importer's tag (bond → Bonds & CDs, other → Alternatives, cash → cash, any other tag → Stocks / Funds), else the class of the kind picked when it was added (not real estate or personal property), else nothing. (1) If the person said what it is, their answer — the stored class, or Unclassified when nothing is stored. (2) If it is marked as asked, Unclassified (owner rule, 2026-09-30: \"Refuse the line and ask\"). (3) The class its ticker and name are evidence for, unless that is cash: a money-market fund is Stocks / Funds, a CD or a T-bill is Bonds & CDs, whatever tag the broker sent (owner rule, 2026-08-04: cash means cash only). (4) Otherwise what was stored; with nothing stored, cash when the name says cash, else Unclassified — never a guessed Stocks / Funds.",
+      "handed": "export function holdingClassOf(p: any): AssetClass",
+      "inputs_it_reads": [
+        "MK-XS-I-048 the person’s own asset-class answer",
+        "MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest",
+        "MK-XS-I-056 how a holding was classified, and by whom"
+      ],
+      "changed_since_prior_audit": null,
+      "formula_review": "INCOMPLETE_SPECIFICATION_OR_INTEGRATION_RISK",
+      "formula_in_words_reviewed": "The class of one holding inside an account. What was stored: the broker's or importer's tag (bond → Bonds & CDs, other → Alternatives, cash → cash, any other tag → Stocks / Funds), else the class of the kind picked when it was added (not real estate or personal property), else nothing. (1) If the person said what it is, their answer — the stored class, or Unclassified when nothing is stored. (2) If it is marked as asked, Unclassified (owner rule, 2026-09-30: \"Refuse the line and ask\"). (3) The class its ticker and name are evidence for, unless that is cash: a money-market fund is Stocks / Funds, a CD or a T-bill is Bonds & CDs, whatever tag the broker sent (owner rule, 2026-08-04: cash means cash only). (4) Otherwise what was stored; with nothing stored, cash when the name says cash, else Unclassified — never a guessed Stocks / Funds.",
+      "findings": "High-risk precedence ordering: user answer > asked-but-unanswered > ticker/name evidence (except cash) > stored class/fallback. Money market is never cash; no guessed Stocks / Funds. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Stored person answer wins",
+          "inputs": {
+            "holding": {
+              "user_asset_class": "Bonds & CDs",
+              "classification_asked": false,
+              "stored_class": "Stocks / Funds",
+              "ticker": "ABC",
+              "name": "ABC fund"
+            }
+          },
+          "expected": "Bonds & CDs",
+          "hand_calculation": "User-provided answer takes precedence.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Asked-but-unanswered is Unclassified",
+          "inputs": {
+            "holding": {
+              "user_asset_class": null,
+              "classification_asked": true,
+              "stored_class": "Stocks / Funds",
+              "ticker": "ABC",
+              "name": "ABC fund"
+            }
+          },
+          "expected": "Unclassified",
+          "hand_calculation": "Marked as asked forces Unclassified when no answer stored.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Ticker/name evidence makes money market Stocks / Funds, not cash",
+          "inputs": {
+            "holding": {
+              "user_asset_class": null,
+              "classification_asked": false,
+              "stored_class": "Cash",
+              "ticker": "VMFXX",
+              "name": "Money Market Fund"
+            }
+          },
+          "expected": "Stocks / Funds",
+          "hand_calculation": "Money-market fund is explicitly investment, regardless of cash tag.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "CD or T-bill evidence means Bonds & CDs",
+          "inputs": {
+            "holding": {
+              "user_asset_class": null,
+              "classification_asked": false,
+              "stored_class": "Stocks / Funds",
+              "ticker": null,
+              "name": "Treasury bill"
+            }
+          },
+          "expected": "Bonds & CDs",
+          "hand_calculation": "T-bill evidence overrides generic stored class.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "No stored class and no cash name stays Unclassified",
+          "inputs": {
+            "holding": {
+              "user_asset_class": null,
+              "classification_asked": false,
+              "stored_class": null,
+              "ticker": null,
+              "name": "Mystery holding"
+            }
+          },
+          "expected": "Unclassified",
+          "hand_calculation": "Never guess Stocks / Funds from absence of metadata.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-110",
+      "name": "primaryHomeIdOf",
+      "kind": "function",
+      "what_it_is_for": "Which property is the home lived in: the one marked so; with none marked and no use stated on any, the one entered first; otherwise none.",
+      "formula_in_words": "The property propertyUseMap reads as the home lived in, handed the rent entries when the caller has them. Nothing (null) when the household has no home — which is not the same as not being asked.",
+      "handed": "export function primaryHomeIdOf(accounts: AssetAccount[], rentals?: RentEntry[] | null): string | null",
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "The property propertyUseMap reads as the home lived in, handed the rent entries when the caller has them. Nothing (null) when the household has no home — which is not the same as not being asked.",
+      "findings": "Uses propertyUseMap and rental entries. Fallback to first property applies only when none marked and no use stated on any; otherwise null if no HOME. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Explicit home is selected",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "p1",
+                "class": "Real estate",
+                "use": "SECOND"
+              },
+              {
+                "asset_id": "p2",
+                "class": "Real estate",
+                "use": "HOME"
+              }
+            ],
+            "rentals": []
+          },
+          "expected": "p2",
+          "hand_calculation": "The property marked HOME is primary.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "No use stated anywhere: first entered property is home",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "p1",
+                "class": "Real estate",
+                "use": null
+              },
+              {
+                "asset_id": "p2",
+                "class": "Real estate",
+                "use": null
+              }
+            ]
+          },
+          "expected": "p1",
+          "hand_calculation": "Fallback to first property only when none marked and no use stated.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "No home and some other use stated: return null",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "p1",
+                "class": "Real estate",
+                "use": "SECOND"
+              }
+            ]
+          },
+          "expected": null,
+          "hand_calculation": "No explicit home and not all use fields blank; no fallback home.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Rent entries are passed through property-use rule",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "p1",
+                "class": "Real estate",
+                "use": null
+              },
+              {
+                "asset_id": "p2",
+                "class": "Real estate",
+                "use": null
+              }
+            ],
+            "rentals": [
+              {
+                "property_id": "p2",
+                "income": 1000
+              }
+            ]
+          },
+          "expected": null,
+          "hand_calculation": "p2 is rental, so absent a HOME mark and not all uses blank, do not infer home; primaryHomeIdOf returns null.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "No properties returns null",
+          "inputs": {
+            "accounts": [
+              {
+                "asset_id": "cash",
+                "class": "Cash"
+              }
+            ]
+          },
+          "expected": null,
+          "hand_calculation": "Household has no real estate account.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-111",
+      "name": "assetsStateFrom",
+      "kind": "function",
+      "what_it_is_for": "The saved accounts as a state to show — or nothing, when nothing is saved OR every saved account was deleted (outside review, 2026-10-07: an empty list is not a $0 total with a blended return).",
+      "formula_in_words": "buildAssetsState of the saved accounts. Nothing when there is no saved record, or the saved record holds no accounts.",
+      "handed": "export function assetsStateFrom(uid: UserId, d: AssetsDoc | null | undefined): AssetsState | null",
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "buildAssetsState of the saved accounts. Nothing when there is no saved record, or the saved record holds no accounts.",
+      "findings": "Empty or all-deleted accounts must yield null, not zero-valued AssetsState or blended return. Confirm deleted-account filtering and record schema. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Null document returns null",
+          "inputs": {
+            "uid": "u1",
+            "d": null
+          },
+          "expected": null,
+          "hand_calculation": "No saved record.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Undefined document returns null",
+          "inputs": {
+            "uid": "u1"
+          },
+          "expected": null,
+          "hand_calculation": "No saved record.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Saved record with empty accounts returns null",
+          "inputs": {
+            "uid": "u1",
+            "d": {
+              "accounts": []
+            }
+          },
+          "expected": null,
+          "hand_calculation": "An empty list is not a $0 state.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Saved record with accounts returns built state",
+          "inputs": {
+            "uid": "u1",
+            "d": {
+              "accounts": [
+                {
+                  "asset_id": "a",
+                  "balance": 100
+                }
+              ]
+            }
+          },
+          "expected": "buildAssetsState(uid, accounts)",
+          "hand_calculation": "Nonempty saved account list delegates to buildAssetsState.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Every account deleted returns null",
+          "inputs": {
+            "uid": "u1",
+            "d": {
+              "accounts": [],
+              "deleted_accounts": [
+                "a"
+              ]
+            }
+          },
+          "expected": null,
+          "hand_calculation": "Saved record holds no active accounts.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-112",
+      "name": "yearlyInterest",
+      "kind": "function",
+      "what_it_is_for": "A year's interest from one bond or CD, by the one rule both income figures use: face × rate; with no face entered, today's value × rate (a CD typed by its balance); with no rate, nothing (owner A46: counted as $0, said so).",
+      "formula_in_words": "A year's interest from one bond or CD. Nothing when no rate was entered. Face value × rate when a face value was entered; otherwise today's value × rate.",
+      "handed": "export function yearlyInterest(b: BondInfo): number | null",
+      "inputs_it_reads": [
+        "MK-XS-I-011 bond face value",
+        "MK-XS-I-012 bond coupon rate",
+        "MK-XS-I-049 bond price — what the bond is worth today"
+      ],
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "A year's interest from one bond or CD. Nothing when no rate was entered. Face value × rate when a face value was entered; otherwise today's value × rate.",
+      "findings": "Function-level contract returns null for a missing rate, while the main brief says the displayed annual interest is counted as $0 and the app says so (A46). Treat this as a layer distinction to verify: null at helper level must not become a fabricated yield, and the row/screen must explicitly explain the zero contribution. Explicit zero rate returns numeric 0. Face fallback to market value is intentional. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Face times coupon rate",
+          "inputs": {
+            "bond": {
+              "face_value": 10000,
+              "coupon_rate": 0.04,
+              "market_value": 9800
+            }
+          },
+          "expected": 400,
+          "hand_calculation": "$10,000 × 4% = $400.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Missing face falls back to current value",
+          "inputs": {
+            "bond": {
+              "face_value": null,
+              "coupon_rate": 0.03,
+              "market_value": 8000
+            }
+          },
+          "expected": 240,
+          "hand_calculation": "No face entered: $8,000 × 3% = $240.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Missing rate returns null, not zero",
+          "inputs": {
+            "bond": {
+              "face_value": 10000,
+              "coupon_rate": null,
+              "market_value": 10000
+            }
+          },
+          "expected": null,
+          "hand_calculation": "Rate unknown means yearly interest unknown.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Explicit zero rate is known zero",
+          "inputs": {
+            "bond": {
+              "face_value": 10000,
+              "coupon_rate": 0,
+              "market_value": 10000
+            }
+          },
+          "expected": 0,
+          "hand_calculation": "Rate is entered as zero, so yearly interest is zero.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Negative rate is literal if accepted by schema",
+          "inputs": {
+            "bond": {
+              "face_value": 10000,
+              "coupon_rate": -0.01,
+              "market_value": 10000
+            }
+          },
+          "expected": -100,
+          "hand_calculation": "Formula states face × rate; check whether schema permits negative coupon rates.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-113",
+      "name": "altPartsOf",
+      "kind": "function",
+      "what_it_is_for": "The alternatives inside one account, each with the kind its yearly rate is read from.",
+      "formula_in_words": "The alternatives inside one account, each with the kind its yearly rate is read from. An account that is itself an alternative: its alternatives part of the class split (or its whole balance when it has no split), at its own kind. Any other account: each option at its synced value, kind options; each holding classed as an alternative with a price, shares × price, kind crypto when its name says bitcoin, ethereum or crypto, commodities when it says gold, silver, platinum, palladium or commodity, otherwise other; and whatever of the account's alternatives part is left (more than half a cent either way) is a part with no kind, marked asset type not classified — never other, and given no rate (DEC-4036h, 2026-10-10). Nothing when the account holds no alternatives.",
+      "handed": "export function altPartsOf(a: AssetAccount): AltPart[]",
+      "inputs_it_reads": [
+        "MK-XS-I-001 account balance",
+        "MK-XS-I-004 holding quantity (shares)",
+        "MK-XS-I-005 holding price",
+        "MK-XS-I-034 option positions — contracts, strike, expiry, put or call",
+        "MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest"
+      ],
+      "changed_since_prior_audit": null,
+      "formula_review": "INCOMPLETE_SPECIFICATION_OR_INTEGRATION_RISK",
+      "formula_in_words_reviewed": "The alternatives inside one account, each with the kind its yearly rate is read from. An account that is itself an alternative: its alternatives part of the class split (or its whole balance when it has no split), at its own kind. Any other account: each option at its synced value, kind options; each holding classed as an alternative with a price, shares × price, kind crypto when its name says bitcoin, ethereum or crypto, commodities when it says gold, silver, platinum, palladium or commodity, otherwise other; and whatever of the account's alternatives part is left (more than half a cent either way) is a part with no kind, marked asset type not classified — never other, and given no rate (DEC-4036h, 2026-10-10). Nothing when the account holds no alternatives.",
+      "findings": "Alternatives remainder > half cent either way is unclassified and must receive no assumed rate. Verify value reconciliation, option market value field, and name-based inference order. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Alternative account uses own kind and split part",
+          "inputs": {
+            "account": {
+              "asset_id": "a",
+              "kind": "crypto",
+              "balance": 1000,
+              "classSplit": {
+                "Alternatives": 800
+              }
+            }
+          },
+          "expected": [
+            {
+              "value": 800,
+              "kind": "crypto"
+            }
+          ],
+          "hand_calculation": "Alternatives account contributes its alternatives split at its own kind.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Option positions use synced values and options kind",
+          "inputs": {
+            "account": {
+              "asset_id": "a",
+              "kind": "brokerage",
+              "balance": 1000,
+              "options": [
+                {
+                  "market_value": 250
+                }
+              ],
+              "holdings": []
+            }
+          },
+          "expected": [
+            {
+              "value": 250,
+              "kind": "options"
+            }
+          ],
+          "hand_calculation": "Option contributes its synced value and kind options.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Crypto/commodity holding kind inferred from name",
+          "inputs": {
+            "account": {
+              "kind": "brokerage",
+              "holdings": [
+                {
+                  "name": "Bitcoin",
+                  "quantity": 2,
+                  "price": 100
+                },
+                {
+                  "name": "Gold bullion",
+                  "quantity": 3,
+                  "price": 50
+                }
+              ]
+            }
+          },
+          "expected": [
+            {
+              "value": 200,
+              "kind": "crypto"
+            },
+            {
+              "value": 150,
+              "kind": "commodities"
+            }
+          ],
+          "hand_calculation": "Bitcoin 2×100=$200 crypto; Gold 3×50=$150 commodities.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Remainder above half cent is unclassified, no rate",
+          "inputs": {
+            "account": {
+              "kind": "brokerage",
+              "balance": 1000,
+              "classSplit": {
+                "Alternatives": 400
+              },
+              "holdings": [],
+              "options": []
+            }
+          },
+          "expected": [
+            {
+              "value": 400,
+              "kind": null,
+              "classification": "asset type not classified"
+            }
+          ],
+          "hand_calculation": "Any alternatives portion not accounted for by named holdings/options remains unclassified, not other.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "No alternatives returns empty list",
+          "inputs": {
+            "account": {
+              "kind": "brokerage",
+              "balance": 1000,
+              "classSplit": {
+                "Stocks / Funds": 1000
+              },
+              "holdings": [],
+              "options": []
+            }
+          },
+          "expected": [],
+          "hand_calculation": "No alternatives part exists.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-114",
+      "name": "rentAmount",
+      "kind": "function",
+      "what_it_is_for": "DEC-3768c (2026-10-10): a rent figure with words in it is not read — it counts as not entered, never as the digits inside it (\"about 2k\" was $2 and made the property a rental).",
+      "formula_in_words": "A rent figure as a number. Owner rule, 2026-10-10: a rent figure is a number. It is read only when it is a plain number: digits with at most one decimal point, allowing a leading dollar sign, thousands commas and spaces. A figure with letters or any other text in it (a word such as \"about\", a \"k\" for thousands, \"n/a\", a minus sign) is not read and counts as not entered, never as the digits inside it. Not entered, blank or missing gives 0.",
+      "handed": "const rentAmount = (v: any)",
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "A rent figure as a number. Owner rule, 2026-10-10: a rent figure is a number. It is read only when it is a plain number: digits with at most one decimal point, allowing a leading dollar sign, thousands commas and spaces. A figure with letters or any other text in it (a word such as \"about\", a \"k\" for thousands, \"n/a\", a minus sign) is not read and counts as not entered, never as the digits inside it. Not entered, blank or missing gives 0.",
+      "findings": "Strict parser must reject text such as “about 2k”, “n/a”, and minus sign rather than extracting digits; accepted formatting permits one decimal and currency separators. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Plain integer string accepted",
+          "inputs": {
+            "v": "2000"
+          },
+          "expected": 2000,
+          "hand_calculation": "Digits only string converts to number.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Dollar sign, comma and spaces accepted",
+          "inputs": {
+            "v": " $2,500.50 "
+          },
+          "expected": 2500.5,
+          "hand_calculation": "Allowed currency formatting is stripped; numeric value 2500.50.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Text with digits is rejected",
+          "inputs": {
+            "v": "about 2k"
+          },
+          "expected": 0,
+          "hand_calculation": "Letters make the entire figure unreadable; never extract 2.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Minus sign and n/a rejected",
+          "inputs": {
+            "v": "-100"
+          },
+          "expected": 0,
+          "hand_calculation": "Minus sign is prohibited by the stated rule; not entered → 0.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Multiple decimals rejected",
+          "inputs": {
+            "v": "1.2.3"
+          },
+          "expected": 0,
+          "hand_calculation": "Not a plain number with at most one decimal point.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-115",
+      "name": "liveRent",
+      "kind": "function",
+      "what_it_is_for": "The rent entries that carry a figure and name their property: rent coming in or costs going out above zero.",
+      "formula_in_words": "The rent entries that name their property (a property identifier that is not blank) and whose rent coming in or costs going out is above zero. An entry that names no property is not rent and is left out, whatever its figures (owner rule DEC-4059d, 2026-10-10).",
+      "handed": "const liveRent = (rentals: RentEntry[] | null | undefined)",
+      "inputs_it_reads": [
+        "MK-XS-I-024 logged expenses"
+      ],
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "The rent entries that name their property (a property identifier that is not blank) and whose rent coming in or costs going out is above zero. An entry that names no property is not rent and is left out, whatever its figures (owner rule DEC-4059d, 2026-10-10).",
+      "findings": "Only named property and positive income OR expenses qualifies. Null/missing property id is excluded even if figures are positive. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Named property with positive income is live",
+          "inputs": {
+            "rentals": [
+              {
+                "property_id": "p1",
+                "income": 1500,
+                "expenses": 0
+              }
+            ]
+          },
+          "expected": [
+            {
+              "property_id": "p1",
+              "income": 1500,
+              "expenses": 0
+            }
+          ],
+          "hand_calculation": "Property id is nonblank and income > 0.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Named property with positive costs is live",
+          "inputs": {
+            "rentals": [
+              {
+                "property_id": "p2",
+                "income": 0,
+                "expenses": 300
+              }
+            ]
+          },
+          "expected": [
+            {
+              "property_id": "p2",
+              "income": 0,
+              "expenses": 300
+            }
+          ],
+          "hand_calculation": "Positive expenses qualify even with zero income.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "No property identifier is excluded despite figures",
+          "inputs": {
+            "rentals": [
+              {
+                "property_id": null,
+                "income": 1500,
+                "expenses": 300
+              }
+            ]
+          },
+          "expected": [],
+          "hand_calculation": "Unattached rent entry is not rent.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Zero and negative values do not qualify",
+          "inputs": {
+            "rentals": [
+              {
+                "property_id": "p1",
+                "income": 0,
+                "expenses": 0
+              },
+              {
+                "property_id": "p2",
+                "income": -1,
+                "expenses": -2
+              }
+            ]
+          },
+          "expected": [],
+          "hand_calculation": "Neither income nor expenses is above zero.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Null rentals returns empty list",
+          "inputs": {
+            "rentals": null
+          },
+          "expected": [],
+          "hand_calculation": "No rent entries.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "MK-NW-F-116",
+      "name": "rentedIdsOf",
+      "kind": "function",
+      "what_it_is_for": "Which properties the rent entries name, by their identifiers.",
+      "formula_in_words": "The identifiers of the properties the live rent entries name.",
+      "handed": "const rentedIdsOf = (rentals: RentEntry[] | null | undefined)",
+      "changed_since_prior_audit": null,
+      "formula_review": "CONSISTENT_WITH_CARD_AND_RULES",
+      "formula_in_words_reviewed": "The identifiers of the properties the live rent entries name.",
+      "findings": "Depends entirely on liveRent. Confirm output uniqueness/order contract for property IDs; card says identifiers but not whether array or Set. The supplied card is a specification, not implementation evidence; run against source before calling this a reproduced bug.",
+      "test_cases": [
+        {
+          "class": "Easy",
+          "description": "Returns ids from live rent entries",
+          "inputs": {
+            "rentals": [
+              {
+                "property_id": "p1",
+                "income": 100
+              },
+              {
+                "property_id": "p2",
+                "expenses": 50
+              }
+            ]
+          },
+          "expected": [
+            "p1",
+            "p2"
+          ],
+          "hand_calculation": "Each live entry contributes its named property identifier.",
+          "case_id": 1
+        },
+        {
+          "class": "Easy",
+          "description": "Duplicate property ids collapse",
+          "inputs": {
+            "rentals": [
+              {
+                "property_id": "p1",
+                "income": 100
+              },
+              {
+                "property_id": "p1",
+                "expenses": 50
+              }
+            ]
+          },
+          "expected": [
+            "p1"
+          ],
+          "hand_calculation": "Output is identifiers; expected unique set/list normalization should be confirmed.",
+          "case_id": 2
+        },
+        {
+          "class": "Complex",
+          "description": "Unattached rent excluded via liveRent",
+          "inputs": {
+            "rentals": [
+              {
+                "property_id": null,
+                "income": 1000
+              },
+              {
+                "property_id": "p1",
+                "income": 100
+              }
+            ]
+          },
+          "expected": [
+            "p1"
+          ],
+          "hand_calculation": "Entry without property id is not live rent.",
+          "case_id": 3
+        },
+        {
+          "class": "Complex",
+          "description": "Zero income and zero expense excluded",
+          "inputs": {
+            "rentals": [
+              {
+                "property_id": "p1",
+                "income": 0,
+                "expenses": 0
+              }
+            ]
+          },
+          "expected": [],
+          "hand_calculation": "No positive income/cost, so liveRent excludes it.",
+          "case_id": 4
+        },
+        {
+          "class": "Edge",
+          "description": "Missing rentals returns empty",
+          "inputs": {
+            "rentals": null
+          },
+          "expected": [],
+          "hand_calculation": "No live entries to extract ids.",
+          "case_id": 5
+        }
+      ],
+      "source_refs": []
+    }
+  ],
+  "case_count_by_class": {
+    "Easy": 60,
+    "Complex": 60,
+    "Edge": 30
+  },
+  "claude_execution_notes": [
+    "Run all 150 cases against current source; do not modify production code to make tests pass.",
+    "Map conceptual fields to actual TypeScript schemas. If a case cannot be mapped, mark BLOCKED with reason; do not silently omit it or change expected behavior.",
+    "Expected object fields for composed helpers are behavioral assertions. Compare the documented invariant and source-defined shape; report unresolved schema ambiguity explicitly.",
+    "For priceAtYield, bondRateSensitivity, accruedInterestCaveat, rowOf and categoryEarnings, call the actual helper chain. Do not use approximate mental outputs where the card delegates to another function; report exact actual output and independently recompute the arithmetic.",
+    "Use a fixed now/date in all date-sensitive tests. Cover local calendar dates without UTC/timezone shifts.",
+    "Preserve missing/null vs explicit zero distinctions and check negative values are not silently clamped.",
+    "Report PASS/FAIL/BLOCKED per case, expected, actual, failure reason, test file/line, and group repeated failures by root cause.",
+    "Do not report this audit as application-tested until the repository tests have actually been run."
+  ]
+}

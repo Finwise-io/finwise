@@ -1,0 +1,307 @@
+{
+  "batch": "nw module final — part 3",
+  "written_by": "gemini",
+  "ready_to_close": true,
+  "still_open": [],
+  "formula_checks": [
+    {
+      "id": "MK-NW-F-061",
+      "name": "averageBondYield",
+      "verdict": "RIGHT",
+      "why": "Counts only priced bonds weighted on current value per DEC-2484b.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-2484b.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-062",
+      "name": "undatedBondInterest",
+      "verdict": "RIGHT",
+      "why": "Continues counting interest for undated bonds per DEC-2748c and DEC-4036b.",
+      "should_be": "",
+      "rests_on": "Owner decisions DEC-2748c, DEC-4036b.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-063",
+      "name": "maturedBondInterestStop",
+      "verdict": "RIGHT",
+      "why": "Stops counting interest for matured bonds per DEC-2748d.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-2748d.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-064",
+      "name": "rateSensitivityPricing",
+      "verdict": "RIGHT",
+      "why": "Maintains consistent rate sensitivity pricing and proportional rounding per DEC-2484c and DEC-2748f.",
+      "should_be": "",
+      "rests_on": "Owner decisions DEC-2484c, DEC-2748f.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-065",
+      "name": "portfolioDuration",
+      "verdict": "RIGHT",
+      "why": "Calculates weighted average duration across fixed income holdings.",
+      "should_be": "",
+      "rests_on": "Fixed income analytics standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-066",
+      "name": "missingBalanceAmberNotice",
+      "verdict": "RIGHT",
+      "why": "Excludes missing balances and shows amber notice per DEC-3279e.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3279e.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-067",
+      "name": "strictPluralization",
+      "verdict": "RIGHT",
+      "why": "Strictly enforces word pluralization via approved word list per DEC-4082.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-4082.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-068",
+      "name": "timezoneInvariantDates",
+      "verdict": "RIGHT",
+      "why": "Reads dates as calendar dates without timezone shifts per DEC-3279j.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3279j.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-069",
+      "name": "anniversaryCashFlowPricing",
+      "verdict": "RIGHT",
+      "why": "Respects anniversary cash flows in bond pricing per DEC-3279c.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3279c.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-070",
+      "name": "accruedInterestCaveat",
+      "verdict": "RIGHT",
+      "why": "Restricts accrued interest caveat strictly to interest-bearing bonds per DEC-3279i.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3279i.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-071",
+      "name": "cdTerminologyRecognition",
+      "verdict": "RIGHT",
+      "why": "Recognizes CD terminology and ignores institution names per DEC-3279h and DEC-4036c.",
+      "should_be": "",
+      "rests_on": "Owner decisions DEC-3279h, DEC-4036c.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-072",
+      "name": "equityLotTracking",
+      "verdict": "RIGHT",
+      "why": "Tracks individual equity purchase lots and calculates active share sums.",
+      "should_be": "",
+      "rests_on": "Portfolio accounting standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-073",
+      "name": "fifoCostBasis",
+      "verdict": "RIGHT",
+      "why": "Applies First-In, First-Out (FIFO) cost basis to share sales per DEC-2484d.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-2484d.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-074",
+      "name": "realizedGainCalculation",
+      "verdict": "RIGHT",
+      "why": "Computes realized gains accurately using FIFO matching rules.",
+      "should_be": "",
+      "rests_on": "Tax accounting standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-075",
+      "name": "unrealizedGainShortLong",
+      "verdict": "RIGHT",
+      "why": "Differentiates short-term and long-term unrealized gains based on holding period.",
+      "should_be": "",
+      "rests_on": "Tax accounting standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-076",
+      "name": "trailingDividendSum",
+      "verdict": "RIGHT",
+      "why": "Calculates trailing 12-month dividend income accurately.",
+      "should_be": "",
+      "rests_on": "Dividend tracking standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-077",
+      "name": "livePriceFallback",
+      "verdict": "RIGHT",
+      "why": "Falls back to cost basis when live price feed is missing per DEC-3657.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3657.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-078",
+      "name": "singleShareDayChange",
+      "verdict": "RIGHT",
+      "why": "Calculates daily price change per share and portfolio total day change.",
+      "should_be": "",
+      "rests_on": "Market quotation standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-079",
+      "name": "institutionRollup",
+      "verdict": "RIGHT",
+      "why": "Rolls up account balances and holdings by financial institution cleanly.",
+      "should_be": "",
+      "rests_on": "Aggregation standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-080",
+      "name": "netRentalIncome",
+      "verdict": "RIGHT",
+      "why": "Computes net rental income after mortgage and operating expense deductions.",
+      "should_be": "",
+      "rests_on": "Real estate accounting standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-081",
+      "name": "propertyEquitySum",
+      "verdict": "RIGHT",
+      "why": "Calculates net equity for real estate by subtracting linked mortgages from property value.",
+      "should_be": "",
+      "rests_on": "Real estate equity standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-082",
+      "name": "debtPayoffSchedule",
+      "verdict": "RIGHT",
+      "why": "Computes amortization schedule and payoff timeline for loans and mortgages.",
+      "should_be": "",
+      "rests_on": "Loan amortization standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-083",
+      "name": "minimumPaymentRule",
+      "verdict": "RIGHT",
+      "why": "Applies conservative minimum payment calculations for revolving debts.",
+      "should_be": "",
+      "rests_on": "Credit assessment standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-084",
+      "name": "debtToAssetRatio",
+      "verdict": "RIGHT",
+      "why": "Calculates total liabilities divided by total assets.",
+      "should_be": "",
+      "rests_on": "Solvency ratio standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-085",
+      "name": "emergencyFundRunway",
+      "verdict": "RIGHT",
+      "why": "Computes monthly runway covering essential spend and debt obligations.",
+      "should_be": "",
+      "rests_on": "Emergency fund standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-086",
+      "name": "netWorthHistoryPoint",
+      "verdict": "RIGHT",
+      "why": "Records and retrieves historical net worth points at month-end.",
+      "should_be": "",
+      "rests_on": "Historical tracking standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-087",
+      "name": "portfolioTimeWeightedReturn",
+      "verdict": "RIGHT",
+      "why": "Calculates time-weighted return adjusting for intra-period cash flows per DEC-4439.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-4439.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-088",
+      "name": "wealthGeneratedSum",
+      "verdict": "RIGHT",
+      "why": "Separates organic market wealth growth from external net cash contributions.",
+      "should_be": "",
+      "rests_on": "Performance attribution standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-089",
+      "name": "monthEndWindowStart",
+      "verdict": "RIGHT",
+      "why": "Handles month-end window start dates correctly per DEC-3768b.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3768b.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-090",
+      "name": "unpricedHoldingBackCalc",
+      "verdict": "RIGHT",
+      "why": "Performs performance back-calculation handling unpriced holdings per DEC-3656.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3656.",
+      "severity": ""
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-NW-F-061",
+      "name": "averageBondYield",
+      "kind": "edge",
+      "title": "Unpriced bond exclusion",
+      "given": "A bond portfolio containing one priced and one unpriced bond.",
+      "inputs": { "bonds": [{ "priced": true, "yield": 0.04, "value": 10000 }, { "priced": false, "yield": 0.05, "value": 5000 }] },
+      "expected": { "average_yield": 0.04 },
+      "working": ["Average bond yield counts only priced bonds on current value per DEC-2484b -> 4.0%"],
+      "rests_on": "Owner decision DEC-2484b",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-066",
+      "name": "missingBalanceAmberNotice",
+      "kind": "edge",
+      "title": "Missing account balance",
+      "given": "An account with no entered balance.",
+      "inputs": { "balance": null },
+      "expected": { "included_in_total": false, "notice": "Value not entered" },
+      "working": ["Missing balances excluded with amber notice per DEC-3279e"],
+      "rests_on": "Owner decision DEC-3279e",
+      "confidence": "high",
+      "notes": ""
+    }
+  ],
+  "could_not_test": []
+}

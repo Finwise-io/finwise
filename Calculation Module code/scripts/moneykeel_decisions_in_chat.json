@@ -934,6 +934,24 @@
    "not_a_repeat_of": "DEC-0274 — that rule (\"100 unless the broker or the person states otherwise\") stands; this one builds the two ways it is stated. DEC-4642, DEC-4643 — the same approval message (\"3,4, 8-approved.\"); those are the unused functions and the partly matched sale, this one option contract size.",
    "proof": "src/services/sync/snaptrade.test.ts",
    "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
+  },
+  {
+   "decided": "2026-10-13",
+   "his_words": "approved.",
+   "subject": "A use stated on any property stops the entered-first fallback: the marked home that rent made a rental leaves the other property a second home",
+   "means": "Said in chat on 2026-10-13, after this was explained: two properties; B marked the home (re_use 'primary') with a rent entry naming B; A with no use stated. The app made B a rental and promoted A to the home by the entered-first fallback. Approved: B is a rental (DEC-3035p), A is a second home (DEC-1926); the entered-first fallback of DEC-2747e applies only when NO use is stated on any property, and here a use was stated, on B. Rent still counts as B's income. Retirement money: A and B both count 100% by default (DEC-0100).",
+   "plain": "With two properties, where B is marked as the home but has rent entered, B is a rental and A, with nothing said about it, is a second home. The app no longer makes A the home because it was entered first: that only happens when nothing is said about any property. Retirement money counts both: A $400,000 + B $300,000 = $700,000 (before: $300,000, A was left out as the home).",
+   "apply_steps": "1. propertyUseMap (MK-NW-F-117): the entered-first fallback runs only when no property, rentals included, carries a stated use other than 'rental'. 2. Check realEstateUseOf (MK-NW-F-013), primaryHomeIdOf (MK-NW-F-110) and earmarkDefault (MK-NW-F-030) agree: A second home, B rental, no home, both 100%. 3. Flip the outside case (OpenAI re-run 01, MK-NW-F-013) to passing with its SETTLED note. 4. Function rules for MK-NW-F-117, -013, -110 reworded and re-read. 5. Standard (how an account is classed and counted, the home lived in) and Changelog row. 6. The Plan's retirement money reads it once the Plan's callers hand in the rent entries (already recorded in that standard as not yet wired, Plan build).",
+   "changed": "Built and tested 2026-10-13: propertyUseMap looks for a stated use across every property, not only those left after rentals. Handed the rent entries: A reads 'secondary', B 'rental', primaryHomeIdOf null, earmarkDefault 100 for both, earmarkedAmount A + B = $700,000. The Plan's nest egg does not hand in the rent entries yet (standard: not yet wired, Plan build), so there B's home mark still decides and $400,000 counts.",
+   "governs": "MK-NW-F-117 propertyUseMap · MK-NW-F-013 realEstateUseOf · MK-NW-F-110 primaryHomeIdOf · MK-NW-F-030 earmarkDefault · MK-NW-F-107 propertyUses · MK-NW-F-033 retirementEarmarkedValue",
+   "screens": "/networth · Plan retirement money (/retirement)",
+   "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_rerun_openai_01.test.ts",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md",
+   "status": "TESTED",
+   "tab": "networth",
+   "type": "RULE",
+   "not_a_repeat_of": "DEC-2747e — that rule (with no use stated, the property entered first is the home) stands; this one says when it does not apply: a use stated on any property, even a home mark that rent overrode. DEC-1926, DEC-3035p — their rules stand and this applies them together. DEC-0100 — the retirement share rule, unchanged.",
+   "answers": []
   }
  ]
 }

@@ -326,9 +326,8 @@ describe('MK-NW-F-036 benchmarkInfo — five cases', () => {
     (BENCHMARK_META as any)[kind] = { source: rec.source, period: rec.period, estimate: rec.estimate };
     try { run(); } finally { if (saved === undefined) delete (BENCHMARK_META as any)[kind]; else (BENCHMARK_META as any)[kind] = saved; }
   };
-  test.failing('easy · Custom zero is labelled estimate', () => {
-    // FINDING: app gives period '—' (index.ts:2101), expected "" — the card says "the period is blank"; rate, source
-    // and estimate match. A file/code disagreement on the empty-period mark.
+  // SETTLED 2026-10-13 by DEC-0264: the period is blank, '' — the dash is a screen's mark, never the calculation's.
+  test('easy · Custom zero is labelled estimate', () => {
     withRecord('stocks_etf', { source: 'Index', period: '10 years', estimate: false }, () => {
       const i = benchmarkInfo('stocks_etf', { stocks_etf: 0 });
       expect({ rate: i.ret, source: i.source, period: i.period, estimate: i.estimate }).toEqual({ rate: 0, source: 'Your custom estimate', period: '', estimate: true });
@@ -340,20 +339,20 @@ describe('MK-NW-F-036 benchmarkInfo — five cases', () => {
       expect({ rate: i.ret, source: i.source, period: i.period, estimate: i.estimate }).toEqual({ rate: 0.042, source: 'US Aggregate Bond Index', period: '10 years', estimate: false });
     });
   });
-  test.failing('complex · Custom nonzero hides benchmark period', () => {
-    // FINDING: app gives period '—' (index.ts:2101), expected ""; the rest matches.
+  // SETTLED 2026-10-13 by DEC-0264: the period is blank, '' — the dash is a screen's mark, never the calculation's.
+  test('complex · Custom nonzero hides benchmark period', () => {
     withRecord('stocks_etf', { source: 'Index', period: '30 years', estimate: false }, () => {
       const i = benchmarkInfo('stocks_etf', { stocks_etf: 0.0825 });
       expect({ rate: i.ret, source: i.source, period: i.period, estimate: i.estimate }).toEqual({ rate: 0.0825, source: 'Your custom estimate', period: '', estimate: true });
     });
   });
-  test.failing('complex · Unknown kind generic fallback disclosed', () => {
-    // FINDING: app gives period '—' (index.ts:2098), expected ""; rate 0.06, source and estimate match.
+  // SETTLED 2026-10-13 by DEC-0264: the period is blank, '' — the dash is a screen's mark, never the calculation's.
+  test('complex · Unknown kind generic fallback disclosed', () => {
     const i = benchmarkInfo('rare_asset');
     expect({ rate: i.ret, source: i.source, period: i.period, estimate: i.estimate }).toEqual({ rate: 0.06, source: 'Generic blended estimate', period: '', estimate: true });
   });
-  test.failing('edge · Custom rate exactly zero must not be treated as absent', () => {
-    // FINDING: app gives period '—' (index.ts:2101), expected ""; the zero is honoured (rate 0, custom, estimate).
+  // SETTLED 2026-10-13 by DEC-0264: the period is blank, '' — the dash is a screen's mark, never the calculation's.
+  test('edge · Custom rate exactly zero must not be treated as absent', () => {
     withRecord('brokerage', { source: 'Index', period: '5 years', estimate: false }, () => {
       const i = benchmarkInfo('brokerage', { brokerage: 0 });
       expect({ rate: i.ret, source: i.source, period: i.period, estimate: i.estimate }).toEqual({ rate: 0, source: 'Your custom estimate', period: '', estimate: true });

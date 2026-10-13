@@ -39897,7 +39897,7 @@
     "/retirement|worker"
    ],
    "inside": "RetirementCockpit",
-   "line": ": <Text style={styles.instSrc} numberOfLines={2}>{assetKind(a.kind)?.label} · {moneyCompact(earmarkedAmount(a, carId, homeId), 'M')}{simple ? '' : ` · ${info.source} · ${info.period}${info.estimate ? ",
+   "line": ": <Text style={styles.instSrc} numberOfLines={2}>{assetKind(a.kind)?.label} · {moneyCompact(earmarkedAmount(a, carId, homeId), 'M')}{simple ? '' : ` · ${info.source}${info.period ? ` · ${info.period}`",
    "values": [
     "$120K",
     "$45K",

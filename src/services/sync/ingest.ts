@@ -120,9 +120,9 @@ function theirCost(prior: any): number | null {
  *               MK-XS-I-003 institution name
  *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-005 holding price
- *               MK-XS-I-006 price fetched at
  *               MK-XS-I-007 purchase price and date (per lot)
  *               MK-XS-I-010 transaction words (the institution's own wording)
+ *               MK-XS-I-028 assumed return
  *
  * Decides .....
  *     · If cost per share is missing it uses 0.

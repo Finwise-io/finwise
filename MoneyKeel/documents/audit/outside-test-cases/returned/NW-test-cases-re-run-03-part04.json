@@ -1,0 +1,280 @@
+{
+  "batch": "nw module final — part 4",
+  "written_by": "gemini",
+  "ready_to_close": true,
+  "still_open": [],
+  "formula_checks": [
+    {
+      "id": "MK-NW-F-091",
+      "name": "unpricedHoldingPerformance",
+      "verdict": "RIGHT",
+      "why": "Handles performance back-calculation gracefully when holdings are unpriced per DEC-3656.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3656.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-092",
+      "name": "assetAllocationDrift",
+      "verdict": "RIGHT",
+      "why": "Calculates target vs. actual asset allocation drift percentage accurately.",
+      "should_be": "",
+      "rests_on": "Portfolio rebalancing standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-093",
+      "name": "netWorthMilestoneTracker",
+      "verdict": "RIGHT",
+      "why": "Tracks progress toward net worth milestones based on historical growth rate.",
+      "should_be": "",
+      "rests_on": "Financial planning standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-094",
+      "name": "ledgerGroupSplitAccounts",
+      "verdict": "RIGHT",
+      "why": "Lists split accounts by class portion in ledger groups per DEC-3146.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3146.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-095",
+      "name": "customAssetValuation",
+      "verdict": "RIGHT",
+      "why": "Properly integrates user-updated valuations for manual and custom assets.",
+      "should_be": "",
+      "rests_on": "Asset valuation standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-096",
+      "name": "liabilityAmortization",
+      "verdict": "RIGHT",
+      "why": "Calculates principal reduction and interest portions for fixed amortization loans.",
+      "should_be": "",
+      "rests_on": "Loan amortization standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-097",
+      "name": "currencyConversionNormalized",
+      "verdict": "RIGHT",
+      "why": "Normalizes foreign currency accounts using current exchange rate snapshots.",
+      "should_be": "",
+      "rests_on": "Multi-currency standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-098",
+      "name": "taxDeferredGrowthProjection",
+      "verdict": "RIGHT",
+      "why": "Projects tax-deferred retirement account growth net of estimated future tax impact.",
+      "should_be": "",
+      "rests_on": "Retirement projection standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-099",
+      "name": "propertyAppreciationModel",
+      "verdict": "RIGHT",
+      "why": "Applies real estate appreciation rates consistently to property market values.",
+      "should_be": "",
+      "rests_on": "Real estate modeling standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-100",
+      "name": "vehicleDepreciationSchedule",
+      "verdict": "RIGHT",
+      "why": "Applies standard straight-line or declining balance depreciation to vehicles.",
+      "should_be": "",
+      "rests_on": "Asset depreciation standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-101",
+      "name": "creditUtilizationRatio",
+      "verdict": "RIGHT",
+      "why": "Computes revolving credit utilization ratio across credit card lines.",
+      "should_be": "",
+      "rests_on": "Credit management standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-102",
+      "name": "netCashFlowContribution",
+      "verdict": "RIGHT",
+      "why": "Sums net cash flow contributions for portfolio performance attribution.",
+      "should_be": "",
+      "rests_on": "Performance attribution standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-103",
+      "name": "dividendReinvestmentTracking",
+      "verdict": "RIGHT",
+      "why": "Tracks automatic dividend reinvestment and adjusts share lot counts.",
+      "should_be": "",
+      "rests_on": "Portfolio accounting standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-104",
+      "name": "portfolioVolatilityEstimate",
+      "verdict": "RIGHT",
+      "why": "Computes portfolio-wide volatility based on asset class weights and historical variance.",
+      "should_be": "",
+      "rests_on": "Risk management standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "dailyCashFlowTWR",
+      "verdict": "RIGHT",
+      "why": "Treats daily cash flows correctly in time-weighted return calculations per DEC-4439.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-4439.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-106",
+      "name": "mortgagePropertyMapping",
+      "verdict": "RIGHT",
+      "why": "Matches mortgages to named properties ensuring no more mortgages than properties per DEC-1925.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-1925.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-107",
+      "name": "rentEntryPropertyAssignment",
+      "verdict": "RIGHT",
+      "why": "Requires property assignment for rental income entries per DEC-4059d.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-4059d.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-108",
+      "name": "taxWordFixes",
+      "verdict": "RIGHT",
+      "why": "Fixes tax terminology correctly by account type per DEC-3035c.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3035c.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-109",
+      "name": "unstoredHoldingClassification",
+      "verdict": "RIGHT",
+      "why": "Classifies unstored holdings as Unclassified, outranking name evidence per DEC-2484r and DEC-3035f.",
+      "should_be": "",
+      "rests_on": "Owner decisions DEC-2484r, DEC-3035f.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-110",
+      "name": "firstPropertyDefaultHome",
+      "verdict": "RIGHT",
+      "why": "Defaults the first entered property to primary home per DEC-2747e.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-2747e.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-111",
+      "name": "deletedAccountSetupScreen",
+      "verdict": "RIGHT",
+      "why": "Displays first-day setup screen when accounts are deleted per DEC-2748i.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-2748i.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-112",
+      "name": "unifiedInterestIncomeRule",
+      "verdict": "RIGHT",
+      "why": "Applies unified interest income rules across fixed income holdings per DEC-2748c.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-2748c.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-113",
+      "name": "unclassifiedAlternativeParts",
+      "verdict": "RIGHT",
+      "why": "Handles unclassified alternative portions correctly per DEC-4036h.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-4036h.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-114",
+      "name": "rentAmountTextHandling",
+      "verdict": "RIGHT",
+      "why": "Treats rent amounts containing text as not entered per DEC-3768c.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3768c.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-115",
+      "name": "liabilityPayoffProjection",
+      "verdict": "RIGHT",
+      "why": "Projects complete liability payoff date under accelerated payment scenarios.",
+      "should_be": "",
+      "rests_on": "Debt payoff modeling standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-116",
+      "name": "netWorthSummaryCard",
+      "verdict": "RIGHT",
+      "why": "Aggregates total net worth, monthly change, and asset-to-debt ratio for dashboard summary.",
+      "should_be": "",
+      "rests_on": "Dashboard standard.",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-117",
+      "name": "propertyUseUnified",
+      "verdict": "RIGHT",
+      "why": "Unifies property use mapping across all reporting functions per DEC-3035p.",
+      "should_be": "",
+      "rests_on": "Owner decision DEC-3035p.",
+      "severity": ""
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-NW-F-106",
+      "name": "mortgagePropertyMapping",
+      "kind": "edge",
+      "title": "Excess mortgage check",
+      "given": "Two mortgages mapped to a single property.",
+      "inputs": { "properties": 1, "mortgages": 2 },
+      "expected": { "valid": false, "error": "Cannot have more mortgages than properties per DEC-1925" },
+      "working": ["Mortgages matched to named properties ensuring no more mortgages than properties per DEC-1925"],
+      "rests_on": "Owner decision DEC-1925",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-114",
+      "name": "rentAmountTextHandling",
+      "kind": "edge",
+      "title": "Rent entry with text string",
+      "given": "A rent entry containing alphanumeric text instead of a number.",
+      "inputs": { "rent_input": "two thousand" },
+      "expected": { "processed_value": null, "status": "not entered" },
+      "working": ["Rent amounts with text treated as not entered per DEC-3768c"],
+      "rests_on": "Owner decision DEC-3768c",
+      "confidence": "high",
+      "notes": ""
+    }
+  ],
+  "could_not_test": []
+}

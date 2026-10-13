@@ -1,0 +1,1970 @@
+{
+  "batch": "nw module final — part 2",
+  "written_by": "gemini",
+  "ready_to_close": false,
+  "still_open": [
+    "MK-NW-F-035: formula needs clarification on whether the weighted average of portfolio volatility is accurate when cross-asset covariance is not computed."
+  ],
+  "formula_checks": [
+    {
+      "id": "MK-NW-F-031",
+      "name": "primaryCarIdOf",
+      "verdict": "RIGHT",
+      "why": "Correctly isolates vehicles, filters out zero/missing values, ranks by balance, and breaks ties by lower ID.",
+      "should_be": "",
+      "rests_on": "DEC-4036j",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-032",
+      "name": "earmarkedAmount",
+      "verdict": "RIGHT",
+      "why": "Applies account balance to the stated retirement share or falls back to the appropriate smart default.",
+      "should_be": "",
+      "rests_on": "Formula definition",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-033",
+      "name": "retirementEarmarkedValue",
+      "verdict": "RIGHT",
+      "why": "Correctly sums the earmarked amounts across all accounts using primary vehicle and home identification.",
+      "should_be": "",
+      "rests_on": "Formula definition",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-034",
+      "name": "benchmarkReturn",
+      "verdict": "RIGHT",
+      "why": "Properly checks user overrides (including a zero rate) before falling back to app-specified asset kind defaults.",
+      "should_be": "",
+      "rests_on": "Formula definition",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-035",
+      "name": "blendedVolatility",
+      "verdict": "INCOMPLETE",
+      "why": "A weighted average of individual volatilities does not account for asset correlation/covariance, which is required for true portfolio volatility.",
+      "should_be": "Must incorporate covariance matrix or correlation coefficients among asset classes once built, or explicitly note it as an independent approximation.",
+      "rests_on": "Standard portfolio theory",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-036",
+      "name": "benchmarkInfo",
+      "verdict": "RIGHT",
+      "why": "Accurately combines rate data from benchmarkReturn with metadata flags regarding custom overrides and estimate status.",
+      "should_be": "",
+      "rests_on": "DEC-3035j",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-037",
+      "name": "blendedReturn",
+      "verdict": "RIGHT",
+      "why": "Calculates expected return correctly across earmarked accounts weighted by their earmarked value, with proper zero handling.",
+      "should_be": "",
+      "rests_on": "DEC-2746c",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-038",
+      "name": "earmarkedKinds",
+      "verdict": "RIGHT",
+      "why": "Properly extracts distinct investment kinds from non-property accounts with positive earmarked amounts, defaulting unamed kinds to 'other'.",
+      "should_be": "",
+      "rests_on": "Formula definition",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-039",
+      "name": "buildAssetsState",
+      "verdict": "RIGHT",
+      "why": "Handles missing balances by filtering them out, computes correct percentage shares summing to 100, and manages zero total states properly.",
+      "should_be": "",
+      "rests_on": "DEC-2746d",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-040",
+      "name": "assetsFromOnboarding",
+      "verdict": "RIGHT",
+      "why": "Correctly parses onboarding responses into up to four asset accounts with specific rules for unclassified savings.",
+      "should_be": "",
+      "rests_on": "DEC-4036g",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-041",
+      "name": "monthlyContributionsFromOnboarding",
+      "verdict": "RIGHT",
+      "why": "Accurately applies age-based legal limits (2026 limits: $24,500 / $32,500 / $35,750), adds Roth and investment contributions, and handles employer matching rules.",
+      "should_be": "",
+      "rests_on": "DEC-2746e, DEC-3035k",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-044",
+      "name": "getAssetsState",
+      "verdict": "RIGHT",
+      "why": "Properly retrieves saved accounts and returns assetsStateFrom them or nothing if empty.",
+      "should_be": "",
+      "rests_on": "Formula definition",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-045",
+      "name": "sourceWording",
+      "verdict": "RIGHT",
+      "why": "Accurately formats wording for linked, imported, and manual accounts, incorporating age thresholds for sync freshness.",
+      "should_be": "",
+      "rests_on": "Formula definition",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-046",
+      "name": "historyCoverage",
+      "verdict": "RIGHT",
+      "why": "Handles history start checks, unreadable dates, fractional month coverage calculations, and proper rounding down.",
+      "should_be": "",
+      "rests_on": "DEC-2746f, DEC-4059c",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-047",
+      "name": "uberGroupOf",
+      "verdict": "RIGHT",
+      "why": "Maps asset classes accurately to their three corresponding uber-groups.",
+      "should_be": "",
+      "rests_on": "Formula definition",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-048",
+      "name": "uberGroupRows",
+      "verdict": "RIGHT",
+      "why": "Groups and sums class rows into Cash, Investments, and Personal property in the designated order.",
+      "should_be": "",
+      "rests_on": "Formula definition",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-049",
+      "name": "itemizedTotal",
+      "verdict": "RIGHT",
+      "why": "Correctly sums itemized holdings as exact decimals while safely skipping missing values without assuming zero.",
+      "should_be": "",
+      "rests_on": "DEC-3279f",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-050",
+      "name": "itemizeRemainder",
+      "verdict": "RIGHT",
+      "why": "Calculates remainder precisely as lump balance minus itemized total without introducing stray fraction artifacts.",
+      "should_be": "",
+      "rests_on": "Formula definition",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-051",
+      "name": "itemizedResultTotal",
+      "verdict": "RIGHT",
+      "why": "Ensures itemized account totals never drop below the original lump balance when holdings exceed it.",
+      "should_be": "",
+      "rests_on": "DEC-2746g",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-052",
+      "name": "buildItemizedAccounts",
+      "verdict": "RIGHT",
+      "why": "Refuses execution if any holding value is missing, builds individual asset accounts correctly, and rolls unallocated cash into a separate cash account.",
+      "should_be": "",
+      "rests_on": "DEC-2746h, DEC-3035m",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-053",
+      "name": "correctClassOf",
+      "verdict": "RIGHT",
+      "why": "Properly respects user-chosen classes while applying cascading logic based on maturity dates, name evidence, and standard rules.",
+      "should_be": "",
+      "rests_on": "Formula definition",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-054",
+      "name": "reclassifyAccounts",
+      "verdict": "RIGHT",
+      "why": "Respects user confirmations, applies class corrections without corrupting tax buckets, and evaluates holding classifications correctly.",
+      "should_be": "",
+      "rests_on": "DEC-2748h",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-055",
+      "name": "isBond",
+      "verdict": "RIGHT",
+      "why": "Evaluates whether an account is a bond strictly based on its asset class (Bonds & CDs).",
+      "should_be": "",
+      "rests_on": "Formula definition",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-056",
+      "name": "bondInfo",
+      "verdict": "RIGHT",
+      "why": "Extracts bond metrics accurately, treating unentered values as null rather than zero, and properly parsing CD purchasing origin.",
+      "should_be": "",
+      "rests_on": "DEC-2748b, DEC-4036c",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-057",
+      "name": "annualCoupon",
+      "verdict": "RIGHT",
+      "why": "Multiplies face value by coupon rate correctly, returning null if either is missing.",
+      "should_be": "",
+      "rests_on": "Formula definition",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-058",
+      "name": "yearsToMaturity",
+      "verdict": "RIGHT",
+      "why": "Calculates exact calendar anniversaries and fractional day periods correctly without time-of-day or timezone shifts.",
+      "should_be": "",
+      "rests_on": "DEC-2748g, DEC-3279b",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-059",
+      "name": "currentYield",
+      "verdict": "RIGHT",
+      "why": "Divides annual coupon by statement market value, excluding accrued interest from the price denominator.",
+      "should_be": "",
+      "rests_on": "DEC-3390",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-060",
+      "name": "approxYTM",
+      "verdict": "RIGHT",
+      "why": "Handles bank CDs using stated rates, broker CDs and bonds using iterative yield-to-price matching incorporating accrued interest.",
+      "should_be": "",
+      "rests_on": "DEC-3390, DEC-3837",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-061",
+      "name": "bondSummary",
+      "verdict": "RIGHT",
+      "why": "Aggregates counts, total values, face values, coupon sums, value-weighted average yields, and upcoming maturities correctly.",
+      "should_be": "",
+      "rests_on": "DEC-2484b",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-062",
+      "name": "couponIncomeAnnual",
+      "verdict": "RIGHT",
+      "why": "Sums annual coupons across bond and CD accounts, correctly zeroing out matured bonds.",
+      "should_be": "",
+      "rests_on": "Formula definition",
+      "severity": ""
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-NW-F-031",
+      "name": "primaryCarIdOf",
+      "kind": "easy",
+      "title": "Single vehicle with entered balance",
+      "given": "One vehicle account with a balance of $25,000.",
+      "inputs": {
+        "accounts": [
+          { "asset_id": "car_1", "kind": "vehicle", "balance": 25000.0 }
+        ]
+      },
+      "expected": {
+        "result": "car_1"
+      },
+      "working": [
+        "Only one vehicle candidate with balance -> selected 'car_1'"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-031",
+      "name": "primaryCarIdOf",
+      "kind": "easy",
+      "title": "Two vehicles, higher balance wins",
+      "given": "Car A with $15,000 balance and Car B with $30,000 balance.",
+      "inputs": {
+        "accounts": [
+          { "asset_id": "car_a", "kind": "vehicle", "balance": 15000.0 },
+          { "asset_id": "car_b", "kind": "vehicle", "balance": 30000.0 }
+        ]
+      },
+      "expected": {
+        "result": "car_b"
+      },
+      "working": [
+        "Comparing car_a ($15,000) and car_b ($30,000)",
+        "car_b has the largest balance -> 'car_b'"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-031",
+      "name": "primaryCarIdOf",
+      "kind": "complex",
+      "title": "Multiple vehicles with unvalued car and tie-breaker",
+      "given": "Car 1 with no balance (null), Car 2 with $20,000, and Car 3 with $20,000 (Car 2 created first).",
+      "inputs": {
+        "accounts": [
+          { "asset_id": "car_1", "kind": "vehicle", "balance": null },
+          { "asset_id": "car_2", "kind": "vehicle", "balance": 20000.0 },
+          { "asset_id": "car_3", "kind": "vehicle", "balance": 20000.0 }
+        ]
+      },
+      "expected": {
+        "result": "car_2"
+      },
+      "working": [
+        "Car 1 has no value, excluded from candidates per DEC-4036j",
+        "Candidates: car_2 ($20k) and car_3 ($20k)",
+        "Tie in balance resolved by lower ID text order ('car_2' < 'car_3') -> 'car_2'"
+      ],
+      "rests_on": "DEC-4036j",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-031",
+      "name": "primaryCarIdOf",
+      "kind": "complex",
+      "title": "Mixed personal property and vehicles",
+      "given": "Valuables worth $50,000, boat worth $40,000 (classified as personal property), and sedan worth $18,000.",
+      "inputs": {
+        "accounts": [
+          { "asset_id": "val_1", "kind": "personal_property", "balance": 50000.0 },
+          { "asset_id": "boat_1", "kind": "personal_property", "balance": 40000.0 },
+          { "asset_id": "sedan_1", "kind": "vehicle", "balance": 18000.0 }
+        ]
+      },
+      "expected": {
+        "result": "sedan_1"
+      },
+      "working": [
+        "Only sedan_1 has kind 'vehicle'; valuables and personal property are never the car per rule",
+        "Selected -> 'sedan_1'"
+      ],
+      "rests_on": "DEC-2746b",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-031",
+      "name": "primaryCarIdOf",
+      "kind": "edge",
+      "title": "No vehicles present in accounts list",
+      "given": "Only brokerage and checking accounts present.",
+      "inputs": {
+        "accounts": [
+          { "asset_id": "chk_1", "kind": "checking", "balance": 5000.0 }
+        ]
+      },
+      "expected": {
+        "result": undefined
+      },
+      "working": [
+        "No vehicle accounts found -> undefined"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-032",
+      "name": "earmarkedAmount",
+      "kind": "easy",
+      "title": "Account with explicit retirement percentage",
+      "given": "Account balance $100,000 with retirement_pct set to 80%.",
+      "inputs": {
+        "account": { "balance": 100000.0, "retirement_pct": 80.0, "kind": "brokerage" }
+      },
+      "expected": {
+        "amount": 80000.0000
+      },
+      "working": [
+        "$100,000 * 0.80 = $80,000"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-032",
+      "name": "earmarkedAmount",
+      "kind": "easy",
+      "title": "Checking account with default earmark",
+      "given": "Checking account balance $10,000 with null retirement_pct.",
+      "inputs": {
+        "account": { "balance": 10000.0, "retirement_pct": null, "kind": "checking" }
+      },
+      "expected": {
+        "amount": 0.0000
+      },
+      "working": [
+        "Checking default retirement earmark share is 0%",
+        "$10,000 * 0.0 = $0"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-032",
+      "name": "earmarkedAmount",
+      "kind": "complex",
+      "title": "Primary home with implicit earmark share",
+      "given": "Real estate home account valued at $450,000 designated as primary home with no explicit retirement_pct.",
+      "inputs": {
+        "account": { "asset_id": "home_1", "balance": 450000.0, "kind": "home", "retirement_pct": null },
+        "primaryHomeId": "home_1"
+      },
+      "expected": {
+        "amount": 0.0000
+      },
+      "working": [
+        "Primary home default retirement share is 0% (lived-in property weighs nothing by default)",
+        "$450,000 * 0.0 = $0"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-032",
+      "name": "earmarkedAmount",
+      "kind": "complex",
+      "title": "Rental property with full earmark",
+      "given": "Rental property account valued at $300,000 with null retirement_pct.",
+      "inputs": {
+        "account": { "asset_id": "rental_1", "balance": 300000.0, "kind": "real_estate", "re_use": "rental", "retirement_pct": null }
+      },
+      "expected": {
+        "amount": 300000.0000
+      },
+      "working": [
+        "Rental real estate weighs its full value by default (100% earmark)",
+        "$300,000 * 1.0 = $300,000"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-032",
+      "name": "earmarkedAmount",
+      "kind": "edge",
+      "title": "Account with zero balance and null retirement_pct",
+      "given": "Account with balance $0 and null retirement_pct.",
+      "inputs": {
+        "account": { "balance": 0.0, "retirement_pct": null, "kind": "brokerage" }
+      },
+      "expected": {
+        "amount": 0.0000
+      },
+      "working": [
+        "$0 balance results in $0 earmarked amount regardless of default share."
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-033",
+      "name": "retirementEarmarkedValue",
+      "kind": "easy",
+      "title": "Single retirement account nest egg",
+      "given": "One 401(k) account with $50,000 balance and 100% earmarked.",
+      "inputs": {
+        "accounts": [
+          { "balance": 50000.0, "retirement_pct": 100.0, "kind": "401k" }
+        ]
+      },
+      "expected": {
+        "total": 50000.0000
+      },
+      "working": [
+        "Sum of earmarked amounts = $50,000"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-033",
+      "name": "retirementEarmarkedValue",
+      "kind": "easy",
+      "title": "Mixed brokerage and checking nest egg",
+      "given": "Brokerage with $80,000 (100% earmarked) and Checking with $10,000 (0% earmarked).",
+      "inputs": {
+        "accounts": [
+          { "balance": 80000.0, "retirement_pct": 100.0, "kind": "brokerage" },
+          { "balance": 10000.0, "retirement_pct": 0.0, "kind": "checking" }
+        ]
+      },
+      "expected": {
+        "total": 80000.0000
+      },
+      "working": [
+        "Brokerage earmarked = $80,000",
+        "Checking earmarked = $0",
+        "Total = $80,000"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-033",
+      "name": "retirementEarmarkedValue",
+      "kind": "complex",
+      "title": "Portfolio including primary home and rental property",
+      "given": "Primary home valued at $500,000 (0% earmarked) and rental property valued at $250,000 (100% earmarked), plus IRA worth $100,000.",
+      "inputs": {
+        "accounts": [
+          { "asset_id": "home_1", "balance": 500000.0, "kind": "home", "retirement_pct": null },
+          { "asset_id": "rental_1", "balance": 250000.0, "kind": "real_estate", "re_use": "rental", "retirement_pct": null },
+          { "asset_id": "ira_1", "balance": 100000.0, "kind": "ira", "retirement_pct": 100.0 }
+        ]
+      },
+      "expected": {
+        "total": 350000.0000
+      },
+      "working": [
+        "Primary home earmarked = $0",
+        "Rental property earmarked = $250,000",
+        "IRA earmarked = $100,000",
+        "Total = $250,000 + $100,000 = $350,000"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-033",
+      "name": "retirementEarmarkedValue",
+      "kind": "complex",
+      "title": "Retirement portfolio with partial earmarking and cash flow",
+      "given": "Two accounts: Roth IRA worth $60,000 (50% earmarked) and Brokerage worth $120,000 (25% earmarked).",
+      "inputs": {
+        "accounts": [
+          { "balance": 60000.0, "retirement_pct": 50.0, "kind": "roth" },
+          { "balance": 120000.0, "retirement_pct": 25.0, "kind": "brokerage" }
+        ]
+      },
+      "expected": {
+        "total": 60000.0000
+      },
+      "working": [
+        "Roth earmarked = $60,000 * 0.50 = $30,000",
+        "Brokerage earmarked = $120,000 * 0.25 = $30,000",
+        "Total = $30,000 + $30,000 = $60,000"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-033",
+      "name": "retirementEarmarkedValue",
+      "kind": "edge",
+      "title": "Empty accounts list",
+      "given": "An empty list of accounts.",
+      "inputs": {
+        "accounts": []
+      },
+      "expected": {
+        "total": 0.0000
+      },
+      "working": [
+        "Sum of empty list = $0"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-034",
+      "name": "benchmarkReturn",
+      "kind": "easy",
+      "title": "Default rate for savings account kind",
+      "given": "Kind set to 'savings' with no overrides.",
+      "inputs": {
+        "kind": "savings",
+        "overrides": {}
+      },
+      "expected": {
+        "rate": 0.0240
+      },
+      "working": [
+        "Savings default return rate is 2.4% (0.024)"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-034",
+      "name": "benchmarkReturn",
+      "kind": "easy",
+      "title": "User override for brokerage return",
+      "given": "Kind set to 'brokerage' with override { 'brokerage': 0.09 }.",
+      "inputs": {
+        "kind": "brokerage",
+        "overrides": { "brokerage": 0.09 }
+      },
+      "expected": {
+        "rate": 0.0900
+      },
+      "working": [
+        "User override present for brokerage -> 9.0%"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-034",
+      "name": "benchmarkReturn",
+      "kind": "complex",
+      "title": "Zero rate override check",
+      "given": "Kind set to 'checking' with override { 'checking': 0.0 }.",
+      "inputs": {
+        "kind": "checking",
+        "overrides": { "checking": 0.0 }
+      },
+      "expected": {
+        "rate": 0.0000
+      },
+      "working": [
+        "A rate of exactly 0 counts as set and overrides default 0.5% -> 0.0%"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-034",
+      "name": "benchmarkReturn",
+      "kind": "complex",
+      "title": "Exact string matching with capitalization",
+      "given": "Kind set to 'Roth IRA' (app format) with no overrides.",
+      "inputs": {
+        "kind": "Roth IRA",
+        "overrides": {}
+      },
+      "expected": {
+        "rate": 0.0790
+      },
+      "working": [
+        "Matched to app default for Roth IRA -> 7.9%"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-034",
+      "name": "benchmarkReturn",
+      "kind": "edge",
+      "title": "Unknown or missing kind fallback",
+      "given": "Kind set to undefined or unrecognized string 'unknown_asset_type'.",
+      "inputs": {
+        "kind": "unknown_asset_type",
+        "overrides": {}
+      },
+      "expected": {
+        "rate": 0.0600
+      },
+      "working": [
+        "Unrecognized or missing kind defaults to 6% per formula rule."
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-035",
+      "name": "blendedVolatility",
+      "kind": "easy",
+      "title": "Single account portfolio volatility",
+      "given": "One account with volatility override 15% and full weight.",
+      "inputs": {
+        "accounts": [
+          { "balance": 10000.0, "retirement_pct": 100.0, "kind": "brokerage" }
+        ],
+        "overrides": { "brokerage_vol": 0.15 }
+      },
+      "expected": {
+        "volatility": 0.1500
+      },
+      "working": [
+        "Single account weighted average equals its own volatility -> 15.0%"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "medium",
+      "notes": "Relies on weighted average simplification pending covariance matrix implementation."
+    },
+    {
+      "id": "MK-NW-F-035",
+      "name": "blendedVolatility",
+      "kind": "easy",
+      "title": "Two accounts with app default volatilities",
+      "given": "Two accounts with equal earmarked value, using app defaults (e.g., cash 2% and stocks 15%).",
+      "inputs": {
+        "accounts": [
+          { "balance": 50000.0, "retirement_pct": 100.0, "kind": "checking" },
+          { "balance": 50000.0, "retirement_pct": 100.0, "kind": "stocks_etf" }
+        ],
+        "overrides": {}
+      },
+      "expected": {
+        "volatility": 0.7050
+      },
+      "working": [
+        "Checking default vol = 2% (0.02), Stocks default vol = 12% (0.12) or app figure",
+        "Weighted average with equal weights -> (0.02 + 0.12) / 2 = 7.0% (approx based on app default specs)"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "medium",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-035",
+      "name": "blendedVolatility",
+      "kind": "complex",
+      "title": "Unequal capital weighting with custom overrides",
+      "given": "Account A ($300k, vol 10%) and Account B ($100k, vol 25%).",
+      "inputs": {
+        "accounts": [
+          { "balance": 300000.0, "retirement_pct": 100.0, "kind": "fixed_income" },
+          { "balance": 100000.0, "retirement_pct": 100.0, "kind": "crypto" }
+        ],
+        "overrides": { "fixed_income": 0.10, "crypto": 0.25 }
+      },
+      "expected": {
+        "volatility": 0.1375
+      },
+      "working": [
+        "Total earmarked = $400,000",
+        "Weights: Account A = 0.75, Account B = 0.25",
+        "(0.75 * 0.10) + (0.25 * 0.25) = 0.075 + 0.0625 = 0.1375 (13.75%)"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "medium",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-035",
+      "name": "blendedVolatility",
+      "kind": "complex",
+      "title": "Portfolio with fallback to 12% default volatility",
+      "given": "Account with unrecognized kind and no custom volatility override.",
+      "inputs": {
+        "accounts": [
+          { "balance": 50000.0, "retirement_pct": 100.0, "kind": "unrecognized_kind" }
+        ],
+        "overrides": {}
+      },
+      "expected": {
+        "volatility": 0.1200
+      },
+      "working": [
+        "Unknown kind without override falls back to 12% default volatility -> 0.12"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-035",
+      "name": "blendedVolatility",
+      "kind": "edge",
+      "title": "Zero earmarked nest egg total",
+      "given": "Accounts with zero earmarked amount total.",
+      "inputs": {
+        "accounts": [
+          { "balance": 50000.0, "retirement_pct": 0.0, "kind": "checking" }
+        ],
+        "overrides": {}
+      },
+      "expected": {
+        "volatility": null
+      },
+      "working": [
+        "No answer when nothing is earmarked -> null"
+      ],
+      "rests_on": "DEC-2746c",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-036",
+      "name": "benchmarkInfo",
+      "kind": "easy",
+      "title": "Custom user override benchmark info",
+      "given": "Kind set to 'brokerage' with user override set to 0.085.",
+      "inputs": {
+        "kind": "brokerage",
+        "overrides": { "brokerage": 0.085 }
+      },
+      "expected": {
+        "ret": 0.0850,
+        "source": "Your custom estimate",
+        "period": "",
+        "edited": true,
+        "estimate": true
+      },
+      "working": [
+        "User set rate -> source reads 'Your custom estimate', period blank, edited=true, estimate=true"
+      ],
+      "rests_on": "DEC-3035j",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-036",
+      "name": "benchmarkInfo",
+      "kind": "easy",
+      "title": "Standard app benchmark with record",
+      "given": "Kind set to 'stocks_etf' with no override, backed by standard index record.",
+      "inputs": {
+        "kind": "stocks_etf",
+        "overrides": {}
+      },
+      "expected": {
+        "ret": 0.1040,
+        "source": "S&P 500 historical total return",
+        "period": "1926-2025",
+        "edited": false,
+        "estimate": false
+      },
+      "working": [
+        "Uses app record for stocks_etf with standard source/period and estimate=false"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-036",
+      "name": "benchmarkInfo",
+      "kind": "complex",
+      "title": "Zero rate user override check",
+      "given": "Kind set to 'foreign currency' with user override set exactly to 0.0.",
+      "inputs": {
+        "kind": "foreign currency",
+        "overrides": { "foreign currency": 0.0 }
+      },
+      "expected": {
+        "ret": 0.0000,
+        "source": "Your custom estimate",
+        "period": "",
+        "edited": true,
+        "estimate": true
+      },
+      "working": [
+        "Zero rate counts as set (edited=true) -> source 'Your custom estimate'"
+      ],
+      "rests_on": "DEC-3035j",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-036",
+      "name": "benchmarkInfo",
+      "kind": "complex",
+      "title": "Assumption record without user override",
+      "given": "Kind set to an asset type whose record is marked as an assumption.",
+      "inputs": {
+        "kind": "options",
+        "overrides": {}
+      },
+      "expected": {
+        "ret": 0.0500,
+        "source": "Options historical model",
+        "period": "10-year blended",
+        "edited": false,
+        "estimate": true
+      },
+      "working": [
+        "App record is marked assumption -> estimate = true"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-036",
+      "name": "benchmarkInfo",
+      "kind": "edge",
+      "title": "Kind with no record on file",
+      "given": "Kind set to undefined or unrecorded custom string 'mystic_fund'.",
+      "inputs": {
+        "kind": "mystic_fund",
+        "overrides": {}
+      },
+      "expected": {
+        "ret": 0.0600,
+        "source": "Generic blended estimate",
+        "period": "",
+        "edited": false,
+        "estimate": true
+      },
+      "working": [
+        "No record on file -> rate 6%, source 'Generic blended estimate', period blank, estimate=true"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-037",
+      "name": "blendedReturn",
+      "kind": "easy",
+      "title": "Single account earmarked return",
+      "given": "One brokerage account with $100,000 earmarked, benchmark return 8%.",
+      "inputs": {
+        "accounts": [
+          { "balance": 100000.0, "retirement_pct": 100.0, "kind": "brokerage" }
+        ],
+        "overrides": {}
+      },
+      "expected": {
+        "blended_return": 0.0800
+      },
+      "working": [
+        "Single account blended return equals its benchmark -> 8.0%"
+      ],
+      "rests_on": "DEC-2746c",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-037",
+      "name": "blendedReturn",
+      "kind": "easy",
+      "title": "Two equal accounts with different benchmarks",
+      "given": "Checking ($50k at 0.5%) and Stocks ($50k at 10.4%).",
+      "inputs": {
+        "accounts": [
+          { "balance": 50000.0, "retirement_pct": 100.0, "kind": "checking" },
+          { "balance": 50000.0, "retirement_pct": 100.0, "kind": "stocks_etf" }
+        ],
+        "overrides": {}
+      },
+      "expected": {
+        "blended_return": 0.0545
+      },
+      "working": [
+        "Total earmarked = $100,000",
+        "(50000 * 0.005 + 50000 * 0.104) / 100000 = (250 + 5200) / 100000 = 5450 / 100000 = 0.0545 (5.45%)"
+      ],
+      "rests_on": "DEC-2746c",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-037",
+      "name": "blendedReturn",
+      "kind": "complex",
+      "title": "Portfolio with home and rental weighting rules",
+      "given": "Primary home ($400k, 0% earmarked) and Rental property ($200k, 100% earmarked at 4.5%).",
+      "inputs": {
+        "accounts": [
+          { "asset_id": "home_1", "balance": 400000.0, "kind": "home", "retirement_pct": null },
+          { "asset_id": "rental_1", "balance": 200000.0, "kind": "real_estate", "re_use": "rental", "retirement_pct": null }
+        ],
+        "overrides": {}
+      },
+      "expected": {
+        "blended_return": 0.0450
+      },
+      "working": [
+        "Primary home earmarked amount = $0 (weighs nothing)",
+        "Rental property earmarked amount = $200,000 (weighs full value)",
+        "Total earmarked = $200,000",
+        "Rental benchmark return = 4.5% -> blended return 4.5%"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-037",
+      "name": "blendedReturn",
+      "kind": "complex",
+      "title": "Unequal retirement weighting across multiple asset kinds",
+      "given": "IRA ($300k at 7.9%) and Crypto ($100k at 8.0%).",
+      "inputs": {
+        "accounts": [
+          { "balance": 300000.0, "retirement_pct": 100.0, "kind": "ira" },
+          { "balance": 100000.0, "retirement_pct": 100.0, "kind": "crypto" }
+        ],
+        "overrides": {}
+      },
+      "expected": {
+        "blended_return": 0.07925
+      },
+      "working": [
+        "Total earmarked = $400,000",
+        "(300000 * 0.079 + 100000 * 0.08) / 400000 = (23700 + 8000) / 400000 = 31700 / 400000 = 0.07925 (7.925%)"
+      ],
+      "rests_on": "DEC-2746c",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-037",
+      "name": "blendedReturn",
+      "kind": "edge",
+      "title": "Zero earmarked total value",
+      "given": "Accounts with zero earmarked total value.",
+      "inputs": {
+        "accounts": [
+          { "balance": 50000.0, "retirement_pct": 0.0, "kind": "checking" }
+        ],
+        "overrides": {}
+      },
+      "expected": {
+        "blended_return": null
+      },
+      "working": [
+        "Earmarked total is zero -> returns null"
+      ],
+      "rests_on": "DEC-2746c",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-038",
+      "name": "earmarkedKinds",
+      "kind": "easy",
+      "title": "Single earmarked brokerage account",
+      "given": "One brokerage account with positive earmarked amount and kind 'stocks_etf'.",
+      "inputs": {
+        "accounts": [
+          { "balance": 10000.0, "retirement_pct": 100.0, "kind": "stocks_etf" }
+        ]
+      },
+      "expected": {
+        "kinds": [ "stocks_etf" ]
+      },
+      "working": [
+        "Distinct kind present -> ['stocks_etf']"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-038",
+      "name": "earmarkedKinds",
+      "kind": "easy",
+      "title": "Multiple accounts with duplicate kinds",
+      "given": "Two IRA accounts both with kind 'ira'.",
+      "inputs": {
+        "accounts": [
+          { "balance": 20000.0, "retirement_pct": 100.0, "kind": "ira" },
+          { "balance": 30000.0, "retirement_pct": 100.0, "kind": "ira" }
+        ]
+      },
+      "expected": {
+        "kinds": [ "ira" ]
+      },
+      "working": [
+        "Distinct kinds deduplicated -> ['ira']"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-038",
+      "name": "earmarkedKinds",
+      "kind": "complex",
+      "title": "Mixed kinds with zero earmarked amount filtering",
+      "given": "Checking ($5k, 0% earmarked, kind 'checking') and Brokerage ($50k, 100% earmarked, kind 'brokerage').",
+      "inputs": {
+        "accounts": [
+          { "balance": 5000.0, "retirement_pct": 0.0, "kind": "checking" },
+          { "balance": 50000.0, "retirement_pct": 100.0, "kind": "brokerage" }
+        ]
+      },
+      "expected": {
+        "kinds": [ "brokerage" ]
+      },
+      "working": [
+        "Checking has zero earmarked amount, excluded",
+        "Brokerage included -> ['brokerage']"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-038",
+      "name": "earmarkedKinds",
+      "kind": "complex",
+      "title": "Account with no kind defaulting to other",
+      "given": "Account with positive earmarked amount but undefined/missing kind.",
+      "inputs": {
+        "accounts": [
+          { "balance": 15000.0, "retirement_pct": 100.0, "kind": undefined }
+        ]
+      },
+      "expected": {
+        "kinds": [ "other" ]
+      },
+      "working": [
+        "An account with no kind counts as 'other' per formula rule -> ['other']"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-038",
+      "name": "earmarkedKinds",
+      "kind": "edge",
+      "title": "Property exclusion from earmarked kinds",
+      "given": "Primary home account with positive balance.",
+      "inputs": {
+        "accounts": [
+          { "balance": 400000.0, "kind": "home", "retirement_pct": null }
+        ]
+      },
+      "expected": {
+        "kinds": []
+      },
+      "working": [
+        "Accounts that are property are excluded from earmarked kinds -> []"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-039",
+      "name": "buildAssetsState",
+      "kind": "easy",
+      "title": "Single account assets state",
+      "given": "User ID 'usr_1', single account with $50,000 balance and target return 0.07.",
+      "inputs": {
+        "uid": "usr_1",
+        "accounts": [
+          { "asset_id": "acc_1", "balance": 50000.0, "target_return": 0.07 }
+        ]
+      },
+      "expected": {
+        "total_asset_value": 50000.0000,
+        "average_target_return": 0.0700,
+        "portfolio_percentage": 100.0000
+      },
+      "working": [
+        "Total asset value = $50,000",
+        "Portfolio percentage for single account = 100%",
+        "Average target return = 7.0%"
+      ],
+      "rests_on": "DEC-2746d",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-039",
+      "name": "buildAssetsState",
+      "kind": "easy",
+      "title": "Two accounts with equal balances",
+      "given": "Account A ($40k at 6%) and Account B ($40k at 10%).",
+      "inputs": {
+        "uid": "usr_1",
+        "accounts": [
+          { "asset_id": "acc_1", "balance": 40000.0, "target_return": 0.06 },
+          { "asset_id": "acc_2", "balance": 40000.0, "target_return": 0.10 }
+        ]
+      },
+      "expected": {
+        "total_asset_value": 80000.0000,
+        "average_target_return": 0.0800
+      },
+      "working": [
+        "Total = $80,000",
+        "Shares: 50% each",
+        "Average target return = (0.06 + 0.10) / 2 = 8.0%"
+      ],
+      "rests_on": "DEC-2746d",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-039",
+      "name": "buildAssetsState",
+      "kind": "complex",
+      "title": "Accounts with missing balance filtering",
+      "given": "Account A ($60k at 8%) and Account B with null balance.",
+      "inputs": {
+        "uid": "usr_1",
+        "accounts": [
+          { "asset_id": "acc_1", "balance": 60000.0, "target_return": 0.08 },
+          { "asset_id": "acc_2", "balance": null, "target_return": 0.10 }
+        ]
+      },
+      "expected": {
+        "total_asset_value": 60000.0000,
+        "average_target_return": 0.0800,
+        "account_count": 1
+      },
+      "working": [
+        "Missing balance account left out of total and calculation",
+        "Total asset value = $60,000, average return = 8.0%"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-039",
+      "name": "buildAssetsState",
+      "kind": "complex",
+      "title": "Overdrawn account with negative share",
+      "given": "Account A ($100k) and Account B overdrawn (-$10k).",
+      "inputs": {
+        "uid": "usr_1",
+        "accounts": [
+          { "asset_id": "acc_1", "balance": 100000.0, "target_return": 0.08 },
+          { "asset_id": "acc_2", "balance": -10000.0, "target_return": 0.00 }
+        ]
+      },
+      "expected": {
+        "total_asset_value": 90000.0000,
+        "account_1_pct": 111.1111,
+        "account_2_pct": -11.1111
+      },
+      "working": [
+        "Total = 100,000 - 10,000 = $90,000",
+        "Account 1 share = 100,000 / 90,000 * 100 = 111.11%",
+        "Account 2 share = -10,000 / 90,000 * 100 = -11.11%",
+        "Shares add to 100%"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-039",
+      "name": "buildAssetsState",
+      "kind": "edge",
+      "title": "Zero total asset value",
+      "given": "All accounts having zero or missing balances.",
+      "inputs": {
+        "uid": "usr_1",
+        "accounts": [
+          { "asset_id": "acc_1", "balance": 0.0, "target_return": 0.07 }
+        ]
+      },
+      "expected": {
+        "total_asset_value": 0.0000,
+        "average_target_return": null,
+        "portfolio_percentage": 0.0000
+      },
+      "working": [
+        "Total is 0 -> average target return is null, share is 0 per rule"
+      ],
+      "rests_on": "DEC-2746d",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-040",
+      "name": "assetsFromOnboarding",
+      "kind": "easy",
+      "title": "Traditional retirement savings setup",
+      "given": "Onboarding object with traditional_retirement: $25,000.",
+      "inputs": {
+        "uid": "usr_1",
+        "op": { "traditional_retirement": 25000.0 }
+      },
+      "expected": {
+        "account_count": 1,
+        "account_kind": "401k",
+        "tax_bucket": "PRE_TAX",
+        "target_return": 0.07
+      },
+      "working": [
+        "Traditional retirement -> pre-tax 401(k), balance $25,000, target return 7%"
+      ],
+      "rests_on": "DEC-4036g",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-040",
+      "name": "assetsFromOnboarding",
+      "kind": "easy",
+      "title": "Roth retirement savings setup",
+      "given": "Onboarding object with roth_retirement: $10,000.",
+      "inputs": {
+        "uid": "usr_1",
+        "op": { "roth_retirement": 10000.0 }
+      },
+      "expected": {
+        "account_count": 1,
+        "account_kind": "roth_ira",
+        "tax_bucket": "ROTH",
+        "target_return": 0.07
+      },
+      "working": [
+        "Roth retirement -> Roth IRA, balance $10,000, target return 7%"
+      ],
+      "rests_on": "DEC-4036g",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-040",
+      "name": "assetsFromOnboarding",
+      "kind": "complex",
+      "title": "Full onboarding dataset with typed zero preservation",
+      "given": "Traditional $50k, Roth $0 (typed zero), investment holdings $100k, and savings $15k.",
+      "inputs": {
+        "uid": "usr_1",
+        "op": {
+          "traditional_retirement": 50000.0,
+          "roth_retirement": 0.0,
+          "investment_holdings": 100000.0,
+          "savings_or_portfolio": 15000.0
+        }
+      },
+      "expected": {
+        "account_count": 3,
+        "accounts": [
+          { "balance": 50000.0, "kind": "401k" },
+          { "balance": 0.0, "kind": "roth_ira" },
+          { "balance": 100000.0, "kind": "brokerage" },
+          { "balance": 15000.0, "kind": undefined, "tax_bucket": undefined, "target_return": 0.0, "unclassified_flag": true }
+        ]
+      },
+      "working": [
+        "Traditional ($50k) -> 401(k)",
+        "Roth ($0 typed zero) -> kept as Roth IRA with $0 balance",
+        "Investment holdings ($100k) -> taxable stocks and funds",
+        "Savings/portfolio ($15k) -> Unclassified account, no kind, no tax type, 0% return, flagged for question per DEC-4036g"
+      ],
+      "rests_on": "DEC-4036g",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-040",
+      "name": "assetsFromOnboarding",
+      "kind": "complex",
+      "title": "Skipping blank or negative answers",
+      "given": "Onboarding object with blank traditional retirement and negative savings (-$500).",
+      "inputs": {
+        "uid": "usr_1",
+        "op": { "traditional_retirement": "", "savings_or_portfolio": -500.0 }
+      },
+      "expected": {
+        "account_count": 0
+      },
+      "working": [
+        "Blank and below-zero answers are skipped -> 0 accounts created"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-040",
+      "name": "assetsFromOnboarding",
+      "edge",
+      "title": "Null onboarding object",
+      "given": "Null onboarding input.",
+      "inputs": {
+        "uid": "usr_1",
+        "op": null
+      },
+      "expected": {
+        "accounts": []
+      },
+      "working": [
+        "Null onboarding input returns empty accounts list."
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-041",
+      "name": "monthlyContributionsFromOnboarding",
+      "kind": "easy",
+      "title": "User under 50 with standard contributions",
+      "given": "Birth year 1990 (age 36 in 2026), 401k amount $1,000/mo, Roth $500/mo, investing $300/mo, no match.",
+      "inputs": {
+        "op": {
+          "birth_year": 1990,
+          "retirement_401k": 1000.0,
+          "roth_contribution": 500.0,
+          "investing_contribution": 300.0
+        }
+      },
+      "expected": {
+        "monthly_total": 1800.0000
+      },
+      "working": [
+        "Under 50 limit is $24,500/yr ($2,041.67/mo); $1,000 is under limit",
+        "Total = 1000 + 500 + 300 = $1,800/mo"
+      ],
+      "rests_on": "DEC-2746e",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-041",
+      "name": "monthlyContributionsFromOnboarding",
+      "kind": "easy",
+      "title": "Unanswered contribution questions",
+      "given": "Onboarding object with all contribution fields missing or null.",
+      "inputs": {
+        "op": { "birth_year": 1980 }
+      },
+      "expected": {
+        "result": null
+      },
+      "working": [
+        "No answer when none of the contribution questions was answered -> null"
+      ],
+      "rests_on": "DEC-2746e",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-041",
+      "name": "monthlyContributionsFromOnboarding",
+      "kind": "complex",
+      "title": "User aged 52 with 401k capped at limit and employer match",
+      "given": "Birth year 1974 (age 52 in 2026, limit $32,500/yr or $2,708.33/mo), 401k contribution $3,000/mo (capped at limit), employer match 50% of capped contribution.",
+      "inputs": {
+        "op": {
+          "birth_year": 1974,
+          "retirement_401k": 3000.0,
+          "employer_match_type": "percent",
+          "employer_match_value": 0.50
+        }
+      },
+      "expected": {
+        "monthly_total": 4125.0000
+      },
+      "working": [
+        "Age 52 elective limit = $32,500 / 12 = $2,708.33/mo (capped from $3,000)",
+        "Employer match = 50% of capped amount ($2,708.33 * 0.50) = $1,354.17/mo",
+        "Total monthly contribution = $2,708.33 + $1,354.17 = $4,062.50 (exact precision total)"
+      ],
+      "rests_on": "DEC-3035k",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-041",
+      "name": "monthlyContributionsFromOnboarding",
+      "kind": "complex",
+      "title": "User aged 62 with catch-up limit and dollar match",
+      "given": "Birth year 1964 (age 62 in 2026, limit $35,750/yr or $2,979.17/mo), 401k $3,000/mo (capped at $2,979.17), fixed dollar match $500/mo.",
+      "inputs": {
+        "op": {
+          "birth_year": 1964,
+          "retirement_401k": 3000.0,
+          "employer_match_type": "dollars",
+          "employer_match_value": 500.0
+        }
+      },
+      "expected": {
+        "monthly_total": 3479.1667
+      },
+      "working": [
+        "Age 62 limit = $35,750 / 12 = $2,979.17/mo",
+        "Capped 401k = $2,979.17",
+        "Dollar match = $500",
+        "Total = $2,979.17 + $500 = $3,479.17"
+      ],
+      "rests_on": "DEC-2746e, DEC-3035k",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-041",
+      "name": "monthlyContributionsFromOnboarding",
+      "kind": "edge",
+      "title": "Property savings inclusion exclusion check",
+      "given": "Contributions include $500/mo for property savings and $200/mo for investing.",
+      "inputs": {
+        "op": {
+          "birth_year": 1990,
+          "property_savings": 500.0,
+          "investing_contribution": 200.0
+        }
+      },
+      "expected": {
+        "monthly_total": 200.0000
+      },
+      "working": [
+        "Money saved toward a property is explicitly not a retirement contribution and is left out per rule",
+        "Only investing ($200) counts -> $200"
+      ],
+      "rests_on": "DEC-2746e",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-044",
+      "name": "getAssetsState",
+      "kind": "easy",
+      "title": "Valid saved accounts retrieval",
+      "given": "User ID with 2 saved accounts.",
+      "inputs": {
+        "uid": "usr_1",
+        "mock_db": [
+          { "asset_id": "acc_1", "balance": 50000.0 },
+          { "asset_id": "acc_2", "balance": 25000.0 }
+        ]
+      },
+      "expected": {
+        "total_asset_value": 75000.0000,
+        "account_count": 2
+      },
+      "working": [
+        "Retrieves saved accounts and computes assetsStateFrom them -> total $75,000"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-044",
+      "name": "getAssetsState",
+      "kind": "easy",
+      "title": "Empty database retrieval",
+      "given": "User ID with no saved accounts in database.",
+      "inputs": {
+        "uid": "usr_1",
+        "mock_db": []
+      },
+      "expected": {
+        "result": null
+      },
+      "working": [
+        "None saved or empty list -> returns nothing (null)"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-044",
+      "name": "getAssetsState",
+      "kind": "complex",
+      "title": "Multiple accounts with varying asset classes",
+      "given": "Saved database containing checking, brokerage, and real estate accounts.",
+      "inputs": {
+        "uid": "usr_1",
+        "mock_db": [
+          { "balance": 10000.0, "asset_class": "cash" },
+          { "balance": 150000.0, "asset_class": "stocks_etf" },
+          { "balance": 300000.0, "asset_class": "real_estate" }
+        ]
+      },
+      "expected": {
+        "total_asset_value": 460000.0000
+      },
+      "working": [
+        "Sums all retrieved accounts correctly -> $460,000"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-044",
+      "name": "getAssetsState",
+      "kind": "complex",
+      "title": "Database returning null asset records",
+      "given": "Database call returning null for account records.",
+      "inputs": {
+        "uid": "usr_1",
+        "mock_db": null
+      },
+      "expected": {
+        "result": null
+      },
+      "working": [
+        "Null saved list returns nothing."
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-044",
+      "name": "getAssetsState",
+      "kind": "edge",
+      "title": "Archived or closed accounts handling",
+      "given": "Database with accounts marked status 'closed'.",
+      "inputs": {
+        "uid": "usr_1",
+        "mock_db": [
+          { "balance": 50000.0, "status": "closed" }
+        ]
+      },
+      "expected": {
+        "total_asset_value": 0.0000
+      },
+      "working": [
+        "Closed accounts excluded from active asset state summation -> $0"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-045",
+      "name": "sourceWording",
+      "kind": "easy",
+      "title": "Linked account recently updated",
+      "given": "Account with source 'connected' and last_synced 1 day ago.",
+      "inputs": {
+        "account": { "source": "connected", "last_synced": "2026-10-12T10:00:00Z" },
+        "now": "2026-10-13T10:00:00Z"
+      },
+      "expected": {
+        "wording": "Linked"
+      },
+      "working": [
+        "Sync age is 1 day (< 4 days) -> 'Linked'"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-045",
+      "name": "sourceWording",
+      "kind": "easy",
+      "title": "Imported account fresh",
+      "given": "Account with source 'imported' and last_synced 2 days ago.",
+      "inputs": {
+        "account": { "source": "imported", "last_synced": "2026-10-11T10:00:00Z" },
+        "now": "2026-10-13T10:00:00Z"
+      },
+      "expected": {
+        "wording": "Imported"
+      },
+      "working": [
+        "Sync age is 2 days (< 4 days) -> 'Imported'"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-045",
+      "name": "sourceWording",
+      "kind": "complex",
+      "title": "Linked account stale (5 days old)",
+      "given": "Account with source 'connected' and last_synced 5 days ago.",
+      "inputs": {
+        "account": { "source": "connected", "last_synced": "2026-10-08T10:00:00Z" },
+        "now": "2026-10-13T10:00:00Z"
+      },
+      "expected": {
+        "wording": "Linked · 5 days old"
+      },
+      "working": [
+        "Sync age is >= 4 days -> 'Linked · 5 days old'"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-045",
+      "name": "sourceWording",
+      "kind": "complex",
+      "title": "Manual hand-entered account",
+      "given": "Account with source 'manual' (or absent source).",
+      "inputs": {
+        "account": { "source": "manual" },
+        "now": "2026-10-13T10:00:00Z"
+      },
+      "expected": {
+        "wording": "By hand · you update it"
+      },
+      "working": [
+        "Manual/other source -> 'By hand · you update it'"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-045",
+      "name": "sourceWording",
+      "edge",
+      "title": "Linked account with no update on record",
+      "given": "Account with source 'connected' and last_synced null/absent.",
+      "inputs": {
+        "account": { "source": "connected", "last_synced": null },
+        "now": "2026-10-13T10:00:00Z"
+      },
+      "expected": {
+        "wording": "Linked · not updated yet"
+      },
+      "working": [
+        "No update on record -> 'Linked · not updated yet' (no age invented)"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-046",
+      "name": "historyCoverage",
+      "kind": "easy",
+      "title": "History starting before window start",
+      "given": "Account history start '2026-01-01', windowStart '2026-07-01', now '2026-10-13'.",
+      "inputs": {
+        "account": { "source": "connected", "history_start": "2026-01-01" },
+        "windowStart": "2026-07-01",
+        "now": "2026-10-13"
+      },
+      "expected": {
+        "sentence": null,
+        "months_covered": null
+      },
+      "working": [
+        "History starts on/before window start -> nothing to say (null)"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-046",
+      "name": "historyCoverage",
+      "kind": "easy",
+      "title": "Manual account with no history records",
+      "given": "Hand-entered account with no sync history.",
+      "inputs": {
+        "account": { "source": "manual", "history_start": null },
+        "windowStart": "2026-01-01",
+        "now": "2026-10-13"
+      },
+      "expected": {
+        "sentence": "This account has no activity records."
+      },
+      "working": [
+        "Entered by hand -> sentence saying it has no activity records"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-046",
+      "name": "historyCoverage",
+      "kind": "complex",
+      "title": "History covering exactly 1 year",
+      "given": "History start '2025-10-13', windowStart '2025-10-13', now '2026-10-13'.",
+      "inputs": {
+        "account": { "source": "connected", "history_start": "2025-10-13" },
+        "windowStart": "2025-10-13",
+        "now": "2026-10-13"
+      },
+      "expected": {
+        "sentence": "1 year of history (from 2025-10-13)",
+        "months_covered": 12.0
+      },
+      "working": [
+        "Whole months = 12, exact multiple of 12 with no part month -> '1 year'"
+      ],
+      "rests_on": "DEC-2746f, DEC-3035l",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-046",
+      "name": "historyCoverage",
+      "kind": "complex",
+      "title": "History covering 1 year and 3 months",
+      "given": "History start '2025-07-13', windowStart '2025-01-01', now '2026-10-13'.",
+      "inputs": {
+        "account": { "source": "connected", "history_start": "2025-07-13" },
+        "windowStart": "2025-01-01",
+        "now": "2026-10-13"
+      },
+      "expected": {
+        "sentence": "1 year 3 months of history (from 2025-07-13)",
+        "months_covered": 15.0
+      },
+      "working": [
+        "Whole months = 15 (12 or more) -> '1 year 3 months'"
+      ],
+      "rests_on": "DEC-3035l",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-046",
+      "name": "historyCoverage",
+      "kind": "edge",
+      "title": "History start date in the future",
+      "given": "History start date set to '2027-01-01' (after today).",
+      "inputs": {
+        "account": { "source": "connected", "history_start": "2027-01-01" },
+        "windowStart": "2026-01-01",
+        "now": "2026-10-13"
+      },
+      "expected": {
+        "kind": "unreadable",
+        "sentence": "History start date cannot be read.",
+        "months_covered": null
+      },
+      "working": [
+        "History start after today -> refusal 'History start date cannot be read.' with no months figure"
+      ],
+      "rests_on": "DEC-4059c",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-047",
+      "name": "uberGroupOf",
+      "kind": "easy",
+      "title": "Cash asset class mapping",
+      "given": "Asset class 'cash'.",
+      "inputs": { "cls": "cash" },
+      "expected": { "uber_group": "cash" },
+      "working": [
+        "Cash -> Cash"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-047",
+      "name": "uberGroupOf",
+      "kind": "easy",
+      "title": "Stocks and ETFs asset class mapping",
+      "given": "Asset class 'stocks_etf'.",
+      "inputs": { "cls": "stocks_etf" },
+      "expected": { "uber_group": "investments" },
+      "working": [
+        "Stocks / Funds -> Investments"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-047",
+      "name": "uberGroupOf",
+      "kind": "complex",
+      "title": "Alternative asset class mapping",
+      "given": "Asset class 'alternatives'.",
+      "inputs": { "cls": "alternatives" },
+      "expected": { "uber_group": "investments" },
+      "working": [
+        "Alternatives -> Investments"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-047",
+      "name": "uberGroupOf",
+      "kind": "complex",
+      "title": "Real estate asset class mapping",
+      "given": "Asset class 'real_estate'.",
+      "inputs": { "cls": "real_estate" },
+      "expected": { "uber_group": "property" },
+      "working": [
+        "Real estate -> Personal property group (property)"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-047",
+      "name": "uberGroupOf",
+      "kind": "edge",
+      "title": "Unclassified asset class mapping",
+      "given": "Asset class 'unclassified'.",
+      "inputs": { "cls": "unclassified" },
+      "expected": { "uber_group": "investments" },
+      "working": [
+        "Unclassified -> Investments"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-048",
+      "name": "uberGroupRows",
+      "kind": "easy",
+      "title": "Single cash class row sorting and summing",
+      "given": "Class rows containing only cash class total $10,000.",
+      "inputs": {
+        "classRows": [
+          { "key": "cash", "label": "Cash", "color": "#000", "total": 10000.0 }
+        ]
+      },
+      "expected": {
+        "groups": [
+          { "group": "cash", "label": "Cash", "total": 10000.0, "classes_count": 1 }
+        ]
+      },
+      "working": [
+        "Cash sorted first, total = $10,000"
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-048",
+      "name": "uberGroupRows",
+      "kind": "easy",
+      "title": "Empty class rows list",
+      "given": "An empty class rows list.",
+      "inputs": { "classRows": [] },
+      "expected": { "groups": [] },
+      "working": [
+        "Empty rows list returns empty groups list."
+      ],
+      "rests_on": "Formula definition",
+      "confidence": "high",

@@ -1,0 +1,116 @@
+{
+  "project": "net worth module verification",
+  "target": "claude code",
+  "test_suites": [
+    {
+      "card_id": "MK-NW-F-001",
+      "formula_name": "isAlternative",
+      "cases": [
+        { "id": "MK-NW-F-001", "name": "isAlternative", "kind": "easy", "title": "Alternative asset class check", "inputs": { "asset_class": "alternatives" }, "expected": { "result": true } },
+        { "id": "MK-NW-F-001", "name": "isAlternative", "kind": "easy", "title": "Non-alternative asset class check", "inputs": { "asset_class": "cash" }, "expected": { "result": false } },
+        { "id": "MK-NW-F-001", "name": "isAlternative", "kind": "complex", "title": "Physical gold alternative holding", "inputs": { "asset_class": "alternatives", "balance": 18500.0 }, "expected": { "result": true } },
+        { "id": "MK-NW-F-001", "name": "isAlternative", "kind": "complex", "title": "Brokerage stocks and ETFs account", "inputs": { "asset_class": "stocks_etf", "balance": 125000.0 }, "expected": { "result": false } },
+        { "id": "MK-NW-F-001", "name": "isAlternative", "kind": "edge", "title": "Missing asset_class attribute", "inputs": { "asset_class": null }, "expected": { "result": false } }
+      ]
+    },
+    {
+      "card_id": "MK-NW-F-002",
+      "formula_name": "alternativesSummary",
+      "cases": [
+        { "id": "MK-NW-F-002", "name": "alternativesSummary", "kind": "easy", "title": "Single alternative account summary", "inputs": { "accounts": [{ "class": "alternatives", "balance": 10000.0 }] }, "expected": { "total": 10000.0 } },
+        { "id": "MK-NW-F-002", "name": "alternativesSummary", "kind": "easy", "title": "Empty alternatives list", "inputs": { "accounts": [] }, "expected": { "total": 0.0 } },
+        { "id": "MK-NW-F-002", "name": "alternativesSummary", "kind": "complex", "title": "Multiple alternative accounts with private equity", "inputs": { "accounts": [{ "class": "alternatives", "balance": 15000.0 }, { "class": "alternatives", "balance": 75000.0 }] }, "expected": { "total": 90000.0 } },
+        { "id": "MK-NW-F-002", "name": "alternativesSummary", "kind": "complex", "title": "Alternatives with unclassified sleeve filtering", "inputs": { "accounts": [{ "class": "alternatives", "balance": 20000.0 }, { "class": "unclassified", "balance": 5000.0 }] }, "expected": { "total": 20000.0 } },
+        { "id": "MK-NW-F-002", "name": "alternativesSummary", "kind": "edge", "title": "Alternative account with null balance", "inputs": { "accounts": [{ "class": "alternatives", "balance": null }] }, "expected": { "total": 0.0 } }
+      ]
+    },
+    {
+      "card_id": "MK-NW-F-003",
+      "formula_name": "valueFreshness",
+      "cases": [
+        { "id": "MK-NW-F-003", "name": "valueFreshness", "kind": "easy", "title": "Recent valuation date", "inputs": { "value_date": "2026-10-03", "current_date": "2026-10-13" }, "expected": { "months_elapsed": 0 } },
+        { "id": "MK-NW-F-003", "name": "valueFreshness", "kind": "easy", "title": "Exactly 3 months elapsed", "inputs": { "value_date": "2026-07-13", "current_date": "2026-10-13" }, "expected": { "months_elapsed": 3 } },
+        { "id": "MK-NW-F-003", "name": "valueFreshness", "kind": "complex", "title": "Stale valuation exceeding 6 months threshold", "inputs": { "value_date": "2026-02-13", "current_date": "2026-10-13" }, "expected": { "months_elapsed": 8, "is_stale": true } },
+        { "id": "MK-NW-F-003", "name": "valueFreshness", "kind": "complex", "title": "Month-end edge case valuation", "inputs": { "value_date": "2026-01-31", "current_date": "2026-03-31" }, "expected": { "months_elapsed": 2 } },
+        { "id": "MK-NW-F-003", "name": "valueFreshness", "kind": "edge", "title": "Month-only date string format", "inputs": { "value_date": "2026-04", "current_date": "2026-10-13" }, "expected": { "months_elapsed": 5 } }
+      ]
+    },
+    {
+      "card_id": "MK-NW-F-004",
+      "formula_name": "portfolioActualReturn",
+      "cases": [
+        { "id": "MK-NW-F-004", "name": "portfolioActualReturn", "kind": "easy", "title": "Single retirement account return", "inputs": { "accounts": [{ "start_balance": 100000.0, "return_rate": 0.08 }] }, "expected": { "weighted_return": 0.08 } },
+        { "id": "MK-NW-F-004", "name": "portfolioActualReturn", "kind": "easy", "title": "Two equal retirement accounts", "inputs": { "accounts": [{ "start_balance": 50000.0, "return_rate": 0.06 }, { "start_balance": 50000.0, "return_rate": 0.10 }] }, "expected": { "weighted_return": 0.08 } },
+        { "id": "MK-NW-F-004", "name": "portfolioActualReturn", "kind": "complex", "title": "Unequal capital retirement weighting", "inputs": { "accounts": [{ "start_balance": 300000.0, "return_rate": 0.07 }, { "start_balance": 100000.0, "return_rate": 0.15 }] }, "expected": { "weighted_return": 0.09 } },
+        { "id": "MK-NW-F-004", "name": "portfolioActualReturn", "kind": "complex", "title": "Retirement portfolio with cash flow adjustment", "inputs": { "accounts": [{ "start_balance": 250000.0, "return_rate": 0.08, "cash_flow": 15000.0 }] }, "expected": { "weighted_return": 0.08 } },
+        { "id": "MK-NW-F-004", "name": "portfolioActualReturn", "kind": "edge", "title": "Zero beginning balance retirement account", "inputs": { "accounts": [{ "start_balance": 0.0, "return_rate": 0.12 }] }, "expected": { "weighted_return": 0.0 } }
+      ]
+    },
+    {
+      "card_id": "MK-NW-F-005",
+      "formula_name": "accountAllowsTicker",
+      "cases": [
+        { "id": "MK-NW-F-005", "name": "accountAllowsTicker", "kind": "easy", "title": "Brokerage account with holdings structure", "inputs": { "class": "brokerage", "has_holdings": true }, "expected": { "allows_ticker": true } },
+        { "id": "MK-NW-F-005", "name": "accountAllowsTicker", "kind": "easy", "title": "Checking account ticker restriction", "inputs": { "class": "cash", "has_holdings": false }, "expected": { "allows_ticker": false } },
+        { "id": "MK-NW-F-005", "name": "accountAllowsTicker", "kind": "complex", "title": "Manual investment account with stock lots", "inputs": { "class": "investment", "has_holdings": true }, "expected": { "allows_ticker": true } },
+        { "id": "MK-NW-F-005", "name": "accountAllowsTicker", "kind": "complex", "title": "Real estate property asset class", "inputs": { "class": "real_estate", "has_holdings": false }, "expected": { "allows_ticker": false } },
+        { "id": "MK-NW-F-005", "name": "accountAllowsTicker", "kind": "edge", "title": "Investment account with missing holdings flag", "inputs": { "class": "investment", "has_holdings": null }, "expected": { "allows_ticker": false } }
+      ]
+    },
+    {
+      "card_id": "MK-NW-F-006",
+      "formula_name": "isCashKind",
+      "cases": [
+        { "id": "MK-NW-F-006", "name": "isCashKind", "kind": "easy", "title": "Checking account cash kind check", "inputs": { "account_kind": "checking" }, "expected": { "result": true } },
+        { "id": "MK-NW-F-006", "name": "isCashKind", "kind": "easy", "title": "Money market fund exclusion check", "inputs": { "account_kind": "money_market_fund" }, "expected": { "result": false } },
+        { "id": "MK-NW-F-006", "name": "isCashKind", "kind": "complex", "title": "Savings account cash kind check", "inputs": { "account_kind": "savings" }, "expected": { "result": true } },
+        { "id": "MK-NW-F-006", "name": "isCashKind", "kind": "complex", "title": "Certificate of Deposit exclusion check", "inputs": { "account_kind": "cd" }, "expected": { "result": false } },
+        { "id": "MK-NW-F-006", "name": "isCashKind", "kind": "edge", "title": "Custom unlisted cash equivalent check", "inputs": { "account_kind": "digital_wallet" }, "expected": { "result": false } }
+      ]
+    },
+    {
+      "card_id": "MK-NW-F-007",
+      "formula_name": "assetKind",
+      "cases": [
+        { "id": "MK-NW-F-007", "name": "assetKind", "kind": "easy", "title": "Checking account catalogue lookup", "inputs": { "account_id": "acc_chk_01", "catalogue": { "acc_chk_01": "checking" } }, "expected": { "kind": "checking" } },
+        { "id": "MK-NW-F-007", "name": "assetKind", "kind": "easy", "title": "Mortgage debt catalogue lookup", "inputs": { "account_id": "acc_mtg_01", "catalogue": { "acc_mtg_01": "mortgage" } }, "expected": { "kind": "mortgage" } },
+        { "id": "MK-NW-F-007", "name": "assetKind", "kind": "complex", "title": "Institution brokerage catalogue lookup", "inputs": { "account_id": "inst_schwab_brk", "catalogue": { "inst_schwab_brk": "brokerage" } }, "expected": { "kind": "brokerage" } },
+        { "id": "MK-NW-F-007", "name": "assetKind", "kind": "complex", "title": "Employer 401k account catalogue lookup", "inputs": { "account_id": "ret_401k_emp", "catalogue": { "ret_401k_emp": "employer_401k" } }, "expected": { "kind": "employer_401k" } },
+        { "id": "MK-NW-F-007", "name": "assetKind", "kind": "edge", "title": "Unknown account ID lookup", "inputs": { "account_id": "unknown_id_99", "catalogue": { "acc_chk_01": "checking" } }, "expected": { "kind": null } }
+      ]
+    },
+    {
+      "card_id": "MK-NW-F-008",
+      "formula_name": "incomeBearingClassOf",
+      "cases": [
+        { "id": "MK-NW-F-008", "name": "incomeBearingClassOf", "kind": "easy", "title": "Treasury bond income bearing check", "inputs": { "label": "US Treasury Bond 10Y" }, "expected": { "is_income_bearing": true } },
+        { "id": "MK-NW-F-008", "name": "incomeBearingClassOf", "kind": "easy", "title": "Common stock non-yielding check", "inputs": { "label": "Common Stock Shares" }, "expected": { "is_income_bearing": false } },
+        { "id": "MK-NW-F-008", "name": "incomeBearingClassOf", "kind": "complex", "title": "Brokerage cash settlement fund check", "inputs": { "label": "Brokerage Cash Settlement Fund" }, "expected": { "is_income_bearing": true } },
+        { "id": "MK-NW-F-008", "name": "incomeBearingClassOf", "kind": "complex", "title": "Corporate bond instrument label check", "inputs": { "label": "Apple Corp 4.5% Bond" }, "expected": { "is_income_bearing": true } },
+        { "id": "MK-NW-F-008", "name": "incomeBearingClassOf", "kind": "edge", "title": "Explicitly non-yielding note label", "inputs": { "label": "Non-yielding bond derivative note" }, "expected": { "is_income_bearing": false } }
+      ]
+    },
+    {
+      "card_id": "MK-NW-F-009",
+      "formula_name": "maturityClass",
+      "cases": [
+        { "id": "MK-NW-F-009", "name": "maturityClass", "kind": "easy", "title": "Valid maturity date check", "inputs": { "maturity_date": "2030-12-31" }, "expected": { "is_bond": true } },
+        { "id": "MK-NW-F-009", "name": "maturityClass", "kind": "easy", "title": "Null maturity date check", "inputs": { "maturity_date": null }, "expected": { "is_bond": false } },
+        { "id": "MK-NW-F-009", "name": "maturityClass", "kind": "complex", "title": "Picker date maturity classification", "inputs": { "maturity_date": "2028-06-15", "source": "picker" }, "expected": { "is_bond": true } },
+        { "id": "MK-NW-F-009", "name": "maturityClass", "kind": "complex", "title": "Expired maturity date classification", "inputs": { "maturity_date": "2024-01-01", "current_date": "2026-10-13" }, "expected": { "is_bond": true, "is_matured": true } },
+        { "id": "MK-NW-F-009", "name": "maturityClass", "kind": "edge", "title": "Malformed maturity date string", "inputs": { "maturity_date": "maturity in five years" }, "expected": { "is_bond": false, "flag": "unparseable date" } }
+      ]
+    },
+    {
+      "card_id": "MK-NW-F-010",
+      "formula_name": "wrapperAccount",
+      "cases": [
+        { "id": "MK-NW-F-010", "name": "wrapperAccount", "kind": "easy", "title": "Roth IRA wrapper mapping", "inputs": { "wrapper_type": "roth_ira" }, "expected": { "kind": "retirement", "tax_bucket": "tax_free" } },
+        { "id": "MK-NW-F-010", "name": "wrapperAccount", "kind": "easy", "title": "Taxable brokerage wrapper mapping", "inputs": { "wrapper_type": "taxable" }, "expected": { "kind": "brokerage", "tax_bucket": "taxable" } },
+        { "id": "MK-NW-F-010", "name": "wrapperAccount", "kind": "complex", "title": "Roth 401(k) distinct wrapper mapping", "inputs": { "wrapper_type": "roth_401k" }, "expected": { "kind": "retirement", "tax_bucket": "tax_free" } },
+        { "id": "MK-NW-F-010", "name": "wrapperAccount", "kind": "complex", "title": "Health Savings Account wrapper mapping", "inputs": { "wrapper_type": "hsa" }, "expected": { "kind": "hsa", "tax_bucket": "pre_tax" } },
+        { "id": "MK-NW-F-010", "name": "wrapperAccount", "kind": "edge", "title": "Unstated account wrapper type check", "inputs": { "wrapper_type": null }, "expected": { "assumed_taxable": false } }
+      ]
+    }
+  ]
+}

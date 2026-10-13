@@ -3367,7 +3367,7 @@
  "totalAssets": {
   "id": "MK-NW-F-015",
   "file": "src/domain/assets/index.ts",
-  "category": "3 · DEPENDENT"
+  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "totalDebtBalance": {
   "id": "MK-CF-F-027",

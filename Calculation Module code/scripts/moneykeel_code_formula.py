@@ -733,11 +733,15 @@ ASSUMPTIONS_EXTRA = {
  'portfolioPeriodReturn': ['Second verification G18, 2026-09-08: this is the value-weighted average of holding returns, not a Dietz return.'],
  'simulate': ['The tax on pre-tax withdrawals is the rate the caller passes, capped at 60%; when no rate is passed NO tax is applied and the result says so — never a built-in 22% (G7, founder 2026-09-12).', 'Founder ruling 2026-09-08 (G17): one count, 1,000 futures, on every surface; the guard test simulation_paths.test.ts fails on any other number.'],
  'realizedFromLedger': ['Sales dated in the current calendar year make the this-year total; the device clock decides which year that is.'],
+ # DEC-3279e (2026-10-08): the sweep reads `balance || 0` as "counts as zero"; a missing balance adds nothing and is
+ # named in the amber box (dataGaps, src/domain/gaps) — it is never a $0 value (outside re-run, 2026-10-13)
+ 'totalAssets': ['A missing balance is left out (adds nothing); the amber box names the account (DEC-3279e). A typed $0 is a value and is added.'],
 }
 # sweep lines that are false for a function and must not print
 ASSUMPTIONS_DROP = {
  'grossFromNet': ['Uses a built-in i'],
  'realizedFromLedger': ['Multiplies by 100'],
+ 'totalAssets': ['If balance is missing it counts as zero'],
 }
 
 

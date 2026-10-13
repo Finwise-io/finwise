@@ -189,6 +189,10 @@ should not count."*
 - **The home lived in** is the property marked so; with none marked and no use stated on any, the
   property entered first (MK-NW-F-110 primaryHomeIdOf — the same reading MK-NW-F-107 propertyUses makes
   under DEC-1926). Two properties with no use stated are one home and one second home, never two homes.
+  **A use stated on ANY property stops that fallback** (owner, 2026-10-13, DEC-4913, *"approved."*): B
+  marked the home with a rent entry naming B is a rental (DEC-3035p), and its home mark is still a stated
+  use, so A with nothing stated is a second home, not promoted. Both count toward retirement: A $400,000
+  + B $300,000 = $700,000 (before: $300,000). A stored 'rental' word alone does not stop the fallback.
   A property's use is stated, or read this way; a car has no use (MK-NW-F-013 realEstateUseOf).
 - **The rate that money grows at** (MK-NW-F-037 blendedReturn) is each account's benchmark weighted by
   what it has set aside — over exactly the money counted above, property included. No figure when

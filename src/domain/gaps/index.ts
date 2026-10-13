@@ -141,10 +141,10 @@ const nameOf = (a: AssetAccount, names: Map<string, string>) =>
  *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-003 institution name
  *               MK-XS-I-004 holding quantity (shares)
- *               MK-XS-I-006 price fetched at
  *               MK-XS-I-014 debt balance
  *               MK-XS-I-024 logged expenses
  *               MK-XS-I-033 the date a hand-typed value was set
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Decides .....
  *     · If shares is missing it uses 0.

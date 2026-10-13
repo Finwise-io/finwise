@@ -386,7 +386,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  *
  * Called by ... MK-NW-F-120 classEvidenceOf · MK-NW-F-123 holdingNameEvidence
  *
- * Reaches ..... 205 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 204 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -396,7 +396,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 187 more — the full list is on functions_from_code
+ *               … and 186 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -423,7 +423,7 @@ export function incomeBearingClassOf(label?: string): AssetClass | null {
  *
  * Called by ... MK-NW-F-120 classEvidenceOf
  *
- * Reaches ..... 204 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 203 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -433,7 +433,7 @@ export function incomeBearingClassOf(label?: string): AssetClass | null {
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 186 more — the full list is on functions_from_code
+ *               … and 185 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -510,7 +510,7 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string | undefine
  *
  * Called by ... MK-NW-F-011 assetClassOf · MK-NW-F-053 correctClassOf
  *
- * Reaches ..... 204 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 203 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -520,7 +520,7 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string | undefine
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 186 more — the full list is on functions_from_code
+ *               … and 185 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -575,7 +575,7 @@ export function classEvidenceOf(a: AssetAccount): AssetClass | null {
  *               MK-NW-F-117 propertyUseMap · MK-NW-F-137 asksCashOrInvestments
  *               MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 204 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 203 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -585,7 +585,7 @@ export function classEvidenceOf(a: AssetAccount): AssetClass | null {
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 186 more — the full list is on functions_from_code
+ *               … and 185 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -873,7 +873,7 @@ const rentedIdsOf = (rentals: RentEntry[] | null | undefined) =>
  *     rest = properties where !out.has(string(asset id))
  *     marked = rest.find((a) => re use = 'primary')
  *     candidates = rest where re use ! = 'rental'
- *     other use stated = rest.some((a) => re use ≠ nothing and re use ! = 'rental')
+ *     other use stated = properties.some((a) => re use ≠ nothing and re use ! = 'rental')
  *     home = marked (or undefined   if other use stated
  *     candidates[candidates.length − 1]   otherwise when missing)
  *     others = rest where each ! = home
@@ -916,8 +916,12 @@ export function propertyUseMap(accounts: AssetAccount[], rentals?: RentEntry[] |
   // owns a second home (DEC-1926) — but its old word does not stop the fallback choosing among the others:
   // beside it, a house with nothing stated and its mortgage is the home, or that mortgage would be counted
   // in Debts AND in the Rent / Mortgage budget line. Any other stated use (second home, land) stops it.
+  // A USE STATED ON ANY PROPERTY STOPS IT (owner, 2026-10-13, "approved."): the fallback is for a household
+  // that stated no use at all (DEC-2747e). B marked the home with a rent entry naming B is a rental, and that
+  // 'primary' mark is still a stated use — so A, with nothing stated, is a second home (DEC-1926), not
+  // promoted to the home. It used to look only at the properties left after the rentals were taken out.
   const candidates = rest.filter((a) => a.re_use !== 'rental');
-  const otherUseStated = rest.some((a) => a.re_use != null && a.re_use !== 'rental');
+  const otherUseStated = properties.some((a) => a.re_use != null && a.re_use !== 'rental');
   // addAsset puts the newest first, so the property entered first is the last one in the list
   const home = marked ?? (otherUseStated ? undefined : candidates[candidates.length - 1]);
   if (home) out.set(String(home.asset_id), 'home');
@@ -1040,7 +1044,7 @@ export function sumWhere(accounts: AssetAccount[], pred: (a: AssetAccount) => bo
 }
 
 /** Everything owned, added up: the balance of every account. */
-/* ─ MK-NW-F-015 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-NW-F-015 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * totalAssets
  *
  * Answers ..... Everything owned, added up: the balance of every account.
@@ -1048,18 +1052,13 @@ export function sumWhere(accounts: AssetAccount[], pred: (a: AssetAccount) => bo
  * Formula .....
  *     Σ over accounts (or none when missing) of (balance (or 0 when missing or zero))
  *
- * Called by ... MK-NW-F-022 investableAssets
- *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-022 investableAssets
- *               MK-NW-O-003 theNetWorth
+ * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *
  * Decides .....
- *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · A missing balance is left out (adds nothing); the amber box names the account (DEC-3279e). A typed $0 is a value and is added.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-015
  * Changed ..... 2026-08-10 (e37d50e)
@@ -1073,7 +1072,7 @@ export function totalAssets(accounts: AssetAccount[]): number {
  *  screen printed "CASH $8,838" above "$8,000 cash ÷ …". Both now read the class breakdown. */
 
 /** All the cash a person has: every bank account, plus the uninvested cash sitting inside investment accounts.
- *  An investment account's cash is the cash part of its split (MK-NW-F-027 accountClassBreakdown) —
+ *  An investment account's cash is the cash part of its split, by MK-NW-F-027 accountClassBreakdown —
  *  a linked account's, and since 2026-10-05 the cash a hand-built account records for itself, which
  *  was counted nowhere (outside review). Any other account counts whole when its class is cash. */
 /* ─ MK-NW-F-016 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
@@ -1243,7 +1242,6 @@ export function investmentsTotal(accounts: AssetAccount[]): number {
 export function investableAssets(accounts: AssetAccount[]): number {
   return sumWhere(accounts, (a) => !isRealAsset(a)).total;
 }
-/** Asset value grouped by class — for the Net Worth donut (#19). Sums to totalAssets(). */
 /** THE wrapper word for a naming rule — the kind of ACCOUNT it is, not what it holds. A kind like
  *  'stocks_etf' or 'crypto' describes the holdings; the account they sit in is a Brokerage, and that
  *  is the word a person recognises on a statement (founder rule 2026-08-11:
@@ -1530,7 +1528,7 @@ export function accountDisplayNames(accounts: (Pick<AssetAccount, 'asset_id' | '
  * Called by ... MK-NW-F-027 accountClassBreakdown · MK-NW-F-028 classPortionLabel
  *               MK-NW-F-113 altPartsOf
  *
- * Reaches ..... 26 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 24 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
@@ -1539,8 +1537,8 @@ export function accountDisplayNames(accounts: (Pick<AssetAccount, 'asset_id' | '
  *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
  *               MK-NW-F-029 assetAllocation · MK-NW-F-016 cashTotal
  *               MK-NW-F-028 classPortionLabel · MK-NW-F-017 equitiesTotal
- *               MK-NW-F-018 fixedIncomeTotal · MK-NW-F-022 investableAssets
- *               … and 8 more — the full list is on functions_from_code
+ *               MK-NW-F-018 fixedIncomeTotal · MK-NW-F-021 investmentsTotal
+ *               … and 6 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-048 the person’s own asset-class answer
@@ -1583,7 +1581,7 @@ export function holdingClassOf(p: any): AssetClass {
  *
  * Called by ... MK-NW-F-054 reclassifyAccounts · MK-NW-F-109 holdingClassOf
  *
- * Reaches ..... 82 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
@@ -1593,7 +1591,7 @@ export function holdingClassOf(p: any): AssetClass {
  *               MK-NW-F-029 assetAllocation · MK-NW-F-040 assetsFromOnboarding
  *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               … and 64 more — the full list is on functions_from_code
+ *               … and 62 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1619,7 +1617,7 @@ export function holdingTagClass(tag?: string | null): AssetClass | null {
  *
  * Called by ... MK-NW-F-054 reclassifyAccounts
  *
- * Reaches ..... 82 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
@@ -1629,7 +1627,7 @@ export function holdingTagClass(tag?: string | null): AssetClass | null {
  *               MK-NW-F-029 assetAllocation · MK-NW-F-040 assetsFromOnboarding
  *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               … and 64 more — the full list is on functions_from_code
+ *               … and 62 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1650,7 +1648,7 @@ export function holdingTagFor(cls: AssetClass): 'bond' | 'other' | 'cash' | 'sto
  *
  * Called by ... MK-NW-F-054 reclassifyAccounts · MK-NW-F-109 holdingClassOf
  *
- * Reaches ..... 82 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
@@ -1660,7 +1658,7 @@ export function holdingTagFor(cls: AssetClass): 'bond' | 'other' | 'cash' | 'sto
  *               MK-NW-F-029 assetAllocation · MK-NW-F-040 assetsFromOnboarding
  *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               … and 64 more — the full list is on functions_from_code
+ *               … and 62 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
@@ -1714,11 +1712,11 @@ export function holdingNameEvidence(p: any): AssetClass | null {
  *     invested = (balance or 0) − out.cash
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-NW-F-015 totalAssets · MK-NW-F-016 cashTotal
- *               MK-NW-F-029 assetAllocation · MK-NW-F-094 ledgerGroups
- *               MK-NW-F-113 altPartsOf · MK-NW-O-002 theAccount
+ * Called by ... MK-NW-F-016 cashTotal · MK-NW-F-029 assetAllocation
+ *               MK-NW-F-094 ledgerGroups · MK-NW-F-113 altPartsOf
+ *               MK-NW-O-002 theAccount
  *
- * Reaches ..... 24 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
@@ -1726,9 +1724,9 @@ export function holdingNameEvidence(p: any): AssetClass | null {
  *               MK-NW-F-113 altPartsOf · MK-NW-F-002 alternativesSummary
  *               MK-NW-F-019 alternativesTotal · MK-NW-F-029 assetAllocation
  *               MK-NW-F-016 cashTotal · MK-NW-F-017 equitiesTotal
- *               MK-NW-F-018 fixedIncomeTotal · MK-NW-F-022 investableAssets
- *               MK-NW-F-021 investmentsTotal · MK-NW-F-094 ledgerGroups
- *               … and 6 more — the full list is on functions_from_code
+ *               MK-NW-F-018 fixedIncomeTotal · MK-NW-F-021 investmentsTotal
+ *               MK-NW-F-094 ledgerGroups · MK-NW-F-020 realEstateTotal
+ *               … and 4 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -2349,7 +2347,7 @@ export const VOLATILITY_META: Record<string, { source: string; period: string; e
   stocks_etf: { source: 'S&P 500 annual std dev', period: '30-yr' },
   fixed_income: { source: 'US Aggregate Bond index, annual std dev', period: '30-yr' },
   brokerage: { source: 'Blended taxable portfolio', period: '30-yr', estimate: true },
-  crypto: { source: 'No long-run series — a wide placeholder', period: '—', estimate: true },
+  crypto: { source: 'No long-run series — a wide placeholder', period: '', estimate: true },
   private_equity: { source: 'Cambridge Associates US PE (smoothed — true swing is wider)', period: '~25-yr', estimate: true },
   hedge_funds: { source: 'HFRI Fund Weighted Composite', period: '~10-yr', estimate: true },
   commodities: { source: 'Gold, annual std dev', period: '30-yr' },
@@ -2421,7 +2419,7 @@ export const BENCHMARK_META: Record<string, { source: string; period: string; es
   private_equity: { source: 'Cambridge Associates US PE', period: '~25-yr', estimate: true },
   hedge_funds:    { source: 'HFRI Fund Weighted Composite', period: '~10-yr', estimate: true },
   commodities:    { source: 'Gold (SPDR GLD)', period: '30-yr' },
-  crypto:         { source: 'No long-run benchmark — set your own', period: '—', estimate: true },
+  crypto:         { source: 'No long-run benchmark — set your own', period: '', estimate: true },
   annuities:      { source: 'Typical fixed-annuity rate', period: 'current', estimate: true },
   college_529:    { source: 'Age-based 529 blend', period: 'assumed', estimate: true },
   '401k':         { source: 'Assumed 60/40 mix', period: '30-yr', estimate: true },
@@ -2430,7 +2428,7 @@ export const BENCHMARK_META: Record<string, { source: string; period: string; es
   hsa:            { source: 'Invested HSA, assumed 60/40', period: '30-yr', estimate: true },
   home:           { source: 'Case-Shiller US home price (nominal)', period: '30-yr' },
   vehicle:        { source: 'Vehicle depreciation', period: 'annual', estimate: true },
-  other_asset:    { source: 'Generic blended estimate', period: '—', estimate: true },
+  other_asset:    { source: 'Generic blended estimate', period: '', estimate: true },
 };
 /** Benchmark return + its source/period for an asset kind. `edited` flags a user override;
  *  `estimate` flags that there's no clean 30-yr series so the figure is an estimate. */
@@ -2441,14 +2439,14 @@ export const BENCHMARK_META: Record<string, { source: string; period: string; es
  *
  * Formula .....
  *     meta = BENCHMARK_META[kind ?? ''] (or source = 'generic blended estimate'
- *     period = '—'
+ *     period = ''
  *     estimate = true when missing)
  *     edited = !!(kind and overrides and overrides[kind] ≠ nothing)
  *     the answer:
  *     ret = benchmark return(kind, overrides)
  *     source = 'your custom estimate'   if edited
  *     meta.source   otherwise
- *     period = '—'   if edited
+ *     period = ''   if edited
  *     meta.period   otherwise
  *     edited = edited
  *     estimate = edited (or !!meta.estimate when missing or zero)
@@ -2462,10 +2460,13 @@ export const BENCHMARK_META: Record<string, { source: string; period: string; es
  * Changed ..... 2026-08-11 (83acb7e)
  */
 export function benchmarkInfo(kind: string | undefined, overrides?: Record<string, number>): { ret: number; source: string; period: string; edited: boolean; estimate: boolean } {
-  const meta = BENCHMARK_META[kind ?? ''] ?? { source: 'Generic blended estimate', period: '—', estimate: true };
+  // NO PERIOD IS BLANK, NOT A DASH (outside re-run, 2026-10-13): the card says the period is blank for a rate the
+  // person set and for a kind with no record; the em-dash this returned was a screen's mark made inside the
+  // calculation. A screen that prints the period shows nothing, or its own mark, when it is blank.
+  const meta = BENCHMARK_META[kind ?? ''] ?? { source: 'Generic blended estimate', period: '', estimate: true };
   const edited = !!(kind && overrides && overrides[kind] != null);
   // a rate the person set is their own assumption, not a measured index — an estimate (outside review, 2026-10-07)
-  return { ret: benchmarkReturn(kind, overrides), source: edited ? 'Your custom estimate' : meta.source, period: edited ? '—' : meta.period, edited, estimate: edited || !!meta.estimate };
+  return { ret: benchmarkReturn(kind, overrides), source: edited ? 'Your custom estimate' : meta.source, period: edited ? '' : meta.period, edited, estimate: edited || !!meta.estimate };
 }
 /** Blended expected return across the EARMARKED nest egg, weighted by each holding's share.
  *  Different asset types earn different returns — equity vs bonds vs PE vs hedge funds — so the
@@ -2839,8 +2840,8 @@ export function assetsStateFrom(uid: UserId, d: AssetsDoc | null | undefined): A
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-006 price fetched at
- *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-066 last successful update of a linked or imported account
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
@@ -2983,7 +2984,7 @@ const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep
  *
  * Called by ... MK-NW-F-009 maturityClass · MK-NW-F-046 historyCoverage
  *
- * Reaches ..... 204 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 203 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -2993,7 +2994,7 @@ const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 186 more — the full list is on functions_from_code
+ *               … and 185 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
