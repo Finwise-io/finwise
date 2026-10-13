@@ -50,7 +50,7 @@ export type CountedWord = keyof typeof PLURAL_WORDS;
  * Called by ... MK-CF-O-019 theIncomeManager · MK-HM-F-006 money0
  *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-028 classPortionLabel
  *               MK-NW-F-046 historyCoverage · MK-NW-F-052 buildItemizedAccounts
- *               MK-NW-F-070 accruedInterestCaveat · MK-NW-F-130 cannotWorkBackSentence
+ *               MK-NW-F-070 accruedInterestCaveat · MK-NW-F-130 notIncludedSentence
  *               MK-PF-F-045 priceHistoryShortSentence · MK-PL-F-063 fraLabel
  *               MK-ST-F-075 agoLabel · MK-XS-F-002 dataGaps
  *               MK-XS-F-003 gapsHeadline · MK-XS-F-183 writeFigure

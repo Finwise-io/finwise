@@ -105,7 +105,7 @@ test('the Return carries TWO decimals (ruling Q49) and is the WINDOW return, not
 test('the header Return and the walk cannot disagree — one is the other divided by the beginning', () => {
   render(<AccountPortfolioScreen />);
   // read the walk's own two figures off the screen, then check the header against THEM
-  expect(screen.getByText('HOW $52,404 BECAME $52,704')).toBeOnTheScreen();
+  expect(screen.getByText('HOW $52,404 BECAME $52,704 · THIS ACCOUNT')).toBeOnTheScreen();
   const expected = `+${((WEALTH / BEGINNING) * 100).toFixed(2)}%`;
   // the Since segment, the SUMMARY trio and the Total row of BY CATEGORY & HOLDING all carry it
   expect(screen.getAllByText(expected).length).toBeGreaterThanOrEqual(3);
@@ -130,7 +130,7 @@ test('the walk names every line the mock names, in order, and its rows reach the
   expect(BEGINNING + WEALTH).toBe(ENDING);
 });
 
-test('no daily record but activity records → the window opens the first day money moved, no return is measured, and the screen says why', () => {
+test('no daily record but activity records → the window opens the first day money moved, the beginning is worked back, and the screen names the holdings left out', () => {
   seed({ invDaily: {}, snapshotDays: [] });
   render(<AccountPortfolioScreen />);
   expect(screen.getByText('Since Jul 31, 2026')).toBeOnTheScreen();
@@ -139,9 +139,13 @@ test('no daily record but activity records → the window opens the first day mo
   // 4.00% and US TREASURY 4.25% have no price history." Hand-checked: no price series is cached for any of the
   // three, and each is held (800 × $50 = $40,000; 5,704 × $1 = $5,704; 3,000 × $1 = $3,000 — all > 0), so each
   // gain is unknown; before, each added $0 and the beginning read $52,704 − $0 − $0 moved = $52,704, too high.
-  expect(screen.queryByText('Beginning market value (Jul 31, 2026)')).toBeNull();
-  expect(screen.getByText("The beginning can't be worked back: LCTX, KEYBANK CD 4.00% and US TREASURY 4.25% have no price history.")).toBeOnTheScreen();
-  expect(screen.queryByText(/Your daily record does not reach back to Jul 31, 2026 yet/)).toBeNull();
+  // SETTLED 2026-10-13 by DEC-5068 (replaces DEC-3656 part 2): the walk is drawn again. None of the three has a price
+  // history, so each adds no gain (its value taken as unchanged): beginning $52,704 − $0 gained − $0 moved = $52,704,
+  // Return "—" (no holding with a history; never 0%), and the sentence below the summary names all three.
+  expect(screen.getByText('Beginning market value (Jul 31, 2026)')).toBeOnTheScreen();
+  expect(screen.getByText('Wealth generated and Return do not include the gains of LCTX, KEYBANK CD 4.00% and US TREASURY 4.25%, as they have no price history.')).toBeOnTheScreen();
+  expect(screen.getByText("Your daily record does not reach back to Jul 31, 2026 yet, so the beginning is worked back from today's values and each holding's price history.")).toBeOnTheScreen();
+  expect(screen.queryByText(/can't be worked back/)).toBeNull();
   expect(screen.queryByText(/Day one:/)).toBeNull();
 });
 
@@ -151,7 +155,9 @@ test('day one — no record and nothing moved → Since today, every line a real
   expect(screen.getByText('Since today')).toBeOnTheScreen();
   expect(screen.getByText('SUMMARY · SINCE TODAY')).toBeOnTheScreen();
   expect(screen.getByText(/Day one: your value is real, your return starts measuring from today/)).toBeOnTheScreen();
-  expect(screen.getByText("HOW TODAY'S VALUE STANDS")).toBeOnTheScreen();
+  // DEC-5136 (2026-10-13): one title in every state — "HOW TODAY'S VALUE STANDS" is retired
+  expect(screen.getByText(/^HOW \$[\d,]+ BECAME \$[\d,]+ · THIS ACCOUNT$/)).toBeOnTheScreen();
+  expect(screen.queryByText(/VALUE STANDS/)).toBeNull();
   expect(screen.getByText('Beginning market value (today)')).toBeOnTheScreen();
   expect(screen.getByText('Ending market value (today)')).toBeOnTheScreen();
   expect(screen.getByText('Every line fills in as days pass — the structure never changes.')).toBeOnTheScreen();

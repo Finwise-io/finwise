@@ -790,5 +790,7 @@
 "src/domain/performance/index.ts::unknownFigure": "not in git yet|\u2014",
 "src/domain/performance/index.ts::priceHistoryShortSentence": "not in git yet|\u2014",
 "src/domain/performance/realized.ts::saleShortOfPurchasesSentence": "not in git yet|\u2014",
-"src/domain/_shared/dates.ts::maturityParts": "not in git yet|\u2014"
+"src/domain/_shared/dates.ts::maturityParts": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/performance.ts::knownHoldingsReturn": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/performance.ts::notIncludedSentence": "not in git yet|\u2014"
 }

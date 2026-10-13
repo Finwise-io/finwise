@@ -4,7 +4,11 @@
  *  (1) A CD stating its rate gains by it; (2) a holding with no price history and no rate has an unknown
  *  gain — no beginning, no wealth generated, no walk, and the sentence
  *  "The beginning can't be worked back: <name> has no price history." Every other account keeps its page;
- *  the approved day-one page ("HOW TODAY'S VALUE STANDS") is untouched.
+ *  the approved day-one page is untouched; its walk title reads "HOW $8,000 BECAME $8,000 · THIS ACCOUNT" since DEC-5136
+ *  (2026-10-13) retired "HOW TODAY'S VALUE STANDS".
+ *  SETTLED 2026-10-13 by DEC-5068, which replaces (2): the walk is drawn from the gains that are known, a holding
+ *  with no history adds $0, and below the summary: "Wealth generated and Return do not include <name>'s gains, as it
+ *  has no price history." The cases below that pinned the refusal now pin that.
  */
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
@@ -51,23 +55,26 @@ describe('the account page (DEC-3656, 2026-10-09)', () => {
     expect(screen.queryByText(/can't be worked back/)).toBeNull();
   });
 
-  test('(2) a bond typed by hand: no beginning, no wealth generated, and the sentence under SUMMARY names it', () => {
+  test('(2) a bond typed by hand — SETTLED 2026-10-13 by DEC-5068: the walk stands at $0 gained, and the sentence under SUMMARY names it', () => {
     mockParams = { id: 'b1' };
     seed([BOND], { transactions: [interest('b1')] });
     render(<AccountPortfolioScreen />);
-    expect(screen.getByText("The beginning can't be worked back: Fidelity Brokerage has no price history.")).toBeOnTheScreen();
-    expect(screen.queryByText(/^Beginning market value/)).toBeNull();
-    expect(screen.queryByText(/^HOW \$/)).toBeNull();
+    expect(screen.getByText("Wealth generated and Return do not include Fidelity Brokerage's gains, as it has no price history.")).toBeOnTheScreen();
+    // its value taken as unchanged: beginning $8,000 − $0 gained − $0 moved = $8,000, and the walk is drawn
+    expect(screen.getByText(`Beginning market value (${dateShown(YEAR_START)})`)).toBeOnTheScreen();
+    expect(screen.getByText('HOW $8,000 BECAME $8,000 · THIS ACCOUNT')).toBeOnTheScreen();
+    expect(screen.queryByText(/can't be worked back/)).toBeNull();
   });
 
   test('unchanged · day one (no record, nothing moved): the bond keeps the approved day-one page', () => {
     mockParams = { id: 'b1' };
     seed([BOND]);
     render(<AccountPortfolioScreen />);
-    expect(screen.getByText("HOW TODAY'S VALUE STANDS")).toBeOnTheScreen();
+    expect(screen.getByText('HOW $8,000 BECAME $8,000 · THIS ACCOUNT')).toBeOnTheScreen();   // DEC-5136: one title, day one included
     expect(screen.getByText('Beginning market value (today)')).toBeOnTheScreen();
     expect(screen.getByText(/Day one: your value is real/)).toBeOnTheScreen();
     expect(screen.queryByText(/can't be worked back/)).toBeNull();
+    expect(screen.queryByText(/^Wealth generated and Return do not include/)).toBeNull();   // nothing worked back on day one (DEC-5068)
   });
 
   test('unchanged · day one on every window: picking another window never works a beginning back', () => {
@@ -78,14 +85,15 @@ describe('the account page (DEC-3656, 2026-10-09)', () => {
     expect(others.length).toBeGreaterThanOrEqual(4);   // the guard proves it looked: every other window was pressed
     for (const btn of others) {
       fireEvent.press(btn);
-      expect(screen.getByText("HOW TODAY'S VALUE STANDS")).toBeOnTheScreen();
+      expect(screen.getByText('HOW $8,000 BECAME $8,000 · THIS ACCOUNT')).toBeOnTheScreen();   // DEC-5136: one title, day one included
       expect(screen.queryByText(/can't be worked back/)).toBeNull();
+      expect(screen.queryByText(/^Wealth generated and Return do not include/)).toBeNull();
     }
   });
 });
 
 describe('the Performance tab, one account at a time (DEC-3656, 2026-10-09)', () => {
-  test('a hand-typed bond outside the daily record: its walk says why there is none; the linked account keeps its page', () => {
+  test('a hand-typed bond outside the daily record — SETTLED 2026-10-13 by DEC-5068: its card names it below the figures; the linked account keeps its page', () => {
     const start = daysAgo(200);
     const rec = (date: string, value: number) => ({ date, origin: 'observed', writtenAt: `${date}T00:00:00Z`,
       holdings: [{ date, accountId: 'van', securityKey: 'VTI', symbol: 'VTI', units: 100, price: value / 100, value, currency: 'USD' }],
@@ -101,7 +109,7 @@ describe('the Performance tab, one account at a time (DEC-3656, 2026-10-09)', ()
     render(<PerformanceScreen />);
     const toggles = screen.queryAllByLabelText(/Expands its walk/);
     for (const t of toggles) fireEvent.press(t);
-    expect(screen.getByText("The beginning can't be worked back: Fidelity Brokerage has no price history.")).toBeOnTheScreen();
+    expect(screen.getAllByText("Wealth generated and Return do not include Fidelity Brokerage's gains, as it has no price history.").length).toBeGreaterThan(0);
     // the linked account's walk is still drawn: its beginning is READ from the record
     expect(screen.getAllByText(/^Beginning market value/).length).toBeGreaterThan(0);
   });

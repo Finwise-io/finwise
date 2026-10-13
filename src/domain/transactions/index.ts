@@ -81,7 +81,7 @@ export interface Transaction {
  *               MK-NW-F-090 windowStartKey · MK-NW-F-092 investmentAccountIdsOf
  *               MK-NW-F-094 ledgerGroups · MK-NW-F-103 investmentRecordDates
  *               MK-NW-F-104 closedWith · MK-NW-F-106 mortgagesByProperty
- *               MK-NW-F-116 rentedIdsOf · MK-NW-F-130 cannotWorkBackSentence
+ *               MK-NW-F-116 rentedIdsOf · MK-NW-F-130 notIncludedSentence
  *               MK-NW-F-134 carValueNotEnteredNotes · MK-NW-F-135 earmarkLeavesOut
  *               MK-NW-O-001 theBonds · MK-NW-O-002 theAccount
  *               MK-NW-O-003 theNetWorth · MK-NW-O-004 theEmergencyFund

@@ -2946,6 +2946,30 @@
     "status": "DONE 2026-10-12 — 11 code fixes (window control colours, one-line notes, 13-point date and labels, walk weights, withdrawals not red, notes' grey, category table, graph dates over a year, gridlines that hold the line, day-one frame, Holding liquidated colour); no drawing arithmetic error found; not committed",
     "comments": "Phones 1 and 3 now match the drawing figure for figure, not only word for word: the test builds a household whose record gives the drawn $100,000 → $123,000, +0.41%, +4.90%, 7.46%, 6.88%, $38,000 → $52,704 and the rest."
    }
+  },
+  {
+   "task": "DEC-5068 — Wealth generated and Return for every holding with a history, where the beginning is worked back (his ruling of 2026-10-13)",
+   "todo": "thePerformance keeps the walk and leaves out a holding with no price history; Return = the holdings with a history only; notIncludedSentence replaces cannotWorkBackSentence; account page and Performance cards print it; outside cases settled; rules, standard, Changelog, v17 note.",
+   "status": "DONE 2026-10-13 — built and tested; Return shown where the beginning is worked back; sentence on the account page and each account's card; not committed",
+   "ref": "MoneyKeel/functions/networth-and-performance/dec_worked_back_known_holdings.test.ts · src/screens/__tests__/dec_worked_back_known_holdings.test.tsx · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v17.html",
+   "date": "2026-10-13",
+   "comments": "$50,000 = VTI $40,000 (+10%) + Treasury 2031 $10,000 → Wealth generated $3,636, Return +10.00%, walk drawn (was —, —, no walk). Replaces DEC-3656 part 2 (DEC-3656b, now not in use).",
+   "_written": {
+    "status": "DONE 2026-10-13 — built and tested; Return shown where the beginning is worked back; sentence on the account page and each account's card; not committed",
+    "comments": "$50,000 = VTI $40,000 (+10%) + Treasury 2031 $10,000 → Wealth generated $3,636, Return +10.00%, walk drawn (was —, —, no walk). Replaces DEC-3656 part 2 (DEC-3656b, now not in use)."
+   }
+  },
+  {
+   "task": "DEC-5136 — the walk card's title is always HOW $<beginning> BECAME $<ending> · ALL ACCOUNTS (his ruling of 2026-10-13)",
+   "todo": "Both screens title the walk the one way in every state; retire the day-one title from code, tests and mock-match expectations; READ THIS FIRST rows; Changelog.",
+   "status": "DONE 2026-10-13 — built and tested on both screens; READ THIS FIRST rows on v17 and Ways to add v10; not committed",
+   "ref": "src/screens/PerformanceScreen.tsx · src/screens/AccountPortfolioScreen.tsx · src/screens/__tests__/perf_matches_v17.test.tsx · src/screens/__tests__/perf_mock_match_2026_10_12.test.tsx",
+   "date": "2026-10-13",
+   "comments": "Day one reads HOW $354,314 BECAME $354,314 · ALL ACCOUNTS (was HOW TODAY'S VALUE STANDS · ALL ACCOUNTS $354,314); the account page gains · THIS ACCOUNT as v17 frame 2 draws it.",
+   "_written": {
+    "status": "DONE 2026-10-13 — built and tested on both screens; READ THIS FIRST rows on v17 and Ways to add v10; not committed",
+    "comments": "Day one reads HOW $354,314 BECAME $354,314 · ALL ACCOUNTS (was HOW TODAY'S VALUE STANDS · ALL ACCOUNTS $354,314); the account page gains · THIS ACCOUNT as v17 frame 2 draws it."
+   }
   }
  ]
 }

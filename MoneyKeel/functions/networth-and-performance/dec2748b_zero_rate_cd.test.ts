@@ -28,16 +28,18 @@ describe('MK-NW-F-091 pricedGainOf / MK-NW-F-127 gainOfRow (DEC-2748b, 2026-10-1
 describe('MK-NW-O-008 thePerformance — a CD account with no positions (DEC-3656 + DEC-2748b)', () => {
   test('entered 0%: beginning $10,000, wealth generated $0, nothing refused', () => {
     const f = thePerformance(base([cd(0)]));
-    expect(f.cannotWorkBack).toBe('');
+    expect(f.notIncluded).toBe('');
     expect(f.walk).not.toBeNull();
     expect(f.walk!.beginning).toBe(10000);
     expect(f.walk!.ending).toBe(10000);
     expect(f.walk!.wealthGenerated).toBe(0);
   });
-  test('no rate entered: no walk, and the sentence names the CD (unchanged)', () => {
+  // SETTLED 2026-10-13 by DEC-5068 (replaces DEC-3656 part 2): was "no walk, and The beginning can't be worked back: …".
+  test('no rate entered: the walk stands at $0 gained, and the sentence names the CD', () => {
     const f = thePerformance(base([cd()]));
-    expect(f.walk).toBeNull();
-    expect(f.cannotWorkBack).toMatch(/^The beginning can't be worked back: .+ has no price history\.$/);
+    expect(f.walk!.beginning).toBe(10000);
+    expect(f.walk!.wealthGenerated).toBe(0);
+    expect(f.notIncluded).toMatch(/^Wealth generated and Return do not include .+'s gains, as it has no price history\.$/);
   });
 });
 

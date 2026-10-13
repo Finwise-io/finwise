@@ -32,7 +32,7 @@
  *   "nothing invested" NOTHING_INVESTED, "money moved on a day with no recorded value" MOVEMENT_DAY_NOT_RECORDED,
  *   "shares moved" SHARES_MOVED, "value with nothing behind it" → the code the engine gives for that state
  *   (NOTHING_TO_GROW_FROM since DEC-4439, 2026-10-11; VALUE_BELOW_MONEY_ADDED before), produced by running the engine on such a record.
- *   isDay, closedWith, gainOfRow, heldValueOf, gainRowName and cannotWorkBackSentence are not exported: each is read
+ *   isDay, closedWith, gainOfRow, heldValueOf, gainRowName and notIncludedSentence are not exported: each is read
  *   out of its own source file and compiled as written — the app's own text, nothing re-typed.
  *   "shown" strings are screen formatting, not these functions' output, and are not asserted. A row list's
  *   "Withdrawals −8,000" is the walk's withdrawals 8,000 (the walk stores it positive and subtracts it).
@@ -56,7 +56,7 @@ import { plural } from '../../../src/domain/_shared/plural';
 // The functions performance.ts imports are handed to the compiled text under the same names, so it runs as
 // written (added 2026-10-11: heldValueOf and gainOfRow now ask the one rule for shares, the contract multiplier
 // and a window's own total — outside review Claude Performance). Nothing here changes an expected answer.
-// plural joined on 2026-10-13: cannotWorkBackSentence takes its has / have from the one list (MK-NW-F-130)
+// plural joined on 2026-10-13: notIncludedSentence takes its has / have from the one list (MK-NW-F-130)
 const IMPORTED: Record<string, unknown> = { contractMultiplier, totalShares, windowTotal, plural };
 const compile = (file: string, parts: { start: RegExp; end: string }[], name: string) => {
   const text = fs.readFileSync(path.join(__dirname, file), 'utf8');
@@ -76,8 +76,8 @@ const gainOfRow: (r: any, years: number) => number | null = compile('performance
   [{ start: /function gainOfRow\(/, end: '\n}\n' }, { start: /function heldValueOf\(/, end: '\n}\n' }], 'gainOfRow');
 const heldValueOf: (r: any) => number = compile('performance.ts', [{ start: /function heldValueOf\(/, end: '\n}\n' }], 'heldValueOf');
 const gainRowName: (r: any) => string = compile('performance.ts', [{ start: /function gainRowName\(/, end: '\n}\n' }], 'gainRowName');
-const cannotWorkBackSentence: (names: string[]) => string =
-  compile('performance.ts', [{ start: /function cannotWorkBackSentence\(/, end: '\n}\n' }], 'cannotWorkBackSentence');
+const notIncludedSentence: (names: string[]) => string =
+  compile('performance.ts', [{ start: /function notIncludedSentence\(/, end: '\n}\n' }], 'notIncludedSentence');
 
 // ── helpers ─────────────────────────────────────────────────────────────────────────────────────────
 const TODAY = '2026-10-10';
@@ -596,20 +596,23 @@ describe('MK-NW-F-129 gainRowName — five cases', () => {
   test('edge · Nothing to call it by', () => { expect(gainRowName({})).toBe('a holding'); });
 });
 
-describe('MK-NW-F-130 cannotWorkBackSentence — five cases', () => {
-  test('easy · One name', () => { expect(cannotWorkBackSentence(['Fundrise Income Fund'])).toBe("The beginning can't be worked back: Fundrise Income Fund has no price history."); });
-  test('easy · No name', () => { expect(cannotWorkBackSentence([])).toBe("The beginning can't be worked back: a holding has no price history."); });
+// SETTLED 2026-10-13 by DEC-5068: the sentence these cases pinned ("The beginning can't be worked back: … has no price
+// history.") is replaced by his: "Wealth generated and Return do not include <name>'s gains, as it has no price history."
+// Each case keeps its names, its de-duplication and its has / have; only the words around the names moved.
+describe('MK-NW-F-130 notIncludedSentence — five cases', () => {
+  test('easy · One name', () => { expect(notIncludedSentence(['Fundrise Income Fund'])).toBe("Wealth generated and Return do not include Fundrise Income Fund's gains, as it has no price history."); });
+  test('easy · No name', () => { expect(notIncludedSentence([])).toBe("Wealth generated and Return do not include a holding's gains, as it has no price history."); });
   test('complex · Three names', () => {
-    expect(cannotWorkBackSentence(['PRIVX', 'Fundrise Income Fund', 'Ally CD'])).toBe("The beginning can't be worked back: PRIVX, Fundrise Income Fund and Ally CD have no price history.");
+    expect(notIncludedSentence(['PRIVX', 'Fundrise Income Fund', 'Ally CD'])).toBe("Wealth generated and Return do not include the gains of PRIVX, Fundrise Income Fund and Ally CD, as they have no price history.");
   });
   test('complex · Two names', () => {
-    expect(cannotWorkBackSentence(['Old employer plan fund', 'a holding'])).toBe("The beginning can't be worked back: Old employer plan fund and a holding have no price history.");
+    expect(notIncludedSentence(['Old employer plan fund', 'a holding'])).toBe("Wealth generated and Return do not include the gains of Old employer plan fund and a holding, as they have no price history.");
   });
   // FINDING: app gives "PRIVX and PRIVX have no price history.", expected "PRIVX has no price history." — repeated
   // names are not removed; thePerformance builds the list per holding row (performance.ts:664), so one fund held in two
   // accounts is named twice on the all-accounts view.
   // FIXED 2026-10-11 (outside review Claude Performance, DEC-3656): each name listed once.
   test('edge · The same fund in two accounts', () => {
-    expect(cannotWorkBackSentence(['PRIVX', 'PRIVX'])).toBe("The beginning can't be worked back: PRIVX has no price history.");
+    expect(notIncludedSentence(['PRIVX', 'PRIVX'])).toBe("Wealth generated and Return do not include PRIVX's gains, as it has no price history.");
   });
 });

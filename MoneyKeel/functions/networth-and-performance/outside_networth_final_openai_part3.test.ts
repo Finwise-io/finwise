@@ -518,6 +518,8 @@ describe('MK-NW-F-091 pricedGainOf — five cases', () => {
   // one-holding gain read as "$0 gained" rather than unknown (tenet 3: unknown is not zero).
   // FIXED 2026-10-09 by DEC-3656: a holding held (value > 0) with no price history and no stated rate has an
   // unknown gain — pricedGainOf answers null, and the walk that would be worked back from it is not drawn.
+  // SETTLED 2026-10-13 by DEC-5068: pricedGainOf still answers null here (unknown is not zero); what changed is the
+  // walk — thePerformance now draws it, the holding adds no gain, and a sentence names it below the figures.
   test('edge · Missing return refuses gain', () => { refuses(pricedGainOf([{ marketValue: 1000, periodReturn: null }])); });
 });
 

@@ -183,7 +183,7 @@ export default function AccountPortfolioScreen() {
     // neither, it is null and the door answers day one.
     // DAY ONE (nothing recorded, nothing moved): every window opens today — there is no earlier day to
     // work back to, so no window may back-fill one (v17 day one: "We never back-fill a year we didn't see";
-    // DEC-3656 refuses a worked-back beginning, which must never fire on day one)
+    // nothing is worked back on day one, so no holding is ever named as left out there — DEC-3656, DEC-5068)
     const start = !dataStart ? null
       : p === 'SINCE'
       ? (recordedDays.length ? windowStartKey('SINCE', recordedDays, todayKey) : movedDays[0] ?? null)
@@ -195,7 +195,8 @@ export default function AccountPortfolioScreen() {
       windowLabel: p === 'SINCE' ? (dataStart ? `since ${dateShown(dataStart)}` : 'since today') : (PHRASE[p] ?? 'this window'),
       today: todayKey,
       // the holdings themselves: the door decides each one's gain over THIS window, and names any it
-      // cannot know — this account's own value counts as the instrument when it holds no positions (DEC-3656, 2026-10-09)
+      // cannot know — this account's own value counts as the instrument when it holds no positions (DEC-3656, 2026-10-09;
+      // one with no price history is left out of Wealth generated and Return, and named — DEC-5068, 2026-10-13)
       holdings: priced as any,
       transactions: ledger,
       snapshotDays: days,
@@ -442,18 +443,20 @@ export default function AccountPortfolioScreen() {
               /* the drawing's own day-one line (v17, "DAY ONE, A LINKED ACCOUNT") */
               ? 'Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn\'t see.'
               : walk == null
-              /* a holding whose gain cannot be known: no beginning is worked back, and the sentence names it (DEC-3656, 2026-10-09) */
-              ? (now?.cannotWorkBack
               /* a refusal is an answer (D4): no daily record reaching back, so no beginning — say so */
-                || 'Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day.')
+              ? 'Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day.'
               : now?.sentence
               || (now?.measured == null
-                /* no recorded value on the first day: the beginning is read back from the records, so no return is measured */
-                ? `Your daily record does not reach back to ${sinceWords} yet, so the beginning is read back from your activity records and no return is measured.`
+                /* no recorded value on the first day: the beginning is worked back from today's values and each
+                   holding's price history, and a return IS shown — of the holdings with a history (DEC-5068, 2026-10-13) */
+                ? `Your daily record does not reach back to ${sinceWords} yet, so the beginning is worked back from today's values and each holding's price history.`
                 : `Return is for the window you picked (${sinceWords} → ${dateShown(todayKey)}) — not a yearly rate · time-weighted`)}
           </Text>
           <InfoDot term="timeWeighted" />
         </View>
+        {/* BELOW THE SUMMARY, the holding left out of Wealth generated and Return (DEC-5068, 2026-10-13, his words:
+            "Below it display …"). Only where the beginning is worked back and a holding has no price history. */}
+        {!dayOne && !!now?.notIncluded && <Text style={p.note}>{now.notIncluded}</Text>}
         {/* where the figures came from, and the first day that source can speak for */}
         {account.source === 'connected' && dataStart && (
           <Text style={p.note}>
@@ -478,8 +481,9 @@ export default function AccountPortfolioScreen() {
       {walk != null && walk.beginning != null && (
         <View style={s.card}>
           <SectionBand inCard
-            title={figWords('MK-PF-M-003', dayOne ? "HOW TODAY'S VALUE STANDS"
-              : `HOW ${fig('MK-PF-M-013', walk.beginning)} BECAME ${fig('MK-PF-M-004', walk.ending)}`)} />
+            /* one title in every state, day one included, "· THIS ACCOUNT" as Performance v17 frame 2 draws it
+               (DEC-5136, 2026-10-13: "HOW $38,000 BECAME $52,704 · ALL ACCOUNTS - this is the title.") */
+            title={figWords('MK-PF-M-003', `HOW ${fig('MK-PF-M-013', walk.beginning)} BECAME ${fig('MK-PF-M-004', walk.ending)} · THIS ACCOUNT`)} />
           {([
             [`Beginning market value (${sinceWords})`, walk.beginning, 'MK-PF-M-013'],
             ['Contributions', walk.contributions, 'MK-PF-M-015'],

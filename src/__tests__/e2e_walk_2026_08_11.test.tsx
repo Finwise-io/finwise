@@ -295,7 +295,9 @@ test('C10 open Performance — the all-accounts walk stands and every account wi
   noNonsense();
   // no daily record yet, so this is DAY ONE (Performance v17, phone 4): the walk stands at today's
   // value, and every account's own walk is open beneath it
-  expect(screen.getByText("HOW TODAY'S VALUE STANDS · ALL ACCOUNTS")).toBeOnTheScreen();
+  // DEC-5136 (2026-10-13): one title in every state — "HOW TODAY'S VALUE STANDS" is retired; day one names the same figure twice
+  expect(screen.getByText(/^HOW \$([\d,]+) BECAME \$\1 · ALL ACCOUNTS$/)).toBeOnTheScreen();
+  expect(screen.queryByText(/VALUE STANDS/)).toBeNull();
   expect(screen.getByLabelText(/^Vanguard/)).toBeOnTheScreen();
   expect(screen.getByLabelText(/^E\*TRADE/)).toBeOnTheScreen();
   expect(screen.getAllByText('Beginning market value (today)')).toHaveLength(3);   // the whole, and its two parts

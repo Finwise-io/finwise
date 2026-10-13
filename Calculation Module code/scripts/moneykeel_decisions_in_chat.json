@@ -952,6 +952,42 @@
    "type": "RULE",
    "not_a_repeat_of": "DEC-2747e — that rule (with no use stated, the property entered first is the home) stands; this one says when it does not apply: a use stated on any property, even a home mark that rent overrode. DEC-1926, DEC-3035p — their rules stand and this applies them together. DEC-0100 — the retirement share rule, unchanged.",
    "answers": []
+  },
+  {
+   "decided": "2026-10-13",
+   "answers": [],
+   "tab": "networth-and-performance",
+   "type": "CALCULATION",
+   "status": "TESTED",
+   "screens": "/invest (Performance tab, each account's card) · /account-detail (the account page)",
+   "his_words": "Wealth Generated and Return should be calculated and displayed for every asset with history. Below it display \"Wealth Generated and Return does not include treasury gains as no price history available.\"",
+   "subject": "Where the beginning is worked back from today, Wealth generated and Return are shown for the holdings with a price history, and a sentence below names the holding left out",
+   "plain": "When the daily record does not reach back to the window's first day, the beginning is worked back from today. Wealth generated and the walk are now always shown: each holding with a price history (or a CD's stated rate) gives its gain, and a holding with no price history adds no gain (its value is taken as unchanged). Return is the return of the holdings with a history only: their values now added up ÷ their values at the start added up − 1, each start = value now ÷ (1 + its own return over the window); a holding with no history is left out, not counted at 0%. Below the summary: \"Wealth generated and Return do not include Treasury 2031's gains, as it has no price history.\" Example: an account of $50,000 = VTI $40,000 (+10% over the past year) + Treasury 2031 $10,000 typed by hand, no money moved: VTI gained 40,000 × (1 − 1 ÷ 1.10) = $3,636.36; beginning $46,363.64; Wealth generated $3,636; Return +10.00%. Before: Wealth generated —, Return —, no walk, and \"The beginning can't be worked back: Treasury 2031 has no price history.\"",
+   "means": "Said in chat on 2026-10-13. It replaces part (2) of DEC-3656 (2026-10-09), which refused the whole beginning, wealth generated and walk when any holding had no price history. Part (1) of DEC-3656 (a CD gains by its stated rate) stands. Where the daily record DOES reach back, Return stays the measured time-weighted return of the accounts (DEC-4439); this changes nothing there. Wording: his sentence with the holding's name in place of \"treasury\"; \"Wealth Generated\" is written \"Wealth generated\" (the label on screen, one term per concept); \"does\" becomes \"do\" (two things named); \"as no price history available\" becomes \", as it has no price history\" (a verb was missing; has/have from the one plural list). Several holdings: \"Wealth generated and Return do not include the gains of Treasury 2031 and Muni 2029, as they have no price history.\" The Performance tab's all-accounts windows that the record cannot reach stay greyed as Performance v17 draws them, and Home's month figure keeps matching them.",
+   "governs": "MK-NW-O-008 thePerformance · MK-NW-F-130 notIncludedSentence (was cannotWorkBackSentence) · MK-NW-F-091 pricedGainOf · knownHoldingsReturn · MK-PF-M-002 · MK-PF-M-014 · MK-PF-M-016 · MK-PF-M-013",
+   "changed": "Built and tested 2026-10-13: thePerformance always draws the worked-back walk from the gains it knows; a holding with no price history adds $0 and is named in notIncluded; Return in that case = knownHoldingsReturn (holdings with a window return, and CDs by their rate). The account page and each account's card on the Performance tab print the sentence below the summary; the worked-back note now reads \"… so the beginning is worked back from today's values and each holding's price history.\"",
+   "apply_steps": "1. thePerformance: in the worked-back case keep the walk; a holding whose gain is unknown adds $0; set notIncluded to the sentence naming it. 2. knownHoldingsReturn: Σ values now ÷ Σ start values − 1 over the holdings with a window return (a CD by its rate); that is Return in the worked-back case, null when none qualifies. 3. notIncludedSentence replaces cannotWorkBackSentence (has/have from the plural list). 4. Account page and each account's card on the Performance tab print the sentence; the worked-back note is reworded. 5. Outside cases that pinned the refusal are moved with SETTLED notes. 6. Function rules re-read, standard, Changelog row, READ THIS FIRST row on Performance v17.",
+   "proof": "MoneyKeel/functions/networth-and-performance/dec_worked_back_known_holdings.test.ts · src/screens/__tests__/dec_worked_back_known_holdings.test.tsx",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md",
+   "supersedes": "Replaces DEC-3656b (part 2 of DEC-3656)",
+   "not_a_repeat_of": "DEC-3656 — its part (1), a CD gains by its stated rate, stands and is used here; its part (2) is the one replaced. DEC-3035i — a record that EXISTS but begins too late still shows no walk; unchanged. DEC-4644 — a holding's return already holds its dividends once; used here. DEC-4439 and DEC-1669 — where the record reaches back, Return is the measured time-weighted return; unchanged. DEC-0357 — that one made a label agree with the figure beneath it; this one says which holdings Wealth generated and Return cover where the beginning is worked back."
+  },
+  {
+   "decided": "2026-10-13",
+   "answers": [],
+   "tab": "performance",
+   "type": "COPY",
+   "status": "TESTED",
+   "screens": "/invest (Performance tab, the all-accounts walk) · /account-detail (the account page's walk)",
+   "his_words": "HOW $38,000 BECAME $52,704 · ALL ACCOUNTS - this is the title. Not - \"How xxx stands. ALl Accounts\"",
+   "subject": "The walk card's title is always \"HOW $<beginning> BECAME $<ending> · ALL ACCOUNTS\" (\"· THIS ACCOUNT\" on an account's page), day one included; \"HOW TODAY'S VALUE STANDS\" is retired",
+   "plain": "The card that shows how the beginning became the ending is always titled \"HOW $<beginning> BECAME $<ending> · ALL ACCOUNTS\" on the Performance tab, and \"HOW $<beginning> BECAME $<ending> · THIS ACCOUNT\" on an account's own page, as Performance v17 frame 2 draws it. On day one the two figures are the same: \"HOW $354,314 BECAME $354,314 · ALL ACCOUNTS\". Before: on day one the title read \"HOW TODAY'S VALUE STANDS · ALL ACCOUNTS\" (and \"HOW TODAY'S VALUE STANDS\" on the account page), and the account page's title had no \"· THIS ACCOUNT\".",
+   "means": "Said in chat on 2026-10-13, reading the day-one walk. Performance v17's day-one phones draw \"HOW TODAY'S VALUE STANDS · ALL ACCOUNTS\"; this ruling is newer than that drawing, so it is the design, recorded in the drawing's READ THIS FIRST note. Where no walk can be drawn (a record that begins after the window opens, DEC-3035i) there is no beginning to name, and the card is titled \"ALL ACCOUNTS\" with the ending beside it.",
+   "governs": "MK-PF-M-003 the walk's title · src/screens/PerformanceScreen.tsx · src/screens/AccountPortfolioScreen.tsx",
+   "changed": "Built and tested 2026-10-13: both screens title the walk \"HOW $<beginning> BECAME $<ending> · ALL ACCOUNTS\" / \"· THIS ACCOUNT\" in every state, day one included; the old title is gone from the code and from every test.",
+   "apply_steps": "1. PerformanceScreen: the walk card's title is HOW … BECAME … · ALL ACCOUNTS whenever a walk exists, day one included. 2. AccountPortfolioScreen: HOW … BECAME … · THIS ACCOUNT, day one included. 3. Tests that expected the old title moved to the new one. 4. READ THIS FIRST row on Performance v17 and on Ways to add an account v10 (it draws the same day-one card). 5. Changelog row.",
+   "proof": "src/screens/__tests__/dec3656_beginning_worked_back.test.tsx · src/__tests__/founder_2026_08_11.test.tsx · src/screens/__tests__/account_detail_v14.test.tsx",
+   "not_a_repeat_of": "DEC-5068 — that one says which figures the walk shows where the beginning is worked back; this one says only what the walk card is titled."
   }
  ]
 }

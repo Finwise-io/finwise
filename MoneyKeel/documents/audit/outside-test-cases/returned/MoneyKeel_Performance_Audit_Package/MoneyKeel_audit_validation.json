@@ -1,0 +1,49 @@
+{
+  "scope": "Independent specification and arithmetic audit; not execution of app code",
+  "card_count": 51,
+  "case_count": 250,
+  "formula_verdicts": {
+    "WRONG": 16,
+    "INCOMPLETE": 18,
+    "CANNOT TELL": 1,
+    "RIGHT": 16
+  },
+  "parts": {
+    "1": {
+      "checks": 13,
+      "cases": 60
+    },
+    "2": {
+      "checks": 13,
+      "cases": 65
+    },
+    "3": {
+      "checks": 13,
+      "cases": 65
+    },
+    "4": {
+      "checks": 12,
+      "cases": 60
+    }
+  },
+  "rule_count": 49,
+  "rule_verdicts": {
+    "NOT HELD": 7,
+    "CANNOT TELL": 39,
+    "HELD": 3
+  },
+  "screen_figures": 53,
+  "screen_checks": 424,
+  "screen_fail_figures": 40,
+  "ready_to_close": false,
+  "validation": {
+    "json_parses": true,
+    "all_51_ids_exactly_once": true,
+    "five_cases_per_testable_card": true,
+    "two_easy_two_complex_one_edge": true,
+    "wrong_incomplete_have_disagreement_witness": true,
+    "full_precision_display_fields_checked": true,
+    "independent_decimal_arithmetic_spot_checks": 22,
+    "app_code_executed": false
+  }
+}

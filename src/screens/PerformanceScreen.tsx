@@ -157,7 +157,8 @@ export default function PerformanceScreen() {
     const priced = p === period ? rows : holdingRowsFor(p);
     const answer = thePerformance({
       windowStart, windowLabel: phraseFor(p), today: todayKey,
-      // the holdings themselves: the door decides each one's gain over this window (DEC-3656, 2026-10-09)
+      // the holdings themselves: the door decides each one's gain over this window (DEC-3656, 2026-10-09), and the
+      // return of those with a price history where the beginning is worked back (DEC-5068, 2026-10-13)
       holdings: priced as any,
       transactions: (store.transactions ?? []) as any[],
       snapshotDays: (store as any).snapshotDays ?? [],
@@ -292,7 +293,8 @@ export default function PerformanceScreen() {
       <WindowSelector windows={WINDOWS} chosen={period as string} figures={windowFigures} onPick={(k) => setPeriod(k as Period)} />
       {/* founder ruling 2026-08-18: the 2Y figure is a yearly rate, so it sits fairly beside 1Y — and
           the screen says so under the control (mock v14 mark 15), wherever 2Y has a figure to show */}
-      {windowFigures['2Y']?.perYear != null && (
+      {/* only where the record reaches back over 2Y: a window it cannot reach is greyed, its figure unprinted (DEC-5068) */}
+      {windowFigures['2Y']?.perYear != null && windowFigures['2Y']?.covered && (
         <Text style={styles.coverageLine}>2Y is shown per year, so it sits fairly beside 1Y</Text>
       )}
 
@@ -340,6 +342,8 @@ export default function PerformanceScreen() {
             { term: 'moneyAddedIsNotReturn', text: 'time-weighted, so money you added never counts as return' },
           ]} />
         )}
+        {/* below the summary, the holding left out of Wealth generated and Return (DEC-5068, 2026-10-13) */}
+        {!dayOne && !!now.notIncluded && <Text style={styles.sumNote}>{now.notIncluded}</Text>}
         {/* WHERE THE HISTORY CAME FROM (mock v14 mark 13): a rebuilt line names its source and first day */}
         {/* drawn at the row size, 13 (v17 phone 3, .emptynote) — it was an 11-point footnote */}
         {!!rebuilt && !dayOne && <Note term="rebuiltHistory" size={13}>↺ {rebuilt.sentence}</Note>}
@@ -355,8 +359,11 @@ export default function PerformanceScreen() {
 
       {/* THE WALK — how the beginning became the ending, every account together */}
       <View style={styles.card}>
-        {dayOne || walk == null
-          ? <SectionBand inCard gutter={GUTTER} title="HOW TODAY'S VALUE STANDS · ALL ACCOUNTS" value={fig('MK-PF-M-001', now.ending)} />
+        {/* ONE TITLE IN EVERY STATE, day one included (DEC-5136, 2026-10-13, his words: "HOW $38,000 BECAME $52,704 ·
+            ALL ACCOUNTS - this is the title. Not - "How xxx stands. ALl Accounts""). Day one reads "HOW $354,314 BECAME
+            $354,314 · ALL ACCOUNTS". With no walk (a record that begins too late) there is no beginning to name. */}
+        {walk == null
+          ? <SectionBand inCard gutter={GUTTER} title="ALL ACCOUNTS" value={fig('MK-PF-M-001', now.ending)} />
           : <SectionBand inCard gutter={GUTTER} title={figWords('MK-PF-M-003', `HOW ${fig('MK-PF-M-018', walk.beginning)} BECAME ${fig('MK-PF-M-001', walk.ending)} · ALL ACCOUNTS`)} />}
         {walk == null
           ? <Text style={styles.sumNote}>{now.sentence}</Text>
@@ -379,7 +386,8 @@ export default function PerformanceScreen() {
           const id = String(acct.asset_id);
           const label = names.get(acct.asset_id) ?? acct.label ?? 'Account';
           // this account's own holdings: the door decides their gain, and an account with no positions counts as its
-          // own instrument — a CD by its rate, anything else unknown and named (DEC-3656, 2026-10-09)
+          // own instrument — a CD by its rate (DEC-3656, 2026-10-09), anything else left out of Wealth generated and
+          // Return and named below them (DEC-5068, 2026-10-13)
           const held = (rows as any[]).filter((r) => owned.find((x) => x.p.position_id === r.position.position_id)?.accountId === acct.asset_id);
           const one = thePerformance({
             windowStart: now.windowStart, windowLabel: phraseFor(period), today: todayKey,
@@ -411,9 +419,13 @@ export default function PerformanceScreen() {
               </TouchableOpacity>
               {!isOpen ? (
                 /* closed: where its numbers come from, what it made, and its return — one quiet line */
-                <Text style={styles.sumNote}>
-                  {src.icon} {src.text}{w ? ` · wealth generated ${w.wealthGenerated < 0 ? '−' : ''}${fig('MK-PF-M-014', Math.abs(w.wealthGenerated))}` : ''}{oneReturn ? ` · return ${oneReturn}` : ''}
-                </Text>
+                <>
+                  <Text style={styles.sumNote}>
+                    {src.icon} {src.text}{w ? ` · wealth generated ${w.wealthGenerated < 0 ? '−' : ''}${fig('MK-PF-M-014', Math.abs(w.wealthGenerated))}` : ''}{oneReturn ? ` · return ${oneReturn}` : ''}
+                  </Text>
+                  {/* below the figures it qualifies: the holding left out of them (DEC-5068, 2026-10-13) */}
+                  {!dayOne && !!one.notIncluded && <Text style={styles.sumNote}>{one.notIncluded}</Text>}
+                </>
               ) : (
                 <>
                   <View style={styles.walkChip}><SourceChip account={acct} /></View>
@@ -428,6 +440,8 @@ export default function PerformanceScreen() {
                         <Text style={[styles.walkV, { color: oneReturn == null ? Colors.textTertiary : (one.ret ?? 0) >= 0 ? Colors.gainText : Colors.red }]}>{oneReturn ?? '—'}</Text>
                         <View testID="right-gutter" style={styles.gutter} />
                       </View>
+                      {/* below Wealth generated and Return: the holding left out of both (DEC-5068, 2026-10-13) */}
+                      {!!one.notIncluded && <Text style={styles.sumNote}>{one.notIncluded}</Text>}
                       {/* printed because both taps are real: the arrow collapses, the name opens the account */}
                       <Text style={styles.sumNote}>Tap ▾ to collapse · tap the name to open this account's portfolio ›</Text>
                     </>
@@ -785,12 +799,14 @@ function WindowSelector({ windows, chosen, figures, onPick }: {
         // This is where the yearly rate lives; the summary trio prints the plain percent so its three
         // cells fit one row. A window whose return cannot be measured shows an em-dash — nothing stands
         // in for a time-weighted return (owner, 2026-10-04; mark 16's stand-in rate is gone).
-        const ret = figures[w.key]?.ret ?? null;
-        const perYear = figures[w.key]?.perYear != null;
         // A WINDOW THE RECORD CANNOT COVER IS GREYED TO AN EM-DASH AND CANNOT BE PICKED (v17: "the
         // screen states nothing rather than a guess"). Picking it would open a walk whose beginning
-        // nobody recorded.
+        // nobody recorded. Since DEC-5068 (2026-10-13) the door gives such a window the return of the holdings
+        // with a price history; across every account together the window stays greyed as v17 draws it, so its
+        // figure is not printed on a chip that cannot be opened to the sentence that qualifies it.
         const uncovered = figures[w.key]?.covered === false && !on;
+        const ret = uncovered ? null : figures[w.key]?.ret ?? null;
+        const perYear = !uncovered && figures[w.key]?.perYear != null;
         const divider = i > 0 && !on && chosen !== windows[i - 1].key;
         return (
           <React.Fragment key={w.key}>

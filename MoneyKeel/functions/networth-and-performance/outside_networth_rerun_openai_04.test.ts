@@ -98,12 +98,12 @@ const sourceSlice = (file: string, start: string, end: string) => {
 };
 // plural is handed in too since 2026-10-13: the sentence's has / have comes from the one list (MK-NW-F-130)
 const perf = new Function('windowTotal', 'totalShares', 'contractMultiplier', 'plural',
-  `${sourceSlice('performance.ts', 'function gainOfRow(', '/** MK-NW-F-092 ')}\nreturn { gainOfRow, heldValueOf, gainRowName, cannotWorkBackSentence };`,
+  `${sourceSlice('performance.ts', 'function gainOfRow(', '/** MK-NW-F-092 ')}\nreturn { gainOfRow, heldValueOf, gainRowName, notIncludedSentence };`,
 )(windowTotal, totalShares, contractMultiplier, plural);
 const gainOfRow: (r: any, years: number) => number | null = perf.gainOfRow;
 const heldValueOf: (r: any) => number | null = perf.heldValueOf;
 const gainRowName: (r: any) => string = perf.gainRowName;
-const cannotWorkBackSentence: (names: string[]) => string = perf.cannotWorkBackSentence;
+const notIncludedSentence: (names: string[]) => string = perf.notIncludedSentence;
 const valueEntered: (a: any) => boolean = new Function(
   `${sourceSlice('../../../src/domain/assets/index.ts', 'const valueEntered = ', '\n/** (DEC-4036j')}\nreturn valueEntered;`)();
 
@@ -411,28 +411,31 @@ describe('MK-NW-F-129 gainRowName — five cases', () => {
   test('edge · No name and no ticker', () => { expect(gainRowName({ position: {} })).toBe('a holding'); expect(gainRowName({})).toBe('a holding'); });
 });
 
-describe('MK-NW-F-130 cannotWorkBackSentence — five cases', () => {
+// SETTLED 2026-10-13 by DEC-5068: the sentence these cases pinned ("The beginning can't be worked back: … has no price
+// history.") is replaced by his: "Wealth generated and Return do not include <name>'s gains, as it has no price history."
+// Each case keeps its names, its de-duplication and its has / have; only the words around the names moved.
+describe('MK-NW-F-130 notIncludedSentence — five cases', () => {
   test('easy · Single name uses has', () => {
-    expect(cannotWorkBackSentence(['Treasury 2030'])).toBe("The beginning can't be worked back: Treasury 2030 has no price history.");
+    expect(notIncludedSentence(['Treasury 2030'])).toBe("Wealth generated and Return do not include Treasury 2030's gains, as it has no price history.");
   });
   test('easy · No names uses generic holding', () => {
-    expect(cannotWorkBackSentence([])).toBe("The beginning can't be worked back: a holding has no price history.");
+    expect(notIncludedSentence([])).toBe("Wealth generated and Return do not include a holding's gains, as it has no price history.");
   });
   test('complex · Deduplicate names and join three with Oxford-style and', () => {
-    expect(cannotWorkBackSentence(['Apple', 'Treasury', 'Apple', 'Gold'])).toBe("The beginning can't be worked back: Apple, Treasury and Gold have no price history.");
+    expect(notIncludedSentence(['Apple', 'Treasury', 'Apple', 'Gold'])).toBe("Wealth generated and Return do not include the gains of Apple, Treasury and Gold, as they have no price history.");
   });
   test('complex · Duplicate only yields singular grammar', () => {
-    expect(cannotWorkBackSentence(['ETF', 'ETF'])).toBe("The beginning can't be worked back: ETF has no price history.");
+    expect(notIncludedSentence(['ETF', 'ETF'])).toBe("Wealth generated and Return do not include ETF's gains, as it has no price history.");
   });
   // SETTLED 2026-10-13: a blank name was kept as a name — "…worked back:  and Treasury have no price history." Blank names
   // are dropped and duplicates named once, then has / have comes from the one list (the card: "Each name is listed once";
   // tenet 8, plain words). Names all blank are no names: "a holding" — the one caller asks only when a gain is unknown.
   test('edge · Whitespace/name handling must not produce duplicate blanks', () => {
-    expect(cannotWorkBackSentence(['', 'Treasury', 'Treasury'])).toBe("The beginning can't be worked back: Treasury has no price history.");
+    expect(notIncludedSentence(['', 'Treasury', 'Treasury'])).toBe("Wealth generated and Return do not include Treasury's gains, as it has no price history.");
   });
   test('edge · Whitespace/name handling — names all blank read as no name, and spaces round a name are not a second name', () => {
-    expect(cannotWorkBackSentence(['', '  '])).toBe("The beginning can't be worked back: a holding has no price history.");
-    expect(cannotWorkBackSentence([' Apple', 'Apple ', '', 'Gold'])).toBe("The beginning can't be worked back: Apple and Gold have no price history.");
+    expect(notIncludedSentence(['', '  '])).toBe("Wealth generated and Return do not include a holding's gains, as it has no price history.");
+    expect(notIncludedSentence([' Apple', 'Apple ', '', 'Gold'])).toBe("Wealth generated and Return do not include the gains of Apple and Gold, as they have no price history.");
     expect(gainRowName({ name: '', position: { ticker: '', name: '' } })).toBe('a holding');
   });
 });
@@ -889,13 +892,16 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
     expect(p.ret!).toBeCloseTo(0, 9);
     expect(p.walk!.wealthGenerated).toBeCloseTo(0, 9);
   });
-  test('complex · Unknown gain for unpriced holding refuses worked-back beginning', () => {
+  // SETTLED 2026-10-13 by DEC-5068 (replaces DEC-3656 part 2): the worked-back beginning is no longer refused. XYZ has no
+  // price history, so it adds no gain — its $12,000 is taken as unchanged — the walk stands at $12,000 → $12,000, and
+  // the sentence names it. No holding has a history, so there is no return (it is never counted at 0%).
+  test('complex · Unknown gain for unpriced holding is left out of the worked-back beginning, and named', () => {
     const p = run({ windowStart: '2026-09-01', accounts: [acct({ asset_id: 'a', label: 'Brokerage', asset_class: 'stocks_etf', balance: 12000,
       positions: [{ position_id: 'x', ticker: 'XYZ', last_price: null, lots: [{ shares: 100, cost_per_share: 120, purchase_date: '2026-01-01' }] }] })],
       holdings: [{ position: { ticker: 'XYZ', lots: [{ shares: 100 }] }, marketValue: 12000, periodReturn: null }] });
     expect({ beginning: p.walk?.beginning ?? null, wealth_generated: p.walk?.wealthGenerated ?? null, return: p.ret })
-      .toEqual({ beginning: null, wealth_generated: null, return: null });
-    expect(p.cannotWorkBack).toBe("The beginning can't be worked back: XYZ has no price history.");
+      .toEqual({ beginning: 12000, wealth_generated: 0, return: null });
+    expect(p.notIncluded).toBe("Wealth generated and Return do not include XYZ's gains, as it has no price history.");
     expect(p.ending).toBe(12000);
   });
   // BRIEF WRONG on the gain, the beginning and the return. (1) The window opens 2025-10-13, so its beginning is the
@@ -916,8 +922,8 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
     expect(p.ending).toBe(10500);
     expect(p.walk!.wealthGenerated).toBeCloseTo(501.336627489947, 6);
     expect(p.walk!.beginning).toBeCloseTo(9998.663372510053, 6);
-    expect(p.ret).toBeNull();
-    expect(p.cannotWorkBack).toBe('');
+    expect(p.ret).toBeNull();          // no holdings handed over: the door is given no holding to take a return from
+    expect(p.notIncluded).toBe('');
     // 365 days (opening 2025-10-14): DEC-3656's own example, $500 gained and a $10,000 beginning
     const y = run({ windowStart: '2025-10-14', accounts: [cd()] });
     expect(y.walk!.wealthGenerated).toBeCloseTo(500, 6);

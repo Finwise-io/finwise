@@ -599,11 +599,6 @@
   "file": "src/services/notifications.ts",
   "category": "1 · ACTION"
  },
- "cannotWorkBackSentence": {
-  "id": "MK-NW-F-130",
-  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
-  "category": "3 · DEPENDENT"
- },
  "capGains": {
   "id": "MK-PF-F-006",
   "file": "src/domain/performance/index.ts",
@@ -1699,6 +1694,11 @@
   "file": "src/domain/income/limits.ts",
   "category": "2 · DISPLAYED"
  },
+ "knownHoldingsReturn": {
+  "id": "MK-NW-F-138",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "3 · DEPENDENT"
+ },
  "latestClose": {
   "id": "MK-PF-F-009",
   "file": "src/domain/performance/index.ts",
@@ -2112,6 +2112,11 @@
  "notClassifiedWords": {
   "id": "MK-NW-F-132",
   "file": "MoneyKeel/functions/networth-and-performance/alternatives-outlook.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "notIncludedSentence": {
+  "id": "MK-NW-F-130",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
   "category": "3 · DEPENDENT"
  },
  "numOrNaN": {

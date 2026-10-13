@@ -1,0 +1,2103 @@
+{
+  "batch": "pf module final — part 3",
+  "written_by": "ChatGPT / Codex independent outside audit, 2026-10-13",
+  "ready_to_close": false,
+  "still_open": [
+    "MK-PF-F-015: Define aggregation by holding and tie order; state long-only scope or settle gross-versus-net exposure for shorts.",
+    "MK-PF-F-020: Require a common covered span and authentic start weights; for flows use an explicitly decided rebalanced comparator or refuse. Disclose excluded holdings and match scope to the user return.",
+    "MK-PF-F-022: Read valid points by date, bound the end to now, require nonnegative integer months and full requested coverage.",
+    "MK-PF-F-023: Label this a hypothetical lump-sum, distribution-reinvested comparison before personal taxes and trading costs; require full same-date coverage and finite positive amount.",
+    "MK-PF-F-028: Limit to valid transactions through today; state whether gains exclude costs and use distinct security identity for options; refuse missing basis rather than silently drop unknown lots.",
+    "MK-PF-F-031: Require finite positive multiplier for options; settle custom nonoption instruments explicitly and refuse invalid stated multipliers rather than quietly use 100.",
+    "MK-PF-F-033: Use finite quantity validation and the canonical approved unit/plural list; reject unsupported units.",
+    "MK-PF-F-034: Use isDay plus finite price validation and specify duplicate-date conflicts.",
+    "MK-PF-F-036: Require valid date and nonnegative integer months; settle impossible local times and use calendar-day arithmetic for financial day spans."
+  ],
+  "formula_checks": [
+    {
+      "id": "MK-PF-F-015",
+      "name": "topHoldingConcentration",
+      "verdict": "INCOMPLETE",
+      "why": "Signed short holdings can give over-100% concentration with a net denominator; tie-breaking and counting repeated same holding across accounts are unspecified.",
+      "should_be": "Define aggregation by holding and tie order; state long-only scope or settle gross-versus-net exposure for shorts.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-020",
+      "name": "portfolioBenchReturn",
+      "verdict": "WRONG",
+      "why": "End/(1+return) gives false start weights after share changes; different purchase-capped dates are blended into one market figure. Missing benchmarks silently produce a subset presented as the whole mix.",
+      "should_be": "Require a common covered span and authentic start weights; for flows use an explicitly decided rebalanced comparator or refuse. Disclose excluded holdings and match scope to the user return.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words; CFA Institute GIPS TWR definitions; IRS Topic409/Publication550 for tax classifications",
+      "severity": "high"
+    },
+    {
+      "id": "MK-PF-F-022",
+      "name": "factorOverMonths",
+      "verdict": "INCOMPLETE",
+      "why": "First price on record assumes ordering; latest price may be after now. Months sign/integer and duplicate records are unspecified.",
+      "should_be": "Read valid points by date, bound the end to now, require nonnegative integer months and full requested coverage.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-023",
+      "name": "lookBack",
+      "verdict": "INCOMPLETE",
+      "why": "A static amount counterfactual is described as what your actual money did; actual purchases/withdrawals, taxes, costs and reinvestment can differ.",
+      "should_be": "Label this a hypothetical lump-sum, distribution-reinvested comparison before personal taxes and trading costs; require full same-date coverage and finite positive amount.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": "high"
+    },
+    {
+      "id": "MK-PF-F-028",
+      "name": "realizedFromLedger",
+      "verdict": "INCOMPLETE",
+      "why": "No exclusion of future sales, no invalid-date rule, no specified fees/adjusted tax basis, and same ticker/account FIFO can conflate distinct option contracts.",
+      "should_be": "Limit to valid transactions through today; state whether gains exclude costs and use distinct security identity for options; refuse missing basis rather than silently drop unknown lots.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": "high"
+    },
+    {
+      "id": "MK-PF-F-029",
+      "name": "closeAsOf",
+      "verdict": "RIGHT",
+      "why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+      "should_be": "",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": ""
+    },
+    {
+      "id": "MK-PF-F-031",
+      "name": "contractMultiplier",
+      "verdict": "INCOMPLETE",
+      "why": "Above zero accepts Infinity; own multiplier is applied to nonoptions although purpose says everything else is 1.",
+      "should_be": "Require finite positive multiplier for options; settle custom nonoption instruments explicitly and refuse invalid stated multipliers rather than quietly use 100.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-032",
+      "name": "quantityUnit",
+      "verdict": "RIGHT",
+      "why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+      "should_be": "",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": ""
+    },
+    {
+      "id": "MK-PF-F-033",
+      "name": "quantityWithUnit",
+      "verdict": "INCOMPLETE",
+      "why": "Not a number does not explicitly reject Infinity; stripping final s is sound for the closed QuantityUnit enum, not arbitrary user words.",
+      "should_be": "Use finite quantity validation and the canonical approved unit/plural list; reject unsupported units.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": "low"
+    },
+    {
+      "id": "MK-PF-F-034",
+      "name": "closeOnOrBefore",
+      "verdict": "INCOMPLETE",
+      "why": "Year-month-day spelling does not explicitly require a real calendar day; conflicting same-day prices and nonfinite closes have no rule.",
+      "should_be": "Use isDay plus finite price validation and specify duplicate-date conflicts.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-035",
+      "name": "unknownFigure",
+      "verdict": "RIGHT",
+      "why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+      "should_be": "",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": ""
+    },
+    {
+      "id": "MK-PF-F-036",
+      "name": "monthsBefore",
+      "verdict": "INCOMPLETE",
+      "why": "Same time of day may not exist at a daylight-saving transition. Invalid date and fractional or negative month inputs are not specified.",
+      "should_be": "Require valid date and nonnegative integer months; settle impossible local times and use calendar-day arithmetic for financial day spans.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-PF-F-037",
+      "name": "dayBefore",
+      "verdict": "RIGHT",
+      "why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+      "should_be": "",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": ""
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-PF-F-023",
+      "name": "lookBack",
+      "kind": "easy",
+      "title": "Round positive counterfactual",
+      "given": "Round positive counterfactual",
+      "inputs": {
+        "amount": 10000,
+        "months": 12,
+        "from_prices": [
+          100,
+          110
+        ],
+        "to_prices": [
+          100,
+          120
+        ],
+        "full_coverage": true
+      },
+      "expected": {
+        "stayed_end": {
+          "exact": 11000,
+          "exact_decimal": "11000.000000000000",
+          "shown": "$11,000"
+        },
+        "stayed_change": {
+          "exact": 1000,
+          "exact_decimal": "1000.000000000000",
+          "shown": "$1,000"
+        },
+        "stayed_percent": {
+          "exact": 0.1,
+          "exact_decimal": "0.100000000000",
+          "shown": "+10.00%"
+        },
+        "moved_end": {
+          "exact": 12000,
+          "exact_decimal": "12000.000000000000",
+          "shown": "$12,000"
+        },
+        "moved_change": {
+          "exact": 2000,
+          "exact_decimal": "2000.000000000000",
+          "shown": "$2,000"
+        },
+        "moved_percent": {
+          "exact": 0.2,
+          "exact_decimal": "0.200000000000",
+          "shown": "+20.00%"
+        },
+        "difference": {
+          "exact": 1000,
+          "exact_decimal": "1000.000000000000",
+          "shown": "$1,000"
+        }
+      },
+      "working": [
+        "From factor=110/100=1.1; to=120/100=1.2.",
+        "10000×1.1=11000; ×1.2=12000; difference=1000."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-023",
+      "name": "lookBack",
+      "kind": "easy",
+      "title": "Alternative would lose more",
+      "given": "Alternative would lose more",
+      "inputs": {
+        "amount": 1000,
+        "months": 12,
+        "from_prices": [
+          100,
+          95
+        ],
+        "to_prices": [
+          100,
+          90
+        ],
+        "full_coverage": true
+      },
+      "expected": {
+        "stayed_end": {
+          "exact": 950,
+          "exact_decimal": "950.000000000000",
+          "shown": "$950"
+        },
+        "moved_end": {
+          "exact": 900,
+          "exact_decimal": "900.000000000000",
+          "shown": "$900"
+        },
+        "difference": {
+          "exact": -50,
+          "exact_decimal": "-50.000000000000",
+          "shown": "−$50"
+        }
+      },
+      "working": [
+        "Factors=.95 and.90; end950 and900; moved−stayed=−50."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-023",
+      "name": "lookBack",
+      "kind": "complex",
+      "title": "Realistic BND and VTI",
+      "given": "Realistic BND and VTI",
+      "inputs": {
+        "amount": 12345.67,
+        "months": 12,
+        "today": "2026-09-28",
+        "start": "2025-09-28",
+        "BND": [
+          72,
+          73.8
+        ],
+        "VTI": [
+          250,
+          290
+        ],
+        "prices_are_dividend_adjusted": true
+      },
+      "expected": {
+        "stayed_end": {
+          "exact": 12654.311749999999,
+          "exact_decimal": "12654.311749999999",
+          "shown": "$12,654"
+        },
+        "stayed_change": {
+          "exact": 308.64175,
+          "exact_decimal": "308.641750000000",
+          "shown": "$309"
+        },
+        "moved_end": {
+          "exact": 14320.9772,
+          "exact_decimal": "14320.977199999999",
+          "shown": "$14,321"
+        },
+        "moved_change": {
+          "exact": 1975.3072,
+          "exact_decimal": "1975.307200000000",
+          "shown": "$1,975"
+        },
+        "difference": {
+          "exact": 1666.6654500000002,
+          "exact_decimal": "1666.665450000000",
+          "shown": "$1,667"
+        }
+      },
+      "working": [
+        "73.8/72=1.025; 290/250=1.16.",
+        "Stayed=12654.31175; moved=14320.9772; difference=1666.66545.",
+        "Stayed end=amount+stayed change; moved end=amount+moved change; same result at both doors."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-023",
+      "name": "lookBack",
+      "kind": "complex",
+      "title": "Lump sum differs from actual cash-flow path",
+      "given": "Lump sum differs from actual cash-flow path",
+      "inputs": {
+        "amount": 2871.43,
+        "months": 3,
+        "from_prices": [
+          83.27,
+          85.91
+        ],
+        "to_prices": [
+          191.73,
+          187.26
+        ],
+        "full_coverage": true,
+        "actual_addition_inside_window": 319.17
+      },
+      "expected": {
+        "hypothetical_stayed": {
+          "exact": 2962.466089828269,
+          "exact_decimal": "2962.466089828269",
+          "shown": "$2,962"
+        },
+        "hypothetical_moved": {
+          "exact": 2804.4853794398373,
+          "exact_decimal": "2804.485379439837",
+          "shown": "$2,804"
+        },
+        "difference": {
+          "exact": -157.98071038843207,
+          "exact_decimal": "-157.980710388432",
+          "shown": "−$158"
+        },
+        "actual_money_path": "REFUSES"
+      },
+      "working": [
+        "Stayed=2871.43×85.91/83.27; moved=2871.43×187.26/191.73.",
+        "Actual319.17 added requires its date and purchase price, absent here."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "Return the numerical hypothetical, but correct the actual-money claim.",
+      "formula_gives": {
+        "actual_caption": "What your money actually did"
+      }
+    },
+    {
+      "id": "MK-PF-F-023",
+      "name": "lookBack",
+      "kind": "edge",
+      "title": "One fund has no full-window history",
+      "given": "One fund has no full-window history",
+      "inputs": {
+        "amount": 10000,
+        "months": 12,
+        "today": "2026-09-30",
+        "from_first": "2025-09-30",
+        "to_first": "2026-01-01"
+      },
+      "expected": "REFUSES",
+      "working": [
+        "The other record begins after cutoff; cannot give a same-period difference."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-036",
+      "name": "monthsBefore",
+      "kind": "easy",
+      "title": "Ordinary month back",
+      "given": "Ordinary month back",
+      "inputs": {
+        "now": "2026-10-13T15:17:19",
+        "months": 1,
+        "period": "1M"
+      },
+      "expected": "2026-09-13T15:17:19",
+      "working": [
+        "October13 minus1 month=September13; preserve clock time."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-036",
+      "name": "monthsBefore",
+      "kind": "easy",
+      "title": "Across year end",
+      "given": "Across year end",
+      "inputs": {
+        "now": "2026-01-15T09:00:00",
+        "months": 3,
+        "period": "3M"
+      },
+      "expected": "2025-10-15T09:00:00",
+      "working": [
+        "January minus3 months=October previous year."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-036",
+      "name": "monthsBefore",
+      "kind": "complex",
+      "title": "Three-month clamp",
+      "given": "Three-month clamp",
+      "inputs": {
+        "now": "2026-05-31T16:23:41",
+        "months": 3,
+        "period": "3M"
+      },
+      "expected": "2026-02-28T16:23:41",
+      "working": [
+        "Target February2026 has28 days, not31; clamp."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-036",
+      "name": "monthsBefore",
+      "kind": "complex",
+      "title": "Leap-year annual clamp",
+      "given": "Leap-year annual clamp",
+      "inputs": {
+        "now": "2024-02-29T17:43:29",
+        "months": 12,
+        "period": "1Y"
+      },
+      "expected": "2023-02-28T17:43:29",
+      "working": [
+        "Prior February has28 days; DEC-3768b."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-036",
+      "name": "monthsBefore",
+      "kind": "edge",
+      "title": "Fractional months have no calendar definition",
+      "given": "Fractional months have no calendar definition",
+      "inputs": {
+        "now": "2026-10-13",
+        "period": "5Y",
+        "months": 1.5
+      },
+      "expected": "REFUSES",
+      "working": [
+        "1.5 months has no settled calendar-day meaning."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": "RULE UNCLEAR: month argument validation unstated"
+    },
+    {
+      "id": "MK-PF-F-015",
+      "name": "topHoldingConcentration",
+      "kind": "easy",
+      "title": "Two equal holdings",
+      "given": "Two equal holdings",
+      "inputs": {
+        "rows": [
+          {
+            "ticker": "A",
+            "value": 1000
+          },
+          {
+            "ticker": "B",
+            "value": 1000
+          }
+        ]
+      },
+      "expected": "RULE UNCLEAR",
+      "working": [
+        "Total2000; either largest has50%; tie ticker selection not stated."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "medium",
+      "notes": "Value and share are settled; deterministic tie identity is not.",
+      "formula_gives": {
+        "possible_results": [
+          {
+            "ticker": "A",
+            "pct": 50,
+            "value": 1000
+          },
+          {
+            "ticker": "B",
+            "pct": 50,
+            "value": 1000
+          }
+        ]
+      }
+    },
+    {
+      "id": "MK-PF-F-015",
+      "name": "topHoldingConcentration",
+      "kind": "easy",
+      "title": "One holding has no concentration card",
+      "given": "One holding has no concentration card",
+      "inputs": {
+        "rows": [
+          {
+            "ticker": "A",
+            "value": 1000
+          }
+        ]
+      },
+      "expected": null,
+      "working": [
+        "Fewer than2 holdings => no card."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-015",
+      "name": "topHoldingConcentration",
+      "kind": "complex",
+      "title": "Unround largest across three holdings",
+      "given": "Unround largest across three holdings",
+      "inputs": {
+        "rows": [
+          {
+            "ticker": "A",
+            "value": 12345.67
+          },
+          {
+            "ticker": "B",
+            "value": 4567.89
+          },
+          {
+            "ticker": "C",
+            "value": 3210.98
+          }
+        ]
+      },
+      "expected": {
+        "ticker": "A",
+        "value": {
+          "exact": 12345.67,
+          "exact_decimal": "12345.670000000000",
+          "shown": "$12,346"
+        },
+        "unrounded_share": {
+          "exact": 0.6134634630158006,
+          "exact_decimal": "0.613463463016",
+          "shown": "+61.35%"
+        },
+        "pct": {
+          "exact": 61,
+          "exact_decimal": "61.000000000000",
+          "shown": "61.0000"
+        }
+      },
+      "working": [
+        "Total12345.67+4567.89+3210.98=20124.54.",
+        "A share12345.67/20124.54≈61.346%; wholepct61."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-015",
+      "name": "topHoldingConcentration",
+      "kind": "complex",
+      "title": "Signed positions give impossible net concentration",
+      "given": "Signed positions give impossible net concentration",
+      "inputs": {
+        "rows": [
+          {
+            "ticker": "A",
+            "value": 12345.67
+          },
+          {
+            "ticker": "B",
+            "value": -4567.89
+          },
+          {
+            "ticker": "C",
+            "value": 3210.98
+          }
+        ]
+      },
+      "expected": "RULE UNCLEAR",
+      "working": [
+        "Net10988.76; A/net=112.348163032044%.",
+        "Gross20124.54; A/gross=61.346346301580%.",
+        "Long-only denominator15556.65; A/long=79.359437925260%."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "medium",
+      "notes": "Short exposure denominator needs owner rule; do not choose silently.",
+      "formula_gives": {
+        "net_pct": 112
+      }
+    },
+    {
+      "id": "MK-PF-F-015",
+      "name": "topHoldingConcentration",
+      "kind": "edge",
+      "title": "Exactly 25% threshold",
+      "given": "Exactly 25% threshold",
+      "inputs": {
+        "rows": [
+          {
+            "ticker": "A",
+            "value": 1000
+          },
+          {
+            "ticker": "B",
+            "value": 1000
+          },
+          {
+            "ticker": "C",
+            "value": 1000
+          },
+          {
+            "ticker": "D",
+            "value": 1000
+          }
+        ]
+      },
+      "expected": "RULE UNCLEAR",
+      "working": [
+        "Total4000; each share.25;25% threshold includes equality.",
+        "Any A/B/C/D is eligible largest; tie choice requires a rule."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "medium",
+      "notes": "Threshold held; tie missing.",
+      "formula_gives": {
+        "possible_tickers": [
+          "A",
+          "B",
+          "C",
+          "D"
+        ],
+        "pct": 25,
+        "value": 1000
+      }
+    },
+    {
+      "id": "MK-PF-F-020",
+      "name": "portfolioBenchReturn",
+      "kind": "easy",
+      "title": "Same starting weights",
+      "given": "Same starting weights",
+      "inputs": {
+        "rows": [
+          {
+            "value": 40000,
+            "periodTotal": 0,
+            "benchTotal": 0.1
+          },
+          {
+            "value": 10000,
+            "periodTotal": 0,
+            "benchTotal": 0.04
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0.088,
+        "exact_decimal": "0.088000000000",
+        "shown": "+8.80%"
+      },
+      "working": [
+        "Start weights40000 and10000; weighted(4000+400)/50000=.088."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-020",
+      "name": "portfolioBenchReturn",
+      "kind": "easy",
+      "title": "Own growth does not increase benchmark weight",
+      "given": "Own growth does not increase benchmark weight",
+      "inputs": {
+        "rows": [
+          {
+            "value": 44000,
+            "periodTotal": 0.1,
+            "benchTotal": 0.1
+          },
+          {
+            "value": 10000,
+            "periodTotal": 0,
+            "benchTotal": 0.04
+          }
+        ]
+      },
+      "expected": {
+        "exact": 0.088,
+        "exact_decimal": "0.088000000000",
+        "shown": "+8.80%"
+      },
+      "working": [
+        "44000/1.1=40000;10000/1=10000; benchmark=.088."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-020",
+      "name": "portfolioBenchReturn",
+      "kind": "complex",
+      "title": "Different capped periods cannot be one window",
+      "given": "Different capped periods cannot be one window",
+      "inputs": {
+        "rows": [
+          {
+            "value": 12345.67,
+            "periodTotal": 0.0831,
+            "benchTotal": 0.0731,
+            "span": [
+              "2025-10-13",
+              "2026-10-13"
+            ]
+          },
+          {
+            "value": 4567.89,
+            "periodTotal": 0.0273,
+            "benchTotal": 0.0157,
+            "span": [
+              "2026-07-19",
+              "2026-10-13"
+            ]
+          }
+        ]
+      },
+      "expected": "REFUSES",
+      "working": [
+        "A full-year benchmark and B three-month benchmark are unlike spans; one whole-window market return cannot blend them."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": {
+        "exact": 0.0569920923601018,
+        "exact_decimal": "0.056992092360",
+        "shown": "+5.70%"
+      }
+    },
+    {
+      "id": "MK-PF-F-020",
+      "name": "portfolioBenchReturn",
+      "kind": "complex",
+      "title": "Authentic beginning weights with share addition",
+      "given": "Authentic beginning weights with share addition",
+      "inputs": {
+        "rows": [
+          {
+            "start_actual": 1000,
+            "end": 2420,
+            "own_total": 0.21,
+            "bench_total": 0.1,
+            "new_purchase": 1100
+          },
+          {
+            "start_actual": 2000,
+            "end": 2000,
+            "own_total": 0,
+            "bench_total": 0.04,
+            "new_purchase": 0
+          }
+        ]
+      },
+      "expected": {
+        "static_beginning_mix_benchmark": {
+          "exact": 0.06,
+          "exact_decimal": "0.060000000000",
+          "shown": "+6.00%"
+        },
+        "flow_adjusted_benchmark": "RULE UNCLEAR"
+      },
+      "working": [
+        "Beginning weights1000 and2000: (1000×.10+2000×.04)/3000=.06.",
+        "Formula synthetic weights2420/1.21=2000 and2000; result.07.",
+        "How comparator incorporates new1100 is not settled."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "medium",
+      "notes": "No incorrect synthetic weight is accepted; comparator with flows needs an owner decision.",
+      "formula_gives": {
+        "exact": 0.07,
+        "exact_decimal": "0.070000000000",
+        "shown": "+7.00%"
+      }
+    },
+    {
+      "id": "MK-PF-F-020",
+      "name": "portfolioBenchReturn",
+      "kind": "edge",
+      "title": "Missing comparator in one holding",
+      "given": "Missing comparator in one holding",
+      "inputs": {
+        "rows": [
+          {
+            "value": 1100,
+            "periodTotal": 0.1,
+            "benchTotal": 0.05
+          },
+          {
+            "value": 2300,
+            "periodTotal": 0.15,
+            "benchTotal": null
+          }
+        ]
+      },
+      "expected": "REFUSES",
+      "working": [
+        "Whole mix comparator missing for second holding; may separately label covered subset."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": {
+        "exact": 0.05,
+        "exact_decimal": "0.050000000000",
+        "shown": "+5.00%"
+      }
+    },
+    {
+      "id": "MK-PF-F-022",
+      "name": "factorOverMonths",
+      "kind": "easy",
+      "title": "Full trailing year",
+      "given": "Full trailing year",
+      "inputs": {
+        "now": "2026-09-30",
+        "months": 12,
+        "points": [
+          [
+            "2025-09-30",
+            100
+          ],
+          [
+            "2026-09-30",
+            110
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 1.1,
+        "exact_decimal": "1.100000000000",
+        "shown": "1.1000"
+      },
+      "working": [
+        "Cutoff2025-09-30; factor110/100=1.1."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-022",
+      "name": "factorOverMonths",
+      "kind": "easy",
+      "title": "Short history refuses",
+      "given": "Short history refuses",
+      "inputs": {
+        "now": "2026-09-30",
+        "months": 12,
+        "points": [
+          [
+            "2026-01-01",
+            100
+          ],
+          [
+            "2026-09-30",
+            110
+          ]
+        ]
+      },
+      "expected": "REFUSES",
+      "working": [
+        "First record after cutoff => cannot cover whole window."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-022",
+      "name": "factorOverMonths",
+      "kind": "complex",
+      "title": "Unsorted record still covers",
+      "given": "Unsorted record still covers",
+      "inputs": {
+        "now": "2026-09-30",
+        "months": 12,
+        "points": [
+          [
+            "2026-09-30",
+            97.31
+          ],
+          [
+            "2025-09-29",
+            83.17
+          ],
+          [
+            "2026-05-19",
+            91.43
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 1.1700132259228087,
+        "exact_decimal": "1.170013225923",
+        "shown": "1.1700"
+      },
+      "working": [
+        "Chronological first2025-09-29 is before cutoff; factor97.31/83.17."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": "RULE UNCLEAR: ordered-series precondition unstated"
+    },
+    {
+      "id": "MK-PF-F-022",
+      "name": "factorOverMonths",
+      "kind": "complex",
+      "title": "Leap month end and future point",
+      "given": "Leap month end and future point",
+      "inputs": {
+        "now": "2026-03-31",
+        "months": 1,
+        "points": [
+          [
+            "2026-02-27",
+            83.17
+          ],
+          [
+            "2026-02-28",
+            87.29
+          ],
+          [
+            "2026-03-31",
+            91.43
+          ],
+          [
+            "2026-04-01",
+            97.31
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 1.047428113185932,
+        "exact_decimal": "1.047428113186",
+        "shown": "1.0474"
+      },
+      "working": [
+        "Clamp cutoffFeb28; beginning87.29; end throughMar31 is91.43."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": {
+        "exact": 1.1147897811891396,
+        "exact_decimal": "1.114789781189",
+        "shown": "1.1148"
+      }
+    },
+    {
+      "id": "MK-PF-F-022",
+      "name": "factorOverMonths",
+      "kind": "edge",
+      "title": "Zero start cannot form factor",
+      "given": "Zero start cannot form factor",
+      "inputs": {
+        "now": "2026-09-30",
+        "months": 12,
+        "points": [
+          [
+            "2025-09-30",
+            0
+          ],
+          [
+            "2026-09-30",
+            110
+          ]
+        ]
+      },
+      "expected": "REFUSES",
+      "working": [
+        "Cannot divide by zero."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-028",
+      "name": "realizedFromLedger",
+      "kind": "easy",
+      "title": "Round fully matched sale",
+      "given": "Round fully matched sale",
+      "inputs": {
+        "today": "2026-09-30",
+        "ticker": "VTI",
+        "account": "A",
+        "records": [
+          [
+            "buy",
+            "2026-01-02",
+            10,
+            50
+          ],
+          [
+            "sale",
+            "2026-02-03",
+            10,
+            70
+          ]
+        ]
+      },
+      "expected": {
+        "realizedAllTime": {
+          "exact": 200,
+          "exact_decimal": "200.000000000000",
+          "shown": "$200"
+        },
+        "realizedThisYear": {
+          "exact": 200,
+          "exact_decimal": "200.000000000000",
+          "shown": "$200"
+        },
+        "sellsCounted": {
+          "exact": 1,
+          "exact_decimal": "1.000000000000",
+          "shown": "1.0000"
+        },
+        "sellsWithoutBasis": {
+          "exact": 0,
+          "exact_decimal": "0.000000000000",
+          "shown": "0.0000"
+        },
+        "shortOfPurchases": []
+      },
+      "working": [
+        "Proceeds10×70=700; basis10×50=500; gain200; one fully matched sale."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-028",
+      "name": "realizedFromLedger",
+      "kind": "easy",
+      "title": "Owner partial match example",
+      "given": "Owner partial match example",
+      "inputs": {
+        "today": "2026-09-30",
+        "ticker": "VTI",
+        "account": "A",
+        "records": [
+          [
+            "buy",
+            "2026-01-02",
+            10,
+            50
+          ],
+          [
+            "sale",
+            "2026-02-03",
+            15,
+            70
+          ]
+        ]
+      },
+      "expected": {
+        "realizedAllTime": {
+          "exact": 200,
+          "exact_decimal": "200.000000000000",
+          "shown": "$200"
+        },
+        "realizedThisYear": {
+          "exact": 200,
+          "exact_decimal": "200.000000000000",
+          "shown": "$200"
+        },
+        "sellsCounted": {
+          "exact": 1,
+          "exact_decimal": "1.000000000000",
+          "shown": "1.0000"
+        },
+        "sellsWithoutBasis": {
+          "exact": 0,
+          "exact_decimal": "0.000000000000",
+          "shown": "0.0000"
+        },
+        "shortOfPurchases": [
+          {
+            "date": "2026-02-03",
+            "sold": {
+              "exact": 15,
+              "exact_decimal": "15.000000000000",
+              "shown": "15.0000"
+            },
+            "matched": {
+              "exact": 10,
+              "exact_decimal": "10.000000000000",
+              "shown": "10.0000"
+            },
+            "gain": {
+              "exact": 200,
+              "exact_decimal": "200.000000000000",
+              "shown": "$200"
+            }
+          }
+        ]
+      },
+      "working": [
+        "DEC-4643:10×(70−50)=200;5shares lack basis; sale counted exactly once."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-028",
+      "name": "realizedFromLedger",
+      "kind": "complex",
+      "title": "FIFO lots and another account ignored",
+      "given": "FIFO lots and another account ignored",
+      "inputs": {
+        "today": "2026-09-30",
+        "ticker": "VTI",
+        "account": "A",
+        "records": [
+          {
+            "type": "buy",
+            "date": "2025-11-03",
+            "shares": 7.25,
+            "price": 83.17,
+            "account": "A"
+          },
+          {
+            "type": "buy",
+            "date": "2026-02-11",
+            "shares": 3.125,
+            "price": 91.43,
+            "account": "A"
+          },
+          {
+            "type": "sale",
+            "date": "2026-04-19",
+            "shares": 8.5,
+            "price": 97.31,
+            "account": "A"
+          },
+          {
+            "type": "sale",
+            "date": "2026-04-19",
+            "shares": 4.2,
+            "price": 105.18,
+            "account": "B"
+          }
+        ]
+      },
+      "expected": {
+        "realizedAllTime": {
+          "exact": 109.865,
+          "exact_decimal": "109.865000000000",
+          "shown": "$110"
+        },
+        "realizedThisYear": {
+          "exact": 109.865,
+          "exact_decimal": "109.865000000000",
+          "shown": "$110"
+        },
+        "sellsCounted": {
+          "exact": 1,
+          "exact_decimal": "1.000000000000",
+          "shown": "1.0000"
+        },
+        "sellsWithoutBasis": {
+          "exact": 0,
+          "exact_decimal": "0.000000000000",
+          "shown": "0.0000"
+        }
+      },
+      "working": [
+        "Match7.25 old shares and1.25 newer; basis7.25×83.17+1.25×91.43=602.9825+114.2875=718.27.",
+        "Proceeds8.5×97.31=827.135; gain109.865.",
+        "AccountB ignored."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-028",
+      "name": "realizedFromLedger",
+      "kind": "complex",
+      "title": "Future mini-option sale should not count today",
+      "given": "Future mini-option sale should not count today",
+      "inputs": {
+        "today": "2026-09-30",
+        "ticker": "OPTION_A",
+        "account": "A",
+        "kind": "option",
+        "multiplier": 10,
+        "records": [
+          [
+            "buy",
+            "2026-09-17",
+            3.25,
+            2.37
+          ],
+          [
+            "sale",
+            "2026-10-01",
+            2.75,
+            4.13
+          ]
+        ]
+      },
+      "expected": {
+        "realizedAllTime": {
+          "exact": 0,
+          "exact_decimal": "0.000000000000",
+          "shown": "$0"
+        },
+        "realizedThisYear": {
+          "exact": 0,
+          "exact_decimal": "0.000000000000",
+          "shown": "$0"
+        },
+        "sellsCounted": {
+          "exact": 0,
+          "exact_decimal": "0.000000000000",
+          "shown": "0.0000"
+        },
+        "sellsWithoutBasis": {
+          "exact": 0,
+          "exact_decimal": "0.000000000000",
+          "shown": "0.0000"
+        }
+      },
+      "working": [
+        "Oct1 sale occurs afterSep30; no realized sale yet.",
+        "If wrongly counted, gain2.75×(4.13−2.37)×10=48.4."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": {
+        "realizedAllTime": 48.4,
+        "realizedThisYear": 48.4,
+        "sellsCounted": 1
+      }
+    },
+    {
+      "id": "MK-PF-F-028",
+      "name": "realizedFromLedger",
+      "kind": "edge",
+      "title": "No purchase supports sale",
+      "given": "No purchase supports sale",
+      "inputs": {
+        "today": "2026-09-30",
+        "records": [
+          [
+            "sale",
+            "2026-09-17",
+            3,
+            97.31
+          ]
+        ]
+      },
+      "expected": {
+        "realizedAllTime": {
+          "exact": 0,
+          "exact_decimal": "0.000000000000",
+          "shown": "$0"
+        },
+        "realizedThisYear": {
+          "exact": 0,
+          "exact_decimal": "0.000000000000",
+          "shown": "$0"
+        },
+        "sellsCounted": {
+          "exact": 0,
+          "exact_decimal": "0.000000000000",
+          "shown": "0.0000"
+        },
+        "sellsWithoutBasis": {
+          "exact": 1,
+          "exact_decimal": "1.000000000000",
+          "shown": "1.0000"
+        },
+        "shortOfPurchases": [
+          {
+            "date": "2026-09-17",
+            "sold": {
+              "exact": 3,
+              "exact_decimal": "3.000000000000",
+              "shown": "3.0000"
+            },
+            "matched": {
+              "exact": 0,
+              "exact_decimal": "0.000000000000",
+              "shown": "0.0000"
+            },
+            "gain": null
+          }
+        ]
+      },
+      "working": [
+        "No basis => no known gain; one sale without basis; null gain in explanation list."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-029",
+      "name": "closeAsOf",
+      "kind": "easy",
+      "title": "Exact day",
+      "given": "Exact day",
+      "inputs": {
+        "target": "2026-09-19",
+        "points": [
+          [
+            "2026-09-19",
+            100
+          ],
+          [
+            "2026-09-20",
+            110
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 100,
+        "exact_decimal": "100.000000000000",
+        "shown": "$100.00"
+      },
+      "working": [
+        "ExactSep19 exists."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-029",
+      "name": "closeAsOf",
+      "kind": "easy",
+      "title": "Earlier than all prices",
+      "given": "Earlier than all prices",
+      "inputs": {
+        "target": "2026-01-01",
+        "points": [
+          [
+            "2026-05-04",
+            100
+          ],
+          [
+            "2026-09-20",
+            110
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 100,
+        "exact_decimal": "100.000000000000",
+        "shown": "$100.00"
+      },
+      "working": [
+        "Owner fallback first close100; does not proveJan1 coverage."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-029",
+      "name": "closeAsOf",
+      "kind": "complex",
+      "title": "Weekend target on ordered prices",
+      "given": "Weekend target on ordered prices",
+      "inputs": {
+        "target": "2026-09-20",
+        "points": [
+          [
+            "2026-09-17",
+            83.17
+          ],
+          [
+            "2026-09-18",
+            87.29
+          ],
+          [
+            "2026-09-21",
+            91.43
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 87.29,
+        "exact_decimal": "87.290000000000",
+        "shown": "$87.29"
+      },
+      "working": [
+        "Latest not afterSunSep20 isFriSep18."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-029",
+      "name": "closeAsOf",
+      "kind": "complex",
+      "title": "Ordered month-end boundaries",
+      "given": "Ordered month-end boundaries",
+      "inputs": {
+        "target": "2026-02-28",
+        "points": [
+          [
+            "2026-02-26",
+            83.17
+          ],
+          [
+            "2026-02-27",
+            87.29
+          ],
+          [
+            "2026-03-02",
+            91.43
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 87.29,
+        "exact_decimal": "87.290000000000",
+        "shown": "$87.29"
+      },
+      "working": [
+        "SaturdayFeb28 usesFriFeb27=87.29; Monday future omitted."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-029",
+      "name": "closeAsOf",
+      "kind": "edge",
+      "title": "Empty series",
+      "given": "Empty series",
+      "inputs": {
+        "target": "2026-09-20",
+        "points": []
+      },
+      "expected": "REFUSES",
+      "working": [
+        "No close exists."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-031",
+      "name": "contractMultiplier",
+      "kind": "easy",
+      "title": "Default option",
+      "given": "Default option",
+      "inputs": {
+        "kind": "option"
+      },
+      "expected": {
+        "exact": 100,
+        "exact_decimal": "100.000000000000",
+        "shown": "100.0000"
+      },
+      "working": [
+        "No own multiplier =>100."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-031",
+      "name": "contractMultiplier",
+      "kind": "easy",
+      "title": "Ordinary stock",
+      "given": "Ordinary stock",
+      "inputs": {
+        "kind": "stock"
+      },
+      "expected": {
+        "exact": 1,
+        "exact_decimal": "1.000000000000",
+        "shown": "1.0000"
+      },
+      "working": [
+        "Nonoption units multiplier1."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-031",
+      "name": "contractMultiplier",
+      "kind": "complex",
+      "title": "Broker mini option",
+      "given": "Broker mini option",
+      "inputs": {
+        "kind": "option",
+        "multiplier": 10,
+        "broker": "SnapTrade",
+        "security": "mini option"
+      },
+      "expected": {
+        "exact": 10,
+        "exact_decimal": "10.000000000000",
+        "shown": "10.0000"
+      },
+      "working": [
+        "DEC-4646 saved mini multiplier10 wins."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-031",
+      "name": "contractMultiplier",
+      "kind": "complex",
+      "title": "Custom nonoption multiplier conflicts with purpose",
+      "given": "Custom nonoption multiplier conflicts with purpose",
+      "inputs": {
+        "kind": "stock",
+        "multiplier": 37.5,
+        "unit": "shares"
+      },
+      "expected": "RULE UNCLEAR",
+      "working": [
+        "Purpose says everything else1; formula own positive multiplier37.5."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "medium",
+      "notes": "Nonoption custom units need explicit scope.",
+      "formula_gives": {
+        "purpose_value": 1,
+        "formula_value": 37.5
+      }
+    },
+    {
+      "id": "MK-PF-F-031",
+      "name": "contractMultiplier",
+      "kind": "edge",
+      "title": "Invalid entered infinity",
+      "given": "Invalid entered infinity",
+      "inputs": {
+        "kind": "option",
+        "multiplier": "Infinity"
+      },
+      "expected": "REFUSES",
+      "working": [
+        "Known invalid multiplier is not valid positive finite contract size."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": "RULE UNCLEAR: above-zero rule could accept Infinity"
+    },
+    {
+      "id": "MK-PF-F-032",
+      "name": "quantityUnit",
+      "kind": "easy",
+      "title": "Stock shares",
+      "given": "Stock shares",
+      "inputs": {
+        "kind": "stock",
+        "qty": 3
+      },
+      "expected": "shares",
+      "working": [
+        "Own unit wins; otherwise infer unit from recognized kind."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-032",
+      "name": "quantityUnit",
+      "kind": "easy",
+      "title": "One crypto coin",
+      "given": "One crypto coin",
+      "inputs": {
+        "kind": "crypto",
+        "qty": 1
+      },
+      "expected": "coins",
+      "working": [
+        "Own unit wins; otherwise infer unit from recognized kind."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-032",
+      "name": "quantityUnit",
+      "kind": "complex",
+      "title": "Written mini option",
+      "given": "Written mini option",
+      "inputs": {
+        "kind": "option",
+        "unit": "contracts",
+        "qty": -1,
+        "multiplier": 10
+      },
+      "expected": "contracts",
+      "working": [
+        "Own unit wins; otherwise infer unit from recognized kind."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-032",
+      "name": "quantityUnit",
+      "kind": "complex",
+      "title": "Own fractional commodity unit",
+      "given": "Own fractional commodity unit",
+      "inputs": {
+        "kind": "commodity",
+        "unit": "units",
+        "qty": 3.125
+      },
+      "expected": "units",
+      "working": [
+        "Own unit wins; otherwise infer unit from recognized kind."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-032",
+      "name": "quantityUnit",
+      "kind": "edge",
+      "title": "No quantity",
+      "given": "No quantity",
+      "inputs": {
+        "kind": "stock",
+        "qty": null
+      },
+      "expected": "shares",
+      "working": [
+        "Own unit wins; otherwise infer unit from recognized kind."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-033",
+      "name": "quantityWithUnit",
+      "kind": "easy",
+      "title": "Stock shares",
+      "given": "Stock shares",
+      "inputs": {
+        "kind": "stock",
+        "qty": 3
+      },
+      "expected": "3 shares",
+      "working": [
+        "Use canonical unit; absolute quantity1 singular; preserve sign; missing quantity refuses."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-033",
+      "name": "quantityWithUnit",
+      "kind": "easy",
+      "title": "One crypto coin",
+      "given": "One crypto coin",
+      "inputs": {
+        "kind": "crypto",
+        "qty": 1
+      },
+      "expected": "1 coin",
+      "working": [
+        "Use canonical unit; absolute quantity1 singular; preserve sign; missing quantity refuses."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-033",
+      "name": "quantityWithUnit",
+      "kind": "complex",
+      "title": "Written mini option",
+      "given": "Written mini option",
+      "inputs": {
+        "kind": "option",
+        "unit": "contracts",
+        "qty": -1,
+        "multiplier": 10
+      },
+      "expected": "-1 contract",
+      "working": [
+        "Use canonical unit; absolute quantity1 singular; preserve sign; missing quantity refuses."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-033",
+      "name": "quantityWithUnit",
+      "kind": "complex",
+      "title": "Own fractional commodity unit",
+      "given": "Own fractional commodity unit",
+      "inputs": {
+        "kind": "commodity",
+        "unit": "units",
+        "qty": 3.125
+      },
+      "expected": "3.125 units",
+      "working": [
+        "Use canonical unit; absolute quantity1 singular; preserve sign; missing quantity refuses."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-033",
+      "name": "quantityWithUnit",
+      "kind": "edge",
+      "title": "Nonfinite quantity",
+      "given": "Nonfinite quantity",
+      "inputs": {
+        "kind": "stock",
+        "qty": "Infinity"
+      },
+      "expected": "REFUSES",
+      "working": [
+        "Infinity is not a finite count; refuse rather than print Infinity shares."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": "RULE UNCLEAR: numeric infinity handling not stated"
+    },
+    {
+      "id": "MK-PF-F-034",
+      "name": "closeOnOrBefore",
+      "kind": "easy",
+      "title": "Exact close",
+      "given": "Exact close",
+      "inputs": {
+        "date": "2026-09-19",
+        "points": [
+          [
+            "2026-09-19",
+            100
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 100,
+        "exact_decimal": "100.000000000000",
+        "shown": "$100.00"
+      },
+      "working": [
+        "Exact day100."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-034",
+      "name": "closeOnOrBefore",
+      "kind": "easy",
+      "title": "No backward fallback",
+      "given": "No backward fallback",
+      "inputs": {
+        "date": "2026-01-01",
+        "points": [
+          [
+            "2026-05-04",
+            100
+          ]
+        ]
+      },
+      "expected": "REFUSES",
+      "working": [
+        "Every point after requested day; no fallback."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-034",
+      "name": "closeOnOrBefore",
+      "kind": "complex",
+      "title": "Unsorted day selection",
+      "given": "Unsorted day selection",
+      "inputs": {
+        "date": "2026-09-20",
+        "points": [
+          [
+            "2026-09-21",
+            91.43
+          ],
+          [
+            "2026-09-17",
+            83.17
+          ],
+          [
+            "2026-09-18",
+            87.29
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 87.29,
+        "exact_decimal": "87.290000000000",
+        "shown": "$87.29"
+      },
+      "working": [
+        "Latest qualifying dateSep18, independent of array order."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-034",
+      "name": "closeOnOrBefore",
+      "kind": "complex",
+      "title": "Real day and unround closes",
+      "given": "Real day and unround closes",
+      "inputs": {
+        "date": "2024-02-29",
+        "points": [
+          [
+            "2024-02-27",
+            83.17
+          ],
+          [
+            "2024-02-28",
+            87.29
+          ],
+          [
+            "2024-03-01",
+            91.43
+          ]
+        ]
+      },
+      "expected": {
+        "exact": 87.29,
+        "exact_decimal": "87.290000000000",
+        "shown": "$87.29"
+      },
+      "working": [
+        "Leap day exists; no exact close; Feb28 most recent prior."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-034",
+      "name": "closeOnOrBefore",
+      "kind": "edge",
+      "title": "Impossible calendar target",
+      "given": "Impossible calendar target",
+      "inputs": {
+        "date": "2026-02-31",
+        "points": [
+          [
+            "2026-02-27",
+            87.29
+          ]
+        ]
+      },
+      "expected": "REFUSES",
+      "working": [
+        "Spelling fits butFeb31 nonexistent; isDay must reject."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": {
+        "exact": 87.29,
+        "exact_decimal": "87.290000000000",
+        "shown": "$87.29"
+      }
+    },
+    {
+      "id": "MK-PF-F-035",
+      "name": "unknownFigure",
+      "kind": "easy",
+      "title": "Explicit zero",
+      "given": "Explicit zero",
+      "inputs": {
+        "value": 0
+      },
+      "expected": false,
+      "working": [
+        "Zero is finite numeric known input."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-035",
+      "name": "unknownFigure",
+      "kind": "easy",
+      "title": "Missing figure",
+      "given": "Missing figure",
+      "inputs": {
+        "value": null
+      },
+      "expected": true,
+      "working": [
+        "Null is missing."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-035",
+      "name": "unknownFigure",
+      "kind": "complex",
+      "title": "Unround positive",
+      "given": "Unround positive",
+      "inputs": {
+        "value": 83.173125
+      },
+      "expected": false,
+      "working": [
+        "Finite real number is known."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-035",
+      "name": "unknownFigure",
+      "kind": "complex",
+      "title": "Broker textual figure",
+      "given": "Broker textual figure",
+      "inputs": {
+        "value": " 83.17 "
+      },
+      "expected": true,
+      "working": [
+        "Text not a numeric figure; parsing belongs upstream with validation."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-035",
+      "name": "unknownFigure",
+      "kind": "edge",
+      "title": "Infinity",
+      "given": "Infinity",
+      "inputs": {
+        "value": "Infinity",
+        "typed_as": "numeric nonfinite"
+      },
+      "expected": true,
+      "working": [
+        "Nonfinite values unknown."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-037",
+      "name": "dayBefore",
+      "kind": "easy",
+      "title": "Ordinary day",
+      "given": "Ordinary day",
+      "inputs": {
+        "date": "2026-10-13T15:17:19"
+      },
+      "expected": "2026-10-12T15:17:19",
+      "working": [
+        "Previous calendar day, same local clock."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-037",
+      "name": "dayBefore",
+      "kind": "easy",
+      "title": "New year",
+      "given": "New year",
+      "inputs": {
+        "date": "2026-01-01T09:00:00"
+      },
+      "expected": "2025-12-31T09:00:00",
+      "working": [
+        "Cross year boundary."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-037",
+      "name": "dayBefore",
+      "kind": "complex",
+      "title": "Leap February",
+      "given": "Leap February",
+      "inputs": {
+        "date": "2024-03-01T17:43:29"
+      },
+      "expected": "2024-02-29T17:43:29",
+      "working": [
+        "Prior day leapFeb29."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-037",
+      "name": "dayBefore",
+      "kind": "complex",
+      "title": "Clock preserved across month",
+      "given": "Clock preserved across month",
+      "inputs": {
+        "date": "2026-06-01T16:23:41"
+      },
+      "expected": "2026-05-31T16:23:41",
+      "working": [
+        "Month boundary31May; unchanged16:23:41."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-PF-F-037",
+      "name": "dayBefore",
+      "kind": "edge",
+      "title": "Leap day itself",
+      "given": "Leap day itself",
+      "inputs": {
+        "date": "2024-02-29T23:59:59"
+      },
+      "expected": "2024-02-28T23:59:59",
+      "working": [
+        "Prior calendar dayFeb28."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    }
+  ],
+  "rules_held": [],
+  "screen_checks": [],
+  "could_not_test": []
+}

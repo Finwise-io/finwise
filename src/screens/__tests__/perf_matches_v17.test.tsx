@@ -133,7 +133,11 @@ const norm = (lines: string[]) => lines.join(' ').toLowerCase()
  *     return does not refuse because money was added, so the summary reads the ordinary note …
  *  6. … and the same sentence under the open account's source line is not shown at all.
  *  7. With no stand-in there is no "/year" on the Since figure or on the open account's Return row.
- *     ("/year" on a category's yearly rate stays — that is difference 1's line, a different figure.) */
+ *     ("/year" on a category's yearly rate stays — that is difference 1's line, a different figure.)
+ *  AND HIS DECISION OF 2026-10-13 (DEC-5136), newer than this drawing: "HOW $38,000 BECAME $52,704 · ALL ACCOUNTS -
+ *  this is the title. Not - "How xxx stands. ALl Accounts"".
+ *  8. The day-one walk (phones 4 and 5) is titled "HOW $354,314 BECAME $354,314 · ALL ACCOUNTS", not "HOW TODAY'S VALUE
+ *     STANDS · ALL ACCOUNTS" with the value beside it. */
 const MARK_16 = 'money moved in and out in amounts where when it moved would decide a window return, so this is your rate per year, counting when you added money';
 const KNOWN = (s: string) => s
   .replace(/(bonds & cds|cash in this account) \$# (#%\/year|—)/g, '$1 $# <rate or dash>')
@@ -141,7 +145,8 @@ const KNOWN = (s: string) => s
   .replace(/money-weighted, so money you added/g, 'time-weighted, so money you added')                                                        // 4
   .replace(MARK_16, 'return is for the window you picked (<date> → <date>) — not a yearly rate time-weighted, so money you added never counts as return')   // 5 — the first, in the summary
   .replace(new RegExp(` ${MARK_16.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`), '')                                                          // 6 — the second, in the account's walk
-  .replace(/since <date> #%\/year/g, 'since <date> #%').replace(/\breturn #%\/year/g, 'return #%');                                        // 7
+  .replace(/since <date> #%\/year/g, 'since <date> #%').replace(/\breturn #%\/year/g, 'return #%')                                         // 7
+  .replace(/how today's value stands all accounts \$#/g, 'how $# became $# all accounts');                                              // 8
 
 const CHROME = new Set(['9:41', '▦ Menu', 'Money', 'Keel', '◉', '⚙', '🏠', 'Home', '💎', 'Net worth', '📈', '💵', 'Cash flow', '🧭', 'Plan']);
 function drawn(n: number): string[] {

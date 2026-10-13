@@ -1,0 +1,307 @@
+{
+  "source_checks": [
+    {
+      "topic": "Federal income tax2026",
+      "verdict": "WRONG",
+      "why": "Only HOH 24%/32% upper boundaries differ:201750 and256200 are correct; Single/MFJ/MFS printed tables match.",
+      "correct_HOH": [
+        17700,
+        67450,
+        105700,
+        201750,
+        256200,
+        640600
+      ],
+      "source": {
+        "source": "IRS Revenue Procedure2025-32, section4.01,.03,.14 (2026 amounts)",
+        "url": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf",
+        "use": "Federal income brackets, capital-gains thresholds, standard deductions and aged additional standard deductions."
+      },
+      "witnesses": [
+        {
+          "taxable_income": 201775,
+          "expected": {
+            "exact": 39215.0,
+            "exact_decimal": "39215.000000000000",
+            "shown": "$39,215.00"
+          },
+          "formula_gives": {
+            "exact": 39213.0,
+            "exact_decimal": "39213.000000000000",
+            "shown": "$39,213.00"
+          }
+        },
+        {
+          "taxable_income": 256225,
+          "expected": {
+            "exact": 56639.75,
+            "exact_decimal": "56639.750000000000",
+            "shown": "$56,639.75"
+          },
+          "formula_gives": {
+            "exact": 56637.0,
+            "exact_decimal": "56637.000000000000",
+            "shown": "$56,637.00"
+          }
+        },
+        {
+          "taxable_income": 300000,
+          "expected": {
+            "exact": 71961.0,
+            "exact_decimal": "71961.000000000000",
+            "shown": "$71,961.00"
+          },
+          "formula_gives": {
+            "exact": 71958.25,
+            "exact_decimal": "71958.250000000000",
+            "shown": "$71,958.25"
+          }
+        }
+      ]
+    },
+    {
+      "topic": "Standard and aged additional standard deductions2026",
+      "verdict": "RIGHT",
+      "why": "Printed four status base amounts and additional1650/2050match2026 table; blindness/eligibility separate.",
+      "source": {
+        "source": "IRS Revenue Procedure2025-32, section4.01,.03,.14 (2026 amounts)",
+        "url": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf",
+        "use": "Federal income brackets, capital-gains thresholds, standard deductions and aged additional standard deductions."
+      }
+    },
+    {
+      "topic": "Long-term capital-gains2026 thresholds",
+      "verdict": "RIGHT",
+      "why": "Printed thresholds forSingle/MFJ/MFS/HOHallmatch section4.03; capital gains stack on taxable ordinary income, not an independent gain-only bracket.",
+      "source": {
+        "source": "IRS Revenue Procedure2025-32, section4.01,.03,.14 (2026 amounts)",
+        "url": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf",
+        "use": "Federal income brackets, capital-gains thresholds, standard deductions and aged additional standard deductions."
+      }
+    },
+    {
+      "topic": "Senior deduction2025–2028",
+      "verdict": "INCOMPLETE",
+      "why": "6000per person and75k/150kphase-out thresholds correct. Must use MAGI, not generic income; eligible-age/SSN/filing/individual phase-out andzero-floor mechanics require explicit contract. Do not infer a complete calculator from prose.",
+      "source": {
+        "source": "IRS Enhanced deduction for seniors eligibility (2025–2028)",
+        "url": "https://www.irs.gov/newsroom/check-your-eligibility-for-the-new-enhanced-deduction-for-seniors",
+        "use": "6000per eligible senior; MAGI phase-out thresholds and eligibility."
+      }
+    },
+    {
+      "topic": "401(k) andIRA2026 limits",
+      "verdict": "RIGHT",
+      "why": "24500+8000(age50+) or11250(age60–63); IRA7500+1100(age50+) match. Eligibility and required Roth catch-ups are outside printed amount list.",
+      "source": {
+        "source": "IRS Notice2025-67 / 2026 retirement limits announcement",
+        "url": "https://www.irs.gov/newsroom/401k-limit-increases-to-24500-for-2026-ira-limit-increases-to-7500",
+        "use": "401(k), IRA and age-specific catch-up amounts."
+      }
+    },
+    {
+      "topic": "HSA2026 limits",
+      "verdict": "RIGHT",
+      "why": "Base4400self-only/8750family verified.1000catch-up at55+ is statutory and needs per-person eligible coverage/Medicare handling; annual room cannot assume full-year eligibility.",
+      "source": {
+        "source": "IRS Revenue Procedure2025-19 (2026 HSA amounts)",
+        "url": "https://www.irs.gov/pub/irs-drop/rp-25-19.pdf",
+        "use": "Self-only4400 and family8750."
+      }
+    },
+    {
+      "topic": "Social Security andMedicare2026",
+      "verdict": "INCOMPLETE",
+      "why": "6.2%upto184500 and1.45%Medicare match ordinary employee payroll. Printed additional0.9%above200000is employer withholding, not all household liabilities.",
+      "sources": [
+        {
+          "source": "SSA Contribution and Benefit Base, 2026",
+          "url": "https://www.ssa.gov/oact/cola/cbb.html",
+          "use": "Wage base184500 and employee6.2%."
+        },
+        {
+          "source": "IRS Topic560, Additional Medicare tax",
+          "url": "https://www.irs.gov/taxtopics/tc560",
+          "use": "0.9% and liability thresholds250000MFJ,125000MFS,200000others; separate employer withholding200000."
+        }
+      ],
+      "witnesses": [
+        {
+          "filing": "MFJ",
+          "spouse_wages": [
+            150000,
+            150000
+          ],
+          "expected_additional_tax": 450,
+          "per_employer_withholding": 0,
+          "working": "(.009)×(300000−250000)=450; each employer150000below200000."
+        },
+        {
+          "filing": "MFS",
+          "wages": 150000,
+          "expected_additional_tax": 225,
+          "withholding_at200000": 0,
+          "working": ".009×(150000−125000)=225."
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "source": "IRS Revenue Procedure2025-32, section4.01,.03,.14 (2026 amounts)",
+      "url": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf",
+      "use": "Federal income brackets, capital-gains thresholds, standard deductions and aged additional standard deductions."
+    },
+    {
+      "source": "IRS Notice2025-67 / 2026 retirement limits announcement",
+      "url": "https://www.irs.gov/newsroom/401k-limit-increases-to-24500-for-2026-ira-limit-increases-to-7500",
+      "use": "401(k), IRA and age-specific catch-up amounts."
+    },
+    {
+      "source": "IRS Revenue Procedure2025-19 (2026 HSA amounts)",
+      "url": "https://www.irs.gov/pub/irs-drop/rp-25-19.pdf",
+      "use": "Self-only4400 and family8750."
+    },
+    {
+      "source": "SSA Contribution and Benefit Base, 2026",
+      "url": "https://www.ssa.gov/oact/cola/cbb.html",
+      "use": "Wage base184500 and employee6.2%."
+    },
+    {
+      "source": "IRS Topic560, Additional Medicare tax",
+      "url": "https://www.irs.gov/taxtopics/tc560",
+      "use": "0.9% and liability thresholds250000MFJ,125000MFS,200000others; separate employer withholding200000."
+    },
+    {
+      "source": "IRS Topic409, Capital gains and losses",
+      "url": "https://www.irs.gov/taxtopics/tc409",
+      "use": "Morethan1yearlong-term;1yearorlessshort-term."
+    },
+    {
+      "source": "IRS Publication550 (2025), Investment income and expenses",
+      "url": "https://www.irs.gov/publications/p550",
+      "use": "Adjusted basis, option tax exceptions and section1256contract distinction."
+    },
+    {
+      "source": "IRS Enhanced deduction for seniors eligibility (2025–2028)",
+      "url": "https://www.irs.gov/newsroom/check-your-eligibility-for-the-new-enhanced-deduction-for-seniors",
+      "use": "6000per eligible senior; MAGI phase-out thresholds and eligibility."
+    },
+    {
+      "source": "CFA Institute 2020 GIPS Standards for Firms, definitions and calculation methodology",
+      "url": "https://www.gipsstandards.org/wp-content/uploads/2021/03/2020_gips_standards_firms.pdf",
+      "use": "TWR negates external flows; income inside portfolio is earned; owner governs specific daily convention."
+    }
+  ],
+  "cross_card_acceptance_cases": [
+    {
+      "name": "Calendar annualization equality",
+      "today": "2024-10-13",
+      "start": "2023-10-13",
+      "elapsed_days": 366,
+      "total": 0.21,
+      "expected_display": "+21.00%",
+      "reason": "Exactly1calendar year remains window total;365/days would wrongly yield20.93699711%"
+    },
+    {
+      "name": "Leap-spanning exact2Y has two competing pace conventions",
+      "today": "2025-10-13",
+      "start": "2023-10-13",
+      "elapsed_days": 731,
+      "total": 0.21,
+      "expected": "RULE UNCLEAR",
+      "readings": {
+        "card_periodReturn": {
+          "exact": 0.1,
+          "exact_decimal": "0.100000000000",
+          "shown": "+10.00%"
+        },
+        "orchestrator_days_over365": {
+          "exact": 0.09985658773828732,
+          "exact_decimal": "0.099856587738",
+          "shown": "+9.99%"
+        }
+      },
+      "reason": "Use one owner-approved rule rather than silent .10versus~.09985658 disagreement."
+    },
+    {
+      "name": "New account deposit first-day loss",
+      "prior_value": 0,
+      "deposit": 10000,
+      "ending": 9800,
+      "expected": {
+        "wealth": -200,
+        "TWR": -0.02
+      },
+      "working": [
+        "Base10000;9800/10000−1=−.02;9800−10000=−200."
+      ]
+    },
+    {
+      "name": "Flow day absent from usable valuations",
+      "start_value": 1000,
+      "deposit": {
+        "date": "2026-09-02",
+        "amount": 1000
+      },
+      "snapshot_dates": [
+        "2026-09-01",
+        "2026-09-03"
+      ],
+      "expected": "REFUSES",
+      "reason": "Money movedSep2but nousableSep2value; cannot shift the flow toSep3."
+    },
+    {
+      "name": "Explicit ratezero versus missingrate",
+      "CD_ending": 10500,
+      "years": 1,
+      "readings": {
+        "coupon0": {
+          "gain": 0,
+          "synthetic_beginning": 10500
+        },
+        "coupon_missing": {
+          "gain": null,
+          "beginning": null
+        }
+      },
+      "reason": "DEC-2748b distinguishes entered0fromunentered."
+    },
+    {
+      "name": "Known 100% loss remains in portfolio",
+      "beginning": {
+        "A": 1000,
+        "B": 1000
+      },
+      "ending": {
+        "A": 0,
+        "B": 1200
+      },
+      "flows": 0,
+      "expected_return": -0.4,
+      "working": [
+        "Totalending1200/beginning2000−1=−.4; ignoring wipedAincorrectlyshows+.20."
+      ]
+    },
+    {
+      "name": "Home visible percentage gap",
+      "shown_you": "+3.69%",
+      "shown_market": "+2.83%",
+      "shown_gap": "+0.85%",
+      "expected": "RULE UNCLEAR",
+      "reason": "Shown arithmeticgap.86; hiddenrates3.6851%and2.8349%givegap.8502%andcouldroundto.85. Preserveapprovedwords; require underlying full-precision witness or dated correction note."
+    },
+    {
+      "name": "Missing wage/rent/debt dependency evidence",
+      "expected": "CANNOT TELL",
+      "reason": "Twoearners, enteredtake-home, continuingrent, paid/unpaid/nopayment debt require Cashflow/EmergencyFundcards absenthere. Do not invent those models or pretendfive Performancefixtures exercise them."
+    }
+  ],
+  "scope_limits": [
+    "No app implementation, existing tests or live output inspected.",
+    "closedWith has no exact cases because its multiaccount allocation contract is not supplied.",
+    "CANNOT TELL rules are retained as evidence gaps, not invented failures.",
+    "No money paths for Cashflow/EmergencyFund functions absent from the cards were invented.",
+    "Fivecasespertestablecard yields250cases, not255; 51formula checks are complete."
+  ]
+}

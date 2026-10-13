@@ -57,9 +57,10 @@ export interface WindowFigures {
   years: number;
   /** Why a refusal, in words. Empty when nothing is refused. */
   sentence: string;
-  /** Set only where the beginning would be worked back from today and a holding's gain cannot be known:
-   *  "The beginning can't be worked back: … has no price history." Empty otherwise. (DEC-3656, 2026-10-09) */
-  cannotWorkBack: string;
+  /** Set only where the beginning is worked back from today and a holding has no price history (DEC-5068,
+   *  2026-10-13): "Wealth generated and Return do not include Treasury 2031's gains, as it has no price
+   *  history." Wealth generated and Return are still shown, from the holdings with a history. Empty otherwise. */
+  notIncluded: string;
 }
 
 /** THE THREE THINGS A SCREEN NEEDED TO ASK THIS DOOR, and calculated for itself until 2026-09-30.
@@ -165,7 +166,8 @@ export function investmentRecordDates(snapshotDays: any[], investmentAccountIds:
  *  daily record cannot reach — it never becomes the return. A holding bought inside the window counts
  *  its true gain (value − cost); one with a price history counts what the window's price move gave it;
  *  a CD stating its rate counts what that rate gave it; any other holding's gain is UNKNOWN, and the
- *  answer is null rather than $0 (DEC-3656, 2026-10-09). */
+ *  answer is null rather than $0 (DEC-3656, 2026-10-09). thePerformance asks it one holding at a time, so an
+ *  unknown one adds nothing and is named, while the others still count (DEC-5068, 2026-10-13). */
 
 /** What the holdings gained over the period in dollars: the true gain for a holding bought inside the period, the price move's share of today's value for one with a price history, the stated rate's share for a CD — and nothing (unknown) when any holding has neither. */
 /* ─ MK-NW-F-091 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
@@ -331,12 +333,12 @@ function heldValueOf(r: GainRow): number | null {
   return shares === 0 ? 0 : null;
 }
 
-/** What the refusal sentence calls a holding: its own name, else its ticker — a CUSIP-shaped ticker gives way
- *  to the security's name. (DEC-3656, 2026-10-09) */
+/** What the sentence calls a holding: its own name, else its ticker — a CUSIP-shaped ticker gives way
+ *  to the security's name. (DEC-3656, 2026-10-09; the sentence is DEC-5068's since 2026-10-13) */
 /* ─ MK-NW-F-129 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * gainRowName
  *
- * Answers ..... What the refusal sentence calls a holding: its own name, else its ticker — a CUSIP-shaped ticker gives way to the security's name.
+ * Answers ..... What the sentence calls a holding: its own name, else its ticker — a CUSIP-shaped ticker gives way to the security's name.
  *
  * Formula .....
  *     name   when name
@@ -366,15 +368,19 @@ function gainRowName(r: GainRow): string {
   return /^[0-9A-Z]{9}$/i.test(t) && /\d/.test(t) && nm ? nm : (t || nm || 'a holding');
 }
 
-/** THE SENTENCE where the beginning cannot be worked back (DEC-3656, 2026-10-09, his wording). */
+/** THE SENTENCE where a holding with no price history is left out of Wealth generated and Return (DEC-5068,
+ *  2026-10-13, his wording with the holding's name in place of "treasury"). */
 /* ─ MK-NW-F-130 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
- * cannotWorkBackSentence
+ * notIncludedSentence
  *
- * Answers ..... THE SENTENCE where the beginning cannot be worked back (DEC-3656, 2026-10-09, his wording).
+ * Answers ..... THE SENTENCE where a holding with no price history is left out of Wealth generated and Return (DEC-5068, 2026-10-13, his wording with the holding's name in place of "treasury").
  *
  * Formula .....
  *     once = [...new set(names.map((n) => string(n ?? '').trim()).filter((n) => n ! = ''))]
- *     the answer = `the beginning can't be worked back: ${plural(math.max(once.length, 1), 'has', list)} no price history.`
+ *     many = once.length > 1
+ *     whose = `the gains of ${list}`   if many
+ *     `${list}'s gains`   otherwise
+ *     the answer = `wealth generated and return do not include ${whose}, as ${plural(many ? 2 : 1, 'has', many ? 'they' : 'it')} no price history.`
  *
  * Called by ... MK-NW-O-008 thePerformance
  *
@@ -385,23 +391,23 @@ function gainRowName(r: GainRow): string {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
- * Decides .....
- *     · Never lets length fall below 1.
- *
  * Formula also on the master file · functions_from_code · MK-NW-F-130
  * Changed ..... not in git yet (—)
  */
-function cannotWorkBackSentence(names: string[]): string {
-  // one fund held in two accounts is named once (outside review Claude Performance, 2026-10-11, DEC-3656). A blank
-  // name is no name: it is dropped before the names are counted, so '', 'Treasury', 'Treasury' reads "Treasury has",
-  // never "  and Treasury have" (outside review OpenAI re-run part 4, MK-NW-F-130, SETTLED 2026-10-13). Names all
-  // blank still give the sentence, about "a holding": the caller only asks when a holding's gain is unknown, and an
-  // empty answer would let it work the beginning back anyway.
+function notIncludedSentence(names: string[]): string {
+  // one fund held in two accounts is named once (outside review Claude Performance, 2026-10-11). A blank name is
+  // no name: it is dropped before the names are counted, so '', 'Treasury', 'Treasury' reads "Treasury 2031's
+  // gains, as it has", never "  and Treasury" (outside review OpenAI re-run part 4, MK-NW-F-130, SETTLED 2026-10-13).
+  // Names all blank still give the sentence, about "a holding": the caller only asks when a holding is left out.
   const once = [...new Set(names.map((n) => String(n ?? '').trim()).filter((n) => n !== ''))];
   const list = once.length <= 1 ? (once[0] ?? 'a holding')
     : `${once.slice(0, -1).join(', ')} and ${once[once.length - 1]}`;
-  // has / have from the one list of words and plurals (DEC-4082): one name, or none, is singular
-  return `The beginning can't be worked back: ${plural(Math.max(once.length, 1), 'has', list)} no price history.`;
+  // His words: "Wealth Generated and Return does not include treasury gains as no price history available."
+  // The labels are the screen's own, "Wealth generated" and "Return" (one term per concept); two things named
+  // take "do"; the clause after "as" needs its verb, has / have from the one list of words and plurals (DEC-4082).
+  const many = once.length > 1;
+  const whose = many ? `the gains of ${list}` : `${list}'s gains`;
+  return `Wealth generated and Return do not include ${whose}, as ${plural(many ? 2 : 1, 'has', many ? 'they' : 'it')} no price history.`;
 }
 
 /** MK-NW-F-092 · Which accounts this door measures: the invested ones. Cash and property are not
@@ -430,6 +436,59 @@ export function investmentAccountIdsOf(
 ): Set<string> {
   const invested = new Set(['stocks_etf', 'bonds', 'alternatives', 'mixed']);
   return new Set((accounts ?? []).filter((a) => invested.has(classOf(a))).map((a) => String(a.asset_id)));
+}
+
+/** THE RETURN OF THE HOLDINGS WHOSE GROWTH IS KNOWN, where the beginning is worked back from today
+ *  (DEC-5068, 2026-10-13: "Wealth Generated and Return should be calculated and displayed for every asset with
+ *  history"). The same method as each category's return (MK-NW-F-084): each holding's start = its value now ÷
+ *  (1 + its own return over the WHOLE window), and the answer is Σ values now ÷ Σ starts − 1. A holding's return
+ *  is time-weighted by its daily prices, and its dividends are in the adjusted closes once (DEC-4644). A CD
+ *  stating its rate grows by (1 + rate)^years − 1 (DEC-3656). A holding with no price history and no rate is
+ *  LEFT OUT — never counted at 0% — and with none left the answer is null. */
+/* ─ MK-NW-F-138 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * knownHoldingsReturn
+ *
+ * Answers ..... THE RETURN OF THE HOLDINGS WHOSE GROWTH IS KNOWN, where the beginning is worked back from today (DEC-5068, 2026-10-13: "Wealth Generated and Return should be calculated and displayed for every asset with history").
+ *
+ * Formula .....
+ *     now = 0, start = 0
+ *     mv = market value (or 0 when missing)
+ *     pr = window total(period return, period total, years)
+ *     nothing   when not (now > 0) or !(start > 0)
+ *     the answer = now ÷ start − 1
+ *
+ * Called by ... MK-NW-O-008 thePerformance
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-012 bond coupon rate
+ *
+ * Decides .....
+ *     · If market value is missing it uses 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-138
+ * Changed ..... not in git yet (—)
+ */
+export function knownHoldingsReturn(rows: GainRow[], years = 0): number | null {
+  let now = 0, start = 0;
+  for (const r of rows ?? []) {
+    const mv = r.marketValue ?? 0;
+    if (!(mv > 0)) continue;
+    const pr = windowTotal(r.periodReturn, r.periodTotal, years);
+    const tot = pr != null ? pr
+      : r.couponRate != null && Number.isFinite(r.couponRate) && r.couponRate >= 0 ? Math.pow(1 + r.couponRate, years) - 1
+      : null;
+    // no return over the window, or −100% or worse (no start to divide by): left out, never read as 0
+    if (tot == null || !(tot > -1)) continue;
+    now += mv;
+    start += mv / (1 + tot);
+  }
+  if (!(now > 0) || !(start > 0)) return null;
+  return now / start - 1;
 }
 
 /** WHY A RETURN CANNOT BE MEASURED, in words a person reads. One sentence per reason, written once,
@@ -590,12 +649,13 @@ export function thePerformance(input: {
   snapshotDays: any[];
   investmentAccountIds: Set<string>;
   /** What the priced holdings gained over the window — used ONLY to derive a beginning the record
-   *  cannot reach. It never becomes the return. Null = a holding's gain cannot be known (DEC-3656).
-   *  A caller that hands over `holdings` instead lets the door calculate it with the window's own years. */
+   *  cannot reach. Null = a holding's gain cannot be known (DEC-3656): it then adds nothing and is named
+   *  "a holding" (DEC-5068). A caller that hands over `holdings` instead lets the door calculate it with the
+   *  window's own years, and the return of the holdings with a history. */
   pricedGain?: number | null;
   /** The holdings themselves (rows of buildPerformance, or GainRows) — preferred to `pricedGain`, so the
-   *  ONE rule (pricedGainOf) decides each holding's gain over THIS window, and the refusal can name the
-   *  ones it cannot know. (DEC-3656, 2026-10-09) */
+   *  ONE rule (pricedGainOf) decides each holding's gain over THIS window, and the sentence can name the
+   *  ones it cannot know. (DEC-3656, 2026-10-09; DEC-5068, 2026-10-13) */
   holdings?: GainRow[];
   /** True for "Since" — the whole record. Its return is the window's OWN total and is never turned
    *  into a yearly rate (Performance v17, phone 3: "Since Jun 3, 2024 +16.24% … not a yearly rate").
@@ -689,8 +749,9 @@ export function thePerformance(input: {
   // WHAT THE HOLDINGS GAINED, decided by ONE rule (pricedGainOf, MK-NW-F-091) — (DEC-3656, 2026-10-09).
   // A measured account with NO positions is its own instrument: a CD stating its rate gains by that rate;
   // anything else (a bond typed by hand, a balance-only account) has no price history, so its gain is
-  // unknown. With no window (day one on the account page passes none) nothing is worked back: no rate is
-  // applied and nothing unknown refuses — the approved day-one page stands.
+  // unknown: it adds nothing, and the sentence names it (DEC-5068, 2026-10-13). With no window (day one on
+  // the account page passes none) nothing is worked back: no rate is applied and nothing is named — the
+  // approved day-one page stands.
   const years = bounds ? bounds.days / 365 : 0;   // the window's days ÷ 365 — the same years the yearly rate uses
   const names = accountDisplayNames((input.accounts ?? []) as any[]);
   const instrumentRows: GainRow[] = (input.accounts ?? [])
@@ -714,28 +775,30 @@ export function thePerformance(input: {
   // moved — and wealth generated then equalled that gain, both shown as if measured. Performance v17
   // (approved 2026-10-01): "nothing on this page shows a figure for a window its record cannot cover";
   // and wealth generated's own rule: nothing honest to subtract from. So no walk, and a sentence.
-  // Only where a record EXISTS and begins too late. With no daily record at all, the account page's own
-  // approved line stands: the window opens the first day money moved, the beginning is read back from the
-  // activity records, it says so, and no return is measured (AccountPortfolio, 'does not reach back … yet').
+  // Only where a record EXISTS and begins too late (DEC-3035i). With no daily record at all, the beginning
+  // is worked back from today's values and each holding's price history, and the account page says so.
   const theirDays = days.filter((d: any) => accountValuesOn(d, (x) => input.investmentAccountIds.has(x)).size > 0);
   const unreachable = windowStart != null && windowStart !== today && bounds != null && measured == null && theirDays.length > 0;
-  // THE BEGINNING CANNOT BE WORKED BACK where a holding's gain is unknown (DEC-3656, 2026-10-09): no
-  // beginning, no wealth generated, no walk — and a sentence that names the holding. Only where the
-  // beginning WOULD be worked back: a window that opens today, no window at all (day one), a beginning
-  // the record reads, or a record that begins too late (above) are untouched.
-  const cannotWorkBack = windowStart != null && windowStart !== today && measured == null && !unreachable && unknownNames.length > 0
-    ? cannotWorkBackSentence(unknownNames) : '';
+  // THE BEGINNING IS WORKED BACK only here: a window that does not open today, no beginning the record
+  // reads, and no record of these accounts at all. A window that opens today, no window at all (day one), a
+  // beginning the record reads, or a record that begins too late (above) are untouched.
+  const workedBack = windowStart != null && windowStart !== today && measured == null && !unreachable;
+  // A HOLDING WITH NO PRICE HISTORY IS LEFT OUT, AND SAID (DEC-5068, 2026-10-13: "Wealth Generated and Return
+  // should be calculated and displayed for every asset with history. Below it display …"). It replaces the
+  // refusal of DEC-3656 part 2, which drew no beginning, no wealth generated and no walk at all: its gain adds
+  // nothing (its value is taken as unchanged over the window), and the sentence names it.
+  const notIncluded = workedBack && unknownNames.length > 0 ? notIncludedSentence(unknownNames) : '';
   const beginning = measured ?? (ending - pricedGain - contributions + withdrawals);
 
-  const walk = unreachable || cannotWorkBack ? null : buildChangeWalk({
+  const walk = unreachable ? null : buildChangeWalk({
     beginning, ending, fromLabel: input.windowLabel, toLabel: 'today',
     contributions, withdrawals, dividends, interest,
   });
   const firstRecorded = theirDays.map((d: any) => String(d?.date ?? '')).filter(Boolean).sort()[0];
-  // the record begins too late — or, where the beginning would be worked back, a holding's gain cannot be known (DEC-3656, 2026-10-09)
-  const cannotReach = cannotWorkBack || (unreachable && bounds && firstRecorded
+  // the record begins too late (DEC-3035i)
+  const cannotReach = unreachable && bounds && firstRecorded
     ? `The record begins ${dateShown(firstRecorded)}, so it cannot say what ${input.investmentAccountIds.size === 1 ? 'this account was' : 'these accounts were'} worth on ${dateShown(bounds.beginningAsOf)}.`
-    : '');
+    : '';
 
   // A WINDOW THE RECORD CANNOT COVER ANSWERS NOTHING (Performance v17, approved 2026-10-01: "a window
   // the record cannot cover is greyed to — … nothing on this page shows a figure for a window its
@@ -755,7 +818,13 @@ export function thePerformance(input: {
     start: bounds.beginningAsOf, end: today,
   }) : null;
   const covered = measured != null && verdict?.refused !== 'START_NOT_RECORDED';
-  const cumulative = covered ? verdict?.rate ?? null : null;
+  // WHERE THE BEGINNING IS WORKED BACK, THE RETURN IS THAT OF THE HOLDINGS WITH A HISTORY (DEC-5068, 2026-10-13):
+  // Σ their values now ÷ Σ their starts − 1, each start = value now ÷ (1 + its own return over the window). One
+  // with no history is left out, never counted at 0%; with none, there is no return. Where the record reaches
+  // back, the return stays the measured time-weighted return of the accounts (DEC-1669, DEC-4439). `covered`
+  // still says only whether the record reaches back, so the Performance tab greys the windows it cannot reach.
+  const knownReturn = workedBack && input.holdings ? knownHoldingsReturn(gainRows, years) : null;
+  const cumulative = covered ? verdict?.rate ?? null : workedBack ? knownReturn : null;
   // a yearly rate only for a window longer than a year: (1 + the return)^(365 ÷ days) − 1. "Since" is
   // the whole record: its figure is the window's own total, said with its two dates.
   // LONGER THAN A YEAR is read on the calendar, the way the window itself is (DEC-3768b): a window that opens
@@ -778,7 +847,7 @@ export function thePerformance(input: {
     ret: perYear ?? cumulative,
     cumulative, perYear, years,
     sentence: covered ? whyNoReturn(verdict) : cannotReach,
-    cannotWorkBack,
+    notIncluded,
   };
 }
 

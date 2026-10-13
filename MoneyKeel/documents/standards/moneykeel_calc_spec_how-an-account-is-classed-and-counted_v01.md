@@ -121,11 +121,25 @@ account's own uninvested cash. Each part is rated by what it is, the person's ow
 Performance and a window the record cannot reach (second-round review, 2026-10-07; Performance v17):
 where a daily record exists but begins after the window opens, there is no walk and no wealth
 generated — a sentence names the record's first day. The ending stands on its own. With no record at
-all, the account page's approved 'read back from your activity records' state stands, worked back from
-today (his decision DEC-3656, 2026-10-10): a CD with a stated rate gains by its rate — $10,500 at 5% for a
-year began at $10,000; a holding with no price history and no rate (a bond typed by hand) leaves that
-account with no beginning and no wealth generated, and the screen says "The beginning can't be worked
-back: Fidelity Brokerage has no price history." Day one opens every window today.
+all, the beginning is worked back from today (his decision DEC-3656, 2026-10-10): a CD with a stated rate
+gains by its rate — $10,500 at 5% for a year began at $10,000. A holding with no price history and no rate
+(a bond typed by hand) no longer refuses the walk (his decision DEC-5068, 2026-10-13, which replaces part 2
+of DEC-3656: *"Wealth Generated and Return should be calculated and displayed for every asset with history.
+Below it display "Wealth Generated and Return does not include treasury gains as no price history
+available.""*). It adds no gain — its value is taken as unchanged — Wealth generated and the walk come from
+the holdings whose gain is known, and Return is the return of those holdings only: their values now added
+up ÷ their start values added up − 1, each start = value now ÷ (1 + its own return over the window), the
+same method as each category's return; one with no history is left out, never counted at 0%, and with
+none there is no Return. Below the summary, on the account page and on that account's card on the
+Performance tab: "Wealth generated and Return do not include Treasury 2031's gains, as it has no price
+history." (several: "… do not include the gains of Treasury 2031 and Muni 2029, as they have no price
+history."). Worked example: $50,000 = VTI $40,000 (+10% over the past year) + Treasury 2031 $10,000 typed
+by hand, no money moved — VTI gained 40,000 × (1 − 1 ÷ 1.10) = $3,636.36, beginning $46,363.64, Wealth
+generated $3,636, Return +10.00%. The account page's note reads "Your daily record does not reach back to
+<day> yet, so the beginning is worked back from today's values and each holding's price history." Across
+every account together the Performance tab still greys a window its record cannot reach (Performance
+v17), and Home's month figure matches it. Where the record does reach back, Return is the measured
+time-weighted return of the accounts (DEC-1669, DEC-4439), unchanged. Day one opens every window today.
 
 A balance that was never entered stays in view and reads "Value not entered" (his wording, DEC-3657):
 an account row, a bank, a class whose only account has none, a group and a debt row — never $0, −$0

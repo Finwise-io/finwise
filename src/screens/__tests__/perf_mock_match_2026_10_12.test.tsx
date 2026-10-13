@@ -200,6 +200,10 @@ const KNOWN: [number, string, string, string][] = [
   [3, 'e*trade account 1', 'e*trade brokerage', '10'],
   [4, 'e*trade account 1', 'e*trade brokerage', '10'],
   [3, 'linked · wealth generated $6,904 since jun 3, 2024', 'linked · wealth generated $6,904 · return +16.24%', '11: one closed-account line; phone 1\'s wording, the one v17 marks as new'],
+  // (b) — DEC-5136 (2026-10-13, his words: "HOW $38,000 BECAME $52,704 · ALL ACCOUNTS - this is the title. Not - "How xxx
+  // stands. ALl Accounts""): the walk's title names the beginning and the ending on day one too; a READ THIS FIRST row says so
+  [4, "how today's value stands · all accounts $354,314", 'how $354,314 became $354,314 · all accounts', 'DEC-5136: one walk title in every state'],
+  [5, "how today's value stands · all accounts $0", 'how $0 became $0 · all accounts', 'DEC-5136: one walk title in every state'],
 ];
 
 describe('Performance v17 — every word and every figure, in each data state', () => {

@@ -8,6 +8,10 @@
  *       window's days ÷ 365;
  *   (2) a holding with no price history and no rate: its gain cannot be known — no beginning, no wealth
  *       generated, no walk, and a sentence that names it.
+ *       SETTLED 2026-10-13 by DEC-5068, which replaces (2): "Wealth Generated and Return should be calculated and
+ *       displayed for every asset with history. Below it display …". The walk is drawn from the gains that are
+ *       known, the holding with no history adds $0, and notIncluded names it: "Wealth generated and Return do not
+ *       include <name>'s gains, as it has no price history." The cases below that pinned the refusal now pin that.
  *  Unchanged: day one, a window the record reaches, holdings with a price history.
  */
 import { thePerformance, pricedGainOf } from './performance';
@@ -57,19 +61,22 @@ describe('MK-NW-O-008 thePerformance — the beginning worked back (DEC-3656, 20
     expect(f.walk!.beginning).toBeCloseTo(10000, 6);
     expect(f.walk!.ending).toBe(10500);
     expect(f.walk!.wealthGenerated).toBeCloseTo(500, 6);
-    expect(f.cannotWorkBack).toBe('');
+    expect(f.notIncluded).toBe('');
   });
 
-  test('(2) a hand-typed bond account (no positions, no price history, not a CD): no walk, and the sentence names it', () => {
+  test('(2) a hand-typed bond account (no positions, no price history, not a CD): SETTLED 2026-10-13 by DEC-5068 — the walk stands at $0 gained, and the sentence names it', () => {
     const f = thePerformance({ ...base(), accounts: [bondAcct] });
-    expect(f.walk).toBeNull();
+    // was: no walk, "The beginning can't be worked back: Fidelity Brokerage has no price history."
+    expect(f.walk).not.toBeNull();
+    expect(f.walk!.beginning).toBe(8000);          // its value taken as unchanged over the window
+    expect(f.walk!.wealthGenerated).toBe(0);
     // named by the app's one display name for an account (accountDisplayNames): "Fidelity Brokerage"
-    expect(f.cannotWorkBack).toBe("The beginning can't be worked back: Fidelity Brokerage has no price history.");
-    expect(f.sentence).toBe(f.cannotWorkBack);
-    expect(f.ret).toBeNull();
+    expect(f.notIncluded).toBe("Wealth generated and Return do not include Fidelity Brokerage's gains, as it has no price history.");
+    expect(f.sentence).toBe('');
+    expect(f.ret).toBeNull();                      // no holding with a history: no return
   });
 
-  test('(2) several holdings: names joined with ", " and " and ", and "have"', () => {
+  test('(2) several holdings: names joined with ", " and " and ", and "they have" — SETTLED 2026-10-13 by DEC-5068', () => {
     const f = thePerformance({
       ...base(), accounts: [{ asset_id: 'a', label: 'Brokerage', balance: 3000, positions: [{}, {}, {}] }],
       holdings: [
@@ -78,17 +85,18 @@ describe('MK-NW-O-008 thePerformance — the beginning worked back (DEC-3656, 20
         { position: { ticker: 'CCC', last_price: 10, lots: [{ shares: 100 }] }, marketValue: 0, periodReturn: null },
       ],
     });
-    expect(f.walk).toBeNull();
-    expect(f.sentence).toBe("The beginning can't be worked back: AAA, BBB and CCC have no price history.");
+    expect(f.walk!.beginning).toBe(3000);
+    expect(f.notIncluded).toBe('Wealth generated and Return do not include the gains of AAA, BBB and CCC, as they have no price history.');
+    expect(f.ret).toBeNull();                      // none of the three has a history: no return, never 0%
   });
 
-  test('(2) a CD held as a POSITION carries no rate → unknown, named', () => {
+  test('(2) a CD held as a POSITION carries no rate → unknown, named — SETTLED 2026-10-13 by DEC-5068', () => {
     const f = thePerformance({
       ...base(), accounts: [{ asset_id: 'a', label: 'Brokerage', balance: 5704, positions: [{}] }],
       holdings: [{ position: { ticker: 'KEYBANK CD 4.00%', last_price: 1, lots: [{ shares: 5704 }] }, marketValue: 0, periodReturn: null }],
     });
-    expect(f.walk).toBeNull();
-    expect(f.sentence).toBe("The beginning can't be worked back: KEYBANK CD 4.00% has no price history.");
+    expect(f.walk!.beginning).toBe(5704);
+    expect(f.notIncluded).toBe("Wealth generated and Return do not include KEYBANK CD 4.00%'s gains, as it has no price history.");
   });
 
   test('every other account keeps its full page: a priced account beside the bond still works back', () => {
@@ -100,14 +108,15 @@ describe('MK-NW-O-008 thePerformance — the beginning worked back (DEC-3656, 20
     });
     expect(f.walk).not.toBeNull();
     expect(f.walk!.beginning).toBeCloseTo(1000, 6);   // 1,100 − 100
-    expect(f.cannotWorkBack).toBe('');
+    expect(f.ret).toBeCloseTo(0.1, 12);               // its own +10% (DEC-5068: the return of the holdings with a history)
+    expect(f.notIncluded).toBe('');
   });
 
   test('unchanged · day one with no window (the account page passes none): the walk stands, nothing refused, no rate applied', () => {
     const f = thePerformance({ ...base({ windowStart: null, windowLabel: 'since today' }), accounts: [bondAcct] });
     expect(f.walk).not.toBeNull();
     expect(f.walk!.beginning).toBe(8000);
-    expect(f.cannotWorkBack).toBe('');
+    expect(f.notIncluded).toBe('');
     const cd = thePerformance({ ...base({ windowStart: null, windowLabel: 'since today' }), accounts: [cdAcct] });
     expect(cd.walk!.beginning).toBe(10500);
   });
@@ -116,7 +125,7 @@ describe('MK-NW-O-008 thePerformance — the beginning worked back (DEC-3656, 20
     const f = thePerformance({ ...base({ windowStart: TODAY }), accounts: [bondAcct] });
     expect(f.walk).not.toBeNull();
     expect(f.walk!.beginning).toBe(8000);
-    expect(f.cannotWorkBack).toBe('');
+    expect(f.notIncluded).toBe('');
   });
 
   test('unchanged · a window the record reaches: the beginning is READ, no rule (1) or (2)', () => {
@@ -125,6 +134,6 @@ describe('MK-NW-O-008 thePerformance — the beginning worked back (DEC-3656, 20
     const f = thePerformance({ ...base({ snapshotDays: [day] }), accounts: [bondAcct] });
     expect(f.measured).toBe(7900);
     expect(f.walk!.beginning).toBe(7900);
-    expect(f.cannotWorkBack).toBe('');
+    expect(f.notIncluded).toBe('');
   });
 });

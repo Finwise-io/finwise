@@ -510,6 +510,8 @@ def with_ids_and_chains(rows=None, funcs=None):
     RENAMED = {
         'spending': 'expenses',            # canon row 3: "spending" is retired everywhere (2026-09-12)
         'theCushion': 'theEmergencyFund',  # same canon: the concept is the Emergency fund
+        # DEC-5068 (2026-10-13): the sentence no longer refuses the beginning; it says which holding is left out
+        'cannotWorkBackSentence': 'notIncludedSentence',
     }
     renamed_any = False
     for was, now in RENAMED.items():

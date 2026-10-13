@@ -650,6 +650,9 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
     // The door hands it out with measured = null; the screens say it is not read: Performance treats no record as day one and
     // draws no walk (PerformanceScreen.tsx:125,346-351); the account page says "the beginning is read back from your activity
     // records and no return is measured" (AccountPortfolioScreen.tsx:414-415). DEC-3035i governs the record-begins-late branch.
+    // SETTLED 2026-10-13 by DEC-5068: a caller that hands over the HOLDINGS now gets the return of those with a price
+    // history, and the account page reads "…the beginning is worked back from today's values and each holding's price
+    // history." This case hands over only a dollar gain (no holdings), so there is still no percent — unchanged.
     const f = thePerformance({ windowStart: '2026-10-01', windowLabel: 'this month', today: '2026-10-09', pricedGain: 1000, snapshotDays: [],
       transactions: [{ id: 'd', type: 'DEPOSIT', account_id: 'v', amount: 2000, date: '2026-10-02' }], investmentAccountIds: new Set(['v']), accounts: [linkedAt('v', 12000)] });
     expect({ beginning_inferred: f.walk!.beginning, wealth_generated: f.walk!.wealthGenerated, beginning_read_from_record: f.measured }).toEqual({ beginning_inferred: 9000, wealth_generated: 1000, beginning_read_from_record: null });

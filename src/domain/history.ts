@@ -146,7 +146,7 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  *               MK-CF-O-001 basePay · MK-HM-F-006 money0
  *               MK-NW-F-026 accountDisplayNames · MK-NW-F-058 yearsToMaturity
  *               MK-NW-F-067 plural · MK-NW-F-119 estimatedAccrued
- *               MK-NW-F-130 cannotWorkBackSentence · MK-PF-F-006 capGains
+ *               MK-NW-F-130 notIncludedSentence · MK-PF-F-006 capGains
  *               MK-PF-F-041 isoDay · MK-PL-F-033 educationPlan
  *               MK-PL-F-050 simulate · MK-PL-F-079 numOrZero
  *               MK-ST-F-021 toNumber · MK-ST-F-049 formatMoney

@@ -1,0 +1,4949 @@
+{
+  "batch": "pf module final — part 1",
+  "written_by": "ChatGPT / Codex independent outside audit, 2026-10-13",
+  "ready_to_close": false,
+  "still_open": [
+    "MK-NW-F-084: Use the shared TWR for category performance on a common window, refuse incomplete category coverage, retain unknown classification, and label coupon rates separately. Bound income dates through today.",
+    "MK-NW-F-090: Validate recorded calendar days and exclude future dates before choosing Since; never interpret the fallback today as measured coverage.",
+    "MK-NW-F-091: Use gainOfRow as the sole rule and refuse reconstruction unless share changes, distributions and valuation basis permit it; an unknown held value must propagate null.",
+    "MK-NW-F-092: Require confirmed investment membership for Unclassified accounts, or show a separately labelled unresolved amount; refuse a missing account id rather than stringify it.",
+    "MK-NW-F-103: Only valid nonfuture snapshot dates with at least one finite entered measured value count; deduplicate and sort.",
+    "MK-NW-F-104: Specify the allocation or require actual per-account ending values; do not fabricate individual balances from one aggregate.",
+    "MK-NW-F-127: Use recorded start and movement-adjusted valuations for dollar gain, or refuse; require a stated unchanged-share/reinvestment domain for reconstruction.",
+    "MK-NW-F-128: A finite explicit market value, including zero and negative, wins; apply later sources only when absent, with valuation date/source attached.",
+    "MK-NW-O-008: Use the same external flows in walk and TWR (new account actual deposit where known), bound dates, separate estimated and recorded beginnings, and reconcile cash scope explicitly without changing an owner decision.",
+    "Screen register: MK-CF-M-002: Worked surplus1150 requires an extra300emergency-fund commitment:7200−2650−3400−300=850. Without deducting300 it is1150; settle whether the promised savings is inside budget or another row.",
+    "Screen register: MK-CF-M-051: Worked input says7200take-home but gives no explicit received-income record; planned pay alone cannot prove7200actually arrived.",
+    "Screen register: MK-CF-M-052: Expense records sum2300+512+186=2998; committed debts2650 =>5648, not3248. Even omitting mortgage gives3248, contrary to owner debt rule.",
+    "Screen register: MK-CF-M-053: Using defined committed-debt outflow5648 and received7200 gives1552, not3952. Actual-left wording inherits committed-versus-paid conflict.",
+    "Screen register: MK-MN-M-003: Remaining room requires actual YTD employee/employer contributions and eligibility; monthly promises and missing birth year cannot identify one actual amount.21350 assumes14400hasalreadygonein, not9monthly1200payments=10800.",
+    "Screen register: MK-NW-M-012: Missing required payment on an entered debt has no stated refusal; known no-payment-required0 must be distinguishable.",
+    "Screen register: MK-NW-M-013: Register says logged-month average only, but worked example has nothing logged and uses budget essentials:18000/(2400+700+250+120)=5.1873→5.2. Missing essentials must not be presented as logged history.",
+    "Screen register: MK-NW-M-020: Worked class40600is stocks only; total46600also needs6000Cash row. Need all known sleeves and unresolved residual to reconcile account balance; no missing-price contract stated.",
+    "Screen register: MK-NW-M-024: Missing coupon refusal conflicts with owner A46: interest0withmissing-rate note, yieldsunknown. Missing face value also needs refusal; do not invent rate0.",
+    "Screen register: MK-NW-M-026: Register omits accrued interest and bank/broker CD split. 1098days/365=3.008219178082years; its printed approximation gives5.65421979%, not5.69%. Current yield cannot be tested without accrued-interest/coupon schedule inputs.",
+    "Screen register: MK-NW-M-028: No acquisition answer is assumed bank CD here; latest decision asks once. Confirm legacy default is intentional and expose unentered acquisition answer; actual form evidence absent.",
+    "Screen register: MK-NW-M-029: Last closing price is not a LIVE intraday quote; state closing date/time and freshness. Purchase cost fallback must keep its different label.",
+    "Screen register: MK-NW-M-030: Missing share count or missing cost fallback lacks refusal. Options require multiplier; shares×price alone is insufficient for mini/default contracts.",
+    "Screen register: MK-NW-M-031: Missing share count is not liquidated; explicit refusal not stated. Quantity must use holding unit, not always shares.",
+    "Screen register: MK-NW-M-032: Options total paid divided by contracts yields costpercontract; price-per-share/premium comparison requires divisorquantity×multiplier. Zero holdings and unknown quantities lack refusal.",
+    "Screen register: MK-NW-M-033: Unknown quantity must also refuse total paid; contract multiplier needed for options.",
+    "Screen register: MK-NW-M-035: Some matched sale basis gives partial gain only with DEC-4643 sentence; unmatched sale is not known0profit. Future/fees/security identity policy incomplete.",
+    "Screen register: MK-NW-M-036: Long holding duration does not ensure lower tax rate inside retirement wrappers or for every option/collectible. Knownzero basis and undated lots need honest split.",
+    "Screen register: MK-NW-M-037: Ordinary-income wording overclaims tax treatment; exactanniversarybelongs here but undatedlotisunknown, notshort by default.",
+    "Screen register: MK-PF-M-001: Whole investment-account totals include idle cash, whereas owner Investments excludes cash; pick one stated scope and reconcile Home/Networth/Performance.",
+    "Screen register: MK-PF-M-002: Known missing or sign-reversed flows corrupt wealth even when walk adds up. New-account deposit10000ending10050must show50gain, not0.",
+    "Screen register: MK-PF-M-003: Exact lines reconcile by residual, but independently rounded unround rows need not reconcile; complex fixture shows displayed3269versus3271.",
+    "Screen register: MK-PF-M-004: Register sums holdingspluscash, while current orchestrator uses authoritative account balance. These disagree when broker total differs from priced components.",
+    "Screen register: MK-PF-M-006: Reconstructed category ratio is not TWR with flows; ignores unknown rows; coupon/year pace is different from actual category performance.",
+    "Screen register: MK-PF-M-007: Register says untickered interestBonds, current formula saysCashunlessbondaccount; alternatives/unclassifiedincome can be mislabeled Stocks. Day-onezero exception needs explicit coverage.",
+    "Screen register: MK-PF-M-008: False start weights and mixed capped dates can misstate matched market comparison. Missing comparator subset is not whole mix. Displayed3.69−2.83=.86, while approvedgap.85requiresunroundedunderlyingvalues.",
+    "Screen register: MK-PF-M-010: Counterfactual lump sum with dividend reinvestment is labelled what your money actually did; no personalflow/tax/cost matching.",
+    "Screen register: MK-PF-M-011: Historical alternative needs hypothetical and beforepersonal taxes/trading costs wording.",
+    "Screen register: MK-PF-M-012: Differenceinherits hypothetical-reinvestment and cost/tax assumptions; no certain actual saving claim.",
+    "Screen register: MK-PF-M-013: Figure states beginningreadneverbacksolved; orchestrator allowsno-record reconstruction. OwnerDEC-3656needs separately labelled estimate, not recorded beginning.",
+    "Screen register: MK-PF-M-014: First recorded value ascontributionerasesknownfirst-daygain; commonflowreaderandgaincontractrequired.",
+    "Screen register: MK-PF-M-015: Rounded rows can differ fromroundedending; missingflowsmustnot disappearinto unexplainedinvestmentchangewithoutnotice.",
+    "Screen register: MK-PF-M-016: Register365/days annualizesexact366-daycalendar1Y; orchestrator saysneverannualizeexact1Y. Holdingfull2Yuses2years. Oneannualizationcontractneeded.",
+    "Screen register: MK-PF-M-017: Negative total clamped0andhalf-centcutoffcaninvent −100%/nothinginvested. Sameannualizationgapasaccountfigure.",
+    "Screen register: MK-PF-M-018: Registerread-only and startsatrecordwhenmissing conflicts with orchestrator no-recordestimatedwalk and late-recordno-walk; synchronize labelsandrefusals.",
+    "Screen register: MK-PF-M-019: Alwayszero rowneeds ledgercoverage distinction; missingamount isunknown, notzero. Exactresidualdoesnot prove correctreconciliation.",
+    "Screen register: MK-PF-M-020: Missingcashsleeveofpickedbrokeragehasno stated refusal; known0availablecashisdifferent fromunenteredcash.",
+    "Screen register: MK-XS-M-001: Someassetordebtbalancesmissingmustnot silentlysumonlyknownrowsinto unqualifiednetworth.",
+    "Screen register: MK-XS-M-003: Whole stockaccount summayincludeidlecash; ownerexcludescash. Unclassified membership unresolved.",
+    "Screen register: MK-XS-M-004: Returnsharesaccount/portfoliorulebutannualizationmustrespectcalendar1YboundaryandSinceown-totalexception; corrected dailyflowconventionmustreachHome.",
+    "Published 2026 HOH brackets: replace201775/256225with201750/256200; see tax/source appendix.",
+    "Additional Medicare: distinguish200000per-employer withholding from filing-status household liability; see tax/source appendix.",
+    "Owner rule validation: out-of-module cards/forms cannot be closed from Performance evidence alone."
+  ],
+  "formula_checks": [
+    {
+      "id": "MK-NW-F-084",
+      "name": "categoryEarnings",
+      "verdict": "WRONG",
+      "why": "Category growth is a reconstructed buy-and-hold ratio, not flow-neutral TWR. Unknown holdings are silently omitted; unknown classification defaults to stocks; alternatives income is relabelled stocks. Coupon pace is not window performance. No upper date bound.",
+      "should_be": "Use the shared TWR for category performance on a common window, refuse incomplete category coverage, retain unknown classification, and label coupon rates separately. Bound income dates through today.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-F-090",
+      "name": "windowStartKey",
+      "verdict": "INCOMPLETE",
+      "why": "Earliest record date is not said to be validated or restricted to today; the no-record Since default is a UI start, not evidence of coverage.",
+      "should_be": "Validate recorded calendar days and exclude future dates before choosing Since; never interpret the fallback today as measured coverage.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-091",
+      "name": "pricedGainOf",
+      "verdict": "WRONG",
+      "why": "Back-solving current value from an adjusted total return assumes unchanged shares and reinvested payouts. A holding bought before the window but increased inside it breaks that assumption. Explicit unknown value can be counted as holding nothing.",
+      "should_be": "Use gainOfRow as the sole rule and refuse reconstruction unless share changes, distributions and valuation basis permit it; an unknown held value must propagate null.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-F-092",
+      "name": "investmentAccountIdsOf",
+      "verdict": "INCOMPLETE",
+      "why": "An Unclassified account may be cash or investments; including it as investments contradicts the no-guess rule. Missing or duplicate account ids are not specified.",
+      "should_be": "Require confirmed investment membership for Unclassified accounts, or show a separately labelled unresolved amount; refuse a missing account id rather than stringify it.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-103",
+      "name": "investmentRecordDates",
+      "verdict": "INCOMPLETE",
+      "why": "The date list does not distinguish a missing account value from an entered zero, nor specify invalid days or duplicate days.",
+      "should_be": "Only valid nonfuture snapshot dates with at least one finite entered measured value count; deduplicate and sort.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-NW-F-104",
+      "name": "closedWith",
+      "verdict": "CANNOT TELL",
+      "why": "How the ending total is distributed across prior account rows is unspecified. That distribution changes the returns when accounts have different flows or join or leave.",
+      "should_be": "Specify the allocation or require actual per-account ending values; do not fabricate individual balances from one aggregate.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "verdict": "RIGHT",
+      "why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+      "should_be": "",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-127",
+      "name": "gainOfRow",
+      "verdict": "WRONG",
+      "why": "Current value divided by total return cannot recover an actual beginning when shares change or income is paid outside the holding; a zero ending with a −100% return loses the whole loss.",
+      "should_be": "Use recorded start and movement-adjusted valuations for dollar gain, or refuse; require a stated unchanged-share/reinvestment domain for reconstruction.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-F-128",
+      "name": "heldValueOf",
+      "verdict": "WRONG",
+      "why": "An explicit market value of zero or below is discarded in favour of an older mark or built value. A wiped-out or short position can be repriced incorrectly.",
+      "should_be": "A finite explicit market value, including zero and negative, wins; apply later sources only when absent, with valuation date/source attached.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": "high"
+    },
+    {
+      "id": "MK-NW-F-129",
+      "name": "gainRowName",
+      "verdict": "RIGHT",
+      "why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+      "should_be": "",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-F-130",
+      "name": "cannotWorkBackSentence",
+      "verdict": "RIGHT",
+      "why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+      "should_be": "",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "verdict": "RIGHT",
+      "why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+      "should_be": "",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": ""
+    },
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "verdict": "WRONG",
+      "why": "New-account walk counts first evening value as contributions while TWR uses the deposit, erasing first-day gain. Beginning may be reconstructed yet figures claim read-only. Uninvested cash is included despite the Investments cash exclusion. No upper ledger date bound.",
+      "should_be": "Use the same external flows in walk and TWR (new account actual deposit where known), bound dates, separate estimated and recorded beginnings, and reconcile cash scope explicitly without changing an owner decision.",
+      "rests_on": "Owner tenets; ordinary arithmetic; supplied formula in words",
+      "severity": "high"
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-NW-F-084",
+      "name": "categoryEarnings",
+      "kind": "easy",
+      "title": "One stock dividend",
+      "given": "One stock dividend",
+      "inputs": {
+        "window": "2026-01-01 to 2026-09-30",
+        "dividend": 100,
+        "stock_value": 1100,
+        "stock_total": 0.1
+      },
+      "expected": {
+        "Stocks / Funds": {
+          "earned": {
+            "exact": 100,
+            "exact_decimal": "100.000000000000",
+            "shown": "$100"
+          },
+          "ret": {
+            "exact": 0.1,
+            "exact_decimal": "0.100000000000",
+            "shown": "+10.00%"
+          }
+        }
+      },
+      "working": [
+        "Start=1100/1.1=1000; return=1100/1000−1=.1; earned=100."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-084",
+      "name": "categoryEarnings",
+      "kind": "easy",
+      "title": "Untickered cash interest",
+      "given": "Untickered cash interest",
+      "inputs": {
+        "account": "cash",
+        "interest": 25,
+        "ticker": null
+      },
+      "expected": {
+        "Cash in this account": {
+          "earned": {
+            "exact": 25,
+            "exact_decimal": "25.000000000000",
+            "shown": "$25"
+          },
+          "ret": null
+        }
+      },
+      "working": [
+        "Untickered interest on a nonbond account is cash interest; no price/TWR data => no return."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-084",
+      "name": "categoryEarnings",
+      "kind": "complex",
+      "title": "Large stock addition invalidates synthetic category return",
+      "given": "Large stock addition invalidates synthetic category return",
+      "inputs": {
+        "first_evening": 1000,
+        "next_evening": 2200,
+        "morning_deposit": 1000,
+        "dividend_received": 37.19,
+        "row_gain_on_cost": 200,
+        "row_cost": 2000
+      },
+      "expected": {
+        "earned": {
+          "exact": 37.19,
+          "exact_decimal": "37.190000000000",
+          "shown": "$37"
+        },
+        "category_TWR": {
+          "exact": 0.1,
+          "exact_decimal": "0.100000000000",
+          "shown": "+10.00%"
+        }
+      },
+      "working": [
+        "DEC-4439 base=1000+1000=2000; growth=2200/2000=1.1; TWR=.1.",
+        "Row gain/cost=200/2000=.1 happens to match here; category correctness requires the daily flow data, not synthesized start weights."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "This witness shows a false beginning even when the return happens to match; the next case shows a wrong return.",
+      "formula_gives": {
+        "category_start_claim": 2000
+      }
+    },
+    {
+      "id": "MK-NW-F-084",
+      "name": "categoryEarnings",
+      "kind": "complex",
+      "title": "Partial priced coverage and misclassified alternative income",
+      "given": "Partial priced coverage and misclassified alternative income",
+      "inputs": {
+        "stock_value": 1234.56,
+        "stock_return": 0.0731,
+        "unpriced_bond_value": 7654.32,
+        "alternative_dividend": 83.27,
+        "alternative_class": "other"
+      },
+      "expected": "REFUSES",
+      "working": [
+        "The bond has no return; the whole-category/mix return cannot be stated from the stock subset.",
+        "Alternative dividend is $83.27 of alternatives income; cannot relabel it Stocks / Funds."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "A separately labelled covered-stock return may be .0731; it is not the whole mix.",
+      "formula_gives": {
+        "Stocks / Funds_earned": 83.27
+      }
+    },
+    {
+      "id": "MK-NW-F-084",
+      "name": "categoryEarnings",
+      "kind": "edge",
+      "title": "Day one with no income",
+      "given": "Day one with no income",
+      "inputs": {
+        "dayOne": true,
+        "transactions": []
+      },
+      "expected": {
+        "categories": [
+          {
+            "label": "Stocks / Funds",
+            "earned": {
+              "exact": 0,
+              "exact_decimal": "0.000000000000",
+              "shown": "$0"
+            },
+            "ret": null
+          },
+          {
+            "label": "Bonds & CDs",
+            "earned": {
+              "exact": 0,
+              "exact_decimal": "0.000000000000",
+              "shown": "$0"
+            },
+            "ret": null
+          },
+          {
+            "label": "Cash in this account",
+            "earned": {
+              "exact": 0,
+              "exact_decimal": "0.000000000000",
+              "shown": "$0"
+            },
+            "ret": null
+          }
+        ]
+      },
+      "working": [
+        "Owner-approved day-one structure uses confirmed ledger zero received; every return remains null."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-090",
+      "name": "windowStartKey",
+      "kind": "easy",
+      "title": "Since starts after recorded beginning",
+      "given": "Since starts after recorded beginning",
+      "inputs": {
+        "period": "Since",
+        "record_dates": [
+          "2026-09-01"
+        ],
+        "today": "2026-09-30"
+      },
+      "expected": "2026-09-02",
+      "working": [
+        "Earliest Sep 1 + one calendar day = Sep 2."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-090",
+      "name": "windowStartKey",
+      "kind": "easy",
+      "title": "This year",
+      "given": "This year",
+      "inputs": {
+        "period": "YTD",
+        "today": "2026-09-30"
+      },
+      "expected": "2026-01-01",
+      "working": [
+        "This year begins Jan 1."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-090",
+      "name": "windowStartKey",
+      "kind": "complex",
+      "title": "Short February and unsorted dates",
+      "given": "Short February and unsorted dates",
+      "inputs": {
+        "period": "1M",
+        "today": "2026-03-31",
+        "record_dates": [
+          "2026-03-12",
+          "2025-11-03",
+          "2026-02-28"
+        ]
+      },
+      "expected": "2026-02-28",
+      "working": [
+        "March 31 minus one month clamps to February 28; records do not alter fixed window."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-090",
+      "name": "windowStartKey",
+      "kind": "complex",
+      "title": "Future and impossible record dates",
+      "given": "Future and impossible record dates",
+      "inputs": {
+        "period": "Since",
+        "today": "2026-10-13",
+        "record_dates": [
+          "2026-02-31",
+          "2026-11-01",
+          "2026-09-19"
+        ]
+      },
+      "expected": "2026-09-20",
+      "working": [
+        "Reject Feb 31 and future Nov 1; earliest real record Sep 19; next day Sep 20."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "Correct contract-level result requires calendar-day validation.",
+      "formula_gives": "RULE UNCLEAR: validation is not stated"
+    },
+    {
+      "id": "MK-NW-F-090",
+      "name": "windowStartKey",
+      "kind": "edge",
+      "title": "Unsupported 5Y",
+      "given": "Unsupported 5Y",
+      "inputs": {
+        "period": "5Y",
+        "today": "2026-10-13"
+      },
+      "expected": "REFUSES",
+      "working": [
+        "DEC-4640: no valid start for unsupported period."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-091",
+      "name": "pricedGainOf",
+      "kind": "easy",
+      "title": "Unchanged holding at 10%",
+      "given": "Unchanged holding at 10%",
+      "inputs": {
+        "value": 1100,
+        "periodTotal": 0.1,
+        "unchanged_shares": true,
+        "no_distributions": true
+      },
+      "expected": {
+        "exact": 100,
+        "exact_decimal": "100.000000000000",
+        "shown": "$100"
+      },
+      "working": [
+        "Start=1100/1.1=1000; gain=1100−1000=100."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-091",
+      "name": "pricedGainOf",
+      "kind": "easy",
+      "title": "CD one year at 5%",
+      "given": "CD one year at 5%",
+      "inputs": {
+        "value": 10500,
+        "couponRate": 0.05,
+        "years": 1
+      },
+      "expected": {
+        "exact": 500,
+        "exact_decimal": "500.000000000000",
+        "shown": "$500"
+      },
+      "working": [
+        "Start=10500/1.05=10000; gain=500; DEC-3656."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-091",
+      "name": "pricedGainOf",
+      "kind": "complex",
+      "title": "Holding quantity increased inside window",
+      "given": "Holding quantity increased inside window",
+      "inputs": {
+        "start_shares": 10,
+        "start_price": 100,
+        "added_shares": 10,
+        "purchase_price": 110,
+        "end_price": 121,
+        "end_value": 2420,
+        "periodTotal": 0.21
+      },
+      "expected": {
+        "exact": 320,
+        "exact_decimal": "320.000000000000",
+        "shown": "$320"
+      },
+      "working": [
+        "Beginning=10×100=1000; added cost=10×110=1100; end=20×121=2420.",
+        "Wealth=2420−1000−1100=320; formula synthetic start=2420/1.21=2000; gain=420."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": {
+        "exact": 420,
+        "exact_decimal": "420.000000000000",
+        "shown": "$420"
+      }
+    },
+    {
+      "id": "MK-NW-F-091",
+      "name": "pricedGainOf",
+      "kind": "complex",
+      "title": "Distribution paid outside holding",
+      "given": "Distribution paid outside holding",
+      "inputs": {
+        "shares": 1000,
+        "raw_start_price": 100,
+        "raw_end_price": 105,
+        "paid_cash_dividend": 1200,
+        "adjusted_total_return": 0.0628,
+        "holding_end_value": 105000
+      },
+      "expected": "RULE UNCLEAR",
+      "working": [
+        "Owner DEC-4644 example says beginning $100000.",
+        "Formula: 105000/1.0628=98795.634173880317; gain=6204.365826119683.",
+        "Economic price gain=105000−100000=5000; earned wealth including cash dividend=6200.",
+        "Reinvested adjusted-return path would end at106280, not105000 or106200."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "medium",
+      "notes": "Owner payout/reinvestment and adjusted-price example must be reconciled; do not silently replace the owner rule.",
+      "formula_gives": {
+        "synthetic_gain": {
+          "exact": 6204.365826119683,
+          "exact_decimal": "6204.365826119683",
+          "shown": "$6,204"
+        }
+      }
+    },
+    {
+      "id": "MK-NW-F-091",
+      "name": "pricedGainOf",
+      "kind": "edge",
+      "title": "Known total loss",
+      "given": "Known total loss",
+      "inputs": {
+        "beginning": 1000,
+        "ending_value": 0,
+        "periodTotal": -1,
+        "flows": 0
+      },
+      "expected": {
+        "exact": -1000,
+        "exact_decimal": "-1000.000000000000",
+        "shown": "−$1,000"
+      },
+      "working": [
+        "True gain=0−1000=−1000; end value zero does not mean gain zero."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": 0
+    },
+    {
+      "id": "MK-NW-F-127",
+      "name": "gainOfRow",
+      "kind": "easy",
+      "title": "Unchanged holding at 10%",
+      "given": "Unchanged holding at 10%",
+      "inputs": {
+        "value": 1100,
+        "periodTotal": 0.1,
+        "unchanged_shares": true,
+        "no_distributions": true
+      },
+      "expected": {
+        "exact": 100,
+        "exact_decimal": "100.000000000000",
+        "shown": "$100"
+      },
+      "working": [
+        "Start=1100/1.1=1000; gain=1100−1000=100."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-127",
+      "name": "gainOfRow",
+      "kind": "easy",
+      "title": "CD one year at 5%",
+      "given": "CD one year at 5%",
+      "inputs": {
+        "value": 10500,
+        "couponRate": 0.05,
+        "years": 1
+      },
+      "expected": {
+        "exact": 500,
+        "exact_decimal": "500.000000000000",
+        "shown": "$500"
+      },
+      "working": [
+        "Start=10500/1.05=10000; gain=500; DEC-3656."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-127",
+      "name": "gainOfRow",
+      "kind": "complex",
+      "title": "Holding quantity increased inside window",
+      "given": "Holding quantity increased inside window",
+      "inputs": {
+        "start_shares": 10,
+        "start_price": 100,
+        "added_shares": 10,
+        "purchase_price": 110,
+        "end_price": 121,
+        "end_value": 2420,
+        "periodTotal": 0.21
+      },
+      "expected": {
+        "exact": 320,
+        "exact_decimal": "320.000000000000",
+        "shown": "$320"
+      },
+      "working": [
+        "Beginning=10×100=1000; added cost=10×110=1100; end=20×121=2420.",
+        "Wealth=2420−1000−1100=320; formula synthetic start=2420/1.21=2000; gain=420."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": {
+        "exact": 420,
+        "exact_decimal": "420.000000000000",
+        "shown": "$420"
+      }
+    },
+    {
+      "id": "MK-NW-F-127",
+      "name": "gainOfRow",
+      "kind": "complex",
+      "title": "Distribution paid outside holding",
+      "given": "Distribution paid outside holding",
+      "inputs": {
+        "shares": 1000,
+        "raw_start_price": 100,
+        "raw_end_price": 105,
+        "paid_cash_dividend": 1200,
+        "adjusted_total_return": 0.0628,
+        "holding_end_value": 105000
+      },
+      "expected": "RULE UNCLEAR",
+      "working": [
+        "Owner DEC-4644 example says beginning $100000.",
+        "Formula: 105000/1.0628=98795.634173880317; gain=6204.365826119683.",
+        "Economic price gain=105000−100000=5000; earned wealth including cash dividend=6200.",
+        "Reinvested adjusted-return path would end at106280, not105000 or106200."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "medium",
+      "notes": "Owner payout/reinvestment and adjusted-price example must be reconciled; do not silently replace the owner rule.",
+      "formula_gives": {
+        "synthetic_gain": {
+          "exact": 6204.365826119683,
+          "exact_decimal": "6204.365826119683",
+          "shown": "$6,204"
+        }
+      }
+    },
+    {
+      "id": "MK-NW-F-127",
+      "name": "gainOfRow",
+      "kind": "edge",
+      "title": "Known total loss",
+      "given": "Known total loss",
+      "inputs": {
+        "beginning": 1000,
+        "ending_value": 0,
+        "periodTotal": -1,
+        "flows": 0
+      },
+      "expected": {
+        "exact": -1000,
+        "exact_decimal": "-1000.000000000000",
+        "shown": "−$1,000"
+      },
+      "working": [
+        "True gain=0−1000=−1000; end value zero does not mean gain zero."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": 0
+    },
+    {
+      "id": "MK-NW-F-092",
+      "name": "investmentAccountIdsOf",
+      "kind": "easy",
+      "title": "Stock id only",
+      "given": "Stock id only",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "A",
+            "class": "Stocks / Funds"
+          }
+        ]
+      },
+      "expected": [
+        "A"
+      ],
+      "working": [
+        "Stock class is investment."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-092",
+      "name": "investmentAccountIdsOf",
+      "kind": "easy",
+      "title": "Cash and home excluded",
+      "given": "Cash and home excluded",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "C",
+            "class": "Cash"
+          },
+          {
+            "id": "H",
+            "class": "Real estate"
+          }
+        ]
+      },
+      "expected": [],
+      "working": [
+        "Neither class is investment."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-092",
+      "name": "investmentAccountIdsOf",
+      "kind": "complex",
+      "title": "Several institutions and numeric id",
+      "given": "Several institutions and numeric id",
+      "inputs": {
+        "accounts": [
+          {
+            "id": 8,
+            "class": "Bonds & CDs"
+          },
+          {
+            "id": "9",
+            "class": "Alternatives"
+          },
+          {
+            "id": "C",
+            "class": "Cash"
+          }
+        ]
+      },
+      "expected": [
+        "8",
+        "9"
+      ],
+      "working": [
+        "Normalize actual ids to strings; exclude C; resulting set has two members."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-092",
+      "name": "investmentAccountIdsOf",
+      "kind": "complex",
+      "title": "Unclassified might be cash",
+      "given": "Unclassified might be cash",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "U",
+            "class": "Unclassified",
+            "balance": 3421.17
+          }
+        ]
+      },
+      "expected": "RULE UNCLEAR",
+      "working": [
+        "Formula includes U.",
+        "Owner no-guess and Investments excludes cash => unresolved membership; refuse treating $3421.17 as confirmed investment."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "medium",
+      "notes": "This is an owner-scope conflict, not permission to choose a class.",
+      "formula_gives": [
+        "U"
+      ]
+    },
+    {
+      "id": "MK-NW-F-092",
+      "name": "investmentAccountIdsOf",
+      "kind": "edge",
+      "title": "Missing id",
+      "given": "Missing id",
+      "inputs": {
+        "accounts": [
+          {
+            "class": "Stocks / Funds",
+            "balance": 123.45
+          }
+        ]
+      },
+      "expected": "REFUSES",
+      "working": [
+        "No account id => cannot match snapshots or flows."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": "RULE UNCLEAR: missing-id handling unstated"
+    },
+    {
+      "id": "MK-NW-F-103",
+      "name": "investmentRecordDates",
+      "kind": "easy",
+      "title": "One measured day",
+      "given": "One measured day",
+      "inputs": {
+        "measured": [
+          "A"
+        ],
+        "days": [
+          {
+            "date": "2026-01-01",
+            "values": {
+              "A": 100
+            }
+          }
+        ]
+      },
+      "expected": [
+        "2026-01-01"
+      ],
+      "working": [
+        "A has a recorded finite value."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-103",
+      "name": "investmentRecordDates",
+      "kind": "easy",
+      "title": "No measured accounts",
+      "given": "No measured accounts",
+      "inputs": {
+        "measured": [],
+        "days": [
+          {
+            "date": "2026-01-01",
+            "values": {
+              "A": 100
+            }
+          }
+        ]
+      },
+      "expected": [],
+      "working": [
+        "Empty measured set yields no dates."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-103",
+      "name": "investmentRecordDates",
+      "kind": "complex",
+      "title": "Unsorted dates and other accounts",
+      "given": "Unsorted dates and other accounts",
+      "inputs": {
+        "measured": [
+          "A",
+          "B"
+        ],
+        "days": [
+          {
+            "date": "2026-09-20",
+            "values": {
+              "B": 2314.78
+            }
+          },
+          {
+            "date": "2026-09-02",
+            "values": {
+              "X": 839.12
+            }
+          },
+          {
+            "date": "2026-09-05",
+            "values": {
+              "A": 937.19
+            }
+          }
+        ]
+      },
+      "expected": [
+        "2026-09-05",
+        "2026-09-20"
+      ],
+      "working": [
+        "X-only date is excluded; sort A/B dates ascending."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-103",
+      "name": "investmentRecordDates",
+      "kind": "complex",
+      "title": "Duplicate dates with confirmed zero",
+      "given": "Duplicate dates with confirmed zero",
+      "inputs": {
+        "measured": [
+          "A"
+        ],
+        "days": [
+          {
+            "date": "2026-09-17",
+            "values": {
+              "A": 0
+            }
+          },
+          {
+            "date": "2026-09-17",
+            "values": {
+              "A": 0
+            }
+          },
+          {
+            "date": "2026-09-16",
+            "values": {
+              "A": 41.19
+            }
+          }
+        ]
+      },
+      "expected": [
+        "2026-09-16",
+        "2026-09-17"
+      ],
+      "working": [
+        "Zero is a recorded value; identical date entries represent one calendar day."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": "RULE UNCLEAR: deduplication unstated"
+    },
+    {
+      "id": "MK-NW-F-103",
+      "name": "investmentRecordDates",
+      "kind": "edge",
+      "title": "Present row with missing balance",
+      "given": "Present row with missing balance",
+      "inputs": {
+        "measured": [
+          "A"
+        ],
+        "days": [
+          {
+            "date": "2026-09-01",
+            "values": {
+              "A": null
+            }
+          }
+        ]
+      },
+      "expected": [],
+      "working": [
+        "A missing balance is not a recorded investment value."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": "RULE UNCLEAR: presence versus finite value unstated"
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "kind": "easy",
+      "title": "Measured gain has no refusal text",
+      "given": "Measured gain has no refusal text",
+      "inputs": {
+        "rate": 0.005,
+        "refused": null
+      },
+      "expected": "",
+      "working": [
+        "Return known => empty sentence."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "kind": "easy",
+      "title": "No ending record",
+      "given": "No ending record",
+      "inputs": {
+        "refused": "end_not_recorded"
+      },
+      "expected": "Today’s value is not on record.",
+      "working": [
+        "Need ending valuation; explain missing end."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "kind": "complex",
+      "title": "Money moved without valuation",
+      "given": "Money moved without valuation",
+      "inputs": {
+        "refused": "flow_without_value",
+        "day": "2026-09-17",
+        "deposit": 3287.19
+      },
+      "expected": "A return cannot be measured across 2026-09-17: money moved that day without a recorded value.",
+      "working": [
+        "Deposit day missing value => exact affected date and reason."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "kind": "complex",
+      "title": "Overwithdrawal versus first-day loss",
+      "given": "Overwithdrawal versus first-day loss",
+      "inputs": {
+        "previous_evening": 0,
+        "deposit": 10000,
+        "ending": 9800,
+        "measured_rate": -0.02
+      },
+      "expected": "",
+      "working": [
+        "Base=10000; growth=9800/10000=.98; measured loss−2%; DEC-4439 says no refusal."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-105",
+      "name": "whyNoReturn",
+      "kind": "edge",
+      "title": "No beginning record",
+      "given": "No beginning record",
+      "inputs": {
+        "refused": "start_not_recorded"
+      },
+      "expected": "",
+      "working": [
+        "This helper leaves beginning reason to coverage sentence; integration must still show that reason."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-128",
+      "name": "heldValueOf",
+      "kind": "easy",
+      "title": "Explicit current value",
+      "given": "Explicit current value",
+      "inputs": {
+        "marketValue": 1000,
+        "last_price": 99,
+        "shares": 8
+      },
+      "expected": {
+        "exact": 1000,
+        "exact_decimal": "1000.000000000000",
+        "shown": "$1,000"
+      },
+      "working": [
+        "Known current valuation wins."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-128",
+      "name": "heldValueOf",
+      "kind": "easy",
+      "title": "Broker fallback",
+      "given": "Broker fallback",
+      "inputs": {
+        "marketValue": null,
+        "last_price": 50,
+        "shares": 20
+      },
+      "expected": {
+        "exact": 1000,
+        "exact_decimal": "1000.000000000000",
+        "shown": "$1,000"
+      },
+      "working": [
+        "20×50×1=1000."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-128",
+      "name": "heldValueOf",
+      "kind": "complex",
+      "title": "Mini option mark",
+      "given": "Mini option mark",
+      "inputs": {
+        "marketValue": null,
+        "shares": 3.25,
+        "last_price": 2.37,
+        "kind": "option",
+        "multiplier": 10
+      },
+      "expected": {
+        "exact": 77.025,
+        "exact_decimal": "77.025000000000",
+        "shown": "$77"
+      },
+      "working": [
+        "3.25×2.37×10=77.025; keep precision; display$77."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-128",
+      "name": "heldValueOf",
+      "kind": "complex",
+      "title": "Known negative short value wins over old build",
+      "given": "Known negative short value wins over old build",
+      "inputs": {
+        "marketValue": -247.81,
+        "value_now": 315.42,
+        "shares": -2,
+        "last_price": null
+      },
+      "expected": {
+        "exact": -247.81,
+        "exact_decimal": "-247.810000000000",
+        "shown": "−$248"
+      },
+      "working": [
+        "Finite current −247.81 is authoritative; older built value is not current."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": {
+        "exact": 315.42,
+        "exact_decimal": "315.420000000000",
+        "shown": "$315"
+      }
+    },
+    {
+      "id": "MK-NW-F-128",
+      "name": "heldValueOf",
+      "kind": "edge",
+      "title": "Zero market value with stale broker mark",
+      "given": "Zero market value with stale broker mark",
+      "inputs": {
+        "marketValue": 0,
+        "shares": 10,
+        "last_price": 20
+      },
+      "expected": {
+        "exact": 0,
+        "exact_decimal": "0.000000000000",
+        "shown": "$0"
+      },
+      "working": [
+        "Entered zero is a known value; do not resurrect $200 of value."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": {
+        "exact": 200,
+        "exact_decimal": "200.000000000000",
+        "shown": "$200"
+      }
+    },
+    {
+      "id": "MK-NW-F-129",
+      "name": "gainRowName",
+      "kind": "easy",
+      "title": "Named holding",
+      "given": "Named holding",
+      "inputs": {
+        "name": "Treasury 2031",
+        "ticker": "91282CFX4"
+      },
+      "expected": "Treasury 2031",
+      "working": [
+        "Own name wins."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-129",
+      "name": "gainRowName",
+      "kind": "easy",
+      "title": "Ticker only",
+      "given": "Ticker only",
+      "inputs": {
+        "ticker": "VTI"
+      },
+      "expected": "VTI",
+      "working": [
+        "No name => VTI."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-129",
+      "name": "gainRowName",
+      "kind": "complex",
+      "title": "CUSIP and security display name",
+      "given": "CUSIP and security display name",
+      "inputs": {
+        "position": {
+          "ticker": "91282cfx4",
+          "name": "U.S. Treasury 4.125% 2031"
+        },
+        "name": "Bond for college"
+      },
+      "expected": "Bond for college",
+      "working": [
+        "Top-level supplied name wins; code-shaped ticker does not displace it."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-129",
+      "name": "gainRowName",
+      "kind": "complex",
+      "title": "Several missing fields",
+      "given": "Several missing fields",
+      "inputs": {
+        "name": null,
+        "position": {
+          "ticker": "BTC",
+          "name": null,
+          "label": null
+        }
+      },
+      "expected": "BTC",
+      "working": [
+        "No own name => ticker BTC."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-129",
+      "name": "gainRowName",
+      "kind": "edge",
+      "title": "Nothing named",
+      "given": "Nothing named",
+      "inputs": {},
+      "expected": "a holding",
+      "working": [
+        "Fallback keeps refusal readable."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-130",
+      "name": "cannotWorkBackSentence",
+      "kind": "easy",
+      "title": "One name",
+      "given": "One name",
+      "inputs": {
+        "names": [
+          "Treasury 2031"
+        ]
+      },
+      "expected": "The beginning can't be worked back: Treasury 2031 has no price history.",
+      "working": [
+        "One unique name => singular has."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-130",
+      "name": "cannotWorkBackSentence",
+      "kind": "easy",
+      "title": "No names",
+      "given": "No names",
+      "inputs": {
+        "names": []
+      },
+      "expected": "The beginning can't be worked back: a holding has no price history.",
+      "working": [
+        "Empty names => a holding."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-130",
+      "name": "cannotWorkBackSentence",
+      "kind": "complex",
+      "title": "Duplicates and unround security names",
+      "given": "Duplicates and unround security names",
+      "inputs": {
+        "names": [
+          "Treasury 4.125% 2031",
+          "Gold account 0333",
+          "Treasury 4.125% 2031"
+        ]
+      },
+      "expected": "The beginning can't be worked back: Treasury 4.125% 2031 and Gold account 0333 have no price history.",
+      "working": [
+        "Deduplicate names; two unique => and, have."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-130",
+      "name": "cannotWorkBackSentence",
+      "kind": "complex",
+      "title": "Three unique names",
+      "given": "Three unique names",
+      "inputs": {
+        "names": [
+          "A",
+          "B",
+          "C",
+          "B"
+        ]
+      },
+      "expected": "The beginning can't be worked back: A, B and C have no price history.",
+      "working": [
+        "First-seen A,B,C; comma then and; plural have."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-F-130",
+      "name": "cannotWorkBackSentence",
+      "kind": "edge",
+      "title": "Repeated sole name",
+      "given": "Repeated sole name",
+      "inputs": {
+        "names": [
+          "Bond",
+          "Bond"
+        ]
+      },
+      "expected": "The beginning can't be worked back: Bond has no price history.",
+      "working": [
+        "One distinct name stays singular."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "kind": "easy",
+      "title": "Round positive counterfactual",
+      "given": "Round positive counterfactual",
+      "inputs": {
+        "amount": 10000,
+        "months": 12,
+        "from_prices": [
+          100,
+          110
+        ],
+        "to_prices": [
+          100,
+          120
+        ],
+        "full_coverage": true
+      },
+      "expected": {
+        "stayed_end": {
+          "exact": 11000,
+          "exact_decimal": "11000.000000000000",
+          "shown": "$11,000"
+        },
+        "stayed_change": {
+          "exact": 1000,
+          "exact_decimal": "1000.000000000000",
+          "shown": "$1,000"
+        },
+        "stayed_percent": {
+          "exact": 0.1,
+          "exact_decimal": "0.100000000000",
+          "shown": "+10.00%"
+        },
+        "moved_end": {
+          "exact": 12000,
+          "exact_decimal": "12000.000000000000",
+          "shown": "$12,000"
+        },
+        "moved_change": {
+          "exact": 2000,
+          "exact_decimal": "2000.000000000000",
+          "shown": "$2,000"
+        },
+        "moved_percent": {
+          "exact": 0.2,
+          "exact_decimal": "0.200000000000",
+          "shown": "+20.00%"
+        },
+        "difference": {
+          "exact": 1000,
+          "exact_decimal": "1000.000000000000",
+          "shown": "$1,000"
+        }
+      },
+      "working": [
+        "From factor=110/100=1.1; to=120/100=1.2.",
+        "10000×1.1=11000; ×1.2=12000; difference=1000."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "kind": "easy",
+      "title": "Alternative would lose more",
+      "given": "Alternative would lose more",
+      "inputs": {
+        "amount": 1000,
+        "months": 12,
+        "from_prices": [
+          100,
+          95
+        ],
+        "to_prices": [
+          100,
+          90
+        ],
+        "full_coverage": true
+      },
+      "expected": {
+        "stayed_end": {
+          "exact": 950,
+          "exact_decimal": "950.000000000000",
+          "shown": "$950"
+        },
+        "moved_end": {
+          "exact": 900,
+          "exact_decimal": "900.000000000000",
+          "shown": "$900"
+        },
+        "difference": {
+          "exact": -50,
+          "exact_decimal": "-50.000000000000",
+          "shown": "−$50"
+        }
+      },
+      "working": [
+        "Factors=.95 and.90; end950 and900; moved−stayed=−50."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "kind": "complex",
+      "title": "Realistic BND and VTI",
+      "given": "Realistic BND and VTI",
+      "inputs": {
+        "amount": 12345.67,
+        "months": 12,
+        "today": "2026-09-28",
+        "start": "2025-09-28",
+        "BND": [
+          72,
+          73.8
+        ],
+        "VTI": [
+          250,
+          290
+        ],
+        "prices_are_dividend_adjusted": true
+      },
+      "expected": {
+        "stayed_end": {
+          "exact": 12654.311749999999,
+          "exact_decimal": "12654.311749999999",
+          "shown": "$12,654"
+        },
+        "stayed_change": {
+          "exact": 308.64175,
+          "exact_decimal": "308.641750000000",
+          "shown": "$309"
+        },
+        "moved_end": {
+          "exact": 14320.9772,
+          "exact_decimal": "14320.977199999999",
+          "shown": "$14,321"
+        },
+        "moved_change": {
+          "exact": 1975.3072,
+          "exact_decimal": "1975.307200000000",
+          "shown": "$1,975"
+        },
+        "difference": {
+          "exact": 1666.6654500000002,
+          "exact_decimal": "1666.665450000000",
+          "shown": "$1,667"
+        }
+      },
+      "working": [
+        "73.8/72=1.025; 290/250=1.16.",
+        "Stayed=12654.31175; moved=14320.9772; difference=1666.66545.",
+        "Stayed end=amount+stayed change; moved end=amount+moved change; same result at both doors."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "kind": "complex",
+      "title": "Lump sum differs from actual cash-flow path",
+      "given": "Lump sum differs from actual cash-flow path",
+      "inputs": {
+        "amount": 2871.43,
+        "months": 3,
+        "from_prices": [
+          83.27,
+          85.91
+        ],
+        "to_prices": [
+          191.73,
+          187.26
+        ],
+        "full_coverage": true,
+        "actual_addition_inside_window": 319.17
+      },
+      "expected": {
+        "hypothetical_stayed": {
+          "exact": 2962.466089828269,
+          "exact_decimal": "2962.466089828269",
+          "shown": "$2,962"
+        },
+        "hypothetical_moved": {
+          "exact": 2804.4853794398373,
+          "exact_decimal": "2804.485379439837",
+          "shown": "$2,804"
+        },
+        "difference": {
+          "exact": -157.98071038843207,
+          "exact_decimal": "-157.980710388432",
+          "shown": "−$158"
+        },
+        "actual_money_path": "REFUSES"
+      },
+      "working": [
+        "Stayed=2871.43×85.91/83.27; moved=2871.43×187.26/191.73.",
+        "Actual319.17 added requires its date and purchase price, absent here."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "Return the numerical hypothetical, but correct the actual-money claim.",
+      "formula_gives": {
+        "actual_caption": "What your money actually did"
+      }
+    },
+    {
+      "id": "MK-NW-O-007",
+      "name": "theLookBack",
+      "kind": "edge",
+      "title": "One fund has no full-window history",
+      "given": "One fund has no full-window history",
+      "inputs": {
+        "amount": 10000,
+        "months": 12,
+        "today": "2026-09-30",
+        "from_first": "2025-09-30",
+        "to_first": "2026-01-01"
+      },
+      "expected": "REFUSES",
+      "working": [
+        "The other record begins after cutoff; cannot give a same-period difference."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "kind": "easy",
+      "title": "One account no external flows",
+      "given": "One account no external flows",
+      "inputs": {
+        "windowStart": "2026-09-02",
+        "today": "2026-09-03",
+        "accounts": {
+          "A": 1100
+        },
+        "snapshots": {
+          "2026-09-01": {
+            "A": 1000
+          },
+          "2026-09-02": {
+            "A": 1050
+          },
+          "2026-09-03": {
+            "A": 1100
+          }
+        },
+        "transactions": []
+      },
+      "expected": {
+        "beginning": {
+          "exact": 1000,
+          "exact_decimal": "1000.000000000000",
+          "shown": "$1,000"
+        },
+        "ending": {
+          "exact": 1100,
+          "exact_decimal": "1100.000000000000",
+          "shown": "$1,100"
+        },
+        "wealth": {
+          "exact": 100,
+          "exact_decimal": "100.000000000000",
+          "shown": "$100"
+        },
+        "return": {
+          "exact": 0.1,
+          "exact_decimal": "0.100000000000",
+          "shown": "+10.00%"
+        },
+        "walk": [
+          {
+            "exact": 1000,
+            "exact_decimal": "1000.000000000000",
+            "shown": "1000.0000"
+          },
+          {
+            "exact": 0,
+            "exact_decimal": "0.000000000000",
+            "shown": "0.0000"
+          },
+          {
+            "exact": 0,
+            "exact_decimal": "0.000000000000",
+            "shown": "0.0000"
+          },
+          {
+            "exact": 0,
+            "exact_decimal": "0.000000000000",
+            "shown": "0.0000"
+          },
+          {
+            "exact": 0,
+            "exact_decimal": "0.000000000000",
+            "shown": "0.0000"
+          },
+          {
+            "exact": 100,
+            "exact_decimal": "100.000000000000",
+            "shown": "100.0000"
+          }
+        ]
+      },
+      "working": [
+        "Links1050/1000×1100/1050=1.1; TWR=.1.",
+        "Walk1000+0−0+0+0+100=1100."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "kind": "easy",
+      "title": "New account deposit earns first-day gain",
+      "given": "New account deposit earns first-day gain",
+      "inputs": {
+        "windowStart": "2026-09-02",
+        "today": "2026-09-02",
+        "prior_evening": {
+          "A": 0
+        },
+        "today_evening": {
+          "A": 10050
+        },
+        "deposit": 10000
+      },
+      "expected": {
+        "beginning": {
+          "exact": 0,
+          "exact_decimal": "0.000000000000",
+          "shown": "$0"
+        },
+        "contributions": {
+          "exact": 10000,
+          "exact_decimal": "10000.000000000000",
+          "shown": "$10,000"
+        },
+        "wealth": {
+          "exact": 50,
+          "exact_decimal": "50.000000000000",
+          "shown": "$50"
+        },
+        "ending": {
+          "exact": 10050,
+          "exact_decimal": "10050.000000000000",
+          "shown": "$10,050"
+        },
+        "return": {
+          "exact": 0.005,
+          "exact_decimal": "0.005000000000",
+          "shown": "+0.50%"
+        }
+      },
+      "working": [
+        "DEC-4439: new money is10000; day return10050/10000−1=.005; wealth=10050−0−10000=50."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": "",
+      "formula_gives": {
+        "contribution_if_first_value_used": 10050,
+        "wealth_if_first_value_used": 0
+      }
+    },
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "kind": "complex",
+      "title": "Approved Performance v17 household exactly",
+      "given": "Approved Performance v17 household exactly",
+      "inputs": {
+        "record_begins": "2025-10-01",
+        "today": "2026-09-30",
+        "beginning": {
+          "Vanguard": 80000,
+          "E*TRADE": 20000
+        },
+        "contributions": {
+          "Vanguard": 15000,
+          "E*TRADE": 0
+        },
+        "withdrawals": 0,
+        "dividends": 1800,
+        "interest": 400,
+        "ending": {
+          "Vanguard": 101000,
+          "E*TRADE": 22000
+        },
+        "deposit_dates": null
+      },
+      "expected": {
+        "beginning": {
+          "exact": 100000,
+          "exact_decimal": "100000.000000000000",
+          "shown": "$100,000"
+        },
+        "contributions": {
+          "exact": 15000,
+          "exact_decimal": "15000.000000000000",
+          "shown": "$15,000"
+        },
+        "withdrawals": {
+          "exact": 0,
+          "exact_decimal": "0.000000000000",
+          "shown": "$0"
+        },
+        "dividends": {
+          "exact": 1800,
+          "exact_decimal": "1800.000000000000",
+          "shown": "$1,800"
+        },
+        "interest": {
+          "exact": 400,
+          "exact_decimal": "400.000000000000",
+          "shown": "$400"
+        },
+        "change_in_value": {
+          "exact": 5800,
+          "exact_decimal": "5800.000000000000",
+          "shown": "$5,800"
+        },
+        "wealth": {
+          "exact": 8000,
+          "exact_decimal": "8000.000000000000",
+          "shown": "$8,000"
+        },
+        "ending": {
+          "exact": 123000,
+          "exact_decimal": "123000.000000000000",
+          "shown": "$123,000"
+        },
+        "account_wealth": {
+          "Vanguard": {
+            "exact": 6000,
+            "exact_decimal": "6000.000000000000",
+            "shown": "6000.0000"
+          },
+          "E*TRADE": {
+            "exact": 2000,
+            "exact_decimal": "2000.000000000000",
+            "shown": "2000.0000"
+          }
+        },
+        "E*TRADE_return": {
+          "exact": 0.1,
+          "exact_decimal": "0.100000000000",
+          "shown": "+10.00%"
+        },
+        "Vanguard_return": "REFUSES",
+        "portfolio_return": "REFUSES"
+      },
+      "working": [
+        "80000+20000=100000; 101000+22000=123000.",
+        "Vanguard wealth=101000−80000−15000=6000; E*TRADE=22000−20000=2000; sum8000.",
+        "Walk100000+15000−0+1800+400+5800=123000.",
+        "Vanguard and whole TWR need the deposit dates/values; drawn6.88% and7.46% cannot be expected answers.",
+        "E*TRADE no flows:22000/20000−1=.10. Same account ending at account page and Performance."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    },
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "kind": "complex",
+      "title": "Multiaccount cash, withdrawal and internal transfer",
+      "given": "Multiaccount cash, withdrawal and internal transfer",
+      "inputs": {
+        "windowStart": "2026-09-02",
+        "today": "2026-09-02",
+        "beginning": {
+          "A": 1000.17,
+          "B": 2000.31
+        },
+        "ending": {
+          "A": 1330.58,
+          "B": 1939.92
+        },
+        "deposit_external": 500.11,
+        "withdraw_external": 200.07,
+        "transfer_A_to_B": 100.13,
+        "dividends": 17.29,
+        "interest": 3.41,
+        "A_ending_cash": 130.58
+      },
+      "expected": {
+        "beginning": {
+          "exact": 3000.48,
+          "exact_decimal": "3000.480000000000",
+          "shown": "$3,000"
+        },
+        "ending": {
+          "exact": 3270.5,
+          "exact_decimal": "3270.500000000000",
+          "shown": "$3,270"
+        },
+        "contributions": {
+          "exact": 500.11,
+          "exact_decimal": "500.110000000000",
+          "shown": "$500"
+        },
+        "withdrawals": {
+          "exact": 200.07,
+          "exact_decimal": "200.070000000000",
+          "shown": "$200"
+        },
+        "wealth": {
+          "exact": -30.02,
+          "exact_decimal": "-30.020000000000",
+          "shown": "−$30"
+        },
+        "change_in_value": {
+          "exact": -50.72,
+          "exact_decimal": "-50.720000000000",
+          "shown": "−$51"
+        },
+        "TWR": {
+          "exact": -0.009095536460921316,
+          "exact_decimal": "-0.009095536461",
+          "shown": "-0.91%"
+        },
+        "investment_scope": "RULE UNCLEAR: whole account includes130.58 cash"
+      },
+      "working": [
+        "Beginning1000.17+2000.31=3000.48; ending1330.58+1939.92=3270.5.",
+        "Internal100.13 transfer nets0; base3000.48+500.11−200.07=3300.52.",
+        "Wealth3270.5−3300.52=−30.02; value change−30.02−17.29−3.41=−50.72.",
+        "Walk3000.48+500.11−200.07+17.29+3.41−50.72=3270.50.",
+        "Rounded lines3000+500−200+17+3−51=3269, not shown ending3271; display rounding needs reconciliation."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "medium",
+      "notes": "Whole-account calculation follows card; owner Investments-excludes-cash conflict remains.",
+      "formula_gives": "RULE UNCLEAR: investment cash scope and rounded-line treatment"
+    },
+    {
+      "id": "MK-NW-O-008",
+      "name": "thePerformance",
+      "kind": "edge",
+      "title": "No record, no price history and no stated CD rate",
+      "given": "No record, no price history and no stated CD rate",
+      "inputs": {
+        "windowStart": "2025-10-13",
+        "today": "2026-10-13",
+        "accounts": {
+          "Treasury 2031": 10500
+        },
+        "snapshots": [],
+        "holdings": [
+          {
+            "name": "Treasury 2031",
+            "value": 10500,
+            "periodReturn": null,
+            "couponRate": null
+          }
+        ]
+      },
+      "expected": {
+        "ending": {
+          "exact": 10500,
+          "exact_decimal": "10500.000000000000",
+          "shown": "$10,500"
+        },
+        "beginning": null,
+        "wealth": null,
+        "return": null,
+        "reason": "The beginning can't be worked back: Treasury 2031 has no price history."
+      },
+      "working": [
+        "DEC-3656: unknown gain cannot be0; ending known; no walk and no percent."
+      ],
+      "rests_on": "Supplied purpose and formula; ordinary arithmetic; owner decisions where cited",
+      "confidence": "high",
+      "notes": ""
+    }
+  ],
+  "rules_held": [
+    {
+      "rule": "owner-1 (2026-10-04): \"All return should be True Weighted Return and not Dietz return.\" Every return in the app is a time-weighted return.",
+      "cards": [
+        "MK-ST-F-081",
+        "MK-PF-F-007",
+        "MK-PF-F-014",
+        "MK-PF-F-040",
+        "MK-NW-F-084"
+      ],
+      "verdict": "NOT HELD",
+      "why": "Cost-based return is not TWR with staggered purchases; capped purchase links conflict with morning-flow convention."
+    },
+    {
+      "rule": "owner-2 (2026-10-04): \"add it to the cash as losing job does not mean loosing rental income too.\" The emergency fund counts rent from a property the person owns; it keeps arriving each month.",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "The governing calculation or screen/form evidence is not supplied in these Performance cards. No claim of implementation compliance."
+    },
+    {
+      "rule": "owner-3 (2026-10-04): \"Once user enters mortgage or any debt - the app deduct it directly to calculate surplus, emergency fund, and any other place instead of leaving it for user to add it to planned expenses.\" A debt is counted from the list of debts, not from the budget.",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "The governing calculation or screen/form evidence is not supplied in these Performance cards. No claim of implementation compliance."
+    },
+    {
+      "rule": "owner-4 (2026-10-04): \"It is feasible to have property without mortgage but no mortgage without property. So check should be 3 properties in NW - 3 or less mortgage.\" Every mortgage is matched to a property.",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "The governing calculation or screen/form evidence is not supplied in these Performance cards. No claim of implementation compliance."
+    },
+    {
+      "rule": "owner-5 (2026-10-04): \"unless rental income is added on the income screen, assume property is second or vacation home.\" How a rental is told from a second home.",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "The governing calculation or screen/form evidence is not supplied in these Performance cards. No claim of implementation compliance."
+    },
+    {
+      "rule": "owner-6 (2026-10-04): \"#1 - sort by soonest maturing first\" The order bonds are listed in.",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "The governing calculation or screen/form evidence is not supplied in these Performance cards. No claim of implementation compliance."
+    },
+    {
+      "rule": "owner-7 (2026-09-30): \"Refuse the line and ask\" What happens to a holding when nothing says what kind of asset it is.",
+      "cards": [
+        "MK-PF-F-013",
+        "MK-NW-F-084",
+        "MK-NW-F-092"
+      ],
+      "verdict": "NOT HELD",
+      "why": "Category default and unresolved investment membership do not consistently refuse unclassified money."
+    },
+    {
+      "rule": "owner-8 (2026-10-06): \"this phase of app no longer has options for Private Equity and Hedge fund.\" Private equity and hedge funds cannot be added anywhere in this phase; a row saved earlier with either kind is kept.",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "The governing calculation or screen/form evidence is not supplied in these Performance cards. No claim of implementation compliance."
+    },
+    {
+      "rule": "owner-9 (2026-08-04): \"Private equity + Hedge funds OUT of phase 1 (founder: keep it simple)\" The same rule, first made on 2026-08-04 (DEC-0045).",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "The governing calculation or screen/form evidence is not supplied in these Performance cards. No claim of implementation compliance."
+    },
+    {
+      "rule": "owner-10 (2026-08-26): \"if the coupon rate is not available use 0\" A bond or CD with no rate entered counts $0 of interest a year, and the app says so (A46). Its yields are not given: a yield of 0% would be invented.",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "The governing calculation or screen/form evidence is not supplied in these Performance cards. No claim of implementation compliance."
+    },
+    {
+      "rule": "owner-11 (2026-10-09): \"I like your recommendation to add accrued interest. Say \"Added estimated $1,119 in accrued interest to bond value at 4.5% coupon for 363 days to calculate YTM. If this is not accurate, enter actual accrued interest\"\" A bond's value is its statement market value, without accrued interest. For the yield to maturity the accrued interest is added — as entered, or estimated from the coupon schedule and said so. The yield on today's value is on the value as entered. (Replaces A47, 2026-08-26: \"subtract accrued interest when known\".)",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Bond accrued-interest/YTM cards are not supplied; screen register MK-NW-M-026 still describes the old value-only approximation."
+    },
+    {
+      "rule": "owner-12 (2026-09-27): \"Is there a similar question for CDs as CD rates don't move and one can do nothing if CD rates move.\" A CD is not traded, so no figure is given for what a move in interest rates would do to its value.",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Latest bank/broker CD distinction DEC-3837 qualifies this older blanket rule; no bond sensitivity card supplied."
+    },
+    {
+      "rule": "owner-13 (2026-08-04): \"CLASSIFICATION RULE: cash = cash only. Money-market funds → Stocks/ETFs; CDs/T-bills → Bonds & CDs (any maturity).\" A money-market account or fund is Stocks / Funds; a CD is Bonds & CDs (DEC-0051).",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Classification cards not supplied; Position type comment still calls unflagged money-market funds cash, contrary to this owner rule."
+    },
+    {
+      "rule": "owner-14 (2026-10-07): \"build it per mockup 07 where under each class you list each account Vanguard-0008 $45000, Chase - 0333 $34000.\" Under each class heading, every account that holds money in that class is listed with only its part in that class, so the rows add up to the heading.",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "The governing calculation or screen/form evidence is not supplied in these Performance cards. No claim of implementation compliance."
+    },
+    {
+      "rule": "owner-15 (2026-07-01): \"Investment = stock + etfs + bonds + alternatives? It does not include cash or cash equivalents - Right?\" Investments do not include cash; Home and Net worth show one Investments figure.",
+      "cards": [
+        "MK-NW-F-092",
+        "MK-NW-O-008"
+      ],
+      "verdict": "NOT HELD",
+      "why": "Whole measured account value includes uninvested cash while Investments is declared to exclude cash; household scope contract conflicts."
+    },
+    {
+      "rule": "DEC-1624",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-3656",
+      "cards": [
+        "MK-NW-F-091",
+        "MK-NW-F-127",
+        "MK-NW-F-128",
+        "MK-NW-O-008"
+      ],
+      "verdict": "NOT HELD",
+      "why": "Unknown unpriced positive value refuses correctly; flow-changing holdings and discarded explicit zero produce false reconstructed beginnings."
+    },
+    {
+      "rule": "DEC-3657",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-3768b",
+      "cards": [
+        "MK-NW-F-090",
+        "MK-PF-F-008",
+        "MK-PF-F-036"
+      ],
+      "verdict": "HELD",
+      "why": "Mar31→Feb28 and leap-Feb29→Feb28 clamp correctly on valid calendar-day inputs; DST/invalid input domain remains a separate gap."
+    },
+    {
+      "rule": "DEC-3768c",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-3769",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-3836",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-3837",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4036b",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4036c",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4036d",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4036e",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4036f",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4036g",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4036h",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4036i",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4036j",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4036k",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4059b",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4059c",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4059d",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4082",
+      "cards": [
+        "MK-PF-F-032",
+        "MK-PF-F-033"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Known enum singulars work, but one canonical plural list, rejection gate and parked volatility are outside supplied cards."
+    },
+    {
+      "rule": "DEC-4327",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4350",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4439",
+      "cards": [
+        "MK-ST-F-081",
+        "MK-ST-F-082",
+        "MK-NW-F-105",
+        "MK-NW-O-008",
+        "MK-PF-F-014",
+        "MK-PF-F-040"
+      ],
+      "verdict": "NOT HELD",
+      "why": "Daily TWR holds the morning convention for ordinary positive balances; purchase-capped return uses later-day evening close before adding the purchase, and walk uses first evening value as inflow."
+    },
+    {
+      "rule": "DEC-4528",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4529",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "Governing cards, approved drawing or rendered form are outside this packet; the decision text alone is not proof it was implemented."
+    },
+    {
+      "rule": "DEC-4640",
+      "cards": [
+        "MK-NW-F-090",
+        "MK-PF-F-008",
+        "MK-PF-F-010",
+        "MK-PF-F-039",
+        "MK-PF-F-014",
+        "MK-NW-O-008"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Date readers and buildPerformance explicitly refuse5Y; orchestrator takes dates/labels rather than canonical period and does not specify validation of windowLabel, so whole-chain invalid-window guard is unproven."
+    },
+    {
+      "rule": "DEC-4641",
+      "cards": [
+        "MK-PF-F-045",
+        "MK-PF-F-010",
+        "MK-PF-F-011",
+        "MK-PF-F-029",
+        "MK-PF-F-038",
+        "MK-PF-F-039"
+      ],
+      "verdict": "NOT HELD",
+      "why": "PeriodReturn has first-price fallback and sentence; shared parts reader refuses missing prior close, so periodTotalReturn cannot return the decided shortened move."
+    },
+    {
+      "rule": "DEC-4643",
+      "cards": [
+        "MK-PF-F-028",
+        "MK-PF-F-046",
+        "MK-PF-F-033"
+      ],
+      "verdict": "HELD",
+      "why": "Partial sale10/15 counted once with200known gain and5unmatched; functions do not prove manual oversale form blocking."
+    },
+    {
+      "rule": "DEC-4644",
+      "cards": [
+        "MK-NW-O-008",
+        "MK-NW-F-091",
+        "MK-NW-F-127",
+        "MK-PF-F-010"
+      ],
+      "verdict": "NOT HELD",
+      "why": "Dividends are not subtracted twice, but example is not arithmetically consistent:105000/1.0628≈98795.63, not100000. Separate payout and reinvestment conventions before closing."
+    },
+    {
+      "rule": "DEC-4645",
+      "cards": [
+        "MK-PF-F-020",
+        "MK-PF-F-013",
+        "MK-PF-F-023",
+        "MK-NW-O-007"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Adjusted-close dividend inclusion is stated; no feed provenance supplied to verify it, and benchmark weights/coverage conflicts remain. Approved Home3.69−2.83=.86, not.85 without unrounded values."
+    },
+    {
+      "rule": "DEC-4646",
+      "cards": [
+        "MK-PF-F-031",
+        "MK-PF-F-002",
+        "MK-PF-F-004"
+      ],
+      "verdict": "CANNOT TELL",
+      "why": "Given a saved10multiplier mini arithmetic works; SnapTrade mapper, ingest preservation and add/edit form are not supplied."
+    },
+    {
+      "rule": "DEC-2748b (2026-10-12): entered 0% is a rate; missing rate is not zero",
+      "cards": [
+        "MK-NW-F-084",
+        "MK-NW-F-127",
+        "MK-NW-O-008"
+      ],
+      "verdict": "HELD",
+      "why": "The updated formulas distinguish entered zero from absent coupon; depends on preserving null at ingestion."
+    }
+  ],
+  "screen_checks": [
+    {
+      "figure": "MK-CF-M-002",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-CF-M-002",
+      "tenet": 2,
+      "verdict": "FAIL",
+      "why": "Specification review only. Worked surplus1150 requires an extra300emergency-fund commitment:7200−2650−3400−300=850. Without deducting300 it is1150; settle whether the promised savings is inside budget or another row."
+    },
+    {
+      "figure": "MK-CF-M-002",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "Specification review only. Only missing-budget refusal stated; missing income or debt payment can still invent a complete surplus."
+    },
+    {
+      "figure": "MK-CF-M-002",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-CF-M-002",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-CF-M-002",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-CF-M-002",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-CF-M-002",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-CF-M-051",
+      "tenet": 1,
+      "verdict": "FAIL",
+      "why": "Specification review only. Worked input says7200take-home but gives no explicit received-income record; planned pay alone cannot prove7200actually arrived."
+    },
+    {
+      "figure": "MK-CF-M-051",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-CF-M-051",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-CF-M-051",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-CF-M-051",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-CF-M-051",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-CF-M-051",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-CF-M-051",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-CF-M-052",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-CF-M-052",
+      "tenet": 2,
+      "verdict": "FAIL",
+      "why": "Specification review only. Expense records sum2300+512+186=2998; committed debts2650 =>5648, not3248. Even omitting mortgage gives3248, contrary to owner debt rule."
+    },
+    {
+      "figure": "MK-CF-M-052",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-CF-M-052",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-CF-M-052",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-CF-M-052",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-CF-M-052",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-CF-M-052",
+      "tenet": 8,
+      "verdict": "FAIL",
+      "why": "Specification review only. Label says actually gone out, but includes debts still due and unpaid; distinguish paid outflow from committed remainder."
+    },
+    {
+      "figure": "MK-CF-M-053",
+      "tenet": 1,
+      "verdict": "FAIL",
+      "why": "Specification review only. Using defined committed-debt outflow5648 and received7200 gives1552, not3952. Actual-left wording inherits committed-versus-paid conflict."
+    },
+    {
+      "figure": "MK-CF-M-053",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-CF-M-053",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-CF-M-053",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-CF-M-053",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-CF-M-053",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-CF-M-053",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-CF-M-053",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-MN-M-003",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-MN-M-003",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-MN-M-003",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "Specification review only. Remaining room requires actual YTD employee/employer contributions and eligibility; monthly promises and missing birth year cannot identify one actual amount.21350 assumes14400hasalreadygonein, not9monthly1200payments=10800."
+    },
+    {
+      "figure": "MK-MN-M-003",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-MN-M-003",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-MN-M-003",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-MN-M-003",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-MN-M-003",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-012",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-012",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-012",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "Specification review only. Missing required payment on an entered debt has no stated refusal; known no-payment-required0 must be distinguishable."
+    },
+    {
+      "figure": "MK-NW-M-012",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-012",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-012",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-012",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-012",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-013",
+      "tenet": 1,
+      "verdict": "FAIL",
+      "why": "Specification review only. Register says logged-month average only, but worked example has nothing logged and uses budget essentials:18000/(2400+700+250+120)=5.1873→5.2. Missing essentials must not be presented as logged history."
+    },
+    {
+      "figure": "MK-NW-M-013",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-013",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-013",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-013",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-013",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-013",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-013",
+      "tenet": 8,
+      "verdict": "FAIL",
+      "why": "Specification review only. Unqualified income stopped tomorrow omits continuing rent exception and required rent-not-included sentence on all screens."
+    },
+    {
+      "figure": "MK-NW-M-018",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-018",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-018",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-018",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-018",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-018",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-018",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-018",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-019",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-019",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-019",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-019",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-019",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-019",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-019",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-019",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-020",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-020",
+      "tenet": 2,
+      "verdict": "FAIL",
+      "why": "Specification review only. Worked class40600is stocks only; total46600also needs6000Cash row. Need all known sleeves and unresolved residual to reconcile account balance; no missing-price contract stated."
+    },
+    {
+      "figure": "MK-NW-M-020",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-020",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-020",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-020",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-020",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-020",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-021",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-021",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-021",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-021",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-021",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-021",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-021",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-021",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-022",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-022",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-022",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-022",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-022",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-022",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-022",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-022",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-023",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-023",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-023",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-023",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-023",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-023",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-023",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-023",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-024",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-024",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-024",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "Specification review only. Missing coupon refusal conflicts with owner A46: interest0withmissing-rate note, yieldsunknown. Missing face value also needs refusal; do not invent rate0."
+    },
+    {
+      "figure": "MK-NW-M-024",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-024",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-024",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-024",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-024",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-025",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-025",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-025",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-025",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-025",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-025",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-025",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-025",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-026",
+      "tenet": 1,
+      "verdict": "FAIL",
+      "why": "Specification review only. Register omits accrued interest and bank/broker CD split. 1098days/365=3.008219178082years; its printed approximation gives5.65421979%, not5.69%. Current yield cannot be tested without accrued-interest/coupon schedule inputs."
+    },
+    {
+      "figure": "MK-NW-M-026",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-026",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-026",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-026",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-026",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-026",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-026",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-027",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-027",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-027",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-027",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-027",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-027",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-027",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-027",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-028",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-028",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-028",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "Specification review only. No acquisition answer is assumed bank CD here; latest decision asks once. Confirm legacy default is intentional and expose unentered acquisition answer; actual form evidence absent."
+    },
+    {
+      "figure": "MK-NW-M-028",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-028",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-028",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-028",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-028",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-029",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-029",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-029",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-029",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-029",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-029",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-029",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-029",
+      "tenet": 8,
+      "verdict": "FAIL",
+      "why": "Specification review only. Last closing price is not a LIVE intraday quote; state closing date/time and freshness. Purchase cost fallback must keep its different label."
+    },
+    {
+      "figure": "MK-NW-M-030",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-030",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-030",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "Specification review only. Missing share count or missing cost fallback lacks refusal. Options require multiplier; shares×price alone is insufficient for mini/default contracts."
+    },
+    {
+      "figure": "MK-NW-M-030",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-030",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-030",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-030",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-030",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-031",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-031",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-031",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "Specification review only. Missing share count is not liquidated; explicit refusal not stated. Quantity must use holding unit, not always shares."
+    },
+    {
+      "figure": "MK-NW-M-031",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-031",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-031",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-031",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-031",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-032",
+      "tenet": 1,
+      "verdict": "FAIL",
+      "why": "Specification review only. Options total paid divided by contracts yields costpercontract; price-per-share/premium comparison requires divisorquantity×multiplier. Zero holdings and unknown quantities lack refusal."
+    },
+    {
+      "figure": "MK-NW-M-032",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-032",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-032",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-032",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-032",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-032",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-032",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-033",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-033",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-033",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "Specification review only. Unknown quantity must also refuse total paid; contract multiplier needed for options."
+    },
+    {
+      "figure": "MK-NW-M-033",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-033",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-033",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-033",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-033",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-034",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-034",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-034",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-034",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-034",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-034",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-034",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-034",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-035",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-035",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-035",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "Specification review only. Some matched sale basis gives partial gain only with DEC-4643 sentence; unmatched sale is not known0profit. Future/fees/security identity policy incomplete."
+    },
+    {
+      "figure": "MK-NW-M-035",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-035",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-035",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-035",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-035",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-036",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-036",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-036",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-036",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-036",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-036",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-036",
+      "tenet": 7,
+      "verdict": "FAIL",
+      "why": "Specification review only. Long holding duration does not ensure lower tax rate inside retirement wrappers or for every option/collectible. Knownzero basis and undated lots need honest split."
+    },
+    {
+      "figure": "MK-NW-M-036",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-037",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-037",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-037",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-037",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-037",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-037",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-037",
+      "tenet": 7,
+      "verdict": "FAIL",
+      "why": "Specification review only. Ordinary-income wording overclaims tax treatment; exactanniversarybelongs here but undatedlotisunknown, notshort by default."
+    },
+    {
+      "figure": "MK-NW-M-037",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-059",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-059",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-059",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-059",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-059",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-059",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-059",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-059",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-060",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-060",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-060",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-060",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-060",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-060",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-060",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-060",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-061",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-061",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-061",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-061",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-061",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-061",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-061",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-061",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-NW-M-062",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-NW-M-062",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-NW-M-062",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-NW-M-062",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-NW-M-062",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-NW-M-062",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-NW-M-062",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-NW-M-062",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-001",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-PF-M-001",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-PF-M-001",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-PF-M-001",
+      "tenet": 4,
+      "verdict": "FAIL",
+      "why": "Specification review only. Whole investment-account totals include idle cash, whereas owner Investments excludes cash; pick one stated scope and reconcile Home/Networth/Performance."
+    },
+    {
+      "figure": "MK-PF-M-001",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-001",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-001",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-PF-M-001",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-002",
+      "tenet": 1,
+      "verdict": "FAIL",
+      "why": "Specification review only. Known missing or sign-reversed flows corrupt wealth even when walk adds up. New-account deposit10000ending10050must show50gain, not0."
+    },
+    {
+      "figure": "MK-PF-M-002",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-PF-M-002",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-PF-M-002",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-PF-M-002",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-002",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-002",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-PF-M-002",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-003",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-PF-M-003",
+      "tenet": 2,
+      "verdict": "FAIL",
+      "why": "Specification review only. Exact lines reconcile by residual, but independently rounded unround rows need not reconcile; complex fixture shows displayed3269versus3271."
+    },
+    {
+      "figure": "MK-PF-M-003",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-PF-M-003",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-PF-M-003",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-003",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-003",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-PF-M-003",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-004",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-PF-M-004",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-PF-M-004",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-PF-M-004",
+      "tenet": 4,
+      "verdict": "FAIL",
+      "why": "Specification review only. Register sums holdingspluscash, while current orchestrator uses authoritative account balance. These disagree when broker total differs from priced components."
+    },
+    {
+      "figure": "MK-PF-M-004",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-004",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-004",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-PF-M-004",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-005",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-PF-M-005",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-PF-M-005",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-PF-M-005",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-PF-M-005",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-005",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-005",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-PF-M-005",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-006",
+      "tenet": 1,
+      "verdict": "FAIL",
+      "why": "Specification review only. Reconstructed category ratio is not TWR with flows; ignores unknown rows; coupon/year pace is different from actual category performance."
+    },
+    {
+      "figure": "MK-PF-M-006",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-PF-M-006",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-PF-M-006",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-PF-M-006",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-006",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-006",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-PF-M-006",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-007",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-PF-M-007",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-PF-M-007",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-PF-M-007",
+      "tenet": 4,
+      "verdict": "FAIL",
+      "why": "Specification review only. Register says untickered interestBonds, current formula saysCashunlessbondaccount; alternatives/unclassifiedincome can be mislabeled Stocks. Day-onezero exception needs explicit coverage."
+    },
+    {
+      "figure": "MK-PF-M-007",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-007",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-007",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-PF-M-007",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-008",
+      "tenet": 1,
+      "verdict": "FAIL",
+      "why": "Specification review only. False start weights and mixed capped dates can misstate matched market comparison. Missing comparator subset is not whole mix. Displayed3.69−2.83=.86, while approvedgap.85requiresunroundedunderlyingvalues."
+    },
+    {
+      "figure": "MK-PF-M-008",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-PF-M-008",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-PF-M-008",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-PF-M-008",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-008",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-008",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-PF-M-008",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-010",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-PF-M-010",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-PF-M-010",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-PF-M-010",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-PF-M-010",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-010",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-010",
+      "tenet": 7,
+      "verdict": "FAIL",
+      "why": "Specification review only. Counterfactual lump sum with dividend reinvestment is labelled what your money actually did; no personalflow/tax/cost matching."
+    },
+    {
+      "figure": "MK-PF-M-010",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-011",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-PF-M-011",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-PF-M-011",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-PF-M-011",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-PF-M-011",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-011",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-011",
+      "tenet": 7,
+      "verdict": "FAIL",
+      "why": "Specification review only. Historical alternative needs hypothetical and beforepersonal taxes/trading costs wording."
+    },
+    {
+      "figure": "MK-PF-M-011",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-012",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-PF-M-012",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-PF-M-012",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-PF-M-012",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-PF-M-012",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-012",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-012",
+      "tenet": 7,
+      "verdict": "FAIL",
+      "why": "Specification review only. Differenceinherits hypothetical-reinvestment and cost/tax assumptions; no certain actual saving claim."
+    },
+    {
+      "figure": "MK-PF-M-012",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-013",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-PF-M-013",
+      "tenet": 2,
+      "verdict": "FAIL",
+      "why": "Specification review only. Figure states beginningreadneverbacksolved; orchestrator allowsno-record reconstruction. OwnerDEC-3656needs separately labelled estimate, not recorded beginning."
+    },
+    {
+      "figure": "MK-PF-M-013",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-PF-M-013",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-PF-M-013",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-013",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-013",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-PF-M-013",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-014",
+      "tenet": 1,
+      "verdict": "FAIL",
+      "why": "Specification review only. First recorded value ascontributionerasesknownfirst-daygain; commonflowreaderandgaincontractrequired."
+    },
+    {
+      "figure": "MK-PF-M-014",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-PF-M-014",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-PF-M-014",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-PF-M-014",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-014",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-014",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-PF-M-014",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-015",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-PF-M-015",
+      "tenet": 2,
+      "verdict": "FAIL",
+      "why": "Specification review only. Rounded rows can differ fromroundedending; missingflowsmustnot disappearinto unexplainedinvestmentchangewithoutnotice."
+    },
+    {
+      "figure": "MK-PF-M-015",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-PF-M-015",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-PF-M-015",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-015",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-015",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-PF-M-015",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-016",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-PF-M-016",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-PF-M-016",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-PF-M-016",
+      "tenet": 4,
+      "verdict": "FAIL",
+      "why": "Specification review only. Register365/days annualizesexact366-daycalendar1Y; orchestrator saysneverannualizeexact1Y. Holdingfull2Yuses2years. Oneannualizationcontractneeded."
+    },
+    {
+      "figure": "MK-PF-M-016",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-016",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-016",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-PF-M-016",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-017",
+      "tenet": 1,
+      "verdict": "FAIL",
+      "why": "Specification review only. Negative total clamped0andhalf-centcutoffcaninvent −100%/nothinginvested. Sameannualizationgapasaccountfigure."
+    },
+    {
+      "figure": "MK-PF-M-017",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-PF-M-017",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-PF-M-017",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-PF-M-017",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-017",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-017",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-PF-M-017",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-018",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-PF-M-018",
+      "tenet": 2,
+      "verdict": "FAIL",
+      "why": "Specification review only. Registerread-only and startsatrecordwhenmissing conflicts with orchestrator no-recordestimatedwalk and late-recordno-walk; synchronize labelsandrefusals."
+    },
+    {
+      "figure": "MK-PF-M-018",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-PF-M-018",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-PF-M-018",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-018",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-018",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-PF-M-018",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-019",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-PF-M-019",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-PF-M-019",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "Specification review only. Alwayszero rowneeds ledgercoverage distinction; missingamount isunknown, notzero. Exactresidualdoesnot prove correctreconciliation."
+    },
+    {
+      "figure": "MK-PF-M-019",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-PF-M-019",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-019",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-019",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-PF-M-019",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-PF-M-020",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-PF-M-020",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-PF-M-020",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "Specification review only. Missingcashsleeveofpickedbrokeragehasno stated refusal; known0availablecashisdifferent fromunenteredcash."
+    },
+    {
+      "figure": "MK-PF-M-020",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-PF-M-020",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-PF-M-020",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-PF-M-020",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-PF-M-020",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-XS-M-001",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-XS-M-001",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-XS-M-001",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "Specification review only. Someassetordebtbalancesmissingmustnot silentlysumonlyknownrowsinto unqualifiednetworth."
+    },
+    {
+      "figure": "MK-XS-M-001",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "Specification review only. Registered identifier and meaning are consistent within this supplied figure specification; actual cross-screen identity is untested."
+    },
+    {
+      "figure": "MK-XS-M-001",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-XS-M-001",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-XS-M-001",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-XS-M-001",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-XS-M-003",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-XS-M-003",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-XS-M-003",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-XS-M-003",
+      "tenet": 4,
+      "verdict": "FAIL",
+      "why": "Specification review only. Whole stockaccount summayincludeidlecash; ownerexcludescash. Unclassified membership unresolved."
+    },
+    {
+      "figure": "MK-XS-M-003",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-XS-M-003",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-XS-M-003",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-XS-M-003",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    },
+    {
+      "figure": "MK-XS-M-004",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "Specification review only. Printed method and example have no demonstrated error on stated valid inputs."
+    },
+    {
+      "figure": "MK-XS-M-004",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Specification review only. Record/formula provenance is stated; supplied packet cannot verify the actual drill-down or row rendering."
+    },
+    {
+      "figure": "MK-XS-M-004",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Specification review only. A missing-input refusal or an explicit known-ledger-zero condition is stated."
+    },
+    {
+      "figure": "MK-XS-M-004",
+      "tenet": 4,
+      "verdict": "FAIL",
+      "why": "Specification review only. Returnsharesaccount/portfoliorulebutannualizationmustrespectcalendar1YboundaryandSinceown-totalexception; corrected dailyflowconventionmustreachHome."
+    },
+    {
+      "figure": "MK-XS-M-004",
+      "tenet": 5,
+      "verdict": "PASS",
+      "why": "Specification review only. No overwriting of user choices is specified; sync/write behavior is outside supplied evidence."
+    },
+    {
+      "figure": "MK-XS-M-004",
+      "tenet": 6,
+      "verdict": "PASS",
+      "why": "Specification review only. Applicable owner wording must remain; approved-drawing implementation was not supplied."
+    },
+    {
+      "figure": "MK-XS-M-004",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "Specification review only. No additional advice/risk/tax claim is made by this simple balance or record figure."
+    },
+    {
+      "figure": "MK-XS-M-004",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Specification review only. Label explains a balance or activity fact in ordinary words."
+    }
+  ],
+  "could_not_test": [
+    {
+      "id": "MK-NW-F-104",
+      "missing": "Aggregate ending allocation across multiple accounts is unspecified; no numeric allocation cases invented. Supply the allocation contract, not implementation or existing answers."
+    },
+    {
+      "id": "screen register (all 53 supplied figure IDs)",
+      "missing": "Rendered app/screens, actual drill-downs, sync writes and attached approved-drawing notes are not supplied. PASS is specification-only, not app certification; no code or existing tests were requested."
+    }
+  ]
+}

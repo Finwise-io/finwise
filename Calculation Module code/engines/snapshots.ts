@@ -350,7 +350,7 @@ export function prune(days: SnapshotDay[], today: string): SnapshotDay[] {
  *               MK-PF-F-046 saleShortOfPurchasesSentence · MK-XS-F-009 readHistory
  *               MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-211 DEBTS · MK-NW-F-082 NW
@@ -360,7 +360,7 @@ export function prune(days: SnapshotDay[], today: string): SnapshotDay[] {
  *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               … and 62 more — the full list is on functions_from_code
+ *               … and 63 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots

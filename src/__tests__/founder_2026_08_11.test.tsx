@@ -752,7 +752,9 @@ test('every account with value gets its own walk, so the per-account walks sum t
   // the all-accounts walk says what it is, because per-account walks sit directly beneath it. With
   // no daily record yet this is DAY ONE (Performance v17, phone 4): the walk stands at today's value
   // and every account's walk is open beneath it.
-  expect(screen.getByText("HOW TODAY'S VALUE STANDS · ALL ACCOUNTS")).toBeOnTheScreen();
+  // DEC-5136 (2026-10-13): one title in every state — "HOW TODAY'S VALUE STANDS" is retired; day one names the same figure twice
+  expect(screen.getByText(/^HOW \$([\d,]+) BECAME \$\1 · ALL ACCOUNTS$/)).toBeOnTheScreen();
+  expect(screen.queryByText(/VALUE STANDS/)).toBeNull();
   // and BOTH accounts have a walk of their own — the CD account included
   expect(screen.getByLabelText(/^Vanguard Brokerage, \$300,000/)).toBeOnTheScreen();
   expect(screen.getByLabelText(/^E\*TRADE.*, \$52,704/)).toBeOnTheScreen();

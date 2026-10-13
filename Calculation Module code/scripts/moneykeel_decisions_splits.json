@@ -1061,6 +1061,34 @@
      "not_a_repeat_of": "DEC-4036 — a different point of the same table"
     }
    ]
+  },
+  {
+   "match": "SUBJECT: Working an account's beginning back when the daily record does not reach it",
+   "parts": [
+    {
+     "keep": true,
+     "decided": "2026-10-09",
+     "subject": "Working the beginning back when the daily record does not reach it: a CD's gain comes from its stated rate (DEC-3656 part 1)",
+     "plain": "When the daily record does not reach back to the window's first day, the beginning is worked back from today: today's value less what each holding gained, less the money moved. A CD with a stated rate gains by its rate: value now × (1 − 1 ÷ (1 + rate) to the power of the years in the window) — $10,500 at 5% for a year gained $500. Still in force; part (2) of the same approval, the refusal where a holding has no price history, is the row beside this one and was replaced on 2026-10-13.",
+     "type": "CALCULATION",
+     "status": "TESTED",
+     "screens": "/account-detail · /invest",
+     "governs": "MK-NW-F-091 pricedGainOf · MK-NW-F-127 gainOfRow · MK-NW-O-008 thePerformance · MK-PF-M-013 · MK-PF-M-014",
+     "proof": "MoneyKeel/functions/networth-and-performance/dec3656_beginning_worked_back.test.ts",
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
+    },
+    {
+     "keep": false,
+     "decided": "2026-10-09",
+     "subject": "A holding with no price history and no rate left the worked-back beginning blank, named (DEC-3656 part 2)",
+     "plain": "A holding with no price history and no stated rate — a bond typed by hand — had a gain that could not be known, so that account showed no beginning, no wealth generated and no walk, and the sentence \"The beginning can't be worked back: Treasury 2031 has no price history.\" REPLACED on 2026-10-13 by his ruling that Wealth generated and Return are shown for every holding with a history and a sentence below names the one left out.",
+     "type": "CALCULATION",
+     "status": "SUPERSEDED",
+     "screens": "/account-detail · /invest",
+     "governs": "MK-NW-O-008 thePerformance · MK-NW-F-130 notIncludedSentence (was cannotWorkBackSentence)",
+     "superseded_by_phrase": "should be calculated and displayed for every asset with history"
+    }
+   ]
   }
  ]
 }

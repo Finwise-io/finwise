@@ -3666,11 +3666,7 @@
     },
     {
      "k": "t",
-     "s": "HOW TODAY'S VALUE STANDS · ALL ACCOUNTS"
-    },
-    {
-     "k": "t",
-     "s": "$165,000"
+     "s": "HOW $165,000 BECAME $165,000 · ALL ACCOUNTS"
     },
     {
      "k": "t",
@@ -4232,11 +4228,7 @@
     },
     {
      "k": "t",
-     "s": "HOW TODAY'S VALUE STANDS · ALL ACCOUNTS"
-    },
-    {
-     "k": "t",
-     "s": "$709,800"
+     "s": "HOW $709,800 BECAME $709,800 · ALL ACCOUNTS"
     },
     {
      "k": "t",
@@ -4862,11 +4854,7 @@
     },
     {
      "k": "t",
-     "s": "HOW TODAY'S VALUE STANDS · ALL ACCOUNTS"
-    },
-    {
-     "k": "t",
-     "s": "$250,000"
+     "s": "HOW $250,000 BECAME $250,000 · ALL ACCOUNTS"
     },
     {
      "k": "t",
@@ -5276,11 +5264,7 @@
     },
     {
      "k": "t",
-     "s": "HOW TODAY'S VALUE STANDS · ALL ACCOUNTS"
-    },
-    {
-     "k": "t",
-     "s": "$0"
+     "s": "HOW $0 BECAME $0 · ALL ACCOUNTS"
     },
     {
      "k": "t",
@@ -17378,7 +17362,7 @@
     },
     {
      "k": "t",
-     "s": "HOW TODAY'S VALUE STANDS"
+     "s": "HOW $120,000 BECAME $120,000 · THIS ACCOUNT"
     },
     {
      "k": "a",
@@ -17788,7 +17772,7 @@
     },
     {
      "k": "t",
-     "s": "HOW TODAY'S VALUE STANDS"
+     "s": "HOW $300,000 BECAME $300,000 · THIS ACCOUNT"
     },
     {
      "k": "a",
@@ -18286,7 +18270,7 @@
     },
     {
      "k": "t",
-     "s": "HOW TODAY'S VALUE STANDS"
+     "s": "HOW $300,000 BECAME $300,000 · THIS ACCOUNT"
     },
     {
      "k": "a",
@@ -18780,7 +18764,7 @@
     },
     {
      "k": "t",
-     "s": "HOW TODAY'S VALUE STANDS"
+     "s": "HOW $20,000 BECAME $20,000 · THIS ACCOUNT"
     },
     {
      "k": "a",
@@ -19178,7 +19162,7 @@
     },
     {
      "k": "t",
-     "s": "HOW TODAY'S VALUE STANDS"
+     "s": "HOW $400,000 BECAME $400,000 · THIS ACCOUNT"
     },
     {
      "k": "a",
@@ -19584,7 +19568,7 @@
     },
     {
      "k": "t",
-     "s": "HOW TODAY'S VALUE STANDS"
+     "s": "HOW $9,800 BECAME $9,800 · THIS ACCOUNT"
     },
     {
      "k": "a",
@@ -20150,7 +20134,7 @@
     },
     {
      "k": "t",
-     "s": "HOW TODAY'S VALUE STANDS"
+     "s": "HOW $250,000 BECAME $250,000 · THIS ACCOUNT"
     },
     {
      "k": "a",
@@ -37523,6 +37507,7 @@
    "worker": [
     "MK-PF-M-001",
     "MK-PF-M-002",
+    "MK-PF-M-003",
     "MK-PF-M-004",
     "MK-PF-M-005",
     "MK-PF-M-007",
@@ -37535,6 +37520,7 @@
    "rich": [
     "MK-PF-M-001",
     "MK-PF-M-002",
+    "MK-PF-M-003",
     "MK-PF-M-004",
     "MK-PF-M-005",
     "MK-PF-M-007",
@@ -37547,6 +37533,7 @@
    "retiree": [
     "MK-PF-M-001",
     "MK-PF-M-002",
+    "MK-PF-M-003",
     "MK-PF-M-004",
     "MK-PF-M-005",
     "MK-PF-M-007",
@@ -37559,6 +37546,7 @@
    "new": [
     "MK-PF-M-001",
     "MK-PF-M-002",
+    "MK-PF-M-003",
     "MK-PF-M-007",
     "MK-PF-M-018",
     "MK-PF-M-019"
@@ -37878,7 +37866,7 @@
     "$45,000",
     "$0"
    ],
-   "renders": 1260
+   "renders": 1279
   },
   {
    "site": "MoneyKeel/functions/_figure-spec.ts:76",
