@@ -119,9 +119,8 @@ function phone4() {
   const accounts = [acct('van', 'Vanguard', 'BROKERAGE', 301_610, false, T, [pos('p1', 'VTI', 900, 330, 300, T), pos('p3', 'KEYBANK CD 4.00%', 4610, 1, 1, T, 'bond')], 0),
                     acct('etr', 'E*TRADE', 'ACCOUNT 1', 52_704, false, T, [pos('p2', 'VOO', 90, 550, 500, T)], 3_204)];
   // DAY ONE AS THE APP HAS IT: Home writes today's values to the daily record the moment it opens (captureDailyNw), so on
-  // day one the record exists and begins today — every earlier window is one the record cannot reach and is greyed
-  // (DEC-3035i). With NO record at all those windows would be worked back from the holdings (DEC-5068); that state is
-  // held by dec_worked_back_known_holdings.test.tsx.
+  // day one the record exists and begins today. Every earlier window is one the record cannot reach — greyed until
+  // 2026-10-13 (DEC-3035i), now worked back from each holding's price history (DEC-5291; see KNOWN).
   return { today: T, state: {
     assetAccounts: accounts,
     transactions: [], snapshotDays: [buildDayFromAccounts(accounts as any, T, `${T}T09:00:00Z`)], invDaily: {},
@@ -210,6 +209,16 @@ const KNOWN: [number, string, string, string][] = [
   // stands. ALl Accounts""): the walk's title names the beginning and the ending on day one too; a READ THIS FIRST row says so
   [4, "how today's value stands · all accounts $354,314", 'how $354,314 became $354,314 · all accounts', 'DEC-5136: one walk title in every state'],
   [5, "how today's value stands · all accounts $0", 'how $0 became $0 · all accounts', 'DEC-5136: one walk title in every state'],
+  // (b) — DEC-5291 (2026-10-13, his word "approved." on: "Let price history count. When a period starts before the daily
+  // record, work it back from each holding's price history and name what's left out, rather than greying it."). A window
+  // the record cannot reach is worked back where a holding has a history; a READ THIS FIRST row on the drawing says so.
+  [1, '1y — 2y — summary', '1y +6.10% 2y +11.10% 2y is shown per year, so it sits fairly beside 1y summary',
+    'DEC-5291: the record begins Oct 1, 2025; 1Y is worked back from VTI and VOO prices (Stocks / Funds +6.10%), 2Y counts each holding from its Sep 1, 2025 purchase (330 ÷ 260 and 550 ÷ 500) a year'],
+  [4, 'since today — 1m — this year — 1y — 2y — summary', 'since today — 1m +10.00% this year +10.00% 1y +10.00% 2y +4.87% 2y is shown per year, so it sits fairly beside 1y summary',
+    'DEC-5291: each holding was bought inside the window, so its gain is value less cost (VTI 330 ÷ 300, VOO 550 ÷ 500); 2Y is (1.10)^(365 ÷ 731) − 1 = 4.87%'],
+  [4, "day one: your value is real, your return starts measuring from today. we never back-fill a year we didn't see.",
+    "day one: your value is real and your daily record starts today. longer windows are worked back from each holding's price history.",
+    'DEC-5291: the day-one line says the longer windows come from price history'],
 ];
 
 describe('Performance v17 — every word and every figure, in each data state', () => {
@@ -243,9 +252,14 @@ describe('FIXED by the drawing check of 2026-10-12 — what a word stream cannot
   test('2 · the window control\'s colours (v17 .segK, .segNo, .segOn)', () => {
     const r = open(1);
     expect(find(r, '1M')).toMatchObject({ color: Colors.textTertiary });                        // at rest: #76766F (was #6B6B66)
-    const y1 = idx(r, '1Y');
-    expect(r[y1]).toMatchObject({ color: Colors.textDisabled });                                // greyed: #A8A8A2 (was #76766F)
-    expect(r[y1 + 1]).toMatchObject({ t: '—', color: Colors.textDisabledFaint });               // its dash: #C2C2BB
+    // phone 1's 1Y now carries a figure worked back from price history (DEC-5291, 2026-10-13): at rest, not greyed
+    expect(r[idx(r, '1Y')]).toMatchObject({ color: Colors.textTertiary });
+    screen.unmount(); jest.useRealTimers();
+    // a window with no figure is greyed: phone 5, nothing entered, so no holding has a history
+    const e = open(5);
+    const y1 = idx(e, '1Y');
+    expect(e[y1]).toMatchObject({ color: Colors.textDisabled });                                // greyed: #A8A8A2 (was #76766F)
+    expect(e[y1 + 1]).toMatchObject({ t: '—', color: Colors.textDisabledFaint });               // its dash: #C2C2BB
     screen.unmount(); jest.useRealTimers();
     const d = open(4);
     expect(d[idx(d, 'Since today') + 1]).toMatchObject({ t: '—', color: Colors.primaryDark }); // the chosen window's dash is green (was grey)

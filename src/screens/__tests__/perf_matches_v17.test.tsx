@@ -94,9 +94,8 @@ const STATES: Record<number, () => void> = {
   } as any),
   // phone 4 — day one, two hand-entered accounts, nothing recorded before today
   // DAY ONE AS THE APP HAS IT: Home writes today's values to the daily record the moment it opens (captureDailyNw), so on
-  // day one the record exists and begins today — every earlier window is one the record cannot reach and is greyed
-  // (DEC-3035i). With NO record at all those windows would be worked back from the holdings (DEC-5068); that state is
-  // held by dec_worked_back_known_holdings.test.tsx.
+  // day one the record exists and begins today. Every earlier window is one the record cannot reach — greyed until
+  // 2026-10-13 (DEC-3035i), now worked back from each holding's price history (DEC-5291; KNOWN 10).
   4: () => {
     const accounts = [acct('van', 'Vanguard', 'BROKERAGE', 301_610, undefined, [pos('p1', 'VTI', 900, 330, 300, TODAY), pos('p3', 'KEYBANK CD 4.00%', 4610, 1, 1, TODAY, 'bond')], 0),
                       acct('etr', 'E*TRADE', 'ACCOUNT 1', 52_704, undefined, [pos('p2', 'VOO', 90, 550, 500, TODAY)], 3_204)];
@@ -145,7 +144,16 @@ const norm = (lines: string[]) => lines.join(' ').toLowerCase()
  *  AND HIS DECISION OF 2026-10-13 (DEC-5136), newer than this drawing: "HOW $38,000 BECAME $52,704 · ALL ACCOUNTS -
  *  this is the title. Not - "How xxx stands. ALl Accounts"".
  *  8. The day-one walk (phones 4 and 5) is titled "HOW $354,314 BECAME $354,314 · ALL ACCOUNTS", not "HOW TODAY'S VALUE
- *     STANDS · ALL ACCOUNTS" with the value beside it. */
+ *     STANDS · ALL ACCOUNTS" with the value beside it.
+ *  AND HIS APPROVAL OF 2026-10-13 (DEC-5291, "approved."), newer than this drawing: "Let price history count. When a
+ *  period starts before the daily record, work it back from each holding's price history and name what's left out,
+ *  rather than greying it."
+ *  9. Phone 1's 1Y and 2Y, drawn greyed "—", carry figures worked back from VTI's and VOO's price history, and 2Y's
+ *     line "2Y is shown per year, so it sits fairly beside 1Y" follows them (phone 1's record begins Oct 1, 2025).
+ *  10. Phone 4's 1M, This year, 1Y and 2Y, drawn greyed "—", carry figures (each holding was bought inside the window,
+ *     so its gain is its value less its cost), with the 2Y line; and its day-one line reads "Day one: your value is real
+ *     and your daily record starts today. Longer windows are worked back from each holding's price history."
+ *     Phone 5 (nothing entered) is unchanged: there is no holding with a history, so its windows stay "—". */
 const MARK_16 = 'money moved in and out in amounts where when it moved would decide a window return, so this is your rate per year, counting when you added money';
 const KNOWN = (s: string) => s
   .replace(/(bonds & cds|cash in this account) \$# (#%\/year|—)/g, '$1 $# <rate or dash>')
@@ -154,7 +162,11 @@ const KNOWN = (s: string) => s
   .replace(MARK_16, 'return is for the window you picked (<date> → <date>) — not a yearly rate time-weighted, so money you added never counts as return')   // 5 — the first, in the summary
   .replace(new RegExp(` ${MARK_16.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`), '')                                                          // 6 — the second, in the account's walk
   .replace(/since <date> #%\/year/g, 'since <date> #%').replace(/\breturn #%\/year/g, 'return #%')                                         // 7
-  .replace(/how today's value stands all accounts \$#/g, 'how $# became $# all accounts');                                              // 8
+  .replace(/how today's value stands all accounts \$#/g, 'how $# became $# all accounts')                                               // 8
+  .replace(/^(performance <date> since <date> #% #m #% this year #% )#y — #y — summary/, '$1#y #% #y #% #y is shown per year, so it sits fairly beside #y summary')   // 9 (phone 1)
+  .replace(/^(performance <date> since today — )#m — this year — #y — #y — summary/, '$1#m #% this year #% #y #% #y #% #y is shown per year, so it sits fairly beside #y summary')   // 10 (phone 4)
+  .replace("day one: your value is real, your return starts measuring from today. we never back-fill a year we didn't see. $# your line",
+    "day one: your value is real and your daily record starts today. longer windows are worked back from each holding's price history. $# your line");   // 10
 
 const CHROME = new Set(['9:41', '▦ Menu', 'Money', 'Keel', '◉', '⚙', '🏠', 'Home', '💎', 'Net worth', '📈', '💵', 'Cash flow', '🧭', 'Plan']);
 function drawn(n: number): string[] {

@@ -139,10 +139,39 @@ generated $3,636, Return +10.00%. The account page's note reads "Your daily reco
 <day> yet, so the beginning is worked back from today's values and each holding's price history." Every
 account together on the Performance tab reads the same way: a worked-back window is not greyed, and its
 summary, walk and window button show these figures and the sentence, so the summary is the sum of the
-account cards. A window whose record exists but begins after it opens stays greyed (DEC-3035i), also when
-only some accounts have a record. Home writes today's record when it opens, so Home's month is such a
-window, and Home and the Performance tab's 1M window both show no figure. Where the record does reach back, Return is the measured
-time-weighted return of the accounts (DEC-1669, DEC-4439), unchanged. Day one opens every window today.
+account cards. Where the record does reach back, Return is the measured time-weighted return of the
+accounts (DEC-1669, DEC-4439), unchanged. Day one opens every window today.
+
+A record that exists but begins after the window opens — let price history count (his approval DEC-5291,
+2026-10-13, his word "approved." to the recommendation recorded on that row; it replaces DEC-3035i): a
+period that starts before the daily record is worked back from each holding's price history and what is
+left out is named, rather than greyed. No balance is invented — the figures come from real prices — so
+DEC-0230 still holds for the values typed by hand.
+Such a window is worked back exactly as one with no record at all (above): today's values less each
+holding's known gain less the money moved; Return = the holdings with a history; the rest named. Home
+writes today's record when it opens, so on a first day every window but Since is one of these, and Home's
+month line, the Performance tab (summary, walk, window buttons, account cards) and the account page all
+show the worked-back figures. Worked example: Vanguard linked today, VTI $40,000 with a year of prices
+(+10%), Treasury 2031 $10,000 typed by hand as its own account → 1Y +10.00% (not greyed), Wealth generated
+$3,636, Return +10.00%, and "Wealth generated and Return do not include Treasury 2031's gains, as it has no
+price history." It read greyed "—" and "The record begins Oct 13, 2026, so it cannot say what these accounts
+were worth on Oct 12, 2025." That sentence — DEC-3035i's words — still shows, with no walk and the window
+greyed, only where NO holding in the window has a history (Treasury 2031's own card above): there is
+nothing real to work back from, and a typed value is never carried back to a day nobody recorded. A
+holding with a history = a price history over the window, a CD's stated rate, or bought inside the window.
+Cash — uninvested cash, a cash position — gains $0, is not named as having no price history, and is not
+in Return. SOME ACCOUNTS REACHED, SOME NOT: the accounts the record reaches are read and measured together,
+as before (an account with no history that joined the record late still arrives as money put in,
+DEC-4439); each account it does not reach that holds something with a history is worked back on its own,
+exactly as its card is; the summary is these parts added up, so each walk line of the summary equals the
+same line on those cards added up, and an account whose card is greyed adds its value now. Return there =
+Σ values now ÷ Σ (value now ÷ (1 + return)) − 1 over the reached accounts together (their measured return)
+and each worked-back holding with a history. Example: Fidelity recorded at $100,000 since Jun 2025, $112,000
+today (+12.00%), and Vanguard linked today, VTI $40,000 at +10% → summary $136,364 became $152,000, Wealth
+generated $15,636, Return 152,000 ÷ 136,363.64 − 1 = +11.47%. On the Performance tab's day one, where a
+longer window is worked back, the line reads "Day one: your value is real and your daily record starts
+today. Longer windows are worked back from each holding's price history."; with no holding history it
+keeps v17's words.
 
 A balance that was never entered stays in view and reads "Value not entered" (his wording, DEC-3657):
 an account row, a bank, a class whose only account has none, a group and a debt row — never $0, −$0

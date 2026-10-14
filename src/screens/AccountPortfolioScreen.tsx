@@ -458,7 +458,8 @@ export default function AccountPortfolioScreen() {
             "Below it display …"). Only where the beginning is worked back and a holding has no price history. */}
         {!dayOne && !!now?.notIncluded && <Text style={p.note}>{now.notIncluded}</Text>}
         {/* where the figures came from, and the first day that source can speak for */}
-        {account.source === 'connected' && dataStart && (
+        {/* not for a worked-back window: the broker's records do not reach its beginning (DEC-5291, 2026-10-13) */}
+        {account.source === 'connected' && dataStart && !now?.workedBack && (
           <Text style={p.note}>
             ↺ Rebuilt from {who}&apos;s own records, back to {sinceWords} — the first day it shares.
           </Text>

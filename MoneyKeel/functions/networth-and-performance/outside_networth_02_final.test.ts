@@ -779,9 +779,10 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
     const f = thePerformance({ windowStart: '2025-10-07', windowLabel: 'past year', today: '2026-10-07', pricedGain: 5130.25,
       snapshotDays: [recorded('2026-02-02', [linkedAt('s', 70000)])], transactions: [{ id: 'd', type: 'DEPOSIT', account_id: 's', amount: 10000, date: '2026-04-10' }],
       investmentAccountIds: new Set(['s']), accounts: [linkedAt('s', 87412.66)] });
-    // the app answers 'no beginning, no wealth generated, no walk' as ONE null walk (the walk holds both)
-    expect({ beginning: f.walk?.beginning ?? null, wealth_generated: f.walk?.wealthGenerated ?? null, walk: f.walk, return: f.ret, ending: f.ending, sentence: f.sentence })
-      .toEqual({ beginning: null, wealth_generated: null, walk: null, return: null, ending: near(87412.66),
-        sentence: 'The record begins Feb 2, 2026, so it cannot say what this account was worth on Oct 6, 2025.' });   // the formula as sent gave a beginning of 72,282.41 and wealth generated 5,130.25
+    // SETTLED 2026-10-13 by DEC-5291 ("approved."): a record that begins too late is worked back from the gain the
+    // holdings' price history gives — the outside judge's own figures, $87,412.66 − $5,130.25 − $10,000 = $72,282.41 and
+    // wealth generated $5,130.25. No percent: only a dollar gain was handed in. (Was: no walk, "The record begins Feb 2, 2026, …")
+    expect({ beginning: f.walk?.beginning ?? null, wealth_generated: f.walk?.wealthGenerated ?? null, return: f.ret, ending: f.ending, sentence: f.sentence })
+      .toEqual({ beginning: near(72282.41), wealth_generated: near(5130.25), return: null, ending: near(87412.66), sentence: '' });
   });
 });

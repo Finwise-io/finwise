@@ -37,9 +37,9 @@ export interface WindowFigures {
   windowStart: string | null;
   /** The records inside the window. */
   ledger: any[];
-  /** How the beginning became the ending, line by line — the rows always sum to the ending. Null when
-   *  the record cannot reach the window's beginning: the walk is not drawn rather than started from a
-   *  beginning worked back from today (outside review, 2026-10-07; Performance v17). */
+  /** How the beginning became the ending, line by line — the rows always sum to the ending. Null only when
+   *  the record begins after the window opens AND no holding here has a history to work it back from
+   *  (DEC-3035i, kept for that case by DEC-5291, 2026-10-13). */
   walk: ChangeWalk | null;
   /** What the measured accounts are worth today — known whether or not the walk can be drawn. */
   ending: number;
@@ -61,10 +61,10 @@ export interface WindowFigures {
    *  2026-10-13): "Wealth generated and Return do not include Treasury 2031's gains, as it has no price
    *  history." Wealth generated and Return are still shown, from the holdings with a history. Empty otherwise. */
   notIncluded: string;
-  /** True where the beginning is worked back from today: a window that does not open today and no daily record of
-   *  these accounts at all (DEC-3656). Its figures are shown as the record's own are — the window is not greyed —
-   *  with notIncluded beneath them (DEC-5068, 2026-10-13). A record that exists but begins too late is not this
-   *  (DEC-3035i). */
+  /** True where the beginning is worked back from today: a window that does not open today whose beginning the daily
+   *  record cannot read — no record of these accounts at all (DEC-3656), or a record that begins too late while a
+   *  holding has a price history (DEC-5291, 2026-10-13), or some accounts read and the rest worked back. Its
+   *  figures are shown as the record's own are — the window is not greyed — with notIncluded beneath them (DEC-5068). */
   workedBack: boolean;
 }
 
@@ -197,6 +197,7 @@ export function investmentRecordDates(snapshotDays: any[], investmentAccountIds:
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-005 holding price
  *               MK-XS-I-012 bond coupon rate
+ *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *
@@ -225,7 +226,7 @@ export type GainRow = {
   periodReturn?: number | null;
   marketValue?: number;
   couponRate?: number | null;
-  position?: { ticker?: string; label?: string; name?: string; kind?: string; multiplier?: number; last_price?: number; value_now?: number; lots?: { shares?: number }[] };
+  position?: { position_id?: string | number; ticker?: string; label?: string; name?: string; kind?: string; asset_class?: string; multiplier?: number; last_price?: number; value_now?: number; lots?: { shares?: number }[] };
   /** The window's own total, never a yearly rate — buildPerformance writes it beside periodReturn. Where it is
    *  absent and the window is longer than a year, periodReturn is read as a yearly rate (outside review Claude
    *  Performance, 2026-10-11, MK-NW-F-091). */
@@ -249,11 +250,12 @@ export type GainRow = {
  *     0   otherwise   when pr ≠ nothing
  *     mv × (1 − 1 ÷ math.pow(1 + coupon rate, years))   if mv > 0
  *     0   otherwise   when coupon rate ≠ nothing and number.is finite(coupon rate) and coupon rate ≥ 0
+ *     0   when position.asset class = 'cash'
  *     the answer:
  *     0   if held value of(r) = 0
  *     nothing   otherwise
  *
- * Called by ... MK-NW-F-091 pricedGainOf
+ * Called by ... MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
  *
  * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
@@ -262,6 +264,7 @@ export type GainRow = {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-012 bond coupon rate
+ *               MK-XS-I-048 the person’s own asset-class answer
  *
  * Decides .....
  *     · If gain is missing it uses 0.
@@ -281,6 +284,9 @@ function gainOfRow(r: GainRow, years: number): number | null {
   // AN ENTERED 0% IS A RATE OF 0%, gaining $0; a rate never entered (null) stays unknown below (DEC-2748b, 2026-10-12:
   // "a typed 0 rate is a zero-coupon bond" / "a face value or rate that was never entered stays blank")
   if (r.couponRate != null && Number.isFinite(r.couponRate) && r.couponRate >= 0) return mv > 0 ? mv * (1 - 1 / Math.pow(1 + r.couponRate, years)) : 0;
+  // CASH GAINS NOTHING, and is not a holding with no price history (DEC-5291, 2026-10-13): a cash position with no
+  // price series of its own gained $0 and is never named as left out. A money-market FUND with prices is measured above.
+  if (r.position?.asset_class === 'cash') return 0;
   // holds nothing: gained nothing. Holds something, or holds shares no one has priced: unknown (DEC-3656)
   return heldValueOf(r) === 0 ? 0 : null;
 }
@@ -759,8 +765,9 @@ export function thePerformance(input: {
   // approved day-one page stands.
   const years = bounds ? bounds.days / 365 : 0;   // the window's days ÷ 365 — the same years the yearly rate uses
   const names = accountDisplayNames((input.accounts ?? []) as any[]);
-  const instrumentRows: GainRow[] = (input.accounts ?? [])
-    .filter((a: any) => input.investmentAccountIds.has(String(a?.asset_id)) && !(a?.positions?.length) && (a?.balance || 0) > 0)
+  const instrumentAccounts = ((input.accounts ?? []) as any[])
+    .filter((a: any) => input.investmentAccountIds.has(String(a?.asset_id)) && !(a?.positions?.length) && (a?.balance || 0) > 0);
+  const instrumentRows: GainRow[] = instrumentAccounts
     .map((a: any) => ({
       name: names.get(a.asset_id) ?? a.label ?? 'this account',
       marketValue: a.balance,
@@ -775,19 +782,78 @@ export function thePerformance(input: {
   if (!input.holdings && input.pricedGain === null) unknownNames.push('a holding');
   const knownGain = rowGains.reduce((t: number, g) => t + (g ?? 0), 0) + (input.holdings ? 0 : (input.pricedGain ?? 0));
   const pricedGain = windowStart === today ? 0 : knownGain;
-  // NO BEGINNING WORKED BACK FROM TODAY (outside review, 2026-10-07). Where the record cannot reach the
-  // window's first day, the beginning used to be worked back — ending less the priced gain and the money
-  // moved — and wealth generated then equalled that gain, both shown as if measured. Performance v17
-  // (approved 2026-10-01): "nothing on this page shows a figure for a window its record cannot cover";
-  // and wealth generated's own rule: nothing honest to subtract from. So no walk, and a sentence.
-  // Only where a record EXISTS and begins too late (DEC-3035i). With no daily record at all, the beginning
-  // is worked back from today's values and each holding's price history, and the account page says so.
+  // A HOLDING WITH A HISTORY OVER THIS WINDOW: a price history (its window return), a CD's stated rate, or bought
+  // inside the window (its own gain). Cash and a holding that holds nothing gain $0 but are not a history; a caller
+  // handing over a known dollar gain has said one exists. (DEC-5291, 2026-10-13)
+  const hasHistory = (r: GainRow) => !!r.cappedSince || windowTotal(r.periodReturn, r.periodTotal, years) != null
+    || (r.couponRate != null && Number.isFinite(r.couponRate) && r.couponRate >= 0);
+  const anyHistory = gainRows.some(hasHistory) || (!input.holdings && input.pricedGain != null && input.pricedGain !== 0);
+  // A RECORD THAT EXISTS BUT BEGINS AFTER THE WINDOW OPENS. Until 2026-10-13 that greyed the window (DEC-3035i): no
+  // walk, and "The record begins …". His approval of 2026-10-13 (DEC-5291, "approved."): let price history
+  // count — a period that starts before the daily record is worked back from each holding's price history, and the
+  // holdings not included are named, rather than the window greyed. So such a window is WORKED BACK like one with no record at all —
+  // today's values less each holding's known gain less the money moved; Return = the holdings with a history. It
+  // still refuses, in DEC-3035i's own words, only where NO holding here has a history: nothing real to work back
+  // from, and a typed value is never carried back to a day nobody recorded (DEC-0230).
   const theirDays = days.filter((d: any) => accountValuesOn(d, (x) => input.investmentAccountIds.has(x)).size > 0);
-  const unreachable = windowStart != null && windowStart !== today && bounds != null && measured == null && theirDays.length > 0;
-  // THE BEGINNING IS WORKED BACK only here: a window that does not open today, no beginning the record
-  // reads, and no record of these accounts at all. A window that opens today, no window at all (day one), a
-  // beginning the record reads, or a record that begins too late (above) are untouched.
+  const recordLate = windowStart != null && windowStart !== today && bounds != null && measured == null && theirDays.length > 0;
+  const unreachable = recordLate && !anyHistory;
+  // THE BEGINNING IS WORKED BACK here: a window that does not open today, no beginning the record reads, and
+  // either no record of these accounts at all (DEC-3656, DEC-5068) or a record that begins too late with a holding
+  // that has a history (DEC-5291). A window that opens today, no window at all (day one), or a beginning the
+  // record reads are untouched — a window the record reaches keeps its measured time-weighted return (DEC-4439).
   const workedBack = windowStart != null && windowStart !== today && measured == null && !unreachable;
+
+  // SOME ACCOUNTS REACH, SOME DO NOT (DEC-5291, 2026-10-13). The record reads a beginning for the accounts it
+  // holds on the window's eve; an account it does not hold then, which has a holding with a history, is worked back
+  // ON ITS OWN, exactly as its own card is. The answer is then the parts added up, so every dollar line here equals
+  // the same line on the cards added up: the accounts the record reaches together (read, measured, as before — an
+  // account with no history that joined the record late still arrives as money put in, DEC-4439), plus each
+  // worked-back account. Return = Σ values now ÷ Σ (value now ÷ (1 + return)) − 1 over the reached accounts
+  // together (their measured time-weighted return) and each worked-back holding with a history — the weighting
+  // knownHoldingsReturn already uses. Where the reached accounts' return refuses, so does this one, with its words.
+  if (bounds && measured != null && windowStart !== today && input.investmentAccountIds.size > 1 && input.holdings) {
+    const accountOfPosition = new Map<string, string>();
+    for (const a of (input.accounts ?? []) as any[]) for (const p of a?.positions ?? []) accountOfPosition.set(String(p?.position_id), String(a?.asset_id));
+    const ownerOf = (r: GainRow) => accountOfPosition.get(String(r.position?.position_id));
+    // only when every holding handed in can be placed in its account — otherwise the parts could not be told apart
+    if (input.holdings.every((r) => ownerOf(r) != null)) {
+      const rowsOf = (id: string): GainRow[] => [
+        ...input.holdings!.filter((r) => ownerOf(r) === id),
+        ...instrumentRows.filter((_, i) => String(instrumentAccounts[i]?.asset_id) === id),
+      ];
+      const late = [...input.investmentAccountIds].filter((id) =>
+        valueOn(days, new Set([id]), bounds.beginningAsOf) == null && rowsOf(id).some(hasHistory));
+      const reachedIds = new Set([...input.investmentAccountIds].filter((id) => !late.includes(id)));
+      if (late.length && reachedIds.size) {
+        const reached = thePerformance({ ...input, investmentAccountIds: reachedIds,
+          holdings: input.holdings.filter((r) => reachedIds.has(ownerOf(r)!)) });
+        const parts = [reached, ...late.map((id) => thePerformance({ ...input, investmentAccountIds: new Set([id]),
+          holdings: input.holdings!.filter((r) => ownerOf(r) === id) }))];
+        const add = (k: 'beginning' | 'contributions' | 'withdrawals' | 'dividends' | 'interest' | 'ending') =>
+          parts.reduce((t, x) => t + (x.walk ? x.walk[k] : 0), 0);
+        const cwalk = buildChangeWalk({
+          beginning: add('beginning'), ending: add('ending'), fromLabel: input.windowLabel, toLabel: 'today',
+          contributions: add('contributions'), withdrawals: add('withdrawals'), dividends: add('dividends'), interest: add('interest'),
+        });
+        const lateRows = late.flatMap(rowsOf);
+        const reachedRefused = reached.cumulative == null && !!reached.sentence;
+        const ccum = reachedRefused ? null : knownHoldingsReturn([
+          ...lateRows,
+          ...(reached.cumulative != null ? [{ marketValue: reached.ending, periodReturn: reached.cumulative, periodTotal: reached.cumulative }] : []),
+        ], years);
+        const left = lateRows.filter((r) => gainOfRow(r, years) == null).map(gainRowName);
+        const yb = windowStartKey('1Y', [], today);
+        const cPerYear = ccum != null && yb != null && windowStart != null && windowStart < yb && years > 1 && !input.wholeRecord ? Math.pow(1 + ccum, 1 / years) - 1 : null;
+        return {
+          windowStart, ledger, walk: cwalk, ending: cwalk.ending, measured: null, covered: false,
+          beginningAsOf: bounds.beginningAsOf, ret: cPerYear ?? ccum, cumulative: ccum, perYear: cPerYear, years,
+          sentence: reachedRefused ? reached.sentence : '',
+          notIncluded: left.length ? notIncludedSentence(left) : '', workedBack: true,
+        };
+      }
+    }
+  }
   // A HOLDING WITH NO PRICE HISTORY IS LEFT OUT, AND SAID (DEC-5068, 2026-10-13: "Wealth Generated and Return
   // should be calculated and displayed for every asset with history. Below it display …"). It replaces the
   // refusal of DEC-3656 part 2, which drew no beginning, no wealth generated and no walk at all: its gain adds
@@ -800,15 +866,15 @@ export function thePerformance(input: {
     contributions, withdrawals, dividends, interest,
   });
   const firstRecorded = theirDays.map((d: any) => String(d?.date ?? '')).filter(Boolean).sort()[0];
-  // the record begins too late (DEC-3035i)
+  // the record begins too late and no holding has a history to work it back from (DEC-3035i's words, kept for this
+  // one case by DEC-5291, 2026-10-13)
   const cannotReach = unreachable && bounds && firstRecorded
     ? `The record begins ${dateShown(firstRecorded)}, so it cannot say what ${input.investmentAccountIds.size === 1 ? 'this account was' : 'these accounts were'} worth on ${dateShown(bounds.beginningAsOf)}.`
     : '';
 
-  // A WINDOW THE RECORD CANNOT COVER ANSWERS NOTHING (Performance v17, approved 2026-10-01: "a window
-  // the record cannot cover is greyed to — … nothing on this page shows a figure for a window its
-  // record cannot cover"). A return needs a beginning that was READ from the record (B-98); the
-  // dollar walk still answers, and only the percent is withheld.
+  // A MEASURED RETURN NEEDS A BEGINNING READ FROM THE RECORD (B-98). Where the beginning is worked back instead,
+  // the return is the holdings' own, from their price histories (DEC-5068, DEC-5291); Performance v17's
+  // "a window the record cannot cover is greyed to —" now holds only where no holding has a history.
   //
   // THE RETURN IS TIME-WEIGHTED (owner decision, 2026-10-04, DEC-1669). The window is split at every
   // day money moved in or out; each piece is the value just before the next movement ÷ the value
@@ -827,7 +893,7 @@ export function thePerformance(input: {
   // Σ their values now ÷ Σ their starts − 1, each start = value now ÷ (1 + its own return over the window). One
   // with no history is left out, never counted at 0%; with none, there is no return. Where the record reaches
   // back, the return stays the measured time-weighted return of the accounts (DEC-1669, DEC-4439). `covered`
-  // still says only whether the record reaches back, so the Performance tab greys the windows it cannot reach.
+  // still says only whether the record reaches back; the Performance tab greys a window only where it is neither covered nor worked back.
   const knownReturn = workedBack && input.holdings ? knownHoldingsReturn(gainRows, years) : null;
   const cumulative = covered ? verdict?.rate ?? null : workedBack ? knownReturn : null;
   // a yearly rate only for a window longer than a year: (1 + the return)^(365 ÷ days) − 1. "Since" is

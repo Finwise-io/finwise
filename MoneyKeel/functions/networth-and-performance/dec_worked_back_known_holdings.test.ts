@@ -96,14 +96,26 @@ describe('MK-NW-O-008 thePerformance — the beginning worked back, a holding wi
     expect(f.notIncluded).toBe('');
   });
 
-  test('unchanged · a record that begins too late still draws no walk (DEC-3035i)', () => {
+  // SETTLED 2026-10-13 by DEC-5291 ("approved."): a record that begins too late is worked back from price history
+  // like no record at all. Was: no walk, no Return, "The record begins Jun 1, 2026, …" (DEC-3035i).
+  test('a record that begins too late is now worked back too (DEC-5291): the same $3,636 and +10.00%', () => {
     const late = { date: '2026-06-01', origin: 'observed', writtenAt: '2026-06-01T00:00:00Z', holdings: [],
       accounts: [{ date: '2026-06-01', accountId: 'a', cash: 0, statedTotal: null, typedValue: 48000, currency: 'USD' }] };
     const f = ask([VTI, TREASURY], 50000, { snapshotDays: [late] });
+    expect(f.workedBack).toBe(true);
+    expect(f.walk!.wealthGenerated).toBeCloseTo(3636.3636, 4);
+    expect(f.ret!).toBeCloseTo(0.10, 12);
+    expect(f.notIncluded).toBe("Wealth generated and Return do not include Treasury 2031's gains, as it has no price history.");
+    expect(f.sentence).toBe('');
+  });
+  test('a record that begins too late and NO holding with a history: DEC-3035i\'s refusal stands, word for word', () => {
+    const late = { date: '2026-06-01', origin: 'observed', writtenAt: '2026-06-01T00:00:00Z', holdings: [],
+      accounts: [{ date: '2026-06-01', accountId: 'a', cash: 0, statedTotal: null, typedValue: 10000, currency: 'USD' }] };
+    const f = ask([TREASURY], 10000, { snapshotDays: [late] });
     expect(f.walk).toBeNull();
     expect(f.ret).toBeNull();
     expect(f.notIncluded).toBe('');
-    expect(f.sentence).toMatch(/^The record begins /);
+    expect(f.sentence).toBe('The record begins Jun 1, 2026, so it cannot say what this account was worth on Oct 13, 2025.');
   });
 });
 

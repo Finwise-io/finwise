@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-13",
+ "generated": "2026-10-14",
  "states": [
   "worker",
   "rich",
@@ -3638,7 +3638,7 @@
     },
     {
      "k": "t",
-     "s": "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."
+     "s": "Day one: your value is real and your daily record starts today. Longer windows are worked back from each holding's price history."
     },
     {
      "k": "a",
@@ -4168,7 +4168,7 @@
     },
     {
      "k": "t",
-     "s": "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."
+     "s": "Day one: your value is real and your daily record starts today. Longer windows are worked back from each holding's price history."
     },
     {
      "k": "a",
@@ -4826,7 +4826,7 @@
     },
     {
      "k": "t",
-     "s": "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."
+     "s": "Day one: your value is real and your daily record starts today. Longer windows are worked back from each holding's price history."
     },
     {
      "k": "a",

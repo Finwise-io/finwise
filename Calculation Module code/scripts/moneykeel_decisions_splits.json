@@ -621,16 +621,17 @@
      "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §7"
     },
     {
-     "keep": true,
+     "keep": false,
      "decided": "2026-10-07",
      "subject": "Performance draws no walk for a window its record exists but cannot reach; a sentence names the record’s first day.",
-     "plain": "Performance draws no walk for a window its record exists but cannot reach; a sentence names the record’s first day. Before: the beginning was worked back from today and wealth generated shown as if measured.",
+     "plain": "Performance draws no walk for a window its record exists but cannot reach; a sentence names the record’s first day. Before: the beginning was worked back from today and wealth generated shown as if measured. REPLACED on 2026-10-13 by his approval \"Let price history count\": such a window is now worked back from each holding's price history; its sentence still shows only where no holding has a history.",
      "type": "RULE",
-     "status": "TESTED",
+     "status": "SUPERSEDED",
      "screens": "/invest · /account-portfolio · /home",
      "governs": "MK-NW-O-008 thePerformance",
      "proof": "MoneyKeel/functions/networth-and-performance/outside_networth_02_final.test.ts",
-     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §5"
+     "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §5",
+     "superseded_by_phrase": "Let price history count: a window that starts before the daily record"
     },
     {
      "keep": true,

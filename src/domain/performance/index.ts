@@ -778,8 +778,8 @@ export function latestClose(series: PriceSeries | null | undefined): number | nu
  *     total   otherwise
  *
  * Called by ... MK-NW-F-084 categoryEarnings · MK-NW-F-127 gainOfRow
- *               MK-NW-F-138 knownHoldingsReturn · MK-PF-F-014 buildPerformance
- *               MK-PF-F-043 windowTotalOfRow
+ *               MK-NW-F-138 knownHoldingsReturn · MK-NW-O-008 thePerformance
+ *               MK-PF-F-014 buildPerformance · MK-PF-F-043 windowTotalOfRow
  *
  * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
@@ -1343,8 +1343,8 @@ export function topHoldingConcentration(rows: PerformanceRow[]): { ticker: strin
  *     rate   otherwise
  *
  * Called by ... MK-NW-F-084 categoryEarnings · MK-NW-F-127 gainOfRow
- *               MK-NW-F-138 knownHoldingsReturn · MK-PF-F-020 portfolioBenchReturn
- *               MK-PF-F-043 windowTotalOfRow
+ *               MK-NW-F-138 knownHoldingsReturn · MK-NW-O-008 thePerformance
+ *               MK-PF-F-020 portfolioBenchReturn · MK-PF-F-043 windowTotalOfRow
  *
  * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT

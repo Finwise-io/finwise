@@ -239,8 +239,9 @@ export default function PerformanceScreen() {
   const nothingEntered = positions.length === 0 && bondAccts.length === 0 && altAccts.length === 0 && untracked.length === 0;
   const now = windowFigures[period] ?? figuresFor(period);
   const { walk } = now;
-  // A WINDOW WORKED BACK FROM TODAY IS NOT DAY ONE (DEC-5068, 2026-10-13): with no daily record yet, every window but
-  // "Since" opens before today, and its beginning is worked back from today's values and each holding's price history.
+  // A WINDOW WORKED BACK FROM TODAY IS NOT DAY ONE (DEC-5068, DEC-5291 2026-10-13): with a daily record that starts
+  // today (Home writes it on first open) or none yet, every window but "Since" opens before today, and its beginning is
+  // worked back from today's values and each holding's price history.
   // Its summary, walk, cards and categories read as any other window's, and the sentence names what is left out.
   const dayOneView = dayOne && !now.workedBack;
   const beginWords = dayOneView ? 'today' : dateShown(now.beginningAsOf);
@@ -297,8 +298,8 @@ export default function PerformanceScreen() {
       <WindowSelector windows={WINDOWS} chosen={period as string} figures={windowFigures} onPick={(k) => setPeriod(k as Period)} />
       {/* founder ruling 2026-08-18: the 2Y figure is a yearly rate, so it sits fairly beside 1Y — and
           the screen says so under the control (mock v14 mark 15), wherever 2Y has a figure to show */}
-      {/* only where 2Y has a figure: read from the record, or worked back (DEC-5068); a window the record exists for but
-          cannot reach is greyed, its figure unprinted (DEC-3035i) */}
+      {/* only where 2Y has a figure: read from the record, or worked back from price history (DEC-5068, DEC-5291); a
+          window the record cannot reach with no holding history is greyed, its figure unprinted (DEC-3035i) */}
       {windowFigures['2Y']?.perYear != null && (windowFigures['2Y']?.covered || windowFigures['2Y']?.workedBack) && (
         <Text style={styles.coverageLine}>2Y is shown per year, so it sits fairly beside 1Y</Text>
       )}
@@ -326,7 +327,11 @@ export default function PerformanceScreen() {
              the SAME three ways to add an account Net worth opens. */
           <EmptyNote door="accounts" onPress={() => setAddChooser(true)} />
         ) : dayOneView ? (
-          <Note term="dayOne">Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see.</Note>
+          /* DEC-5291 (2026-10-13, "approved."): where the longer windows are worked back from each holding's price
+             history, the day-one line says so; on a true day one with no holding history, v17's words stand */
+          <Note term="dayOne">{WINDOWS.some((w) => windowFigures[w.key]?.workedBack)
+            ? 'Day one: your value is real and your daily record starts today. Longer windows are worked back from each holding\'s price history.'
+            : "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."}</Note>
         ) : now.workedBack ? (
           /* the beginning was worked back, not read: say so, as the account page does (DEC-5068) */
           <Text style={styles.sumNote}>Your daily record does not reach back to {dateShown(now.beginningAsOf)} yet, so the beginning is worked back from today's values and each holding's price history.</Text>
@@ -807,12 +812,12 @@ function WindowSelector({ windows, chosen, figures, onPick }: {
         // This is where the yearly rate lives; the summary trio prints the plain percent so its three
         // cells fit one row. A window whose return cannot be measured shows an em-dash — nothing stands
         // in for a time-weighted return (owner, 2026-10-04; mark 16's stand-in rate is gone).
-        // A WINDOW THE RECORD CANNOT COVER IS GREYED TO AN EM-DASH AND CANNOT BE PICKED (v17: "the
-        // screen states nothing rather than a guess"). Picking it would open a walk whose beginning
-        // nobody recorded (DEC-3035i: the record exists but begins after the window opens).
-        // A window WORKED BACK (no record of these accounts at all) is not greyed: it shows the holdings' figures
-        // and the sentence under them, as each account's card does (DEC-5068). One the record exists for but cannot
-        // reach stays greyed (DEC-3035i).
+        // A WINDOW NEITHER COVERED NOR WORKED BACK IS GREYED TO AN EM-DASH AND CANNOT BE PICKED (v17: "the
+        // screen states nothing rather than a guess"): nobody recorded its beginning and no price history reaches it.
+        // A window WORKED BACK is not greyed: it shows the holdings' figures and the sentence under them, as each
+        // account's card does (DEC-5068) — with no record at all, or a record that begins after the window opens
+        // (DEC-5291, 2026-10-13: "Let price history count"). Only where no holding has a history does a window the
+        // record cannot reach stay greyed (DEC-3035i's case, kept).
         const uncovered = figures[w.key]?.covered === false && !figures[w.key]?.workedBack && !on;
         const ret = uncovered ? null : figures[w.key]?.ret ?? null;
         const perYear = !uncovered && figures[w.key]?.perYear != null;

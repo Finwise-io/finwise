@@ -106,12 +106,17 @@ describe('the Performance tab, that account\'s card (DEC-5068, 2026-10-13)', () 
     render(<PerformanceScreen />);
     // closed: the one quiet line carries the figures, and the sentence sits below it
     expect(screen.getByText(/· wealth generated \$3,636 · return \+10\.00%$/)).toBeOnTheScreen();
-    expect(screen.getAllByText(SENTENCE).length).toBe(1);
+    // SETTLED 2026-10-13 by DEC-5291: some accounts reach (Vanguard), one does not (Schwab) — the summary is the
+    // cards added up, so the sentence is under the summary too (it was once, on the card: Schwab arrived as money put in).
+    // Summary: $30,000 + $46,364 = $76,364 became $33,000 + $50,000 = $83,000; wealth generated $3,000 + $3,636 = $6,636.
+    expect(screen.getAllByText(SENTENCE).length).toBe(2);
+    expect(screen.getByText('HOW $76,364 BECAME $83,000 · ALL ACCOUNTS')).toBeOnTheScreen();
+    expect(screen.getAllByText('$6,636').length).toBeGreaterThan(0);
     // open the card: the walk rows, its Return row, and the sentence below them
     const toggle = screen.getAllByLabelText(/Expands its walk/).find((t) => /^Schwab/.test(t.props.accessibilityLabel ?? ''));
     expect(toggle).toBeTruthy();
     fireEvent.press(toggle!);
-    expect(screen.getAllByText(SENTENCE).length).toBe(1);
+    expect(screen.getAllByText(SENTENCE).length).toBe(2);
     expect(screen.getAllByText('$46,364').length).toBeGreaterThan(0);          // its beginning
     expect(screen.getAllByText('$3,636').length).toBeGreaterThan(0);           // its wealth generated
     expect(screen.getAllByText('+10.00%').length).toBeGreaterThan(0);          // its Return row
@@ -150,7 +155,9 @@ describe('the Performance tab, all accounts together, worked back (DEC-5068 — 
     expect(screen.getByText(/· wealth generated \$3,636 · return \+10\.00%$/)).toBeOnTheScreen();
   });
 
-  test('Home and Performance agree for the same household: Home writes today\'s record on opening, so the month is a window the record exists for but cannot reach, and BOTH show no figure (DEC-3035i)', () => {
+  // SETTLED 2026-10-13 by DEC-5291 ("approved."): the month is a window the record exists for but cannot reach, and
+  // it is now WORKED BACK from VTI's price history on both screens. Was: no figure on either (DEC-3035i).
+  test('Home and Performance agree for the same household: Home writes today\'s record on opening, and BOTH work the month back from price history (DEC-5291)', () => {
     useStore.getState().resetAll();
     useStore.setState({ onboardingComplete: true, onboardingProfile: { ...employedPartner, monthlySpending: '4500' }, hideBalances: false,
       assetAccounts: [SCHWAB], transactions: [], snapshotDays: [], invDaily: {}, priceCache: { VTI: VTI_SERIES },
@@ -158,14 +165,14 @@ describe('the Performance tab, all accounts together, worked back (DEC-5068 — 
     render(<HomeScreen />);
     // Home records today's values the moment it opens (captureDailyNw): the record now begins today
     expect(((useStore.getState() as any).snapshotDays ?? []).map((d: any) => d.date)).toEqual([TODAY]);
-    expect(screen.queryByText(/▲ up|▼ down/)).toBeNull();
-    expect(screen.getByText('change shows once your holdings have prices')).toBeOnTheScreen();
-    expect(screen.queryByText(SENTENCE)).toBeNull();
+    // VTI's close before the month opened is $227.27…, today $250: +10.00%, $3,636; the Treasury named below
+    expect(screen.getByText(/▲ up \$3,636 \(10\.00%\)/)).toBeOnTheScreen();
+    expect(screen.getByText(SENTENCE)).toBeOnTheScreen();
     screen.unmount();
-    // the same store on Performance: the month window is greyed to "—", not worked back
+    // the same store on Performance: the month window carries the same +10.00%, and can be picked
     render(<PerformanceScreen />);
     const oneMonth = screen.getAllByRole('button').find((b) => /^Show 1M, /.test(b.props.accessibilityLabel ?? ''));
-    expect(oneMonth!.props.accessibilityLabel).toBe('Show 1M, no data for that window yet');
-    expect(oneMonth!.props.accessibilityState?.disabled).toBe(true);
+    expect(oneMonth!.props.accessibilityLabel).toBe('Show 1M, +10.00%');
+    expect(oneMonth!.props.accessibilityState?.disabled).toBe(false);
   });
 });

@@ -40,15 +40,24 @@ test('THE BEGINNING IS READ, NEVER BACK-FILLED — and with no record at all, it
   expect(derived.measured).toBeNull();     // the record could not, and the figure admits it
   expect(derived.walk!.beginning).toBe(120000 - 5000);   // no record at all: the account page's approved 'read back from your activity records' state
 
-  // A RECORD THAT BEGINS TOO LATE is different (second-round review, 2026-10-07; Performance v17):
-  // no walk worked back from today, and a sentence naming the record's first day
+  // A RECORD THAT BEGINS TOO LATE (second-round review, 2026-10-07; Performance v17) greyed the window with no walk.
+  // SETTLED 2026-10-13 by DEC-5291 ("approved."): with a gain known from price history it is worked back like the
+  // no-record case — $120,000 − $5,000 = $115,000 (was: no walk, "The record begins Mar 2, 2026, …").
   const late = thePerformance({
     windowStart: '2026-01-01', windowLabel: 'x', today: '2026-07-01', ending: 120000, pricedGain: 5000,
     investmentAccountIds: IDS, snapshotDays: [day('2026-03-02', 110000)], transactions: [],
   });
-  expect(late.walk).toBeNull();
-  expect(late.ending).toBe(120000);
-  expect(late.sentence).toBe('The record begins Mar 2, 2026, so it cannot say what this account was worth on Dec 31, 2025.');
+  expect(late.walk!.beginning).toBe(115000);
+  expect(late.workedBack).toBe(true);
+  expect(late.sentence).toBe('');
+  // …and where nothing has a history (the gain is unknown), DEC-3035i's refusal stands, word for word
+  const blind = thePerformance({
+    windowStart: '2026-01-01', windowLabel: 'x', today: '2026-07-01', ending: 120000, pricedGain: null,
+    investmentAccountIds: IDS, snapshotDays: [day('2026-03-02', 110000)], transactions: [],
+  });
+  expect(blind.walk).toBeNull();
+  expect(blind.ending).toBe(120000);
+  expect(blind.sentence).toBe('The record begins Mar 2, 2026, so it cannot say what this account was worth on Dec 31, 2025.');
 });
 
 test('A RATE NEEDS SOMETHING TO STAND ON — no record and no movement means no return', () => {

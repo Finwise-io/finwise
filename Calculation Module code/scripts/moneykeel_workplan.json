@@ -2970,6 +2970,18 @@
     "status": "DONE 2026-10-13 — built and tested on both screens; READ THIS FIRST rows on v17 and Ways to add v10; not committed",
     "comments": "Day one reads HOW $354,314 BECAME $354,314 · ALL ACCOUNTS (was HOW TODAY'S VALUE STANDS · ALL ACCOUNTS $354,314); the account page gains · THIS ACCOUNT as v17 frame 2 draws it."
    }
+  },
+  {
+   "task": "DEC-5291 — let price history count: a window that starts before the daily record is worked back, not greyed (his \"approved.\" of 2026-10-13)",
+   "todo": "thePerformance works back a record-too-late window when a holding has a history (DEC-3035i's refusal only where none has); mixed accounts = the cards added up; cash gains $0 unnamed; day-one line; tests settled; rules re-read, standards, Changelog, v17 READ THIS FIRST row.",
+   "status": "DONE 2026-10-13 — built and tested; Performance tab, account page and Home work a too-late window back from price history; DEC-3035i marked OLD, NOT IN USE; not committed",
+   "ref": "MoneyKeel/functions/networth-and-performance/dec_price_history_counts.test.ts · src/screens/__tests__/dec_price_history_counts.test.tsx · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v17.html",
+   "date": "2026-10-13",
+   "comments": "Vanguard linked today, VTI $40,000 (+10%) + Treasury 2031 $10,000 by hand: 1Y +10.00% (was greyed —), Wealth generated $3,636, Return +10.00%, sentence names Treasury 2031 (was \"The record begins Oct 13, 2026, …\"). Mixed: Fidelity $100,000→$112,000 + Vanguard worked back → summary $136,364→$152,000, +11.47% = the cards added up. Day-one line: \"Day one: your value is real and your daily record starts today. Longer windows are worked back from each holding's price history.\"",
+   "_written": {
+    "status": "DONE 2026-10-13 — built and tested; Performance tab, account page and Home work a too-late window back from price history; DEC-3035i marked OLD, NOT IN USE; not committed",
+    "comments": "Vanguard linked today, VTI $40,000 (+10%) + Treasury 2031 $10,000 by hand: 1Y +10.00% (was greyed —), Wealth generated $3,636, Return +10.00%, sentence names Treasury 2031 (was \"The record begins Oct 13, 2026, …\"). Mixed: Fidelity $100,000→$112,000 + Vanguard worked back → summary $136,364→$152,000, +11.47% = the cards added up. Day-one line: \"Day one: your value is real and your daily record starts today. Longer windows are worked back from each holding's price history.\""
+   }
   }
  ]
 }
