@@ -474,6 +474,11 @@
   "file": "src/domain/bonds/index.ts",
   "category": "3 · DEPENDENT"
  },
+ "bondInterestInWindow": {
+  "id": "MK-PF-F-048",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
+ },
  "bondRateSensitivity": {
   "id": "MK-NW-F-064",
   "file": "src/domain/bonds/index.ts",
@@ -667,6 +672,11 @@
  "classPortionLabel": {
   "id": "MK-NW-F-028",
   "file": "src/domain/assets/index.ts",
+  "category": "2 · DISPLAYED"
+ },
+ "classReturnOf": {
+  "id": "MK-NW-F-142",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
   "category": "2 · DISPLAYED"
  },
  "classifyEvent": {
@@ -1369,6 +1379,11 @@
   "file": "src/domain/assets/index.ts",
   "category": "2 · DISPLAYED"
  },
+ "holdingBondFacts": {
+  "id": "MK-NW-F-141",
+  "file": "MoneyKeel/functions/networth-and-performance/bonds.ts",
+  "category": "2 · DISPLAYED"
+ },
  "holdingClassOf": {
   "id": "MK-NW-F-109",
   "file": "src/domain/assets/index.ts",
@@ -1558,6 +1573,11 @@
   "id": "MK-XS-F-051",
   "file": "src/services/dataCrypto.ts",
   "category": "3 · DEPENDENT"
+ },
+ "isIndividualBondOrCD": {
+  "id": "MK-PF-F-047",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
  },
  "isLockAvailable": {
   "id": "MK-XS-F-034",
@@ -2254,6 +2274,11 @@
   "file": "src/domain/income/limits.ts",
   "category": "3 · DEPENDENT"
  },
+ "percentDigits": {
+  "id": "MK-XS-F-185",
+  "file": "MoneyKeel/functions/_figure-spec.ts",
+  "category": "2 · DISPLAYED"
+ },
  "periodReturn": {
   "id": "MK-PF-F-010",
   "file": "src/domain/performance/index.ts",
@@ -2648,6 +2673,11 @@
   "id": "MK-PF-F-040",
   "file": "src/domain/performance/index.ts",
   "category": "3 · DEPENDENT"
+ },
+ "returnWithInterest": {
+  "id": "MK-PF-F-049",
+  "file": "src/domain/performance/index.ts",
+  "category": "2 · DISPLAYED"
  },
  "reviewTransactions": {
   "id": "MK-CF-F-109",
@@ -3593,6 +3623,11 @@
   "id": "MK-CF-O-015",
   "file": "MoneyKeel/functions/cashflow/this-month.ts",
   "category": "1 · ACTION"
+ },
+ "worthWithInterest": {
+  "id": "MK-PF-F-050",
+  "file": "src/domain/performance/index.ts",
+  "category": "3 · DEPENDENT"
  },
  "wrapWithSecret": {
   "id": "MK-XS-F-139",

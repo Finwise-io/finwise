@@ -19,7 +19,7 @@
  *               MK-NW-O-003 theNetWorth · MK-PF-F-022 factorOverMonths
  *               MK-XS-F-175 uid
  *
- * Reaches ..... 143 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 144 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -29,7 +29,7 @@
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 125 more — the full list is on functions_from_code
+ *               … and 126 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -93,9 +93,10 @@ export function dateShown(iso: string | null | undefined): string {
  * Called by ... MK-NW-F-009 maturityClass · MK-NW-F-056 bondInfo
  *               MK-NW-F-058 yearsToMaturity · MK-NW-F-061 bondSummary
  *               MK-NW-F-119 estimatedAccrued · MK-NW-F-125 isPastMaturity
- *               MK-NW-O-001 theBonds · MK-ST-F-011 classifyHoldingClass
+ *               MK-NW-O-001 theBonds · MK-PF-F-047 isIndividualBondOrCD
+ *               MK-ST-F-011 classifyHoldingClass
  *
- * Reaches ..... 209 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 212 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -105,7 +106,7 @@ export function dateShown(iso: string | null | undefined): string {
  *               MK-CF-O-014 M · MK-CF-F-203 MONTH
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               … and 191 more — the full list is on functions_from_code
+ *               … and 194 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-013 bond maturity date

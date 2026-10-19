@@ -35,6 +35,42 @@ export type FigureUnit =
   | 'words';        // a sentence the function composed
 
 
+/** A RATE HELD AS 0…1, WRITTEN AS A PERCENT TO TWO DECIMALS, rounded half away from zero (2026-10-19, DEC-6212). The
+ *  binary noise past the twelfth figure is cleared first: $85 of interest on $4,000 is exactly 2.125%, which the computer
+ *  holds as 2.1249999…, and toFixed wrote it +2.12% where the precision standard's rounding gives +2.13%. */
+/* ─ MK-XS-F-185 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * percentDigits
+ *
+ * Answers ..... A RATE HELD AS 0…1, WRITTEN AS A PERCENT TO TWO DECIMALS, rounded half away from zero (2026-10-19, DEC-6212).
+ *
+ * Formula .....
+ *     pct = (math.abs(rate) × 100).to precision(12) read as a number
+ *     hundredths = round((pct × 100).to precision(12) read as a number)
+ *     the answer = `${rate < 0 and hundredths ! = 0 ? '-' : ''}${(hundredths ÷ 100).to fixed(2)}`
+ *
+ * Called by ... MK-XS-F-183 writeFigure
+ *
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-130 notIncludedSentence
+ *               MK-NW-O-008 thePerformance · MK-XS-F-183 writeFigure
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *     · Shows 2 decimal places.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-185
+ * Changed ..... not in git yet (—)
+ */
+export function percentDigits(rate: number): string {
+  const pct = Number((Math.abs(rate) * 100).toPrecision(12));
+  const hundredths = Math.round(Number((pct * 100).toPrecision(12)));
+  return `${rate < 0 && hundredths !== 0 ? '-' : ''}${(hundredths / 100).toFixed(2)}`;
+}
+
 /** WRITE A FIGURE THE WAY THE SCREEN WRITES IT — one writer, two callers (2026-09-28).
  *
  *  It lived inside `src/components/figure.ts`, which reads the store and so can only be called from a
@@ -68,7 +104,6 @@ export type FigureUnit =
  *
  * Decides .....
  *     · Rounds the answer to 1 decimal place.
- *     · Shows 2 decimal places.
  *     · Shows 1 decimal place.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-183
@@ -81,8 +116,8 @@ export function writeFigure(spec: FigureSpec, value: number | null, opts?: { spo
     : spec.unit === 'money-compact' ? moneyCompact(value, 'MM')
     : spec.unit === 'money-cents' ? formatMoneyCents(value)
     : spec.unit === 'percent' ? `${Math.round(value * 100)}%`
-    : spec.unit === 'percent-2dp' ? `${(value * 100).toFixed(2)}%`
-    : spec.unit === 'percent-signed' ? `${value < 0 ? '−' : '+'}${Math.abs(value * 100).toFixed(2)}%`
+    : spec.unit === 'percent-2dp' ? `${percentDigits(value)}%`
+    : spec.unit === 'percent-signed' ? `${value < 0 ? '−' : '+'}${percentDigits(Math.abs(value))}%`
     : spec.unit === 'months' ? plural(value, 'month', (Math.round(value * 10) / 10).toFixed(1))
     : spec.unit === 'age' ? `${value}`
     : `${value}`;

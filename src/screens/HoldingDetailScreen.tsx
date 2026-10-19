@@ -79,8 +79,10 @@ export default function HoldingDetailScreen() {
 
   // r24: the SAME row the Invest main list computes for this holding — one helper, one number
   const row: PerformanceRow | null = useMemo(
-    () => (position ? buildPerformance([position], priceOf, period)[0] : null),
-    [position, priceCache, period],
+    // the records and its account, so a bond's or a CD's interest is part of its return, as on the account page (DEC-6212)
+    () => (position ? buildPerformance([position], priceOf, period, new Date(), undefined, undefined,
+      { transactions: (store.transactions ?? []) as any[], accounts: account ? [account] : [] })[0] : null),
+    [position, priceCache, period, store.transactions, account],
   );
   // THE WINDOW'S FIRST DAY — the one rule every screen asks (MK-NW-F-090 windowStartKey), which refuses a window
   // name the app does not have (DEC-4640, 2026-10-12). It was calculated here a second way (setMonth, and a

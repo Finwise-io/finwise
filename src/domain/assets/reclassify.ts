@@ -23,17 +23,17 @@ export const RECLASSIFY_VERSION = 'cash-only-2026-08-10';
  *
  * Called by ... MK-NW-F-010 wrapperAccount · MK-NW-F-054 reclassifyAccounts
  *
- * Reaches ..... 72 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
- *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-027 accountClassBreakdown
- *               MK-NW-F-113 altPartsOf · MK-NW-F-002 alternativesSummary
- *               MK-NW-F-029 assetAllocation · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               … and 54 more — the full list is on functions_from_code
+ *               MK-NW-F-088 BENCH · MK-NW-F-079 EF
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-NW-F-082 NW
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-029 assetAllocation
+ *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-048 bondInterestInWindow
+ *               … and 63 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-048 the person’s own asset-class answer
@@ -73,17 +73,17 @@ export function correctClassOf(a: AssetAccount): AssetClass | null {
  *
  * Called by ... MK-NW-F-109 holdingClassOf · MK-XS-F-175 uid
  *
- * Reaches ..... 70 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 79 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
- *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-027 accountClassBreakdown
- *               MK-NW-F-113 altPartsOf · MK-NW-F-002 alternativesSummary
- *               MK-NW-F-029 assetAllocation · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               … and 52 more — the full list is on functions_from_code
+ *               MK-NW-F-088 BENCH · MK-NW-F-079 EF
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-NW-F-082 NW
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-029 assetAllocation
+ *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-048 bondInterestInWindow
+ *               … and 61 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)

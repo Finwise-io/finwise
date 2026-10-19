@@ -175,7 +175,10 @@ export default function HomeScreen() {
     [store.assetAccounts]);
   const priceCache = store.priceCache ?? {};
   const priceOf = (t: string) => priceCache[t.trim().toUpperCase()];
-  const perfRows = useMemo(() => buildPerformance(positions, priceOf, '1M'), [positions, priceCache]);
+  // the records and the accounts, so a bond's or a CD's interest is part of its return (DEC-6212, 2026-10-19)
+  const perfRows = useMemo(() => buildPerformance(positions, priceOf, '1M', new Date(), undefined, undefined,
+    { transactions: (store.transactions ?? []) as any[], accounts: (store.assetAccounts ?? []) as any[] }),
+    [positions, priceCache, store.transactions, store.assetAccounts]);
   // ONE DOOR (MK-NW-O-008 thePerformance, Q-PF-1 ruled 2026-09-27: "yes"). The door's header has
   // said since that day that Home's return and Performance's can never disagree. They did: Home
   // called portfolioPeriodReturn, which counts PRICE CHANGE ONLY, while Performance's 1M chip counts

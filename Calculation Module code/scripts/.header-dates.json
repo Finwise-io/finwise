@@ -797,5 +797,12 @@
 "src/domain/income/old-rent-migration.ts::hasOldRentFigure": "not in git yet|\u2014",
 "src/domain/income/old-rent-migration.ts::typed": "not in git yet|\u2014",
 "MoneyKeel/functions/networth-and-performance/performance.ts::LEFT_OUT": "not in git yet|\u2014",
-"MoneyKeel/functions/networth-and-performance/performance.ts::leftOutValueOf": "not in git yet|\u2014"
+"MoneyKeel/functions/networth-and-performance/performance.ts::leftOutValueOf": "not in git yet|\u2014",
+"MoneyKeel/functions/_figure-spec.ts::percentDigits": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/bonds.ts::holdingBondFacts": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/performance.ts::classReturnOf": "not in git yet|\u2014",
+"src/domain/performance/index.ts::worthWithInterest": "not in git yet|\u2014",
+"src/domain/performance/index.ts::returnWithInterest": "not in git yet|\u2014",
+"src/domain/performance/index.ts::bondInterestInWindow": "not in git yet|\u2014",
+"src/domain/performance/index.ts::isIndividualBondOrCD": "not in git yet|\u2014"
 }

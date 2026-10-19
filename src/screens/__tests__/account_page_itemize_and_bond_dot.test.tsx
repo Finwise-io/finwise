@@ -64,7 +64,8 @@ describe('the holdings note (DEC-5848)', () => {
   test('reads "the income is also on the line beneath it"; the old words are gone', () => {
     seed(BOND_ACCOUNT);
     render(<AccountPortfolioScreen />);
-    expect(screen.getByText(/its dividends included; the income is also on the line beneath it\./)).toBeOnTheScreen();
+    // since 2026-10-19 the sentence also says a bond's or CD's interest is in its return (DEC-6212)
+    expect(screen.getByText(/its dividends included, and a bond's or CD's interest added; the income is also on the line beneath it\./)).toBeOnTheScreen();
     expect(screen.queryByText(/the income it paid/)).toBeNull();
   });
 });

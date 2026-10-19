@@ -122,9 +122,9 @@ export interface BondsInput {
  * Formula .....
  *     b = bond info(a)
  *
- * Called by ... MK-NW-O-001 theBonds
+ * Called by ... MK-NW-F-141 holdingBondFacts · MK-NW-O-001 theBonds
  *
- * Reaches ..... 128 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 129 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -134,7 +134,7 @@ export interface BondsInput {
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               … and 110 more — the full list is on functions_from_code
+ *               … and 111 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
@@ -168,6 +168,43 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
     accruedCaveat: accruedInterestCaveat(b, now),
   };
 };
+
+/** A BOND OR CD HELD AS A HOLDING, its facts for the line under its name (DEC-6212, 2026-10-19): face value, coupon rate
+ *  and yield to maturity — read by the same rules as a bond held as its own account (rowOf), with the holding's value
+ *  today as its value. A bank CD's yield to maturity is its rate. Each is null where it was not given or cannot be
+ *  calculated, and the line then leaves that part out. */
+/* ─ MK-NW-F-141 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * holdingBondFacts
+ *
+ * Answers ..... A BOND OR CD HELD AS A HOLDING, its facts for the line under its name (DEC-6212, 2026-10-19): face value, coupon rate and yield to maturity — read by the same rules as a bond held as its own account (rowOf), with the holding's value today as its value.
+ *
+ * Formula .....
+ *     face = row.face
+ *     coupon rate = row.coupon rate
+ *     yield to maturity = row.yield to maturity
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-011 bond face value
+ *               MK-XS-I-012 bond coupon rate
+ *               MK-XS-I-013 bond maturity date
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-141
+ * Changed ..... not in git yet (—)
+ */
+export function holdingBondFacts(p: { position_id?: string | number; ticker?: string; label?: string; kind?: string;
+  face_value?: number; coupon_rate?: number; maturity_date?: string }, value: number, now: Date = new Date()):
+  { face: number | null; couponRate: number | null; yieldToMaturity: number | null } {
+  const row = rowOf({ asset_id: String(p.position_id ?? p.ticker ?? ''), label: p.label ?? p.ticker ?? '', kind: p.kind,
+    face_value: p.face_value, coupon_rate: p.coupon_rate, maturity_date: p.maturity_date, balance: value } as any, now);
+  return { face: row.face, couponRate: row.couponRate, yieldToMaturity: row.yieldToMaturity };
+}
 
 /** What bonds and CDs do I hold, what do they pay, and when do they mature?
  *  ── ORCHESTRATOR ── the one function a screen asks for this.

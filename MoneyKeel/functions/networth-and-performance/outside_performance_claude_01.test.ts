@@ -49,7 +49,7 @@ import {
 import { timeWeightedReturn, movementsOf } from '../../../Calculation Module code/engines/time-weighted-return';
 import { valueOn } from '../../../Calculation Module code/engines/snapshots';
 import { dateShown } from '../../../src/domain/_shared/dates';
-import { contractMultiplier, totalShares, windowTotal } from '../../../src/domain/performance';
+import { contractMultiplier, totalShares, windowTotal, worthWithInterest } from '../../../src/domain/performance';
 import { plural } from '../../../src/domain/_shared/plural';
 import { writeFigure } from '../_figure-spec';
 import { PERFORMANCE_FIGURES } from './performance';
@@ -60,7 +60,8 @@ import { PERFORMANCE_FIGURES } from './performance';
 // and a window's own total — outside review Claude Performance). Nothing here changes an expected answer.
 // plural joined on 2026-10-13: notIncludedSentence takes its has / have from the one list (MK-NW-F-130)
 // writeFigure and the declared figures joined on 2026-10-19: the sentence writes its two amounts under MK-PF-M-021 / 022 (DEC-6076)
-const IMPORTED: Record<string, unknown> = { contractMultiplier, totalShares, windowTotal, plural, writeFigure, PERFORMANCE_FIGURES };
+// worthWithInterest joined on 2026-10-19: a bond's gain counts the interest it was paid in the window (DEC-6212)
+const IMPORTED: Record<string, unknown> = { contractMultiplier, totalShares, windowTotal, plural, writeFigure, PERFORMANCE_FIGURES, worthWithInterest };
 const compile = (file: string, parts: { start: RegExp; end: string }[], name: string) => {
   const text = fs.readFileSync(path.join(__dirname, file), 'utf8');
   const code = parts.map(({ start, end }) => {

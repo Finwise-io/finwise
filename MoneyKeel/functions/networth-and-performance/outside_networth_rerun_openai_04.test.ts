@@ -71,7 +71,7 @@ import {
   yearsToMaturity, bondInfo, bondSummary,
 } from '../../../src/domain/bonds';
 import { classifyHoldingClass } from '../../../Calculation Module code/engines/holding-class';
-import { windowTotal, totalShares, contractMultiplier, capGains } from '../../../src/domain/performance';
+import { windowTotal, totalShares, contractMultiplier, capGains, worthWithInterest } from '../../../src/domain/performance';
 import { plural } from '../../../src/domain/_shared/plural';
 import * as lookBackModule from '../../../src/domain/performance/lookBack';
 import { applyTransaction } from '../../../src/domain/transactions';
@@ -100,9 +100,10 @@ const sourceSlice = (file: string, start: string, end: string) => {
 };
 // plural is handed in too since 2026-10-13: the sentence's has / have comes from the one list (MK-NW-F-130)
 // writeFigure and the declared figures since 2026-10-19: the sentence writes its two amounts under MK-PF-M-021 / 022 (DEC-6076)
-const perf = new Function('windowTotal', 'totalShares', 'contractMultiplier', 'plural', 'writeFigure', 'PERFORMANCE_FIGURES',
+// worthWithInterest since 2026-10-19: a bond's gain counts the interest it was paid in the window (DEC-6212)
+const perf = new Function('windowTotal', 'totalShares', 'contractMultiplier', 'plural', 'writeFigure', 'PERFORMANCE_FIGURES', 'worthWithInterest',
   `${sourceSlice('performance.ts', 'function gainOfRow(', '/** MK-NW-F-092 ')}\nreturn { gainOfRow, heldValueOf, gainRowName, notIncludedSentence };`,
-)(windowTotal, totalShares, contractMultiplier, plural, writeFigure, PERFORMANCE_FIGURES);
+)(windowTotal, totalShares, contractMultiplier, plural, writeFigure, PERFORMANCE_FIGURES, worthWithInterest);
 const gainOfRow: (r: any, years: number) => number | null = perf.gainOfRow;
 const heldValueOf: (r: any) => number | null = perf.heldValueOf;
 const gainRowName: (r: any) => string = perf.gainRowName;

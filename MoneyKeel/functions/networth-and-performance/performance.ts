@@ -20,7 +20,7 @@
 //     brokerage statements do the same). His ruling: show BOTH, and label them.
 import { availableCash } from '../../../src/domain/transactions';
 import { declareFigures, writeFigure } from '../_figure-spec';
-import { portfolioBenchReturn, startDateFor, contractMultiplier, totalShares, windowTotal, costBasis, type Period } from '../../../src/domain/performance';
+import { portfolioBenchReturn, startDateFor, contractMultiplier, totalShares, windowTotal, costBasis, worthWithInterest, type Period } from '../../../src/domain/performance';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import { buildChangeWalk, type ChangeWalk } from '../../../src/domain/history';
 import { personalFlowTotals } from '../../../Calculation Module code/engines/ledger';
@@ -232,6 +232,9 @@ export type GainRow = {
    *  absent and the window is longer than a year, periodReturn is read as a yearly rate (outside review Claude
    *  Performance, 2026-10-11, MK-NW-F-091). */
   periodTotal?: number | null;
+  /** A bond's or CD's interest in the window, already inside periodReturn and periodTotal (DEC-6212). Its value at the
+   *  start is (value today + this) ÷ (1 + its window total), and what it gained is the price change plus this. */
+  interest?: number | null;
 };
 
 /** THE ONE RULE FOR WHAT A HOLDING GAINED OVER THE WINDOW (DEC-3656, 2026-10-09), or null when it cannot
@@ -244,10 +247,10 @@ export type GainRow = {
  * Answers ..... THE ONE RULE FOR WHAT A HOLDING GAINED OVER THE WINDOW (DEC-3656, 2026-10-09), or null when it cannot be known.
  *
  * Formula .....
- *     gain (or 0 when missing)   when capped since
+ *     (gain ?? 0) + (interest ?? 0)   when capped since
  *     mv = market value (or 0 when missing)
  *     pr = window total(period return, period total, years)
- *     mv × (1 − 1 ÷ (1 + pr))   if mv > 0
+ *     worth with interest(r) × (1 − 1 ÷ (1 + pr))   if mv > 0
  *     0   otherwise   when pr ≠ nothing
  *     mv × (1 − 1 ÷ math.pow(1 + coupon rate, years))   if mv > 0
  *     0   otherwise   when coupon rate ≠ nothing and number.is finite(coupon rate) and coupon rate ≥ 0
@@ -270,19 +273,22 @@ export type GainRow = {
  *
  * Decides .....
  *     · If gain is missing it uses 0.
+ *     · If interest is missing it uses 0.
  *     · If market value is missing it uses 0.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-127
  * Changed ..... not in git yet (—)
  */
 function gainOfRow(r: GainRow, years: number): number | null {
-  if (r.cappedSince) return r.gain ?? 0;
+  // A BOND'S OR CD'S GAIN IS ITS PRICE CHANGE PLUS THE INTEREST IT PAID IN THE WINDOW (DEC-6212, 2026-10-19)
+  if (r.cappedSince) return (r.gain ?? 0) + (r.interest ?? 0);
   const mv = r.marketValue ?? 0;
   // THE WINDOW'S OWN TOTAL, never a yearly rate: over 2Y a holding's period return is a yearly rate, and read as
   // the window's total it worked the gain back one year, not two — $12,100 at 10% a year gained $2,100, it read
   // $1,100 (outside review Claude Performance, 2026-10-11, MK-NW-F-091/F-127). One rule: windowTotal.
   const pr = windowTotal(r.periodReturn, r.periodTotal, years);
-  if (pr != null) return mv > 0 ? mv * (1 - 1 / (1 + pr)) : 0;
+  // (value today + interest) × (1 − 1 ÷ (1 + total)) = (value today + interest) − value at the start (DEC-6212)
+  if (pr != null) return mv > 0 ? worthWithInterest(r) * (1 - 1 / (1 + pr)) : 0;
   // AN ENTERED 0% IS A RATE OF 0%, gaining $0; a rate never entered (null) stays unknown below (DEC-2748b, 2026-10-12:
   // "a typed 0 rate is a zero-coupon bond" / "a face value or rate that was never entered stays blank")
   if (r.couponRate != null && Number.isFinite(r.couponRate) && r.couponRate >= 0) return mv > 0 ? mv * (1 - 1 / Math.pow(1 + r.couponRate, years)) : 0;
@@ -527,8 +533,9 @@ export function knownHoldingsReturn(rows: GainRow[], years = 0): number | null {
       : null;
     // no return over the window, or −100% or worse (no start to divide by): left out, never read as 0
     if (tot == null || !(tot > -1)) continue;
-    now += mv;
-    start += mv / (1 + tot);
+    // a bond's or CD's interest in the window is part of what it has to show for it (DEC-6212, 2026-10-19)
+    now += worthWithInterest(r);
+    start += worthWithInterest(r) / (1 + tot);
   }
   if (!(now > 0) || !(start > 0)) return null;
   return now / start - 1;
@@ -1039,7 +1046,7 @@ export interface CategoryEarned {
  *     r = rows.find((x) => string(position.ticker ?? '').to upper case() = string(tk ?? '').to upper case())
  *     category of(position)   when r
  *     in class = rows where category of(position) = cls
- *     now = Σ over usable of (r.market value as number)
+ *     held = input.bonds (or none when missing) where (balance ?? 0) > 0
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-086 CATS
@@ -1050,7 +1057,6 @@ export interface CategoryEarned {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-005 holding price
  *               MK-XS-I-008 transaction amount
  *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-024 logged expenses
@@ -1071,7 +1077,7 @@ export function categoryEarnings(input: {
   /** the window’s first day, or null for "since the record began" */
   windowStart: string | null;
   /** each holding with its class and its own return, as buildPerformance produces them */
-  rows: { position?: { ticker?: string; kind?: string; asset_class?: string }; periodReturn?: number | null; periodTotal?: number | null; marketValue?: number }[];
+  rows: { position?: { ticker?: string; kind?: string; asset_class?: string }; periodReturn?: number | null; periodTotal?: number | null; marketValue?: number; interest?: number | null }[];
   /** Every bond or CD held as its own account: which account it is, what it is worth and the yearly rate it states. */
   bonds?: { asset_id?: string | number; balance?: number; coupon_rate?: number }[];
   /** DAY ONE: every category is shown at $0 — "every line fills in as days pass, the structure never
@@ -1121,10 +1127,7 @@ export function categoryEarnings(input: {
     // from it was a year short (outside review Claude Performance, 2026-10-11, MK-NW-F-091; one rule: windowTotal)
     const usable = inClass.map((r) => ({ r, tot: windowTotal(r.periodReturn, r.periodTotal) }))
       .filter((x) => x.tot != null && (x.tot as number) > -1 && (x.r.marketValue ?? 0) > 0);
-    const now = usable.reduce((t, x) => t + (x.r.marketValue as number), 0);
-    const start = usable.reduce((t, x) => t + (x.r.marketValue as number) / (1 + (x.tot as number)), 0);
-    if (now <= 0 || start <= 0) return null;
-    return now / start - 1;
+    return classReturnOf(usable.map((x) => ({ marketValue: x.r.marketValue, interest: x.r.interest, total: x.tot })));
   };
 
   // A BOND STATES ITS OWN YEARLY RATE, and where every bond held states one the category shows that
@@ -1154,13 +1157,14 @@ export function categoryEarnings(input: {
     { key: 'cash', label: 'Cash in this account', earned: 0, ret: retOf('cash'), yearly: false },
   ];
   for (const t of led) {
-    if (t?.type !== 'DIVIDEND' && t?.type !== 'INTEREST') continue;
+    // a bond's COUPON is interest — the ledger books it so (MK-ST: COUPON → interest), and a bond's return counts it (DEC-6212)
+    if (t?.type !== 'DIVIDEND' && t?.type !== 'INTEREST' && t?.type !== 'COUPON') continue;
     const amt = Math.abs(Number(t.amount) || 0);
     // A RECORD THAT NAMES NO HOLDING is classed by what it is. A dividend comes from a fund. Interest
     // that names nothing is what the uninvested balance earned — "Cash in this account", where the
     // approved drawing puts it (Performance v17, phones 1 to 3). Interest that NAMES a holding we hold
     // no price for is a bond's or a CD's (B-116), and stays under Bonds & CDs.
-    const cls = t.ticker ? classOfTicker(t.ticker, t.type)
+    const cls = t.ticker ? classOfTicker(t.ticker, t.type === 'COUPON' ? 'INTEREST' : t.type)
       : t.type === 'DIVIDEND' ? 'stocks_etf'
       : t.account_id != null && bondAccountIds.has(String(t.account_id)) ? 'bonds' : 'cash';
     const b = buckets.find((x) => x.key === cls)
@@ -1170,6 +1174,48 @@ export function categoryEarnings(input: {
   // day one shows every category at $0 with NO return — nothing has been measured yet, and a holding's
   // lifetime gain is not this window's. Any other day a category that received nothing is left out.
   return input.dayOne ? buckets.map((b) => ({ ...b, ret: null, yearly: false })) : buckets.filter((b) => b.earned > 0);
+}
+
+/** WHAT ONE CATEGORY GREW BY OVER THE WINDOW, each holding weighed by what it was worth when the window began (outside
+ *  review MK-NW-F-084, 2026-10-09; DEC-1669): Σ (value today + interest) ÷ Σ start − 1, each start = (value today +
+ *  interest) ÷ (1 + its window total). The interest is a bond's or CD's, paid in the window (DEC-6212, 2026-10-19); it is
+ *  0 for everything else. A holding with no total, a total of −100% or worse, or no value today is left out, never read
+ *  as 0%; with none left, no figure. The Performance tab's category table and the account page's category bars both ask
+ *  this, so the two pages cannot weigh a category two ways. */
+/* ─ MK-NW-F-142 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * classReturnOf
+ *
+ * Answers ..... WHAT ONE CATEGORY GREW BY OVER THE WINDOW, each holding weighed by what it was worth when the window began (outside review MK-NW-F-084, 2026-10-09; DEC-1669): Σ (value today + interest) ÷ Σ start − 1, each start = (value today + interest) ÷ (1 + its window total).
+ *
+ * Formula .....
+ *     usable = items (or none when missing) where total ≠ nothing and total > -1 and (market value ?? 0) > 0
+ *     now = Σ over usable of (worth with interest(each))
+ *     start = Σ over usable of (worth with interest(each) ÷ (1 + (total as number)))
+ *     nothing   when not (now > 0) or !(start > 0)
+ *     the answer = now ÷ start − 1
+ *
+ * Called by ... MK-NW-F-084 categoryEarnings
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-NW-F-084 categoryEarnings
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-005 holding price
+ *               MK-XS-I-024 logged expenses
+ *
+ * Decides .....
+ *     · If market value is missing it uses 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-142
+ * Changed ..... not in git yet (—)
+ */
+export function classReturnOf(items: { marketValue?: number | null; interest?: number | null; total: number | null }[]): number | null {
+  const usable = (items ?? []).filter((x) => x.total != null && x.total > -1 && (x.marketValue ?? 0) > 0);
+  const now = usable.reduce((t, x) => t + worthWithInterest(x), 0);
+  const start = usable.reduce((t, x) => t + worthWithInterest(x) / (1 + (x.total as number)), 0);
+  if (!(now > 0) || !(start > 0)) return null;
+  return now / start - 1;
 }
 
 /** THE WORKED EXAMPLE (six steps, step 6, 2026-09-28).

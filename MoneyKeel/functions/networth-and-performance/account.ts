@@ -62,7 +62,8 @@ export interface Itemising {
  *
  * Formula .....
  *     id = string(account.asset id)
- *     income = personal flow totals(ledger.filter((t) => type = 'DIVIDEND' or type = 'INTEREST'))
+ *     is income = (t: any) => type = 'DIVIDEND' (or type = 'INTEREST' (or type = 'COUPON' when missing or zero) when missing or zero)
+ *     income = personal flow totals(ledger.filter(is income))
  *     breakdown = account class breakdown(account)
  *     tk = string(ticker ?? '').trim().to upper case()
  *     f = personal flow totals(rows)
@@ -111,7 +112,9 @@ export function theAccount(input: {
   const id = String(account.asset_id);
   const ledger = (input.transactions ?? []).filter((t) => String(t.account_id) === id
     || ((t.type === 'TRANSFER' || t.type === 'TRANSFER_IN_KIND') && String(t.counter_account_id ?? '') === id));
-  const income = personalFlowTotals(ledger.filter((t) => t.type === 'DIVIDEND' || t.type === 'INTEREST'));
+  // a bond's COUPON is interest: the ledger books it so, and the bond's return counts it (DEC-6212, 2026-10-19)
+  const isIncome = (t: any) => t.type === 'DIVIDEND' || t.type === 'INTEREST' || t.type === 'COUPON';
+  const income = personalFlowTotals(ledger.filter(isIncome));
 
   // the same split Net worth counts by: a linked account's holdings, or the uninvested cash an account
   // built by hand records for itself with the rest under its class (Gemini, 2026-10-05: say what that
@@ -126,7 +129,7 @@ export function theAccount(input: {
   const incomeOfHolding = (ticker: string | null | undefined): HoldingIncome => {
     const tk = String(ticker ?? '').trim().toUpperCase();
     // a row with no ticker names no holding, so it belongs to none of them
-    const rows = !tk ? [] : ledger.filter((t) => (t.type === 'DIVIDEND' || t.type === 'INTEREST')
+    const rows = !tk ? [] : ledger.filter((t) => isIncome(t)
       && !!t.ticker && String(t.ticker).trim().toUpperCase() === tk);   // a broker's "VTI " is VTI
     const f = personalFlowTotals(rows);
     const dividends = f.dividends.toNumber(2);

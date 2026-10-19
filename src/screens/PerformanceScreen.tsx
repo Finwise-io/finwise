@@ -127,8 +127,10 @@ export default function PerformanceScreen() {
   // EACH HOLDING'S WINDOW FIGURE OVER THE SAME WINDOW. "Since" has no fixed length, so its first day — the record's —
   // is handed over; it used to be read as today, and each holding's Since figure was one day's move (2026-10-12, DEC-4640).
   const holdingRowsFor = (p: string) => buildPerformance(positions, priceOf, p as Period, new Date(),
-    (q) => earliestBuyByTicker[q.ticker.trim().toUpperCase()] ?? null, p === 'SINCE' ? periodStartKey('SINCE') : undefined);
-  const rows = useMemo(() => holdingRowsFor(period), [owned, priceCache, period, earliestBuyByTicker, recordDates, todayKey]);
+    (q) => earliestBuyByTicker[q.ticker.trim().toUpperCase()] ?? null, p === 'SINCE' ? periodStartKey('SINCE') : undefined,
+    // the records and the accounts, so a bond's or a CD's interest is part of its return (DEC-6212, 2026-10-19)
+    { transactions: (store.transactions ?? []) as any[], accounts: (store.assetAccounts ?? []) as any[] });
+  const rows = useMemo(() => holdingRowsFor(period), [owned, priceCache, period, earliestBuyByTicker, recordDates, todayKey, store.transactions, store.assetAccounts]);
   const anyCapped = rows.some((r) => r.cappedSince != null);
   const PERIOD_PHRASE: Record<string, string> = { '1M': 'past month', '3M': 'past 3 months', '6M': 'past 6 months', 'YTD': 'this year', '1Y': 'past year', '2Y': 'past 2 years' };
   // FOUND 2026-09-14: tapping "Since <date>" crashed the screen — the phrase table had no entry for it,

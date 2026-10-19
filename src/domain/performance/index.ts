@@ -7,6 +7,9 @@ import type { EntityId } from '../_shared/ids';
 import { plural } from '../_shared/plural';
 import { dateShown } from '../_shared/dates';
 import { coverageFor } from '../../../Calculation Module code/engines/coverage';
+import { TBILL_ETF_TICKERS } from '../../../Calculation Module code/engines/holding-class';
+import { holdingClassOf, assetClassOf } from '../assets';
+import { maturityParts } from '../_shared/dates';
 
 /** One purchase lot — shares bought at a price on a date (enables true cost-basis ROI). */
 export interface Lot {
@@ -36,6 +39,11 @@ export interface Position {
   value_now?: number;           // a hand-built holding's value at the price its account balance was last built from (2026-10-07)
   multiplier?: number;          // Q06 (founder, 2026-08-26): an option contract is 100 shares unless the broker or the person states otherwise
   unit?: QuantityUnit;          // Q09 (founder, 2026-08-26): a quantity is never shown without its unit
+  // A BOND OR CD HELD AS A HOLDING carries its own facts when the broker or the person gives them (DEC-6212, 2026-10-19):
+  // its face value, its yearly coupon rate (0.04 = 4.00%) and its maturity date, year-month-day. Never guessed.
+  face_value?: number;
+  coupon_rate?: number;
+  maturity_date?: string;
   lots: Lot[];
 }
 
@@ -60,8 +68,9 @@ export const OPTION_CONTRACT_MULTIPLIER = 100;
  *               MK-PF-F-002 costBasis · MK-PF-F-004 marketValue
  *               MK-PF-F-006 capGains · MK-PF-F-028 realizedFromLedger
  *
- * Reaches ..... 76 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 79 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-082 NW · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
@@ -69,8 +78,7 @@ export const OPTION_CONTRACT_MULTIPLIER = 100;
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PF-F-014 buildPerformance · MK-PL-F-053 buildRetirementState
- *               … and 58 more — the full list is on functions_from_code
+ *               … and 61 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -177,8 +185,9 @@ export const PERIODS: Period[] = ['1M', '3M', '6M', 'YTD', '1Y', '2Y'];
  * Called by ... MK-CF-F-111 applyTransaction · MK-NW-F-128 heldValueOf
  *               MK-NW-O-006 theHolding · MK-PF-F-004 marketValue
  *
- * Reaches ..... 73 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 76 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-082 NW · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
@@ -186,8 +195,7 @@ export const PERIODS: Period[] = ['1M', '3M', '6M', 'YTD', '1Y', '2Y'];
  *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PF-F-014 buildPerformance
- *               … and 55 more — the full list is on functions_from_code
+ *               … and 58 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -292,12 +300,14 @@ export function costBasis(p: Position): number | null {
  *     market value(holding) = round(total shares × price, 2 dp)
  *                           = 0   when no price came back
  *
- * Called by ... MK-NW-F-075 ACC · MK-NW-O-006 theHolding
- *               MK-PF-F-005 unrealizedGain · MK-PF-F-014 buildPerformance
- *               MK-PL-F-081 taxableGainShare · MK-XS-F-174 recomputeBalances
+ * Called by ... MK-NW-F-075 ACC · MK-NW-F-084 categoryEarnings
+ *               MK-NW-O-006 theHolding · MK-PF-F-005 unrealizedGain
+ *               MK-PF-F-014 buildPerformance · MK-PL-F-081 taxableGainShare
+ *               MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 66 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 69 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-082 NW · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
@@ -305,8 +315,7 @@ export function costBasis(p: Position): number | null {
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PF-F-014 buildPerformance · MK-PL-F-053 buildRetirementState
- *               … and 48 more — the full list is on functions_from_code
+ *               … and 51 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -1069,6 +1078,10 @@ export interface PerformanceRow {
   benchTotal?: number | null;
   beatBy: number | null;          // periodReturn − benchReturn
   cappedSince: string | null;     // 'YYYY-MM-DD' when the window starts at YOUR purchase, else null
+  /** A BOND'S OR CD'S INTEREST IN THE WINDOW (DEC-6212, 2026-10-19): the interest records it was paid on or after the
+   *  window's first day — already inside periodReturn and periodTotal. Null for anything that is not an individual bond
+   *  or CD (a fund's distributions are in its adjusted closes, DEC-4644), and where nothing was handed to read. */
+  interest?: number | null;
 }
 /** Build the per-holding rows for a period from positions + a price-series lookup.
  *  APPROVED 2026-07-19 (invest-v3 FINAL): a holding younger than the period counts from the day
@@ -1113,6 +1126,7 @@ export interface PerformanceRow {
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
  *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-024 logged expenses
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
@@ -1127,6 +1141,9 @@ export function buildPerformance(
   now = new Date(),
   purchaseDateOf?: (p: Position) => string | null,
   windowStart?: string | null,
+  /** The records, and the accounts holding these positions — so a bond's or a CD's interest is added to its return
+   *  (DEC-6212). Without them a row is its price move alone, as before. */
+  income?: { transactions?: any[] | null; accounts?: any[] | null } | null,
 ): PerformanceRow[] {
   // the period's first day as the person's own calendar day (TZ-1) — never through UTC
   // a window name the app does not have opens nowhere: every row's window figures are unknown (DEC-4640)
@@ -1155,8 +1172,8 @@ export function buildPerformance(
     // A HOLDING BOUGHT INSIDE THE WINDOW IS TIME-WEIGHTED FROM ITS PURCHASES (DEC-1669): split at each purchase,
     // each piece's growth multiplied — bought at $200 and again at $250, now $260, is +30.00%, not the +15.56%
     // return on cost (outside review Claude Performance, 2026-10-11). One purchase day gives the return on cost.
-    const pr = capped ? returnSincePurchases(p, series, price, bought!) : ret(series);
-    const prTotal = capped ? pr : total(series);
+    const pricePr = capped ? returnSincePurchases(p, series, price, bought!) : ret(series);
+    const priceTotal = capped ? pricePr : total(series);
     const benchTicker = benchmarkTicker(p);
     const benchSeries = benchTicker ? priceOf(benchTicker) : null;
     // THE MARKET OVER THE SAME DATES WHEN THIS HOLDING'S PRICES DO NOT REACH BACK. The holding is then measured from
@@ -1174,15 +1191,209 @@ export function buildPerformance(
       : short ? (benchSameDays == null ? null : !given && period === '2Y' && spanYears > 1 ? Math.pow(1 + benchSameDays, 1 / spanYears) - 1 : benchSameDays)
       : ret(benchSeries);
     const benchTotal = benchTicker == null ? null : capped ? benchReturn : short ? benchSameDays : total(benchSeries);
+    // A BOND'S OR CD'S RETURN IS ITS PRICE CHANGE PLUS THE INTEREST IT PAID IN THE WINDOW (DEC-6212, 2026-10-19, his
+    // words: "Rule is to return % should include price change, dividend and interest, so showing 0% return for bond is
+    // not accurate." — "approved."). The interest counted is from the day the price is measured from: the purchase when
+    // bought inside the window, the first close when its prices begin later, else the window's first day. A fund keeps
+    // its adjusted closes alone (DEC-4644): its distributions are already in them, so nothing is added twice.
+    const mv = marketValue(p, price);
+    const from = capped ? bought : short ? isoDay(new Date(Date.parse(`${firstISO!.slice(0, 10)}T12:00:00`) + 86_400_000)) : periodStart;
+    const interest = income ? bondInterestInWindow(p, income.transactions ?? [], from, income.accounts ?? []) : null;
+    const prTotal = returnWithInterest(priceTotal, mv, interest);
+    // over a window longer than a year the figure shown is a yearly rate over the span the prices cover (MK-PF-F-039)
+    // (periodReturn's own rule, applied to the total with its interest; a purchase cap or a handed-over first day is
+    // never made yearly)
+    const parts = !capped && !given ? periodReturnParts(series, period, now) : null;
+    const pr = parts && parts.years > 1 && prTotal != null ? Math.pow(1 + prTotal, 1 / parts.years) - 1 : prTotal;
     return {
       position: p, price,
-      marketValue: marketValue(p, price), costBasis: costBasis(p), gain: unrealizedGain(p, price),
+      marketValue: mv, costBasis: costBasis(p), gain: unrealizedGain(p, price),
       totalROI: totalROI(p, price), periodReturn: pr, periodTotal: prTotal,
       benchTicker, benchReturn, benchTotal,
       beatBy: pr != null && benchReturn != null ? ((pr - benchReturn)) : null,
       cappedSince: capped ? bought : null,
+      interest,
     };
   });
+}
+
+/** IS THIS HOLDING ONE BOND OR ONE CD — not a fund? (DEC-6212, 2026-10-19). Only then is its interest added to its return:
+ *  a bond fund's or ETF's distributions are already in its adjusted closes (DEC-4644). It sits in Bonds & CDs, nothing in
+ *  its name says fund (ETF, fund, trust, index, portfolio) and it is not a Treasury-bill ETF; and something says it is
+ *  one instrument — the CD type, a 9-character security identifier as its ticker, a maturity date, a coupon rate or a
+ *  face value. With no such evidence it is not one, and its return stays its price move. */
+/* ─ MK-PF-F-047 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * isIndividualBondOrCD
+ *
+ * Answers ..... IS THIS HOLDING ONE BOND OR ONE CD — not a fund?
+ *
+ * Formula .....
+ *     false   when p is missing (or holding class of(p) ! = 'bonds' when missing or zero)
+ *     t = string(ticker ?? '').trim().to upper case()
+ *     false   when ÷ \b(etf|etfs|fund|funds|trust|index|portfolio)\b ÷ test(`${ticker ?? ''} ${label ?? ''}`)
+ *     false   when TBILL_ETF_TICKERS.has(t)
+ *     security id = ÷ ^[0 − 9A − Z]{9}$ ÷ .test(t) and ÷ \d ÷ .test(t)
+ *
+ * Called by ... MK-PF-F-048 bondInterestInWindow
+ *
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-PF-F-048 bondInterestInWindow
+ *               MK-PF-F-014 buildPerformance · MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-011 bond face value
+ *               MK-XS-I-012 bond coupon rate
+ *               MK-XS-I-013 bond maturity date
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-047
+ * Changed ..... not in git yet (—)
+ */
+export function isIndividualBondOrCD(p: Position | null | undefined): boolean {
+  if (!p || holdingClassOf(p) !== 'bonds') return false;
+  const t = String(p.ticker ?? '').trim().toUpperCase();
+  if (/\b(etf|etfs|fund|funds|trust|index|portfolio)\b/i.test(`${p.ticker ?? ''} ${p.label ?? ''}`)) return false;
+  if (TBILL_ETF_TICKERS.has(t)) return false;
+  const securityId = /^[0-9A-Z]{9}$/.test(t) && /\d/.test(t);
+  return p.kind === 'cd' || securityId || maturityParts(p.maturity_date) != null
+    || (p.coupon_rate != null && Number.isFinite(p.coupon_rate)) || (p.face_value != null && p.face_value > 0);
+}
+
+/** THE INTEREST ONE BOND OR CD WAS PAID IN THE WINDOW (DEC-6212, 2026-10-19): every interest or coupon record dated on or
+ *  after the day given and no later than today's records, that names this holding (its ticker, or its own holding id) —
+ *  in its own account when the record names one — or that names no holding and sits in an account that is itself a bond
+ *  or CD holding only this one holding. Amounts are signed, so a reversal cancels. Null when the holding is not an
+ *  individual bond or CD, or there is no first day; 0 when nothing was paid. */
+/* ─ MK-PF-F-048 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * bondInterestInWindow
+ *
+ * Answers ..... THE INTEREST ONE BOND OR CD WAS PAID IN THE WINDOW (DEC-6212, 2026-10-19): every interest or coupon record dated on or after the day given and no later than today's records, that names this holding (its ticker, or its own holding id) — in its own account when the record names one — or that names no holding and sits in an account that is itself a bond or CD holding only this one holding.
+ *
+ * Formula .....
+ *     nothing   when !is individual bond or cd(p) (or from day is missing when missing or zero)
+ *     tk = string(ticker ?? '').trim().to upper case()
+ *     pid = string(position id)   if position id ≠ nothing
+ *     nothing   otherwise
+ *     home = undefined   if pid = nothing
+ *     (accounts ?? []).find((a: any) => (positions ?? []).some((q: any) => string(position id) = pid))   otherwise
+ *     home is this bond = !!home and (home.positions.length ?? 0) = 1 and asset class of(home) = 'bonds'
+ *     total = 0
+ *     d = the first 10 of string(date ?? '')
+ *     rtk = string(ticker ?? '').trim().to upper case()
+ *     named = pid ≠ nothing and position id ≠ nothing and string(position id) = pid (or !!rtk and rtk = tk when missing or zero)
+ *     unnamed here = !rtk and position id = nothing and home is this bond and string(account id ?? '') = string(home!.asset id)
+ *     amt = amount read as a number
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-PF-F-014 buildPerformance
+ *
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-PF-F-014 buildPerformance
+ *               MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-008 transaction amount
+ *               MK-XS-I-009 transaction date
+ *               MK-XS-I-024 logged expenses
+ *
+ * Decides .....
+ *     · If length is missing it uses 0.
+ *     · Uses a built-in total of 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-048
+ * Changed ..... not in git yet (—)
+ */
+export function bondInterestInWindow(p: Position, transactions: any[], fromDay: string | null, accounts: any[] = []): number | null {
+  if (!isIndividualBondOrCD(p) || !fromDay) return null;
+  const tk = String(p.ticker ?? '').trim().toUpperCase();
+  const pid = p.position_id != null ? String(p.position_id) : null;
+  const home = pid == null ? undefined : (accounts ?? []).find((a: any) => (a?.positions ?? []).some((q: any) => String(q?.position_id) === pid));
+  const homeIsThisBond = !!home && (home.positions?.length ?? 0) === 1 && assetClassOf(home) === 'bonds';
+  let total = 0;
+  for (const t of transactions ?? []) {
+    if (t?.type !== 'INTEREST' && t?.type !== 'COUPON') continue;
+    const d = String(t.date ?? '').slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || d < fromDay) continue;
+    // a record on another account is that account's, even for the same security
+    if (home && t.account_id != null && String(t.account_id) !== String(home.asset_id)) continue;
+    const rtk = String(t.ticker ?? '').trim().toUpperCase();
+    const named = (pid != null && t.position_id != null && String(t.position_id) === pid) || (!!rtk && rtk === tk);
+    const unnamedHere = !rtk && t.position_id == null && homeIsThisBond && String(t.account_id ?? '') === String(home!.asset_id);
+    if (!named && !unnamedHere) continue;
+    const amt = Number(t.amount);
+    if (Number.isFinite(amt)) total += amt;
+  }
+  return total;
+}
+
+/** A RETURN WITH THE INTEREST PAID ADDED (DEC-6212): (1 + the price return) × (1 + interest ÷ value today) − 1. That is
+ *  (value today + interest) ÷ value at the start − 1, because value at the start = value today ÷ (1 + price return). The
+ *  price return alone where there is no interest, no price return, or no value today to divide by. */
+/* ─ MK-PF-F-049 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * returnWithInterest
+ *
+ * Answers ..... A RETURN WITH THE INTEREST PAID ADDED (DEC-6212): (1 + the price return) × (1 + interest ÷ value today) − 1.
+ *
+ * Formula .....
+ *     price total   when price total = nothing (or interest is missing (or value now = nothing (or not (value now > 0) when missing or zero) when missing or zero) when missing or zero)
+ *     (1 + price total) × (1 + interest ÷ value now) − 1
+ *
+ * Called by ... MK-PF-F-014 buildPerformance
+ *
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-PF-F-014 buildPerformance
+ *               MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-049
+ * Changed ..... not in git yet (—)
+ */
+export function returnWithInterest(priceTotal: number | null, valueNow: number | null | undefined, interest: number | null | undefined): number | null {
+  if (priceTotal == null || !interest || valueNow == null || !(valueNow > 0)) return priceTotal;
+  return (1 + priceTotal) * (1 + interest / valueNow) - 1;
+}
+
+/** WHAT A HOLDING HAS TO SHOW FOR THE WINDOW: its value today plus the interest it was paid in the window (DEC-6212). Its
+ *  value at the start is this ÷ (1 + its window total), because that total already holds the interest. */
+/* ─ MK-PF-F-050 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * worthWithInterest
+ *
+ * Answers ..... WHAT A HOLDING HAS TO SHOW FOR THE WINDOW: its value today plus the interest it was paid in the window (DEC-6212).
+ *
+ * Formula .....
+ *     (market value ?? 0) + (interest ?? 0)
+ *
+ * Called by ... MK-NW-F-127 gainOfRow · MK-NW-F-138 knownHoldingsReturn
+ *               MK-NW-F-142 classReturnOf · MK-PF-F-044 startValues
+ *
+ * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-142 classReturnOf · MK-NW-F-127 gainOfRow
+ *               MK-NW-F-138 knownHoldingsReturn · MK-NW-F-130 notIncludedSentence
+ *               MK-PF-F-020 portfolioBenchReturn · MK-NW-F-091 pricedGainOf
+ *               MK-PF-F-044 startValues · MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · If market value is missing it uses 0.
+ *     · If interest is missing it uses 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-050
+ * Changed ..... not in git yet (—)
+ */
+export function worthWithInterest(r: { marketValue?: number | null; interest?: number | null }): number {
+  return (r.marketValue ?? 0) + (r.interest ?? 0);
 }
 
 /** A holding bought inside the window: its time-weighted return from the first purchase to today (DEC-1669).
@@ -1423,7 +1634,8 @@ function startValues(rows: PerformanceRow[], retOf: (r: PerformanceRow) => numbe
   for (const r of rows ?? []) {
     const ret = retOf(r);
     if (ret == null || !(ret > -1) || !((r.marketValue as number) > 0)) continue;
-    out.push({ row: r, ret, start: (r.marketValue as number) / (1 + ret) });
+    // a bond's window total holds its interest, so its start is its value today plus that interest ÷ (1 + total) (DEC-6212)
+    out.push({ row: r, ret, start: worthWithInterest(r) / (1 + ret) });
   }
   return out;
 }

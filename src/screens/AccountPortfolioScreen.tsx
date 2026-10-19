@@ -10,14 +10,15 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
 import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
+import { percentDigits } from '../../MoneyKeel/functions/_figure-spec';   // the one writer of a percent's digits (DEC-6212)
 import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
-import { periodReturnSince, buildPerformance, priceHistoryShortSentence, type Period, type Position } from '../domain/performance';
+import { periodReturnSince, buildPerformance, priceHistoryShortSentence, bondInterestInWindow, returnWithInterest, isIndividualBondOrCD, type Period, type Position } from '../domain/performance';
 import { DateLink } from '../components/DateField';   // (DEC-4059c, 2026-10-10)
 import { EDIT_HISTORY_START, historyCoverage, assetClassOf, taxWordsOf, TAX_TYPE_NOT_STATED, holdingClassOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount, sourceWording } from '../domain/assets';
-import { theBonds, MATURITY_NOT_ENTERED } from '../../MoneyKeel/functions/networth-and-performance/bonds';
+import { theBonds, holdingBondFacts, MATURITY_NOT_ENTERED } from '../../MoneyKeel/functions/networth-and-performance/bonds';
 import { theAccount } from '../../MoneyKeel/functions/networth-and-performance/account';
-import { windowStartKey, thePerformance, categoryEarnings } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { windowStartKey, thePerformance, categoryEarnings, classReturnOf } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { ValueGraph } from '../components/ValueGraph';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { maskedMoney, spokenMoney, typedAmount } from '../components/useMoney';
@@ -45,9 +46,10 @@ const INCOME_KINDS: ActionType[] = ['DIVIDEND', 'INTEREST', 'COUPON'];
 
 /** Founder ruling Q49: a percentage a person reads carries TWO decimals — +0.57%, never +0.6%. The
  *  arithmetic keeps full precision; the rounding happens here, at the display, and nowhere earlier. */
-const pct2 = (v: number | null): string => (v == null ? '—' : `${v >= 0 ? '+' : '−'}${Math.abs(v * 100).toFixed(2)}%`);
+// percents to two decimals, half away from zero, by the one writer (percentDigits — +2.125% is +2.13%, DEC-6212)
+const pct2 = (v: number | null): string => (v == null ? '—' : `${v >= 0 ? '+' : '−'}${percentDigits(Math.abs(v))}%`);
 /** A stated yearly rate, worded the one way the canon allows (cluster 14 spells the period in full). */
-const rateWords = (rate: number): string => `${(rate * 100).toFixed(2)}%/year`;
+const rateWords = (rate: number): string => `${percentDigits(rate)}%/year`;
 const WINDOW_KEYS = ['SINCE', '1M', 'YTD', '1Y', '2Y'] as const;
 const WINDOW_WORDS: Record<string, string> = {
   '1M': '1M', YTD: 'This year', '1Y': '1Y', '2Y': '2Y',
@@ -155,7 +157,10 @@ export default function AccountPortfolioScreen() {
   const breakdownClasses = breakdown ? (Object.keys(breakdown) as (keyof typeof breakdown)[]).filter((k) => breakdown[k] !== 0) : [];
   const ledger = ((store.transactions ?? []) as any[]).filter((t) => t.account_id === account.asset_id);
   const incomeOf = (rw: any): string => {
-    const words = answer.incomeOfHolding(String(rw.name ?? '').split(' · ')[0].trim()).words;
+    // BY THE HOLDING'S TICKER, which is what a record names. It read the row's NAME, so a bond shown by its name (a
+    // 9-character security id gives way to the name) matched no record and its interest line never showed (found
+    // 2026-10-19 running the account-page drawing's state A, DEC-6212). A row with no ticker keeps its name.
+    const words = answer.incomeOfHolding(String(rw.ticker ?? '').trim() || String(rw.name ?? '').split(' · ')[0].trim()).words;
     return words.replace(/(\d+) dividends/, (_m, n) => `${fig('MK-NW-M-019', Number(n))} dividends`)
                 .replace(/(\d+) interest/, (_m, n) => `${fig('MK-NW-M-019', Number(n))} interest`);
   };
@@ -179,6 +184,22 @@ export default function AccountPortfolioScreen() {
   const recordedDays = days.map((d: any) => String(d.date).slice(0, 10)).filter(okDay).sort();
   const movedDays = ledger.map((t: any) => String(t.date).slice(0, 10)).filter(okDay).sort();
   const dataStart: string | null = recordedDays[0] ?? movedDays[0] ?? null;
+  // A HOLDING'S PURCHASE DATE, for the cap — the Performance tab's rule (invest-v3 FINAL, 2026-07-19): dated lots win; a
+  // linked holding's average-cost lot has no date, so this account's earliest BUY of it fills in. The record's first day
+  // used to fill in instead, which read a holding the broker already held on that day as bought that day: on a page
+  // whose record begins today, every window worked back from price history showed the return on cost (state D of the
+  // account-page drawing read +25.00% for 1Y where VTI's prices give +10.00%; found 2026-10-19 running the drawing's
+  // states through this screen, DEC-6212).
+  const firstBuy: Record<string, string> = {};
+  for (const t of ledger) {
+    const d = String(t?.date ?? '').slice(0, 10);
+    if (t?.type !== 'BUY' || !t?.ticker || !okDay(d)) continue;
+    const k = String(t.ticker).trim().toUpperCase();
+    if (!firstBuy[k] || d < firstBuy[k]) firstBuy[k] = d;
+  }
+  const boughtOn = (q: Position) => firstBuy[String(q.ticker ?? '').trim().toUpperCase()] ?? null;
+  // the records and this account, so a bond's or a CD's interest is part of its return (DEC-6212, 2026-10-19)
+  const income = { transactions: ledger, accounts: [account] };
   const figuresFor = (p: string) => {
     // "Since" opens the day after the record's first day (MK-NW-F-090: that day IS the beginning
     // value); with no record, it opens ON the first day money moved, so that movement counts; with
@@ -191,7 +212,7 @@ export default function AccountPortfolioScreen() {
       ? (recordedDays.length ? windowStartKey('SINCE', recordedDays, todayKey) : movedDays[0] ?? null)
       : windowStartKey(p, [], todayKey);   // one rule for a window's first day, which refuses a name it does not know (DEC-4640)
     // "Since" hands over its own first day; it used to be read as today, one day's move (2026-10-12, DEC-4640)
-    const priced = buildPerformance(positions, priceOf, p as Period, new Date(), () => dataStart, p === 'SINCE' ? start : undefined);
+    const priced = buildPerformance(positions, priceOf, p as Period, new Date(), boughtOn, p === 'SINCE' ? start : undefined, income);
     return thePerformance({
       windowStart: start,
       windowLabel: p === 'SINCE' ? (dataStart ? `since ${dateShown(dataStart)}` : 'since today') : (PHRASE[p] ?? 'this window'),
@@ -222,7 +243,7 @@ export default function AccountPortfolioScreen() {
   const cats = categoryEarnings({
     transactions: ledger,
     windowStart: now?.windowStart ?? todayKey,
-    rows: buildPerformance(positions, priceOf, period as Period, new Date(), () => dataStart, period === 'SINCE' ? now?.windowStart ?? null : undefined) as any,
+    rows: buildPerformance(positions, priceOf, period as Period, new Date(), boughtOn, period === 'SINCE' ? now?.windowStart ?? null : undefined, income) as any,
   });  const catsTotal = cats.reduce((n, b) => n + b.earned, 0);
   /** THE VALUE LINE — this account's worth on each recorded day inside the window, at most 26 points. */
   const graphPoints: { date: string; value: number }[] = [];
@@ -244,6 +265,19 @@ export default function AccountPortfolioScreen() {
   // ONE string for this account's market value: the band, the trio and the Total row all print it,
   // so three places on one screen can never show three different roundings of the same figure.
   const marketValueText = fig('MK-NW-M-018', account.balance || 0);
+  /** THE LINE UNDER A BOND'S OR A CD'S NAME, as a stock's carries its shares (DEC-6212, 2026-10-19): face value, coupon
+   *  rate and yield to maturity — "$5,000 face · 4.00% · YTM 4.00%". The MARKET VALUE column stays market value, so it
+   *  adds up to the account (DEC-0093, one meaning per column). A part not given is left out; with none, the old words. */
+  const bondLine = (q: any, value: number): string => {
+    if (!isIndividualBondOrCD(q)) return 'CDs & Treasuries';
+    const f = holdingBondFacts(q, value);
+    const parts = [
+      f.face != null ? `${fig('MK-NW-M-023', f.face)} face` : '',
+      f.couponRate != null ? figWords('MK-NW-M-024', `${percentDigits(f.couponRate)}%`) : '',
+      f.yieldToMaturity != null ? `YTM ${fig('MK-NW-M-026', f.yieldToMaturity)}` : '',
+    ].filter(Boolean);
+    return parts.length ? parts.join(' · ') : 'CDs & Treasuries';
+  };
   const insideRows = !breakdown ? [] : [
     ...((account.positions ?? []) as any[]).map((p) => {
       const sh = (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0), 0);
@@ -253,7 +287,7 @@ export default function AccountPortfolioScreen() {
         key: p.position_id ?? p.ticker,
         posId: p.position_id,
         name: cls2 === 'stocks_etf' && sh > 0 ? `${holdingWord(p)} · ${plural(sh, 'share', sh.toLocaleString())}` : holdingWord(p),
-        sub: cls2 === 'bonds' ? 'CDs & Treasuries' : cls2 === 'cash' ? 'counts as cash' : undefined,
+        sub: cls2 === 'bonds' ? bondLine(p, value) : cls2 === 'cash' ? 'counts as cash' : undefined,
         color: ClassMarkColors[cls2], value, cls: cls2, ticker: p.ticker,
       };
     }),
@@ -280,7 +314,11 @@ export default function AccountPortfolioScreen() {
   //     (corrected 2026-10-12, DEC-4645: the daily closes are dividend-adjusted, so a holding's own figure DOES
   //     include its dividends — once. The income line beneath it says how much of it came as income; nothing adds the
   //     two. Where its prices begin after the window opens, the row says so — DEC-4641.)
-  //   · a class shows its holdings' price return weighted by what each is worth;
+  //   · A BOND OR A CD HELD AS A HOLDING shows its price move PLUS the interest it was paid in the window (DEC-6212,
+  //     2026-10-19, his words: "Rule is to return % should include price change, dividend and interest, so showing 0%
+  //     return for bond is not accurate." — "approved."): KeyBank CD $5,000, $100 of interest, price flat → +2.00%;
+  //   · a class shows its holdings' returns weighed by what each was worth when the window began — the Performance
+  //     tab's own rule (classReturnOf, MK-NW-F-084), so the two pages cannot weigh a category two ways;
   //   · a holding we hold no price for shows "—", never a guess.
   const statedYearlyRate = (rowClass: string): number | null => {
     // an entered 0% prints 0.00%/year, matching Bonds & CDs on Performance; no rate entered → null (DEC-2748b, 2026-10-12)
@@ -292,11 +330,20 @@ export default function AccountPortfolioScreen() {
     if (!ticker || !windowStart) return null;
     return periodReturnSince(store.priceCache?.[String(ticker).trim().toUpperCase()], windowStart);
   };
-  const returnTextFor = (rowClass: string, value: number, ticker?: string): string => {
-    const stated = statedYearlyRate(rowClass);
+  /** The holding behind a row of the table, when the row is one. */
+  const positionOfRow = (rw: any): Position | undefined => positions.find((q: any) => (q.position_id ?? q.ticker) === rw?.key);
+  /** A bond's or CD's interest in the window the header names (DEC-6212); null for anything else. */
+  const interestOfRow = (rw: any): number | null => {
+    const q = positionOfRow(rw);
+    return q && windowStart ? bondInterestInWindow(q, ledger, windowStart, [account]) : null;
+  };
+  /** A holding's figure over the window: its own price move, and for a bond or a CD the interest it was paid (DEC-6212). */
+  const holdingTotalOf = (rw: any): number | null => returnWithInterest(priceReturnOf(rw?.ticker), Math.abs(rw?.value || 0), interestOfRow(rw));
+  const returnTextFor = (rw: any): string => {
+    const stated = statedYearlyRate(rw.cls);
     if (stated != null) return rateWords(stated);
-    if (Math.round(value) === Math.round(account.balance || 0)) return acctReturnText;
-    return pct2(priceReturnOf(ticker));
+    if (Math.round(rw.value) === Math.round(account.balance || 0)) return acctReturnText;
+    return pct2(holdingTotalOf(rw));
   };
   /** WHERE A HOLDING'S PRICES BEGIN AFTER THE WINDOW OPENS its figure is measured from its first price, and the
    *  row says so — the same sentence, from the same function, as the Holding page (his approval, 2026-10-12,
@@ -311,10 +358,10 @@ export default function AccountPortfolioScreen() {
     const stated = statedYearlyRate(rowClass);
     if (stated != null) return rateWords(stated);
     if (Math.round(total) === Math.round(account.balance || 0)) return acctReturnText;
-    const priced = rowsInClass.map((rw) => ({ v: Math.abs(rw.value || 0), r: priceReturnOf(rw.ticker) })).filter((x) => x.r != null && x.v > 0);
-    const weight = priced.reduce((t, x) => t + x.v, 0);
-    if (!priced.length || weight <= 0) return '—';
-    return pct2(priced.reduce((t, x) => t + (x.r as number) * x.v, 0) / weight);
+    // weighed by what each holding was worth when the window began, its interest counted (MK-NW-F-084, DEC-6212) — it
+    // weighed by today's values, a second rule beside the Performance tab's
+    const r = classReturnOf(rowsInClass.map((rw) => ({ marketValue: Math.abs(rw.value || 0), interest: interestOfRow(rw), total: holdingTotalOf(rw) })));
+    return r == null ? '—' : pct2(r);
   };
 
   // per-class actions (design: only what makes sense for this account)
@@ -398,7 +445,10 @@ export default function AccountPortfolioScreen() {
           words: "Also check in perf 17 did we have bar to select time period at the top on account page or not? We
           should have one.") — one component, so the two can never drift apart ────────────────────── */}
       <WindowSelector
-        windows={WINDOW_KEYS.map((k) => ({ key: k, label: k === 'SINCE' ? (dayOne || !since ? 'Since today' : `Since ${dateShown(since)}`) : WINDOW_WORDS[k] }))}
+        // the Since window names ITS OWN first day — the record's — whichever window is picked. It named the picked
+        // window's beginning, so with 1Y picked it read "Since Sep 29, 2025" on a record that begins today (state D of
+        // the account-page drawing, found 2026-10-19, DEC-6212)
+        windows={WINDOW_KEYS.map((k) => ({ key: k, label: k === 'SINCE' ? (dayOne || !dataStart || dataStart >= todayKey ? 'Since today' : `Since ${dateShown(dataStart)}`) : WINDOW_WORDS[k] }))}
         chosen={period} figures={byWindow as any} onPick={(k) => setPeriod(k as any)} />
       {period === '2Y' && (
         <Text style={p.note}>2Y is shown per year, so it sits fairly beside 1Y</Text>
@@ -634,14 +684,14 @@ export default function AccountPortfolioScreen() {
                     <TouchableOpacity style={s.insideRow} disabled={!rw.posId}
                       accessibilityRole={rw.posId ? 'button' : undefined} accessible
                       onPress={() => rw.posId && router.push(`/holding-detail?account=${account.asset_id}&position=${rw.posId}` as any)}
-                      accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${figSaid('MK-NW-M-030', Math.abs(rw.value))}, return ${returnTextFor(rw.cls, rw.value, rw.ticker)}${incomeOf(rw) ? `, ${incomeOf(rw)}` : ''}${rw.posId ? '. Opens its page.' : ''}`}>
+                      accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${figSaid('MK-NW-M-030', Math.abs(rw.value))}, return ${returnTextFor(rw)}${incomeOf(rw) ? `, ${incomeOf(rw)}` : ''}${rw.posId ? '. Opens its page.' : ''}`}>
                       <View style={[s.insideDot, { backgroundColor: rw.color }]} />
                       <View style={{ flex: 1 }}>
                         <Text style={s.optLabel} numberOfLines={2}>{rw.name}</Text>
                         {!!rw.sub && <Text style={s.insideSub}>{rw.sub}</Text>}
                       </View>
                       <Text style={[s.optVal, s.colValW]}>{fig('MK-NW-M-030', rw.value)}</Text>
-                      <Text style={[s.optRet, s.colRetW]}>{returnTextFor(rw.cls, rw.value, rw.ticker)}</Text>
+                      <Text style={[s.optRet, s.colRetW]}>{returnTextFor(rw)}</Text>
                     </TouchableOpacity>
                     {!!incomeOf(rw) && <Text style={s.incomeLine}>{figWords('MK-NW-M-021', `Income: ${incomeOf(rw)}`)}</Text>}
                     {!!shortHistoryOf(rw.cls, rw.value, rw.ticker) && <Text style={s.incomeLine}>{shortHistoryOf(rw.cls, rw.value, rw.ticker)}</Text>}
@@ -660,8 +710,9 @@ export default function AccountPortfolioScreen() {
           </View>
           {/* "the income is also on the line beneath it" — two words dropped, as income already means paid (DEC-5848, 2026-10-19) */}
           <Text style={s.optNote}>
+            {/* a bond's or a CD's return counts its interest (DEC-6212, 2026-10-19), so the sentence says so */}
             Counted inside this account's total — listed here so nothing is hidden. A holding's return is
-            what its own price did in this window, its dividends included; the income is also on the line beneath it. Income sits with the
+            what its own price did in this window, its dividends included, and a bond's or CD's interest added; the income is also on the line beneath it. Income sits with the
             holding that earned it{acctIncome != null && acctIncome > 0
               ? <Text> — <Text style={s.optNoteFig}>{fig('MK-NW-M-019', acctIncome)}</Text> for this account</Text>
               : null}.
