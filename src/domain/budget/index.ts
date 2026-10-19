@@ -75,11 +75,17 @@ export function buildBudgetState(uid: UserId, netMonthlyIncome: number, doc: Bud
  * Called by ... MK-CF-F-009 monthlyEssentials · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-079 EF · MK-CF-F-013 budgetFromOnboarding
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-010 emergencyTest
- *               MK-CF-F-009 monthlyEssentials · MK-XS-F-032 snapshotFromOnboarding
- *               MK-NW-O-004 theEmergencyFund
+ * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-010 emergencyTest
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               … and 39 more — the full list is on functions_from_code
  *
  * Serves ...... MK-MN-M-007
  *
@@ -106,7 +112,7 @@ export function plannedMonthlySpend(op: OnboardingProfile | null): number {
  * Called by ... MK-CF-F-003 categoryMonthly · MK-CF-F-008 spendByMonth
  *               MK-CF-F-009 monthlyEssentials
  *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 124 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -116,7 +122,7 @@ export function plannedMonthlySpend(op: OnboardingProfile | null): number {
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 62 more — the full list is on functions_from_code
+ *               … and 106 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -147,7 +153,7 @@ function pctBaseMonthly(op: OnboardingProfile | null): number {
  *
  * Called by ... MK-CF-F-004 spendBuckets
  *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 124 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -157,7 +163,7 @@ function pctBaseMonthly(op: OnboardingProfile | null): number {
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 62 more — the full list is on functions_from_code
+ *               … and 106 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
@@ -201,7 +207,7 @@ export function categoryMonthly(c: { amount?: any; unit?: string; bucket?: strin
  *               MK-CF-F-009 monthlyEssentials · MK-CF-F-013 budgetFromOnboarding
  *               MK-CF-F-014 budgetVsActual · MK-CF-F-019 upcomingBills
  *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 124 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -211,7 +217,7 @@ export function categoryMonthly(c: { amount?: any; unit?: string; bucket?: strin
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 62 more — the full list is on functions_from_code
+ *               … and 106 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-032 expenses categories the person set up
@@ -320,7 +326,7 @@ export function nonMonthlyBasis(op: OnboardingProfile | null): { allPct: boolean
  * Called by ... MK-CF-F-011 savingsByMonth · MK-CF-F-012 annualCashflow
  *               MK-CF-F-020 cashflowYear · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 124 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -330,7 +336,7 @@ export function nonMonthlyBasis(op: OnboardingProfile | null): { allPct: boolean
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 62 more — the full list is on functions_from_code
+ *               … and 106 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-032 expenses categories the person set up
@@ -391,9 +397,17 @@ export function spendByMonth(op: OnboardingProfile | null): number[] {
  *
  * Called by ... MK-CF-F-010 emergencyTest · MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-079 EF · MK-CF-F-010 emergencyTest
- *               MK-NW-O-004 theEmergencyFund
+ * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-010 emergencyTest
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               … and 38 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-025 typical monthly essentials
@@ -449,8 +463,17 @@ export interface ShockResult {
  *
  * Called by ... MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-079 EF · MK-NW-O-004 theEmergencyFund
+ * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               … and 37 more — the full list is on functions_from_code
  *
  * Serves ...... MK-MN-M-024 · MK-MN-M-025
  * Reads ....... MK-XS-I-025 typical monthly essentials
@@ -502,7 +525,7 @@ export function emergencyTest(op: OnboardingProfile | null, cash: number, shock:
  * Called by ... MK-XS-F-027 takeHomeMonthly · MK-XS-F-028 surplusByMonth
  *               MK-XS-F-030 effectiveAnnualContribution
  *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 124 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -512,7 +535,7 @@ export function emergencyTest(op: OnboardingProfile | null, cash: number, shock:
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 62 more — the full list is on functions_from_code
+ *               … and 106 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

@@ -1454,7 +1454,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "run on assetsStateFrom, which getAssetsState returns (index.ts:2391-2392)",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-044 getAssetsState — five cases › easy · Saved account returned"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-044 getAssetsState — five cases › easy · Saved account returned",
+   "settled": "REMOVED 2026-10-14 (inputs-and-use audit, 2026-10-11, Net worth: \"Nothing calls them … Remove\"): getAssetsState left the code with loadAssets, saveAssets and assetsStateFrom — nothing called it — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-044",
@@ -1466,7 +1467,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "null",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-044 getAssetsState — five cases › easy · No saved record returns nothing"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-044 getAssetsState — five cases › easy · No saved record returns nothing",
+   "settled": "REMOVED 2026-10-14 (inputs-and-use audit, 2026-10-11, Net worth: \"Nothing calls them … Remove\"): getAssetsState left the code with loadAssets, saveAssets and assetsStateFrom — nothing called it — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-044",
@@ -1482,7 +1484,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-044 getAssetsState — five cases › complex · Several saved accounts aggregate"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-044 getAssetsState — five cases › complex · Several saved accounts aggregate",
+   "settled": "REMOVED 2026-10-14 (inputs-and-use audit, 2026-10-11, Net worth: \"Nothing calls them … Remove\"): getAssetsState left the code with loadAssets, saveAssets and assetsStateFrom — nothing called it — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-044",
@@ -1494,7 +1497,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "null",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-044 getAssetsState — five cases › complex · Persisted record with empty list is not $0 state"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-044 getAssetsState — five cases › complex · Persisted record with empty list is not $0 state",
+   "settled": "REMOVED 2026-10-14 (inputs-and-use audit, 2026-10-11, Net worth: \"Nothing calls them … Remove\"): getAssetsState left the code with loadAssets, saveAssets and assetsStateFrom — nothing called it — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-044",
@@ -1506,7 +1510,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "null",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-044 getAssetsState — five cases › edge · All saved accounts deleted"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-044 getAssetsState — five cases › edge · All saved accounts deleted",
+   "settled": "REMOVED 2026-10-14 (inputs-and-use audit, 2026-10-11, Net worth: \"Nothing calls them … Remove\"): getAssetsState left the code with loadAssets, saveAssets and assetsStateFrom — nothing called it — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-045",

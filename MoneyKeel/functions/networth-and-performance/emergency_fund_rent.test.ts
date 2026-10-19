@@ -8,6 +8,7 @@
  */
 import { theEmergencyFund } from './emergency-fund';
 import { incomeSummary } from '../cashflow/income-summary';
+import { moveOldRentFigure } from '../../../src/domain/income/old-rent-migration';
 
 const cashAt = (id: string, kind: string, balance: number) => ({ asset_id: id, label: id, kind, tax_bucket: 'CASH', balance }) as any;
 const debt = (label: string, type: string, minimum: number) =>
@@ -180,11 +181,21 @@ describe('rentNotKnown (DEC-3769)', () => {
     expect(run([home, second], { rentals: { broken: true } }).rentNotKnown).toBe(true);
     // none stored, but a property kept as a rental: its rent is missing
     expect(run([home, { ...second, re_use: 'rental' }], {}).rentNotKnown).toBe(true);
-    // the old single rent figure typed with words
-    expect(run([home, second], { rentalIncome: 'about 2k' }).rentNotKnown).toBe(true);
-    // the old single rent figure names no property, so it is not counted and its rent is not included (DEC-4059d, 2026-10-10)
-    expect(run([home, second], { rentalIncome: '1500' }).rentNotKnown).toBe(true);
-    expect(run([home, second], { rentalIncome: '1500' }).rentalIncomeMonthly).toBe(0);
+  });
+  // THE OLD SINGLE RENT FIGURE (rentalIncome) is no longer read by this door (inputs-and-use audit, 2026-10-11). The store
+  // moves it once into the rent list as an entry with NO property (old-rent-migration.ts); by DEC-4059d that entry is not
+  // rent until a property is picked, so the line still says its rent is not included — through the entry rule.
+  test('the old single rent figure, moved into the list by the one-time move: not counted, rent not included', () => {
+    const moved = (old: Record<string, any>) => run([home, second], moveOldRentFigure(old));
+    expect(moved({ rentalIncome: 'about 2k' }).rentNotKnown).toBe(true);
+    expect(moved({ rentalIncome: '1500' }).rentNotKnown).toBe(true);
+    expect(moved({ rentalIncome: '1500' }).rentalIncomeMonthly).toBe(0);
+    expect(moved({ rentalIncome: '1500' }).monthsCovered).toBeCloseTo(5, 9);
+  });
+  test('the old field left unmoved is read by nothing here: no flag from it, no rent from it', () => {
+    const e = run([home, second], { rentalIncome: '1500' });
+    expect(e.rentNotKnown).toBe(false);
+    expect(e.rentalIncomeMonthly).toBe(0);
   });
   test('a rent entry with a figure but no property: not counted, and the rent is not included (DEC-4059d, 2026-10-10)', () => {
     const e = run([home, second], { rentals: [{ type: 'long', income: '1000', expenses: '0' }] });

@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-14",
+ "generated": "2026-10-19",
  "states": [
   "worker",
   "rich",
@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -80,7 +80,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 13"
+     "s": "Oct 18"
     },
     {
      "k": "t",
@@ -232,7 +232,7 @@
     },
     {
      "k": "t",
-     "s": "13"
+     "s": "18"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -322,7 +322,7 @@
     },
     {
      "k": "t",
-     "s": "⏱ Vanguard part as of Sep 12 — 31 days old"
+     "s": "⏱ Vanguard part as of Sep 12 — 36 days old"
     },
     {
      "k": "t",
@@ -482,7 +482,7 @@
     },
     {
      "k": "t",
-     "s": "13"
+     "s": "18"
     },
     {
      "k": "t",
@@ -528,7 +528,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -796,7 +796,7 @@
     },
     {
      "k": "t",
-     "s": "13"
+     "s": "18"
     },
     {
      "k": "t",
@@ -915,7 +915,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 13, 2026"
+     "s": "YOUR NET WORTH · OCT 18, 2026"
     },
     {
      "k": "a",
@@ -1253,7 +1253,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 13, 2026"
+     "s": "YOUR NET WORTH · OCT 18, 2026"
     },
     {
      "k": "a",
@@ -1575,7 +1575,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 13, 2026"
+     "s": "YOUR NET WORTH · OCT 18, 2026"
     },
     {
      "k": "a",
@@ -2049,7 +2049,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 13, 2026"
+     "s": "YOUR NET WORTH · OCT 18, 2026"
     },
     {
      "k": "a",
@@ -2285,7 +2285,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 31 days old"
+     "s": "Linked · 36 days old"
     },
     {
      "k": "t",
@@ -2571,7 +2571,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 13, 2026"
+     "s": "YOUR NET WORTH · OCT 18, 2026"
     },
     {
      "k": "a",
@@ -2877,7 +2877,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 13, 2026"
+     "s": "YOUR NET WORTH · OCT 18, 2026"
     },
     {
      "k": "a",
@@ -3538,7 +3538,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 13, 2026"
+     "s": "Oct 18, 2026"
     },
     {
      "k": "a",
@@ -3638,7 +3638,7 @@
     },
     {
      "k": "t",
-     "s": "Day one: your value is real and your daily record starts today. Longer windows are worked back from each holding's price history."
+     "s": "You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices."
     },
     {
      "k": "a",
@@ -3658,11 +3658,11 @@
     },
     {
      "k": "t",
-     "s": "Oct 13"
+     "s": "Oct 18"
     },
     {
      "k": "t",
-     "s": "Oct 13"
+     "s": "Oct 18"
     },
     {
      "k": "t",
@@ -4056,7 +4056,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 13, 2026"
+     "s": "Oct 18, 2026"
     },
     {
      "k": "t",
@@ -4168,7 +4168,7 @@
     },
     {
      "k": "t",
-     "s": "Day one: your value is real and your daily record starts today. Longer windows are worked back from each holding's price history."
+     "s": "You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices."
     },
     {
      "k": "a",
@@ -4188,11 +4188,11 @@
     },
     {
      "k": "t",
-     "s": "Oct 13"
+     "s": "Oct 18"
     },
     {
      "k": "t",
-     "s": "Oct 13"
+     "s": "Oct 18"
     },
     {
      "k": "a",
@@ -4336,7 +4336,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 31 days old"
+     "s": "Linked · 36 days old"
     },
     {
      "k": "t",
@@ -4726,7 +4726,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 13, 2026"
+     "s": "Oct 18, 2026"
     },
     {
      "k": "a",
@@ -4826,7 +4826,7 @@
     },
     {
      "k": "t",
-     "s": "Day one: your value is real and your daily record starts today. Longer windows are worked back from each holding's price history."
+     "s": "You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices."
     },
     {
      "k": "a",
@@ -4846,11 +4846,11 @@
     },
     {
      "k": "t",
-     "s": "Oct 13"
+     "s": "Oct 18"
     },
     {
      "k": "t",
-     "s": "Oct 13"
+     "s": "Oct 18"
     },
     {
      "k": "t",
@@ -5136,7 +5136,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 13, 2026"
+     "s": "Oct 18, 2026"
     },
     {
      "k": "a",
@@ -5256,11 +5256,11 @@
     },
     {
      "k": "t",
-     "s": "Oct 13"
+     "s": "Oct 18"
     },
     {
      "k": "t",
-     "s": "Oct 13"
+     "s": "Oct 18"
     },
     {
      "k": "t",
@@ -9430,14 +9430,6 @@
     },
     {
      "k": "t",
-     "s": "🔔"
-    },
-    {
-     "k": "t",
-     "s": "payment due in 2 days"
-    },
-    {
-     "k": "t",
      "s": "−"
     },
     {
@@ -9688,7 +9680,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 42 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 58 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -9720,7 +9712,7 @@
     },
     {
      "k": "t",
-     "s": "42"
+     "s": "58"
     },
     {
      "k": "t",
@@ -10074,7 +10066,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 42 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 58 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -10106,7 +10098,7 @@
     },
     {
      "k": "t",
-     "s": "42"
+     "s": "58"
     },
     {
      "k": "t",
@@ -17246,7 +17238,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 13, 2026"
+     "s": "Oct 18, 2026"
     },
     {
      "k": "a",
@@ -17656,7 +17648,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 13, 2026"
+     "s": "Oct 18, 2026"
     },
     {
      "k": "a",
@@ -17908,7 +17900,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 31 days old"
+     "s": "Linked · 36 days old"
     },
     {
      "k": "t",
@@ -18154,7 +18146,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 13, 2026"
+     "s": "Oct 18, 2026"
     },
     {
      "k": "a",
@@ -18406,7 +18398,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 31 days old"
+     "s": "Linked · 36 days old"
     },
     {
      "k": "t",
@@ -18648,7 +18640,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 13, 2026"
+     "s": "Oct 18, 2026"
     },
     {
      "k": "a",
@@ -19046,7 +19038,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 13, 2026"
+     "s": "Oct 18, 2026"
     },
     {
      "k": "a",
@@ -19452,7 +19444,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 13, 2026"
+     "s": "Oct 18, 2026"
     },
     {
      "k": "a",
@@ -19844,11 +19836,11 @@
     },
     {
      "k": "t",
-     "s": "Added estimated $165 in accrued interest to bond value at 4% coupon for 151 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+     "s": "Added estimated $171 in accrued interest to bond value at 4% coupon for 156 days to calculate YTM. If this is not accurate, enter actual accrued interest"
     },
     {
      "k": "a",
-     "s": "Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly $9,310 to $9,500. If rates fall one percent, roughly $10,110 to $10,310. Held to maturity, $10,000 comes back if the issuer pays as promised."
+     "s": "Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly $9,320 to $9,500. If rates fall one percent, roughly $10,110 to $10,310. Held to maturity, $10,000 comes back if the issuer pays as promised."
     },
     {
      "k": "t",
@@ -19872,7 +19864,7 @@
     },
     {
      "k": "t",
-     "s": "$9,310"
+     "s": "$9,320"
     },
     {
      "k": "t",
@@ -20018,7 +20010,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 13, 2026"
+     "s": "Oct 18, 2026"
     },
     {
      "k": "a",
@@ -22095,7 +22087,7 @@
     },
     {
      "k": "t",
-     "s": "Added estimated $165 in accrued interest to bond value at 4% coupon for 151 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+     "s": "Added estimated $171 in accrued interest to bond value at 4% coupon for 156 days to calculate YTM. If this is not accurate, enter actual accrued interest"
     },
     {
      "k": "a",
@@ -37464,6 +37456,7 @@
     "MK-NW-M-009",
     "MK-NW-M-010",
     "MK-NW-M-013",
+    "MK-NW-M-014",
     "MK-NW-M-046",
     "MK-NW-M-047",
     "MK-NW-M-048",
@@ -37477,6 +37470,7 @@
     "MK-NW-M-009",
     "MK-NW-M-010",
     "MK-NW-M-013",
+    "MK-NW-M-014",
     "MK-NW-M-046",
     "MK-NW-M-047",
     "MK-NW-M-048",
@@ -37490,6 +37484,7 @@
     "MK-NW-M-008",
     "MK-NW-M-009",
     "MK-NW-M-013",
+    "MK-NW-M-014",
     "MK-NW-M-046",
     "MK-NW-M-048",
     "MK-XS-M-001"
@@ -37634,8 +37629,10 @@
    ],
    "rich": [
     "MK-NW-M-041",
+    "MK-NW-M-042",
     "MK-NW-M-043",
     "MK-NW-M-044",
+    "MK-NW-M-045",
     "MK-NW-M-053",
     "MK-NW-M-054",
     "MK-NW-M-055",
@@ -38815,9 +38812,10 @@
    "inside": "HomeScreen",
    "line": "if (due.length) Alert.alert('Debt due soon', due.map((d: any) => `${d.label} — ${maskedMoney(requiredPayment(d))} due day ${d.due_day}`).join('\\n'), [{ text: 'OK' }]);",
    "values": [
+    "$300",
     "$1,900"
    ],
-   "renders": 1
+   "renders": 2
   },
   {
    "site": "src/screens/HomeScreen.tsx:309",

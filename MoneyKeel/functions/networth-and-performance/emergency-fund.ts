@@ -90,10 +90,19 @@ export interface EmergencyFund {
  *     from cash = max(0, monthly − rent)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-NW-F-079 EF
+ * Called by ... MK-NW-F-079 EF · MK-XS-F-175 uid
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-079 EF
+ * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-046 · MK-NW-M-047 · MK-NW-M-048 · MK-NW-M-064
  * Reads ....... MK-XS-I-001 account balance
@@ -180,21 +189,20 @@ export function theEmergencyFund(input: {
 
   // RENT NOT KNOWN (DEC-3769, 2026-10-10, his words: "How about we say "5 month xx, rent not included. Enter
   // rent to include." instead of just showing nothing."). The months stay counted without that rent; this
-  // only says so. Three shapes, each needing a property that is not the home:
+  // only says so. Two shapes, each needing a property that is not the home:
   //   · a rent entry whose rent figure is blank or not a plain number ("about 2k", DEC-3768c);
-  //   · the old single rent figure typed but not a plain number;
   //   · rent entries stored in a shape that cannot be read at all — or, with none stored, a property kept
   //     as a rental. With none stored and no property kept as a rental, every other property is a second
   //     home (DEC-1926): no rent is missing.
+  // THE OLD SINGLE RENT FIGURE (rentalIncome) IS NOT READ HERE ANY MORE (inputs-and-use audit, 2026-10-11): the
+  // store moves it once into the rent list as an entry with no property (src/domain/income/old-rent-migration.ts),
+  // which raises the same line through the entry rule below.
   const p = input.profile ?? {};
   const uses = [...propertyUseMap(input.accounts ?? [], Array.isArray(p.rentals) ? p.rentals : null).values()];
   const otherProperty = uses.some((u) => u !== 'home');
-  const legacyTyped = p.rentalIncome != null && String(p.rentalIncome).trim() !== '';
-  // A RENT ENTRY THAT NAMES NO PROPERTY IS NOT COUNTED (DEC-4059d, 2026-10-10), so its rent is "not included" too:
-  // an entry with no property, and the old single rent figure (which names none), raise the same line.
+  // A RENT ENTRY THAT NAMES NO PROPERTY IS NOT COUNTED (DEC-4059d, 2026-10-10), so its rent is "not included" too.
   const rentNotKnown = otherProperty && (Array.isArray(p.rentals)
     ? p.rentals.some((r: any) => rentFigure(r?.income) == null || r?.property_id == null || String(r.property_id).trim() === '')
-    : legacyTyped ? true
     : p.rentals != null || uses.includes('rental'));
 
   return {

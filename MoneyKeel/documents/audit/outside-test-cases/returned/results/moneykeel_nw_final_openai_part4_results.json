@@ -497,7 +497,8 @@
    "actual": "same as expected",
    "difference": "",
    "formula_gives_match": null,
-   "note": ""
+   "note": "",
+   "settled": "REMOVED 2026-10-14 (inputs-and-use audit, 2026-10-11, Net worth: \"Called only by those … Remove\"): assetsStateFrom was called only by getAssetsState, which nothing called; both left the code and this case is no longer run."
   },
   {
    "id": "MK-NW-F-111",
@@ -509,7 +510,8 @@
    "actual": "same as expected",
    "difference": "",
    "formula_gives_match": null,
-   "note": ""
+   "note": "",
+   "settled": "REMOVED 2026-10-14 (inputs-and-use audit, 2026-10-11, Net worth: \"Called only by those … Remove\"): assetsStateFrom was called only by getAssetsState, which nothing called; both left the code and this case is no longer run."
   },
   {
    "id": "MK-NW-F-111",
@@ -523,7 +525,8 @@
    "actual": "same as expected",
    "difference": "",
    "formula_gives_match": null,
-   "note": ""
+   "note": "",
+   "settled": "REMOVED 2026-10-14 (inputs-and-use audit, 2026-10-11, Net worth: \"Called only by those … Remove\"): assetsStateFrom was called only by getAssetsState, which nothing called; both left the code and this case is no longer run."
   },
   {
    "id": "MK-NW-F-111",
@@ -535,7 +538,8 @@
    "actual": "same as expected",
    "difference": "",
    "formula_gives_match": null,
-   "note": ""
+   "note": "",
+   "settled": "REMOVED 2026-10-14 (inputs-and-use audit, 2026-10-11, Net worth: \"Called only by those … Remove\"): assetsStateFrom was called only by getAssetsState, which nothing called; both left the code and this case is no longer run."
   },
   {
    "id": "MK-NW-F-111",
@@ -547,7 +551,8 @@
    "actual": "same as expected",
    "difference": "",
    "formula_gives_match": null,
-   "note": ""
+   "note": "",
+   "settled": "REMOVED 2026-10-14 (inputs-and-use audit, 2026-10-11, Net worth: \"Called only by those … Remove\"): assetsStateFrom was called only by getAssetsState, which nothing called; both left the code and this case is no longer run."
   },
   {
    "id": "MK-NW-F-112",

@@ -66,9 +66,6 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-NW-F-039', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-040', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-041', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-NW-F-042', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-NW-F-043', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-NW-F-044', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-045', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-046', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-047', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
@@ -133,7 +130,9 @@ describe('every Net worth function traces to its proof in one hop (step 3.c)', (
   it('the table covers every Net worth function in the code — and says how many', () => {
     // 100, not 101 (2026-10-01): the 101st was a retired MK-NW-F-074 header left above theEmergencyFund's
     // real one (MK-NW-O-004) — one function counted twice, not a function lost.
-    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(100);
+    // 98, not 100 (2026-10-14): four saved-account functions (MK-NW-F-042, -043, -044, -111) were retired — nothing in the
+    // app called them (inputs-and-use audit). The floor carries the true number.
+    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(98);
     expect(new Set(FUNCTIONS.map((r) => r[0])).size).toBe(FUNCTIONS.length);
   });
 

@@ -34,7 +34,7 @@ export interface EssentialsMonthly { monthly: number; basis: 'logged' | 'entered
  *               MK-CF-F-212 receivedInMonth · MK-XS-F-008 normalizeSnapshot
  *               MK-XS-F-009 readHistory · MK-XS-F-175 uid
  *
- * Reaches ..... 199 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 196 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -44,7 +44,7 @@ export interface EssentialsMonthly { monthly: number; basis: 'logged' | 'entered
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 181 more — the full list is on functions_from_code
+ *               … and 178 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -69,9 +69,17 @@ const ym = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
  *
  * Called by ... MK-CF-F-190 essentialsMonthly
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-079 EF · MK-CF-F-190 essentialsMonthly
- *               MK-NW-O-004 theEmergencyFund
+ * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-190 essentialsMonthly
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               … and 38 more — the full list is on functions_from_code
  *
  * Serves ...... MK-MN-M-020 · MK-MN-M-021
  * Reads ....... MK-XS-I-024 logged expenses
@@ -120,8 +128,17 @@ export function essentialsFromLoggedSpending(expenses: LoggedSpend[], now: Date 
  *
  * Called by ... MK-NW-F-079 EF · MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-079 EF · MK-NW-O-004 theEmergencyFund
+ * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               … and 37 more — the full list is on functions_from_code
  *
  * Serves ...... MK-MN-M-024 · MK-MN-M-025 · MK-MN-M-026 · MK-NW-M-013
  *               MK-NW-M-014

@@ -23,7 +23,7 @@ const handlers: Record<string, Set<Handler>> = {};
  *               MK-ST-F-073 rebuildDays · MK-ST-F-081 timeWeightedReturn
  *               MK-XS-F-183 writeFigure
  *
- * Reaches ..... 183 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 178 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -33,7 +33,7 @@ const handlers: Record<string, Set<Handler>> = {};
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 165 more — the full list is on functions_from_code
+ *               … and 160 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -54,13 +54,11 @@ export function on<T = any>(eventType: string, handler: Handler<T>): () => void 
  *     It records or announces something and returns no figure — no arithmetic of its own.
  *
  * Called by ... MK-CF-F-017 publishSurplus · MK-CF-F-040 saveDebt
- *               MK-CF-F-051 saveIncome · MK-NW-F-043 saveAssets
- *               MK-XS-F-022 saveProfile
+ *               MK-CF-F-051 saveIncome · MK-XS-F-022 saveProfile
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-017 publishSurplus · MK-NW-F-043 saveAssets
- *               MK-CF-F-040 saveDebt · MK-CF-F-051 saveIncome
- *               MK-XS-F-022 saveProfile
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-017 publishSurplus · MK-CF-F-040 saveDebt
+ *               MK-CF-F-051 saveIncome · MK-XS-F-022 saveProfile
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

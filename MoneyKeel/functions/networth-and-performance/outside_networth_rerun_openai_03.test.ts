@@ -61,7 +61,7 @@ import {
   interestIncomeAnnual, bondRateSensitivity, priceAtYield, accruedInterestCaveat, yearlyInterest, type BondInfo,
 } from '../../../src/domain/bonds';
 import {
-  sumWhere, prettyDay, taxWordsOf, holdingClassOf, primaryHomeIdOf, assetsStateFrom, buildAssetsState,
+  sumWhere, prettyDay, taxWordsOf, holdingClassOf, primaryHomeIdOf, buildAssetsState,
   assetClassOf, ASSET_CLASS_LABEL,
 } from '../../../src/domain/assets';
 import { plural } from '../../../src/domain/_shared/plural';
@@ -637,20 +637,10 @@ describe('MK-NW-F-110 primaryHomeIdOf — five cases', () => {
   });
 });
 
-describe('MK-NW-F-111 assetsStateFrom — five cases', () => {
-  test('easy · Null document returns null', () => { expect(assetsStateFrom('u1' as any, null)).toBeNull(); });
-  test('easy · Undefined document returns null', () => { expect(assetsStateFrom('u1' as any, undefined)).toBeNull(); });
-  test('complex · Saved record with empty accounts returns null', () => { expect(assetsStateFrom('u1' as any, { accounts: [] } as any)).toBeNull(); });
-  test('complex · Saved record with accounts returns built state', () => {
-    const accounts = [acct({ asset_id: 'a', kind: 'checking', asset_class: 'cash', balance: 100 })];
-    const s = assetsStateFrom('u1' as any, { accounts } as any);
-    expect(s).not.toBeNull();
-    expect(s).toEqual(buildAssetsState('u1' as any, accounts));
-  });
-  test('edge · Every account deleted returns null', () => {
-    expect(assetsStateFrom('u1' as any, { accounts: [], deleted_accounts: ['a'] } as any)).toBeNull();
-  });
-});
+// REMOVED 2026-10-14 (inputs-and-use audit, 2026-10-11, Net worth: "Called only by those … Remove"): MK-NW-F-111
+// assetsStateFrom was called only by MK-NW-F-044 getAssetsState, which nothing called; both left the code with
+// MK-NW-F-042 loadAssets and MK-NW-F-043 saveAssets. Its five cases are no longer run. DEC-2748i governed this path only.
+// The numbers are retired in moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-112 yearlyInterest — five cases', () => {
   test('easy · Face times coupon rate', () => { expect(yearlyInterest(bond({ face: 10000, couponRate: 0.04, value: 9800 }))!).toBeCloseTo(400, 6); });

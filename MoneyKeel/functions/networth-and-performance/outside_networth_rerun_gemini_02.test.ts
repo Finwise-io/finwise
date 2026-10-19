@@ -24,7 +24,7 @@
  *   Contributions: birth_year → birthYear · retirement_401k → c_401k · roth_contribution → c_roth ·
  *     investing_contribution → c_invest · property_savings → c_property · employer_match_type "percent" →
  *     employerMatchMode 'pct' with the share as a whole percent (0.5 → 50), "dollars" → 'dollar'.
- *   getAssetsState: mock_db → the saved document read by getUserDoc (null = nothing saved; a list = its accounts).
+ *   getAssetsState: REMOVED 2026-10-14 with the function (inputs-and-use audit, Net worth) — see its note below.
  *     account_count → the length of the accounts list returned.
  *   buildAssetsState: account_1_pct / account_2_pct / portfolio_percentage → each account's portfolio_percentage.
  *   sourceWording: last_synced as given; now → its time in milliseconds.
@@ -36,12 +36,10 @@
  *   uberGroupOf: class 'unclassified' → 'mixed'; group 'property' is the app's id for Personal property.
  *   uberGroupRows: classes_count → the length of a group's classes.
  */
-jest.mock('../../../src/domain/_shared/firestore', () => ({ getUserDoc: jest.fn(), setUserDoc: jest.fn() }));
-import { getUserDoc } from '../../../src/domain/_shared/firestore';
 import {
   primaryCarIdOf, earmarkedAmount, retirementEarmarkedValue, benchmarkReturn, blendedVolatility, benchmarkInfo,
   blendedReturn, earmarkedKinds, buildAssetsState, assetsFromOnboarding, monthlyContributionsFromOnboarding,
-  getAssetsState, sourceWording, historyCoverage, uberGroupOf, uberGroupRows, assetClassOf,
+  sourceWording, historyCoverage, uberGroupOf, uberGroupRows, assetClassOf,
 } from '../../../src/domain/assets';
 
 let n = 0;
@@ -318,30 +316,11 @@ describe('MK-NW-F-041 monthlyContributionsFromOnboarding — five cases', () => 
   });
 });
 
-describe('MK-NW-F-044 getAssetsState — five cases', () => {
-  const saved = (accounts: any[] | null) => (getUserDoc as jest.Mock).mockResolvedValueOnce(accounts == null ? null : { user_id: 'usr_1', accounts });
-  test('easy · Valid saved accounts retrieval', async () => {
-    saved([A({ asset_id: 'acc_1', balance: 50000, target_return: 0.07 }), A({ asset_id: 'acc_2', balance: 25000, target_return: 0.07 })]);
-    const s = await getAssetsState('usr_1' as any);
-    expect([s!.total_asset_value, s!.accounts.length]).toEqual([75000, 2]);
-  });
-  test('easy · Empty database retrieval', async () => { saved([]); expect(await getAssetsState('usr_1' as any)).toBeNull(); });
-  test('complex · Multiple accounts with varying asset classes', async () => {
-    saved([A({ balance: 10000, asset_class: 'cash' }), A({ balance: 150000, asset_class: 'stocks_etf' }), A({ balance: 300000, asset_class: 'real_estate' })]);
-    expect((await getAssetsState('usr_1' as any))!.total_asset_value).toBe(460000);
-  });
-  test('complex · Database returning null asset records', async () => { saved(null); expect(await getAssetsState('usr_1' as any)).toBeNull(); });
-  // CARD MISREAD: total $0 — the card adds up the saved accounts and says nothing of a status; the app's own rule on
-  // the field is "closed is SHOWN, never dropped" (a broker-reported status). The true reading: $50,000.
-  test.failing('edge · Archived or closed accounts handling', async () => {
-    saved([A({ balance: 50000, status: 'closed', target_return: 0.07 })]);
-    expect((await getAssetsState('usr_1' as any))!.total_asset_value).toBe(0);
-  });
-  test('edge · Archived or closed accounts handling — the app\'s answer, hand-checked', async () => {
-    saved([A({ balance: 50000, status: 'closed', target_return: 0.07 })]);
-    expect((await getAssetsState('usr_1' as any))!.total_asset_value).toBe(50000);
-  });
-});
+// REMOVED 2026-10-14 (inputs-and-use audit, 2026-10-11, Net worth: "Nothing calls them … Remove"): MK-NW-F-044 getAssetsState
+// left the code with MK-NW-F-042 loadAssets, MK-NW-F-043 saveAssets and MK-NW-F-111 assetsStateFrom — nothing in the app,
+// the doors or the engines called them; every screen reads the accounts from the store. Its five cases are no longer run.
+// DEC-2748i (a saved record with every account deleted shows the first-day screen) governed this path only; the store path
+// has its own first-day state. The numbers are retired in moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-045 sourceWording — five cases', () => {
   const now = ms('2026-10-13T10:00:00Z');

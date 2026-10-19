@@ -669,10 +669,20 @@ export default function NetWorthScreen() {
           {/* #9: never show the aggregate without its components — the running total carries the
               Assets − Debts identity so it's clear WHY it differs from what's on this one step. */}
           <View style={styles.wizTotal}><Text style={styles.wizTotalL}>Net worth so far</Text><Text style={styles.wizTotalV}>{fig('MK-NW-M-016', nw.net_worth)}</Text></View>
-          <Text style={styles.nwIdentity}>
-            Assets {fig('MK-NW-M-004', Math.round(totalAssets))} − Debts {fig('MK-NW-M-009', Math.round(dState.total_debt_balance))} ={' '}
-            <Text style={{ fontWeight: '800', color: nw.net_worth < 0 ? Colors.red : Colors.textPrimary }}>Net worth {fig('MK-XS-M-001', Math.round(nw.net_worth))}</Text>
-          </Text>
+          {/* MK-NW-M-017 "Assets $X − Debts $Y = Net worth $Z" under its own identifier (inputs-and-use audit, 2026-10-11): the
+              whole line is one figure; its three amounts keep MK-NW-M-004, MK-NW-M-009 and MK-XS-M-001, and the net worth half stays bold */}
+          {(() => {
+            // recorded whole under MK-NW-M-017, drawn in the same pieces as before
+            const a = fig('MK-NW-M-004', Math.round(totalAssets)), d = fig('MK-NW-M-009', Math.round(dState.total_debt_balance));
+            const n = fig('MK-XS-M-001', Math.round(nw.net_worth));
+            figWords('MK-NW-M-017', `Assets ${a} − Debts ${d} = Net worth ${n}`);
+            return (
+              <Text style={styles.nwIdentity}>
+                Assets {a} − Debts {d} ={' '}
+                <Text style={{ fontWeight: '800', color: nw.net_worth < 0 ? Colors.red : Colors.textPrimary }}>Net worth {n}</Text>
+              </Text>
+            );
+          })()}
         </ScrollView>
         <View style={styles.footer}>
           {step > 0 && <TouchableOpacity style={styles.btnSec} onPress={() => setStep((s) => s - 1)}><Text style={styles.btnSecTxt}>← Back</Text></TouchableOpacity>}
@@ -1053,7 +1063,13 @@ export default function NetWorthScreen() {
                   backgroundColor: shownMonths < 3 ? Colors.amber : Colors.gainText,
                 }]} />
               </View>
-              <Text style={styles.cushionMath}>of essentials covered by your cash — {fig('MK-NW-M-005', Math.round(cashOnHand))} cash ÷ {lessRent ? '(' : ''}{figPer('MK-NW-M-048', Math.round(monthlySpend))} essentials{lessRent}{lessRent ? ')' : ''} — {essentials?.label}</Text>
+              {/* MK-NW-M-014 under its own identifier (inputs-and-use audit, 2026-10-11); cash and essentials inside it keep MK-NW-M-005 and MK-NW-M-048 */}
+              <Text style={styles.cushionMath}>{(() => {
+                // the line is recorded whole under MK-NW-M-014 and drawn in the same pieces as before, so what a person reads does not move
+                const c = fig('MK-NW-M-005', Math.round(cashOnHand)), e = figPer('MK-NW-M-048', Math.round(monthlySpend));
+                figWords('MK-NW-M-014', `of essentials covered by your cash — ${c} cash ÷ ${lessRent ? '(' : ''}${e} essentials${lessRent}${lessRent ? ')' : ''} — ${essentials?.label ?? ''}`);
+                return <>of essentials covered by your cash — {c} cash ÷ {lessRent ? '(' : ''}{e} essentials{lessRent}{lessRent ? ')' : ''} — {essentials?.label}</>;
+              })()}</Text>
               {/* BOTH NUMBERS (founder, 2026-09-28). The figure above is what you could not stop paying;
                   this one is the life you plan to live. Neither is the whole truth on its own. */}
               {runwayAtPlannedSpend != null && (

@@ -792,5 +792,8 @@
 "src/domain/performance/realized.ts::saleShortOfPurchasesSentence": "not in git yet|\u2014",
 "src/domain/_shared/dates.ts::maturityParts": "not in git yet|\u2014",
 "MoneyKeel/functions/networth-and-performance/performance.ts::knownHoldingsReturn": "not in git yet|\u2014",
-"MoneyKeel/functions/networth-and-performance/performance.ts::notIncludedSentence": "not in git yet|\u2014"
+"MoneyKeel/functions/networth-and-performance/performance.ts::notIncludedSentence": "not in git yet|\u2014",
+"src/domain/income/old-rent-migration.ts::moveOldRentFigure": "not in git yet|\u2014",
+"src/domain/income/old-rent-migration.ts::hasOldRentFigure": "not in git yet|\u2014",
+"src/domain/income/old-rent-migration.ts::typed": "not in git yet|\u2014"
 }

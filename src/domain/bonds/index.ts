@@ -37,7 +37,7 @@ export interface BondInfo {
  * Called by ... MK-NW-F-060 approxYTM · MK-NW-F-064 bondRateSensitivity
  *               MK-NW-F-072 rowOf · MK-NW-F-119 estimatedAccrued
  *
- * Reaches ..... 88 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 132 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -47,7 +47,7 @@ export interface BondInfo {
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 70 more — the full list is on functions_from_code
+ *               … and 114 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-049 bond price — what the bond is worth today
@@ -74,7 +74,7 @@ const CD_WORDS = /\b(cds?|certificates? of deposit|share certificates?)\b/i;
  *
  * Called by ... MK-NW-F-062 couponIncomeAnnual · MK-NW-O-001 theBonds
  *
- * Reaches ..... 84 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 128 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -84,7 +84,7 @@ const CD_WORDS = /\b(cds?|certificates? of deposit|share certificates?)\b/i;
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 66 more — the full list is on functions_from_code
+ *               … and 110 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -112,7 +112,7 @@ export function isBond(a: AssetAccount): boolean {
  *               MK-NW-F-071 isCertificateOfDeposit · MK-NW-F-072 rowOf
  *               MK-NW-O-001 theBonds
  *
- * Reaches ..... 87 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 131 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -122,7 +122,7 @@ export function isBond(a: AssetAccount): boolean {
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 69 more — the full list is on functions_from_code
+ *               … and 113 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -168,7 +168,7 @@ export function bondInfo(a: AssetAccount): BondInfo {
  *
  * Called by ... MK-NW-F-069 priceAtYield · MK-NW-O-001 theBonds
  *
- * Reaches ..... 87 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 131 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -178,7 +178,7 @@ export function bondInfo(a: AssetAccount): BondInfo {
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 69 more — the full list is on functions_from_code
+ *               … and 113 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -207,7 +207,7 @@ export function annualCoupon(b: BondInfo): number | null {
  * Called by ... MK-NW-F-059 currentYield · MK-NW-F-061 bondSummary
  *               MK-NW-F-126 yearlyInterestNow · MK-NW-O-001 theBonds
  *
- * Reaches ..... 89 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 133 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -217,7 +217,7 @@ export function annualCoupon(b: BondInfo): number | null {
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 71 more — the full list is on functions_from_code
+ *               … and 115 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -245,7 +245,7 @@ export function yearlyInterest(b: BondInfo): number | null {
  *
  * Called by ... MK-NW-F-061 bondSummary · MK-NW-F-126 yearlyInterestNow
  *
- * Reaches ..... 88 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 132 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -255,7 +255,7 @@ export function yearlyInterest(b: BondInfo): number | null {
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 70 more — the full list is on functions_from_code
+ *               … and 114 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-013 bond maturity date
@@ -287,7 +287,7 @@ export function isPastMaturity(maturity: string, now: Date = new Date()): boolea
  * Called by ... MK-NW-F-061 bondSummary · MK-NW-F-062 couponIncomeAnnual
  *               MK-NW-F-063 interestIncomeAnnual · MK-NW-F-072 rowOf
  *
- * Reaches ..... 87 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 131 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -297,7 +297,7 @@ export function isPastMaturity(maturity: string, now: Date = new Date()): boolea
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 69 more — the full list is on functions_from_code
+ *               … and 113 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-013 bond maturity date
@@ -324,7 +324,7 @@ export function yearlyInterestNow(b: BondInfo, now: Date = new Date()): number |
  * Called by ... MK-NW-F-060 approxYTM · MK-NW-F-069 priceAtYield
  *               MK-NW-F-072 rowOf
  *
- * Reaches ..... 87 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 131 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -334,7 +334,7 @@ export function yearlyInterestNow(b: BondInfo, now: Date = new Date()): number |
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 69 more — the full list is on functions_from_code
+ *               … and 113 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-013 bond maturity date
@@ -379,7 +379,7 @@ export function yearsToMaturity(maturity: string, now: Date = new Date()): numbe
  *
  * Called by ... MK-NW-F-072 rowOf · MK-NW-F-078 ONE
  *
- * Reaches ..... 84 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 128 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -389,7 +389,7 @@ export function yearsToMaturity(maturity: string, now: Date = new Date()): numbe
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 66 more — the full list is on functions_from_code
+ *               … and 110 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-049 bond price — what the bond is worth today
@@ -422,7 +422,7 @@ export function currentYield(b: BondInfo): number | null {
  *
  * Called by ... MK-NW-F-072 rowOf
  *
- * Reaches ..... 84 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 128 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -432,7 +432,7 @@ export function currentYield(b: BondInfo): number | null {
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 66 more — the full list is on functions_from_code
+ *               … and 110 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-012 bond coupon rate
@@ -483,7 +483,7 @@ export function accruedInterestCaveat(b: BondInfo, now: Date = new Date()): stri
  *
  * Called by ... MK-NW-F-060 approxYTM · MK-NW-F-070 accruedInterestCaveat
  *
- * Reaches ..... 87 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 131 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -493,7 +493,7 @@ export function accruedInterestCaveat(b: BondInfo, now: Date = new Date()): stri
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 69 more — the full list is on functions_from_code
+ *               … and 113 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -540,7 +540,7 @@ export function estimatedAccrued(b: BondInfo, now: Date = new Date()): { amount:
  *
  * Called by ... MK-NW-F-064 bondRateSensitivity · MK-NW-F-072 rowOf
  *
- * Reaches ..... 85 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 129 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -550,7 +550,7 @@ export function estimatedAccrued(b: BondInfo, now: Date = new Date()): { amount:
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 67 more — the full list is on functions_from_code
+ *               … and 111 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -629,7 +629,7 @@ export interface BondSummary { count: number; totalValue: number; totalFace: num
  *
  * Called by ... MK-NW-O-001 theBonds
  *
- * Reaches ..... 83 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 127 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -639,7 +639,7 @@ export interface BondSummary { count: number; totalValue: number; totalFace: num
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 65 more — the full list is on functions_from_code
+ *               … and 109 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -777,7 +777,7 @@ export interface RateSensitivity { ratesUp: RateMove; ratesDown: RateMove }
  *
  * Called by ... MK-NW-F-060 approxYTM · MK-NW-F-064 bondRateSensitivity
  *
- * Reaches ..... 86 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 130 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -787,7 +787,7 @@ export interface RateSensitivity { ratesUp: RateMove; ratesDown: RateMove }
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 68 more — the full list is on functions_from_code
+ *               … and 112 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -837,7 +837,7 @@ export function priceAtYield(b: BondInfo, y: number, now: Date): number | null {
  *
  * Called by ... MK-NW-O-001 theBonds
  *
- * Reaches ..... 83 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 127 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -847,7 +847,7 @@ export function priceAtYield(b: BondInfo, y: number, now: Date): number | null {
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 65 more — the full list is on functions_from_code
+ *               … and 109 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-028
  * Reads ....... MK-XS-I-011 bond face value

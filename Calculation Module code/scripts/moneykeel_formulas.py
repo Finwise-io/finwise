@@ -493,7 +493,9 @@ QUESTIONS_BY_METRIC = {
   'money that leaves. The screen shows the MINIMUM today, and the label reads like the actual. Which belongs '
   'under those words — or should the line say which it is, or show both?'],
  'MK-NW-M-008': ['Q14 — What should a MIXED account be called on screen, when it holds several classes at once?'],
- 'MK-NW-M-003': ['Q32 — The trend survives on a new device but the walk behind it does not. Should the trend say so, or show quietly?'],
+ # Q32 was on MK-NW-M-003 the trend line until that figure was retired 2026-10-14 (the line is off the screen); the change
+ # in net worth is read from the same record, so the question now sits on MK-NW-M-001.
+ 'MK-NW-M-001': ['Q32 — The trend survives on a new device but the walk behind it does not. Should the trend say so, or show quietly?'],
  'MK-PF-M-008': ['Q33 — Which index should each asset class be compared against, and should the person be able to change it?',
   'Q51 — Home reads "you +3.69% \u00b7 market +2.83% \u00b7 ahead by 0.85%". The two sides are not measured the same way: '
   'YOUR figure counts the dividends and interest you received (your ruling of 2026-09-25, one meaning of return), '

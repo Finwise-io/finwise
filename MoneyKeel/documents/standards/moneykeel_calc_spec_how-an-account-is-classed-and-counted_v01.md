@@ -169,9 +169,9 @@ same line on those cards added up, and an account whose card is greyed adds its 
 and each worked-back holding with a history. Example: Fidelity recorded at $100,000 since Jun 2025, $112,000
 today (+12.00%), and Vanguard linked today, VTI $40,000 at +10% → summary $136,364 became $152,000, Wealth
 generated $15,636, Return 152,000 ÷ 136,363.64 − 1 = +11.47%. On the Performance tab's day one, where a
-longer window is worked back, the line reads "Day one: your value is real and your daily record starts
-today. Longer windows are worked back from each holding's price history."; with no holding history it
-keeps v17's words.
+longer window is worked back, the line reads, in his words (DEC-5425, 2026-10-14, "approved."): "You added
+your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices."; with no holding
+history it keeps v17's words.
 
 A balance that was never entered stays in view and reads "Value not entered" (his wording, DEC-3657):
 an account row, a bank, a class whose only account has none, a group and a debt row — never $0, −$0
@@ -342,8 +342,9 @@ MK-NW-F-056 bondInfo to MK-NW-F-064 bondRateSensitivity, MK-NW-F-112 yearlyInter
 
 ## 13. A saved record with no accounts
 
-MK-NW-F-044 getAssetsState, MK-NW-F-111 assetsStateFrom. A saved record whose accounts were all
-deleted is shown as nothing saved — the first-day screen — never as $0 owned with an average return.
+A saved record whose accounts were all deleted is shown as nothing saved — the first-day screen — never as
+$0 owned with an average return (DEC-2748i). The two functions that once answered this were never called by the
+app and were retired on 2026-10-14 (inputs-and-use audit); the screens read the saved accounts directly.
 
 ## 14. His answers on OpenAI's open points, and what followed (2026-10-10 / 11)
 

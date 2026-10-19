@@ -151,8 +151,9 @@ const norm = (lines: string[]) => lines.join(' ').toLowerCase()
  *  9. Phone 1's 1Y and 2Y, drawn greyed "—", carry figures worked back from VTI's and VOO's price history, and 2Y's
  *     line "2Y is shown per year, so it sits fairly beside 1Y" follows them (phone 1's record begins Oct 1, 2025).
  *  10. Phone 4's 1M, This year, 1Y and 2Y, drawn greyed "—", carry figures (each holding was bought inside the window,
- *     so its gain is its value less its cost), with the 2Y line; and its day-one line reads "Day one: your value is real
- *     and your daily record starts today. Longer windows are worked back from each holding's price history."
+ *     so its gain is its value less its cost), with the 2Y line; and its day-one line reads, in his words of 2026-10-14
+ *     (DEC-5425, "approved."): "You added your accounts today. Figures for 1M, 1Y and longer come from each holding's
+ *     past prices."
  *     Phone 5 (nothing entered) is unchanged: there is no holding with a history, so its windows stay "—". */
 const MARK_16 = 'money moved in and out in amounts where when it moved would decide a window return, so this is your rate per year, counting when you added money';
 const KNOWN = (s: string) => s
@@ -166,7 +167,7 @@ const KNOWN = (s: string) => s
   .replace(/^(performance <date> since <date> #% #m #% this year #% )#y — #y — summary/, '$1#y #% #y #% #y is shown per year, so it sits fairly beside #y summary')   // 9 (phone 1)
   .replace(/^(performance <date> since today — )#m — this year — #y — #y — summary/, '$1#m #% this year #% #y #% #y #% #y is shown per year, so it sits fairly beside #y summary')   // 10 (phone 4)
   .replace("day one: your value is real, your return starts measuring from today. we never back-fill a year we didn't see. $# your line",
-    "day one: your value is real and your daily record starts today. longer windows are worked back from each holding's price history. $# your line");   // 10
+    "you added your accounts today. figures for #m, #y and longer come from each holding's past prices. $# your line");   // 10 (words: DEC-5425)
 
 const CHROME = new Set(['9:41', '▦ Menu', 'Money', 'Keel', '◉', '⚙', '🏠', 'Home', '💎', 'Net worth', '📈', '💵', 'Cash flow', '🧭', 'Plan']);
 function drawn(n: number): string[] {

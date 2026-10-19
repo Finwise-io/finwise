@@ -1,11 +1,9 @@
-// Asset Ledger module (spec service 2). Owns `assets/{uid}`.
+// Asset Ledger module (spec service 2). The accounts come from the store (its saved-document reader and writer were removed 2026-10-14).
 // Tracks balances + tax bucket + target return; provides total value & allocation.
 import type { UserId, EntityId } from '../_shared/ids';
 import { nameEvidence } from '../../../Calculation Module code/engines/holding-class';
 import { newEntityId } from '../_shared/ids';
 import { toNum, rentFigure } from '../_shared/num';
-import { getUserDoc, setUserDoc } from '../_shared/firestore';
-import { emit } from '../_shared/eventBus';
 import { employerMatchMonthly } from '../income/onboarding';
 import { annual401kLimit, ageAttainedInYear } from '../income/limits';
 import { ageLabel, isStale } from '../_shared/freshness';
@@ -386,7 +384,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  *
  * Called by ... MK-NW-F-120 classEvidenceOf · MK-NW-F-123 holdingNameEvidence
  *
- * Reaches ..... 221 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 216 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -396,7 +394,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 203 more — the full list is on functions_from_code
+ *               … and 198 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -421,7 +419,7 @@ export function incomeBearingClassOf(label?: string): AssetClass | null {
  *
  * Called by ... MK-NW-F-120 classEvidenceOf · MK-NW-F-124 maturityParts
  *
- * Reaches ..... 220 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 215 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -431,7 +429,7 @@ export function incomeBearingClassOf(label?: string): AssetClass | null {
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 202 more — the full list is on functions_from_code
+ *               … and 197 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -509,7 +507,7 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string | undefine
  *
  * Called by ... MK-NW-F-011 assetClassOf · MK-NW-F-053 correctClassOf
  *
- * Reaches ..... 220 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 215 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -519,7 +517,7 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string | undefine
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 202 more — the full list is on functions_from_code
+ *               … and 197 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -574,7 +572,7 @@ export function classEvidenceOf(a: AssetAccount): AssetClass | null {
  *               MK-NW-F-117 propertyUseMap · MK-NW-F-137 asksCashOrInvestments
  *               MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 220 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 215 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -584,7 +582,7 @@ export function classEvidenceOf(a: AssetAccount): AssetClass | null {
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 202 more — the full list is on functions_from_code
+ *               … and 197 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -777,17 +775,17 @@ export type RentEntry = { income?: any; expenses?: any; property_id?: any };
  *
  * Called by ... MK-NW-F-115 liveRent
  *
- * Reaches ..... 31 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 82 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-079 EF
- *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
- *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-037 blendedReturn
+ *               MK-NW-F-035 blendedVolatility · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-CF-F-107 buildPaycheckYear
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
  *               MK-NW-F-134 carValueNotEnteredNotes · MK-PL-F-077 clamp
- *               MK-NW-F-135 earmarkLeavesOut · MK-NW-F-136 earmarkLeavesOutWords
- *               MK-CF-O-017 futurePaycheck · MK-NW-F-115 liveRent
- *               MK-PL-F-026 planDoor · MK-NW-F-031 primaryCarIdOf
- *               MK-NW-F-110 primaryHomeIdOf · MK-NW-F-117 propertyUseMap
- *               MK-NW-F-107 propertyUses · MK-NW-F-013 realEstateUseOf
- *               … and 13 more — the full list is on functions_from_code
+ *               … and 64 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -807,17 +805,17 @@ const rentAmount = (v: any) => rentFigure(v) ?? 0;
  *
  * Called by ... MK-NW-F-116 rentedIdsOf
  *
- * Reaches ..... 30 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-079 EF
- *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
- *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-037 blendedReturn
+ *               MK-NW-F-035 blendedVolatility · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-CF-F-107 buildPaycheckYear
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
  *               MK-NW-F-134 carValueNotEnteredNotes · MK-PL-F-077 clamp
- *               MK-NW-F-135 earmarkLeavesOut · MK-NW-F-136 earmarkLeavesOutWords
- *               MK-CF-O-017 futurePaycheck · MK-PL-F-026 planDoor
- *               MK-NW-F-031 primaryCarIdOf · MK-NW-F-110 primaryHomeIdOf
- *               MK-NW-F-117 propertyUseMap · MK-NW-F-107 propertyUses
- *               MK-NW-F-013 realEstateUseOf · MK-NW-F-116 rentedIdsOf
- *               … and 12 more — the full list is on functions_from_code
+ *               … and 63 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -838,17 +836,17 @@ const liveRent = (rentals: RentEntry[] | null | undefined) => (rentals ?? []).fi
  *
  * Called by ... MK-NW-F-117 propertyUseMap
  *
- * Reaches ..... 29 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-079 EF
- *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
- *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-037 blendedReturn
+ *               MK-NW-F-035 blendedVolatility · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-CF-F-107 buildPaycheckYear
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
  *               MK-NW-F-134 carValueNotEnteredNotes · MK-PL-F-077 clamp
- *               MK-NW-F-135 earmarkLeavesOut · MK-NW-F-136 earmarkLeavesOutWords
- *               MK-CF-O-017 futurePaycheck · MK-PL-F-026 planDoor
- *               MK-NW-F-031 primaryCarIdOf · MK-NW-F-110 primaryHomeIdOf
- *               MK-NW-F-117 propertyUseMap · MK-NW-F-107 propertyUses
- *               MK-NW-F-013 realEstateUseOf · MK-NW-F-033 retirementEarmarkedValue
- *               … and 11 more — the full list is on functions_from_code
+ *               … and 62 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -882,17 +880,17 @@ const rentedIdsOf = (rentals: RentEntry[] | null | undefined) =>
  * Called by ... MK-NW-F-013 realEstateUseOf · MK-NW-F-107 propertyUses
  *               MK-NW-F-110 primaryHomeIdOf · MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 28 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 79 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-079 EF
- *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
- *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-037 blendedReturn
+ *               MK-NW-F-035 blendedVolatility · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-CF-F-107 buildPaycheckYear
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
  *               MK-NW-F-134 carValueNotEnteredNotes · MK-PL-F-077 clamp
- *               MK-NW-F-135 earmarkLeavesOut · MK-NW-F-136 earmarkLeavesOutWords
- *               MK-CF-O-017 futurePaycheck · MK-PL-F-026 planDoor
- *               MK-NW-F-031 primaryCarIdOf · MK-NW-F-110 primaryHomeIdOf
- *               MK-NW-F-107 propertyUses · MK-NW-F-013 realEstateUseOf
- *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-049 retirementSpendMonthly
- *               … and 10 more — the full list is on functions_from_code
+ *               … and 61 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -985,10 +983,9 @@ export function primaryHomeIdOf(accounts: AssetAccount[], rentals?: RentEntry[] 
  *
  * Called by ... MK-NW-F-022 investableAssets · MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-022 investableAssets
- *               MK-NW-O-003 theNetWorth
+ *               MK-NW-F-022 investableAssets · MK-NW-O-003 theNetWorth
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1020,10 +1017,9 @@ export function isRealAsset(a: AssetAccount): boolean {
  *
  * Called by ... MK-NW-F-022 investableAssets
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-022 investableAssets
- *               MK-NW-O-003 theNetWorth
+ *               MK-NW-F-022 investableAssets · MK-NW-O-003 theNetWorth
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -1085,10 +1081,17 @@ export function totalAssets(accounts: AssetAccount[]): number {
  *
  * Called by ... MK-NW-O-003 theNetWorth · MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-079 EF · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
- *               MK-NW-O-004 theEmergencyFund · MK-NW-O-003 theNetWorth
+ *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               … and 37 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-014
  * Reads ....... MK-XS-I-001 account balance
@@ -1202,9 +1205,9 @@ export function realEstateTotal(accounts: AssetAccount[]): number {
  *
  * Called by ... MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-O-003 theNetWorth
+ *               MK-NW-O-003 theNetWorth
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1229,9 +1232,9 @@ export function investmentsTotal(accounts: AssetAccount[]): number {
  *
  * Called by ... MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-O-003 theNetWorth
+ *               MK-NW-O-003 theNetWorth
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1270,17 +1273,17 @@ const KIND_TO_WRAPPER: Record<string, string> = {
  *
  * Called by ... MK-NW-F-022 investableAssets · MK-NW-F-025 accountDisplayName
  *
- * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 21 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-082 NW
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-100 TREND · MK-NW-F-025 accountDisplayName
- *               MK-NW-F-026 accountDisplayNames · MK-XS-F-031 buildSnapshot
- *               MK-XS-F-002 dataGaps · MK-CF-O-017 futurePaycheck
- *               MK-XS-F-102 ingestSync · MK-NW-F-022 investableAssets
- *               MK-XS-F-119 namesFor · MK-PL-F-049 retirementSpendMonthly
- *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
- *               … and 4 more — the full list is on functions_from_code
+ *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-002 dataGaps
+ *               MK-CF-O-017 futurePaycheck · MK-XS-F-102 ingestSync
+ *               MK-NW-F-022 investableAssets · MK-XS-F-119 namesFor
+ *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
+ *               … and 3 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -1527,17 +1530,17 @@ export function accountDisplayNames(accounts: (Pick<AssetAccount, 'asset_id' | '
  * Called by ... MK-NW-F-027 accountClassBreakdown · MK-NW-F-028 classPortionLabel
  *               MK-NW-F-113 altPartsOf
  *
- * Reaches ..... 24 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 73 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
- *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
- *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
- *               MK-NW-F-029 assetAllocation · MK-NW-F-016 cashTotal
- *               MK-NW-F-028 classPortionLabel · MK-NW-F-017 equitiesTotal
- *               MK-NW-F-018 fixedIncomeTotal · MK-NW-F-021 investmentsTotal
- *               … and 6 more — the full list is on functions_from_code
+ *               MK-NW-F-101 PLAN · MK-NW-F-027 accountClassBreakdown
+ *               MK-NW-F-113 altPartsOf · MK-NW-F-002 alternativesSummary
+ *               MK-NW-F-019 alternativesTotal · MK-NW-F-029 assetAllocation
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               … and 55 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-048 the person’s own asset-class answer
@@ -1580,17 +1583,17 @@ export function holdingClassOf(p: any): AssetClass {
  *
  * Called by ... MK-NW-F-054 reclassifyAccounts · MK-NW-F-109 holdingClassOf
  *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 75 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
- *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
- *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
- *               MK-NW-F-029 assetAllocation · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-101 PLAN · MK-NW-F-027 accountClassBreakdown
+ *               MK-NW-F-113 altPartsOf · MK-NW-F-002 alternativesSummary
+ *               MK-NW-F-019 alternativesTotal · MK-NW-F-029 assetAllocation
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               … and 62 more — the full list is on functions_from_code
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               … and 57 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1616,17 +1619,17 @@ export function holdingTagClass(tag?: string | null): AssetClass | null {
  *
  * Called by ... MK-NW-F-054 reclassifyAccounts
  *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 75 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
- *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
- *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
- *               MK-NW-F-029 assetAllocation · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-101 PLAN · MK-NW-F-027 accountClassBreakdown
+ *               MK-NW-F-113 altPartsOf · MK-NW-F-002 alternativesSummary
+ *               MK-NW-F-019 alternativesTotal · MK-NW-F-029 assetAllocation
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               … and 62 more — the full list is on functions_from_code
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               … and 57 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1647,17 +1650,17 @@ export function holdingTagFor(cls: AssetClass): 'bond' | 'other' | 'cash' | 'sto
  *
  * Called by ... MK-NW-F-054 reclassifyAccounts · MK-NW-F-109 holdingClassOf
  *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 75 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
- *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
- *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
- *               MK-NW-F-029 assetAllocation · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-101 PLAN · MK-NW-F-027 accountClassBreakdown
+ *               MK-NW-F-113 altPartsOf · MK-NW-F-002 alternativesSummary
+ *               MK-NW-F-019 alternativesTotal · MK-NW-F-029 assetAllocation
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               … and 62 more — the full list is on functions_from_code
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               … and 57 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
@@ -1715,17 +1718,17 @@ export function holdingNameEvidence(p: any): AssetClass | null {
  *               MK-NW-F-094 ledgerGroups · MK-NW-F-113 altPartsOf
  *               MK-NW-O-002 theAccount
  *
- * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 71 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
- *               MK-NW-F-113 altPartsOf · MK-NW-F-002 alternativesSummary
- *               MK-NW-F-019 alternativesTotal · MK-NW-F-029 assetAllocation
- *               MK-NW-F-016 cashTotal · MK-NW-F-017 equitiesTotal
- *               MK-NW-F-018 fixedIncomeTotal · MK-NW-F-021 investmentsTotal
- *               MK-NW-F-094 ledgerGroups · MK-NW-F-020 realEstateTotal
- *               … and 4 more — the full list is on functions_from_code
+ *               MK-NW-F-101 PLAN · MK-NW-F-113 altPartsOf
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
+ *               MK-NW-F-029 assetAllocation · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               … and 53 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -1942,13 +1945,17 @@ export function classPortionLabel(a: AssetAccount, cls: AssetClass): string {
  *               MK-NW-F-020 realEstateTotal · MK-NW-F-021 investmentsTotal
  *               MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 61 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-079 EF · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
- *               MK-NW-F-019 alternativesTotal · MK-NW-F-016 cashTotal
- *               MK-NW-F-017 equitiesTotal · MK-NW-F-018 fixedIncomeTotal
- *               MK-NW-F-021 investmentsTotal · MK-NW-F-020 realEstateTotal
- *               MK-NW-O-004 theEmergencyFund · MK-NW-O-003 theNetWorth
+ *               MK-NW-F-101 PLAN · MK-NW-F-019 alternativesTotal
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-NW-F-016 cashTotal
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-017 equitiesTotal
+ *               … and 43 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -2564,14 +2571,12 @@ const DEFAULT_RETURN = 0.07;
  *     share of portfolio (a) = round(balance of a ÷ total × 100, 2 dp)
  *     average target return  = round(Σ(target return × balance) ÷ total, 4 dp)
  *
- * Called by ... MK-NW-F-111 assetsStateFrom · MK-NW-O-003 theNetWorth
- *               MK-XS-F-031 buildSnapshot
+ * Called by ... MK-NW-O-003 theNetWorth · MK-XS-F-031 buildSnapshot
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-111 assetsStateFrom
- *               MK-XS-F-031 buildSnapshot · MK-NW-F-044 getAssetsState
- *               MK-XS-F-032 snapshotFromOnboarding · MK-NW-O-003 theNetWorth
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-NW-O-003 theNetWorth
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -2615,17 +2620,17 @@ export function buildAssetsState(uid: UserId, accounts: AssetAccount[]): AssetsS
  * Called by ... MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-033 resolveNetWorthRows
  *               MK-XS-F-175 uid
  *
- * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
  *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
  *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               … and 40 more — the full list is on functions_from_code
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -2735,91 +2740,10 @@ export function monthlyContributionsFromOnboarding(op: Record<string, any> | nul
   return k401 + toNum(a.c_roth) + toNum(a.c_invest) + match;
 }
 
-const COLLECTION = 'assets';
-export const ASSETS_UPDATED = 'AssetsUpdated';
-
-/** Reads a person's saved accounts from storage and calculates nothing. */
-/* ─ MK-NW-F-042 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
- * loadAssets
- *
- * Answers ..... Reads a person's saved accounts from storage and calculates nothing.
- *
- * Formula .....
- *     It reaches outside the app for data and hands back what came back — no arithmetic of its own.
- *
- * Called by ... MK-NW-F-044 getAssetsState
- *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-044 getAssetsState
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Formula also on the master file · functions_from_code · MK-NW-F-042
- * Changed ..... 2026-07-30 (a85874e)
- */
-export async function loadAssets(uid: UserId) { return getUserDoc<AssetsDoc>(COLLECTION, uid); }
-
-/** Saves a person's accounts to storage, tells the rest of the app it changed, and calculates nothing. */
-/* ─ MK-NW-F-043 ──────────────────────────────────────────────────────────────────── 1 · ACTION
- * saveAssets
- *
- * Answers ..... Saves a person's accounts to storage, tells the rest of the app it changed, and calculates nothing.
- *
- * Formula .....
- *     It records or announces something and returns no figure — no arithmetic of its own.
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Formula also on the master file · functions_from_code · MK-NW-F-043
- * Changed ..... 2026-07-30 (a85874e)
- */
-export async function saveAssets(d: AssetsDoc) { await setUserDoc(COLLECTION, d.user_id, d); emit(ASSETS_UPDATED, { user_id: d.user_id }); }
-
-/** Reads a person's saved accounts and returns their totals, or nothing when none are saved. */
-/* ─ MK-NW-F-044 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
- * getAssetsState
- *
- * Answers ..... Reads a person's saved accounts and returns their totals, or nothing when none are saved.
- *
- * Formula .....
- *     assets state from(uid, await load assets(uid))
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Formula also on the master file · functions_from_code · MK-NW-F-044
- * Changed ..... 2026-07-30 (a85874e)
- */
-export async function getAssetsState(uid: UserId) {
-  return assetsStateFrom(uid, await loadAssets(uid));
-}
-
-/** The saved accounts as a state to show — or nothing, when nothing is saved OR every saved account was deleted (outside review, 2026-10-07: an empty list is not a $0 total with a blended return). */
-/* ─ MK-NW-F-111 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
- * assetsStateFrom
- *
- * Answers ..... The saved accounts as a state to show — or nothing, when nothing is saved OR every saved account was deleted (outside review, 2026-10-07: an empty list is not a $0 total with a blended return).
- *
- * Formula .....
- *     build assets state(uid, accounts ?? [])   if count of d and (accounts ?? [])
- *     nothing   otherwise
- *
- * Called by ... MK-NW-F-044 getAssetsState
- *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-044 getAssetsState
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Formula also on the master file · functions_from_code · MK-NW-F-111
- * Changed ..... not in git yet (—)
- */
-export function assetsStateFrom(uid: UserId, d: AssetsDoc | null | undefined): AssetsState | null {
-  return d && (d.accounts ?? []).length ? buildAssetsState(uid, d.accounts ?? []) : null;
-}
+// SAVED-ACCOUNT STORAGE REMOVED 2026-10-14 (inputs-and-use audit, 2026-10-11, Net worth: "Nothing calls them … Remove"):
+// loadAssets, saveAssets, getAssetsState and assetsStateFrom. Nothing in the app, the doors or the orchestrator functions called them —
+// every screen reads the accounts from the store. Their four numbers are retired, with this reason, in
+// moneykeel_function_register.json and are never reused.
 
 /** THE source wording (Build-47 walk row 8, audit Strategy #9): one sentence per source, used by
  *  every screen that names where an account's numbers come from. The on-row chip LOOK is a separate

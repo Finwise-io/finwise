@@ -300,7 +300,7 @@ function Rent({ op, set, onDone }: { op: any; set: (p: Record<string, any>) => v
   const store = useStore() as any;
   const router = useRouter();
   const list: { type?: string; income: any; expenses: any; property_id?: string; mortgage?: any }[] = Array.isArray(op.rentals) && op.rentals.length
-    ? op.rentals : [{ type: op.rentalType, income: op.rentalIncome ?? '', expenses: op.rentalExpenses ?? '' }];
+    ? op.rentals : [{ income: '', expenses: '' }];   // the old single rent figure is moved into the list by the store (old-rent-migration.ts)
   const write = (i: number, patch: Record<string, any>) => set({ rentals: list.map((r, k) => (k === i ? { ...r, ...patch } : r)) });
   // HIS RULINGS, 2026-10-04. DEC-1924: "mortgage should not costs to run. We should ask to add monthly
   // mortgage payment if any mortgage on second property. And automatically add it to debt." DEC-1925:

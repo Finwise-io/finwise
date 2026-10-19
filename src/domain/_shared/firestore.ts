@@ -39,13 +39,13 @@ export async function getUserDoc<T>(collectionName: string, uid: UserId): Promis
  *     It reaches outside the app for data and hands back what came back — no arithmetic of its own.
  *
  * Called by ... MK-CF-F-016 saveBudget · MK-CF-F-040 saveDebt
- *               MK-CF-F-051 saveIncome · MK-NW-F-043 saveAssets
- *               MK-PL-F-015 saveGoals · MK-XS-F-022 saveProfile
+ *               MK-CF-F-051 saveIncome · MK-PL-F-015 saveGoals
+ *               MK-XS-F-022 saveProfile
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-043 saveAssets · MK-CF-F-016 saveBudget
- *               MK-CF-F-040 saveDebt · MK-PL-F-015 saveGoals
- *               MK-CF-F-051 saveIncome · MK-XS-F-022 saveProfile
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-016 saveBudget · MK-CF-F-040 saveDebt
+ *               MK-PL-F-015 saveGoals · MK-CF-F-051 saveIncome
+ *               MK-XS-F-022 saveProfile
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

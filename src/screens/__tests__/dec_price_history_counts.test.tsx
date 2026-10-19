@@ -8,8 +8,8 @@
  *    Home, the month:   VTI 40,000 × (1 − 245 ÷ 250) = $800, +2.04%; the Treasury named below
  *    Performance, 1Y:   button +10.00% (not greyed); Wealth generated $3,636; Return +10.00%;
  *                       "Wealth generated and Return do not include Treasury 2031's gains, as it has no price history."
- *    Performance, day one (Since today): "Day one: your value is real and your daily record starts today. Longer windows
- *                       are worked back from each holding's price history."
+ *    Performance, day one (Since today): "You added your accounts today. Figures for 1M, 1Y and longer come from each
+ *                       holding's past prices." (his words, DEC-5425, 2026-10-14: "approved.")
  *    Vanguard's page, 1Y: 1Y +10.00%, Wealth generated $3,636, Return +10.00%, nothing named
  *  Before: every window but Since greyed "—" and "The record begins Oct 13, 2026, so it cannot say what these accounts
  *  were worth on Oct 12, 2025."; Home "change shows once your holdings have prices".
@@ -64,7 +64,9 @@ describe('the approved example: Vanguard linked today + Treasury 2031 by hand, t
     screen.unmount();
     render(<PerformanceScreen />);
     // the window picked first is "Since today" — day one — and its line now says where the other windows come from
-    expect(screen.getByText("Day one: your value is real and your daily record starts today. Longer windows are worked back from each holding's price history.")).toBeOnTheScreen();
+    // DEC-5425 (2026-10-14, "approved."): his words; the proposed "Day one: your value is real and your daily record …" is gone
+    expect(screen.getByText("You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices.")).toBeOnTheScreen();
+    expect(screen.queryByText(/your value is real and your daily record/)).toBeNull();
     expect(screen.queryByText(/We never back-fill a year we didn't see/)).toBeNull();
     for (const [k, v] of [['1M', '+2.04%'], ['1Y', '+10.00%']]) {
       const b = screen.getAllByRole('button').find((x) => new RegExp(`^Show ${k}, `).test(x.props.accessibilityLabel ?? ''));

@@ -40,7 +40,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
 import {
-  propertyUseMap, primaryHomeIdOf, taxWordsOf, holdingClassOf, assetsStateFrom, buildAssetsState, benchmarkReturn,
+  propertyUseMap, primaryHomeIdOf, taxWordsOf, holdingClassOf, buildAssetsState, benchmarkReturn,
 } from '../../../src/domain/assets';
 import { itemizeMissingCount } from '../../../src/domain/assets/itemize';
 import { rentFigure } from '../../../src/domain/_shared/num';
@@ -219,17 +219,10 @@ describe('MK-NW-F-110 primaryHomeIdOf — five cases', () => {
   });
 });
 
-describe('MK-NW-F-111 assetsStateFrom — five cases', () => {
-  const acc = (balance: number, i = 0) => acct({ asset_id: `a${i}`, kind: 'checking', tax_bucket: 'CASH', balance });
-  test('easy · Saved accounts produce state', () => {
-    const accounts = [acc(5000)];
-    expect(assetsStateFrom('u', { user_id: 'u', accounts })).toEqual(buildAssetsState('u', accounts));
-  });
-  test('easy · Empty saved list returns nothing', () => { refuses(assetsStateFrom('u', { user_id: 'u', accounts: [] })); });
-  test('complex · Multiple accounts state', () => { expect(assetsStateFrom('u', { user_id: 'u', accounts: [acc(10000, 1), acc(15000, 2)] })!.total_asset_value).toBeCloseTo(25000, 6); });
-  test('complex · All records deleted is first-day state', () => { refuses(assetsStateFrom('u', { user_id: 'u', accounts: [], last_updated: '2026-10-01' })); });
-  test('edge · No saved record', () => { refuses(assetsStateFrom('u', null)); });
-});
+// REMOVED 2026-10-14 (inputs-and-use audit, 2026-10-11, Net worth: "Called only by those … Remove"): MK-NW-F-111
+// assetsStateFrom was called only by MK-NW-F-044 getAssetsState, which nothing called; both left the code with
+// MK-NW-F-042 loadAssets and MK-NW-F-043 saveAssets. Its five cases are no longer run. DEC-2748i governed this path only.
+// The numbers are retired in moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-112 yearlyInterest — five cases', () => {
   test('easy · Face times rate', () => { expect(yearlyInterest(bi({ face: 1000, couponRate: 0.05, value: 980 }))).toBeCloseTo(50, 9); });

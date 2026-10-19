@@ -217,8 +217,8 @@ const KNOWN: [number, string, string, string][] = [
   [4, 'since today — 1m — this year — 1y — 2y — summary', 'since today — 1m +10.00% this year +10.00% 1y +10.00% 2y +4.87% 2y is shown per year, so it sits fairly beside 1y summary',
     'DEC-5291: each holding was bought inside the window, so its gain is value less cost (VTI 330 ÷ 300, VOO 550 ÷ 500); 2Y is (1.10)^(365 ÷ 731) − 1 = 4.87%'],
   [4, "day one: your value is real, your return starts measuring from today. we never back-fill a year we didn't see.",
-    "day one: your value is real and your daily record starts today. longer windows are worked back from each holding's price history.",
-    'DEC-5291: the day-one line says the longer windows come from price history'],
+    "you added your accounts today. figures for 1m, 1y and longer come from each holding's past prices.",
+    'DEC-5291: the day-one line says the longer windows come from price history; DEC-5425 (2026-10-14, "approved."): in his words'],
 ];
 
 describe('Performance v17 — every word and every figure, in each data state', () => {

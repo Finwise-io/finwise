@@ -59,7 +59,14 @@ export default function BondsScreen() {
         <>
           <View style={styles.summary}>
             <Text style={styles.sumVal}>{fig('MK-NW-M-041', summary.totalValue)}</Text>
-            <Text style={styles.sumLab}>{plural(summary.count, 'bond')} · {summary.faceNotEntered.length === summary.count ? figWords('MK-NW-M-053', 'face value not entered') : `face ${fig('MK-NW-M-053', summary.totalFace)}`}</Text>
+            {/* MK-NW-M-042 "n bonds · face $X" under its own identifier (inputs-and-use audit, 2026-10-11); its face total stays MK-NW-M-053 */}
+            <Text style={styles.sumLab}>{(() => {
+              // recorded whole under MK-NW-M-042, drawn in the same pieces as before
+              const n = plural(summary.count, 'bond');
+              const face = summary.faceNotEntered.length === summary.count ? figWords('MK-NW-M-053', 'face value not entered') : `face ${fig('MK-NW-M-053', summary.totalFace)}`;
+              figWords('MK-NW-M-042', `${n} · ${face}`);
+              return <>{n} · {face}</>;
+            })()}</Text>
             <View style={styles.sumRow}>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>COUPON /year</Text><Text style={[styles.sumCellV, { color: Colors.primary }]}>{fig('MK-NW-M-043', summary.couponPerYear)}</Text></View>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>AVG YIELD</Text><Text style={styles.sumCellV}>{fig('MK-NW-M-044', summary.avgYield)}</Text></View>
@@ -84,12 +91,14 @@ export default function BondsScreen() {
             const yrs = r.yearsLeft ?? 0;   // G11: no date → no years figure; the sub-line shows the date field instead
             // no maturity date: the row says "maturity date not entered" where the date stands, never a blank or a dash;
             // its interest still counts in COUPON /year (DEC-4036b, 2026-10-10)
+            // THE COUPON RATE prints under MK-NW-M-045 "each bond — face, coupon, yield" (inputs-and-use audit, 2026-10-11):
+            // entered, it carried no identifier; not entered, it borrowed MK-NW-M-055, the bond's face.
             return (
               <TouchableOpacity key={r.accountId} accessibilityRole="button"
                 accessibilityLabel={`${r.institution}, ${figSpoken('MK-NW-M-054', r.value)}, ${r.maturity ? `matures ${humanDate(r.maturity)}` : MATURITY_NOT_ENTERED}. Opens the editor.`}
                 style={styles.card} onPress={() => acct && setEdit(acct)}>
                 <View style={styles.bondHead}><Text style={styles.bondName} numberOfLines={1}>{r.institution}</Text><Text style={styles.bondVal}>{fig('MK-NW-M-054', r.value)}</Text></View>
-                <DotJoined style={styles.bondSub} numberOfLines={2} parts={[r.face != null ? `face ${fig('MK-NW-M-055', r.face)}` : figWords('MK-NW-M-055', 'face value not entered'), r.couponRate != null ? `${(r.couponRate * 100).toFixed(2)}% coupon` : figWords('MK-NW-M-055', 'coupon rate not entered'), r.maturity ? `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y` : ''}` : MATURITY_NOT_ENTERED]} />
+                <DotJoined style={styles.bondSub} numberOfLines={2} parts={[r.face != null ? `face ${fig('MK-NW-M-055', r.face)}` : figWords('MK-NW-M-055', 'face value not entered'), figWords('MK-NW-M-045', r.couponRate != null ? `${(r.couponRate * 100).toFixed(2)}% coupon` : 'coupon rate not entered'), r.maturity ? `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y` : ''}` : MATURITY_NOT_ENTERED]} />
                 <View style={styles.bondMetrics}>
                   <Text style={styles.metric}>{r.couponPerYear != null ? `${figPer('MK-NW-M-056', r.couponPerYear)} coupon` : figWords('MK-NW-M-056', 'coupon not entered')}</Text>
                   <Text style={styles.metric}>yield {fig('MK-NW-M-057', r.currentYield)}</Text>

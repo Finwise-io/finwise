@@ -17,7 +17,7 @@
  *   MK-NW-F-064: the figures are rounded in proportion to the bond (his approved batch 1), so each is held
  *   to within that rounding step of the reviewer's exact figure.
  */
-import { earmarkedKinds, assetsFromOnboarding, buildAssetsState, assetsStateFrom } from '../../../src/domain/assets';
+import { earmarkedKinds, assetsFromOnboarding, buildAssetsState } from '../../../src/domain/assets';
 import { correctClassOf, reclassifyAccounts } from '../../../src/domain/assets/reclassify';
 import { bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondSummary, couponIncomeAnnual, interestIncomeAnnual, bondRateSensitivity, type BondInfo } from '../../../src/domain/bonds';
 import { buildNetWorth } from '../../../src/domain/networth';
@@ -76,27 +76,11 @@ describe('MK-NW-F-040 assetsFromOnboarding — five cases', () => {
   });
 });
 
-describe('MK-NW-F-044 getAssetsState — five cases', () => {
-  const A = (balance: number, target_return: number, extra: Record<string, any> = {}) => acct({ id: String(balance), balance, target_return, ...extra });
-  test('easy · one account', () => {
-    const s = assetsStateFrom('u', { user_id: 'u', accounts: [A(100000, 0.07)] })!;
-    expect([s.total_asset_value, s.accounts.map((a) => a.portfolio_percentage), s.average_target_return]).toEqual([100000, [100], 0.07]);
-  });
-  test('easy · nothing saved', () => { expect(assetsStateFrom('u', null)).toBeNull(); });
-  test('complex · three accounts at different return assumptions', () => {
-    const s = assetsStateFrom('u', { user_id: 'u', accounts: [A(254318.4, 0.07), A(86250.75, 0.065), A(31430.85, 0.04)] })!;
-    expect(s.total_asset_value).toBeCloseTo(372000, 6);
-    expect(s.accounts.map((a) => a.portfolio_percentage)).toEqual([68.3652, 23.1857, 8.4492].map((x) => expect.closeTo(x, 4)));
-    expect(s.average_target_return).toBeCloseTo(0.066306, 6);
-  });
-  test('complex · a home, two investment accounts and a closed account at $0', () => {
-    const s = assetsStateFrom('u', { user_id: 'u', accounts: [A(401227.63, 0.07), A(158904.12, 0.07), A(650000, 0.035, { kind: 'home' }), A(0, 0.07, { status: 'closed' })] })!;
-    expect(s.total_asset_value).toBeCloseTo(1210131.75, 6);
-    expect(s.accounts.map((a) => a.portfolio_percentage)).toEqual([33.1557, 13.1311, 53.7132, 0].map((x) => expect.closeTo(x, 4)));
-    expect(s.average_target_return).toBeCloseTo(0.0512, 4);
-  });
-  test('edge · a saved record with every account deleted', () => { expect(assetsStateFrom('u', { user_id: 'u', accounts: [] })).toBeNull(); });   // REFUSES — the formula as sent gave a total of 0 and a 7% average
-});
+// REMOVED 2026-10-14 (inputs-and-use audit, 2026-10-11, Net worth: "Nothing calls them … Remove"): MK-NW-F-044 getAssetsState
+// left the code with MK-NW-F-042 loadAssets, MK-NW-F-043 saveAssets and MK-NW-F-111 assetsStateFrom — nothing in the app,
+// the doors or the engines called them; every screen reads the accounts from the store. Its five cases are no longer run.
+// DEC-2748i (a saved record with every account deleted shows the first-day screen) governed this path only; the store path
+// has its own first-day state. The numbers are retired in moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-053 correctClassOf — five cases', () => {
   test('easy · a CD with no maturity date entered', () => { expect(correctClassOf(acct({ label: 'Ally 12-month CD', kind: 'cd' }))).toBe('bonds'); });
@@ -272,7 +256,7 @@ describe('MK-NW-F-065 buildNetWorth — five cases', () => {
   const nw = (assets: number, debt: number) => { const n = buildNetWorth('u', assets, debt); return [n.gross_assets, n.gross_debt, n.net_worth]; };
   test('easy · simple subtraction', () => { expect(nw(500000, 200000)).toEqual([500000, 200000, 300000]); });
   test('easy · owing more than owned', () => { expect(nw(40000, 65000)).toEqual([40000, 65000, -25000]); });
-  test('complex · assets from getAssetsState, three debts', () => {
+  test('complex · assets from getAssetsState, three debts', () => {   // the title as sent; MK-NW-F-044 was removed 2026-10-14, the sum is unchanged
     const debt = 412876.3 + 18442.91 + 3105.66;
     expect(debt).toBeCloseTo(434424.87, 6);
     const [a, d, n] = nw(1210131.75, debt);

@@ -22,7 +22,7 @@ import { actualDebtPayment, type Debt } from '../debt';
  * Called by ... MK-CF-F-002 plannedMonthlySpend · MK-CF-F-003 categoryMonthly
  *               MK-CF-F-005 actualMonthFlow · MK-CF-F-156 plannedMonthFlow
  *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 124 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -32,7 +32,7 @@ import { actualDebtPayment, type Debt } from '../debt';
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               … and 62 more — the full list is on functions_from_code
+ *               … and 106 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

@@ -404,11 +404,6 @@
   "file": "src/domain/assets/index.ts",
   "category": "3 · DEPENDENT"
  },
- "assetsStateFrom": {
-  "id": "MK-NW-F-111",
-  "file": "src/domain/assets/index.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
  "authenticate": {
   "id": "MK-XS-F-035",
   "file": "src/services/appLock.ts",
@@ -1264,11 +1259,6 @@
   "file": "src/services/dataCrypto.ts",
   "category": "3 · DEPENDENT"
  },
- "getAssetsState": {
-  "id": "MK-NW-F-044",
-  "file": "src/domain/assets/index.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
  "getDataKey": {
   "id": "MK-XS-F-042",
   "file": "src/services/dataCrypto.ts",
@@ -1368,6 +1358,11 @@
   "id": "MK-CF-F-166",
   "file": "src/domain/income/salary-months.ts",
   "category": "2 · DISPLAYED"
+ },
+ "hasOldRentFigure": {
+  "id": "MK-CF-F-217",
+  "file": "src/domain/income/old-rent-migration.ts",
+  "category": "3 · DEPENDENT"
  },
  "hasTwoEarners": {
   "id": "MK-CF-F-174",
@@ -1734,11 +1729,6 @@
   "file": "src/services/appLock.ts",
   "category": "3 · DEPENDENT"
  },
- "loadAssets": {
-  "id": "MK-NW-F-042",
-  "file": "src/domain/assets/index.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
  "loadBudget": {
   "id": "MK-CF-F-015",
   "file": "src/domain/budget/index.ts",
@@ -2027,6 +2017,11 @@
  "mortgagesByProperty": {
   "id": "MK-NW-F-106",
   "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "moveOldRentFigure": {
+  "id": "MK-CF-F-218",
+  "file": "src/domain/income/old-rent-migration.ts",
   "category": "3 · DEPENDENT"
  },
  "movementsOf": {
@@ -2844,11 +2839,6 @@
   "file": "src/domain/planning/hub.ts",
   "category": "2 · DISPLAYED"
  },
- "saveAssets": {
-  "id": "MK-NW-F-043",
-  "file": "src/domain/assets/index.ts",
-  "category": "1 · ACTION"
- },
  "saveBudget": {
   "id": "MK-CF-F-016",
   "file": "src/domain/budget/index.ts",
@@ -3423,6 +3413,11 @@
   "id": "MK-CF-F-117",
   "file": "src/domain/transactions/index.ts",
   "category": "2 · DISPLAYED"
+ },
+ "typed": {
+  "id": "MK-CF-F-216",
+  "file": "src/domain/income/old-rent-migration.ts",
+  "category": "1 · ACTION"
  },
  "uberGroupOf": {
   "id": "MK-NW-F-047",

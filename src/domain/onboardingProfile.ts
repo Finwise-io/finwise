@@ -35,7 +35,9 @@ export interface OnboardingProfile {
   // 401(k)
   c_401k?: Money; employerMatchValue?: Money; employerMatchMode?: 'pct' | 'dollar';
   // other income
-  rentals?: RentalEntry[]; rentalType?: 'long' | 'short'; rentalIncome?: Money; rentalExpenses?: Money;
+  rentals?: RentalEntry[];
+  /** @deprecated the old single rent figure — read only by the one-time move into `rentals` (src/domain/income/old-rent-migration.ts). */
+  rentalType?: 'long' | 'short'; rentalIncome?: Money; rentalExpenses?: Money;
   seAmount?: Money; seFreq?: 'annual' | 'monthly'; invAnnual?: Money;
   otherAmount?: Money; otherFreq?: 'monthly' | 'annual' | 'quarterly' | 'onetime';   // quarterly + dated one-time: F2 (approved v1.1)
   otherIncomeYear?: number | string;   // year for dated one-time/annual other income (F2 dated grid)

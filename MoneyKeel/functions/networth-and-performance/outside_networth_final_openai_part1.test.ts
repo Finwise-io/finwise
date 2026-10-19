@@ -308,7 +308,8 @@ describe('MK-NW-F-015 totalAssets — five cases', () => {
     expect(noBalanceGaps(accounts)).toEqual([expect.stringContaining('Undervalued property')]);
   });
   // FINDING: app gives 0, expected REFUSES (no accounts). Low reach: totalAssets has no production caller (the screen's
-  // total is buildAssetsState), and DEC-2748i's first-day screen is held upstream by getAssetsState.
+  // total is buildAssetsState). (It named getAssetsState as holding DEC-2748i upstream; that function was removed
+  // 2026-10-14 — nothing called it.)
   test.failing('edge · No accounts refuses rather than $0 owned', () => { refuses(totalAssets([])); });
 });
 

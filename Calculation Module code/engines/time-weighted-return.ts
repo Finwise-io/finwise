@@ -112,12 +112,12 @@ export interface TimeWeightedVerdict {
  *
  * Called by ... MK-ST-F-081 timeWeightedReturn
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-082 NW
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-100 TREND · MK-NW-O-003 theNetWorth
- *               MK-NW-O-008 thePerformance · MK-ST-F-081 timeWeightedReturn
+ *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
+ *               MK-ST-F-081 timeWeightedReturn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -157,12 +157,11 @@ const SAME = 0.005;
  *
  * Called by ... MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-082 NW
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-100 TREND · MK-NW-O-003 theNetWorth
- *               MK-NW-O-008 thePerformance
+ *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -294,12 +293,11 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
  *
  * Called by ... MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-082 NW
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-100 TREND · MK-NW-O-003 theNetWorth
- *               MK-NW-O-008 thePerformance
+ *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

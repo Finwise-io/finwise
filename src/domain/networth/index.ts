@@ -22,10 +22,10 @@ export interface NetWorthState {
  *
  * Called by ... MK-NW-O-003 theNetWorth · MK-XS-F-031 buildSnapshot
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-XS-F-031 buildSnapshot
- *               MK-XS-F-032 snapshotFromOnboarding · MK-NW-O-003 theNetWorth
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-NW-O-003 theNetWorth
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

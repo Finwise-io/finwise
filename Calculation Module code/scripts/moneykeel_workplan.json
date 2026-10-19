@@ -2977,10 +2977,22 @@
    "status": "DONE 2026-10-13 — built and tested; Performance tab, account page and Home work a too-late window back from price history; DEC-3035i marked OLD, NOT IN USE; not committed",
    "ref": "MoneyKeel/functions/networth-and-performance/dec_price_history_counts.test.ts · src/screens/__tests__/dec_price_history_counts.test.tsx · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v17.html",
    "date": "2026-10-13",
-   "comments": "Vanguard linked today, VTI $40,000 (+10%) + Treasury 2031 $10,000 by hand: 1Y +10.00% (was greyed —), Wealth generated $3,636, Return +10.00%, sentence names Treasury 2031 (was \"The record begins Oct 13, 2026, …\"). Mixed: Fidelity $100,000→$112,000 + Vanguard worked back → summary $136,364→$152,000, +11.47% = the cards added up. Day-one line: \"Day one: your value is real and your daily record starts today. Longer windows are worked back from each holding's price history.\"",
+   "comments": "Vanguard linked today, VTI $40,000 (+10%) + Treasury 2031 $10,000 by hand: 1Y +10.00% (was greyed —), Wealth generated $3,636, Return +10.00%, sentence names Treasury 2031 (was \"The record begins Oct 13, 2026, …\"). Mixed: Fidelity $100,000→$112,000 + Vanguard worked back → summary $136,364→$152,000, +11.47% = the cards added up. Day-one line, in his words (DEC-5425, 2026-10-14): \"You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices.\" (the wording first proposed here was replaced)",
    "_written": {
     "status": "DONE 2026-10-13 — built and tested; Performance tab, account page and Home work a too-late window back from price history; DEC-3035i marked OLD, NOT IN USE; not committed",
-    "comments": "Vanguard linked today, VTI $40,000 (+10%) + Treasury 2031 $10,000 by hand: 1Y +10.00% (was greyed —), Wealth generated $3,636, Return +10.00%, sentence names Treasury 2031 (was \"The record begins Oct 13, 2026, …\"). Mixed: Fidelity $100,000→$112,000 + Vanguard worked back → summary $136,364→$152,000, +11.47% = the cards added up. Day-one line: \"Day one: your value is real and your daily record starts today. Longer windows are worked back from each holding's price history.\""
+    "comments": "Vanguard linked today, VTI $40,000 (+10%) + Treasury 2031 $10,000 by hand: 1Y +10.00% (was greyed —), Wealth generated $3,636, Return +10.00%, sentence names Treasury 2031 (was \"The record begins Oct 13, 2026, …\"). Mixed: Fidelity $100,000→$112,000 + Vanguard worked back → summary $136,364→$152,000, +11.47% = the cards added up. Day-one line, in his words (DEC-5425, 2026-10-14): \"You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices.\" (the wording first proposed here was replaced)"
+   }
+  },
+  {
+   "task": "DEC-5425 — the Performance tab's day-one line in his words (his \"approved.\" of 2026-10-14)",
+   "todo": "PerformanceScreen day-one line (where a window is worked back) reads his words; tests moved; DEC-5291's records re-quoted; standards; Changelog row; v17 READ THIS FIRST row.",
+   "status": "DONE 2026-10-14 — built and tested; not committed",
+   "ref": "src/screens/PerformanceScreen.tsx · src/screens/__tests__/dec_price_history_counts.test.tsx · src/screens/__tests__/perf_matches_v17.test.tsx · src/screens/__tests__/perf_mock_match_2026_10_12.test.tsx · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v17.html",
+   "date": "2026-10-14",
+   "comments": "Before: \"Day one: your value is real and your daily record starts today. Longer windows are worked back from each holding's price history.\" Now: \"You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices.\" Canon checked: no clash.",
+   "_written": {
+    "status": "DONE 2026-10-14 — built and tested; not committed",
+    "comments": "Before: \"Day one: your value is real and your daily record starts today. Longer windows are worked back from each holding's price history.\" Now: \"You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices.\" Canon checked: no clash."
    }
   }
  ]

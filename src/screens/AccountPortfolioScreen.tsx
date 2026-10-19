@@ -881,14 +881,16 @@ function BondDetail({ account }: { account: AssetAccount }) {
       )}
       {one.ratesMove && (
         <View style={s.card} accessible
-          accessibilityLabel={`Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly ${figSaid('MK-NW-M-023', one.ratesMove.ratesUp.low)} to ${figSaid('MK-NW-M-023', one.ratesMove.ratesUp.high)}. If rates fall one percent, roughly ${figSaid('MK-NW-M-023', one.ratesMove.ratesDown.low)} to ${figSaid('MK-NW-M-023', one.ratesMove.ratesDown.high)}. Held to maturity, ${figSaid('MK-NW-M-023', one.face)} comes back if the issuer pays as promised.`}>
+          accessibilityLabel={`Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly ${figSaid('MK-NW-M-028', one.ratesMove.ratesUp.low)} to ${figSaid('MK-NW-M-028', one.ratesMove.ratesUp.high)}. If rates fall one percent, roughly ${figSaid('MK-NW-M-028', one.ratesMove.ratesDown.low)} to ${figSaid('MK-NW-M-028', one.ratesMove.ratesDown.high)}. Held to maturity, ${figSaid('MK-NW-M-023', one.face)} comes back if the issuer pays as promised.`}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Text style={s.cardHdr2}>IF INTEREST RATES MOVE</Text>
             <InfoDot term="rateSensitivity" />
           </View>
           <EstimateTag />
-          <Text style={s.bondLine}>Rates rise 1% → value roughly {fig('MK-NW-M-023', one.ratesMove.ratesUp.low)}–{fig('MK-NW-M-023', one.ratesMove.ratesUp.high)} (down about {fig('MK-NW-M-023', Math.abs(one.ratesMove.ratesUp.delta))})</Text>
-          <Text style={s.bondLine}>Rates fall 1% → value roughly {fig('MK-NW-M-023', one.ratesMove.ratesDown.low)}–{fig('MK-NW-M-023', one.ratesMove.ratesDown.high)}</Text>
+          {/* MK-NW-M-028 under its own identifier (inputs-and-use audit, 2026-10-11): these estimates printed as MK-NW-M-023,
+              the bond's face value. The face value on the line below is still MK-NW-M-023. */}
+          <Text style={s.bondLine}>Rates rise 1% → value roughly {fig('MK-NW-M-028', one.ratesMove.ratesUp.low)}–{fig('MK-NW-M-028', one.ratesMove.ratesUp.high)} (down about {fig('MK-NW-M-028', Math.abs(one.ratesMove.ratesUp.delta))})</Text>
+          <Text style={s.bondLine}>Rates fall 1% → value roughly {fig('MK-NW-M-028', one.ratesMove.ratesDown.low)}–{fig('MK-NW-M-028', one.ratesMove.ratesDown.high)}</Text>
           {one.face != null && <Text style={s.bondNote}>Held to maturity, {fig('MK-NW-M-023', one.face)} comes back — if the issuer pays as promised.</Text>}
         </View>
       )}

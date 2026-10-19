@@ -22,7 +22,7 @@ import {
 import { buildDebtState, requiredPayment, type Debt } from '../../../src/domain/debt';
 import { projectNestEgg } from '../../../src/domain/retirement';
 import { buildNetWorth } from '../../../src/domain/networth';
-import { trendPoints, type TrendPoint } from '../../../src/domain/history';
+import { trendPoints } from '../../../src/domain/history';
 import { buildDayFromAccounts, record as recordDay } from '../../../Calculation Module code/engines/snapshots';
 import { timeWeightedReturn, movementsOf } from '../../../Calculation Module code/engines/time-weighted-return';
 import { isoLocalDate } from '../../../src/domain/_shared/dates';
@@ -48,11 +48,14 @@ export interface TheNetWorth {
   monthlyDebtMinimum: number;
   /** Σ what ACTUALLY leaves the account, counting a payment set above the minimum. */
   monthlyDebtPayments: number;
-  /** How it moved: the line, and the return on cash + investments. Null when the record cannot say.
+  /** How it moved: the return on cash + investments. Null when the record cannot say.
    *  A RATE, held as 0…1 — the form every other percent in the register uses, so one display rule
    *  rounds them all (Q49). The function underneath returns it already multiplied by 100; the door
-   *  converts once, here, rather than leaving four screens to remember which form they were handed. */
-  trend: TrendPoint[];
+   *  converts once, here, rather than leaving four screens to remember which form they were handed.
+   *  THE LINE IS NOT HANDED OUT HERE ANY MORE (inputs-and-use audit, 2026-10-11): the door took a monthly
+   *  history and a daily one for a trend line, none of its eight callers passed either, and the Net worth
+   *  screen draws its change from the record itself (MK-XS-F-005 trendPoints). Both inputs and `trend` went;
+   *  the trend-line figure MK-NW-M-003 is retired — the line is no longer on the screen. */
   investableChangePct: number | null;
   /** Which mortgage is on which property, and which are on none (his rule, 2026-10-04, DEC-1925). */
   mortgageCheck: MortgageCheck;
@@ -87,18 +90,16 @@ export interface TheNetWorth {
  *     input.since   otherwise
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-NW-F-082 NW · MK-NW-F-100 TREND
- *               MK-NW-F-101 PLAN
+ * Called by ... MK-NW-F-082 NW · MK-NW-F-101 PLAN
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND
  *
- * Serves ...... MK-MN-M-016 · MK-NW-M-001 · MK-NW-M-002 · MK-NW-M-003
- *               MK-NW-M-004 · MK-NW-M-005 · MK-NW-M-006 · MK-NW-M-007
- *               MK-NW-M-008 · MK-NW-M-009 · MK-NW-M-011 · MK-NW-M-015
- *               MK-NW-M-016 · MK-NW-M-017 · MK-NW-M-049 · MK-NW-M-063
- *               MK-XS-M-001 · MK-XS-M-003
+ * Serves ...... MK-MN-M-016 · MK-NW-M-001 · MK-NW-M-002 · MK-NW-M-004
+ *               MK-NW-M-005 · MK-NW-M-006 · MK-NW-M-007 · MK-NW-M-008
+ *               MK-NW-M-009 · MK-NW-M-011 · MK-NW-M-015 · MK-NW-M-016
+ *               MK-NW-M-017 · MK-NW-M-049 · MK-NW-M-063 · MK-XS-M-001
+ *               MK-XS-M-003
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-014 debt balance
  *               MK-XS-I-024 logged expenses
@@ -109,10 +110,9 @@ export interface TheNetWorth {
  *               DEC-0070 · DEC-0072 · DEC-0074 · DEC-0089 · DEC-0090 · DEC-0091
  *               DEC-0092 · DEC-0095 · DEC-0096 · DEC-0098 · DEC-0149 · DEC-0152
  *               DEC-0158 · DEC-0165 · DEC-0166 · DEC-0175 · DEC-0184 · DEC-0192
- *               DEC-0204 · DEC-0264 · DEC-0301 · DEC-0309 · DEC-0311 · DEC-0322
- *               DEC-0343 · DEC-0345 · DEC-0347 · DEC-0397 · DEC-0403 · DEC-0442
- *               DEC-0446 · DEC-0449 · DEC-0451 · DEC-0452 · DEC-0455 · DEC-0501
- *               DEC-0509
+ *               DEC-0204 · DEC-0309 · DEC-0311 · DEC-0322 · DEC-0343 · DEC-0345
+ *               DEC-0347 · DEC-0397 · DEC-0442 · DEC-0446 · DEC-0449 · DEC-0451
+ *               DEC-0452 · DEC-0455 · DEC-0501 · DEC-0509
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
@@ -128,9 +128,6 @@ export function theNetWorth(input: {
   uid: string;
   accounts: AssetAccount[];
   debts: Debt[];
-  /** The recorded history, for the line and the return. */
-  monthlyHistory?: Record<string, unknown> | null;
-  dailyNetWorth?: Record<string, unknown> | null;
   /** The daily record of what each account was worth, and every record of money moving — what the
    *  return on cash + investments is measured from. */
   snapshotDays?: any[] | null;
@@ -181,7 +178,6 @@ export function theNetWorth(input: {
     // and the screen names which one it prints. WHICH ONE BELONGS UNDER THAT LABEL IS HIS CALL.
     monthlyDebtMinimum: dState.total_monthly_debt_service,
     monthlyDebtPayments: debtLines.reduce((t, d) => t + d.minimumMonthly, 0),
-    trend: trendPoints(input.monthlyHistory, input.dailyNetWorth),
     mortgageCheck: mortgagesByProperty(accounts, debts),
     ...(() => {
       const unclassed = accounts.flatMap((a: any) => ((a.positions ?? []) as any[])
@@ -269,11 +265,17 @@ export interface MortgageCheck {
  *
  * Called by ... MK-CF-O-020 theBudgetCounted · MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-079 EF · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
- *               MK-CF-O-020 theBudgetCounted · MK-NW-O-004 theEmergencyFund
- *               MK-NW-O-003 theNetWorth
+ *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               … and 38 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -346,9 +348,17 @@ export type PropertyUse = 'home' | 'rental' | 'second';
  *
  * Called by ... MK-CF-O-020 theBudgetCounted
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-079 EF · MK-CF-O-020 theBudgetCounted
- *               MK-NW-O-004 theEmergencyFund
+ * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               … and 38 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -713,14 +723,16 @@ const TREND_GIVEN =
  */
 const SNAP = (month: string, net: number) => ({ month, net_worth: net, gross_assets: net + 242000, gross_debt: 242000 });
 
-/** Example only: runs theNetWorth on four months of recorded net worth, to show the trend line. */
+/** Example only: runs the record's trend points (the function the Net worth screen calls) on four months of recorded net worth and one day after them. */
+// THE SCREEN'S OWN CALL, NOT THE DOOR'S (inputs-and-use audit, 2026-10-11): theNetWorth no longer takes a history —
+// none of its callers passed one — so the change line's example runs trendPoints, which the Net worth screen calls.
 /* ─ MK-NW-F-100 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * TREND
  *
- * Answers ..... Example only: runs theNetWorth on four months of recorded net worth, to show the trend line.
+ * Answers ..... Example only: runs the record's trend points (the function the Net worth screen calls) on four months of recorded net worth and one day after them.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     trend points(
  *
  * Called by ... MK-NW-F-101 PLAN
  *
@@ -734,17 +746,16 @@ const SNAP = (month: string, net: number) => ({ month, net_worth: net, gross_ass
  * Formula also on the master file · functions_from_code · MK-NW-F-100
  * Changed ..... not in git yet (—)
  */
-const TREND = () => theNetWorth({
-  ...EXAMPLE,
+const TREND = () => trendPoints(
   // A MONTH IS A SNAPSHOT, NOT A NUMBER — which is what normalizeSnapshot enforces, and what my first
   // draft of this fixture got wrong: it passed bare numbers, every month was correctly rejected, and
   // the example came back with one point. The code was right and the example was not.
-  monthlyHistory: {
+  {
     '2026-01': SNAP('2026-01', 240000), '2026-02': SNAP('2026-02', 246000),
     '2026-03': SNAP('2026-03', 252000), '2026-04': SNAP('2026-04', 258000),
   },
-  dailyNetWorth: { '2026-04-30': 261200 },
-}).trend;
+  { '2026-04-30': 261200 },
+);
 
 /** THE STRAIGHT-LINE RETIREMENT CHECK, worked. No random runs here — it is the plain arithmetic beside
  *  the 1,000-run odds: today's pot grown at the expected return, plus each year's saving grown for the
@@ -768,12 +779,12 @@ const PLAN_GIVEN =
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-003 institution name
- *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-018 retirement age
  *               MK-XS-I-024 logged expenses
  *               MK-XS-I-028 assumed return
  *               MK-XS-I-029 inflation rate
  *               MK-XS-I-043 their own retirement contribution
+ *               MK-XS-I-048 the person’s own asset-class answer
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-101
  * Changed ..... not in git yet (—)
@@ -829,19 +840,8 @@ export const NET_WORTH_FIGURES = declareFigures({
       run: () => { const t = TREND(); return t.length < 2 ? null : t[t.length - 1].nw - t[0].nw; } },
     note: 'DECLARED 2026-09-30. It was hand-typed on the master until then, so the row and the code could drift with nothing to notice.',
   },
-  'MK-NW-M-003': {
-    label: 'the trend line', unit: 'count', screens: ['/networth'],
-    answers: 'How many points the line is drawn from \u2014 the months on record plus the days after them.',
-    formula: 'every recorded month, plus every daily point, merged and sorted by date text',
-    inputs: ['MK-XS-I-031 the recorded history'],
-    decisions: [
-      'A DAY THAT IS NOT A REAL DATE IS DROPPED, and a month whose figures do not add up is dropped \u2014 never drawn as a guess.',
-      'The line is drawn only from days we hold a record for; today\u2019s balances are never priced at past dates.',
-    ],
-    refusal: 'With one point the point is shown and the line is not drawn.',
-    worked: { given: TREND_GIVEN, answer: '5', run: () => TREND().length },
-    note: 'DECLARED 2026-09-30, and it is a COUNT, not money \u2014 the master row inherited dollars from the function it shares with MK-NW-M-001.',
-  },
+  // MK-NW-M-003 "the trend line" RETIRED 2026-10-14: the line is no longer on the Net worth screen (inputs-and-use
+  // audit, 2026-10-11). Kept with its reason in moneykeel_metric_register.json; the number is never reused.
   'MK-NW-M-006': {
     label: '\ud83c\udfe0 PERSONAL PROPERTY', unit: 'money', screens: ['/networth'],
     answers: 'What one band under WHAT YOU OWN holds \u2014 here the vehicles and valuables.',

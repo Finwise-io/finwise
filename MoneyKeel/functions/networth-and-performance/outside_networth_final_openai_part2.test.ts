@@ -42,8 +42,7 @@
  *   is the primaryHomeId argument. Properties "entered first" are LAST in the list (the store keeps newest first).
  *   benchmarkInfo's "benchmark_record" is placed in the app's BENCHMARK_META table for that kind for the one test and
  *   restored after — the table is where the app keeps the record; a kind is chosen whose rate is the record's.
- *   getAssetsState reads storage and returns assetsStateFrom of what it read (index.ts:2391-2392); the saved record is
- *   handed to assetsStateFrom directly ("no saved record" = null).
+ *   getAssetsState: REMOVED 2026-10-14 with assetsStateFrom (inputs-and-use audit, Net worth) — see its note below.
  *   sourceWording: "N days since a successful sync" is last_synced = now − N days; "imported" source 'imported';
  *   "manual" source 'manual'.
  *   historyCoverage: "history_start" is history_from, "period_start" the windowStart, "today" the now Date (local).
@@ -63,7 +62,7 @@
 import {
   accountClassBreakdown, classPortionLabel, assetAllocation, earmarkDefault, primaryCarIdOf, primaryHomeIdOf,
   earmarkedAmount, retirementEarmarkedValue, benchmarkReturn, blendedVolatility, benchmarkInfo, blendedReturn,
-  earmarkedKinds, buildAssetsState, assetsFromOnboarding, monthlyContributionsFromOnboarding, assetsStateFrom,
+  earmarkedKinds, buildAssetsState, assetsFromOnboarding, monthlyContributionsFromOnboarding,
   sourceWording, historyCoverage, uberGroupOf, uberGroupRows, UBER_LABEL, BENCHMARK_META, holdingClassOf,
   carValueNotEnteredNotes, earmarkLeavesOutWords, asksCashOrInvestments, CASH_OR_INVESTMENTS_ASK,
   type AssetClass,
@@ -473,19 +472,11 @@ describe('MK-NW-F-041 monthlyContributionsFromOnboarding — five cases', () => 
   });
 });
 
-describe('MK-NW-F-044 getAssetsState — five cases', () => {
-  const doc = (accounts: any[]) => ({ user_id: 'u1', accounts }) as any;
-  test('easy · Saved account returned', () => {
-    const accounts = [acct({ balance: 1000 })];
-    expect(assetsStateFrom('u1' as any, doc(accounts))).toEqual(buildAssetsState('u1' as any, accounts));
-  });
-  test('easy · No saved record returns nothing', () => { refuses(assetsStateFrom('u1' as any, null)); });
-  test('complex · Several saved accounts aggregate', () => {
-    expect(assetsStateFrom('u1' as any, doc([acct({ id: 'c', kind: 'checking', balance: 2000 }), acct({ id: 'b', kind: 'brokerage', balance: 8000 })]))!.total_asset_value).toBeCloseTo(10000, 6);
-  });
-  test('complex · Persisted record with empty list is not $0 state', () => { refuses(assetsStateFrom('u1' as any, doc([]))); });
-  test('edge · All saved accounts deleted', () => { refuses(assetsStateFrom('u1' as any, doc([]))); });
-});
+// REMOVED 2026-10-14 (inputs-and-use audit, 2026-10-11, Net worth: "Nothing calls them … Remove"): MK-NW-F-044 getAssetsState
+// left the code with MK-NW-F-042 loadAssets, MK-NW-F-043 saveAssets and MK-NW-F-111 assetsStateFrom — nothing in the app,
+// the doors or the engines called them; every screen reads the accounts from the store. Its five cases are no longer run.
+// DEC-2748i (a saved record with every account deleted shows the first-day screen) governed this path only; the store path
+// has its own first-day state. The numbers are retired in moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-045 sourceWording — five cases', () => {
   test('easy · Fresh linked account', () => { expect(sourceWording(acct({ source: 'connected', last_synced: daysAgo(2) }), NOW)).toBe('Linked'); });

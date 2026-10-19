@@ -33,7 +33,7 @@
  *   c_401k · rothContributionMonthly → c_roth · investingMonthly → c_invest · propertySavingsMonthly → c_property ·
  *   employerMatchPct N → employerMatchMode 'pct', employerMatchValue N · employerMatchDollarsMonthly N →
  *   employerMatchMode 'dollar', employerMatchValue N.
- *   getAssetsState: savedDoc / storageHasOnly → what getUserDoc returns for that uid; storageError → getUserDoc rejects.
+ *   getAssetsState: REMOVED 2026-10-14 with the function (inputs-and-use audit, Net worth) — see its note below.
  *   historyCoverage: history_start → history_start_override (the person's date, DEC-4059c); synced_history_start →
  *   history_from. THE SENTENCE IS COMPARED ON ITS CONTENT where the card gives only its content ("a sentence saying it
  *   has no activity records"; the span and the start date); OpenAI itself marks its wording "schematic". The refusal is
@@ -50,12 +50,10 @@
  * them are tested against the INTENDED rule and say so; this file was run on the working tree with those edits in it
  * (not yet committed). The blank-period cases of MK-NW-F-036 fail at HEAD ('—') and pass on that edit.
  */
-jest.mock('../../../src/domain/_shared/firestore', () => ({ getUserDoc: jest.fn(), setUserDoc: jest.fn() }));
-import { getUserDoc } from '../../../src/domain/_shared/firestore';
 import {
   primaryCarIdOf, earmarkedAmount, retirementEarmarkedValue, benchmarkReturn, blendedVolatility, benchmarkInfo,
   blendedReturn, earmarkedKinds, buildAssetsState, assetsFromOnboarding, monthlyContributionsFromOnboarding,
-  getAssetsState, sourceWording, historyCoverage, uberGroupOf, uberGroupRows, assetClassOf,
+  sourceWording, historyCoverage, uberGroupOf, uberGroupRows, assetClassOf,
   HISTORY_START_UNREADABLE, EDIT_HISTORY_START, KIND_VOLATILITY,
 } from '../../../src/domain/assets';
 import { itemizedTotal, itemizeRemainder, itemizedResultTotal, buildItemizedAccounts, itemizeMissingCount } from '../../../src/domain/assets/itemize';
@@ -275,28 +273,11 @@ describe('MK-NW-F-041 monthlyContributionsFromOnboarding — five cases (clock h
   test('edge · Property savings excluded even if large', () => { expect(monthlyContributionsFromOnboarding({ c_property: 1000 })).toBeNull(); });
 });
 
-describe('MK-NW-F-044 getAssetsState — five cases + the brief\'s storage checks', () => {
-  const store = (docs: Record<string, any>) => (getUserDoc as jest.Mock).mockImplementation(async (_c: string, uid: string) => docs[uid] ?? null);
-  afterEach(() => (getUserDoc as jest.Mock).mockReset());
-  test('easy · Saved non-empty accounts', async () => {
-    const accounts = [A({ asset_id: 'x', balance: 100, target_return: 0.05 })];
-    store({ u1: { user_id: 'u1', accounts } });
-    const s = await getAssetsState('u1' as any);
-    expect(s).toEqual(buildAssetsState('u1' as any, accounts));   // assetsStateFrom(accounts)
-    expect([s!.total_asset_value, s!.average_target_return, s!.accounts[0].portfolio_percentage]).toEqual([100, 0.05, 100]);
-  });
-  test('easy · Saved empty list', async () => { store({ u1: { user_id: 'u1', accounts: [] } }); expect(await getAssetsState('u1' as any)).toBeNull(); });
-  test('complex · No saved document', async () => { store({}); expect(await getAssetsState('u1' as any)).toBeNull(); });
-  test('complex · Different uid must not leak account data', async () => {
-    store({ u1: { user_id: 'u1', accounts: [A({ balance: 100 })] } });
-    expect(await getAssetsState('u2' as any)).toBeNull();
-    expect((getUserDoc as jest.Mock).mock.calls).toEqual([['assets', 'u2']]);   // read u2's document, and only it
-  });
-  test('edge · Storage read error', async () => {
-    (getUserDoc as jest.Mock).mockRejectedValue(Object.assign(new Error('permission-denied'), { code: 'permission-denied' }));
-    await expect(getAssetsState('u1' as any)).rejects.toThrow('permission-denied');   // propagated, never swallowed into "nothing saved"
-  });
-});
+// REMOVED 2026-10-14 (inputs-and-use audit, 2026-10-11, Net worth: "Nothing calls them … Remove"): MK-NW-F-044 getAssetsState
+// left the code with MK-NW-F-042 loadAssets, MK-NW-F-043 saveAssets and MK-NW-F-111 assetsStateFrom — nothing in the app,
+// the doors or the engines called them; every screen reads the accounts from the store. Its five cases are no longer run.
+// DEC-2748i (a saved record with every account deleted shows the first-day screen) governed this path only; the store path
+// has its own first-day state. The numbers are retired in moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-045 sourceWording — five cases', () => {
   test('easy · Connected synced recently', () => { expect(sourceWording(A({ source: 'connected', last_synced: '2026-10-10T12:00:00Z' }), ms('2026-10-13T12:00:00Z'))).toBe('Linked'); });

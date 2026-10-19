@@ -112,7 +112,7 @@ export interface Transaction {
  *               MK-XS-F-175 uid · MK-XS-F-177 useCategorySpend
  *               MK-XS-F-181 merge
  *
- * Reaches ..... 340 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 337 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -122,7 +122,7 @@ export interface Transaction {
  *               MK-NW-F-098 LEDGER_BAND · MK-CF-F-200 LINE
  *               MK-CF-O-014 M · MK-CF-F-203 MONTH
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               … and 322 more — the full list is on functions_from_code
+ *               … and 319 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -143,17 +143,17 @@ const map = (accs: AssetAccount[], id: EntityId, fn: (a: AssetAccount) => AssetA
  *
  * Called by ... MK-ST-F-073 rebuildDays
  *
- * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
  *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
  *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               … and 41 more — the full list is on functions_from_code
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -181,17 +181,17 @@ const cashOf = (a: AssetAccount) => a.cash_balance || 0;
  *
  * Called by ... MK-CF-F-135 availableCash · MK-CF-F-136 bumpCash
  *
- * Reaches ..... 62 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
- *               MK-CF-F-111 applyTransaction · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-CF-F-135 availableCash
+ *               MK-NW-F-101 PLAN · MK-CF-F-111 applyTransaction
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-135 availableCash
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
  *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-136 bumpCash · MK-CF-F-038 debtsFromOnboarding
- *               … and 44 more — the full list is on functions_from_code
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               … and 39 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -246,17 +246,17 @@ const availableCash = (a: AssetAccount) => (usesSleeve(a) ? (a.cash_balance || 0
  *
  * Called by ... MK-CF-F-111 applyTransaction
  *
- * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-CF-F-111 applyTransaction
- *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-111 assetsStateFrom
+ *               MK-CF-F-111 applyTransaction · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
  *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
- *               … and 41 more — the full list is on functions_from_code
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -304,17 +304,17 @@ function bumpCash(a: AssetAccount, delta: number): AssetAccount {
  * Called by ... MK-CF-F-111 applyTransaction · MK-CF-F-138 addLot
  *               MK-CF-F-139 removeShares
  *
- * Reaches ..... 61 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-CF-F-138 addLot
- *               MK-CF-F-111 applyTransaction · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-138 addLot · MK-CF-F-111 applyTransaction
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
  *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
  *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               … and 43 more — the full list is on functions_from_code
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               … and 38 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -348,17 +348,17 @@ const findPos = (a: AssetAccount, t: Transaction) =>
  *
  * Called by ... MK-CF-F-111 applyTransaction
  *
- * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-CF-F-111 applyTransaction
- *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-111 assetsStateFrom
+ *               MK-CF-F-111 applyTransaction · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
  *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
- *               … and 41 more — the full list is on functions_from_code
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -397,17 +397,17 @@ function addLot(a: AssetAccount, t: Transaction, shares: number, costPerShare: n
  *
  * Called by ... MK-CF-F-111 applyTransaction
  *
- * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-CF-F-111 applyTransaction
- *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-111 assetsStateFrom
+ *               MK-CF-F-111 applyTransaction · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
  *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
  *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-NW-F-044 getAssetsState
- *               … and 41 more — the full list is on functions_from_code
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -458,17 +458,17 @@ function removeShares(a: AssetAccount, t: Transaction, shares: number): AssetAcc
  *
  * Called by ... MK-XS-F-175 uid
  *
- * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
  *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
  *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               … and 40 more — the full list is on functions_from_code
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -554,17 +554,17 @@ export { availableCash };
  *
  * Called by ... MK-XS-F-175 uid
  *
- * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
  *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
  *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               … and 40 more — the full list is on functions_from_code
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -596,17 +596,17 @@ export function makeTransaction(p: Omit<Transaction, 'id' | 'created_at'>): Tran
  *
  * Called by ... MK-CF-F-114 undoSnapshot
  *
- * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
  *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
  *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               … and 41 more — the full list is on functions_from_code
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -629,17 +629,17 @@ export function affectedAccountIds(t: Transaction): EntityId[] {
  *
  * Called by ... MK-XS-F-175 uid
  *
- * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
  *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
  *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               … and 40 more — the full list is on functions_from_code
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -665,17 +665,17 @@ export function undoSnapshot(accounts: AssetAccount[], t: Transaction): AssetAcc
  *
  * Called by ... MK-XS-F-175 uid
  *
- * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
  *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
  *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               … and 40 more — the full list is on functions_from_code
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -706,17 +706,17 @@ export function restoreUndo(accounts: AssetAccount[], t: Transaction): AssetAcco
  *
  * Called by ... MK-XS-F-175 uid
  *
- * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
  *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
  *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               … and 40 more — the full list is on functions_from_code
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

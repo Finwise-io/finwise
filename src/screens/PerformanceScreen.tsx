@@ -328,9 +328,10 @@ export default function PerformanceScreen() {
           <EmptyNote door="accounts" onPress={() => setAddChooser(true)} />
         ) : dayOneView ? (
           /* DEC-5291 (2026-10-13, "approved."): where the longer windows are worked back from each holding's price
-             history, the day-one line says so; on a true day one with no holding history, v17's words stand */
+             history, the day-one line says so; on a true day one with no holding history, v17's words stand.
+             DEC-5425 (2026-10-14, "approved."): the line is his words, not the proposed ones */
           <Note term="dayOne">{WINDOWS.some((w) => windowFigures[w.key]?.workedBack)
-            ? 'Day one: your value is real and your daily record starts today. Longer windows are worked back from each holding\'s price history.'
+            ? "You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices."
             : "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."}</Note>
         ) : now.workedBack ? (
           /* the beginning was worked back, not read: say so, as the account page does (DEC-5068) */

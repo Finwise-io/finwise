@@ -31,17 +31,17 @@ import { fetchPriceSeries } from '../services/marketData';
  *
  * Called by ... MK-XS-F-175 uid
  *
- * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
  *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
  *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               … and 40 more — the full list is on functions_from_code
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -539,36 +539,34 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-CF-F-039 loadDebt · MK-CF-F-041 getDebtState
  *               MK-CF-F-050 loadIncome · MK-CF-F-052 getIncomeState
  *               MK-CF-F-079 incomeFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-042 loadAssets
- *               MK-NW-F-044 getAssetsState · MK-NW-F-065 buildNetWorth
- *               MK-NW-F-111 assetsStateFrom · MK-NW-O-003 theNetWorth
- *               MK-PL-F-011 buildGoalsState · MK-PL-F-013 goalsFromOnboarding
- *               MK-PL-F-014 loadGoals · MK-PL-F-053 buildRetirementState
- *               MK-ST-F-041 getUserDoc · MK-ST-F-042 setUserDoc
- *               MK-XS-F-021 loadProfile · MK-XS-F-023 getProfileReadModel
- *               MK-XS-F-026 profileFromOnboarding · MK-XS-F-031 buildSnapshot
- *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-033 resolveNetWorthRows
- *               MK-XS-F-046 makeEnvelope · MK-XS-F-047 unwrapWithPassword
- *               MK-XS-F-048 unwrapWithRecovery · MK-XS-F-049 rewrapPassword
- *               MK-XS-F-050 rewrapRecovery · MK-XS-F-060 registerUser
- *               MK-XS-F-066 loginUser · MK-XS-F-067 restoreWithRecoveryCode
- *               MK-XS-F-068 regenerateRecoveryCode · MK-XS-F-072 deleteAccount
- *               MK-XS-F-073 saveUserData · MK-XS-F-074 loadUserData
- *               MK-XS-F-077 setUserHousehold · MK-XS-F-078 joinHouseholdMembership
- *               MK-XS-F-079 loadUserRoot · MK-XS-F-138 deriveKeyFromSecret
- *               MK-XS-F-139 wrapWithSecret
+ *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-065 buildNetWorth
+ *               MK-NW-O-003 theNetWorth · MK-PL-F-011 buildGoalsState
+ *               MK-PL-F-013 goalsFromOnboarding · MK-PL-F-014 loadGoals
+ *               MK-PL-F-053 buildRetirementState · MK-ST-F-041 getUserDoc
+ *               MK-ST-F-042 setUserDoc · MK-XS-F-021 loadProfile
+ *               MK-XS-F-023 getProfileReadModel · MK-XS-F-026 profileFromOnboarding
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-033 resolveNetWorthRows · MK-XS-F-046 makeEnvelope
+ *               MK-XS-F-047 unwrapWithPassword · MK-XS-F-048 unwrapWithRecovery
+ *               MK-XS-F-049 rewrapPassword · MK-XS-F-050 rewrapRecovery
+ *               MK-XS-F-060 registerUser · MK-XS-F-066 loginUser
+ *               MK-XS-F-067 restoreWithRecoveryCode · MK-XS-F-068 regenerateRecoveryCode
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-073 saveUserData
+ *               MK-XS-F-074 loadUserData · MK-XS-F-077 setUserHousehold
+ *               MK-XS-F-078 joinHouseholdMembership · MK-XS-F-079 loadUserRoot
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-XS-F-139 wrapWithSecret
  *
- * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-111 assetsStateFrom · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
  *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
  *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-NW-F-044 getAssetsState · MK-CF-F-041 getDebtState
- *               … and 40 more — the full list is on functions_from_code
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -710,8 +708,9 @@ export const useStore = create<AppState>()(
       setOnboardingDraft: (d) => set({ onboardingDraft: d }),
       // The take-home mode is converted here, once, on its way in — so no screen and no function
       // below this line ever sees it again. See take-home-mode-migration.ts for why.
+      // The old single rent figure is moved into the rent list the same way, once (old-rent-migration.ts).
       setOnboardingProfile: (p) => set({ onboardingProfile: p
-        ? require('../domain/income/take-home-mode-migration').convertTakeHomeMode(p) : p }),
+        ? require('../domain/income/old-rent-migration').moveOldRentFigure(require('../domain/income/take-home-mode-migration').convertTakeHomeMode(p)) : p }),
       setSelectedGoals: (goals) => set({ selectedGoals: goals }),
       setBudgetFrequency: (f) => set({ budgetFrequency: f }),
       setPayFrequency: (f) => set({ payFrequency: f }),
@@ -1276,15 +1275,26 @@ export const useStore = create<AppState>()(
         } : {}),
       })),
 
+      // A profile from the cloud passes the same one-time moves as one set here (old-rent-migration.ts).
       loadFromCloud: (data) => set((s) => ({
         ...s,
         ...data,
+        ...(data?.onboardingProfile ? { onboardingProfile: require('../domain/income/old-rent-migration').moveOldRentFigure(data.onboardingProfile) } : {}),
         user: s.user,
       })),
     }),
     {
       name: 'finwise-storage-v3',
       storage: createJSONStorage(() => secureStorage),   // AES-encrypted at rest (key in SecureStore)
+      // A PROFILE SAVED ON THE PHONE BEFORE RENT BECAME A LIST is moved on the way in, once: its old single rent
+      // figure becomes a rent entry with no property (DEC-4059d — not rent until a property is picked), so no
+      // function reads the old field again (inputs-and-use audit, 2026-10-11, MK-NW-O-004 theEmergencyFund).
+      merge: (persisted: any, current) => {
+        const p = { ...current, ...(persisted ?? {}) } as typeof current;
+        return p.onboardingProfile
+          ? { ...p, onboardingProfile: require('../domain/income/old-rent-migration').moveOldRentFigure(p.onboardingProfile) }
+          : p;
+      },
     }
   )
 );

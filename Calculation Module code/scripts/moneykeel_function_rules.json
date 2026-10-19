@@ -1517,12 +1517,6 @@
     "12": "months in a year"
    }
   },
-  "MK-NW-F-044": {
-   "name": "getAssetsState",
-   "rule": "Reads the saved accounts and returns assetsStateFrom of them: nothing when none are saved or the saved list is empty.",
-   "read_from": "f6afddc759",
-   "sent_as": "f8babeca59"
-  },
   "MK-NW-F-045": {
    "name": "sourceWording",
    "rule": "Linked account: Linked — or Linked · N days old when its last successful update is 4 or more days old, and Linked · not updated yet when no update is on record (no age is invented). Imported account: Imported, by the same test. Anything else: By hand · you update it. The timestamp read is the account's last successful sync (MK-XS-I-066), never the time prices were fetched.",
@@ -1803,13 +1797,13 @@
   "MK-NW-O-003": {
    "name": "theNetWorth",
    "rule": "Assets = every account's balance added up. Debts = every debt's remaining balance added up. Net worth = assets − debts. Cash = cashTotal. Investments = investmentsTotal: the investment classes of the class split added up (Stocks / Funds, Bonds & CDs, Alternatives, Unclassified, from assetAllocation) — so a linked account's uninvested cash is in Cash only, and Cash + Investments + property comes to everything owned. Investable = investableAssets. By class = assetAllocation. Each debt is listed with its balance and its required monthly payment (the larger of its minimum and the payment the person says they make); monthly debt payments = those added up; monthly debt minimum = the minimums alone added up. Return on cash + investments = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\") over every account that is not property: the period from the day compared from to today is split at every day money moved in or out; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off; returned as a share. A month given without a day is read as its first day. Cash earns only interest: any other change in a cash account's balance is money moving, counted on the day the record first shows it. For the other accounts, money moving = deposits, withdrawals and cash transferred between accounts. Today's value is read from the accounts as they stand. No figure when no day is given, when no recorded day on or before the day compared from holds the accounts, when money moved on a day with no recorded value, when a deposit, withdrawal or transfer on a measured account has no amount on record, or when shares were moved in or out. It also hands out the match of mortgages to properties (mortgagesByProperty). It also names the holdings nothing could class and the person has not yet answered about (account, holding), and the sentence that asks. A holding with no price today is taken out of every day of the return's window, the start day included, so the change line leaves it out as the fix sheet promises (Net worth v08 state F).",
-   "read_from": "0e90439592",
+   "read_from": "8d1814edb3",
    "sent_as": "93975a41df"
   },
   "MK-NW-O-004": {
    "name": "theEmergencyFund",
-   "rule": "Cash = all cash (cashTotal), or the amount handed in when one is given. Owner rule, 2026-10-04: \"Once user enters mortgage or any debt - the app deduct it directly to calculate surplus, emergency fund, and any other place instead of leaving it for user to add it to planned expenses.\" Debt minimums = the MINIMUM monthly payment of every debt added up — the home's mortgage included; a balance due in one lump has none. A payment a person chooses to make above the minimum is not counted: it can be stopped. The budget is read as it is counted (theBudgetCounted): where the home's mortgage is in Debts, the Rent / Mortgage budget line is counted as nothing, and the screen is given a sentence saying so. Essentials for a month = essential expenses + debt minimums. Essential expenses = the average of what was logged, over the calendar months of the last twelve that have a logged entry (this month alone when only it has one); the typed plan only when nothing is logged. Left out of that average, so nothing is counted twice: a payment logged against a debt that is entered (an expense in the category Debt payment, named for that debt), and, where the home's mortgage is in Debts, anything logged under Rent / Mortgage. Rent that keeps arriving = the Rent row of the Income summary (rent from a property less what it costs to run, less calculated tax when the tax rate is calculated), never below zero; owner, 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" It arrives every month, so it is added to the cash every month. From cash each month = essentials − that rent, never below zero. Months covered = cash ÷ from cash each month; no figure when essentials are zero, and no figure when the rent pays for the whole month (the cash is then not drawn on, and it says so). Planned = planned monthly expenses + debt minimums; months covered at the planned level = cash ÷ (planned − that rent); no figure when that is zero or less. Target for N months = from cash each month × N; gap = target − cash, never below zero. Months left after a shock = (cash − the shock, never below zero) ÷ from cash each month. When a typed month of essentials is handed in, it stands in for essentials + debt minimums. A target, and the months left after a shock, are given only when there is an essentials figure. Rent not known, owner rule 2026-10-10 (instead of showing nothing, the card says the months are counted with the rent not included, and asks for the rent): the answer also says whether a property's rent is not known. It is not known only when the household holds a property that is not the home (home, rental and second home read by the owner's property-use rule of 2026-10-04) AND one of these holds: a rent entry's rent figure is blank or not a plain number, or the entry names no property (it is not counted as rent, owner rule DEC-4059d, 2026-10-10); with no list of rent entries, the single typed rent figure is typed at all (it names no property, so it is not counted, DEC-4059d); the rent entries are stored in a shape that is not a list; or with no rent entries stored at all, a property is kept as a rental. A property with no rent entry when rent entries are stored is a second home, not a missing rent. A household with no property other than the home is never flagged. The months covered are still given, counted without the unknown rent.",
-   "read_from": "74e21c26cf",
+   "rule": "Cash = all cash (cashTotal), or the amount handed in when one is given. Owner rule, 2026-10-04: \"Once user enters mortgage or any debt - the app deduct it directly to calculate surplus, emergency fund, and any other place instead of leaving it for user to add it to planned expenses.\" Debt minimums = the MINIMUM monthly payment of every debt added up — the home's mortgage included; a balance due in one lump has none. A payment a person chooses to make above the minimum is not counted: it can be stopped. The budget is read as it is counted (theBudgetCounted): where the home's mortgage is in Debts, the Rent / Mortgage budget line is counted as nothing, and the screen is given a sentence saying so. Essentials for a month = essential expenses + debt minimums. Essential expenses = the average of what was logged, over the calendar months of the last twelve that have a logged entry (this month alone when only it has one); the typed plan only when nothing is logged. Left out of that average, so nothing is counted twice: a payment logged against a debt that is entered (an expense in the category Debt payment, named for that debt), and, where the home's mortgage is in Debts, anything logged under Rent / Mortgage. Rent that keeps arriving = the Rent row of the Income summary (rent from a property less what it costs to run, less calculated tax when the tax rate is calculated), never below zero; owner, 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" It arrives every month, so it is added to the cash every month. From cash each month = essentials − that rent, never below zero. Months covered = cash ÷ from cash each month; no figure when essentials are zero, and no figure when the rent pays for the whole month (the cash is then not drawn on, and it says so). Planned = planned monthly expenses + debt minimums; months covered at the planned level = cash ÷ (planned − that rent); no figure when that is zero or less. Target for N months = from cash each month × N; gap = target − cash, never below zero. Months left after a shock = (cash − the shock, never below zero) ÷ from cash each month. When a typed month of essentials is handed in, it stands in for essentials + debt minimums. A target, and the months left after a shock, are given only when there is an essentials figure. Rent not known, owner rule 2026-10-10 (instead of showing nothing, the card says the months are counted with the rent not included, and asks for the rent): the answer also says whether a property's rent is not known. It is not known only when the household holds a property that is not the home (home, rental and second home read by the owner's property-use rule of 2026-10-04) AND one of these holds: a rent entry's rent figure is blank or not a plain number, or the entry names no property (it is not counted as rent, owner rule DEC-4059d, 2026-10-10); the rent entries are stored in a shape that is not a list; or with no rent entries stored at all, a property is kept as a rental. A property with no rent entry when rent entries are stored is a second home, not a missing rent. A household with no property other than the home is never flagged. The months covered are still given, counted without the unknown rent. The old single typed rent figure (from before rent became a list) is not read: the app moves it once into the rent list as an entry with no property, which the entry rule above then treats as not known.",
+   "read_from": "9bca41cf3f",
    "sent_as": "aca43cd91b"
   },
   "MK-NW-O-005": {
@@ -2061,11 +2055,6 @@
    "rule": "The property propertyUseMap reads as the home lived in, handed the rent entries when the caller has them. Nothing (null) when the household has no home — which is not the same as not being asked. Example (owner, 2026-10-13): B marked the home with a rent entry naming B, A with no use stated → null (B is a rental, A a second home).",
    "read_from": "5247bdf736",
    "sent_as": ""
-  },
-  "MK-NW-F-111": {
-   "name": "assetsStateFrom",
-   "rule": "buildAssetsState of the saved accounts. Nothing when there is no saved record, or the saved record holds no accounts.",
-   "read_from": "78b1dbeac1"
   },
   "MK-NW-F-112": {
    "name": "yearlyInterest",
@@ -2347,6 +2336,27 @@
     "2031": "not a figure: part of the example holding's name, Treasury 2031"
    },
    "read_from": "bcd10debb2"
+  },
+  "MK-CF-F-216": {
+   "name": "typed",
+   "rule": "True when a figure was typed: it is present and is not blank once spaces are taken off. A typed 0 counts as typed.",
+   "read_from": "ac7ceda4a5",
+   "figures_checked_by_hand": {
+    "0": "an example of a typed figure (a typed 0 counts as typed), not a figure the code holds"
+   }
+  },
+  "MK-CF-F-217": {
+   "name": "hasOldRentFigure",
+   "rule": "True when the profile still holds any of the old single rent fields (rent coming in, costs going out, or the kind of let); false for no profile.",
+   "read_from": "3a0d77bf72"
+  },
+  "MK-CF-F-218": {
+   "name": "moveOldRentFigure",
+   "rule": "Moves the old single rent figure into the rent list once, then removes the old fields. Unchanged when there is no old figure, or when the rent list is there but cannot be read. When the rent list already has entries, the list stands and the old fields are just removed. When neither old figure was typed, the old fields are just removed. Otherwise the list becomes one entry with no property — short let or long let as stored (long when not stated), the rent and the costs as typed, blank when not — which is not rent until its property is picked (DEC-4059d).",
+   "figures_checked_by_hand": {
+    "4059": "a decision number (DEC-4059d), not a figure"
+   },
+   "read_from": "d8720f21a9"
   }
  },
  "pack_sent": {
