@@ -301,14 +301,24 @@ describe('MK-NW-F-065 buildNetWorth — five cases', () => {
     const n = buildNetWorth('u' as any, 8000 + 52500 + 300000, debt);
     expect({ assets: n.gross_assets, debt: n.gross_debt, net_worth: n.net_worth }).toEqual({ assets: 360500, debt: 220750, net_worth: 139750 });
   });
-  // FINDING: app gives { net_worth: 80000 } and no incomplete flag, expected known_net_worth 80000 + "Incomplete — debt
-  // balance missing". totalDebtBalance adds a debt with no balance as 0 (src/domain/debt/index.ts:269) and dataGaps names
-  // only accounts with no balance (src/domain/gaps/index.ts:166), never a debt. DEC-3279e says "a missing balance is never
-  // $0"; its governed list names only asset functions.
+  // SETTLED BY DEC-3279e and DEC-3657 (re-judged 2026-10-18; was FINDING — fixed 2026-10-09, outside review OpenAI final).
+  // Every fact the auditor asks for is now given: known net worth $100,000 − $20,000 = $80,000, the debt with no balance
+  // left out (never $0), and the amber box names it — "<debt> has no balance — It is left out of what you owe until it
+  // has one — not counted as $0." (gaps/index.ts:267-279, read by NetWorthScreen.tsx:767), its row reading "Value not
+  // entered" (DEC-3657, NetWorthScreen.tsx:1020). The case still fails only because it looks for the warning on
+  // buildNetWorth's answer; by DEC-3279e the warning lives in the amber box, with the app's words.
   test.failing('complex · Unknown debt balance must flag incomplete', () => {
     const n: any = buildNetWorth('u' as any, 100000, totalDebtBalance([{ remaining_balance: 20000 }, { remaining_balance: null }] as any));
     expect(n.net_worth).toBe(80000);
     expect(n.warning).toBe('Incomplete — debt balance missing');
+  });
+  test('complex · Unknown debt balance — the app\'s answer: $80,000 known, the debt named in the amber box (DEC-3279e)', () => {
+    const debts = [{ debt_id: 'd1', label: 'Car loan', remaining_balance: 20000 }, { debt_id: 'd2', label: 'Store card', remaining_balance: null }];
+    const n = buildNetWorth('u' as any, 100000, totalDebtBalance(debts as any));
+    expect({ net_worth: n.net_worth, debt: n.gross_debt }).toEqual({ net_worth: 80000, debt: 20000 });
+    const gaps = dataGaps([], null, Date.now(), [], [], debts as any).filter((g) => g.kind === 'no-balance');
+    expect(gaps.map((g) => ({ debtId: g.debtId, title: g.title, meanwhile: g.meanwhile })))
+      .toEqual([{ debtId: 'd2', title: 'Store card has no balance', meanwhile: 'It is left out of what you owe until it has one — not counted as $0.' }]);
   });
   // SETTLED BY DEC-0260 / DEC-2748i: with nothing entered the screen shows $0, says nothing is entered and offers the door
   // (the first-day screen) — the arithmetic $0 is right here; the words are the screen's.

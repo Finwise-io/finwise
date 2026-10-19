@@ -307,10 +307,17 @@ describe('MK-NW-F-015 totalAssets — five cases', () => {
     expect(totalAssets(accounts)).toBeCloseTo(128333.33, 6);
     expect(noBalanceGaps(accounts)).toEqual([expect.stringContaining('Undervalued property')]);
   });
-  // FINDING: app gives 0, expected REFUSES (no accounts). Low reach: totalAssets has no production caller (the screen's
-  // total is buildAssetsState). (It named getAssetsState as holding DEC-2748i upstream; that function was removed
-  // 2026-10-14 — nothing called it.)
+  // BRIEF WRONG (re-judged 2026-10-18; was marked FINDING): REFUSES — right is $0. With no accounts there is nothing to
+  // add, so the sum is 0 + nothing = $0. DEC-0260 / DEC-0431 rule what a person sees with nothing entered: the screen
+  // keeps its shape, reads $0, says "Nothing entered yet." and offers the door (NetWorthScreen.tsx:585). The auditor
+  // leaned on DEC-2748i, which governed only the removed getAssetsState / assetsStateFrom (a saved record with every
+  // account deleted shows the first-day screen) — never this sum. And totalAssets has no caller in the app (tests only,
+  // inputs-and-use audit, Net worth), so no screen can print it.
   test.failing('edge · No accounts refuses rather than $0 owned', () => { refuses(totalAssets([])); });
+  test('edge · No accounts — the app\'s answer: $0, the empty sum (DEC-0260, DEC-0431)', () => {
+    expect(totalAssets([])).toBe(0);
+    expect(noBalanceGaps([])).toEqual([]);   // nothing is missing, so the amber box has nothing to name
+  });
 });
 
 describe('MK-NW-F-016 cashTotal — five cases', () => {

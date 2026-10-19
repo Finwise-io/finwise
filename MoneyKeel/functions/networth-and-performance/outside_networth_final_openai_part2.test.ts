@@ -170,14 +170,19 @@ describe('MK-NW-F-029 assetAllocation — five cases', () => {
     matchSplit(assetAllocation([acct({ id: 'h', kind: 'home', balance: 350000 }), acct({ id: 'v', kind: 'vehicle', balance: 18000 }),
       acct({ id: 'g', kind: 'commodities', balance: 6000 })]), { 'Real estate': 350000, 'Personal property': 18000, Alternatives: 6000, total: 374000 });
   });
+  // BRIEF WRONG (re-checked 2026-10-18): REFUSES — right is the known classes, $0 in every class here, with the
+  // account left out and named in the amber box ("Brokerage has no balance"). DEC-3279e: "a missing balance is never
+  // $0: it is left out of the total and the amber box names the account"; DEC-2747f: the total carries no count of
+  // accounts with no value. The split is not certified complete — the amber box says what is missing (tenet 3).
   test.failing('edge · Missing split cannot certify complete total', () => {
-    // BRIEF WRONG: REFUSES — right is the known classes ($0 here) with the account left out and named in the amber box,
-    // because DEC-3279e rules "a missing balance is never $0: it is left out of the total and the amber box names the
-    // account", and DEC-2747f rules the total carries no count of accounts with no value. The app does exactly that:
-    // assetAllocation leaves it out (index.ts:1743), dataGaps names it (gaps/index.ts:166).
     const a = acct({ id: 'b', label: 'Brokerage', kind: 'brokerage', asset_class: 'stocks_etf', balance: null, source: 'connected' });
     expect(noBalanceGap([a], 'Brokerage')).toBe(true);
     refuses(assetAllocation([a]));
+  });
+  test('edge · Missing split — the app\'s answer: known classes only ($0), the account named in the amber box (DEC-3279e)', () => {
+    const a = acct({ id: 'b', label: 'Brokerage', kind: 'brokerage', asset_class: 'stocks_etf', balance: null, source: 'connected' });
+    matchSplit(assetAllocation([a]), { total: 0 });          // left out, not counted as $0 of Stocks / Funds
+    expect(noBalanceGap([a], 'Brokerage')).toBe(true);
   });
 });
 
@@ -194,16 +199,29 @@ describe('MK-NW-F-030 earmarkDefault — five cases', () => {
     const car = primaryCarIdOf(accounts);
     expect({ car, A_share: earmarkDefault(accounts[0], car), B_share: earmarkDefault(accounts[1], car) }).toEqual({ car: 'A', A_share: 0, B_share: 100 });
   });
+  // SETTLED BY DEC-2747e (and DEC-4913) — re-judged 2026-10-18, was marked FINDING. The auditor wrote RULE UNCLEAR.
+  // The rule is decided: with two properties and no use stated, the one entered first (A) is the home at 0%, B counts
+  // 100% — and the app gives exactly that when handed the household's home (primaryHomeIdOf on the whole list). Every
+  // caller that can see a property now hands it in (RetirementCockpit.tsx:171,955, PlanInputs.tsx:56, decumulation
+  // index.ts:117, retirementEarmarkedValue assets index.ts:2298); the calls with nothing handed in (portfolioActualReturn,
+  // earmarkedKinds) skip property first. "Told nothing", earmarkDefault sees ONE account and cannot know which was
+  // entered first: one property alone is the home (DEC-0100), so B alone gives 0. The household total is right:
+  // $500,000 of property, $200,000 (B) counts.
   test.failing('complex · First property default home versus “told nothing”', () => {
-    // FINDING: app gives A 0% and B 0% when told nothing (index.ts:1806 — every property with no use stated is the home),
-    // expected per DEC-2747e (decision settles the RULE UNCLEAR): the one entered first (A) is the home at 0%, B counts 100%.
-    // Handed the household's home the app is right (A 0, B 100). Callers that tell it nothing: src/screens/RetirementCockpit.tsx:161,165,173
-    // and src/domain/decumulation/index.ts:43 (earmarkedAmount(a) with no car or home).
     const A = acct({ id: 'A', kind: 'home', balance: 300000 }), B = acct({ id: 'B', kind: 'home', balance: 200000 });
     const accounts = [B, A];                                     // newest first: A entered first
     const home = primaryHomeIdOf(accounts);
     expect({ A: earmarkDefault(A, undefined, home), B: earmarkDefault(B, undefined, home) }).toEqual({ A: 0, B: 100 });
     expect({ A: earmarkDefault(A), B: earmarkDefault(B) }).toEqual({ A: 0, B: 100 });
+  });
+  test('complex · First property default home — the app\'s answer (DEC-2747e; DEC-0100 for one property alone)', () => {
+    const A = acct({ id: 'A', kind: 'home', balance: 300000 }), B = acct({ id: 'B', kind: 'home', balance: 200000 });
+    const accounts = [B, A];                                     // newest first: A entered first
+    const home = primaryHomeIdOf(accounts);
+    expect(home).toBe('A');
+    expect({ A: earmarkDefault(A, undefined, home), B: earmarkDefault(B, undefined, home) }).toEqual({ A: 0, B: 100 });
+    expect(retirementEarmarkedValue(accounts)).toBe(200000);    // $300,000 home left out, $200,000 counts
+    expect({ A: earmarkDefault(A), B: earmarkDefault(B) }).toEqual({ A: 0, B: 0 });   // each alone: the only property is the home
   });
   test('edge · Saved share outside range', () => {
     // UNCLEAR: earmarkDefault never reads a saved share; earmarkedAmount holds a saved 130% at 100% (index.ts:1895), so
@@ -498,8 +516,9 @@ describe('MK-NW-F-046 historyCoverage — five cases', () => {
     expect(h.kind).toBe('none'); expect(h.sentence).toMatch(/no activity records/);
   });
   test('easy · History covers requested period', () => { refuses(historyCoverage(linkedFrom('2024-01-01'), '2025-01-01', TODAY)); });   // wording "" = nothing to say
+  // BRIEF WRONG (re-checked 2026-10-18): 18.3 — right is nothing to say (null) for these inputs, and 18.2 on a period
+  // the history does not cover. The rule is the card's own (rounded DOWN, DEC-3035l; covered period: say nothing).
   test.failing('complex · 18 whole months plus part month is not rounded up', () => {
-    // BRIEF WRONG: 18.3 — right is nothing to say (null) for these inputs, and 18.2 on a period the history does not cover.
     // (1) The history starts 2025-04-01, BEFORE the period's first day 2026-01-01, so by the card ("History starting on
     // or before the period's first day: nothing to say") there is no sentence and no months figure.
     // (2) The arithmetic: Apr 1 2025 → Oct 1 2026 is 18 whole months; Oct 1 → Oct 9 is 8/31 = 0.258; 18.258 rounded DOWN
@@ -509,6 +528,13 @@ describe('MK-NW-F-046 historyCoverage — five cases', () => {
     refuses(historyCoverage(linkedFrom('2025-04-01'), '2026-01-01', TODAY));            // the auditor's own inputs
     expect(historyCoverage(linkedFrom('2025-04-01'), '2026-01-01', TODAY)?.monthsCovered).toBe(18.3);
   });
+  test('complex · 18 whole months plus part month — the app\'s answer: nothing to say; 18.2 where it is not covered', () => {
+    refuses(historyCoverage(linkedFrom('2025-04-01'), '2026-01-01', TODAY));            // Apr 1 2025 ≤ Jan 1 2026: covered
+    const longer = historyCoverage(linkedFrom('2025-04-01'), '2024-01-01', TODAY)!;     // 18 + 8/31 = 18.258 → down to 18.2
+    expect(longer.monthsCovered).toBe(18.2);
+    expect(longer.sentence).toMatch(/1 year 6 months of history \(from Apr 1, 2025\)/);
+  });
+  // BRIEF WRONG (re-checked 2026-10-18): see the note inside — the auditor's figures are right, its period is covered.
   test.failing('complex · One day short of year never rounds up', () => {
     // BRIEF WRONG: 11.9 and "11 months of history" — right is nothing to say (null) for these inputs: the history starts
     // 2025-10-10, BEFORE the period's first day 2026-01-01, so the period is covered (the card's own rule). On a period
@@ -517,6 +543,13 @@ describe('MK-NW-F-046 historyCoverage — five cases', () => {
     expect(longer.monthsCovered).toBe(11.9); expect(longer.sentence).toMatch(/ 11 months of history \(from Oct 10, 2025\)/);
     refuses(historyCoverage(linkedFrom('2025-10-10'), '2026-01-01', TODAY));
     expect(historyCoverage(linkedFrom('2025-10-10'), '2026-01-01', TODAY)?.monthsCovered).toBe(11.9);
+  });
+  test('complex · One day short of year — the app\'s answer: nothing to say; 11.9 where it is not covered', () => {
+    refuses(historyCoverage(linkedFrom('2025-10-10'), '2026-01-01', TODAY));            // Oct 10 2025 ≤ Jan 1 2026: covered
+    // 11 whole months (Oct 10 → Sep 10) + 29 of September's 30 days = 11.967 → down to 11.9, never 12
+    const longer = historyCoverage(linkedFrom('2025-10-10'), '2024-01-01', TODAY)!;
+    expect(longer.monthsCovered).toBe(11.9);
+    expect(longer.sentence).toMatch(/ 11 months of history \(from Oct 10, 2025\)/);
   });
   test('edge · Future history date', () => {
     // SETTLED 2026-10-10 by DEC-4059b/c: a history start after today (or not a real date) is refused — "History start
@@ -637,15 +670,24 @@ describe('MK-NW-F-052 buildItemizedAccounts — five cases', () => {
         { name: 'Schwab cash', balance: 3000, retirement_pct: 75, source: 'connected', kind: '401k' }]);
     expect({ class: out[2].asset_class, target_rate: out[2].target_return }).toEqual({ class: 'cash', target_rate: 0.035 });
   });
+  // BRIEF WRONG (re-judged 2026-10-18; was FINDING — the $0 bond it named was fixed 2026-10-09): expected a new
+  // "Unpriced bond" account with no balance — right is NO accounts built: the app refuses to itemise until every
+  // holding has a value, and the $10,000 account stays as it was. Building it the auditor's way would also make a
+  // "Chase cash" account of $10,000 − $4,000 = $6,000 that is really part bond: a wrong cash figure (tenet 1). Nothing
+  // becomes $0 either way (DEC-3279e, tenet 3); DEC-3279f leaves the holding out and marks the remainder not final,
+  // which is what the Itemize screen shows before Done. The screen cannot add a holding with no value (ItemizeScreen.tsx:73).
   test.failing('complex · Missing holding value stays missing', () => {
-    // FINDING: app creates "Unpriced bond" with balance $0 (balance: (h.value || 0), itemize.ts:193) and a $6,000 cash
-    // account as if the remainder were final; expected per DEC-3279e ("a missing balance is never $0") and DEC-3279f
-    // ("a holding with no value is left out, and the remainder is then not final") — the decisions settle the RULE
-    // UNCLEAR: the record keeps no value (null), never $0. Not reachable from the Itemize screen today (ItemizeScreen.tsx:72).
     const out = buildItemizedAccounts(acct({ institution: 'Chase', kind: 'brokerage', balance: 10000 }),
       [item(4000, 'stocks_etf', 'VTI'), item(null, 'bonds', 'Unpriced bond')]);
     const bond = out.find((a) => a.label === 'Unpriced bond')!;
     expect(bond.balance).toBeNull();
+  });
+  test('complex · Missing holding value — the app\'s answer: refuses to build, the account kept as it was (DEC-3279e/f)', () => {
+    const lump = acct({ institution: 'Chase', kind: 'brokerage', balance: 10000 });
+    const items = [item(4000, 'stocks_etf', 'VTI'), item(null, 'bonds', 'Unpriced bond')];
+    expect(() => buildItemizedAccounts(lump, items)).toThrow(/no value \(Unpriced bond\)/);
+    expect(lump.balance).toBe(10000);
+    expect(itemising(10000, items).remainderFinal).toBe(false);   // before Done: the $6,000 left over is not final
   });
   test('edge · No remainder cash when holdings exceed total', () => {
     const items = [item(6000, 'stocks_etf', 'A'), item(4500, 'bonds', 'B')];

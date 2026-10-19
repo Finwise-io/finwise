@@ -194,6 +194,13 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
     expect(y.ending).toBe(123000);
     expect(y.sentence).toBe(`The record begins ${dateShown('2025-10-01')}, so it cannot say what these accounts were worth on ${dateShown('2025-09-29')}.`);
   });
+  // SETTLED BY DEC-4644 and DEC-5068 (re-judged 2026-10-18). The judge's 5% is a PRICE-ONLY return; the app's feed gives
+  // dividend-adjusted closes, so a holding's return already carries its dividend and the beginning takes it off once
+  // (DEC-4644). Read as the feed's figure, 5% gives beginning $106,200 − $105,000 × (1 − 1 ÷ 1.05) = $101,200, wealth
+  // generated $5,000, change in investment value $5,000 − $1,200 = $3,800; fed the feed's own 6.2753% it gives the
+  // judge's $100,000 / $6,200 / $5,000. The judge's "no return" is also superseded: DEC-5068 (2026-10-13) shows Return for
+  // the holdings with a price history even with no daily record — VTI $105,000 ÷ ($105,000 ÷ 1.05) − 1 = 5.00% (6.28% fed
+  // the adjusted return). Both pinned in the tests after this one. History of this case, kept below:
   // NOT BUILT 2026-10-11 (outside review Claude Performance) — stopped, reported: this case hands a PRICE-ONLY 5%, but the
   // app's one price feed gives dividend-ADJUSTED closes (src/services/marketData.ts, adjclose), so a real holding's
   // period return already carries the dividend. Taking the dividend off the beginning as well would count it twice
@@ -229,10 +236,20 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
     expect(w.marketChange).toBeCloseTo(5000, 9);
   });
   // DEC-4644 (2026-10-12): the holding's return as the feed gives it includes its dividend, and the dividend is counted once.
-  const workedBack = (periodReturn: number) => perf({ period: '3M', days: [], accounts: [linked('Brokerage', 106200, { cash_balance: 1200,
+  const workedBackRun = (periodReturn: number) => perf({ period: '3M', days: [], accounts: [linked('Brokerage', 106200, { cash_balance: 1200,
     positions: [{ ticker: 'VTI', last_price: 105, lots: [{ shares: 1000, cost_per_share: 90 }] }] })],
     holdings: [{ position: { ticker: 'VTI' }, marketValue: 105000, periodReturn }],
-    transactions: [{ type: 'DIVIDEND', account_id: 'Brokerage', ticker: 'VTI', date: '2026-09-15', amount: 1200 }] }).walk!;
+    transactions: [{ type: 'DIVIDEND', account_id: 'Brokerage', ticker: 'VTI', date: '2026-09-15', amount: 1200 }] });
+  const workedBack = (periodReturn: number) => workedBackRun(periodReturn).walk!;
+  test('edge · No record at all — the app\'s Return: the holding with a price history, not refused (DEC-5068)', () => {
+    // VTI now $105,000, its start $105,000 ÷ (1 + r): Return = 105,000 ÷ start − 1 = r; a 3-month window, never yearly
+    const r = workedBackRun(0.05);
+    expect(r.ret!).toBeCloseTo(0.05, 12);
+    expect(r.perYear).toBeNull();
+    expect(r.ending).toBe(106200);
+    const adjusted = 105 / (100 * (1 - 1.2 / 100)) - 1;
+    expect(workedBackRun(adjusted).ret!).toBeCloseTo(adjusted, 12);   // 6.2753%
+  });
   test('edge · The 5% read as the feed gives it — a total return, the dividend inside it once (DEC-4644)', () => {
     const w = workedBack(0.05);
     // beginning = 106,200 − 105,000 × (1 − 1 ÷ 1.05) = 106,200 − 5,000 = 101,200; the dividend is not taken off again

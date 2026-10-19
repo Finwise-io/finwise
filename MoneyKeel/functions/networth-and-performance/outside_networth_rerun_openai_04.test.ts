@@ -770,8 +770,11 @@ describe('MK-NW-O-005 theAlternativesOutlook — five cases', () => {
     rowsAddUp(o);
   });
   // a $20,000 brokerage: $16,000 of a stock fund, $3,000 of a priced bitcoin fund (crypto, 8%), $1,000 of an unpriced
-  // alternative. CARD MISREAD on the label: "classPortionLabel for Alternatives" names the FUNCTION asked for the
-  // Alternatives part — what it says is which holdings this is: "2 holdings in this account", not the word "Alternatives".
+  // alternative. BRIEF WRONG (re-labelled 2026-10-18; was CARD MISREAD), on the label only: "Alternatives" — right is
+  // "2 holdings in this account". The card says the row names its part with classPortionLabel for Alternatives, and that
+  // card (MK-NW-F-028) reads "N options & N holdings in this account, each part left out when its count is zero": 0
+  // options (left out) & 2 alternative holdings (the bitcoin fund and the unpriced stake). Every figure is right:
+  // $3,000 + $1,000 = $4,000 in the row, 8% on the $3,000 classified, $1,000 not classified.
   const portion = () => theAlternativesOutlook({ accounts: [linked({ asset_id: 'broker', label: 'broker', balance: 20000 }, 0,
     [pos('VTI', 'VTI', 100, 160, 'stock_etf'), pos('IBIT', 'Bitcoin fund', 60, 50, 'other'), pos(null, 'Unpriced stake', 1, null, 'other')])] }).rows[0];
   test.failing('complex · Brokerage containing crypto/option uses alternative portion row', () => {

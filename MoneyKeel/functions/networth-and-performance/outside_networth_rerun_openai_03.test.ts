@@ -370,7 +370,7 @@ describe('MK-NW-F-090 windowStartKey — five cases', () => {
     expect(windowStartKey('SINCE', ['2025-04-02', '2025-06-15'], '2026-10-13')).toBe('2025-04-03');
   });
   test('complex · Since with future earliest date caps at today', () => { expect(windowStartKey('SINCE', ['2027-01-01'], '2026-10-13')).toBe('2026-10-13'); });
-  // SPECIFICATION_CONFLICT → BRIEF WRONG: OpenAI follows the card, which says "Any other label: 12 months back, the same
+  // SETTLED BY DEC-4640 (re-labelled 2026-10-18; was SPECIFICATION_CONFLICT → BRIEF WRONG): OpenAI follows the card, which says "Any other label: 12 months back, the same
   // way" (v02 cards part 3, MK-NW-F-090). His later ruling DEC-4640 (2026-10-12, "1, 2 - approved") says a window name
   // the app does not have gives NO figure — never a guessed one — and the code follows it (performance.ts: startDateFor
   // refuses an unknown name, windowStartKey returns null). The newer ruling governs; the card text was stale and is corrected 2026-10-13 (function rules + the code's own description now say: nothing). (Its own
