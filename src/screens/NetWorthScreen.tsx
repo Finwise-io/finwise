@@ -576,6 +576,27 @@ export default function NetWorthScreen() {
     </View>
   );
 
+  // THE WAYS TO ADD AN ACCOUNT (Net worth v08 state C and mark 14, approved 2026-09-14; DEC-0227): one
+  // line and the three doors, ONCE, whenever nothing is entered. It used to repeat "Add your accounts ›"
+  // under every empty group and then add a heading over the doors — founder: "too much duplication".
+  // ONE element for both nothing-entered screens — the first day and a later visit with no account yet
+  // look the same to the person, so they read the same (workplan row 2026-09-14, the Q48 frame).
+  const waysToAdd = (<>
+    <Text style={[styles.firstDayAsk, styles.ledgerPad]}>Nothing entered yet.{' '}<Text style={styles.firstDayAskQ}>{ADD_ACCOUNT_QUESTION}</Text></Text>
+    {ADD_ACCOUNT_DOORS.map((d) => (
+      <TouchableOpacity key={d.route} style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel={d.title}
+        onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); router.push(d.route as any); }}>
+        <Text style={styles.doorTxt}>{d.title}</Text>
+        <Text style={styles.arrowSlot}>›</Text>
+      </TouchableOpacity>
+    ))}
+    <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel="Guided setup — walk through each bucket"
+      onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('guided'); setStep(0); }}>
+      <Text style={styles.doorTxtQuiet}>or walk through it step by step</Text>
+      <Text style={styles.arrowSlot}>›</Text>
+    </TouchableOpacity>
+  </>);
+
   let body: React.ReactNode;
 
   if (!choice) {
@@ -618,22 +639,7 @@ export default function NetWorthScreen() {
           </>) : (
             <Text style={[styles.empty, styles.ledgerPad]}>Your banks and brokerages will be listed here, each with what it holds.</Text>
           )}
-          {/* THE WAYS TO ADD AN ACCOUNT (Net worth v08, approved 2026-09-14): one line and the three doors,
-              once. It used to repeat "Add your accounts ›" under every empty group and then add a heading
-              over the doors — founder: "too much duplication". */}
-          <Text style={[styles.firstDayAsk, styles.ledgerPad]}>Nothing entered yet.{' '}<Text style={styles.firstDayAskQ}>{ADD_ACCOUNT_QUESTION}</Text></Text>
-          {ADD_ACCOUNT_DOORS.map((d) => (
-            <TouchableOpacity key={d.route} style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel={d.title}
-              onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); router.push(d.route as any); }}>
-              <Text style={styles.doorTxt}>{d.title}</Text>
-              <Text style={styles.arrowSlot}>›</Text>
-            </TouchableOpacity>
-          ))}
-          <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel="Guided setup — walk through each bucket"
-            onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('guided'); setStep(0); }}>
-            <Text style={styles.doorTxtQuiet}>or walk through it step by step</Text>
-            <Text style={styles.arrowSlot}>›</Text>
-          </TouchableOpacity>
+          {waysToAdd}
 
           <SectionBand title="DEBTS" infoTerm="debt" value={fig('MK-NW-M-009', 0)} trailing={RIGHT_SLOT} />
           {/* the same one line: the door is the row right below it, so it is not repeated (v08) */}
@@ -970,10 +976,14 @@ export default function NetWorthScreen() {
               return (
                 <View key={`empty-${e.group}`}>
                   <SectionBand light trailing={RIGHT_SLOT} title={`${e.icon} ${e.label}`} value={fig('MK-NW-M-006', 0)} />
-                  {!entered && <View style={styles.ledgerPad}><EmptyNote door="accounts" onPress={() => setAddChooser(true)} /></View>}
+                  {/* the line and door under ONE empty group (Q48 frame 2) — never under each group when
+                      nothing at all is entered: that is the ways-to-add block below, once (DEC-0227) */}
+                  {!entered && assets.length > 0 && <View style={styles.ledgerPad}><EmptyNote door="accounts" onPress={() => setAddChooser(true)} /></View>}
                 </View>
               );
             })}
+          {/* nothing entered, past the first day: the same one line and three doors as the first day (v08 state C) */}
+          {assets.length === 0 && waysToAdd}
 
         {/* DEBTS — minus numbers, the word carries the meaning */}
         <SectionBand title="DEBTS" infoTerm="debt" trailing={RIGHT_SLOT}

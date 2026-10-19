@@ -25,16 +25,18 @@ beforeEach(() => {
   useStore.setState({ hideBalances: false, onboardingComplete: true, nwSeeded: true, nwSetupChoice: 'self', onboardingProfile: { status: 'employed' }, assetAccounts: [], liabilities: [] } as any);
 });
 
-test('frame 1 — nothing entered: $0, the one line, and the door under the hero, every OWN row and DEBTS', () => {
+test('frame 1 — nothing entered: $0 and the one line under the hero, the ways to add ONCE, and DEBTS', () => {
+  // Net worth v08 state C and mark 14 (approved 2026-09-14, DEC-0227) replace the Q48 drawing's frame 1
+  // here: "Add your accounts ›" no longer repeats under Cash and Investments — "too much duplication".
   render(<NetWorth />);
   const v = visible();
-  expect(v.filter((s) => s === 'Nothing entered yet.').length).toBe(4);   // hero + Cash + Investments + Debts
-  expect(v.filter((s) => s === 'Add your accounts ›').length).toBe(3);
-  expect(screen.getAllByText('Add your debts ›').length).toBeGreaterThanOrEqual(1);
+  expect(v.filter((s) => s === 'Nothing entered yet.').length).toBe(3);   // hero + the ways-to-add line + Debts
+  expect(v.filter((s) => s === 'Add your accounts ›').length).toBe(1);   // the hero's, once
+  expect(screen.getAllByText('Add your debts ›').length).toBe(1);        // DEC-4528
   expect(screen.queryByText(/No debts — it's all yours/)).toBeNull();
   expect(screen.queryByText(/one live number/)).toBeNull();
   // the line reads as one sentence to VoiceOver
-  expect(screen.getAllByLabelText('Nothing entered yet. Add your accounts ›').length).toBe(3);
+  expect(screen.getAllByLabelText('Nothing entered yet. Add your accounts ›').length).toBe(1);
 });
 
 test('frame 2 — cash entered, nothing else: Cash is plain, Investments shows $0 with the line, Debts shows the line', () => {
