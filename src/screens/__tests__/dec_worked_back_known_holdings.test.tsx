@@ -34,7 +34,7 @@ const TODAY = isoLocalDate(new Date());
 const daysAgo = (n: number) => { const d = new Date(`${TODAY}T12:00:00`); d.setDate(d.getDate() - n); return isoLocalDate(d); };
 /** one year back to the day, then the day before it — on the calendar, so a leap year cannot shift it */
 const yearAndADayBack = () => { const d = new Date(`${TODAY}T12:00:00`); d.setFullYear(d.getFullYear() - 1); d.setDate(d.getDate() - 1); return isoLocalDate(d); };
-const SENTENCE = "Wealth generated and Return do not include Treasury 2031's gains, as it has no price history.";
+const SENTENCE = "Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.";   // reworded 2026-10-19 by DEC-6076
 
 /** the $50,000 account, typed by hand, holding VTI (priced) and Treasury 2031 (no price history) */
 const SCHWAB = {
@@ -61,10 +61,11 @@ describe('the account page, past year (DEC-5068, 2026-10-13)', () => {
     // the account's only record: the VTI purchase, 700 days ago — it opens the account's history, and moves no money
     seed([SCHWAB], { transactions: [{ id: 'b1', account_id: 'sch', type: 'BUY', ticker: 'VTI', shares: 160, price: 200, amount: 32000, date: daysAgo(700) }] });
     render(<AccountPortfolioScreen />);
-    const oneYear = screen.getAllByRole('button').find((b) => /^1Y, /.test(b.props.accessibilityLabel ?? ''));
+    // the account page prints the Performance tab's own control since DEC-6079 (2026-10-19): its labels say Show …
+    const oneYear = screen.getAllByRole('button').find((b) => /^Show 1Y, /.test(b.props.accessibilityLabel ?? ''));
     expect(oneYear).toBeTruthy();
     // the chip itself carries the return: +10.00% (it read "no figure" before DEC-5068)
-    expect(oneYear!.props.accessibilityLabel).toBe('1Y, +10.00%');
+    expect(oneYear!.props.accessibilityLabel).toBe('Show 1Y, +10.00%');
     fireEvent.press(oneYear!);
 
     // THE SUMMARY TRIO
@@ -109,14 +110,19 @@ describe('the Performance tab, that account\'s card (DEC-5068, 2026-10-13)', () 
     // SETTLED 2026-10-13 by DEC-5291: some accounts reach (Vanguard), one does not (Schwab) — the summary is the
     // cards added up, so the sentence is under the summary too (it was once, on the card: Schwab arrived as money put in).
     // Summary: $30,000 + $46,364 = $76,364 became $33,000 + $50,000 = $83,000; wealth generated $3,000 + $3,636 = $6,636.
-    expect(screen.getAllByText(SENTENCE).length).toBe(2);
+    // DEC-6076 (2026-10-19): each sentence names the dollars ITS return is on — the card Schwab's VTI $40,000, the
+    // summary Vanguard's measured $33,000 + VTI's $40,000 = $73,000
+    const SUMMARY_SENTENCE = 'Return is on the $73,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.';
+    expect(screen.getAllByText(SENTENCE).length).toBe(1);
+    expect(screen.getAllByText(SUMMARY_SENTENCE).length).toBe(1);
     expect(screen.getByText('HOW $76,364 BECAME $83,000 · ALL ACCOUNTS')).toBeOnTheScreen();
     expect(screen.getAllByText('$6,636').length).toBeGreaterThan(0);
     // open the card: the walk rows, its Return row, and the sentence below them
     const toggle = screen.getAllByLabelText(/Expands its walk/).find((t) => /^Schwab/.test(t.props.accessibilityLabel ?? ''));
     expect(toggle).toBeTruthy();
     fireEvent.press(toggle!);
-    expect(screen.getAllByText(SENTENCE).length).toBe(2);
+    expect(screen.getAllByText(SENTENCE).length).toBe(1);
+    expect(screen.getAllByText(SUMMARY_SENTENCE).length).toBe(1);
     expect(screen.getAllByText('$46,364').length).toBeGreaterThan(0);          // its beginning
     expect(screen.getAllByText('$3,636').length).toBeGreaterThan(0);           // its wealth generated
     expect(screen.getAllByText('+10.00%').length).toBeGreaterThan(0);          // its Return row

@@ -51,13 +51,16 @@ import { valueOn } from '../../../Calculation Module code/engines/snapshots';
 import { dateShown } from '../../../src/domain/_shared/dates';
 import { contractMultiplier, totalShares, windowTotal } from '../../../src/domain/performance';
 import { plural } from '../../../src/domain/_shared/plural';
+import { writeFigure } from '../_figure-spec';
+import { PERFORMANCE_FIGURES } from './performance';
 
 // ── the functions the app does not export, compiled from their own source text ──────────────────────
 // The functions performance.ts imports are handed to the compiled text under the same names, so it runs as
 // written (added 2026-10-11: heldValueOf and gainOfRow now ask the one rule for shares, the contract multiplier
 // and a window's own total — outside review Claude Performance). Nothing here changes an expected answer.
 // plural joined on 2026-10-13: notIncludedSentence takes its has / have from the one list (MK-NW-F-130)
-const IMPORTED: Record<string, unknown> = { contractMultiplier, totalShares, windowTotal, plural };
+// writeFigure and the declared figures joined on 2026-10-19: the sentence writes its two amounts under MK-PF-M-021 / 022 (DEC-6076)
+const IMPORTED: Record<string, unknown> = { contractMultiplier, totalShares, windowTotal, plural, writeFigure, PERFORMANCE_FIGURES };
 const compile = (file: string, parts: { start: RegExp; end: string }[], name: string) => {
   const text = fs.readFileSync(path.join(__dirname, file), 'utf8');
   const code = parts.map(({ start, end }) => {
@@ -76,7 +79,7 @@ const gainOfRow: (r: any, years: number) => number | null = compile('performance
   [{ start: /function gainOfRow\(/, end: '\n}\n' }, { start: /function heldValueOf\(/, end: '\n}\n' }], 'gainOfRow');
 const heldValueOf: (r: any) => number = compile('performance.ts', [{ start: /function heldValueOf\(/, end: '\n}\n' }], 'heldValueOf');
 const gainRowName: (r: any) => string = compile('performance.ts', [{ start: /function gainRowName\(/, end: '\n}\n' }], 'gainRowName');
-const notIncludedSentence: (names: string[]) => string =
+const notIncludedSentence: (left: { name: string; value: number | null }[], countedValue: number) => string =
   compile('performance.ts', [{ start: /function notIncludedSentence\(/, end: '\n}\n' }], 'notIncludedSentence');
 
 // ── helpers ─────────────────────────────────────────────────────────────────────────────────────────
@@ -617,19 +620,23 @@ describe('MK-NW-F-129 gainRowName — five cases', () => {
 // history.") is replaced by his: "Wealth generated and Return do not include <name>'s gains, as it has no price history."
 // Each case keeps its names, its de-duplication and its has / have; only the words around the names moved.
 describe('MK-NW-F-130 notIncludedSentence — five cases', () => {
-  test('easy · One name', () => { expect(notIncludedSentence(['Fundrise Income Fund'])).toBe("Wealth generated and Return do not include Fundrise Income Fund's gains, as it has no price history."); });
-  test('easy · No name', () => { expect(notIncludedSentence([])).toBe("Wealth generated and Return do not include a holding's gains, as it has no price history."); });
+  // REWORDED 2026-10-19 by DEC-6076 ("approved."): "Return is on the $<counted> with a price history. <names> ($<left>)
+  // has / have no price history, so its / their gains are not included." Each case keeps its names, its de-duplication
+  // and its has / have; values unknown here (null), so no brackets, and nothing counted, so only the second sentence.
+  const un = (...names: string[]) => names.map((name) => ({ name, value: null }));
+  test('easy · One name', () => { expect(notIncludedSentence(un('Fundrise Income Fund'), 0)).toBe('Fundrise Income Fund has no price history, so its gains are not included.'); });
+  test('easy · No name', () => { expect(notIncludedSentence([], 0)).toBe('A holding has no price history, so its gains are not included.'); });
   test('complex · Three names', () => {
-    expect(notIncludedSentence(['PRIVX', 'Fundrise Income Fund', 'Ally CD'])).toBe("Wealth generated and Return do not include the gains of PRIVX, Fundrise Income Fund and Ally CD, as they have no price history.");
+    expect(notIncludedSentence(un('PRIVX', 'Fundrise Income Fund', 'Ally CD'), 0)).toBe('PRIVX, Fundrise Income Fund and Ally CD have no price history, so their gains are not included.');
   });
   test('complex · Two names', () => {
-    expect(notIncludedSentence(['Old employer plan fund', 'a holding'])).toBe("Wealth generated and Return do not include the gains of Old employer plan fund and a holding, as they have no price history.");
+    expect(notIncludedSentence(un('Old employer plan fund', 'a holding'), 0)).toBe('Old employer plan fund and a holding have no price history, so their gains are not included.');
   });
-  // FINDING: app gives "PRIVX and PRIVX have no price history.", expected "PRIVX has no price history." — repeated
-  // names are not removed; thePerformance builds the list per holding row (performance.ts:664), so one fund held in two
-  // accounts is named twice on the all-accounts view.
-  // FIXED 2026-10-11 (outside review Claude Performance, DEC-3656): each name listed once.
+  // FIXED 2026-10-11 (outside review Claude Performance, DEC-3656): each name listed once — and since 2026-10-19 its
+  // values added: PRIVX $3,000 in one account and $2,000 in another is PRIVX ($5,000)
   test('edge · The same fund in two accounts', () => {
-    expect(notIncludedSentence(['PRIVX', 'PRIVX'])).toBe("Wealth generated and Return do not include PRIVX's gains, as it has no price history.");
+    expect(notIncludedSentence(un('PRIVX', 'PRIVX'), 0)).toBe('PRIVX has no price history, so its gains are not included.');
+    expect(notIncludedSentence([{ name: 'PRIVX', value: 3000 }, { name: 'PRIVX', value: 2000 }], 20000))
+      .toBe('Return is on the $20,000 with a price history. PRIVX ($5,000) has no price history, so its gains are not included.');
   });
 });

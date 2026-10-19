@@ -14,7 +14,7 @@
  *    beginning = 50,000 − 3,636.36 − 0 + 0     = $46,363.6363…
  *    Wealth generated                           = $3,636.36  → shown $3,636
  *    Return = 40,000 ÷ (40,000 ÷ 1.10) − 1      = +10.00%   (VTI only — the Treasury is left out, never 0%)
- *    sentence: "Wealth generated and Return do not include Treasury 2031's gains, as it has no price history."
+ *    sentence: "Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included."
  */
 import { thePerformance, knownHoldingsReturn } from './performance';
 
@@ -45,7 +45,7 @@ describe('MK-NW-O-008 thePerformance — the beginning worked back, a holding wi
     expect(f.ret!).toBeCloseTo(0.10, 12);
     expect(f.cumulative!).toBeCloseTo(0.10, 12);
     expect(f.perYear).toBeNull();                                    // a year or less is never a yearly rate
-    expect(f.notIncluded).toBe("Wealth generated and Return do not include Treasury 2031's gains, as it has no price history.");
+    expect(f.notIncluded).toBe("Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.");
     expect(f.sentence).toBe('');                                     // nothing refused
     expect(f.covered).toBe(false);                                   // still: the record does not reach back
   });
@@ -55,7 +55,7 @@ describe('MK-NW-O-008 thePerformance — the beginning worked back, a holding wi
     expect(f.walk!.wealthGenerated).toBeCloseTo(3636.3636, 4);      // only VTI's gain
     expect(f.walk!.beginning).toBeCloseTo(55000 - 3636.3636, 4);
     expect(f.ret!).toBeCloseTo(0.10, 12);
-    expect(f.notIncluded).toBe('Wealth generated and Return do not include the gains of Treasury 2031 and Muni 2029, as they have no price history.');
+    expect(f.notIncluded).toBe('Return is on the $40,000 with a price history. Treasury 2031 and Muni 2029 ($15,000) have no price history, so their gains are not included.');
   });
 
   test('NO holding with a history: Wealth generated $0 and the walk stand, Return stays — (never 0%), the sentence names it', () => {
@@ -63,7 +63,8 @@ describe('MK-NW-O-008 thePerformance — the beginning worked back, a holding wi
     expect(f.walk!.beginning).toBe(10000);
     expect(f.walk!.wealthGenerated).toBe(0);
     expect(f.ret).toBeNull();
-    expect(f.notIncluded).toBe("Wealth generated and Return do not include Treasury 2031's gains, as it has no price history.");
+    // nothing is counted, so there is no return to explain: only the left-out sentence (DEC-6076)
+    expect(f.notIncluded).toBe("Treasury 2031 ($10,000) has no price history, so its gains are not included.");
   });
 
   test('every holding has a history: the Return is now shown (it was —), and nothing is named', () => {
@@ -105,7 +106,7 @@ describe('MK-NW-O-008 thePerformance — the beginning worked back, a holding wi
     expect(f.workedBack).toBe(true);
     expect(f.walk!.wealthGenerated).toBeCloseTo(3636.3636, 4);
     expect(f.ret!).toBeCloseTo(0.10, 12);
-    expect(f.notIncluded).toBe("Wealth generated and Return do not include Treasury 2031's gains, as it has no price history.");
+    expect(f.notIncluded).toBe("Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.");
     expect(f.sentence).toBe('');
   });
   test('a record that begins too late and NO holding with a history: DEC-3035i\'s refusal stands, word for word', () => {

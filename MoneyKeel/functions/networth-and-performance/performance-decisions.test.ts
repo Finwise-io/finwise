@@ -255,6 +255,17 @@ describe('MK-PF-M-020 Available cash', () => {
   });
 });
 
+describe('MK-PF-M-021 the value the return is on · MK-PF-M-022 the value left out (DEC-6076)', () => {
+  test('the $50,000 example: Return is on the $40,000; Treasury 2031 ($10,000) is left out', () => {
+    const { PERFORMANCE_FIGURES } = require('./performance');
+    for (const id of ['MK-PF-M-021', 'MK-PF-M-022']) {
+      const w = PERFORMANCE_FIGURES[id].worked;
+      expect(w.run()).toBe(w.answer);
+      expect(w.answer).toBe('Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.');
+    }
+  });
+});
+
 describe('MK-PF-M-015 one line of the walk', () => {
   test('the lines always add up to the ending — a walk that does not is worse than no walk', () => {
     const a = ask({ ending: 46_600, snapshotDays: [recordDay('2026-01-01', 30_000, 'a1')] as any,

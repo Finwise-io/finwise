@@ -313,17 +313,17 @@ export const CASH_GROUP_LABEL = 'Cash and cash equivalents';
  * Called by ... MK-NW-F-012 taxTreatmentOf · MK-NW-F-034 benchmarkReturn
  *               MK-PL-F-086 splitBucketOf
  *
- * Reaches ..... 30 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 31 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
- *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-093 QUIET_PERF · MK-NW-F-025 accountDisplayName
- *               MK-NW-F-026 accountDisplayNames · MK-NW-F-002 alternativesSummary
- *               MK-NW-F-036 benchmarkInfo · MK-NW-F-034 benchmarkReturn
- *               MK-NW-F-037 blendedReturn · MK-NW-F-052 buildItemizedAccounts
- *               MK-XS-F-031 buildSnapshot · MK-XS-F-002 dataGaps
- *               MK-CF-O-017 futurePaycheck · MK-XS-F-102 ingestSync
- *               MK-XS-F-119 namesFor · MK-PL-F-049 retirementSpendMonthly
- *               … and 12 more — the full list is on functions_from_code
+ *               MK-NW-F-140 LEFT_OUT · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-036 benchmarkInfo
+ *               MK-NW-F-034 benchmarkReturn · MK-NW-F-037 blendedReturn
+ *               MK-NW-F-052 buildItemizedAccounts · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-002 dataGaps · MK-CF-O-017 futurePaycheck
+ *               MK-XS-F-102 ingestSync · MK-XS-F-119 namesFor
+ *               … and 13 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -367,17 +367,17 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  *
  * Called by ... MK-NW-F-120 classEvidenceOf · MK-NW-F-123 holdingNameEvidence
  *
- * Reaches ..... 209 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 210 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 191 more — the full list is on functions_from_code
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-NW-F-078 ONE
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               … and 192 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -402,17 +402,17 @@ export function incomeBearingClassOf(label?: string): AssetClass | null {
  *
  * Called by ... MK-NW-F-120 classEvidenceOf · MK-NW-F-124 maturityParts
  *
- * Reaches ..... 208 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 209 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 190 more — the full list is on functions_from_code
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-NW-F-078 ONE
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               … and 191 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -490,17 +490,17 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string | undefine
  *
  * Called by ... MK-NW-F-011 assetClassOf · MK-NW-F-053 correctClassOf
  *
- * Reaches ..... 208 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 209 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 190 more — the full list is on functions_from_code
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-NW-F-078 ONE
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               … and 191 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -554,17 +554,17 @@ export function classEvidenceOf(a: AssetAccount): AssetClass | null {
  *               MK-NW-F-106 mortgagesByProperty · MK-NW-F-117 propertyUseMap
  *               MK-NW-F-137 asksCashOrInvestments · MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 208 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 209 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               … and 190 more — the full list is on functions_from_code
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               MK-NW-F-082 NW · MK-NW-F-078 ONE
+ *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
+ *               … and 191 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -615,17 +615,17 @@ export function assetClassOf(a: AssetAccount): AssetClass {
  * Called by ... MK-NW-F-025 accountDisplayName · MK-NW-F-108 taxWordsOf
  *               MK-PL-F-086 splitBucketOf · MK-PL-F-087 taxTypeNotStated
  *
- * Reaches ..... 21 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
- *               MK-XS-F-031 buildSnapshot · MK-XS-F-002 dataGaps
- *               MK-CF-O-017 futurePaycheck · MK-XS-F-102 ingestSync
- *               MK-XS-F-119 namesFor · MK-PL-F-049 retirementSpendMonthly
- *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
- *               MK-PL-F-086 splitBucketOf · MK-PL-F-001 taxBucketSplit
- *               MK-PL-F-087 taxTypeNotStated · MK-NW-F-108 taxWordsOf
- *               … and 3 more — the full list is on functions_from_code
+ * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-025 accountDisplayName
+ *               MK-NW-F-026 accountDisplayNames · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-002 dataGaps · MK-CF-O-017 futurePaycheck
+ *               MK-XS-F-102 ingestSync · MK-XS-F-119 namesFor
+ *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-086 splitBucketOf
+ *               MK-PL-F-001 taxBucketSplit · MK-PL-F-087 taxTypeNotStated
+ *               … and 4 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -1108,17 +1108,17 @@ const KIND_TO_WRAPPER: Record<string, string> = {
  *
  * Called by ... MK-NW-F-022 investableAssets · MK-NW-F-025 accountDisplayName
  *
- * Reaches ..... 21 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-082 NW
- *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
- *               MK-XS-F-031 buildSnapshot · MK-XS-F-002 dataGaps
- *               MK-CF-O-017 futurePaycheck · MK-XS-F-102 ingestSync
- *               MK-NW-F-022 investableAssets · MK-XS-F-119 namesFor
- *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-068 selectWillItLast
- *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
- *               … and 3 more — the full list is on functions_from_code
+ * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-082 NW · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-025 accountDisplayName
+ *               MK-NW-F-026 accountDisplayNames · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-002 dataGaps · MK-CF-O-017 futurePaycheck
+ *               MK-XS-F-102 ingestSync · MK-NW-F-022 investableAssets
+ *               MK-XS-F-119 namesFor · MK-PL-F-049 retirementSpendMonthly
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               … and 4 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -1145,16 +1145,16 @@ export const wrapperWord = (kind?: string, a?: { wrapper_confirmed?: boolean }):
  *
  * Called by ... MK-NW-F-025 accountDisplayName
  *
- * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
- *               MK-XS-F-031 buildSnapshot · MK-XS-F-002 dataGaps
- *               MK-CF-O-017 futurePaycheck · MK-XS-F-102 ingestSync
- *               MK-XS-F-119 namesFor · MK-PL-F-049 retirementSpendMonthly
- *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
- *               MK-PL-F-001 taxBucketSplit · MK-NW-O-008 thePerformance
- *               MK-PL-F-067 willItLastInputs
+ * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-025 accountDisplayName
+ *               MK-NW-F-026 accountDisplayNames · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-002 dataGaps · MK-CF-O-017 futurePaycheck
+ *               MK-XS-F-102 ingestSync · MK-XS-F-119 namesFor
+ *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
+ *               MK-NW-O-008 thePerformance · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1198,16 +1198,16 @@ export function accountLastFour(a: { mask?: string; account_number?: string }): 
  *
  * Called by ... MK-NW-F-026 accountDisplayNames
  *
- * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
- *               MK-XS-F-031 buildSnapshot · MK-XS-F-002 dataGaps
- *               MK-CF-O-017 futurePaycheck · MK-XS-F-102 ingestSync
- *               MK-XS-F-119 namesFor · MK-PL-F-049 retirementSpendMonthly
- *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
- *               MK-PL-F-001 taxBucketSplit · MK-NW-O-008 thePerformance
- *               MK-PL-F-067 willItLastInputs
+ * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-025 accountDisplayName
+ *               MK-NW-F-026 accountDisplayNames · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-002 dataGaps · MK-CF-O-017 futurePaycheck
+ *               MK-XS-F-102 ingestSync · MK-XS-F-119 namesFor
+ *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
+ *               MK-NW-O-008 thePerformance · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -1301,16 +1301,16 @@ export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution'
  *               MK-PL-F-001 taxBucketSplit · MK-XS-F-102 ingestSync
  *               MK-XS-F-119 namesFor
  *
- * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
- *               MK-XS-F-031 buildSnapshot · MK-XS-F-002 dataGaps
- *               MK-CF-O-017 futurePaycheck · MK-XS-F-102 ingestSync
- *               MK-XS-F-119 namesFor · MK-PL-F-049 retirementSpendMonthly
- *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
- *               MK-PL-F-001 taxBucketSplit · MK-NW-O-008 thePerformance
- *               MK-PL-F-067 willItLastInputs
+ * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-025 accountDisplayName
+ *               MK-NW-F-026 accountDisplayNames · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-002 dataGaps · MK-CF-O-017 futurePaycheck
+ *               MK-XS-F-102 ingestSync · MK-XS-F-119 namesFor
+ *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
+ *               MK-NW-O-008 thePerformance · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name

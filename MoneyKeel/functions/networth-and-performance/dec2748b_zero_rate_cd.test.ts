@@ -39,7 +39,7 @@ describe('MK-NW-O-008 thePerformance — a CD account with no positions (DEC-365
     const f = thePerformance(base([cd()]));
     expect(f.walk!.beginning).toBe(10000);
     expect(f.walk!.wealthGenerated).toBe(0);
-    expect(f.notIncluded).toMatch(/^Wealth generated and Return do not include .+'s gains, as it has no price history\.$/);
+    expect(f.notIncluded).toMatch(/^.+ \(\$[\d,]+\) has no price history, so its gains are not included\.$/);
   });
 });
 

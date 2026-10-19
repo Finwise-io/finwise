@@ -21,11 +21,11 @@ const dayMs = 86_400_000;
  *
  * Called by ... MK-ST-F-038 windowBounds · MK-ST-F-063 shiftDay
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-ST-F-063 shiftDay · MK-NW-O-008 thePerformance
- *               MK-ST-F-038 windowBounds
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-ST-F-063 shiftDay
+ *               MK-NW-O-008 thePerformance · MK-ST-F-038 windowBounds
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -43,10 +43,11 @@ const toUtc = (d: string) => Date.parse(`${d}T00:00:00Z`);
  *
  * Called by ... MK-ST-F-038 windowBounds
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-O-008 thePerformance · MK-ST-F-038 windowBounds
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-O-008 thePerformance
+ *               MK-ST-F-038 windowBounds
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -73,10 +74,10 @@ export interface WindowBounds {
  *
  * Called by ... MK-NW-O-008 thePerformance
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-O-008 thePerformance
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

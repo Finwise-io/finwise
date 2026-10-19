@@ -59,7 +59,7 @@ describe('the account page (DEC-3656, 2026-10-09)', () => {
     mockParams = { id: 'b1' };
     seed([BOND], { transactions: [interest('b1')] });
     render(<AccountPortfolioScreen />);
-    expect(screen.getByText("Wealth generated and Return do not include Fidelity Brokerage's gains, as it has no price history.")).toBeOnTheScreen();
+    expect(screen.getByText('Fidelity Brokerage ($8,000) has no price history, so its gains are not included.')).toBeOnTheScreen();
     // its value taken as unchanged: beginning $8,000 − $0 gained − $0 moved = $8,000, and the walk is drawn
     expect(screen.getByText(`Beginning market value (${dateShown(YEAR_START)})`)).toBeOnTheScreen();
     expect(screen.getByText('HOW $8,000 BECAME $8,000 · THIS ACCOUNT')).toBeOnTheScreen();
@@ -72,22 +72,22 @@ describe('the account page (DEC-3656, 2026-10-09)', () => {
     render(<AccountPortfolioScreen />);
     expect(screen.getByText('HOW $8,000 BECAME $8,000 · THIS ACCOUNT')).toBeOnTheScreen();   // DEC-5136: one title, day one included
     expect(screen.getByText('Beginning market value (today)')).toBeOnTheScreen();
-    expect(screen.getByText(/Day one: your value is real/)).toBeOnTheScreen();
+    expect(screen.getByText('You added this account today, so its figures start today.')).toBeOnTheScreen();   // DEC-6075, 2026-10-19: built by hand
     expect(screen.queryByText(/can't be worked back/)).toBeNull();
-    expect(screen.queryByText(/^Wealth generated and Return do not include/)).toBeNull();   // nothing worked back on day one (DEC-5068)
+    expect(screen.queryByText(/no price history, so (its|their) gains are not included/)).toBeNull();   // nothing worked back on day one (DEC-5068)
   });
 
   test('unchanged · day one on every window: picking another window never works a beginning back', () => {
     mockParams = { id: 'b1' };
     seed([BOND]);
     render(<AccountPortfolioScreen />);
-    const others = screen.getAllByRole('button').filter((b) => b.props.accessibilityState?.selected === false && /, no figure$/.test(b.props.accessibilityLabel ?? ''));
+    const others = screen.getAllByRole('button').filter((b) => b.props.accessibilityState?.selected === false && /, no data for that window yet$/.test(b.props.accessibilityLabel ?? ''));
     expect(others.length).toBeGreaterThanOrEqual(4);   // the guard proves it looked: every other window was pressed
     for (const btn of others) {
       fireEvent.press(btn);
       expect(screen.getByText('HOW $8,000 BECAME $8,000 · THIS ACCOUNT')).toBeOnTheScreen();   // DEC-5136: one title, day one included
       expect(screen.queryByText(/can't be worked back/)).toBeNull();
-      expect(screen.queryByText(/^Wealth generated and Return do not include/)).toBeNull();
+      expect(screen.queryByText(/no price history, so (its|their) gains are not included/)).toBeNull();
     }
   });
 });
@@ -109,7 +109,7 @@ describe('the Performance tab, one account at a time (DEC-3656, 2026-10-09)', ()
     render(<PerformanceScreen />);
     const toggles = screen.queryAllByLabelText(/Expands its walk/);
     for (const t of toggles) fireEvent.press(t);
-    expect(screen.getAllByText("Wealth generated and Return do not include Fidelity Brokerage's gains, as it has no price history.").length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Fidelity Brokerage ($8,000) has no price history, so its gains are not included.').length).toBeGreaterThan(0);
     // the linked account's walk is still drawn: its beginning is READ from the record
     expect(screen.getAllByText(/^Beginning market value/).length).toBeGreaterThan(0);
   });

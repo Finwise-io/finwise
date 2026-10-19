@@ -795,5 +795,7 @@
 "MoneyKeel/functions/networth-and-performance/performance.ts::notIncludedSentence": "not in git yet|\u2014",
 "src/domain/income/old-rent-migration.ts::moveOldRentFigure": "not in git yet|\u2014",
 "src/domain/income/old-rent-migration.ts::hasOldRentFigure": "not in git yet|\u2014",
-"src/domain/income/old-rent-migration.ts::typed": "not in git yet|\u2014"
+"src/domain/income/old-rent-migration.ts::typed": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/performance.ts::LEFT_OUT": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/performance.ts::leftOutValueOf": "not in git yet|\u2014"
 }

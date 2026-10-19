@@ -19,8 +19,8 @@
 //     convention was checked: GIPS forbids annualising under a year and annualises above it, and
 //     brokerage statements do the same). His ruling: show BOTH, and label them.
 import { availableCash } from '../../../src/domain/transactions';
-import { declareFigures } from '../_figure-spec';
-import { portfolioBenchReturn, startDateFor, contractMultiplier, totalShares, windowTotal, type Period } from '../../../src/domain/performance';
+import { declareFigures, writeFigure } from '../_figure-spec';
+import { portfolioBenchReturn, startDateFor, contractMultiplier, totalShares, windowTotal, costBasis, type Period } from '../../../src/domain/performance';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import { buildChangeWalk, type ChangeWalk } from '../../../src/domain/history';
 import { personalFlowTotals } from '../../../Calculation Module code/engines/ledger';
@@ -58,8 +58,9 @@ export interface WindowFigures {
   /** Why a refusal, in words. Empty when nothing is refused. */
   sentence: string;
   /** Set only where the beginning is worked back from today and a holding has no price history (DEC-5068,
-   *  2026-10-13): "Wealth generated and Return do not include Treasury 2031's gains, as it has no price
-   *  history." Wealth generated and Return are still shown, from the holdings with a history. Empty otherwise. */
+   *  2026-10-13; worded by DEC-6076, 2026-10-19): "Return is on the $40,000 with a price history. Treasury 2031
+   *  ($10,000) has no price history, so its gains are not included." Wealth generated and Return are still shown,
+   *  from the holdings with a history. Empty otherwise. */
   notIncluded: string;
   /** True where the beginning is worked back from today: a window that does not open today whose beginning the daily
    *  record cannot read — no record of these accounts at all (DEC-3656), or a record that begins too late while a
@@ -109,10 +110,10 @@ export interface WindowFigures {
  *
  * Called by ... MK-NW-O-008 thePerformance
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-O-008 thePerformance
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -188,10 +189,10 @@ export function investmentRecordDates(snapshotDays: any[], investmentAccountIds:
  *
  * Called by ... MK-NW-O-008 thePerformance
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-O-008 thePerformance
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -257,10 +258,11 @@ export type GainRow = {
  *
  * Called by ... MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-091 pricedGainOf
+ *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-012 bond coupon rate
@@ -310,13 +312,15 @@ function gainOfRow(r: GainRow, years: number): number | null {
  *     0   if shares = 0
  *     nothing   otherwise
  *
- * Called by ... MK-NW-F-127 gainOfRow
+ * Called by ... MK-NW-F-088 BENCH · MK-NW-F-104 closedWith
+ *               MK-NW-F-127 gainOfRow · MK-NW-F-139 leftOutValueOf
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-127 gainOfRow · MK-NW-F-091 pricedGainOf
- *               MK-NW-O-008 thePerformance
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-104 closedWith
+ *               MK-NW-F-127 gainOfRow · MK-NW-F-139 leftOutValueOf
+ *               MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -346,7 +350,7 @@ function heldValueOf(r: GainRow): number | null {
 
 /** What the sentence calls a holding: its own name, else its ticker — a CUSIP-shaped ticker gives way
  *  to the security's name. (DEC-3656, 2026-10-09; the sentence is DEC-5068's since 2026-10-13) */
-/* ─ MK-NW-F-129 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-NW-F-129 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * gainRowName
  *
  * Answers ..... What the sentence calls a holding: its own name, else its ticker — a CUSIP-shaped ticker gives way to the security's name.
@@ -361,10 +365,10 @@ function heldValueOf(r: GainRow): number | null {
  *
  * Called by ... MK-NW-O-008 thePerformance
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-O-008 thePerformance
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -387,38 +391,65 @@ function gainRowName(r: GainRow): string {
  * Answers ..... THE SENTENCE where a holding with no price history is left out of Wealth generated and Return (DEC-5068, 2026-10-13, his wording with the holding's name in place of "treasury").
  *
  * Formula .....
- *     once = [...new set(names.map((n) => string(n ?? '').trim()).filter((n) => n ! = ''))]
- *     many = once.length > 1
- *     whose = `the gains of ${list}`   if many
- *     `${list}'s gains`   otherwise
- *     the answer = `wealth generated and return do not include ${whose}, as ${plural(many ? 2 : 1, 'has', many ? 'they' : 'it')} no price history.`
+ *     by name = new map<string, number | nothing>()
+ *     n = string(name ?? '').trim()
+ *     was = by name.get(n)!   if by name.has(n)
+ *     0   otherwise
+ *     once = [...by name.keys()]
+ *     values = for each of left (or none when missing): value (or nothing when missing)
+ *     left value = values.reduce((t: number, v) => t + (v as number), 0)   if values.length and values.every((v) => v ≠ nothing)
+ *     nothing   otherwise
+ *     n = 2   if once.length > 1
+ *     1   otherwise
+ *     who = `${list} (${write figure(PERFORMANCE_FIGURES['MK − PF − M − 022'], left value)})`   if left value ≠ nothing
+ *     list   otherwise
+ *     second = `${plural(n, 'has', who)} no price history, ${plural(n, 'its', 'so')} gains are not included.`
+ *     opens = `A${second.slice(1)}`   if list = 'a holding'
+ *     second   otherwise
  *
  * Called by ... MK-NW-O-008 thePerformance
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-O-008 thePerformance
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-130
  * Changed ..... not in git yet (—)
  */
-function notIncludedSentence(names: string[]): string {
-  // one fund held in two accounts is named once (outside review Claude Performance, 2026-10-11). A blank name is
-  // no name: it is dropped before the names are counted, so '', 'Treasury', 'Treasury' reads "Treasury 2031's
-  // gains, as it has", never "  and Treasury" (outside review OpenAI re-run part 4, MK-NW-F-130, SETTLED 2026-10-13).
-  // Names all blank still give the sentence, about "a holding": the caller only asks when a holding is left out.
-  const once = [...new Set(names.map((n) => String(n ?? '').trim()).filter((n) => n !== ''))];
+function notIncludedSentence(left: { name: string; value: number | null }[], countedValue: number): string {
+  // one fund held in two accounts is named once, its values added (outside review Claude Performance, 2026-10-11). A
+  // blank name is no name: it is dropped before the names are counted (outside review OpenAI re-run part 4,
+  // MK-NW-F-130, SETTLED 2026-10-13). Names all blank still give the sentence, about "a holding": the caller only asks
+  // when a holding is left out.
+  const byName = new Map<string, number | null>();
+  for (const r of left ?? []) {
+    const n = String(r?.name ?? '').trim();
+    if (n === '') continue;
+    const was = byName.has(n) ? byName.get(n)! : 0;
+    byName.set(n, was == null || r.value == null ? null : was + r.value);
+  }
+  const once = [...byName.keys()];
   const list = once.length <= 1 ? (once[0] ?? 'a holding')
     : `${once.slice(0, -1).join(', ')} and ${once[once.length - 1]}`;
-  // His words: "Wealth Generated and Return does not include treasury gains as no price history available."
-  // The labels are the screen's own, "Wealth generated" and "Return" (one term per concept); two things named
-  // take "do"; the clause after "as" needs its verb, has / have from the one list of words and plurals (DEC-4082).
-  const many = once.length > 1;
-  const whose = many ? `the gains of ${list}` : `${list}'s gains`;
-  return `Wealth generated and Return do not include ${whose}, as ${plural(many ? 2 : 1, 'has', many ? 'they' : 'it')} no price history.`;
+  const values = (left ?? []).map((r) => r?.value ?? null);
+  const leftValue = values.length && values.every((v) => v != null) ? values.reduce((t: number, v) => t + (v as number), 0) : null;
+  // HIS WORDING (DEC-6076, 2026-10-19, "approved.", after "State D - for summary box - we need to explain that 10%
+  // return is on 40K and not 50K."): the first sentence names the dollars the return is on — the holdings
+  // knownHoldingsReturn (MK-NW-F-138) counts — and the second names what is left out with its value today. Each
+  // amount is written by the one figure writer under its own figure (MK-PF-M-021, MK-PF-M-022). has / have and
+  // its / their come from the one list of words and plurals (DEC-4082). Where NO holding is counted there is no
+  // return to explain, so only the second sentence is said (never "Return is on the $0").
+  const n = once.length > 1 ? 2 : 1;
+  const who = leftValue != null ? `${list} (${writeFigure(PERFORMANCE_FIGURES['MK-PF-M-022'], leftValue)})` : list;
+  const second = `${plural(n, 'has', who)} no price history, ${plural(n, 'its', 'so')} gains are not included.`;
+  // a sentence that opens on the generic name opens with a capital; a holding's own name is printed as it is
+  const opens = list === 'a holding' ? `A${second.slice(1)}` : second;
+  return countedValue > 0
+    ? `Return is on the ${writeFigure(PERFORMANCE_FIGURES['MK-PF-M-021'], countedValue)} with a price history. ${second}`
+    : opens;
 }
 
 /** MK-NW-F-092 · Which accounts this door measures: the invested ones. Cash and property are not
@@ -468,11 +499,12 @@ export function investmentAccountIdsOf(
  *     nothing   when not (now > 0) or !(start > 0)
  *     the answer = now ÷ start − 1
  *
- * Called by ... MK-NW-O-008 thePerformance
+ * Called by ... MK-NW-F-130 notIncludedSentence · MK-NW-O-008 thePerformance
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-130 notIncludedSentence
  *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -518,10 +550,10 @@ export function knownHoldingsReturn(rows: GainRow[], years = 0): number | null {
  *
  * Called by ... MK-NW-O-008 thePerformance
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-O-008 thePerformance
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -565,10 +597,10 @@ export function whyNoReturn(v: TimeWeightedVerdict | null): string {
  *
  * Called by ... MK-NW-O-008 thePerformance
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-O-008 thePerformance
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -583,6 +615,33 @@ function closedWith(days: any[], ids: Set<string>, today: string, ending: number
   return [...days, { date: today, origin: 'observed', writtenAt: `${today}T00:00:00Z`, holdings: [],
     accounts: members.map((accountId, i) => ({ date: today, accountId, cash: 0, statedTotal: null, typedValue: i === 0 ? ending : 0, currency: 'USD' })) }];
 }
+
+// WHAT A LEFT-OUT HOLDING IS WORTH TODAY, for the brackets of the left-out sentence (DEC-6076, 2026-10-19): its broker
+// mark × shares or the value typed by hand (MK-NW-F-128 heldValueOf), else what was paid for it — the same fallback
+// the balance itself uses when no price is held (B-19). Unknown when none of the three is known: the brackets go.
+/* ─ MK-NW-F-139 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * leftOutValueOf
+ *
+ * Answers ..... WHAT A LEFT-OUT HOLDING IS WORTH TODAY, for the brackets of the left-out sentence (DEC-6076, 2026-10-19): its broker mark × shares or the value typed by hand (MK-NW-F-128 heldValueOf), else what was paid for it — the same fallback the balance itself uses when no price is held (B-19).
+ *
+ * Formula .....
+ *     held value of(r) (or cost basis(position as any)   if position
+ *     nothing   otherwise when missing)
+ *
+ * Called by ... MK-NW-O-008 thePerformance
+ *
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-007 purchase price and date (per lot)
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-139
+ * Changed ..... not in git yet (—)
+ */
+const leftOutValueOf = (r: GainRow): number | null => heldValueOf(r) ?? (r.position ? costBasis(r.position as any) : null);
 
 /** How are my investments doing over a period: where they started, what I put in and took out, what they made, where they ended, and the return?
  *  ── ORCHESTRATOR ── the one function a screen asks for this.
@@ -610,16 +669,18 @@ function closedWith(days: any[], ids: Set<string>, today: string, ending: number
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-140 LEFT_OUT
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF
  *
  * Serves ...... MK-PF-M-002 · MK-PF-M-003 · MK-PF-M-005 · MK-PF-M-006
  *               MK-PF-M-007 · MK-PF-M-008 · MK-PF-M-013 · MK-PF-M-014
  *               MK-PF-M-015 · MK-PF-M-016 · MK-PF-M-017 · MK-PF-M-018
- *               MK-PF-M-019 · MK-PF-M-020 · MK-XS-M-004
+ *               MK-PF-M-019 · MK-PF-M-020 · MK-PF-M-021 · MK-PF-M-022
+ *               MK-XS-M-004
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-012 bond coupon rate
@@ -637,6 +698,7 @@ function closedWith(days: any[], ids: Set<string>, today: string, ending: number
  *
  * Decides .....
  *     · If ending is missing it uses 0.
+ *     · If market value is missing it uses 0.
  *     · If g is missing it uses 0.
  *     · If priced gain is missing it uses 0.
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
@@ -777,9 +839,13 @@ export function thePerformance(input: {
     }));
   const gainRows: GainRow[] = [...(input.holdings ?? []), ...instrumentRows];
   const rowGains = gainRows.map((r) => pricedGainOf([r], years));
-  const unknownNames = gainRows.filter((_, i) => rowGains[i] == null).map(gainRowName);
-  // a caller still handing over a dollar figure (no holdings) whose gain is unknown: named generically
-  if (!input.holdings && input.pricedGain === null) unknownNames.push('a holding');
+  const unknownNames: { name: string; value: number | null }[] = gainRows.filter((_, i) => rowGains[i] == null)
+    .map((r) => ({ name: gainRowName(r), value: leftOutValueOf(r) }));
+  // a caller still handing over a dollar figure (no holdings) whose gain is unknown: named generically, its value unknown
+  if (!input.holdings && input.pricedGain === null) unknownNames.push({ name: 'a holding', value: null });
+  // THE DOLLARS THE RETURN IS ON (DEC-6076, 2026-10-19): today's value of each holding knownHoldingsReturn keeps,
+  // asked of it one row at a time so the rule is its own and cannot drift from the return it explains
+  const countedValue = gainRows.filter((r) => knownHoldingsReturn([r], years) != null).reduce((t, r) => t + (r.marketValue ?? 0), 0);
   const knownGain = rowGains.reduce((t: number, g) => t + (g ?? 0), 0) + (input.holdings ? 0 : (input.pricedGain ?? 0));
   const pricedGain = windowStart === today ? 0 : knownGain;
   // A HOLDING WITH A HISTORY OVER THIS WINDOW: a price history (its window return), a CD's stated rate, or bought
@@ -842,14 +908,18 @@ export function thePerformance(input: {
           ...lateRows,
           ...(reached.cumulative != null ? [{ marketValue: reached.ending, periodReturn: reached.cumulative, periodTotal: reached.cumulative }] : []),
         ], years);
-        const left = lateRows.filter((r) => gainOfRow(r, years) == null).map(gainRowName);
+        const left = lateRows.filter((r) => gainOfRow(r, years) == null).map((r) => ({ name: gainRowName(r), value: leftOutValueOf(r) }));
+        // the dollars the return is on: the reached accounts' value where their return is measured, and each late
+        // holding knownHoldingsReturn keeps — asked of it one row at a time, so the rule is its own (DEC-6076)
+        const countedHere = (reached.cumulative != null ? reached.ending : 0)
+          + lateRows.filter((r) => knownHoldingsReturn([r], years) != null).reduce((t, r) => t + (r.marketValue ?? 0), 0);
         const yb = windowStartKey('1Y', [], today);
         const cPerYear = ccum != null && yb != null && windowStart != null && windowStart < yb && years > 1 && !input.wholeRecord ? Math.pow(1 + ccum, 1 / years) - 1 : null;
         return {
           windowStart, ledger, walk: cwalk, ending: cwalk.ending, measured: null, covered: false,
           beginningAsOf: bounds.beginningAsOf, ret: cPerYear ?? ccum, cumulative: ccum, perYear: cPerYear, years,
           sentence: reachedRefused ? reached.sentence : '',
-          notIncluded: left.length ? notIncludedSentence(left) : '', workedBack: true,
+          notIncluded: left.length ? notIncludedSentence(left, countedHere) : '', workedBack: true,
         };
       }
     }
@@ -858,7 +928,7 @@ export function thePerformance(input: {
   // should be calculated and displayed for every asset with history. Below it display …"). It replaces the
   // refusal of DEC-3656 part 2, which drew no beginning, no wealth generated and no walk at all: its gain adds
   // nothing (its value is taken as unchanged over the window), and the sentence names it.
-  const notIncluded = workedBack && unknownNames.length > 0 ? notIncludedSentence(unknownNames) : '';
+  const notIncluded = workedBack && unknownNames.length > 0 ? notIncludedSentence(unknownNames, countedValue) : '';
   const beginning = measured ?? (ending - pricedGain - contributions + withdrawals);
 
   const walk = unreachable ? null : buildChangeWalk({
@@ -1200,6 +1270,44 @@ const QUIET_PERF = () => thePerformance(QUIET);
  * Changed ..... not in git yet (—)
  */
 const PERF = () => thePerformance(EXAMPLE);
+const LEFT_GIVEN = 'An account worth $50,000: VTI $40,000 with a year of prices (+10%) and Treasury 2031 $10,000 typed by hand with no '
+  + 'price history; no money moved, no daily record, the past year picked.';
+/** Example only — the left-out example (DEC-6076, 2026-10-19; the account-page drawing's state D, his own worked example of DEC-5291):
+ *  Fidelity linked, nothing recorded, the past year picked. VTI $40,000 with a year of prices (+10%), Treasury 2031
+ *  $10,000 typed by hand with no price history. Return +10.00% is on the $40,000; the $10,000 is left out. */
+/* ─ MK-NW-F-140 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * LEFT_OUT
+ *
+ * Answers ..... Example only — the left-out example (DEC-6076, 2026-10-19; the account-page drawing's state D, his own worked example of DEC-5291): Fidelity linked, nothing recorded, the past year picked.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-NW-F-088 BENCH
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-003 institution name
+ *               MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-048 the person’s own asset-class answer
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-140
+ * Changed ..... not in git yet (—)
+ */
+const LEFT_OUT = () => thePerformance({
+  windowStart: '2025-10-01', windowLabel: 'the past year', today: '2026-09-30',
+  transactions: [], snapshotDays: [], investmentAccountIds: new Set(['f']),
+  accounts: [{ asset_id: 'f', label: 'Fidelity Brokerage', institution: 'Fidelity', kind: 'brokerage', asset_class: 'stocks_etf', balance: 50000, positions: [{}, {}] }] as any[],
+  holdings: [
+    { position: { ticker: 'VTI' }, marketValue: 40000, periodReturn: 0.10 },
+    { position: { ticker: '912810TM0', label: 'Treasury 2031', lots: [{ shares: 10000 }], value_now: 10000 }, periodReturn: null },
+  ],
+});
 
 /** Example only: runs thePerformance for chosen accounts of the worked example and calculates nothing of its own.
  *  PER ACCOUNT (Performance pass 1, 2026-09-30): the same window, asked of ONE account rather than
@@ -1322,6 +1430,7 @@ const BENCH_GIVEN =
  *               MK-XS-I-003 institution name
  *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-005 holding price
+ *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
@@ -1471,6 +1580,30 @@ export const PERFORMANCE_FIGURES = declareFigures({
     refusal: 'No account picked \u2014 the line is not shown.',
     ruled: '2026-10-01',
     worked: { given: 'A savings account holding $5,000 and nothing else.', answer: '$5,000', run: () => availableCash({ asset_id: 'x', label: 'Savings', balance: 5_000 } as any) },
+  },
+  // ISSUED 2026-10-19 by DEC-6076: the two amounts inside the sentence under the summary where a holding with no
+  // price history is left out, each written by the one figure writer under its own identifier.
+  'MK-PF-M-021': {
+    label: 'the value the return is on (with a price history)', unit: 'money', screens: ['/invest', '/account-detail', '/home'],
+    grain: 'the accounts the summary is for',
+    answers: 'How many of today\u2019s dollars the Return is measured on, where some holdings have no price history.',
+    formula: 'today\u2019s value of every holding the return counts (MK-NW-F-138 knownHoldingsReturn: a price history over the window, or a CD\u2019s stated rate), added up',
+    inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-005 the price feed'],
+    decisions: ['DEC-6076 \u2014 the sentence says what the Return is on, so +10% is read as 10% of $40,000, not of $50,000.', 'DEC-5068 \u2014 a holding with no price history is left out, never counted at 0%.'],
+    refusal: 'No holding is counted: the first sentence is not said, only the left-out one.',
+    ruled: '2026-10-19',
+    worked: { given: LEFT_GIVEN, answer: 'Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.', run: () => LEFT_OUT().notIncluded },
+  },
+  'MK-PF-M-022': {
+    label: 'the value left out (no price history)', unit: 'money', screens: ['/invest', '/account-detail', '/home'],
+    grain: 'the accounts the summary is for',
+    answers: 'What the holdings left out of Wealth generated and Return are worth today.',
+    formula: 'today\u2019s value of every holding with no price history and no stated rate (MK-NW-F-128 heldValueOf), added up',
+    inputs: ['MK-NW-I-001 your accounts'],
+    decisions: ['DEC-6076 \u2014 named in brackets after the holdings it is the value of.'],
+    refusal: 'A holding whose value is not known: the brackets are left off.',
+    ruled: '2026-10-19',
+    worked: { given: LEFT_GIVEN, answer: 'Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.', run: () => LEFT_OUT().notIncluded },
   },
   'MK-PF-M-006': {
     label: 'WHAT EACH CATEGORY EARNED — RETURN', unit: 'percent-signed', screens: ['/invest'],

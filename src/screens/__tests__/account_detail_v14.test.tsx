@@ -143,18 +143,19 @@ test('no daily record but activity records → the window opens the first day mo
   // history, so each adds no gain (its value taken as unchanged): beginning $52,704 − $0 gained − $0 moved = $52,704,
   // Return "—" (no holding with a history; never 0%), and the sentence below the summary names all three.
   expect(screen.getByText('Beginning market value (Jul 31, 2026)')).toBeOnTheScreen();
-  expect(screen.getByText('Wealth generated and Return do not include the gains of LCTX, KEYBANK CD 4.00% and US TREASURY 4.25%, as they have no price history.')).toBeOnTheScreen();
+  expect(screen.getByText('LCTX, KEYBANK CD 4.00% and US TREASURY 4.25% ($48,704) have no price history, so their gains are not included.')).toBeOnTheScreen();
   expect(screen.getByText("Your daily record does not reach back to Jul 31, 2026 yet, so the beginning is worked back from today's values and each holding's price history.")).toBeOnTheScreen();
   expect(screen.queryByText(/can't be worked back/)).toBeNull();
   expect(screen.queryByText(/Day one:/)).toBeNull();
 });
 
-test('day one — no record and nothing moved → Since today, every line a real $0, and the day-one sentence (v17)', () => {
+test('day one — no record and nothing moved → Since today, every line a real $0, and the account page’s day-one line (DEC-6075)', () => {
   seed({ invDaily: {}, snapshotDays: [], transactions: [] });
   render(<AccountPortfolioScreen />);
   expect(screen.getByText('Since today')).toBeOnTheScreen();
   expect(screen.getByText('SUMMARY · SINCE TODAY')).toBeOnTheScreen();
-  expect(screen.getByText(/Day one: your value is real, your return starts measuring from today/)).toBeOnTheScreen();
+  // the account page's own day-one line, linked with no past activity sent (DEC-6075, 2026-10-19, "approved")
+  expect(screen.getByText('You linked this account today. E*TRADE sent no past activity, so its figures start today.')).toBeOnTheScreen();
   // DEC-5136 (2026-10-13): one title in every state — "HOW TODAY'S VALUE STANDS" is retired
   expect(screen.getByText(/^HOW \$[\d,]+ BECAME \$[\d,]+ · THIS ACCOUNT$/)).toBeOnTheScreen();
   expect(screen.queryByText(/VALUE STANDS/)).toBeNull();

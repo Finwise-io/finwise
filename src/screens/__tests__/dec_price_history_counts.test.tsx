@@ -34,7 +34,7 @@ jest.mock('expo-router', () => ({
 
 const TODAY = isoLocalDate(new Date());
 const daysAgo = (n: number) => { const d = new Date(`${TODAY}T12:00:00`); d.setDate(d.getDate() - n); return isoLocalDate(d); };
-const SENTENCE = "Wealth generated and Return do not include Treasury 2031's gains, as it has no price history.";
+const SENTENCE = "Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.";   // reworded 2026-10-19 by DEC-6076
 
 const VANGUARD = { asset_id: 'van', label: 'BROKERAGE', institution: 'Vanguard', kind: 'brokerage', asset_class: 'stocks_etf', tax_bucket: 'TAXABLE',
   balance: 40000, target_return: 0.05, source: 'connected', last_synced: new Date().toISOString(),
@@ -93,8 +93,9 @@ describe('the approved example: Vanguard linked today + Treasury 2031 by hand, t
     screen.unmount();
     mockParams = { id: 'van' };
     render(<AccountPortfolioScreen />);
-    const oneYear = screen.getAllByRole('button').find((b) => /^1Y, /.test(b.props.accessibilityLabel ?? ''));
-    expect(oneYear!.props.accessibilityLabel).toBe('1Y, +10.00%');
+    // the Performance tab's own control since DEC-6079 (2026-10-19)
+    const oneYear = screen.getAllByRole('button').find((b) => /^Show 1Y, /.test(b.props.accessibilityLabel ?? ''));
+    expect(oneYear!.props.accessibilityLabel).toBe('Show 1Y, +10.00%');
     fireEvent.press(oneYear!);
     expect(screen.getAllByText('$3,636').length).toBeGreaterThan(0);
     expect(screen.getAllByText('+10.00%').length).toBeGreaterThan(0);
@@ -111,9 +112,10 @@ describe('the approved example: Vanguard linked today + Treasury 2031 by hand, t
     screen.unmount();
     mockParams = { id: 't31' };
     render(<AccountPortfolioScreen />);
-    const oneYear = screen.getAllByRole('button').find((b) => /^1Y, /.test(b.props.accessibilityLabel ?? ''));
-    expect(oneYear!.props.accessibilityLabel).toBe('1Y, no figure');
-    fireEvent.press(oneYear!);
-    expect(screen.getByText(/Wealth generated and Return start once the daily record reaches back far enough/)).toBeOnTheScreen();
+    // the Performance tab's own control since DEC-6079 (2026-10-19): a window nobody recorded and no price history
+    // reaches is greyed and cannot be picked, exactly as on the Performance tab (v17)
+    const oneYear = screen.getAllByRole('button').find((b) => /^Show 1Y, /.test(b.props.accessibilityLabel ?? ''));
+    expect(oneYear!.props.accessibilityLabel).toBe('Show 1Y, no data for that window yet');
+    expect(oneYear!.props.accessibilityState?.disabled).toBe(true);
   });
 });

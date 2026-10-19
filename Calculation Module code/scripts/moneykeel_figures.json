@@ -2602,6 +2602,58 @@
    },
    "door": "MK-NW-O-008 thePerformance"
   },
+  "MK-PF-M-021": {
+   "label": "the value the return is on (with a price history)",
+   "unit": "money",
+   "screens": [
+    "/invest",
+    "/account-detail",
+    "/home"
+   ],
+   "grain": "the accounts the summary is for",
+   "answers": "How many of today’s dollars the Return is measured on, where some holdings have no price history.",
+   "formula": "today’s value of every holding the return counts (MK-NW-F-138 knownHoldingsReturn: a price history over the window, or a CD’s stated rate), added up",
+   "inputs": [
+    "MK-NW-I-001 your accounts",
+    "MK-NW-I-005 the price feed"
+   ],
+   "decisions": [
+    "DEC-6076 — the sentence says what the Return is on, so +10% is read as 10% of $40,000, not of $50,000.",
+    "DEC-5068 — a holding with no price history is left out, never counted at 0%."
+   ],
+   "refusal": "No holding is counted: the first sentence is not said, only the left-out one.",
+   "ruled": "2026-10-19",
+   "worked": {
+    "given": "An account worth $50,000: VTI $40,000 with a year of prices (+10%) and Treasury 2031 $10,000 typed by hand with no price history; no money moved, no daily record, the past year picked.",
+    "answer": "Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included."
+   },
+   "door": "MK-NW-O-008 thePerformance"
+  },
+  "MK-PF-M-022": {
+   "label": "the value left out (no price history)",
+   "unit": "money",
+   "screens": [
+    "/invest",
+    "/account-detail",
+    "/home"
+   ],
+   "grain": "the accounts the summary is for",
+   "answers": "What the holdings left out of Wealth generated and Return are worth today.",
+   "formula": "today’s value of every holding with no price history and no stated rate (MK-NW-F-128 heldValueOf), added up",
+   "inputs": [
+    "MK-NW-I-001 your accounts"
+   ],
+   "decisions": [
+    "DEC-6076 — named in brackets after the holdings it is the value of."
+   ],
+   "refusal": "A holding whose value is not known: the brackets are left off.",
+   "ruled": "2026-10-19",
+   "worked": {
+    "given": "An account worth $50,000: VTI $40,000 with a year of prices (+10%) and Treasury 2031 $10,000 typed by hand with no price history; no money moved, no daily record, the past year picked.",
+    "answer": "Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included."
+   },
+   "door": "MK-NW-O-008 thePerformance"
+  },
   "MK-PF-M-006": {
    "label": "WHAT EACH CATEGORY EARNED — RETURN",
    "unit": "percent-signed",

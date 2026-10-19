@@ -20,7 +20,7 @@ import { buildDayFromAccounts } from '../../../Calculation Module code/engines/s
 
 const TODAY = '2026-10-13';
 const ONE_YEAR = windowStartKey('1Y', [], TODAY)!;          // 2025-10-13; the beginning is read for 2025-10-12
-const SENTENCE = "Wealth generated and Return do not include Treasury 2031's gains, as it has no price history.";
+const SENTENCE = "Return is on the $40,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.";   // reworded 2026-10-19 by DEC-6076
 
 const VANGUARD = { asset_id: 'van', label: 'BROKERAGE', institution: 'Vanguard', kind: 'brokerage', asset_class: 'stocks_etf', balance: 40000,
   source: 'connected', positions: [{ position_id: 'p-vti', ticker: 'VTI', last_price: 250, lots: [{ lot_id: 'l1', shares: 160, cost_per_share: 200, purchase_date: '2023-01-03' }] }] };
@@ -121,7 +121,8 @@ describe('the mixed case: one account the record reaches, one it does not (DEC-5
     const accts = [FIDELITY, vanT];
     const all = ask(['fid', 'van'], accts, [VTI_ROW, tRow], [typedDay('2025-06-01', { fid: 100000 }), ...recordToday(accts)]);
     expect(all.walk!.beginning).toBeCloseTo(100000 + 46363.6364, 4);
-    expect(all.notIncluded).toBe(SENTENCE);
+    // the return is on Fidelity's measured $112,000 and VTI's $40,000 = $152,000 (DEC-6076)
+    expect(all.notIncluded).toBe('Return is on the $152,000 with a price history. Treasury 2031 ($10,000) has no price history, so its gains are not included.');
   });
 });
 

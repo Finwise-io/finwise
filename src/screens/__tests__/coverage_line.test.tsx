@@ -74,7 +74,8 @@ describe('PERFORMANCE: A WINDOW THE RECORD CANNOT COVER SHOWS NOTHING AND CANNOT
     expect(inside.ret).not.toBeNull();
   });
   test('the screen greys it and takes it out of reach', () => {
-    const src = read('PerformanceScreen.tsx');
+    // the control lives in src/components/WindowSelector.tsx since 2026-10-19 (DEC-6079), shared with the account page
+    const src = require('fs').readFileSync(require('path').join(__dirname, '..', '..', 'components', 'WindowSelector.tsx'), 'utf8');
     // a window the record EXISTS for but cannot reach is greyed (DEC-3035i); one with no record at all is worked back and
     // shows its figures (DEC-5068, 2026-10-13)
     expect(src).toMatch(/const uncovered = figures\[w\.key\]\?\.covered === false && !figures\[w\.key\]\?\.workedBack && !on;/);

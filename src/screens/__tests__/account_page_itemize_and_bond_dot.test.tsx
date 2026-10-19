@@ -104,7 +104,7 @@ describe('the Itemize into holdings door is the amber action box, not green (DEC
 });
 
 describe('the HISTORIC 12-MONTH RETURN card (DEC-6005)', () => {
-  const BODY = "Add historic 12-month return on your holdings. For bonds or CDs, enter the yield to maturity if it's different from the coupon rate. The Plan tab compares it with the typical return for this type of account.";
+  const BODY = "Add historic 12-month return on your holdings. For bonds or CDs, enter the yield to maturity if it's different from the coupon rate. The Plan tab compares it with the typical return for this type of account, and can grow your savings at it if you choose that there.";   // last clause approved 2026-10-19 ("approved.")
   test.each([
     ['a bond', { asset_id: 'b', kind: 'fixed_income', asset_class: 'bonds', tax_bucket: 'TAXABLE' }],
     ['a CD', { asset_id: 'c', kind: 'cd', tax_bucket: 'TAXABLE' }],
@@ -122,5 +122,44 @@ describe('the HISTORIC 12-MONTH RETURN card (DEC-6005)', () => {
     expect(src).toMatch(/\{HISTORIC_TTM_BODY\}/);
     expect(src).toContain('— historic 12-month return</Text>');
     expect(require('../../constants/historicReturn').HISTORIC_TTM_BODY).toBe(BODY);
+  });
+});
+
+describe('the HISTORIC 12-MONTH RETURN card is not shown where the app works out the yield to maturity (DEC-6077)', () => {
+  // his words, 2026-10-19: "state E - do not need historic 12-month return box as you already have YTM."
+  test('a bond with face, rate, value and maturity (the drawing’s state E): no card — BOND FACTS has the yield', () => {
+    seed({ asset_id: 'e', label: 'US Treasury 4.00% 2030', institution: 'Bank', source: 'manual', kind: 'fixed_income', asset_class: 'bonds',
+      tax_bucket: 'TAXABLE', balance: 9850, face_value: 10000, coupon_rate: 0.04, maturity_date: '2030-09-30', positions: [] });
+    render(<AccountPortfolioScreen />);
+    expect(screen.getByText('Yield if held to maturity')).toBeOnTheScreen();
+    expect(screen.queryByText('HISTORIC 12-MONTH RETURN')).toBeNull();
+  });
+  test('a CD stating its rate: no card — a bank CD’s yield to maturity is its rate', () => {
+    seed({ asset_id: 'c', label: 'Ally CD', institution: 'Ally', source: 'manual', kind: 'cd', tax_bucket: 'TAXABLE',
+      balance: 10000, face_value: 10000, coupon_rate: 0.045, maturity_date: '2027-06-01', positions: [] });
+    render(<AccountPortfolioScreen />);
+    expect(screen.queryByText('HISTORIC 12-MONTH RETURN')).toBeNull();
+  });
+  test('a bond with no rate entered (the drawing’s state B): the card stays', () => {
+    seed({ asset_id: 'b', label: 'Muni 2029', institution: 'Bank', source: 'manual', kind: 'fixed_income', asset_class: 'bonds',
+      tax_bucket: 'TAXABLE', balance: 10150, face_value: 10000, maturity_date: '2029-06-01', positions: [] });
+    render(<AccountPortfolioScreen />);
+    expect(screen.getByText('HISTORIC 12-MONTH RETURN')).toBeOnTheScreen();
+  });
+});
+
+describe('the account page carries the Performance tab’s own window control (DEC-6079)', () => {
+  // his words, 2026-10-19: "Also check in perf 17 did we have bar to select time period at the top on account page or
+  // not? We should have one."
+  test('five windows, in the Performance tab’s order and words, printed by the one shared component', () => {
+    seed(BOND_ACCOUNT);
+    render(<AccountPortfolioScreen />);
+    const labels = screen.getAllByRole('button').map((b) => String(b.props.accessibilityLabel ?? '')).filter((l) => /^Show /.test(l))
+      .map((l) => l.replace(/^Show /, '').split(',')[0]);
+    expect(labels.slice(0, 5)).toEqual([labels[0], '1M', 'This year', '1Y', '2Y']);
+    expect(labels[0]).toMatch(/^Since /);
+    const src = require('fs').readFileSync(require('path').join(__dirname, '..', 'AccountPortfolioScreen.tsx'), 'utf8');
+    expect(src).toMatch(/<WindowSelector/);
+    expect(require('fs').readFileSync(require('path').join(__dirname, '..', 'PerformanceScreen.tsx'), 'utf8')).toMatch(/<WindowSelector/);
   });
 });

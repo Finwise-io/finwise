@@ -24,7 +24,8 @@ import { maskedMoney, spokenMoney, typedAmount } from '../components/useMoney';
 import { InfoDot, EstimateTag } from '../components/UI';
 import { modalAnimation } from '../hooks/reducedMotion';
 import TopBar from '../components/TopBar';
-import { HISTORIC_TTM_TITLE, HISTORIC_TTM_BODY } from '../constants/historicReturn';   // one card, one set of words (DEC-6005)
+import { HISTORIC_TTM_TITLE, HISTORIC_TTM_BODY } from '../constants/historicReturn';
+import { WindowSelector } from '../components/WindowSelector';   // one card, one set of words (DEC-6005)
 // ONE walk builder and ONE window return for the whole app: the account page calls exactly what the
 // Performance screen calls, so an account's figures and the portfolio's can never disagree.
 import { valueOn } from '../../Calculation Module code/engines/snapshots';
@@ -393,26 +394,12 @@ export default function AccountPortfolioScreen() {
       <>
       <Text style={p.sub}>{dateShown(todayKey)}</Text>
 
-      {/* ── THE WINDOW SELECTOR · one control, a rate under each segment ────────────────────── */}
-      <View style={p.segRow}>
-        {WINDOW_KEYS.map((k) => {
-          const on = k === period;
-          const r = byWindow[k]?.ret ?? null;
-          const label = k === 'SINCE'
-            ? (dayOne || !since ? 'Since today' : `Since ${dateShown(since)}`)
-            : WINDOW_WORDS[k];
-          return (
-            <TouchableOpacity key={k} accessibilityRole="button" accessibilityState={{ selected: on }}
-              accessibilityLabel={`${label}, ${r == null ? 'no figure' : pct2(r)}`}
-              style={[p.seg, k === 'SINCE' && p.segWide, on && p.segOn]} onPress={() => setPeriod(k)}>
-              <Text numberOfLines={1} style={[p.segK, on && p.segOnT]}>{label}</Text>
-              <Text numberOfLines={1} style={[p.segV, on && p.segOnT]}>
-                {r == null ? '—' : fig('MK-PF-M-016', r)}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+      {/* ── THE WINDOW SELECTOR · the Performance tab's own control, the same five windows (DEC-6079, 2026-10-19, his
+          words: "Also check in perf 17 did we have bar to select time period at the top on account page or not? We
+          should have one.") — one component, so the two can never drift apart ────────────────────── */}
+      <WindowSelector
+        windows={WINDOW_KEYS.map((k) => ({ key: k, label: k === 'SINCE' ? (dayOne || !since ? 'Since today' : `Since ${dateShown(since)}`) : WINDOW_WORDS[k] }))}
+        chosen={period} figures={byWindow as any} onPick={(k) => setPeriod(k as any)} />
       {period === '2Y' && (
         <Text style={p.note}>2Y is shown per year, so it sits fairly beside 1Y</Text>
       )}
@@ -441,8 +428,12 @@ export default function AccountPortfolioScreen() {
         <View style={p.noteRow}>
           <Text style={p.note}>
             {dayOne
-              /* the drawing's own day-one line (v17, "DAY ONE, A LINKED ACCOUNT") */
-              ? 'Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn\'t see.'
+              /* THE ACCOUNT PAGE'S OWN DAY-ONE LINE (his approval, 2026-10-19, "approved", DEC-6075): a linked account
+                 whose broker sent no past activity names the broker; one added by hand says it was added today. A linked
+                 account WITH past activity is not day one — its history is rebuilt (the ↺ line below). */
+              ? (source === 'connected'
+                ? `You linked this account today. ${who} sent no past activity, so its figures start today.`
+                : 'You added this account today, so its figures start today.')
               : walk == null
               /* a refusal is an answer (D4): no daily record reaching back, so no beginning — say so */
               ? 'Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day.'
@@ -756,8 +747,12 @@ export default function AccountPortfolioScreen() {
       {cls === 'alternatives' && <AltDetail account={account} />}
 
       {/* the historic 12-month return — the same actual_ttm field the Retirement cockpit reads (one field, two readers);
-          shown on a bond's or a CD's page too (his ruling, 2026-10-19) */}
-      {(cls === 'bonds' || cls === 'alternatives') && <ReportedReturnCard account={account} />}
+          shown on a bond's or a CD's page too (his ruling, 2026-10-19) — EXCEPT where the app already works out the
+          yield to maturity (DEC-6077, 2026-10-19, his words: "state E - do not need historic 12-month return box as you
+          already have YTM."): a bond with face, rate, value and maturity known, or a CD with its rate (a bank CD's
+          yield to maturity is its rate). Where it cannot (no rate entered), the card stays, because that is where
+          "enter the yield to maturity if it's different" helps. */}
+      {(cls === 'alternatives' || (cls === 'bonds' && !yieldToMaturityKnown(account))) && <ReportedReturnCard account={account} />}
 
       {/* activity history — the ledger, in plain words with signed effects */}
       <SectionBand title="ACTIVITY" value={txns.length ? plural(txns.length, 'record', fig('MK-NW-M-022', txns.length)) : undefined} />
@@ -856,6 +851,15 @@ export default function AccountPortfolioScreen() {
     </ScrollView>
     </View>
   );
+}
+
+/** Does the app already work out this bond's or CD's yield to maturity? Read off the one bonds door (MK-NW-O-001
+ *  theBonds), the same answer BOND FACTS prints: a yield to maturity it computed, or a CD stating its rate (a bank
+ *  CD's yield to maturity is its rate). Matured: no. (DEC-6077, 2026-10-19) */
+function yieldToMaturityKnown(account: AssetAccount): boolean {
+  const one = theBonds({ accounts: [account], accountId: String(account.asset_id) }).one;
+  if (!one || one.matured) return false;
+  return one.yieldToMaturity != null || (!!one.isCD && one.couponRate != null);
 }
 
 // ── bond facts, yields, and the rates-move estimate (all from the ONE bonds domain) ──────────

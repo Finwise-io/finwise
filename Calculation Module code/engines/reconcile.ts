@@ -34,10 +34,11 @@ export interface Reconciliation {
  * Called by ... MK-NW-O-008 thePerformance · MK-ST-F-022 reconcileAccountTotal
  *               MK-ST-F-023 reconcileLedgerIdentity · MK-XS-F-183 writeFigure
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-XS-F-102 ingestSync · MK-ST-F-022 reconcileAccountTotal
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-XS-F-102 ingestSync
+ *               MK-NW-F-130 notIncludedSentence · MK-ST-F-022 reconcileAccountTotal
  *               MK-ST-F-023 reconcileLedgerIdentity · MK-NW-O-008 thePerformance
  *               MK-XS-F-183 writeFigure
  *

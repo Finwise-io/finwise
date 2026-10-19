@@ -23,10 +23,21 @@ export function DataGapsBanner({ gaps }: { gaps: DataGap[] }) {
       <TouchableOpacity accessibilityRole="button" style={s.banner} activeOpacity={0.85} onPress={() => setOpen(true)}
         accessibilityLabel={`${headline}. ${gaps.map((g) => g.title).join('. ')}. Opens how to fix them.`}>
         <Text style={s.head}>⚠ {headline} ›</Text>
+        {/* THE BULLETS HANG (DEC-6078, 2026-10-19, his words: "bullet in amber box text on the left should be
+            aligned."): the dot sits in its own narrow column, so a line that wraps starts again at the text's left
+            edge, not under the dot */}
         {gaps.slice(0, 3).map((g, i) => (
-          <Text key={i} style={s.line}>· {g.title}</Text>
+          <View key={i} style={s.lineRow} testID="gap-line">
+            <Text style={s.line}>·</Text>
+            <Text style={[s.line, s.lineText]}>{g.title}</Text>
+          </View>
         ))}
-        {gaps.length > 3 && <Text style={s.line}>· and {gaps.length - 3} more</Text>}
+        {gaps.length > 3 && (
+          <View style={s.lineRow} testID="gap-line">
+            <Text style={s.line}>·</Text>
+            <Text style={[s.line, s.lineText]}>and {gaps.length - 3} more</Text>
+          </View>
+        )}
       </TouchableOpacity>
 
       <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={() => setOpen(false)}>
@@ -89,6 +100,8 @@ const s = StyleSheet.create({
   banner: { backgroundColor: Colors.amberLight, borderWidth: 1, borderColor: Colors.amber, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
   head: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary },
   line: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
+  lineRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 6 },
+  lineText: { flex: 1 },
   scrim: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' },
   sheet: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.base, paddingBottom: 32 },
   grab: { width: 36, height: 4, borderRadius: 2, backgroundColor: Colors.bgTertiary, alignSelf: 'center', marginBottom: 10 },

@@ -79,6 +79,11 @@
   "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
   "category": "1 · ACTION"
  },
+ "LEFT_OUT": {
+  "id": "MK-NW-F-140",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "1 · ACTION"
+ },
  "LINE": {
   "id": "MK-CF-F-200",
   "file": "MoneyKeel/functions/cashflow/credit-line.ts",
@@ -1222,7 +1227,7 @@
  "gainRowName": {
   "id": "MK-NW-F-129",
   "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
+  "category": "3 · DEPENDENT"
  },
  "gapsHeadline": {
   "id": "MK-XS-F-003",
@@ -1678,6 +1683,11 @@
   "id": "MK-NW-F-094",
   "file": "MoneyKeel/functions/networth-and-performance/net-worth.ts",
   "category": "2 · DISPLAYED"
+ },
+ "leftOutValueOf": {
+  "id": "MK-NW-F-139",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "1 · ACTION"
  },
  "leverDeltas": {
   "id": "MK-PL-F-046",

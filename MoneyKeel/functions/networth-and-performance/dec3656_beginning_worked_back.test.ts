@@ -71,7 +71,7 @@ describe('MK-NW-O-008 thePerformance — the beginning worked back (DEC-3656, 20
     expect(f.walk!.beginning).toBe(8000);          // its value taken as unchanged over the window
     expect(f.walk!.wealthGenerated).toBe(0);
     // named by the app's one display name for an account (accountDisplayNames): "Fidelity Brokerage"
-    expect(f.notIncluded).toBe("Wealth generated and Return do not include Fidelity Brokerage's gains, as it has no price history.");
+    expect(f.notIncluded).toBe('Fidelity Brokerage ($8,000) has no price history, so its gains are not included.');
     expect(f.sentence).toBe('');
     expect(f.ret).toBeNull();                      // no holding with a history: no return
   });
@@ -86,7 +86,7 @@ describe('MK-NW-O-008 thePerformance — the beginning worked back (DEC-3656, 20
       ],
     });
     expect(f.walk!.beginning).toBe(3000);
-    expect(f.notIncluded).toBe('Wealth generated and Return do not include the gains of AAA, BBB and CCC, as they have no price history.');
+    expect(f.notIncluded).toBe('AAA, BBB and CCC ($3,000) have no price history, so their gains are not included.');
     expect(f.ret).toBeNull();                      // none of the three has a history: no return, never 0%
   });
 
@@ -96,7 +96,7 @@ describe('MK-NW-O-008 thePerformance — the beginning worked back (DEC-3656, 20
       holdings: [{ position: { ticker: 'KEYBANK CD 4.00%', last_price: 1, lots: [{ shares: 5704 }] }, marketValue: 0, periodReturn: null }],
     });
     expect(f.walk!.beginning).toBe(5704);
-    expect(f.notIncluded).toBe("Wealth generated and Return do not include KEYBANK CD 4.00%'s gains, as it has no price history.");
+    expect(f.notIncluded).toBe('KEYBANK CD 4.00% ($5,704) has no price history, so its gains are not included.');
   });
 
   test('every other account keeps its full page: a priced account beside the bond still works back', () => {

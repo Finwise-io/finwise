@@ -108,7 +108,8 @@ describe('1–2 · a debt with no balance: Net worth counts the debts that are k
     expect(lines.slice(at, at + 5)).toEqual(['DEBTS', 'ⓘ', '−$418,000', 'Home mortgage 99%', 'Chase Visa 1%']);
     expect(lines.some((l) => /^Personal loan .*%$/.test(l))).toBe(false);
     expect(lines.slice(lines.indexOf('Personal loan'), lines.indexOf('Personal loan') + 2)).toEqual(['Personal loan', 'Value not entered']);
-    expect(lines).toContain('· Personal loan has no balance');
+    // the bullet hangs in its own column since DEC-6078 (2026-10-19): the dot, then the line
+    expect(lines[lines.indexOf('Personal loan has no balance') - 1]).toBe('·');
   });
 });
 
@@ -175,7 +176,7 @@ describe('6 · a holding with no price today stays out of the change line (v08 s
       setup({ assetAccounts: lctxUnpriced(), snapshotDays: [withLctxOnStart(startValue)] });
       render(<NetWorth />);
       expect(builtLines(screen.toJSON())).toContain('▲ Change in net worth +$2,110 · Return on cash + investments +0.53% ›');
-      expect(screen.getByText('· LCTX has no price today')).toBeTruthy();
+      expect(screen.getByText('LCTX has no price today')).toBeTruthy();   // the bullet hangs in its own column (DEC-6078)
     });
 });
 

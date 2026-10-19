@@ -1142,7 +1142,9 @@ describe('the decisions in the log are held by something that executes', () => {
 
   // ── DEC-0235 ───────────────────────────────────────────────────────────────────────────────
   test('DEC-0235 — each period segment carries two lines: the window on top, its return beneath', () => {
-    for (const s of ['AccountPortfolioScreen', 'PerformanceScreen']) {
+    // since DEC-6079 (2026-10-19) both screens print the one control in src/components/WindowSelector.tsx
+    for (const s of ['AccountPortfolioScreen', 'PerformanceScreen']) expect(`${s}: ${/<WindowSelector/.test(noComments(screenSrc(s)))}`).toBe(`${s}: true`);
+    for (const s of ['../components/WindowSelector']) {
       const src = noComments(screenSrc(s));
       expect(`${s}: ${/segK/.test(src) && /segV/.test(src)}`).toBe(`${s}: true`);
     }

@@ -56,6 +56,8 @@
  * categoryEarnings' stated bond rate, ledgerGroups' missing balance, card wording for windowStartKey / propertyUses.
  * None of the 145 cases here calls those; MK-NW-F-117 propertyUseMap is judged against DEC-4913 as already coded.
  */
+import { writeFigure } from '../_figure-spec';
+import { PERFORMANCE_FIGURES } from './performance';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
@@ -97,13 +99,14 @@ const sourceSlice = (file: string, start: string, end: string) => {
   return ts.transpileModule(text.slice(at, to), { compilerOptions: { target: ts.ScriptTarget.ES2019 } }).outputText;
 };
 // plural is handed in too since 2026-10-13: the sentence's has / have comes from the one list (MK-NW-F-130)
-const perf = new Function('windowTotal', 'totalShares', 'contractMultiplier', 'plural',
+// writeFigure and the declared figures since 2026-10-19: the sentence writes its two amounts under MK-PF-M-021 / 022 (DEC-6076)
+const perf = new Function('windowTotal', 'totalShares', 'contractMultiplier', 'plural', 'writeFigure', 'PERFORMANCE_FIGURES',
   `${sourceSlice('performance.ts', 'function gainOfRow(', '/** MK-NW-F-092 ')}\nreturn { gainOfRow, heldValueOf, gainRowName, notIncludedSentence };`,
-)(windowTotal, totalShares, contractMultiplier, plural);
+)(windowTotal, totalShares, contractMultiplier, plural, writeFigure, PERFORMANCE_FIGURES);
 const gainOfRow: (r: any, years: number) => number | null = perf.gainOfRow;
 const heldValueOf: (r: any) => number | null = perf.heldValueOf;
 const gainRowName: (r: any) => string = perf.gainRowName;
-const notIncludedSentence: (names: string[]) => string = perf.notIncludedSentence;
+const notIncludedSentence: (left: { name: string; value: number | null }[], countedValue: number) => string = perf.notIncludedSentence;
 const valueEntered: (a: any) => boolean = new Function(
   `${sourceSlice('../../../src/domain/assets/index.ts', 'const valueEntered = ', '\n/** (DEC-4036j')}\nreturn valueEntered;`)();
 
@@ -415,27 +418,28 @@ describe('MK-NW-F-129 gainRowName — five cases', () => {
 // history.") is replaced by his: "Wealth generated and Return do not include <name>'s gains, as it has no price history."
 // Each case keeps its names, its de-duplication and its has / have; only the words around the names moved.
 describe('MK-NW-F-130 notIncludedSentence — five cases', () => {
+  // REWORDED 2026-10-19 by DEC-6076 ("approved."): values unknown here (null) so no brackets, nothing counted so only the
+  // second sentence; the names, their de-duplication and has / have are what these cases hold.
+  const un = (...names: string[]) => names.map((name) => ({ name, value: null }));
   test('easy · Single name uses has', () => {
-    expect(notIncludedSentence(['Treasury 2030'])).toBe("Wealth generated and Return do not include Treasury 2030's gains, as it has no price history.");
+    expect(notIncludedSentence(un('Treasury 2030'), 0)).toBe('Treasury 2030 has no price history, so its gains are not included.');
   });
   test('easy · No names uses generic holding', () => {
-    expect(notIncludedSentence([])).toBe("Wealth generated and Return do not include a holding's gains, as it has no price history.");
+    expect(notIncludedSentence([], 0)).toBe('A holding has no price history, so its gains are not included.');
   });
   test('complex · Deduplicate names and join three with Oxford-style and', () => {
-    expect(notIncludedSentence(['Apple', 'Treasury', 'Apple', 'Gold'])).toBe("Wealth generated and Return do not include the gains of Apple, Treasury and Gold, as they have no price history.");
+    expect(notIncludedSentence(un('Apple', 'Treasury', 'Apple', 'Gold'), 0)).toBe('Apple, Treasury and Gold have no price history, so their gains are not included.');
   });
   test('complex · Duplicate only yields singular grammar', () => {
-    expect(notIncludedSentence(['ETF', 'ETF'])).toBe("Wealth generated and Return do not include ETF's gains, as it has no price history.");
+    expect(notIncludedSentence(un('ETF', 'ETF'), 0)).toBe('ETF has no price history, so its gains are not included.');
   });
-  // SETTLED 2026-10-13: a blank name was kept as a name — "…worked back:  and Treasury have no price history." Blank names
-  // are dropped and duplicates named once, then has / have comes from the one list (the card: "Each name is listed once";
-  // tenet 8, plain words). Names all blank are no names: "a holding" — the one caller asks only when a gain is unknown.
+  // SETTLED 2026-10-13: blank names are dropped and duplicates named once, then has / have comes from the one list.
   test('edge · Whitespace/name handling must not produce duplicate blanks', () => {
-    expect(notIncludedSentence(['', 'Treasury', 'Treasury'])).toBe("Wealth generated and Return do not include Treasury's gains, as it has no price history.");
+    expect(notIncludedSentence(un('', 'Treasury', 'Treasury'), 0)).toBe('Treasury has no price history, so its gains are not included.');
   });
   test('edge · Whitespace/name handling — names all blank read as no name, and spaces round a name are not a second name', () => {
-    expect(notIncludedSentence(['', '  '])).toBe("Wealth generated and Return do not include a holding's gains, as it has no price history.");
-    expect(notIncludedSentence([' Apple', 'Apple ', '', 'Gold'])).toBe("Wealth generated and Return do not include the gains of Apple and Gold, as they have no price history.");
+    expect(notIncludedSentence(un('', '  '), 0)).toBe('A holding has no price history, so its gains are not included.');
+    expect(notIncludedSentence(un(' Apple', 'Apple ', '', 'Gold'), 0)).toBe('Apple and Gold have no price history, so their gains are not included.');
     expect(gainRowName({ name: '', position: { ticker: '', name: '' } })).toBe('a holding');
   });
 });
@@ -904,7 +908,7 @@ describe('MK-NW-O-008 thePerformance — five cases', () => {
       holdings: [{ position: { ticker: 'XYZ', lots: [{ shares: 100 }] }, marketValue: 12000, periodReturn: null }] });
     expect({ beginning: p.walk?.beginning ?? null, wealth_generated: p.walk?.wealthGenerated ?? null, return: p.ret })
       .toEqual({ beginning: 12000, wealth_generated: 0, return: null });
-    expect(p.notIncluded).toBe("Wealth generated and Return do not include XYZ's gains, as it has no price history.");
+    expect(p.notIncluded).toBe('XYZ ($12,000) has no price history, so its gains are not included.');
     expect(p.ending).toBe(12000);
   });
   // BRIEF WRONG on the gain, the beginning and the return. (1) The window opens 2025-10-13, so its beginning is the

@@ -69,7 +69,7 @@ test('DEC-4082 · every plural( call names a word on the one list', () => {
 });
 
 test('DEC-4082 · the plurals on the list are spelled right', () => {
-  const IRREGULAR: Record<string, string> = { Treasury: 'Treasuries', property: 'properties', has: 'have' };   // has: a verb (MK-NW-F-130, 2026-10-13)
+  const IRREGULAR: Record<string, string> = { Treasury: 'Treasuries', property: 'properties', has: 'have', its: 'their' };   // has: a verb (MK-NW-F-130, 2026-10-13); its: a possessive (DEC-6076, 2026-10-19)
   for (const [one, many] of Object.entries(PLURAL_WORDS)) {
     expect([one, many]).toEqual([one, IRREGULAR[one] ?? `${one}s`]);
   }
