@@ -102,7 +102,7 @@ one concept, one function; a total and the sum of its parts pinned by a test).
 | Cash | the cash parts of every account's split, plus every whole account whose class is cash | MK-NW-F-016 cashTotal |
 | Investments | the Stocks / Funds, Bonds & CDs, Alternatives and Unclassified parts | MK-NW-F-021 investmentsTotal |
 | Cash and investments together | every account that is not real estate or personal property, whole | MK-NW-F-022 investableAssets |
-| Each class | its line of the split | MK-NW-F-017 to F-020 |
+| Each class | its line of the split | MK-NW-F-029 assetAllocation |
 
 Always: **Cash + Investments = Cash and investments together.** The approved Net worth drawing (v08,
 state A) draws it: Vanguard $349,333 of which $838 uninvested → Investments $354,314 with E*TRADE's
@@ -239,7 +239,8 @@ should not count."*
   marked the home with a rent entry naming B is a rental (DEC-3035p), and its home mark is still a stated
   use, so A with nothing stated is a second home, not promoted. Both count toward retirement: A $400,000
   + B $300,000 = $700,000 (before: $300,000). A stored 'rental' word alone does not stop the fallback.
-  A property's use is stated, or read this way; a car has no use (MK-NW-F-013 realEstateUseOf).
+  A property's use is stated, or read this way; a car has no use (MK-NW-F-107 propertyUses, which reads MK-NW-F-117
+  propertyUseMap; a second reader of the same rule that nothing called was removed 2026-10-19 by his approval DEC-5758).
 - **The rate that money grows at** (MK-NW-F-037 blendedReturn) is each account's benchmark weighted by
   what it has set aside — over exactly the money counted above, property included. No figure when
   nothing is set aside; the Plan chooses its own 6% at its call site and says so there. The same for the

@@ -47,9 +47,8 @@
  *   a 'no-balance' gap whose title names the account (the wording is the app's, "X has no balance").
  */
 import {
-  isCashKind, assetKind, incomeBearingClassOf, maturityClass, wrapperAccount, assetClassOf, taxTreatmentOf,
-  realEstateUseOf, primaryHomeIdOf, isRealAsset, totalAssets, cashTotal, equitiesTotal, fixedIncomeTotal,
-  alternativesTotal, realEstateTotal, investmentsTotal, investableAssets, sumWhere, wrapperWord, accountLastFour,
+  assetKind, incomeBearingClassOf, maturityClass, wrapperAccount, assetClassOf, taxTreatmentOf,
+  primaryHomeIdOf, isRealAsset, cashTotal, investmentsTotal, investableAssets, sumWhere, wrapperWord, accountLastFour,
   accountDisplayName, accountDisplayNames, valueFreshness, portfolioActualReturn, accountAllowsTicker,
 } from '../../../src/domain/assets';
 import { isAlternative, alternativesSummary } from '../../../src/domain/alternatives';
@@ -170,13 +169,10 @@ describe('MK-NW-F-005 accountAllowsTicker — five cases', () => {
   });
 });
 
-describe('MK-NW-F-006 isCashKind — five cases', () => {
-  test('easy · Checking is cash kind', () => { expect(isCashKind('checking')).toBe(true); });
-  test('easy · CD is not cash kind', () => { expect(isCashKind('cd')).toBe(false); });
-  test('complex · Money-market fund not cash', () => { expect(isCashKind('money_market')).toBe(false); });
-  test('complex · Foreign currency is cash, forex holding is alternative', () => { expect(isCashKind('foreign_currency')).toBe(true); });
-  test('edge · Unknown kind is not cash', () => { expect(isCashKind(null as any)).toBe(false); });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-006 isCashKind left the code —
+// nothing in the app, the doors or the engines called it; the screens use the account's class instead. The block "MK-NW-F-006 isCashKind — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-007 assetKind — five cases', () => {
   test('easy · Known exact ID resolves', () => { expect(assetKind('checking')).toEqual(expect.objectContaining({ id: 'checking', label: 'Checking' })); });
@@ -259,26 +255,10 @@ describe('MK-NW-F-012 taxTreatmentOf — five cases', () => {
   test('edge · No treatment and no tax bucket', () => { expect(taxTreatmentOf(acct({ kind: 'unknown', tax_bucket: null }))).toBe('not_stated'); });
 });
 
-describe('MK-NW-F-013 realEstateUseOf — five cases', () => {
-  test('easy · Non-property has no use', () => { refuses(realEstateUseOf(acct({ asset_class: 'stocks_etf' }))); });
-  test('easy · Land stays land', () => { expect(realEstateUseOf(acct({ asset_class: 'real_estate', re_use: 'land' }), undefined, [])).toBe('land'); });
-  test('complex · Rent entry naming property makes it rental', () => {
-    expect(realEstateUseOf(acct({ id: 'A', kind: 'home' }), undefined, [rent('A', 1800)])).toBe('rental');
-  });
-  test('complex · Household map must agree with rent entries', () => {
-    // RULE UNCLEAR in the brief, settled by DEC-1926 + DEC-3035p: told the rent entries, B is a rental because one names
-    // it; A, marked the home and named by no entry, is the home. Asserted as the decisions say.
-    const A = acct({ id: 'A', kind: 'home', re_use: 'primary' }); const B = acct({ id: 'B', kind: 'home', re_use: 'primary' });
-    const rentals = [rent('B', 1400)];
-    expect({ A: realEstateUseOf(A, [B, A], rentals), B: realEstateUseOf(B, [B, A], rentals) }).toEqual({ A: 'primary', B: 'rental' });
-  });
-  test('edge · No home among properties', () => {
-    const A = acct({ id: 'A', kind: 'home' }); const B = acct({ id: 'B', kind: 'home' });
-    const rentals = [rent('A', 1500), rent('B', 900)];
-    expect({ A: realEstateUseOf(A, [B, A], rentals), B: realEstateUseOf(B, [B, A], rentals), home: primaryHomeIdOf([B, A], rentals) })
-      .toEqual({ A: 'rental', B: 'rental', home: null });
-  });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-013 realEstateUseOf left the code —
+// nothing in the app, the doors or the engines called it; the screens read a property's use from MK-NW-F-107 propertyUses, which reads the same rule (MK-NW-F-117 propertyUseMap). The block "MK-NW-F-013 realEstateUseOf — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-014 isRealAsset — five cases', () => {
   test('easy · Home is real asset', () => { expect(isRealAsset(acct({ asset_class: 'real_estate' }))).toBe(true); });
@@ -288,37 +268,10 @@ describe('MK-NW-F-014 isRealAsset — five cases', () => {
   test('edge · Unknown class is not guessed physical', () => { expect(isRealAsset(acct({ asset_class: 'mixed' }))).toBe(false); });
 });
 
-describe('MK-NW-F-015 totalAssets — five cases', () => {
-  test('easy · Two known balances sum', () => {
-    expect(totalAssets([acct({ id: 'c', label: 'Checking', kind: 'checking', balance: 2000 }), acct({ id: 's', label: 'Savings', kind: 'savings', balance: 3000 })])).toBeCloseTo(5000, 6);
-  });
-  test('easy · One zero balance is known zero', () => {
-    expect(totalAssets([acct({ id: 'c', label: 'Checking', kind: 'checking', balance: 0 }), acct({ id: 'b', label: 'Brokerage', kind: 'brokerage', balance: 4500 })])).toBeCloseTo(4500, 6);
-  });
-  test('complex · Missing balance must not count as zero', () => {
-    const accounts = [acct({ id: 'c', label: 'Checking', kind: 'checking', balance: 8450.25 }), acct({ id: 'b', label: 'Brokerage', kind: 'brokerage', balance: 17600.5 }),
-      acct({ id: 'l', label: 'Linked savings', kind: 'savings', source: 'connected', balance: null })];
-    expect(totalAssets(accounts)).toBeCloseTo(26050.75, 6);
-    expect(noBalanceGaps(accounts)).toEqual([expect.stringContaining('Linked savings')]);   // the amber notice names it
-  });
-  test('complex · Missing middle account not counted or hidden', () => {
-    const accounts = [acct({ id: 'h', label: 'Home', kind: 'home', balance: 100000 }), acct({ id: 'b', label: 'Brokerage', kind: 'brokerage', balance: 28333.33 }),
-      acct({ id: 'u', label: 'Undervalued property', kind: 'home', balance: null })];
-    expect(totalAssets(accounts)).toBeCloseTo(128333.33, 6);
-    expect(noBalanceGaps(accounts)).toEqual([expect.stringContaining('Undervalued property')]);
-  });
-  // BRIEF WRONG (re-judged 2026-10-18; was marked FINDING): REFUSES — right is $0. With no accounts there is nothing to
-  // add, so the sum is 0 + nothing = $0. DEC-0260 / DEC-0431 rule what a person sees with nothing entered: the screen
-  // keeps its shape, reads $0, says "Nothing entered yet." and offers the door (NetWorthScreen.tsx:585). The auditor
-  // leaned on DEC-2748i, which governed only the removed getAssetsState / assetsStateFrom (a saved record with every
-  // account deleted shows the first-day screen) — never this sum. And totalAssets has no caller in the app (tests only,
-  // inputs-and-use audit, Net worth), so no screen can print it.
-  test.failing('edge · No accounts refuses rather than $0 owned', () => { refuses(totalAssets([])); });
-  test('edge · No accounts — the app\'s answer: $0, the empty sum (DEC-0260, DEC-0431)', () => {
-    expect(totalAssets([])).toBe(0);
-    expect(noBalanceGaps([])).toEqual([]);   // nothing is missing, so the amber box has nothing to name
-  });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-015 totalAssets left the code —
+// nothing in the app, the doors or the engines called it; the screen's total comes from MK-NW-F-039 buildAssetsState. The block "MK-NW-F-015 totalAssets — five cases"
+// (6 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-016 cashTotal — five cases', () => {
   test('easy · Bank cash added', () => {
@@ -343,24 +296,11 @@ describe('MK-NW-F-016 cashTotal — five cases', () => {
   });
 });
 
-const classTotalCases = (id: string, name: string, cls: string, fn: (a: any[]) => number, complexExpected: number) => {
-  describe(`${id} ${name} — five cases`, () => {
-    test(`easy · One account in ${cls}`, () => { expect(fn([one('x', cls, 4000)])).toBeCloseTo(4000, 6); });
-    test(`easy · No ${cls} portion`, () => { expect(fn([one('x', 'Cash', 2500)])).toBeCloseTo(0, 6); });
-    // F-017 only — BRIEF WRONG: 36111.11 — right is 33611.11 because 31,111.11 (A's Stocks / Funds) + 2,500 (B) = 33,611.11
-    (complexExpected === 36111.11 ? test.failing : test)(`complex · Split account contributes only ${cls}`, () => { expect(fn([SPLIT_A(), one('B', cls, 2500)])).toBeCloseTo(complexExpected, 6); });
-    test(`complex · Multiple account portions in ${cls}`, () => {
-      expect(fn([one('A', cls, 1234.56), one('B', cls, 7890.12), one('C', 'Other', 4321)])).toBeCloseTo(9124.68, 6);
-    });
-    // BRIEF WRONG: REFUSES — right is $0 with the account named in the amber box, because DEC-3279e says a missing
-    // balance is left out of the total and the amber box names it (app: 0)
-    test.failing(`edge · Unknown value for ${cls} account`, () => { refuses(fn([acct({ kind: ofClass[cls], source: 'connected', balance: null })])); });
-  });
-};
-classTotalCases('MK-NW-F-017', 'equitiesTotal', 'Stocks / Funds', equitiesTotal, 36111.11);
-classTotalCases('MK-NW-F-018', 'fixedIncomeTotal', 'Bonds & CDs', fixedIncomeTotal, 15154.32);
-classTotalCases('MK-NW-F-019', 'alternativesTotal', 'Alternatives', alternativesTotal, 7500);
-classTotalCases('MK-NW-F-020', 'realEstateTotal', 'Real estate', realEstateTotal, 2500);
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-017 equitiesTotal,
+// MK-NW-F-018 fixedIncomeTotal, MK-NW-F-019 alternativesTotal and MK-NW-F-020 realEstateTotal left the code — nothing in
+// the app, the doors or the engines called them; the screen takes the class totals from the class split, MK-NW-F-029
+// assetAllocation. Their four blocks of five cases (20 cases, built by one helper, classTotalCases, removed with them) are no longer run; their
+// records are kept in the results file. The numbers are retired in moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-021 investmentsTotal — five cases', () => {
   test('easy · Cash excluded from investments', () => {

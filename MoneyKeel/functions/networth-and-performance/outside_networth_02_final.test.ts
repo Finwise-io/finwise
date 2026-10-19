@@ -18,10 +18,9 @@
  * A case the app fails is a finding — never fixed by changing the expected value here.
  */
 import {
-  valueFreshness, portfolioActualReturn, accountAllowsTicker, assetKind, maturityClass, wrapperAccount,
-  assetClassOf, taxTreatmentOf, taxWordsOf, cashTotal, equitiesTotal, fixedIncomeTotal, alternativesTotal,
-  realEstateTotal, investmentsTotal, investableAssets, accountDisplayName, accountDisplayNames, holdingClassOf,
-  accountClassBreakdown, classPortionLabel,
+  valueFreshness, portfolioActualReturn, accountAllowsTicker, assetKind, maturityClass, wrapperAccount, assetClassOf,
+  taxTreatmentOf, taxWordsOf, cashTotal, investmentsTotal, investableAssets, accountDisplayName, accountDisplayNames,
+  holdingClassOf, accountClassBreakdown, classPortionLabel,
 } from '../../../src/domain/assets';
 import { isAlternative, alternativesSummary } from '../../../src/domain/alternatives';
 import { assetClassForSymbol } from '../../../src/domain/import/holdingsImport';
@@ -335,112 +334,25 @@ describe('MK-NW-F-016 cashTotal — five cases', () => {
   });
 });
 
-describe('MK-NW-F-017 equitiesTotal — five cases', () => {
-  test('easy · Stocks account typed by hand', () => {
-    const a = Rs([{ account: 'Vanguard stocks', how_valued: 'value typed by hand', class_of_account: 'stocks_etf', balance: 50000.0, kind: 'stocks' }]);
-    expect({ total: equitiesTotal(a), rows: rowsBy(equitiesTotal, a) }).toEqual({ total: near(50000), rows: wantRows([{ label: 'Vanguard stocks', exact: 50000.0 }]) });
-  });
-  test('easy · Linked account: only its fund part', () => {
-    const a = Rs([{ account: 'Vanguard brokerage', how_valued: 'linked to the broker', class_of_account: 'stocks_etf', balance: 10000.0, uninvested_cash: 1000.0,
-      holdings: [{ name: 'VTI', qty: 30, price: 300.0, cls: 'stocks_etf' }] }]);
-    expect({ total: equitiesTotal(a), rows: rowsBy(equitiesTotal, a) }).toEqual({ total: near(9000), rows: wantRows([{ label: 'Vanguard brokerage', exact: 9000.0 }]) });
-  });
-  test('complex · Account built by hand with cash, a linked broker and a money-market fund', () => {
-    const a = Rs([SCHWAB_BUILT, FIDELITY_LINKED, CHASE(14206.15)]);
-    expect({ total: equitiesTotal(a), rows: rowsBy(equitiesTotal, a) }).toEqual({ total: near(123452.755), rows: wantRows([
-      { label: 'Schwab brokerage', exact: 63235.2 }, { label: 'Fidelity brokerage', exact: 60217.555 }, { label: 'Chase Checking', exact: 0.0 }]) });   // the formula as sent gave 129,573.305
-  });
-  test('complex · Account built by hand holding a T-bill and a money-market fund, beside a typed 401(k)', () => {
-    const a = Rs([SCHWAB_TBILL, FIDELITY_401K, ALLY_CD]);
-    expect({ total: equitiesTotal(a), rows: rowsBy(equitiesTotal, a) }).toEqual({ total: near(100368.03), rows: wantRows([
-      { label: 'Schwab brokerage', exact: 100368.03 }, { label: 'Fidelity 401(k)', exact: 0.0 }, { label: 'Ally 12-month CD', exact: 0.0 }]) });   // the formula as sent gave 112,639.51
-  });
-  test('edge · Account built by hand whose recorded cash is exactly zero', () => {
-    const a = Rs([{ ...SCHWAB_BUILT, uninvested_cash: 0.0, holdings: [{ name: 'VTI', qty: 100, price: 289.33, cls: 'stocks_etf' }] }]);
-    expect({ total: equitiesTotal(a), rows: rowsBy(equitiesTotal, a) }).toEqual({ total: near(28933), rows: wantRows([{ label: 'Schwab brokerage', exact: 28933.0 }]) });
-  });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-017 equitiesTotal left the code —
+// nothing in the app, the doors or the engines called it; the screen takes the class totals from the class split, MK-NW-F-029 assetAllocation. The block "MK-NW-F-017 equitiesTotal — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
-describe('MK-NW-F-018 fixedIncomeTotal — five cases', () => {
-  test('easy · One CD typed by hand', () => {
-    const a = Rs([{ account: 'Marcus CD', how_valued: 'value typed by hand', class_of_account: 'bonds', balance: 10000.0, kind: 'cd' }]);
-    expect({ total: fixedIncomeTotal(a), rows: rowsBy(fixedIncomeTotal, a) }).toEqual({ total: near(10000), rows: wantRows([{ label: 'Marcus CD', exact: 10000.0 }]) });
-  });
-  test('easy · Linked account: a T-bill the broker tagged cash', () => {
-    const a = [acct({ asset_id: 'f', label: 'Fidelity brokerage', kind: 'brokerage', source: 'connected', balance: 7000.0, cash_balance: 2000.0,
-      positions: [pos('UNITED STATES TREAS BILLS 0% 01/15/27', 5, 1000.0, 'cash')] })];   // stored with the broker's 'cash' tag, as the title says
-    expect({ total: fixedIncomeTotal(a), rows: rowsBy(fixedIncomeTotal, a) }).toEqual({ total: near(5000), rows: wantRows([{ label: 'Fidelity brokerage', exact: 5000.0 }]) });
-  });
-  test('complex · T-bill inside an account built by hand, a CD in a savings kind, and a typed bond account', () => {
-    const a = Rs([SCHWAB_TBILL, ALLY_CD, { account: 'E*TRADE bonds', how_valued: 'value typed by hand', class_of_account: 'bonds', balance: 5819.44, kind: 'fixed_income' }]);
-    expect({ total: fixedIncomeTotal(a), rows: rowsBy(fixedIncomeTotal, a) }).toEqual({ total: near(30680.74), rows: wantRows([
-      { label: 'Schwab brokerage', exact: 9861.3 }, { label: 'Ally 12-month CD', exact: 15000.0 }, { label: 'E*TRADE bonds', exact: 5819.44 }]) });   // the formula as sent gave 20,819.44
-  });
-  test('complex · Linked broker with a CD and a T-bill, and a CD maturing today', () => {
-    const a = Rs([FIDELITY_LINKED, { account: 'Synchrony CD', how_valued: 'value typed by hand', class_of_account: 'bonds', balance: 20412.66, kind: 'cd', note: 'matures 2026-10-07 (today); still Bonds & CDs (MK-NW-F-009)' }]);
-    expect({ total: fixedIncomeTotal(a), rows: rowsBy(fixedIncomeTotal, a) }).toEqual({ total: near(50364.56), rows: wantRows([
-      { label: 'Fidelity brokerage', exact: 29951.9 }, { label: 'Synchrony CD', exact: 20412.66 }]) });
-  });
-  test('edge · Account built by hand whose own class is Bonds & CDs, with uninvested cash', () => {
-    const a = Rs([{ account: 'TreasuryDirect ladder', how_valued: 'built by hand from its own holdings (derive_balance)', class_of_account: 'bonds', uninvested_cash: 1500.0,
-      holdings: [{ name: 'US Treasury Note 4.25% 2029', qty: 20, price: 1003.1, cls: 'bonds' }] }]);
-    expect({ total: fixedIncomeTotal(a), rows: rowsBy(fixedIncomeTotal, a) }).toEqual({ total: near(20062), rows: wantRows([{ label: 'TreasuryDirect ladder', exact: 20062.0 }]) });   // the formula as sent gave 21,562
-  });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-018 fixedIncomeTotal left the code —
+// nothing in the app, the doors or the engines called it; the screen takes the class totals from the class split, MK-NW-F-029 assetAllocation. The block "MK-NW-F-018 fixedIncomeTotal — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
-describe('MK-NW-F-019 alternativesTotal — five cases', () => {
-  test('easy · Crypto typed by hand', () => {
-    const a = Rs([{ account: 'Coinbase', how_valued: 'value typed by hand', class_of_account: 'alternatives', balance: 8400.0, kind: 'crypto' }]);
-    expect({ total: alternativesTotal(a), rows: rowsBy(alternativesTotal, a) }).toEqual({ total: near(8400), rows: wantRows([{ label: 'Coinbase', exact: 8400.0 }]) });
-  });
-  test('easy · Linked account: an option synced', () => {
-    const a = Rs([{ account: 'Robinhood', how_valued: 'linked to the broker', class_of_account: 'stocks_etf', balance: 10000.0, uninvested_cash: 1000.0,
-      holdings: [{ name: 'AAPL', qty: 25, price: 230.0, cls: 'stocks_etf' }], options: [{ name: 'AAPL 2027-01-15 250 C ×5', value: 3250.0 }] }]);
-    expect({ total: alternativesTotal(a), rows: rowsBy(alternativesTotal, a) }).toEqual({ total: near(3250), rows: wantRows([{ label: 'Robinhood', exact: 3250.0 }]) });
-  });
-  test('complex · Crypto account built by hand with cash, a private-equity row kept from before the cut, art', () => {
-    const a = Rs([COINBASE_BUILT, ACME_PE, ART, CHASE(14206.15)]);
-    expect({ total: alternativesTotal(a), rows: rowsBy(alternativesTotal, a) }).toEqual({ total: near(216879.9345), rows: wantRows([
-      { label: 'Coinbase', exact: 54379.9345 }, { label: ACME_PE.account, exact: 150000.0 }, { label: 'Masterworks art share', exact: 12500.0 }, { label: 'Chase Checking', exact: 0.0 }]) });   // the formula as sent gave 218,786.3345
-  });
-  test('complex · Linked account with an option and an unpriced private placement', () => {
-    const a = Rs([{ account: 'Robinhood', how_valued: 'linked to the broker', class_of_account: 'stocks_etf', balance: 30000.0, uninvested_cash: 2000.0,
-      holdings: [{ name: 'AAPL', qty: 10, price: 230.5, cls: 'stocks_etf' }, { name: 'XYZ PRIVATE PLACEMENT LP', qty: 100, price: null, cls: 'alternatives' }],
-      options: [{ name: 'SPY 2026-12-18 650 C ×1', value: 1450.0 }] }, ART]);
-    expect({ total: alternativesTotal(a), rows: rowsBy(alternativesTotal, a) }).toEqual({ total: near(38195), rows: wantRows([
-      { label: 'Robinhood', exact: 25695.0 }, { label: 'Masterworks art share', exact: 12500.0 }]) });
-  });
-  test('edge · Nothing entered', () => {
-    // its "total_value_screen" is the Other investments "Total value" (MK-NW-M-049), read from alternativesSummary
-    expect({ total: alternativesTotal([]), total_value_screen: alternativesSummary([]).totalValue }).toEqual({ total: 0, total_value_screen: 0 });   // HELD AT THE APP'S ANSWER — his ruling G32/Q48 (2026-09-09): with nothing entered the screen shows $0 with 'Nothing entered yet'
-  });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-019 alternativesTotal left the code —
+// nothing in the app, the doors or the engines called it; the screen takes the class totals from the class split, MK-NW-F-029 assetAllocation. The block "MK-NW-F-019 alternativesTotal — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
-describe('MK-NW-F-020 realEstateTotal — five cases', () => {
-  test('easy · One home', () => {
-    const a = Rs([HOME(450000)]);
-    expect({ total: realEstateTotal(a), rows: rowsBy(realEstateTotal, a) }).toEqual({ total: near(450000), rows: wantRows([{ label: 'Home', exact: 450000.0 }]) });
-  });
-  test('easy · A car is not real estate', () => {
-    const a = Rs([RAV4]);
-    expect({ total: realEstateTotal(a), rows: rowsBy(realEstateTotal, a) }).toEqual({ total: near(0), rows: wantRows([{ label: 'Toyota RAV4', exact: 0.0 }]) });
-  });
-  test('complex · Home, rental, second home, land and a car, with mortgages', () => {
-    const a = Rs([HOME(612400, 'primary'), { account: 'Rental condo', how_valued: 'value typed by hand', class_of_account: 'real_estate', balance: 348750.0, kind: 'home', re_use: 'rental' },
-      { account: 'Lake cabin', how_valued: 'value typed by hand', class_of_account: 'real_estate', balance: 289000.0, kind: 'home', re_use: 'secondary' },
-      { account: 'Wenatchee lot', how_valued: 'value typed by hand', class_of_account: 'real_estate', balance: 75500.0, kind: 'real_estate', re_use: 'land' }, RAV4]);
-    expect({ total: realEstateTotal(a), rows: rowsBy(realEstateTotal, a) }).toEqual({ total: near(1325650), rows: wantRows([
-      { label: 'Home', exact: 612400.0 }, { label: 'Rental condo', exact: 348750.0 }, { label: 'Lake cabin', exact: 289000.0 }, { label: 'Wenatchee lot', exact: 75500.0 }, { label: 'Toyota RAV4', exact: 0.0 }]) });
-  });
-  test('complex · Property with no kind, a boat, and a REIT fund', () => {
-    const a = Rs([{ account: 'Inherited house (no kind recorded)', how_valued: 'value typed by hand', class_of_account: 'real_estate', balance: 318275.0, kind: null },
-      { account: 'Boat', how_valued: 'value typed by hand', class_of_account: 'personal_property', balance: 41600.0, kind: 'boat' },
-      { account: 'Vanguard REIT fund (VNQ)', how_valued: 'value typed by hand', class_of_account: 'stocks_etf', balance: 22914.37, kind: 'stocks' }]);
-    expect({ total: realEstateTotal(a), rows: rowsBy(realEstateTotal, a) }).toEqual({ total: near(318275), rows: wantRows([
-      { label: 'Inherited house (no kind recorded)', exact: 318275.0 }, { label: 'Boat', exact: 0.0 }, { label: 'Vanguard REIT fund (VNQ)', exact: 0.0 }]) });
-  });
-  test('edge · Nothing entered', () => { expect(realEstateTotal([])).toBe(0); });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-020 realEstateTotal left the code —
+// nothing in the app, the doors or the engines called it; the screen takes the class totals from the class split, MK-NW-F-029 assetAllocation. The block "MK-NW-F-020 realEstateTotal — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-021 investmentsTotal — five cases', () => {
   const four = (a: any[]) => ({ investments_total: investmentsTotal(a), rows: rowsBy(investmentsTotal, a), cash_total: cashTotal(a), investable_assets: investableAssets(a),

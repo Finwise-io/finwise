@@ -1,6 +1,6 @@
 // Two-axis classification (taxonomy spec, Term #1): assetClass × taxTreatment, derived from the
 // legacy kind/tax_bucket until set explicitly. Orthogonal axes; real assets excluded downstream.
-import { assetClassOf, taxTreatmentOf, realEstateUseOf, isRealAsset, type AssetAccount } from './index';
+import { assetClassOf, taxTreatmentOf, isRealAsset, type AssetAccount } from './index';
 
 const acct = (over: Partial<AssetAccount>): AssetAccount => ({
   asset_id: 'a' as any, label: 'x', tax_bucket: 'TAXABLE', balance: 0, target_return: 0, ...over,
@@ -70,10 +70,8 @@ describe('real-asset helpers', () => {
     expect(isRealAsset(acct({ kind: 'stocks_etf' }))).toBe(false);
     expect(isRealAsset(acct({ kind: '401k', tax_bucket: 'PRE_TAX' }))).toBe(false);
   });
-  test('real-estate use defaults to primary; explicit re_use overrides', () => {
-    expect(realEstateUseOf(acct({ kind: 'home', tax_bucket: 'PROPERTY' }))).toBe('primary');
-    expect(realEstateUseOf(acct({ kind: 'home', tax_bucket: 'PROPERTY', re_use: 'rental' }))).toBe('rental');
-  });
+  // REMOVED 2026-10-19 (DEC-5758): MK-NW-F-013 realEstateUseOf left the code — nothing called it; the screens read a
+  // property's use from MK-NW-F-107 propertyUses (MK-NW-F-117 propertyUseMap), which has its own tests.
 });
 
 // Orthogonality: the two axes are independent — a tax-deferred 401(k) can be any asset class.

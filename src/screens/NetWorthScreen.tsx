@@ -26,7 +26,7 @@ import { trendPoints, buildChangeWalk } from '../domain/history';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { connectionFreshness } from '../services/sync';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording, CASH_GROUP_LABEL, isCashKind, uberGroupRows, type UberGroup, uberGroupOf, asksCashOrInvestments, CASH_OR_INVESTMENTS_ASK, TAX_TYPE_NOT_STATED } from '../domain/assets';
+import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording, CASH_GROUP_LABEL, uberGroupRows, type UberGroup, uberGroupOf, asksCashOrInvestments, CASH_OR_INVESTMENTS_ASK, TAX_TYPE_NOT_STATED } from '../domain/assets';
 import { buildDebtState, debtKind, TOXIC_APR, Debt } from '../domain/debt';
 // ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1 ruled 2026-09-27). This tab and Home each built
 // their own net worth; they read one answer now.
@@ -599,7 +599,13 @@ export default function NetWorthScreen() {
 
   let body: React.ReactNode;
 
-  if (!choice) {
+  // NOTHING ENTERED reads as the approved State C whether or not it is the first day (Net worth v08,
+  // approved 2026-09-14; DEC-0227; workplan row 2026-09-14, the Q48 frame). The person cannot see which
+  // setup path they took, so a later visit with no account and no debt is the same screen, word for word:
+  // no date on the title, "Own $0 − Owe $0", Personal property at $0, the emergency fund line, and no
+  // "＋ Add an account" (state C does not draw it; its hero door opens the same sheet).
+  const nothingEntered = choice === 'self' && assets.length + liabilities.length === 0;
+  if (!choice || nothingEntered) {
     // ── FIRST DAY — the approved State C (mockup-vf/networth-FINAL, founder rule 2026-08-04):
     // keep the FULL layout with honest zeros so a new person sees exactly what this screen becomes,
     // and show THE ONE app-wide retirement sample (identical to Home's) — never a reinvented one.
@@ -620,7 +626,19 @@ export default function NetWorthScreen() {
           <SectionBand title="YOUR RETIREMENT PLAN" />
           <View style={styles.blockBody}>
             <Text style={styles.sampleLine}><Text style={styles.sampleNum}>{sampleOddsLine()}</Text></Text>
-            <Text style={styles.rowSub}>a sample, not your number — 3 answers make it yours</Text>
+            {/* THE ASK NAMES WHAT IS STILL MISSING (DEC-0086). All three missing is v08 state C, drawn
+                with these exact words and no list. One or two missing: the count and the names, so a
+                person who gave their age is never told three answers are missing — and the line opens
+                that question (one) or the questions (two), as the screen with data does. */}
+            {nwDoor.count >= 3
+              ? <Text style={styles.rowSub}>a sample, not your number — 3 answers make it yours</Text>
+              : nwDoor.count > 0 && (
+                <TouchableOpacity accessibilityRole="button"
+                  onPress={() => router.push(`/(tabs)/plan${nwDoor.count === 1 ? `?focus=${encodeURIComponent(nwDoor.missing[0])}` : ''}` as any)}
+                  accessibilityLabel={`${sampleAskLine(nwDoor.missing)}. Opens ${nwDoor.count === 1 ? 'that question' : 'the questions'}.`}>
+                  <Text style={styles.rowSub}>{sampleAskLine(nwDoor.missing)} ›</Text>
+                </TouchableOpacity>
+              )}
           </View>
         </View>
 

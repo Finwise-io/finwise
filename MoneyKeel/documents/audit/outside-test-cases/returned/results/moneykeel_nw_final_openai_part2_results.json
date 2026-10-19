@@ -1022,7 +1022,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-038 earmarkedKinds — five cases › easy · One investment kind"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-038 earmarkedKinds — five cases › easy · One investment kind",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): earmarkedKinds left the code — nothing in the app, the doors or the engines called it; nothing showed what it returned — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-038",
@@ -1038,7 +1039,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-038 earmarkedKinds — five cases › easy · Zero earmark excluded"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-038 earmarkedKinds — five cases › easy · Zero earmark excluded",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): earmarkedKinds left the code — nothing in the app, the doors or the engines called it; nothing showed what it returned — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-038",
@@ -1060,7 +1062,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-038 earmarkedKinds — five cases › complex · Deduplicate kinds"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-038 earmarkedKinds — five cases › complex · Deduplicate kinds",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): earmarkedKinds left the code — nothing in the app, the doors or the engines called it; nothing showed what it returned — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-038",
@@ -1078,7 +1081,8 @@
    "difference": "app's id for 'other'",
    "formula_gives_match": "formula_gives",
    "note": "index.ts:2172. No decision. earmarkedKinds has no caller in src/ or app/ today.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-038 earmarkedKinds — five cases › complex · Missing kind becomes other"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-038 earmarkedKinds — five cases › complex · Missing kind becomes other",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): earmarkedKinds left the code — nothing in the app, the doors or the engines called it; nothing showed what it returned — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-038",
@@ -1094,7 +1098,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-038 earmarkedKinds — five cases › edge · Property excluded even if earmark positive"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-038 earmarkedKinds — five cases › edge · Property excluded even if earmark positive",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): earmarkedKinds left the code — nothing in the app, the doors or the engines called it; nothing showed what it returned — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-039",

@@ -1238,12 +1238,6 @@
    "read_from": "d8433a2f41",
    "sent_as": "4953fbda7b"
   },
-  "MK-NW-F-006": {
-   "name": "isCashKind",
-   "rule": "True when the kind is a cash kind: checking, savings, high-yield savings, cash management or foreign currency. A money-market fund (Stocks / Funds) and a CD (Bonds & CDs) are not cash kinds — his rule DEC-0051.",
-   "read_from": "47ed1adbcd",
-   "sent_as": "47ed1adbcd"
-  },
   "MK-NW-F-007": {
    "name": "assetKind",
    "rule": "Looks a kind up by its id in the app's list of account kinds and returns its entry (name, section, tax bucket, typical yearly return), or nothing when the id is not in the list. The id is matched exactly — capitals and spaces count — because only the app writes these ids; no id, or one typed another way, finds nothing.",
@@ -1296,56 +1290,17 @@
     "4036": "not a figure: the number of the owner decisions DEC-4036d/e/f (2026-10-10) that this rule follows"
    }
   },
-  "MK-NW-F-013": {
-   "name": "realEstateUseOf",
-   "rule": "An account that is not real estate has no use (no answer). Land stated as land is land. Asked about one property with neither the household nor the rent entries: its stated use, else the home. Given the household or the rent entries: what propertyUseMap says of it — home is the home lived in, rental is a rental (only when a rent entry handed in names it), anything else is a second home. The entered-first property is made the home only when no property carries a stated use (owner, 2026-10-13).",
-   "read_from": "e0864b88ae",
-   "sent_as": "036545ad7c"
-  },
   "MK-NW-F-014": {
    "name": "isRealAsset",
    "rule": "True when the account's class (assetClassOf) is Real estate or Personal property.",
    "read_from": "d9edf1e7f5",
    "sent_as": "d9edf1e7f5"
   },
-  "MK-NW-F-015": {
-   "name": "totalAssets",
-   "rule": "Every account's balance added up. A missing balance is left out (adds nothing); the amber box names the account (owner rule DEC-3279e). A typed $0 is a value and is added; a negative balance (an overdraft) is added as it is.",
-   "read_from": "def8ba03e1",
-   "sent_as": "def8ba03e1",
-   "figures_checked_by_hand": {
-    "3279": "not a figure: the number of the owner decision DEC-3279e (2026-10-08) that this rule follows"
-   }
-  },
   "MK-NW-F-016": {
    "name": "cashTotal",
    "rule": "For an account that has a class split (accountClassBreakdown): the cash part of it — a linked account's uninvested cash, or the uninvested cash an account built by hand records for itself. For any other account: its whole balance when its class is cash, otherwise nothing. Added up over every account.",
    "read_from": "107dc0dcdf",
    "sent_as": "107dc0dcdf"
-  },
-  "MK-NW-F-017": {
-   "name": "equitiesTotal",
-   "rule": "The Stocks / Funds line of the class split (assetAllocation): everything classed as Stocks / Funds, wherever it sits. An account holding several classes gives only its Stocks / Funds part.",
-   "read_from": "417edcaa6d",
-   "sent_as": "b8f35ceaaf"
-  },
-  "MK-NW-F-018": {
-   "name": "fixedIncomeTotal",
-   "rule": "The Bonds & CDs line of the class split (assetAllocation): everything classed as Bonds & CDs, wherever it sits. An account holding several classes gives only its Bonds & CDs part.",
-   "read_from": "51b1cca5c6",
-   "sent_as": "eb85ad2c06"
-  },
-  "MK-NW-F-019": {
-   "name": "alternativesTotal",
-   "rule": "The Alternatives line of the class split (assetAllocation): everything classed as Alternatives, wherever it sits. An account holding several classes gives only its Alternatives part.",
-   "read_from": "ec929ead32",
-   "sent_as": "eeb60ae32c"
-  },
-  "MK-NW-F-020": {
-   "name": "realEstateTotal",
-   "rule": "The Real estate line of the class split (assetAllocation): everything classed as Real estate.",
-   "read_from": "48072667ca",
-   "sent_as": "ac64a323db"
   },
   "MK-NW-F-021": {
    "name": "investmentsTotal",
@@ -1475,12 +1430,6 @@
    "figures_checked_by_hand": {
     "4913": "not a figure: the owner decision id DEC-4913 (2026-10-13), named in the rule"
    }
-  },
-  "MK-NW-F-038": {
-   "name": "earmarkedKinds",
-   "rule": "The distinct kinds among accounts that are not property and have an earmarked amount above zero. An account with no kind counts as other.",
-   "read_from": "45381def0e",
-   "sent_as": "45381def0e"
   },
   "MK-NW-F-039": {
    "name": "buildAssetsState",

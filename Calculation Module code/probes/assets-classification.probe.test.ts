@@ -4,7 +4,7 @@
 // money-market fund is measured. Classification decides which total a pound lands in, which slice
 // of the donut it colours, and whether its income is counted — so a wrong class is never cosmetic.
 import {
-  assetClassOf, incomeBearingClassOf, maturityClass, taxTreatmentOf, isRealAsset, isCashKind,
+  assetClassOf, incomeBearingClassOf, maturityClass, taxTreatmentOf, isRealAsset,
   assetKind, cashTotal, investmentsTotal, investableAssets, assetAllocation,
   earmarkDefault, earmarkedAmount, retirementEarmarkedValue, primaryCarIdOf,
   benchmarkReturn, blendedReturn, blendedVolatility,
@@ -45,8 +45,8 @@ describe('ACCOUNT_CLASS', () => {
     expect(assetClassOf(A({ kind: 'money_market' }))).toBe('stocks_etf');
     expect(assetKind('money_market')!.section).toBe('Investments');
     expect(assetKind('money_market')!.bucket).toBe('TAXABLE');
-    expect(isCashKind('money_market')).toBe(false);
-    expect(isCashKind('cd')).toBe(false);                        // the same fix for a CD (batch 06 fix brief)
+    // MK-NW-F-006 isCashKind was removed 2026-10-19 (DEC-5758): nothing called it; the screens use the account's class
+    expect(assetClassOf(A({ kind: 'cd' }))).not.toBe('cash');   // the same fix for a CD (batch 06 fix brief)
   });
 });
 

@@ -1,7 +1,10 @@
 // Canonical asset-total selectors (Term #2/#3/#4) — agreement tests. Every total derives from one
 // selector, so screens can't disagree. Fixture mirrors the real E*TRADE export + home/car/401(k)/bond.
+// 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-015 totalAssets and the four class
+// totals MK-NW-F-017..020 left the code — nothing called them. The screen's total is MK-NW-F-039 buildAssetsState's and
+// its class totals are the lines of the class split (MK-NW-F-029 assetAllocation), so these checks now read those.
 import {
-  totalAssets, cashTotal, equitiesTotal, fixedIncomeTotal, alternativesTotal, realEstateTotal,
+  buildAssetsState, cashTotal,
   investmentsTotal, investableAssets, assetAllocation, type AssetAccount,
   ASSET_KINDS, assetKind, assetClassOf, accountAllowsTicker, maturityClass, wrapperAccount,
 } from './index';
@@ -25,16 +28,16 @@ const portfolio: AssetAccount[] = [
 describe('canonical asset selectors — agreement', () => {
   test('per-class totals (cash = cash ONLY; CD → bonds, money-market fund → stocks — founder rule 2026-08-04)', () => {
     expect(cashTotal(portfolio)).toBe(7096);                      // checking only — cash means cash
-    expect(equitiesTotal(portfolio)).toBe(1167 + 50000);          // LCTX + the money-market fund (a dividend-paying fund)
+    expect(assetAllocation(portfolio).stocks_etf).toBe(1167 + 50000);          // LCTX + the money-market fund (a dividend-paying fund)
     expect(assetAllocation(portfolio).mixed).toBe(200000);        // the wrapper's unspecified contents land here
-    expect(fixedIncomeTotal(portfolio)).toBe(10000 + 109992);     // Treasury note + the CD (it pays interest)
-    expect(alternativesTotal(portfolio)).toBe(1407);              // the option
-    expect(realEstateTotal(portfolio)).toBe(500000);
+    expect(assetAllocation(portfolio).bonds).toBe(10000 + 109992);     // Treasury note + the CD (it pays interest)
+    expect(assetAllocation(portfolio).alternatives).toBe(1407);              // the option
+    expect(assetAllocation(portfolio).real_estate).toBe(500000);
   });
 
   test('investments = equities + fixed income + alternatives + mixed (a 401(k) still counts as an investment)', () => {
     expect(investmentsTotal(portfolio)).toBe(
-      equitiesTotal(portfolio) + fixedIncomeTotal(portfolio) + alternativesTotal(portfolio) + assetAllocation(portfolio).mixed,
+      assetAllocation(portfolio).stocks_etf + assetAllocation(portfolio).bonds + assetAllocation(portfolio).alternatives + assetAllocation(portfolio).mixed,
     );
     expect(investmentsTotal(portfolio)).toBe(51167 + 119992 + 1407 + 200000);   // 372,566 — the CD + money-market fund now measured
   });
@@ -45,14 +48,13 @@ describe('canonical asset selectors — agreement', () => {
   });
 
   test('total assets = investable + real estate + personal property', () => {
-    expect(totalAssets(portfolio)).toBe(investableAssets(portfolio) + 500000 + 20000);
+    expect(buildAssetsState('u' as any, portfolio).total_asset_value).toBe(investableAssets(portfolio) + 500000 + 20000);
   });
 
   test('allocation (donut) sums to total assets and matches the per-class selectors', () => {
     const alloc = assetAllocation(portfolio);
-    expect(Object.values(alloc).reduce((t, v) => t + v, 0)).toBeCloseTo(totalAssets(portfolio), 2);
+    expect(Object.values(alloc).reduce((t, v) => t + v, 0)).toBeCloseTo(buildAssetsState('u' as any, portfolio).total_asset_value, 2);
     expect(alloc.cash).toBe(cashTotal(portfolio));
-    expect(alloc.stocks_etf).toBe(equitiesTotal(portfolio));
     expect(alloc.personal_property).toBe(20000);
   });
 });

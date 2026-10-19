@@ -1024,6 +1024,24 @@
    "proof": "src/screens/__tests__/dec_price_history_counts.test.tsx · src/screens/__tests__/perf_matches_v17.test.tsx",
    "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md",
    "not_a_repeat_of": "DEC-5291 — that one decides WHEN a window is worked back and only proposed the day-one line's words; this one is his approval of the line's words alone. DEC-5068 — that one says which figures a worked-back window shows and names what is left out; this one is only the wording of the day-one line."
+  },
+  {
+   "decided": "2026-10-19",
+   "answers": [],
+   "tab": "networth",
+   "status": "TESTED",
+   "type": "PROCESS",
+   "screens": "/networth (no screen changes: no screen, door or engine called these functions)",
+   "his_words": "Removing #4,5,6,7-10,11 - approved.",
+   "subject": "Eight Net worth functions that nothing in the app called are removed and their numbers retired",
+   "plain": "Eight functions nothing in the app called are removed, each because a screen already gets the same answer another way: MK-NW-F-006 isCashKind (screens use the account's class instead), MK-NW-F-013 realEstateUseOf (screens use MK-NW-F-107 propertyUses, which reads the same rule), MK-NW-F-015 totalAssets (the screen's total comes from MK-NW-F-039 buildAssetsState), MK-NW-F-017 equitiesTotal, MK-NW-F-018 fixedIncomeTotal, MK-NW-F-019 alternativesTotal and MK-NW-F-020 realEstateTotal (the screen takes these from the class split, MK-NW-F-029 assetAllocation), and MK-NW-F-038 earmarkedKinds. All eight are deleted and their numbers retired, never reused. No figure on any screen changes.",
+   "means": "Said in chat on 2026-10-19 to the inputs-and-use audit's Net worth list of unused functions (items 4 to 11, each with its reason): \"Removing #4,5,6,7-10,11 - approved.\"",
+   "governs": "MK-NW-F-006 isCashKind · MK-NW-F-013 realEstateUseOf · MK-NW-F-015 totalAssets · MK-NW-F-017 equitiesTotal · MK-NW-F-018 fixedIncomeTotal · MK-NW-F-019 alternativesTotal · MK-NW-F-020 realEstateTotal · MK-NW-F-038 earmarkedKinds",
+   "changed": "All eight are deleted from src/domain/assets/index.ts with their own tests; the register retires their numbers with the reason; their formula rules and map entries are removed; the outside cases that pinned them are marked removed (their records kept). MK-NW-F-006 isCashKind was called by nothing but was named in the import line of src/screens/NetWorthScreen.tsx (line 29); that unused import was taken out the same day, then the function was deleted.",
+   "apply_steps": "1. Confirm by search (src/, app/, MoneyKeel/functions, Calculation Module code) that no live code calls each. 2. Take MK-NW-F-006 isCashKind out of the unused NetWorthScreen.tsx import. 3. Delete the function and its own tests. 4. Retire the number in the register with the reason and the date. 5. Remove its formula rule and its map entries. 6. Mark the outside cases that pin it as removed, keeping their records. 7. Lower the count floor to the true number, with a dated note. 8. Changelog row and the inputs-audit line on the working plan.",
+   "not_a_repeat_of": "DEC-4642 — that removed six Performance functions (MK-PF-F-003, 016 to 019, 021); these are eight different Net worth functions. DEC-4913, DEC-3035p — their property-use rules stand; MK-NW-F-107 propertyUses and MK-NW-F-117 propertyUseMap carry them, MK-NW-F-013 was only a second reader of the same rule.",
+   "proof": "src/__tests__/nw_function_trace.test.ts",
+   "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md"
   }
  ]
 }

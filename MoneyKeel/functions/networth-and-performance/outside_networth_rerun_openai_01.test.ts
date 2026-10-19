@@ -46,13 +46,14 @@
  *   dataGaps 'no-balance', DEC-3279e) the Net worth screen prints above the total.
  */
 import {
-  isCashKind, assetKind, incomeBearingClassOf, maturityClass, wrapperAccount, assetClassOf, taxTreatmentOf,
-  realEstateUseOf, primaryHomeIdOf, isRealAsset, totalAssets, cashTotal, equitiesTotal, fixedIncomeTotal, alternativesTotal,
-  realEstateTotal, investmentsTotal, investableAssets, sumWhere, wrapperWord, accountLastFour, accountDisplayName,
+  assetKind, incomeBearingClassOf, maturityClass, wrapperAccount, assetClassOf, taxTreatmentOf,
+  primaryHomeIdOf, isRealAsset, cashTotal,
+  investmentsTotal, investableAssets, sumWhere, wrapperWord, accountLastFour, accountDisplayName,
   accountDisplayNames, valueFreshness, portfolioActualReturn, accountAllowsTicker, accountClassBreakdown,
   classPortionLabel, assetAllocation, earmarkDefault, earmarkedAmount,
 } from '../../../src/domain/assets';
 import { isAlternative, alternativesSummary } from '../../../src/domain/alternatives';
+import { propertyUses } from './net-worth';
 import { dataGaps } from '../../../src/domain/gaps';
 
 const PROPERTY_KINDS = ['home', 'vehicle', 'real_estate'];
@@ -156,13 +157,10 @@ describe('MK-NW-F-005 accountAllowsTicker — five cases', () => {
   test('edge · 529 blocked regardless holdings', () => { expect(accountAllowsTicker(acct({ kind: 'college_529', positions: [STOCK(100)] }))).toBe(false); });
 });
 
-describe('MK-NW-F-006 isCashKind — five cases', () => {
-  test('easy · Checking', () => { expect(isCashKind('checking')).toBe(true); });
-  test('easy · High-yield savings', () => { expect(isCashKind('hysa')).toBe(true); });
-  test('complex · Money-market fund', () => { expect(isCashKind('money_market')).toBe(false); });
-  test('complex · CD', () => { expect(isCashKind('cd')).toBe(false); });
-  test('edge · Foreign currency account', () => { expect(isCashKind('foreign_currency')).toBe(true); });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-006 isCashKind left the code —
+// nothing in the app, the doors or the engines called it; the screens use the account's class instead. The block "MK-NW-F-006 isCashKind — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-007 assetKind — five cases', () => {
   test('easy · Exact catalogue id', () => { expect(assetKind('checking')).toEqual(expect.objectContaining({ id: 'checking', label: 'Checking' })); });
@@ -223,32 +221,28 @@ describe('MK-NW-F-012 taxTreatmentOf — five cases', () => {
   test('edge · Explicit account bucket beats kind', () => { expect(taxTreatmentOf(acct({ kind: 'brokerage', tax_bucket: 'PRE_TAX' }))).toBe('tax_deferred'); });
 });
 
-describe('MK-NW-F-013 realEstateUseOf — five cases', () => {
-  test('easy · Non-property', () => { expect(realEstateUseOf(acct({ asset_class: 'stocks_etf' }))).toBeNull(); });
-  test('easy · Explicit land', () => { expect(realEstateUseOf(acct({ asset_class: 'real_estate', re_use: 'land' }), undefined, [])).toBe('land'); });
-  test('complex · Rent entry names property', () => {
-    const A = acct({ id: 'A', kind: 'home' }); const B = acct({ id: 'B', kind: 'home', re_use: 'primary' });
-    expect(realEstateUseOf(A, [A, B], [rent('A', 1800)])).toBe('rental');
-  });
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-013 realEstateUseOf left the
+// code — nothing in the app, the doors or the engines called it; the screens read a property's use from MK-NW-F-107
+// propertyUses, which reads the same rule (MK-NW-F-117 propertyUseMap). Five of the block "MK-NW-F-013 realEstateUseOf —
+// five cases" (6 cases) are no longer run; their records are kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused. The sixth case is the proof of DEC-4913, so it stays, read through
+// MK-NW-F-107 propertyUses ('second' is realEstateUseOf's 'secondary'): the same households, the same answers.
+describe('DEC-4913 — the marked home that rent made a rental leaves the other property a second home (read by MK-NW-F-107 propertyUses)', () => {
   // SETTLED 2026-10-13 by DEC-4913 (owner, "approved."): the entered-first fallback (DEC-2747e) runs only when no use
   // is stated on any property; B's 'primary' mark is a stated use even though its rent entry makes it a rental
   // (DEC-3035p), so A is a second home (DEC-1926), not promoted to the home.
-  test('complex · Rent entry names another property', () => {
-    const A = acct({ id: 'A', kind: 'home' }); const B = acct({ id: 'B', kind: 'home', re_use: 'primary' });
-    expect(realEstateUseOf(A, [A, B], [rent('B', 1400)])).toBe('secondary');
-  });
   test('complex · Rent entry names another property — B rental, no home, both count: $400,000 + $300,000 = $700,000', () => {
     const A = acct({ id: 'A', kind: 'home', balance: 400000 }); const B = acct({ id: 'B', kind: 'home', re_use: 'primary', balance: 300000 });
     const rentals = [rent('B', 1400)];
     const home = primaryHomeIdOf([A, B], rentals);
-    expect([realEstateUseOf(A, [A, B], rentals), realEstateUseOf(B, [A, B], rentals), home]).toEqual(['secondary', 'rental', null]);
+    const uses = propertyUses([A, B], rentals);
+    expect([uses.get(String(A.asset_id)), uses.get(String(B.asset_id)), home]).toEqual(['second', 'rental', null]);
     expect([earmarkDefault(A, undefined, home), earmarkDefault(B, undefined, home)]).toEqual([100, 100]);   // DEC-0100
     expect(earmarkedAmount(A, undefined, home) + earmarkedAmount(B, undefined, home)).toBeCloseTo(700000, 6);   // was $300,000
     // nothing stated on either property: the fallback still makes the one entered first (last in the list) the home
     const C = acct({ id: 'C', kind: 'home' }); const D = acct({ id: 'D', kind: 'home' });
     expect(primaryHomeIdOf([C, D], [])).toBe('D');
   });
-  test('edge · No rent and no household entries', () => { expect(realEstateUseOf(acct({ id: 'A', kind: 'home', re_use: 'primary' }), undefined, null)).toBe('primary'); });
 });
 
 describe('MK-NW-F-014 isRealAsset — five cases', () => {
@@ -259,33 +253,10 @@ describe('MK-NW-F-014 isRealAsset — five cases', () => {
   test('edge · Unclassified', () => { expect(isRealAsset(acct({ asset_class: 'mixed' }))).toBe(false); });
 });
 
-describe('MK-NW-F-015 totalAssets — five cases', () => {
-  test('easy · Two known balances', () => { expect(totalAssets([one('Cash', 2000), one('Stocks / Funds', 8000)])).toBeCloseTo(10000, 6); });
-  test('easy · Known zero is included', () => {
-    const accounts = [one('Cash', 1000), one('Cash', 0)];
-    expect(totalAssets(accounts)).toBeCloseTo(1000, 6);
-    expect(noBalanceGaps(accounts)).toEqual([]);   // a typed $0 is a value, not a gap
-  });
-  test('complex · Missing balance exposes flaw', () => {
-    // known_total → the function; missing + complete_total false → the amber box names the account (DEC-3279e)
-    const accounts = [one('Cash', 1000), acct({ label: 'Linked account', kind: 'savings', source: 'connected', balance: null })];
-    expect(totalAssets(accounts)).toBeCloseTo(1000, 6);
-    expect(noBalanceGaps(accounts)).toEqual([expect.stringContaining('Linked account')]);
-  });
-  test('complex · Negative debt-like account balance', () => { expect(totalAssets([one('Cash', 1000), one('Cash', -200)])).toBeCloseTo(800, 6); });
-  // BRIEF WRONG: total null — right is $0 with the account named in the amber box. DEC-3279e: a missing balance is left
-  // out of the total and the amber box names it; DEC-0260: a total with nothing in it shows $0 with the words saying
-  // nothing is entered. The class row reads "Value not entered" (DEC-3657). Same ruling as the earlier OpenAI run.
-  test.failing('edge · No known values', () => {
-    const accounts = [acct({ label: 'Linked account', kind: 'savings', source: 'connected', balance: null })];
-    expect(totalAssets(accounts)).toBeNull();
-  });
-  test('edge · No known values — the app\'s answer, hand-checked', () => {
-    const accounts = [acct({ label: 'Linked account', kind: 'savings', source: 'connected', balance: null })];
-    expect(totalAssets(accounts)).toBe(0);
-    expect(noBalanceGaps(accounts)).toEqual([expect.stringContaining('Linked account')]);
-  });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-015 totalAssets left the code —
+// nothing in the app, the doors or the engines called it; the screen's total comes from MK-NW-F-039 buildAssetsState. The block "MK-NW-F-015 totalAssets — five cases"
+// (6 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-016 cashTotal — five cases', () => {
   test('easy · One bank account', () => { const a = [one('Cash', 2500)]; expect(cashTotal(a)).toBeCloseTo(2500, 6); invariant(a); });
@@ -308,53 +279,25 @@ describe('MK-NW-F-016 cashTotal — five cases', () => {
   });
 });
 
-describe('MK-NW-F-017 equitiesTotal — five cases', () => {
-  test('easy · Only equities', () => { expect(equitiesTotal([one('Stocks / Funds', 4000)])).toBeCloseTo(4000, 6); });
-  test('easy · No equities', () => { expect(equitiesTotal([one('Bonds & CDs', 3000)])).toBeCloseTo(0, 6); });
-  test('complex · Mixed account', () => { expect(equitiesTotal([linked({ balance: 4000 }, 0, [STOCK(2500), BOND(1500)])])).toBeCloseTo(2500, 6); });
-  test('complex · Across multiple accounts', () => {
-    expect(equitiesTotal([one('Stocks / Funds', 2500), linked({ balance: 1500 }, 300, [STOCK(1200)])])).toBeCloseTo(3700, 6);
-  });
-  test('edge · Unclassified excluded', () => { expect(equitiesTotal([linked({ balance: 1000 }, 0, [UNTAGGED(800), GOLD(200)])])).toBeCloseTo(0, 6); });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-017 equitiesTotal left the code —
+// nothing in the app, the doors or the engines called it; the screen takes the class totals from the class split, MK-NW-F-029 assetAllocation. The block "MK-NW-F-017 equitiesTotal — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
-describe('MK-NW-F-018 fixedIncomeTotal — five cases', () => {
-  test('easy · One bond', () => { expect(fixedIncomeTotal([one('Bonds & CDs', 6000)])).toBeCloseTo(6000, 6); });
-  test('easy · Cash only', () => { expect(fixedIncomeTotal([one('Cash', 1500)])).toBeCloseTo(0, 6); });
-  test('complex · CD inside bank account', () => { expect(fixedIncomeTotal([linked({ kind: 'savings', balance: 2100 }, 100, [CD(2000)])])).toBeCloseTo(2000, 6); });
-  test('complex · Mixed linked account', () => {
-    expect(fixedIncomeTotal([linked({ balance: 4000 }, 0, [STOCK(2000), BOND(1250), GOLD(750)])])).toBeCloseTo(1250, 6);
-  });
-  test('edge · Unclassified not bonds', () => { expect(fixedIncomeTotal([one('Unclassified', 900)])).toBeCloseTo(0, 6); });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-018 fixedIncomeTotal left the code —
+// nothing in the app, the doors or the engines called it; the screen takes the class totals from the class split, MK-NW-F-029 assetAllocation. The block "MK-NW-F-018 fixedIncomeTotal — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
-describe('MK-NW-F-019 alternativesTotal — five cases', () => {
-  test('easy · One alternative', () => { expect(alternativesTotal([one('Alternatives', 1500)])).toBeCloseTo(1500, 6); });
-  test('easy · No alternatives', () => { expect(alternativesTotal([one('Cash', 400)])).toBeCloseTo(0, 6); });
-  test('complex · Multi-class account', () => {
-    expect(alternativesTotal([linked({ balance: 3000 }, 0, [STOCK(2000), GOLD(600), BOND(400)])])).toBeCloseTo(600, 6);
-  });
-  test('complex · Unclassified alternative money retained in class total', () => {
-    expect(alternativesTotal([linked({ balance: 3500 }, 0, [ALT(2000), ALT(null)])])).toBeCloseTo(3500, 6);
-  });
-  test('edge · Negative alternatives value', () => { expect(alternativesTotal([one('Alternatives', -200)])).toBeCloseTo(-200, 6); });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-019 alternativesTotal left the code —
+// nothing in the app, the doors or the engines called it; the screen takes the class totals from the class split, MK-NW-F-029 assetAllocation. The block "MK-NW-F-019 alternativesTotal — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
-describe('MK-NW-F-020 realEstateTotal — five cases', () => {
-  test('easy · One property', () => { expect(realEstateTotal([one('Real estate', 300000)])).toBeCloseTo(300000, 6); });
-  test('easy · No property', () => { expect(realEstateTotal([one('Stocks / Funds', 10000)])).toBeCloseTo(0, 6); });
-  test('complex · Several properties', () => { expect(realEstateTotal([one('Real estate', 400000), one('Real estate', 250000)])).toBeCloseTo(650000, 6); });
-  test('complex · Personal property separate', () => {
-    expect(realEstateTotal([one('Real estate', 300000), one('Personal property', 25000)])).toBeCloseTo(300000, 6);
-  });
-  // BRIEF WRONG: total null — right is $0 with the property named in the amber box (DEC-3279e); the Real estate row
-  // on Net worth reads "Value not entered" (DEC-3657).
-  test.failing('edge · Property balance unknown', () => { expect(realEstateTotal([one('Real estate', null)])).toBeNull(); });
-  test('edge · Property balance unknown — the app\'s answer, hand-checked', () => {
-    const a = [one('Real estate', null, { label: 'Lake house' })];
-    expect(realEstateTotal(a)).toBe(0); expect(noBalanceGaps(a)).toEqual([expect.stringContaining('Lake house')]);
-  });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-020 realEstateTotal left the code —
+// nothing in the app, the doors or the engines called it; the screen takes the class totals from the class split, MK-NW-F-029 assetAllocation. The block "MK-NW-F-020 realEstateTotal — five cases"
+// (6 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-021 investmentsTotal — five cases', () => {
   const check = (accounts: any[], inv: number, both: number) => {

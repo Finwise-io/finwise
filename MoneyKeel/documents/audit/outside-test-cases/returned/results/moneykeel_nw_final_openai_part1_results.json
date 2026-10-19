@@ -439,7 +439,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-006 isCashKind — five cases › easy · Checking is cash kind"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-006 isCashKind — five cases › easy · Checking is cash kind",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): isCashKind left the code — nothing in the app, the doors or the engines called it; the screens use the account's class instead — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-006",
@@ -454,7 +455,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-006 isCashKind — five cases › easy · CD is not cash kind"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-006 isCashKind — five cases › easy · CD is not cash kind",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): isCashKind left the code — nothing in the app, the doors or the engines called it; the screens use the account's class instead — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-006",
@@ -469,7 +471,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-006 isCashKind — five cases › complex · Money-market fund not cash"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-006 isCashKind — five cases › complex · Money-market fund not cash",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): isCashKind left the code — nothing in the app, the doors or the engines called it; the screens use the account's class instead — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-006",
@@ -484,7 +487,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-006 isCashKind — five cases › complex · Foreign currency is cash, forex holding is alternative"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-006 isCashKind — five cases › complex · Foreign currency is cash, forex holding is alternative",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): isCashKind left the code — nothing in the app, the doors or the engines called it; the screens use the account's class instead — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-006",
@@ -499,7 +503,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-006 isCashKind — five cases › edge · Unknown kind is not cash"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-006 isCashKind — five cases › edge · Unknown kind is not cash",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): isCashKind left the code — nothing in the app, the doors or the engines called it; the screens use the account's class instead — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-007",
@@ -935,7 +940,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-013 realEstateUseOf — five cases › easy · Non-property has no use"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-013 realEstateUseOf — five cases › easy · Non-property has no use",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): realEstateUseOf left the code — nothing in the app, the doors or the engines called it; the screens read a property's use from MK-NW-F-107 propertyUses, which reads the same rule — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-013",
@@ -949,7 +955,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-013 realEstateUseOf — five cases › easy · Land stays land"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-013 realEstateUseOf — five cases › easy · Land stays land",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): realEstateUseOf left the code — nothing in the app, the doors or the engines called it; the screens read a property's use from MK-NW-F-107 propertyUses, which reads the same rule — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-013",
@@ -963,7 +970,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-013 realEstateUseOf — five cases › complex · Rent entry naming property makes it rental"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-013 realEstateUseOf — five cases › complex · Rent entry naming property makes it rental",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): realEstateUseOf left the code — nothing in the app, the doors or the engines called it; the screens read a property's use from MK-NW-F-107 propertyUses, which reads the same rule — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-013",
@@ -977,7 +985,8 @@
    "difference": "none against the decisions",
    "formula_gives_match": "expected",
    "note": "Brief said RULE UNCLEAR; settled by DEC-1926 + DEC-3035p (rental only when a rent entry names it; the marked home is the home). Asserted as ruled; app agrees via propertyUseMap (index.ts:801-813).",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-013 realEstateUseOf — five cases › complex · Household map must agree with rent entries"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-013 realEstateUseOf — five cases › complex · Household map must agree with rent entries",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): realEstateUseOf left the code — nothing in the app, the doors or the engines called it; the screens read a property's use from MK-NW-F-107 propertyUses, which reads the same rule — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-013",
@@ -993,7 +1002,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-013 realEstateUseOf — five cases › edge · No home among properties"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-013 realEstateUseOf — five cases › edge · No home among properties",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): realEstateUseOf left the code — nothing in the app, the doors or the engines called it; the screens read a property's use from MK-NW-F-107 propertyUses, which reads the same rule — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-014",
@@ -1083,7 +1093,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-015 totalAssets — five cases › easy · Two known balances sum"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-015 totalAssets — five cases › easy · Two known balances sum",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): totalAssets left the code — nothing in the app, the doors or the engines called it; the screen's total comes from MK-NW-F-039 buildAssetsState — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-015",
@@ -1098,7 +1109,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-015 totalAssets — five cases › easy · One zero balance is known zero"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-015 totalAssets — five cases › easy · One zero balance is known zero",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): totalAssets left the code — nothing in the app, the doors or the engines called it; the screen's total comes from MK-NW-F-039 buildAssetsState — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-015",
@@ -1114,7 +1126,8 @@
    "difference": "none",
    "formula_gives_match": "expected",
    "note": "Number from totalAssets (index.ts:954); the amber notice is dataGaps 'no-balance' (src/domain/gaps/index.ts:166). Wording is the app's ('has no balance'), checked by name only.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-015 totalAssets — five cases › complex · Missing balance must not count as zero"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-015 totalAssets — five cases › complex · Missing balance must not count as zero",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): totalAssets left the code — nothing in the app, the doors or the engines called it; the screen's total comes from MK-NW-F-039 buildAssetsState — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-015",
@@ -1130,7 +1143,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "As above.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-015 totalAssets — five cases › complex · Missing middle account not counted or hidden"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-015 totalAssets — five cases › complex · Missing middle account not counted or hidden",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): totalAssets left the code — nothing in the app, the doors or the engines called it; the screen's total comes from MK-NW-F-039 buildAssetsState — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-015",
@@ -1142,7 +1156,8 @@
    "difference": "returns 0 instead of refusing",
    "formula_gives_match": null,
    "note": "FINDING (low reach): totalAssets([]) = 0. totalAssets has no production caller (the screen total is buildAssetsState, index.ts:2213); DEC-2748i's first-day screen is held upstream by getAssetsState.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-015 totalAssets — five cases › edge · No accounts refuses rather than $0 owned"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-015 totalAssets — five cases › edge · No accounts refuses rather than $0 owned",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): totalAssets left the code — nothing in the app, the doors or the engines called it; the screen's total comes from MK-NW-F-039 buildAssetsState — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-016",
@@ -1229,7 +1244,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-017 equitiesTotal — five cases › easy · One account in Stocks / Funds"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-017 equitiesTotal — five cases › easy · One account in Stocks / Funds",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): equitiesTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-017",
@@ -1244,7 +1260,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-017 equitiesTotal — five cases › easy · No Stocks / Funds portion"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-017 equitiesTotal — five cases › easy · No Stocks / Funds portion",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): equitiesTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-017",
@@ -1259,7 +1276,8 @@
    "difference": "-2500.00",
    "formula_gives_match": null,
    "note": "BRIEF WRONG: 36111.11 — right is 33611.11 because 31,111.11 + 2,500 = 33,611.11. The app is right.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-017 equitiesTotal — five cases › complex · Split account contributes only Stocks / Funds"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-017 equitiesTotal — five cases › complex · Split account contributes only Stocks / Funds",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): equitiesTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-017",
@@ -1274,7 +1292,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-017 equitiesTotal — five cases › complex · Multiple account portions in Stocks / Funds"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-017 equitiesTotal — five cases › complex · Multiple account portions in Stocks / Funds",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): equitiesTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-017",
@@ -1288,7 +1307,8 @@
    "difference": "app 0 vs REFUSES",
    "formula_gives_match": null,
    "note": "BRIEF WRONG: DEC-3279e: a missing balance is left out of the total and the amber box names the account. App gives $0 for the class and dataGaps names the account.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-017 equitiesTotal — five cases › edge · Unknown value for Stocks / Funds account"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-017 equitiesTotal — five cases › edge · Unknown value for Stocks / Funds account",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): equitiesTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-018",
@@ -1303,7 +1323,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-018 fixedIncomeTotal — five cases › easy · One account in Bonds & CDs"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-018 fixedIncomeTotal — five cases › easy · One account in Bonds & CDs",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): fixedIncomeTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-018",
@@ -1318,7 +1339,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-018 fixedIncomeTotal — five cases › easy · No Bonds & CDs portion"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-018 fixedIncomeTotal — five cases › easy · No Bonds & CDs portion",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): fixedIncomeTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-018",
@@ -1333,7 +1355,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-018 fixedIncomeTotal — five cases › complex · Split account contributes only Bonds & CDs"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-018 fixedIncomeTotal — five cases › complex · Split account contributes only Bonds & CDs",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): fixedIncomeTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-018",
@@ -1348,7 +1371,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-018 fixedIncomeTotal — five cases › complex · Multiple account portions in Bonds & CDs"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-018 fixedIncomeTotal — five cases › complex · Multiple account portions in Bonds & CDs",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): fixedIncomeTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-018",
@@ -1362,7 +1386,8 @@
    "difference": "app 0 vs REFUSES",
    "formula_gives_match": null,
    "note": "BRIEF WRONG: DEC-3279e: a missing balance is left out of the total and the amber box names the account. App gives $0 for the class and dataGaps names the account.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-018 fixedIncomeTotal — five cases › edge · Unknown value for Bonds & CDs account"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-018 fixedIncomeTotal — five cases › edge · Unknown value for Bonds & CDs account",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): fixedIncomeTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-019",
@@ -1377,7 +1402,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-019 alternativesTotal — five cases › easy · One account in Alternatives"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-019 alternativesTotal — five cases › easy · One account in Alternatives",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): alternativesTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-019",
@@ -1392,7 +1418,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-019 alternativesTotal — five cases › easy · No Alternatives portion"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-019 alternativesTotal — five cases › easy · No Alternatives portion",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): alternativesTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-019",
@@ -1407,7 +1434,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-019 alternativesTotal — five cases › complex · Split account contributes only Alternatives"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-019 alternativesTotal — five cases › complex · Split account contributes only Alternatives",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): alternativesTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-019",
@@ -1422,7 +1450,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-019 alternativesTotal — five cases › complex · Multiple account portions in Alternatives"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-019 alternativesTotal — five cases › complex · Multiple account portions in Alternatives",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): alternativesTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-019",
@@ -1436,7 +1465,8 @@
    "difference": "app 0 vs REFUSES",
    "formula_gives_match": null,
    "note": "BRIEF WRONG: DEC-3279e: a missing balance is left out of the total and the amber box names the account. App gives $0 for the class and dataGaps names the account.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-019 alternativesTotal — five cases › edge · Unknown value for Alternatives account"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-019 alternativesTotal — five cases › edge · Unknown value for Alternatives account",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): alternativesTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-020",
@@ -1451,7 +1481,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-020 realEstateTotal — five cases › easy · One account in Real estate"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-020 realEstateTotal — five cases › easy · One account in Real estate",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): realEstateTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-020",
@@ -1466,7 +1497,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-020 realEstateTotal — five cases › easy · No Real estate portion"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-020 realEstateTotal — five cases › easy · No Real estate portion",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): realEstateTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-020",
@@ -1481,7 +1513,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-020 realEstateTotal — five cases › complex · Split account contributes only Real estate"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-020 realEstateTotal — five cases › complex · Split account contributes only Real estate",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): realEstateTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-020",
@@ -1496,7 +1529,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-020 realEstateTotal — five cases › complex · Multiple account portions in Real estate"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-020 realEstateTotal — five cases › complex · Multiple account portions in Real estate",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): realEstateTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-020",
@@ -1510,7 +1544,8 @@
    "difference": "app 0 vs REFUSES",
    "formula_gives_match": null,
    "note": "BRIEF WRONG: DEC-3279e: a missing balance is left out of the total and the amber box names the account. App gives $0 for the class and dataGaps names the account.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-020 realEstateTotal — five cases › edge · Unknown value for Real estate account"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-020 realEstateTotal — five cases › edge · Unknown value for Real estate account",
+   "settled": "REMOVED 2026-10-19 (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\"): realEstateTotal left the code — nothing in the app, the doors or the engines called it; the screen takes it from the class split, MK-NW-F-029 assetAllocation — and this case is no longer run."
   },
   {
    "id": "MK-NW-F-021",

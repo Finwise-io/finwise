@@ -1,8 +1,8 @@
 // PROBES — the assets helpers not yet documented: account totals, itemising a lump balance,
 // the grouping on Net worth, and the small rules about what an account is allowed to hold.
 import {
-  assetKind, accountAllowsTicker, portfolioActualReturn, buildAssetsState,
-  realEstateUseOf, wrapperAccount, sourceWording, uberGroupRows, ASSET_KINDS,
+  assetKind, accountAllowsTicker, portfolioActualReturn, buildAssetsState, wrapperAccount, sourceWording,
+  uberGroupRows, ASSET_KINDS,
 } from '../../src/domain/assets';
 import { itemizedTotal, itemizeRemainder } from '../../src/domain/assets/itemize';
 
@@ -123,11 +123,8 @@ describe('THE SMALL RULES', () => {
     expect(wrapperAccount(null).tax_bucket).toBeUndefined();
   });
 
-  test('a home is assumed to be the one you live in — the cautious answer for the nest egg', () => {
-    expect(realEstateUseOf(A({ kind: 'home', tax_bucket: 'PROPERTY' }))).toBe('primary');   // a property alone, no use stated
-    expect(realEstateUseOf(A({ kind: 'home', tax_bucket: 'PROPERTY', re_use: 'rental' }))).toBe('rental');
-    expect(realEstateUseOf(A({}))).toBeNull();                                           // not a property: no use (2026-10-07)
-  });
+  // REMOVED 2026-10-19 (DEC-5758): MK-NW-F-013 realEstateUseOf left the code — nothing called it; the screens read a
+  // property's use from MK-NW-F-107 propertyUses (MK-NW-F-117 propertyUseMap), which has its own tests.
 
   test('the screen says where a value came from, and when', () => {
     // SOURCE ALWAYS, DATE ONLY WHEN STALE (DEC-0301, and change row 12 of the approved Net worth

@@ -1607,6 +1607,7 @@
 },
 "MK-NW-F-006": {
 "changed": "2026-08-27",
+"decommissioned": "2026-10-19",
 "first": "2026-08-27",
 "hash": "c42affe2eb2d6967"
 },
@@ -1642,6 +1643,7 @@
 },
 "MK-NW-F-013": {
 "changed": "2026-10-09",
+"decommissioned": "2026-10-19",
 "first": "2026-08-27",
 "hash": "7ea17e16279610e4"
 },
@@ -1652,6 +1654,7 @@
 },
 "MK-NW-F-015": {
 "changed": "2026-10-13",
+"decommissioned": "2026-10-19",
 "first": "2026-08-27",
 "hash": "2381c2fbed18d58a"
 },
@@ -1662,21 +1665,25 @@
 },
 "MK-NW-F-017": {
 "changed": "2026-10-05",
+"decommissioned": "2026-10-19",
 "first": "2026-08-27",
 "hash": "3b0ae5ead0fdaa59"
 },
 "MK-NW-F-018": {
 "changed": "2026-10-05",
+"decommissioned": "2026-10-19",
 "first": "2026-08-27",
 "hash": "95c18cd41f6763d6"
 },
 "MK-NW-F-019": {
 "changed": "2026-10-05",
+"decommissioned": "2026-10-19",
 "first": "2026-08-27",
 "hash": "515cdd2df9937f78"
 },
 "MK-NW-F-020": {
 "changed": "2026-10-05",
+"decommissioned": "2026-10-19",
 "first": "2026-08-27",
 "hash": "c3e2158eb239e0be"
 },
@@ -1767,6 +1774,7 @@
 },
 "MK-NW-F-038": {
 "changed": "2026-08-27",
+"decommissioned": "2026-10-19",
 "first": "2026-08-27",
 "hash": "908adee18eac46e4"
 },
@@ -3043,9 +3051,9 @@
 "hash": "7bb00ce3b7080750"
 },
 "MK-PL-F-028": {
-"changed": "2026-08-27",
+"changed": "2026-10-18",
 "first": "2026-08-27",
-"hash": "61d7748db48358c0"
+"hash": "d8f2a8e905c5c754"
 },
 "MK-PL-F-029": {
 "changed": "2026-08-27",
@@ -4902,14 +4910,14 @@
 "hash": "adfd406561e5c94d"
 },
 "MK-XS-I-001": {
-"changed": "2026-10-10",
+"changed": "2026-10-19",
 "first": "2026-08-27",
-"hash": "52dd4c86d4cc1d8b"
+"hash": "fa9f1e487f02b4b7"
 },
 "MK-XS-I-002": {
-"changed": "2026-10-10",
+"changed": "2026-10-19",
 "first": "2026-08-27",
-"hash": "8a981312db15565b"
+"hash": "ee96333efca2c14a"
 },
 "MK-XS-I-003": {
 "changed": "2026-10-10",
@@ -5172,9 +5180,9 @@
 "hash": "66e607b0f27631b0"
 },
 "MK-XS-I-055": {
-"changed": "2026-10-12",
+"changed": "2026-10-19",
 "first": "2026-08-27",
-"hash": "38555103b29525a0"
+"hash": "3ecbb0677a266e4b"
 },
 "MK-XS-I-056": {
 "changed": "2026-10-11",

@@ -4,7 +4,7 @@
  * Today = 2026-10-07 throughout. */
 import { priceAtYield, accruedInterestCaveat, type BondInfo } from '../../../src/domain/bonds';
 import { rowOf, isCertificateOfDeposit } from './bonds';
-import { isCashKind, sumWhere, wrapperWord, prettyDay, type AssetAccount } from '../../../src/domain/assets';
+import { assetClassOf, sumWhere, wrapperWord, prettyDay, type AssetAccount } from '../../../src/domain/assets';
 import { itemizedTotal, itemizeRemainder, itemizeMissingCount } from '../../../src/domain/assets/itemize';
 import { itemising } from './account';
 
@@ -52,10 +52,13 @@ describe('rowOf — MK-NW-F-072', () => {
   });
 });
 
-test('8 · isCashKind — kind cd → false (his rule DEC-0051)', () => { expect(isCashKind('cd')).toBe(false); });
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-006 isCashKind left the code —
+// nothing in the app, the doors or the engines called it; the screens use the account's class instead. Case 8 ("kind cd →
+// false", his rule DEC-0051) is no longer run on it; the rule is held by the class (a CD is Bonds & CDs, not Cash).
+test('8 · a CD is not cash (his rule DEC-0051), read from the account\'s class', () => { expect(assetClassOf({ asset_id: 'cd', kind: 'cd', balance: 1000 } as any)).not.toBe('cash'); });
 
 test('9 · sumWhere — checking 2,500 + linked savings with no balance; test = cash kind', () => {
-  const r = sumWhere([{ asset_id: 'c', kind: 'checking', balance: 2500 } as any, { asset_id: 's', kind: 'savings', source: 'connected', balance: undefined } as any], (a) => isCashKind(a.kind));
+  const r = sumWhere([{ asset_id: 'c', kind: 'checking', balance: 2500 } as any, { asset_id: 's', kind: 'savings', source: 'connected', balance: undefined } as any], (a) => assetClassOf(a) === 'cash');
   expect(r).toEqual({ total: 2500, missingCount: 1 });
 });
 

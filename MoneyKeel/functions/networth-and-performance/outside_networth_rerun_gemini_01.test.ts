@@ -24,7 +24,7 @@
  */
 import { isAlternative, alternativesSummary } from '../../../src/domain/alternatives';
 import {
-  valueFreshness, portfolioActualReturn, accountAllowsTicker, isCashKind, assetKind, incomeBearingClassOf, maturityClass,
+  valueFreshness, portfolioActualReturn, accountAllowsTicker, assetKind, incomeBearingClassOf, maturityClass,
   wrapperAccount,
 } from '../../../src/domain/assets';
 
@@ -104,13 +104,10 @@ describe('MK-NW-F-005 accountAllowsTicker — five cases', () => {
   test.failing('edge · Investment account with missing holdings flag', () => { expect(accountAllowsTicker(A({ kind: 'stocks_etf', tax_bucket: 'TAXABLE' }))).toBe(false); });
 });
 
-describe('MK-NW-F-006 isCashKind — five cases', () => {
-  test('easy · Checking account cash kind check', () => { expect(isCashKind('checking')).toBe(true); });
-  test('easy · Money market fund exclusion check', () => { expect(isCashKind('money_market')).toBe(false); });
-  test('complex · Savings account cash kind check', () => { expect(isCashKind('savings')).toBe(true); });
-  test('complex · Certificate of Deposit exclusion check', () => { expect(isCashKind('cd')).toBe(false); });
-  test('edge · Custom unlisted cash equivalent check', () => { expect(isCashKind('digital_wallet')).toBe(false); });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-006 isCashKind left the code —
+// nothing in the app, the doors or the engines called it; the screens use the account's class instead. The block "MK-NW-F-006 isCashKind — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-007 assetKind — five cases (CARD MISREAD: run on kind ids)', () => {
   test('easy · Checking account catalogue lookup', () => { expect(assetKind('checking')?.id).toBe('checking'); });

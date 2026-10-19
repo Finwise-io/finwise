@@ -4,7 +4,7 @@
  */
 import {
   valueFreshness, accountAllowsTicker, assetClassOf, taxTreatmentOf, taxWordsOf, cashTotal, investmentsTotal,
-  investableAssets, equitiesTotal, fixedIncomeTotal, alternativesTotal, realEstateTotal, assetAllocation,
+  investableAssets, assetAllocation,
   accountDisplayName, accountDisplayNames, accountClassBreakdown, classPortionLabel, holdingClassOf,
 } from '../../../src/domain/assets';
 import { theNetWorth } from './net-worth';
@@ -139,13 +139,14 @@ describe('the class totals — every one read from the same split, so they add u
     acct({ asset_id: 'k', kind: '401k', tax_bucket: 'PRE_TAX', balance: 200000 }),
     acct({ asset_id: 'h', kind: 'home', tax_bucket: 'PROPERTY', balance: 450000 }),
   ];
+  // CHANGED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-017 equitiesTotal,
+  // MK-NW-F-018 fixedIncomeTotal, MK-NW-F-019 alternativesTotal and MK-NW-F-020 realEstateTotal left the code — nothing
+  // called them; the screen takes the class totals from the class split. Their four "is its line of the split" checks
+  // are no longer run; the finding itself (the CD inside Vanguard is Bonds & CDs, not $0) is held on the split.
   test('each class total is its line of the split (they counted whole accounts, so a CD inside a brokerage was "stocks")', () => {
     const by = assetAllocation(household);
-    expect(equitiesTotal(household)).toBe(by.stocks_etf);
-    expect(fixedIncomeTotal(household)).toBe(by.bonds);
-    expect(fixedIncomeTotal(household)).toBeCloseTo(40000, 2);              // the CD inside Vanguard — it was $0
-    expect(alternativesTotal(household)).toBe(by.alternatives);
-    expect(realEstateTotal(household)).toBe(450000);
+    expect(by.bonds).toBeCloseTo(40000, 2);              // the CD inside Vanguard — it was $0
+    expect(by.real_estate).toBe(450000);
   });
   test('cash + investments = cash and investments together, and Net worth prints the same three', () => {
     expect(cashTotal(household)).toBeCloseTo(8000 + 838 + 2000, 2);

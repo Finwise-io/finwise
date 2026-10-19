@@ -28,11 +28,12 @@ beforeEach(() => {
 test('frame 1 — nothing entered: $0 and the one line under the hero, the ways to add ONCE, and DEBTS', () => {
   // Net worth v08 state C and mark 14 (approved 2026-09-14, DEC-0227) replace the Q48 drawing's frame 1
   // here: "Add your accounts ›" no longer repeats under Cash and Investments — "too much duplication".
+  // The whole screen is held to state C word for word by nw_no_accounts_one_door.test.tsx.
   render(<NetWorth />);
   const v = visible();
   expect(v.filter((s) => s === 'Nothing entered yet.').length).toBe(3);   // hero + the ways-to-add line + Debts
   expect(v.filter((s) => s === 'Add your accounts ›').length).toBe(1);   // the hero's, once
-  expect(screen.getAllByText('Add your debts ›').length).toBe(1);        // DEC-4528
+  expect(v.filter((s) => s === 'Add your debts').length).toBe(1);       // DEC-4528, its › in the arrow column (v08 state C)
   expect(screen.queryByText(/No debts — it's all yours/)).toBeNull();
   expect(screen.queryByText(/one live number/)).toBeNull();
   // the line reads as one sentence to VoiceOver

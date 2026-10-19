@@ -30,21 +30,14 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-NW-F-003', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-004', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-005', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-NW-F-006', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-007', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-008', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-009', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-010', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-011', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-012', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-NW-F-013', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-014', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-NW-F-015', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-016', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-NW-F-017', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-NW-F-018', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-NW-F-019', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-NW-F-020', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-021', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-022', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-023', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
@@ -62,7 +55,6 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-NW-F-035', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-036', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-037', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-NW-F-038', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-039', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-040', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-041', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
@@ -132,7 +124,11 @@ describe('every Net worth function traces to its proof in one hop (step 3.c)', (
     // real one (MK-NW-O-004) — one function counted twice, not a function lost.
     // 98, not 100 (2026-10-14): four saved-account functions (MK-NW-F-042, -043, -044, -111) were retired — nothing in the
     // app called them (inputs-and-use audit). The floor carries the true number.
-    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(98);
+    // 91, not 98 (2026-10-19): seven more were removed by his approval DEC-5758 ("Removing #4,5,6,7-10,11 - approved.") —
+    // MK-NW-F-013, -015, -017, -018, -019, -020, -038; nothing in the app called them. The floor carries the true number.
+    // 90, not 91 (2026-10-19, same day): the eighth, MK-NW-F-006 isCashKind, followed once the Net worth screen's unused
+    // import of it was taken out. The floor carries the true number.
+    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(90);
     expect(new Set(FUNCTIONS.map((r) => r[0])).size).toBe(FUNCTIONS.length);
   });
 
@@ -143,6 +139,24 @@ describe('every Net worth function traces to its proof in one hop (step 3.c)', (
       if (!fs.existsSync(p) || !fs.readFileSync(p, 'utf8').includes(id)) wrong.push(`${id} → ${src}`);
     }
     expect(wrong).toEqual([]);
+  });
+
+  it('the eight functions he removed on 2026-10-19 (DEC-5758) are gone from the code and retired in the register', () => {
+    const gone: [string, string][] = [['MK-NW-F-006', 'isCashKind'], ['MK-NW-F-013', 'realEstateUseOf'], ['MK-NW-F-015', 'totalAssets'],
+      ['MK-NW-F-017', 'equitiesTotal'], ['MK-NW-F-018', 'fixedIncomeTotal'], ['MK-NW-F-019', 'alternativesTotal'],
+      ['MK-NW-F-020', 'realEstateTotal'], ['MK-NW-F-038', 'earmarkedKinds']];
+    const assets = fs.readFileSync(path.join(ROOT, 'src/domain/assets/index.ts'), 'utf8');
+    const register = JSON.parse(fs.readFileSync(path.join(ROOT, 'Calculation Module code/scripts/moneykeel_function_register.json'), 'utf8'));
+    const left = gone.filter(([id, name]) => new RegExp(`export (function|const) ${name}\\b`).test(assets)
+      || register.issued[name] || !String(register.retired[id] ?? '').includes('DEC-5758'));
+    expect(left).toEqual([]);
+    expect(gone.length).toBe(8);
+    // and the Net worth screen's import from the accounts code names none of them (it named MK-NW-F-006 in an unused
+    // import; its own local "totalAssets" figure is a variable, not the removed function, so only the import is read)
+    const screen = fs.readFileSync(path.join(ROOT, 'src/screens/NetWorthScreen.tsx'), 'utf8');
+    const imported = (screen.match(/import \{([^}]*)\} from '\.\.\/domain\/assets'/) ?? [])[1];
+    expect(imported).toBeDefined();
+    expect(gone.filter(([, name]) => new RegExp(`\\b${name}\\b`).test(imported!))).toEqual([]);
   });
 
   it('each function names a test that exists', () => {

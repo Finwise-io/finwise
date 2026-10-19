@@ -110,7 +110,10 @@ test('B — all collapsed, and the down case', () => {
     snapshotDays: [recordedDay(daysAgo(8), [['chk', 8000, 'cash'], ['van', 838, 'cash'], ['van', 349975], ['etr', 5819, 'typed']])] });
   render(<NetWorth />); collapseAll(); compare('B', phone(3), builtLines(screen.toJSON()));
 });
-test('C — first day', () => { useStore.getState().resetAll(); useStore.getState().setOnboardingProfile(employedPartner as any); render(<NetWorth />); compare('C', phone(4), builtLines(screen.toJSON())); });
+// State C draws "3 answers make it yours" — the person has given none of the three (age, spending, what they
+// have), so the drawing is read with no age. With an answer given, the line names what is left (DEC-0086,
+// 2026-10-18 on this screen): held by nw_no_accounts_one_door.test.tsx for 3, 2 and 1 missing.
+test('C — first day', () => { useStore.getState().resetAll(); useStore.getState().setOnboardingProfile({ ...employedPartner, birthYear: undefined, birthMonth: undefined } as any); render(<NetWorth />); compare('C', phone(4), builtLines(screen.toJSON())); });
 test('D — the missing-data banner', () => {
   setup(GAPS); render(<NetWorth />); collapseAll();
   compare('D', phone(5), upTo(builtLines(screen.toJSON()), /^EMERGENCY FUND/));

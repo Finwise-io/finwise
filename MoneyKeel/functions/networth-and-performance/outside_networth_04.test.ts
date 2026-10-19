@@ -17,8 +17,7 @@
  *   MK-NW-F-025, one more: with no digits and no kind word the person's own name is kept behind the institution.
  */
 import {
-  equitiesTotal, fixedIncomeTotal, alternativesTotal, realEstateTotal, totalAssets, isRealAsset,
-  realEstateUseOf, accountLastFour, accountDisplayName, blendedVolatility, ASSET_CLASS_LABEL, assetClassOf,
+  isRealAsset, accountLastFour, accountDisplayName, blendedVolatility, ASSET_CLASS_LABEL, assetClassOf,
 } from '../../../src/domain/assets';
 import { isBond } from '../../../src/domain/bonds';
 import { alternativesSummary } from '../../../src/domain/alternatives';
@@ -148,25 +147,10 @@ describe('MK-NW-F-008 incomeBearingClassOf — five cases', () => {
   test('edge · no label', () => { expect(nameEvidence(null)).toBeNull(); });
 });
 
-describe('MK-NW-F-013 realEstateUseOf — five cases', () => {
-  test('easy · a stated rental', () => { expect(realEstateUseOf(acct({ kind: 'home', re_use: 'rental' }))).toBe('rental'); });
-  test('easy · the only home, use not stated', () => {
-    const home = acct({ id: 'h', kind: 'home', re_use: null });
-    expect(realEstateUseOf(home, [home, acct({ id: 'c', kind: 'checking' })])).toBe('primary');
-  });
-  test('complex · a house and a let condo, neither marked', () => {
-    // RULE UNCLEAR for the reviewer (it refuses both); the app follows the owner’s rule of 2026-10-04 (DEC-1926) as
-    // built: nobody is asked what a property is for — the property entered first is the home, the other is a second home
-    const condo = acct({ id: 'condo', kind: 'home', balance: 410000, re_use: null }), house = acct({ id: 'house', kind: 'home', balance: 650000, re_use: null });
-    const accounts = [condo, house];                                       // the newest first, as the store keeps them: the house was entered first
-    expect(realEstateUseOf(house, accounts)).toBe('primary');
-    expect(realEstateUseOf(condo, accounts)).toBe('secondary');            // the formula as sent made both the home
-  });
-  test('complex · land and a second home', () => {
-    expect([acct({ kind: 'home', re_use: 'land' }), acct({ kind: 'home', re_use: 'secondary' })].map((a) => realEstateUseOf(a))).toEqual(['land', 'secondary']);
-  });
-  test('edge · asked about a car', () => { expect(realEstateUseOf(acct({ kind: 'vehicle', re_use: null }))).toBeNull(); });   // REFUSES — the formula as sent said primary
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-013 realEstateUseOf left the code —
+// nothing in the app, the doors or the engines called it; the screens read a property's use from MK-NW-F-107 propertyUses, which reads the same rule (MK-NW-F-117 propertyUseMap). The block "MK-NW-F-013 realEstateUseOf — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-014 isRealAsset — five cases', () => {
   test('easy · a home', () => { expect(isRealAsset(acct({ kind: 'home' }))).toBe(true); });
@@ -181,70 +165,15 @@ describe('MK-NW-F-014 isRealAsset — five cases', () => {
   test('edge · property bucket, no kind', () => { expect(isRealAsset(acct({ kind: null, tax_bucket: 'PROPERTY' }))).toBe(true); });
 });
 
-describe('MK-NW-F-015 totalAssets — five cases', () => {
-  const bal = (...b: number[]) => b.map((balance, i) => acct({ id: String(i), balance }));
-  test('easy · three accounts', () => { expect(totalAssets(bal(10000, 20000, 30000))).toBe(60000); });
-  test('easy · an overdraft', () => { expect(totalAssets(bal(-250, 1000))).toBe(750); });
-  test('complex · the approved drawing', () => { expect(totalAssets(bal(8000, 349333, 5819, 450000))).toBe(813152); });
-  test('complex · a linked account with no balance yet', () => {
-    const accounts = [acct({ id: 'c', balance: 8412.66 }), acct({ id: 'k', balance: 412350 }), acct({ id: 'h', balance: 650000 }), acct({ id: 's', source: 'connected', balance: null })];
-    expect(totalAssets(accounts)).toBeCloseTo(1070762.66, 6);              // the known balances, as it expects
-    // HELD: it also wants a count of accounts with no value. The data model keeps a balance on every account (a linked
-    // account not yet updated holds $0 and its source chip reads "Linked · not updated yet"); no count is added.
-  });
-  test('edge · nothing entered', () => { expect(totalAssets([])).toBe(0); });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-015 totalAssets left the code —
+// nothing in the app, the doors or the engines called it; the screen's total comes from MK-NW-F-039 buildAssetsState. The block "MK-NW-F-015 totalAssets — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
-describe('MK-NW-F-017 / F-018 / F-019 / F-020 — the class totals, five cases each', () => {
-  const SCHWAB = linked({ id: 'sw', institution: 'Schwab', balance: 119547.05 }, { cash: 2140.55, bonds: 24685, stocks_etf: 92721.5 });
-  test('F-017 easy · one brokerage, and no stocks', () => {
-    expect(equitiesTotal([acct({ kind: 'brokerage', balance: 100000, stated_class: 'stocks_etf' })])).toBe(100000);
-    expect(equitiesTotal([acct({ kind: 'checking', balance: 5000 })])).toBe(0);
-  });
-  test('F-017 complex · the approved drawing’s Vanguard', () => {
-    expect(equitiesTotal([linked({ id: 'vg', balance: 349333 }, { cash: 838, stocks_etf: 348495 }), acct({ id: 'c', kind: 'checking', balance: 8000 }), acct({ id: 'e', kind: 'fixed_income', balance: 5819 })])).toBe(348495);   // the formula as sent gave 349,333
-  });
-  test('F-017 complex · hand-entered, a money-market fund, and a linked account holding a T-bill and cash', () => {
-    expect(equitiesTotal([acct({ id: 'f', kind: 'brokerage', balance: 61880, stated_class: 'stocks_etf' }), acct({ id: 'm', kind: 'money_market', balance: 6500 }), SCHWAB])).toBeCloseTo(161101.5, 6);   // the formula as sent gave 187,927.05
-  });
-  test('F-017 edge · a stocks account at zero', () => { expect(equitiesTotal([acct({ kind: 'brokerage', balance: 0, stated_class: 'stocks_etf' })])).toBe(0); });
-  test('F-018 easy · one CD; fixed income beside cash', () => {
-    expect(fixedIncomeTotal([acct({ kind: 'cd', balance: 10000, maturity_date: '2027-04-04' })])).toBe(10000);
-    expect(fixedIncomeTotal([acct({ kind: 'fixed_income', balance: 5000 }), acct({ id: 'c', kind: 'checking', balance: 3000 })])).toBe(5000);
-  });
-  test('F-018 complex · a T-bill inside a linked brokerage', () => {
-    expect(fixedIncomeTotal([SCHWAB, acct({ id: 'cd', kind: 'cd', balance: 10000, maturity_date: '2027-02-01' }), acct({ id: 'e', kind: 'fixed_income', balance: 5819 })])).toBeCloseTo(40504, 6);   // the formula as sent gave 15,819
-  });
-  test('F-018 complex · bonds known by name and by maturity', () => {
-    expect(fixedIncomeTotal([acct({ id: 't', label: 'US Treasury Note 2029', kind: 'other', balance: 9712.4 }), acct({ id: 'n', label: 'Annuity', kind: 'annuities', maturity_date: '2034-01-01', balance: 1455 }), acct({ id: 'b', label: 'Vanguard Total Bond Market ETF', kind: 'stocks', balance: 23915.08 })])).toBeCloseTo(35082.48, 6);
-  });
-  test('F-018 edge · a CD the person classed as cash', () => { expect(fixedIncomeTotal([acct({ kind: 'cd', stated_class: 'cash', balance: 10000 })])).toBe(0); });
-  test('F-019 easy · one crypto account; none', () => {
-    expect(alternativesTotal([acct({ kind: 'crypto', balance: 4100 })])).toBe(4100);
-    expect(alternativesTotal([acct({ kind: 'brokerage', balance: 40000 })])).toBe(0);
-  });
-  test('F-019 complex · options inside a linked brokerage', () => {
-    const schwab = acct({ id: 'sw', kind: 'brokerage', source: 'connected', balance: 128382.45, cash_balance: 2140.95,
-      positions: [{ ticker: '912797XX1', name: 'US Treasury Bill 03/2027', asset_class: 'bond', last_price: 24685, lots: [{ shares: 1, cost_per_share: 0, purchase_date: '' }] }, { ticker: 'AAPL', name: 'Apple Inc', asset_class: 'stock_etf', last_price: 99021.5, lots: [{ shares: 1, cost_per_share: 0, purchase_date: '' }] }],
-      option_holdings: [{ label: 'AAPL $230 call · exp Jan 15 2027', contracts: 3, value: 2535 }] });
-    expect(alternativesTotal([schwab, acct({ id: 'c', kind: 'crypto', balance: 21906.48 })])).toBeCloseTo(24441.48, 6);   // the formula as sent gave 21,906.48
-  });
-  test('F-019 complex · gold, private equity, a classed fund and a dated annuity', () => {
-    expect(alternativesTotal([acct({ id: 'g', kind: 'commodities', balance: 4310 }), acct({ id: 'p', kind: 'private_equity', balance: 50000 }), acct({ id: 'f', kind: 'stocks', stated_class: 'alternatives', balance: 8640.15 }), acct({ id: 'n', kind: 'annuities', maturity_date: '2034-01-01', balance: 1455 })])).toBeCloseTo(62950.15, 6);
-  });
-  test('F-019 edge · nothing entered', () => { expect(alternativesTotal([])).toBe(0); });
-  test('F-020 easy · one home; a car is not real estate', () => {
-    expect(realEstateTotal([acct({ kind: 'home', balance: 650000 })])).toBe(650000);
-    expect(realEstateTotal([acct({ kind: 'vehicle', balance: 30000 })])).toBe(0);
-  });
-  test('F-020 complex · home, rental, land and a REIT fund', () => {
-    expect(realEstateTotal([acct({ id: 'h', kind: 'home', re_use: 'primary', balance: 650000 }), acct({ id: 'r', kind: 'home', re_use: 'rental', balance: 520000 }), acct({ id: 'l', kind: 'home', re_use: 'land', balance: 85000 }), acct({ id: 'f', label: 'Vanguard Real Estate ETF', kind: 'stocks', balance: 12000 })])).toBe(1255000);
-  });
-  test('F-020 complex · a stated second home and land entered as property', () => {
-    expect(realEstateTotal([acct({ id: 'h', kind: 'home', balance: 650000 }), acct({ id: 'c', kind: 'other', stated_class: 'real_estate', re_use: 'secondary', balance: 310000 }), acct({ id: 'l', kind: null, tax_bucket: 'PROPERTY', balance: 60000 })])).toBe(1020000);
-  });
-  test('F-020 edge · nothing entered', () => { expect(realEstateTotal([])).toBe(0); });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-017 equitiesTotal · MK-NW-F-018 fixedIncomeTotal · MK-NW-F-019 alternativesTotal · MK-NW-F-020 realEstateTotal left the code —
+// nothing in the app, the doors or the engines called it; the screen takes the class totals from the class split, MK-NW-F-029 assetAllocation. The block "MK-NW-F-017 / F-018 / F-019 / F-020 — the class totals, five cases each"
+// (16 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-024 accountLastFour — five cases', () => {
   test('easy · a bank mask', () => { expect(accountLastFour({ mask: '••4821' })).toBe('4821'); });

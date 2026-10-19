@@ -4,6 +4,7 @@
 //   nextDecision   — the ONE amber card: the single most urgent dated decision, absent when none is
 import type { AssetAccount } from '../assets';
 import { retirementEarmarkedValue } from '../assets';
+import { plural } from '../_shared/plural';
 import { rmdStartAgeFor, rmdAtAge, rmdRequiredThisYear, rmdTakenThisYear } from '../decumulation';
 
 /** THE ONE way the odds are said, anywhere they are said (founder rule 2026-08-11: "we should have
@@ -273,7 +274,7 @@ export const SAMPLE_HORIZON = 90;
  *     `a sample, not your number — ${verb(missing[0])} ${missing[0]} and it becomes yours`   when n = 1
  *     list = `${missing[0]} and ${missing[1]}`   if n = 2
  *     `${missing.slice(0, -1).join(', ')} and ${missing[n − 1]}`   otherwise
- *     the answer = `a sample, not your number — ${n} answers make it yours: ${list}`
+ *     the answer = `a sample, not your number — ${plural(n, 'answer')} make it yours: ${list}`
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -288,7 +289,8 @@ export function sampleAskLine(missing: string[]): string {
   const verb = (m: string) => (m.startsWith('what counts') ? 'choose' : 'add');
   if (n === 1) return `a sample, not your number — ${verb(missing[0])} ${missing[0]} and it becomes yours`;
   const list = n === 2 ? `${missing[0]} and ${missing[1]}` : `${missing.slice(0, -1).join(', ')} and ${missing[n - 1]}`;
-  return `a sample, not your number — ${n} answers make it yours: ${list}`;
+  // the count word comes from the one plural list (DEC-4082)
+  return `a sample, not your number — ${plural(n, 'answer')} make it yours: ${list}`;
 }
 
 /** The age the middle path first hits zero, from a simulation band — null while it never does. */

@@ -17,7 +17,7 @@
  *   MK-NW-F-064: the figures are rounded in proportion to the bond (his approved batch 1), so each is held
  *   to within that rounding step of the reviewer's exact figure.
  */
-import { earmarkedKinds, assetsFromOnboarding, buildAssetsState } from '../../../src/domain/assets';
+import { assetsFromOnboarding, buildAssetsState } from '../../../src/domain/assets';
 import { correctClassOf, reclassifyAccounts } from '../../../src/domain/assets/reclassify';
 import { bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondSummary, couponIncomeAnnual, interestIncomeAnnual, bondRateSensitivity, type BondInfo } from '../../../src/domain/bonds';
 import { buildNetWorth } from '../../../src/domain/networth';
@@ -36,22 +36,10 @@ const acct = (over: Record<string, any> = {}) => {
 };
 const bond = (o: Record<string, any>): BondInfo => ({ face: o.face ?? null, couponRate: o.rate ?? null, maturity: o.maturity ?? '', value: o.value ?? 0, accruedInterest: o.accrued ?? null, isCd: !!o.is_cd });
 
-describe('MK-NW-F-038 earmarkedKinds — five cases', () => {
-  const kindsOf = (accounts: any[]) => new Set(earmarkedKinds(accounts));
-  test('easy · two investment accounts, both fully earmarked', () => { expect(kindsOf([acct({ kind: '401k', balance: 100000, earmark_pct: 100 }), acct({ id: 'b', kind: 'brokerage', balance: 50000, earmark_pct: 100 })])).toEqual(new Set(['401k', 'brokerage'])); });
-  test('easy · property is left out even when earmarked', () => { expect(kindsOf([acct({ kind: 'home', balance: 500000, earmark_pct: 100 }), acct({ id: 'r', kind: 'roth_ira', balance: 20000, earmark_pct: 100 })])).toEqual(new Set(['roth_ira'])); });
-  test('complex · broker-linked names, a kind repeated, a zero earmark, a rental and an account with no kind', () => {
-    expect(kindsOf([acct({ id: 'f', label: 'Fidelity Investments Individual - TOD', source: 'connected', kind: 'brokerage', balance: 87412.55, earmark_pct: 40 }),
-      acct({ id: 'v', label: 'VANGUARD 401(K) PLAN', source: 'connected', kind: '401k', balance: 312908.1, earmark_pct: 100 }),
-      acct({ id: 'h', label: 'House fund', kind: 'brokerage', balance: 22760.04, earmark_pct: 0 }),
-      acct({ id: 'r', label: 'Rental on Ashworth', kind: 'home', re_use: 'rental', balance: 410000, earmark_pct: 100 }),
-      acct({ id: 'm', label: 'Misc', kind: null, balance: 4210, earmark_pct: 75 })])).toEqual(new Set(['brokerage', '401k', 'other_asset']));
-  });
-  test('complex · a blank earmark on a 401(k), and a fully earmarked IRA with nothing in it', () => {
-    expect(kindsOf([acct({ kind: '401k', balance: 186240.37, earmark_pct: null }), acct({ id: 'i', kind: 'ira', balance: 0, earmark_pct: 100 }), acct({ id: 'c', kind: 'checking', balance: 6118.92, earmark_pct: 0 })])).toEqual(new Set(['401k']));
-  });
-  test('edge · nothing entered', () => { expect(earmarkedKinds([])).toEqual([]); });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-038 earmarkedKinds left the code —
+// nothing in the app, the doors or the engines called it; nothing showed what it returned. The block "MK-NW-F-038 earmarkedKinds — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-040 assetsFromOnboarding — five cases', () => {
   const seeded = (op: any) => assetsFromOnboarding('u', op).accounts.map((a) => [a.kind, a.tax_bucket, a.balance, a.target_return]);

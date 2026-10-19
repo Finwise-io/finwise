@@ -84,9 +84,6 @@
   "MATURITY_MEANS_BOND": [
    "maturityClass"
   ],
-  "HOW_A_HOME_IS_USED": [
-   "realEstateUseOf"
-  ],
   "WHERE_THE_VALUE_CAME_FROM": [
    "sourceWording"
   ],
@@ -260,9 +257,6 @@
   ],
   "EXPECTED_RETURN_BY_KIND": [
    "benchmarkReturn"
-  ],
-  "KIND_IS_CASH": [
-   "isCashKind"
   ],
   "ITEMISED_REMAINDER": [
    "itemizeRemainder"
@@ -488,7 +482,6 @@
   "affectedAccountIds": "MK-CF-F-113",
   "allocatableThisMonth": "MK-CF-F-006",
   "alternativesSummary": "MK-NW-F-002",
-  "alternativesTotal": "MK-NW-F-019",
   "analyzeExpenses": "MK-XS-F-057",
   "annual401kLimit": "MK-CF-F-053",
   "annualCashflow": "MK-CF-F-012",
@@ -587,7 +580,6 @@
   "earliestPurchaseDate": "MK-PF-F-012",
   "earmarkDefault": "MK-NW-F-030",
   "earmarkedAmount": "MK-NW-F-032",
-  "earmarkedKinds": "MK-NW-F-038",
   "educationPlan": "MK-PL-F-033",
   "effectiveAnnualContribution": "MK-XS-F-030",
   "effectiveRate": "MK-CF-F-090",
@@ -600,7 +592,6 @@
   "employerMatchMonthly": "MK-CF-F-078",
   "encryptForSync": "MK-XS-F-054",
   "encryptWithKey": "MK-XS-F-052",
-  "equitiesTotal": "MK-NW-F-017",
   "equityByMonth": "MK-CF-F-018",
   "equityCashFlow": "MK-CF-F-064",
   "equityRowValue": "MK-CF-F-062",
@@ -612,7 +603,6 @@
   "fetchPriceSeries": "MK-XS-F-083",
   "filingStatusOf": "MK-CF-F-085",
   "firstDate": "MK-ST-F-034",
-  "fixedIncomeTotal": "MK-NW-F-018",
   "flagComparisonText": "MK-CF-F-110",
   "formatMoney": "MK-ST-F-049",
   "formatMoneyCents": "MK-ST-F-050",
@@ -656,7 +646,6 @@
   "investmentsTotal": "MK-NW-F-021",
   "isAlternative": "MK-NW-F-001",
   "isBond": "MK-NW-F-055",
-  "isCashKind": "MK-NW-F-006",
   "isEmailVerified": "MK-XS-F-063",
   "isEncrypted": "MK-XS-F-051",
   "isLockAvailable": "MK-XS-F-034",
@@ -762,8 +751,6 @@
   "readFileString": "MK-XS-F-059",
   "readHistory": "MK-XS-F-009",
   "readMoney": "MK-ST-F-018",
-  "realEstateTotal": "MK-NW-F-020",
-  "realEstateUseOf": "MK-NW-F-013",
   "realizedFromLedger": "MK-PF-F-028",
   "reclassifyAccounts": "MK-NW-F-054",
   "reconcile": "MK-ST-F-036",
@@ -882,7 +869,6 @@
   "toNumber": "MK-ST-F-021",
   "toReadModel": "MK-XS-F-020",
   "topHoldingConcentration": "MK-PF-F-015",
-  "totalAssets": "MK-NW-F-015",
   "totalDebtBalance": "MK-CF-F-027",
   "totalDebtMonthly": "MK-CF-F-024",
   "totalGrossAnnual": "MK-CF-F-083",

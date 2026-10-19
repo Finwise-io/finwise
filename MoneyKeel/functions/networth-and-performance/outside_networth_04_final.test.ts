@@ -19,9 +19,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import {
-  equitiesTotal, fixedIncomeTotal, alternativesTotal, realEstateTotal, totalAssets, isRealAsset, realEstateUseOf,
-  primaryHomeIdOf, primaryCarIdOf, accountLastFour, accountDisplayName, blendedVolatility, blendedReturn, earmarkDefault,
-  earmarkedAmount, incomeBearingClassOf, assetAllocation, ASSET_CLASS_LABEL, assetClassOf,
+  isRealAsset, buildAssetsState, primaryHomeIdOf, primaryCarIdOf, accountLastFour, accountDisplayName,
+  blendedVolatility, blendedReturn, earmarkDefault, earmarkedAmount, incomeBearingClassOf, assetAllocation,
+  ASSET_CLASS_LABEL, assetClassOf,
 } from '../../../src/domain/assets';
 import { isBond } from '../../../src/domain/bonds';
 import { alternativesSummary } from '../../../src/domain/alternatives';
@@ -88,8 +88,9 @@ describe('MK-NW-F-002 alternativesSummary — five cases', () => {
   test('complex · Options and a bitcoin ETF in a linked brokerage, plus a crypto account with its own cash', () => {
     const accounts = [SCHWAB_70(), CRYPTO_HB()];
     const s = alternativesSummary(accounts);
-    // same_figure_elsewhere: the total must equal alternativesTotal (MK-NW-F-019) for this household
-    expect(alternativesTotal(accounts)).toBeCloseTo(23030.7, 2);
+    // same_figure_elsewhere: the total must equal the Alternatives line of the class split (MK-NW-F-029 assetAllocation)
+    // for this household — the card named MK-NW-F-019 alternativesTotal, removed 2026-10-19 (DEC-5758), which read that line
+    expect(assetAllocation(accounts).alternatives).toBeCloseTo(23030.7, 2);
     expect({ total: s.totalValue, rate: s.blendedReturn, growth: s.estAnnualGrowth }).toEqual({
       total: expect.closeTo(23030.7, 2), rate: expect.closeTo(0.0781, 4), growth: expect.closeTo(1798.806, 2) });
     // count: RULE UNCLEAR — 2 accounts hold alternatives, or 3 alternative positions
@@ -115,7 +116,8 @@ describe('MK-NW-F-008 incomeBearingClassOf — five cases', () => {
     const labels = ['GLOBAL X NASDAQ 100 COVERED CALL ETF', 'Silver Lake house', 'Bond Street flat', 'TREASURY WINE ESTATES LTD'];
     const classes = Object.fromEntries(labels.map((l) => [l, incomeBearingClassOf(l)]));
     const homes = [acct({ id: 'h1', label: 'Silver Lake house', kind: 'home', balance: 850000 }), acct({ id: 'h2', label: 'Bond Street flat', kind: 'home', balance: 612500 })];
-    expect({ classes, realEstateTotal_for_the_two_homes: realEstateTotal(homes) }).toEqual({
+    // the card named MK-NW-F-020 realEstateTotal, removed 2026-10-19 (DEC-5758); the Real estate line of the class split is what it read
+    expect({ classes, realEstateTotal_for_the_two_homes: assetAllocation(homes).real_estate }).toEqual({
       classes: { 'GLOBAL X NASDAQ 100 COVERED CALL ETF': 'stocks_etf', 'Silver Lake house': null, 'Bond Street flat': null, 'TREASURY WINE ESTATES LTD': null },
       realEstateTotal_for_the_two_homes: expect.closeTo(1462500, 2) });
   });
@@ -125,33 +127,10 @@ describe('MK-NW-F-008 incomeBearingClassOf — five cases', () => {
   });
 });
 
-describe('MK-NW-F-013 realEstateUseOf — five cases', () => {
-  test('easy · A stated rental that a rent entry names', () => {
-    // rent entry rent('condo', 2100) exists on the Income screen; the function takes no rent entries
-    expect(realEstateUseOf(acct({ id: 'condo', kind: 'home', re_use: 'rental' }))).toBe('rental');
-  });
-  test('easy · Not real estate', () => { expect(realEstateUseOf(acct({ kind: 'checking' }))).toBeNull(); });
-  test('complex · Three properties, one marked home', () => {
-    const A = acct({ id: 'A', label: 'Maple Ave house', kind: 'home', re_use: 'primary', balance: 812450 });
-    const B = acct({ id: 'B', label: 'Lake Chelan cabin', kind: 'home', re_use: null, balance: 286300 });
-    const C = acct({ id: 'C', label: 'Capitol Hill condo', kind: 'home', re_use: null, balance: 347900 });
-    const accounts = [C, B, A];                                           // newest first, as the store keeps them: A entered first
-    expect({ A: realEstateUseOf(A, accounts), B: realEstateUseOf(B, accounts), C: realEstateUseOf(C, accounts) })
-      .toEqual({ A: 'primary', B: 'secondary', C: 'secondary' });
-  });
-  test('complex · Stored as rental, but no rent on the Income screen', () => {
-    const condo = acct({ id: 'condo', label: 'Capitol Hill condo', kind: 'home', re_use: 'rental', balance: 347900 });
-    const home = acct({ id: 'home', label: 'Maple Ave house', kind: 'home', re_use: 'primary', balance: 812450 });
-    expect(realEstateUseOf(condo, [condo, home], [])).toBe('secondary');      // income entries: wages only, no rent — handed in as no rent entries
-  });
-  test('edge · The only property, no use stated, rented out', () => {
-    const p = acct({ id: 'ballard', label: 'Ballard townhouse', kind: 'home', re_use: null, balance: 690000 });
-    const rents = [rent('ballard', 2950, 640)];                            // the rent entry, handed in (the functions take it since 2026-10-07)
-    const accounts = [p];
-    expect({ use: realEstateUseOf(p, accounts, rents), earmark_pct_that_follows: earmarkDefault(p, primaryCarIdOf(accounts), primaryHomeIdOf(accounts, rents)) })
-      .toEqual({ use: 'rental', earmark_pct_that_follows: 100 });
-  });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-013 realEstateUseOf left the code —
+// nothing in the app, the doors or the engines called it; the screens read a property's use from MK-NW-F-107 propertyUses, which reads the same rule (MK-NW-F-117 propertyUseMap). The block "MK-NW-F-013 realEstateUseOf — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-110 primaryHomeIdOf — five cases', () => {
   test('easy · One property marked home', () => {
@@ -187,119 +166,30 @@ describe('MK-NW-F-014 isRealAsset — five cases', () => {
   test('edge · Property with no kind recorded', () => { expect(isRealAsset(acct({ tax_bucket: 'PROPERTY', kind: null, balance: 210000 }))).toBe(true); });
 });
 
-describe('MK-NW-F-015 totalAssets — five cases', () => {
-  const bal = (...b: (number | null)[]) => b.map((balance, i) => acct({ id: String(i), balance }));
-  test('easy · Three balances', () => { expect(totalAssets(bal(10000, 20000, 5000))).toBeCloseTo(35000, 2); });
-  test('easy · An overdrawn checking', () => { expect(totalAssets(bal(-250, 5000))).toBeCloseTo(4750, 2); });
-  test('complex · Linked and typed accounts, cash inside investments, an overdraft', () => {
-    const accounts = [SCHWAB_70(), acct({ id: 'h', label: 'Maple Ave house', kind: 'home', balance: 812450 }), acct({ id: 'k', label: 'Fidelity 401(k)', kind: '401k', balance: 212733.42 }),
-      acct({ id: 'v', label: 'Subaru', kind: 'vehicle', balance: 28400 }), CRYPTO_HB(),
-      acct({ id: 'e', label: 'E*Trade brokerage', kind: 'stocks', balance: 64200, positions: [VTI(104.37)] }), acct({ id: 'ck', label: 'Chase checking', kind: 'checking', balance: -312.47 })];
-    expect(totalAssets(accounts)).toBeCloseTo(1206330.46, 2);
-  });
-  test('complex · Same household as two ledger views', () => {
-    const accounts = [acct({ id: 'chase', kind: 'checking', institution: 'Chase', balance: 9874.22 }),
-      linked({ id: 'schwab', institution: 'Schwab', balance: 118642.35 }, 41360.45, [VTI(260), BND(35)]),
-      acct({ id: 'cd', kind: 'cd', institution: 'Vanguard', balance: 25000 }), acct({ id: 'cr', kind: 'crypto', balance: 18640.9 }),
-      acct({ id: 'fi', kind: 'checking', institution: 'Fidelity Investments', balance: 2150 })];
-    expect(totalAssets(accounts)).toBeCloseTo(174307.47, 2);
-    expect(groups(accounts, 'class').reduce((t, g) => t + g.total, 0)).toBeCloseTo(174307.47, 2);
-    expect(groups(accounts, 'institution').reduce((t, g) => t + g.total, 0)).toBeCloseTo(174307.47, 2);
-  });
-  test('edge · A property added with no value yet', () => {
-    // expected: REFUSES ('Lake Chelan cabin' has no value); the known part 58,794.88 only if shown with that note
-    expect(totalAssets(bal(48920.66, 9874.22, null))).toBeCloseTo(58794.88, 2);   // HELD AT THE APP'S ANSWER — his "no" of 2026-10-07 (DEC-2747): no count or refusal for an account with no value; every account keeps a balance
-  });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-015 totalAssets left the code —
+// nothing in the app, the doors or the engines called it; the screen's total comes from MK-NW-F-039 buildAssetsState. The block "MK-NW-F-015 totalAssets — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
-describe('MK-NW-F-017 equitiesTotal — five cases', () => {
-  test('easy · One stock account', () => { expect(equitiesTotal([acct({ kind: 'stocks', balance: 100000 })])).toBeCloseTo(100000, 2); });
-  test('easy · A money-market account counts here', () => {
-    expect(equitiesTotal([acct({ id: 'm', kind: 'money market', balance: 20000 }), acct({ id: 'c', kind: 'checking', balance: 3000 })])).toBeCloseTo(20000, 2);
-  });
-  test('complex · Linked brokerage with cash, crypto ETF and options; a money-market fund; a typed 401(k)', () => {
-    const accounts = [SCHWAB_70(), acct({ id: 'mm', label: 'Fidelity money market', kind: 'money market', balance: 15327.88 }),
-      acct({ id: 'ck', label: 'Chase checking', kind: 'checking', balance: 6250 }), acct({ id: 'k', label: 'Fidelity 401(k)', kind: '401k', balance: 212733.42 })];
-    const al = assetAllocation(accounts);
-    expect(equitiesTotal(accounts)).toBeCloseTo(75688.18, 2);
-    expect({ cash: al.cash, stocks_etf: al.stocks_etf, alternatives: al.alternatives, unclassified: al.mixed }).toEqual({
-      cash: expect.closeTo(10468.51, 2), stocks_etf: expect.closeTo(75688.18, 2), alternatives: expect.closeTo(5639.8, 2), unclassified: expect.closeTo(212733.42, 2) });
-    expect(totalAssets(accounts)).toBeCloseTo(304529.91, 2);
-  });
-  test('complex · Hand-built account with cash, a linked account that does not add up, a typed account with tracked positions', () => {
-    const fidelity = acct({ id: 'f', label: 'Fidelity brokerage', kind: 'brokerage', balance: 48920.66, cash_balance: 3500, derive_balance: true, positions: [pos('FXAIX', 'FIDELITY 500 INDEX FUND', 200, 227.1)] });
-    const vanguard = linked({ id: 'vg', institution: 'Vanguard', balance: 60000 }, 500, [BND(400), VTI(100)]);
-    const etrade = acct({ id: 'e', label: 'E*Trade', kind: 'stocks', balance: 64200, positions: [VTI(104.37)] });
-    expect(equitiesTotal([fidelity, vanguard, etrade])).toBeCloseTo(139976.66, 2);
-  });
-  test('edge · A linked account short by exactly 1% of its balance', () => {
-    const a = linked({ id: 'l', balance: 10000 }, 400.2, [pos('VTI', 'VANGUARD TOTAL STOCK MARKET ETF', 30, 316.66)]);
-    expect({ equities: equitiesTotal([a]), cash_part: assetAllocation([a]).cash }).toEqual({ equities: expect.closeTo(9499.8, 2), cash_part: expect.closeTo(500.2, 2) });
-  });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-017 equitiesTotal left the code —
+// nothing in the app, the doors or the engines called it; the screen takes the class totals from the class split, MK-NW-F-029 assetAllocation. The block "MK-NW-F-017 equitiesTotal — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
-describe('MK-NW-F-018 fixedIncomeTotal — five cases', () => {
-  test('easy · One CD', () => { expect(fixedIncomeTotal([acct({ kind: 'cd', balance: 25000 })])).toBeCloseTo(25000, 2); });
-  test('easy · Money market is not fixed income', () => {
-    expect(fixedIncomeTotal([acct({ id: 'm', kind: 'money market', balance: 15000 }), acct({ id: 'cd', kind: 'cd', balance: 10000 })])).toBeCloseTo(10000, 2);
-  });
-  test('complex · An individual bond, a linked account with two bond funds, a Treasury account', () => {
-    const bond = acct({ id: 'b', label: 'Bond', maturity_date: '2031-06-15', face_value: 10000, coupon_rate: 0.045, balance: 9812.4 });
-    const vg = linked({ id: 'vg', institution: 'Vanguard', balance: 74163.83 }, 1206.33, [BND(400), pos('SGOV', 'ISHARES 0-3 MONTH TREASURY BOND ETF', 150, 100.47), VTI(100)]);
-    const td = acct({ id: 'td', label: 'TreasuryDirect', kind: 'fixed income', balance: 18750.25 });
-    expect(fixedIncomeTotal([bond, vg, td])).toBeCloseTo(72777.15, 2);
-  });
-  test('complex · Parts slightly over the balance; a T-bill held directly; a CD named as such', () => {
-    const l = linked({ id: 'l', balance: 50000 }, 900, [BND(300), VTI(95)]);
-    const tbill = acct({ id: 't', label: 'T-bill', maturity_date: '2026-12-17', balance: 19642.18 });
-    const ally = acct({ id: 'ally', label: 'Ally 11-month CD', kind: 'savings', balance: 12300 });
-    expect(fixedIncomeTotal([l, tbill, ally])).toBeCloseTo(53800.18, 2);
-  });
-  test('edge · Unpriced holdings that span two classes', () => {
-    const a = linked({ id: 'l', balance: 40000 }, 2000, [BND(200), pos('PIMIX', 'PIMCO INCOME', 500, null, 'bond'), pos('DODGX', 'DODGE & COX STOCK', 80, null)]);
-    expect({ fixed_income: fixedIncomeTotal([a]), unclassified_part: assetAllocation([a]).mixed })
-      .toEqual({ fixed_income: expect.closeTo(14572, 2), unclassified_part: expect.closeTo(23428, 2) });
-  });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-018 fixedIncomeTotal left the code —
+// nothing in the app, the doors or the engines called it; the screen takes the class totals from the class split, MK-NW-F-029 assetAllocation. The block "MK-NW-F-018 fixedIncomeTotal — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
-describe('MK-NW-F-019 alternativesTotal — five cases', () => {
-  test('easy · One crypto account', () => { expect(alternativesTotal([acct({ kind: 'crypto', balance: 12000 })])).toBeCloseTo(12000, 2); });
-  test('easy · A wallet named for bitcoin, no kind', () => {
-    expect(alternativesTotal([acct({ id: 'w', label: 'Bitcoin wallet', kind: null, balance: 5000 }), acct({ id: 'c', kind: 'checking', balance: 3000 })])).toBeCloseTo(5000, 2);
-  });
-  test('complex · Alternatives inside a brokerage, kept PE and hedge-fund rows, a crypto account with cash', () => {
-    expect(alternativesTotal([SCHWAB_70(), acct({ id: 'pe', kind: 'private_equity', balance: 50000 }), acct({ id: 'hf', kind: 'hedge_funds', balance: 75000 }), CRYPTO_HB()])).toBeCloseTo(148030.7, 2);
-  });
-  test('complex · Gold ETF typed by name, a bank called Goldman, an options-only account, an annuity', () => {
-    expect(alternativesTotal([acct({ id: 'g', label: 'SPDR Gold Shares', kind: 'stocks', balance: 3616.05 }),
-      acct({ id: 'm', label: 'Goldman Sachs Marcus Savings', kind: 'savings', balance: 22400 }),
-      linked({ id: 'o', label: 'Options account', balance: 8215.6 }, 6760.6, [], [SPY_CALLS]),
-      acct({ id: 'an', label: 'Annuity', kind: 'annuities', balance: 120000 })])).toBeCloseTo(125071.05, 2);
-  });
-  test('edge · A short call carries a negative value', () => {
-    expect(alternativesTotal([linked({ id: 'l', balance: 20000 }, 6258.5, [VTI(50)], [{ label: 'SPY C short', contracts: -1, value: -630 }])])).toBeCloseTo(-630, 2);
-  });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-019 alternativesTotal left the code —
+// nothing in the app, the doors or the engines called it; the screen takes the class totals from the class split, MK-NW-F-029 assetAllocation. The block "MK-NW-F-019 alternativesTotal — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
-describe('MK-NW-F-020 realEstateTotal — five cases', () => {
-  test('easy · One home', () => { expect(realEstateTotal([acct({ kind: 'home', balance: 500000 })])).toBeCloseTo(500000, 2); });
-  test('easy · Brokerage is not real estate', () => {
-    expect(realEstateTotal([acct({ id: 'h', kind: 'home', balance: 400000 }), acct({ id: 's', kind: 'stocks', balance: 100000 })])).toBeCloseTo(400000, 2);
-  });
-  test('complex · Home, rental, land, a car and a REIT fund', () => {
-    const rows = [acct({ id: 'h', label: 'Maple Ave house', kind: 'home', balance: 812450 }), acct({ id: 'r', label: 'Capitol Hill condo', kind: 'home', re_use: 'rental', balance: 347900 }),
-      acct({ id: 'l', label: 'Okanogan land', kind: 'home', re_use: 'land', balance: 63250 })];
-    const others = [acct({ id: 'v', label: 'Subaru', kind: 'vehicle', balance: 28400 }), acct({ id: 'f', label: 'VANGUARD REAL ESTATE ETF', kind: 'stocks', balance: 15300 })];
-    expect(realEstateTotal([...rows, ...others])).toBeCloseTo(1223600, 2);
-    expect([...rows, ...others].filter((a) => assetClassOf(a) === 'real_estate').map((a) => [a.label, a.balance]))
-      .toEqual([['Maple Ave house', 812450], ['Capitol Hill condo', 347900], ['Okanogan land', 63250]]);
-  });
-  test('complex · Property with no kind, gross of the mortgage', () => {
-    expect(realEstateTotal([acct({ id: 'h', kind: 'home', balance: 640000 }), acct({ id: 'l', kind: null, tax_bucket: 'PROPERTY', re_use: 'land', balance: 63250 }),
-      acct({ id: 'v', kind: 'vehicle', balance: 28400 })])).toBeCloseTo(703250, 2);   // the $412,000 mortgage is a debt, not an account
-  });
-  test('edge · No property', () => { expect(realEstateTotal([acct({ id: 'c', kind: 'checking', balance: 1 }), acct({ id: 'k', kind: '401k', balance: 1 })])).toBe(0); });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-020 realEstateTotal left the code —
+// nothing in the app, the doors or the engines called it; the screen takes the class totals from the class split, MK-NW-F-029 assetAllocation. The block "MK-NW-F-020 realEstateTotal — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-024 accountLastFour — five cases', () => {
   test('easy · Bank-style mask', () => { expect(accountLastFour({ mask: '••4821' })).toBe('4821'); });
@@ -450,7 +340,8 @@ describe('MK-NW-F-094 ledgerGroups — five cases', () => {
       { label: 'No institution set', total: expect.closeTo(18640.9, 2) }, { label: 'Chase', total: expect.closeTo(9874.22, 2) }]);
     expect(g[0].mix).toEqual([{ key: 'stocks_etf', total: expect.closeTo(258154.08, 2) }, { key: 'bonds', total: expect.closeTo(25000, 2) }, { key: 'cash', total: expect.closeTo(3500, 2) }]);
     expect(g.reduce((t, x) => t + x.total, 0)).toBeCloseTo(317319.2, 2);
-    expect(totalAssets(accounts)).toBeCloseTo(317319.2, 2);
+    // the card named MK-NW-F-015 totalAssets, removed 2026-10-19 (DEC-5758); the screen's total is MK-NW-F-039 buildAssetsState's
+    expect(buildAssetsState('u' as any, accounts).total_asset_value).toBeCloseTo(317319.2, 2);
     expect(groups(accounts, 'class').reduce((t, x) => t + x.total, 0)).toBeCloseTo(317319.2, 2);
   });
   test('complex · By class, a linked brokerage holding a third of its value in cash', () => {

@@ -1354,13 +1354,13 @@
   {
    "task": "Net worth with no accounts yet but past the first day (the Q48 frame) still repeats 'Add your accounts ›' under each empty group — the same duplication the founder removed from the first day",
    "todo": "Claude: draw it in the Net worth series (v09) for approval before building.",
-   "status": "TO DO",
-   "ref": "src/screens/NetWorthScreen.tsx (seeded, no accounts) · src/screens/__tests__/empty_state_q48.test.tsx",
+   "status": "DONE 2026-10-18 — built and tested (commit 42048261 for the one door; the rest of state C not committed)",
+   "ref": "src/screens/NetWorthScreen.tsx · src/screens/__tests__/nw_no_accounts_one_door.test.tsx · src/screens/__tests__/empty_state_q48.test.tsx",
    "date": "2026-09-14",
-   "comments": "",
+   "comments": "Before: a later visit with no account showed \"Add your accounts ›\" 3 times (hero, Cash, Investments), no Personal property, no emergency fund line, a dated title, and \"＋ Add an account\". Now: the same screen as the first day, Net worth v08 state C, word for word — \"Add your accounts ›\" once, the three ways to add once, \"Add your debts\" on Debts (DEC-4528). Ruled by DEC-0227. No new drawing: v08 state C is the approved drawing of this data state. The retirement line keeps state C's words only when all three answers are missing; with one or two given it names what is left (DEC-0086), e.g. \"a sample, not your number — 2 answers make it yours: what you spend and what you have ›\".",
    "_written": {
-    "status": "TO DO",
-    "comments": ""
+    "status": "DONE 2026-10-18 — built and tested (commit 42048261 for the one door; the rest of state C not committed)",
+    "comments": "Before: a later visit with no account showed \"Add your accounts ›\" 3 times (hero, Cash, Investments), no Personal property, no emergency fund line, a dated title, and \"＋ Add an account\". Now: the same screen as the first day, Net worth v08 state C, word for word — \"Add your accounts ›\" once, the three ways to add once, \"Add your debts\" on Debts (DEC-4528). Ruled by DEC-0227. No new drawing: v08 state C is the approved drawing of this data state. The retirement line keeps state C's words only when all three answers are missing; with one or two given it names what is left (DEC-0086), e.g. \"a sample, not your number — 2 answers make it yours: what you spend and what you have ›\"."
    }
   },
   {
@@ -2917,10 +2917,10 @@
    "status": "DONE 2026-10-11 — findings to act on module by module (Net worth first)",
    "ref": "MoneyKeel/documents/audit/moneykeel_audit_inputs-and-use_v01.xlsx · …_summary_v01.md",
    "date": "2026-10-11",
-   "comments": "Net worth: option contract size (MK-XS-I-063) set by nothing; 6% / 7% / ±1% with no decision (MK-NW-F-034, F-040, F-064); 10 tests-only and 2 unused functions; 7 figures printed under another ID. 2026-10-12: option contract size (MK-XS-I-063) now set by the broker (mini option 10) or the person (DEC-4646); MK-PF-F-003 / 016 / 017 / 018 / 019 / 021 removed (DEC-4642).",
+   "comments": "Net worth: option contract size (MK-XS-I-063) set by nothing; 6% / 7% / ±1% with no decision (MK-NW-F-034, F-040, F-064); 10 tests-only and 2 unused functions; 7 figures printed under another ID. 2026-10-12: option contract size (MK-XS-I-063) now set by the broker (mini option 10) or the person (DEC-4646); MK-PF-F-003 / 016 / 017 / 018 / 019 / 021 removed (DEC-4642). 2026-10-19: MK-NW-F-006 / 013 / 015 / 017 / 018 / 019 / 020 / 038 removed and their numbers retired (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\") — 8 of 8.",
    "_written": {
     "status": "DONE 2026-10-11 — findings to act on module by module (Net worth first)",
-    "comments": "Net worth: option contract size (MK-XS-I-063) set by nothing; 6% / 7% / ±1% with no decision (MK-NW-F-034, F-040, F-064); 10 tests-only and 2 unused functions; 7 figures printed under another ID. 2026-10-12: option contract size (MK-XS-I-063) now set by the broker (mini option 10) or the person (DEC-4646); MK-PF-F-003 / 016 / 017 / 018 / 019 / 021 removed (DEC-4642)."
+    "comments": "Net worth: option contract size (MK-XS-I-063) set by nothing; 6% / 7% / ±1% with no decision (MK-NW-F-034, F-040, F-064); 10 tests-only and 2 unused functions; 7 figures printed under another ID. 2026-10-12: option contract size (MK-XS-I-063) now set by the broker (mini option 10) or the person (DEC-4646); MK-PF-F-003 / 016 / 017 / 018 / 019 / 021 removed (DEC-4642). 2026-10-19: MK-NW-F-006 / 013 / 015 / 017 / 018 / 019 / 020 / 038 removed and their numbers retired (DEC-5758, his words: \"Removing #4,5,6,7-10,11 - approved.\") — 8 of 8."
    }
   },
   {

@@ -294,11 +294,6 @@
   "file": "src/domain/alternatives/index.ts",
   "category": "3 · DEPENDENT"
  },
- "alternativesTotal": {
-  "id": "MK-NW-F-019",
-  "file": "src/domain/assets/index.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
  "amortise": {
   "id": "MK-CF-F-125",
   "file": "src/domain/debt/mortgageVsTreasury.ts",
@@ -994,11 +989,6 @@
   "file": "src/domain/assets/index.ts",
   "category": "2 · DISPLAYED"
  },
- "earmarkedKinds": {
-  "id": "MK-NW-F-038",
-  "file": "src/domain/assets/index.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
  "earnerPay": {
   "id": "MK-CF-F-171",
   "file": "MoneyKeel/functions/cashflow/base-pay.ts",
@@ -1078,11 +1068,6 @@
   "id": "MK-CF-F-179",
   "file": "MoneyKeel/functions/cashflow/base-pay.ts",
   "category": "2 · DISPLAYED"
- },
- "equitiesTotal": {
-  "id": "MK-NW-F-017",
-  "file": "src/domain/assets/index.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "equityByMonth": {
   "id": "MK-CF-F-018",
@@ -1188,11 +1173,6 @@
   "id": "MK-ST-F-034",
   "file": "Calculation Module code/engines/snapshots.ts",
   "category": "3 · DEPENDENT"
- },
- "fixedIncomeTotal": {
-  "id": "MK-NW-F-018",
-  "file": "src/domain/assets/index.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "flagComparisonText": {
   "id": "MK-CF-F-110",
@@ -1548,11 +1528,6 @@
   "id": "MK-NW-F-055",
   "file": "src/domain/bonds/index.ts",
   "category": "2 · DISPLAYED"
- },
- "isCashKind": {
-  "id": "MK-NW-F-006",
-  "file": "src/domain/assets/index.ts",
-  "category": "1 · ACTION"
  },
  "isCertificateOfDeposit": {
   "id": "MK-NW-F-071",
@@ -2474,16 +2449,6 @@
   "file": "Calculation Module code/engines/money.ts",
   "category": "3 · DEPENDENT (feeds an action only)"
  },
- "realEstateTotal": {
-  "id": "MK-NW-F-020",
-  "file": "src/domain/assets/index.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
- "realEstateUseOf": {
-  "id": "MK-NW-F-013",
-  "file": "src/domain/assets/index.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
- },
  "realizedFromLedger": {
   "id": "MK-PF-F-028",
   "file": "src/domain/performance/realized.ts",
@@ -3358,11 +3323,6 @@
   "id": "MK-PF-F-015",
   "file": "src/domain/performance/index.ts",
   "category": "2 · DISPLAYED"
- },
- "totalAssets": {
-  "id": "MK-NW-F-015",
-  "file": "src/domain/assets/index.ts",
-  "category": "3 · DEPENDENT (feeds an action only)"
  },
  "totalDebtBalance": {
   "id": "MK-CF-F-027",

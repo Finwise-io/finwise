@@ -62,7 +62,7 @@ the founder's mark in the synonym workbook.
 
 | Term | Definition | Formula (by assetClass) | Caption shown to user |
 |---|---|---|---|
-| **Net worth** (#2) | everything you own − everything you owe (incl. primary home) | `totalAssets − totalDebt` | "All assets including your home, minus all debts." |
+| **Net worth** (#2) | everything you own − everything you owe (incl. primary home) | `buildAssetsState(...).total_asset_value − totalDebt` (totalAssets was removed 2026-10-19, DEC-5758: nothing called it) | "All assets including your home, minus all debts." |
 | **Cash** (#3) | liquid balance — CASH MEANS CASH ONLY (founder, 2026-08-04, DEC-0051) | Σ the cash parts of every account's split (checking, savings, HYSA, cash management, foreign currency, and the uninvested cash inside investment accounts). Money‑market funds are Stocks / Funds; CDs and T‑bills are Bonds & CDs. | "Checking, savings, and uninvested cash in your investment accounts." |
 | **Investments / holdings** (#4,5,6) | what you're invested in (allocation) | Σ the Stocks / Funds, Bonds & CDs, Alternatives and Unclassified parts of every account's split, **across all wrappers** — so Cash + Investments = Investable, always (2026-10-05) | "Stocks/ETFs, bonds, and alternatives across all accounts (incl. 401(k)/IRA)." |
 | **Investable assets** (#4) | liquid financial wealth | Σ `assetClass ∈ {cash, stocks_etf, bonds, alternatives}` (excl. real estate + personal property) | "Cash + investments + retirement accounts. Excludes home & personal property." |
@@ -135,7 +135,7 @@ A holding's value can change two ways, and they are **different actions** the UI
 ---
 
 ## 7. Cross‑cutting rules
-1. **One canonical selector per concept** (`totalAssets, totalDebt, cashTotal, equitiesTotal, fixedIncomeTotal, investableAssets, nestEgg, minimumDebtService, actualDebtPayment, savingsRateCash, savingsRateTotal`). Screens **read these**, never re‑derive inline.
+1. **One canonical selector per concept** (`buildAssetsState total, totalDebt, cashTotal, assetAllocation (one line per class — equitiesTotal and fixedIncomeTotal were removed 2026-10-19, DEC-5758), investableAssets, nestEgg, minimumDebtService, actualDebtPayment, savingsRateCash, savingsRateTotal`). Screens **read these**, never re‑derive inline.
 2. **Caption rule:** every derived total displays an "includes…" caption (col. 4 of §1).
 3. **Agreement tests** (per `finwise-dedup-audit.md` §5): for each concept, assert all surfaces equal its one selector across fixtures — incl. the edge cases (401(k) stocks counted in allocation; bond‑fund income ≠ $0; cash earmark 0%; rental equity in net worth but not nest egg; debt override respected in cash flow but not DTI; savings‑rate headline == 6‑mo avg).
 4. **Verify on TestFlight**, not the simulator (ML Kit — see lessons L‑3).

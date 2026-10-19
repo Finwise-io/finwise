@@ -38,7 +38,7 @@
  */
 import {
   primaryCarIdOf, earmarkedAmount, retirementEarmarkedValue, benchmarkReturn, blendedVolatility, benchmarkInfo,
-  blendedReturn, earmarkedKinds, buildAssetsState, assetsFromOnboarding, monthlyContributionsFromOnboarding,
+  blendedReturn, buildAssetsState, assetsFromOnboarding, monthlyContributionsFromOnboarding,
   sourceWording, historyCoverage, uberGroupOf, uberGroupRows, assetClassOf,
 } from '../../../src/domain/assets';
 
@@ -213,23 +213,10 @@ describe('MK-NW-F-037 blendedReturn — five cases', () => {
   });
 });
 
-describe('MK-NW-F-038 earmarkedKinds — five cases', () => {
-  test('easy · Single earmarked brokerage account', () => {
-    expect(earmarkedKinds([A({ balance: 10000, retirement_pct: 100, kind: 'stocks_etf', tax_bucket: 'TAXABLE' })])).toEqual(['stocks_etf']);
-  });
-  test('easy · Multiple accounts with duplicate kinds', () => {
-    expect(earmarkedKinds([A({ balance: 20000, retirement_pct: 100, kind: 'trad_ira', tax_bucket: 'PRE_TAX' }), A({ balance: 30000, retirement_pct: 100, kind: 'trad_ira', tax_bucket: 'PRE_TAX' })])).toEqual(['trad_ira']);
-  });
-  test('complex · Mixed kinds with zero earmarked amount filtering', () => {
-    expect(earmarkedKinds([A({ balance: 5000, retirement_pct: 0, kind: 'checking', tax_bucket: 'CASH' }), A({ balance: 50000, retirement_pct: 100, kind: 'brokerage', tax_bucket: 'TAXABLE' })])).toEqual(['brokerage']);
-  });
-  test('complex · Account with no kind defaulting to other', () => {
-    expect(earmarkedKinds([A({ balance: 15000, retirement_pct: 100, tax_bucket: 'TAXABLE' })])).toEqual(['other_asset']);
-  });
-  test('edge · Property exclusion from earmarked kinds', () => {
-    expect(earmarkedKinds([A({ balance: 400000, kind: 'home', ...PROP, retirement_pct: null })])).toEqual([]);
-  });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-038 earmarkedKinds left the code —
+// nothing in the app, the doors or the engines called it; nothing showed what it returned. The block "MK-NW-F-038 earmarkedKinds — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-039 buildAssetsState — five cases', () => {
   test('easy · Single account assets state', () => {

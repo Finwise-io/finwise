@@ -62,10 +62,9 @@
 import {
   accountClassBreakdown, classPortionLabel, assetAllocation, earmarkDefault, primaryCarIdOf, primaryHomeIdOf,
   earmarkedAmount, retirementEarmarkedValue, benchmarkReturn, blendedVolatility, benchmarkInfo, blendedReturn,
-  earmarkedKinds, buildAssetsState, assetsFromOnboarding, monthlyContributionsFromOnboarding,
-  sourceWording, historyCoverage, uberGroupOf, uberGroupRows, UBER_LABEL, BENCHMARK_META, holdingClassOf,
-  carValueNotEnteredNotes, earmarkLeavesOutWords, asksCashOrInvestments, CASH_OR_INVESTMENTS_ASK,
-  type AssetClass,
+  buildAssetsState, assetsFromOnboarding, monthlyContributionsFromOnboarding, sourceWording, historyCoverage,
+  uberGroupOf, uberGroupRows, UBER_LABEL, BENCHMARK_META, holdingClassOf, carValueNotEnteredNotes,
+  earmarkLeavesOutWords, asksCashOrInvestments, CASH_OR_INVESTMENTS_ASK, type AssetClass,
 } from '../../../src/domain/assets';
 import {
   itemizedTotal, itemizeMissingCount, itemizeRemainder, itemizedResultTotal, buildItemizedAccounts, type ItemHolding,
@@ -393,22 +392,10 @@ describe('MK-NW-F-037 blendedReturn — five cases', () => {
   });
 });
 
-describe('MK-NW-F-038 earmarkedKinds — five cases', () => {
-  test('easy · One investment kind', () => { expect(earmarkedKinds([acct({ kind: 'brokerage', balance: 1000 })])).toEqual(['brokerage']); });
-  test('easy · Zero earmark excluded', () => { expect(earmarkedKinds([acct({ kind: '529', balance: 1000 })])).toEqual([]); });
-  test('complex · Deduplicate kinds', () => {
-    expect(earmarkedKinds([acct({ id: '1', kind: 'brokerage', balance: 1000 }), acct({ id: '2', kind: 'brokerage', balance: 2000 }), acct({ id: '3', kind: 'crypto', balance: 500 })]))
-      .toEqual(['brokerage', 'crypto']);
-  });
-  test('complex · Missing kind becomes other', () => {
-    // UNCLEAR: app counts a kind-less account as 'other_asset' — the app's id for "other" (index.ts:2172), the formula_gives
-    // answer; open question: is "other" an approved fallback or should the kind stay unknown? No decision on it.
-    expect(earmarkedKinds([acct({ kind: null, balance: 1200 })])).toEqual(['other_asset']);
-  });
-  test('edge · Property excluded even if earmark positive', () => {
-    expect(earmarkedKinds([acct({ kind: 'home', balance: 50000, retirement_pct: 100 })])).toEqual([]);
-  });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-038 earmarkedKinds left the code —
+// nothing in the app, the doors or the engines called it; nothing showed what it returned. The block "MK-NW-F-038 earmarkedKinds — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-039 buildAssetsState — five cases', () => {
   const st = (rows: [number, number][]) => buildAssetsState('u1' as any, rows.map(([balance, target_return], i) => acct({ id: String(i), balance, target_return })));

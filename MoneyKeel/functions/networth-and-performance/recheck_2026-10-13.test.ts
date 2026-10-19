@@ -9,31 +9,17 @@
  */
 import * as fs from 'fs';
 import * as path from 'path';
-import { totalAssets, buildAssetsState, sourceWording, retirementEarmarkedValue } from '../../../src/domain/assets';
+import { buildAssetsState, sourceWording, retirementEarmarkedValue } from '../../../src/domain/assets';
 import { dataGaps } from '../../../src/domain/gaps';
 
 const ROOT = path.resolve(__dirname, '../../..');
 const DAY = 86_400_000;
 const NOW = Date.UTC(2026, 9, 13, 12);
 
-describe('MK-NW-F-015 totalAssets — a missing balance is left out, not $0', () => {
-  test('$1,000 + a linked account with no balance = $1,000, and the amber box names that account', () => {
-    const accounts: any[] = [
-      { asset_id: 'c', label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 1000 },
-      { asset_id: 'l', label: 'Linked savings', kind: 'savings', tax_bucket: 'CASH', source: 'connected', balance: null },
-    ];
-    expect(totalAssets(accounts)).toBe(1000);
-    expect(dataGaps(accounts as any).filter((g) => g.kind === 'no-balance').map((g) => g.title)).toEqual([expect.stringContaining('Linked savings')]);
-  });
-  test('the card and the generated header say "left out", never "counts as zero"', () => {
-    const rule = JSON.parse(fs.readFileSync(path.join(ROOT, 'Calculation Module code/scripts/moneykeel_function_rules.json'), 'utf8')).rules['MK-NW-F-015'].rule;
-    expect(rule).toMatch(/missing balance is left out \(adds nothing\); the amber box names the account/);
-    const src = fs.readFileSync(path.join(ROOT, 'src/domain/assets/index.ts'), 'utf8');
-    const header = src.slice(src.indexOf('/* ─ MK-NW-F-015'), src.indexOf('export function totalAssets'));
-    expect(header).not.toMatch(/counts as zero/);
-    expect(header).not.toMatch(/Called by \.\.\. MK-NW-F-022 investableAssets/);   // investableAssets adds through sumWhere
-  });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-015 totalAssets left the code —
+// nothing in the app, the doors or the engines called it; the screen's total comes from MK-NW-F-039 buildAssetsState. The block "MK-NW-F-015 totalAssets — a missing balance is left out, not $0"
+// (2 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-039 buildAssetsState — zero OR LESS gives 0% shares and no average', () => {
   test('one overdrawn account at −$50 → total −$50, share 0%, no average return', () => {

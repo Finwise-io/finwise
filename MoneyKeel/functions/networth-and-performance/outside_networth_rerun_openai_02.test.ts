@@ -52,7 +52,7 @@
  */
 import {
   primaryCarIdOf, earmarkedAmount, retirementEarmarkedValue, benchmarkReturn, blendedVolatility, benchmarkInfo,
-  blendedReturn, earmarkedKinds, buildAssetsState, assetsFromOnboarding, monthlyContributionsFromOnboarding,
+  blendedReturn, buildAssetsState, assetsFromOnboarding, monthlyContributionsFromOnboarding,
   sourceWording, historyCoverage, uberGroupOf, uberGroupRows, assetClassOf,
   HISTORY_START_UNREADABLE, EDIT_HISTORY_START, KIND_VOLATILITY,
 } from '../../../src/domain/assets';
@@ -196,23 +196,10 @@ describe('MK-NW-F-037 blendedReturn — five cases', () => {
   test('edge · No positive earmark returns null', () => { expect(blendedReturn([A({ kind: 'home', balance: 300000, retirement_pct: 0 })], {})).toBeNull(); });
 });
 
-describe('MK-NW-F-038 earmarkedKinds — five cases', () => {
-  test('easy · One kind', () => { expect(earmarkedKinds([A({ kind: 'checking', balance: 100, retirement_pct: 100, asset_class: 'cash' })])).toEqual(['checking']); });
-  test('easy · Duplicates collapse', () => {
-    expect(earmarkedKinds([A({ kind: 'stocks_etf', balance: 100, retirement_pct: 100 }), A({ kind: 'stocks_etf', balance: 200, retirement_pct: 50 })])).toEqual(['stocks_etf']);
-  });
-  test('complex · Exclude property and zero earmark', () => {
-    expect(earmarkedKinds([A({ kind: 'home', balance: 100000, retirement_pct: 100, asset_class: 'real_estate' }), A({ kind: 'crypto', balance: 100, retirement_pct: 0 }), A({ kind: 'trad_ira', balance: 100, retirement_pct: 100 })])).toEqual(['trad_ira']);
-  });
-  test('complex · Missing kind becomes other', () => {
-    // asserted as a set (OpenAI's own note); the app returns first-seen order
-    const k = earmarkedKinds([A({ kind: null, balance: 100, retirement_pct: 100, asset_class: 'alternatives' }), A({ kind: 'commodities', balance: 100, retirement_pct: 100, asset_class: 'alternatives' })]);
-    expect(new Set(k)).toEqual(new Set(['other_asset', 'commodities'])); expect(k).toHaveLength(2);
-  });
-  test('edge · No qualifying accounts', () => {
-    expect(earmarkedKinds([A({ kind: 'home', balance: 100000, retirement_pct: 100, asset_class: 'real_estate' }), A({ kind: 'checking', balance: 100, retirement_pct: 0 })])).toEqual([]);
-  });
-});
+// REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-038 earmarkedKinds left the code —
+// nothing in the app, the doors or the engines called it; nothing showed what it returned. The block "MK-NW-F-038 earmarkedKinds — five cases"
+// (5 cases) is no longer run; its record is kept in the results file. The number is retired in
+// moneykeel_function_register.json, never reused.
 
 describe('MK-NW-F-039 buildAssetsState — five cases', () => {
   const S = (accounts: any[]) => {

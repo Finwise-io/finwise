@@ -1,7 +1,7 @@
 // FIXES FROM OpenAI's final audit of the Net worth module (2026-10-09). Each test is the proof run the
 // audit named, asserted the way the decision reads.
 import { correctClassOf, reclassifyAccounts } from './reclassify';
-import { buildAssetsState, classPortionLabel, holdingClassOf, propertyUseMap, realEstateUseOf, assetClassOf } from './index';
+import { buildAssetsState, classPortionLabel, holdingClassOf, propertyUseMap, assetClassOf } from './index';
 import { dataGaps } from '../gaps';
 
 const acct = (o: any) => ({ asset_id: 'x', label: 'acct', tax_bucket: 'TAXABLE', balance: 1000, target_return: 0, ...o });
@@ -104,19 +104,16 @@ describe('MK-NW-F-054 reclassifyAccounts — holdings', () => {
   });
 });
 
-describe('MK-NW-F-013 realEstateUseOf — one reading with propertyUseMap (DEC-3035p)', () => {
+// CHANGED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-013 realEstateUseOf left the
+// code — nothing called it; the screens read a property's use from MK-NW-F-107 propertyUses, which reads MK-NW-F-117
+// propertyUseMap. Its checks are no longer run; the one reading (DEC-3035p) is held on propertyUseMap.
+describe('MK-NW-F-117 propertyUseMap — one reading (DEC-3035p)', () => {
   const house = acct({ asset_id: 'h', label: 'Maple St house', kind: 'home', tax_bucket: 'PROPERTY', asset_class: 'real_estate', re_use: 'rental', balance: 400000 });
-  test("rent entries handed in, none names it: a stored 'rental' is a second home both ways", () => {
-    expect(realEstateUseOf(house as any, undefined, [])).toBe('secondary');
+  test("rent entries handed in, none names it: a stored 'rental' is a second home", () => {
     expect(propertyUseMap([house] as any, []).get('h')).toBe('second');
   });
   test('an entry that names it makes it a rental', () => {
-    expect(realEstateUseOf(house as any, undefined, [{ income: 2000, property_id: 'h' }])).toBe('rental');
-  });
-  test('rent entries not handed in: the stored word stands', () => {
-    expect(realEstateUseOf(house as any)).toBe('rental');
-    expect(realEstateUseOf(house as any, undefined, null)).toBe('rental');
-    expect(realEstateUseOf({ ...house, re_use: undefined } as any)).toBe('primary');
+    expect(propertyUseMap([house] as any, [{ income: 2000, property_id: 'h' }]).get('h')).toBe('rental');
   });
 });
 
