@@ -67,6 +67,9 @@ export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   dayOne: { title: 'Day one', body: 'A return can only be measured from the first day the app saw your accounts. Today’s value is real. The gain starts counting from today and fills in as days pass — nothing earlier is guessed.' },
   cashInAccount: { title: 'Cash in this account', body: 'Money sitting in an investment account that is not invested in anything yet. The interest it pays you is shown on this line.' },
   earnedInWindow: { title: 'Earned', body: 'Dividends and interest that were actually paid to you between the dates shown. It comes from your records only — so a category with no records shows a dash, never a made-up $0.' },
-  yearlyPace: { title: 'Yearly pace', body: 'A figure marked /year is a rate for a full year — for a bond or a CD, the yearly rate it states. A figure without /year is the gain for the dates shown.' },
+  // the yearly rate of Bonds & CDs (DEC-5847, 2026-10-19): the bonds' and CDs' OWN stated rates, averaged by what each
+  // is worth — said plainly as not measured over the dates shown. One entry, read by the Performance tab's category
+  // table and the account page's Bonds & CDs bar.
+  yearlyPace: { title: 'Yearly pace', body: 'A figure marked /year is a yearly interest rate. For Bonds & CDs it is the interest rate each bond and CD states for a year, averaged by what each one is worth. It is not measured over the dates shown. A figure without /year is the gain for the dates shown.' },
   estimate: { title: 'Estimate', body: 'A figure computed from your numbers and stated assumptions — not a promise or a prediction. Change the inputs and it changes. You decide what to do with it.' },
 };

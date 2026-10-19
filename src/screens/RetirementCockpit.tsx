@@ -38,6 +38,7 @@ import { useSliderPan } from '../components/sliderGesture';   // B47 finding 12:
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const big = (n: number) => moneyCompact(n, 'M');
 import { volOf, clamp } from '../domain/retirement/willItLast';
+import { HISTORIC_TTM_BODY } from '../constants/historicReturn';   // the same words as the account page's card (DEC-6005)
 const SECTION_COLOR: Record<string, string> = { Cash: Colors.primary, Investments: Colors.purple, Retirement: Colors.blue, Property: Colors.gold };
 const sectionOf = (a: AssetAccount) => assetKind(a.kind)?.section ?? (a.tax_bucket === 'CASH' ? 'Cash' : a.tax_bucket === 'PROPERTY' ? 'Property' : a.tax_bucket === 'TAXABLE' ? 'Investments' : 'Retirement');
 
@@ -707,10 +708,10 @@ export default function RetirementCockpit() {
           </View>
           <Text style={styles.tFoot}>
             {actualReturn == null
-              ? 'Add your actual 12-month return on each holding to see how you compare to the benchmark.'
+              ? 'Add historic 12-month return on each holding to see how you compare to the benchmark.'
               : `You returned ${(actualReturn * 100).toFixed(1)}% over the last 12 months vs a ${(benchBlended * 100).toFixed(1)}% benchmark — ${beatBy! >= 0 ? `${(beatBy! * 100).toFixed(1)} pts ahead` : `${(Math.abs(beatBy!) * 100).toFixed(1)} pts behind`}.`}
           </Text>
-          {!simple && <Text style={styles.tFootMuted}>“Your 12-mo” = your actual trailing-12-month return (you enter it). Benchmark = the asset class's historical index return (not editable); past performance isn't a guarantee, and a 12-mo actual vs a ~30-yr average is directional only.</Text>}
+          {!simple && <Text style={styles.tFootMuted}>“Your 12-mo” = the historic 12-month return you enter on each holding. Benchmark = the asset class's historical index return (not editable); past performance isn't a guarantee, and a 12-mo actual vs a ~30-yr average is directional only.</Text>}
           <TouchableOpacity onPress={() => router.push('/performance')}><Text style={[styles.editLink2, { marginTop: 10 }]}>📈 Track live performance vs benchmark ›</Text></TouchableOpacity>
         </View>
       )}
@@ -1104,11 +1105,12 @@ function TtmEditor({ account, onClose, benchmark, onApply, onClear }: {
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.dialog}>
-        <Text style={styles.sheetT}>{account?.institution?.trim() || account?.label} — actual return</Text>
-        <Text style={styles.sheetS}>This holding's actual return over the last 12 months. Benchmark for its type is {(benchmark * 100).toFixed(1)}%.</Text>
+        <Text style={styles.sheetT}>{account?.institution?.trim() || account?.label} — historic 12-month return</Text>
+        {/* the same words as the account page's card for this one field (DEC-6005, 2026-10-19) */}
+        <Text style={styles.sheetS}>{HISTORIC_TTM_BODY} Benchmark for its type is {(benchmark * 100).toFixed(1)}%.</Text>
         <View style={styles.pctBox}>
           <TextInput style={[styles.pctIn, { width: 90 }]} keyboardType="numbers-and-punctuation" value={val} onChangeText={setVal} placeholder="0.0" placeholderTextColor={Colors.textTertiary} autoFocus />
-          <Text style={styles.pctU}>% last 12 mo</Text>
+          <Text style={styles.pctU}>% over 12 months</Text>
         </View>
         <TouchableOpacity style={styles.applyBtn} onPress={() => onApply(clamp(num(val) * (val.trim().startsWith('-') ? -1 : 1), -90, 200) / 100)}><Text style={styles.applyT}>Save</Text></TouchableOpacity>
         {account?.actual_ttm != null && <TouchableOpacity onPress={onClear}><Text style={styles.clearLink}>Clear</Text></TouchableOpacity>}

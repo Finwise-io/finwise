@@ -148,14 +148,14 @@ describe('bond and alternative detail sections', () => {
     expect(screen.getByText(/months old — still right\?/)).toBeOnTheScreen();   // Nov 2025 value → stale
   });
 
-  test('the reported return edits the SAME actual_ttm the Retirement cockpit reads (one field)', () => {
+  test('the historic 12-month return edits the SAME actual_ttm the Retirement cockpit reads (one field)', () => {
     useStore.setState({ assetAccounts: [GOLD] } as any);
     mockParams = { id: 'gld' };
     render(<AccountPortfolioScreen />);
-    expect(screen.getByText(/not set — projections use the typical return/)).toBeOnTheScreen();
-    fireEvent.press(screen.getByLabelText('Add reported return'));
-    fireEvent.changeText(screen.getByLabelText(/actual return over the past 12 months/), '2.1');
-    fireEvent.press(screen.getByLabelText('Save reported return'));
+    expect(screen.getByText('Not entered')).toBeOnTheScreen();   // DEC-6005, 2026-10-19
+    fireEvent.press(screen.getByLabelText('Add historic 12-month return'));
+    fireEvent.changeText(screen.getByLabelText(/Historic 12-month return on your holdings/), '2.1');
+    fireEvent.press(screen.getByLabelText('Save historic 12-month return'));
     const a = (useStore.getState() as any).assetAccounts.find((x: any) => x.asset_id === 'gld');
     expect(a.actual_ttm).toBeCloseTo(0.021, 10);
   });

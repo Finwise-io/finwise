@@ -24,6 +24,7 @@ import { maskedMoney, spokenMoney, typedAmount } from '../components/useMoney';
 import { InfoDot, EstimateTag } from '../components/UI';
 import { modalAnimation } from '../hooks/reducedMotion';
 import TopBar from '../components/TopBar';
+import { HISTORIC_TTM_TITLE, HISTORIC_TTM_BODY } from '../constants/historicReturn';   // one card, one set of words (DEC-6005)
 // ONE walk builder and ONE window return for the whole app: the account page calls exactly what the
 // Performance screen calls, so an account's figures and the portfolio's can never disagree.
 import { valueOn } from '../../Calculation Module code/engines/snapshots';
@@ -582,8 +583,13 @@ export default function AccountPortfolioScreen() {
             sheet two screens away. It shows only when the account holds money and nothing is recorded
             inside it, which is exactly when the screen has nothing to show and the person has
             something to say. */}
+        {/* ONLY AN ACCOUNT THAT CAN HOLD SEVERAL HOLDINGS (DEC-5849, 2026-10-19, his word "approved." — asked after
+            "state B - why "itemize your holdings" when we already know it is Bond?"): the door shows on a Stocks /
+            Funds or unclassified account (brokerage, 401(k), IRA, Roth, HSA) typed as one total. A bond or CD, a
+            single alternative (crypto, gold, an annuity, other), a cash account and property ARE one thing, so
+            there is nothing to break into. Replaces DEC-0651's condition on that one point; the rest stands. */}
         {insideRows.length === 0 && tickers.length === 0 && (account.balance || 0) > 0
-          && source !== 'connected' && (
+          && source !== 'connected' && (cls === 'stocks_etf' || cls === 'mixed') && (
           <TouchableOpacity accessibilityRole="button" style={s.itemizeDoor}
             accessibilityLabel={`Itemize ${account.label} into holdings`}
             onPress={() => router.push(`/itemize?accountId=${account.asset_id}` as any)}>
@@ -621,7 +627,15 @@ export default function AccountPortfolioScreen() {
                   accessibilityLabel={`${ASSET_CLASS_LABEL[k]}, ${figSaid('MK-NW-M-020', Math.round(total))}, return ${classReturnText(k, total, inClass)}`}>
                   <Text style={s.classBandT} numberOfLines={1}>{ASSET_CLASS_LABEL[k]}</Text>
                   <Text style={[s.classBandV, s.colValW]}>{fig('MK-NW-M-020', total)}</Text>
-                  <Text style={[s.classBandV, s.colRetW]}>{classReturnText(k, total, inClass)}</Text>
+                  {/* THE BONDS & CDS YEARLY RATE CARRIES ITS INFO DOT (DEC-5847, 2026-10-19, his words: "Let's add info dot
+                      next to "4.11%/year" in the sub-titel bar."). The rate itself is unchanged — each bond's and CD's own
+                      stated rate, weighted by what each is worth. The dot sits BEFORE the rate, so the rate still ends on
+                      the one right edge every figure shares (DEC-0093); its words are the same yearlyPace entry the
+                      Performance tab's category table points to, so the two pages explain the /year figure alike. */}
+                  <View style={[s.colRetW, s.classBandRet]}>
+                    {statedYearlyRate(k) != null && <InfoDot term="yearlyPace" size={15} />}
+                    <Text style={s.classBandV}>{classReturnText(k, total, inClass)}</Text>
+                  </View>
                 </View>
                 {inClass.length === 0 && <Text style={s.insideEmpty}>Nothing held in this account</Text>}
                 {inClass.map((rw: any) => (
@@ -653,9 +667,10 @@ export default function AccountPortfolioScreen() {
             <Text style={[s.optVal, s.colValW]}>{marketValueText}</Text>
             <Text style={[s.optRet, s.colRetW, { fontWeight: '800' }]}>{acctReturnText}</Text>
           </View>
+          {/* "the income is also on the line beneath it" — two words dropped, as income already means paid (DEC-5848, 2026-10-19) */}
           <Text style={s.optNote}>
             Counted inside this account's total — listed here so nothing is hidden. A holding's return is
-            what its own price did in this window, its dividends included; the income it paid is also on the line beneath it. Income sits with the
+            what its own price did in this window, its dividends included; the income is also on the line beneath it. Income sits with the
             holding that earned it{acctIncome != null && acctIncome > 0
               ? <Text> — <Text style={s.optNoteFig}>{fig('MK-NW-M-019', acctIncome)}</Text> for this account</Text>
               : null}.
@@ -740,7 +755,8 @@ export default function AccountPortfolioScreen() {
       {/* alternatives: the type's typical return + the look-back entry */}
       {cls === 'alternatives' && <AltDetail account={account} />}
 
-      {/* your reported return — the same actual_ttm field the Retirement cockpit reads (one field, two readers) */}
+      {/* the historic 12-month return — the same actual_ttm field the Retirement cockpit reads (one field, two readers);
+          shown on a bond's or a CD's page too (his ruling, 2026-10-19) */}
       {(cls === 'bonds' || cls === 'alternatives') && <ReportedReturnCard account={account} />}
 
       {/* activity history — the ledger, in plain words with signed effects */}
@@ -920,7 +936,11 @@ function AltDetail({ account }: { account: AssetAccount }) {
   );
 }
 
-// ── your reported return (12 mo) — edits the SAME actual_ttm the Retirement cockpit reads ──
+// ── HISTORIC 12-MONTH RETURN — edits the SAME actual_ttm the Retirement cockpit reads ──
+// His wording (DEC-6005, 2026-10-19): "change the wording keep is simple for users … Something like "Historic 12 Month
+// Return" …", then "ok. Update the language to reflect what is accurate.", then "Add your historic 12-month - remove
+// your. Rest approved." One title, one body, and "Not entered" where nothing was typed — the same words in the
+// Retirement cockpit's editor of this field.
 function ReportedReturnCard({ account }: { account: AssetAccount }) {
   const store = useStore() as any;
   const [editing, setEditing] = useState(false);
@@ -933,22 +953,23 @@ function ReportedReturnCard({ account }: { account: AssetAccount }) {
   };
   return (
     <View style={s.card}>
-      <Text style={s.cardHdr2}>YOUR REPORTED RETURN (12 MO)</Text>
+      <Text style={s.cardHdr2}>{HISTORIC_TTM_TITLE}</Text>
+      <Text style={s.optNote}>{HISTORIC_TTM_BODY}</Text>
       {editing ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
           <TextInput style={s.ttmInput} keyboardType="numbers-and-punctuation" placeholder="e.g. 2.1"
             placeholderTextColor={Colors.textTertiary} value={val} onChangeText={setVal} autoFocus
-            accessibilityLabel="Your holding's actual return over the past 12 months, in percent" />
+            accessibilityLabel="Historic 12-month return on your holdings, in percent" />
           <Text style={s.bondLine}>%</Text>
-          <TouchableOpacity accessibilityRole="button" style={s.ttmSave} onPress={save} accessibilityLabel="Save reported return">
+          <TouchableOpacity accessibilityRole="button" style={s.ttmSave} onPress={save} accessibilityLabel="Save historic 12-month return">
             <Text style={s.ttmSaveTxt}>Save</Text>
           </TouchableOpacity>
         </View>
       ) : (
         <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
-          <Text style={[s.bondLine, { flex: 1 }]}>{ttm != null ? `${(ttm * 100).toFixed(2)}%` : 'not set — projections use the typical return until you report your own'}</Text>
+          <Text style={[s.bondLine, { flex: 1 }]}>{ttm != null ? `${(ttm * 100).toFixed(2)}%` : 'Not entered'}</Text>
           <TouchableOpacity accessibilityRole="button" onPress={() => { setVal(ttm != null ? String((ttm * 100).toFixed(2)) : ''); setEditing(true); }}
-            accessibilityLabel={ttm != null ? 'Edit reported return' : 'Add reported return'}>
+            accessibilityLabel={ttm != null ? 'Edit historic 12-month return' : 'Add historic 12-month return'}>
             <Text style={s.linkTxt}>{ttm != null ? 'Edit' : 'Add'}</Text>
           </TouchableOpacity>
         </View>
@@ -1122,8 +1143,12 @@ const s = StyleSheet.create({
   insideSub: { fontSize: 11, color: Colors.textTertiary, marginTop: 1 },
   txnNote: { fontSize: 11, color: Colors.textTertiary, lineHeight: 16, paddingHorizontal: Spacing.md, paddingTop: 8, paddingBottom: 4 },
   insideEmpty: { fontSize: 13, color: Colors.textTertiary, paddingHorizontal: Spacing.md, paddingVertical: 10 },
-  itemizeDoor: { backgroundColor: Colors.primaryLight, borderRadius: Radii.md, padding: Spacing.md, marginTop: Spacing.md },
-  itemizeDoorT: { fontSize: 15, fontWeight: '800', color: Colors.primaryDark },
+  // AMBER, NOT GREEN (DEC-5982, 2026-10-19, his words: "ITemize your holdings box should be amber per color scheme and
+  // not green."): the door is a thing the person still has to do, so it wears the app's one amber action box — the
+  // exact box of DataGapsBanner (amberLight, a 1-point amber edge, Radii.lg, Spacing.md) — with its title in amber,
+  // as this page's own amber box draws it (account-page drawing v01, .warnb).
+  itemizeDoor: { backgroundColor: Colors.amberLight, borderWidth: 1, borderColor: Colors.amber, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.md },
+  itemizeDoorT: { fontSize: 15, fontWeight: '800', color: Colors.amber },
   itemizeDoorS: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 18 },
   optHdr: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.7, marginBottom: 4 },
   optRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
@@ -1151,6 +1176,7 @@ const s = StyleSheet.create({
     backgroundColor: Colors.bandLight, paddingVertical: 8, paddingHorizontal: Spacing.md,
     marginHorizontal: -Spacing.md, marginBottom: Spacing.xs, borderRadius: 0 },
   classBandT: { flex: 1, color: Colors.primaryDeep, fontSize: 11, fontWeight: '800', letterSpacing: 0.5, textTransform: 'uppercase' },
+  classBandRet: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 4 },
   classBandV: { color: Colors.primaryDeep, fontSize: 15, fontWeight: '800', fontVariant: ['tabular-nums'] },
   totalRow: { borderTopWidth: 1, borderTopColor: Colors.border, marginTop: 4, paddingTop: 8 },
   optNoteFig: { fontWeight: '800', color: Colors.textPrimary },

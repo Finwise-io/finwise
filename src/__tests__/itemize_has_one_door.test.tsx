@@ -43,7 +43,7 @@ describe('Itemize has exactly one door, and it is on the Account portfolio', () 
   it('it shows only when the account holds money with nothing recorded inside it', () => {
     const t = code(read('screens/AccountPortfolioScreen.tsx'));
     const at = t.indexOf('itemizeDoor');
-    const guard = t.slice(Math.max(0, at - 320), at);
+    const guard = t.slice(Math.max(0, at - 420), at);
     expect(guard).toContain('insideRows.length === 0');
     expect(guard).toContain('tickers.length === 0');
     expect(guard).toMatch(/account\.balance \|\| 0\) > 0/);
@@ -64,12 +64,13 @@ describe('Itemize has exactly one door, and it is on the Account portfolio', () 
     expect(t).not.toContain('/itemize?');
   });
 
-  it('it is reachable for every class, which the old path was not', () => {
-    // the old path went through Account detail's Edit, whose route forks by class and sends a bonds
-    // account to /bonds and an alternatives account to /other-investments — neither of which can
-    // itemise. The new door is on the screen itself and does not fork.
+  // REPLACED 2026-10-19 (DEC-5849, his word "approved."): the door no longer shows for every class. It was asked
+  // after "state B - why "itemize your holdings" when we already know it is Bond?" — so it shows only on an
+  // account that can hold several holdings (Stocks / Funds, or unclassified), typed as one total. The rendered
+  // check, account by account, is src/screens/__tests__/account_page_itemize_and_bond_dot.test.tsx.
+  it('it shows only on an account that can hold several holdings — Stocks / Funds or unclassified', () => {
     const t = code(read('screens/AccountPortfolioScreen.tsx'));
     const at = t.indexOf('itemizeDoor');
-    expect(t.slice(Math.max(0, at - 320), at)).not.toContain('cls ===');
+    expect(t.slice(Math.max(0, at - 420), at)).toContain("(cls === 'stocks_etf' || cls === 'mixed')");
   });
 });
