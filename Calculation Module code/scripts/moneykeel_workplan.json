@@ -2994,6 +2994,18 @@
     "status": "DONE 2026-10-14 — built and tested; not committed",
     "comments": "Before: \"Day one: your value is real and your daily record starts today. Longer windows are worked back from each holding's price history.\" Now: \"You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices.\" Canon checked: no clash."
    }
+  },
+  {
+   "task": "DEC-6412 — a window that opens before the daily record begins is joined at the record's first day (his \"approved.\" of 2026-10-19, amends DEC-5291)",
+   "todo": "thePerformance joins the days before the record (price history) to the record's own return; every caller hands over the price histories; the note under the summary; tests for the three cases and a mixed one; account-page drawing state A, side column, READ THIS FIRST row 43; Performance v17 READ THIS FIRST row; standards; Changelog row; function rules re-read.",
+   "status": "DONE 2026-10-19 — built and tested; not committed",
+   "ref": "MoneyKeel/functions/networth-and-performance/performance.ts · MoneyKeel/functions/networth-and-performance/dec6412_join_at_record_start.test.ts · src/screens/AccountPortfolioScreen.tsx · src/screens/PerformanceScreen.tsx · src/screens/HomeScreen.tsx · src/screens/__tests__/account_page_drawing_states.test.tsx · src/screens/__tests__/perf_mock_match_2026_10_12.test.tsx · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_account-page_v01.html · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v17.html",
+   "date": "2026-10-19",
+   "comments": "Before: state A 1Y +7.12%, 2Y +9.57% (worked back whole); Performance v17 phone 1 1Y +6.10%, 2Y +11.10%. Now: state A 1Y +8.26% (= Since), 2Y +10.87% a year; phone 1 1Y +7.46% (= Since), 2Y +11.81% a year. States B to E unchanged.",
+   "_written": {
+    "status": "DONE 2026-10-19 — built and tested; not committed",
+    "comments": "Before: state A 1Y +7.12%, 2Y +9.57% (worked back whole); Performance v17 phone 1 1Y +6.10%, 2Y +11.10%. Now: state A 1Y +8.26% (= Since), 2Y +10.87% a year; phone 1 1Y +7.46% (= Since), 2Y +11.81% a year. States B to E unchanged."
+   }
   }
  ]
 }

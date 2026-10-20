@@ -20,7 +20,7 @@
 //     brokerage statements do the same). His ruling: show BOTH, and label them.
 import { availableCash } from '../../../src/domain/transactions';
 import { declareFigures, writeFigure } from '../_figure-spec';
-import { portfolioBenchReturn, startDateFor, contractMultiplier, totalShares, windowTotal, costBasis, worthWithInterest, type Period } from '../../../src/domain/performance';
+import { portfolioBenchReturn, startDateFor, contractMultiplier, totalShares, windowTotal, costBasis, worthWithInterest, closeOnOrBefore, latestClose, bondInterestInWindow, returnWithInterest, type Period, type PriceSeries } from '../../../src/domain/performance';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import { buildChangeWalk, type ChangeWalk } from '../../../src/domain/history';
 import { personalFlowTotals } from '../../../Calculation Module code/engines/ledger';
@@ -67,6 +67,9 @@ export interface WindowFigures {
    *  holding has a price history (DEC-5291, 2026-10-13), or some accounts read and the rest worked back. Its
    *  figures are shown as the record's own are — the window is not greyed — with notIncluded beneath them (DEC-5068). */
   workedBack: boolean;
+  /** Set only where the window opens before the daily record begins and is JOINED there (DEC-6412, 2026-10-19): the
+   *  record's first day. The days before it are worked back from price history; from it on, the record is measured. */
+  recordBegins?: string | null;
 }
 
 /** THE THREE THINGS A SCREEN NEEDED TO ASK THIS DOOR, and calculated for itself until 2026-09-30.
@@ -108,12 +111,13 @@ export interface WindowFigures {
  *     today   otherwise
  *     opens = start date for(period as period, new date(y, m − 1, day, 12))
  *
- * Called by ... MK-NW-O-008 thePerformance
+ * Called by ... MK-NW-F-143 gainRowBetween · MK-NW-O-008 thePerformance
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-093 QUIET_PERF · MK-NW-O-008 thePerformance
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-143 gainRowBetween
+ *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -318,13 +322,13 @@ function gainOfRow(r: GainRow, years: number): number | null {
  *     0   if shares = 0
  *     nothing   otherwise
  *
- * Called by ... MK-NW-F-088 BENCH · MK-NW-F-104 closedWith
- *               MK-NW-F-127 gainOfRow · MK-NW-F-139 leftOutValueOf
+ * Called by ... MK-NW-F-088 BENCH · MK-NW-F-127 gainOfRow
+ *               MK-NW-F-139 leftOutValueOf · MK-NW-F-144 beforeTheRecordSentence
  *
  * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-093 QUIET_PERF · MK-NW-F-104 closedWith
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
  *               MK-NW-F-127 gainOfRow · MK-NW-F-139 leftOutValueOf
  *               MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
  *
@@ -413,12 +417,13 @@ function gainRowName(r: GainRow): string {
  *     opens = `A${second.slice(1)}`   if list = 'a holding'
  *     second   otherwise
  *
- * Called by ... MK-NW-O-008 thePerformance
+ * Called by ... MK-NW-F-144 beforeTheRecordSentence · MK-NW-O-008 thePerformance
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-093 QUIET_PERF · MK-NW-O-008 thePerformance
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -507,11 +512,11 @@ export function investmentAccountIdsOf(
  *
  * Called by ... MK-NW-F-130 notIncludedSentence · MK-NW-O-008 thePerformance
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-093 QUIET_PERF · MK-NW-F-130 notIncludedSentence
- *               MK-NW-O-008 thePerformance
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-NW-F-130 notIncludedSentence · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-012 bond coupon rate
@@ -623,6 +628,111 @@ function closedWith(days: any[], ids: Set<string>, today: string, ending: number
     accounts: members.map((accountId, i) => ({ date: today, accountId, cash: 0, statedTotal: null, typedValue: i === 0 ? ending : 0, currency: 'USD' })) }];
 }
 
+/** WHAT ONE HOLDING DID OVER THE DAYS BEFORE THE DAILY RECORD BEGINS (DEC-6412, 2026-10-19): from the evening before the
+ *  window (`from`) to the record's first day (`to`), read from its price history. Answers the holding as it stood on
+ *  that first day — its value then (the shares held that day × that day's close), and its return over those days: the
+ *  close then ÷ the close the evening before the window − 1 (its first close, where its prices begin inside those
+ *  days), a purchase made inside those days counted at what was
+ *  paid, and a bond's or CD's interest paid in those days added (DEC-6212). Null when the holding was not yet held on
+ *  the first day: it bought in later, so it has no part in those days. A holding whose prices do not reach both days
+ *  comes back with no return — its gain over those days is unknown, and gainOfRow decides (cash $0, else unknown). */
+/* ─ MK-NW-F-143 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * gainRowBetween
+ *
+ * Answers ..... WHAT ONE HOLDING DID OVER THE DAYS BEFORE THE DAILY RECORD BEGINS (DEC-6412, 2026-10-19): from the evening before the window (`from`) to the record's first day (`to`), read from its price history.
+ *
+ * Formula .....
+ *     price series | nothing | undefined,
+ *
+ * Called by ... MK-NW-O-008 thePerformance
+ *
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-005 holding price
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
+ *
+ * Decides .....
+ *     · If market value is missing it uses 0.
+ *     · If close from is missing it uses 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-143
+ * Changed ..... not in git yet (—)
+ */
+function gainRowBetween(r: GainRow, from: string, to: string, priceOf: (ticker: string) => PriceSeries | null | undefined,
+  transactions: any[], accounts: any[]): GainRow | null {
+  const p = r.position as any;
+  const unknown: GainRow = { ...r, periodReturn: null, periodTotal: null, interest: null, gain: undefined, cappedSince: null };
+  if (!p) return unknown;
+  const lots = ((p.lots ?? []) as any[]).filter((l) => Number(l?.shares) > 0);
+  // the day each purchase was made: its own date, else the stand-in the window used (a holding bought inside it), else
+  // held from before the window
+  const boughtOn = (l: any): string | null => /^\d{4}-\d{2}-\d{2}/.test(String(l?.purchase_date ?? '')) ? String(l.purchase_date).slice(0, 10) : (r.cappedSince ?? null);
+  const before = lots.filter((l) => { const d = boughtOn(l); return d == null || d <= from; });
+  const inside = lots.filter((l) => { const d = boughtOn(l); return d != null && d > from && d <= to; });
+  if (!lots.length && r.cappedSince && r.cappedSince > to) return null;
+  if (lots.length && !before.length && !inside.length) return null;
+  const series = p.ticker ? priceOf(String(p.ticker)) : null;
+  // PRICES THAT BEGIN INSIDE THOSE DAYS are measured from their first close, the rule every window already uses for a
+  // holding whose prices begin late (MK-PF-F-039); prices that begin after the record's first day reach none of them
+  const firstPoint = [...(series?.points ?? [])].filter((x) => /^\d{4}-\d{2}-\d{2}/.test(String(x?.date ?? ''))).sort((x, y) => String(x.date).localeCompare(String(y.date)))[0];
+  const closeTo = closeOnOrBefore(series, to);
+  const closeFrom = closeOnOrBefore(series, from) ?? (firstPoint && String(firstPoint.date).slice(0, 10) <= to ? firstPoint.close : null);
+  if (closeTo == null || (closeFrom == null && (before.length || !lots.length))) return unknown;
+  const mult = contractMultiplier(p);
+  let valueThen: number, start: number;
+  if (!lots.length) {
+    // no purchases on file: today's value, priced back to that day
+    const now = latestClose(series);
+    if (now == null || !(now > 0) || !((r.marketValue ?? 0) > 0) || closeFrom == null) return unknown;
+    valueThen = (r.marketValue as number) * closeTo / now;
+    start = (r.marketValue as number) * closeFrom / now;
+  } else {
+    const sh = (xs: any[]) => xs.reduce((t, l) => t + Number(l.shares), 0);
+    if (inside.some((l) => l?.cost_per_share == null || !Number.isFinite(l.cost_per_share))) return unknown;
+    valueThen = (sh(before) + sh(inside)) * closeTo * mult;
+    start = sh(before) * (closeFrom ?? 0) * mult + inside.reduce((t, l) => t + Number(l.shares) * l.cost_per_share, 0) * mult;
+  }
+  if (!(start > 0)) return unknown;
+  const after = windowStartKey('SINCE', [to], '9999-12-31')!;
+  const paidFrom = bondInterestInWindow(p, transactions, windowStartKey('SINCE', [from], '9999-12-31'), accounts);
+  const interest = paidFrom == null ? null : paidFrom - (bondInterestInWindow(p, transactions, after, accounts) ?? 0);
+  const total = returnWithInterest(valueThen / start - 1, valueThen, interest);
+  return { ...r, marketValue: valueThen, periodReturn: total, periodTotal: total, interest, gain: undefined, cappedSince: null };
+}
+
+/** THE LEFT-OUT SENTENCE WHERE A WINDOW IS JOINED AT THE RECORD'S FIRST DAY (DEC-6412, 2026-10-19): DEC-6076's sentence,
+ *  word for word, said of the days before the record begins — only those days are worked back from price history. */
+/* ─ MK-NW-F-144 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * beforeTheRecordSentence
+ *
+ * Answers ..... THE LEFT-OUT SENTENCE WHERE A WINDOW IS JOINED AT THE RECORD'S FIRST DAY (DEC-6412, 2026-10-19): DEC-6076's sentence, word for word, said of the days before the record begins — only those days are worked back from price history.
+ *
+ * Formula .....
+ *     `before ${date shown(record begins)}, when the daily record begins: ${not included sentence(left, counted value)}`
+ *
+ * Called by ... MK-NW-O-008 thePerformance
+ *
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-144
+ * Changed ..... not in git yet (—)
+ */
+function beforeTheRecordSentence(left: { name: string; value: number | null }[], countedValue: number, recordBegins: string): string {
+  return `Before ${dateShown(recordBegins)}, when the daily record begins: ${notIncludedSentence(left, countedValue)}`;
+}
+
 // WHAT A LEFT-OUT HOLDING IS WORTH TODAY, for the brackets of the left-out sentence (DEC-6076, 2026-10-19): its broker
 // mark × shares or the value typed by hand (MK-NW-F-128 heldValueOf), else what was paid for it — the same fallback
 // the balance itself uses when no price is held (B-19). Unknown when none of the three is known: the brackets go.
@@ -668,11 +778,11 @@ const leftOutValueOf = (r: GainRow): number | null => heldValueOf(r) ?? (r.posit
  *     seen = new set<string>()
  *     j = joined.get(string(account id ?? ''))
  *     the answer = the first 10) ≤ date of not (j and string(date ?? '')
- *     flows = personal flow totals(counted)
+ *     flows = personal flow totals(records)
  *     transferred in = 0, transferred out = 0
  *     net = Σ over movements of([t], input.investment account ids).flows of (amount)
+ *     moved0 = flows of(counted)
  *     joined value = Σ over [...joined.values()] of (value)
- *     contributions = flows.contributions.to number(2) + transferred in + joined value
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
@@ -689,6 +799,7 @@ const leftOutValueOf = (r: GainRow): number | null => heldValueOf(r) ?? (r.posit
  *               MK-PF-M-019 · MK-PF-M-020 · MK-PF-M-021 · MK-PF-M-022
  *               MK-XS-M-004
  * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-005 holding price
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-024 logged expenses
@@ -708,6 +819,7 @@ const leftOutValueOf = (r: GainRow): number | null => heldValueOf(r) ?? (r.posit
  *     · If market value is missing it uses 0.
  *     · If g is missing it uses 0.
  *     · If priced gain is missing it uses 0.
+ *     · If gap return is missing it uses 0.
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Treats a year as 365 days.
  *
@@ -741,6 +853,10 @@ export function thePerformance(input: {
    *  into a yearly rate (Performance v17, phone 3: "Since Jun 3, 2024 +16.24% … not a yearly rate").
    *  A fixed window longer than a year (2Y) still shows the yearly rate. */
   wholeRecord?: boolean;
+  /** Each holding's price history, by ticker — so the days of a window before the daily record begins can be worked
+   *  back from prices and joined to the record's own return (DEC-6412, 2026-10-19). Without it such a window is worked
+   *  back whole, as DEC-5291 had it. */
+  priceOf?: (ticker: string) => PriceSeries | null | undefined;
   /** The accounts as they stand now. Today's values are read from them, so the last day of the
    *  return is measured the same way every recorded day was — and an account added today is seen
    *  as arriving today, not as a gain. */
@@ -804,23 +920,34 @@ export function thePerformance(input: {
     const j = joined.get(String(t?.account_id ?? ''));
     return !(j && String(t?.date ?? '').slice(0, 10) <= j.date);
   });
-  const flows = personalFlowTotals(counted);
-  // CASH OR SHARES TRANSFERRED IN FROM OUTSIDE ARE MONEY PUT IN, and transferred out are money taken
-  // out — the return counts them so, and the walk left them in "change in investment value". A
-  // transfer between two of the measured accounts is neither.
-  let transferredIn = 0, transferredOut = 0;
-  for (const t of counted as any[]) {
-    if (t?.type !== 'TRANSFER' && t?.type !== 'TRANSFER_IN_KIND') continue;
-    // the one rule for what a transfer moved (the return reads the same function): cash at its
-    // amount, shares at what they were worth — and nothing where the record does not say
-    const net = movementsOf([t], input.investmentAccountIds).flows.reduce((sum, f) => sum + f.amount, 0);
-    if (net > 0) transferredIn += net; else transferredOut -= net;
-  }
+  // THE MONEY THAT MOVED in a set of records: put in, taken out, dividends, interest. One rule, used for the window
+  // and, where a window is joined at the record's first day (DEC-6412), for the days before that first day.
+  const flowsOf = (records: any[]) => {
+    const flows = personalFlowTotals(records);
+    // CASH OR SHARES TRANSFERRED IN FROM OUTSIDE ARE MONEY PUT IN, and transferred out are money taken
+    // out — the return counts them so, and the walk left them in "change in investment value". A
+    // transfer between two of the measured accounts is neither.
+    let transferredIn = 0, transferredOut = 0;
+    for (const t of records as any[]) {
+      if (t?.type !== 'TRANSFER' && t?.type !== 'TRANSFER_IN_KIND') continue;
+      // the one rule for what a transfer moved (the return reads the same function): cash at its
+      // amount, shares at what they were worth — and nothing where the record does not say
+      const net = movementsOf([t], input.investmentAccountIds).flows.reduce((sum, f) => sum + f.amount, 0);
+      if (net > 0) transferredIn += net; else transferredOut -= net;
+    }
+    return {
+      contributions: flows.contributions.toNumber(2) + transferredIn,
+      withdrawals: flows.withdrawals.toNumber(2) + transferredOut,
+      dividends: flows.dividends.toNumber(2),
+      interest: flows.interest.toNumber(2),
+    };
+  };
+  const moved0 = flowsOf(counted);
   const joinedValue = [...joined.values()].reduce((t, j) => t + j.value, 0);
-  const contributions = flows.contributions.toNumber(2) + transferredIn + joinedValue;
-  const withdrawals = flows.withdrawals.toNumber(2) + transferredOut;
-  const dividends = flows.dividends.toNumber(2);
-  const interest = flows.interest.toNumber(2);
+  const contributions = moved0.contributions + joinedValue;
+  const withdrawals = moved0.withdrawals;
+  const dividends = moved0.dividends;
+  const interest = moved0.interest;
 
   // A WINDOW THAT OPENS TODAY has seen no price move: "your value is real, your return starts
   // measuring from today" (Performance v17, phone 4). What the holdings gained before today is not
@@ -931,6 +1058,97 @@ export function thePerformance(input: {
       }
     }
   }
+  // A WINDOW THAT OPENS BEFORE THE RECORD BEGINS IS JOINED AT THE RECORD'S FIRST DAY, not worked back whole (DEC-6412,
+  // 2026-10-19, his word "approved.", after: "state A - Oct 1, 2025 → Sep 30, 2026 return is 8.26% and 1Y return is
+  // 7.12%. Why different as Oct 1 to sept 30 is 1 Year."). It amends DEC-5291: the days before the record's first
+  // day — and only those — are worked back from each holding's price history (DEC-5068, DEC-5291; a bond's or CD's
+  // interest added, DEC-6212); from that first day on, the record's own time-weighted return is measured (DEC-4439),
+  // exactly as "Since" measures it. The two are chained: Return = (1 + the days before) × (1 + the record's part) − 1.
+  // The walk is the same join: the record's first value, worked back over the days before it, then the record's walk.
+  // A record that begins today has no part of its own, so it stays as DEC-5291 answers it; a record that reaches back
+  // is measured as before. Where the days before cannot be worked back (no price history handed in, or nothing there
+  // with a history), DEC-5291's answer stands.
+  const joinAtRecordStart = (): WindowFigures | null => {
+    const first = theirDays.map((d: any) => String(d?.date ?? '')).filter(Boolean).sort()[0];
+    const B = bounds!.beginningAsOf;
+    if (!first || !(first > B) || !(first < today)) return null;
+    // THE RECORD'S PART: from its first day to today — the "Since" window's own answer. Each holding is handed over as it
+    // did over those days (from its prices), so an account the record does not hold on its first day is worked back on
+    // its own over them, as Since does it (DEC-5291's parts added up).
+    const since = windowStartKey('SINCE', [first], today)!;
+    const partYears = windowBounds(since, today).days / 365;
+    const partRows = input.holdings!.map((r) => gainRowBetween(r, first, today, input.priceOf!, input.transactions ?? [], input.accounts ?? []))
+      .filter((r): r is GainRow => r != null);
+    const part = thePerformance({ ...input, windowStart: since, wholeRecord: false, holdings: partRows });
+    if (!part.walk) return null;
+    // WHICH ACCOUNTS HAD A PART IN THE DAYS BEFORE: those the record holds on its first day, and those the record's part
+    // works back on their own (not on the record that day, but holding something with a history). An account with no
+    // history that joins the record later arrives in the record's part as money put in (DEC-4439), so it had none.
+    const dayOne = theirDays.find((d: any) => String(d?.date) === first);
+    const there = accountValuesOn(dayOne, (x) => input.investmentAccountIds.has(x));
+    const accountOfPosition = new Map<string, string>();
+    for (const a of (input.accounts ?? []) as any[]) for (const p of a?.positions ?? []) accountOfPosition.set(String(p?.position_id), String(a?.asset_id));
+    const ownerOf = (r: GainRow) => accountOfPosition.get(String(r.position?.position_id));
+    const partHasHistory = (r: GainRow) => !!r.cappedSince || windowTotal(r.periodReturn, r.periodTotal, partYears) != null
+      || (r.couponRate != null && Number.isFinite(r.couponRate) && r.couponRate >= 0);
+    const placed = input.investmentAccountIds.size > 1 && input.holdings!.every((r) => ownerOf(r) != null);
+    const workedInPart = new Set(placed ? [...input.investmentAccountIds].filter((id) => !there.has(id)
+      && [...partRows.filter((r) => ownerOf(r) === id), ...instrumentRows.filter((_, i) => String(instrumentAccounts[i]?.asset_id) === id)].some(partHasHistory)) : []);
+    const hadPart = (id: string | undefined) => id == null || there.has(id) || workedInPart.has(id);
+    // THE DAYS BEFORE: each holding held on the record's first day, from the day before the window to that first day
+    const gapYears = windowBounds(windowStart!, first).days / 365;
+    const pairs: { gap: GainRow; now: GainRow }[] = [];
+    for (const r of input.holdings!) {
+      if (!hadPart(ownerOf(r))) continue;
+      const g = gainRowBetween(r, B, first, input.priceOf!, input.transactions ?? [], input.accounts ?? []);
+      if (g) pairs.push({ gap: g, now: r });
+    }
+    instrumentAccounts.forEach((a: any, i: number) => {
+      const id = String(a?.asset_id), rate = instrumentRows[i].couponRate;
+      // its value on the record's first day: read there, or — worked back on its own — its value now less its rate's growth
+      const v = there.has(id) ? there.get(id)! : workedInPart.has(id) && rate != null ? (a.balance || 0) / Math.pow(1 + rate, partYears) : null;
+      if (v == null) return;
+      pairs.push({ gap: { ...instrumentRows[i], marketValue: v }, now: instrumentRows[i] });
+    });
+    const gapRows = pairs.map((x) => x.gap);
+    const gapGains = gapRows.map((r) => gainOfRow(r, gapYears));
+    const gapReturn = knownHoldingsReturn(gapRows, gapYears);
+    // nothing there with a history, and something whose gain cannot be known: no part before the record to join
+    if (gapReturn == null && gapGains.some((g) => g == null)) return null;
+    const rGap = gapReturn ?? 0;   // only cash, or nothing held: the days before gained $0
+    const gapGain = gapGains.reduce((t: number, g) => t + (g ?? 0), 0);
+    // the money that moved over the days before, on the accounts that were there (an account that joins later carries
+    // its own records up to that day inside the value it arrives with)
+    const gapMoved = flowsOf(ledger.filter((t: any) => String(t?.date ?? '').slice(0, 10) <= first
+      && !(t?.account_id != null && input.investmentAccountIds.has(String(t.account_id)) && !hadPart(String(t.account_id)))));
+    const w = part.walk;
+    const walkJoined = buildChangeWalk({
+      beginning: w.beginning - gapGain - gapMoved.contributions + gapMoved.withdrawals,
+      ending: w.ending, fromLabel: input.windowLabel, toLabel: 'today',
+      contributions: gapMoved.contributions + w.contributions, withdrawals: gapMoved.withdrawals + w.withdrawals,
+      dividends: gapMoved.dividends + w.dividends, interest: gapMoved.interest + w.interest,
+    });
+    const cum = part.cumulative == null ? null : (1 + rGap) * (1 + part.cumulative) - 1;
+    const yb = windowStartKey('1Y', [], today);
+    const yrs = bounds!.days / 365;
+    const per = cum != null && yb != null && windowStart! < yb && yrs > 1 && !input.wholeRecord ? Math.pow(1 + cum, 1 / yrs) - 1 : null;
+    // THE LEFT-OUT SENTENCE, for the days before the record only (DEC-6076's words, said of those days). Its amounts are
+    // today's values, as DEC-6076 has them: the holdings the days before count, and each one left out.
+    const left = pairs.filter((_, i) => gapGains[i] == null).map((x) => ({ name: gainRowName(x.now), value: leftOutValueOf(x.now) }));
+    const countedToday = pairs.filter((x) => knownHoldingsReturn([x.gap], gapYears) != null).reduce((t, x) => t + (x.now.marketValue ?? 0), 0);
+    return {
+      windowStart, ledger, walk: walkJoined, ending: walkJoined.ending, measured: null, covered: false,
+      beginningAsOf: B, ret: per ?? cum, cumulative: cum, perYear: per, years: yrs,
+      sentence: cum == null ? part.sentence : '',
+      notIncluded: left.length ? beforeTheRecordSentence(left, countedToday, first) : '',
+      workedBack: true, recordBegins: first,
+    };
+  };
+  if (recordLate && input.holdings && input.priceOf && bounds && windowStart) {
+    const joinedUp = joinAtRecordStart();
+    if (joinedUp) return joinedUp;
+  }
+
   // A HOLDING WITH NO PRICE HISTORY IS LEFT OUT, AND SAID (DEC-5068, 2026-10-13: "Wealth Generated and Return
   // should be calculated and displayed for every asset with history. Below it display …"). It replaces the
   // refusal of DEC-3656 part 2, which drew no beginning, no wealth generated and no walk at all: its gain adds

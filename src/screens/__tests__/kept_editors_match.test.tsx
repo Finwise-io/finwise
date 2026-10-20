@@ -39,6 +39,8 @@
  *     pinned below, so the gap cannot change without this test saying so; it is a workplan row.
  * 10. Itemize: a bond's maturity is picked on the phone's own date control, which a test cannot
  *     drive, so the bond is placed without one and the drawn words "· matures 2032-05-15" are not held.
+ *     (2026-10-19: the app writes that date in words, "· matures May 15, 2032", through dateShown; the
+ *     drawing's READ THIS FIRST note says so.)
  *     The drawing writes that control by its name, "maturity date"; empty, it reads "Tap to pick a date",
  *     as it does on Add an account.
  * 11. Itemize's second and third phones draw a ✕ beside the title that its first phone does not. The

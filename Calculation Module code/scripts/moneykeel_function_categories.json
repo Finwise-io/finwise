@@ -434,6 +434,11 @@
   "file": "MoneyKeel/functions/cashflow/base-pay.ts",
   "category": "2 · DISPLAYED"
  },
+ "beforeTheRecordSentence": {
+  "id": "MK-NW-F-144",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "3 · DEPENDENT"
+ },
  "benchmarkInfo": {
   "id": "MK-NW-F-036",
   "file": "src/domain/assets/index.ts",
@@ -1231,6 +1236,11 @@
  },
  "gainOfRow": {
   "id": "MK-NW-F-127",
+  "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
+  "category": "3 · DEPENDENT"
+ },
+ "gainRowBetween": {
+  "id": "MK-NW-F-143",
   "file": "MoneyKeel/functions/networth-and-performance/performance.ts",
   "category": "3 · DEPENDENT"
  },

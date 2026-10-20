@@ -212,8 +212,10 @@ const KNOWN: [number, string, string, string][] = [
   // (b) — DEC-5291 (2026-10-13, his word "approved." on: "Let price history count. When a period starts before the daily
   // record, work it back from each holding's price history and name what's left out, rather than greying it."). A window
   // the record cannot reach is worked back where a holding has a history; a READ THIS FIRST row on the drawing says so.
-  [1, '1y — 2y — summary', '1y +6.10% 2y +11.10% 2y is shown per year, so it sits fairly beside 1y summary',
-    'DEC-5291: the record begins Oct 1, 2025; 1Y is worked back from VTI and VOO prices (Stocks / Funds +6.10%), 2Y counts each holding from its Sep 1, 2025 purchase (330 ÷ 260 and 550 ÷ 500) a year'],
+  // DEC-6412 (2026-10-19, his word "approved.", amending DEC-5291): a window that opens before the record begins is
+  // JOINED at the record's first day — only the days before it are worked back from prices, then the record's own return.
+  [1, '1y — 2y — summary', '1y +7.46% 2y +11.81% 2y is shown per year, so it sits fairly beside 1y summary',
+    'DEC-6412: the record begins Oct 1, 2025. 1Y: VTI and VOO did not move from Sep 29 to Oct 1, 2025 (their first closes are Sep 30), so 1Y = the record\'s own +7.46%, as Since. 2Y: each holding from its Sep 1, 2025 purchase to Oct 1, 2025 ((300 × 313.48 + 40 × 500) ÷ (300 × 260 + 40 × 500) = +16.37%), chained to +7.46%: 1.1637 × 1.0746 = 1.2505 over 731 days, (1.2505)^(365 ÷ 731) − 1 = +11.81% a year. Before (DEC-5291 worked back whole): 1Y +6.10%, 2Y +11.10%'],
   [4, 'since today — 1m — this year — 1y — 2y — summary', 'since today — 1m +10.00% this year +10.00% 1y +10.00% 2y +4.87% 2y is shown per year, so it sits fairly beside 1y summary',
     'DEC-5291: each holding was bought inside the window, so its gain is value less cost (VTI 330 ÷ 300, VOO 550 ÷ 500); 2Y is (1.10)^(365 ÷ 731) − 1 = 4.87%'],
   [4, "day one: your value is real, your return starts measuring from today. we never back-fill a year we didn't see.",
@@ -387,3 +389,15 @@ test('10 · Holding detail v02 phone 3: "Holding liquidated …" in the text col
   expect(find(shown(), 'Holding liquidated — all shares sold. Its history is kept below.')).toMatchObject({ color: Colors.textPrimary });
   mockParams = {};
 });
+
+describe('DEC-6412 · the Performance tab joins a window that opens before the record at its first day (2026-10-19)', () => {
+  test('phone 1, 1Y picked: Return +7.46%, the same as Since, and the line naming the record\'s first day', () => {
+    open(1);
+    const btn = screen.getAllByRole('button').find((b) => String(b.props.accessibilityLabel ?? '').startsWith('Show 1Y'))!;
+    fireEvent.press(btn);
+    const words = shown().map((x) => x.t);
+    expect(words[words.indexOf('Return') + 1]).toBe('+7.46%');
+    expect(words).toContain('Your daily record begins Oct 1, 2025, so the days before it are worked back from each holding\'s price history.');
+  });
+});
+

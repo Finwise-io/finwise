@@ -23,7 +23,7 @@ export const RECLASSIFY_VERSION = 'cash-only-2026-08-10';
  *
  * Called by ... MK-NW-F-010 wrapperAccount · MK-NW-F-054 reclassifyAccounts
  *
- * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 82 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-NW-F-079 EF
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
@@ -33,7 +33,7 @@ export const RECLASSIFY_VERSION = 'cash-only-2026-08-10';
  *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
  *               MK-NW-F-002 alternativesSummary · MK-NW-F-029 assetAllocation
  *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-048 bondInterestInWindow
- *               … and 63 more — the full list is on functions_from_code
+ *               … and 64 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-048 the person’s own asset-class answer
@@ -73,7 +73,7 @@ export function correctClassOf(a: AssetAccount): AssetClass | null {
  *
  * Called by ... MK-NW-F-109 holdingClassOf · MK-XS-F-175 uid
  *
- * Reaches ..... 79 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-NW-F-079 EF
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
@@ -83,7 +83,7 @@ export function correctClassOf(a: AssetAccount): AssetClass | null {
  *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
  *               MK-NW-F-002 alternativesSummary · MK-NW-F-029 assetAllocation
  *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-048 bondInterestInWindow
- *               … and 61 more — the full list is on functions_from_code
+ *               … and 62 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)

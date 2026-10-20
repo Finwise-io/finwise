@@ -804,5 +804,7 @@
 "src/domain/performance/index.ts::worthWithInterest": "not in git yet|\u2014",
 "src/domain/performance/index.ts::returnWithInterest": "not in git yet|\u2014",
 "src/domain/performance/index.ts::bondInterestInWindow": "not in git yet|\u2014",
-"src/domain/performance/index.ts::isIndividualBondOrCD": "not in git yet|\u2014"
+"src/domain/performance/index.ts::isIndividualBondOrCD": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/performance.ts::beforeTheRecordSentence": "not in git yet|\u2014",
+"MoneyKeel/functions/networth-and-performance/performance.ts::gainRowBetween": "not in git yet|\u2014"
 }

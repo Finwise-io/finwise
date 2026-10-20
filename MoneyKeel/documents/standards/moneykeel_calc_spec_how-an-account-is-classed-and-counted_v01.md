@@ -173,6 +173,31 @@ longer window is worked back, the line reads, in his words (DEC-5425, 2026-10-14
 your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices."; with no holding
 history it keeps v17's words.
 
+A record that begins INSIDE the window — joined at its first day (his approval DEC-6412, 2026-10-19, his word
+"approved.", after: "state A - Oct 1, 2025 → Sep 30, 2026 return is 8.26% and 1Y return is 7.12%. Why different
+as Oct 1 to sept 30 is 1 Year."; it amends DEC-5291 for this case). Where the window's first day is before the
+daily record's first day, and that first day is before today, the window is not worked back whole. Only the
+days before the record's first day are worked back from each holding's price history, by the rules above
+(holdings with a history; the rest named; cash gains $0; a bond's or CD's interest in those days added,
+DEC-6212); only holdings held on the record's first day count, and an account the record holds later counts
+only where the record's part works it back on its own. From the record's first day on, the record's own
+time-weighted return is used (DEC-4439) — the one Since shows. Return = (1 + the days before) × (1 + the
+record's part) − 1; over a window longer than a year, its yearly rate. The walk is joined the same way: the
+record's first value, less what the holdings gained over the days before it and the money put in then (plus
+the money taken out), is the beginning; the money moved in those days is added to the record's own lines; it
+still adds up to today's ending. The left-out sentence, where those days leave a holding out, is DEC-6076's
+said of those days: "Before Oct 1, 2025, when the daily record begins: Return is on the $X with a price
+history. <name> ($Y) has no price history, so its gains are not included." — $X today's value of the
+holdings those days count, $Y today's value of each one left out. The note under the summary reads "Your
+daily record begins Oct 1, 2025, so the days before it are worked back from each holding's price history."
+Worked example (the account-page drawing, state A): record from Oct 1, 2025; 1Y's beginning Sep 29, 2025;
+VOO held 150 shares then and its price history holds $522.43 on Sep 29 and nothing again until Dec 31, so it
+moved 0.00%; the bonds were bought Apr 2, 2026 and had no part → 1Y = (1 + 0.00%) × (1 + 8.26%) − 1 =
++8.26%, the same as Since (it read +7.12%); 2Y = (522.43 ÷ 460.00) × 1.0826 − 1 = +22.95%, +10.87% a year
+over 731 days (it read +9.57%). A record that begins today keeps DEC-5291's answer; a record that reaches
+back keeps the measured return; where the days before cannot be worked back (nothing there with a history),
+DEC-5291's answer, or its refusal, stands.
+
 A balance that was never entered stays in view and reads "Value not entered" (his wording, DEC-3657):
 an account row, a bank, a class whose only account has none, a group and a debt row — never $0, −$0
 or dropped. The amber box names it; the bar and the percents count only what is known (DEC-3279e).

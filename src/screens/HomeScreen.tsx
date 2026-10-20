@@ -195,6 +195,8 @@ export default function HomeScreen() {
       // back, the month is worked back from each holding's price history, and Home's return is the one Performance's
       // 1M window shows — the return of the holdings with a history, the rest named beneath it
       holdings: perfRows as any,
+      // each holding's price history: the days of a window before the daily record begins are worked back from it and joined to the record's own return (DEC-6412, 2026-10-19)
+      priceOf,
       transactions: (store.transactions ?? []) as any[],
       snapshotDays: (store as any).snapshotDays ?? [],
       investmentAccountIds: investmentAccountIdsOf(resolvedRows.accounts as any, assetClassOf),

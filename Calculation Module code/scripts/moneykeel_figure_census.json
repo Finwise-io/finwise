@@ -19760,7 +19760,7 @@
     },
     {
      "k": "a",
-     "s": "Matures: 2031-05-15 (5 years away)"
+     "s": "Matures: May 15, 2031 (5 years away)"
     },
     {
      "k": "t",
@@ -19768,7 +19768,7 @@
     },
     {
      "k": "t",
-     "s": "2031-05-15 (5 years away)"
+     "s": "May 15, 2031 (5 years away)"
     },
     {
      "k": "a",
@@ -37726,7 +37726,7 @@
  },
  "callsites": [
   {
-   "site": "MoneyKeel/functions/_figure-spec.ts:115",
+   "site": "MoneyKeel/functions/_figure-spec.ts:116",
    "routes": [
     "/account-detail",
     "/analytics",
@@ -37811,7 +37811,7 @@
    "renders": 1292
   },
   {
-   "site": "MoneyKeel/functions/_figure-spec.ts:117",
+   "site": "MoneyKeel/functions/_figure-spec.ts:118",
    "routes": [
     "/holding-detail"
    ],
@@ -38763,7 +38763,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/HomeScreen.tsx:312",
+   "site": "src/screens/HomeScreen.tsx:314",
    "routes": [
     "/home"
    ],
@@ -38780,7 +38780,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/HomeScreen.tsx:317",
+   "site": "src/screens/HomeScreen.tsx:319",
    "routes": [
     "/home"
    ],
@@ -38797,7 +38797,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/HomeScreen.tsx:429",
+   "site": "src/screens/HomeScreen.tsx:431",
    "routes": [
     "/home"
    ],
@@ -38816,7 +38816,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:432",
+   "site": "src/screens/HomeScreen.tsx:434",
    "routes": [
     "/home"
    ],
@@ -38835,7 +38835,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:516",
+   "site": "src/screens/HomeScreen.tsx:518",
    "routes": [
     "/home"
    ],
@@ -38854,7 +38854,7 @@
    "renders": 21
   },
   {
-   "site": "src/screens/HomeScreen.tsx:529",
+   "site": "src/screens/HomeScreen.tsx:531",
    "routes": [
     "/home"
    ],
@@ -38872,7 +38872,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:530",
+   "site": "src/screens/HomeScreen.tsx:532",
    "routes": [
     "/home"
    ],
@@ -38889,7 +38889,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:533",
+   "site": "src/screens/HomeScreen.tsx:535",
    "routes": [
     "/home"
    ],

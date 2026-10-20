@@ -367,7 +367,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  *
  * Called by ... MK-NW-F-120 classEvidenceOf · MK-NW-F-123 holdingNameEvidence
  *
- * Reaches ..... 213 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 214 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -377,7 +377,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  *               MK-CF-O-014 M · MK-CF-F-203 MONTH
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               … and 195 more — the full list is on functions_from_code
+ *               … and 196 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -402,7 +402,7 @@ export function incomeBearingClassOf(label?: string): AssetClass | null {
  *
  * Called by ... MK-NW-F-120 classEvidenceOf · MK-NW-F-124 maturityParts
  *
- * Reaches ..... 212 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 213 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -412,7 +412,7 @@ export function incomeBearingClassOf(label?: string): AssetClass | null {
  *               MK-CF-O-014 M · MK-CF-F-203 MONTH
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               … and 194 more — the full list is on functions_from_code
+ *               … and 195 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -490,7 +490,7 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string | undefine
  *
  * Called by ... MK-NW-F-011 assetClassOf · MK-NW-F-053 correctClassOf
  *
- * Reaches ..... 212 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 213 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -500,7 +500,7 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string | undefine
  *               MK-CF-O-014 M · MK-CF-F-203 MONTH
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               … and 194 more — the full list is on functions_from_code
+ *               … and 195 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -555,7 +555,7 @@ export function classEvidenceOf(a: AssetAccount): AssetClass | null {
  *               MK-NW-F-137 asksCashOrInvestments · MK-NW-O-003 theNetWorth
  *               MK-PF-F-048 bondInterestInWindow
  *
- * Reaches ..... 212 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 213 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -565,7 +565,7 @@ export function classEvidenceOf(a: AssetAccount): AssetClass | null {
  *               MK-CF-O-014 M · MK-CF-F-203 MONTH
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               … and 194 more — the full list is on functions_from_code
+ *               … and 195 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -1366,7 +1366,7 @@ export function accountDisplayNames(accounts: (Pick<AssetAccount, 'asset_id' | '
  * Called by ... MK-NW-F-027 accountClassBreakdown · MK-NW-F-028 classPortionLabel
  *               MK-NW-F-113 altPartsOf · MK-PF-F-047 isIndividualBondOrCD
  *
- * Reaches ..... 78 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 79 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-NW-F-079 EF
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
@@ -1376,7 +1376,7 @@ export function accountDisplayNames(accounts: (Pick<AssetAccount, 'asset_id' | '
  *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
  *               MK-NW-F-002 alternativesSummary · MK-NW-F-029 assetAllocation
  *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-048 bondInterestInWindow
- *               … and 60 more — the full list is on functions_from_code
+ *               … and 61 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-048 the person’s own asset-class answer
@@ -1419,7 +1419,7 @@ export function holdingClassOf(p: any): AssetClass {
  *
  * Called by ... MK-NW-F-054 reclassifyAccounts · MK-NW-F-109 holdingClassOf
  *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-NW-F-079 EF
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
@@ -1429,7 +1429,7 @@ export function holdingClassOf(p: any): AssetClass {
  *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
  *               MK-NW-F-002 alternativesSummary · MK-NW-F-029 assetAllocation
  *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-048 bondInterestInWindow
- *               … and 62 more — the full list is on functions_from_code
+ *               … and 63 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1455,7 +1455,7 @@ export function holdingTagClass(tag?: string | null): AssetClass | null {
  *
  * Called by ... MK-NW-F-054 reclassifyAccounts
  *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-NW-F-079 EF
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
@@ -1465,7 +1465,7 @@ export function holdingTagClass(tag?: string | null): AssetClass | null {
  *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
  *               MK-NW-F-002 alternativesSummary · MK-NW-F-029 assetAllocation
  *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-048 bondInterestInWindow
- *               … and 62 more — the full list is on functions_from_code
+ *               … and 63 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1486,7 +1486,7 @@ export function holdingTagFor(cls: AssetClass): 'bond' | 'other' | 'cash' | 'sto
  *
  * Called by ... MK-NW-F-054 reclassifyAccounts · MK-NW-F-109 holdingClassOf
  *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-NW-F-079 EF
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
@@ -1496,7 +1496,7 @@ export function holdingTagFor(cls: AssetClass): 'bond' | 'other' | 'cash' | 'sto
  *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
  *               MK-NW-F-002 alternativesSummary · MK-NW-F-029 assetAllocation
  *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-048 bondInterestInWindow
- *               … and 62 more — the full list is on functions_from_code
+ *               … and 63 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)

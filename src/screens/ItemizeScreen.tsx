@@ -11,6 +11,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { fig } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { currencySymbol } from '../domain/_shared/money';
+import { dateShown } from '../domain/_shared/dates';   // the app's one date writer: "Mar 31, 2027", never 2027-03-31 (2026-10-19)
 import type { AssetAccount } from '../domain/assets';
 import {
   type ItemHolding, type ItemClass, itemizedResultTotal, buildItemizedAccounts,
@@ -31,7 +32,7 @@ const CLS_PICKS: { id: string; label: string; icon: string; cls: ItemClass; kind
 
 function holdingSub(h: ItemHolding): string {
   if (h.cls === 'stocks_etf') return 'Stock / Fund';
-  if (h.cls === 'bonds') return h.maturityDate ? `Bond · matures ${h.maturityDate}` : 'Bond';
+  if (h.cls === 'bonds') return h.maturityDate ? `Bond · matures ${dateShown(h.maturityDate)}` : 'Bond';
   if (h.cls === 'cash') return 'Cash';
   return h.kind === 'options' ? 'Option' : h.kind === 'crypto' ? 'Crypto' : 'Alternative';
 }

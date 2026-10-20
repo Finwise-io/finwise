@@ -128,7 +128,7 @@ export default function AccountPortfolioScreen() {
   const sourceChip = source === 'connected' ? `${sourceWording(account).split(' · ')[0]} · read-only` : sourceWording(account);
   const updatedLine = source === 'connected' && account.last_synced
     ? `Updated ${new Date(account.last_synced).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`
-    : account.value_as_of ? `Value as of ${account.value_as_of}` : null;
+    : account.value_as_of ? `Value as of ${dateShown(account.value_as_of)}` : null;   // the one date writer, "Jun 2, 2026" (2026-10-19)
   // Build-43 finding #4: a bare CUSIP ("49306SX43") reads as noise — show the security's NAME for
   // identifier-style tickers (9 alphanumerics with digits), the ticker for everything else.
   const holdingWord = (p: { ticker?: string; name?: string }) => {
@@ -221,6 +221,8 @@ export default function AccountPortfolioScreen() {
       // cannot know — this account's own value counts as the instrument when it holds no positions (DEC-3656, 2026-10-09;
       // one with no price history is left out of Wealth generated and Return, and named — DEC-5068, 2026-10-13)
       holdings: priced as any,
+      // each holding's price history: the days of a window before the daily record begins are worked back from it and joined to the record's own return (DEC-6412, 2026-10-19)
+      priceOf,
       transactions: ledger,
       snapshotDays: days,
       investmentAccountIds: ids,
@@ -492,6 +494,10 @@ export default function AccountPortfolioScreen() {
               /* a refusal is an answer (D4): no daily record reaching back, so no beginning — say so */
               ? 'Wealth generated and Return start once the daily record reaches back far enough to say what this account was worth at the start. It builds from your first recorded day.'
               : now?.sentence
+              /* a window joined at the record's first day: only the days before it are worked back (DEC-6412, 2026-10-19) */
+              || (now?.recordBegins
+                ? `Your daily record begins ${dateShown(now.recordBegins)}, so the days before it are worked back from each holding's price history.`
+                : null)
               || (now?.measured == null
                 /* no recorded value on the first day: the beginning is worked back from today's values and each
                    holding's price history, and a return IS shown — of the holdings with a history (DEC-5068, 2026-10-13) */
@@ -728,7 +734,7 @@ export default function AccountPortfolioScreen() {
           the money must not sit labeled as a growing bond after its maturity date */}
       {maturedOn && (account.balance || 0) > 0 && (
         <View style={s.maturedCard}>
-          <Text style={s.maturedTitle}>⏰ This {assetKind(account.kind)?.id === 'cd' ? 'CD' : 'bond'} matured {new Date(maturedOn[0], maturedOn[1] - 1, maturedOn[2], 12).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.</Text>
+          <Text style={s.maturedTitle}>⏰ This {assetKind(account.kind)?.id === 'cd' ? 'CD' : 'bond'} matured {dateShown(bondOne?.maturity)}.</Text>
           <Text style={s.maturedBody}>The money isn't growing here anymore — record what happened so your numbers stay true.</Text>
           <TouchableOpacity accessibilityRole="button" style={s.maturedOpt}
             accessibilityLabel="Paid out to my bank — records the payout"
@@ -941,7 +947,7 @@ function BondDetail({ account }: { account: AssetAccount }) {
         <FactRow label="Interest payments" value={figWords('MK-NW-M-024', one.couponRate == null
           ? `not entered · ${fig('MK-NW-M-056', 0)}/year — coupon rate not entered`
           : `${(one.couponRate * 100).toFixed(2)}%/year · ${one.couponPerYear != null ? fig('MK-NW-M-056', one.couponPerYear) : 'not entered'}/year`)} />
-        <FactRow label="Matures" value={figWords('MK-NW-M-025', !one.maturity ? MATURITY_NOT_ENTERED : matured ? `${one.maturity} (matured)` : `${one.maturity} (${plural(Math.round(years), 'year')} away)`)} />
+        <FactRow label="Matures" value={figWords('MK-NW-M-025', !one.maturity ? MATURITY_NOT_ENTERED : matured ? `${dateShown(one.maturity)} (matured)` : `${dateShown(one.maturity)} (${plural(Math.round(years), 'year')} away)`)} />
         {!matured && one.yieldToMaturity != null && <FactRow label="Yield if held to maturity" value={`about ${fig('MK-NW-M-026', one.yieldToMaturity)} · estimate`} />}
         {one.currentYield != null && <FactRow label="Yield on today's value" value={fig('MK-NW-M-027', one.currentYield)} />}
         {!!one.accruedCaveat && <Text style={s.bondNote}>{one.accruedCaveat}</Text>}
@@ -1170,7 +1176,7 @@ function UpdateValueSheet({ account, visible, onClose }: { account: AssetAccount
             <TextInput style={s.amtInput} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary}
               value={amount} onChangeText={setAmount} autoFocus accessibilityLabel="Current value" />
           </View>
-          <Text style={s.preview}>Stamped “Value as of {iso(new Date())}” — the amount is yours to set.</Text>
+          <Text style={s.preview}>Stamped “Value as of {dateShown(iso(new Date()))}” — the amount is yours to set.</Text>
           <TouchableOpacity accessibilityRole="button" style={[s.primaryBtn, amt <= 0 && { opacity: 0.4 }]} disabled={amt <= 0} onPress={save}
             accessibilityLabel="Save the updated value">
             <Text style={s.primaryTxt}>Save value</Text>

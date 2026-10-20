@@ -18,12 +18,13 @@ const handlers: Record<string, Set<Handler>> = {};
  *               MK-CF-F-202 TAX · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-CF-O-017 futurePaycheck · MK-NW-F-025 accountDisplayName
  *               MK-NW-F-088 BENCH · MK-NW-O-003 theNetWorth
- *               MK-PL-F-004 withdrawalOrder · MK-PL-F-036 weighGoals
- *               MK-PL-F-067 willItLastInputs · MK-PL-F-082 taxableIncomeSteps
- *               MK-ST-F-049 formatMoney · MK-ST-F-073 rebuildDays
- *               MK-ST-F-081 timeWeightedReturn · MK-XS-F-183 writeFigure
+ *               MK-NW-O-008 thePerformance · MK-PL-F-004 withdrawalOrder
+ *               MK-PL-F-036 weighGoals · MK-PL-F-067 willItLastInputs
+ *               MK-PL-F-082 taxableIncomeSteps · MK-ST-F-049 formatMoney
+ *               MK-ST-F-073 rebuildDays · MK-ST-F-081 timeWeightedReturn
+ *               MK-XS-F-183 writeFigure
  *
- * Reaches ..... 181 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 182 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -33,7 +34,7 @@ const handlers: Record<string, Set<Handler>> = {};
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               … and 163 more — the full list is on functions_from_code
+ *               … and 164 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

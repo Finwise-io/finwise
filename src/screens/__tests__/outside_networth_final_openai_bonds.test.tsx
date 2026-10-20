@@ -35,7 +35,7 @@ test('M-024 · BOND FACTS stand with no coupon rate: face and maturity shown, ra
   expect(screen.getByText('Face value')).toBeOnTheScreen();
   expect(screen.getAllByText(/\$10,000/).length).toBeGreaterThan(0);
   expect(screen.getByText('Matures')).toBeOnTheScreen();
-  expect(screen.getByText(/2031-06-01/)).toBeOnTheScreen();
+  expect(screen.getByText(/Jun 1, 2031/)).toBeOnTheScreen();   // the date in words, through dateShown (2026-10-19)
   expect(screen.getByText('not entered · $0/year — coupon rate not entered')).toBeOnTheScreen();
   // yields that need a rate stay refused
   expect(screen.queryByText('Yield if held to maturity')).toBeNull();

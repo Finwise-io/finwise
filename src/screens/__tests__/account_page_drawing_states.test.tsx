@@ -168,7 +168,9 @@ afterAll(() => jest.useRealTimers());
 
 /** Every button of every state, as the app prints it on Sep 30, 2026 with that state's data. */
 const BARS: Record<string, [string, string, 'on' | 'no' | ''][]> = {
-  A: [['Since Oct 1, 2025', '+8.26%', 'on'], ['1M', '+1.00%', ''], ['This year', '+1.89%', ''], ['1Y', '+7.12%', ''], ['2Y', '+9.57%', '']],
+  // 1Y and 2Y open before the record's first day (Oct 1, 2025), so they are JOINED there (DEC-6412, 2026-10-19): the days
+  // before it worked back from VOO's prices, then the record's own +8.26%. Before (DEC-5291, worked back whole): +7.12%, +9.57%
+  A: [['Since Oct 1, 2025', '+8.26%', 'on'], ['1M', '+1.00%', ''], ['This year', '+1.89%', ''], ['1Y', '+8.26%', ''], ['2Y', '+10.87%', '']],
   B: [['Since Jun 2, 2026', '+1.50%', 'on'], ['1M', '+1.50%', ''], ['This year', '—', 'no'], ['1Y', '—', 'no'], ['2Y', '—', 'no']],
   C: [['Since today', '—', 'on'], ['1M', '—', 'no'], ['This year', '—', 'no'], ['1Y', '—', 'no'], ['2Y', '—', 'no']],
   // Since today is never greyed (2026-10-19): state C draws it picked with a dash, state D at rest with a dash, and it can be picked
@@ -259,3 +261,15 @@ describe('a record that begins today: the Since window reads one way whichever w
     expect(y1.props.accessibilityState).toMatchObject({ selected: true });
   });
 });
+
+describe('DEC-6412 · a window that opens before the record begins is joined at its first day (2026-10-19)', () => {
+  test('state A, 1Y picked: Return +8.26%, the Since walk, and the line saying only the days before Oct 1, 2025 are worked back', () => {
+    renderState({ ...STATES[0], pick: '1Y' });
+    const lines = strings();
+    expect(trioReturn(lines)).toBe('+8.26%');
+    expect(lines).toContain('Your daily record begins Oct 1, 2025, so the days before it are worked back from each holding\'s price history.');
+    expect(lines.some((l) => /Rebuilt from/.test(l))).toBe(false);   // the record does not reach the window's beginning
+    expect(lines.some((l) => /has no price history/.test(l))).toBe(false);   // the bonds had no part in those days
+  });
+});
+

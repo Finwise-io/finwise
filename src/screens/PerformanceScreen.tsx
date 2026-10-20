@@ -163,6 +163,8 @@ export default function PerformanceScreen() {
       // the holdings themselves: the door decides each one's gain over this window (DEC-3656, 2026-10-09), and the
       // return of those with a price history where the beginning is worked back (DEC-5068, 2026-10-13)
       holdings: priced as any,
+      // each holding's price history: the days of a window before the daily record begins are worked back from it and joined to the record's own return (DEC-6412, 2026-10-19)
+      priceOf,
       transactions: (store.transactions ?? []) as any[],
       snapshotDays: (store as any).snapshotDays ?? [],
       investmentAccountIds: investIds,
@@ -336,6 +338,9 @@ export default function PerformanceScreen() {
           <Note term="dayOne">{WINDOWS.some((w) => windowFigures[w.key]?.workedBack)
             ? "You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices."
             : "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."}</Note>
+        ) : now.recordBegins ? (
+          /* a window joined at the record's first day: only the days before it are worked back (DEC-6412, 2026-10-19) */
+          <Text style={styles.sumNote}>Your daily record begins {dateShown(now.recordBegins)}, so the days before it are worked back from each holding's price history.</Text>
         ) : now.workedBack ? (
           /* the beginning was worked back, not read: say so, as the account page does (DEC-5068) */
           <Text style={styles.sumNote}>Your daily record does not reach back to {dateShown(now.beginningAsOf)} yet, so the beginning is worked back from today's values and each holding's price history.</Text>
@@ -409,6 +414,8 @@ export default function PerformanceScreen() {
           const one = thePerformance({
             windowStart: now.windowStart, windowLabel: phraseFor(period), today: todayKey,
             holdings: held,
+            // each holding's price history: the days of a window before the daily record begins are worked back from it and joined to the record's own return (DEC-6412, 2026-10-19)
+            priceOf,
             // every record: the function keeps this account's own, and the cash that arrived in it by transfer
             transactions: (store.transactions ?? []) as any[],
             snapshotDays: (store as any).snapshotDays ?? [],

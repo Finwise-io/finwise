@@ -261,7 +261,7 @@ test('source chips: connected/imported/by-hand pills on NW account rows; paused 
   expect(r1.getByText('🔗 Linked')).toBeTruthy();   // founder 2026-09-14: Linked, a date only when stale
   r1.unmount();
   const r2 = render(<SourceChip account={{ asset_id: 'a', label: 'x', tax_bucket: 'TAXABLE', balance: 1, source: 'imported', last_synced: '2026-06-12T00:00:00Z' } as any} />);
-  expect(r2.getByText('📄 Imported · 2026-06-12')).toBeTruthy();
+  expect(r2.getByText('📄 Imported · Jun 12, 2026')).toBeTruthy();   // the day in words, through dateShown (2026-10-19)
   r2.unmount();
   const r3 = render(<SourceChip account={{ asset_id: 'a', label: 'x', tax_bucket: 'TAXABLE', balance: 1 } as any} />);
   expect(r3.getByText('✍️ By hand · you update it')).toBeTruthy();

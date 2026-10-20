@@ -30,7 +30,7 @@ test('MK-NW-F-124 · a future date with spaces round it has not matured — no b
   mockParams = { id: 'b' };
   render(<AccountPortfolioScreen />);
   expect(screen.queryByText(/This bond matured/)).toBeNull();      // ' 2031-06-01 ' <= today as text was true
-  expect(screen.getByText(/2031-06-01 \(/)).toBeOnTheScreen();     // written back the one way, years away
+  expect(screen.getByText(/Jun 1, 2031 \(/)).toBeOnTheScreen();   // written back the one way, in words (dateShown, 2026-10-19), years away
 });
 
 test('MK-NW-F-124 · a past date still shows the matured banner, its day read by the one reader', () => {

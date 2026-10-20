@@ -6,6 +6,7 @@ import { Text, View, StyleSheet } from 'react-native';
 import { Colors, Radii } from '../utils/theme';
 import { connectionFreshness } from '../services/sync';
 import type { AssetAccount } from '../domain/assets';
+import { dateShown } from '../domain/_shared/dates';   // the app's one date writer: "Jun 12, 2026", never 2026-06-12 (2026-10-19)
 
 /** WHERE AN ACCOUNT'S NUMBERS COME FROM, in words — the one definition. The chip draws them as a pill;
  *  a line that carries them inside a sentence ("🔗 Linked · wealth generated $2,000") asks for the same
@@ -20,7 +21,7 @@ export function sourceWords(account: AssetAccount, paused?: boolean): { icon: st
       icon = '🔗'; text = f?.stale ? `Linked · ${f.label}` : 'Linked'; bg = Colors.primaryLight; fg = Colors.primaryDark;
     }
   } else if (account.source === 'imported') {
-    const day = account.last_synced ? String(account.last_synced).slice(0, 10) : '';
+    const day = account.last_synced ? dateShown(String(account.last_synced).slice(0, 10)) : '';
     icon = '📄'; text = `Imported${day ? ` · ${day}` : ''}`; bg = Colors.blueLight; fg = Colors.blue;
   }
   return { icon, text, bg, fg };

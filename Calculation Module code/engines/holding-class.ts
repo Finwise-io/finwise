@@ -80,7 +80,7 @@ const BOND_WORD_COMPANY_RE = /\b(treasury|treas|bond|note|muni)\s+(wines?|estate
  *
  * Called by ... MK-NW-F-008 incomeBearingClassOf · MK-ST-F-011 classifyHoldingClass
  *
- * Reaches ..... 214 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 215 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
@@ -90,7 +90,7 @@ const BOND_WORD_COMPANY_RE = /\b(treasury|treas|bond|note|muni)\s+(wines?|estate
  *               MK-CF-O-014 M · MK-CF-F-203 MONTH
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               … and 196 more — the full list is on functions_from_code
+ *               … and 197 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-013 bond maturity date
