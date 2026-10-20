@@ -169,19 +169,25 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
   };
 };
 
-/** A BOND OR CD HELD AS A HOLDING, its facts for the line under its name (DEC-6212, 2026-10-19): face value, coupon rate
- *  and yield to maturity — read by the same rules as a bond held as its own account (rowOf), with the holding's value
- *  today as its value. A bank CD's yield to maturity is its rate. Each is null where it was not given or cannot be
- *  calculated, and the line then leaves that part out. */
+/** A BOND OR CD HELD AS A HOLDING, its facts for the line under its name (DEC-6212, 2026-10-19): face value, coupon rate,
+ *  yield to maturity and maturity date (DEC-6323, 2026-10-19), with whether it has matured — read by the same rules as a
+ *  bond held as its own account (rowOf), with the holding's value today as its value. A bank CD's yield to maturity is its
+ *  rate. Each is null where it was not given or cannot be calculated, and the line then leaves that part out. */
 /* ─ MK-NW-F-141 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * holdingBondFacts
  *
- * Answers ..... A BOND OR CD HELD AS A HOLDING, its facts for the line under its name (DEC-6212, 2026-10-19): face value, coupon rate and yield to maturity — read by the same rules as a bond held as its own account (rowOf), with the holding's value today as its value.
+ * Answers ..... A BOND OR CD HELD AS A HOLDING, its facts for the line under its name (DEC-6212, 2026-10-19): face value, coupon rate, yield to maturity and maturity date (DEC-6323, 2026-10-19), with whether it has matured — read by the same rules as a bond held as its own account (rowOf), with the holding's value today as its value.
  *
  * Formula .....
+ *     parts = maturity parts(row.maturity)
+ *     maturity = `${parts[0]}-${string(parts[1]).pad start(2, '0')}-${string(parts[2]).pad start(2, '0')}`   if parts
+ *     nothing   otherwise
+ *     the answer:
  *     face = row.face
  *     coupon rate = row.coupon rate
  *     yield to maturity = row.yield to maturity
+ *     maturity = maturity
+ *     matured = maturity ≠ nothing and row.years left = 0
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -200,10 +206,15 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
  */
 export function holdingBondFacts(p: { position_id?: string | number; ticker?: string; label?: string; kind?: string;
   face_value?: number; coupon_rate?: number; maturity_date?: string }, value: number, now: Date = new Date()):
-  { face: number | null; couponRate: number | null; yieldToMaturity: number | null } {
+  { face: number | null; couponRate: number | null; yieldToMaturity: number | null; maturity: string | null; matured: boolean } {
   const row = rowOf({ asset_id: String(p.position_id ?? p.ticker ?? ''), label: p.label ?? p.ticker ?? '', kind: p.kind,
     face_value: p.face_value, coupon_rate: p.coupon_rate, maturity_date: p.maturity_date, balance: value } as any, now);
-  return { face: row.face, couponRate: row.couponRate, yieldToMaturity: row.yieldToMaturity };
+  // THE MATURITY DATE, the fourth part of the line (owner, 2026-10-19: "Line under a bond - new line missing maturity
+  // date."): read by the one reading of a maturity date (MK-NW-F-124), so a date that is missing, written another way or
+  // impossible is not known and is left out; matured is the Bonds door's own rule, years left is zero (MK-NW-O-001).
+  const parts = maturityParts(row.maturity);
+  const maturity = parts ? `${parts[0]}-${String(parts[1]).padStart(2, '0')}-${String(parts[2]).padStart(2, '0')}` : null;
+  return { face: row.face, couponRate: row.couponRate, yieldToMaturity: row.yieldToMaturity, maturity, matured: maturity != null && row.yearsLeft === 0 };
 }
 
 /** What bonds and CDs do I hold, what do they pay, and when do they mature?
@@ -228,7 +239,7 @@ export function holdingBondFacts(p: { position_id?: string | number; ticker?: st
  *
  * Called by ... MK-NW-F-077 ALL · MK-NW-F-078 ONE
  *
- * Reaches ..... 127 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 128 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
  *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
@@ -238,7 +249,7 @@ export function holdingBondFacts(p: { position_id?: string | number; ticker?: st
  *               MK-NW-F-082 NW · MK-NW-F-078 ONE
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               … and 109 more — the full list is on functions_from_code
+ *               … and 110 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-023 · MK-NW-M-024 · MK-NW-M-025 · MK-NW-M-026
  *               MK-NW-M-027 · MK-NW-M-041 · MK-NW-M-042 · MK-NW-M-043
@@ -353,7 +364,7 @@ const GIVEN =
  *
  * Called by ... MK-NW-F-078 ONE
  *
- * Reaches ..... 126 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 127 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -363,7 +374,7 @@ const GIVEN =
  *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
  *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 108 more — the full list is on functions_from_code
+ *               … and 109 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -383,7 +394,7 @@ const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
  *
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 125 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 126 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
  *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
@@ -393,7 +404,7 @@ const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
  *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               … and 107 more — the full list is on functions_from_code
+ *               … and 108 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

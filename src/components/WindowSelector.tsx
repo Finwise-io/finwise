@@ -26,8 +26,16 @@ export function WindowSelector({ windows, chosen, figures, onPick }: {
         // account's card does (DEC-5068) — with no record at all, or a record that begins after the window opens
         // (DEC-5291, 2026-10-13: "Let price history count"). Only where no holding has a history does a window the
         // record cannot reach stay greyed (DEC-3035i's case, kept).
-        const uncovered = figures[w.key]?.covered === false && !figures[w.key]?.workedBack && !on;
+        // THE SINCE WINDOW IS NEVER GREYED (2026-10-19). It is the window the page and the tab open on, and on a record
+        // that begins today v17's approved day one draws it picked with a dash. Greyed only when NOT picked, it read
+        // two ways for one record — picked with a dash on the account-page drawing's state C, greyed on state D — and
+        // a person who opened the page on it and tapped 1Y could not get back to it. So it can always be picked; with
+        // no figure it shows a dash at rest (name in the resting grey), never in the greys of a window that cannot be
+        // picked. Every other window keeps the rule above.
+        const always = w.key === 'SINCE';
+        const uncovered = !always && figures[w.key]?.covered === false && !figures[w.key]?.workedBack && !on;
         const ret = uncovered ? null : figures[w.key]?.ret ?? null;
+        const greyed = ret == null && !on && !always;
         const perYear = !uncovered && figures[w.key]?.perYear != null;
         const divider = i > 0 && !on && chosen !== windows[i - 1].key;
         return (
@@ -42,8 +50,8 @@ export function WindowSelector({ windows, chosen, figures, onPick }: {
               {/* THE COLOURS v17 DRAWS (drawing check, 2026-10-12): a window at rest names itself in the tertiary grey;
                   one with no figure is greyed lighter still, name and dash (.segNo); the CHOSEN window is green even
                   when its figure is a dash (.segOn .segV — day one). The dash of the chosen window used to turn grey. */}
-              <Text numberOfLines={1} style={[styles.segK, on && styles.segOnT, ret == null && !on && styles.segNoK]}>{w.label}</Text>
-              <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.segV, on && styles.segOnT, ret == null && !on && styles.segNoV]}>
+              <Text numberOfLines={1} style={[styles.segK, on && styles.segOnT, greyed && styles.segNoK]}>{w.label}</Text>
+              <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.segV, on && styles.segOnT, greyed && styles.segNoV]}>
                 {ret == null ? '—' : fig('MK-PF-M-017', ret)}
               </Text>
             </TouchableOpacity>

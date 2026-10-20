@@ -93,8 +93,8 @@ export function dateShown(iso: string | null | undefined): string {
  * Called by ... MK-NW-F-009 maturityClass · MK-NW-F-056 bondInfo
  *               MK-NW-F-058 yearsToMaturity · MK-NW-F-061 bondSummary
  *               MK-NW-F-119 estimatedAccrued · MK-NW-F-125 isPastMaturity
- *               MK-NW-O-001 theBonds · MK-PF-F-047 isIndividualBondOrCD
- *               MK-ST-F-011 classifyHoldingClass
+ *               MK-NW-F-141 holdingBondFacts · MK-NW-O-001 theBonds
+ *               MK-PF-F-047 isIndividualBondOrCD · MK-ST-F-011 classifyHoldingClass
  *
  * Reaches ..... 212 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL

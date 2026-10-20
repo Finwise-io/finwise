@@ -171,7 +171,8 @@ const BARS: Record<string, [string, string, 'on' | 'no' | ''][]> = {
   A: [['Since Oct 1, 2025', '+8.26%', 'on'], ['1M', '+1.00%', ''], ['This year', '+1.89%', ''], ['1Y', '+7.12%', ''], ['2Y', '+9.57%', '']],
   B: [['Since Jun 2, 2026', '+1.50%', 'on'], ['1M', '+1.50%', ''], ['This year', '—', 'no'], ['1Y', '—', 'no'], ['2Y', '—', 'no']],
   C: [['Since today', '—', 'on'], ['1M', '—', 'no'], ['This year', '—', 'no'], ['1Y', '—', 'no'], ['2Y', '—', 'no']],
-  D: [['Since today', '—', 'no'], ['1M', '+2.46%', ''], ['This year', '+5.93%', ''], ['1Y', '+10.00%', 'on'], ['2Y', '+11.79%', '']],
+  // Since today is never greyed (2026-10-19): state C draws it picked with a dash, state D at rest with a dash, and it can be picked
+  D: [['Since today', '—', ''], ['1M', '+2.46%', ''], ['This year', '+5.93%', ''], ['1Y', '+10.00%', 'on'], ['2Y', '+11.79%', '']],
   E: [['Since Jun 2, 2026', '+0.00%', 'on'], ['1M', '+0.00%', ''], ['This year', '—', 'no'], ['1Y', '—', 'no'], ['2Y', '—', 'no']],
 };
 const asSegs = (k: string): Seg[] => BARS[k].map(([kk, v, st]) => ({ k: kk, v, on: st === 'on', no: st === 'no' }));
@@ -200,14 +201,61 @@ describe('state A, Bonds & CDs: price change plus interest (DEC-6212)', () => {
   test('KeyBank CD +2.00%, US Treasury 2028 +2.13%, the bar +2.06%; the Total stays +8.26%; each line shows face, coupon and YTM', () => {
     renderState(STATES[0]);
     const lines = strings();
-    expect(lines).toContain('@KeyBank CD, $5,000 face · 4.00% · YTM 4.00%, $5,000, return +2.00%, $100 interest. Opens its page.');
-    expect(lines).toContain('@US Treasury 2028, $4,000 face · 4.25% · YTM 4.23%, $4,000, return +2.13%, $85 interest. Opens its page.');
+    // DEC-6323 (owner, 2026-10-19: "Line under a bond - new line missing maturity date."): the maturity date is the line's fourth part
+    expect(lines).toContain('@KeyBank CD, $5,000 face · 4.00% · YTM 4.00% · matures Mar 31, 2027, $5,000, return +2.00%, $100 interest. Opens its page.');
+    expect(lines).toContain('@US Treasury 2028, $4,000 face · 4.25% · YTM 4.23% · matures Feb 15, 2028, $4,000, return +2.13%, $85 interest. Opens its page.');
+    expect(lines).toContain('$5,000 face · 4.00% · YTM 4.00% · matures Mar 31, 2027');
     expect(lines).toContain('@Bonds & CDs, $9,000, return +2.06%');
     expect(lines).toContain('@Total, $101,000, return +8.26%');
     expect(lines).toContain('@VOO · 160 shares, $90,000, return +7.67%, $1,500 dividends. Opens its page.');
   });
-  test('states C and D: a Treasury with a face value and no rate shows only its face; no price history, no return', () => {
+  test('states C and D: a Treasury with a face value, a maturity date and no rate shows those two; no price history, no return', () => {
     renderState(STATES[3]);
-    expect(strings()).toContain('@Treasury 2031, $10,000 face, $10,000, return —. Opens its page.');
+    expect(strings()).toContain('@Treasury 2031, $10,000 face · matures Nov 15, 2031, $10,000, return —. Opens its page.');
+    screen.unmount();
+    renderState(STATES[2]);
+    expect(strings()).toContain('@Treasury 2031, $10,000 face · matures Nov 15, 2031, $10,000, return —. Opens its page.');
+  });
+});
+
+describe('DEC-6323 · the maturity date on the line under a bond\'s name', () => {
+  const withKcd = (extra: any): State => ({ ...STATES[0], account: { ...VAN, positions: VAN.positions.map((q: any) => q.position_id === 'kcd' ? { ...q, ...extra } : q) } });
+  test('a matured CD says it matured, the matured banner\'s word, and has no yield to maturity', () => {
+    renderState(withKcd({ maturity_date: '2026-09-15' }));
+    expect(strings()).toContain('$5,000 face · 4.00% · matured Sep 15, 2026');
+  });
+  // with no known date there are no years left, so the yield to maturity is not known either (approxYTM) — both are left out
+  test('a maturity date not known — missing, or not a real day — is left out', () => {
+    renderState(withKcd({ maturity_date: undefined }));
+    expect(strings()).toContain('$5,000 face · 4.00%');
+    screen.unmount();
+    renderState(withKcd({ maturity_date: '2027-02-30' }));
+    expect(strings()).toContain('$5,000 face · 4.00%');
+  });
+});
+
+describe('a record that begins today: the Since window reads one way whichever window is picked (2026-10-19)', () => {
+  test('state D: Since today is not greyed, can be picked, and then reads as state C does — picked, a dash', () => {
+    renderState(STATES[3]);
+    const since = () => builtBar()[0];
+    expect(since()).toEqual({ k: 'Since today', v: '—', on: false, no: false });
+    const btn = screen.getAllByRole('button').find((b) => String(b.props.accessibilityLabel ?? '').startsWith('Show Since today'))!;
+    fireEvent.press(btn);
+    expect(since()).toEqual({ k: 'Since today', v: '—', on: true, no: false });
+    expect(trioReturn(strings())).toBe('—');
+    screen.unmount();
+    renderState(STATES[2]);
+    expect(builtBar()[0]).toEqual({ k: 'Since today', v: '—', on: true, no: false });
+  });
+  test('at rest with no figure, its name and dash are in the resting colours, not the greys of a window that cannot be picked', () => {
+    const { Colors } = require('../../utils/theme');
+    renderState(STATES[3]);
+    const btn = screen.getAllByRole('button').find((b) => String(b.props.accessibilityLabel ?? '').startsWith('Show Since today'))!;
+    const flat = (st: any) => Object.assign({}, ...[st].flat(Infinity).filter(Boolean));
+    const [name, dash] = (btn.children as any[]).flatMap(function f(c: any): any[] { return c?.type === 'Text' ? [c] : (c?.children ?? []).flatMap(f); });
+    expect(flat(name.props.style).color).toBe(Colors.textTertiary);
+    expect(flat(dash.props.style).color).toBe(Colors.textPrimary);
+    const y1 = screen.getAllByRole('button').find((b) => String(b.props.accessibilityLabel ?? '').startsWith('Show 1Y'))!;
+    expect(y1.props.accessibilityState).toMatchObject({ selected: true });
   });
 });

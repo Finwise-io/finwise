@@ -2381,11 +2381,12 @@
   },
   "MK-NW-F-141": {
    "name": "holdingBondFacts",
-   "rule": "A bond or CD held as a holding, its facts for the line under its name (owner decision DEC-6212, 2026-10-19): it is read as a bond account would be (the bond row of the bonds door) with its holding id (else ticker) as the account, its name (else ticker) as the label, its type, face value, coupon rate and maturity date, and the value handed in as its balance. Answer: face value (nothing unless above zero), coupon rate (as entered, nothing when not), and yield to maturity — for a bank CD its rate; otherwise the yield at which the bond's remaining payments price it at its value plus the interest built up since its last coupon; nothing when matured, undated, without a face or a rate.",
+   "rule": "A bond or CD held as a holding, its facts for the line under its name (owner decision DEC-6212, 2026-10-19): it is read as a bond account would be (the bond row of the bonds door) with its holding id (else ticker) as the account, its name (else ticker) as the label, its type, face value, coupon rate and maturity date, and the value handed in as its balance. Answer: face value (nothing unless above zero), coupon rate (as entered, nothing when not), and yield to maturity — for a bank CD its rate; otherwise the yield at which the bond's remaining payments price it at its value plus the interest built up since its last coupon; nothing when matured, undated, without a face or a rate; the maturity date (owner decision DEC-6323, 2026-10-19), written year-month-day when the date entered is a real calendar day by the one reading of a maturity date, nothing otherwise; and matured, which is true when that date is known and the years left to it are zero (today or earlier).",
    "figures_checked_by_hand": {
-    "6212": "not a figure: the number of the owner decision DEC-6212 (2026-10-19) that this rule follows"
+    "6212": "not a figure: the number of the owner decision DEC-6212 (2026-10-19) that this rule follows",
+    "6323": "not a figure: the number of the owner decision DEC-6323 (2026-10-19) that this rule follows"
    },
-   "read_from": "8d3fa96928"
+   "read_from": "2e0409415d"
   },
   "MK-NW-F-142": {
    "name": "classReturnOf",

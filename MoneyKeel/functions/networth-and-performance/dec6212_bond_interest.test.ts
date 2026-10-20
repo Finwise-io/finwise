@@ -169,13 +169,22 @@ describe('an account\'s own time-weighted return does not change and counts noth
 
 describe('the line under a bond\'s name and its income', () => {
   test('face, coupon and yield to maturity — a bank CD\'s yield to maturity is its rate', () => {
-    expect(holdingBondFacts(CD, 5000, NOW)).toEqual({ face: 5000, couponRate: 0.04, yieldToMaturity: 0.04 });
+    expect(holdingBondFacts(CD, 5000, NOW)).toEqual({ face: 5000, couponRate: 0.04, yieldToMaturity: 0.04, maturity: '2027-03-31', matured: false });
     const ust = holdingBondFacts(UST, 4000, NOW);
     expect(ust.face).toBe(4000);
     expect(ust.couponRate).toBe(0.0425);
     expect(ust.yieldToMaturity).not.toBeNull();
     expect(holdingBondFacts({ ticker: '912810TM0', label: 'Treasury 2031', face_value: 10000, maturity_date: '2031-11-15' }, 10000, NOW))
-      .toEqual({ face: 10000, couponRate: null, yieldToMaturity: null });
+      .toEqual({ face: 10000, couponRate: null, yieldToMaturity: null, maturity: '2031-11-15', matured: false });
+  });
+  // DEC-6323 (owner, 2026-10-19: "Line under a bond - new line missing maturity date."): the fourth part of the line
+  test('the maturity date: read by the one reading of a date; missing or impossible is not known; matured is years left zero', () => {
+    expect(holdingBondFacts({ ...CD, maturity_date: undefined } as any, 5000, NOW)).toMatchObject({ maturity: null, matured: false });
+    expect(holdingBondFacts({ ...CD, maturity_date: '2027-02-30' } as any, 5000, NOW)).toMatchObject({ maturity: null, matured: false });
+    expect(holdingBondFacts({ ...CD, maturity_date: ' 2027-03-31 ' } as any, 5000, NOW)).toMatchObject({ maturity: '2027-03-31', matured: false });
+    const done = holdingBondFacts({ ...UST, maturity_date: '2026-09-15' } as any, 4000, NOW);
+    expect(done).toMatchObject({ maturity: '2026-09-15', matured: true, yieldToMaturity: null });
+    expect(holdingBondFacts({ ...UST, maturity_date: '2026-09-30' } as any, 4000, NOW).matured).toBe(true);   // matures today: matured
   });
   test('a coupon record is income on the account page too', () => {
     const a = theAccount({ account: { asset_id: 'van', label: 'Vanguard', balance: 9000, positions: [] } as any,

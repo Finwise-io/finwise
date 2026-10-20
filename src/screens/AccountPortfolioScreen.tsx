@@ -266,8 +266,11 @@ export default function AccountPortfolioScreen() {
   // so three places on one screen can never show three different roundings of the same figure.
   const marketValueText = fig('MK-NW-M-018', account.balance || 0);
   /** THE LINE UNDER A BOND'S OR A CD'S NAME, as a stock's carries its shares (DEC-6212, 2026-10-19): face value, coupon
-   *  rate and yield to maturity — "$5,000 face · 4.00% · YTM 4.00%". The MARKET VALUE column stays market value, so it
-   *  adds up to the account (DEC-0093, one meaning per column). A part not given is left out; with none, the old words. */
+   *  rate, yield to maturity and, since DEC-6323 (owner, 2026-10-19: "Line under a bond - new line missing maturity
+   *  date."), the maturity date — "$5,000 face · 4.00% · YTM 4.00% · matures Mar 31, 2027", the date in the app's one
+   *  date writer (dateShown); a matured one says "matured Sep 30, 2026", the banner's word, and has no YTM (theBonds
+   *  refuses it). The MARKET VALUE column stays market value, so it adds up to the account (DEC-0093, one meaning per
+   *  column). A part not given is left out; with none, the old words. */
   const bondLine = (q: any, value: number): string => {
     if (!isIndividualBondOrCD(q)) return 'CDs & Treasuries';
     const f = holdingBondFacts(q, value);
@@ -275,6 +278,7 @@ export default function AccountPortfolioScreen() {
       f.face != null ? `${fig('MK-NW-M-023', f.face)} face` : '',
       f.couponRate != null ? figWords('MK-NW-M-024', `${percentDigits(f.couponRate)}%`) : '',
       f.yieldToMaturity != null ? `YTM ${fig('MK-NW-M-026', f.yieldToMaturity)}` : '',
+      f.maturity != null ? figWords('MK-NW-M-025', `${f.matured ? 'matured' : 'matures'} ${dateShown(f.maturity)}`) : '',
     ].filter(Boolean);
     return parts.length ? parts.join(' · ') : 'CDs & Treasuries';
   };

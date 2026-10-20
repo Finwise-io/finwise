@@ -78,7 +78,9 @@ describe('PERFORMANCE: A WINDOW THE RECORD CANNOT COVER SHOWS NOTHING AND CANNOT
     const src = require('fs').readFileSync(require('path').join(__dirname, '..', '..', 'components', 'WindowSelector.tsx'), 'utf8');
     // a window the record EXISTS for but cannot reach is greyed (DEC-3035i); one with no record at all is worked back and
     // shows its figures (DEC-5068, 2026-10-13)
-    expect(src).toMatch(/const uncovered = figures\[w\.key\]\?\.covered === false && !figures\[w\.key\]\?\.workedBack && !on;/);
+    // — every window but Since, which the page opens on and is never greyed (2026-10-19, account-page drawing row 42)
+    expect(src).toMatch(/const always = w\.key === 'SINCE';/);
+    expect(src).toMatch(/const uncovered = !always && figures\[w\.key\]\?\.covered === false && !figures\[w\.key\]\?\.workedBack && !on;/);
     expect(src).toMatch(/disabled=\{uncovered\}/);
     expect(src).not.toMatch(/coverage\.sentence/);       // no shorter period under a longer label
   });
