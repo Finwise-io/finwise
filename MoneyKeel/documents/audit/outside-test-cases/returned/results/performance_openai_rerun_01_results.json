@@ -1,0 +1,3170 @@
+{
+ "batch": "pf module final — part 1 (cases, formula checks, still-open points)",
+ "reviewer": "ChatGPT / Codex independent outside audit, 2026-10-13",
+ "run_by": "Claude Code (outside-audit runner, Performance re-run, measuring phase — PART1 agent, finishing the 09:15 cut-off agent's file)",
+ "run_on": "2026-10-21",
+ "test_file": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts",
+ "source": "returned/MoneyKeel_Performance_Audit_Package/MoneyKeel_audit_part_1.json",
+ "other_share_of_part_1": "performance_openai_rerun_01_screens_results.json — rules_held (49), screen_checks (424), could_not_test (2), measured by another agent and not redone here. Each still-open point that names the same figure says so in \"same_as\".",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts → 163 passed, 3 skipped (the 3 BLOCKED items), 0 failed, 166 total. Each APP WRONG or REVIEWER WRONG item is test.failing on the reviewer's answer with a twin test pinning the app's answer. npx tsc --noEmit: clean.",
+ "working_tree": "Measured on the uncommitted working tree of 2026-10-21 between 13:30 and 14:20 PT, while four code agents were editing it. Five of their fixes landed during the run and were re-measured (see fixed_in_the_tree_during_this_run): GAINS — an undated purchase gets no long/short split (#27, #28); ACCOUNT — the gap under a broker's total is cash (#17, #32), an unclassified holding's income is Unclassified (#34, the F-084 card's second point), an unanswered CD is asked (#20), Home names a missing balance (#47). Each now agrees and stays IN-FLIGHT until committed. No app code, drawing, record or existing test was changed; only this file's own test file.",
+ "changed_from_the_cut_off_agent": "Thirteen still-open marks were changed after checking the screen agent's renders and the rulings: #10 (NEEDS A RULING → REVIEWER WRONG), #17 and #32 (REVIEWER WRONG → APP WRONG → AGREES once ACCOUNT's fix landed), #18, #30, #40 (AGREES → APP WRONG), #20 and #47 (AGREES → APP WRONG → AGREES once ACCOUNT's fix landed), #29 (REVIEWER WRONG → NEEDS A RULING), #31, #41, #43, #46 (NEEDS A RULING → APP WRONG); #27, #28, #34 (APP WRONG → AGREES once the GAINS / ACCOUNT fix landed). The F-084 card's test now checks its DEC-4439 point, still wrong. #20: my first mark quoted \"A CD whose answer was never given is read as bought from the bank\" as his words; it is the code's own line in bonds.ts. #30/#40: my first test handed the door a $0 evening the app never writes for a new account.",
+ "ready_to_close": false,
+ "cases": [
+  {
+   "id": "MK-NW-F-084",
+   "name": "categoryEarnings",
+   "kind": "easy",
+   "title": "One stock dividend",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "Stocks / Funds": {
+     "earned": {
+      "exact": 100,
+      "exact_decimal": "100.000000000000",
+      "shown": "$100"
+     },
+     "ret": {
+      "exact": 0.1,
+      "exact_decimal": "0.100000000000",
+      "shown": "+10.00%"
+     }
+    }
+   },
+   "actual": {
+    "Stocks / Funds": {
+     "earned": {
+      "exact": 100,
+      "exact_decimal": "100.000000000000",
+      "shown": "$100"
+     },
+     "ret": {
+      "exact": 0.1,
+      "exact_decimal": "0.100000000000",
+      "shown": "+10.00%"
+     }
+    }
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-084 categoryEarnings — five cases › easy · One stock dividend [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-084",
+   "name": "categoryEarnings",
+   "kind": "easy",
+   "title": "Untickered cash interest",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "Cash in this account": {
+     "earned": {
+      "exact": 25,
+      "exact_decimal": "25.000000000000",
+      "shown": "$25"
+     },
+     "ret": null
+    }
+   },
+   "actual": {
+    "Cash in this account": {
+     "earned": {
+      "exact": 25,
+      "exact_decimal": "25.000000000000",
+      "shown": "$25"
+     },
+     "ret": null
+    }
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-084 categoryEarnings — five cases › easy · Untickered cash interest [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-084",
+   "name": "categoryEarnings",
+   "kind": "complex",
+   "title": "Large stock addition invalidates synthetic category return",
+   "classification": "APP WRONG",
+   "status": "FINDING",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "earned": {
+     "exact": 37.19,
+     "exact_decimal": "37.190000000000",
+     "shown": "$37"
+    },
+    "category_TWR": {
+     "exact": 0.1,
+     "exact_decimal": "0.100000000000",
+     "shown": "+10.00%"
+    }
+   },
+   "actual": {
+    "earned": 37.19,
+    "category_return": 0.15238095238095228
+   },
+   "difference": "Earned agrees ($37.19). Category return +15.24% where DEC-4439 gives +10.00%.",
+   "rests_on": "DEC-4439 (2026-10-11, \"approved.\"): money that arrives on a day counts for that whole day — 2,200 ÷ (1,000 + 1,000) − 1.",
+   "note": "The row return comes from MK-PF-F-040 returnSincePurchases, which values the old shares at that day's close before adding the purchase (1.10 × 2,200 ÷ 2,100). Same defect as part 2's fix 1 and part 4's MK-PF-F-040.",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-084 categoryEarnings — five cases › complex · Large stock addition invalidates synthetic category return [APP WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer today",
+   "recheck_2026_10_21": "FIXED — an alternative's income is Alternatives' (DEC-6825)"
+  },
+  {
+   "id": "MK-NW-F-084",
+   "name": "categoryEarnings",
+   "kind": "complex",
+   "title": "Partial priced coverage and misclassified alternative income",
+   "classification": "NEEDS A RULING",
+   "status": "UNCLEAR",
+   "in_flight": true,
+   "in_flight_agent": "ACCOUNT — account page rows, emergency fund, Job safety, Home, a holding with no class, the CD question",
+   "expected": "REFUSES",
+   "actual": [
+    {
+     "label": "Stocks / Funds",
+     "earned": 83.27,
+     "ret": 0.0731
+    }
+   ],
+   "difference": "The reviewer refuses the table. The app shows one row, \"Stocks / Funds — earned $83.27, +7.31%\": the +7.31% is the stock's own; the $83.27 is an alternative's dividend.",
+   "rests_on": "No ruling names where an alternative's income goes. Performance v17 draws three category rows only (tenet 6). The unpriced bond, earning nothing, shows nothing.",
+   "note": "The ACCOUNT agent is making the class rows on Net worth, the account page and the Performance categories agree (item 5); re-run after it lands.",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-084 categoryEarnings — five cases › complex · Partial priced coverage and misclassified alternative income [NEEDS A RULING]",
+   "test_result": "passed",
+   "marked": "test pinning the app's answer today"
+  },
+  {
+   "id": "MK-NW-F-084",
+   "name": "categoryEarnings",
+   "kind": "edge",
+   "title": "Day one with no income",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "categories": [
+     {
+      "label": "Stocks / Funds",
+      "earned": {
+       "exact": 0,
+       "exact_decimal": "0.000000000000",
+       "shown": "$0"
+      },
+      "ret": null
+     },
+     {
+      "label": "Bonds & CDs",
+      "earned": {
+       "exact": 0,
+       "exact_decimal": "0.000000000000",
+       "shown": "$0"
+      },
+      "ret": null
+     },
+     {
+      "label": "Cash in this account",
+      "earned": {
+       "exact": 0,
+       "exact_decimal": "0.000000000000",
+       "shown": "$0"
+      },
+      "ret": null
+     }
+    ]
+   },
+   "actual": {
+    "categories": [
+     {
+      "label": "Stocks / Funds",
+      "earned": {
+       "exact": 0,
+       "exact_decimal": "0.000000000000",
+       "shown": "$0"
+      },
+      "ret": null
+     },
+     {
+      "label": "Bonds & CDs",
+      "earned": {
+       "exact": 0,
+       "exact_decimal": "0.000000000000",
+       "shown": "$0"
+      },
+      "ret": null
+     },
+     {
+      "label": "Cash in this account",
+      "earned": {
+       "exact": 0,
+       "exact_decimal": "0.000000000000",
+       "shown": "$0"
+      },
+      "ret": null
+     }
+    ]
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-084 categoryEarnings — five cases › edge · Day one with no income [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-090",
+   "name": "windowStartKey",
+   "kind": "easy",
+   "title": "Since starts after recorded beginning",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "2026-09-02",
+   "actual": "2026-09-02",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-090 windowStartKey — five cases › easy · Since starts after recorded beginning [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-090",
+   "name": "windowStartKey",
+   "kind": "easy",
+   "title": "This year",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "2026-01-01",
+   "actual": "2026-01-01",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-090 windowStartKey — five cases › easy · This year [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-090",
+   "name": "windowStartKey",
+   "kind": "complex",
+   "title": "Short February and unsorted dates",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "2026-02-28",
+   "actual": "2026-02-28",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-090 windowStartKey — five cases › complex · Short February and unsorted dates [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-090",
+   "name": "windowStartKey",
+   "kind": "complex",
+   "title": "Future and impossible record dates",
+   "classification": "REVIEWER WRONG",
+   "status": "BRIEF_WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "2026-09-20",
+   "actual": "2026-03-04",
+   "difference": "Handed \"2026-02-31\" the app rolls it to Mar 3 and answers 2026-03-04; with real days only it answers the reviewer's 2026-09-20.",
+   "rests_on": "Input outside the domain: every recorded day is written from the device's calendar (useStore captureDailyNw → record, one row per date); typedValueOnItsDate refuses a date that is not a calendar day or is after today.",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-090 windowStartKey — five cases › complex · Future and impossible record dates [REVIEWER WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer, hand-checked"
+  },
+  {
+   "id": "MK-NW-F-090",
+   "name": "windowStartKey",
+   "kind": "edge",
+   "title": "Unsupported 5Y",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "REFUSES",
+   "actual": "REFUSES",
+   "difference": "none",
+   "rests_on": "DEC-4640",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-090 windowStartKey — five cases › edge · Unsupported 5Y [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-091",
+   "name": "pricedGainOf",
+   "kind": "easy",
+   "title": "Unchanged holding at 10%",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "exact": 100,
+    "exact_decimal": "100.000000000000",
+    "shown": "$100"
+   },
+   "actual": {
+    "exact": 100,
+    "exact_decimal": "100.000000000000",
+    "shown": "$100"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-091 pricedGainOf — five cases › easy · Unchanged holding at 10% [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-091",
+   "name": "pricedGainOf",
+   "kind": "easy",
+   "title": "CD one year at 5%",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "exact": 500,
+    "exact_decimal": "500.000000000000",
+    "shown": "$500"
+   },
+   "actual": {
+    "exact": 500,
+    "exact_decimal": "500.000000000000",
+    "shown": "$500"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-091 pricedGainOf — five cases › easy · CD one year at 5% [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-091",
+   "name": "pricedGainOf",
+   "kind": "complex",
+   "title": "Holding quantity increased inside window",
+   "classification": "APP WRONG",
+   "status": "FINDING",
+   "in_flight": true,
+   "in_flight_agent": "ZERO — a holding that fell to $0 (gainOfRow, startValues, heldValueOf)",
+   "expected": {
+    "exact": 320,
+    "exact_decimal": "320.000000000000",
+    "shown": "$320"
+   },
+   "actual": 420,
+   "difference": "$420 where the holding gained $320: worth $1,000 + $1,100 paid, now $2,420. The app divides today's 20 shares by the price move: 2,420 × (1 − 1 ÷ 1.21) = $420.",
+   "rests_on": "DEC-3656 (\"today's value less what each holding gained, less the money moved\"); DEC-6412 counts a purchase inside the worked-back days at what was paid.",
+   "note": "The row is the one buildPerformance builds (first purchase before the window, so not capped). The ZERO agent is giving each row its real starting value; re-run after it lands.",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-091 pricedGainOf — five cases › complex · Holding quantity increased inside window [APP WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer today"
+  },
+  {
+   "id": "MK-NW-F-091",
+   "name": "pricedGainOf",
+   "kind": "complex",
+   "title": "Distribution paid outside holding",
+   "classification": "REVIEWER WRONG",
+   "status": "BRIEF_WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "RULE UNCLEAR",
+   "actual": {
+    "full_precision": 6200,
+    "at_the_displayed_6.28%": 6204.365826119683
+   },
+   "difference": "The reviewer wrote RULE UNCLEAR because DEC-4644's example \"does not add up\" (105,000 ÷ 1.0628). It does: 6.28% is the display of 105 ÷ 98.80 − 1 = 6.2753%; at full precision the gain is $6,200 = $5,000 price + $1,200 dividend, beginning $100,000.",
+   "rests_on": "DEC-4644; the precision spec (line 139 writes \"105 ÷ 98.80 − 1 = 6.28%\"). The gap to $6,204.37 is the rounding alone.",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-091 pricedGainOf — five cases › complex · Distribution paid outside holding [REVIEWER WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer, hand-checked"
+  },
+  {
+   "id": "MK-NW-F-091",
+   "name": "pricedGainOf",
+   "kind": "edge",
+   "title": "Known total loss",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": true,
+   "in_flight_agent": "ZERO — a holding that fell to $0 (gainOfRow, startValues, heldValueOf)",
+   "expected": {
+    "exact": -1000,
+    "exact_decimal": "-1000.000000000000",
+    "shown": "−$1,000"
+   },
+   "actual": -1000,
+   "difference": "none",
+   "rests_on": "DEC-5068, tenets 1 and 3.",
+   "note": "Measured on the uncommitted change of 2026-10-21 (buildPerformance carries each row's start value). Before it the app answered $0 and the loss vanished. The ZERO agent is finishing this; re-run after it lands.",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-091 pricedGainOf — five cases › edge · Known total loss [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-127",
+   "name": "gainOfRow",
+   "kind": "easy",
+   "title": "Unchanged holding at 10%",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "exact": 100,
+    "exact_decimal": "100.000000000000",
+    "shown": "$100"
+   },
+   "actual": {
+    "exact": 100,
+    "exact_decimal": "100.000000000000",
+    "shown": "$100"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-127 gainOfRow — five cases › easy · Unchanged holding at 10% [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-127",
+   "name": "gainOfRow",
+   "kind": "easy",
+   "title": "CD one year at 5%",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "exact": 500,
+    "exact_decimal": "500.000000000000",
+    "shown": "$500"
+   },
+   "actual": {
+    "exact": 500,
+    "exact_decimal": "500.000000000000",
+    "shown": "$500"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-127 gainOfRow — five cases › easy · CD one year at 5% [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-127",
+   "name": "gainOfRow",
+   "kind": "complex",
+   "title": "Holding quantity increased inside window",
+   "classification": "APP WRONG",
+   "status": "FINDING",
+   "in_flight": true,
+   "in_flight_agent": "ZERO — a holding that fell to $0 (gainOfRow, startValues, heldValueOf)",
+   "expected": {
+    "exact": 320,
+    "exact_decimal": "320.000000000000",
+    "shown": "$320"
+   },
+   "actual": 420,
+   "difference": "$420 where the holding gained $320: worth $1,000 + $1,100 paid, now $2,420. The app divides today's 20 shares by the price move: 2,420 × (1 − 1 ÷ 1.21) = $420.",
+   "rests_on": "DEC-3656 (\"today's value less what each holding gained, less the money moved\"); DEC-6412 counts a purchase inside the worked-back days at what was paid.",
+   "note": "The row is the one buildPerformance builds (first purchase before the window, so not capped). The ZERO agent is giving each row its real starting value; re-run after it lands.",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-127 gainOfRow — five cases › complex · Holding quantity increased inside window [APP WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer today"
+  },
+  {
+   "id": "MK-NW-F-127",
+   "name": "gainOfRow",
+   "kind": "complex",
+   "title": "Distribution paid outside holding",
+   "classification": "REVIEWER WRONG",
+   "status": "BRIEF_WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "RULE UNCLEAR",
+   "actual": {
+    "full_precision": 6200,
+    "at_the_displayed_6.28%": 6204.365826119683
+   },
+   "difference": "The reviewer wrote RULE UNCLEAR because DEC-4644's example \"does not add up\" (105,000 ÷ 1.0628). It does: 6.28% is the display of 105 ÷ 98.80 − 1 = 6.2753%; at full precision the gain is $6,200 = $5,000 price + $1,200 dividend, beginning $100,000.",
+   "rests_on": "DEC-4644; the precision spec (line 139 writes \"105 ÷ 98.80 − 1 = 6.28%\"). The gap to $6,204.37 is the rounding alone.",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-127 gainOfRow — five cases › complex · Distribution paid outside holding [REVIEWER WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer, hand-checked"
+  },
+  {
+   "id": "MK-NW-F-127",
+   "name": "gainOfRow",
+   "kind": "edge",
+   "title": "Known total loss",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": true,
+   "in_flight_agent": "ZERO — a holding that fell to $0 (gainOfRow, startValues, heldValueOf)",
+   "expected": {
+    "exact": -1000,
+    "exact_decimal": "-1000.000000000000",
+    "shown": "−$1,000"
+   },
+   "actual": -1000,
+   "difference": "none",
+   "rests_on": "DEC-5068, tenets 1 and 3.",
+   "note": "Measured on the uncommitted change of 2026-10-21 (buildPerformance carries each row's start value). Before it the app answered $0 and the loss vanished. The ZERO agent is finishing this; re-run after it lands.",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-127 gainOfRow — five cases › edge · Known total loss [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-092",
+   "name": "investmentAccountIdsOf",
+   "kind": "easy",
+   "title": "Stock id only",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": [
+    "A"
+   ],
+   "actual": [
+    "A"
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-092 investmentAccountIdsOf — five cases › easy · Stock id only [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-092",
+   "name": "investmentAccountIdsOf",
+   "kind": "easy",
+   "title": "Cash and home excluded",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": [],
+   "actual": [],
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-092 investmentAccountIdsOf — five cases › easy · Cash and home excluded [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-092",
+   "name": "investmentAccountIdsOf",
+   "kind": "complex",
+   "title": "Several institutions and numeric id",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": [
+    "8",
+    "9"
+   ],
+   "actual": [
+    "8",
+    "9"
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-092 investmentAccountIdsOf — five cases › complex · Several institutions and numeric id [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-092",
+   "name": "investmentAccountIdsOf",
+   "kind": "complex",
+   "title": "Unclassified might be cash",
+   "classification": "AGREES",
+   "status": "SETTLED",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "RULE UNCLEAR",
+   "actual": [
+    "U"
+   ],
+   "difference": "The reviewer wrote RULE UNCLEAR; a ruling settles it and the app follows it.",
+   "rests_on": "DEC-0338 (2026-09-12, TESTED, his words: \"Unclassified counts as investments\").",
+   "note": "SETTLED a RULE UNCLEAR.",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-092 investmentAccountIdsOf — five cases › complex · Unclassified might be cash [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-092",
+   "name": "investmentAccountIdsOf",
+   "kind": "edge",
+   "title": "Missing id",
+   "classification": "REVIEWER WRONG",
+   "status": "BRIEF_WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "REFUSES",
+   "actual": [
+    "undefined"
+   ],
+   "difference": "Handed an account with no id the app writes the id \"undefined\".",
+   "rests_on": "Input outside the domain: the type requires an id (src/domain/assets asset_id: EntityId) and the store issues one on every add (newEntityId).",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-092 investmentAccountIdsOf — five cases › edge · Missing id [REVIEWER WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer, hand-checked"
+  },
+  {
+   "id": "MK-NW-F-103",
+   "name": "investmentRecordDates",
+   "kind": "easy",
+   "title": "One measured day",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": [
+    "2026-01-01"
+   ],
+   "actual": [
+    "2026-01-01"
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-103 investmentRecordDates — five cases › easy · One measured day [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-103",
+   "name": "investmentRecordDates",
+   "kind": "easy",
+   "title": "No measured accounts",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": [],
+   "actual": [],
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-103 investmentRecordDates — five cases › easy · No measured accounts [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-103",
+   "name": "investmentRecordDates",
+   "kind": "complex",
+   "title": "Unsorted dates and other accounts",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": [
+    "2026-09-05",
+    "2026-09-20"
+   ],
+   "actual": [
+    "2026-09-05",
+    "2026-09-20"
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-103 investmentRecordDates — five cases › complex · Unsorted dates and other accounts [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-103",
+   "name": "investmentRecordDates",
+   "kind": "complex",
+   "title": "Duplicate dates with confirmed zero",
+   "classification": "REVIEWER WRONG",
+   "status": "BRIEF_WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": [
+    "2026-09-16",
+    "2026-09-17"
+   ],
+   "actual": [
+    "2026-09-16",
+    "2026-09-17",
+    "2026-09-17"
+   ],
+   "difference": "Handed two rows of one date the app lists the date twice. The confirmed $0 IS kept as a recorded day (agrees).",
+   "rests_on": "Input outside the domain: the record keeps one row per date — record() drops a row of the same date before adding the new one (Calculation Module code/engines/snapshots.ts), and every write goes through it.",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-103 investmentRecordDates — five cases › complex · Duplicate dates with confirmed zero [REVIEWER WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer, hand-checked"
+  },
+  {
+   "id": "MK-NW-F-103",
+   "name": "investmentRecordDates",
+   "kind": "edge",
+   "title": "Present row with missing balance",
+   "classification": "APP WRONG",
+   "status": "FINDING",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": [],
+   "actual": [
+    "2026-09-01"
+   ],
+   "difference": "A balance never entered is written as cash 0 / typed value null and read back as $0, so the day counts as recorded.",
+   "rests_on": "DEC-3279e (2026-10-08, TESTED: \"A missing balance is never $0\"); tenet 3.",
+   "note": "On screen: Since opens on that day, and typing $20,000 the next day reads as earned — Wealth generated $20,000, Return +40.00% on a $50,000 brokerage (still-open #5).",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-103 investmentRecordDates — five cases › edge · Present row with missing balance [APP WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer today",
+   "recheck_2026_10_21": "FIXED — a balance never entered is not a recorded day (DEC-3279e); nwfix_performance_rerun_01.test.ts"
+  },
+  {
+   "id": "MK-NW-F-105",
+   "name": "whyNoReturn",
+   "kind": "easy",
+   "title": "Measured gain has no refusal text",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "",
+   "actual": "",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-105 whyNoReturn — five cases › easy · Measured gain has no refusal text [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-105",
+   "name": "whyNoReturn",
+   "kind": "easy",
+   "title": "No ending record",
+   "classification": "REVIEWER WRONG",
+   "status": "BRIEF_WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "Today’s value is not on record.",
+   "actual": "Today’s value is not in your records yet, so a return cannot be measured.",
+   "difference": "Wording only: both say today's value is not on record.",
+   "rests_on": "The card gives no words (\"Today's value not on record: says so\"); the reviewer's sentence is its own.",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-105 whyNoReturn — five cases › easy · No ending record [REVIEWER WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer, hand-checked"
+  },
+  {
+   "id": "MK-NW-F-105",
+   "name": "whyNoReturn",
+   "kind": "complex",
+   "title": "Money moved without valuation",
+   "classification": "REVIEWER WRONG",
+   "status": "BRIEF_WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "A return cannot be measured across 2026-09-17: money moved that day without a recorded value.",
+   "actual": "Money moved in or out on Sep 17, 2026 and no value was recorded that day, so a return cannot be measured across it. The dollar figures here are still right.",
+   "difference": "Wording and the date's form: the app names the day and says a return cannot be measured across it, as the card asks, writing the date \"Sep 17, 2026\".",
+   "rests_on": "The card: \"names the day and says a return cannot be measured across it\". DEC-6412: one date writer for every stored date (dateShown).",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-105 whyNoReturn — five cases › complex · Money moved without valuation [REVIEWER WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer, hand-checked"
+  },
+  {
+   "id": "MK-NW-F-105",
+   "name": "whyNoReturn",
+   "kind": "complex",
+   "title": "Overwithdrawal versus first-day loss",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "",
+   "actual": "",
+   "difference": "none",
+   "rests_on": "DEC-4439",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-105 whyNoReturn — five cases › complex · Overwithdrawal versus first-day loss [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-105",
+   "name": "whyNoReturn",
+   "kind": "edge",
+   "title": "No beginning record",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "",
+   "actual": "",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-105 whyNoReturn — five cases › edge · No beginning record [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-128",
+   "name": "heldValueOf",
+   "kind": "easy",
+   "title": "Explicit current value",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "exact": 1000,
+    "exact_decimal": "1000.000000000000",
+    "shown": "$1,000"
+   },
+   "actual": {
+    "exact": 1000,
+    "exact_decimal": "1000.000000000000",
+    "shown": "$1,000"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-128 heldValueOf — five cases › easy · Explicit current value [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-128",
+   "name": "heldValueOf",
+   "kind": "easy",
+   "title": "Broker fallback",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "exact": 1000,
+    "exact_decimal": "1000.000000000000",
+    "shown": "$1,000"
+   },
+   "actual": {
+    "exact": 1000,
+    "exact_decimal": "1000.000000000000",
+    "shown": "$1,000"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-128 heldValueOf — five cases › easy · Broker fallback [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-128",
+   "name": "heldValueOf",
+   "kind": "complex",
+   "title": "Mini option mark",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "exact": 77.025,
+    "exact_decimal": "77.025000000000",
+    "shown": "$77"
+   },
+   "actual": {
+    "exact": 77.025,
+    "exact_decimal": "77.025000000000",
+    "shown": "$77"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-128 heldValueOf — five cases › complex · Mini option mark [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-128",
+   "name": "heldValueOf",
+   "kind": "complex",
+   "title": "Known negative short value wins over old build",
+   "classification": "REVIEWER WRONG",
+   "status": "BRIEF_WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "exact": -247.81,
+    "exact_decimal": "-247.810000000000",
+    "shown": "−$248"
+   },
+   "actual": 315.42,
+   "difference": "For the input as given the app reads the old hand-built $315.42. A real short reads shares × the broker's mark = −$247.81, the reviewer's answer (pinned).",
+   "rests_on": "Input outside the domain: shorts arrive only from a linked broker, which sends a mark (snaptrade.ts \"(short)\"); a holding typed by hand must have shares above zero, and only hand-built holdings carry value_now.",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-128 heldValueOf — five cases › complex · Known negative short value wins over old build [REVIEWER WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer, hand-checked"
+  },
+  {
+   "id": "MK-NW-F-128",
+   "name": "heldValueOf",
+   "kind": "edge",
+   "title": "Zero market value with stale broker mark",
+   "classification": "APP WRONG",
+   "status": "FINDING",
+   "in_flight": true,
+   "in_flight_agent": "ZERO — a holding that fell to $0 (gainOfRow, startValues, heldValueOf)",
+   "expected": {
+    "exact": 0,
+    "exact_decimal": "0.000000000000",
+    "shown": "$0"
+   },
+   "actual": 200,
+   "difference": "$200 (the broker's older $20 mark × 10) where the row's own value is $0.",
+   "rests_on": "DEC-3523 tenets 1 and 4: a known $0 is a value; one thing, one number.",
+   "note": "Shows where the holding has no window return: the left-out sentence would print \"($200)\" beside a row that reads $0. The ZERO agent is checking MK-NW-F-128; re-run after it lands.",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-128 heldValueOf — five cases › edge · Zero market value with stale broker mark [APP WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer today"
+  },
+  {
+   "id": "MK-NW-F-129",
+   "name": "gainRowName",
+   "kind": "easy",
+   "title": "Named holding",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "Treasury 2031",
+   "actual": "Treasury 2031",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-129 gainRowName — five cases › easy · Named holding [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-129",
+   "name": "gainRowName",
+   "kind": "easy",
+   "title": "Ticker only",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "VTI",
+   "actual": "VTI",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-129 gainRowName — five cases › easy · Ticker only [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-129",
+   "name": "gainRowName",
+   "kind": "complex",
+   "title": "CUSIP and security display name",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "Bond for college",
+   "actual": "Bond for college",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-129 gainRowName — five cases › complex · CUSIP and security display name [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-129",
+   "name": "gainRowName",
+   "kind": "complex",
+   "title": "Several missing fields",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "BTC",
+   "actual": "BTC",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-129 gainRowName — five cases › complex · Several missing fields [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-129",
+   "name": "gainRowName",
+   "kind": "edge",
+   "title": "Nothing named",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "a holding",
+   "actual": "a holding",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-129 gainRowName — five cases › edge · Nothing named [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-F-130",
+   "name": "cannotWorkBackSentence",
+   "kind": "easy",
+   "title": "One name",
+   "classification": "REVIEWER WRONG",
+   "status": "BRIEF_WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "The beginning can't be worked back: Treasury 2031 has no price history.",
+   "actual": "Treasury 2031 has no price history, so its gains are not included.",
+   "difference": "Only the words around the names moved. Each name once, commas and \"and\", has / have and \"a holding\" all agree with the reviewer.",
+   "rests_on": "The card sent was stale: DEC-5068 (2026-10-13) replaced DEC-3656's sentence, and DEC-6076 (2026-10-19, \"approved.\") gave it his words: \"<names> has / have no price history, so its / their gains are not included.\"",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-130 cannotWorkBackSentence (now notIncludedSentence) — five cases › easy · One name [REVIEWER WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer, hand-checked"
+  },
+  {
+   "id": "MK-NW-F-130",
+   "name": "cannotWorkBackSentence",
+   "kind": "easy",
+   "title": "No names",
+   "classification": "REVIEWER WRONG",
+   "status": "BRIEF_WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "The beginning can't be worked back: a holding has no price history.",
+   "actual": "A holding has no price history, so its gains are not included.",
+   "difference": "Only the words around the names moved. Each name once, commas and \"and\", has / have and \"a holding\" all agree with the reviewer.",
+   "rests_on": "The card sent was stale: DEC-5068 (2026-10-13) replaced DEC-3656's sentence, and DEC-6076 (2026-10-19, \"approved.\") gave it his words: \"<names> has / have no price history, so its / their gains are not included.\"",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-130 cannotWorkBackSentence (now notIncludedSentence) — five cases › easy · No names [REVIEWER WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer, hand-checked"
+  },
+  {
+   "id": "MK-NW-F-130",
+   "name": "cannotWorkBackSentence",
+   "kind": "complex",
+   "title": "Duplicates and unround security names",
+   "classification": "REVIEWER WRONG",
+   "status": "BRIEF_WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "The beginning can't be worked back: Treasury 4.125% 2031 and Gold account 0333 have no price history.",
+   "actual": "Treasury 4.125% 2031 and Gold account 0333 have no price history, so their gains are not included.",
+   "difference": "Only the words around the names moved. Each name once, commas and \"and\", has / have and \"a holding\" all agree with the reviewer.",
+   "rests_on": "The card sent was stale: DEC-5068 (2026-10-13) replaced DEC-3656's sentence, and DEC-6076 (2026-10-19, \"approved.\") gave it his words: \"<names> has / have no price history, so its / their gains are not included.\"",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-130 cannotWorkBackSentence (now notIncludedSentence) — five cases › complex · Duplicates and unround security names [REVIEWER WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer, hand-checked"
+  },
+  {
+   "id": "MK-NW-F-130",
+   "name": "cannotWorkBackSentence",
+   "kind": "complex",
+   "title": "Three unique names",
+   "classification": "REVIEWER WRONG",
+   "status": "BRIEF_WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "The beginning can't be worked back: A, B and C have no price history.",
+   "actual": "A, B and C have no price history, so their gains are not included.",
+   "difference": "Only the words around the names moved. Each name once, commas and \"and\", has / have and \"a holding\" all agree with the reviewer.",
+   "rests_on": "The card sent was stale: DEC-5068 (2026-10-13) replaced DEC-3656's sentence, and DEC-6076 (2026-10-19, \"approved.\") gave it his words: \"<names> has / have no price history, so its / their gains are not included.\"",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-130 cannotWorkBackSentence (now notIncludedSentence) — five cases › complex · Three unique names [REVIEWER WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer, hand-checked"
+  },
+  {
+   "id": "MK-NW-F-130",
+   "name": "cannotWorkBackSentence",
+   "kind": "edge",
+   "title": "Repeated sole name",
+   "classification": "REVIEWER WRONG",
+   "status": "BRIEF_WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "The beginning can't be worked back: Bond has no price history.",
+   "actual": "Bond has no price history, so its gains are not included.",
+   "difference": "Only the words around the names moved. Each name once, commas and \"and\", has / have and \"a holding\" all agree with the reviewer.",
+   "rests_on": "The card sent was stale: DEC-5068 (2026-10-13) replaced DEC-3656's sentence, and DEC-6076 (2026-10-19, \"approved.\") gave it his words: \"<names> has / have no price history, so its / their gains are not included.\"",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-130 cannotWorkBackSentence (now notIncludedSentence) — five cases › edge · Repeated sole name [REVIEWER WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer, hand-checked"
+  },
+  {
+   "id": "MK-NW-O-007",
+   "name": "theLookBack",
+   "kind": "easy",
+   "title": "Round positive counterfactual",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "stayed_end": {
+     "exact": 11000,
+     "exact_decimal": "11000.000000000000",
+     "shown": "$11,000"
+    },
+    "stayed_change": {
+     "exact": 1000,
+     "exact_decimal": "1000.000000000000",
+     "shown": "$1,000"
+    },
+    "stayed_percent": {
+     "exact": 0.1,
+     "exact_decimal": "0.100000000000",
+     "shown": "+10.00%"
+    },
+    "moved_end": {
+     "exact": 12000,
+     "exact_decimal": "12000.000000000000",
+     "shown": "$12,000"
+    },
+    "moved_change": {
+     "exact": 2000,
+     "exact_decimal": "2000.000000000000",
+     "shown": "$2,000"
+    },
+    "moved_percent": {
+     "exact": 0.2,
+     "exact_decimal": "0.200000000000",
+     "shown": "+20.00%"
+    },
+    "difference": {
+     "exact": 1000,
+     "exact_decimal": "1000.000000000000",
+     "shown": "$1,000"
+    }
+   },
+   "actual": {
+    "stayed_end": {
+     "exact": 11000,
+     "exact_decimal": "11000.000000000000",
+     "shown": "$11,000"
+    },
+    "stayed_change": {
+     "exact": 1000,
+     "exact_decimal": "1000.000000000000",
+     "shown": "$1,000"
+    },
+    "stayed_percent": {
+     "exact": 0.1,
+     "exact_decimal": "0.100000000000",
+     "shown": "+10.00%"
+    },
+    "moved_end": {
+     "exact": 12000,
+     "exact_decimal": "12000.000000000000",
+     "shown": "$12,000"
+    },
+    "moved_change": {
+     "exact": 2000,
+     "exact_decimal": "2000.000000000000",
+     "shown": "$2,000"
+    },
+    "moved_percent": {
+     "exact": 0.2,
+     "exact_decimal": "0.200000000000",
+     "shown": "+20.00%"
+    },
+    "difference": {
+     "exact": 1000,
+     "exact_decimal": "1000.000000000000",
+     "shown": "$1,000"
+    }
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-O-007 theLookBack — five cases › easy · Round positive counterfactual [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-O-007",
+   "name": "theLookBack",
+   "kind": "easy",
+   "title": "Alternative would lose more",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "stayed_end": {
+     "exact": 950,
+     "exact_decimal": "950.000000000000",
+     "shown": "$950"
+    },
+    "moved_end": {
+     "exact": 900,
+     "exact_decimal": "900.000000000000",
+     "shown": "$900"
+    },
+    "difference": {
+     "exact": -50,
+     "exact_decimal": "-50.000000000000",
+     "shown": "−$50"
+    }
+   },
+   "actual": {
+    "stayed_end": {
+     "exact": 950,
+     "exact_decimal": "950.000000000000",
+     "shown": "$950"
+    },
+    "moved_end": {
+     "exact": 900,
+     "exact_decimal": "900.000000000000",
+     "shown": "$900"
+    },
+    "difference": {
+     "exact": -50,
+     "exact_decimal": "-50.000000000000",
+     "shown": "−$50"
+    }
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-O-007 theLookBack — five cases › easy · Alternative would lose more [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-O-007",
+   "name": "theLookBack",
+   "kind": "complex",
+   "title": "Realistic BND and VTI",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "stayed_end": {
+     "exact": 12654.311749999999,
+     "exact_decimal": "12654.311749999999",
+     "shown": "$12,654"
+    },
+    "stayed_change": {
+     "exact": 308.64175,
+     "exact_decimal": "308.641750000000",
+     "shown": "$309"
+    },
+    "moved_end": {
+     "exact": 14320.9772,
+     "exact_decimal": "14320.977199999999",
+     "shown": "$14,321"
+    },
+    "moved_change": {
+     "exact": 1975.3072,
+     "exact_decimal": "1975.307200000000",
+     "shown": "$1,975"
+    },
+    "difference": {
+     "exact": 1666.6654500000002,
+     "exact_decimal": "1666.665450000000",
+     "shown": "$1,667"
+    }
+   },
+   "actual": {
+    "stayed_end": {
+     "exact": 12654.311749999999,
+     "exact_decimal": "12654.311749999999",
+     "shown": "$12,654"
+    },
+    "stayed_change": {
+     "exact": 308.64175,
+     "exact_decimal": "308.641750000000",
+     "shown": "$309"
+    },
+    "moved_end": {
+     "exact": 14320.9772,
+     "exact_decimal": "14320.977199999999",
+     "shown": "$14,321"
+    },
+    "moved_change": {
+     "exact": 1975.3072,
+     "exact_decimal": "1975.307200000000",
+     "shown": "$1,975"
+    },
+    "difference": {
+     "exact": 1666.6654500000002,
+     "exact_decimal": "1666.665450000000",
+     "shown": "$1,667"
+    }
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-O-007 theLookBack — five cases › complex · Realistic BND and VTI [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-O-007",
+   "name": "theLookBack",
+   "kind": "complex",
+   "title": "Lump sum differs from actual cash-flow path",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "hypothetical_stayed": {
+     "exact": 2962.466089828269,
+     "exact_decimal": "2962.466089828269",
+     "shown": "$2,962"
+    },
+    "hypothetical_moved": {
+     "exact": 2804.4853794398373,
+     "exact_decimal": "2804.485379439837",
+     "shown": "$2,804"
+    },
+    "difference": {
+     "exact": -157.98071038843207,
+     "exact_decimal": "-157.980710388432",
+     "shown": "−$158"
+    },
+    "actual_money_path": "REFUSES"
+   },
+   "actual": {
+    "hypothetical_stayed": {
+     "exact": 2962.466089828269,
+     "exact_decimal": "2962.466089828269",
+     "shown": "$2,962"
+    },
+    "hypothetical_moved": {
+     "exact": 2804.4853794398373,
+     "exact_decimal": "2804.485379439837",
+     "shown": "$2,804"
+    },
+    "difference": {
+     "exact": -157.98071038843207,
+     "exact_decimal": "-157.980710388432",
+     "shown": "−$158"
+    },
+    "actual_money_path": "REFUSES"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The two hypothetical figures match; the \"actual money path\" refuses in the app too — the look-back takes a typed amount and no records, so its result holds only the two legs, their difference and the months.",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-O-007 theLookBack — five cases › complex · Lump sum differs from actual cash-flow path [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-O-007",
+   "name": "theLookBack",
+   "kind": "edge",
+   "title": "One fund has no full-window history",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": "REFUSES",
+   "actual": "REFUSES",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-O-007 theLookBack — five cases › edge · One fund has no full-window history [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-O-008",
+   "name": "thePerformance",
+   "kind": "easy",
+   "title": "One account no external flows",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "beginning": {
+     "exact": 1000,
+     "exact_decimal": "1000.000000000000",
+     "shown": "$1,000"
+    },
+    "ending": {
+     "exact": 1100,
+     "exact_decimal": "1100.000000000000",
+     "shown": "$1,100"
+    },
+    "wealth": {
+     "exact": 100,
+     "exact_decimal": "100.000000000000",
+     "shown": "$100"
+    },
+    "return": {
+     "exact": 0.1,
+     "exact_decimal": "0.100000000000",
+     "shown": "+10.00%"
+    },
+    "walk": [
+     {
+      "exact": 1000,
+      "exact_decimal": "1000.000000000000",
+      "shown": "1000.0000"
+     },
+     {
+      "exact": 0,
+      "exact_decimal": "0.000000000000",
+      "shown": "0.0000"
+     },
+     {
+      "exact": 0,
+      "exact_decimal": "0.000000000000",
+      "shown": "0.0000"
+     },
+     {
+      "exact": 0,
+      "exact_decimal": "0.000000000000",
+      "shown": "0.0000"
+     },
+     {
+      "exact": 0,
+      "exact_decimal": "0.000000000000",
+      "shown": "0.0000"
+     },
+     {
+      "exact": 100,
+      "exact_decimal": "100.000000000000",
+      "shown": "100.0000"
+     }
+    ]
+   },
+   "actual": {
+    "beginning": {
+     "exact": 1000,
+     "exact_decimal": "1000.000000000000",
+     "shown": "$1,000"
+    },
+    "ending": {
+     "exact": 1100,
+     "exact_decimal": "1100.000000000000",
+     "shown": "$1,100"
+    },
+    "wealth": {
+     "exact": 100,
+     "exact_decimal": "100.000000000000",
+     "shown": "$100"
+    },
+    "return": {
+     "exact": 0.1,
+     "exact_decimal": "0.100000000000",
+     "shown": "+10.00%"
+    },
+    "walk": [
+     {
+      "exact": 1000,
+      "exact_decimal": "1000.000000000000",
+      "shown": "1000.0000"
+     },
+     {
+      "exact": 0,
+      "exact_decimal": "0.000000000000",
+      "shown": "0.0000"
+     },
+     {
+      "exact": 0,
+      "exact_decimal": "0.000000000000",
+      "shown": "0.0000"
+     },
+     {
+      "exact": 0,
+      "exact_decimal": "0.000000000000",
+      "shown": "0.0000"
+     },
+     {
+      "exact": 0,
+      "exact_decimal": "0.000000000000",
+      "shown": "0.0000"
+     },
+     {
+      "exact": 100,
+      "exact_decimal": "100.000000000000",
+      "shown": "100.0000"
+     }
+    ]
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-O-008 thePerformance — five cases › easy · One account no external flows [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-O-008",
+   "name": "thePerformance",
+   "kind": "easy",
+   "title": "New account deposit earns first-day gain",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "beginning": {
+     "exact": 0,
+     "exact_decimal": "0.000000000000",
+     "shown": "$0"
+    },
+    "contributions": {
+     "exact": 10000,
+     "exact_decimal": "10000.000000000000",
+     "shown": "$10,000"
+    },
+    "wealth": {
+     "exact": 50,
+     "exact_decimal": "50.000000000000",
+     "shown": "$50"
+    },
+    "ending": {
+     "exact": 10050,
+     "exact_decimal": "10050.000000000000",
+     "shown": "$10,050"
+    },
+    "return": {
+     "exact": 0.005,
+     "exact_decimal": "0.005000000000",
+     "shown": "+0.50%"
+    }
+   },
+   "actual": {
+    "beginning": {
+     "exact": 0,
+     "exact_decimal": "0.000000000000",
+     "shown": "$0"
+    },
+    "contributions": {
+     "exact": 10000,
+     "exact_decimal": "10000.000000000000",
+     "shown": "$10,000"
+    },
+    "wealth": {
+     "exact": 50,
+     "exact_decimal": "50.000000000000",
+     "shown": "$50"
+    },
+    "ending": {
+     "exact": 10050,
+     "exact_decimal": "10050.000000000000",
+     "shown": "$10,050"
+    },
+    "return": {
+     "exact": 0.005,
+     "exact_decimal": "0.005000000000",
+     "shown": "+0.50%"
+    }
+   },
+   "difference": "none",
+   "rests_on": "DEC-4439",
+   "note": "Agrees as given: the reviewer hands in a $0 row for the evening before. The app never writes that row for a new account, and as it really records one the screen reads $0 / +0.00% — APP WRONG at still-open #30 and #40 and the O-008 formula check.",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-O-008 thePerformance — five cases › easy · New account deposit earns first-day gain [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-O-008",
+   "name": "thePerformance",
+   "kind": "complex",
+   "title": "Approved Performance v17 household exactly",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "beginning": {
+     "exact": 100000,
+     "exact_decimal": "100000.000000000000",
+     "shown": "$100,000"
+    },
+    "contributions": {
+     "exact": 15000,
+     "exact_decimal": "15000.000000000000",
+     "shown": "$15,000"
+    },
+    "withdrawals": {
+     "exact": 0,
+     "exact_decimal": "0.000000000000",
+     "shown": "$0"
+    },
+    "dividends": {
+     "exact": 1800,
+     "exact_decimal": "1800.000000000000",
+     "shown": "$1,800"
+    },
+    "interest": {
+     "exact": 400,
+     "exact_decimal": "400.000000000000",
+     "shown": "$400"
+    },
+    "change_in_value": {
+     "exact": 5800,
+     "exact_decimal": "5800.000000000000",
+     "shown": "$5,800"
+    },
+    "wealth": {
+     "exact": 8000,
+     "exact_decimal": "8000.000000000000",
+     "shown": "$8,000"
+    },
+    "ending": {
+     "exact": 123000,
+     "exact_decimal": "123000.000000000000",
+     "shown": "$123,000"
+    },
+    "account_wealth": {
+     "Vanguard": {
+      "exact": 6000,
+      "exact_decimal": "6000.000000000000",
+      "shown": "6000.0000"
+     },
+     "E*TRADE": {
+      "exact": 2000,
+      "exact_decimal": "2000.000000000000",
+      "shown": "2000.0000"
+     }
+    },
+    "E*TRADE_return": {
+     "exact": 0.1,
+     "exact_decimal": "0.100000000000",
+     "shown": "+10.00%"
+    },
+    "Vanguard_return": "REFUSES",
+    "portfolio_return": "REFUSES"
+   },
+   "actual": {
+    "beginning": {
+     "exact": 100000,
+     "exact_decimal": "100000.000000000000",
+     "shown": "$100,000"
+    },
+    "contributions": {
+     "exact": 15000,
+     "exact_decimal": "15000.000000000000",
+     "shown": "$15,000"
+    },
+    "withdrawals": {
+     "exact": 0,
+     "exact_decimal": "0.000000000000",
+     "shown": "$0"
+    },
+    "dividends": {
+     "exact": 1800,
+     "exact_decimal": "1800.000000000000",
+     "shown": "$1,800"
+    },
+    "interest": {
+     "exact": 400,
+     "exact_decimal": "400.000000000000",
+     "shown": "$400"
+    },
+    "change_in_value": {
+     "exact": 5800,
+     "exact_decimal": "5800.000000000000",
+     "shown": "$5,800"
+    },
+    "wealth": {
+     "exact": 8000,
+     "exact_decimal": "8000.000000000000",
+     "shown": "$8,000"
+    },
+    "ending": {
+     "exact": 123000,
+     "exact_decimal": "123000.000000000000",
+     "shown": "$123,000"
+    },
+    "account_wealth": {
+     "Vanguard": {
+      "exact": 6000,
+      "exact_decimal": "6000.000000000000",
+      "shown": "6000.0000"
+     },
+     "E*TRADE": {
+      "exact": 2000,
+      "exact_decimal": "2000.000000000000",
+      "shown": "2000.0000"
+     }
+    },
+    "E*TRADE_return": {
+     "exact": 0.1,
+     "exact_decimal": "0.100000000000",
+     "shown": "+10.00%"
+    },
+    "Vanguard_return": "REFUSES",
+    "portfolio_return": "REFUSES"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "Every dollar figure, E*TRADE's +10.00% and both refusals (\"Money moved in or out on Mar 2, 2026 and no value was recorded that day…\", DEC-1669).",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-O-008 thePerformance — five cases › complex · Approved Performance v17 household exactly [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-O-008",
+   "name": "thePerformance",
+   "kind": "complex",
+   "title": "Multiaccount cash, withdrawal and internal transfer",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "beginning": {
+     "exact": 3000.48,
+     "exact_decimal": "3000.480000000000",
+     "shown": "$3,000"
+    },
+    "ending": {
+     "exact": 3270.5,
+     "exact_decimal": "3270.500000000000",
+     "shown": "$3,270"
+    },
+    "contributions": {
+     "exact": 500.11,
+     "exact_decimal": "500.110000000000",
+     "shown": "$500"
+    },
+    "withdrawals": {
+     "exact": 200.07,
+     "exact_decimal": "200.070000000000",
+     "shown": "$200"
+    },
+    "wealth": {
+     "exact": -30.02,
+     "exact_decimal": "-30.020000000000",
+     "shown": "−$30"
+    },
+    "change_in_value": {
+     "exact": -50.72,
+     "exact_decimal": "-50.720000000000",
+     "shown": "−$51"
+    },
+    "TWR": {
+     "exact": -0.009095536460921316,
+     "exact_decimal": "-0.009095536461",
+     "shown": "-0.91%"
+    },
+    "investment_scope": "RULE UNCLEAR: whole account includes130.58 cash"
+   },
+   "actual": {
+    "beginning": {
+     "exact": 3000.48,
+     "exact_decimal": "3000.480000000000",
+     "shown": "$3,000"
+    },
+    "ending": {
+     "exact": 3270.5,
+     "exact_decimal": "3270.500000000000",
+     "shown": "$3,270"
+    },
+    "contributions": {
+     "exact": 500.11,
+     "exact_decimal": "500.110000000000",
+     "shown": "$500"
+    },
+    "withdrawals": {
+     "exact": 200.07,
+     "exact_decimal": "200.070000000000",
+     "shown": "$200"
+    },
+    "wealth": {
+     "exact": -30.02,
+     "exact_decimal": "-30.020000000000",
+     "shown": "−$30"
+    },
+    "change_in_value": {
+     "exact": -50.72,
+     "exact_decimal": "-50.720000000000",
+     "shown": "−$51"
+    },
+    "TWR": {
+     "exact": -0.009095536460921316,
+     "exact_decimal": "-0.009095536461",
+     "shown": "-0.91%"
+    },
+    "investment_scope": "RULE UNCLEAR: whole account includes130.58 cash"
+   },
+   "difference": "none",
+   "rests_on": "His rule \"12-month return = (change in investment value + dividend + interest)/(cash + investment)\" (2026-10-06, quoted in DEC-4644); v17 draws \"Cash in this account\" on the Performance tab.",
+   "note": "Every figure to the cent, the return included (−0.91%). The reviewer's open \"investment scope\" is settled by his rule; Home's pairing of the two scopes is still-open #29.",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-O-008 thePerformance — five cases › complex · Multiaccount cash, withdrawal and internal transfer [AGREES]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-NW-O-008",
+   "name": "thePerformance",
+   "kind": "edge",
+   "title": "No record, no price history and no stated CD rate",
+   "classification": "REVIEWER WRONG",
+   "status": "BRIEF_WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "expected": {
+    "ending": {
+     "exact": 10500,
+     "exact_decimal": "10500.000000000000",
+     "shown": "$10,500"
+    },
+    "beginning": null,
+    "wealth": null,
+    "return": null,
+    "reason": "The beginning can't be worked back: Treasury 2031 has no price history."
+   },
+   "actual": {
+    "beginning": 10500,
+    "wealth": 0,
+    "ending": 10500,
+    "return": null,
+    "sentence": "Treasury 2031 ($10,500) has no price history, so its gains are not included."
+   },
+   "difference": "Ending and the refused return agree. The app shows the walk (the holding taken as unchanged, Wealth generated $0) and DEC-6076's sentence, not DEC-3656's refusal.",
+   "rests_on": "DEC-5068 (2026-10-13, his words: \"Wealth Generated and Return should be calculated and displayed for every asset with history. Below it display …\"); DEC-6076.",
+   "note": "",
+   "same_as_screen_check": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-O-008 thePerformance — five cases › edge · No record, no price history and no stated CD rate [REVIEWER WRONG]",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer, hand-checked"
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-NW-F-084",
+   "name": "categoryEarnings",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Category growth is a reconstructed buy-and-hold ratio, not flow-neutral TWR. Unknown holdings are silently omitted; unknown classification defaults to stocks; alternatives income is relabelled stocks. Coupon pace is not window performance. No upper date bound.",
+   "reviewer_should_be": "Use the shared TWR for category performance on a common window, refuse incomplete category coverage, retain unknown classification, and label coupon rates separately. Bound income dates through today.",
+   "classification": "APP WRONG",
+   "in_flight": true,
+   "in_flight_agent": "ACCOUNT — account page rows, emergency fund, Job safety, Home, a holding with no class, the CD question",
+   "what_the_code_actually_does": "categoryEarnings takes each category's return from its rows' window returns: a holding bought that morning reads +15.24% where DEC-4439 gives +10.00%. Its second point — a holding nothing has classed filed under Stocks / Funds ($40 dividend → \"Stocks / Funds earned $40\") — was wrong at 13:30 and was fixed in the working tree by ACCOUNT item 5 during this run: it now reads \"Unclassified\".",
+   "governing_decisions": [
+    "DEC-4439",
+    "DEC-2160",
+    "DEC-3035f"
+   ],
+   "plain_example": "10 shares at $100, 10 more next morning at $100, close $110: category +15.24%, right +10.00%.",
+   "note": "Still APP WRONG on the DEC-4439 point (fix A). The unknown-class fix is uncommitted: re-run after it lands.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-084 · a category's return over one window, a purchase that morning counted all day (DEC-4439) [APP WRONG]",
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED — Alternatives row (DEC-6825)"
+  },
+  {
+   "id": "MK-NW-F-090",
+   "name": "windowStartKey",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "Earliest record date is not said to be validated or restricted to today; the no-record Since default is a UI start, not evidence of coverage.",
+   "reviewer_should_be": "Validate recorded calendar days and exclude future dates before choosing Since; never interpret the fallback today as measured coverage.",
+   "classification": "REVIEWER WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "what_the_code_actually_does": "Record days are the app's own calendar writes; with no record \"Since\" opens today and nothing is read as a measured beginning.",
+   "governing_decisions": [
+    "DEC-4640",
+    "DEC-3768b"
+   ],
+   "plain_example": "No record: Since opens today; the walk starts from today's value.",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-090 · with no record, Since reads a measured beginning [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-NW-F-091",
+   "name": "pricedGainOf",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Back-solving current value from an adjusted total return assumes unchanged shares and reinvested payouts. A holding bought before the window but increased inside it breaks that assumption. Explicit unknown value can be counted as holding nothing.",
+   "reviewer_should_be": "Use gainOfRow as the sole rule and refuse reconstruction unless share changes, distributions and valuation basis permit it; an unknown held value must propagate null.",
+   "classification": "APP WRONG",
+   "in_flight": true,
+   "in_flight_agent": "ZERO — a holding that fell to $0 (gainOfRow, startValues, heldValueOf)",
+   "what_the_code_actually_does": "pricedGainOf adds gainOfRow, which divides today's value by (1 + the window return) — wrong when shares were added inside the window.",
+   "governing_decisions": [
+    "DEC-3656",
+    "DEC-6412"
+   ],
+   "plain_example": "10 shares held, 10 more bought at $110, now 20 at $121: $420, right $320.",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-091 · shares added inside the window: what the holding gained [APP WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-NW-F-092",
+   "name": "investmentAccountIdsOf",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "An Unclassified account may be cash or investments; including it as investments contradicts the no-guess rule. Missing or duplicate account ids are not specified.",
+   "reviewer_should_be": "Require confirmed investment membership for Unclassified accounts, or show a separately labelled unresolved amount; refuse a missing account id rather than stringify it.",
+   "classification": "REVIEWER WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "what_the_code_actually_does": "Unclassified accounts are measured, by his ruling; an account always has an id.",
+   "governing_decisions": [
+    "DEC-0338"
+   ],
+   "plain_example": "An Unclassified account is in Performance.",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-092 · an Unclassified account is left out [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-NW-F-103",
+   "name": "investmentRecordDates",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "The date list does not distinguish a missing account value from an entered zero, nor specify invalid days or duplicate days.",
+   "reviewer_should_be": "Only valid nonfuture snapshot dates with at least one finite entered measured value count; deduplicate and sort.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "what_the_code_actually_does": "A day whose balance was never entered is read as $0 and counted as recorded.",
+   "governing_decisions": [
+    "DEC-3279e",
+    "DEC-3523 tenet 3"
+   ],
+   "plain_example": "IRA added with no balance, $20,000 typed next day: Wealth generated $20,000, Return +40.00%.",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-103 · a balance never entered is not a recorded day (DEC-3279e) [APP WRONG]",
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED — a blank balance is not a recorded day (DEC-3279e)"
+  },
+  {
+   "id": "MK-NW-F-104",
+   "name": "closedWith",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_severity": "high",
+   "reviewer_why": "How the ending total is distributed across prior account rows is unspecified. That distribution changes the returns when accounts have different flows or join or leave.",
+   "reviewer_should_be": "Specify the allocation or require actual per-account ending values; do not fabricate individual balances from one aggregate.",
+   "classification": "BLOCKED",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "what_the_code_actually_does": "No case (the reviewer invented none). closedWith runs only when a caller hands an ending and no accounts; every screen hands its accounts, so no figure reaches it today.",
+   "governing_decisions": [],
+   "plain_example": "",
+   "note": "Same item as the screen agent's could_not_test MK-NW-F-104 (BLOCKED).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-104 · how one ending total is split across accounts [BLOCKED]",
+   "test_result": "pending"
+  },
+  {
+   "id": "MK-NW-F-105",
+   "name": "whyNoReturn",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "what_the_code_actually_does": "A measured return has no sentence; a loss on day one is measured, not refused.",
+   "governing_decisions": [
+    "DEC-4439"
+   ],
+   "plain_example": "$10,000 in, $9,800 that evening: −2.00%, no sentence.",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-105 · measured: no sentence; a loss on day one is measured, not refused [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-NW-F-127",
+   "name": "gainOfRow",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Current value divided by total return cannot recover an actual beginning when shares change or income is paid outside the holding; a zero ending with a −100% return loses the whole loss.",
+   "reviewer_should_be": "Use recorded start and movement-adjusted valuations for dollar gain, or refuse; require a stated unchanged-share/reinvestment domain for reconstruction.",
+   "classification": "APP WRONG",
+   "in_flight": true,
+   "in_flight_agent": "ZERO — a holding that fell to $0 (gainOfRow, startValues, heldValueOf)",
+   "what_the_code_actually_does": "gainOfRow: value now × (1 − 1 ÷ (1 + window return)) — no recorded start when shares changed.",
+   "governing_decisions": [
+    "DEC-3656",
+    "DEC-6412"
+   ],
+   "plain_example": "Same household as F-091: $420, right $320.",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-127 · shares added inside the window: what the holding gained [APP WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-NW-F-128",
+   "name": "heldValueOf",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "An explicit market value of zero or below is discarded in favour of an older mark or built value. A wiped-out or short position can be repriced incorrectly.",
+   "reviewer_should_be": "A finite explicit market value, including zero and negative, wins; apply later sources only when absent, with valuation date/source attached.",
+   "classification": "APP WRONG",
+   "in_flight": true,
+   "in_flight_agent": "ZERO — a holding that fell to $0 (gainOfRow, startValues, heldValueOf)",
+   "what_the_code_actually_does": "heldValueOf drops a known $0 and uses the broker's older mark × shares.",
+   "governing_decisions": [
+    "DEC-3523 tenets 1 and 4"
+   ],
+   "plain_example": "10 shares, row value $0, broker mark $20: $200, right $0.",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-128 · a known $0 wins over an older mark [APP WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-NW-F-129",
+   "name": "gainRowName",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "what_the_code_actually_does": "Own name, else ticker, else \"a holding\".",
+   "governing_decisions": [],
+   "plain_example": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-129 · own name, else ticker, else \"a holding\" [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-NW-F-130",
+   "name": "cannotWorkBackSentence",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+   "reviewer_should_be": "",
+   "classification": "REVIEWER WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "what_the_code_actually_does": "The reviewer judged RIGHT a stale card; the sentence the app writes is DEC-6076's.",
+   "governing_decisions": [
+    "DEC-5068",
+    "DEC-6076"
+   ],
+   "plain_example": "\"Treasury 2031 has no price history, so its gains are not included.\"",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-130 · the sentence is DEC-3656's [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-NW-O-007",
+   "name": "theLookBack",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "what_the_code_actually_does": "A fund with no full-window history gives nothing.",
+   "governing_decisions": [
+    "DEC-1069"
+   ],
+   "plain_example": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-O-007 · a fund with no full-window history gives nothing [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-NW-O-008",
+   "name": "thePerformance",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "New-account walk counts first evening value as contributions while TWR uses the deposit, erasing first-day gain. Beginning may be reconstructed yet figures claim read-only. Uninvested cash is included despite the Investments cash exclusion. No upper ledger date bound.",
+   "reviewer_should_be": "Use the same external flows in walk and TWR (new account actual deposit where known), bound dates, separate estimated and recorded beginnings, and reconcile cash scope explicitly without changing an owner decision.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "what_the_code_actually_does": "Two faults behind the reviewer's verdict: (1) a new account's first day is never measured — the record's first evening is the beginning, so $10,000 in and $10,050 that night reads Wealth generated $0, Contributions $0, Return +0.00% (DEC-4439: +$50, +0.50%); (2) a deposit dated after today counts in the walk but not in the return.",
+   "governing_decisions": [
+    "DEC-4439",
+    "DEC-3523 tenets 1 and 4"
+   ],
+   "plain_example": "Hand brokerage $1,000, $1,000 deposit typed for Sep 5 while today is Sep 2: Wealth generated $0, Return +100.00%.",
+   "note": "The reviewer's other points: the worked-back beginning is said in a sentence on screen; the cash scope is his rule (case complex 2).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-O-008 · a deposit dated after today: the walk and the return tell one story [APP WRONG]",
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED — a record after today is read on today (DEC-6824); a new account's first day counts (DEC-4439)"
+  }
+ ],
+ "still_open": [
+  {
+   "n": 1,
+   "text": "MK-NW-F-084: Use the shared TWR for category performance on a common window, refuse incomplete category coverage, retain unknown classification, and label coupon rates separately. Bound income dates through today.",
+   "classification": "APP WRONG",
+   "in_flight": true,
+   "in_flight_agent": "ACCOUNT — account page rows, emergency fund, Job safety, Home, a holding with no class, the CD question",
+   "same_as": "screen check MK-PF-M-006 T1 (APP WRONG)",
+   "what_is_left": "Category return over one window by DEC-4439 (+10.00%, not +15.24%): fix A. The unknown-class part was fixed in the working tree by ACCOUNT item 5 during this run (now \"Unclassified\"). Income dates after today: fix E.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #1 · MK-NW-F-084 · category return on a common window (DEC-4439) [APP WRONG]",
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED — Alternatives row (DEC-6825)"
+  },
+  {
+   "n": 2,
+   "text": "MK-NW-F-090: Validate recorded calendar days and exclude future dates before choosing Since; never interpret the fallback today as measured coverage.",
+   "classification": "REVIEWER WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "",
+   "what_is_left": "Record days are calendar days written by the app; nothing to change.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #2 · MK-NW-F-090 · validate record days [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 3,
+   "text": "MK-NW-F-091: Use gainOfRow as the sole rule and refuse reconstruction unless share changes, distributions and valuation basis permit it; an unknown held value must propagate null.",
+   "classification": "APP WRONG",
+   "in_flight": true,
+   "in_flight_agent": "ZERO — a holding that fell to $0 (gainOfRow, startValues, heldValueOf)",
+   "same_as": "",
+   "what_is_left": "Work the gain from the holding's real start, not today's shares ÷ the price move ($320, not $420).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #3 · MK-NW-F-091 · no reconstruction when shares changed [APP WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 4,
+   "text": "MK-NW-F-092: Require confirmed investment membership for Unclassified accounts, or show a separately labelled unresolved amount; refuse a missing account id rather than stringify it.",
+   "classification": "REVIEWER WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-XS-M-003 T4 (REVIEWER WRONG)",
+   "what_is_left": "DEC-0338 keeps Unclassified in investments; ids always exist.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #4 · MK-NW-F-092 · Unclassified needs confirmed membership [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 5,
+   "text": "MK-NW-F-103: Only valid nonfuture snapshot dates with at least one finite entered measured value count; deduplicate and sort.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "",
+   "what_is_left": "A balance never entered is not a recorded day (DEC-3279e): typing $20,000 the next day must not read as +40.00%.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #5 · MK-NW-F-103 · a blank balance read as $0 makes typing it a +40.00% return [APP WRONG]",
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED — a blank balance is not a recorded day (DEC-3279e)"
+  },
+  {
+   "n": 6,
+   "text": "MK-NW-F-104: Specify the allocation or require actual per-account ending values; do not fabricate individual balances from one aggregate.",
+   "classification": "BLOCKED",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "could_not_test MK-NW-F-104 (BLOCKED)",
+   "what_is_left": "No contract for splitting one ending total across accounts; no screen reaches it.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #6 · MK-NW-F-104 · split of one ending total [BLOCKED]",
+   "test_result": "pending"
+  },
+  {
+   "n": 7,
+   "text": "MK-NW-F-127: Use recorded start and movement-adjusted valuations for dollar gain, or refuse; require a stated unchanged-share/reinvestment domain for reconstruction.",
+   "classification": "APP WRONG",
+   "in_flight": true,
+   "in_flight_agent": "ZERO — a holding that fell to $0 (gainOfRow, startValues, heldValueOf)",
+   "same_as": "",
+   "what_is_left": "Same as #3, on gainOfRow. A total loss now reads −$1,000 in the working tree (uncommitted).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #7 · MK-NW-F-127 · a recorded start, not today's shares ÷ the price move [APP WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 8,
+   "text": "MK-NW-F-128: A finite explicit market value, including zero and negative, wins; apply later sources only when absent, with valuation date/source attached.",
+   "classification": "APP WRONG",
+   "in_flight": true,
+   "in_flight_agent": "ZERO — a holding that fell to $0 (gainOfRow, startValues, heldValueOf)",
+   "same_as": "",
+   "what_is_left": "A known $0 wins over an older mark ($0, not $200).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #8 · MK-NW-F-128 · a known $0 wins [APP WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 9,
+   "text": "MK-NW-O-008: Use the same external flows in walk and TWR (new account actual deposit where known), bound dates, separate estimated and recorded beginnings, and reconcile cash scope explicitly without changing an owner decision.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "",
+   "what_is_left": "A deposit dated after today: Wealth generated $0 beside Return +100.00%. Also the new account's first day (#30).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #9 · MK-NW-O-008 · bound dates: a deposit dated after today [APP WRONG]",
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED — a new account's first day is money put in (DEC-4439)"
+  },
+  {
+   "n": 10,
+   "text": "Screen register: MK-CF-M-002: Worked surplus1150 requires an extra300emergency-fund commitment:7200−2650−3400−300=850. Without deducting300 it is1150; settle whether the promised savings is inside budget or another row.",
+   "classification": "REVIEWER WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-CF-M-002 T2 (REVIEWER WRONG)",
+   "what_is_left": "Settled on screen: \"Planned surplus +$1,150 · Emergency fund · from your Plan −$300 · Surplus after your budget +$850\".",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #10 · MK-CF-M-002 · the Plan's $300 a month to the emergency fund [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 11,
+   "text": "Screen register: MK-CF-M-051: Worked input says7200take-home but gives no explicit received-income record; planned pay alone cannot prove7200actually arrived.",
+   "classification": "NEEDS A RULING",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-CF-M-051 T1 (NEEDS A RULING)",
+   "what_is_left": "Two of his decisions disagree (2026-08-28 \"a source counts only once it is recorded\" vs the approved Cash flow drawing, DEC-0440).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #11 · MK-CF-M-051 · the actual inflow is the planned take-home, with nothing recorded as received [NEEDS A RULING]",
+   "test_result": "passed"
+  },
+  {
+   "n": 12,
+   "text": "Screen register: MK-CF-M-052: Expense records sum2300+512+186=2998; committed debts2650 =>5648, not3248. Even omitting mortgage gives3248, contrary to owner debt rule.",
+   "classification": "REVIEWER WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-CF-M-052 T2 and T8 (APP WRONG, row words only)",
+   "what_is_left": "The number is right by DEC-0292 / DEC-0440 (an unpaid debt shows $0 until paid): −$3,248, not −$5,648. The figure's row words are stale — counted once, in the screen agent's file.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #12 · MK-CF-M-052 · outflow counts every debt due [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 13,
+   "text": "Screen register: MK-CF-M-053: Using defined committed-debt outflow5648 and received7200 gives1552, not3952. Actual-left wording inherits committed-versus-paid conflict.",
+   "classification": "REVIEWER WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-CF-M-053 T1 (REVIEWER WRONG)",
+   "what_is_left": "+$3,952 follows the approved drawing; $1,552 rests on #12's stale words.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #13 · MK-CF-M-053 · surplus with every debt due [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 14,
+   "text": "Screen register: MK-MN-M-003: Remaining room requires actual YTD employee/employer contributions and eligibility; monthly promises and missing birth year cannot identify one actual amount.21350 assumes14400hasalreadygonein, not9monthly1200payments=10800.",
+   "classification": "NEEDS A RULING",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-MN-M-003 T3 (NEEDS A RULING)",
+   "what_is_left": "What \"has gone in already\" means: a full year of the monthly amount, or the payments made so far.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #14 · MK-MN-M-003 · \"what has gone in already\" is a full year of the monthly amount [NEEDS A RULING]",
+   "test_result": "passed"
+  },
+  {
+   "n": 15,
+   "text": "Screen register: MK-NW-M-012: Missing required payment on an entered debt has no stated refusal; known no-payment-required0 must be distinguishable.",
+   "classification": "APP WRONG",
+   "in_flight": true,
+   "in_flight_agent": "ACCOUNT — account page rows, emergency fund, Job safety, Home, a holding with no class, the CD question",
+   "same_as": "screen check MK-NW-M-012 T3 (APP WRONG)",
+   "what_is_left": "A debt whose payment was never entered adds $0 with nothing said ($2,650 a month). ACCOUNT item 2.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #15 · MK-NW-M-012 · a debt whose payment was never entered is not $0 [APP WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 16,
+   "text": "Screen register: MK-NW-M-013: Register says logged-month average only, but worked example has nothing logged and uses budget essentials:18000/(2400+700+250+120)=5.1873→5.2. Missing essentials must not be presented as logged history.",
+   "classification": "REVIEWER WRONG",
+   "in_flight": true,
+   "in_flight_agent": "ACCOUNT — account page rows, emergency fund, Job safety, Home, a holding with no class, the CD question",
+   "same_as": "screen check MK-NW-M-013 T1 (APP WRONG, row words only) and T8 (REVIEWER WRONG)",
+   "what_is_left": "DEC-0251: the typed plan is the fallback for someone who has logged nothing — 5.2 months is right. The row omits the fallback (screen agent's count). Job safety must read the same figure: ACCOUNT item 3.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #16 · MK-NW-M-013 · nothing logged must not use the budget's essentials [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 17,
+   "text": "Screen register: MK-NW-M-020: Worked class40600is stocks only; total46600also needs6000Cash row. Need all known sleeves and unresolved residual to reconcile account balance; no missing-price contract stated.",
+   "classification": "AGREES",
+   "in_flight": true,
+   "in_flight_agent": "ACCOUNT — account page rows, emergency fund, Job safety, Home, a holding with no class, the CD question",
+   "same_as": "screen check MK-NW-M-020 T2 (APP WRONG at 13:25)",
+   "what_is_left": "Was APP WRONG at the start of this run ($5,000 gap filed under Stocks / Funds). Fixed in the working tree by ACCOUNT item 1 while this file ran: Cash $10,000 + Stocks / Funds $40,000 = $50,000 (DEC-0095). Re-run after commit.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #17 · MK-NW-M-020 · the gap between the broker's total and its parts is cash — fixed in the working tree by the account page work, IN-FLIGHT [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "n": 18,
+   "text": "Screen register: MK-NW-M-024: Missing coupon refusal conflicts with owner A46: interest0withmissing-rate note, yieldsunknown. Missing face value also needs refusal; do not invent rate0.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-NW-M-024 T3 (IN-FLIGHT there; the bond value rule is now in the tree)",
+   "what_is_left": "Missing rate: no interest figure (agrees, DEC-2748b). Missing face: 4.50% × the $24,200 market value = $1,089/year — a guess (DEC-2748b, tenet 3).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #18 · MK-NW-M-024 · no face → no yearly interest figure [APP WRONG]",
+   "test_result": "passed",
+   "recheck_2026_10_21": "REVIEWER WRONG by his DEC-2748c (2026-10-07): a bond pays face × rate, and with no face value × rate; MK-NW-M-024 not changed"
+  },
+  {
+   "n": 19,
+   "text": "Screen register: MK-NW-M-026: Register omits accrued interest and bank/broker CD split. 1098days/365=3.008219178082years; its printed approximation gives5.65421979%, not5.69%. Current yield cannot be tested without accrued-interest/coupon schedule inputs.",
+   "classification": "REVIEWER WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-NW-M-026 T1 (IN-FLIGHT there)",
+   "what_is_left": "DEC-3390 adds accrued interest before the yield: 5.688%, not 5.654%. The figure's row words now say so in the working tree.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #19 · MK-NW-M-026 · the yield without accrued interest [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 20,
+   "text": "Screen register: MK-NW-M-028: No acquisition answer is assumed bank CD here; latest decision asks once. Confirm legacy default is intentional and expose unentered acquisition answer; actual form evidence absent.",
+   "classification": "AGREES",
+   "in_flight": true,
+   "in_flight_agent": "ACCOUNT — account page rows, emergency fund, Job safety, Home, a holding with no class, the CD question",
+   "same_as": "screen check MK-NW-M-028 T3 (APP WRONG at 13:25)",
+   "what_is_left": "Was APP WRONG at the start of this run: an unanswered CD read \"this one is marked as bought from the bank\" — a line of the code's own, not his (DEC-3837 asks once). Fixed in the working tree by ACCOUNT item 4 during this run: \"Where this CD was bought is not entered. …\". Re-run after commit.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #20 · MK-NW-M-028 · an unanswered CD is asked, not marked as a bank CD — fixed in the working tree by the account page work, IN-FLIGHT [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "n": 21,
+   "text": "Screen register: MK-NW-M-029: Last closing price is not a LIVE intraday quote; state closing date/time and freshness. Purchase cost fallback must keep its different label.",
+   "classification": "NEEDS A RULING",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-NW-M-029 T8 (NEEDS A RULING)",
+   "what_is_left": "His approved Holding drawing says \"Current price · live\"; the price is the last daily close.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #21 · MK-NW-M-029 · \"LIVE\" over the last close [NEEDS A RULING]",
+   "test_result": "passed",
+   "recheck_2026_10_21": "DECIDED by the lead — the band reads LAST CLOSE and its day (DEC-6826)"
+  },
+  {
+   "n": 22,
+   "text": "Screen register: MK-NW-M-030: Missing share count or missing cost fallback lacks refusal. Options require multiplier; shares×price alone is insufficient for mini/default contracts.",
+   "classification": "AGREES",
+   "in_flight": true,
+   "in_flight_agent": "GAINS — Holding page gains (undated purchase, tax-advantaged split, $0 price paid)",
+   "same_as": "screen check MK-NW-M-030 T3 (APP WRONG — the words under Current value)",
+   "what_is_left": "The value uses the contract multiplier and refuses an unknown share count. The refusal's words on the Holding page are the screen agent's finding. The fallback to what was paid depends on GAINS item 4 ($0 price paid).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #22 · MK-NW-M-030 · value: × the contract multiplier; unknown shares refuse [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "n": 23,
+   "text": "Screen register: MK-NW-M-031: Missing share count is not liquidated; explicit refusal not stated. Quantity must use holding unit, not always shares.",
+   "classification": "AGREES",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-NW-M-031 T3 (APP WRONG — \"All sold\" when the count was never entered)",
+   "what_is_left": "Unknown shares refuse; the unit is the holding's own (\"1 contract\"). The words are the screen agent's finding.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #23 · MK-NW-M-031 · unknown shares refuse; the holding's own unit [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "n": 24,
+   "text": "Screen register: MK-NW-M-032: Options total paid divided by contracts yields costpercontract; price-per-share/premium comparison requires divisorquantity×multiplier. Zero holdings and unknown quantities lack refusal.",
+   "classification": "AGREES",
+   "in_flight": true,
+   "in_flight_agent": "GAINS — Holding page gains (undated purchase, tax-advantaged split, $0 price paid)",
+   "same_as": "screen check MK-NW-M-032 T1 (REVIEWER WRONG — same conclusion)",
+   "what_is_left": "Price paid is per share: options divide by contracts × shares a contract. GAINS item 4 ($0 price paid) may move it.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #24 · MK-NW-M-032 · price paid is per share, as the price is quoted [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "n": 25,
+   "text": "Screen register: MK-NW-M-033: Unknown quantity must also refuse total paid; contract multiplier needed for options.",
+   "classification": "AGREES",
+   "in_flight": true,
+   "in_flight_agent": "GAINS — Holding page gains (undated purchase, tax-advantaged split, $0 price paid)",
+   "same_as": "screen check MK-NW-M-033 T3 (REVIEWER WRONG — same conclusion)",
+   "what_is_left": "Total paid refuses unknown shares and uses the multiplier. GAINS item 4 may move it.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #25 · MK-NW-M-033 · total paid: unknown shares refuse; × the multiplier [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "n": 26,
+   "text": "Screen register: MK-NW-M-035: Some matched sale basis gives partial gain only with DEC-4643 sentence; unmatched sale is not known0profit. Future/fees/security identity policy incomplete.",
+   "classification": "NEEDS A RULING",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-NW-M-035 T3 (REVIEWER WRONG on the partial sale)",
+   "what_is_left": "The partial sale is said (DEC-4643, agrees). Fees on a sale and which security a sale belongs to have no ruling; a sale dated after today is fix E's (no date after today), not measured here.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #26 · MK-NW-M-035 · the partial sale is said (DEC-4643); a sale dated after today is not ruled [NEEDS A RULING]",
+   "test_result": "passed"
+  },
+  {
+   "n": 27,
+   "text": "Screen register: MK-NW-M-036: Long holding duration does not ensure lower tax rate inside retirement wrappers or for every option/collectible. Knownzero basis and undated lots need honest split.",
+   "classification": "AGREES",
+   "in_flight": true,
+   "in_flight_agent": "GAINS — Holding page gains (undated purchase, tax-advantaged split, $0 price paid)",
+   "same_as": "screen check MK-NW-M-036 T7 (NEEDS A RULING — the Roth split, now decided by the lead in GAINS item 2)",
+   "what_is_left": "Was APP WRONG at 09:15 (an undated purchase read long $0, short $200). Fixed in the working tree by GAINS while this file ran: no split, total $200. The tax-advantaged split is still being changed. Re-run after commit.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #27 · MK-NW-M-036 · an undated purchase has no long/short split — fixed in the working tree by the gains work, IN-FLIGHT [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "n": 28,
+   "text": "Screen register: MK-NW-M-037: Ordinary-income wording overclaims tax treatment; exactanniversarybelongs here but undatedlotisunknown, notshort by default.",
+   "classification": "AGREES",
+   "in_flight": true,
+   "in_flight_agent": "GAINS — Holding page gains (undated purchase, tax-advantaged split, $0 price paid)",
+   "same_as": "screen check MK-NW-M-037 T7 (APP WRONG)",
+   "what_is_left": "Was APP WRONG at 09:15. Fixed in the working tree by GAINS item 1: an undated purchase is not short-term. Re-run after commit.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #28 · MK-NW-M-037 · an undated purchase is not short-term by default — fixed in the working tree by the gains work, IN-FLIGHT [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "n": 29,
+   "text": "Screen register: MK-PF-M-001: Whole investment-account totals include idle cash, whereas owner Investments excludes cash; pick one stated scope and reconcile Home/Networth/Performance.",
+   "classification": "NEEDS A RULING",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-PF-M-001 T4 (NEEDS A RULING)",
+   "what_is_left": "Performance's ending counts the cash (his rule, DEC-4644). Home pairs YOUR INVESTMENTS $35,775 (no cash) with \"▲ up $8,200 (21.35%) this month\", measured with cash ($46,600).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #29 · MK-PF-M-001 · one scope for an investment figure and its change line [NEEDS A RULING]",
+   "test_result": "passed"
+  },
+  {
+   "n": 30,
+   "text": "Screen register: MK-PF-M-002: Known missing or sign-reversed flows corrupt wealth even when walk adds up. New-account deposit10000ending10050must show50gain, not0.",
+   "classification": "APP WRONG",
+   "in_flight": true,
+   "in_flight_agent": "SYNC — reversed deposits, income with no amount",
+   "same_as": "screen check MK-PF-M-002 T1 (APP WRONG)",
+   "what_is_left": "DEC-4439: $10,000 in, $10,050 that evening → +$50, +0.50%. As the app records a new account: $0, +0.00%, Contributions $0. The sign-reversed-flows half is SYNC item 1.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #30 · MK-PF-M-002 · a new account's $10,000 deposit earning $50 shows $50 [APP WRONG]",
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED — a record dated after today is read on today (DEC-6824); a blank balance is not $0 (DEC-3279e)"
+  },
+  {
+   "n": 31,
+   "text": "Screen register: MK-PF-M-003: Exact lines reconcile by residual, but independently rounded unround rows need not reconcile; complex fixture shows displayed3269versus3271.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-PF-M-003 T2 (APP WRONG)",
+   "what_is_left": "Tenet 2: rounded rows must add to the rounded ending ($3,269 of rows under $3,271 here; $11,502 under $11,500 on screen).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #31 · MK-PF-M-003 · rows rounded one by one add up to the rounded ending [APP WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 32,
+   "text": "Screen register: MK-PF-M-004: Register sums holdingspluscash, while current orchestrator uses authoritative account balance. These disagree when broker total differs from priced components.",
+   "classification": "AGREES",
+   "in_flight": true,
+   "in_flight_agent": "ACCOUNT — account page rows, emergency fund, Job safety, Home, a holding with no class, the CD question",
+   "same_as": "screen check MK-PF-M-004 T4 (APP WRONG at 13:25)",
+   "what_is_left": "The ending is the broker's total (DEC-0019), agrees. The parts under it were APP WRONG at the start of this run; now fixed in the working tree (ACCOUNT item 1, DEC-0095). The row's words are the screen agent's to correct.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #32 · MK-PF-M-004 · the parts under the broker's total add up to it, the gap as cash — fixed in the working tree by the account page work, IN-FLIGHT [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "n": 33,
+   "text": "Screen register: MK-PF-M-006: Reconstructed category ratio is not TWR with flows; ignores unknown rows; coupon/year pace is different from actual category performance.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-PF-M-006 T1 (APP WRONG)",
+   "what_is_left": "Same fix as #1 (DEC-4439).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #33 · MK-PF-M-006 · the category return of a purchase that morning (DEC-4439) [APP WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 34,
+   "text": "Screen register: MK-PF-M-007: Register says untickered interestBonds, current formula saysCashunlessbondaccount; alternatives/unclassifiedincome can be mislabeled Stocks. Day-onezero exception needs explicit coverage.",
+   "classification": "AGREES",
+   "in_flight": true,
+   "in_flight_agent": "ACCOUNT — account page rows, emergency fund, Job safety, Home, a holding with no class, the CD question",
+   "same_as": "screen check MK-PF-M-007 T4 (APP WRONG, row words only — a different point)",
+   "what_is_left": "Was APP WRONG at the start of this run: an unclassified holding's $40 dividend read \"Stocks / Funds earned $40\" (DEC-2160, DEC-3035f). Fixed in the working tree by ACCOUNT item 5 during this run: \"Unclassified earned $40\". Re-run after commit.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #34 · MK-PF-M-007 · an unclassified holding's income is not Stocks / Funds — fixed in the working tree by the account page work, IN-FLIGHT [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "n": 35,
+   "text": "Screen register: MK-PF-M-008: False start weights and mixed capped dates can misstate matched market comparison. Missing comparator subset is not whole mix. Displayed3.69−2.83=.86, while approvedgap.85requiresunroundedunderlyingvalues.",
+   "classification": "APP WRONG",
+   "in_flight": true,
+   "in_flight_agent": "ZERO — a holding that fell to $0 (gainOfRow, startValues, heldValueOf)",
+   "same_as": "screen check MK-PF-M-008 T1 (APP WRONG)",
+   "what_is_left": "Start weight is value now ÷ (1 + return) = $2,000 for a holding that began at $1,000. The 0.85 gap agrees (unrounded rates). ZERO is changing startValues.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #35 · MK-PF-M-008 · market +X% weighted by false starts after shares change [APP WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 36,
+   "text": "Screen register: MK-PF-M-010: Counterfactual lump sum with dividend reinvestment is labelled what your money actually did; no personalflow/tax/cost matching.",
+   "classification": "REVIEWER WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-PF-M-010 T7 (NEEDS A RULING there)",
+   "what_is_left": "His approved look-back drawing (DEC-1069) is the design; tenet 6 outranks tenet 7, so no ruling is needed. The function makes no claim about actual money.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #36 · MK-PF-M-010 · the look-back claims what actual money did [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 37,
+   "text": "Screen register: MK-PF-M-011: Historical alternative needs hypothetical and beforepersonal taxes/trading costs wording.",
+   "classification": "REVIEWER WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-PF-M-011 T7 (NEEDS A RULING there)",
+   "what_is_left": "As #36.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #37 · MK-PF-M-011 · needs \"hypothetical, before taxes and costs\" words [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 38,
+   "text": "Screen register: MK-PF-M-012: Differenceinherits hypothetical-reinvestment and cost/tax assumptions; no certain actual saving claim.",
+   "classification": "REVIEWER WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-PF-M-012 T7 (NEEDS A RULING there)",
+   "what_is_left": "As #36.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #38 · MK-PF-M-012 · the difference claims a saving [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 39,
+   "text": "Screen register: MK-PF-M-013: Figure states beginningreadneverbacksolved; orchestrator allowsno-record reconstruction. OwnerDEC-3656needs separately labelled estimate, not recorded beginning.",
+   "classification": "AGREES",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-PF-M-013 T2 (APP WRONG, row words only)",
+   "what_is_left": "A worked-back beginning is said on screen (\"so the beginning is worked back from today\"). The row's \"READ, NEVER BACK-SOLVED\" is stale — the screen agent's count.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #39 · MK-PF-M-013 · a worked-back beginning is labelled [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "n": 40,
+   "text": "Screen register: MK-PF-M-014: First recorded value ascontributionerasesknownfirst-daygain; commonflowreaderandgaincontractrequired.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-PF-M-014 T1 (APP WRONG)",
+   "what_is_left": "The account page reads the same door as #30.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #40 · MK-PF-M-014 · the first deposit is money in, the $50 is earned (DEC-4439) [APP WRONG]",
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED — a new account's first value is money put in (DEC-4439)"
+  },
+  {
+   "n": 41,
+   "text": "Screen register: MK-PF-M-015: Rounded rows can differ fromroundedending; missingflowsmustnot disappearinto unexplainedinvestmentchangewithoutnotice.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-PF-M-015 T2 (APP WRONG)",
+   "what_is_left": "The account page walk, as #31.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #41 · MK-PF-M-015 · rounded rows against the rounded ending [APP WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 42,
+   "text": "Screen register: MK-PF-M-016: Register365/days annualizesexact366-daycalendar1Y; orchestrator saysneverannualizeexact1Y. Holdingfull2Yuses2years. Oneannualizationcontractneeded.",
+   "classification": "NEEDS A RULING",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-PF-M-016 T4 (APP WRONG — a separate fault: the account page calls 2Y \"not a yearly rate\")",
+   "what_is_left": "One way to make 2Y a yearly rate. Account: (1.21)^(365 ÷ 731 days) − 1 = +9.99%/year; holding row: (1.21)^(1/2) − 1 = +10.00%. Part 2 (MK-PF-F-010) needs the same ruling.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #42 · MK-PF-M-016 · one yearly-pace rule for 2Y (days ÷ 365 against 2 years) [NEEDS A RULING]",
+   "test_result": "passed"
+  },
+  {
+   "n": 43,
+   "text": "Screen register: MK-PF-M-017: Negative total clamped0andhalf-centcutoffcaninvent −100%/nothinginvested. Sameannualizationgapasaccountfigure.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-PF-M-017 T1 (APP WRONG); part 4 MK-ST-F-081 (NEEDS A RULING)",
+   "what_is_left": "Tenet 1: a value below zero is clamped to $0, so $1,000.17 → −$83.19 reads −100.00%; the arithmetic is −108.32%. Proposed: refuse.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #43 · MK-PF-M-017 · money ending below zero does not read −100.00% [APP WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 44,
+   "text": "Screen register: MK-PF-M-018: Registerread-only and startsatrecordwhenmissing conflicts with orchestrator no-recordestimatedwalk and late-recordno-walk; synchronize labelsandrefusals.",
+   "classification": "AGREES",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-PF-M-018 T2 (APP WRONG, row words only)",
+   "what_is_left": "A record that begins late says so (DEC-5291, DEC-6412). The row's refusal line is stale.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #44 · MK-PF-M-018 · a record that begins late says so [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "n": 45,
+   "text": "Screen register: MK-PF-M-019: Alwayszero rowneeds ledgercoverage distinction; missingamount isunknown, notzero. Exactresidualdoesnot prove correctreconciliation.",
+   "classification": "AGREES",
+   "in_flight": true,
+   "in_flight_agent": "SYNC — reversed deposits, income with no amount",
+   "same_as": "screen check MK-PF-M-019 T3 (REVIEWER WRONG, in-flight)",
+   "what_is_left": "A record with no amount refuses the return, never $0. SYNC item 2 is changing how a missing amount is stored.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #45 · MK-PF-M-019 · a missing amount is not $0, and the screen names where history starts [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "n": 46,
+   "text": "Screen register: MK-PF-M-020: Missingcashsleeveofpickedbrokeragehasno stated refusal; known0availablecashisdifferent fromunenteredcash.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-PF-M-020 T3 (APP WRONG)",
+   "what_is_left": "DEC-3279e, tenet 3: cash never entered reads \"Available cash: $0\" and refuses a buy.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #46 · MK-PF-M-020 · cash never entered is not $0 [APP WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 47,
+   "text": "Screen register: MK-XS-M-001: Someassetordebtbalancesmissingmustnot silentlysumonlyknownrowsinto unqualifiednetworth.",
+   "classification": "AGREES",
+   "in_flight": true,
+   "in_flight_agent": "ACCOUNT — account page rows, emergency fund, Job safety, Home, a holding with no class, the CD question",
+   "same_as": "screen check MK-XS-M-001 T3 (APP WRONG at 13:25)",
+   "what_is_left": "Was APP WRONG at the start of this run: Home printed Net worth with nothing beside a missing balance. Home now reads the gaps list (ACCOUNT item 7, uncommitted); this test checks the source only — the screen check's render confirms the words. Re-run after commit.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #47 · MK-XS-M-001 · Home names a missing balance beside Net worth — fixed in the working tree by the account page work, IN-FLIGHT [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "n": 48,
+   "text": "Screen register: MK-XS-M-003: Whole stockaccount summayincludeidlecash; ownerexcludescash. Unclassified membership unresolved.",
+   "classification": "AGREES",
+   "in_flight": true,
+   "in_flight_agent": "ACCOUNT — account page rows, emergency fund, Job safety, Home, a holding with no class, the CD question",
+   "same_as": "screen check MK-XS-M-003 T4 (REVIEWER WRONG — same conclusion)",
+   "what_is_left": "Investments leaves a brokerage's cash to the Cash line (DEC-2484l, DEC-0338). ACCOUNT is editing the class readers this total uses.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #48 · MK-XS-M-003 · Investments leaves a brokerage's cash sleeve to the Cash line [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "n": 49,
+   "text": "Screen register: MK-XS-M-004: Returnsharesaccount/portfoliorulebutannualizationmustrespectcalendar1YboundaryandSinceown-totalexception; corrected dailyflowconventionmustreachHome.",
+   "classification": "AGREES",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "screen check MK-XS-M-004 T4 (APP WRONG — a separate fault: Home's spoken label says 21.4 percent)",
+   "what_is_left": "An exact year is never a yearly rate (DEC-3768b); Home asks the same door as Performance.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #49 · MK-XS-M-004 · one door: an exact year is never a yearly rate (DEC-3768b) [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "n": 50,
+   "text": "Published 2026 HOH brackets: replace201775/256225with201750/256200; see tax/source appendix.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "tax file item \"Federal income tax2026\" (APP WRONG)",
+   "what_is_left": "IRS Rev. Proc. 2025-32: head of household 24% ends at $201,750 and 32% at $256,200; the table copies the single filer's $201,775 / $256,225. Fixed there.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #50 · 2026 head-of-household brackets: tax at $300,000 taxable is $71,961 [APP WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "n": 51,
+   "text": "Additional Medicare: distinguish200000per-employer withholding from filing-status household liability; see tax/source appendix.",
+   "classification": "AGREES",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "tax file item \"IRS Topic560, Additional Medicare tax\" (AGREES)",
+   "what_is_left": "The $200,000 line is per-earner withholding, kept apart from a household's liability (G4, agreed 2026-09-12).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #51 · Additional Medicare: per-earner withholding, kept apart from a household's liability [AGREES]",
+   "test_result": "passed"
+  },
+  {
+   "n": 52,
+   "text": "Owner rule validation: out-of-module cards/forms cannot be closed from Performance evidence alone.",
+   "classification": "BLOCKED",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "same_as": "part 1 rules_held (49 rules, measured in the screen agent's file)",
+   "what_is_left": "Owner rules outside this module are the other agent's share; nothing to run here.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #52 · owner rules outside this module cannot be closed from Performance evidence [BLOCKED]",
+   "test_result": "pending"
+  }
+ ],
+ "app_wrong_fixes": [
+  {
+   "fix": "A · MK-PF-F-040 returnSincePurchases: a purchase made that morning counts for the whole day (DEC-4439); the category table copies the row return",
+   "example": "10 shares bought Sep 1 at $100; 10 more on Sep 2 morning at $100; close Sep 2 $110",
+   "before": "Performance BY CATEGORY: Stocks / Funds +15.24%",
+   "now_proposed": "+10.00% (2,200 ÷ (1,000 + 1,000) − 1)",
+   "function_file": "returnSincePurchases, src/domain/performance/index.ts (feeds categoryEarnings, MoneyKeel/functions/networth-and-performance/performance.ts)",
+   "smallest_change": "The same change as part 2's fix 1: end each piece at the close of the evening BEFORE a purchase day, so the purchase joins the day it is made.",
+   "figures_and_screens": "Performance tab BY CATEGORY return; account page holding rows; Holding page window figure.",
+   "drawing": "None (part 2 checked holding-detail v02, performance v17, account-page v01).",
+   "items": [
+    "case MK-NW-F-084 complex · Large stock addition",
+    "formula MK-NW-F-084",
+    "still-open #1",
+    "still-open #33"
+   ],
+   "in_flight": ""
+  },
+  {
+   "fix": "B · MK-NW-F-127 gainOfRow / MK-NW-F-091 pricedGainOf / MK-PF-F-044 startValues: a holding's gain and weight start from what it was really worth when the window began",
+   "example": "10 shares held before the 1Y window (close $100 that evening); 10 more bought at $110 on Apr 1; close $121 today",
+   "before": "Gain $420; start weight $2,000",
+   "now_proposed": "Gain $320 (2,420 − 1,000 − 1,100 paid); start weight $1,000",
+   "function_file": "gainOfRow, pricedGainOf (MoneyKeel/functions/networth-and-performance/performance.ts); startValues (src/domain/performance/index.ts)",
+   "smallest_change": "Where the row carries its start value (shares held on the window's first day × that close), gain = value now − start value − what was paid inside the window; never value now ÷ (1 + return).",
+   "figures_and_screens": "Performance tab worked-back Wealth generated and Return (no daily record); Home market comparison.",
+   "drawing": "None found.",
+   "items": [
+    "cases MK-NW-F-091 and MK-NW-F-127 complex · Holding quantity increased",
+    "formulas MK-NW-F-091, MK-NW-F-127",
+    "still-open #3, #7, #35"
+   ],
+   "in_flight": "ZERO"
+  },
+  {
+   "fix": "C · MK-NW-F-128 heldValueOf: a known $0 (or a negative value) wins over an older mark",
+   "example": "10 shares; the row's value $0; the broker's older mark $20",
+   "before": "$200 (in the left-out sentence: \"… ($200) has no price history …\")",
+   "now_proposed": "$0",
+   "function_file": "heldValueOf, MoneyKeel/functions/networth-and-performance/performance.ts",
+   "smallest_change": "Use marketValue whenever it is a finite number, zero and below included; fall back only when it is missing.",
+   "figures_and_screens": "Performance tab: the value named beside a holding left out of Wealth generated.",
+   "drawing": "None.",
+   "items": [
+    "case MK-NW-F-128 edge · Zero market value",
+    "formula MK-NW-F-128",
+    "still-open #8"
+   ],
+   "in_flight": "ZERO"
+  },
+  {
+   "fix": "D · MK-NW-F-103 investmentRecordDates + accountValuesOn: a balance never entered is not a recorded day (DEC-3279e)",
+   "example": "Linked brokerage $50,000; IRA added Sep 1 with no balance; $20,000 typed for it on Sep 2",
+   "before": "Since: Wealth generated $20,000 · Return +40.00%",
+   "now_proposed": "The IRA joins on Sep 2 at $20,000: Wealth generated $0 · Return +0.00%",
+   "function_file": "accountValuesOn and buildDayFromAccounts (Calculation Module code/engines/snapshots.ts); investmentRecordDates (performance.ts)",
+   "smallest_change": "A hand account row with no value entered (typedValue null, no cash entered) counts as not recorded for that account, so the account joins on its first entered value (DEC-6412's join), never from $0.",
+   "figures_and_screens": "Performance tab Since start, Wealth generated, Return; account page; Home's investment change line.",
+   "drawing": "None.",
+   "items": [
+    "case MK-NW-F-103 edge · Present row with missing balance",
+    "formula MK-NW-F-103",
+    "still-open #5"
+   ],
+   "in_flight": ""
+  },
+  {
+   "fix": "E · Activity dated after today: the walk counts it, the return does not",
+   "example": "Hand brokerage worth $1,000, balance already $2,000; a $1,000 deposit typed for Sep 5; today Sep 2",
+   "before": "Wealth generated $0 beside Return +100.00%",
+   "now_proposed": "The activity sheet stops at today, so the date cannot be typed; both figures read one list of flows: Wealth generated $0, Return +0.00%",
+   "function_file": "The add-activity / trade sheet's date (src/screens/PerformanceScreen.tsx; part 3 found no upper limit); thePerformance flows (performance.ts)",
+   "smallest_change": "Give the date picker a maximum of today; bound the flows both the walk and the return read at today.",
+   "figures_and_screens": "Performance tab and account page Wealth generated and Return; also category income and a sale dated after today (still-open #26).",
+   "drawing": "None.",
+   "items": [
+    "formula MK-NW-O-008",
+    "still-open #9"
+   ],
+   "in_flight": ""
+  },
+  {
+   "fix": "F · A new account's first day is measured (DEC-4439)",
+   "example": "Account opened Sep 27 with $10,000, worth $10,050 that evening (or $9,800); today Sep 28",
+   "before": "Contributions $0 · Wealth generated $0 · Return +0.00% (both evenings)",
+   "now_proposed": "Contributions $10,000 · Wealth generated +$50 · Return +0.50% (or −$200, −2.00%)",
+   "function_file": "thePerformance (performance.ts) with windowStartKey Since and timeWeightedReturn (Calculation Module code/engines/time-weighted-return.ts)",
+   "smallest_change": "An account whose first recorded day carries its opening deposit starts from $0 the evening before, so Since opens on that day for it.",
+   "figures_and_screens": "Performance tab, account page and Home: Since figures for an account opened inside the record.",
+   "drawing": "None draws a new account's first day; check v17 and account-page v01 state A before changing.",
+   "items": [
+    "formula MK-NW-O-008",
+    "still-open #30, #40"
+   ],
+   "in_flight": "the sign-reversed half of #30 is SYNC's"
+  },
+  {
+   "fix": "G · A debt whose payment was never entered is not $0 (DEC-0296, tenet 3)",
+   "example": "Mortgage $2,400 and car loan $250 entered; Visa $3,000 at 24% with no minimum entered",
+   "before": "$2,650 a month of debt payments; the Visa adds $0 with nothing said",
+   "now_proposed": "$2,650 a month and \"Visa: payment not entered\" beside it (emergency fund and Net worth)",
+   "function_file": "theNetWorth monthlyDebtPayments (MoneyKeel/functions/networth-and-performance/net-worth.ts); the debt editor saves a blank minimum as $0",
+   "smallest_change": "Name each debt with no payment; the editor stores a blank as nothing.",
+   "figures_and_screens": "Net worth debt-payment line; emergency fund months.",
+   "drawing": "net-worth v08.",
+   "items": [
+    "still-open #15"
+   ],
+   "in_flight": "ACCOUNT item 2"
+  },
+  {
+   "fix": "H · A bond with no face value has no yearly interest figure (DEC-2748b)",
+   "example": "Bond, 4.50% rate, market value $24,200, face never entered",
+   "before": "$1,089/year (4.50% × the market value)",
+   "now_proposed": "\"face value not entered\" (no yearly interest)",
+   "function_file": "yearlyInterest, src/domain/bonds/index.ts",
+   "smallest_change": "No face → null, except a CD whose only value is what was paid (DEC-0281's CD case).",
+   "figures_and_screens": "Account page BOND FACTS interest; Bonds screen.",
+   "drawing": "bonds v02; account-page v01 state F.",
+   "items": [
+    "still-open #18"
+   ],
+   "in_flight": ""
+  },
+  {
+   "fix": "I · Rows rounded one by one add up to the rounded ending (tenet 2)",
+   "example": "Rows $3,000.48 + $500.11 − $200.07 + $17.29 + $3.41 − $50.72; ending $3,270.50",
+   "before": "Rows read $3,269 under an ending of $3,271 (on screen: $11,502 under $11,500)",
+   "now_proposed": "Change in investment value printed as the rounded ending minus the other rounded rows: rows add to $3,271",
+   "function_file": "The walk rows of src/screens/PerformanceScreen.tsx and src/screens/AccountPortfolioScreen.tsx (display only)",
+   "smallest_change": "Print the last row as the remainder of the rounded figures; the exact figures stay unrounded underneath.",
+   "figures_and_screens": "Performance tab and account page walk.",
+   "drawing": "Performance v17, account-page v01 (their numbers already add up).",
+   "items": [
+    "still-open #31, #41"
+   ],
+   "in_flight": ""
+  },
+  {
+   "fix": "J · An account worth less than $0 does not read −100.00% (tenet 1)",
+   "example": "$1,000.17 one evening, −$83.19 the next",
+   "before": "Return −100.00%",
+   "now_proposed": "No return, and \"the account's value went below zero\"",
+   "function_file": "timeWeightedReturn, Calculation Module code/engines/time-weighted-return.ts (Math.max(0, total))",
+   "smallest_change": "A day valued below zero refuses instead of clamping.",
+   "figures_and_screens": "Performance tab and account page Return, that case only.",
+   "drawing": "None.",
+   "items": [
+    "still-open #43"
+   ],
+   "in_flight": "SYNC owns this file now: apply after SYNC lands"
+  },
+  {
+   "fix": "K · Cash never entered is not $0 (DEC-3279e)",
+   "example": "Hand brokerage whose cash was never entered",
+   "before": "\"Available cash: $0\", and a buy is refused as not enough",
+   "now_proposed": "\"Available cash: not entered\"; the buy is not refused on it",
+   "function_file": "availableCash, src/domain/transactions/index.ts (cash_balance || 0)",
+   "smallest_change": "Return null when the cash was never entered; the sheet prints \"not entered\".",
+   "figures_and_screens": "Performance tab add-activity sheet.",
+   "drawing": "None.",
+   "items": [
+    "still-open #46"
+   ],
+   "in_flight": ""
+  },
+  {
+   "fix": "L · 2026 head-of-household brackets (IRS Rev. Proc. 2025-32)",
+   "example": "Head of household, $300,000 taxable",
+   "before": "Tax $71,958.25 (24% ends at $201,775, 32% at $256,225 — the single filer's)",
+   "now_proposed": "Tax $71,961 (24% ends at $201,750, 32% at $256,200)",
+   "function_file": "the 2026 table in src/domain/income/tax.ts",
+   "smallest_change": "Two numbers in the head-of-household row.",
+   "figures_and_screens": "Every tax figure for a head-of-household filer.",
+   "drawing": "None.",
+   "items": [
+    "still-open #50 (same item as the tax file's \"Federal income tax2026\")"
+   ],
+   "in_flight": ""
+  }
+ ],
+ "needs_a_ruling": [
+  {
+   "item": "Where an alternative's income goes in the category table",
+   "ids": [
+    "MK-NW-F-084 (case complex · Partial priced coverage)"
+   ],
+   "in_flight": true,
+   "where_on_screen": "Performance tab BY CATEGORY (and the account page).",
+   "what_changes": "Today: \"Stocks / Funds — earned $83.27, +7.31%\", the $83.27 being an alternative's dividend. Either a fourth row \"Alternatives — earned $83.27\" (Stocks / Funds earned $0, +7.31%) or the income left out with a sentence naming it.",
+   "recommendation": "Add an Alternatives row only when an alternative earned something; v17 draws three rows, so it is a drawing change. ACCOUNT item 5 may settle it."
+  },
+  {
+   "item": "Actual inflow before a paycheck is recorded",
+   "ids": [
+    "MK-CF-M-051 (still-open #11)"
+   ],
+   "in_flight": false,
+   "where_on_screen": "Cash flow, This month.",
+   "what_changes": "Today: \"Actual inflow $7,200\", \"Actual surplus so far +$3,952\". Under his 2026-08-28 rule: $0 and −$3,248 until a paycheck is recorded.",
+   "recommendation": "Same item as the screen check MK-CF-M-051 T1: his newer approved drawing (DEC-0440) wins (tenet 6), so keep it and correct the row's words."
+  },
+  {
+   "item": "What \"has gone in already\" means for contribution room",
+   "ids": [
+    "MK-MN-M-003 (still-open #14)"
+   ],
+   "in_flight": false,
+   "where_on_screen": "Contribution room.",
+   "what_changes": "On Sep 29 with nine $1,200 payments made: \"$21,350 left\" (a full year at the monthly amount) or \"$24,950 left\" (paid so far).",
+   "recommendation": "Same item as the screen check MK-MN-M-003 T3."
+  },
+  {
+   "item": "\"LIVE\" over the last daily close",
+   "ids": [
+    "MK-NW-M-029 (still-open #21)"
+   ],
+   "in_flight": false,
+   "where_on_screen": "Holding page.",
+   "what_changes": "\"CURRENT PRICE · LIVE $290.00\" would read \"LAST CLOSE · SEP 28 $290.00\". The app drops LIVE once the close is stale.",
+   "recommendation": "Same item as the screen check MK-NW-M-029 T8; his approved drawing says live (tenet 6), so it stays until he rules."
+  },
+  {
+   "item": "A sale's fees and which security a sale belongs to",
+   "ids": [
+    "MK-NW-M-035 (still-open #26)"
+   ],
+   "in_flight": false,
+   "where_on_screen": "Holding page, Realized from sales.",
+   "what_changes": "Not measured here: no ruling says whether fees come off a realized gain. The partial sale is said (\"$200 gain on 10 of 15 shares sold; what you paid for the other 5 is not on record.\"). A sale dated after today is fix E's.",
+   "recommendation": "Take fees off the proceeds where the broker sends them, and say so."
+  },
+  {
+   "item": "One scope for an investment total and its change line on Home",
+   "ids": [
+    "MK-PF-M-001 (still-open #29)"
+   ],
+   "in_flight": false,
+   "where_on_screen": "Home, YOUR INVESTMENTS.",
+   "what_changes": "Today: \"$35,775\" (no cash, DEC-0457) over \"▲ up $8,200 (21.35%) this month\", measured on $46,600 with cash. Either the line names its scope (\"your investment accounts, cash included\") or it is measured without the cash.",
+   "recommendation": "Same item as the screen check MK-PF-M-001 T4. Name the scope on the change line; it keeps Performance's figure (his rule, DEC-4644) and Home's total unchanged."
+  },
+  {
+   "item": "How a 2Y return becomes a yearly rate",
+   "ids": [
+    "MK-PF-M-016 (still-open #42)",
+    "part 2 MK-PF-F-010"
+   ],
+   "in_flight": false,
+   "where_on_screen": "Performance tab and account page 2Y; holding rows.",
+   "what_changes": "21% over two years (731 days): the account reads +9.99% a year (days ÷ 365); a holding row over the same window reads +10.00% (2 years).",
+   "recommendation": "Use days ÷ 365 everywhere (the account's way, which holds for any window length)."
+  }
+ ],
+ "fixed_in_the_tree_during_this_run": [
+  {
+   "by": "GAINS (Holding page gains)",
+   "what": "An undated purchase goes in neither the long-term nor the short-term part",
+   "before": "Gain — long-term $0, short-term $200",
+   "now": "No split; total gain $200",
+   "items": [
+    "still-open #27",
+    "still-open #28"
+   ]
+  },
+  {
+   "by": "ACCOUNT (account page rows)",
+   "what": "The gap between a broker's total and its holdings plus cash is cash (DEC-0095)",
+   "before": "Broker total $50,000: Cash $5,000 + Stocks / Funds $45,000",
+   "now": "Cash $10,000 + Stocks / Funds $40,000",
+   "items": [
+    "still-open #17",
+    "still-open #32"
+   ]
+  },
+  {
+   "by": "ACCOUNT (a holding with no class)",
+   "what": "An unclassified holding's income is not Stocks / Funds (DEC-2160, DEC-3035f)",
+   "before": "Stocks / Funds earned $40",
+   "now": "Unclassified earned $40",
+   "items": [
+    "still-open #34",
+    "formula MK-NW-F-084 (second point)"
+   ]
+  },
+  {
+   "by": "ACCOUNT (the CD question)",
+   "what": "A CD never asked bank or broker is not marked as a bank CD (DEC-3837)",
+   "before": "\"… this one is marked as bought from the bank.\"",
+   "now": "\"Where this CD was bought is not entered. …\"",
+   "items": [
+    "still-open #20"
+   ]
+  },
+  {
+   "by": "ACCOUNT (Home)",
+   "what": "Home reads the gaps list beside Net worth (DEC-3279e)",
+   "before": "Net worth with nothing beside a missing balance",
+   "now": "Home reads dataGaps (source checked; the screen check confirms the words)",
+   "items": [
+    "still-open #47"
+   ]
+  }
+ ],
+ "in_flight_rerun": [
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-084 categoryEarnings — five cases › complex · Partial priced coverage and misclassified alternative income [NEEDS A RULING]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-091 pricedGainOf — five cases › complex · Holding quantity increased inside window [APP WRONG]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-091 pricedGainOf — five cases › edge · Known total loss [AGREES]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-127 gainOfRow — five cases › complex · Holding quantity increased inside window [APP WRONG]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-127 gainOfRow — five cases › edge · Known total loss [AGREES]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-128 heldValueOf — five cases › edge · Zero market value with stale broker mark [APP WRONG]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-084 · a category's return over one window, a purchase that morning counted all day (DEC-4439) [APP WRONG]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-091 · shares added inside the window: what the holding gained [APP WRONG]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-127 · shares added inside the window: what the holding gained [APP WRONG]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-128 · a known $0 wins over an older mark [APP WRONG]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #1 · MK-NW-F-084 · category return on a common window (DEC-4439) [APP WRONG]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #3 · MK-NW-F-091 · no reconstruction when shares changed [APP WRONG]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #7 · MK-NW-F-127 · a recorded start, not today's shares ÷ the price move [APP WRONG]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #8 · MK-NW-F-128 · a known $0 wins [APP WRONG]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #15 · MK-NW-M-012 · a debt whose payment was never entered is not $0 [APP WRONG]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #16 · MK-NW-M-013 · nothing logged must not use the budget's essentials [REVIEWER WRONG]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #17 · MK-NW-M-020 · the gap between the broker's total and its parts is cash — fixed in the working tree by the account page work, IN-FLIGHT [AGREES]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #20 · MK-NW-M-028 · an unanswered CD is asked, not marked as a bank CD — fixed in the working tree by the account page work, IN-FLIGHT [AGREES]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #22 · MK-NW-M-030 · value: × the contract multiplier; unknown shares refuse [AGREES]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #24 · MK-NW-M-032 · price paid is per share, as the price is quoted [AGREES]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #25 · MK-NW-M-033 · total paid: unknown shares refuse; × the multiplier [AGREES]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #27 · MK-NW-M-036 · an undated purchase has no long/short split — fixed in the working tree by the gains work, IN-FLIGHT [AGREES]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #28 · MK-NW-M-037 · an undated purchase is not short-term by default — fixed in the working tree by the gains work, IN-FLIGHT [AGREES]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #30 · MK-PF-M-002 · a new account's $10,000 deposit earning $50 shows $50 [APP WRONG]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #32 · MK-PF-M-004 · the parts under the broker's total add up to it, the gap as cash — fixed in the working tree by the account page work, IN-FLIGHT [AGREES]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #34 · MK-PF-M-007 · an unclassified holding's income is not Stocks / Funds — fixed in the working tree by the account page work, IN-FLIGHT [AGREES]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #35 · MK-PF-M-008 · market +X% weighted by false starts after shares change [APP WRONG]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #45 · MK-PF-M-019 · a missing amount is not $0, and the screen names where history starts [AGREES]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #47 · MK-XS-M-001 · Home names a missing balance beside Net worth — fixed in the working tree by the account page work, IN-FLIGHT [AGREES]",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #48 · MK-XS-M-003 · Investments leaves a brokerage's cash sleeve to the Cash line [AGREES]"
+ ],
+ "counts": {
+  "cases": {
+   "AGREES": 40,
+   "APP WRONG": 5,
+   "REVIEWER WRONG": 14,
+   "NEEDS A RULING": 1,
+   "BLOCKED": 0,
+   "in_flight": 6,
+   "total": 60
+  },
+  "formula_checks": {
+   "AGREES": 3,
+   "APP WRONG": 6,
+   "REVIEWER WRONG": 3,
+   "NEEDS A RULING": 0,
+   "BLOCKED": 1,
+   "in_flight": 4,
+   "total": 13
+  },
+  "still_open": {
+   "AGREES": 17,
+   "APP WRONG": 17,
+   "REVIEWER WRONG": 10,
+   "NEEDS A RULING": 6,
+   "BLOCKED": 2,
+   "in_flight": 20,
+   "total": 52
+  },
+  "all": {
+   "AGREES": 60,
+   "APP WRONG": 28,
+   "REVIEWER WRONG": 27,
+   "NEEDS A RULING": 7,
+   "BLOCKED": 3,
+   "in_flight": 30,
+   "total": 125
+  }
+ },
+ "coverage": "Cases 60 of 60 cases: 40 agree, 5 app wrong, 14 reviewer wrong, 1 need a ruling, 0 blocked, 6 in-flight · Formula checks 13 of 13 cards: 3 agree, 6 app wrong, 3 reviewer wrong, 0 need a ruling, 1 blocked, 4 in-flight · Still open 52 of 52 points: 17 agree, 17 app wrong, 10 reviewer wrong, 6 need a ruling, 2 blocked, 20 in-flight · All 125 of 125 items: 60 agree, 28 app wrong, 27 reviewer wrong, 7 need a ruling, 3 blocked, 30 in-flight. Distinct fixes behind the APP WRONG items: 12; distinct rulings needed: 7."
+}

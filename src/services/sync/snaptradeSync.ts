@@ -11,6 +11,33 @@ import type { StActivity } from './snaptrade';
 const PAGE = 1000;
 const MAX_PAGES = 20;                      // 20k rows — far beyond any personal account's history
 const OVERLAP_DAYS = 7;                    // re-pull a week's overlap; dedupe makes it idempotent
+/** THE ONE-TIME FULL RE-FETCH FOR SIGNS (2026-10-21). Until 2026-10-21 the sync kept only the size of a deposit, a
+ *  withdrawal, a dividend, interest, a coupon or a fee — a −$50 dividend (a reversal) was stored as a $50 dividend — and
+ *  a real $0 was stored as no amount. The weekly overlap re-reads only the last 7 days, so the first sync of each linked
+ *  account after this date pulls its whole history once; the broker's direction and $0 are handed back for each stored
+ *  record (fixStoredMoney, ingest.ts), and nothing is imported twice. The marker is kept beside the account's cursor,
+ *  so it runs once per linked account. To run it again for everyone, change the marker's value. */
+export const SIGNS_REFETCH = 'signs-2026-10-21';
+/** Where the one-time full re-read is marked as done for one linked account: one key per account, saved beside its activity cursor. */
+/* ─ MK-XS-F-191 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * refetchMarkKey
+ *
+ * Answers ..... Where the one-time full re-read is marked as done for one linked account: one key per account, saved beside its activity cursor.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-XS-F-116 runSnapTradeSync
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-116 runSnapTradeSync
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-191
+ * Changed ..... not in git yet (—)
+ */
+export const refetchMarkKey = (accountId: string) => `refetch:${accountId}`;
 
 /* ─ MK-XS-F-115 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * shouldDailySync
@@ -188,7 +215,9 @@ export async function runSnapTradeSync(opts: { force?: boolean } = {}): Promise<
       const hasLedgerRows = ((s.transactions ?? []) as any[]).some((t) => t.source === 'connected' && t.account_id === accountRowId);
       const cursor = hasLedgerRows ? cursors[account.id] : undefined;
       if (!hasLedgerRows) delete cursors[account.id];
-      const startDate = cursor
+      // the one-time full re-fetch for signs (SIGNS_REFETCH): an account not yet re-read since 2026-10-21 reads its whole history
+      const refetchDue = cursors[refetchMarkKey(account.id)] !== SIGNS_REFETCH;
+      const startDate = cursor && !refetchDue
         ? new Date(Date.parse(cursor) - OVERLAP_DAYS * 86400_000).toISOString().slice(0, 10)
         : undefined;                                   // no cursor (or none believable) → full history
       const activities = await allActivities(account.id, startDate);
@@ -200,6 +229,8 @@ export async function runSnapTradeSync(opts: { force?: boolean } = {}): Promise<
         activities,
       });
       if (initialDone) cursors[account.id] = new Date().toISOString();   // advance ONLY once the broker says complete
+      // the whole history was read: the marker is written, and saved only with the ingest of what was read (below)
+      if (startDate === undefined) cursors[refetchMarkKey(account.id)] = SIGNS_REFETCH;
     } catch (e) {
       // one broken account never sinks the sync — its prior data stays, freshness shows its age.
       // Founder finding 2026-08-11: swallowing it here was why a dead connection and a healthy idle

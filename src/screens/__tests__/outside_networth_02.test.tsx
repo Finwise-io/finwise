@@ -86,7 +86,8 @@ test('4 · a holding nobody has classed is listed under Unclassified on its acco
   seed([{ ...VANGUARD, balance: 349333 + 50, positions: [held('VTI', 1000, 348.495), held('ZZZZ', 10, 5, { class_asked: true })] }]);
   mockParams = { id: 'v' };
   render(<AccountPortfolioScreen />);
-  expect(screen.getByText('Unclassified')).toBeOnTheScreen();               // the band appears only when there is something in it
+  // the band appears only when there is something in it; open, it carries the drawing's ▾ (account-page drawing v01)
+  expect(screen.getByText('▾ Unclassified')).toBeOnTheScreen();
   expect(screen.getAllByText('$50').length).toBeGreaterThan(0);
 });
 
@@ -94,5 +95,5 @@ test('4 · and an account with nothing unclassed shows the drawing’s four band
   seed([VANGUARD]);
   mockParams = { id: 'v' };
   render(<AccountPortfolioScreen />);
-  expect(screen.queryByText('Unclassified')).toBeNull();
+  expect(screen.queryByText(/Unclassified/)).toBeNull();
 });

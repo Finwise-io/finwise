@@ -116,10 +116,19 @@ export interface LedgerRow {
  *     legacy = TO_LEGACY[event]
  *     is trade = legacy = 'BUY' (or legacy = 'SELL' when missing or zero)
  *
- * Called by ... MK-XS-F-102 ingestSync
+ * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-188 fixStoredFees
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync
+ * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-XS-F-188 fixStoredFees · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               … and 37 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -196,7 +205,148 @@ const STORED_TYPE_BUCKET: Record<string, 'contributions' | 'withdrawals' | 'divi
   BUY: 'none', SELL: 'none', TRANSFER: 'none', TRANSFER_IN_KIND: 'none',
   OPENING_POSITION: 'none', OPENING_CASH: 'none', ADJUSTMENT: 'none',
 };
-export interface StoredFlowRow { type?: string | null; amount?: number | string | null }
+
+// ── THE ONE RULE FOR A SIGNED AMOUNT ON A STORED RECORD (2026-10-21) ───────────────────────────────────────────────
+// A stored record holds a size, a kind and — where the broker's sign said which way the money went — a direction: IN,
+// it arrived in this account; OUT, it left. The sync writes it on a share transfer (2026-10-04), on a one-sided cash
+// journal (2026-10-20) and on a deposit or a withdrawal (2026-10-21), so a broker's −$500 "deposit" — a reversal — is
+// kept as $500 that LEFT. Before 2026-10-21 the sync wrote that reversal as a plain $500 deposit, and the return, the
+// walk and the activity list all counted $500 arriving. Every reader of a stored amount asks here: the return
+// (movementsOf), the walk (personalFlowTotals), the activity list (cashEffect) and the rebuilt record (rebuild-history).
+/** Which way each kind of record moves money when it says nothing else: +1 into its account, −1 out of it. A transfer
+ *  leaves the account it is written on; the account it names as the other side gains it. */
+const WAY_OF_KIND: Record<string, 1 | -1> = {
+  DEPOSIT: 1, SELL: 1, DIVIDEND: 1, INTEREST: 1, COUPON: 1,
+  WITHDRAWAL: -1, BUY: -1, FEE: -1, DEBT_PAYMENT: -1, TRANSFER: -1,
+};
+/** The kinds whose money IS their amount. A trade's money is its shares × price and a share transfer's is what the
+ *  shares were worth, so a missing amount on those is not a missing figure. */
+const AMOUNT_IS_THE_MONEY = new Set(['DEPOSIT', 'WITHDRAWAL', 'TRANSFER', 'DIVIDEND', 'INTEREST', 'COUPON', 'FEE']);
+export interface StoredMoneyRow { type?: string | null; amount?: unknown; direction?: string | null }
+/** How a stored amount is read: the way it moves money, and whether the stored figure is a size (the record says which
+ *  way) or keeps the sign it was stored with (a typed −$500 deposit has always read as a reversal). */
+/* ─ MK-ST-F-087 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * readingOf
+ *
+ * Answers ..... How a stored amount is read: the way it moves money, and whether the stored figure is a size (the record says which way) or keeps the sign it was stored with (a typed −$500 deposit has always read as a reversal).
+ *
+ * Formula .....
+ *     sign = 1   if direction = 'IN'
+ *     -1   otherwise
+ *     size = true   when direction = 'IN' (or direction = 'OUT' when missing or zero)
+ *     sign = WAY_OF_KIND[string(type ?? '')] (or 1 when missing)
+ *     size = false
+ *
+ * Called by ... MK-ST-F-013 personalFlowTotals · MK-ST-F-088 moneyIntoAccount
+ *
+ * Reaches ..... 93 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-082 NW · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
+ *               MK-NW-F-093 QUIET_PERF · MK-CF-F-202 TAX
+ *               MK-ST-F-089 amountNotOnRecord · MK-CF-F-210 annualOfSource
+ *               MK-CF-F-111 applyTransaction · MK-NW-F-040 assetsFromOnboarding
+ *               MK-PF-F-048 bondInterestInWindow · MK-CF-F-013 budgetFromOnboarding
+ *               … and 75 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-087
+ * Changed ..... not in git yet (—)
+ */
+function readingOf(t: StoredMoneyRow): { sign: 1 | -1; size: boolean } {
+  if (t?.direction === 'IN' || t?.direction === 'OUT') return { sign: t.direction === 'IN' ? 1 : -1, size: true };
+  return { sign: WAY_OF_KIND[String(t?.type ?? '')] ?? 1, size: false };
+}
+/** THE MONEY A STORED RECORD MOVED INTO ITS ACCOUNT — plus is money in, minus is money out. Null when its amount is not
+ *  on record (DEC-3523 tenet 3: unknown is not zero), or when the record names no direction and its kind moves no
+ *  money of its own. Example: a broker's −$500 deposit, stored as $500 with direction OUT, is −500. */
+/* ─ MK-ST-F-088 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * moneyIntoAccount
+ *
+ * Answers ..... THE MONEY A STORED RECORD MOVED INTO ITS ACCOUNT — plus is money in, minus is money out.
+ *
+ * Formula .....
+ *     raw = amount
+ *     nothing   when raw = nothing (or raw = '' when missing or zero)
+ *     n = raw read as a number
+ *     nothing   when !number.is finite(n)
+ *     nothing   when direction ! = 'IN' and direction ! = 'OUT' and WAY_OF_KIND[string(type ?? '')] = nothing
+ *     r = reading of(t)
+ *     the answer = sign × (size ? math.abs(n) : n)
+ *
+ * Called by ... MK-CF-F-108 isMoneyOut · MK-CF-F-111 applyTransaction
+ *               MK-CF-F-116 inverseOf · MK-CF-F-118 cashEffect
+ *               MK-CF-F-119 investmentIncomeAnnual · MK-CF-F-183 paidOutByAccount
+ *               MK-NW-F-084 categoryEarnings · MK-NW-O-002 theAccount
+ *               MK-NW-O-006 theHolding · MK-PF-F-048 bondInterestInWindow
+ *               MK-PL-F-009 rmdTakenThisYear · MK-ST-F-013 personalFlowTotals
+ *               MK-ST-F-072 undo · MK-ST-F-082 movementsOf
+ *               MK-ST-F-089 amountNotOnRecord · MK-XS-F-011 buildChangeWalk
+ *               MK-XS-F-102 ingestSync
+ *
+ * Reaches ..... 92 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-082 NW · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
+ *               MK-NW-F-093 QUIET_PERF · MK-CF-F-202 TAX
+ *               MK-ST-F-089 amountNotOnRecord · MK-CF-F-210 annualOfSource
+ *               MK-CF-F-111 applyTransaction · MK-NW-F-040 assetsFromOnboarding
+ *               MK-PF-F-048 bondInterestInWindow · MK-CF-F-013 budgetFromOnboarding
+ *               … and 74 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-088
+ * Changed ..... not in git yet (—)
+ */
+export function moneyIntoAccount(t: StoredMoneyRow): number | null {
+  const raw = t?.amount;
+  if (raw == null || raw === '') return null;
+  const n = Number(raw);
+  if (!Number.isFinite(n)) return null;
+  if (t?.direction !== 'IN' && t?.direction !== 'OUT' && WAY_OF_KIND[String(t?.type ?? '')] == null) return null;
+  const r = readingOf(t);
+  return r.sign * (r.size ? Math.abs(n) : n);
+}
+/** A deposit, withdrawal, transfer, dividend, interest, coupon or fee whose amount is not on record. Its money is
+ *  unknown, never $0 (DEC-3523 tenet 3): the activity list shows a dash and the return refuses across its day. */
+/* ─ MK-ST-F-089 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * amountNotOnRecord
+ *
+ * Answers ..... A deposit, withdrawal, transfer, dividend, interest, coupon or fee whose amount is not on record.
+ *
+ * Formula .....
+ *     AMOUNT_IS_THE_MONEY.has(string(type ?? '')) and money into account(t) = nothing
+ *
+ * Called by ... MK-NW-O-002 theAccount
+ *
+ * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-118 cashEffect · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-XS-F-188 fixStoredFees · MK-CF-F-041 getDebtState
+ *               … and 41 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-089
+ * Changed ..... not in git yet (—)
+ */
+export function amountNotOnRecord(t: StoredMoneyRow): boolean {
+  return AMOUNT_IS_THE_MONEY.has(String(t?.type ?? '')) && moneyIntoAccount(t) == null;
+}
+
+export interface StoredFlowRow { type?: string | null; amount?: number | string | null; direction?: string | null }
 export interface PersonalFlowTotals {
   contributions: Dec; withdrawals: Dec; dividends: Dec; interest: Dec; fees: Dec; debtPrincipal: Dec;
 }
@@ -208,15 +358,27 @@ export interface PersonalFlowTotals {
  * Formula .....
  *     bucket = STORED_TYPE_BUCKET[string(type ?? '')] (or 'none' when missing)
  *     d = dec.parse(amount)
+ *     way = reading of(r)
+ *     into = abs()   if way.sign = 1
+ *     abs().neg()   otherwise   if way.size
+ *     d   if way.sign = 1
+ *     neg()   otherwise   otherwise
  *     the answer = t
  *
  * Called by ... MK-NW-O-002 theAccount · MK-NW-O-008 thePerformance
+ *               MK-ST-F-012 toLedgerRow
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 65 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
- *               MK-NW-F-140 LEFT_OUT · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-O-002 theAccount · MK-NW-O-008 thePerformance
+ *               MK-NW-F-140 LEFT_OUT · MK-NW-F-082 NW
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-118 cashEffect
+ *               … and 47 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
@@ -234,7 +396,11 @@ export function personalFlowTotals(rows: StoredFlowRow[]): PersonalFlowTotals {
     if (bucket === 'none') continue;
     const d = Dec.parse(r.amount);
     if (d == null) continue;                      // no amount is NOTHING, never zero-with-meaning
-    t[bucket] = t[bucket].add(d);                 // signed: a stored reversal cancels, never adds
+    // read the one way (moneyIntoAccount, 2026-10-21), then put on its kind's own side: a deposit that went OUT is a
+    // reversal and lowers what was put in; a record with no direction keeps the sign it was stored with
+    const way = readingOf(r);
+    const into = way.size ? (way.sign === 1 ? d.abs() : d.abs().neg()) : (way.sign === 1 ? d : d.neg());
+    t[bucket] = t[bucket].add((WAY_OF_KIND[String(r.type ?? '')] ?? 1) === 1 ? into : into.neg());   // signed: a stored reversal cancels, never adds
   }
   return t;
 }
@@ -289,7 +455,7 @@ export function importKey(id: ImportIdentity): string {
   ].join('|');
 }
 
-/* ─ MK-ST-F-015 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-ST-F-015 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * rowsFor
  *
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
@@ -316,7 +482,7 @@ export function rowsFor(
 
 /** A total, summed SIGNED and EXACT — a reversal reduces its total instead of inflating it.
  *  (Audit item 36: the absolute-value sum here was the $2,387 class rebuilt; now the sign carries.) */
-/* ─ MK-ST-F-016 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-ST-F-016 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * totalOf
  *
  * Answers ..... A total, summed SIGNED and EXACT — a reversal reduces its total instead of inflating it.
@@ -355,6 +521,75 @@ export function unclassified(rows: LedgerRow[]): LedgerRow[] {
   return rows.filter((r) => !r.recognised);
 }
 
+/** A stored record the app could not name: the institution's own word for it (empty when it sent none) and the
+ *  amount it carries, unsigned, or null when it carries shares and no amount. */
+export interface UnnamedActivity { word: string; amount: number | null }
+
+/** AN ACTIVITY THE APP DOES NOT KNOW, READ BACK FROM THE STORE (2026-10-20, Q15 — the institution-word rule).
+ *
+ *  An unrecognised word is written down as ADJUSTMENT — kept, shown, counted in no total (THE UNCLASSIFIED RULE
+ *  above). Counted in no total is right; SAID nowhere was not: the money still moved the broker's balance, so a return
+ *  measured across that day read it as earned and nothing told the person. This is the one test of "the app could not
+ *  name this record", so the return and the gap banner ask the same question. A record written since 2026-10-20
+ *  carries the word in `unclassified_word`; one written before carries it only in its note, in the one wording the
+ *  sync wrote ("broker word: …"). A record that carries no money and no shares can move no figure, so it is not one. */
+/* ─ MK-ST-F-090 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * unnamedActivityOf
+ *
+ * Answers ..... AN ACTIVITY THE APP DOES NOT KNOW, READ BACK FROM THE STORE (2026-10-20, Q15 — the institution-word rule).
+ *
+ * Formula .....
+ *     nothing   when t is missing (or type ! = 'ADJUSTMENT' when missing or zero)
+ *     from note = ÷ broker word: (. × )$ ÷ .exec(string(note ?? ''))
+ *     nothing   when unclassified word = nothing and !from note
+ *     word = string(unclassified word ?? from note.[1] ?? '').trim()
+ *     amount = amount read as a number
+ *     has amount = amount ≠ nothing and amount ! = '' and number.is finite(amount) and amount ! = 0
+ *     shares = shares read as a number
+ *     has shares = shares ≠ nothing and number.is finite(shares) and shares ! = 0
+ *     nothing   when !has amount and !has shares
+ *     the answer:
+ *     word = word
+ *     amount = size of(amount)   if has amount
+ *     nothing   otherwise
+ *
+ * Called by ... MK-NW-O-002 theAccount · MK-ST-F-082 movementsOf
+ *               MK-XS-F-002 dataGaps · MK-XS-F-102 ingestSync
+ *
+ * Reaches ..... 67 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
+ *               MK-NW-F-140 LEFT_OUT · MK-NW-F-082 NW
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-118 cashEffect
+ *               … and 49 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-008 transaction amount
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-090
+ * Changed ..... not in git yet (—)
+ */
+export function unnamedActivityOf(t: {
+  type?: string | null; amount?: unknown; shares?: unknown; note?: string | null; unclassified_word?: string | null;
+} | null | undefined): UnnamedActivity | null {
+  if (!t || t.type !== 'ADJUSTMENT') return null;
+  const fromNote = /broker word: (.*)$/.exec(String(t.note ?? ''));
+  if (t.unclassified_word == null && !fromNote) return null;     // a sweep, a split, an expiry: the app named it
+  const word = String(t.unclassified_word ?? fromNote?.[1] ?? '').trim();
+  const amount = Number(t.amount);
+  const hasAmount = t.amount != null && t.amount !== '' && Number.isFinite(amount) && amount !== 0;
+  const shares = Number(t.shares);
+  const hasShares = t.shares != null && Number.isFinite(shares) && shares !== 0;
+  if (!hasAmount && !hasShares) return null;
+  return { word, amount: hasAmount ? Math.abs(amount) : null };
+}
+
 /* ─ MK-ST-F-058 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * numberOrUndefined
  *
@@ -370,8 +605,17 @@ export function unclassified(rows: LedgerRow[]): LedgerRow[] {
  *
  * Called by ... MK-ST-F-012 toLedgerRow
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-102 ingestSync · MK-ST-F-012 toLedgerRow
+ * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-XS-F-188 fixStoredFees · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               … and 38 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

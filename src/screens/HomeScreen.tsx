@@ -9,10 +9,12 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, RefreshCon
 import Svg, { Path } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
+import { figWords } from '../components/figure';   // the odds print under their identifier, MK-XS-M-002 (2026-10-20)
 import { oddsLine, sampleOddsLine } from '../domain/planning/hub';
 import { Colors, Spacing, Radii, GaugeRamp } from '../utils/theme';
-import { money, round2 } from '../domain/_shared/num';
-import { buildSnapshot, resolveNetWorthRows } from '../domain/snapshot';
+import { money } from '../domain/_shared/num';
+import { buildSnapshot } from '../domain/snapshot';
+import { useNetWorthInputs } from '../hooks/useNetWorthInputs';   // the Net worth family's inputs, built once (MK-NW-F-145, DEC-0345)
 import { budgetVsActual } from '../domain/budget';
 import { PaycheckCard } from '../components/PaycheckCard';
 import { Disclaimer } from '../components/Disclaimer';
@@ -28,6 +30,7 @@ import { requiredPayment } from '../domain/debt';   // the due-soon alert names 
 // insights"). Home built its own net worth from its own assets state while the Net worth tab
 // built another — two assemblies of one question, on the two screens a person compares first.
 import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
+import { dataGaps } from '../domain/gaps';   // the Net worth tab's own list of missing information (MK-XS-F-002)
 import { thePerformance, windowStartKey, investmentAccountIdsOf } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { resolveLens } from '../domain/profile/lens';
 import { selectWillItLast } from '../domain/retirement/willItLast';
@@ -64,6 +67,9 @@ export default function HomeScreen() {
   }, []);
   const op = store.onboardingProfile;
   const uid = store.user?.uid ?? 'local';
+  // THE NET WORTH FAMILY'S INPUTS, BUILT ONCE (owner, DEC-0345): MK-NW-F-145 netWorthInputs. Home counts the rows it
+  // hands back as withEstimate — the entered rows, or the sign-up estimate before Net worth is set up (B-49).
+  const nwIn = useNetWorthInputs();
   const name = (store.user?.name || op?.name || 'there').split(' ')[0];
   const lens = resolveLens(op, store.lensOverride);
   const topInsights = useInsights(3);
@@ -80,10 +86,10 @@ export default function HomeScreen() {
       // no data = no answers AND nothing live — mirror resolveNetWorthRows' useLive rule, else a
       // skip-then-import user gets stuck on the doors with real money already in the store
       if (!op && !store.nwSeeded && (store.assetAccounts?.length ?? 0) === 0 && (store.liabilities?.length ?? 0) === 0) return null;
-      const { accounts, liabilities } = resolveNetWorthRows(uid, op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? []);
+      const { accounts, debts: liabilities } = nwIn.withEstimate;   // the family's rows (DEC-0345)
       return buildSnapshot(uid, op, { inflationRate: store.inflationRate ?? 2.4, treasuryYield: store.treasuryYield ?? 4.3 }, accounts, liabilities);
     },
-    [op, uid, store.inflationRate, store.treasuryYield, store.nwSeeded, store.assetAccounts, store.liabilities],
+    [op, uid, store.inflationRate, store.treasuryYield, store.nwSeeded, store.assetAccounts, store.liabilities, nwIn],
   );
 
   const netWorthNow = snap ? Math.round((snap as any).networth?.net_worth ?? 0) : null;
@@ -93,9 +99,8 @@ export default function HomeScreen() {
   }, [netWorthNow == null, store.milestoneHighSeen == null]);
   const milestone = netWorthNow != null ? milestoneCrossed(netWorthNow, store.milestoneHighSeen) : null;
 
-  const resolvedRows = useMemo(
-    () => resolveNetWorthRows(uid, op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? []),
-    [uid, op, store.nwSeeded, store.assetAccounts, store.liabilities]);
+  // the rows every Home figure counts — read from the family's inputs, never resolved here again (DEC-0345)
+  const resolvedRows = useMemo(() => ({ accounts: nwIn.withEstimate.accounts, liabilities: nwIn.withEstimate.debts }), [nwIn]);
 
   // ── month metrics used by the frozen-history effect + the month-end surplus prompt ──
   const bva = useMemo(() => budgetVsActual(expenses, op, now), [expenses, op, ym]);
@@ -140,7 +145,7 @@ export default function HomeScreen() {
     if (!op) return;
     // P0: freeze the SAME rows every screen displays (resolveNetWorthRows), not the raw store arrays.
     const { accounts: a, liabilities: l } = resolvedRows;
-    const worth = theNetWorth({ uid, accounts: a, debts: l });
+    const worth = theNetWorth({ ...nwIn, ...nwIn.withEstimate });   // the family's inputs, on Home's rows (DEC-0345)
     const nwv = { gross_assets: worth.assets, gross_debt: worth.debts, net_worth: worth.netWorth };
     const monthExp = (store.expenses ?? []).filter((e: any) => String(e.date).startsWith(ym));
     const dPaid = monthExp.filter((e: any) => e.category === 'Debt payment').reduce((t: number, e: any) => t + (Number(e.amount) || 0), 0);
@@ -153,9 +158,10 @@ export default function HomeScreen() {
     store.captureMonthlySnapshot?.(ym, makeMonthlySnapshot({
       month: ym,
       gross_assets: nwv.gross_assets, gross_debt: nwv.gross_debt,
-      income_net: Math.round(thisMonthNet), spending: eSpent, debt_paid: dPaid,
-      savings: Math.round(thisMonthNet - eSpent - dPaid), allocated: store.allocatedByMonth?.[ym] ?? 0,
-      planned_budget: bva.planned_total, savings_rate: thisMonthNet > 0 ? Math.round(((thisMonthNet - eSpent - dPaid) / thisMonthNet) * 100) : 0,
+      // the month's record keeps every figure exact (DEC-0403); these three were rounded when saved until 2026-10-20
+      income_net: thisMonthNet, spending: eSpent, debt_paid: dPaid,
+      savings: thisMonthNet - eSpent - dPaid, allocated: store.allocatedByMonth?.[ym] ?? 0,
+      planned_budget: bva.planned_total, savings_rate: thisMonthNet > 0 ? ((thisMonthNet - eSpent - dPaid) / thisMonthNet) * 100 : 0,
       by_category: byCategory,
       assets: assetsSnap,
       debts: debtsSnap,
@@ -209,8 +215,8 @@ export default function HomeScreen() {
   // ACCOUNTS whole, their uninvested cash included — so Home read $355,152 where Net worth's Investments
   // line, the same figure by its own record, read $354,314. That was my choice against his definition.
   const investTotal = useMemo(
-    () => theNetWorth({ uid, accounts: resolvedRows.accounts as any[], debts: resolvedRows.liabilities as any[] }).investments,
-    [uid, resolvedRows.accounts, resolvedRows.liabilities]);
+    () => theNetWorth({ ...nwIn, ...nwIn.withEstimate }).investments,   // the family's inputs, on Home's rows (DEC-0345)
+    [nwIn]);
   const youReturn = oneMonth.ret;                               // the door's 1M figure, the one Performance prints
   // and the dollars behind it — never re-derived from the %. Shown only beside a return, and a return
   // exists only where the walk does (a window the record reaches, or one worked back — DEC-5068), so the 0 here is never printed.
@@ -302,6 +308,17 @@ export default function HomeScreen() {
   const nwHistory = readHistory(store.monthlySnapshots).filter((h) => h.month !== ym);
   const prevNw = nwHistory.length ? nwHistory[nwHistory.length - 1].net_worth : null;
   const nwDir = prevNw != null && netWorth !== prevNw ? (netWorth > prevNw ? 'up' : 'down') : null;
+  // A BALANCE NOT ENTERED IS NAMED UNDER THE NET WORTH LINE (2026-10-21, MK-XS-M-001, DEC-3523 tenet 3): the figure adds up
+  // the rows it knows, as the Net worth tab's does, and the tab names the missing one in its amber box — Home printed the
+  // same sum with nothing beside it. The words are the tab's own (dataGaps, the one function): "<name> has no balance".
+  const balanceGaps = dataGaps(resolvedRows.accounts as any[], null, Date.now(), [], [], resolvedRows.liabilities as any[])
+    .filter((g) => g.kind === 'no-balance');
+  // the same gaps, for the accounts YOUR INVESTMENTS counts — the classes its line adds up (stocks and funds, bonds and CDs,
+  // alternatives, not yet classed), the test the empty-state door below already uses (2026-10-21, MK-XS-M-003)
+  const investGaps = balanceGaps.filter((g) => {
+    const a = (resolvedRows.accounts as any[]).find((x) => String(x.asset_id) === String(g.accountId));
+    return !!a && ['stocks_etf', 'bonds', 'alternatives', 'mixed'].includes(assetClassOf(a));
+  });
 
   // ── section blocks — desktop places the SAME blocks in two columns; phone order unchanged ──
   const heroBlock = (<>
@@ -317,6 +334,14 @@ export default function HomeScreen() {
               <InfoDot term="investments" />
             </View>
             <Text style={styles.heroBig} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{maskedMoney(investTotal)}</Text>
+            {/* A BALANCE NOT ENTERED, NAMED UNDER THE FIGURE IT IS MISSING FROM (2026-10-21, DEC-3523 tenet 3): the same words as
+                the line under Net worth below and the Net worth tab's amber box; it opens the Net worth tab */}
+            {investGaps.length > 0 && (
+              <TouchableOpacity accessibilityRole="button" style={styles.staleLine} onPress={() => router.push('/(tabs)/analytics')}
+                accessibilityLabel={`${investGaps.map((g) => g.title).join('. ')}. Opens the Net worth tab.`}>
+                <Text style={styles.staleTxt}>⚠ {investGaps[0].title}{investGaps.length > 1 ? ` · and ${investGaps.length - 1} more` : ''} ›</Text>
+              </TouchableOpacity>
+            )}
             {investTotal === 0 && !resolvedRows.accounts.some((a: any) => ['stocks_etf', 'bonds', 'alternatives', 'mixed'].includes(assetClassOf(a))) && <EmptyNote door="accounts" />}   {/* Q48 (MK-XS-M-003) */}
             {/* Build-43 feedback #3: the approved mock shows change + date under the hero ALWAYS —
                 hiding them in the empty state made the built screen look nothing like the mock. */}
@@ -435,6 +460,12 @@ export default function HomeScreen() {
           {nwDir && <Text style={[styles.nwDir, { color: nwDir === 'up' ? Colors.gainText : Colors.red }]}>{nwDir === 'up' ? '▲ up' : '▼ down'}</Text>}
           <Text style={styles.nwArrow}>›</Text>
         </TouchableOpacity>
+        {balanceGaps.length > 0 && (
+          <TouchableOpacity accessibilityRole="button" style={styles.staleLine} onPress={() => router.push('/(tabs)/analytics')}
+            accessibilityLabel={`${balanceGaps.map((g) => g.title).join('. ')}. Opens the Net worth tab.`}>
+            <Text style={styles.staleTxt}>⚠ {balanceGaps[0].title}{balanceGaps.length > 1 ? ` · and ${balanceGaps.length - 1} more` : ''} ›</Text>
+          </TouchableOpacity>
+        )}
   </>);
   const needsBlock = (<>
         {/* WHAT NEEDS YOU — top 3 from the ONE insights function (same items/order as Insights) */}
@@ -473,7 +504,7 @@ export default function HomeScreen() {
           <SectionBand inCard title="WILL MY MONEY LAST?" />
           {wil.chance != null ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-              <Text style={styles.wilTxt}>{oddsLine(resolveLens(op ?? {}, store.lensOverride), wil.chance, wil.horizonAge)} <Text style={styles.wilEst}>— estimate</Text></Text>
+              <Text style={styles.wilTxt}>{figWords('MK-XS-M-002', oddsLine(resolveLens(op ?? {}, store.lensOverride), wil.chance, wil.horizonAge))} <Text style={styles.wilEst}>— estimate</Text></Text>
               <InfoDot term="estimate" />
             </View>
           ) : (

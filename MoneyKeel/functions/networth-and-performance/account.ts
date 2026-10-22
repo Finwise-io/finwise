@@ -14,9 +14,9 @@
 import { declareFigures } from '../_figure-spec';
 import { cashEffect } from '../../../src/domain/transactions';
 import type { AssetAccount } from '../../../src/domain/assets';
-import { accountClassBreakdown, ASSET_CLASS_LABEL } from '../../../src/domain/assets';
+import { accountClassBreakdown, ASSET_CLASS_LABEL, uninvestedCashOf, unpricedValueOf } from '../../../src/domain/assets';
 import { itemizedTotal, itemizeRemainder, itemizeMissingCount, type ItemHolding } from '../../../src/domain/assets/itemize';
-import { personalFlowTotals } from '../../../Calculation Module code/engines/ledger';
+import { personalFlowTotals, unnamedActivityOf, moneyIntoAccount, amountNotOnRecord } from '../../../Calculation Module code/engines/ledger';
 
 export interface ClassSlice { key: string; label: string; value: number; }
 export interface HoldingIncome { dividends: number; interest: number; words: string; }
@@ -36,9 +36,27 @@ export interface TheAccount {
    *  transfer coming IN counts as its own amount, anything else as its cash effect — which is a money
    *  figure calculated on a screen. The door answers it now (2026-10-01). */
   activity: { recordId: string; date: string; type: string; ticker: string | null;
-              amount: number; mine: boolean }[];
+              amount: number; mine: boolean;
+              /** True where the record's money IS its amount (a deposit, withdrawal, transfer, dividend, interest, coupon
+               *  or fee) and no amount is on record: the row shows a dash, never $0 (2026-10-21, DEC-3523 tenet 3). */
+              noAmount: boolean;
+              /** A record under a word the app does not know (Q15): the broker's word and the amount it sent, unsigned —
+               *  null for every record the app does know. */
+              unknown: { word: string; amount: number | null } | null }[];
   /** The income of one holding, by ticker — blank when the record does not say which holding paid. */
   incomeOfHolding: (ticker: string | null | undefined) => HoldingIncome;
+  /** THE CASH IN THE ACCOUNT, ITS OWN INCOME (the account-page drawing v01, approved 2026-10-19): an interest record that
+   *  names no holding is interest the account's cash paid ("Interest · cash in this account", and "Income: $15 interest"
+   *  under the cash row). A dividend naming no holding still names none: it stays at the account level. */
+  incomeOfCash: HoldingIncome;
+  /** THE CASH ROW OF A LINKED ACCOUNT (2026-10-21, DEC-0095): the uninvested cash the broker reports plus the part of its
+   *  total no listed holding accounts for — so the rows of BY CATEGORY & HOLDING add up to the market value. Broker total
+   *  $50,000, holdings $40,000, cash reported $5,000 → $10,000. Null for an account built by hand (no rows are listed). */
+  uninvestedCash: number | null;
+  /** THE HOLDINGS WITH NO PRICE, AND WHAT THEY ARE WORTH (2026-10-21, tenets 2 and 3): the part of the broker's total the rest
+   *  does not reach, filed under their class (Unclassified when they span classes) — the same figure Net worth counts for
+   *  them. Their row prints it, never $0. Null when every holding is priced, or the total leaves nothing over for them. */
+  unpriced: { value: number; cls: string; count: number } | null;
 }
 
 export interface Itemising {
@@ -74,27 +92,39 @@ export interface Itemising {
  *     dividends = dividends
  *     interest = interest
  *     words = parts.join(' · ')
+ *     cash interest = personal flow totals(ledger.filter((t) => type = 'INTEREST' and !string(ticker ?? '').trim())).interest.to number(2)
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-NW-F-075 ACC
+ * Called by ... MK-CF-F-118 cashEffect · MK-NW-F-075 ACC
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-075 ACC
+ * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-118 cashEffect · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-XS-F-188 fixStoredFees · MK-CF-F-041 getDebtState
+ *               … and 41 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-019 · MK-NW-M-020 · MK-NW-M-021 · MK-NW-M-038
  *               MK-NW-M-039 · MK-NW-M-040 · MK-NW-M-062
  * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-008 transaction amount
+ *               MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-005 holding price
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
  * Ruled by .... DEC-0008 · DEC-0010 · DEC-0019 · DEC-0045 · DEC-0051 · DEC-0070
  *               DEC-0090 · DEC-0092 · DEC-0095 · DEC-0096 · DEC-0108 · DEC-0149
- *               DEC-0166 · DEC-0192 · DEC-0406 · DEC-0451
+ *               DEC-0166 · DEC-0406 · DEC-0451
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-NW-O-002
@@ -139,6 +169,9 @@ export function theAccount(input: {
     if (interest > 0) parts.push(`${Math.round(interest)} interest`);
     return { dividends, interest, words: parts.join(' · ') };
   };
+  // interest with no holding named is the cash's (account-page drawing v01, approved 2026-10-19)
+  const cashInterest = personalFlowTotals(ledger.filter((t) => t.type === 'INTEREST' && !String(t.ticker ?? '').trim())).interest.toNumber(2);
+  const incomeOfCash: HoldingIncome = { dividends: 0, interest: cashInterest, words: cashInterest > 0 ? `${Math.round(cashInterest)} interest` : '' };
 
   return {
     accountId: String(account.asset_id),
@@ -153,13 +186,26 @@ export function theAccount(input: {
       date: String(t.date ?? ''),
       type: String(t.type ?? ''),
       ticker: t.ticker ?? null,
-      // a transfer INTO this account is its own amount; everything else is its effect on cash
+      // a transfer INTO this account is what left the other one; everything else is its effect on cash — both read by the
+      // one rule for a stored amount (moneyIntoAccount, 2026-10-21), so a broker's −$500 deposit is −$500 here
       amount: (String(t.counter_account_id) === String(account.asset_id) && t.type === 'TRANSFER')
-        ? (t.amount || 0) : cashEffect(t),
+        ? 0 - (moneyIntoAccount(t) ?? 0) : cashEffect(t),
       mine: t.source !== 'connected',
+      // AN AMOUNT NOT ON RECORD IS NOT $0 (2026-10-21, DEC-3523 tenet 3): interest the broker sent with no amount showed
+      // $0 here while the return refused across its day. The row now shows a dash where the amount would be.
+      noAmount: amountNotOnRecord(t),
+      // A RECORD UNDER A WORD THE APP DOES NOT KNOW (Q15, the lead's decision, 2026-10-20; the account-page drawing's row
+      // 50): counted in no total, so its effect above is 0 — but it is not $0. The broker's word and the amount it sent,
+      // with no direction, are what the row shows (unnamedActivityOf, the one test the amber box and the return use).
+      unknown: unnamedActivityOf(t),
     })),
     activityCount: ledger.length,
     incomeOfHolding,
+    incomeOfCash,
+    // the same split Net worth's Cash line counts (DEC-0095), so the page's cash row and that line cannot differ
+    uninvestedCash: uninvestedCashOf(account),
+    unpriced: ((u) => (u ? { value: u.value, cls: u.cls, count: ((account.positions ?? []) as any[]).filter((p) => p.last_price == null
+      && (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0), 0) !== 0).length } : null))(unpricedValueOf(account)),
   };
 }
 

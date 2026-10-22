@@ -562,7 +562,7 @@ describe('MK-NW-O-001 theBonds — five cases', () => {
       bondAcct({ asset_id: 'undated', label: 'undated', maturity_date: null, balance: 1000 })] });
     expect(b.rows.map((r) => r.accountId)).toEqual(['soon', 'late', 'undated']);
     // the rows add to the totals above them
-    expect(b.totalValue).toBe(b.rows.reduce((t, r) => t + r.value, 0));
+    expect(b.totalValue).toBe(b.rows.reduce((t, r) => t + (r.value ?? 0), 0));
     expect(b.couponPerYear).toBeCloseTo(b.rows.reduce((t, r) => t + (r.couponPerYear ?? 0), 0), 6);
     expect(b.nextMaturity).toBe('2027-01-01');
   });
@@ -576,7 +576,8 @@ describe('MK-NW-O-001 theBonds — five cases', () => {
   // by hand, the broker CD: 2 years exactly to maturity, on a coupon day (nothing accrued): 9,850 = 400/(1+y) +
   // 10,400/(1+y)² → y = 4.804473% (solved to 1e-12). The bank CD yields its stated 4.00% (DEC-3837).
   test('complex · Bank CD and broker CD take different YTM/sensitivity paths', () => {
-    const accounts = [cdAcct({ asset_id: 'bankcd', label: 'bankcd', face_value: 10000, coupon_rate: 0.04, balance: 9850, maturity_date: '2028-10-13' }),
+    // the reviewer's bank CD is marked so (2026-10-21): a CD with no answer is no longer called a bank CD on its page — it asks
+    const accounts = [cdAcct({ asset_id: 'bankcd', label: 'bankcd', cd_bought: 'bank', face_value: 10000, coupon_rate: 0.04, balance: 9850, maturity_date: '2028-10-13' }),
       cdAcct({ asset_id: 'brokercd', label: 'brokercd', cd_bought: 'broker', face_value: 10000, coupon_rate: 0.04, balance: 9850, maturity_date: '2028-10-13' })];
     const bank = theBonds({ accounts, accountId: 'bankcd', today: NOW }).one!;
     const broker = theBonds({ accounts, accountId: 'brokercd', today: NOW }).one!;
@@ -735,7 +736,7 @@ describe('MK-NW-O-004 theEmergencyFund — five cases', () => {
 
 describe('MK-NW-O-005 theAlternativesOutlook — five cases', () => {
   const alt = (id: string, kind: string, balance: number) => acct({ asset_id: id, label: id, kind, asset_class: 'alternatives', balance });
-  const rowsAddUp = (o: ReturnType<typeof theAlternativesOutlook>) => expect(o.rows.reduce((t, r) => t + r.value, 0)).toBeCloseTo(o.totalValue, 6);
+  const rowsAddUp = (o: ReturnType<typeof theAlternativesOutlook>) => expect(o.rows.reduce((t, r) => t + (r.value ?? 0), 0)).toBeCloseTo(o.totalValue, 6);
   test('easy · One classified alternative at 6%', () => {
     const o = theAlternativesOutlook({ accounts: [alt('a', 'hedge_funds', 10000)] });
     expect({ count: o.count, total_value: o.totalValue }).toEqual({ count: 1, total_value: 10000 });
@@ -806,7 +807,7 @@ describe('MK-NW-O-006 theHolding — five cases', () => {
   test('easy · Long/short gain from value less cost', () => {
     const h = theHolding({ position: position({ lots: [{ shares: 10, cost_per_share: 20, purchase_date: '2025-01-01' }] }), accountId: 'a', price: 25, transactions: [], now: NOW });
     expect({ total_paid: h.totalPaid, value: h.value, gain: h.gain, return_on_cost: h.returnOnCost }).toEqual({ total_paid: 200, value: 250, gain: 50, return_on_cost: 0.25 });
-    expect(h.capitalGains).toEqual({ longGain: 50, shortGain: 0, totalGain: 50 });   // bought 2025-01-01: held over a year
+    expect(h.capitalGains).toEqual({ longGain: 50, shortGain: 0, totalGain: 50, countedShares: 10, heldShares: 10 });   // bought 2025-01-01: held over a year; every share counted (Q20, 2026-10-20)
   });
   test('easy · Option multiplier applied to value and cost', () => {
     const h = theHolding({ position: position({ kind: 'options', multiplier: 100, lots: [{ shares: 2, cost_per_share: 5, purchase_date: '2026-01-01' }] }), accountId: 'a', price: 8, transactions: [], now: NOW });
@@ -829,7 +830,7 @@ describe('MK-NW-O-006 theHolding — five cases', () => {
       { account_id: 'a', ticker: 'ABC', type: 'SELL', shares: 6, price: 30, date: '2026-10-13' }];
     // before the sale, on 2026-10-13: the 2025-10-13 purchase is short-term
     const before = theHolding({ position: position({ lots }), accountId: 'a', price: 30, transactions: [], now: NOW });
-    expect(before.capitalGains).toEqual({ longGain: 0, shortGain: 5 * 20 + 5 * 10, totalGain: 150 });
+    expect(before.capitalGains).toEqual({ longGain: 0, shortGain: 5 * 20 + 5 * 10, totalGain: 150, countedShares: 10, heldShares: 10 });
     const [after] = applyTransaction([acct({ asset_id: 'a', positions: [position({ lots })] })], ledger[2] as any);
     const held = (after.positions as any[])[0];
     const h = theHolding({ position: held, accountId: 'a', price: 30, transactions: ledger, now: NOW });

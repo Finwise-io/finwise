@@ -82,11 +82,14 @@ function seed(extra: Record<string, unknown> = {}) {
 beforeEach(() => seed());
 
 // ── 1 · THE HEADER TRIO ─────────────────────────────────────────────────────────────────────────
-test('the trio reads Ending value · Wealth generated · Return, in that order (Performance v17 frame 2), and Income is not one of them', () => {
+// the account-page drawing v01 (approved 2026-10-19) draws the trio as v17 frame 2 did: Market value · Wealth generated ·
+// Return. The build had printed the Performance tab's "Ending value" (phone 1's word) here.
+test('the trio reads Market value · Wealth generated · Return, in that order (the account-page drawing v01), and Income is not one of them', () => {
   render(<AccountPortfolioScreen />);
   // the first three are the trio; "Wealth generated" appears again further down, as a walk line
-  const labels = screen.getAllByText(/^(Ending value|Wealth generated|Return)$/).map((n: any) => String(n.props.children));
-  expect(labels.slice(0, 3)).toEqual(['Ending value', 'Wealth generated', 'Return']);
+  const labels = screen.getAllByText(/^(Market value|Ending value|Wealth generated|Return)$/).map((n: any) => String(n.props.children));
+  expect(labels.slice(0, 3)).toEqual(['Market value', 'Wealth generated', 'Return']);
+  expect(screen.queryByText('Ending value')).toBeNull();
   expect(screen.queryByText('Income')).toBeNull();          // it sits with the holding that earned it
   expect(screen.getAllByText('$52,704').length).toBeGreaterThan(0);
   expect(screen.getAllByText('$300').length).toBeGreaterThan(0);
@@ -153,7 +156,7 @@ test('day one — no record and nothing moved → Since today, every line a real
   seed({ invDaily: {}, snapshotDays: [], transactions: [] });
   render(<AccountPortfolioScreen />);
   expect(screen.getByText('Since today')).toBeOnTheScreen();
-  expect(screen.getByText('SUMMARY · SINCE TODAY')).toBeOnTheScreen();
+  expect(screen.getByText('THIS ACCOUNT · SINCE TODAY')).toBeOnTheScreen();   // the drawing's band (v01, state C)
   // the account page's own day-one line, linked with no past activity sent (DEC-6075, 2026-10-19, "approved")
   expect(screen.getByText('You linked this account today. E*TRADE sent no past activity, so its figures start today.')).toBeOnTheScreen();
   // DEC-5136 (2026-10-13): one title in every state — "HOW TODAY'S VALUE STANDS" is retired
@@ -170,8 +173,10 @@ test('the holdings table carries a RETURN column beside MARKET VALUE and a Total
   render(<AccountPortfolioScreen />);
   expect(screen.getByText('BY CATEGORY & HOLDING')).toBeOnTheScreen();
   expect(screen.getByText('MARKET VALUE')).toBeOnTheScreen();
-  // RETURN heads two tables now: WHAT EACH CATEGORY EARNED (v17) and BY CATEGORY & HOLDING (v14)
-  expect(screen.getAllByText('RETURN').length).toBe(2);
+  // RETURN heads one table: BY CATEGORY & HOLDING. WHAT EACH CATEGORY EARNED was the Performance tab's (v17 phone 1) and
+  // is not on the account-page drawing v01 (row 18), so it is gone from this page
+  expect(screen.getAllByText('RETURN').length).toBe(1);
+  expect(screen.queryByText('WHAT EACH CATEGORY EARNED')).toBeNull();
   expect(screen.getByText('Total')).toBeOnTheScreen();
   expect(screen.getByLabelText(`Total, $52,704, return ${RETURN_TEXT}`)).toBeOnTheScreen();
   // a class narrower than the whole account has no measured window return of its own yet — "—",
@@ -179,7 +184,8 @@ test('the holdings table carries a RETURN column beside MARKET VALUE and a Total
   expect(screen.getByLabelText(/Stocks \/ Funds, \$40,000, return —/)).toBeOnTheScreen();
   // income still sits with the holding that earned it, and the account's total is said out loud
   expect(screen.getByText('Income: $120 dividends')).toBeOnTheScreen();
-  expect(screen.getAllByText('$220').length).toBeGreaterThan(0);   // the account's income, said out loud
+  // the account's income, said out loud as the drawing's sum, holding by holding (row 12): 120 + 40 + 20 + 40 (the cash)
+  expect(screen.getByText(/Income sits with the holding that earned it \(120 ＋ 40 ＋ 20 ＋ 40 = \$220 for this account\)\./)).toBeOnTheScreen();
 });
 
 test('a class that IS the whole account shows the account\'s own return — the two cannot differ', () => {
@@ -207,7 +213,8 @@ test('a bond states its own yearly rate, and the column spells the period out in
 
 test('a holding row still opens its own page', () => {
   render(<AccountPortfolioScreen />);
-  fireEvent.press(screen.getAllByLabelText(/^LCTX · 800 shares/)[0]);
+  // the drawing's row: the name, then its shares and price beneath it (v01 state A: "VOO", "160 shares · $562.50")
+  fireEvent.press(screen.getAllByLabelText(/^LCTX, 800 shares · \$50\.00/)[0]);
   expect(mockPushes.some((r) => r.startsWith('/holding-detail?account=e1&position=p1'))).toBe(true);
 });
 

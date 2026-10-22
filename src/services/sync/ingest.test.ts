@@ -25,13 +25,15 @@ const payload = (over: Partial<AccountSyncPayload> = {}): AccountSyncPayload => 
   ...over,
 });
 
-test('the broker total IS the balance; the cash is net of the money-market fund, which is a holding; positions carry the mark', () => {
+test('the broker total IS the balance; the cash is net of the money-market fund, which is a holding — classed Cash by the broker\'s flag (DEC-2159 / his 2026-10-20 words); positions carry the mark', () => {
   const r = ingestSync([], {}, [payload()], NOW);
   const a = r.accounts.find((x) => x.asset_id === stAssetId('acc-1'))!;
   expect(a.balance).toBe(50000);                    // authority rule — never recomputed from parts
   expect(a.cash_balance).toBe(1000);                // 1200 cash − 200 SPAXX: the broker counts the fund inside its cash figure
   expect(a.positions!.map((x) => x.ticker)).toEqual(['VTI', 'SPAXX']);   // the fund is a holding (owner, DEC-0051) — it used to be dropped
-  expect(a.positions![1].asset_class).toBe('stock_etf');
+  expect(a.positions![1].asset_class).toBe('cash');                  // was 'stock_etf' (DEC-0051); the broker flags it cash-equivalent
+  expect((a.positions![1] as any).cash_equivalent).toBe(true);        // the broker's own flag and type are kept on the holding
+  expect((a.positions![1] as any).broker_type).toBe('oef');
   expect(a.positions![0].ticker).toBe('VTI');
   expect(a.positions![0].last_price).toBe(250);
   expect(a.source).toBe('connected');

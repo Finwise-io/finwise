@@ -10,6 +10,7 @@ import { recordedDay } from '../../testing/recordedDay';
 import { useStore } from '../../store/useStore';
 import { employedPartner } from '../../testing/personas';
 import { ADD_ACCOUNT_DOORS, ADD_ACCOUNT_QUESTION } from '../../constants/doors';
+import { isoLocalDate } from '../../domain/_shared/dates';
 
 jest.mock('../../services/sync/snaptradeSync', () => ({ runSnapTradeSync: jest.fn() }));
 const mockPush = jest.fn();
@@ -25,7 +26,10 @@ const visible = (): string[] => {
   const walk = (n: any) => { if (n == null) return; if (typeof n === 'string') { const t = n.trim(); if (t) out.push(t); return; } (Array.isArray(n) ? n : n.children ?? []).forEach(walk); };
   walk(screen.toJSON()); return out;
 };
-const today = new Date().toISOString().slice(0, 10);
+// today in the person's own calendar (the app's one date writer), and a sync an hour ago — a fixed 09:00 UTC
+// sync was in the future between 00:00 and 09:00 UTC, so the chip did not read Linked at those hours
+const today = isoLocalDate(new Date());
+const syncedAt = new Date(Date.now() - 60 * 60 * 1000).toISOString();
 
 describe('first day (state C)', () => {
   beforeEach(() => { useStore.getState().resetAll(); useStore.getState().setOnboardingProfile(employedPartner as any); (router.push as jest.Mock).mockClear(); });
@@ -68,8 +72,8 @@ describe('with accounts', () => {
       onboardingComplete: true, nwSeeded: true, nwSetupChoice: 'self', hideBalances: false,
       onboardingProfile: { ...employedPartner, monthlySpending: '4500' },
       assetAccounts: [
-        { asset_id: 'chk', label: 'Chase Checking', institution: 'Chase', kind: 'checking', tax_bucket: 'CASH', balance: 8000, target_return: 0, source: 'connected', last_synced: `${today}T09:00:00Z` },
-        { asset_id: 'van', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 355152, target_return: 0.07, source: 'connected', last_synced: `${today}T09:00:00Z`,
+        { asset_id: 'chk', label: 'Chase Checking', institution: 'Chase', kind: 'checking', tax_bucket: 'CASH', balance: 8000, target_return: 0, source: 'connected', last_synced: syncedAt },
+        { asset_id: 'van', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 355152, target_return: 0.07, source: 'connected', last_synced: syncedAt,
           // a linked account's value is its holdings: the daily record reads them, so the return has something to measure
           positions: [{ position_id: 'p1', ticker: 'VTI', asset_class: 'stock_etf', last_price: 355152, lots: [{ lot_id: 'l1', shares: 1, cost_per_share: 300000, purchase_date: '2024-01-02' }] }] },
       ],

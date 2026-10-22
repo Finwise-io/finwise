@@ -66,7 +66,8 @@
    },
    "difference": "one reason named; the missing deposit-day value is not mentioned",
    "formula_gives_match": "formula gives one branch; the app picks it by a FIXED order, so it is deterministic, not arbitrary",
-   "note": "UNCLEAR: app picks one reason by a fixed order (time-weighted-return.ts:175-219: start, end, undated movement, shares, then day by day). Open question: name every reason, or one primary reason? No decision settles it."
+   "note": "UNCLEAR: app picks one reason by a fixed order (time-weighted-return.ts:175-219: start, end, undated movement, shares, then day by day). Open question: name every reason, or one primary reason? No decision settles it.",
+   "settled": "SETTLED 2026-10-20 (re-judged) by DEC-1669: where a return cannot be measured the screen gives \"a sentence saying why\" — one reason, the first in a fixed order, the same every time; the auditor allowed exactly that. Held by outside_networth_final_openai_part4.test.ts:118."
   },
   {
    "id": "MK-NW-F-105",
@@ -251,7 +252,8 @@
    },
    "difference": "app makes the last-listed (entered-first) property the home and the one left the rental",
    "formula_gives_match": null,
-   "note": "UNCLEAR: assets/index.ts:812,815-816. Open question: may unlinked rent reclassify a property, and should the screen disclose that the rent names no property?"
+   "note": "UNCLEAR: assets/index.ts:812,815-816. Open question: may unlinked rent reclassify a property, and should the screen disclose that the rent names no property?",
+   "settled": "SETTLED 2026-10-10 by DEC-4059d: a rent entry with no property is not rent — it makes no property a rental, and the Income screen asks \"Which property is it?\" in amber. Held by outside_networth_final_openai_part4.test.ts:184."
   },
   {
    "id": "MK-NW-F-107",
@@ -267,7 +269,8 @@
    },
    "difference": "null is NOT treated as \"no entries\" (the auditor's concern is met); the stored \"rental\" stands",
    "formula_gives_match": null,
-   "note": "UNCLEAR: assets/index.ts:801 (!told && stored rental). Card states this branch. DEC-3035p rules only the handed-in case. Production: budget-counted.ts:74 always hands an array; primaryHomeIdOf callers (assets/index.ts:1923,2034,2140; RetirementCockpit.tsx:164,948) hand none, but the home id is the same either way. Open question: keep the stored word or refuse when rent data were not handed in?"
+   "note": "UNCLEAR: assets/index.ts:801 (!told && stored rental). Card states this branch. DEC-3035p rules only the handed-in case. Production: budget-counted.ts:74 always hands an array; primaryHomeIdOf callers (assets/index.ts:1923,2034,2140; RetirementCockpit.tsx:164,948) hand none, but the home id is the same either way. Open question: keep the stored word or refuse when rent data were not handed in?",
+   "settled": "SETTLED 2026-10-20 (re-judged) by DEC-3769, with DEC-3035p: rent entries not handed in are not read as \"none\" — the stored rental stands — and the emergency fund counts its months without that rent and says \"rent not included. Enter rent to include.\" (pinned). Held by outside_networth_final_openai_part4.test.ts:189."
   },
   {
    "id": "MK-NW-F-108",
@@ -337,7 +340,8 @@
    "actual": "taxable",
    "difference": "app prints \"taxable\" for an account with no treatment and no bucket",
    "formula_gives_match": null,
-   "note": "UNCLEAR: taxTreatmentOf defaults to taxable (assets/index.ts:569-575). Open question: \"taxable\" or \"not stated\"?"
+   "note": "UNCLEAR: taxTreatmentOf defaults to taxable (assets/index.ts:569-575). Open question: \"taxable\" or \"not stated\"?",
+   "settled": "SETTLED 2026-10-10 by DEC-4036f: nothing stated reads \"tax type not stated\", never \"taxable\". Held by outside_networth_final_openai_part4.test.ts:214."
   },
   {
    "id": "MK-NW-F-109",
@@ -726,7 +730,8 @@
    ],
    "difference": "the $1,500 is kept (does not vanish) but labelled Other and rated at the Other benchmark (5%)",
    "formula_gives_match": "yes — matches formula_gives exactly",
-   "note": "UNCLEAR: alternatives/index.ts:144-145. Input mapping: the unpriced holding needs shares > 0 for the broker total to file its value under Alternatives (assets/index.ts:1552,1560-1566). Open question: flag an unpriced alternative's kind as not known rather than Other?"
+   "note": "UNCLEAR: alternatives/index.ts:144-145. Input mapping: the unpriced holding needs shares > 0 for the broker total to file its value under Alternatives (assets/index.ts:1552,1560-1566). Open question: flag an unpriced alternative's kind as not known rather than Other?",
+   "settled": "SETTLED 2026-10-10 by DEC-4036h: the $1,500 no priced holding explains has no kind and no growth rate and is shown as \"$1,500 asset type not classified\". Held by outside_networth_final_openai_part4.test.ts:295."
   },
   {
    "id": "MK-NW-F-113",
@@ -788,7 +793,8 @@
    "actual": 0,
    "difference": "app returns 0 for a missing figure",
    "formula_gives_match": "yes — matches formula_gives 0",
-   "note": "UNCLEAR: assets/index.ts:689. The 0 only decides whether an entry is live (> 0); DEC-1926 reads no rent entered as no rental. Open question: does an unloaded rent figure need its own state?"
+   "note": "UNCLEAR: assets/index.ts:689. The 0 only decides whether an entry is live (> 0); DEC-1926 reads no rent entered as no rental. Open question: does an unloaded rent figure need its own state?",
+   "settled": "SETTLED 2026-10-20 (re-judged) by DEC-3768c and DEC-3769: a figure not given counts as not entered; the 0 only says the entry is not live and is never shown as rent; the emergency fund says \"rent not included\" (pinned). Held by outside_networth_final_openai_part4.test.ts:310."
   },
   {
    "id": "MK-NW-F-114",
@@ -819,7 +825,8 @@
    "actual": 2,
    "difference": "\"about 2k\" reads as 2 (dollars) — not refused, not 0, not 2,000",
    "formula_gives_match": null,
-   "note": "UNCLEAR: assets/index.ts:689 keeps only digits. A typed \"2k\" would make a property a rental on $2. Open question: refuse unparseable rent text?"
+   "note": "UNCLEAR: assets/index.ts:689 keeps only digits. A typed \"2k\" would make a property a rental on $2. Open question: refuse unparseable rent text?",
+   "settled": "SETTLED 2026-10-10 by DEC-3768c: a rent figure with words in it is not read — \"about 2k\" counts as not entered, never $2 and never $2,000. Held by outside_networth_final_openai_part4.test.ts:324."
   },
   {
    "id": "MK-NW-F-115",
@@ -885,7 +892,8 @@
    },
    "difference": "live ids match; C is not flagged",
    "formula_gives_match": "yes — matches formula_gives",
-   "note": "UNCLEAR: assets/index.ts:719. Open question: flag an entry with no figures for validation?"
+   "note": "UNCLEAR: assets/index.ts:719. Open question: flag an entry with no figures for validation?",
+   "settled": "SETTLED 2026-10-20 (re-judged) by DEC-3769: A and B are live; blank C is not live but is not dropped without a word — the emergency fund says \"rent not included. Enter rent to include.\" (pinned). Held by outside_networth_final_openai_part4.test.ts:337."
   },
   {
    "id": "MK-NW-F-115",
@@ -901,7 +909,8 @@
    },
    "difference": "excluded silently",
    "formula_gives_match": null,
-   "note": "UNCLEAR: assets/index.ts:719. Open question: is a negative rent invalid input to refuse?"
+   "note": "UNCLEAR: assets/index.ts:719. Open question: is a negative rent invalid input to refuse?",
+   "settled": "SETTLED 2026-10-20 (re-judged) by DEC-3768c: the rent field takes digits only, so a minus cannot be typed, and \"−50\" as text is not read — not entered, never −$50 (pinned). Held by outside_networth_final_openai_part4.test.ts:353."
   },
   {
    "id": "MK-NW-F-116",
@@ -985,7 +994,8 @@
    },
    "difference": "no identifier returned; nothing guessed",
    "formula_gives_match": null,
-   "note": "UNCLEAR: assets/index.ts:749; the unlinked rent is handled by propertyUseMap (assets/index.ts:815-816). Open question: report unlinked rent as such?"
+   "note": "UNCLEAR: assets/index.ts:749; the unlinked rent is handled by propertyUseMap (assets/index.ts:815-816). Open question: report unlinked rent as such?",
+   "settled": "SETTLED 2026-10-20 (re-judged) by DEC-4059d: no identifier is guessed; the Income screen asks \"Which property is it?\" in amber, and the emergency fund counts no rent from it and says \"rent not included\" (pinned). Held by outside_networth_final_openai_part4.test.ts:375."
   },
   {
    "id": "MK-NW-F-117",
@@ -1061,7 +1071,8 @@
    },
    "difference": "null does not activate the \"none entered → second home\" rule; the stored word stands",
    "formula_gives_match": null,
-   "note": "UNCLEAR: assets/index.ts:794,801. Open question as F-107 edge."
+   "note": "UNCLEAR: assets/index.ts:794,801. Open question as F-107 edge.",
+   "settled": "SETTLED 2026-10-20 (re-judged) by DEC-3769, with DEC-3035p: not handed a list, the stored rental stands; handed an empty one it is a second home; the emergency fund says \"rent not included\" when the entries cannot be read (pinned). Held by outside_networth_final_openai_part4.test.ts:404."
   },
   {
    "id": "MK-NW-F-118",
@@ -1585,7 +1596,8 @@
    },
    "difference": "app states 5 months; rent it was not given reads as $0",
    "formula_gives_match": "yes — matches formula_gives (5 months)",
-   "note": "UNCLEAR: emergency-fund.ts:169,188. Open question: is a profile with no rent entries \"confirmed none\" or \"unknown\"?"
+   "note": "UNCLEAR: emergency-fund.ts:169,188. Open question: is a profile with no rent entries \"confirmed none\" or \"unknown\"?",
+   "settled": "SETTLED 2026-10-20 (re-judged) by DEC-3769, his ruling on this case: $10,000 ÷ $2,000 = 5 months, counted without rent; \"rent not included. Enter rent to include.\" only when a property that is not the home has rent that cannot be read (pinned). Held by outside_networth_final_openai_part4.test.ts:574."
   },
   {
    "id": "MK-NW-O-005",

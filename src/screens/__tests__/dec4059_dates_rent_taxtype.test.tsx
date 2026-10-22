@@ -98,7 +98,8 @@ describe('DEC-4036f — no form saves Taxable when the person chose nothing', ()
     const { BondEditor } = require('../BondsScreen');
     const onSave = jest.fn();
     render(<BondEditor bond={null} open onClose={() => {}} onSave={onSave} />);
-    expect(screen.getByLabelText('Account type Taxable').props.accessibilityState).toEqual({ selected: false });
+    // the choice is headed Held in and offers the one list of six since 2026-10-20 (DEC-2441): none of the six is picked
+    for (const w of ['Taxable', '401(k)', 'Traditional IRA', 'Roth IRA', 'Roth 401(k)', 'HSA']) expect(screen.getByLabelText(`Held in ${w}`).props.accessibilityState).toEqual({ selected: false });
     fireEvent.changeText(screen.getByPlaceholderText('e.g. US Treasury 2030, Apple Corp 4.5%'), 'US Treasury 2030');
     fireEvent.changeText(screen.getByPlaceholderText('10000'), '10000');
     fireEvent.changeText(screen.getByPlaceholderText('4.5'), '4');

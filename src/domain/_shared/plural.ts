@@ -25,6 +25,8 @@ export const PLURAL_WORDS = {
   month: 'months',
   number: 'numbers',
   option: 'options',
+  // a debt's monthly payment that was never entered: "Car loan · payment not entered" (2026-10-21, DEC-3523 tenet 3)
+  payment: 'payments',
   property: 'properties',
   purchase: 'purchases',
   record: 'records',
@@ -50,25 +52,25 @@ export type CountedWord = keyof typeof PLURAL_WORDS;
  *     the answer = n + ' ' + (one   when n = 1;   many   otherwise)
  *
  * Called by ... MK-CF-O-019 theIncomeManager · MK-HM-F-006 money0
- *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-028 classPortionLabel
- *               MK-NW-F-046 historyCoverage · MK-NW-F-052 buildItemizedAccounts
- *               MK-NW-F-070 accruedInterestCaveat · MK-NW-F-130 notIncludedSentence
+ *               MK-NW-F-028 classPortionLabel · MK-NW-F-046 historyCoverage
+ *               MK-NW-F-052 buildItemizedAccounts · MK-NW-F-070 accruedInterestCaveat
+ *               MK-NW-F-130 notIncludedSentence · MK-NW-F-154 accountInvestments
  *               MK-PF-F-045 priceHistoryShortSentence · MK-PL-F-028 sampleAskLine
  *               MK-PL-F-063 fraLabel · MK-ST-F-075 agoLabel
  *               MK-XS-F-002 dataGaps · MK-XS-F-003 gapsHeadline
  *               MK-XS-F-183 writeFigure
  *
- * Reaches ..... 151 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 276 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               … and 133 more — the full list is on functions_from_code
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 258 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

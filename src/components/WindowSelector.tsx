@@ -13,7 +13,7 @@ export function WindowSelector({ windows, chosen, figures, onPick }: {
   onPick: (key: string) => void;
 }) {
   return (
-    <View style={styles.segBar}>
+    <View style={styles.segBar} testID="window-bar">
       {windows.map((w, i) => {
         const on = w.key === chosen;
         // MARK 18 (mock v17, approved 2026-09-30): a window longer than a year reads "+7.30%/year" here.

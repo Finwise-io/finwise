@@ -93,7 +93,8 @@ describe('display & lifecycle', () => {
     expect(screen.getByText('BY CATEGORY & HOLDING')).toBeOnTheScreen();     // final mock rename, 2026-08-04
     expect(screen.getByText('AAPL $220 call · exp Jan 16 2027')).toBeOnTheScreen();
     expect(screen.getByText(/option — 2 contracts/)).toBeOnTheScreen();
-    expect(screen.getByText(/Counted inside this account's total/)).toBeOnTheScreen();
+    // the note under the holdings, as the account-page drawing v01 words it (approved 2026-10-19)
+    expect(screen.getByText(/^A holding’s return is what its own price did in this window/)).toBeOnTheScreen();
   });
 
   test('Home shows the fix line when a connection is broken (cached data is silent — the flag is the tell)', () => {

@@ -75,7 +75,9 @@ describe('dollar-first what-needs-you wording (walk row 9)', () => {
     } as any);
     render(<InsightsScreen />);
     expect(screen.queryByText(/sits in cash/)).toBeNull();   // the cut insight stays gone
-    expect(screen.getByText(/\$69,000 \(69%\) of your invested money sits in a single account/)).toBeOnTheScreen();
+    // out of the Investments line (2026-10-21, DEC-0457): the $31,000 checking is not invested money — it read (69%), out of
+    // $100,000 with the checking counted
+    expect(screen.getByText(/\$69,000 \(100%\) of your invested money sits in a single account/)).toBeOnTheScreen();
     // fact, not instruction: the audit-flagged imperative is gone
     expect(screen.queryByText(/add the holdings inside it and spread/)).toBeNull();
   });

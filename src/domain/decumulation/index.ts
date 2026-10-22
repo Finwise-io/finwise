@@ -4,7 +4,8 @@
 import type { AssetAccount } from '../assets';
 import { rmdStartAgeFromAge, rmdDivisor as tableRmdDivisor } from '../../../Calculation Module code/engines/rmd';
 import { earmarkedAmount, primaryCarIdOf, primaryHomeIdOf, accountDisplayNames, taxTreatmentOf, assetKind } from '../assets';
-import { marketValue, costBasis } from '../performance';
+import { marketValue, paidOnRecord, contractMultiplier } from '../performance';
+import { moneyIntoAccount } from '../../../Calculation Module code/engines/ledger';
 
 // ---- where the money sits, by tax treatment ----
 export interface BucketSplit { taxable: number; preTax: number; roth: number; cash: number; total: number; }
@@ -544,12 +545,10 @@ export function rmdSchedule(preTaxNow: number, ageNow: number, expReturn: number
  *               MK-PL-F-027 nextDecision
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-008 transaction amount
- *               MK-XS-I-009 transaction date
+ * Reads ....... MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
  *
  * Decides .....
- *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-009
@@ -559,7 +558,8 @@ export function rmdTakenThisYear(transactions: { type?: string; account_id?: str
   const ids = new Set(preTaxAccountIds.map(String));
   return ((transactions ?? [])
     .filter((t) => t.type === 'WITHDRAWAL' && ids.has(String(t.account_id)) && String(t.date ?? '').startsWith(String(nowYear)))
-    .reduce((s, t) => s + (t.amount || 0), 0));
+    // the one rule for a stored amount (moneyIntoAccount, 2026-10-21): a reversed withdrawal cancels, never adds
+    .reduce((s, t) => s - (moneyIntoAccount(t) ?? 0), 0));
 }
 
 // ── the draw-order steer sheet's comparator (design r50) ───────────────────────────────────
@@ -660,7 +660,7 @@ export function drawOrderOutcome(
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
- *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *
  * Decides .....
  *     · A holding with no price is left out; no priced taxable holding at all → nothing, never a guessed 50% (founder ruling 2026-09-08, G6).
@@ -679,10 +679,14 @@ export function taxableGainShare(accounts: AssetAccount[], priceOf: (ticker: str
       const price = p.last_price ?? priceOf(p.ticker);
       if (price == null) continue;
       // a holding whose worth or cost is not on record makes the share unknown — never a $0 cost (tenet 3; outside review Claude Performance, 2026-10-11)
-      const mv = marketValue(p, price), cost = costBasis(p);
-      if (mv == null || cost == null) return null;
-      value += mv;
-      basis += cost;
+      // WHAT WAS PAID IS READ ONE WAY (paidOnRecord, 2026-10-21): the gain is taken over the purchases whose price paid is on
+      // record — their value today against what was paid for them — as the Holding page's gain is. costBasis read a stored $0
+      // as a real $0, so 10 shares at $100 and 10 saved at $0, today $120, read a gain share of 58.33% ($1,400 of $2,400)
+      // where the page shows $200 of $1,200, 16.67%; and one purchase with no price paid made the whole share unknown.
+      const mv = marketValue(p, price), paid = paidOnRecord(p);
+      if (mv == null || paid.paid == null || paid.counted == null) return null;
+      value += paid.counted * price * contractMultiplier(p);
+      basis += paid.paid;
     }
   }
   if (value <= 0) return null;

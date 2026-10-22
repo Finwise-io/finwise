@@ -76,9 +76,12 @@ describe('MK-NW-O-008 thePerformance — a record that begins today, worked back
     expect(f.sentence).toBe('The record begins Oct 13, 2026, so it cannot say what these accounts were worth on Oct 12, 2025.');
   });
 
-  test('cash gains nothing and is never named as having no price history', () => {
-    const withCash = { ...VANGUARD, balance: 45000, positions: [...VANGUARD.positions, { position_id: 'p-cash', ticker: 'SPAXX', asset_class: 'cash', value_now: 5000, lots: [{ lot_id: 'l2', shares: 5000, cost_per_share: 1, purchase_date: '2023-01-03' }] }] };
-    const cashRow = { position: { position_id: 'p-cash', ticker: 'SPAXX', asset_class: 'cash', value_now: 5000, lots: [{ shares: 5000 }] }, marketValue: 5000, periodReturn: null };
+  // DEC-2159 / his 2026-10-20 words, "always the class broker sends": SPAXX is cash here because the broker flags it
+  // cash-equivalent — the flag the sync now keeps on the holding. It was cash by its stored tag alone, while Net worth's
+  // class rows read the same stored holding by its name as Stocks / Funds; both now ask the one order (MK-NW-F-109).
+  test('cash gains nothing and is never named as having no price history (DEC-2159 / his 2026-10-20 words: the broker flags SPAXX cash)', () => {
+    const withCash = { ...VANGUARD, balance: 45000, positions: [...VANGUARD.positions, { position_id: 'p-cash', ticker: 'SPAXX', asset_class: 'cash', cash_equivalent: true, value_now: 5000, lots: [{ lot_id: 'l2', shares: 5000, cost_per_share: 1, purchase_date: '2023-01-03' }] }] };
+    const cashRow = { position: { position_id: 'p-cash', ticker: 'SPAXX', asset_class: 'cash', cash_equivalent: true, value_now: 5000, lots: [{ shares: 5000 }] }, marketValue: 5000, periodReturn: null };
     const f = ask(['van'], [withCash], [VTI_ROW, cashRow], recordToday([withCash]));
     expect(f.walk!.wealthGenerated).toBeCloseTo(3636.3636, 4);            // the cash added $0
     expect(f.walk!.beginning).toBeCloseTo(45000 - 3636.3636, 4);

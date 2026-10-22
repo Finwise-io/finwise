@@ -87,10 +87,15 @@ test('a purchase with no share count makes the shares, the total paid and the va
   expect(h.returnOnCost).toBeNull();
 });
 
-test('shares bought with no price paid on record: the part of the split they sit in, and the total, are unknown', () => {
+// RE-RULED 2026-10-20 — Q20, by his rule for sales (DEC-4643): the total counts the shares with a price paid and the
+// page says what is left out; it refused whole before.
+test('shares bought with no price paid on record: their part of the split is unknown, and the total counts the rest and says so', () => {
   const h = theHolding({ position: position({ lots: [{ shares: 100, cost_per_share: 200, purchase_date: iso(NOW.getTime() - 2 * YEAR) },
     { shares: 50, cost_per_share: 0, purchase_date: iso(NOW.getTime() - 30 * 864e5) }] }), accountId: 'a1', price: 250, transactions: [], now: NOW });
   expect(h.capitalGains!.longGain).toBe(5000);       // the lot with a price paid stands
   expect(h.capitalGains!.shortGain).toBeNull();      // the lot without one is not a $0 gain
-  expect(h.capitalGains!.totalGain).toBeNull();
+  expect(h.capitalGains!.totalGain).toBe(5000);      // counted on 100 of the 150 shares…
+  expect([h.capitalGains!.countedShares, h.capitalGains!.heldShares]).toEqual([100, 150]);   // …and that is said
+  expect(h.avgPaidPerShare).toBe(200);               // the average leaves the 50 out too — one rule (lotCostOnRecord)
+  expect(h.avgLeavesOut).toBe(50);
 });

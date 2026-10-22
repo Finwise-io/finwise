@@ -86,8 +86,9 @@ test('DEC-4082 · a word not on the list is refused, never given a guessed "s"',
 });
 
 test('DEC-4082 · no count is pluralised by hand outside the list', () => {
+  // the last pattern widened 2026-10-21: `one ? 'payment' : 'payments'` (no "=== 1") slipped past the narrower one twice
   const HAND = [/\? '' : 's'/, /\? 's' : ''/, /\? 'y' : 'ies'/, /\? 'ies' : 'y'/, /propert\$\{/,
-    /=== ?1 \? '([A-Za-z]+)' : '\1s'/];
+    /\? '([A-Za-z]+)' : '\1s'/];
   const hits: string[] = [];
   const files = sourceFiles();
   for (const f of files) {

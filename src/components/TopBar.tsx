@@ -7,7 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../store/useStore';
-import { Colors, Spacing } from '../utils/theme';
+import { Colors, Spacing, Radii } from '../utils/theme';
 import { resolveLens, tabOrder, type FccTab } from '../domain/profile/lens';
 import { TAB_META } from '../constants/tabs';
 import { modalAnimation } from '../hooks/reducedMotion';
@@ -180,7 +180,7 @@ export default function TopBar({ back, onBack }: { back?: boolean; onBack?: () =
 
 const s = StyleSheet.create({
   bar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.lg, paddingBottom: 10, backgroundColor: Colors.bgSecondary },
-  menuBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 38, paddingHorizontal: 13, borderRadius: 19, backgroundColor: Colors.cardBg, justifyContent: 'center', borderWidth: 1, borderColor: Colors.border },
+  menuBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 38, paddingHorizontal: 13, borderRadius: Radii.md /* DEC-0231: rounded corners, not semicircle ends */, backgroundColor: Colors.cardBg, justifyContent: 'center', borderWidth: 1, borderColor: Colors.border },
   right: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   eyeBtn: { height: 38, width: 38, borderRadius: 19, backgroundColor: Colors.cardBg, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Colors.border },
   menuTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },

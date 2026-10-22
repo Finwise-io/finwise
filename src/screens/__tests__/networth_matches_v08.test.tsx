@@ -86,7 +86,15 @@ const KNOWN = (built: string) => built.replace(/ # months at your planned spend 
   .replace(" your rent / mortgage budget line is not counted here: your home's mortgage, home mortgage, is in debts and is counted from there.", '')
   // HIS RULING, 2026-10-11 (DEC-4528, a READ THIS FIRST row on v08): the empty Debts door reads "Add your debts ›",
   // the wording of the approved empty-state drawing; state C drew "Add a mortgage, card, or loan ›".
-  .replace('nothing entered yet. add your debts emergency fund', 'nothing entered yet. add a mortgage, card, or loan emergency fund');
+  .replace('nothing entered yet. add your debts emergency fund', 'nothing entered yet. add a mortgage, card, or loan emergency fund')
+  // 2026-10-21 (tenets 2 and 3, a READ THIS FIRST row on v08): a LINKED holding with no price is counted as the rest of the
+  // broker's total on Net worth and on the account page, so the fix sheet now says so; state F drew the line written for a
+  // holding built by hand, which is counted at what was paid and still reads that way
+  // (or, where the total leaves nothing over for it, that it counts for nothing — its row then shows no figure)
+  .replace(/meanwhile it counts as the rest of [^']*'s total — what the other holdings and the cash leave over\. it stays out of the change line, and we say so\./,
+    'meanwhile we show what you paid — it stays out of the change line, and we say so.')
+  .replace(/meanwhile it counts for nothing: [^']*'s total leaves nothing over for it once the other holdings and the cash are counted\. it stays out of the change line, and we say so\./,
+    'meanwhile we show what you paid — it stays out of the change line, and we say so.');
 const compare = (_name: string, drawn: string[], built: string[], minWords = 35) => {
   const want = norm(drawn), got = KNOWN(norm(built));
   expect(want.split(' ').length).toBeGreaterThanOrEqual(minWords);   // a state that read as empty would match anything
@@ -129,4 +137,40 @@ test('F — the fix sheet', () => {
 test('G — the add sheet', () => {
   setup(); render(<NetWorth />); fireEvent.press(screen.getByText(/Add an account/));
   compare('G', from(phone(6), /^How do you want to add an account/), from(builtLines(screen.toJSON()), /^How do you want to add an account/));
+});
+
+/** APPEARANCE — THE CARDS' EDGES (2026-10-20). The words above cannot see a shadow or a ring, so this reads the drawing's own
+ *  stylesheet for every rule that draws one, and the rendered styles for every node on the screen. What v08 draws: the
+ *  hero and the ledger are flat white cards with no shadow (the Quiet Instrument direction — no floating cards); the one
+ *  ring on a card is the fix sheet's gap card, 1px of 5% black; the phone's own frame and the orange change marks are
+ *  drawing furniture, not the app. */
+const CSS = require('fs').readFileSync(DRAWING, 'utf8').match(/<style>([\s\S]*?)<\/style>/)[1] as string;
+const ruleOf = (sel: string) => (CSS.match(new RegExp(`(?:^|\\n|\\})\\s*${sel.replace(/\./g, '\\.')}\\{([^}]*)\\}`)) ?? [])[1];
+const flat = (st: any): any => (Array.isArray(st) ? Object.assign({}, ...st.map(flat)) : st ?? {});
+const nodes = (t: any): any[] => (t == null || typeof t === 'string' ? [] : Array.isArray(t) ? t.flatMap(nodes) : [t, ...nodes(t.children)]);
+const SHADOW = ['shadowColor', 'shadowOffset', 'shadowOpacity', 'shadowRadius', 'elevation', 'boxShadow'];
+test('appearance: the drawing puts a shadow or ring on exactly these, and no card on the screen carries a shadow', () => {
+  const drawn = [...CSS.matchAll(/([^{}]+)\{[^}]*box-shadow[^}]*\}/g)].map((m) => m[1].trim().split('\n').pop()!.trim()).sort();
+  expect(drawn).toEqual(['.chip.changed', '.gapcard', '.phone']);   // the guard read the stylesheet: a new shadow in the drawing goes red here
+  expect(ruleOf('.hero')).toBeDefined(); expect(ruleOf('.card')).toBeDefined();
+  expect(ruleOf('.hero')).not.toMatch(/shadow/); expect(ruleOf('.card')).not.toMatch(/shadow/);
+  setup(); render(<NetWorth />);
+  const all = nodes(screen.toJSON());
+  expect(all.length).toBeGreaterThanOrEqual(150);   // it looked at the whole screen (162 host nodes on 2026-10-20)
+  const shadowed = all.filter((n) => SHADOW.some((k) => flat(n.props?.style)[k] != null));
+  expect(shadowed.map((n) => `${n.type} ${JSON.stringify(flat(n.props.style))}`)).toEqual([]);
+});
+test('appearance: each gap card on the fix sheet carries the drawn ring — 1px of 5% black, 16pt corners, white', () => {
+  const ring = ruleOf('.gapcard')!;
+  expect(ring).toMatch(/box-shadow:0 0 0 1px rgba\(0,0,0,\.05\)/);
+  expect(ring).toMatch(/border-radius:16px/);
+  setup(GAPS); render(<NetWorth />); fireEvent.press(screen.getByText(/numbers? needs? more information/));
+  const cards = [/^LCTX has no price today$/, /^E\*TRADE Brokerage last updated/].map((t) => {
+    const hits = screen.getAllByText(t);   // the banner names it too; the sheet's card is the last
+    let n: any = hits[hits.length - 1];
+    while (n && !(n.type === 'View' && flat(n.props.style).borderRadius === 16)) n = n.parent;
+    return n ? flat(n.props.style) : null;
+  });
+  expect(cards).toHaveLength(2);
+  for (const c of cards) expect(c).toMatchObject({ borderWidth: 1, borderColor: 'rgba(0,0,0,0.05)', borderRadius: 16, backgroundColor: '#FFFFFF' });
 });

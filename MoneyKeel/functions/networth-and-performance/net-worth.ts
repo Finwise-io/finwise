@@ -18,14 +18,60 @@ import {
   buildAssetsState, cashTotal, investableAssets, investmentsTotal, assetAllocation, isRealAsset, assetClassOf, accountClassBreakdown, ASSET_CLASS_LABEL,
   type AssetClass,
   propertyUseMap,
+  accountInvestments,
 } from '../../../src/domain/assets';
-import { buildDebtState, requiredPayment, type Debt } from '../../../src/domain/debt';
-import { projectNestEgg } from '../../../src/domain/retirement';
+import { buildDebtState, requiredPayment, paymentShape, type Debt } from '../../../src/domain/debt';
+import { simulate } from '../../../src/domain/retirement';
+import { onCourseSentence, shortfallAgeFromBand, oddsLine } from '../../../src/domain/planning/hub';
+import { displayOdds } from '../../../src/domain/retirement/willItLast';
 import { buildNetWorth } from '../../../src/domain/networth';
 import { trendPoints } from '../../../src/domain/history';
 import { buildDayFromAccounts, record as recordDay } from '../../../Calculation Module code/engines/snapshots';
 import { timeWeightedReturn, movementsOf } from '../../../Calculation Module code/engines/time-weighted-return';
 import { isoLocalDate } from '../../../src/domain/_shared/dates';
+
+/** A DEBT WHOSE MONTHLY PAYMENT WAS NEVER ENTERED (2026-10-21, DEC-3523 tenet 3: unknown is not zero): neither a minimum
+ *  nor a payment is on record as a number. A typed 0 is entered; a balance due in one lump has no monthly payment to
+ *  enter. It is the one test the emergency fund and the Net worth door both name such a debt by.
+ *  No identifier yet: the build issues one (its rule waits under awaiting_id in moneykeel_function_rules.json). */
+/* ─ MK-NW-F-147 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * paymentNotEntered
+ *
+ * Answers ..... A DEBT WHOSE MONTHLY PAYMENT WAS NEVER ENTERED (2026-10-21, DEC-3523 tenet 3: unknown is not zero): neither a minimum nor a payment is on record as a number.
+ *
+ * Formula .....
+ *     false   when d = nothing (or payment shape(d) = 'due_in_full' when missing or zero)
+ *     entered = (v: unknown) => v ≠ nothing and string(v).trim() ! = '' and number.is finite(number(v))
+ *     the answer = !entered(minimum monthly payment) and !entered(monthly payment)
+ *
+ * Called by ... MK-NW-O-003 theNetWorth · MK-NW-O-004 theEmergencyFund
+ *
+ * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               … and 37 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-016 debt minimum payment
+ *               MK-XS-I-041 the payment the person chose to make on a debt
+ *               MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-147
+ * Changed ..... not in git yet (—)
+ */
+export function paymentNotEntered(d: any): boolean {
+  if (d == null || paymentShape(d) === 'due_in_full') return false;
+  const entered = (v: unknown) => v != null && String(v).trim() !== '' && Number.isFinite(Number(v));
+  return !entered(d.minimum_monthly_payment) && !entered(d.monthly_payment);
+}
 
 export interface DebtLine { id: string; label: string; balance: number; minimumMonthly: number; }
 
@@ -48,6 +94,14 @@ export interface TheNetWorth {
   monthlyDebtMinimum: number;
   /** Σ what ACTUALLY leaves the account, counting a payment set above the minimum. */
   monthlyDebtPayments: number;
+  /** THE DEBTS WHOSE MONTHLY PAYMENT WAS NEVER ENTERED (2026-10-21, DEC-3523 tenet 3: unknown is not zero) — the same test
+   *  the emergency fund names them by (paymentNotEntered). Each adds nothing to the two sums above and is named beside
+   *  them, so a sum short of a payment is never presented as the whole. Empty when every debt has one. */
+  debtPaymentsNotEntered: { id: string; label: string }[];
+  /** HOW MUCH OF EACH ACCOUNT IS INVESTED — the Investments line, account by account, largest first (2026-10-21; accounts
+   *  with none are left out). Cash and property are not invested money (DEC-0457), so a checking account and a rental
+   *  are not on it. Σ amount = investments. Home's and Insights' one-account card measures a share of this. */
+  investmentsByAccount: { id: string; label: string; amount: number }[];
   /** How it moved: the return on cash + investments. Null when the record cannot say.
    *  A RATE, held as 0…1 — the form every other percent in the register uses, so one display rule
    *  rounds them all (Q49). The function underneath returns it already multiplied by 100; the door
@@ -101,7 +155,9 @@ export interface TheNetWorth {
  *               MK-NW-M-017 · MK-NW-M-049 · MK-NW-M-063 · MK-XS-M-001
  *               MK-XS-M-003
  * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-003 institution name
  *               MK-XS-I-014 debt balance
+ *               MK-XS-I-016 debt minimum payment
  *               MK-XS-I-024 logged expenses
  *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-056 how a holding was classified, and by whom
@@ -109,14 +165,14 @@ export interface TheNetWorth {
  *               DEC-0052 · DEC-0054 · DEC-0060 · DEC-0061 · DEC-0066 · DEC-0069
  *               DEC-0070 · DEC-0072 · DEC-0074 · DEC-0089 · DEC-0090 · DEC-0091
  *               DEC-0092 · DEC-0095 · DEC-0096 · DEC-0098 · DEC-0149 · DEC-0152
- *               DEC-0158 · DEC-0165 · DEC-0166 · DEC-0175 · DEC-0184 · DEC-0192
- *               DEC-0204 · DEC-0309 · DEC-0311 · DEC-0322 · DEC-0343 · DEC-0345
- *               DEC-0347 · DEC-0397 · DEC-0442 · DEC-0446 · DEC-0449 · DEC-0451
- *               DEC-0452 · DEC-0455 · DEC-0501 · DEC-0509
+ *               DEC-0158 · DEC-0165 · DEC-0166 · DEC-0175 · DEC-0204 · DEC-0309
+ *               DEC-0311 · DEC-0322 · DEC-0343 · DEC-0397 · DEC-0442 · DEC-0446
+ *               DEC-0449 · DEC-0451 · DEC-0452 · DEC-0455 · DEC-0501 · DEC-0509
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
+ *     · If minimum monthly payment is missing it uses 0.
  *     · If alternatives is missing it uses 0.
  *     · If remaining balance is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
@@ -149,7 +205,10 @@ export function theNetWorth(input: {
     id: String(d.debt_id ?? d.id ?? d.label),
     label: d.label,
     balance: d.remaining_balance || 0,
-    minimumMonthly: requiredPayment(d),
+    // A PAYMENT NEVER ENTERED adds nothing and is named (debtPaymentsNotEntered below) — requiredPayment read a missing
+    // minimum as no number at all, so one such debt made the whole sum not a number (2026-10-21, DEC-3523 tenet 3). A
+    // minimum not entered beside a payment that was is that payment.
+    minimumMonthly: paymentNotEntered(d) ? 0 : (Number(requiredPayment({ ...d, minimum_monthly_payment: d.minimum_monthly_payment ?? 0 })) || 0),
   }));
 
   return {
@@ -178,6 +237,14 @@ export function theNetWorth(input: {
     // and the screen names which one it prints. WHICH ONE BELONGS UNDER THAT LABEL IS HIS CALL.
     monthlyDebtMinimum: dState.total_monthly_debt_service,
     monthlyDebtPayments: debtLines.reduce((t, d) => t + d.minimumMonthly, 0),
+    // unknown is not zero: the debts whose payment was never entered, by the emergency fund's own test (2026-10-21)
+    debtPaymentsNotEntered: (debts ?? []).filter(paymentNotEntered).map((d: any) => ({ id: String(d.debt_id ?? d.id ?? d.label), label: String(d.label ?? 'A debt') })),
+    // THE INVESTMENTS LINE, ACCOUNT BY ACCOUNT (2026-10-21, DEC-0457): what Home's one-account card divides by Investments,
+    // so a rental or a checking account is never "invested money" there (it read "$310,000 (160%)")
+    investmentsByAccount: accounts
+      .map((a: any) => ({ id: String(a.asset_id), label: String(a.institution?.trim() || a.label || ''), amount: accountInvestments(a) }))
+      .filter((x) => x.amount > 0)
+      .sort((x, y) => y.amount - x.amount),
     mortgageCheck: mortgagesByProperty(accounts, debts),
     ...(() => {
       const unclassed = accounts.flatMap((a: any) => ((a.positions ?? []) as any[])
@@ -221,6 +288,8 @@ export function theNetWorth(input: {
         cashIds: new Set(measured.filter((a) => assetClassOf(a) === 'cash').map((a) => String(a.asset_id))),
         flows: moved.flows, interest: moved.interest, sharesMoved: moved.sharesMoved,
         amountMissing: moved.amountMissing,   // a movement with no amount refuses (outside review Claude Performance, 2026-10-11, DEC-3523)
+        unnamed: moved.unnamed,               // a record the app could not name refuses, and is named (2026-10-20, Q15)
+        incomeMissing: moved.incomeMissing,   // interest, a dividend or a coupon with no amount refuses (2026-10-21, DEC-3523)
         start, end: today,
       }).rate;
     })(),
@@ -726,7 +795,7 @@ const SNAP = (month: string, net: number) => ({ month, net_worth: net, gross_ass
 /** Example only: runs the record's trend points (the function the Net worth screen calls) on four months of recorded net worth and one day after them. */
 // THE SCREEN'S OWN CALL, NOT THE DOOR'S (inputs-and-use audit, 2026-10-11): theNetWorth no longer takes a history —
 // none of its callers passed one — so the change line's example runs trendPoints, which the Net worth screen calls.
-/* ─ MK-NW-F-100 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+/* ─ MK-NW-F-100 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * TREND
  *
  * Answers ..... Example only: runs the record's trend points (the function the Net worth screen calls) on four months of recorded net worth and one day after them.
@@ -740,8 +809,11 @@ const SNAP = (month: string, net: number) => ({ month, net_worth: net, gross_ass
  *               MK-NW-F-101 PLAN
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-024 logged expenses
+ * Reads ....... MK-XS-I-018 retirement age
+ *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-028 assumed return
  *               MK-XS-I-029 inflation rate
+ *               MK-XS-I-043 their own retirement contribution
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-100
  * Changed ..... not in git yet (—)
@@ -757,22 +829,29 @@ const TREND = () => trendPoints(
   { '2026-04-30': 261200 },
 );
 
-/** THE STRAIGHT-LINE RETIREMENT CHECK, worked. No random runs here — it is the plain arithmetic beside
- *  the 1,000-run odds: today's pot grown at the expected return, plus each year's saving grown for the
- *  years it has left. */
+/** THE RETIREMENT LINE ON THE NET WORTH TAB, worked (MK-NW-M-015). The same case the straight-line check used, with
+ *  the one thing a simulation also needs: how far a year's return swings. */
 const PLAN_GIVEN =
   'A 50-year-old with $184,200 of cash and investments, saving $24,000/year, retiring at 65 and '
   + 'planning to 92, expecting 6% a year with 2.5% inflation, with expenses of $5,500/month in retirement '
-  + 'and $2,400/month of guaranteed income from 67.';
+  + 'and $2,400/month of guaranteed income from 67. A year\u2019s return swings 12% either way around the 6%, '
+  + 'and 1,000 futures are simulated.';
+// the same case, as the simulation reads it
+const PLAN_INPUTS = {
+  current_age: 50, retire_age: 65, horizon_age: 92,
+  start_balance: 184200, annual_contribution: 24000,
+  retire_monthly_spend_today: 5500, guaranteed_monthly_income: 2400, guaranteed_start_age: 67,
+  mean_return: 0.06, inflation: 0.025, vol_return: 0.12,
+};
 
-/** Example only: runs the nest-egg projection on the worked example and calculates nothing of its own. */
+/** Example only: runs the Net worth card's retirement sentence on the worked example and calculates nothing of its own. */
 /* ─ MK-NW-F-101 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * PLAN
  *
- * Answers ..... Example only: runs the nest-egg projection on the worked example and calculates nothing of its own.
+ * Answers ..... Example only: runs the Net worth card's retirement sentence on the worked example and calculates nothing of its own.
  *
  * Formula .....
- *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *     sim = simulate({ ...PLAN_INPUTS, with band: true } as any)
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -781,20 +860,24 @@ const PLAN_GIVEN =
  *               MK-XS-I-003 institution name
  *               MK-XS-I-018 retirement age
  *               MK-XS-I-024 logged expenses
- *               MK-XS-I-028 assumed return
- *               MK-XS-I-029 inflation rate
- *               MK-XS-I-043 their own retirement contribution
  *               MK-XS-I-048 the person’s own asset-class answer
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-101
  * Changed ..... not in git yet (—)
  */
-const PLAN = () => projectNestEgg({
-  current_age: 50, retire_age: 65, horizon_age: 92,
-  start_balance: 184200, annual_contribution: 24000,
-  retire_monthly_spend_today: 5500, guaranteed_monthly_income: 2400, guaranteed_start_age: 67,
-  mean_return: 0.06, inflation: 0.025,
-} as any);
+const PLAN = (): string | null => {
+  // the SAME simulation and the SAME sentence function the Net worth card calls (NetWorthScreen: simulate with its
+  // band, then onCourseSentence) — until 2026-10-20 this ran the straight-line projection, which no screen prints
+  const sim = simulate({ ...PLAN_INPUTS, with_band: true } as any);
+  return onCourseSentence({
+    lens: 'working', chance: sim.chance_of_success, retireAge: PLAN_INPUTS.retire_age, horizonAge: PLAN_INPUTS.horizon_age,
+    potAtRetire: sim.projected_at_retirement,
+    leftoverAtHorizon: sim.band?.length ? sim.band[sim.band.length - 1].p50 : null,
+    shortfallAge: shortfallAgeFromBand(sim.band), money: formatMoney,
+  });
+};
 
 
 /** THE FIGURES THIS DOOR HANDS OUT (rule 11). The master file's rows are printed from here. */
@@ -899,18 +982,53 @@ export const NET_WORTH_FIGURES = declareFigures({
     note: 'DECLARED 2026-09-30 with MK-NW-M-006 \u2014 the same function answers both, which is why the band and the rows beneath it cannot disagree. The worked example is Fidelity: $142,000 of fund plus a $24,200 Treasury.',
   },
   'MK-NW-M-015': {
-    label: 'YOUR RETIREMENT PLAN \u2014 on track for $X by age Y', unit: 'money', screens: ['/networth'],
-    answers: 'What your pot is on course to be worth at the age you said you would retire.',
-    formula: 'today\u2019s cash and investments grown at your expected return for the years until you retire, plus each year\u2019s saving grown for the years it has left',
+    // THE LABEL SAYS WHAT IS PRINTED (2026-10-20): it read "on track for $X by age Y", the straight-line projection's
+    // wording, while the card prints the sentence of the 1,000 simulated futures. The Plan tab prints the same sentence.
+    label: 'YOUR RETIREMENT PLAN \u2014 retire at <age> with ~$X, lasting past <age> with ~$Y to spare, or running short around age <age>',
+    unit: 'words', screens: ['/networth', '/plan'],
+    answers: 'What your pot is on course to be worth at the age you said you would retire, and whether it lasts to the age your plan runs to.',
+    formula: 'the middle of the 1,000 simulated futures the odds come from: what the pot is worth in the year you retire, and what is left at the age the plan runs to, '
+      + 'each rounded to the nearest $1,000 (never under $1,000). Still working: "retire at <age> with ~<pot>, " then "lasting past <plan-to age> with ~<left> to spare" '
+      + 'when the middle future still has money then, otherwise "running short around age <the age it first reaches $0>" (or "running short before <plan-to age>"). '
+      + 'Already retired: "on course to last past <plan-to age>, ~<left> to spare", or the same running-short ending',
     inputs: ['MK-NW-I-001 your accounts', 'MK-PL-I-001 your plan answers'],
     decisions: [
-      'NO RANDOM RUNS ANYWHERE IN THIS ONE \u2014 it is the straight-line check that sits beside the 1,000-run odds, and the two answer different questions.',
-      'The recommended pot is 25\u00d7 the yearly expenses NOT covered by guaranteed income, counted from the start of the retirement year \u2014 which is why it differs from an outside calculator (his ruling).',
+      'HIS WORDS FOR THE VERDICT (DEC-0049, 2026-08-04): working, \u201cretire at 65 with about [pot], lasting past 92 with about [leftover] to spare\u201d; retired, \u201con course to last past 92, about [leftover] to spare\u201d.',
+      'THE NUMBER TRAVELS WITH THE WORDS (DEC-0103, 2026-08-11): the odds are printed in front of the sentence \u2014 \u201c87.2% odds of lasting to age 92 \u00b7 retire at 65 with ~$4,124,000, \u2026\u201d (Net worth v08).',
+      'ONCE THE THREE ANSWERS EXIST THE REAL SENTENCE SHOWS (DEC-0102, 2026-08-11); until then the card shows the sample, labelled as one, and names what is missing.',
+      'ONE SENTENCE, TWO SCREENS: the Plan tab speaks the same sentence from the same simulation (onCourseSentence), so the two cannot disagree.',
       'Guaranteed income starts at the age it was said to start, not at the retirement age.',
     ],
-    refusal: 'No figure when there is nothing to grow, or when retirement is not ahead of the person.',
-    worked: { given: PLAN_GIVEN, answer: '$1,000,069', run: () => PLAN().will_have },
-    note: 'DECLARED 2026-09-30. Its function lives in the plan family (MK-PL-F-055 projectNestEgg) and the figure is read on the Net worth tab, which is why the row is here and the function is there.',
+    refusal: 'No sentence when the odds cannot be calculated or there is no pot at retirement: the card shows the sample odds, labelled as a sample, and names the answers still missing \u2014 or "See your plan \u203a" when none is missing.',
+    worked: { given: PLAN_GIVEN, answer: 'retire at 65 with ~$931,000, running short around age 87', run: PLAN },
+    note: 'DECLARED 2026-09-30 from the straight-line projection (MK-PL-F-055 projectNestEgg), which the Net worth card had stopped printing '
+      + 'when it took his verdict sentence (2026-08-04) \u2014 so the row described a number no screen showed, and the sentence the card does show printed under no identifier. '
+      + 'Corrected 2026-10-20 (launch check): the row describes the sentence, and the card prints it under this identifier; '
+      + 'its label too, and the Plan tab prints the same sentence under it.',
+  },
+  // THE ODDS IN FRONT OF THAT SENTENCE (launch check, 2026-10-20). They printed under no identifier, on Net worth and on the
+  // Plan tab. MK-XS-M-002 is the number the master issued to this figure (the odds, every screen that shows them); it was a
+  // hand-typed row there and is declared here now, beside the sentence it travels with (DEC-0103).
+  'MK-XS-M-002': {
+    label: 'Will my money last \u2014 the odds: <odds>% odds of lasting to age <plan-to age>', unit: 'words', screens: ['/networth', '/plan', '/home'],
+    answers: 'In how many of every 100 simulated futures your money lasts to the age your plan runs to.',
+    formula: 'the share of the 1,000 simulated futures in which money is still left at the age the plan runs to, as a percent, '
+      + 'with nothing rounded away but the computer\u2019s own noise; written "<odds>% odds of lasting to age <plan-to age>"',
+    inputs: ['MK-NW-I-001 your accounts', 'MK-PL-I-001 your plan answers'],
+    decisions: [
+      'THE NUMBER TRAVELS WITH THE WORDS (DEC-0103, 2026-08-11): the odds are printed in front of the retirement sentence (MK-NW-M-015).',
+      'NO ROUNDING FOR ODDS (founder, 2026-09-14): \u201cuse exact everywhere no rounding for odds\u201d \u2014 1,000 futures give tenths.',
+      'ONE WORD (the canon, row 2, 2026-09-10): odds \u2014 never chance.',
+    ],
+    refusal: 'No odds until the three answers are given (age, expenses, what you have): the card shows the sample odds, labelled as a sample, and names the answers still missing.',
+    worked: {
+      given: PLAN_GIVEN,
+      answer: '34.7% odds of lasting to age 92',
+      run: () => oddsLine('working', displayOdds(simulate({ ...PLAN_INPUTS, with_band: true } as any).chance_of_success), PLAN_INPUTS.horizon_age),
+    },
+    note: 'DECLARED 2026-10-20 (launch check). Printed under this identifier on the Net worth card, on the Plan tab (the dial, the '
+      + 'line for a retired person, the trying-it-out line) and on Home. Cash flow, Insights and the retirement screens print the '
+      + 'same odds and do not carry the identifier yet.',
   },
   'MK-NW-M-016': {
     label: 'Net worth so far (setup)', unit: 'money', screens: ['/networth'],

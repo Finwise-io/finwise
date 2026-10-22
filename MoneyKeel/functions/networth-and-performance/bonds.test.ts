@@ -25,7 +25,7 @@ test('the totals are the sum of the rows — the two screens read one answer', (
   const a = theBonds({ accounts: [bond(), cd()] });
   expect(a.count).toBe(2);
   expect(a.rows).toHaveLength(2);
-  expect(a.totalValue).toBe(a.rows.reduce((t, r) => t + r.value, 0));
+  expect(a.totalValue).toBe(a.rows.reduce((t, r) => t + (r.value ?? 0), 0));
   expect(a.totalFace).toBe(a.rows.reduce((t, r) => t + (r.face ?? 0), 0));
   expect(Math.round(a.couponPerYear)).toBe(Math.round(a.rows.reduce((t, r) => t + (r.couponPerYear ?? 0), 0)));
 });
@@ -39,13 +39,23 @@ test('a bond gets the rates-move estimate, and no refusal', () => {
   expect(a.one!.ratesMoveRefusal).toBe('');
 });
 
-test('A BANK CD NEVER GETS ONE, and the door says why (founder, 2026-09-27; a CD not answered is a bank CD, DEC-3837, 2026-10-10)', () => {
-  const a = theBonds({ accounts: [cd()], accountId: 'c1' });
+test('A BANK CD NEVER GETS ONE, and the door says why (founder, 2026-09-27; a CD marked as bought from the bank, DEC-3837, 2026-10-10)', () => {
+  // marked as bought from the bank since 2026-10-21: a CD never answered is asked, not called a bank CD (next test)
+  const a = theBonds({ accounts: [cd({ cd_bought: 'bank' })], accountId: 'c1' });
   expect(a.one!.isCD).toBe(true);
   expect(a.one!.ratesMove).toBeNull();
   expect(a.one!.ratesMoveRefusal).toMatch(/not traded/);
   expect(a.one!.ratesMoveRefusal).toMatch(/fixed penalty/);
   expect(a.one!.ratesMoveRefusal).toMatch(/A CD bought through a broker does trade/);   // (DEC-3837, 2026-10-10)
+  expect(a.one!.cdBoughtNotEntered).toBe(false);
+});
+
+test('A CD NEVER ANSWERED IS NOT CALLED A BANK CD — it says where it was bought is not entered (2026-10-21, DEC-3837, tenet 3)', () => {
+  const a = theBonds({ accounts: [cd()], accountId: 'c1' });
+  expect(a.one!.cdBoughtNotEntered).toBe(true);
+  expect(a.one!.ratesMove).toBeNull();                                   // no estimate is invented while it is not known
+  expect(a.one!.ratesMoveRefusal).toMatch(/^Where this CD was bought is not entered\./);
+  expect(a.one!.ratesMoveRefusal).not.toMatch(/marked as bought from the bank/);
 });
 
 test('the one account asked for is the one answered, and only that one', () => {

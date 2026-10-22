@@ -60,7 +60,7 @@ test('hero: current price on top, then the position table — the SAME numbers a
   expect(screen.getByText('NVIDIA (NVDA)')).toBeOnTheScreen();
   expect(screen.getByText('in Fidelity')).toBeOnTheScreen();
   const { money, money2 } = require('../../domain/_shared/num');
-  expect(screen.getByText(/CURRENT PRICE/)).toBeOnTheScreen();
+  expect(screen.getByText(/^LAST CLOSE/)).toBeOnTheScreen();   // the price is the last close, never live (2026-10-21, MK-NW-M-029)
   // PRECISION COMES FROM THE DECLARATION NOW (rule 11, 2026-10-01). These assertions were written
   // against what the screen used to print, and the screen was wrong: it formatted six figures with
   // cents while their declarations say whole dollars. Routing each print through fig(identifier)

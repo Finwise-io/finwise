@@ -127,10 +127,10 @@ export interface WillItLastResult {
  * Formula .....
  *     min(100, max(0, round(chance, 6 dp)))
  *
- * Called by ... MK-PL-F-068 selectWillItLast
+ * Called by ... MK-NW-F-101 PLAN · MK-PL-F-068 selectWillItLast
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-PL-F-068 selectWillItLast
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-101 PLAN · MK-PL-F-068 selectWillItLast
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

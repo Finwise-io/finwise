@@ -107,6 +107,19 @@ NEW = {
  # MK-XS-I-006 (price fetched at), so MK-NW-F-045 sourceWording's card named the price time while it reads the sync.
  'MK-XS-I-066': ('last successful update of a linked or imported account',
                  'set by the connection on each successful sync, or when a file is imported', ['last_synced']),
+ # 2026-10-20 — DEC-0281 (cost is one of the nine facts a bond shows, and step 2 of its value rule; the current price is
+ # calculated, not entered) and DEC-3390 (the interest built up since the last coupon, which depends on how often it pays)
+ 'MK-XS-I-067': ('what was paid for a bond or CD held as its own account',
+                 'typed by the person in the Bonds editor or Add an account (optional)', ['amount_paid']),
+ 'MK-XS-I-068': ('how a linked bond\'s price is quoted — per $100 of face value, or per unit like a share',
+                 'calculated at each sync from the broker\'s own total of the account', ['price_quote', 'unitWorth']),
+ 'MK-XS-I-069': ('how many times a year a bond or CD pays its interest — once or twice',
+                 'typed by the person in the Bonds editor or Add an account (optional)', ['coupons_per_year', 'couponsPerYear']),
+ # 2026-10-20 — his ruling "always the class broker sends" (settling DEC-2159): the broker's own class for a holding decides it,
+ # so the sync and the importer keep it on the saved holding exactly as sent, and every reader asks the one order with it
+ 'MK-XS-I-070': ('the class a broker sends for a holding — its security type and its cash-equivalent flag',
+                 'sent by the connection on each sync (SnapTrade\'s type code and flag), or read from an import file\'s type column',
+                 ['broker_type', 'cash_equivalent', 'brokerTag', 'cashEquivalent', 'brokerType']),
 }
 
 # MoneyKeel/functions added 2026-08-27 — new calculations live there, and a folder the sweep

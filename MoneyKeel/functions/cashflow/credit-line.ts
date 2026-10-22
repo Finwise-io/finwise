@@ -42,10 +42,15 @@ export interface CreditLine {
  *
  * Called by ... MK-CF-F-200 LINE
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-076 ALT · MK-NW-F-098 LEDGER_BAND
- *               MK-CF-F-200 LINE · MK-NW-F-101 PLAN
- *               MK-NW-F-002 alternativesSummary · MK-NW-O-005 theAlternativesOutlook
+ * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-NW-F-082 NW
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-002 alternativesSummary · MK-XS-F-011 buildChangeWalk
+ *               MK-NW-O-005 theAlternativesOutlook · MK-NW-O-003 theNetWorth
+ *               MK-NW-O-008 thePerformance
  *
  * Serves ...... MK-MN-M-006
  * Reads ....... MK-XS-I-001 account balance
@@ -82,11 +87,16 @@ const GIVEN = '$3,100 owed on the cards against $12,000 of total limit — 25.8%
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
  * Called by ... MK-NW-F-002 alternativesSummary · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-O-003 theNetWorth · MK-XS-F-011 buildChangeWalk
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-076 ALT · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-101 PLAN · MK-NW-F-002 alternativesSummary
- *               MK-NW-O-005 theAlternativesOutlook
+ * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-082 NW · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-002 alternativesSummary
+ *               MK-XS-F-011 buildChangeWalk · MK-NW-O-005 theAlternativesOutlook
+ *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

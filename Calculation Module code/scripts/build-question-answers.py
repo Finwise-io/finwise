@@ -35,9 +35,21 @@ for r in log:
         if str(r['decided']) < str(cur['answered']):
             cur['answered'] = r['decided']
 
+def _short(text, cap=600):
+    # each decision's sentence is cut at a full stop, never mid-word: three parts of one answer (Q38, 2026-10-20) ran
+    # past the old 900-character cap on the joined text, so the third part was cut off where a person reads it
+    text = text.strip()
+    if len(text) <= cap: return text
+    cut = text.rfind('. ', 0, cap)
+    return (text[:cut + 1] if cut > 0 else text[:cap]) + ' (more in the decision log)'
+
 for q, v in rows.items():
-    v['his_words'] = ' … '.join(dict.fromkeys(v['his_words']))
-    v['what_was_built'] = ' '.join(dict.fromkeys(v['what_was_built']))[:900]
+    # A DECISION THE LEAD MADE CARRIES NO WORDS OF HIS (2026-10-21): an empty his_words printed "ANSWERED …:" with
+    # nothing after it. His words are joined when there are any; when there are none, the cell says who decided.
+    his = [w for w in dict.fromkeys(v['his_words']) if w]
+    v['his_words'] = (' … '.join(his) if his else
+                      'no words of his — decided by Claude (the lead) under his existing rulings; what was built is below')
+    v['what_was_built'] = ' '.join(_short(t) for t in dict.fromkeys(v['what_was_built']) if t)
 
 json.dump({
  "_about": ("GENERATED — do not hand-edit, it dies on the next build. Printed from "

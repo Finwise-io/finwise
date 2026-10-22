@@ -96,28 +96,32 @@ const CUSIP = /^[0-9A-Z]{9}$/;
  *               MK-NW-F-084 categoryEarnings · MK-NW-F-092 investmentAccountIdsOf
  *               MK-NW-F-104 closedWith · MK-NW-F-106 mortgagesByProperty
  *               MK-NW-F-117 propertyUseMap · MK-NW-F-130 notIncludedSentence
- *               MK-NW-O-003 theNetWorth · MK-NW-O-004 theEmergencyFund
- *               MK-NW-O-008 thePerformance · MK-PF-F-047 isIndividualBondOrCD
- *               MK-PL-F-009 rmdTakenThisYear · MK-PL-F-031 taxOrganizer
- *               MK-ST-F-010 nameEvidence · MK-ST-F-024 rmdStartAge
- *               MK-ST-F-031 valueOn · MK-ST-F-061 isMonthEnd
- *               MK-ST-F-073 rebuildDays · MK-ST-F-081 timeWeightedReturn
- *               MK-ST-F-082 movementsOf · MK-ST-F-083 accountValuesOn
+ *               MK-NW-F-149 withoutBlankRows · MK-NW-O-003 theNetWorth
+ *               MK-NW-O-004 theEmergencyFund · MK-NW-O-008 thePerformance
+ *               MK-PF-F-047 isIndividualBondOrCD · MK-PF-F-052 purchaseDateOnRecord
+ *               MK-PF-F-053 isBroadIndexOption · MK-PL-F-009 rmdTakenThisYear
+ *               MK-PL-F-031 taxOrganizer · MK-ST-F-010 nameEvidence
+ *               MK-ST-F-024 rmdStartAge · MK-ST-F-031 valueOn
+ *               MK-ST-F-061 isMonthEnd · MK-ST-F-073 rebuildDays
+ *               MK-ST-F-081 timeWeightedReturn · MK-ST-F-082 movementsOf
+ *               MK-ST-F-083 accountValuesOn · MK-ST-F-089 amountNotOnRecord
  *               MK-XS-F-004 buildDatedGrid · MK-XS-F-006 pruneDaily
- *               MK-XS-F-014 classifyHolding · MK-XS-F-104 mapAccountType
- *               MK-XS-F-109 dedupeActivities · MK-XS-F-175 uid
+ *               MK-XS-F-014 classifyHolding · MK-XS-F-102 ingestSync
+ *               MK-XS-F-104 mapAccountType · MK-XS-F-109 dedupeActivities
+ *               MK-XS-F-175 uid · MK-XS-F-187 fixStoredMoney
+ *               MK-XS-F-188 fixStoredFees
  *
- * Reaches ..... 307 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 349 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               … and 289 more — the full list is on functions_from_code
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 331 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

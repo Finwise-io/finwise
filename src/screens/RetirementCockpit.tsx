@@ -1201,7 +1201,8 @@ const styles = StyleSheet.create({
   instWarn: { fontSize: 11, color: Colors.amber, fontWeight: '700', marginTop: 1 },
   kindSec: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 12, marginBottom: 4 },
   kindGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  kindChip: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.pill, paddingHorizontal: 11, paddingVertical: 8 },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  kindChip: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 11, paddingVertical: 8 },
   kindIc: { fontSize: 15 },
   kindT: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
 
@@ -1328,7 +1329,8 @@ const styles = StyleSheet.create({
   cmpDiff: { fontWeight: '800' },
   cmpNote: { fontSize: 13, color: Colors.textTertiary, marginTop: 10, lineHeight: 17 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12, alignItems: 'center' },
-  chip: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.pill, paddingHorizontal: 12, paddingVertical: 7 },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  chip: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 12, paddingVertical: 7 },
   chipT: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
   chipHint: { fontSize: 13, color: Colors.textTertiary, width: '100%' },
 

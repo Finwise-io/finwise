@@ -16,6 +16,7 @@ import { cashTotal, propertyUseMap } from '../../../src/domain/assets';
 import { rentFigure } from '../../../src/domain/_shared/num';
 import { emergencyTest, monthlyEssentials, plannedMonthlySpend } from '../../../src/domain/budget';
 import { paymentShape, type Debt } from '../../../src/domain/debt';
+import { paymentNotEntered } from './net-worth';   // the one test for a payment never entered (2026-10-21)
 import { theBudgetCounted } from '../cashflow/budget-counted';
 import { essentialsMonthly } from '../cashflow/essentials';
 import { incomeSummary } from '../cashflow/income-summary';
@@ -63,6 +64,10 @@ export interface EmergencyFund {
   rentLineInDebts: { budgeted: number; mortgage: string } | null;
   /** The sentence the screen shows when that line is not counted. Empty when it is. */
   budgetSentence: string;
+  /** THE DEBTS WHOSE MONTHLY PAYMENT WAS NEVER ENTERED (2026-10-21, DEC-3523 tenet 3: unknown is not zero). Each counts
+   *  nothing in the debt payments above, so both months figures leave it out — and the card names it beside them, as it
+   *  names a rent that is not known (DEC-3769). Empty when every debt has a payment, or is due in one lump. */
+  paymentsNotEntered: { id: string; label: string }[];
 }
 
 /** How many months of essential expenses would my cash cover?
@@ -81,13 +86,13 @@ export interface EmergencyFund {
  *     debts = input.debts (or none when missing)
  *     budget = the budget counted({ profile: input.profile, accounts: input.accounts ?? [], debts })
  *     profile = budget.profile
- *     minimum of = (d: any) => (payment shape(d) = 'due_in_full' ? 0 : math.max(0, number(minimum monthly payment) or 0))
  *     debt minimums = debts.reduce((t: number, d: any) => t + minimum of(d), 0)
  *     named = a list with no repeats of for each of debts: string(label)
  *     ess = essentials monthly(counted, monthly essentials(profile))
  *     planned = planned monthly spend(profile) + debt minimums
  *     rent = max(0, income summary(input.profile ?? {}).lands.rent monthly)
  *     from cash = max(0, monthly − rent)
+ *     planned from cash = max(0, planned − rent)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-079 EF · MK-XS-F-175 uid
@@ -161,7 +166,10 @@ export function theEmergencyFund(input: {
   // make above it can be stopped, and a balance due in one lump has no monthly payment.
   const budget = theBudgetCounted({ profile: input.profile, accounts: input.accounts ?? [], debts });
   const profile = budget.profile;
-  const minimumOf = (d: any) => (paymentShape(d) === 'due_in_full' ? 0 : Math.max(0, Number(d?.minimum_monthly_payment) || 0));
+  // a minimum never entered falls back to the payment on record, if one was entered; with neither the debt is named
+  // (paymentsNotEntered below), never counted as a silent $0 (2026-10-21, DEC-3523 tenet 3)
+  const minimumOf = (d: any) => (paymentShape(d) === 'due_in_full' ? 0
+    : Math.max(0, Number(d?.minimum_monthly_payment ?? (paymentNotEntered(d) ? 0 : d?.monthly_payment)) || 0));
   const debtMinimums = debts.reduce((t: number, d: any) => t + minimumOf(d), 0);
   // WHAT WAS LOGGED IS NOT COUNTED A SECOND TIME. A payment logged against a debt (an expense in the
   // category "Debt payment", named for the debt) and, where the home's mortgage is in Debts, anything
@@ -210,6 +218,8 @@ export function theEmergencyFund(input: {
     rentLineInDebts: budget.rentLineInDebts,
     budgetSentence: budget.sentence,
     debtMinimums,
+    // a payment never entered is not $0: it is named beside the months (2026-10-21, DEC-3523 tenet 3)
+    paymentsNotEntered: debts.filter(paymentNotEntered).map((d: any) => ({ id: String(d.debt_id ?? d.id ?? d.label), label: String(d.label ?? 'A debt') })),
     plannedSpendMonthly: planned,
     monthsCoveredAtPlannedSpend: plannedFromCash > 0 ? cash / plannedFromCash : null,
     essentialsMonthly: monthly,

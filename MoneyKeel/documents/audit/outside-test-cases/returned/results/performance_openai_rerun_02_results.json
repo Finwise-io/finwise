@@ -1,0 +1,2010 @@
+{
+ "batch": "pf module final — part 2",
+ "reviewer": "ChatGPT / Codex independent outside audit, 2026-10-13",
+ "run_by": "Claude Code (outside-audit runner, Performance re-run, measuring phase)",
+ "run_on": "2026-10-21",
+ "test_file": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts",
+ "source": "returned/MoneyKeel_Performance_Audit_Package/MoneyKeel_audit_part_2.json",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts → 86 passed, 86 total (65 cases, 1 per case; 11 marked test.failing with the reviewer's answer kept + 11 tests pinning the app's answer today; 7 measured proofs; 3 coverage tests). SHOW_ACTUAL=1 runs the 11 marked cases plainly: 11 failed on their own assertion, 75 passed. npx tsc --noEmit: clean.",
+ "working_tree": "Measured on the uncommitted working tree of 2026-10-21, which holds the Net worth agents' in-flight edits (a $0 price paid read as not on record — lotCostOnRecord/paidOnRecord; the class the broker sends). No app code, drawing, record or existing test was changed.",
+ "ready_to_close": false,
+ "cases": [
+  {
+   "id": "MK-PF-F-001",
+   "name": "totalShares",
+   "kind": "easy",
+   "title": "One positive lot",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 10,
+    "exact_decimal": "10.000000000000",
+    "shown": "10.0000"
+   },
+   "actual": 10,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-001 totalShares — five cases › easy · One positive lot"
+  },
+  {
+   "id": "MK-PF-F-001",
+   "name": "totalShares",
+   "kind": "easy",
+   "title": "Zero-share lot ignored in cost",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 10,
+    "exact_decimal": "10.000000000000",
+    "shown": "10.0000"
+   },
+   "actual": 10,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-001 totalShares — five cases › easy · Zero-share lot ignored in cost"
+  },
+  {
+   "id": "MK-PF-F-001",
+   "name": "totalShares",
+   "kind": "complex",
+   "title": "Three unround lots",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 12.875,
+    "exact_decimal": "12.875000000000",
+    "shown": "12.8750"
+   },
+   "actual": 12.875,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-001 totalShares — five cases › complex · Three unround lots"
+  },
+  {
+   "id": "MK-PF-F-001",
+   "name": "totalShares",
+   "kind": "complex",
+   "title": "Mini option with fractional contracts",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 4.0,
+    "exact_decimal": "4.000000000000",
+    "shown": "4.0000"
+   },
+   "actual": 4.0,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-001 totalShares — five cases › complex · Mini option with fractional contracts"
+  },
+  {
+   "id": "MK-PF-F-001",
+   "name": "totalShares",
+   "kind": "edge",
+   "title": "Missing shares",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "REFUSES",
+   "actual": "no figure (null)",
+   "difference": "none",
+   "rests_on": "DEC-3523 tenet 3 (unknown is not zero)",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-001 totalShares — five cases › edge · Missing shares"
+  },
+  {
+   "id": "MK-PF-F-002",
+   "name": "costBasis",
+   "kind": "easy",
+   "title": "One positive lot",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 1000,
+    "exact_decimal": "1000.000000000000",
+    "shown": "$1,000"
+   },
+   "actual": 1000,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-002 costBasis — five cases › easy · One positive lot"
+  },
+  {
+   "id": "MK-PF-F-002",
+   "name": "costBasis",
+   "kind": "easy",
+   "title": "Zero-share lot ignored in cost",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 1000,
+    "exact_decimal": "1000.000000000000",
+    "shown": "$1,000"
+   },
+   "actual": 1000,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-002 costBasis — five cases › easy · Zero-share lot ignored in cost"
+  },
+  {
+   "id": "MK-PF-F-002",
+   "name": "costBasis",
+   "kind": "complex",
+   "title": "Three unround lots",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 1106.92625,
+    "exact_decimal": "1106.926250000000",
+    "shown": "$1,107"
+   },
+   "actual": 1106.92625,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-002 costBasis — five cases › complex · Three unround lots"
+  },
+  {
+   "id": "MK-PF-F-002",
+   "name": "costBasis",
+   "kind": "complex",
+   "title": "Mini option with fractional contracts",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 117.35,
+    "exact_decimal": "117.350000000000",
+    "shown": "$117"
+   },
+   "actual": 117.35,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-002 costBasis — five cases › complex · Mini option with fractional contracts"
+  },
+  {
+   "id": "MK-PF-F-002",
+   "name": "costBasis",
+   "kind": "edge",
+   "title": "Missing shares",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "REFUSES",
+   "actual": "no figure (null)",
+   "difference": "none",
+   "rests_on": "DEC-3523 tenet 3 (unknown is not zero)",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-002 costBasis — five cases › edge · Missing shares"
+  },
+  {
+   "id": "MK-PF-F-004",
+   "name": "marketValue",
+   "kind": "easy",
+   "title": "One positive lot",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 1200,
+    "exact_decimal": "1200.000000000000",
+    "shown": "$1,200"
+   },
+   "actual": 1200,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-004 marketValue — five cases › easy · One positive lot"
+  },
+  {
+   "id": "MK-PF-F-004",
+   "name": "marketValue",
+   "kind": "easy",
+   "title": "Zero-share lot ignored in cost",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 900,
+    "exact_decimal": "900.000000000000",
+    "shown": "$900"
+   },
+   "actual": 900,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-004 marketValue — five cases › easy · Zero-share lot ignored in cost"
+  },
+  {
+   "id": "MK-PF-F-004",
+   "name": "marketValue",
+   "kind": "complex",
+   "title": "Three unround lots",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 1252.86625,
+    "exact_decimal": "1252.866250000000",
+    "shown": "$1,253"
+   },
+   "actual": 1252.86625,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-004 marketValue — five cases › complex · Three unround lots"
+  },
+  {
+   "id": "MK-PF-F-004",
+   "name": "marketValue",
+   "kind": "complex",
+   "title": "Mini option with fractional contracts",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 165.2,
+    "exact_decimal": "165.200000000000",
+    "shown": "$165"
+   },
+   "actual": 165.2,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-004 marketValue — five cases › complex · Mini option with fractional contracts"
+  },
+  {
+   "id": "MK-PF-F-004",
+   "name": "marketValue",
+   "kind": "edge",
+   "title": "Missing shares",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "REFUSES",
+   "actual": "no figure (null)",
+   "difference": "none",
+   "rests_on": "DEC-3523 tenet 3 (unknown is not zero)",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-004 marketValue — five cases › edge · Missing shares"
+  },
+  {
+   "id": "MK-PF-F-005",
+   "name": "unrealizedGain",
+   "kind": "easy",
+   "title": "One positive lot",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 200,
+    "exact_decimal": "200.000000000000",
+    "shown": "$200"
+   },
+   "actual": 200,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-005 unrealizedGain — five cases › easy · One positive lot"
+  },
+  {
+   "id": "MK-PF-F-005",
+   "name": "unrealizedGain",
+   "kind": "easy",
+   "title": "Zero-share lot ignored in cost",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": -100,
+    "exact_decimal": "-100.000000000000",
+    "shown": "−$100"
+   },
+   "actual": -100,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-005 unrealizedGain — five cases › easy · Zero-share lot ignored in cost"
+  },
+  {
+   "id": "MK-PF-F-005",
+   "name": "unrealizedGain",
+   "kind": "complex",
+   "title": "Three unround lots",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 145.94000000000005,
+    "exact_decimal": "145.940000000000",
+    "shown": "$146"
+   },
+   "actual": 145.94000000000005,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-005 unrealizedGain — five cases › complex · Three unround lots"
+  },
+  {
+   "id": "MK-PF-F-005",
+   "name": "unrealizedGain",
+   "kind": "complex",
+   "title": "Mini option with fractional contracts",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 47.849999999999994,
+    "exact_decimal": "47.850000000000",
+    "shown": "$48"
+   },
+   "actual": 47.849999999999994,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-005 unrealizedGain — five cases › complex · Mini option with fractional contracts"
+  },
+  {
+   "id": "MK-PF-F-005",
+   "name": "unrealizedGain",
+   "kind": "edge",
+   "title": "Missing shares",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "REFUSES",
+   "actual": "no figure (null)",
+   "difference": "none",
+   "rests_on": "DEC-3523 tenet 3 (unknown is not zero)",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-005 unrealizedGain — five cases › edge · Missing shares"
+  },
+  {
+   "id": "MK-PF-F-006",
+   "name": "capGains",
+   "kind": "easy",
+   "title": "More than a year",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "long": {
+     "exact": 200,
+     "exact_decimal": "200.000000000000",
+     "shown": "$200"
+    },
+    "short": {
+     "exact": 0,
+     "exact_decimal": "0.000000000000",
+     "shown": "$0"
+    },
+    "total": {
+     "exact": 200,
+     "exact_decimal": "200.000000000000",
+     "shown": "$200"
+    }
+   },
+   "actual": {
+    "long": 200,
+    "short": 0,
+    "total": 200
+   },
+   "difference": "none",
+   "rests_on": "DEC-0324, DEC-0329 (long-term = MORE than one year)",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-006 capGains — five cases › easy · More than a year"
+  },
+  {
+   "id": "MK-PF-F-006",
+   "name": "capGains",
+   "kind": "easy",
+   "title": "Exactly one anniversary",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "long": {
+     "exact": 0,
+     "exact_decimal": "0.000000000000",
+     "shown": "$0"
+    },
+    "short": {
+     "exact": 200,
+     "exact_decimal": "200.000000000000",
+     "shown": "$200"
+    },
+    "total": {
+     "exact": 200,
+     "exact_decimal": "200.000000000000",
+     "shown": "200.0000"
+    }
+   },
+   "actual": {
+    "long": 0,
+    "short": 200,
+    "total": 200
+   },
+   "difference": "none",
+   "rests_on": "DEC-0329 (\"exactly one year is short-term\")",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-006 capGains — five cases › easy · Exactly one anniversary"
+  },
+  {
+   "id": "MK-PF-F-006",
+   "name": "capGains",
+   "kind": "complex",
+   "title": "Three lots and known zero adjusted basis",
+   "classification": "NEEDS A RULING",
+   "status": "UNCLEAR",
+   "in_flight": true,
+   "expected": {
+    "long": {
+     "exact": 345.79,
+     "exact_decimal": "345.790000000000",
+     "shown": "$346"
+    },
+    "short": {
+     "exact": 18.375,
+     "exact_decimal": "18.375000000000",
+     "shown": "$18"
+    },
+    "total": {
+     "exact": 364.165,
+     "exact_decimal": "364.165000000000",
+     "shown": "$364"
+    }
+   },
+   "actual": {
+    "long": 102.515,
+    "short": 18.375,
+    "total": 120.89,
+    "countedShares": 10.375,
+    "heldShares": 12.875,
+    "at_HEAD_before_the_2026-10-20_edit": {
+     "long": null,
+     "short": 18.375,
+     "total": null
+    }
+   },
+   "difference": "The 2.5 shares with a $0 price paid are left out: $243.275 (2.5 × $97.31) missing from long-term and total.",
+   "rests_on": "No ruling on a stored $0 price paid. Working tree (Net worth agents, 2026-10-20): lotCostOnRecord reads $0 as not on record, because the holding editor saved a blank as $0 until that day. DEC-2161 (a cost the person sets is kept); tenet 5 (the person's word outranks the app's guess).",
+   "note": "costBasis (MK-PF-F-002) still counts $0 as a figure: one lot, two readings (tenet 4). Since 2026-10-20 a blank is stored as null by the editor (blankLot) and the sync, so a $0 typed from now on could be told apart; $0 values saved before cannot.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-006 capGains — five cases › complex · Three lots and known zero adjusted basis",
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+  },
+  {
+   "id": "MK-PF-F-006",
+   "name": "capGains",
+   "kind": "complex",
+   "title": "Unknown date is not short-term evidence",
+   "classification": "APP WRONG",
+   "status": "FINDING",
+   "in_flight": false,
+   "expected": {
+    "known_gain": {
+     "exact": 57.2,
+     "exact_decimal": "57.200000000000",
+     "shown": "$57"
+    },
+    "long": null,
+    "short": null,
+    "duration_reason": "purchase date not entered"
+   },
+   "actual": {
+    "date_null_as_written": {
+     "long": 57.2,
+     "short": 0,
+     "total": 57.2,
+     "why": "new Date(null) is 1 Jan 1970, so the lot reads as held 56 years"
+    },
+    "date_blank_as_a_sync_stores_it": {
+     "long": 0,
+     "short": 57.2,
+     "total": 57.2,
+     "why": "an unreadable date is put in short-term, a code choice of 2026-08-20 ('the cautious side'), not a ruling of his"
+    }
+   },
+   "difference": "A long/short split is stated that nothing supports; the total $57.20 agrees.",
+   "rests_on": "DEC-3523 tenet 3 (unknown is not zero; approved 2026-10-09, after the 2026-08-20 code choice); the DEC-4643 / Q20 pattern (count what is on record, say what is not).",
+   "note": "Related, outside this card: an imported holding with no date is given TODAY as its purchase date (ImportHoldingsScreen.tsx, purchase_date: h.date || todayIso()), so it reads short-term and \"bought today\".",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-006 capGains — five cases › complex · Unknown date is not short-term evidence",
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today",
+   "recheck_2026_10_21": "FIXED — a purchase with no date on record is in neither part (DEC-6687); test now passes"
+  },
+  {
+   "id": "MK-PF-F-006",
+   "name": "capGains",
+   "kind": "edge",
+   "title": "Leap purchase after clamped anniversary",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "long": {
+     "exact": 100,
+     "exact_decimal": "100.000000000000",
+     "shown": "$100"
+    },
+    "short": {
+     "exact": 0,
+     "exact_decimal": "0.000000000000",
+     "shown": "$0"
+    },
+    "total": {
+     "exact": 100,
+     "exact_decimal": "100.000000000000",
+     "shown": "100.0000"
+    }
+   },
+   "actual": {
+    "long": 100,
+    "short": 0,
+    "total": 100
+   },
+   "difference": "none",
+   "rests_on": "leap-day anniversary is 28 Feb (Gemini fix, 2026-10-05); DEC-0329",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-006 capGains — five cases › edge · Leap purchase after clamped anniversary"
+  },
+  {
+   "id": "MK-PF-F-007",
+   "name": "totalROI",
+   "kind": "easy",
+   "title": "One purchase no payout",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 0.1,
+    "exact_decimal": "0.100000000000",
+    "shown": "+10.00%"
+   },
+   "actual": 0.1,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-007 totalROI — five cases › easy · One purchase no payout"
+  },
+  {
+   "id": "MK-PF-F-007",
+   "name": "totalROI",
+   "kind": "easy",
+   "title": "Single purchase loss",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": -0.2,
+    "exact_decimal": "-0.200000000000",
+    "shown": "-20.00%"
+   },
+   "actual": -0.2,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-007 totalROI — five cases › easy · Single purchase loss"
+  },
+  {
+   "id": "MK-PF-F-007",
+   "name": "totalROI",
+   "kind": "complex",
+   "title": "Staggered purchases differ from cost ratio",
+   "classification": "REVIEWER WRONG",
+   "status": "BRIEF_WRONG",
+   "in_flight": false,
+   "expected": {
+    "exact": 0.21,
+    "exact_decimal": "0.210000000000",
+    "shown": "+21.00%"
+   },
+   "actual": 0.1523809523809524,
+   "difference": "0.21 is the time-weighted return; the app returns the return on what was paid, 320 ÷ 2,100.",
+   "rests_on": "Precision standard, § every return is time-weighted: \"'Return on cost' on one holding answers a different question (am I ahead on what I paid) and keeps that name; it is never called 'return' alone\" (recorded with DEC-1669). The Holding page prints it as \"Change since purchase ▲ +$320 (+15.24%)\". The holding's window return is returnSincePurchases (MK-PF-F-040), which is time-weighted.",
+   "note": "The card's own words, \"Total return since purchase\", invite this reading; they should say \"return on what was paid\".",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-007 totalROI — five cases › complex · Staggered purchases differ from cost ratio",
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+  },
+  {
+   "id": "MK-PF-F-007",
+   "name": "totalROI",
+   "kind": "complex",
+   "title": "Mini option arithmetic with missing timing",
+   "classification": "REVIEWER WRONG",
+   "status": "BRIEF_WRONG",
+   "in_flight": false,
+   "expected": "REFUSES",
+   "actual": 0.40775458031529616,
+   "difference": "OpenAI refuses; the return on what was paid needs no dates: $47.85 ÷ $117.35.",
+   "rests_on": "Same as the case above (precision standard; DEC-1669).",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-007 totalROI — five cases › complex · Mini option arithmetic with missing timing",
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+  },
+  {
+   "id": "MK-PF-F-007",
+   "name": "totalROI",
+   "kind": "edge",
+   "title": "Known zero basis cannot support ratio",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "REFUSES",
+   "actual": "no figure (null)",
+   "difference": "none",
+   "rests_on": "Both readings refuse: the working tree reads $0 as not on record (IN-FLIGHT); HEAD read $0 as a cost not above zero.",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-007 totalROI — five cases › edge · Known zero basis cannot support ratio"
+  },
+  {
+   "id": "MK-PF-F-008",
+   "name": "startDateFor",
+   "kind": "easy",
+   "title": "Ordinary month back",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "2026-09-13T15:17:19",
+   "actual": "2026-09-13T15:17:19 (local)",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-008 startDateFor — five cases › easy · Ordinary month back"
+  },
+  {
+   "id": "MK-PF-F-008",
+   "name": "startDateFor",
+   "kind": "easy",
+   "title": "Across year end",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "2025-10-15T09:00:00",
+   "actual": "2025-10-15T09:00:00 (local)",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-008 startDateFor — five cases › easy · Across year end"
+  },
+  {
+   "id": "MK-PF-F-008",
+   "name": "startDateFor",
+   "kind": "complex",
+   "title": "Three-month clamp",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "2026-02-28T16:23:41",
+   "actual": "2026-02-28T16:23:41 (local)",
+   "difference": "none",
+   "rests_on": "DEC-3768b",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-008 startDateFor — five cases › complex · Three-month clamp"
+  },
+  {
+   "id": "MK-PF-F-008",
+   "name": "startDateFor",
+   "kind": "complex",
+   "title": "Leap-year annual clamp",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "2023-02-28T17:43:29",
+   "actual": "2023-02-28T17:43:29 (local)",
+   "difference": "none",
+   "rests_on": "DEC-3768b",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-008 startDateFor — five cases › complex · Leap-year annual clamp"
+  },
+  {
+   "id": "MK-PF-F-008",
+   "name": "startDateFor",
+   "kind": "edge",
+   "title": "Since has no record start handed to date reader",
+   "classification": "AGREES",
+   "status": "SETTLED",
+   "in_flight": false,
+   "expected": "RULE UNCLEAR",
+   "actual": {
+    "startDateFor('SINCE')": null,
+    "windowStartKey('SINCE', record from 2026-05-04, today 2026-10-13)": "2026-05-05"
+   },
+   "difference": "none — OpenAI's \"caller override\" reading is the one built",
+   "rests_on": "SETTLED by DEC-4640 (a name not in the window table gives no start), DEC-0315 (the beginning is the close of the day before the first day), DEC-6412 (\"the record's own time-weighted return from its first day to today … the one Since shows\") and v17 (approved in full, DEC-0647: \"Since Jun 3, 2024\").",
+   "note": "With no record at all, windowStartKey (MK-NW-F-090, part 1) answers today — the approved v17 day-one frame.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-008 startDateFor — five cases › edge · Since has no record start handed to date reader"
+  },
+  {
+   "id": "MK-PF-F-009",
+   "name": "latestClose",
+   "kind": "easy",
+   "title": "Single close",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 100,
+    "exact_decimal": "100.000000000000",
+    "shown": "$100.00"
+   },
+   "actual": 100,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-009 latestClose — five cases › easy · Single close"
+  },
+  {
+   "id": "MK-PF-F-009",
+   "name": "latestClose",
+   "kind": "easy",
+   "title": "No prices",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "REFUSES",
+   "actual": "no figure (null)",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-009 latestClose — five cases › easy · No prices"
+  },
+  {
+   "id": "MK-PF-F-009",
+   "name": "latestClose",
+   "kind": "complex",
+   "title": "Unsorted dates",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 91.43,
+    "exact_decimal": "91.430000000000",
+    "shown": "$91.43"
+   },
+   "actual": 91.43,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-009 latestClose — five cases › complex · Unsorted dates"
+  },
+  {
+   "id": "MK-PF-F-009",
+   "name": "latestClose",
+   "kind": "complex",
+   "title": "Conflicting latest date",
+   "classification": "NEEDS A RULING",
+   "status": "UNCLEAR",
+   "in_flight": false,
+   "expected": "RULE UNCLEAR",
+   "actual": 97.31,
+   "difference": "OpenAI asks for a rule or a refusal; the app takes the close listed later ($97.31).",
+   "rests_on": "No ruling on two closes for one day. The feed lists points in time order and marketData.ts sorts by date keeping that order for ties, so the later one is the newer quote.",
+   "note": "Recommendation: keep the later-listed close (the newer quote) and write that on the card.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-009 latestClose — five cases › complex · Conflicting latest date"
+  },
+  {
+   "id": "MK-PF-F-009",
+   "name": "latestClose",
+   "kind": "edge",
+   "title": "Malformed date wins lexical sort",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 97.31,
+    "exact_decimal": "97.310000000000",
+    "shown": "$97.31"
+   },
+   "actual": 97.31,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-009 latestClose — five cases › edge · Malformed date wins lexical sort"
+  },
+  {
+   "id": "MK-PF-F-010",
+   "name": "periodReturn",
+   "kind": "easy",
+   "title": "One-year price move",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 0.1,
+    "exact_decimal": "0.100000000000",
+    "shown": "+10.00%"
+   },
+   "actual": 0.1,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-010 periodReturn — five cases › easy · One-year price move"
+  },
+  {
+   "id": "MK-PF-F-010",
+   "name": "periodReturn",
+   "kind": "easy",
+   "title": "Two-year total versus yearly pace",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 0.1,
+    "exact_decimal": "0.100000000000",
+    "shown": "+10.00%"
+   },
+   "actual": 0.1,
+   "difference": "none",
+   "rests_on": "DEC-0237 (2Y is a yearly rate; the total, +21%, beside it)",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-010 periodReturn — five cases › easy · Two-year total versus yearly pace"
+  },
+  {
+   "id": "MK-PF-F-010",
+   "name": "periodReturn",
+   "kind": "complex",
+   "title": "Short history of five months",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 0.09931465672718542,
+    "exact_decimal": "0.099314656727",
+    "shown": "+9.93%"
+   },
+   "actual": 0.09931465672718542,
+   "difference": "none",
+   "rests_on": "DEC-4641 (first price; the sentence \"Prices for this holding go back 5 months, so the 1-year figure covers 5 months — not a year.\" also checked)",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-010 periodReturn — five cases › complex · Short history of five months"
+  },
+  {
+   "id": "MK-PF-F-010",
+   "name": "periodReturn",
+   "kind": "complex",
+   "title": "As-of endpoint excludes future point",
+   "classification": "APP WRONG",
+   "status": "FINDING",
+   "in_flight": false,
+   "expected": {
+    "exact": 0.09931465672718542,
+    "exact_decimal": "0.099314656727",
+    "shown": "+9.93%"
+   },
+   "actual": 0.17001322592280865,
+   "difference": "Ends at the 14 Oct close ($97.31), a day after today: +17.00% instead of +9.93%.",
+   "rests_on": "DEC-0315 (a window holds both its boundary days and ends today; a close after today is outside it).",
+   "note": "Reach: only a device clock behind the feed, or a caller handing an earlier `now`; the feed never sends a day after today.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-010 periodReturn — five cases › complex · As-of endpoint excludes future point",
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+  },
+  {
+   "id": "MK-PF-F-010",
+   "name": "periodReturn",
+   "kind": "edge",
+   "title": "Unknown 5Y name",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "REFUSES",
+   "actual": "no figure (null)",
+   "difference": "none",
+   "rests_on": "DEC-4640",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-010 periodReturn — five cases › edge · Unknown 5Y name"
+  },
+  {
+   "id": "MK-PF-F-011",
+   "name": "periodReturnSince",
+   "kind": "easy",
+   "title": "Explicit dated start",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 0.1,
+    "exact_decimal": "0.100000000000",
+    "shown": "+10.00%"
+   },
+   "actual": 0.1,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-011 periodReturnSince — five cases › easy · Explicit dated start"
+  },
+  {
+   "id": "MK-PF-F-011",
+   "name": "periodReturnSince",
+   "kind": "easy",
+   "title": "No earlier price uses first available",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 0.05,
+    "exact_decimal": "0.050000000000",
+    "shown": "+5.00%"
+   },
+   "actual": 0.05,
+   "difference": "none",
+   "rests_on": "DEC-4641",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-011 periodReturnSince — five cases › easy · No earlier price uses first available"
+  },
+  {
+   "id": "MK-PF-F-011",
+   "name": "periodReturnSince",
+   "kind": "complex",
+   "title": "Unsmooth prices and explicit start",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "exact": 0.17001322592280865,
+    "exact_decimal": "0.170013225923",
+    "shown": "+17.00%"
+   },
+   "actual": 0.17001322592280865,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-011 periodReturnSince — five cases › complex · Unsmooth prices and explicit start"
+  },
+  {
+   "id": "MK-PF-F-011",
+   "name": "periodReturnSince",
+   "kind": "complex",
+   "title": "Future point must not be used",
+   "classification": "APP WRONG",
+   "status": "FINDING",
+   "in_flight": false,
+   "expected": {
+    "exact": 0.17001322592280865,
+    "exact_decimal": "0.170013225923",
+    "shown": "+17.00%"
+   },
+   "actual": 0.2171456053865577,
+   "difference": "`now` is handed in and not read: the 20 Sep close is used, +21.71% instead of +17.00%.",
+   "rests_on": "DEC-0315, as the case above.",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-011 periodReturnSince — five cases › complex · Future point must not be used",
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+  },
+  {
+   "id": "MK-PF-F-011",
+   "name": "periodReturnSince",
+   "kind": "edge",
+   "title": "Start later than now",
+   "classification": "APP WRONG",
+   "status": "FINDING",
+   "in_flight": false,
+   "expected": "REFUSES",
+   "actual": 0,
+   "difference": "A start after today returns +0.00% (the latest close divided by itself) instead of no figure.",
+   "rests_on": "DEC-3523 tenet 3 (a window that has not begun has no move; +0.00% reads as \"no change\"); DEC-0315.",
+   "note": "Reach: the holding editor's purchase date has no latest day, so a purchase typed after today caps the row there and the market 'same dates' reads +0.00% (measured in the test file).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-011 periodReturnSince — five cases › edge · Start later than now",
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+  },
+  {
+   "id": "MK-PF-F-012",
+   "name": "earliestPurchaseDate",
+   "kind": "easy",
+   "title": "One purchase date",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "2026-01-02",
+   "actual": "2026-01-02",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-012 earliestPurchaseDate — five cases › easy · One purchase date"
+  },
+  {
+   "id": "MK-PF-F-012",
+   "name": "earliestPurchaseDate",
+   "kind": "easy",
+   "title": "No dates",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "REFUSES",
+   "actual": "no figure (null)",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-012 earliestPurchaseDate — five cases › easy · No dates"
+  },
+  {
+   "id": "MK-PF-F-012",
+   "name": "earliestPurchaseDate",
+   "kind": "complex",
+   "title": "Unsorted genuine purchases",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "2024-03-11",
+   "actual": "2024-03-11",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-012 earliestPurchaseDate — five cases › complex · Unsorted genuine purchases"
+  },
+  {
+   "id": "MK-PF-F-012",
+   "name": "earliestPurchaseDate",
+   "kind": "complex",
+   "title": "Zero lot precedes actual purchase",
+   "classification": "APP WRONG",
+   "status": "FINDING",
+   "in_flight": false,
+   "expected": "2026-05-19",
+   "actual": "2024-03-11",
+   "difference": "A lot of 0 shares is taken as the first purchase.",
+   "rests_on": "DEC-1669 (\"a period that starts with nothing starts at the first deposit\"); tenet 4 — costBasis, capGains, paidOnRecord and returnSincePurchases all pass over a lot of 0 shares.",
+   "note": "Reach: low — sales remove emptied lots and the editor drops 0-share lots; an imported value-only line is stored with 0 shares.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-012 earliestPurchaseDate — five cases › complex · Zero lot precedes actual purchase",
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+  },
+  {
+   "id": "MK-PF-F-012",
+   "name": "earliestPurchaseDate",
+   "kind": "edge",
+   "title": "One missing date before known dates is possible",
+   "classification": "NEEDS A RULING",
+   "status": "UNCLEAR",
+   "in_flight": false,
+   "expected": "REFUSES",
+   "actual": "2026-05-19",
+   "difference": "OpenAI refuses; the app answers the dated purchase, and buildPerformance then puts the undated one on that day at its own price paid.",
+   "rests_on": "No ruling on a holding with one undated and one dated purchase. The approved invest-v3 rule (2026-07-19) covers a holding with no dated purchase (the ledger's first buy fills in).",
+   "note": "Recommendation: ask the ledger (purchaseDateOf) first; otherwise treat it like a holding with no dated purchase (tenet 4).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-012 earliestPurchaseDate — five cases › edge · One missing date before known dates is possible",
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+  },
+  {
+   "id": "MK-PF-F-013",
+   "name": "benchmarkTicker",
+   "kind": "easy",
+   "title": "Recognized stock",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "SPY",
+   "actual": "SPY",
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-013 benchmarkTicker — five cases › easy · Recognized stock"
+  },
+  {
+   "id": "MK-PF-F-013",
+   "name": "benchmarkTicker",
+   "kind": "easy",
+   "title": "Confirmed bond class outranks stock kind",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "AGG",
+   "actual": "AGG",
+   "difference": "none",
+   "rests_on": "DEC-3523 tenet 5; DEC-0309 (a class the person sets is kept)",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-013 benchmarkTicker — five cases › easy · Confirmed bond class outranks stock kind"
+  },
+  {
+   "id": "MK-PF-F-013",
+   "name": "benchmarkTicker",
+   "kind": "complex",
+   "title": "Crypto in a stock-class choice",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "SPY",
+   "actual": "SPY",
+   "difference": "none",
+   "rests_on": "tenet 5; the wrapper is the account's, never handed to benchmarkTicker",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-013 benchmarkTicker — five cases › complex · Crypto in a stock-class choice"
+  },
+  {
+   "id": "MK-PF-F-013",
+   "name": "benchmarkTicker",
+   "kind": "complex",
+   "title": "Broker-classified bond in retirement wrapper",
+   "classification": "APP WRONG",
+   "status": "FINDING",
+   "in_flight": true,
+   "expected": "RULE UNCLEAR",
+   "actual": {
+    "benchmarkTicker": "AOR",
+    "holdingClassOf": "bonds"
+   },
+   "difference": "OpenAI wrote RULE UNCLEAR; his ruling of 2026-10-20 settles it as AGG. The class reader files the holding under Bonds & CDs while its yardstick is AOR (a 60/40 mix).",
+   "rests_on": "His ruling 2026-10-20, \"always the class broker sends\" (DEC-2159 re-ruled; being landed by the Net worth agents); tenet 4 (one holding, one class).",
+   "note": "benchmarkTicker lets only a class the PERSON set outrank a kind with a yardstick (index.ts benchmarkTicker, the byClass line). Re-run after the broker-class work lands.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-013 benchmarkTicker — five cases › complex · Broker-classified bond in retirement wrapper",
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+  },
+  {
+   "id": "MK-PF-F-013",
+   "name": "benchmarkTicker",
+   "kind": "edge",
+   "title": "No classification",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": "REFUSES",
+   "actual": "no yardstick (null)",
+   "difference": "none",
+   "rests_on": "DEC-2160",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-013 benchmarkTicker — five cases › edge · No classification"
+  },
+  {
+   "id": "MK-PF-F-014",
+   "name": "buildPerformance",
+   "kind": "easy",
+   "title": "One stock held before window",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "price": {
+     "exact": 110,
+     "exact_decimal": "110.000000000000",
+     "shown": "$110.00"
+    },
+    "value": {
+     "exact": 1100,
+     "exact_decimal": "1100.000000000000",
+     "shown": "$1,100"
+    },
+    "cost": {
+     "exact": 1000,
+     "exact_decimal": "1000.000000000000",
+     "shown": "$1,000"
+    },
+    "gain": {
+     "exact": 100,
+     "exact_decimal": "100.000000000000",
+     "shown": "$100"
+    },
+    "return_on_cost": {
+     "exact": 0.1,
+     "exact_decimal": "0.100000000000",
+     "shown": "+10.00%"
+    },
+    "periodReturn": {
+     "exact": 0.1,
+     "exact_decimal": "0.100000000000",
+     "shown": "+10.00%"
+    },
+    "periodTotal": {
+     "exact": 0.1,
+     "exact_decimal": "0.100000000000",
+     "shown": "+10.00%"
+    },
+    "benchReturn": {
+     "exact": 0.05,
+     "exact_decimal": "0.050000000000",
+     "shown": "+5.00%"
+    },
+    "benchTotal": {
+     "exact": 0.05,
+     "exact_decimal": "0.050000000000",
+     "shown": "+5.00%"
+    },
+    "beatBy": {
+     "exact": 0.05,
+     "exact_decimal": "0.050000000000",
+     "shown": "+5.00%"
+    },
+    "cappedSince": null
+   },
+   "actual": {
+    "price": 110,
+    "value": 1100,
+    "cost": 1000,
+    "gain": 100,
+    "return_on_cost": 0.1,
+    "periodReturn": 0.1,
+    "periodTotal": 0.1,
+    "benchReturn": 0.05,
+    "benchTotal": 0.05,
+    "beatBy": 0.05,
+    "cappedSince": null
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-014 buildPerformance — five cases › easy · One stock held before window"
+  },
+  {
+   "id": "MK-PF-F-014",
+   "name": "buildPerformance",
+   "kind": "easy",
+   "title": "Unknown price leaves monetary facts unknown",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "price": null,
+    "value": null,
+    "cost": {
+     "exact": 1000,
+     "exact_decimal": "1000.000000000000",
+     "shown": "$1,000"
+    },
+    "gain": null,
+    "periodReturn": null,
+    "periodTotal": null
+   },
+   "actual": {
+    "price": null,
+    "value": null,
+    "cost": 1000,
+    "gain": null,
+    "periodReturn": null,
+    "periodTotal": null
+   },
+   "difference": "none",
+   "rests_on": "tenet 3",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-014 buildPerformance — five cases › easy · Unknown price leaves monetary facts unknown"
+  },
+  {
+   "id": "MK-PF-F-014",
+   "name": "buildPerformance",
+   "kind": "complex",
+   "title": "Two holdings share dates and rows reconcile",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "rows": [
+     {
+      "ticker": "A",
+      "value": {
+       "exact": 705.4975,
+       "exact_decimal": "705.497500000000",
+       "shown": "$705"
+      },
+      "cost": {
+       "exact": 602.9825,
+       "exact_decimal": "602.982500000000",
+       "shown": "$603"
+      },
+      "gain": {
+       "exact": 102.515,
+       "exact_decimal": "102.515000000000",
+       "shown": "$103"
+      },
+      "periodTotal": {
+       "exact": 0.17001322592280865,
+       "exact_decimal": "0.170013225923",
+       "shown": "+17.00%"
+      },
+      "benchTotal": {
+       "exact": 0.0831,
+       "exact_decimal": "0.083100000000",
+       "shown": "+8.31%"
+      }
+     },
+     {
+      "ticker": "B",
+      "value": {
+       "exact": 272.78125,
+       "exact_decimal": "272.781250000000",
+       "shown": "$273"
+      },
+      "cost": {
+       "exact": 285.71875,
+       "exact_decimal": "285.718750000000",
+       "shown": "$286"
+      },
+      "gain": {
+       "exact": -12.9375,
+       "exact_decimal": "-12.937500000000",
+       "shown": "−$13"
+      },
+      "periodTotal": {
+       "exact": -0.04528054249152358,
+       "exact_decimal": "-0.045280542492",
+       "shown": "-4.53%"
+      },
+      "benchTotal": {
+       "exact": 0.0273,
+       "exact_decimal": "0.027300000000",
+       "shown": "+2.73%"
+      }
+     }
+    ],
+    "holding_total": {
+     "exact": 978.27875,
+     "exact_decimal": "978.278750000000",
+     "shown": "$978"
+    }
+   },
+   "actual": {
+    "A": {
+     "value": 705.4975,
+     "cost": 602.9825,
+     "gain": 102.515,
+     "periodTotal": 0.17001322592280865,
+     "benchTotal": 0.0831,
+     "yardstick": "SPY"
+    },
+    "B": {
+     "value": 272.78125,
+     "cost": 285.71875,
+     "gain": -12.9375,
+     "periodTotal": -0.04528054249152358,
+     "benchTotal": 0.0273,
+     "yardstick": "AGG"
+    },
+    "holding_total": 978.27875
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-014 buildPerformance — five cases › complex · Two holdings share dates and rows reconcile"
+  },
+  {
+   "id": "MK-PF-F-014",
+   "name": "buildPerformance",
+   "kind": "complex",
+   "title": "Inside-window morning purchase TWR",
+   "classification": "APP WRONG",
+   "status": "FINDING",
+   "in_flight": false,
+   "expected": {
+    "value": {
+     "exact": 2420,
+     "exact_decimal": "2420.000000000000",
+     "shown": "$2,420"
+    },
+    "cost": {
+     "exact": 2100,
+     "exact_decimal": "2100.000000000000",
+     "shown": "$2,100"
+    },
+    "gain": {
+     "exact": 320,
+     "exact_decimal": "320.000000000000",
+     "shown": "$320"
+    },
+    "periodReturn": {
+     "exact": 0.15238095238095228,
+     "exact_decimal": "0.152380952381",
+     "shown": "+15.24%"
+    },
+    "periodTotal": {
+     "exact": 0.15238095238095228,
+     "exact_decimal": "0.152380952381",
+     "shown": "+15.24%"
+    },
+    "benchReturn": {
+     "exact": 0.1,
+     "exact_decimal": "0.100000000000",
+     "shown": "+10.00%"
+    },
+    "beatBy": {
+     "exact": 0.05238095238095228,
+     "exact_decimal": "0.052380952381",
+     "shown": "+5.24%"
+    },
+    "cappedSince": "2026-09-01"
+   },
+   "actual": {
+    "value": 2420,
+    "cost": 2100,
+    "gain": 320,
+    "periodReturn": 0.26761904761904765,
+    "periodTotal": 0.26761904761904765,
+    "benchReturn": 0.1,
+    "beatBy": 0.16761904761904764,
+    "cappedSince": "2026-09-01"
+   },
+   "difference": "Your return +26.76% (ahead 16.76 points) instead of +15.24% (ahead 5.24). Dollar facts, the market and the cap date agree.",
+   "rests_on": "DEC-4439 (his \"approved.\", 2026-10-11): money that arrives on a day counts for that whole day — evening value ÷ (previous evening + money added) − 1; DEC-1669 (every return is time-weighted).",
+   "note": "returnSincePurchases ends each piece at the PURCHASE DAY's close, crediting the old shares with that day's rise before the new money arrives: 1.21 × 2,420 ÷ 2,310 − 1.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-014 buildPerformance — five cases › complex · Inside-window morning purchase TWR",
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+  },
+  {
+   "id": "MK-PF-F-014",
+   "name": "buildPerformance",
+   "kind": "edge",
+   "title": "Unknown period refuses every window field",
+   "classification": "AGREES",
+   "status": "PASS",
+   "in_flight": false,
+   "expected": {
+    "value": {
+     "exact": 1100,
+     "exact_decimal": "1100.000000000000",
+     "shown": "$1,100"
+    },
+    "cost": {
+     "exact": 1000,
+     "exact_decimal": "1000.000000000000",
+     "shown": "$1,000"
+    },
+    "gain": {
+     "exact": 100,
+     "exact_decimal": "100.000000000000",
+     "shown": "$100"
+    },
+    "periodReturn": null,
+    "periodTotal": null,
+    "benchReturn": null,
+    "benchTotal": null,
+    "beatBy": null,
+    "cappedSince": null
+   },
+   "actual": {
+    "value": 1100,
+    "cost": 1000,
+    "gain": 100,
+    "periodReturn": null,
+    "periodTotal": null,
+    "benchReturn": null,
+    "benchTotal": null,
+    "beatBy": null,
+    "cappedSince": null
+   },
+   "difference": "none",
+   "rests_on": "DEC-4640",
+   "note": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-014 buildPerformance — five cases › edge · Unknown period refuses every window field"
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-PF-F-001",
+   "name": "totalShares",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+   "classification": "AGREES",
+   "in_flight": false,
+   "what_the_code_actually_does": "totalShares (src/domain/performance/index.ts) adds every lot; a lot with no share count makes the total unknown. 5 of 5 cases agree.",
+   "governing_decisions": [
+    "DEC-3523 tenet 3"
+   ],
+   "plain_example": "10 + 0 shares = 10; a lot with no count → no total."
+  },
+  {
+   "id": "MK-PF-F-002",
+   "name": "costBasis",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+   "classification": "AGREES",
+   "in_flight": true,
+   "what_the_code_actually_does": "costBasis adds shares × price paid × the contract multiplier; a lot of 0 shares adds nothing; a missing count or price paid → unknown. A price paid of $0 is counted as $0 — while paidOnRecord (the working tree's 2026-10-20 reader behind Total paid, the gain and the Performance row) leaves a $0 lot out.",
+   "governing_decisions": [
+    "DEC-3523 tenets 3 and 4",
+    "DEC-2161"
+   ],
+   "plain_example": "10 shares at $100 + 10 at $0: costBasis $1,000 for 20 shares; paidOnRecord $1,000 for 10 of 20 (measured in the test file). Settled by the $0 ruling below."
+  },
+  {
+   "id": "MK-PF-F-004",
+   "name": "marketValue",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+   "classification": "AGREES",
+   "in_flight": false,
+   "what_the_code_actually_does": "marketValue = shares × price × multiplier, unrounded; 0 shares → $0; no price or unknown count → unknown. 5 of 5 cases agree.",
+   "governing_decisions": [
+    "DEC-3523 tenet 3",
+    "Q06 (options × 100)"
+   ],
+   "plain_example": "4 mini-option contracts × $4.13 × 10 = $165.20."
+  },
+  {
+   "id": "MK-PF-F-005",
+   "name": "unrealizedGain",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+   "classification": "AGREES",
+   "in_flight": true,
+   "what_the_code_actually_does": "In the working tree (2026-10-20) unrealizedGain counts only the purchases whose price paid is on record (paidOnRecord): value of those units − what was paid for them. The card's words (\"market value − cost\") describe HEAD; they need updating once that work lands. 5 of 5 cases agree on both.",
+   "governing_decisions": [
+    "DEC-3523 tenet 3",
+    "Q20 / DEC-4643 pattern"
+   ],
+   "plain_example": "10 sh at $100 + a 0-share lot with no price, price $90: −$100."
+  },
+  {
+   "id": "MK-PF-F-006",
+   "name": "capGains",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "A known zero basis is treated as missing, contradicting costBasis and unknownFigure. Undated lots are asserted short-term without evidence. Generic option tax classification is oversimplified.",
+   "classification": "APP WRONG",
+   "in_flight": true,
+   "what_the_code_actually_does": "capGains reads each lot's date with new Date(purchase_date): a null date is 1 Jan 1970 (long-term), a blank date is unreadable and goes to short-term. A $0 price paid is \"not on record\" in the working tree (left out and counted). The Holding page draws the IF YOU SOLD TODAY split for any priced holding, whatever the account (HoldingDetailScreen.tsx, `cg && !closed`).",
+   "governing_decisions": [
+    "DEC-0324",
+    "DEC-0329",
+    "DEC-3523 tenets 3 and 4",
+    "DEC-4643 / Q20 pattern"
+   ],
+   "plain_example": "3.25 mini-option contracts bought at $2.37 with no date, now $4.13: \"Gain — long-term +$57\" (null date) or \"short-term +$57\" (blank date); the honest answer is +$57 with the holding period not on record.",
+   "parts": [
+    {
+     "point": "Known zero basis treated as missing",
+     "classification": "NEEDS A RULING",
+     "in_flight": true,
+     "see": "case \"Three lots and known zero adjusted basis\""
+    },
+    {
+     "point": "Undated lots asserted short-term",
+     "classification": "APP WRONG",
+     "see": "case \"Unknown date is not short-term evidence\"; plus a null date read as 1970 → long-term"
+    },
+    {
+     "point": "Option and wrapper tax rules",
+     "classification": "NEEDS A RULING",
+     "see": "the split is shown in IRAs, 401(k)s and Roth accounts, where neither rate applies; its labels state the holding period (\"held over 1 yr\"), not a tax"
+    }
+   ]
+  },
+  {
+   "id": "MK-PF-F-007",
+   "name": "totalROI",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Aggregate unrealized gain / aggregate cost is not time-weighted for staggered purchases and excludes distributions. The owner requires every return to be TWR.",
+   "classification": "REVIEWER WRONG",
+   "in_flight": false,
+   "what_the_code_actually_does": "totalROI = gain ÷ what was paid, over the purchases whose price paid is on record. Shown only as the percent beside \"Change since purchase\" on the Holding page; never labelled \"return\". The window return of a holding bought inside the window is returnSincePurchases (time-weighted).",
+   "governing_decisions": [
+    "precision standard § return on cost (with DEC-1669)",
+    "DEC-1669"
+   ],
+   "plain_example": "10 at $100 then 10 at $110, now $121: Change since purchase +$320 (+15.24%) — right for that label; the window return is a separate figure.",
+   "note": "Fix the card's wording (\"Total return since purchase\" → \"return on what was paid\"); no code change."
+  },
+  {
+   "id": "MK-PF-F-008",
+   "name": "startDateFor",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "Since exists on screens but is not a Period value and needs a caller-supplied start. Human labels versus canonical keys and invalid now are not settled.",
+   "classification": "AGREES",
+   "settled": true,
+   "in_flight": false,
+   "what_the_code_actually_does": "startDateFor reads one table of window names (WINDOW_MONTHS) and refuses any other, \"SINCE\" included (DEC-4640); the screens hand Since's first day to buildPerformance (windowStartKey: the day after the record's first day). An invalid `now` gives an Invalid Date, not nothing — unreachable: every caller passes the clock or a checked day.",
+   "governing_decisions": [
+    "DEC-4640",
+    "DEC-3768b",
+    "DEC-0315",
+    "DEC-6412",
+    "DEC-0647 (v17)"
+   ],
+   "plain_example": "Record from 4 May 2026: Since opens 5 May, measured from the 4 May close."
+  },
+  {
+   "id": "MK-PF-F-009",
+   "name": "latestClose",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "Latest date can be future or malformed, and duplicate-date conflicting prices have no rule.",
+   "classification": "NEEDS A RULING",
+   "in_flight": false,
+   "what_the_code_actually_does": "latestClose reads the close on the latest valid date, in any order, skipping unreadable dates; for two closes on one date it takes the one listed later. It has no `now`: capping at today belongs to its callers (see MK-PF-F-010, F-011).",
+   "governing_decisions": [],
+   "plain_example": "Two 20 Sep closes, $91.43 then $97.31: 10 shares are worth $973.10 (later one) or $914.30 (earlier one).",
+   "recommendation": "Keep the later-listed close (the feed lists in time order, so it is the newer quote) and say so on the card."
+  },
+  {
+   "id": "MK-PF-F-010",
+   "name": "periodReturn",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Latest close is not capped at now. Short-history fallback contradicts periodReturnParts; exact two-year exponent disagrees with orchestrator days/365 annualization.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "what_the_code_actually_does": "periodReturnParts ends at latestClose, not at today, so a close dated after today is used. Short history: one reader, closeAsOf, falls back to the first price (DEC-4641) — no divergence in the code (that part of the verdict reads the packet's prose). 2Y yearly rate: exponent 1/2 when prices reach back, else days ÷ 365.25; thePerformance uses window days ÷ 365 with both edge days counted (731 for an ordinary 2Y).",
+   "governing_decisions": [
+    "DEC-0315",
+    "DEC-4641",
+    "DEC-4640",
+    "DEC-0237",
+    "precision standard (365 ÷ days)"
+   ],
+   "plain_example": "Future close: +17.00% instead of +9.93%. Annualising: one +21.00% two-year move reads +10.00% a year on the holding row and +9.99% a year on the Performance total.",
+   "parts": [
+    {
+     "point": "Latest close not capped at now",
+     "classification": "APP WRONG"
+    },
+    {
+     "point": "Short-history fallback contradicts the parts reader",
+     "classification": "REVIEWER WRONG",
+     "why": "the code has one reader (closeAsOf with the first-price fallback, DEC-4641); case \"Short history of five months\" agrees"
+    },
+    {
+     "point": "2Y exponent 1/2 versus days ÷ 365",
+     "classification": "NEEDS A RULING",
+     "example": "same +21.00% over 13 Oct 2024 → 13 Oct 2026: holding row +10.00% a year, Performance total +9.99% a year (731 days)"
+    }
+   ]
+  },
+  {
+   "id": "MK-PF-F-011",
+   "name": "periodReturnSince",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "Now is handed in but latest close ignores it; a future explicit start can be priced before the start, and elapsed spans over one year are never annualized here.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "what_the_code_actually_does": "periodReturnSince ignores `now`: it ends at the latest close and a start after today returns +0.00%; an unreadable start date falls back to the first close. Never made yearly — including a holding bought more than a year back viewed under 2Y (\"Your return since purchase\").",
+   "governing_decisions": [
+    "DEC-0315",
+    "DEC-3523 tenet 3",
+    "DEC-0237"
+   ],
+   "plain_example": "Start 1 Nov 2026, today 13 Oct 2026: +0.00% instead of no figure. Bought 13 Apr 2025, viewed under 2Y: \"+21.00%\" over 18 months, no \"a year\" (about +13.54% a year by 365 ÷ days).",
+   "parts": [
+    {
+     "point": "Now ignored / future start",
+     "classification": "APP WRONG"
+    },
+    {
+     "point": "Spans over a year never annualised here",
+     "classification": "NEEDS A RULING",
+     "why": "DEC-0237 makes a window longer than a year a yearly rate; the v17 exception covers the record's Since, not a purchase cap"
+    }
+   ]
+  },
+  {
+   "id": "MK-PF-F-012",
+   "name": "earliestPurchaseDate",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "Dated zero-share or future lots can cap performance before the holding actually existed; partial missing dates produce false certainty.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "what_the_code_actually_does": "earliestPurchaseDate takes the earliest valid date of ANY lot — a lot of 0 shares or a date after today included — and ignores undated lots.",
+   "governing_decisions": [
+    "DEC-1669",
+    "DEC-3523 tenets 3 and 4"
+   ],
+   "plain_example": "A 0-share lot dated 11 Mar 2024 before real purchases from 19 May 2026: the row is measured over the whole year (+21.64%) instead of since the first real purchase (+17.00%).",
+   "parts": [
+    {
+     "point": "Zero-share lot caps before the holding existed",
+     "classification": "APP WRONG"
+    },
+    {
+     "point": "Future-dated lot",
+     "classification": "APP WRONG",
+     "see": "MK-PF-F-011 start after today"
+    },
+    {
+     "point": "Partial missing dates",
+     "classification": "NEEDS A RULING",
+     "see": "case \"One missing date before known dates is possible\""
+    }
+   ]
+  },
+  {
+   "id": "MK-PF-F-013",
+   "name": "benchmarkTicker",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "Recognized wrapper kinds select AOR despite a broker-classified stock or bond; explicit unknown class/kind strings fall back to SPY. The classification authority needs to be settled.",
+   "classification": "APP WRONG",
+   "in_flight": true,
+   "what_the_code_actually_does": "benchmarkTicker lets a class decide only when the person set it, or no kind names a yardstick; otherwise the kind's table entry wins — wrapper kinds (401k, IRA, Roth, HSA, 529) map to AOR. It does not read the class reader (holdingClassOf), which since 2026-10-20 follows the class the broker sends. A kind or class with no yardstick of its own → SPY.",
+   "governing_decisions": [
+    "his ruling 2026-10-20 (DEC-2159 re-ruled, in flight)",
+    "DEC-3523 tenets 4 and 5",
+    "DEC-2160"
+   ],
+   "plain_example": "A bond fund in a 401(k), broker says bond: Net worth files it under Bonds & CDs; its yardstick is AOR (60/40), not AGG.",
+   "parts": [
+    {
+     "point": "Wrapper kind beats a broker-classified bond",
+     "classification": "APP WRONG",
+     "in_flight": true
+    },
+    {
+     "point": "Unknown kind/class strings fall back to SPY",
+     "classification": "NEEDS A RULING",
+     "example": "an Alternatives holding (class other, no kind) is set beside the S&P 500"
+    }
+   ]
+  },
+  {
+   "id": "MK-PF-F-014",
+   "name": "buildPerformance",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "ReturnSincePurchases values old shares at the purchase-day close before adding the morning purchase, contrary to DEC-4439; undated lots are moved to an invented first day. Zero-purchase caps and short-history parts also diverge.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "what_the_code_actually_does": "buildPerformance: a holding bought inside the window is time-weighted from its purchases by returnSincePurchases, which ends each piece at the purchase DAY's close (money counted as arriving at the end of the day). Undated lots are placed on the first dated day. Dollar facts (value, what was paid, gain, return on what was paid) are separate fields from the window return.",
+   "governing_decisions": [
+    "DEC-4439",
+    "DEC-1669",
+    "DEC-4640",
+    "DEC-4641",
+    "DEC-6212"
+   ],
+   "plain_example": "10 bought 1 Sep at $100, 10 bought 2 Sep at $110, closes $100 / $121 / $121: +26.76% shown, +15.24% by DEC-4439.",
+   "parts": [
+    {
+     "point": "Purchase placed after the day's growth (DEC-4439)",
+     "classification": "APP WRONG"
+    },
+    {
+     "point": "Undated lots moved to an invented first day",
+     "classification": "NEEDS A RULING",
+     "see": "MK-PF-F-012"
+    },
+    {
+     "point": "Zero-purchase caps",
+     "classification": "APP WRONG",
+     "see": "MK-PF-F-012"
+    },
+    {
+     "point": "Short-history parts diverge",
+     "classification": "REVIEWER WRONG",
+     "why": "one reader in the code (DEC-4641)"
+    }
+   ]
+  }
+ ],
+ "still_open": [
+  {
+   "id": "MK-PF-F-006",
+   "text": "MK-PF-F-006: Accept an explicitly entered zero adjusted basis; with missing holding dates give unknown tax-duration split. Label this as holding-duration information unless wrapper and special option tax rules are accounted for.",
+   "classification": "APP WRONG",
+   "in_flight": true,
+   "what_is_left": "Undated lots: APP WRONG. $0 price paid and the split in tax-free accounts: need a ruling."
+  },
+  {
+   "id": "MK-PF-F-007",
+   "text": "MK-PF-F-007: Retain the dollar gain against cost as a separate fact, but compute any return through the common TWR or refuse if it lacks valuations/movement dates.",
+   "classification": "REVIEWER WRONG",
+   "in_flight": false,
+   "what_is_left": "Already so: the dollar gain and the return on what was paid are separate facts; the window return is time-weighted. Nothing to change in code."
+  },
+  {
+   "id": "MK-PF-F-008",
+   "text": "MK-PF-F-008: Define canonical period keys and an explicit Since start contract; refuse unsupported keys and invalid dates; do not map absent Since history to today as performance.",
+   "classification": "AGREES",
+   "in_flight": false,
+   "what_is_left": "Settled: one window table, refusal of unknown names, Since's first day handed over by the caller. An invalid `now` is unreachable."
+  },
+  {
+   "id": "MK-PF-F-009",
+   "text": "MK-PF-F-009: Enforce valid finite points at ingestion and specify conflicts; callers measuring to today must cap points to today and expose stale as-of dates.",
+   "classification": "NEEDS A RULING",
+   "in_flight": false,
+   "what_is_left": "Duplicate-date precedence. Capping at today belongs to the callers (F-010, F-011)."
+  },
+  {
+   "id": "MK-PF-F-010",
+   "text": "MK-PF-F-010: Use one parts reader with the decided first-price fallback, valid as-of bound, actual coverage dates and one owner-approved annualization convention.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "what_is_left": "Cap the end at today. The 2Y yearly-rate convention needs a ruling."
+  },
+  {
+   "id": "MK-PF-F-011",
+   "text": "MK-PF-F-011: Require a valid start not after now, select latest valid price on/before now, return total with coverage metadata and let one presentation rule decide annualization.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "what_is_left": "Read `now`; refuse a start after today or unreadable. Annualising a since-purchase span over a year needs a ruling."
+  },
+  {
+   "id": "MK-PF-F-012",
+   "text": "MK-PF-F-012: Select genuine positive purchases through today; expose missing purchase-date coverage rather than silently call the earliest known lot the first purchase.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "what_is_left": "Pass over 0-share lots. Partly undated holdings need a ruling."
+  },
+  {
+   "id": "MK-PF-F-013",
+   "text": "MK-PF-F-013: Keep confirmed class first; refuse unresolved classification; do not use tax wrapper as investment allocation. Specify recognized-kind versus broker-class precedence.",
+   "classification": "APP WRONG",
+   "in_flight": true,
+   "what_is_left": "Broker class before the wrapper kind (after the 2026-10-20 work lands). Unknown kinds → SPY needs a ruling."
+  },
+  {
+   "id": "MK-PF-F-014",
+   "text": "MK-PF-F-014: Use daily movement-neutral links with the DEC-4439 beginning-of-day convention, refuse undated genuine flows, and share all total/coverage/date readers. Keep row dollar facts distinct from TWR.",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "what_is_left": "DEC-4439 in returnSincePurchases. Undated purchases need a ruling."
+  }
+ ],
+ "app_wrong_fixes": [
+  {
+   "fix": "MK-PF-F-040 returnSincePurchases ends a piece at the evening BEFORE a purchase (DEC-4439)",
+   "example": "10 shares bought 1 Sep at $100, 10 bought 2 Sep at $110; closes 1 Sep $100, 2 Sep $121, 3 Sep $121; market +10.00%",
+   "before": "Your return since purchase +26.76%, ahead of the market by 16.76 points",
+   "now_proposed": "+15.24%, ahead by 5.24 points (2,420 ÷ (1,000 + 1,100) − 1)",
+   "function_file": "returnSincePurchases, src/domain/performance/index.ts",
+   "smallest_change": "Read the close on or before the day BEFORE each later purchase day (closeOnOrBefore(series, dayBefore(d))) instead of the purchase day's own close.",
+   "figures_and_screens": "Holdings bought on two or more days inside the window: Performance tab holding rows (return, beat by), Holding page \"Your return since purchase\" and \"Versus the market\", account page holding rows; the market weighting on Home and Performance (portfolioBenchReturn start values).",
+   "drawing": "None: checked holding-detail v02 (its two purchases, 14 Mar 2023 and 9 Jan 2026, start before every window, so the row is not capped), performance v17 and account-page v01 (no since-purchase row). The test outside_performance_claude_03 \"Bought twice inside the period\" has no 14 Jun close in its series; it needs that close ($250) added — its +30.00% stays.",
+   "cases": [
+    "MK-PF-F-014 complex · Inside-window morning purchase TWR"
+   ]
+  },
+  {
+   "fix": "MK-PF-F-039 / F-011: a window ends at TODAY's close, never a later one (DEC-0315)",
+   "example": "Closes 12 Oct 2025 $83.17, 13 Oct 2026 $91.43, 14 Oct 2026 $97.31; today 13 Oct 2026; 1Y",
+   "before": "+17.00%",
+   "now_proposed": "+9.93%",
+   "function_file": "periodReturnParts and periodReturnSince (and the row price in buildPerformance), src/domain/performance/index.ts",
+   "smallest_change": "End = closeOnOrBefore(series, today's calendar day) instead of latestClose(series).",
+   "figures_and_screens": "None move in practice (the feed never sends a day after today); guards a device clock set back.",
+   "drawing": "None.",
+   "cases": [
+    "MK-PF-F-010 complex · As-of endpoint excludes future point",
+    "MK-PF-F-011 complex · Future point must not be used"
+   ]
+  },
+  {
+   "fix": "MK-PF-F-011 periodReturnSince refuses a start after today or an unreadable start (tenet 3)",
+   "example": "A purchase typed as 5 Jan 2027; today 13 Oct 2026; 1Y",
+   "before": "Row capped at 5 Jan 2027; the market \"same dates\" +0.00%; beat by +10.00 points",
+   "now_proposed": "No market figure and no beat-by for that row",
+   "function_file": "periodReturnSince, src/domain/performance/index.ts",
+   "smallest_change": "Return null when sinceISO is not YYYY-MM-DD or is after today's calendar day.",
+   "figures_and_screens": "Performance holding row and Holding page \"Versus the market\", only for a purchase dated after today.",
+   "drawing": "None. (Stopping a future purchase date at entry — a maximum date on the holding editor's date field — is a screen change and goes mock-first.)",
+   "cases": [
+    "MK-PF-F-011 edge · Start later than now"
+   ]
+  },
+  {
+   "fix": "MK-PF-F-012 earliestPurchaseDate passes over lots of 0 shares (DEC-1669, tenet 4)",
+   "example": "Lots: 0 shares dated 11 Mar 2024; 7.25 bought 19 May 2026 at $83.17; 3.125 bought 9 Jul 2026 at $91.43; price $97.31; 1Y from $80",
+   "before": "Measured over the whole year: +21.64%",
+   "now_proposed": "Since purchase, 19 May 2026: +17.00%",
+   "function_file": "earliestPurchaseDate, src/domain/performance/index.ts",
+   "smallest_change": "Skip a lot whose share count is a number of 0 or less.",
+   "figures_and_screens": "Performance holding row and Holding page window return (label becomes \"since purchase\").",
+   "drawing": "None.",
+   "cases": [
+    "MK-PF-F-012 complex · Zero lot precedes actual purchase"
+   ]
+  },
+  {
+   "fix": "MK-PF-F-006 capGains: a purchase with no readable date is in neither part (tenet 3)",
+   "example": "3.25 mini-option contracts (×10) bought at $2.37, no date; price $4.13",
+   "before": "\"Gain — long-term +$57\" (date null, read as 1 Jan 1970) or \"short-term +$57\" (date blank)",
+   "now_proposed": "Total +$57; long-term and short-term state no gain for it; one line names the 3.25 contracts whose purchase date is not on record",
+   "function_file": "capGains, src/domain/performance/index.ts (and the IF YOU SOLD TODAY card, HoldingDetailScreen.tsx)",
+   "smallest_change": "Treat a date that is not YYYY-MM-DD (null, blank) as unknown: its gain goes in the total, not a part, and its shares are counted apart (the Q20 mechanism).",
+   "figures_and_screens": "MK-NW-M-036 and MK-NW-M-037 on the Holding page.",
+   "drawing": "holding-detail v02: the new line's wording goes in its READ THIS FIRST note before it is built (DEC-4529 practice).",
+   "cases": [
+    "MK-PF-F-006 complex · Unknown date is not short-term evidence"
+   ]
+  },
+  {
+   "fix": "MK-PF-F-013 benchmarkTicker follows the broker's class before a wrapper kind (his ruling 2026-10-20) — IN-FLIGHT",
+   "example": "A bond fund held in a 401(k); the broker sends \"bond\"",
+   "before": "Yardstick AOR (60/40 mix); Net worth files it under Bonds & CDs",
+   "now_proposed": "Yardstick AGG (bond market), matching its class",
+   "function_file": "benchmarkTicker, src/domain/performance/index.ts",
+   "smallest_change": "Let the class decide when the person OR the broker gave it (class_source user, or broker_type present) — or read the class from holdingClassOf.",
+   "figures_and_screens": "Holding page \"Versus the market\" (and the bond-fund sentence, which keys on AGG), Performance row beat-by, the market figure on Home and Performance.",
+   "drawing": "None known. Re-run after the broker-class work lands.",
+   "cases": [
+    "MK-PF-F-013 complex · Broker-classified bond in retirement wrapper"
+   ]
+  }
+ ],
+ "needs_a_ruling": [
+  {
+   "item": "A stored $0 price paid: a real $0, or a blank?",
+   "ids": [
+    "MK-PF-F-006",
+    "MK-PF-F-002"
+   ],
+   "in_flight": true,
+   "where_on_screen": "Holding page: Total paid, Change since purchase, IF YOU SOLD TODAY; Performance row what was paid and gain.",
+   "what_changes": "7.25 sh at $83.17 (2024), 3.125 at $91.43 (2026), 2.5 at $0 (2024); price $97.31. Real $0: long-term +$346, short-term +$18, total +$364, Total paid $889 for 12.875 shares. Blank (working tree): long-term +$103, short-term +$18, total +$121 on 10.375 of 12.875 shares, with a line naming the 2.5 shares.",
+   "recommendation": "Since 2026-10-20 a blank is stored as nothing, so treat a $0 typed from now on as real; $0 saved before cannot be told apart. Whatever is chosen, costBasis must read it the same way (Plan's taxable share reads costBasis)."
+  },
+  {
+   "item": "Two closes for one day",
+   "ids": [
+    "MK-PF-F-009"
+   ],
+   "in_flight": false,
+   "where_on_screen": "Holding price and value on Performance and the Holding page, and every return ending that day.",
+   "what_changes": "10 shares: $973.10 (later close, today) or $914.30 (earlier close).",
+   "recommendation": "Keep the later-listed close (the newer quote)."
+  },
+  {
+   "item": "A holding with one undated and one dated purchase",
+   "ids": [
+    "MK-PF-F-012",
+    "MK-PF-F-014"
+   ],
+   "in_flight": false,
+   "where_on_screen": "Performance holding row and Holding page window return and \"Versus the market\".",
+   "what_changes": "10 sh (no date, paid $80) + 7 bought 19 May 2026 at $83.17; $97.31 today; 1Y. Today: \"since purchase\" +19.68% vs market +5.77% from 19 May. Treated as held all year: +21.64% vs market +10.00%. Refused: no figure, a line names the 10 undated shares.",
+   "recommendation": "Ask the ledger's first buy first; otherwise treat it like a holding with no dated purchase (tenet 4)."
+  },
+  {
+   "item": "Which yearly-rate rule for 2Y",
+   "ids": [
+    "MK-PF-F-010"
+   ],
+   "in_flight": false,
+   "where_on_screen": "Performance 2Y: a holding row's yearly rate beside the total's yearly rate.",
+   "what_changes": "Same +21.00% over 13 Oct 2024 → 13 Oct 2026: holding row +10.00% a year (exponent 1/2); Performance total +9.99% a year (731 days ÷ 365).",
+   "recommendation": "Calendar years: an exact 2Y window is 2 years, as an exact 1Y is already read as a year on the calendar; 365 ÷ days only for spans that are not whole calendar years."
+  },
+  {
+   "item": "A holding bought more than a year back, under the 2Y chip",
+   "ids": [
+    "MK-PF-F-011",
+    "MK-PF-F-014"
+   ],
+   "in_flight": false,
+   "where_on_screen": "Holding page \"Your return since purchase\"; Performance 2Y holding row.",
+   "what_changes": "Bought 13 Apr 2025 at $100, $121 today: shown +21.00% (18 months' total, no \"a year\"); as a yearly rate it would be +13.54% a year with +21.00% beside it.",
+   "recommendation": "Show it like the 2Y figure (yearly rate, total beside), per DEC-0237; the Since exception is for the record's Since only."
+  },
+  {
+   "item": "The long-term / short-term split inside tax-free accounts",
+   "ids": [
+    "MK-PF-F-006"
+   ],
+   "in_flight": false,
+   "where_on_screen": "Holding page IF YOU SOLD TODAY, for a holding in an IRA, 401(k), Roth or HSA.",
+   "what_changes": "10 shares bought 2024 at $100, $120 today, in a Roth IRA: shows \"Gain — long-term (held over 1 yr) +$200\", though no capital-gains rate applies there.",
+   "recommendation": "Hide the card for tax-advantaged accounts, or say the split is the holding period only."
+  },
+  {
+   "item": "A kind or class with no yardstick of its own",
+   "ids": [
+    "MK-PF-F-013"
+   ],
+   "in_flight": false,
+   "where_on_screen": "Holding page \"Versus the market\"; Performance beat-by; the market figure.",
+   "what_changes": "An Alternatives holding (class other, no kind) is compared with the S&P 500 (SPY).",
+   "recommendation": "No yardstick (the comparison refuses) when nothing names one (DEC-2160)."
+  }
+ ],
+ "in_flight_rerun": [
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-006 capGains — five cases › complex · Three lots and known zero adjusted basis",
+  "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-013 benchmarkTicker — five cases › complex · Broker-classified bond in retirement wrapper",
+  "MK-PF-F-002 formula check",
+  "MK-PF-F-005 formula check",
+  "MK-PF-F-006 formula check",
+  "MK-PF-F-013 formula check"
+ ],
+ "coverage": "87 of 87 items classified — 59 agree, 19 app wrong, 4 reviewer wrong, 5 need a ruling, 0 blocked, 8 in-flight. Cases 65 of 65: 53 agrees, 7 app wrong, 2 reviewer wrong, 3 needs a ruling, 0 blocked (1 of the agrees SETTLED a RULE UNCLEAR). Formula checks 13 of 13: 5 agrees, 6 app wrong, 1 reviewer wrong, 1 needs a ruling, 0 blocked. Still open 9 of 9: 1 agrees, 6 app wrong, 1 reviewer wrong, 1 needs a ruling, 0 blocked. rules_held 0, screen_checks 0, could_not_test 0 — nothing to run. Distinct defects behind the APP WRONG items: 6 fixes; distinct rulings needed: 7."
+}

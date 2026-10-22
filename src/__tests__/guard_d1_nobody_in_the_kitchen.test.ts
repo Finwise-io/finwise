@@ -23,8 +23,8 @@ const CALC = /(src\/domain|MoneyKeel\/functions|Calculation Module code\/engines
 /** file → the number of dependent-function imports it carried on 2026-09-12. Only ever goes down. */
 const BASELINE: Record<string, number> = {
   'src/onboarding/modules.tsx': 7,
-  'src/screens/HomeScreen.tsx': 1,
-  'src/screens/ImportHoldingsScreen.tsx': 1,
+  // HomeScreen and ImportHoldingsScreen reached zero on 2026-10-20: their one import each was round2, the cents
+  // rounding, which no longer runs on a value being saved (DEC-0403) — so their lines are gone, as this ratchet asks.
   'src/screens/IncomeDetailScreen.tsx': 2,
   'src/screens/SsTimingScreen.tsx': 1,
   'src/screens/TaxOrganizerScreen.tsx': 2,

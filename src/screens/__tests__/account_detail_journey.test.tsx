@@ -30,7 +30,8 @@ beforeEach(() => {
 test('shows the balance, class in plain words, and the by-hand source sentence (walk row 8: one wording)', () => {
   render(<AccountPortfolioScreen />);
   expect(screen.getByText('Chase Checking')).toBeOnTheScreen();
-  expect(screen.getByText('By hand · you update it')).toBeOnTheScreen();
+  // the one source chip, as Net worth prints it and the account-page drawing v01 draws it (state B: "✍️ By hand · you update it")
+  expect(screen.getByText('✍️ By hand · you update it')).toBeOnTheScreen();
   expect(screen.getAllByText('$12,000').length).toBeGreaterThan(0);   // the header trio repeats the value, as the approved mock does
   expect(screen.getByText(/Cash · taxable/)).toBeOnTheScreen();
 });

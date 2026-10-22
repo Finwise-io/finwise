@@ -394,28 +394,32 @@ test('By institution: groups collapse, and a bank\'s debt never joins its asset 
 
 // FINAL mock: the missing-data banner is INLINE on the screen (never a pop-up) and exists ONLY
 // while a promised number is incomplete.
+// R7 (2026-10-20): the account is what the SYNC stores (ingestSync, from a SnapTrade payload) — the quantity on the
+// purchases, the broker's mark as last_price. This test used to hand the screen `shares` and `price`, a shape nothing
+// writes, which is the only reason the banner ever named LCTX: on a real account the gap never fired.
 test('banner appears with the gap named — and is absent when the data is complete', () => {
+  const { ingestSync } = require('../../services/sync/ingest');
   const today = isoLocalDate(new Date());
-  useStore.setState({
-    nwSeeded: true,
-    assetAccounts: [{
-      asset_id: 'e1', label: 'E*TRADE Brokerage', institution: 'E*TRADE', kind: 'brokerage', tax_bucket: 'TAXABLE',
-      balance: 40000, target_return: 0.07, source: 'connected', last_synced: '2026-07-01T09:00:00Z',
-      positions: [{ position_id: 'p1', ticker: 'LCTX', shares: 965, price: null, kind: 'stocks_etf' }],
-    }],
-    liabilities: [], transactions: [],
-  } as any);
+  const payload = (price: number | null, syncedAt: string) => ({
+    account: { id: 'acc-e1', brokerage_authorization: 'conn-1', name: 'E*TRADE Brokerage', number: '55554444', institution_name: 'E*TRADE',
+      raw_type: 'Individual', balance: { total: { amount: 40000, currency: 'USD' } },
+      sync_status: { holdings: { initial_sync_completed: true, last_successful_sync: syncedAt } } },
+    balancesCash: 0,
+    positions: [{ symbol: { id: 'u-lctx', raw_symbol: 'LCTX', description: 'Lineage Cell', type: { code: 'cs' } }, units: 965, price, average_purchase_price: 1.2 }],
+    activities: [],
+  });
+  const unpriced = ingestSync([], {}, [payload(null, '2026-07-01T09:00:00Z')]);
+  const held = unpriced.accounts[0].positions[0];
+  expect(held.price).toBeUndefined(); expect(held.shares).toBeUndefined();   // the writer's shape, not a hand-typed one
+  useStore.setState({ nwSeeded: true, assetAccounts: unpriced.accounts, liabilities: [], transactions: [] } as any);
   render(<NetWorthScreen />);
   expect(screen.getByText(/numbers? needs? more information/)).toBeOnTheScreen();
   expect(screen.getByText(/LCTX has no price today/)).toBeOnTheScreen();
 
+  const priced = ingestSync([], {}, [payload(41.45, `${today}T09:00:00Z`)]);
   useStore.setState({
-    assetAccounts: [{
-      asset_id: 'e1', label: 'E*TRADE Brokerage', institution: 'E*TRADE', kind: 'brokerage', tax_bucket: 'TAXABLE',
-      balance: 40000, target_return: 0.07, source: 'connected', last_synced: `${today}T09:00:00Z`,
-      positions: [{ position_id: 'p1', ticker: 'LCTX', shares: 965, price: 41.45, kind: 'stocks_etf' }],
-    }],
-    transactions: [{ account_id: 'e1', type: 'DIVIDEND' }],
+    assetAccounts: priced.accounts,
+    transactions: [{ account_id: priced.accounts[0].asset_id, type: 'DIVIDEND' }],
   } as any);
   render(<NetWorthScreen />);
   expect(screen.queryByText(/numbers? needs? more information/)).toBeNull();   // complete data → NO banner at all

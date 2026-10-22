@@ -503,8 +503,11 @@ describe('MK-NW-F-027 accountClassBreakdown — five cases', () => {
   test('edge · Difference exactly at 1% of the balance, and one cent over', () => {
     const at = (balance: number) => nonZero(accountClassBreakdown(R({ account: 'E*TRADE brokerage', how_valued: 'linked to the broker', class_of_account: 'stocks_etf', balance, uninvested_cash: 3000.0,
       holdings: [{ name: 'VOO', qty: 160, price: 600.0, cls: 'stocks_etf' }] })));
+    // ONE CENT OVER IS CASH TOO since 2026-10-21 (DEC-0095: "the difference is treated as CASH", with no size in his rule): the
+    // brief's case was written to the 1% line this function then drew, under which $1,000.01 went to Stocks / Funds and the
+    // account page's rows came to less than the broker's total. A listed, priced brokerage's whole gap is cash now.
     expect({ at_line: { split: at(100000.0) }, one_cent_over: { split: at(100000.01) } })
-      .toEqual({ at_line: { split: { cash: near(4000), stocks_etf: near(96000) } }, one_cent_over: { split: { cash: near(3000), stocks_etf: near(97000.01) } } });
+      .toEqual({ at_line: { split: { cash: near(4000), stocks_etf: near(96000) } }, one_cent_over: { split: { cash: near(4000.01), stocks_etf: near(96000) } } });
   });
 });
 

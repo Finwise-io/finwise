@@ -180,7 +180,10 @@ describe('the decisions in the log are held by something that executes', () => {
   });
 
   // ── DEC (G36) · months left in the year ────────────────────────────────────────────────────
-  test('DEC-0345 — "state the months-left convention": the current month COUNTS, and December is 1, never 0', () => {
+  // Until 2026-10-20 this test carried the id of "inputs assembled once per family" — a different
+  // decision. The months-left words are his of 2026-09-12; the id was read off the log and corrected.
+  // (The old id is not written here on purpose: find-tests-for-decisions.py links every id in this file.)
+  test('DEC-0336 — "state the months-left convention": the current month COUNTS, and December is 1, never 0', () => {
     // dividing a year's remaining room by zero months is how a per-month figure becomes infinite
     expect(monthsLeftInYear(new Date(2026, 11, 15))).toBe(1);   // December
     expect(monthsLeftInYear(new Date(2026, 8, 29))).toBe(4);    // September: Sep, Oct, Nov, Dec
@@ -561,7 +564,8 @@ describe('the decisions in the log are held by something that executes', () => {
     expect(onCourseSentence({ ...args, chance: null } as any)).toBeNull();
   });
 
-  // ── DEC-1923, which replaced DEC-0471 ("ask User to correct, if not input from user, use the budget") ──
+  // ── DEC-1923, which replaced DEC-0441 ("ask User to correct, if not input from user, use the budget") ──
+  // (corrected 2026-10-20: this line named a different decision; the log's DEC-0441 row reads "Replaced by DEC-1923")
   test('DEC-1923 — "Once user enters mortgage or any debt - the app deduct it directly": the mortgage is counted from Debts, and the budget line stands down', () => {
     const household = (budget: number, owed: number, withHome = true) => ({
       accounts: [{ asset_id: 'a1', label: 'Checking', kind: 'checking', tax_bucket: 'TAXABLE', balance: 18000, target_return: 0, asset_class: 'cash' },
@@ -1131,13 +1135,279 @@ describe('the decisions in the log are held by something that executes', () => {
   });
 
   // ── DEC-0231 ───────────────────────────────────────────────────────────────────────────────
-  test('DEC-0231 — "rounded corners not semicircle ends": no BUTTON on a Net worth screen is a pill (the drawn chips and grouping pills are chips, not buttons)', () => {
+  test('DEC-0231 — "rounded corners not semicircle ends": no BUTTON on a Net worth screen is a pill', () => {
     const pills: string[] = [];
     for (const s of NW_SCREENS) {
       for (const m of noComments(screenSrc(s)).matchAll(/(\w*(?:Btn|Button|btn)\w*): \{[^}]*borderRadius: (999|Radii\.pill)/g)) pills.push(`${s}.${m[1]}`);
     }
     expect(NW_SCREENS.length).toBe(7);
     expect(pills).toEqual([]);
+  });
+
+  // WIDENED 2026-10-20. The test above read only styles NAMED *Btn / *Button, on seven screens — so it passed while
+  // every chip, grouping pill and segment that offers a choice kept its semicircle ends: 24 of them across 15 files,
+  // Net worth's own grouping pills and add-sheet chips among them. This one reads the disk: every tappable control in
+  // src/ and app/ that is a CHOICE — it carries a selected state, the radio or tab role, an "on" style it switches to,
+  // or a chip / pill / segment / option / preset style — and the styles it is drawn with. A choice fails when its
+  // corner radius is half its height or more (a semicircle end). Height is its stated height, else its minimum height,
+  // else its padding above and below plus one 13-point line (16) and its border — the smallest it can be, so a
+  // borderline radius is caught, never excused. A choice whose radius cannot be read fails too: it is listed, not
+  // passed. What is not a choice (a badge, a dot, an avatar, a progress bar, a round +/− button) is never read here.
+  test('DEC-0231 — "make the buttons same as all radio buttons across all screens — rounded corners not semicircle ends": no BUTTON or CHOICE app-wide has semicircle ends', () => {
+    const ts = require('typescript');
+    const ROOT = path.join(__dirname, '..', '..');
+    // the theme's two number tables, READ FROM ITS FILE (requiring it would load react-native into this logic test)
+    const themeText = fs.readFileSync(path.join(ROOT, 'src', 'utils', 'theme.ts'), 'utf8');
+    const tableOf = (name: string): Record<string, number> => {
+      const body = themeText.match(new RegExp(`export const ${name} = \\{([^}]*)\\}`))?.[1] ?? '';
+      return Object.fromEntries([...body.matchAll(/(\w+):\s*(\d+(?:\.\d+)?)/g)].map((m) => [m[1], Number(m[2])]));
+    };
+    const Radii = tableOf('Radii'), Spacing = tableOf('Spacing');
+    expect([Radii.md, Radii.pill, Spacing.md]).toEqual([12, 100, 12]);   // the tables were found and read
+    // the type sizes too (2026-10-21), so a control's height is reckoned from the text it actually carries
+    const TypeSizes: Record<string, number> = Object.fromEntries([...(themeText.match(/export const Typography = \{[\s\S]*?sizes: \{([^}]*)\}/)?.[1] ?? '').matchAll(/(\w+):\s*(\d+(?:\.\d+)?)/g)].map((m) => [m[1], Number(m[2])]));
+    expect([TypeSizes.xs, TypeSizes.sm, TypeSizes.md]).toEqual([11, 13, 17]);
+    const TOUCHABLE = /^(TouchableOpacity|Pressable|TouchableHighlight|TouchableWithoutFeedback)$/;
+    const CHOICE_NAME = /chip|pill|seg(ment)?\b|segBtn|option|choice|radio|preset/i;
+    const walk = (dir: string): string[] => fs.readdirSync(dir, { withFileTypes: true }).flatMap((d: any) => {
+      const p = path.join(dir, d.name);
+      if (d.isDirectory()) return d.name === '__tests__' || d.name === 'node_modules' ? [] : walk(p);
+      return /\.tsx$/.test(d.name) && !/\.test\./.test(d.name) ? [p] : [];
+    });
+    const files = ['src', 'app'].flatMap((r) => walk(path.join(ROOT, r)));
+    // a number the style states: a literal, a theme token, or simple arithmetic on them; a ternary takes its larger side
+    const num = (e: any): number | null => {
+      if (!e) return null;
+      if (ts.isNumericLiteral(e)) return Number(e.text);
+      if (ts.isParenthesizedExpression(e)) return num(e.expression);
+      if (ts.isPrefixUnaryExpression(e) && e.operator === ts.SyntaxKind.MinusToken) { const v = num(e.operand); return v == null ? null : -v; }
+      if (ts.isPropertyAccessExpression(e) && ts.isIdentifier(e.expression)) {
+        const table = e.expression.text === 'Radii' ? Radii : e.expression.text === 'Spacing' ? Spacing : null;
+        return table && typeof table[e.name.text] === 'number' ? table[e.name.text] : null;
+      }
+      if (ts.isPropertyAccessExpression(e) && /^Typography\.sizes$/.test(e.expression.getText())) return typeof TypeSizes[e.name.text] === 'number' ? TypeSizes[e.name.text] : null;
+      if (ts.isConditionalExpression(e)) { const a = num(e.whenTrue), b = num(e.whenFalse); return a == null || b == null ? null : Math.max(a, b); }
+      if (ts.isBinaryExpression(e)) {
+        if (e.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken) return num(e.left) ?? num(e.right);
+        const a = num(e.left), b = num(e.right);
+        if (a == null || b == null) return null;
+        switch (e.operatorToken.kind) { case ts.SyntaxKind.PlusToken: return a + b; case ts.SyntaxKind.MinusToken: return a - b;
+          case ts.SyntaxKind.AsteriskToken: return a * b; case ts.SyntaxKind.SlashToken: return a / b; }
+      }
+      return null;
+    };
+    const propsOf = (o: any): Record<string, any> => {
+      const out: Record<string, any> = {};
+      for (const p of o.properties ?? []) if (ts.isPropertyAssignment(p) && (ts.isIdentifier(p.name) || ts.isStringLiteral(p.name))) out[p.name.text] = p.initializer;
+      return out;
+    };
+    let touchables = 0;
+    type Control = { at: string; file: string; uses: string; radius: number | null; height: number | null };
+    const choices: Control[] = [], buttons: Control[] = [];
+    const unresolved: string[] = [];
+    let unstyled = 0;
+    for (const file of files) {
+      const text = fs.readFileSync(file, 'utf8');
+      const sf = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+      const rel = path.relative(ROOT, file);
+      // every StyleSheet.create in the file: variable → style name → its props (a style written `{ … } as any` included)
+      const sheets: Record<string, Record<string, Record<string, any>>> = {};
+      const bare = (e: any): any => (e && (ts.isAsExpression(e) || ts.isParenthesizedExpression(e)) ? bare(e.expression) : e);
+      const findSheets = (n: any) => {
+        if (ts.isVariableDeclaration(n) && ts.isIdentifier(n.name) && n.initializer && ts.isCallExpression(n.initializer)
+          && /StyleSheet\.create$/.test(n.initializer.expression.getText(sf)) && n.initializer.arguments[0] && ts.isObjectLiteralExpression(n.initializer.arguments[0])) {
+          const styles: Record<string, Record<string, any>> = {};
+          for (const p of n.initializer.arguments[0].properties) {
+            if (ts.isPropertyAssignment(p) && ts.isIdentifier(p.name) && ts.isObjectLiteralExpression(bare(p.initializer))) styles[p.name.text] = propsOf(bare(p.initializer));
+          }
+          sheets[n.name.text] = styles;
+        }
+        ts.forEachChild(n, findSheets);
+      };
+      findSheets(sf);
+      // WHAT A CONTROL CARRIES (2026-10-21): every style a JSX style attribute can draw with, merged …
+      const styleProps = (e: any): Record<string, any> => {
+        const out: Record<string, any> = {};
+        const go = (x: any) => {
+          if (!x) return;
+          if (ts.isPropertyAccessExpression(x) && ts.isIdentifier(x.expression)) { Object.assign(out, sheets[x.expression.text]?.[x.name.text] ?? {}); return; }
+          if (ts.isObjectLiteralExpression(x)) { Object.assign(out, propsOf(x)); return; }
+          if (ts.isBinaryExpression(x) && x.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken) { go(x.right); return; }
+          if (ts.isConditionalExpression(x)) { go(x.whenTrue); go(x.whenFalse); return; }
+          if (ts.isArrayLiteralExpression(x)) { x.elements.forEach(go); return; }
+          if (ts.isParenthesizedExpression(x)) go(x.expression);
+        };
+        go(e);
+        return out;
+      };
+      // … and the height of what is inside it: the tallest thing in it that states a height (an icon box, an icon's size),
+      // else the line of the largest type it carries — its stated line height, or 1.2 × its font size, 16 when none is read.
+      // Something drawn on top (position absolute) does not hold the control open, so it is not counted.
+      const contentOf = (opening: any): number => {
+        if (!ts.isJsxOpeningElement(opening)) return 16;
+        let tallest = 0, line = 0;
+        const look = (k: any) => {
+          if (ts.isJsxOpeningElement(k) || ts.isJsxSelfClosingElement(k)) {
+            const attr = (name: string) => k.attributes.properties.find((a: any) => ts.isJsxAttribute(a) && a.name.getText(sf) === name);
+            const st = attr('style');
+            const p = st?.initializer && ts.isJsxExpression(st.initializer) ? styleProps(st.initializer.expression) : {};
+            if (!(p.position && ts.isStringLiteral(p.position) && p.position.text === 'absolute')) {
+              const h = num(p.height) ?? num(p.minHeight);
+              if (h != null) tallest = Math.max(tallest, h);
+              const size = attr('size');
+              const sz = size?.initializer && ts.isJsxExpression(size.initializer) ? num(size.initializer.expression) : null;
+              if (sz != null) tallest = Math.max(tallest, sz);
+              if (/^(Text|Animated\.Text)$/.test(k.tagName.getText(sf))) { const fz = num(p.fontSize); line = Math.max(line, num(p.lineHeight) ?? (fz != null ? 1.2 * fz : 16)); }
+            }
+          }
+          ts.forEachChild(k, look);
+        };
+        opening.parent.children.forEach(look);
+        return Math.max(tallest, line || 16);
+      };
+      const visit = (n: any) => {
+        if ((ts.isJsxOpeningElement(n) || ts.isJsxSelfClosingElement(n)) && TOUCHABLE.test(n.tagName.getText(sf))) {
+          touchables += 1;
+          const attrs: Record<string, any> = {};
+          for (const a of n.attributes.properties) if (ts.isJsxAttribute(a)) attrs[a.name.getText(sf)] = a.initializer;
+          const expr = (k: string) => (attrs[k] && ts.isJsxExpression(attrs[k]) ? attrs[k].expression : null);
+          const style = expr('style');
+          const refs: { sheet: string; name: string }[] = [];
+          const inline: any[] = [];
+          let switchesOn = false;   // it switches to an "on" style when picked — chipOn, segActive, optSelected …
+          const ON = /(On|Active|Selected|Sel)$|On[A-Z]/;
+          const collect = (e: any, switched = false) => {
+            if (!e) return;
+            if (ts.isPropertyAccessExpression(e) && ts.isIdentifier(e.expression)) {
+              refs.push({ sheet: e.expression.text, name: e.name.text });
+              if (switched && ON.test(e.name.text)) switchesOn = true;
+              return;
+            }
+            if (ts.isObjectLiteralExpression(e)) { inline.push(e); return; }
+            if (ts.isBinaryExpression(e) && e.operatorToken.kind === ts.SyntaxKind.AmpersandAmpersandToken) { collect(e.right, true); return; }
+            if (ts.isConditionalExpression(e)) { collect(e.whenTrue, true); collect(e.whenFalse, true); return; }
+            if (ts.isArrayLiteralExpression(e)) { e.elements.forEach((x: any) => collect(x, switched)); return; }
+            if (ts.isParenthesizedExpression(e)) collect(e.expression, switched);
+          };
+          collect(style);
+          const at = `${rel}:${sf.getLineAndCharacterOfPosition(n.getStart()).line + 1}`;
+          const merged: Record<string, any> = {};
+          for (const r of refs) {
+            const st = sheets[r.sheet]?.[r.name];
+            if (st) Object.assign(merged, st);
+            else if (r.sheet !== 'StyleSheet') unresolved.push(`${at} ${r.sheet}.${r.name}`);   // StyleSheet.absoluteFill and the like: no corner
+          }
+          for (const o of inline) Object.assign(merged, propsOf(o));
+          if (refs.length === 0 && inline.length === 0) { unstyled += 1; ts.forEachChild(n, visit); return; }   // drawn by no style of its own: no corner to read
+          const state = expr('accessibilityState');
+          const selected = !!state && /\bselected\b/.test(state.getText(sf));
+          const role = attrs.accessibilityRole && ts.isStringLiteral(attrs.accessibilityRole) ? attrs.accessibilityRole.text : '';
+          const named = refs.some((r) => CHOICE_NAME.test(r.name));
+          const radius = merged.borderRadius ? num(merged.borderRadius) : 0;
+          const pad = num(merged.paddingVertical) ?? num(merged.padding) ?? 0;
+          const border = num(merged.borderWidth) ?? 0;
+          const height = merged.height ? num(merged.height) : Math.max(num(merged.minHeight) ?? 0, 2 * pad + contentOf(n) + 2 * border);
+          const round = merged.width && merged.height && num(merged.width) === num(merged.height);   // a circle (a round +/− or icon), not a pill
+          const c: Control = { at, file: rel, uses: refs.map((r) => `${r.sheet}.${r.name}`).join(' + ') || 'inline', radius, height };
+          if (!round) (selected || role === 'radio' || role === 'tab' || switchesOn || named ? choices : buttons).push(c);
+        }
+        ts.forEachChild(n, visit);
+      };
+      visit(sf);
+    }
+    // A straight side shorter than 2 points cannot be seen, so it counts as a semicircle (2026-10-21). Until today the height
+    // took a 16-point line whatever the control carried, so the Monthly · Yearly choice in onboarding — radius 14, 13-point
+    // type, about 28.6 points tall, under a point of straight side — passed. Its height is now reckoned from its own type,
+    // and it is Radii.md.
+    const isSemicircle = (c: Control) => c.radius != null && c.height != null && 2 * c.radius >= c.height - 2;
+    const unread = [...choices, ...buttons].filter((c) => c.radius == null || c.height == null).map((c) => `${c.at} ${c.uses}`);
+    const semicircles = choices.filter(isSemicircle).map((c) => `${c.at} ${c.uses} — radius ${c.radius} on a height of ${c.height}`);
+    // BUTTONS THAT ARE NOT A CHOICE are held to the same corner (2026-10-21). Until today nine tap targets drawn by eight
+    // styles were carried here by name as pills — Unlock, Try again, the two floating add buttons, the recovery code's
+    // Done, the import's Choose a file, Settings' Cancel and Delete pair, and the top bar's menu button. His words say
+    // "buttons … across all screens", so all eight now take Radii.md and the carried list is gone: a button with
+    // semicircle ends fails exactly as a choice does. A circle (a round +/−, close or eye button) has no ends and is not read.
+    const pillButtons = [...new Set(buttons.filter(isSemicircle).map((c) => `${c.at} ${c.uses} — radius ${c.radius} on a height of ${c.height}`))].sort();
+    if (process.env.DEC0231_DEBUG) fs.writeFileSync(process.env.DEC0231_DEBUG, JSON.stringify({ files: files.length, touchables, unstyled, choices, buttons, unresolved, unread, semicircles, pillButtons }, null, 1));
+    // COVERAGE: it read the disk, every tappable control on it, and sorted every one drawn with a style of its own (counts of 2026-10-20)
+    expect(files.length).toBeGreaterThanOrEqual(140);
+    expect(touchables).toBeGreaterThanOrEqual(600);
+    expect(choices.length).toBeGreaterThanOrEqual(115);   // 120 on 2026-10-20
+    expect(buttons.length).toBeGreaterThanOrEqual(330);   // 344 on 2026-10-20
+    expect(choices.length + buttons.length + unstyled).toBeLessThanOrEqual(touchables);   // nothing counted twice
+    expect(unresolved).toEqual([]);
+    expect(unread).toEqual([]);
+    expect(semicircles).toEqual([]);
+    expect(pillButtons).toEqual([]);
+  });
+
+  // THE DRAWINGS DRAWN AT SEMICIRCLE ENDS AFTER HIS RULING SAY SO, DATED (2026-10-20, the DEC-4529 way: a line, not a redraw).
+  // Net worth v08's grouping choice is drawn at 999px and was built so; its correction line is held here, and the built
+  // styles are held by the test above. (Bonds, Alternatives and Itemize are held, drawn radius and built radius both, in
+  // src/screens/__tests__/kept_editors_match.test.tsx, known difference 22.)
+  test('DEC-0231 — the Net worth v08 drawing carries the dated line correcting its grouping choice to rounded corners', () => {
+    const v08 = fs.readFileSync(path.join(__dirname, '..', '..', 'MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v08.html'), 'utf8');
+    expect(v08).toMatch(/\.pill\{[^}]*border-radius:999px/);                                   // as drawn
+    const at = v08.indexOf('READ THIS FIRST');
+    const rows = v08.slice(at, v08.indexOf('</table>', at)).replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+    expect(rows).toMatch(/2026-10-20 DRAWING ERROR, every frame — the By category · By institution choice is drawn with semicircle ends \(border-radius 999px\)[\s\S]*both are corrected to 12/);
+    const nw = noComments(screenSrc('NetWorthScreen'));
+    expect(nw).toMatch(/groupPill: \{[^}]*borderRadius: Radii\.md/);
+    expect(nw).toMatch(/\n  chip: \{[^}]*borderRadius: Radii\.md/);
+  });
+
+  // THE BUTTONS' DRAWINGS (2026-10-21). The top bar's button — the menu button on a tab, the back button on a screen opened
+  // from one — is drawn on every drawing that draws the bar, at the code's old 19 on 38 (most drawings scale it to 32, which
+  // is MORE than a semicircle). The import's main button, the one that chooses a file, is drawn at 100 on Ways to add v10.
+  // Both are built at Radii.md now. This reads EVERY live drawing (not archive/), finds each drawn top-bar button and that
+  // import button by the words on it, reads its corner from the drawing's CSS class or inline style, and where the drawn
+  // corner is not the built one, the drawing must carry its dated correction line (the DEC-4529 way: a line, not a redraw).
+  test('DEC-0231 — every live drawing that draws the top bar\'s button or the import\'s main button at another corner says, dated, that it is 12', () => {
+    const ROOT = path.join(__dirname, '..', '..');
+    const built = (file: string, style: string) => fs.readFileSync(path.join(ROOT, file), 'utf8').match(new RegExp(`\\n  ${style}: \\{[^\\n]*borderRadius: Radii\\.md`)) != null;
+    expect([built('src/components/TopBar.tsx', 'menuBtn'), built('src/screens/ImportHoldingsScreen.tsx', 'primary')]).toEqual([true, true]);
+    const BUILT = 12;
+    const DOCS = path.join(ROOT, 'MoneyKeel', 'documents');
+    const drawings = fs.readdirSync(DOCS, { withFileTypes: true }).filter((d: any) => d.isDirectory())
+      .flatMap((d: any) => fs.readdirSync(path.join(DOCS, d.name)).filter((f: string) => /^moneykeel_pres_mock_.*\.html$/.test(f)).map((f: string) => `${d.name}/${f}`));
+    const drawsIt: string[] = [], differs: string[] = [], unread: string[] = [], missingLine: string[] = [];
+    for (const rel of drawings) {
+      const html = fs.readFileSync(path.join(DOCS, rel), 'utf8');
+      const css: Record<string, string> = {};
+      for (const m of html.matchAll(/\.([a-zA-Z][\w-]*)\s*\{([^}]*)\}/g)) css[m[1]] = (css[m[1]] ?? '') + ';' + m[2];
+      const radii: number[] = [];
+      let imports = false;
+      // the element that carries the words, or the one box around it (a drawing read off the render nests the words once):
+      // the corner is the innermost of the two that draws one
+      const cornerOf = (attrs: string) => {
+        const cls = (attrs.match(/class="([^"]*)"/)?.[1] ?? '').split(/\s+/).filter(Boolean);
+        const style = cls.map((c) => css[c] ?? '').join(';') + ';' + (attrs.match(/style="([^"]*)"/)?.[1] ?? '');
+        const r = style.match(/border-radius:\s*([\d.]+)px/g)?.pop()?.match(/[\d.]+/)?.[0];
+        return r == null ? null : Number(r);
+      };
+      for (const m of html.matchAll(/<(?:span|div)((?:\s+[^>]*)?)>\s*(?:<(?:span|div)((?:\s+[^>]*)?)>\s*)?(▦ Menu|‹ Back|Choose a file)\s*</g)) {
+        const r = (m[2] != null ? cornerOf(m[2]) : null) ?? cornerOf(m[1] ?? '');
+        if (r == null) continue;                               // a plain text link (no box), not a button with a corner
+        radii.push(r);
+        if (m[3] === 'Choose a file') imports = true;
+      }
+      if (radii.length === 0) continue;
+      drawsIt.push(rel);
+      if (radii.some((r) => !Number.isFinite(r))) { unread.push(rel); continue; }
+      if (radii.every((r) => r === BUILT)) continue;
+      differs.push(rel);
+      const text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+      const line = text.match(/DRAWING ERROR, [^.]{0,160}the top bar’s[^.]{0,200}semicircle ends[\s\S]{0,400}?corrected to 12[\s\S]{0,500}?Line added 2026-10-21\./)?.[0] ?? '';
+      if (!line || !/DEC-0231/.test(text) || (imports && !/the import’s main button/.test(line))) missingLine.push(rel);
+    }
+    if (process.env.DEC0231_DEBUG) fs.writeFileSync(process.env.DEC0231_DEBUG + '.drawings.json', JSON.stringify({ drawings, drawsIt, differs, unread, missingLine }, null, 1));
+    // COVERAGE (2026-10-21): 20 live drawings; 15 draw the bar's button; 14 draw it at 19 (or Choose a file at 100) and carry
+    // the line; the 15th, the brand wordmark of 2026-07-24, draws it at 12 already.
+    expect(drawings.length).toBeGreaterThanOrEqual(20);
+    expect(drawsIt.length).toBeGreaterThanOrEqual(15);
+    expect(differs.length).toBeGreaterThanOrEqual(14);
+    expect(unread).toEqual([]);
+    expect(missingLine).toEqual([]);
   });
 
   // ── DEC-0235 ───────────────────────────────────────────────────────────────────────────────
@@ -1238,7 +1508,12 @@ describe('the decisions in the log are held by something that executes', () => {
 
   // ── DEC-0458 ───────────────────────────────────────────────────────────────────────────────
   test('DEC-0458 — "Benchmark in S&P 500? If that add info dot": a comparison names its benchmark behind a tappable explanation', () => {
-    expect(noComments(screenSrc('AccountPortfolioScreen'))).toMatch(/<InfoDot term="benchmark" \/>/);
+    // where a figure IS compared with the market: a holding against its yardstick, and Home's market line. The account page
+    // carried this dot on WHAT EACH CATEGORY EARNED, a table its approved drawing (account-page drawing v01, 2026-10-19,
+    // row 18) does not have, so the page compares nothing with a benchmark and the dot went with the table.
+    expect(noComments(screenSrc('HoldingDetailScreen'))).toMatch(/<InfoDot term="benchmark" \/>/);
+    expect(noComments(screenSrc('HomeScreen'))).toMatch(/<InfoDot term="benchmark" \/>/);
+    expect(noComments(screenSrc('AccountPortfolioScreen'))).not.toMatch(/WHAT EACH CATEGORY EARNED/);
     expect(GLOSSARY.benchmark.body.length).toBeGreaterThan(20);
   });
 
@@ -1348,7 +1623,8 @@ describe('the decisions in the log are held by something that executes', () => {
 
   // ── DEC-0421 ───────────────────────────────────────────────────────────────────────────────
   test("DEC-0421 — tapping an account's name opens that account's holdings", () => {
-    expect(noComments(screenSrc('PerformanceScreen'))).toMatch(/onTitlePress=\{\(\) => router\.push\(`\/account-detail\?id=\$\{id\}`/);
+    // the account's page, opened on the window picked on the tab (account-page drawing v01, row 18, DEC-6457)
+    expect(noComments(screenSrc('PerformanceScreen'))).toMatch(/onTitlePress=\{\(\) => router\.push\(`\/account-detail\?id=\$\{id\}&period=\$\{period\}`/);
   });
 
   // ── DEC-0448 ───────────────────────────────────────────────────────────────────────────────

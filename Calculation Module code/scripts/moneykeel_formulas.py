@@ -313,7 +313,10 @@ def derive(engine, label, math_text):
 # produces several. Only genuinely identical figures are listed here.
 # Each entry: surviving identifier -> (the identifiers folded into it, why)
 DUPLICATES = {
- 'MK-PL-M-033':(['MK-NW-M-015'],'The projected pot at retirement, shown on Net worth as "on track for $X by age Y" and on the cockpit as "your $X grows to $Y". One figure, two screens — the founder spotted this one himself.'),
+ # 'MK-PL-M-033' and 'MK-NW-M-015' were listed here as one figure until 2026-10-21. They are two: MK-PL-M-033 is the
+ # cockpit's straight-line pot ("your $X grows to $Y", projectNestEgg); MK-NW-M-015 is Net worth's and the Plan tab's
+ # sentence from the 1,000 simulated futures ("retire at 65 with ~$931,000, running short around age 87"), since
+ # the card stopped printing the straight-line pot on 2026-08-04. See NOT_DUPLICATES['RETIREMENT_POT'].
  'MK-CF-M-011':(['MK-PL-M-018','MK-PL-M-032','MK-CF-M-024'],'Guaranteed income being received now. Shown four ways: "You receive $X/mo" on Social Security timing, "incl. Social Security $X/mo" on the cockpit, as a source on Cash flow, and as a list on Monthly income. One figure, four identifiers.'),
  'MK-XS-M-001':(['MK-NW-M-016'],'Net worth. "Net worth so far" during setup is the same figure as the headline, mid-way through entry.'),
  'MK-XS-M-006':(['MK-CF-M-018'],'Money in this month. "In (take-home)" on Cash flow is the same figure as "Income" on Home.'),
@@ -345,6 +348,7 @@ NOT_DUPLICATES = {
  'LOOK_BACK':'Stayed, moved and the difference are three answers to one question.',
  'ACCOUNT_SPLIT':'An account\'s balance and the classes inside it are different cuts.',
  'WHAT_THE_PLAN_STILL_NEEDS':'What is counted and what is missing are two halves.',
+ 'RETIREMENT_POT':'MK-PL-M-033 and MK-NW-M-015 are two figures, not one (corrected 2026-10-21): the cockpit\'s straight-line pot at retirement, and Net worth\'s and the Plan tab\'s sentence from the middle of the 1,000 simulated futures. They were folded together when the Net worth card still printed the straight-line pot.',
 }
 # Mis-assignments the pass turned up.
 MISASSIGNED = {

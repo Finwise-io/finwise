@@ -12,7 +12,7 @@ import { DateField } from '../components/DateField';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { fig, figSpoken, figWords } from '../components/figure';
 import { InfoDot, EmptyNote } from '../components/UI';
-import { assetKind, benchmarkReturn, type AssetAccount, type TaxBucket } from '../domain/assets';
+import { assetKind, benchmarkReturn, type AssetAccount, type TaxBucket, type AddWrapper, HELD_IN_CHOICES, heldInOf, wrapperAccount } from '../domain/assets';
 // ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1). The share of investable this screen shows is the
 // same investable the Net worth tab shows — one answer, so the two cannot disagree.
 import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
@@ -21,6 +21,7 @@ import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/
 import { theAlternativesOutlook } from '../../MoneyKeel/functions/networth-and-performance/alternatives-outlook';
 import { ALT_KINDS_CAPTURE } from '../domain/alternatives';
 import { modalAnimation } from '../hooks/reducedMotion';
+import { useNetWorthInputs } from '../hooks/useNetWorthInputs';   // the Net worth family's inputs, built once (MK-NW-F-145, DEC-0345)
 import { isoLocalDate } from '../domain/_shared/dates';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -32,9 +33,9 @@ const ALT_HINT: Record<string, string> = {
   annuities: 'An income product — guaranteed payments.',
   other_asset: 'Anything else of value.',
 };
-const BUCKETS: { label: string; bucket: TaxBucket }[] = [
-  { label: 'Taxable', bucket: 'TAXABLE' }, { label: 'Trad IRA / 401k', bucket: 'PRE_TAX' }, { label: 'Roth', bucket: 'ROTH' },
-];
+// HELD IN IS THE ONE LIST (DEC-2441, DEC-2484h, 2026-10-20): the six choices every form offers (HELD_IN_CHOICES). This
+// editor offered three — one of them "Trad IRA / 401k" for two wrappers — and no Roth 401(k) or HSA. An alternative's
+// kind names the asset, so the choice sets its tax bucket and is kept on it to show again (held_in).
 
 export default function OtherInvestmentsScreen() {
   const router = useRouter();
@@ -45,7 +46,8 @@ export default function OtherInvestmentsScreen() {
   // show two answers for one account. Every figure here now comes off the door's answer, and the
   // account object is looked up only to open the editor, which is the one thing a figure cannot do.
   const outlook = useMemo(() => theAlternativesOutlook({ accounts }), [accounts]);
-  const investable = theNetWorth({ uid: String(store.user?.uid ?? 'local'), accounts, debts: store.liabilities ?? [] }).investable;
+  const nwIn = useNetWorthInputs();   // the family's inputs, built once — never picked out of the store here (DEC-0345)
+  const investable = theNetWorth(nwIn).investable;
   const sharePct = investable > 0 ? Math.round((outlook.totalValue / investable) * 1000) / 10 : 0;
   const [edit, setEdit] = useState<AssetAccount | null>(null);
   const [addOpen, setAddOpen] = useState(false);
@@ -121,11 +123,17 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
   // assumed taxable." Taxable used to be preselected; now no chip is on until they tap one, and saved untapped the
   // holding has no tax type (its page says "tax type not stated").
   const [bucket, setBucket] = useState<TaxBucket | undefined>(undefined);
+  const [held, setHeld] = useState<AddWrapper | null>(null);   // the Held in choice (DEC-2441); its bucket is `bucket`
+  const heldField = held ? { held_in: held } : {};
+  const pickHeld = (w: AddWrapper) => { setHeld(w); setBucket(wrapperAccount(w).tax_bucket); };
   const [sellAmt, setSellAmt] = useState('');
   const [valueAsOf, setValueAsOf] = useState('');   // walk row 4: the stamp lives everywhere a manual value does
   React.useEffect(() => {
     if (!open) return;
-    setKind(item?.kind ?? presetKind ?? 'crypto'); setLabel(item?.label ?? ''); setInst(item?.institution ?? ''); setValue(item ? String(item.balance ?? '') : ''); setBucket(item?.tax_bucket);   // (DEC-4036f, 2026-10-10) unstated stays unstated setSellAmt(''); setValueAsOf(item?.value_as_of ?? '');
+    setKind(item?.kind ?? presetKind ?? 'crypto'); setLabel(item?.label ?? ''); setInst(item?.institution ?? ''); setValue(item ? String(item.balance ?? '') : ''); setBucket(item?.tax_bucket); setSellAmt(''); setValueAsOf(item?.value_as_of ?? '');   // (DEC-4036f, 2026-10-10) unstated stays unstated
+    // (2026-10-20) the last two calls sat INSIDE the note until today, so Save reset an edited holding's value-as-of date
+    // to today — held by src/__tests__/no_code_inside_comments.test.ts
+    setHeld(heldInOf(item));   // the choice it was saved with; an old pre-tax or Roth bucket shows none and keeps its bucket
   }, [open]);
   const valid = label.trim().length > 0 && num(value) > 0;
   // Alternatives are sellable too (e.g. an American option before expiration, crypto, a fund stake).
@@ -145,7 +153,8 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
         { text: full ? 'Sell all' : 'Sell', onPress: () => {
           if (full) { onDelete?.(); return; }
           if (item) recordTransaction?.({ type: 'SELL', account_id: item.asset_id, amount: sold, date: isoLocalDate(new Date()), note: 'Sale' });
-          onSave({ kind, label: label.trim(), institution: inst.trim(), tax_bucket: bucket as TaxBucket, ...(item ? {} : { balance: Math.round((cur - sold) * 100) / 100 }) });
+          // FULL PRECISION UNTIL IT IS SHOWN (Q49, 2026-10-20): the value left was cut to cents before it was saved
+          onSave({ kind, label: label.trim(), institution: inst.trim(), tax_bucket: bucket as TaxBucket, ...heldField, ...(item ? {} : { balance: cur - sold }) });
         } },
       ],
     );
@@ -171,9 +180,9 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
           <TextInput style={styles.input} keyboardType="decimal-pad" value={value} onChangeText={setValue} placeholder="0" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Value as of</Text>
           <DateField value={valueAsOf} onChange={setValueAsOf} label="value as of" style={styles.input} />
-          <Text style={styles.fieldL}>Account</Text>
-          <View style={styles.chips}>{BUCKETS.map((b) => (
-            <TouchableOpacity key={b.bucket} style={[styles.chip, bucket === b.bucket && styles.chipOn]} onPress={() => setBucket(b.bucket)}><Text style={[styles.chipT, bucket === b.bucket && styles.chipTOn]}>{b.label}</Text></TouchableOpacity>
+          <Text style={styles.fieldL}>Held in</Text>
+          <View style={styles.chips}>{HELD_IN_CHOICES.map((b) => (
+            <TouchableOpacity key={b.key} accessibilityRole="radio" accessibilityLabel={`Held in ${b.label}`} accessibilityState={{ selected: held === b.key }} style={[styles.chip, held === b.key && styles.chipOn]} onPress={() => pickHeld(b.key)}><Text style={[styles.chipT, held === b.key && styles.chipTOn]}>{b.label}</Text></TouchableOpacity>
           ))}</View>
           {item && (
             <View style={styles.sellBox}>
@@ -190,7 +199,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
             </View>
           )}
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid}
-            onPress={() => onSave({ kind, label: label.trim(), institution: inst.trim(), balance: num(value), tax_bucket: bucket as TaxBucket, value_as_of: valueAsOf || isoLocalDate(new Date()) })}>
+            onPress={() => onSave({ kind, label: label.trim(), institution: inst.trim(), balance: num(value), tax_bucket: bucket as TaxBucket, ...heldField, value_as_of: valueAsOf || isoLocalDate(new Date()) })}>
             <Text style={styles.saveBtnT}>{item ? 'Save' : 'Add'}</Text>
           </TouchableOpacity>
           {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete this holding" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={() => Alert.alert('Delete this holding?', `Removes ${label.trim() || 'this investment'} from your holdings.`, [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: onDelete }])}><Text style={styles.deleteLink}>Delete</Text></TouchableOpacity>}
@@ -231,7 +240,8 @@ const styles = StyleSheet.create({
   hint: { fontSize: 11, color: Colors.textTertiary, marginTop: 6, lineHeight: 15 },
   input: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 17, color: Colors.textPrimary },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.pill, paddingHorizontal: 12, paddingVertical: 8 },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  chip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 12, paddingVertical: 8 },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   chipTOn: { color: Colors.primaryDark },

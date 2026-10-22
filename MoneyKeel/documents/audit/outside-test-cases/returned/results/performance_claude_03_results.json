@@ -1501,7 +1501,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-NW-F-084 categoryEarnings — five cases › complex · A quarter of dividends and interest, as a broker sends them"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-NW-F-084 categoryEarnings — five cases › complex · A quarter of dividends and interest, as a broker sends them",
+   "recheck_2026_10_21": "BRIEF WRONG — BND's −$58.20 is a reversal, so Bonds & CDs earned $66.80, not $183.20; the app's number is kept (DEC-6799)"
   },
   {
    "id": "MK-NW-F-084",

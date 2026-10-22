@@ -5,6 +5,7 @@
 // the watch runs on connected-account transactions only (t.source === 'connected').
 import type { Transaction } from './index';
 import { median } from '../_shared/num';
+import { moneyIntoAccount } from '../../../Calculation Module code/engines/ledger';
 
 export type FlagReason = 'unusually_large' | 'first_time_payee' | 'odd_pattern' | 'possible_duplicate';
 export type FlagStatus = 'open' | 'was_me' | 'flagged';
@@ -33,9 +34,8 @@ export interface TxnFlag {
  * Answers ..... Money leaves the account: withdrawals, fees, and transfers with no recognized counter-account.
  *
  * Formula .....
- *     true   when type = 'WITHDRAWAL' (or type = 'FEE' when missing or zero)
- *     true   when type = 'TRANSFER' and !counter account id
- *     false
+ *     into = money into account(t)
+ *     the answer = not (into ≠ nothing and into > 0)
  *
  * Called by ... MK-CF-F-109 reviewTransactions
  *
@@ -57,8 +57,12 @@ export interface TxnFlag {
  * Changed ..... 2026-07-13 (4cb258a)
  */
 export function isMoneyOut(t: Transaction): boolean {
-  if (t.type === 'WITHDRAWAL' || t.type === 'FEE') return true;
-  if (t.type === 'TRANSFER' && !t.counter_account_id) return true;
+  // read by the one rule for a stored amount (moneyIntoAccount, 2026-10-21): a fee refund — a fee whose money came IN —
+  // and a journal into this account are not money out; a record with no amount on record is read by its kind, as before
+  if (t.type === 'WITHDRAWAL' || t.type === 'FEE' || (t.type === 'TRANSFER' && !t.counter_account_id)) {
+    const into = moneyIntoAccount(t);
+    return !(into != null && into > 0);
+  }
   return false;
 }
 
@@ -195,6 +199,9 @@ export interface ReviewContext {
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-010 transaction words (the institution's own wording)
  *               MK-XS-I-024 logged expenses
+ * Ruled by .... DEC-0317
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · If amount is missing it uses 0.

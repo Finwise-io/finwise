@@ -282,8 +282,13 @@ describe('the walk counts what the return counts as money put in', () => {
  *  refusal added there without words here fails. START_NOT_RECORDED is the one the screens word themselves: they draw
  *  no walk and say where the record begins (DEC-3035i), so whyNoReturn stays silent for it. */
 describe('whyNoReturn — a sentence for every refusal the time-weighted return can give', () => {
-  test('the engine lists eight refusals, and the two DEC-4439 removed are gone', () => {
-    expect(TIME_WEIGHTED_REFUSALS.length).toBe(8);
+  // nine since 2026-10-20: ACTIVITY_NOT_KNOWN, a record the app could not name (Q15) — its sentence names the word.
+  // ten since 2026-10-21: INCOME_HAS_NO_AMOUNT, interest, a dividend or a coupon with no amount (DEC-3523 tenet 3) — its
+  // sentence names the kind and the day (reversal_and_missing_amount.test.ts)
+  test('the engine lists ten refusals, and the two DEC-4439 removed are gone', () => {
+    expect(TIME_WEIGHTED_REFUSALS.length).toBe(10);
+    expect(TIME_WEIGHTED_REFUSALS as readonly string[]).toContain('ACTIVITY_NOT_KNOWN');
+    expect(TIME_WEIGHTED_REFUSALS as readonly string[]).toContain('INCOME_HAS_NO_AMOUNT');
     expect(TIME_WEIGHTED_REFUSALS as readonly string[]).not.toContain('VALUE_BELOW_MONEY_ADDED');
   });
   test.each(TIME_WEIGHTED_REFUSALS.filter((r) => r !== 'START_NOT_RECORDED'))('%s has a sentence', (refused) => {

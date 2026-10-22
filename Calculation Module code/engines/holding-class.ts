@@ -1,17 +1,28 @@
-// ENGINE — what asset class is this holding? (B7, founder brief 2026-08-20)
+// ENGINE — what asset class is this holding? (B7, founder brief 2026-08-20; the order changed by his ruling of
+// 2026-10-20, below)
 //
-// THE DEFECT THIS REPLACES. A Vanguard position clearly LABELLED money market was still counted as
-// cash — the broker-tag path overrode the name. And the logic lived in four places (the SnapTrade
-// mapper, the file importer, the reclassify migration, the assets domain), so each road could
-// disagree with the next.
+// THE ORDER, AS HE RULED IT ON 2026-10-20: "always the class broker sends." It settles DEC-2159 (2026-09-30, his
+// "Q10: Draft order is correct" — the institution's own class field first) against brief B7 (2026-08-20, "name
+// first, broker tag as fallback only"); the newer ruling wins. So, for a linked or imported holding:
+//   1. the person's own answer — it outranks everything and survives every sync (B7, DEC-2161: kept);
+//   2. THE CLASS THE BROKER SENDS — its cash-equivalent flag (the broker saying "this is cash"), else its own type
+//      (brokerClassOf, below — no identifier yet: SnapTrade's security type code, or an import file's type column);
+//   3. only when the broker sends no usable class: the name, a maturity date, the class stored when it arrived,
+//      and last the defaults (B7's ladder, unchanged).
+// Consequences he was shown in the worked example: a money-market fund the broker flags is Cash (it was Stocks /
+// Funds by DEC-0051, DEC-0092); a bond ETF and a T-bill ETF the broker sends as an ETF are Stocks / Funds (they were
+// Bonds & CDs by their names and DEC-0051's T-bill rule). An individual bond or CD the broker sends as a bond stays
+// Bonds & CDs.
 //
-// THE RULE (the founder's, verbatim in the brief): name-first classification on EVERY road, broker
-// tag as fallback only. Classify as a fund only on evidence — the cash-equivalent flag, the ticker
-// list, a name match, or the person's own answer, which outranks all of them and must survive the
-// next sync. An unlabelled broker balance is cash. When a holding changes class between syncs, keep
-// the previous class and FLAG it rather than moving the money quietly. (A false negative is cheap —
-// the money stays in net worth and its income still lands; a false positive silently moves money
-// out of the emergency-reserve figure.)
+// THIS IS THE ONE PLACE THE ORDER LIVES. The sync (MK-XS-F-102 ingestSync, MK-XS-F-105 mapPosition), the file
+// importer (MK-XS-F-172 assetClassForSymbol) and every reader of a saved holding (MK-NW-F-109 holdingClassOf — the
+// account split, the class rows, the emergency fund, Performance's categories, the account page) all ask it.
+//
+// THE DEFECT B7 REPLACED, kept for the record: a Vanguard position LABELLED money market was counted as cash
+// because the broker-tag path overrode the name, and the logic lived in four places that could disagree. The four
+// places are still one; the order inside it is his newer ruling. When the automatic rules (step 3) would move a
+// holding between syncs, the previous class is kept and FLAGGED rather than moving the money quietly; the broker's
+// own class is not held back that way — "always", in his word.
 //
 // The class vocabulary is the founder's five buckets, minus physical assets which never pass
 // through here: cash · stocks_etf (Stocks / Funds) · bonds (Bonds & CDs) · alternatives.
@@ -80,20 +91,22 @@ const BOND_WORD_COMPANY_RE = /\b(treasury|treas|bond|note|muni)\s+(wines?|estate
  *
  * Called by ... MK-NW-F-008 incomeBearingClassOf · MK-ST-F-011 classifyHoldingClass
  *
- * Reaches ..... 215 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               … and 197 more — the full list is on functions_from_code
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 248 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-013 bond maturity date
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-013 bond maturity date
+ *               MK-XS-I-070 the class a broker sends for a holding — its security type and its cash-equivalent flag
  *
  * Formula also on the master file · functions_from_code · MK-ST-F-010
  * Changed ..... 2026-08-20 (026b132)
@@ -141,12 +154,17 @@ export interface ClassEvidence {
   name?: string | null;
   /** The display ticker, if any. */
   ticker?: string | null;
-  /** The broker's own type tag ('cs', 'et', 'oef', 'bnd', 'crypto', 'cd', …) — FALLBACK ONLY. */
+  /** The broker's own type, exactly as sent — SnapTrade's code ('cs', 'et', 'oef', 'mf', 'bnd', 'crypto', …) or the
+   *  words in an import file's type column ('Fixed Income', 'ETFs & Closed End Funds'). It DECIDES when it names one
+   *  of our classes (his ruling, 2026-10-20: "always the class broker sends"); otherwise it says nothing. */
   brokerTag?: string | null;
-  /** The broker's cash-equivalent flag — evidence of a money-market FUND, not of cash. */
+  /** The broker's cash-equivalent flag — the broker saying "this is cash". It decides: Cash (his ruling, 2026-10-20). */
   cashEquivalent?: boolean;
   /** Any maturity date — a maturity-dated instrument is a bond (founder rule 2026-08-04). */
   maturityDate?: string | null;
+  /** The class a saved holding was stored under when it arrived, or the kind the person picked when adding it by
+   *  hand — read after the name and a maturity date, before the defaults (MK-NW-F-109 holdingClassOf passes it). */
+  storedClass?: HoldingClass | null;
   /** True when this row is a priced security with units — not a bare balance. */
   hasSecurityIdentity?: boolean;
   /** The person's own answer. Outranks everything and survives every sync. */
@@ -157,17 +175,98 @@ export interface ClassEvidence {
 
 export interface ClassVerdict {
   cls: HoldingClass;
-  source: 'user' | 'name' | 'flag' | 'maturity' | 'broker-tag' | 'security-default' | 'unlabelled';
+  source: 'user' | 'broker' | 'name' | 'maturity' | 'stored' | 'security-default' | 'unlabelled';
   /** Set when the evidence wanted to move the money but the previous class was kept instead. */
   flagged?: { was: HoldingClass; evidenceSays: HoldingClass };
   why: string;
 }
 
-const TAG_CLASS: Record<string, HoldingClass> = {
-  bnd: 'bonds', cd: 'bonds',
+// ── THE CLASS THE BROKER SENDS (his ruling, 2026-10-20: "always the class broker sends") ───────────────────────────
+// SnapTrade's security type codes — the 14 its positions reference documents (docs.snaptrade.com, read 2026-08-04;
+// docs/FCC-core-55-70/institution-data-research-v2-official-specs-2026-08-04.md §1.3) — plus 'mf' (the Vanguard
+// fixture's mutual fund) and 'adr' / 'cd' (kept from the old tag table). A code that names none of our classes is
+// NOT listed and falls through to the name and the other rules: 'ut' Unit (a unit trust or a SPAC unit), 'struct'
+// Structured Product (a note or an equity-linked product), 'wi' When Issued (a stock or a bond not yet issued).
+// SnapTrade sends no "cash", "money market" or "CD" code; its cash-equivalent flag is how it says cash.
+export const BROKER_TYPE_CLASS: Readonly<Record<string, HoldingClass>> = {
+  cs: 'stocks_etf',      // Common Stock
+  ps: 'stocks_etf',      // Preferred Stock
+  ad: 'stocks_etf',      // ADR
+  adr: 'stocks_etf',     // ADR (older spelling)
+  et: 'stocks_etf',      // ETF — a bond ETF or a T-bill ETF too: the broker sends ETF
+  oef: 'stocks_etf',     // Open Ended Fund — a money-market fund the broker does NOT flag arrives this way
+  cef: 'stocks_etf',     // Closed End Fund
+  mf: 'stocks_etf',      // mutual fund
+  bnd: 'bonds',          // Bond
+  cd: 'bonds',           // CD
   crypto: 'alternatives',
-  cs: 'stocks_etf', et: 'stocks_etf', oef: 'stocks_etf', cef: 'stocks_etf', adr: 'stocks_etf',
+  pm: 'alternatives',    // Precious Metals
+  wt: 'alternatives',    // Warrant — a right to buy at a set price, filed where options are
+  rt: 'alternatives',    // Right — the same
 };
+// The words a holdings FILE writes in its own type column (Schwab's "Security Type": Equity · ETFs & Closed End Funds
+// · Mutual Funds · Fixed Income · Cash and Money Market · Option), read in this order: cash words first (a broker that
+// files a fund under "Cash and Money Market" is saying cash, as the flag does), then the options-like words, then the
+// fund and share words, then the bond words — so "ETFs & Closed End Funds" is a fund and "Fixed Income" a bond.
+const FILE_TYPE_WORDS: [RegExp, HoldingClass][] = [
+  [/\b(cash|money[\s-]?markets?|sweep)\b/i, 'cash'],
+  [/\b(options?|crypto(currenc(y|ies))?|precious metals?|commodit(y|ies)|warrants?|rights?|futures?)\b/i, 'alternatives'],
+  [/\b(equit(y|ies)|stocks?|shares?|etfs?|funds?|adrs?|closed[\s-]end)\b/i, 'stocks_etf'],
+  [/\b(fixed[\s-]income|bonds?|cds?|certificates? of deposit|treasur(y|ies)|t-?bills?|munis?|municipals?)\b/i, 'bonds'],
+];
+
+/** What the BROKER says a holding is — its cash-equivalent flag, else its own type — or null when it sends no
+ *  usable class. ONE reading, for the sync, the importer and every saved holding (his ruling, 2026-10-20).
+ *  Cash when the flag is true; else the class its type code names (BROKER_TYPE_CLASS); else the class the words of
+ *  a file's type column name (FILE_TYPE_WORDS, first match); else nothing. (No identifier yet — the build issues it.) */
+/* ─ MK-ST-F-086 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * brokerClassOf
+ *
+ * Answers ..... What the BROKER says a holding is — its cash-equivalent flag, else its own type — or null when it sends no usable class.
+ *
+ * Formula .....
+ *     cls = 'cash'
+ *     why = 'the broker marks it cash − equivalent'   when cash equivalent = true
+ *     t = string(type ?? '').trim()
+ *     nothing   when t is missing
+ *     by code = BROKER_TYPE_CLASS[to lower case()]
+ *     cls = by code
+ *     why = `the broker sends its type as ${t}`   when by code
+ *     by words = FILE_TYPE_WORDS.find(([re]) => re.test(t))
+ *     the answer:
+ *     cls = by words[1]
+ *     why = `the broker's file gives its type as ${t}`   if by words
+ *     nothing   otherwise
+ *
+ * Called by ... MK-ST-F-011 classifyHoldingClass
+ *
+ * Reaches ..... 108 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-NW-F-079 EF
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-NW-F-082 NW
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-025 accountDisplayName
+ *               MK-NW-F-026 accountDisplayNames · MK-NW-F-154 accountInvestments
+ *               … and 90 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-070 the class a broker sends for a holding — its security type and its cash-equivalent flag
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-086
+ * Changed ..... not in git yet (—)
+ */
+export function brokerClassOf(type?: string | null, cashEquivalent?: boolean | null): { cls: HoldingClass; why: string } | null {
+  if (cashEquivalent === true) return { cls: 'cash', why: 'the broker marks it cash-equivalent' };
+  const t = String(type ?? '').trim();
+  if (!t) return null;
+  const byCode = BROKER_TYPE_CLASS[t.toLowerCase()];
+  if (byCode) return { cls: byCode, why: `the broker sends its type as ${t}` };
+  const byWords = FILE_TYPE_WORDS.find(([re]) => re.test(t));
+  return byWords ? { cls: byWords[1], why: `the broker's file gives its type as ${t}` } : null;
+}
 
 /* ─ MK-ST-F-011 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * classifyHoldingClass
@@ -178,6 +277,10 @@ const TAG_CLASS: Record<string, HoldingClass> = {
  *     cls = user answer
  *     source = 'user'
  *     why = 'your own answer — it outranks every automatic rule and survives every sync'   when user answer
+ *     broker = broker class of(broker tag, cash equivalent)
+ *     cls = broker.cls
+ *     source = 'broker'
+ *     why = broker.why   when broker
  *     by name = name evidence(`${ticker ?? ''} ${name ?? ''}`)
  *     cls = by name
  *     source = 'name'
@@ -185,15 +288,9 @@ const TAG_CLASS: Record<string, HoldingClass> = {
  *     cls = 'bonds'
  *     source = 'maturity'
  *     why = 'it carries a maturity date'   when maturity parts(maturity date)
- *     cls = 'stocks_etf'
- *     source = 'flag'
- *     why = 'the broker\'s cash − equivalent flag — a money − market fund
- *     measured where its income lands' = measured where its income lands'   when cash equivalent
- *     tag = TAG_CLASS[string(broker tag ?? '').to lower case()]
- *     cls = tag
- *     source = 'broker − tag'
- *     why = 'the broker\'s type tag — fallback only
- *     a name would have outranked it' = a name would have outranked it'   when tag
+ *     cls = stored class
+ *     source = 'stored'
+ *     why = 'the class it was given when it was added'   when stored class
  *     cls = 'stocks_etf'
  *     source = 'security − default'
  *     why = 'a priced security with units is an investment; with no other evidence it sits in stocks ÷ Funds'   when has security identity
@@ -202,40 +299,55 @@ const TAG_CLASS: Record<string, HoldingClass> = {
  *     source = 'unlabelled'
  *     why = 'an unlabelled broker balance is cash'
  *
- * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-105 mapPosition
+ * Called by ... MK-NW-F-026 accountDisplayNames · MK-NW-F-109 holdingClassOf
+ *               MK-XS-F-102 ingestSync · MK-XS-F-105 mapPosition
  *               MK-XS-F-172 assetClassForSymbol
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-172 assetClassForSymbol · MK-XS-F-015 importHoldings
- *               MK-XS-F-102 ingestSync · MK-XS-F-105 mapPosition
+ * Reaches ..... 107 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-NW-F-079 EF
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-NW-F-082 NW
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-025 accountDisplayName
+ *               MK-NW-F-026 accountDisplayNames · MK-NW-F-154 accountInvestments
+ *               … and 89 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-003 institution name
  *               MK-XS-I-013 bond maturity date
+ *               MK-XS-I-070 the class a broker sends for a holding — its security type and its cash-equivalent flag
  *
  * Formula also on the master file · functions_from_code · MK-ST-F-011
  * Changed ..... 2026-08-20 (026b132)
  */
 export function classifyHoldingClass(e: ClassEvidence): ClassVerdict {
-  // 1 · the person's own answer wins, always, and never raises a flag
+  // 1 · the person's own answer wins, always, and never raises a flag (brief B7; DEC-2161 — a sync keeps what they entered)
   if (e.userAnswer) return { cls: e.userAnswer, source: 'user', why: 'your own answer — it outranks every automatic rule and survives every sync' };
 
-  // 2 · evidence, name first
+  // 2 · THE CLASS THE BROKER SENDS decides (his ruling, 2026-10-20: "always the class broker sends" — it settles
+  //     DEC-2159 against brief B7, whose name-first order it replaces). Its cash-equivalent flag is the broker saying
+  //     "this is cash"; otherwise its own type. Not held back by the quiet-move guard below: the broker's word, always.
+  const broker = brokerClassOf(e.brokerTag, e.cashEquivalent);
+  if (broker) return { cls: broker.cls, source: 'broker', why: broker.why };
+
+  // 3 · only when the broker sends no usable class: the evidence, name first (brief B7's ladder, unchanged)
   const evident = ((): Omit<ClassVerdict, 'flagged'> => {
     const byName = nameEvidence(`${e.ticker ?? ''} ${e.name ?? ''}`);
     if (byName) return { cls: byName, source: 'name', why: 'the institution\'s own words for it' };
     // a maturity date counts only when it reads as a date — the one reading every maturity reader asks (MK-NW-F-124, 2026-10-13)
     if (maturityParts(e.maturityDate)) return { cls: 'bonds', source: 'maturity', why: 'it carries a maturity date' };
-    if (e.cashEquivalent) return { cls: 'stocks_etf', source: 'flag', why: 'the broker\'s cash-equivalent flag — a money-market fund, measured where its income lands' };
-    const tag = TAG_CLASS[String(e.brokerTag ?? '').toLowerCase()];
-    if (tag) return { cls: tag, source: 'broker-tag', why: 'the broker\'s type tag — fallback only, a name would have outranked it' };
-    // 3 · no evidence at all
+    // a saved holding's class as it arrived, or the kind the person picked when adding it by hand
+    if (e.storedClass) return { cls: e.storedClass, source: 'stored', why: 'the class it was given when it was added' };
+    // 4 · no evidence at all
     if (e.hasSecurityIdentity) return { cls: 'stocks_etf', source: 'security-default', why: 'a priced security with units is an investment; with no other evidence it sits in Stocks / Funds' };
     return { cls: 'cash', source: 'unlabelled', why: 'an unlabelled broker balance is cash' };
   })();
 
-  // 4 · the quiet-move guard: evidence may not move money between classes across a sync
+  // 5 · the quiet-move guard: the automatic rules may not move money between classes across a sync
   if (e.previousClass && e.previousClass !== evident.cls) {
     return {
       cls: e.previousClass, source: evident.source,

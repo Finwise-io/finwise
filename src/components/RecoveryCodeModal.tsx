@@ -90,6 +90,6 @@ const s = StyleSheet.create({
   boxOn: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   check: { color: Colors.white, fontWeight: '800', fontSize: 15 },
   ackTxt: { flex: 1, fontSize: Typography.sizes.sm, color: Colors.textPrimary },
-  doneBtn: { backgroundColor: Colors.primary, borderRadius: Radii.pill, paddingVertical: 14, alignSelf: 'stretch', alignItems: 'center', minHeight: 44, justifyContent: 'center' },
+  doneBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md /* DEC-0231: rounded corners, not semicircle ends */, paddingVertical: 14, alignSelf: 'stretch', alignItems: 'center', minHeight: 44, justifyContent: 'center' },
   doneTxt: { color: Colors.white, fontWeight: '800', fontSize: Typography.sizes.md },
 });

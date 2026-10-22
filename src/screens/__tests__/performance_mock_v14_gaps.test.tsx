@@ -103,11 +103,22 @@ describe('a CD is told the truth about rates', () => {
   beforeEach(() => jest.spyOn(require('expo-router'), 'useLocalSearchParams').mockReturnValue({ id: 'cd1' }));
 
   test('a CD is never told its value falls when rates rise', () => {
-    useStore.setState({ assetAccounts: [fixed('KeyBank CD 4.00%')] } as any);
+    // marked as bought from the bank (2026-10-21): the bank sentence is for a CD marked so. Since DEC-3837 (2026-10-10) a CD is
+    // asked bank or broker; one never answered is not called a bank CD — it says where it was bought is not entered and asks
+    // (account-page drawing v01, READ THIS FIRST row 56). Mock v14 drew this card before the question existed.
+    useStore.setState({ assetAccounts: [{ ...fixed('KeyBank CD 4.00%'), cd_bought: 'bank' }] } as any);
     render(require('react').createElement(require('../AccountPortfolioScreen').default));
     expect(screen.queryByText(/Rates rise 1%/)).toBeNull();
     expect(screen.getByText(/Nothing happens to this CD/)).toBeOnTheScreen();
     expect(screen.getByText(/fixed penalty/)).toBeOnTheScreen();
+  });
+
+  test('a CD never answered bank or broker is told nothing invented either — it is asked (2026-10-21, DEC-3837, tenet 3)', () => {
+    useStore.setState({ assetAccounts: [fixed('KeyBank CD 4.00%')] } as any);
+    render(require('react').createElement(require('../AccountPortfolioScreen').default));
+    expect(screen.queryByText(/Rates rise 1%/)).toBeNull();
+    expect(screen.getByText(/^Where this CD was bought is not entered\./)).toBeOnTheScreen();
+    expect(screen.getByText('Bought from the bank, or through a broker?')).toBeOnTheScreen();
   });
 
   test('a real bond still gets the rates-move estimate', () => {

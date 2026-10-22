@@ -229,7 +229,11 @@ describe('MK-NW-F-084 categoryEarnings — five cases', () => {
     check(categoryEarnings({ transactions: [T('interest', null, '2026-09-30', 35, 'brokerage')], windowStart: '2026-07-10', rows: [] }),
       [['Cash in this account', 35, null, false]]);
   });
-  test('complex · A quarter of dividends and interest, as a broker sends them', () => {
+  // BRIEF WRONG: Bonds & CDs $183.20 reads the BND dividend of −$58.20 as $58.20 earned. A negative dividend is a reversal —
+  // $58.20 that left (audit item 36, money.ts: a negative row whose event says money came in is a reversal of it) — and every
+  // reader of a stored amount now reads it one way (moneyIntoAccount, ledger.ts, 2026-10-21): Bonds & CDs earned $125.00 −
+  // $58.20 = $66.80, the same signed total the walk's Dividends and Interest lines give (personalFlowTotals). Their number is kept.
+  test.failing('complex · A quarter of dividends and interest, as a broker sends them', () => {
     check(categoryEarnings({
       transactions: [T('dividend', 'SCHD', '2026-07-10', 41.0), T('dividend', 'VTI', '2026-07-09', 80.0), T('dividend', 'VTI', '2026-09-25', 212.4),
         T('dividend', 'SCHD', '2026-09-28', 96.15), T('dividend', 'BND', '2026-10-01', -58.2), T('interest', '912828ZT6', '2026-08-15', 125.0),

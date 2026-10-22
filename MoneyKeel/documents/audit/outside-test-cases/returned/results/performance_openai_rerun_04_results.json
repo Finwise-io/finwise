@@ -1,0 +1,1618 @@
+{
+ "batch": "pf module final — part 4",
+ "written_by": "ChatGPT / Codex independent outside audit, 2026-10-13",
+ "source": "MoneyKeel/documents/audit/outside-test-cases/returned/MoneyKeel_Performance_Audit_Package/MoneyKeel_audit_part_4.json",
+ "test_file": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts",
+ "command": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts",
+ "run_on": "2026-10-21",
+ "run_by": "Claude Code (Performance re-run, part 4 agent) — measuring only: no app code, drawing, record or existing test changed",
+ "run_result": "86 tests: 86 green — 72 for the 60 cases (48 agree; 12 test.failing that fail as marked, each with a test pinning the app's answer), 9 code-fact tests, 2 for one item found while checking (1 test.failing + its pin), 3 coverage tests; 0 skipped. npx tsc --noEmit clean. FIXED AFTER THE MEASURING, 2026-10-21: the two test.failing for MK-ST-F-082 · In-kind external security plus missing interest and for the −$500 deposit reversal now pass, renamed with the ruling; still 86 tests, 86 green; 10 test.failing remain (the other 10 of the 12).",
+ "coverage": "80 of 80 items classified: 60 of 60 cases, 12 of 12 formula checks, 8 of 8 still-open items; rules_held, screen_checks and could_not_test hold 0 items each (asserted empty); ready_to_close is false.",
+ "tally": {
+  "cases": {
+   "AGREES": 48,
+   "APP WRONG": 4,
+   "REVIEWER WRONG": 6,
+   "NEEDS A RULING": 2,
+   "BLOCKED": 0
+  },
+  "formula_checks": {
+   "AGREES": 4,
+   "APP WRONG": 2,
+   "REVIEWER WRONG": 4,
+   "NEEDS A RULING": 2,
+   "BLOCKED": 0
+  },
+  "still_open": {
+   "AGREES": 2,
+   "APP WRONG": 2,
+   "REVIEWER WRONG": 2,
+   "NEEDS A RULING": 2,
+   "BLOCKED": 0
+  },
+  "all_80": {
+   "AGREES": 54,
+   "APP WRONG": 8,
+   "REVIEWER WRONG": 12,
+   "NEEDS A RULING": 6,
+   "BLOCKED": 0
+  },
+  "in_flight": "0 answers depend on the in-flight Net worth changes; 14 items (MK-ST-F-081 and MK-ST-F-082: 10 cases, 2 checks, 2 still-open) sit in code those changes are editing — re-run after they land."
+ },
+ "cases": [
+  {
+   "id": "MK-PF-F-038",
+   "name": "periodTotalReturn",
+   "kind": "easy",
+   "title": "One-year price move",
+   "verdict": "AGREES",
+   "expected": {
+    "exact": 0.1,
+    "exact_decimal": "0.100000000000",
+    "shown": "+10.00%"
+   },
+   "actual": 0.10000000000000009,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-038 periodTotalReturn — five cases › easy · One-year price move — AGREES"
+  },
+  {
+   "id": "MK-PF-F-038",
+   "name": "periodTotalReturn",
+   "kind": "easy",
+   "title": "Two-year total versus yearly pace",
+   "verdict": "AGREES",
+   "expected": {
+    "exact": 0.21,
+    "exact_decimal": "0.210000000000",
+    "shown": "+21.00%"
+   },
+   "actual": 0.20999999999999996,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-038 periodTotalReturn — five cases › easy · Two-year total versus yearly pace — AGREES"
+  },
+  {
+   "id": "MK-PF-F-038",
+   "name": "periodTotalReturn",
+   "kind": "complex",
+   "title": "Short history of five months",
+   "verdict": "AGREES",
+   "expected": {
+    "exact": 0.09931465672718542,
+    "exact_decimal": "0.099314656727",
+    "shown": "+9.93%"
+   },
+   "actual": 0.09931465672718542,
+   "formula_gives": "REFUSES",
+   "formula_gives_match": false,
+   "why": "The app measures from the first price, as DEC-4641 rules: closeAsOf falls back to the first close (`return chosen ?? pts[0].close`). OpenAI's \"formula gives REFUSES\" came from the card's words, which leave that fallback out.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-038 periodTotalReturn — five cases › complex · Short history of five months — AGREES"
+  },
+  {
+   "id": "MK-PF-F-038",
+   "name": "periodTotalReturn",
+   "kind": "complex",
+   "title": "As-of endpoint excludes future point",
+   "verdict": "REVIEWER WRONG",
+   "expected": {
+    "exact": 0.09931465672718542,
+    "exact_decimal": "0.099314656727",
+    "shown": "+9.93%"
+   },
+   "actual": 0.17001322592280865,
+   "formula_gives": {
+    "exact": 0.17001322592280865,
+    "exact_decimal": "0.170013225923",
+    "shown": "+17.00%"
+   },
+   "formula_gives_match": true,
+   "why": "Every screen asks with today's clock, and a price can never be from the future: a close dated after today is the latest price written under its UTC day (marketData.ts, `toISOString().slice(0, 10)`), e.g. a coin in a US evening. Dropping it would show an older price. App +17.00%.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-038 periodTotalReturn — five cases › complex · As-of endpoint excludes future point — REVIEWER WRONG (test.failing: holds the reviewer's answer)",
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-038 periodTotalReturn — five cases › complex · As-of endpoint excludes future point — what the app answers"
+  },
+  {
+   "id": "MK-PF-F-038",
+   "name": "periodTotalReturn",
+   "kind": "edge",
+   "title": "Unknown 5Y name",
+   "verdict": "AGREES",
+   "expected": "REFUSES",
+   "actual": null,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-038 periodTotalReturn — five cases › edge · Unknown 5Y name — AGREES"
+  },
+  {
+   "id": "MK-PF-F-039",
+   "name": "periodReturnParts",
+   "kind": "easy",
+   "title": "One-year price move",
+   "verdict": "AGREES",
+   "expected": {
+    "total": {
+     "exact": 0.1,
+     "exact_decimal": "0.100000000000",
+     "shown": "+10.00%"
+    },
+    "years": {
+     "exact": 1,
+     "exact_decimal": "1.000000000000",
+     "shown": "1.0000"
+    }
+   },
+   "actual": {
+    "total": 0.10000000000000009,
+    "years": 1
+   },
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-039 periodReturnParts — five cases › easy · One-year price move — AGREES"
+  },
+  {
+   "id": "MK-PF-F-039",
+   "name": "periodReturnParts",
+   "kind": "easy",
+   "title": "Two-year total versus yearly pace",
+   "verdict": "AGREES",
+   "expected": {
+    "total": {
+     "exact": 0.21,
+     "exact_decimal": "0.210000000000",
+     "shown": "+21.00%"
+    },
+    "years": {
+     "exact": 2,
+     "exact_decimal": "2.000000000000",
+     "shown": "2.0000"
+    }
+   },
+   "actual": {
+    "total": 0.20999999999999996,
+    "years": 2
+   },
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-039 periodReturnParts — five cases › easy · Two-year total versus yearly pace — AGREES"
+  },
+  {
+   "id": "MK-PF-F-039",
+   "name": "periodReturnParts",
+   "kind": "complex",
+   "title": "Short history of five months",
+   "verdict": "AGREES",
+   "expected": {
+    "total": {
+     "exact": 0.09931465672718542,
+     "exact_decimal": "0.099314656727",
+     "shown": "+9.93%"
+    },
+    "years": {
+     "exact": 1,
+     "exact_decimal": "1.000000000000",
+     "shown": "1.0000"
+    }
+   },
+   "actual": {
+    "total": 0.09931465672718542,
+    "years": 1
+   },
+   "formula_gives": "REFUSES",
+   "formula_gives_match": false,
+   "why": "The app measures from the first price, as DEC-4641 rules: closeAsOf falls back to the first close (`return chosen ?? pts[0].close`). OpenAI's \"formula gives REFUSES\" came from the card's words, which leave that fallback out.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-039 periodReturnParts — five cases › complex · Short history of five months — AGREES"
+  },
+  {
+   "id": "MK-PF-F-039",
+   "name": "periodReturnParts",
+   "kind": "complex",
+   "title": "As-of endpoint excludes future point",
+   "verdict": "REVIEWER WRONG",
+   "expected": {
+    "total": {
+     "exact": 0.09931465672718542,
+     "exact_decimal": "0.099314656727",
+     "shown": "+9.93%"
+    },
+    "years": {
+     "exact": 1,
+     "exact_decimal": "1.000000000000",
+     "shown": "1.0000"
+    }
+   },
+   "actual": {
+    "total": 0.17001322592280865,
+    "years": 1
+   },
+   "formula_gives": {
+    "total": {
+     "exact": 0.17001322592280865,
+     "exact_decimal": "0.170013225923",
+     "shown": "+17.00%"
+    },
+    "years": 1
+   },
+   "formula_gives_match": true,
+   "why": "Every screen asks with today's clock, and a price can never be from the future: a close dated after today is the latest price written under its UTC day (marketData.ts, `toISOString().slice(0, 10)`), e.g. a coin in a US evening. Dropping it would show an older price. App +17.00%.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-039 periodReturnParts — five cases › complex · As-of endpoint excludes future point — REVIEWER WRONG (test.failing: holds the reviewer's answer)",
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-039 periodReturnParts — five cases › complex · As-of endpoint excludes future point — what the app answers"
+  },
+  {
+   "id": "MK-PF-F-039",
+   "name": "periodReturnParts",
+   "kind": "edge",
+   "title": "Unknown 5Y name",
+   "verdict": "AGREES",
+   "expected": "REFUSES",
+   "actual": null,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-039 periodReturnParts — five cases › edge · Unknown 5Y name — AGREES"
+  },
+  {
+   "id": "MK-PF-F-040",
+   "name": "returnSincePurchases",
+   "kind": "easy",
+   "title": "Single purchase",
+   "verdict": "AGREES",
+   "expected": {
+    "exact": 0.1,
+    "exact_decimal": "0.100000000000",
+    "shown": "+10.00%"
+   },
+   "actual": 0.10000000000000009,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-040 returnSincePurchases — five cases › easy · Single purchase — AGREES"
+  },
+  {
+   "id": "MK-PF-F-040",
+   "name": "returnSincePurchases",
+   "kind": "easy",
+   "title": "Single purchase day loss",
+   "verdict": "AGREES",
+   "expected": {
+    "exact": -0.2,
+    "exact_decimal": "-0.200000000000",
+    "shown": "-20.00%"
+   },
+   "actual": -0.19999999999999996,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-040 returnSincePurchases — five cases › easy · Single purchase day loss — AGREES"
+  },
+  {
+   "id": "MK-PF-F-040",
+   "name": "returnSincePurchases",
+   "kind": "complex",
+   "title": "Morning purchase old mark versus new close",
+   "verdict": "APP WRONG",
+   "expected": {
+    "exact": 0.15238095238095228,
+    "exact_decimal": "0.152380952381",
+    "shown": "+15.24%"
+   },
+   "actual": 0.26761904761904765,
+   "formula_gives": {
+    "exact": 0.26761904761904765,
+    "exact_decimal": "0.267619047619",
+    "shown": "+26.76%"
+   },
+   "formula_gives_match": true,
+   "why": "DEC-4439 (a refinement of DEC-1669, which rules every return): money that moves on a day counts for that whole day. The app ends the old piece at that day's close and adds the purchase after it — the end-of-day rule DEC-4439 retired. App +26.76%; DEC-4439 +15.24%, what the account reads when the $1,100 is deposited that morning (tenet 4).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-040 returnSincePurchases — five cases › complex · Morning purchase old mark versus new close — APP WRONG (test.failing: holds the reviewer's answer)",
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-040 returnSincePurchases — five cases › complex · Morning purchase old mark versus new close — what the app answers"
+  },
+  {
+   "id": "MK-PF-F-040",
+   "name": "returnSincePurchases",
+   "kind": "complex",
+   "title": "Unround purchases on same date",
+   "verdict": "AGREES",
+   "expected": {
+    "exact": 0.13184256855413823,
+    "exact_decimal": "0.131842568554",
+    "shown": "+13.18%"
+   },
+   "actual": 0.13184256855413823,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-040 returnSincePurchases — five cases › complex · Unround purchases on same date — AGREES"
+  },
+  {
+   "id": "MK-PF-F-040",
+   "name": "returnSincePurchases",
+   "kind": "edge",
+   "title": "Undated real purchase cannot be placed by guess",
+   "verdict": "APP WRONG",
+   "expected": "REFUSES",
+   "actual": 0.13602996507544018,
+   "formula_gives": {
+    "exact": 0.13602996507544018,
+    "exact_decimal": "0.136029965075",
+    "shown": "+13.60%"
+   },
+   "formula_gives_match": true,
+   "why": "Tenet 3: never a default that looks like an answer. A purchase with no date is put on the first dated purchase day (`… : firstDay`), so the app shows +13.60% as if both were bought on Sep 17. A linked broker can send an undated tax lot beside dated ones (snaptrade.ts, `original_purchase_date ?? null`).",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-040 returnSincePurchases — five cases › edge · Undated real purchase cannot be placed by guess — APP WRONG (test.failing: holds the reviewer's answer)",
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-040 returnSincePurchases — five cases › edge · Undated real purchase cannot be placed by guess — what the app answers"
+  },
+  {
+   "id": "MK-PF-F-041",
+   "name": "isoDay",
+   "kind": "easy",
+   "title": "Two-digit ordinary day",
+   "verdict": "AGREES",
+   "expected": "2026-10-13",
+   "actual": "2026-10-13",
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-041 isoDay — five cases › easy · Two-digit ordinary day — AGREES"
+  },
+  {
+   "id": "MK-PF-F-041",
+   "name": "isoDay",
+   "kind": "easy",
+   "title": "Pad single digits",
+   "verdict": "AGREES",
+   "expected": "2026-01-02",
+   "actual": "2026-01-02",
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-041 isoDay — five cases › easy · Pad single digits — AGREES"
+  },
+  {
+   "id": "MK-PF-F-041",
+   "name": "isoDay",
+   "kind": "complex",
+   "title": "UTC instant becomes previous local day",
+   "verdict": "AGREES",
+   "expected": "2025-12-31",
+   "actual": "2025-12-31",
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-041 isoDay — five cases › complex · UTC instant becomes previous local day — AGREES"
+  },
+  {
+   "id": "MK-PF-F-041",
+   "name": "isoDay",
+   "kind": "complex",
+   "title": "UTC instant becomes later local day",
+   "verdict": "AGREES",
+   "expected": "2026-05-20",
+   "actual": "2026-05-20",
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-041 isoDay — five cases › complex · UTC instant becomes later local day — AGREES"
+  },
+  {
+   "id": "MK-PF-F-041",
+   "name": "isoDay",
+   "kind": "edge",
+   "title": "Leap calendar day",
+   "verdict": "AGREES",
+   "expected": "2024-02-29",
+   "actual": "2024-02-29",
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-041 isoDay — five cases › edge · Leap calendar day — AGREES"
+  },
+  {
+   "id": "MK-PF-F-042",
+   "name": "windowTotal",
+   "kind": "easy",
+   "title": "Explicit window total wins",
+   "verdict": "AGREES",
+   "expected": {
+    "exact": 0.21,
+    "exact_decimal": "0.210000000000",
+    "shown": "+21.00%"
+   },
+   "actual": 0.21,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-042 windowTotal — five cases › easy · Explicit window total wins — AGREES"
+  },
+  {
+   "id": "MK-PF-F-042",
+   "name": "windowTotal",
+   "kind": "easy",
+   "title": "Short known total rate",
+   "verdict": "AGREES",
+   "expected": {
+    "exact": 0.1,
+    "exact_decimal": "0.100000000000",
+    "shown": "+10.00%"
+   },
+   "actual": 0.1,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-042 windowTotal — five cases › easy · Short known total rate — AGREES"
+  },
+  {
+   "id": "MK-PF-F-042",
+   "name": "windowTotal",
+   "kind": "complex",
+   "title": "Recover two-year total",
+   "verdict": "AGREES",
+   "expected": {
+    "exact": 0.15154360999999983,
+    "exact_decimal": "0.151543610000",
+    "shown": "+15.15%"
+   },
+   "actual": 0.15154360999999983,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-042 windowTotal — five cases › complex · Recover two-year total — AGREES"
+  },
+  {
+   "id": "MK-PF-F-042",
+   "name": "windowTotal",
+   "kind": "complex",
+   "title": "Long unround span",
+   "verdict": "AGREES",
+   "expected": {
+    "exact": 0.06605855400493033,
+    "exact_decimal": "0.066058554005",
+    "shown": "+6.61%"
+   },
+   "actual": 0.06605855400493033,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-042 windowTotal — five cases › complex · Long unround span — AGREES"
+  },
+  {
+   "id": "MK-PF-F-042",
+   "name": "windowTotal",
+   "kind": "edge",
+   "title": "Yearly rate with missing duration",
+   "verdict": "REVIEWER WRONG",
+   "expected": "REFUSES",
+   "actual": 0.1,
+   "formula_gives": {
+    "exact": 0.1,
+    "exact_decimal": "0.100000000000",
+    "shown": "+10.00%"
+   },
+   "formula_gives_match": true,
+   "why": "No caller hands windowTotal a yearly rate without its total or its years: every row buildPerformance writes carries its window total (buildPerformance, `periodTotal: prTotal`; the fact test below checks every kind of row) and gainOfRow passes the years. The input never occurs in the app; asked anyway, it answers +10.00%.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-042 windowTotal — five cases › edge · Yearly rate with missing duration — REVIEWER WRONG (test.failing: holds the reviewer's answer)",
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-042 windowTotal — five cases › edge · Yearly rate with missing duration — what the app answers"
+  },
+  {
+   "id": "MK-PF-F-043",
+   "name": "windowTotalOfRow",
+   "kind": "easy",
+   "title": "Explicit one-year total",
+   "verdict": "AGREES",
+   "expected": {
+    "exact": 0.1,
+    "exact_decimal": "0.100000000000",
+    "shown": "+10.00%"
+   },
+   "actual": 0.1,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-043 windowTotalOfRow — five cases › easy · Explicit one-year total — AGREES"
+  },
+  {
+   "id": "MK-PF-F-043",
+   "name": "windowTotalOfRow",
+   "kind": "easy",
+   "title": "Explicit unknown total wins",
+   "verdict": "AGREES",
+   "expected": "REFUSES",
+   "actual": null,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-043 windowTotalOfRow — five cases › easy · Explicit unknown total wins — AGREES"
+  },
+  {
+   "id": "MK-PF-F-043",
+   "name": "windowTotalOfRow",
+   "kind": "complex",
+   "title": "Two-year total present",
+   "verdict": "AGREES",
+   "expected": {
+    "exact": 0.15154361,
+    "exact_decimal": "0.151543610000",
+    "shown": "+15.15%"
+   },
+   "actual": 0.15154361,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-043 windowTotalOfRow — five cases › complex · Two-year total present — AGREES"
+  },
+  {
+   "id": "MK-PF-F-043",
+   "name": "windowTotalOfRow",
+   "kind": "complex",
+   "title": "Long legacy row lacks total",
+   "verdict": "REVIEWER WRONG",
+   "expected": {
+    "exact": 0.055345290000000213,
+    "exact_decimal": "0.055345290000",
+    "shown": "+5.53%"
+   },
+   "actual": 0.0273,
+   "formula_gives": {
+    "exact": 0.0273,
+    "exact_decimal": "0.027300000000",
+    "shown": "+2.73%"
+   },
+   "formula_gives_match": true,
+   "why": "There is no legacy row: every screen builds its rows fresh with buildPerformance, which always writes the window total (`periodTotal: prTotal`; the fact test below checks every kind of row). Asked about a row that cannot exist, the app answers +2.73%.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-043 windowTotalOfRow — five cases › complex · Long legacy row lacks total — REVIEWER WRONG (test.failing: holds the reviewer's answer)",
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-043 windowTotalOfRow — five cases › complex · Long legacy row lacks total — what the app answers"
+  },
+  {
+   "id": "MK-PF-F-043",
+   "name": "windowTotalOfRow",
+   "kind": "edge",
+   "title": "No fields",
+   "verdict": "AGREES",
+   "expected": "REFUSES",
+   "actual": null,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-043 windowTotalOfRow — five cases › edge · No fields — AGREES"
+  },
+  {
+   "id": "MK-PF-F-044",
+   "name": "startValues",
+   "kind": "easy",
+   "title": "Unchanged appreciated holding",
+   "verdict": "AGREES",
+   "expected": [
+    {
+     "ticker": "A",
+     "ret": {
+      "exact": 0.1,
+      "exact_decimal": "0.100000000000",
+      "shown": "+10.00%"
+     },
+     "start": {
+      "exact": 1000,
+      "exact_decimal": "1000.000000000000",
+      "shown": "$1,000"
+     }
+    }
+   ],
+   "actual": [
+    {
+     "ticker": "A",
+     "ret": 0.1,
+     "start": 999.9999999999999
+    }
+   ],
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-044 startValues — five cases › easy · Unchanged appreciated holding — AGREES"
+  },
+  {
+   "id": "MK-PF-F-044",
+   "name": "startValues",
+   "kind": "easy",
+   "title": "No qualifying returns",
+   "verdict": "AGREES",
+   "expected": [],
+   "actual": [],
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-044 startValues — five cases › easy · No qualifying returns — AGREES"
+  },
+  {
+   "id": "MK-PF-F-044",
+   "name": "startValues",
+   "kind": "complex",
+   "title": "Three known unchanged holdings",
+   "verdict": "AGREES",
+   "expected": [
+    {
+     "ticker": "A",
+     "ret": {
+      "exact": 0.0731,
+      "exact_decimal": "0.073100000000",
+      "shown": "+7.31%"
+     },
+     "start": {
+      "exact": 11504.6780355978,
+      "exact_decimal": "11504.678035597801",
+      "shown": "$11,505"
+     }
+    },
+    {
+     "ticker": "B",
+     "ret": {
+      "exact": 0.0273,
+      "exact_decimal": "0.027300000000",
+      "shown": "+2.73%"
+     },
+     "start": {
+      "exact": 4446.500535384016,
+      "exact_decimal": "4446.500535384016",
+      "shown": "$4,447"
+     }
+    },
+    {
+     "ticker": "C",
+     "ret": {
+      "exact": -0.0517,
+      "exact_decimal": "-0.051700000000",
+      "shown": "-5.17%"
+     },
+     "start": {
+      "exact": 3386.0381735737633,
+      "exact_decimal": "3386.038173573763",
+      "shown": "$3,386"
+     }
+    }
+   ],
+   "actual": [
+    {
+     "ticker": "A",
+     "ret": 0.0731,
+     "start": 11504.6780355978
+    },
+    {
+     "ticker": "B",
+     "ret": 0.0273,
+     "start": 4446.500535384016
+    },
+    {
+     "ticker": "C",
+     "ret": -0.0517,
+     "start": 3386.0381735737633
+    }
+   ],
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-044 startValues — five cases › complex · Three known unchanged holdings — AGREES"
+  },
+  {
+   "id": "MK-PF-F-044",
+   "name": "startValues",
+   "kind": "complex",
+   "title": "Changed shares invent beginning",
+   "verdict": "NEEDS A RULING",
+   "expected": [
+    {
+     "ticker": "A",
+     "ret": {
+      "exact": 0.21,
+      "exact_decimal": "0.210000000000",
+      "shown": "+21.00%"
+     },
+     "start": {
+      "exact": 1000,
+      "exact_decimal": "1000.000000000000",
+      "shown": "$1,000"
+     }
+    }
+   ],
+   "actual": [
+    {
+     "ticker": "A",
+     "ret": 0.21,
+     "start": 2000
+    }
+   ],
+   "formula_gives": [
+    {
+     "ticker": "A",
+     "ret": 0.21,
+     "start": 2000
+    }
+   ],
+   "formula_gives_match": true,
+   "why": "The app does what DEC-5068 approved — start = value now ÷ (1 + its own return) — which is right only when no shares were bought inside the window. Home \"market\" (MK-PF-M-008): holding A bought 10 more mid-window reads +7.33%; with its real $1,000 start, +6.00%.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-044 startValues — five cases › complex · Changed shares invent beginning — NEEDS A RULING (test.failing: holds the reviewer's answer)",
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-044 startValues — five cases › complex · Changed shares invent beginning — what the app answers"
+  },
+  {
+   "id": "MK-PF-F-044",
+   "name": "startValues",
+   "kind": "edge",
+   "title": "Wiped-out holding still had beginning",
+   "verdict": "APP WRONG",
+   "expected": [
+    {
+     "ticker": "A",
+     "ret": {
+      "exact": -1,
+      "exact_decimal": "-1.000000000000",
+      "shown": "-100.00%"
+     },
+     "start": {
+      "exact": 1000,
+      "exact_decimal": "1000.000000000000",
+      "shown": "$1,000"
+     }
+    }
+   ],
+   "actual": [],
+   "formula_gives": [],
+   "formula_gives_match": true,
+   "why": "Tenet 4, and the function's own rule (\"out of the market's average as it is out of the person's\"): a holding that lost everything is in the person's return but left out of the market's. Home \"market\" (MK-PF-M-008): +2.00% shown, +6.00% with its $1,000 start. Rare: it needs a close of exactly $0.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-044 startValues — five cases › edge · Wiped-out holding still had beginning — APP WRONG (test.failing: holds the reviewer's answer)",
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-044 startValues — five cases › edge · Wiped-out holding still had beginning — what the app answers"
+  },
+  {
+   "id": "MK-PF-F-045",
+   "name": "priceHistoryShortSentence",
+   "kind": "easy",
+   "title": "Full coverage emits no line",
+   "verdict": "AGREES",
+   "expected": "",
+   "actual": "",
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-045 priceHistoryShortSentence — five cases › easy · Full coverage emits no line — AGREES"
+  },
+  {
+   "id": "MK-PF-F-045",
+   "name": "priceHistoryShortSentence",
+   "kind": "easy",
+   "title": "Owner five-month example",
+   "verdict": "AGREES",
+   "expected": "Prices for this holding go back 5 months, so the 1-year figure covers 5 months — not a year.",
+   "actual": "Prices for this holding go back 5 months, so the 1-year figure covers 5 months — not a year.",
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-045 priceHistoryShortSentence — five cases › easy · Owner five-month example — AGREES"
+  },
+  {
+   "id": "MK-PF-F-045",
+   "name": "priceHistoryShortSentence",
+   "kind": "complex",
+   "title": "One month singular across several dates",
+   "verdict": "AGREES",
+   "expected": "Prices for this holding go back 1 month, so the 3-month figure covers 1 month — not three months.",
+   "actual": "Prices for this holding go back 1 month, so the 3-month figure covers 1 month — not three months.",
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-045 priceHistoryShortSentence — five cases › complex · One month singular across several dates — AGREES"
+  },
+  {
+   "id": "MK-PF-F-045",
+   "name": "priceHistoryShortSentence",
+   "kind": "complex",
+   "title": "Whole months await anniversary day",
+   "verdict": "AGREES",
+   "expected": "Prices for this holding go back 14 months, so the 2-year figure covers 14 months — not two years.",
+   "actual": "Prices for this holding go back 14 months, so the 2-year figure covers 14 months — not two years.",
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-045 priceHistoryShortSentence — five cases › complex · Whole months await anniversary day — AGREES"
+  },
+  {
+   "id": "MK-PF-F-045",
+   "name": "priceHistoryShortSentence",
+   "kind": "edge",
+   "title": "Unsupported label",
+   "verdict": "AGREES",
+   "expected": "",
+   "actual": "",
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-045 priceHistoryShortSentence — five cases › edge · Unsupported label — AGREES"
+  },
+  {
+   "id": "MK-PF-F-046",
+   "name": "saleShortOfPurchasesSentence",
+   "kind": "easy",
+   "title": "Owner partially matched gain",
+   "verdict": "AGREES",
+   "expected": "$200 gain on 10 of 15 shares sold; what you paid for the other 5 is not on record.",
+   "actual": "$200 gain on 10 of 15 shares sold; what you paid for the other 5 is not on record.",
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-046 saleShortOfPurchasesSentence — five cases › easy · Owner partially matched gain — AGREES"
+  },
+  {
+   "id": "MK-PF-F-046",
+   "name": "saleShortOfPurchasesSentence",
+   "kind": "easy",
+   "title": "None matched",
+   "verdict": "AGREES",
+   "expected": "3 shares sold; what you paid for them is not on record, so no gain is counted.",
+   "actual": "3 shares sold; what you paid for them is not on record, so no gain is counted.",
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-046 saleShortOfPurchasesSentence — five cases › easy · None matched — AGREES"
+  },
+  {
+   "id": "MK-PF-F-046",
+   "name": "saleShortOfPurchasesSentence",
+   "kind": "complex",
+   "title": "Fractional coins and loss",
+   "verdict": "AGREES",
+   "expected": "$83 loss on 1.25 of 3.125 coins sold; what you paid for the other 1.875 is not on record.",
+   "actual": "$83 loss on 1.25 of 3.125 coins sold; what you paid for the other 1.875 is not on record.",
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-046 saleShortOfPurchasesSentence — five cases › complex · Fractional coins and loss — AGREES"
+  },
+  {
+   "id": "MK-PF-F-046",
+   "name": "saleShortOfPurchasesSentence",
+   "kind": "complex",
+   "title": "Mini option quantity unit",
+   "verdict": "AGREES",
+   "expected": "$27 gain on 1.25 of 2.75 contracts sold; what you paid for the other 1.5 is not on record.",
+   "actual": "$27 gain on 1.25 of 2.75 contracts sold; what you paid for the other 1.5 is not on record.",
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-046 saleShortOfPurchasesSentence — five cases › complex · Mini option quantity unit — AGREES"
+  },
+  {
+   "id": "MK-PF-F-046",
+   "name": "saleShortOfPurchasesSentence",
+   "kind": "edge",
+   "title": "One contract none matched",
+   "verdict": "AGREES",
+   "expected": "1 contract sold; what you paid for them is not on record, so no gain is counted.",
+   "actual": "1 contract sold; what you paid for them is not on record, so no gain is counted.",
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-046 saleShortOfPurchasesSentence — five cases › edge · One contract none matched — AGREES"
+  },
+  {
+   "id": "MK-ST-F-080",
+   "name": "isDay",
+   "kind": "easy",
+   "title": "Real ordinary day",
+   "verdict": "AGREES",
+   "expected": true,
+   "actual": true,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-080 isDay — five cases › easy · Real ordinary day — AGREES"
+  },
+  {
+   "id": "MK-ST-F-080",
+   "name": "isDay",
+   "kind": "easy",
+   "title": "Real leap day",
+   "verdict": "AGREES",
+   "expected": true,
+   "actual": true,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-080 isDay — five cases › easy · Real leap day — AGREES"
+  },
+  {
+   "id": "MK-ST-F-080",
+   "name": "isDay",
+   "kind": "complex",
+   "title": "Timestamp does not equal day",
+   "verdict": "AGREES",
+   "expected": false,
+   "actual": false,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-080 isDay — five cases › complex · Timestamp does not equal day — AGREES"
+  },
+  {
+   "id": "MK-ST-F-080",
+   "name": "isDay",
+   "kind": "complex",
+   "title": "Broker padded or nontext day",
+   "verdict": "AGREES",
+   "expected": [
+    false,
+    false,
+    false
+   ],
+   "actual": [
+    false,
+    false,
+    false
+   ],
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-080 isDay — five cases › complex · Broker padded or nontext day — AGREES"
+  },
+  {
+   "id": "MK-ST-F-080",
+   "name": "isDay",
+   "kind": "edge",
+   "title": "Nonleap February",
+   "verdict": "AGREES",
+   "expected": false,
+   "actual": false,
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-080 isDay — five cases › edge · Nonleap February — AGREES"
+  },
+  {
+   "id": "MK-ST-F-081",
+   "name": "timeWeightedReturn",
+   "kind": "easy",
+   "title": "Two-day no-flow gain",
+   "verdict": "AGREES",
+   "expected": {
+    "rate": {
+     "exact": 0.1,
+     "exact_decimal": "0.100000000000",
+     "shown": "+10.00%"
+    },
+    "measuredFrom": "2026-09-01"
+   },
+   "actual": {
+    "rate": 0.10000000000000009,
+    "measuredFrom": "2026-09-01"
+   },
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-081 timeWeightedReturn — five cases › easy · Two-day no-flow gain — AGREES",
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+  },
+  {
+   "id": "MK-ST-F-081",
+   "name": "timeWeightedReturn",
+   "kind": "easy",
+   "title": "Owner deposit into existing account",
+   "verdict": "AGREES",
+   "expected": {
+    "rate": {
+     "exact": 0.005,
+     "exact_decimal": "0.005000000000",
+     "shown": "+0.50%"
+    },
+    "measuredFrom": "2026-09-01"
+   },
+   "actual": {
+    "rate": 0.004999999999999893,
+    "measuredFrom": "2026-09-01"
+   },
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-081 timeWeightedReturn — five cases › easy · Owner deposit into existing account — AGREES",
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+  },
+  {
+   "id": "MK-ST-F-081",
+   "name": "timeWeightedReturn",
+   "kind": "complex",
+   "title": "Two accounts, cash interest and external movements",
+   "verdict": "AGREES",
+   "expected": {
+    "rate": {
+     "exact": 0.02991458674943659,
+     "exact_decimal": "0.029914586749",
+     "shown": "+2.99%"
+    },
+    "measuredFrom": "2026-09-01"
+   },
+   "actual": {
+    "rate": 0.02991458674943659,
+    "measuredFrom": "2026-09-01"
+   },
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-081 timeWeightedReturn — five cases › complex · Two accounts, cash interest and external movements — AGREES",
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+  },
+  {
+   "id": "MK-ST-F-081",
+   "name": "timeWeightedReturn",
+   "kind": "complex",
+   "title": "Negative ending cannot be silently floored",
+   "verdict": "NEEDS A RULING",
+   "expected": "REFUSES",
+   "actual": {
+    "rate": -1,
+    "measuredFrom": "2026-09-01"
+   },
+   "formula_gives": {
+    "exact": -1,
+    "exact_decimal": "-1.000000000000",
+    "shown": "-100.00%"
+   },
+   "formula_gives_match": true,
+   "why": "No ruling covers an account worth less than nothing (a margin debt). The app floors the value at $0 and shows −100.00%; the true change is −108.32%; OpenAI wants no figure. Tenet 7 rules out −100% (it looks better than it is); he must choose −108.32% or no figure.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-081 timeWeightedReturn — five cases › complex · Negative ending cannot be silently floored — NEEDS A RULING (test.failing: holds the reviewer's answer)",
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-081 timeWeightedReturn — five cases › complex · Negative ending cannot be silently floored — what the app answers",
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+  },
+  {
+   "id": "MK-ST-F-081",
+   "name": "timeWeightedReturn",
+   "kind": "edge",
+   "title": "Positive base below half-cent",
+   "verdict": "REVIEWER WRONG",
+   "expected": {
+    "rate": {
+     "exact": 0.1,
+     "exact_decimal": "0.100000000000",
+     "shown": "+10.00%"
+    },
+    "measuredFrom": "2026-09-01"
+   },
+   "actual": {
+    "rate": null,
+    "refused": "NOTHING_INVESTED",
+    "measuredFrom": null
+   },
+   "formula_gives": "REFUSES",
+   "formula_gives_match": true,
+   "why": "A value under half a cent shows as $0 on every screen; the app treats it as nothing invested (SAME = 0.005, time-weighted-return.ts), so a screen never reads \"$0 → $0, +10.00%\" (tenet 4). The app refuses: nothing invested.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-081 timeWeightedReturn — five cases › edge · Positive base below half-cent — REVIEWER WRONG (test.failing: holds the reviewer's answer)",
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-081 timeWeightedReturn — five cases › edge · Positive base below half-cent — what the app answers",
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+  },
+  {
+   "id": "MK-ST-F-082",
+   "name": "movementsOf",
+   "kind": "easy",
+   "title": "One positive deposit",
+   "verdict": "AGREES",
+   "expected": {
+    "flows": [
+     {
+      "date": "2026-09-01",
+      "account": "A",
+      "amount": {
+       "exact": 100,
+       "exact_decimal": "100.000000000000",
+       "shown": "100.0000"
+      }
+     }
+    ],
+    "interest": [],
+    "sharesMoved": []
+   },
+   "actual": {
+    "flows": [
+     {
+      "date": "2026-09-01",
+      "accountId": "A",
+      "amount": 100
+     }
+    ],
+    "interest": [],
+    "sharesMoved": []
+   },
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-082 movementsOf — five cases › easy · One positive deposit — AGREES",
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+  },
+  {
+   "id": "MK-ST-F-082",
+   "name": "movementsOf",
+   "kind": "easy",
+   "title": "Internal transfer cancels",
+   "verdict": "AGREES",
+   "expected": {
+    "flows": [
+     {
+      "date": "2026-09-01",
+      "account": "A",
+      "amount": {
+       "exact": -100,
+       "exact_decimal": "-100.000000000000",
+       "shown": "-100.0000"
+      }
+     },
+     {
+      "date": "2026-09-01",
+      "account": "B",
+      "amount": {
+       "exact": 100,
+       "exact_decimal": "100.000000000000",
+       "shown": "100.0000"
+      }
+     }
+    ],
+    "interest": [],
+    "sharesMoved": []
+   },
+   "actual": {
+    "flows": [
+     {
+      "date": "2026-09-01",
+      "accountId": "A",
+      "amount": -100
+     },
+     {
+      "date": "2026-09-01",
+      "accountId": "B",
+      "amount": 100
+     }
+    ],
+    "interest": [],
+    "sharesMoved": []
+   },
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-082 movementsOf — five cases › easy · Internal transfer cancels — AGREES",
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+  },
+  {
+   "id": "MK-ST-F-082",
+   "name": "movementsOf",
+   "kind": "complex",
+   "title": "Signed broker withdrawal must stay outflow",
+   "verdict": "REVIEWER WRONG",
+   "expected": {
+    "flows": [
+     {
+      "date": "2026-09-17",
+      "account": "A",
+      "amount": {
+       "exact": -3287.19,
+       "exact_decimal": "-3287.190000000000",
+       "shown": "-3287.1900"
+      }
+     },
+     {
+      "date": "2026-09-18",
+      "account": "A",
+      "amount": {
+       "exact": 519.27,
+       "exact_decimal": "519.270000000000",
+       "shown": "519.2700"
+      }
+     }
+    ],
+    "interest": [
+     {
+      "date": "2026-09-19",
+      "account": "A",
+      "amount": {
+       "exact": 3.17,
+       "exact_decimal": "3.170000000000",
+       "shown": "3.1700"
+      }
+     }
+    ],
+    "sharesMoved": []
+   },
+   "actual": {
+    "flows": [
+     {
+      "date": "2026-09-17",
+      "accountId": "A",
+      "amount": 3287.19
+     },
+     {
+      "date": "2026-09-18",
+      "accountId": "A",
+      "amount": 519.27
+     }
+    ],
+    "interest": [
+     {
+      "date": "2026-09-19",
+      "accountId": "A",
+      "amount": 3.17
+     }
+    ],
+    "sharesMoved": []
+   },
+   "formula_gives": {
+    "first_flow": 3287.19
+   },
+   "formula_gives_match": true,
+   "why": "A stored withdrawal never carries a minus sign: linked records are written as size plus kind (money.ts readMoney; ingest.ts writes `row.amount`) and typed ones drop the minus (AccountPortfolioScreen.tsx activity sheet strips every non-digit). The test below sends the broker's −$3,287.19 through the real sync: it stays $3,287.19 out. Only this raw, never-stored record reads +$3,287.19.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-082 movementsOf — five cases › complex · Signed broker withdrawal must stay outflow — REVIEWER WRONG (test.failing: holds the reviewer's answer)",
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-082 movementsOf — five cases › complex · Signed broker withdrawal must stay outflow — what the app answers",
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+  },
+  {
+   "id": "MK-ST-F-082",
+   "name": "movementsOf",
+   "kind": "complex",
+   "title": "In-kind external security plus missing interest",
+   "verdict": "APP WRONG",
+   "expected": {
+    "flows": [
+     {
+      "date": "2026-09-17",
+      "account": "A",
+      "amount": {
+       "exact": 304.09375,
+       "exact_decimal": "304.093750000000",
+       "shown": "304.0938"
+      }
+     },
+     {
+      "date": "2026-09-19",
+      "account": "A",
+      "amount": {
+       "exact": -83.17,
+       "exact_decimal": "-83.170000000000",
+       "shown": "-83.1700"
+      }
+     }
+    ],
+    "interest": "REFUSES: amount not recorded",
+    "sharesMoved": []
+   },
+   "actual": {
+    "flows": [
+     {
+      "date": "2026-09-17",
+      "accountId": "A",
+      "amount": 304.09375
+     },
+     {
+      "date": "2026-09-19",
+      "accountId": "A",
+      "amount": -83.17
+     }
+    ],
+    "interest": [
+     {
+      "date": "2026-09-18",
+      "accountId": "A",
+      "amount": 0
+     }
+    ],
+    "sharesMoved": []
+   },
+   "formula_gives": {
+    "interest_amount": 0
+   },
+   "formula_gives_match": true,
+   "why": "Tenet 3: interest with no amount is read as $0 (time-weighted-return.ts, Number(amount) || 0). On a cash account that makes the interest look like money paid in, so Net worth's \"Return on cash + investments\" (MK-NW-M-002) leaves it out. The share move ($304.09 in) and the $83.17 out agree.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-082 movementsOf — five cases › complex · In-kind external security plus missing interest — APP WRONG · FIXED 2026-10-21 (DEC-3523 tenet 3, unknown is not zero): the interest is listed as having no amount and the return refuses across Sep 18",
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-082 movementsOf — five cases › complex · In-kind external security plus missing interest — what the app answers now",
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands.",
+   "fixed": "2026-10-21 (DEC-3523 tenet 3, unknown is not zero): the interest is listed as having no amount and the return refuses across Sep 18",
+   "actual_now": {
+    "flows": [
+     {
+      "date": "2026-09-17",
+      "accountId": "A",
+      "amount": 304.09375
+     },
+     {
+      "date": "2026-09-19",
+      "accountId": "A",
+      "amount": -83.17
+     }
+    ],
+    "interest": [],
+    "sharesMoved": [],
+    "incomeMissing": [
+     {
+      "date": "2026-09-18",
+      "accountId": "A",
+      "kind": "INTEREST"
+     }
+    ]
+   }
+  },
+  {
+   "id": "MK-ST-F-082",
+   "name": "movementsOf",
+   "kind": "edge",
+   "title": "Missing transfer magnitude crosses scope",
+   "verdict": "AGREES",
+   "expected": {
+    "flows": [],
+    "interest": [],
+    "sharesMoved": [],
+    "amountMissing": [
+     "2026-09-17"
+    ]
+   },
+   "actual": {
+    "flows": [],
+    "interest": [],
+    "sharesMoved": [],
+    "amountMissing": [
+     "2026-09-17"
+    ]
+   },
+   "formula_gives": null,
+   "formula_gives_match": "n/a",
+   "why": "",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-082 movementsOf — five cases › edge · Missing transfer magnitude crosses scope — AGREES",
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-PF-F-038",
+   "name": "periodTotalReturn",
+   "auditor_verdict": "WRONG",
+   "auditor_why": "Claims same total as periodReturn, but periodReturnParts refuses short history instead of returning the first-price fallback.",
+   "classification": "REVIEWER WRONG",
+   "why": "The \"refuses short history\" claim is false in code: closeAsOf falls back to the first close (DEC-4641), so periodTotalReturn and periodReturn both give +9.93% in the five-month example. The card's words for MK-PF-F-039 leave that fallback out: the master file's card needs it added (file and code must match)."
+  },
+  {
+   "id": "MK-PF-F-039",
+   "name": "periodReturnParts",
+   "auditor_verdict": "WRONG",
+   "auditor_why": "Start reader has no first-price fallback although DEC-4641 and periodReturn require it; its branch computing short-history years is then unreachable.",
+   "classification": "REVIEWER WRONG",
+   "why": "Same fallback, so the two-year short-history branch is reached: 14 months up 21% reads +17.80% a year (fact test). Card text needs the fallback."
+  },
+  {
+   "id": "MK-PF-F-040",
+   "name": "returnSincePurchases",
+   "auditor_verdict": "WRONG",
+   "auditor_why": "On a later purchase day it measures old shares at that evening close before adding the new purchase; this is an end-of-day cash-flow convention. Undated purchases get invented dates.",
+   "classification": "APP WRONG",
+   "why": "Both claims hold: a later purchase is placed at the end of its day, against DEC-4439 (+26.76% where +15.24% is right), and an undated purchase is put on a guessed day (tenet 3).",
+   "proposed_fix": [
+    "FIX-1",
+    "FIX-2"
+   ]
+  },
+  {
+   "id": "MK-PF-F-041",
+   "name": "isoDay",
+   "auditor_verdict": "RIGHT",
+   "auditor_why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+   "classification": "AGREES",
+   "why": "Five of five cases agree, both time-zone crossings included."
+  },
+  {
+   "id": "MK-PF-F-042",
+   "name": "windowTotal",
+   "auditor_verdict": "INCOMPLETE",
+   "auditor_why": "Missing years defaults to 0 and can turn a yearly rate into a window total by assertion.",
+   "classification": "REVIEWER WRONG",
+   "why": "Years defaulting to 0 never turns a yearly rate into a total in the app: every row carries its total and the one caller reading yearly rates (gainOfRow) passes the years. Making periodTotal required on the row type would close the door; no figure is wrong today."
+  },
+  {
+   "id": "MK-PF-F-043",
+   "name": "windowTotalOfRow",
+   "auditor_verdict": "WRONG",
+   "auditor_why": "It passes no years, so a legacy 2Y row at 10%/year without periodTotal returns 10% as the two-year total rather than 21%.",
+   "classification": "REVIEWER WRONG",
+   "why": "No row without a window total exists (fact test: 16 of 16 rows carry it), so the 2Y \"legacy row\" cannot reach it."
+  },
+  {
+   "id": "MK-PF-F-044",
+   "name": "startValues",
+   "auditor_verdict": "WRONG",
+   "auditor_why": "Present value / growth factor gives synthetic starts when quantities change; zero-valued total-loss positions are omitted, biasing the result upward.",
+   "classification": "NEEDS A RULING",
+   "why": "Working the start back from the return is DEC-5068's approved formula; it misstates the start when shares were bought inside the window (needs his ruling). Leaving out a holding that lost everything is wrong by tenet 4 (case level).",
+   "ruling_needed": [
+    "RULING-1"
+   ]
+  },
+  {
+   "id": "MK-PF-F-045",
+   "name": "priceHistoryShortSentence",
+   "auditor_verdict": "RIGHT",
+   "auditor_why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+   "classification": "AGREES",
+   "why": "Five of five cases agree, word for word with DEC-4641's line."
+  },
+  {
+   "id": "MK-PF-F-046",
+   "name": "saleShortOfPurchasesSentence",
+   "auditor_verdict": "RIGHT",
+   "auditor_why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+   "classification": "AGREES",
+   "why": "Five of five cases agree, word for word with DEC-4643's line."
+  },
+  {
+   "id": "MK-ST-F-080",
+   "name": "isDay",
+   "auditor_verdict": "RIGHT",
+   "auditor_why": "Correct on the stated finite, valid-input domain. This is a specification judgment; ingestion, actual UI and app execution are not provided.",
+   "classification": "AGREES",
+   "why": "Five of five cases agree."
+  },
+  {
+   "id": "MK-ST-F-081",
+   "name": "timeWeightedReturn",
+   "auditor_verdict": "WRONG",
+   "auditor_why": "Daily total clamps negatives to zero, inventing a −100% return on negative net account value. Half-cent cutoff invents nothing-invested on an entered positive base. Disappearing record coverage can masquerade as withdrawal.",
+   "classification": "NEEDS A RULING",
+   "why": "Three claims: the floor at $0 needs his ruling; the half-cent line is right (a value under half a cent shows as $0); a disappearing account is right, since today's day is built from the live accounts (thePerformance, buildDayFromAccounts), so only an account that is gone reads as leaving.",
+   "ruling_needed": [
+    "RULING-2"
+   ],
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+  },
+  {
+   "id": "MK-ST-F-082",
+   "name": "movementsOf",
+   "auditor_verdict": "WRONG",
+   "auditor_why": "A negative withdrawal becomes money in. Signed broker amounts can reverse flows; an infinite amount passes a simple not-a-number check. Missing cash interest becomes zero.",
+   "classification": "APP WRONG",
+   "why": "Interest with no amount is read as $0 (tenet 3). The other two claims are wrong: a stored withdrawal carries no minus sign (fact test through the real sync), and an infinite amount is refused (fact test).",
+   "proposed_fix": [
+    "FIX-4"
+   ],
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+  }
+ ],
+ "still_open": [
+  {
+   "item": "MK-PF-F-038: Both readers must use the same decided first available price, coverage sentence and nonannualized total.",
+   "id": "MK-PF-F-038",
+   "classification": "AGREES",
+   "why": "Already so: both readers start at the first price, the line comes from priceHistoryShortSentence, the total is never made yearly (fact test)."
+  },
+  {
+   "item": "MK-PF-F-039: When there is no prior close, use first valid close and actual covered dates; never claim full window coverage.",
+   "id": "MK-PF-F-039",
+   "classification": "AGREES",
+   "why": "Already so: the first close is used, 2Y years are the span the prices cover, and the line says 5 months — never a full window."
+  },
+  {
+   "item": "MK-PF-F-040: For morning purchases include the paid amount in that day's base and all resulting shares in the evening value, using prior evening mark. Refuse missing movement dates.",
+   "id": "MK-PF-F-040",
+   "classification": "APP WRONG",
+   "why": "Not yet so: the morning purchase and the undated purchase (the two failing cases)."
+  },
+  {
+   "item": "MK-PF-F-042: An explicit total including null wins; without one require declared rate basis and known duration. A known within-year total may be used unchanged.",
+   "id": "MK-PF-F-042",
+   "classification": "REVIEWER WRONG",
+   "why": "An explicit total, an empty one included, already wins; a rate basis is not needed because no row arrives without its total."
+  },
+  {
+   "item": "MK-PF-F-043: Require periodTotal or row duration and rate basis; compound a stated 2Y yearly rate or refuse absent metadata.",
+   "id": "MK-PF-F-043",
+   "classification": "REVIEWER WRONG",
+   "why": "No row arrives without its total (fact test), so nothing has to be compounded or refused here."
+  },
+  {
+   "item": "MK-PF-F-044: Use authentic start weights for the shared window and include total-loss holdings; otherwise expose a restricted synthetic calculation and refuse unsupported rows.",
+   "id": "MK-PF-F-044",
+   "classification": "NEEDS A RULING",
+   "why": "Authentic start weights against DEC-5068's approved formula needs his ruling; including a total-loss holding is a plain fix (APP WRONG at case level)."
+  },
+  {
+   "item": "MK-ST-F-081: Require known consistent membership; refuse unexplained negative net values rather than clamp. Preserve finite positive inputs, or make monetary quantization an explicit settled rule.",
+   "id": "MK-ST-F-081",
+   "classification": "NEEDS A RULING",
+   "why": "Refuse or show a negative account value needs his ruling. Membership is already known and consistent; under half a cent is $0 as shown.",
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+  },
+  {
+   "item": "MK-ST-F-082: Normalize broker sign at the ingest boundary (or refuse ambiguity), enforce positive magnitudes and finite values, preserve invalid/missing-date markers and missing income amounts. Internal transfers net to zero.",
+   "id": "MK-ST-F-082",
+   "classification": "APP WRONG",
+   "why": "Missing interest amounts still read as $0. Already so: sign set at the sync, sizes positive, infinite refused, transfers net to zero; every stored record is dated, so no date marker can go missing.",
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+  }
+ ],
+ "empty_lists_in_the_file": {
+  "rules_held": 0,
+  "screen_checks": 0,
+  "could_not_test": 0,
+  "ready_to_close": false
+ },
+ "proposed_fixes_not_applied": {
+  "FIX-1": {
+   "ids": "MK-PF-F-040 returnSincePurchases (morning purchase)",
+   "ruling": "DEC-4439 (refines DEC-1669, which rules every return); tenet 4",
+   "function_file": "returnSincePurchases, src/domain/performance/index.ts (the loop over purchase days)",
+   "smallest_change": "At a later purchase day, end the old piece at the close of the day BEFORE the purchase — closeOnOrBefore(series, the day before d) — instead of that day's own close; then add what was paid.",
+   "example": "10 shares at $100 on Sep 1 (close $100), 10 more at $110 on Sep 2 (close $121), today $121.",
+   "before": "+26.76%",
+   "now_proposed": "+15.24% (2,420 ÷ (1,000 + 1,100) − 1)",
+   "moves": "The window figure of a holding first bought inside the window and bought again on a later day: Performance holding rows, account page holding rows, Holding page; and what adds those rows up where the beginning is worked back (wealth generated and Return, MK-PF-M-002 / MK-PF-M-016), and each category's return (MK-PF-M-006).",
+   "drawings": "Holding detail v02's holding was first bought in 2023 (before its window), so it does not move. A text search of Performance v17 and account page v01 found no holding first bought inside its window; confirm against the figures when the fix is made."
+  },
+  "FIX-2": {
+   "ids": "MK-PF-F-040 returnSincePurchases (purchase with no date)",
+   "ruling": "Tenet 3 (DEC-3523): unknown is not zero — never a default that looks like an answer",
+   "function_file": "returnSincePurchases, src/domain/performance/index.ts (where an undated purchase takes firstDay)",
+   "smallest_change": "When a purchase with shares has no readable date and another purchase of the same holding has one, return nothing (no figure) instead of placing it on the first dated day. A holding with no dated purchase at all keeps the caller's date, as now.",
+   "example": "7.25 shares at $83.17 on Sep 17, 3.125 shares at $91.43 with no date, today $97.31.",
+   "before": "+13.60%",
+   "now_proposed": "no figure, with a one-line reason in the existing \"not on record\" wording",
+   "moves": "That holding's window figure on Performance, the account page and the Holding page; it leaves the sums above it the way any holding with no figure does.",
+   "drawings": "Text search of all 12 Net worth and Performance drawings: none shows an undated purchase beside a dated one. Account page v01 row 40 is about a holding with no dated purchase at all, which this fix leaves as it is."
+  },
+  "FIX-3": {
+   "ids": "MK-PF-F-044 startValues → MK-PF-F-020 portfolioBenchReturn → MK-PF-M-008 Home \"market +X%\"",
+   "ruling": "Tenet 4 and the function's own stated rule: a holding is out of the market's average only when it is out of the person's",
+   "function_file": "buildPerformance and startValues, src/domain/performance/index.ts",
+   "smallest_change": "buildPerformance writes each row's value when the window began where it can be read (shares held the day before the window opens × that day's close × multiplier); startValues keeps a row whose return is −100% using that value as its start.",
+   "example": "A: $1,000 → $0 (its yardstick +10%); B: $1,000 → $1,200 (its yardstick +2%).",
+   "before": "Home market +2.00%",
+   "now_proposed": "Home market +6.00% ((0.10 × 1,000 + 0.02 × 1,000) ÷ 2,000)",
+   "moves": "Home \"market +X%\" (MK-PF-M-008) and the \"ahead/behind by\" beside it, only when a holding closed at exactly $0.",
+   "drawings": "Moves only when a holding's latest close is exactly $0; no approved figure found involves such a holding."
+  },
+  "FIX-4": {
+   "ids": "MK-ST-F-082 movementsOf → MK-ST-F-081 timeWeightedReturn → MK-NW-M-002 Return on cash + investments",
+   "ruling": "Tenet 3 (DEC-3523), as already applied to a deposit, withdrawal or transfer with no amount (outside review Claude Performance, 2026-10-11)",
+   "function_file": "movementsOf and timeWeightedReturn, Calculation Module code/engines/time-weighted-return.ts; the sync write in src/services/sync/ingest.ts",
+   "smallest_change": "movementsOf lists an interest record with no amount (day and account) instead of reading it as $0; timeWeightedReturn refuses (no amount, naming the day) when one sits on a cash account inside the window. The sync stores a broker's $0 as 0, not as \"no amount\", so a real $0 row is not refused.",
+   "example": "Savings $10,000 one evening, $10,040 the next, an interest record that day with no amount.",
+   "before": "+0.00% for that day (the $40 read as money paid in)",
+   "now_proposed": "no figure, with the reason naming the day",
+   "moves": "Net worth \"Return on cash + investments\" (MK-NW-M-002), only where a cash account has an interest record with no amount. Performance never hands interest to the return, so it does not move.",
+   "drawings": "Text search of all 12 Net worth and Performance drawings: none shows an interest record with no amount.",
+   "in_flight": "Both files are being edited by the Net worth work today; make this change after that lands."
+  }
+ },
+ "needs_a_ruling": {
+  "RULING-1": {
+   "ids": "MK-PF-F-044 startValues → MK-PF-M-008 Home \"market +X%\" (the same formula sits in MK-NW-F-138 knownHoldingsReturn, DEC-5068)",
+   "question_in_plain_words": "When shares were bought during the window, how much was the holding worth when the window began?",
+   "where_on_screen": "Home: \"you +X% · market +Y% · ahead by Z\".",
+   "example": "A: 10 shares at $100 when the window opens, 10 more bought at $110 mid-window, now 20 × $121 = $2,420 (its yardstick +10%). B: $1,000, flat (its yardstick +2%).",
+   "today": "market +7.33% (A counted as worth $2,000 at the start: $2,420 ÷ 1.21)",
+   "other_reading": "market +6.00% (A counted as the $1,000 it was really worth)",
+   "recommended": "+6.00%: the figure's own definition says \"weighted by what that holding was worth when the window began\", and $1,000 is what it was worth."
+  },
+  "RULING-2": {
+   "ids": "MK-ST-F-081 timeWeightedReturn → MK-PF-M-016 / MK-PF-M-017 Return, Home \"you +X%\"",
+   "question_in_plain_words": "What does the return say when an account ends a day worth less than nothing (it owes more than it holds, e.g. a margin debt)?",
+   "where_on_screen": "Performance Return, the account page Return, Home \"you +X%\".",
+   "example": "Worth $1,000.17 one evening, −$83.19 the next.",
+   "today": "−100.00% (the value is floored at $0) — rules out by tenet 7: it looks better than it is",
+   "other_reading": "−108.32% (the true change), or no figure with a sentence saying the account owes more than it holds",
+   "recommended": "No figure, with that sentence: the next day would have nothing to grow from, which the app already refuses (DEC-0316)."
+  }
+ },
+ "card_text_to_fix": [
+  {
+   "id": "MK-PF-F-039 periodReturnParts (and MK-PF-F-038 which points to it)",
+   "what": "The card says \"Start = the last close on or before the beginning day … nothing when start is missing\", but closeAsOf falls back to the first close on record (DEC-4641), so a short history is measured from its first price. OpenAI judged the card's words; the code is right. The master file's card text needs the fallback added so file and code match."
+  }
+ ],
+ "found_while_checking": [
+  {
+   "what": "A broker's reversal of a deposit (−$500 on a CONTRIBUTION row) is read by the engine as money out, but the sync stores only DEPOSIT $500 — the direction is written for transfers only (src/services/sync/ingest.ts, the transaction write) — so movementsOf counts $500 IN. The return then reads $1,000 of the person's own money the wrong way.",
+   "not_counted": "Not one of OpenAI's 80 items; reported for the Net worth work, which is editing ingest.ts today.",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › found while checking (not an outside item) › FIXED 2026-10-21 (DEC-3523 tenet 1, as DEC-6623 keeps a journal's direction): a −$500 deposit reversal from the broker stays money out in the return",
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › found while checking (not an outside item) › what the app does with it now: stored as a $500 deposit with direction OUT, read as $500 OUT — as it was stored before 2026-10-21 (no direction), $500 IN"
+   ],
+   "fixed": "2026-10-21 (DEC-3523 tenet 1, kept the way DEC-6623 keeps a journal's direction): the sync writes the deposit's direction, OUT, and every reader of a stored amount reads it one way (moneyIntoAccount, ledger.ts) — the return reads −$500."
+  }
+ ]
+}

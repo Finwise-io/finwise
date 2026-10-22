@@ -402,8 +402,8 @@ def and_list(xs):
 # no approved mock: the question about it rests on code alone, and he should know that before he rules.
 DESIGNED = {
     '/analytics': 'net-worth-quiet-instrument_v08',
-    '/invest': 'performance_v14',
-    '/account-detail': 'performance_v14 (2nd phone) · account-detail_v01',
+    '/invest': 'performance_v17',                 # approved in full 2026-10-01 (DEC-0647); v14 was the build before it
+    '/account-detail': 'account-page_v01',        # approved 2026-10-19 (DEC-6457), replacing v17 frame 2; account-detail_v01 was rejected (DEC-0646)
     '/cashflow': 'cash-flow_v01 · cash-flow_v01',
     '/base-pay': 'income-end-to-end_v07',
     '/income-manager': 'income-end-to-end_v07',

@@ -4,7 +4,8 @@
 import type { EntityId, UserId } from '../_shared/ids';
 import { newEntityId } from '../_shared/ids';
 import type { AssetAccount } from '../assets';
-import { totalShares, type Position } from '../performance';
+import { totalShares, purchaseDateOnRecord, type Position } from '../performance';
+import { moneyIntoAccount } from '../../../Calculation Module code/engines/ledger';
 
 export type TxnType =
   | 'OPENING_POSITION'   // first-time capture of a holding you already own (no cash counterparty)
@@ -32,10 +33,24 @@ export interface Transaction {
   shares?: number;
   price?: number;            // per share
   amount?: number;           // cash amount (deposit/withdraw/transfer/dividend-as-cash/fee)
+  /** The broker's own fee on a BUY or SELL, in dollars, always zero or above (since 2026-10-21). Absent = the broker sent
+   *  none (not on record); 0 = the broker said $0. Read through realizedFromLedger, never directly. */
+  fee?: number;
+  /** True when the stored price already carries that fee — the broker's cash figure was net of it, so shares × price is
+   *  what was really paid or received and the fee must not be counted again. Set at sync beside fee (2026-10-21). */
+  fee_in_price?: boolean;
   reinvested?: boolean;      // dividend/interest reinvested into the position vs taken as cash
   direction?: 'IN' | 'OUT';  // TRANSFER_IN_KIND from a broker: which way the shares went. The type
                              // alone does not say, and without it a return cannot be measured
                              // across the day (stored since 2026-10-04; older rows carry none).
+                             // A broker's one-sided cash TRANSFER (a journal) carries it too, since
+                             // 2026-10-20: IN is money that arrived in this account, OUT money that left.
+                             // A broker's DEPOSIT or WITHDRAWAL carries it since 2026-10-21, so a −$500
+                             // deposit (a reversal) is $500 that left. Read through moneyIntoAccount
+                             // in ledger.ts, the one rule for a stored amount.
+  /** The institution's own word for an activity the app could not name (since 2026-10-20, Q15). Set only on such a
+   *  row (type ADJUSTMENT); read through unnamedActivityOf in ledger.ts, never directly. */
+  unclassified_word?: string;
   note?: string;
   source?: 'manual' | 'connected';  // F10: only connected-account rows are ever reviewed for a
                                     // "worth a look" flag — hand-typed entries are NEVER questioned.
@@ -83,10 +98,11 @@ export interface Transaction {
  *               MK-NW-F-104 closedWith · MK-NW-F-106 mortgagesByProperty
  *               MK-NW-F-116 rentedIdsOf · MK-NW-F-130 notIncludedSentence
  *               MK-NW-F-134 carValueNotEnteredNotes · MK-NW-F-135 earmarkLeavesOut
- *               MK-NW-O-001 theBonds · MK-NW-O-002 theAccount
- *               MK-NW-O-003 theNetWorth · MK-NW-O-004 theEmergencyFund
- *               MK-NW-O-005 theAlternativesOutlook · MK-NW-O-006 theHolding
- *               MK-NW-O-008 thePerformance · MK-PF-F-012 earliestPurchaseDate
+ *               MK-NW-F-149 withoutBlankRows · MK-NW-O-001 theBonds
+ *               MK-NW-O-002 theAccount · MK-NW-O-003 theNetWorth
+ *               MK-NW-O-004 theEmergencyFund · MK-NW-O-005 theAlternativesOutlook
+ *               MK-NW-O-006 theHolding · MK-NW-O-008 thePerformance
+ *               MK-PF-F-006 capGains · MK-PF-F-012 earliestPurchaseDate
  *               MK-PF-F-014 buildPerformance · MK-PF-F-015 topHoldingConcentration
  *               MK-PF-F-020 portfolioBenchReturn · MK-PF-F-045 priceHistoryShortSentence
  *               MK-PL-F-004 withdrawalOrder · MK-PL-F-009 rmdTakenThisYear
@@ -100,7 +116,8 @@ export interface Transaction {
  *               MK-ST-F-020 sumSigned · MK-ST-F-022 reconcileAccountTotal
  *               MK-ST-F-029 prune · MK-ST-F-061 isMonthEnd
  *               MK-ST-F-073 rebuildDays · MK-ST-F-078 dateShown
- *               MK-ST-F-084 fillBetweenObservations · MK-XS-F-004 buildDatedGrid
+ *               MK-ST-F-084 fillBetweenObservations · MK-ST-F-093 typedValueOnItsDate
+ *               MK-XS-F-002 dataGaps · MK-XS-F-004 buildDatedGrid
  *               MK-XS-F-005 trendPoints · MK-XS-F-009 readHistory
  *               MK-XS-F-015 importHoldings · MK-XS-F-028 surplusByMonth
  *               MK-XS-F-031 buildSnapshot · MK-XS-F-058 parseReceipt
@@ -110,9 +127,10 @@ export interface Transaction {
  *               MK-XS-F-116 runSnapTradeSync · MK-XS-F-129 findHeaderRow
  *               MK-XS-F-146 prettyExpiry · MK-XS-F-174 recomputeBalances
  *               MK-XS-F-175 uid · MK-XS-F-177 useCategorySpend
- *               MK-XS-F-181 merge
+ *               MK-XS-F-181 merge · MK-XS-F-187 fixStoredMoney
+ *               MK-XS-F-188 fixStoredFees · MK-XS-F-190 bondQuoteBasis
  *
- * Reaches ..... 336 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 376 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -122,7 +140,7 @@ export interface Transaction {
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-O-014 M
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 318 more — the full list is on functions_from_code
+ *               … and 358 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -390,7 +408,7 @@ function addLot(a: AssetAccount, t: Transaction, shares: number, costPerShare: n
  *     a   when pos is missing
  *     remaining = shares
  *     lots = for each of pos.lots: { ...each }
- *     oldest first = [...lots].sort((x, y) => string(purchase date or '9999').locale compare(string(purchase date or '9999')))
+ *     oldest first = [...lots].sort((x, y) => (purchase date on record(purchase date) ?? '9999').locale compare(purchase date on record(purchase date) ?? '9999'))
  *     take = min(shares, remaining)
  *     kept = lots where shares > 1e − 9
  *     the answer = { ...a, positions }
@@ -426,7 +444,8 @@ function removeShares(a: AssetAccount, t: Transaction, shares: number): AssetAcc
   // from whichever purchase was listed first, so a holding whose purchases were entered out of date
   // order kept the wrong ones — and the long-term / short-term split of what was left moved with it.
   // A purchase with no date goes last: its age is not known, so it is not assumed to be the oldest.
-  const oldestFirst = [...lots].sort((x, y) => String(x.purchase_date || '9999').localeCompare(String(y.purchase_date || '9999')));
+  // (2026-10-21) a date is read the one way (purchaseDateOnRecord): a day that does not exist (31 February) is no date, so it goes last too
+  const oldestFirst = [...lots].sort((x, y) => (purchaseDateOnRecord(x.purchase_date) ?? '9999').localeCompare(purchaseDateOnRecord(y.purchase_date) ?? '9999'));
   for (const l of oldestFirst) {
     if (remaining <= 0) break;
     const take = Math.min(l.shares, remaining);
@@ -448,8 +467,8 @@ function removeShares(a: AssetAccount, t: Transaction, shares: number): AssetAcc
  *
  * Formula .....
  *     the answer = accounts
- *     amt = amount (or 0 when missing or zero)
- *     out = map(accounts, account id, (a) => bump cash(a, -amt))
+ *     moved = money into account(t) (or 0 when missing)
+ *     out = map(accounts, account id, (a) => bump cash(a, moved))
  *     src = accounts.find((a) => asset id = account id)
  *     pos = src and find pos(src, t)
  *     accounts   when src is missing (or pos is missing (or counter account id is missing when missing or zero) when missing or zero)
@@ -492,11 +511,12 @@ export function applyTransaction(accounts: AssetAccount[], t: Transaction): Asse
       return map(accounts, t.account_id, (a) => addLot(a, t, t.shares || 0, t.price || 0));
     case 'OPENING_CASH':
       return map(accounts, t.account_id, (a) => ({ ...a, cash_balance: ((t.amount || 0)) }));
+    // DEPOSIT, WITHDRAWAL, FEE: the one rule for a stored amount (moneyIntoAccount, ledger.ts, 2026-10-21) — a fee refund
+    // (a fee that came IN) raises the cash, a deposit reversal lowers it
     case 'DEPOSIT':
-      return map(accounts, t.account_id, (a) => bumpCash(a, (t.amount || 0)));
     case 'WITHDRAWAL':
     case 'FEE':
-      return map(accounts, t.account_id, (a) => bumpCash(a, -(t.amount || 0)));
+      return map(accounts, t.account_id, (a) => bumpCash(a, moneyIntoAccount(t) ?? 0));
     case 'BUY':
       return map(accounts, t.account_id, (a) => addLot(bumpCash(a, -((t.shares || 0) * (t.price || 0))), t, t.shares || 0, t.price || 0));
     case 'SELL':
@@ -514,9 +534,9 @@ export function applyTransaction(accounts: AssetAccount[], t: Transaction): Asse
         return removeShares(bumpCash(a, sell * (t.price || 0)), t, sell);
       });
     case 'TRANSFER': {
-      const amt = t.amount || 0;
-      let out = map(accounts, t.account_id, (a) => bumpCash(a, -amt));
-      if (t.counter_account_id) out = map(out, t.counter_account_id, (a) => bumpCash(a, amt));
+      const moved = moneyIntoAccount(t) ?? 0;   // the one rule (2026-10-21): leaves the first account unless it says IN
+      let out = map(accounts, t.account_id, (a) => bumpCash(a, moved));
+      if (t.counter_account_id) out = map(out, t.counter_account_id, (a) => bumpCash(a, -moved));
       return out;
     }
     case 'TRANSFER_IN_KIND': {
@@ -532,7 +552,8 @@ export function applyTransaction(accounts: AssetAccount[], t: Transaction): Asse
     case 'COUPON':
       // reinvested → add to the EXISTING holding only (never create a phantom position for an un-held ticker)
       if (t.reinvested && t.shares && t.price) return map(accounts, t.account_id, (a) => (findPos(a, t) ? addLot(a, t, t.shares!, t.price!) : a));
-      return map(accounts, t.account_id, (a) => bumpCash(a, (t.amount || 0)));
+      // the one rule (2026-10-21): a −$50 dividend — a reversal — lowers the cash by $50
+      return map(accounts, t.account_id, (a) => bumpCash(a, moneyIntoAccount(t) ?? 0));
     default:
       return accounts;
   }
@@ -696,9 +717,13 @@ export function restoreUndo(accounts: AssetAccount[], t: Transaction): AssetAcco
  * Answers ..... Legacy fallback for rows recorded before undo_prev: a synthetic opposite transaction.
  *
  * Formula .....
+ *     flipped = 'OUT' as const   if direction = 'IN'
+ *     'IN' as const   if direction = 'OUT'
+ *     undefined   otherwise   otherwise
  *     base = ...t = ...t
  *     id = new entity id('txn')
  *     note = `reversal of ${id}`
+ *     ...(flipped ? { direction: flipped } : {}) = ...(flipped ? { direction: flipped } : {})
  *     the answer:
  *     nothing   if reinvested
  *     ...base = ...base
@@ -725,15 +750,20 @@ export function restoreUndo(accounts: AssetAccount[], t: Transaction): AssetAcco
  * Changed ..... 2026-07-18 (0dc9061)
  */
 export function inverseOf(t: Transaction): Transaction | null {
-  const base: Transaction = { ...t, id: newEntityId('txn'), note: `reversal of ${t.id}` };
+  // a record that states which way its money went is undone the other way (2026-10-21): a fee refund (IN) is undone by
+  // money leaving, read by the one rule for a stored amount (moneyIntoAccount, ledger.ts)
+  const flipped = t.direction === 'IN' ? 'OUT' as const : t.direction === 'OUT' ? 'IN' as const : undefined;
+  const base: Transaction = { ...t, id: newEntityId('txn'), note: `reversal of ${t.id}`, ...(flipped ? { direction: flipped } : {}) };
   switch (t.type) {
     case 'ADJUSTMENT': return { ...base };   // no-op reverses to no-op
     case 'DEPOSIT': return { ...base, type: 'WITHDRAWAL' };
     case 'WITHDRAWAL':
     case 'FEE': return { ...base, type: 'DEPOSIT' };
     case 'TRANSFER':
+      // a transfer between two accounts is undone by swapping them, so it keeps its own direction: flipping it as well
+      // cancelled the swap, and the undo moved the money a second time (found by the RULES agent, 2026-10-21)
       return t.counter_account_id
-        ? { ...base, account_id: t.counter_account_id, counter_account_id: t.account_id }
+        ? { ...base, account_id: t.counter_account_id, counter_account_id: t.account_id, direction: t.direction }
         : { ...base, type: 'DEPOSIT' };   // outbound-only transfer → give the cash back
     case 'DIVIDEND':
     case 'INTEREST':
@@ -780,10 +810,19 @@ export function txnLabel(t: TxnType): string { return TYPE_LABEL[t] ?? t; }
  *     BUY → −(shares × price)
  *     anything else → 0
  *
- * Called by ... MK-NW-O-002 theAccount
+ * Called by ... MK-NW-O-002 theAccount · MK-ST-F-012 toLedgerRow
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-075 ACC · MK-NW-O-002 theAccount
+ * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-118 cashEffect · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-XS-F-188 fixStoredFees · MK-CF-F-041 getDebtState
+ *               … and 41 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -799,11 +838,13 @@ export function txnLabel(t: TxnType): string { return TYPE_LABEL[t] ?? t; }
  */
 export function cashEffect(t: Transaction): number {
   switch (t.type) {
-    case 'DEPOSIT': case 'SELL': return (t.type === 'SELL' ? ((t.shares || 0) * (t.price || 0) || (t.amount || 0)) : (t.amount || 0));
-    case 'DIVIDEND': case 'INTEREST': case 'COUPON': return t.reinvested ? 0 : (t.amount || 0);
-    case 'WITHDRAWAL': case 'FEE': return -(t.amount || 0);
+    // THE ONE RULE FOR A STORED AMOUNT (moneyIntoAccount, 2026-10-21): the direction the record states, else its kind's
+    // own way — a broker's −$500 deposit, a reversal, is −$500 here, and a journal into this account is plus. No amount
+    // on record is no effect here; the activity list shows a dash for it (theAccount, noAmount).
+    case 'DEPOSIT': case 'WITHDRAWAL': case 'FEE': case 'TRANSFER': return moneyIntoAccount(t) ?? 0;
+    case 'SELL': return (t.shares || 0) * (t.price || 0) || (t.amount || 0);
+    case 'DIVIDEND': case 'INTEREST': case 'COUPON': return t.reinvested ? 0 : (moneyIntoAccount(t) ?? 0);
     case 'BUY': return -((t.shares || 0) * (t.price || 0));
-    case 'TRANSFER': return -(t.amount || 0);
     default: return 0;
   }
 }
@@ -821,12 +862,10 @@ export function cashEffect(t: Transaction): number {
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-008 transaction amount
- *               MK-XS-I-009 transaction date
+ * Reads ....... MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
  *
  * Decides .....
- *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-119
@@ -836,7 +875,8 @@ export function investmentIncomeAnnual(txns: Transaction[], now: Date = new Date
   const cutoff = new Date(now); cutoff.setFullYear(cutoff.getFullYear() - 1);
   return ((txns ?? [])
     .filter((t) => (t.type === 'DIVIDEND' || t.type === 'INTEREST' || t.type === 'COUPON') && !t.reinvested && new Date(t.date) >= cutoff)
-    .reduce((s, t) => s + (t.amount || 0), 0));
+    // the one rule for a stored amount (moneyIntoAccount, 2026-10-21): a −$50 dividend — a reversal — cancels, never adds
+    .reduce((s, t) => s + (moneyIntoAccount(t) ?? 0), 0));
 }
 
 export interface TxnDoc { user_id: UserId; transactions: Transaction[]; }

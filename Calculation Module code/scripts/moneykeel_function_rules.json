@@ -368,7 +368,7 @@
   "MK-CF-F-067": {
    "name": "rentalList",
    "rule": "Each rent entry that names its property (a property identifier that is not blank) with rent or running costs above zero: long-term unless marked short-term, its monthly rent and its monthly running costs. An entry that names no property is not counted (owner rule DEC-4059d, 2026-10-10). With no list of rent entries: nothing — the old single typed rent figure names no property, so it is not counted either. Owner rule, 2026-10-10: each rent and running-cost figure is read only when it is a plain number (digits with at most one decimal point, allowing a leading dollar sign, thousands commas and spaces); a figure with letters or other text in it is not entered and counts as 0, never as the digits inside it.",
-   "read_from": "f4121a9a9e",
+   "read_from": "7ff0d4989b",
    "sent_as": "172e664839",
    "figures_checked_by_hand": {
     "4059": "not a figure: the number of the owner decision DEC-4059d (2026-10-10) that this rule follows"
@@ -595,8 +595,8 @@
   },
   "MK-CF-F-108": {
    "name": "isMoneyOut",
-   "rule": "True for a withdrawal, a fee, or a transfer with no receiving account on record.",
-   "read_from": "5728e10201",
+   "rule": "For a withdrawal, a fee, or a transfer with no receiving account on record: true, unless the money the record moved into the account is known and above zero — a fee refund, a withdrawal stored as money that came in, or a journal into this account is not money out. The money moved into the account is read as everywhere else: when the record says which way the money went, its size, minus when it left; otherwise its amount with the sign it was stored with (a withdrawal or a fee moves its amount out, a transfer moves its amount out of the account it is written on). A record whose amount is not on record is read by its kind: money out. False for every other kind of record.",
+   "read_from": "3151071b4e",
    "sent_as": "5728e10201"
   },
   "MK-CF-F-109": {
@@ -613,8 +613,8 @@
   },
   "MK-CF-F-111": {
    "name": "applyTransaction",
-   "rule": "What one record does to the accounts. Adjustment: nothing. Opening position: adds the shares at their price as a purchase. Opening cash: sets the account's cash to the amount. Deposit: cash up by the amount. Withdrawal or fee: cash down by the amount. Buy: cash down by shares × price, and the shares added as a purchase. Sale with shares: sells at most the shares held (when a purchase has no share count, so the shares held are unknown, the sale stands as recorded) — cash up by the shares sold × price, earliest purchases reduced first; a sale with no shares but an amount lowers the balance by the amount, never below 0. Transfer: cash down on the sending account, and up on the receiving one when there is one. Transfer of a holding: the whole holding moves to the other account. Dividend, interest or coupon: when reinvested with shares and a price, a purchase is added to a holding already there; otherwise cash up by the amount.",
-   "read_from": "90ef76f384",
+   "rule": "What one record does to the accounts. Adjustment: nothing. Opening position: adds the shares at their price as a purchase. Opening cash: sets the account's cash to the amount. Deposit, withdrawal or fee: the cash changes by the money the record moved into the account — up by the amount for a deposit, down by the amount for a withdrawal or a fee; when the record says which way the money went, its size counts that way (a fee refund raises the cash, a deposit reversal lowers it), otherwise the amount counts with the sign it was stored with; a record whose amount is not on record changes nothing. Buy: cash down by shares × price, and the shares added as a purchase. Sale with shares: sells at most the shares held (when a purchase has no share count, so the shares held are unknown, the sale stands as recorded) — cash up by the shares sold × price, earliest purchases reduced first; a sale with no shares but an amount lowers the balance by the amount, never below 0. Transfer: the account it is written on changes by the money the record moved into it — down by the amount, or up when the record says the money came in — and the receiving account, when there is one, by the same amount the other way; nothing when the amount is not on record. Transfer of a holding: the whole holding moves to the other account. Dividend, interest or coupon: when reinvested with shares and a price, a purchase is added to a holding already there; otherwise the cash changes by the money the record moved into the account — up by the amount, down when the record says the money left (a reversal) or the amount was stored below zero; nothing when the amount is not on record.",
+   "read_from": "1ce68db568",
    "sent_as": "9cc9d56992"
   },
   "MK-CF-F-112": {
@@ -643,8 +643,8 @@
   },
   "MK-CF-F-116": {
    "name": "inverseOf",
-   "rule": "The record that undoes one. A deposit → a withdrawal; a withdrawal or a fee → a deposit; a transfer between two accounts → the same transfer the other way; a transfer out with no receiving account → a deposit; a dividend, interest or coupon paid in cash → a withdrawal; an adjustment → itself. Nothing for a buy, a sale, an opening record, a transfer of a holding or a reinvested payment.",
-   "read_from": "38882b08ef",
+   "rule": "The record that undoes one: a new record noting it is the reversal of the first. When the record states which way its money went (in or out), the undo states the other way — except a transfer between two accounts, which is undone by swapping its two accounts and keeps its own direction (flipping it as well would move the money a second time). A deposit → a withdrawal; a withdrawal or a fee → a deposit; a transfer between two accounts → the same transfer the other way, its two accounts swapped; a transfer out with no receiving account → a deposit; a dividend, interest or coupon paid in cash → a withdrawal; an adjustment → itself. Nothing for a buy, a sale, an opening record, a transfer of a holding or a reinvested payment.",
+   "read_from": "5c3bb0eed3",
    "sent_as": "38882b08ef"
   },
   "MK-CF-F-117": {
@@ -655,14 +655,14 @@
   },
   "MK-CF-F-118": {
    "name": "cashEffect",
-   "rule": "The change in cash from one record. Deposit: + amount. Sale: + shares × price — the amount, when that product is zero. Dividend, interest, coupon: + amount; 0 when reinvested. Withdrawal or fee: − amount. Buy: − shares × price. Transfer: − amount. Anything else: 0.",
-   "read_from": "5f5a83103f",
+   "rule": "The change in cash from one record, its amount read by the one rule for a stored amount (2026-10-21): the way the record says the money went, else its kind's own way with the sign it was stored with. Deposit: + amount; a deposit the broker sent with a minus (a reversal, stored as gone out): − amount. Sale: + shares × price — the amount, when that product is zero. Dividend, interest, coupon: + amount; 0 when reinvested. Withdrawal or fee: − amount; + amount when the record says it came in. Buy: − shares × price. Transfer: − amount; a transfer that names only one account and says it came in (a broker's journal): + amount. A deposit, withdrawal, fee, transfer, dividend, interest or coupon with no amount on record: 0. Anything else: 0.",
+   "read_from": "9abdd0c0fa",
    "sent_as": "5f5a83103f"
   },
   "MK-CF-F-119": {
    "name": "investmentIncomeAnnual",
-   "rule": "Dividends, interest and coupons dated within the last year (on or after the same date a year ago), not reinvested, added.",
-   "read_from": "eb87a7e126",
+   "rule": "Dividends, interest and coupons dated within the last year (on or after the same date a year ago), not reinvested, added — each counted as the money it moved into the account: when the record says which way the money went, its size, minus when it left (a reversed payment takes away what it had added); otherwise its amount with the sign it was stored with; a record whose amount is not on record (missing, blank or not a number) adds nothing.",
+   "read_from": "d17740d6d6",
    "sent_as": "eb87a7e126"
   },
   "MK-CF-F-120": {
@@ -775,9 +775,12 @@
   },
   "MK-CF-F-139": {
    "name": "removeShares",
-   "rule": "Takes the shares out of the holding's purchases oldest purchase date first (a purchase with no date goes last), whatever order they are stored in; a purchase left with nothing is dropped; a holding left with no purchases is removed. Unchanged when the account has no such holding.",
-   "read_from": "9167ceb5f2",
-   "sent_as": "a7e7727059"
+   "rule": "Takes the shares out of the holding's purchases oldest purchase date first (a purchase with no date on record goes last — purchaseDateOnRecord: missing, written another way, or a day the calendar does not have, such as 31 February), whatever order they are stored in; a purchase left with nothing is dropped; a holding left with no purchases is removed. Unchanged when the account has no such holding.",
+   "read_from": "25bda858b4",
+   "sent_as": "a7e7727059",
+   "figures_checked_by_hand": {
+    "31": "not a figure: 31 February, named as a day the calendar does not have"
+   }
   },
   "MK-CF-F-140": {
    "name": "periodsAYear",
@@ -1021,8 +1024,8 @@
   },
   "MK-CF-F-183": {
    "name": "paidOutByAccount",
-   "rule": "Dividends, interest and coupons dated within the last year (on or after the same date last year), not reinvested, added by account.",
-   "read_from": "d6cca1a39c",
+   "rule": "Dividends, interest and coupons dated within the last year (on or after the same date last year), not reinvested, and naming an account, added by account — each counted as the money it moved into the account: when the record says which way the money went, its size, minus when it left (a reversed payment takes away what it had added); otherwise its amount with the sign it was stored with; a record whose amount is not on record (missing, blank or not a number) adds nothing. A record that names no account is not counted.",
+   "read_from": "7b1c4a7ce4",
    "sent_as": "d6cca1a39c"
   },
   "MK-CF-F-184": {
@@ -1343,14 +1346,20 @@
   },
   "MK-NW-F-027": {
    "name": "accountClassBreakdown",
-   "rule": "LINKED ACCOUNT. Cash = its cash balance. Each holding with a price = shares × last price, filed under its class (holdingClassOf). Each option = its value as synced, under Alternatives (an option is valued when it is synced, at contracts × price per share × 100 — owner, 2026-08-26). If the parts come to less than the balance and one or more holdings have NO price: the whole difference is filed under the unpriced holdings' class when they share one, and under Unclassified when they span classes — never under cash. Otherwise, if the parts do not add up to the balance: a difference no bigger than the larger of $1 or 1% of the balance is added to cash when positive (owner rule, 2026-08-11), or taken off the largest class when negative; a bigger one is put under the account's own class (assetClassOf). ACCOUNT BUILT BY HAND (not a cash or property account): when it records its own cash (or its balance is built from its records) and its balance is below zero, the whole balance is cash — overdrawn is negative cash: balance −$100 with a cash field of $50 is Cash −$100 (DEC-4036i, 2026-10-10). Otherwise its cash = the uninvested cash it records, above zero, never more than the balance, when its balance is built from its records or it records cash. When its balance is built from its holdings, each holding is weighed at today's value — shares × the broker's price, else the value its balance was last built from, else what was paid — and the rest of the balance is shared out among the holdings' classes by those weights, so a T-bill is Bonds & CDs; if every holding is of the account's own class, the rest stays whole under that class. No answer when it records no cash and its holdings are all of its own class. ANY OTHER ACCOUNT — a typed balance, a bank account — gets no answer. The parts always add up to the balance.",
-   "read_from": "8e7a20e320",
+   "rule": "LINKED ACCOUNT. Cash = the uninvested cash the broker reports (0 when none). Each holding with a price = shares × last price × the one multiplier (contractMultiplier: the shares a contract stands for — 100 for an option unless another figure is stated — one hundredth for a bond quoted per $100 of face value, else one), filed under its class (holdingClassOf). Each option = its value as synced, under Alternatives (an option is valued when it is synced, at contracts × price per share × 100 — owner, 2026-08-26). If the parts come to less than the balance and one or more holdings with shares have NO price: the whole difference is filed under the unpriced holdings' class when they share one, and under Unclassified when they span classes — never under cash. If the parts come to less than the balance, every holding is priced and the broker listed at least one holding or option: the whole difference is cash, whatever its size (owner decision DEC-0095, 2026-08-11; until 2026-10-21 only a difference within the margin below was cash). Otherwise, if the parts do not add up to the balance: a difference no bigger than the larger of $1 or 1% of the balance is added to cash when positive (owner rule, 2026-08-11), or taken off the largest class when negative; a bigger one is put under the account's own class (assetClassOf). ACCOUNT BUILT BY HAND (not a cash or property account): when it records its own cash (or its balance is built from its records) and its balance is below zero, the whole balance is cash — overdrawn is negative cash: balance −$100 with a cash field of $50 is Cash −$100 (DEC-4036i, 2026-10-10). Otherwise its cash = the uninvested cash it records, above zero, never more than the balance, when its balance is built from its records or it records cash. When its balance is built from its holdings, each holding is weighed at today's value — shares × the broker's price × the same one multiplier; else the value its balance was last built from; else what was paid over its purchases whose price paid is on record (a cost per share above zero, paidOnRecord — which already applies that multiplier, and is not scaled again); a holding with none of these, or with what was paid not on record, weighs nothing. Example: a Treasury quoted per $100, 10,000 face bought at 99, and 100 fund shares at $100, balance $19,900: Bonds & CDs $9,900 (10,000 × 99 ÷ 100), Stocks / Funds $10,000 — and the rest of the balance is shared out among the holdings' classes by those weights, so a T-bill is Bonds & CDs; if every holding is of the account's own class, the rest stays whole under that class. No answer when it records no cash and its holdings are all of its own class. ANY OTHER ACCOUNT — a typed balance, a bank account — gets no answer. The parts always add up to the balance.",
+   "read_from": "73eea0d0ac",
    "sent_as": "3977913591",
    "figures_checked_by_hand": {
     "100": "the option contract size, applied where an option is synced (src/services/sync/snaptrade.ts: price × contracts × multiplier, multiplier 100) — owner ruling Q06, 2026-08-26. This function reads the value that results.",
     "4036": "not a figure: the number of the owner decision DEC-4036i (2026-10-10) that this rule follows",
     "$50": "the ruling's own example (DEC-4036i): the cash field",
-    "$100": "the ruling's own example (DEC-4036i): an overdrawn balance"
+    "$100": "the ruling's own example (DEC-4036i): an overdrawn balance",
+    "0095": "not a figure: the number of the owner decision DEC-0095 (2026-08-11) that files the difference as cash",
+    "99": "the example's price paid per $100 of face",
+    "$9,900": "10,000 × 99 ÷ 100",
+    "$10,000": "100 × $100",
+    "$19,900": "$9,900 + $10,000",
+    "10,000": "the example's face amount"
    }
   },
   "MK-NW-F-028": {
@@ -1528,8 +1537,8 @@
   },
   "MK-NW-F-054": {
    "name": "reclassifyAccounts",
-   "rule": "For each account the person has NOT confirmed (an account they confirmed is left exactly as it is): if the person did not choose its class and correctClassOf gives a class different from the one it carries, it takes that class (a cash tax bucket becomes no tax type stated unless the new class is cash — never taxable, DEC-4036f, 2026-10-10). For each holding inside it: a holding the person classed, or one waiting on their answer, is left as it is; otherwise, when its ticker and name are evidence for a class other than cash and its stored tag means another class, it is stored under that class — bond for Bonds & CDs, other for Alternatives (Gold), stock_etf for Stocks / Funds. No evidence leaves it as it is. Returns the accounts and how many changes were made.",
-   "read_from": "01f61d4f8d",
+   "rule": "For each account the person has NOT confirmed (an account they confirmed is left exactly as it is): if the person did not choose its class and correctClassOf gives a class different from the one it carries, it takes that class (a cash tax bucket becomes no tax type stated unless the new class is cash — never taxable, DEC-4036f, 2026-10-10). For each holding inside it: a holding the person classed, or one waiting on their answer, is left as it is; otherwise, when holdingClassOf gives it a class (not Unclassified) that its stored tag does not mean, it is stored under that class — bond for Bonds & CDs, other for Alternatives (Gold), cash for Cash, stock_etf for Stocks / Funds — so the class the broker sent, kept on the holding, is stored before its name is read (owner ruling, 2026-10-20: \"always the class broker sends\"). A holding holdingClassOf leaves Unclassified is left as it is. Returns the accounts and how many changes were made.",
+   "read_from": "63675d2c88",
    "sent_as": "c48e5489ed",
    "figures_checked_by_hand": {
     "4036": "not a figure: the number of the owner decision DEC-4036f (2026-10-10) that this rule follows"
@@ -1543,13 +1552,14 @@
   },
   "MK-NW-F-056": {
    "name": "bondInfo",
-   "rule": "Reads a bond's facts off its account: face value (not entered when missing or zero or less), yearly rate (not entered when missing; a typed zero is kept), maturity date — by the one reading of a maturity date (MK-NW-F-124 maturityParts), written back as year-month-day with two-digit month and day (a year and month alone becomes that month's first day), and empty when the text is no date — value (the balance), accrued interest (not entered when missing), whether it is a CD — its kind is a CD, or its own name says CD or certificate of deposit; its institution is never read for this (DEC-4036c, 2026-10-10) — and where a CD was bought: through a broker only when the person said so, otherwise from the bank (DEC-3837, 2026-10-10).",
-   "read_from": "68f18fc59c",
+   "rule": "Reads a bond's facts off its account: face value (not entered when missing or zero or less), yearly rate (not entered when missing; a typed zero is kept), maturity date — by the one reading of a maturity date (MK-NW-F-124 maturityParts), written back as year-month-day with two-digit month and day (a year and month alone becomes that month's first day), and empty when the text is no date — value — the balance when it is a market value; 0 when the balance is what was paid or the face value, or when there is no balance, so no yield is calculated on anything but a market value (owner decision DEC-0281, 2026-08-26) — and, only when the value shown is not a market value, the value shown (the balance, or nothing when there is none) and where it came from (what was paid, the face value, or none); what was paid, only when entered (a typed 0 is kept); how many times a year it pays, only when entered as 1 or 2; accrued interest (not entered when missing), whether it is a CD — its kind is a CD, or its own name says CD, certificate of deposit or share certificate, as whole words; its institution is never read for this (DEC-4036c, 2026-10-10) — and where a CD was bought: through a broker only when the person said so, otherwise from the bank (DEC-3837, 2026-10-10).",
+   "read_from": "3964dfdc44",
    "sent_as": "5a6cacedd3",
    "figures_checked_by_hand": {
     "3837": "not a figure: the number of the owner decision DEC-3837 (2026-10-10) that this rule follows",
     "4036": "not a figure: the number of the owner decision DEC-4036c (2026-10-10) that this rule follows",
-    "124": "not a figure: the identifier MK-NW-F-124 of maturityParts, the one reading this function asks"
+    "124": "not a figure: the identifier MK-NW-F-124 of maturityParts, the one reading this function asks",
+    "0281": "not a figure: the number of the owner decision DEC-0281 (2026-08-26) that this rule follows"
    }
   },
   "MK-NW-F-057": {
@@ -1581,11 +1591,12 @@
   },
   "MK-NW-F-061": {
    "name": "bondSummary",
-   "rule": "Count = how many bonds. Total value = each value added up. Total face value = each face value added up, a face not entered counting as zero (the bonds without one are named apart by theBonds). Interest in a year = yearlyInterestNow of each, added up: a bond past its maturity date counts $0, and a bond with no rate counts as zero. Average yield is over the bonds that have a value today AND a rate AND are not past their maturity date: their yearlyInterest ÷ their value today as entered; nothing when no bond qualifies. Next maturity = the earliest maturity date AFTER today, by the calendar — a bond maturing today has matured and is not next. Each date is read by the one reading of a maturity date (MK-NW-F-124 maturityParts) and written year-month-day; a text that is no date is never next.",
-   "read_from": "2661983298",
+   "rule": "Count = how many bonds. Total value = each bond's value shown, added up — the market value, else what was paid, else the face value (owner decision DEC-0281); a bond with none of the three adds nothing. Total face value = each face value added up, a face not entered counting as zero (the bonds without one are named apart by theBonds). Interest in a year = yearlyInterestNow of each, added up: a bond past its maturity date counts $0, and a bond with no rate counts as zero. Average yield is over the bonds that have a market value above zero AND a rate AND are not past their maturity date — a bond whose value shown is what was paid or its face value has no market value and is not in it: their yearlyInterest added up ÷ their market values added up, as entered, without accrued interest; nothing when no bond qualifies. Next maturity = the earliest maturity date AFTER today, by the calendar — a bond maturing today has matured and is not next. Each date is read by the one reading of a maturity date (MK-NW-F-124 maturityParts) and written year-month-day; a text that is no date is never next.",
+   "read_from": "722da01956",
    "sent_as": "95c273f536",
    "figures_checked_by_hand": {
-    "124": "not a figure: the identifier MK-NW-F-124 of maturityParts, the one reading this function asks"
+    "124": "not a figure: the identifier MK-NW-F-124 of maturityParts, the one reading this function asks",
+    "0281": "not a figure: the number of the owner decision DEC-0281 (2026-08-26) that this rule follows"
    }
   },
   "MK-NW-F-062": {
@@ -1661,9 +1672,12 @@
   },
   "MK-NW-F-072": {
    "name": "rowOf",
-   "rule": "One row for one bond: face value and yearly interest rate (each not entered when it was not), interest paid in a year (yearlyInterestNow: face × rate; with no face, value × rate; with no rate, not entered; $0 once past its maturity date, so the rows add up to the summary), maturity date, years left (yearsToMaturity — exact, never below zero), current yield, yield to maturity (approxYTM — solved exactly; nothing when matured), value, whether it is a CD, whether it is priced like a bond (pricedLikeBond: a bond, or a CD bought through a broker), and the accrued-interest note (accruedInterestCaveat, worked for today). The heading is the institution when it is not blank after trimming, otherwise the account's name.",
-   "read_from": "a476e55971",
-   "sent_as": "4cc586d060"
+   "rule": "One row for one bond: face value and yearly interest rate (each not entered when it was not), interest paid in a year (yearlyInterestNow: face × rate; with no face, the value shown × rate; with no rate, not entered; $0 once past its maturity date, so the rows add up to the summary), maturity date, years left (yearsToMaturity — exact, never below zero), current yield, yield to maturity (approxYTM — solved exactly; nothing when matured), value — by the one value rule (owner decision DEC-0281, 2026-08-26): the market value, else what was paid, else the face value, and nothing when none was entered — with where it came from and, when it is not a market value, the sentence saying so (bondValueNote), what was paid (nothing when not entered), the price per $100 of face (pricePer100OfFace), whether it is a CD, whether it is priced like a bond (pricedLikeBond: a bond, or a CD bought through a broker), and the accrued-interest note (accruedInterestCaveat, worked for today). The heading is the institution when it is not blank after trimming, otherwise the account's name.",
+   "read_from": "24b46fab42",
+   "sent_as": "4cc586d060",
+   "figures_checked_by_hand": {
+    "0281": "not a figure: the number of the owner decision DEC-0281 (2026-08-26) that this rule follows"
+   }
   },
   "MK-NW-F-073": {
    "name": "itemising",
@@ -1673,8 +1687,8 @@
   },
   "MK-NW-F-084": {
    "name": "categoryEarnings",
-   "rule": "Uses the dividend, interest and coupon records dated on or after the period's first day, amounts taken as positive; a coupon is interest (owner decision DEC-6212, 2026-10-19). A record that names a ticker goes to that holding's category: bond → Bonds & CDs; cash → Cash in this account; anything else → Stocks / Funds; a ticker with no holding on record → Stocks / Funds for a dividend, Bonds & CDs for interest. A record that names NO ticker → Stocks / Funds for a dividend; for interest, Bonds & CDs when the record's account is a bond or CD account handed in, else Cash in this account. A category's return, over the holdings with a value above zero and a period return above −100%: each holding's worth = its value now + the interest it was paid in the period (a bond's or CD's, carried on the row; 0 for anything else — DEC-6212); its value at the start = that worth ÷ (1 + its return over the whole period, never a yearly rate); return = the worths added up ÷ the values at the start added up − 1. Nothing when no holding qualifies. Bonds & CDs shows a stated YEARLY rate instead — each bond account's rate weighted by its balance — when every bond account with a balance states a rate and no bond is held as a holding — a bond holding row worth exactly $0 holds nothing and does not count; one whose worth is not known still does. Example: a bond account of $10,000 at 4%, one bond holding row worth $0, $100 of interest → Bonds & CDs $100 at 4.00%/year. An entered 0% states a rate of 0% (DEC-2748b, 2026-10-12); a rate never entered states none. On day one all three categories are returned with no return; any other day only the categories that earned more than zero.",
-   "read_from": "75dede5d6b",
+   "rule": "Uses the dividend, interest and coupon records dated on or after the period's first day; a coupon is interest (owner decision DEC-6212, 2026-10-19). Each record counts the money it moved into its account (2026-10-21): a record that states its direction counts its amount as plus when the money came in and minus when it went out; otherwise the amount with the sign it was stored with, so a −$50 dividend, a reversal, lowers what was earned; an amount not on record counts 0. A record that names a ticker goes to the category of the holding with that ticker (capitals ignored) — the class holdingClassOf gives it, the class the broker sent first (owner ruling, 2026-10-20: \"always the class broker sends\"): Stocks / Funds, Bonds & CDs, Cash in this account or Alternatives; a holding holdingClassOf cannot place in one of those four is Unclassified (2026-10-21, owner decision DEC-2160: \"Refuse the line and ask\"); a category's return weighs the holdings of that same category; a ticker with no holding on record → Stocks / Funds for a dividend, Bonds & CDs for interest. A record that names NO ticker → Stocks / Funds for a dividend; for interest, Bonds & CDs when the record's account is a bond or CD account handed in, else Cash in this account. A category's return is classReturnOf over the holdings of that category that have a return over the whole period (never a yearly rate): each holding's worth = its value now + the interest it was paid in the period (a bond's or CD's, carried on the row; 0 for anything else — DEC-6212); its value at the start = that worth ÷ (1 + its return) when it is worth more than $0 and its return is above −100%, else the start the row carries when that start is above zero (what it was worth when the period began — a holding worth $0 today counts with what it lost; 2026-10-21, owner decision DEC-5068, tenet 4), and it is left out when it carries none; return = the worths added up ÷ the values at the start added up − 1. Nothing when no holding qualifies. Bonds & CDs shows a stated YEARLY rate instead — each bond account's rate weighted by its balance — when every bond account with a balance states a rate and no bond is held as a holding — a bond holding row worth exactly $0 holds nothing and does not count, unless it carries a start above zero — worth something when the period began, it still counts (2026-10-21); one whose worth is not known still does. Example: a bond account of $10,000 at 4%, one bond holding row worth $0, $100 of interest → Bonds & CDs $100 at 4.00%/year. An entered 0% states a rate of 0% (DEC-2748b, 2026-10-12); a rate never entered states none. On day one the categories are returned with no return: Stocks / Funds, Bonds & CDs and Cash in this account always, Alternatives only when a holding is classed Alternatives, and Unclassified only when a holding is Unclassified; any other day only the categories that earned more than zero.",
+   "read_from": "28494b24ff",
    "sent_as": "f1c50cadca",
    "figures_checked_by_hand": {
     "2748": "not a figure: the owner decision id DEC-2748b (2026-10-12), named in the code comment",
@@ -1682,7 +1696,12 @@
     "4%": "the example's stated bond rate, not a figure the code holds",
     "$100": "the example's interest received, not a figure the code holds",
     "4.00%": "the example's answer worked by hand: the one bond account's stated 4% weighted by its balance; pinned by outside_networth_rerun_openai_03.test.ts",
-    "6212": "not a figure: the number of the owner decision DEC-6212 (2026-10-19) that this rule follows"
+    "6212": "not a figure: the number of the owner decision DEC-6212 (2026-10-19) that this rule follows",
+    "5068": "not a figure: the number of the owner decision DEC-5068 (2026-10-13) that this rule follows",
+    "100": "not a figure: −100%, the return at or below which a holding is counted at the start it carries",
+    "$50": "the example's dividend reversal, not a figure the code holds",
+    "2160": "not a figure: the number of the owner decision DEC-2160 (2026-09-30) that this rule follows",
+    "4": "not a figure: tenet 4 of the eight tenets (owner decision DEC-3523, 2026-10-09) that this rule follows"
    }
   },
   "MK-NW-F-090": {
@@ -1724,40 +1743,57 @@
   },
   "MK-NW-F-103": {
    "name": "investmentRecordDates",
-   "rule": "The dates of the recorded days that hold a value for at least one of the named accounts, oldest first. Empty when no accounts are named.",
-   "read_from": "49ff0ca2a9",
-   "sent_as": "49ff0ca2a9"
+   "rule": "The dates of the recorded days that hold a value for at least one of the named accounts, written year-month-day, oldest first. Each day is read first without the rows of accounts whose balance was left blank — a row with no holding in that account, no value typed by hand, no total the broker stated and no cash other than $0 (a typed $0 is a value and stays; owner decision DEC-3279e, \"A missing balance is never $0\", 2026-10-21) — so a day on which a named account's balance was never entered does not count for it. A day whose date is not written year-month-day is not counted. Empty when no accounts are named.",
+   "read_from": "1eb864fc7d",
+   "sent_as": "49ff0ca2a9",
+   "figures_checked_by_hand": {
+    "3279": "not a figure: the number of the owner decision DEC-3279e that this rule follows"
+   }
   },
   "MK-NW-O-001": {
    "name": "theBonds",
-   "rule": "Takes every account that is a bond or CD. Rows are sorted by maturity date, soonest first, with any that has no date last — the date read by the one reading of a maturity date (MK-NW-F-124 maturityParts), so a text that is no date sorts with the ones that have none. Count, total value, total face value, interest in a year, average yield and next maturity come from bondSummary. When one bond is opened it also gives: matured = its maturity date is today or earlier, by the calendar (a bond with no date has not matured — it is unknown); a matured bond gives no yield to maturity and no rate-move figure; and what a move in interest rates would do to its value (bondRateSensitivity) — except for a CD bought from the bank, where no figure is given and a sentence says a CD is not traded and is worth its balance until it matures; a CD bought through a broker gets the figure like a bond and no sentence (DEC-3837, 2026-10-10). It also names the bonds the average yield leaves out — those with no value today, and, apart, those with a value but no rate entered — and the bonds with no face value entered, so a screen can say which.",
-   "read_from": "71f8d3d428",
+   "rule": "Takes every account that is a bond or CD. Rows are sorted by maturity date, soonest first, with any that has no date last — the date read by the one reading of a maturity date (MK-NW-F-124 maturityParts), so a text that is no date sorts with the ones that have none. Count, total value, total face value, interest in a year, average yield and next maturity come from bondSummary. When one bond is opened it also gives: matured = its maturity date is today or earlier, by the calendar (a bond with no date has not matured — it is unknown); a matured bond gives no yield to maturity and no rate-move figure; and what a move in interest rates would do to its value (bondRateSensitivity) — except for a CD not priced like a bond (bought from the bank, or where it was bought not entered, which the bond's facts read as the bank), where no figure is given and a sentence says why. For a CD where it was bought is not entered (2026-10-21, owner decisions DEC-3523 and DEC-3837), the sentence says where this CD was bought is not entered, that a CD bought from the bank is not traded so its value does not move with rates, and that a CD bought through a broker is traded and its value does move with rates — and the bond is marked as not answered. For a CD marked as bought from the bank, the sentence says a CD is not traded and is worth its balance until it matures. A CD bought through a broker gets the figure like a bond and no sentence (DEC-3837, 2026-10-10). It also names the bonds the average yield leaves out — those with no market value above zero, and, apart, those with a market value above zero but no rate entered — and the bonds with no face value entered, so a screen can say which. It also names the bonds with no value of any kind entered — no market value, nothing paid and no face value — which the total value leaves out (owner decisions DEC-0281 and DEC-3657). The bonds the average yield leaves out are also given by why: value not entered at all; a market value of $0 or less; the value shown is what was paid; the value shown is the face value — each bond the average leaves out is in exactly one of the four.",
+   "read_from": "76632feabb",
    "sent_as": "ac38213b75",
    "figures_checked_by_hand": {
     "3837": "not a figure: the number of the owner decision DEC-3837 (2026-10-10) that this rule follows",
-    "124": "not a figure: the identifier MK-NW-F-124 of maturityParts, the one reading this function asks"
+    "124": "not a figure: the identifier MK-NW-F-124 of maturityParts, the one reading this function asks",
+    "3523": "not a figure: the number of the owner decision DEC-3523 (the eight tenets, 2026-10-09) that this rule follows",
+    "0281": "not a figure: the number of the owner decision DEC-0281 (2026-08-26) that this rule follows",
+    "3657": "not a figure: the number of the owner decision DEC-3657 that this rule follows"
    }
   },
   "MK-NW-O-002": {
    "name": "theAccount",
-   "rule": "Uses the records whose account is this account, and any transfer that arrives in it from another account. Market value = the account's balance. Income = dividends + interest + coupons in those records, to the cent — a coupon is interest (owner decision DEC-6212, 2026-10-19) — and NO FIGURE when the account has no records at all. Inside = for a linked account, the value in each asset class that is not zero (accountClassBreakdown); for any other account, nothing. Activity = every record with its date, type, ticker and amount: the amount is the record's effect on cash, except a transfer INTO this account, which shows the amount moved; a record counts as the person's own unless it came through the link. Income of one holding = dividends, interest and coupons whose record names that holding's ticker, capitals and surrounding spaces ignored; a record naming no ticker belongs to no holding.",
-   "read_from": "042bdb8b14",
+   "rule": "Uses the records whose account is this account, and any transfer that arrives in it from another account. Market value = the account's balance. Income = dividends + interest + coupons in those records, to the cent — a coupon is interest (owner decision DEC-6212, 2026-10-19) — and NO FIGURE when the account has no records at all. Inside = the value in each asset class that is not zero, from the account's class split (accountClassBreakdown) — a linked account always has one; nothing when the account has no split (a balance typed as one figure). Activity = every record with its date, type, ticker and amount: the amount is the record's effect on cash (cashEffect), except a transfer INTO this account, which shows the amount that left the other account — both read by the one rule for a stored amount (2026-10-21: the direction the record states, else its kind's own way, the amount keeping the sign it was stored with), so a deposit the broker sent with a minus shows as minus, and an amount not on record has no effect; each record also says whether its amount is not on record (a deposit, withdrawal, transfer, dividend, interest, coupon or fee whose amount is missing, blank or not a number), so the page shows a dash for it, never $0; a record counts as the person's own unless it came through the link. Income of one holding = dividends, interest and coupons whose record names that holding's ticker, capitals and surrounding spaces ignored; a record naming no ticker belongs to no holding. Income of the cash in the account = the interest records (type INTEREST only) that name no ticker, to the cent, with no dividends — the cash row's own income on the account page (the account-page drawing v01, approved 2026-10-19, owner decision DEC-6457); a dividend naming no ticker stays with the account only. Each activity record also carries, when it was sent under a word the app does not know, the broker's word and the amount it sent, unsigned, so the page shows that amount and word instead of its effect of 0 (Q15, the lead's decision of 2026-10-20); nothing for every other record. Cash in this account (the cash row) = for a linked account, the uninvested cash the broker reports (0 when none is reported) plus the part of the broker's total that the listed holdings, the options and that cash do not reach, when that part is above zero, every holding is priced and the broker listed at least one holding or option (owner decision DEC-0095: the difference is cash) — the same figure Net worth's Cash line counts; nothing for an account built by hand. The holdings with no price = for a linked account where at least one holding with shares has no price and the broker's total leaves a part above zero that the priced holdings, the options and the cash do not reach: that part as their value, filed under their class (Unclassified when they span classes), and how many holdings have no price and a share count that is not zero; nothing when every holding is priced, the total leaves nothing over, or the account was built by hand — never $0.",
+   "read_from": "4184fe830e",
    "sent_as": "6d973197e7",
    "figures_checked_by_hand": {
-    "6212": "not a figure: the number of the owner decision DEC-6212 (2026-10-19) that this rule follows"
+    "6212": "not a figure: the number of the owner decision DEC-6212 (2026-10-19) that this rule follows",
+    "6457": "not a figure: the number of the owner decision DEC-6457 (2026-10-19) that this rule follows",
+    "0095": "not a figure: the number of the owner decision DEC-0095 that this rule follows",
+    "15": "not a figure: question Q15 of the lead's decisions of 2026-10-20"
    }
   },
   "MK-NW-O-003": {
    "name": "theNetWorth",
-   "rule": "Assets = every account's balance added up. Debts = every debt's remaining balance added up. Net worth = assets − debts. Cash = cashTotal. Investments = investmentsTotal: the investment classes of the class split added up (Stocks / Funds, Bonds & CDs, Alternatives, Unclassified, from assetAllocation) — so a linked account's uninvested cash is in Cash only, and Cash + Investments + property comes to everything owned. Investable = investableAssets. By class = assetAllocation. Each debt is listed with its balance and its required monthly payment (the larger of its minimum and the payment the person says they make); monthly debt payments = those added up; monthly debt minimum = the minimums alone added up. Return on cash + investments = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\") over every account that is not property: the period from the day compared from to today is split at every day money moved in or out; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off; returned as a share. A month given without a day is read as its first day. Cash earns only interest: any other change in a cash account's balance is money moving, counted on the day the record first shows it. For the other accounts, money moving = deposits, withdrawals and cash transferred between accounts. Today's value is read from the accounts as they stand. No figure when no day is given, when no recorded day on or before the day compared from holds the accounts, when money moved on a day with no recorded value, when a deposit, withdrawal or transfer on a measured account has no amount on record, or when shares were moved in or out. It also hands out the match of mortgages to properties (mortgagesByProperty). It also names the holdings nothing could class and the person has not yet answered about (account, holding), and the sentence that asks. A holding with no price today is taken out of every day of the return's window, the start day included, so the change line leaves it out as the fix sheet promises (Net worth v08 state F).",
-   "read_from": "8d1814edb3",
-   "sent_as": "93975a41df"
+   "rule": "Assets = every account's balance added up. Debts = every debt's remaining balance added up. Net worth = assets − debts. Cash = cashTotal. Investments = investmentsTotal: the investment classes of the class split added up (Stocks / Funds, Bonds & CDs, Alternatives, Unclassified, from assetAllocation) — so a linked account's uninvested cash is in Cash only, and Cash + Investments + property comes to everything owned. Investable = investableAssets. By class = assetAllocation. Each debt is listed with its balance and its required monthly payment: the larger of its minimum and the payment the person says they make (a minimum not entered beside a payment that was is that payment; a balance due in one lump has none); a debt with neither a minimum nor a payment entered (paymentNotEntered) counts 0 on its line and is named, by its id and its name (A debt when it has none), in the list of debts whose payment is not entered — never counted as $0 unsaid (owner decision DEC-3523, tenet 3). Monthly debt payments = those lines added up; monthly debt minimum = the minimums alone added up. Investments by account = each account with its id, its name (the institution, spaces at the ends ignored, else its label) and how much of it counts in Investments (accountInvestments) — only those above zero, the largest first. Return on cash + investments = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\") over every account that is not property: the period from the day compared from to today is split at every day money moved in or out; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off; returned as a share. A month given without a day is read as its first day. Cash earns only interest: any other change in a cash account's balance is money moving, counted on the day the record first shows it. For the other accounts, money moving = deposits, withdrawals and cash transferred between accounts. Today's value is read from the accounts as they stand. No figure when no day is given, when no recorded day on or before the day compared from holds the accounts, when money moved on a day with no recorded value, when a deposit, withdrawal or transfer on a measured account has no amount on record, when interest, a dividend or a coupon on a measured account has no amount on record (since 2026-10-21: unknown is not zero), when a record the app could not name sits on a measured account inside the period, or when shares were moved in or out. It also hands out the match of mortgages to properties (mortgagesByProperty). It also names the holdings nothing could class and the person has not yet answered about (account, holding), and the sentence that asks. A holding with no price today is taken out of every day of the return's window, the start day included, so the change line leaves it out as the fix sheet promises (Net worth v08 state F).",
+   "read_from": "453aecc1c9",
+   "sent_as": "93975a41df",
+   "figures_checked_by_hand": {
+    "3523": "not a figure: the number of the owner decision DEC-3523 (the MoneyKeel tenets) that this rule follows",
+    "3": "not a figure: tenet 3 of DEC-3523, unknown is not zero"
+   }
   },
   "MK-NW-O-004": {
    "name": "theEmergencyFund",
-   "rule": "Cash = all cash (cashTotal), or the amount handed in when one is given. Owner rule, 2026-10-04: \"Once user enters mortgage or any debt - the app deduct it directly to calculate surplus, emergency fund, and any other place instead of leaving it for user to add it to planned expenses.\" Debt minimums = the MINIMUM monthly payment of every debt added up — the home's mortgage included; a balance due in one lump has none. A payment a person chooses to make above the minimum is not counted: it can be stopped. The budget is read as it is counted (theBudgetCounted): where the home's mortgage is in Debts, the Rent / Mortgage budget line is counted as nothing, and the screen is given a sentence saying so. Essentials for a month = essential expenses + debt minimums. Essential expenses = the average of what was logged, over the calendar months of the last twelve that have a logged entry (this month alone when only it has one); the typed plan only when nothing is logged. Left out of that average, so nothing is counted twice: a payment logged against a debt that is entered (an expense in the category Debt payment, named for that debt), and, where the home's mortgage is in Debts, anything logged under Rent / Mortgage. Rent that keeps arriving = the Rent row of the Income summary (rent from a property less what it costs to run, less calculated tax when the tax rate is calculated), never below zero; owner, 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" It arrives every month, so it is added to the cash every month. From cash each month = essentials − that rent, never below zero. Months covered = cash ÷ from cash each month; no figure when essentials are zero, and no figure when the rent pays for the whole month (the cash is then not drawn on, and it says so). Planned = planned monthly expenses + debt minimums; months covered at the planned level = cash ÷ (planned − that rent); no figure when that is zero or less. Target for N months = from cash each month × N; gap = target − cash, never below zero. Months left after a shock = (cash − the shock, never below zero) ÷ from cash each month. When a typed month of essentials is handed in, it stands in for essentials + debt minimums. A target, and the months left after a shock, are given only when there is an essentials figure. Rent not known, owner rule 2026-10-10 (instead of showing nothing, the card says the months are counted with the rent not included, and asks for the rent): the answer also says whether a property's rent is not known. It is not known only when the household holds a property that is not the home (home, rental and second home read by the owner's property-use rule of 2026-10-04) AND one of these holds: a rent entry's rent figure is blank or not a plain number, or the entry names no property (it is not counted as rent, owner rule DEC-4059d, 2026-10-10); the rent entries are stored in a shape that is not a list; or with no rent entries stored at all, a property is kept as a rental. A property with no rent entry when rent entries are stored is a second home, not a missing rent. A household with no property other than the home is never flagged. The months covered are still given, counted without the unknown rent. The old single typed rent figure (from before rent became a list) is not read: the app moves it once into the rent list as an entry with no property, which the entry rule above then treats as not known.",
-   "read_from": "9bca41cf3f",
-   "sent_as": "aca43cd91b"
+   "rule": "Cash = all cash (cashTotal), or the amount handed in when one is given. Owner rule, 2026-10-04: \"Once user enters mortgage or any debt - the app deduct it directly to calculate surplus, emergency fund, and any other place instead of leaving it for user to add it to planned expenses.\" Debt minimums = the MINIMUM monthly payment of every debt added up, never below zero — the home's mortgage included; a balance due in one lump has none. A payment a person chooses to make above the minimum is not counted: it can be stopped. When a debt has no minimum stored, the monthly payment the person entered stands in for it. A debt with neither a minimum nor a payment entered (paymentNotEntered) counts 0 and is named, by its id and its name (A debt when it has none), in the list of debts whose payment is not entered — never counted as $0 unsaid (owner decision DEC-3523, tenet 3). The budget is read as it is counted (theBudgetCounted): where the home's mortgage is in Debts, the Rent / Mortgage budget line is counted as nothing, and the screen is given a sentence saying so. Essentials for a month = essential expenses + debt minimums. Essential expenses = the average of what was logged, over the calendar months of the last twelve that have a logged entry (this month alone when only it has one); the typed plan only when nothing is logged. Left out of that average, so nothing is counted twice: a payment logged against a debt that is entered (an expense in the category Debt payment, named for that debt), and, where the home's mortgage is in Debts, anything logged under Rent / Mortgage. Rent that keeps arriving = the Rent row of the Income summary (rent from a property less what it costs to run, less calculated tax when the tax rate is calculated), never below zero; owner, 2026-10-04: \"add it to the cash as losing job does not mean loosing rental income too.\" It arrives every month, so it is added to the cash every month. From cash each month = essentials − that rent, never below zero. Months covered = cash ÷ from cash each month; no figure when essentials are zero, and no figure when the rent pays for the whole month (the cash is then not drawn on, and it says so). Planned = planned monthly expenses + debt minimums; months covered at the planned level = cash ÷ (planned − that rent); no figure when that is zero or less. Target for N months = from cash each month × N; gap = target − cash, never below zero. Months left after a shock = (cash − the shock, never below zero) ÷ from cash each month. When a typed month of essentials is handed in, it stands in for essentials + debt minimums. A target, and the months left after a shock, are given only when there is an essentials figure. Rent not known, owner rule 2026-10-10 (instead of showing nothing, the card says the months are counted with the rent not included, and asks for the rent): the answer also says whether a property's rent is not known. It is not known only when the household holds a property that is not the home (home, rental and second home read by the owner's property-use rule of 2026-10-04) AND one of these holds: a rent entry's rent figure is blank or not a plain number, or the entry names no property (it is not counted as rent, owner rule DEC-4059d, 2026-10-10); the rent entries are stored in a shape that is not a list; or with no rent entries stored at all, a property is kept as a rental. A property with no rent entry when rent entries are stored is a second home, not a missing rent. A household with no property other than the home is never flagged. The months covered are still given, counted without the unknown rent. The old single typed rent figure (from before rent became a list) is not read: the app moves it once into the rent list as an entry with no property, which the entry rule above then treats as not known.",
+   "read_from": "126c23ff1e",
+   "sent_as": "aca43cd91b",
+   "figures_checked_by_hand": {
+    "3523": "not a figure: the number of the owner decision DEC-3523 (the MoneyKeel tenets) that this rule follows",
+    "3": "not a figure: tenet 3 of DEC-3523, unknown is not zero"
+   }
   },
   "MK-NW-O-005": {
    "name": "theAlternativesOutlook",
@@ -1770,9 +1806,12 @@
   },
   "MK-NW-O-006": {
    "name": "theHolding",
-   "rule": "Shares = shares of every purchase still held, added up (nothing when a purchase has no share count); a sale has already taken its shares from the purchases, oldest purchase date first (a purchase with no date last). Total paid = shares × cost per share over every purchase (× 100 for an option contract unless the holding states its own multiplier); nothing when a share count or a cost is not on record. With a price: value = shares × price (× 100 for an option contract unless the holding states its own multiplier); gain = value − total paid; return on cost = gain ÷ total paid (no figure when nothing was paid, or either is unknown). With NO price: value shown = total paid, and gain, return and the tax estimate are not given. Average paid per share = total paid ÷ (shares × that multiplier), so it is in the unit the price is quoted in (nothing with no shares, or a figure not on record). Closed = shares known and zero or less. Day change = last close − the close before, for ONE share (it is shown under the price of one share, not multiplied by shares held), and that ÷ the close before; none with fewer than two closes. Gain if sold today is split by purchase: long-term = purchases held MORE than one year; a purchase held exactly one year or less is short-term. Dividends = dividend records that name this ticker: the last 365 days, and all time. Realised gain = from the sale records of this ticker in this account, × this holding's contract multiplier.",
-   "read_from": "0ad38c832d",
-   "sent_as": "b5f1daf09f"
+   "rule": "Shares = shares of every purchase still held, added up (nothing when a purchase has no share count); a sale has already taken its shares from the purchases, oldest purchase date first (a purchase with no date last). Total paid = shares × cost per share over the purchases whose price paid is on record, a cost above zero (paidOnRecord; × 100 for an option contract unless the holding states its own multiplier); nothing when a share count is not on record, or shares are held and none has a price paid on record. With a price: value = shares × price (× 100 for an option contract unless the holding states its own multiplier); gain = the value of the units counted − total paid, over the same purchases (unrealizedGain); return on cost = gain ÷ total paid (no figure when nothing was paid, or either is unknown). With NO price: value shown = total paid, and gain, return and the tax estimate are not given. Average paid per share = Σ shares × cost per share ÷ Σ shares over the purchases whose price paid is on record, per share as the price is quoted (nothing with no shares held, a share count not on record, or no purchase with a price paid on record); the shares it leaves out = the shares of the purchases with no price paid on record (0 when none; nothing when a share count is not on record). A purchase's cost not on record stays not on record, never 0. Closed = shares known and zero or less. Day change = last close − the close before, for ONE share (it is shown under the price of one share, not multiplied by shares held), and that ÷ the close before; none with fewer than two closes. Gain if sold today is split by purchase (capGains): long-term = purchases held MORE than one year; a purchase held exactly one year or less is short-term; a purchase with no purchase date on record is in neither part and its gain is given on its own; an option on a broad-based index is 60% long-term and 40% short-term whatever the holding period. Not capital gains = the account it sits in is taxed as pre-tax or tax-free (taxTreatmentOf: a 401(k), a Traditional IRA, a Roth IRA, a Roth 401(k), an HSA, a 529; with no account handed in its tax type is not stated) — the split is then not shown and the gain is given whole; an account whose tax type is not stated keeps the split. Dividends = dividend records IN THIS ACCOUNT that name this ticker (the ticker read with spaces trimmed and capitals ignored): the last 365 days, and all time, each counted as the money it moved into the account (when the record says which way the money went, its size, minus when it left; otherwise its amount with the sign it was stored with; an amount not on record adds nothing); a dividend in another account belongs to that account's holding of the ticker. Realised gain = from the sale records of this ticker in this account, × this holding's contract multiplier.",
+   "read_from": "fcee01b5a6",
+   "sent_as": "b5f1daf09f",
+   "figures_checked_by_hand": {
+    "40%": "the short-term share of an option on a broad-based index: 100% less the 60% long-term share the code holds (IRS Publication 550, the 60/40 rule)"
+   }
   },
   "MK-NW-O-007": {
    "name": "theLookBack",
@@ -1782,8 +1821,8 @@
   },
   "MK-NW-O-008": {
    "name": "thePerformance",
-   "rule": "Records of the period = those dated on or after its first day; contributions, withdrawals, dividends and interest are their totals. Contributions also count cash or shares transferred in from an account that is not one of those measured, and the first recorded value of an account that joined the record inside the period (its own records up to that day are then not counted again); withdrawals also count cash or shares transferred out. A transfer between two measured accounts is neither. THE BEGINNING IS READ from the daily record at the day BEFORE the period opens, and only when investment accounts are named and the record's first day is on or before that day; the value read is the last recorded day on or before it. If it cannot be read and the record holds days for these accounts that begin after the period opens, and NO holding here has a history over the period (a period return, a certificate of deposit's stated rate, or bought inside the period; or, with only a dollar gain handed in, a known gain other than 0): NO walk (no beginning, no wealth generated), and a sentence: The record begins <its first day>, so it cannot say what this account was / these accounts were worth on <the day before the period>. Owner decision DEC-5291, 2026-10-13 (it replaces DEC-3035i): if it cannot be read and any holding has such a history — whether or not the record holds days for these accounts — the beginning is WORKED BACK: beginning = ending − priced gain − contributions + withdrawals (priced gain counts as 0 when the period opens today). Where the beginning CAN be read but some of the accounts named are not in the record on the day before the period and hold something with a history (and every holding handed in belongs to an account handed in), the answer is the parts added up: the accounts the record holds that day, measured together by this same rule, plus each other one worked back on its own by this same rule; every walk line is the parts' lines added; the return = Σ values now ÷ Σ (value now ÷ (1 + return)) − 1 over the measured part (its ending and its measured return) and each worked-back holding with a history (knownHoldingsReturn), no percent when the measured part refuses (its sentence is given); the sentence for holdings left out names those of the worked-back accounts; the yearly rate as below. The priced gain is each holding's gain over the period by the one rule for it (pricedGainOf: a holding's return is read as the period's own total, never a yearly rate), years = the period's days ÷ 365; a measured account with no holdings counts as its own holding, worth its balance — a certificate of deposit stating its rate gains by that rate (an entered 0% is a rate and gains $0; a rate never entered is no rate — DEC-2748b, 2026-10-12), any other has no price history. With no period at all (day one) no rate is applied and a holding with no price history adds nothing. Owner decision DEC-5068, 2026-10-13 (it replaces part 2 of DEC-3656): where the beginning is worked back (a period that does not open today, no record of these accounts at all) and a holding's gain cannot be known (it holds something, has no price history and no stated rate), that holding adds NO gain — its value is taken as unchanged — the walk is still drawn, and a sentence names it (worded by owner decision DEC-6076, 2026-10-19): Return is on the $<counted> with a price history. <name> ($<left out>) has no price history, so its gains are not included. Several names are joined with commas and \"and\" before the last, their values added: <A> and <B> ($<left out>) have no price history, so their gains are not included. $<counted> = today's value of every holding the return counts (each holding knownHoldingsReturn keeps, asked one at a time; in the parts-added case, the measured part's ending where its return is measured, plus each worked-back holding kept); when it is 0 the first sentence is left out. $<left out> = today's value of the holdings named: the broker's mark × shares or the value typed by hand (heldValueOf), else what was paid for it (costBasis); when any of them is unknown the brackets are left out. Whole dollars. A holding is named by its ticker (the security's name where the ticker is a 9-character identifier); an account by its display name; a dollar gain handed in as unknown is named \"a holding\". In that worked-back case, when the holdings themselves are handed in, the return given is the return of the holdings whose growth is known (knownHoldingsReturn): each holding with a value above zero and a return over the period above −100% (its whole-period total; a certificate of deposit with no return by (1 + its rate) to the power years − 1) has a start = value ÷ (1 + that return); return = values added up ÷ starts added up − 1; a holding with neither is left out, never counted at 0%; with none, no percent. When only a dollar gain is handed in, no percent is given. It also says whether the beginning was worked back this way, so a screen shows that period like any other rather than greying it. The ending is given on its own as well, whether or not there is a walk. Walk: wealth generated = ending − beginning − contributions + withdrawals; change in investment value = wealth generated − dividends − interest. Records counted are those of the investment accounts named (a record on any other account is not money put into these investments). Return = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\"): the period, starting at the last recorded day on or before the day before it opens, is split at every day money moved in or out of those accounts; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off. The record holds one value a day, taken after that day's money moved; money that moves on a day counts for that whole day (owner decision DEC-4439, 2026-10-11), so a day's link = that day's value ÷ (the previous recorded day's value + money added that day − money taken out that day). Money moving = deposits (in), withdrawals (out), cash transferred between accounts (out of the first, into the second), and shares moved in or out at what they were worth (the amount, or shares × price) when the record says which way they went. Ending = what the measured accounts are worth today, each counted whole (its balance, uninvested cash inside it included), read from the accounts handed in — a figure handed in beside them is not used, so no two screens can give two endings; with no accounts handed in, the ending handed in is used and closes the record. Today's value for the return is read from the same accounts. An account that first appears in the record inside the period counts as money in, at its first recorded value. A recorded day that is missing an account with holdings is not used; a typed balance stands until it is next recorded. It REFUSES — no percent, a sentence saying why, never another method — when: the beginning cannot be read; money moved on a day with no recorded value; a movement has no date; a deposit, withdrawal or transfer has no amount on record; shares were moved in or out and the record does not say which way or what they were worth; the previous recorded day's value + the money moved that day is zero or less while that day holds a value (nothing to grow from); or nothing was invested. For a period longer than one year — its first day earlier than one year back from today by the calendar (windowStartKey), so a period opening one year back to the day is a year and is never made yearly — and days ÷ 365 above 1, unless it is the whole-record Since period, the figure shown is the yearly rate (1 + return) to the power 1 ÷ years, − 1. Owner decision DEC-6412, 2026-10-19 (it amends DEC-5291): where the beginning cannot be read, the record holds days for these accounts that begin after the day before the period and before today, the holdings and their price histories are handed in, the period is JOINED at the record's first day instead of worked back whole. The record's part = this same rule asked for the period that opens the day after the record's first day (the Since answer), each holding handed over as it did from that first day to today (gainRowBetween). The days before = each holding of an account that had a part in them — the record holds it on its first day, or (several accounts, every holding placed) the record's part works it back on its own because it is not on the record that day and holds something with a history — worked from the day before the period to the record's first day (gainRowBetween; a holding not yet held then is left out); each instrument account the record holds that day counts at its value read then (one worked back on its own: its value now ÷ (1 + its rate) to the power of the record's part's years); years = those days ÷ 365. Their return = knownHoldingsReturn over those rows; when there is none and some row's gain is unknown, nothing is joined and the DEC-5291 answer above stands; when there is none and every gain is known (only cash, or nothing held), it is 0. Return = (1 + that return) × (1 + the record's part's return) − 1 (no percent when the record's part refuses: its sentence is given); the yearly rate as below. Walk: beginning = the record's part's beginning − the gains of those days (gainOfRow, an unknown one adding 0) − the money put in during them + the money taken out during them (records from the period's first day to the record's first day, leaving out those of an account with no part in them); contributions, withdrawals, dividends and interest = those days' plus the record's part's; ending = the record's part's ending. The left-out sentence names the holdings of those days whose gain is unknown, through beforeTheRecordSentence, $<counted> = today's value of each holding those days count (knownHoldingsReturn asked one at a time) and each left-out value today's (as above). It also gives the record's first day, and says the beginning was worked back (the period is not greyed).",
-   "read_from": "6fc26716bd",
+   "rule": "A record dated after today is read as dated today (the balance already holds its money, so it is put in today and has earned nothing yet). Each recorded day, and today's, is read without the rows of accounts whose balance was never entered: a row is kept when its account has a holding, a typed value (a typed $0 counts), a total stated by the broker, or cash other than $0 (DEC-3279e). Records of the period = those dated on or after its first day; contributions, withdrawals, dividends and interest are their totals. Contributions also count cash or shares transferred in from an account that is not one of those measured, and, when the beginning is read, each account that first appears in the record after the day before the period (up to today) — at the money added to it that day when more than half a cent was (it was worth $0 the evening before, DEC-4439), otherwise at its first recorded value (its own records up to that day are then not counted again); withdrawals also count cash or shares transferred out. A transfer between two measured accounts is neither. THE BEGINNING IS READ from the daily record at the day BEFORE the period opens, and only when investment accounts are named and the record's first day is on or before that day; the value read is the last recorded day on or before it. If it cannot be read, the period does not open today, the record holds days for these accounts (beginning after the period opens), and NO holding here has a history over the period (a period return, a stated rate of 0% or more such as a certificate of deposit's, or bought inside the period; or, with only a dollar gain handed in, a known gain other than 0): NO walk (no beginning, no wealth generated), and a sentence: The record begins <its first day>, so it cannot say what this account was / these accounts were worth on <the day before the period>. Owner decision DEC-5291, 2026-10-13 (it replaces DEC-3035i): if it cannot be read and any holding has such a history — whether or not the record holds days for these accounts — the beginning is WORKED BACK: beginning = ending − priced gain − contributions + withdrawals (priced gain counts as 0 when the period opens today). Where the beginning CAN be read but some of the accounts named are not in the record on the day before the period and hold something with a history (and every holding handed in belongs to an account handed in), the answer is the parts added up: the accounts the record holds that day, measured together by this same rule, plus each other one worked back on its own by this same rule; every walk line is the parts' lines added; the return = Σ values now ÷ Σ (value now ÷ (1 + return)) − 1 over the measured part (its ending and its measured return; its beginning read from the record is its start where it lost everything, 2026-10-21) and each worked-back holding with a history (knownHoldingsReturn), no percent when the measured part refuses (its sentence is given); the sentence for holdings left out names those of the worked-back accounts; the yearly rate as below. The priced gain is each holding's gain over the period by the one rule for it (pricedGainOf: a holding's return is read as the period's own total, never a yearly rate), years = the period's days ÷ 365; a measured account with no holdings and a balance above 0 counts as its own holding, worth its balance — a certificate of deposit stating its rate gains by that rate (an entered 0% is a rate and gains $0; a rate never entered is no rate — DEC-2748b, 2026-10-12), any other has no price history. With no period at all (day one) no rate is applied and a holding with no price history adds nothing. Owner decision DEC-5068, 2026-10-13 (it replaces part 2 of DEC-3656): where the beginning is worked back (a period that does not open today, no record of these accounts at all) and a holding's gain cannot be known (it holds something, has no price history and no stated rate), that holding adds NO gain — its value is taken as unchanged — the walk is still drawn, and a sentence names it (worded by owner decision DEC-6076, 2026-10-19): Return is on the $<counted> with a price history. <name> ($<left out>) has no price history, so its gains are not included. Several names are joined with commas and \"and\" before the last, their values added: <A> and <B> ($<left out>) have no price history, so their gains are not included. $<counted> = today's value of every holding the return counts (each holding knownHoldingsReturn keeps, asked one at a time; in the parts-added case, the measured part's ending where its return is measured, plus each worked-back holding kept); when it is 0 the first sentence is left out. $<left out> = today's value of the holdings named: the broker's mark × shares or the value typed by hand (heldValueOf), else what was paid for it (costBasis); when any of them is unknown the brackets are left out. Whole dollars. A holding is named by its ticker (the security's name where the ticker is a 9-character identifier); an account by its display name; a dollar gain handed in as unknown is named \"a holding\". In that worked-back case, when the holdings themselves are handed in, the return given is the return of the holdings whose growth is known (knownHoldingsReturn): each holding with a value above zero and a return over the period above −100% (its whole-period total; a certificate of deposit with no return by (1 + its rate) to the power years − 1) has a start = value ÷ (1 + that return), and a holding worth $0 today counts at the start its row carries (what it was worth when the period began; 2026-10-21, tenet 4: a known $0 is $0); return = values added up ÷ starts added up − 1; a holding with neither is left out, never counted at 0%; with none, no percent. When only a dollar gain is handed in, no percent is given. It also says whether the beginning was worked back this way, so a screen shows that period like any other rather than greying it. The ending is given on its own as well, whether or not there is a walk. Walk: wealth generated = ending − beginning − contributions + withdrawals; change in investment value = wealth generated − dividends − interest. Records counted are those of the investment accounts named, a transfer whose other side is one of them, and a record that names no account (with no accounts named, every record); a record on any other account is not money put into these investments. Return = a TIME-WEIGHTED return (owner decision, 2026-10-04: \"All return should be True Weighted Return and not Dietz return.\"): the period, starting at the last recorded day on or before the day before it opens, is split at every day money moved in or out of those accounts; each piece = the value just before the next movement ÷ the value just after the last one; the pieces are multiplied and 1 is taken off. The record holds one value a day, taken after that day's money moved; money that moves on a day counts for that whole day (owner decision DEC-4439, 2026-10-11), so a day's link = that day's value ÷ (the previous recorded day's value + money added that day − money taken out that day). Money moving = deposits (in), withdrawals (out), cash transferred between accounts (out of the first, into the second), and shares moved in or out at what they were worth (the amount, or shares × price) when the record says which way they went. Ending = what the measured accounts are worth today, each counted whole (its balance, uninvested cash inside it included), read from the accounts handed in — a figure handed in beside them is not used, so no two screens can give two endings; with no accounts handed in, the ending handed in is used, and closes the record unless the record already holds today. Today's value for the return is read from the same accounts. An account that first appears in the record inside the period counts as money in, at the money added to it that day, else its first recorded value (as above). A recorded day that is missing an account with holdings is not used; a typed balance stands until it is next recorded. It REFUSES — no percent, a sentence saying why, never another method — when: the beginning cannot be read; money moved on a day with no recorded value; a movement has no date; a deposit, withdrawal or transfer has no amount on record; interest, a dividend or a coupon on a measured account has no amount on record (since 2026-10-21: unknown is not zero — the sentence names its kind and day); a record the app could not name sits on a measured account inside the period; shares were moved in or out and the record does not say which way or what they were worth; the previous recorded day's value + the money moved that day is zero or less while that day holds a value (nothing to grow from); or nothing was invested. Where the beginning IS read but the return cannot start from that day (the record's day before the period is missing an account with holdings, so it is not used), the period counts as not reached: the walk is drawn from the beginning read, but there is no percent and no sentence, and the screen greys it. For a period longer than one year — its first day earlier than one year back from today by the calendar (windowStartKey), so a period opening one year back to the day is a year and is never made yearly — and days ÷ 365 above 1, unless it is the whole-record Since period, the figure shown is the yearly rate (1 + return) to the power 1 ÷ years, − 1. Owner decision DEC-6412, 2026-10-19 (it amends DEC-5291): where the beginning cannot be read, the record holds days for these accounts that begin after the day before the period and before today, the holdings and their price histories are handed in, the period is JOINED at the record's first day instead of worked back whole. The record's part = this same rule asked for the period that opens the day after the record's first day (the Since answer), each holding handed over as it did from that first day to today (gainRowBetween; a holding not held over those days is left out); when the record's part draws no walk, nothing is joined and the DEC-5291 answer above stands. The days before = each holding of an account that had a part in them — the record holds it on its first day, or (several accounts, every holding placed) the record's part works it back on its own because it is not on the record that day and holds something with a history — worked from the day before the period to the record's first day (gainRowBetween; a holding not yet held then is left out); each instrument account the record holds that day counts at its value read then (one worked back on its own: its value now ÷ (1 + its rate) to the power of the record's part's years); years = those days ÷ 365. Their return = knownHoldingsReturn over those rows; when there is none and some row's gain is unknown, nothing is joined and the DEC-5291 answer above stands; when there is none and every gain is known (only cash, or nothing held), it is 0. Return = (1 + that return) × (1 + the record's part's return) − 1 (no percent when the record's part refuses: its sentence is given); the yearly rate as below. Walk: beginning = the record's part's beginning − the gains of those days (gainOfRow, an unknown one adding 0) − the money put in during them + the money taken out during them (records from the period's first day to the record's first day, leaving out those of an account with no part in them); contributions, withdrawals, dividends and interest = those days' plus the record's part's; ending = the record's part's ending. The left-out sentence names the holdings of those days whose gain is unknown, through beforeTheRecordSentence, $<counted> = today's value of each holding those days count (knownHoldingsReturn asked one at a time) and each left-out value today's (as above). It also gives the record's first day, and says the beginning was worked back (the period is not greyed). THE WHOLE-RECORD SINCE PERIOD COUNTS THE DAY A NEW ACCOUNT OPENED (owner decision DEC-4439; 2026-10-21): when the beginning can be read, the day before Since opens is the first day the record holds any of these accounts, and money was added that day — more than half a cent, by the same movement rules — to one or more of the accounts the record holds that day, the period is measured from the evening before that day: on that evening each such account is worth $0 and every other account the record holds that day is worth its own value that day, and that day's records of those other accounts are not counted again (they are inside that value). The answer is this same rule asked for the period that opens on that first day, with the period's first day given as handed in and that first day as the day the beginning is read. It is done once: never when the record already holds such an evening.",
+   "read_from": "c89c5d6c0f",
    "sent_as": "4afbd2f788",
    "figures_checked_by_hand": {
     "3656": "not a figure: the number of the owner decision DEC-3656 (2026-10-09) that this rule follows",
@@ -1794,7 +1833,8 @@
     "5291": "not a figure: the number of the owner decision DEC-5291 (2026-10-13) that this rule follows",
     "3035": "not a figure: the owner decision id DEC-3035i (2026-10-07) that DEC-5291 replaces, named in the code comment",
     "6076": "not a figure: the number of the owner decision DEC-6076 (2026-10-19) that words the sentence",
-    "6412": "not a figure: the number of the owner decision DEC-6412 (2026-10-19) that this rule follows"
+    "6412": "not a figure: the number of the owner decision DEC-6412 (2026-10-19) that this rule follows",
+    "3279": "not a figure: the number of the owner decision DEC-3279e that this rule follows"
    }
   },
   "MK-PF-F-001": {
@@ -1805,8 +1845,8 @@
   },
   "MK-PF-F-002": {
    "name": "costBasis",
-   "rule": "Shares × cost per share, added up over every purchase, × the contract multiplier (100 for an option unless the holding states its own, otherwise 1). A purchase with no shares adds nothing. Nothing (unknown) when a purchase has no share count, or has shares and no cost per share on record; a cost per share of 0 is a figure.",
-   "read_from": "7a17354510",
+   "rule": "Shares × cost per share, added up over every purchase, × the contract multiplier (contractMultiplier: an option's own shares per contract when it states a real number above zero, else 100 for an option; one hundredth for a bond the broker quotes per $100 of face value; otherwise 1). A purchase with no shares adds nothing. Nothing (unknown) when a purchase has no share count, or has shares and no cost per share on record; a cost per share of 0 is a figure.",
+   "read_from": "0b01257eb4",
    "sent_as": "dfe8497bd7"
   },
   "MK-PF-F-004": {
@@ -1817,20 +1857,25 @@
   },
   "MK-PF-F-005": {
    "name": "unrealizedGain",
-   "rule": "Market value − cost. Nothing (unknown) when there is no price, or the market value or the cost is unknown.",
-   "read_from": "1f56c78777",
+   "rule": "Over the purchases whose price paid is on record (paidOnRecord — a cost above zero): the units counted × the price (× the contract multiplier) − what was paid for them. Nothing (unknown) when there is no price, a purchase has no share count, or units are held and none has a price paid on record. Nothing held: 0 when the market value can be worked out, else nothing. With every price paid on record this is market value − cost, as before.",
+   "read_from": "e404527473",
    "sent_as": "7ea4c22fee"
   },
   "MK-PF-F-006": {
    "name": "capGains",
-   "rule": "With no price: all three are nothing (unknown). Purchases with no shares held are passed over. For each other purchase: gain = shares × (price − cost per share) × the contract multiplier (100 for an option unless the holding states its own, otherwise 1). It is long-term when today is after the first anniversary of the purchase date — held MORE than one year — and short-term otherwise (a purchase on the leap day has its anniversary on the last day of February the next year, so a sale on the first of March is long-term); a purchase with no valid date counts as short-term. A purchase with no cost on record (none, or a cost per share of 0 or less) or no share count makes ITS part (long-term or short-term, by its date) nothing (unknown), and the total with it. Returns the long-term total, the short-term total and their sum.",
-   "read_from": "711d82aec8",
-   "sent_as": "c6a551aec2"
+   "rule": "With no price: the long-term, short-term and total gains and the counts of shares are nothing (unknown). Purchases with no shares held are passed over. For each other purchase whose price paid is on record (a cost per share above 0 that is a real number — a stored $0 is not on record): gain = shares × (price − cost per share) × the contract multiplier (100 for an option unless the holding states its own, otherwise 1). A purchase with no price paid on record is left out of the gain, and its shares are counted as held but not counted. Each purchase goes in one of three parts by its purchase date: long-term when today is after the first anniversary of the purchase date — held MORE than one year (a purchase on the leap day has its anniversary on the last day of February the next year, so a sale on the first of March is long-term) — short-term otherwise; and in NEITHER when its purchase date is not on record (none, blank, written another way, or a day the calendar does not have, such as 31 February) — that part is returned on its own as the undated gain, with its shares counted and held. When no dated purchase is held and an undated one is (or has no share count), the long-term and short-term gains are nothing (unknown); with no purchase held at all the gains and share counts are 0. A part with shares held and none with a price paid on record has no gain (unknown); a purchase with no share count makes its part, the total and the share counts unknown. Total = the gain over every purchase with a price paid on record, in all three parts added up — a part whose own gain is unknown only because none of its shares has a price paid on record adds nothing to it; the total is nothing when a purchase has no share count, or shares are held and not one of them has a price paid on record. For an option on a broad-based index (SPX, SPXW, XSP, NDX, NDXP, RUT, MRUT, VIX, DJX, OEX or XEO, read from the ticker's letters before the expiry): long-term = 60% of the total and short-term = the total less that, whatever the purchase dates (IRS Publication 550, the 60/40 rule of section 1256), and no undated part. Returns the long-term gain, the short-term gain, the total, the shares counted and held, and the undated part when there is one.",
+   "read_from": "d3ba6b1158",
+   "sent_as": "c6a551aec2",
+   "figures_checked_by_hand": {
+    "31": "not a figure: the 31 of 31 February, named as a day the calendar does not have",
+    "550": "not a figure: the number of IRS Publication 550, the source the 60% long-term share is typed from",
+    "40": "not a figure the code holds: the 40 of the 60/40 rule's name — the short-term share is worked as the total less the 60% long-term share"
+   }
   },
   "MK-PF-F-007": {
    "name": "totalROI",
-   "rule": "Unrealised gain ÷ cost. Nothing when there is no price, the cost is unknown or zero or less, or the gain is unknown.",
-   "read_from": "00327b49c1",
+   "rule": "Unrealised gain ÷ what was paid, both over the purchases whose price paid is on record (paidOnRecord). Nothing when there is no price, what was paid is unknown or zero or less, or the gain is unknown.",
+   "read_from": "748df5b277",
    "sent_as": "a2024ab003"
   },
   "MK-PF-F-008": {
@@ -1864,9 +1909,12 @@
   },
   "MK-PF-F-012": {
    "name": "earliestPurchaseDate",
-   "rule": "The earliest purchase date among the holding's purchases that carry a valid date; nothing when none does.",
-   "read_from": "42d7e79e17",
-   "sent_as": "42d7e79e17"
+   "rule": "The earliest purchase date among the holding's purchases whose date is on record — a real calendar day written year-month-day (purchaseDateOnRecord; 31 February is not one); nothing when none is.",
+   "read_from": "072427749f",
+   "sent_as": "42d7e79e17",
+   "figures_checked_by_hand": {
+    "31": "not a figure: the 31 of 31 February, named as a day the calendar does not have"
+   }
   },
   "MK-PF-F-013": {
    "name": "benchmarkTicker",
@@ -1876,13 +1924,14 @@
   },
   "MK-PF-F-014": {
    "name": "buildPerformance",
-   "rule": "For each holding: price = latest close; market value, cost, unrealised gain and return on cost from the functions above (each nothing where unknown). Bought = its earliest purchase date, or the date supplied when it has none. If it was bought ON OR AFTER the period's start day it is capped: its period return is time-weighted from its purchases — the purchases grouped by day (an undated one on the first day); the first piece starts at what was paid; at each later purchase day the piece ends at the shares then held × the close on or before that day, and the next starts there plus what that purchase paid; the last ends at shares held × today's price; the pieces multiplied, − 1 (one purchase day gives the return on cost; nothing when a share count or cost is missing or a purchase day has no close) — and the yardstick is measured since the first purchase date. Otherwise its period return is the price return over the period (periodReturn, a yearly rate over 2Y), and the yardstick is measured over the same period. Each row also carries the period's own total for the holding and for the yardstick (never a yearly rate). No yardstick (nothing says what the holding is): no yardstick return. Beat-by = the holding's return − the yardstick's; nothing when either is missing. When a holding's prices begin after the period's start (and it was not bought inside the period), the yardstick is measured from the holding's first price on record over the same days, and over 2Y made a yearly rate over that same span. For a window name the app does not have there is no start: every row's period return, totals and yardstick return are nothing, and no row is capped. When the caller hands over the window's first day (the Since window, whose first day is the record's), that day is the period's start: each figure is the move from the close on or before the day before it to the latest close, never a yearly rate, and a holding with no dated purchase whose stand-in date is that first day is not capped (it is part of the beginning value). A BOND'S OR CD'S INTEREST (owner decision DEC-6212, 2026-10-19): when the caller hands over the records and the accounts, a holding that is one bond or one CD (it sits in Bonds & CDs, no fund word — ETF, fund, trust, index, portfolio — in its ticker or name, not a Treasury-bill ETF, and the CD type, a 9-character security identifier with a digit as its ticker, a maturity date, a coupon rate or a face value says it is one instrument) has the interest it was paid added: interest = the interest and coupon records, signed, dated on or after the day its price is measured from (its purchase when capped, the day after its first close when its prices begin after the period's start, else the period's start day) that name it by ticker or holding id — on its own account when the record names an account — or that name no holding and sit in an account that is itself a bond or CD holding only this holding; the period's own total = (1 + the price total) × (1 + interest ÷ its market value) − 1 (the price total alone when there is no interest or no market value above zero), and the period return is that total, made a yearly rate over 2Y exactly as periodReturn makes one (to the power 1 ÷ the years its prices span, when above one), never for a capped holding or a handed-over first day. The row carries that interest; anything that is not one bond or CD, or with nothing handed over, carries none and its return is its price move alone — a fund's distributions are already in its adjusted closes (DEC-4644).",
-   "read_from": "67318d37c4",
+   "rule": "For each holding: price = latest close; market value; cost = what was paid over the purchases whose price paid is on record (paidOnRecord); unrealised gain and return on cost from the functions above, over the same purchases (each nothing where unknown). Bought = its earliest purchase date, or the date supplied when it has none. If it was bought ON OR AFTER the period's start day it is capped: its period return is time-weighted from its purchases — the purchases grouped by day (one whose date is not on record — purchaseDateOnRecord — on the first day); the first piece starts at what was paid; at each later purchase day the piece ends at the shares then held × the close on or before that day, and the next starts there plus what that purchase paid; the last ends at shares held × today's price; the pieces multiplied, − 1 (purchasePieces; one purchase day gives the return on cost; nothing when a share count is missing, a purchase of shares has no price paid on record — a cost per share above 0 — or a later purchase day has no close on or before it) — and the yardstick is measured since the first purchase date. Otherwise its period return is the price return over the period (periodReturn, a yearly rate over 2Y), and the yardstick is measured over the same period. Each row also carries the period's own total for the holding and for the yardstick (never a yearly rate). No yardstick (nothing says what the holding is): no yardstick return. Beat-by = the holding's return − the yardstick's; nothing when either is missing. When a holding's prices begin after the period's start (and it was not bought inside the period), the yardstick is measured from the holding's first price on record over the same days, and over 2Y made a yearly rate over that same span when it is longer than a year (never for a handed-over first day). For a window name the app does not have there is no start: every row's period return, totals and yardstick return are nothing, and no row is capped. When the caller hands over the window's first day (the Since window, whose first day is the record's), that day is the period's start: each figure is the move from the close on or before the day before it to the latest close, never a yearly rate, and a holding with no dated purchase whose stand-in date is that first day is not capped (it is part of the beginning value). A BOND'S OR CD'S INTEREST (owner decision DEC-6212, 2026-10-19): when the caller hands over the records and the accounts, a holding that is one bond or one CD (it sits in Bonds & CDs, no fund word — ETF, fund, trust, index, portfolio — in its ticker or name, not a Treasury-bill ETF, and the CD type, a 9-character security identifier with a digit as its ticker, a maturity date, a coupon rate or a face value says it is one instrument) has the interest it was paid added: interest = the interest and coupon records (bondInterestInWindow), each the money it moved into the account — plus when it arrived, minus when the record says it left, nothing when its amount is not on record — dated on or after the day its price is measured from (its purchase when capped, the day after its first close when its prices begin after the period's start, else the period's start day) that name it by ticker or holding id — on its own account when the record names an account — or that name no holding and sit in an account that is itself a bond or CD holding only this holding; the period's own total = (1 + the price total) × (1 + interest ÷ its market value) − 1 (the price total alone when there is no interest, or no market value above zero and no start; with a market value of $0, interest ÷ its start − 1 — returnWithInterest), and the period return is that total, made a yearly rate over 2Y exactly as periodReturn makes one (to the power 1 ÷ the years its prices span, when above one), never for a capped holding or a handed-over first day. The row carries that interest; anything that is not one bond or CD, or with nothing handed over, carries none and its return is its price move alone — a fund's distributions are already in its adjusted closes (DEC-4644). WHAT EACH HOLDING WAS WORTH WHEN ITS PERIOD FIGURE BEGAN (its start value, 2026-10-21; owner decision DEC-5068, tenet 4: a known $0 is $0, so a holding that fell to $0 keeps the value it lost): not capped, the shares held × the close its period figure is measured from (valueAtClose) (the close on or before the day before the period's start, or before a handed-over first day; its first close when its prices begin later) × the contract multiplier, nothing when that close is not above zero; capped, the shares held × the price its return since its purchases is measured from — the money in the last piece ÷ (the growth of the pieces before it × the shares held after the last purchase), from purchasePieces — × the multiplier, which is what was paid for a holding bought on one day, and nothing when that growth is not above zero; nothing wherever its period figure is nothing.",
+   "read_from": "3954411730",
    "sent_as": "9339f7757d",
    "figures_checked_by_hand": {
     "6212": "not a figure: the number of the owner decision DEC-6212 (2026-10-19) that this rule follows",
     "4644": "not a figure: the owner decision DEC-4644 named in the rule",
-    "9": "not a figure: the length of a security identifier, as the code tests it ({9})"
+    "9": "not a figure: the length of a security identifier, as the code tests it ({9})",
+    "5068": "not a figure: the number of the owner decision DEC-5068 (2026-10-13) that this rule follows"
    }
   },
   "MK-PF-F-015": {
@@ -1893,9 +1942,20 @@
   },
   "MK-PF-F-020": {
    "name": "portfolioBenchReturn",
-   "rule": "Over the holdings that have their own return over the period above −100%, a value above zero, and a yardstick return: each one's value at the start = its value now ÷ (1 + its own return over the whole period); the yardstick returns (over the whole period, never a yearly rate) averaged, weighted by those start values. A holding with no return of its own is left out. Nothing when there are none.",
+   "rule": "Over the holdings startValues keeps that have a yardstick return: each one's value at the start = its value now ÷ (1 + its own return over the whole period) — for a holding worth $0 today, the start the row carries (startValues, 2026-10-21: a holding that lost everything is in the market's average as it is in the person's return); the yardstick returns (over the whole period, never a yearly rate) averaged, weighted by those start values. A holding with no return of its own is left out. Nothing when the starts add to zero or less. Example: A $1,000 → $0 with its yardstick at +10%, B $1,000 → $1,200 with +2% → (0.10 × 1,000 + 0.02 × 1,000) ÷ 2,000 = +6.00%.",
    "read_from": "866474100a",
-   "sent_as": "71bb44ba1a"
+   "sent_as": "71bb44ba1a",
+   "figures_checked_by_hand": {
+    "$1,000": "the example's starts, not a figure the code holds",
+    "1,000": "the example's starts",
+    "$1,200": "the example's B value now",
+    "10%": "the example's A yardstick",
+    "0.10": "the example's A yardstick as a share",
+    "2%": "the example's B yardstick",
+    "0.02": "the example's B yardstick as a share",
+    "2,000": "the example's starts added, by hand: 1,000 + 1,000",
+    "6.00%": "the example's answer worked by hand; pinned by holding_worth_zero_counts.test.tsx (Home: market +6.00%) and outside_performance_rerun_openai_04.test.ts"
+   }
   },
   "MK-PF-F-022": {
    "name": "factorOverMonths",
@@ -1911,8 +1971,8 @@
   },
   "MK-PF-F-028": {
    "name": "realizedFromLedger",
-   "rule": "Uses buy, opening-position and sale records that name a ticker, with shares above zero and a price, for the ticker and account asked for, in date order. A sale is matched to the earliest purchases first, within one account and one ticker. Gain on a sale = (matched shares × sale price − what those shares cost) × the contract multiplier of the holding asked about (100 for an option unless it states its own; 1 when no holding is named). All-time = every sale; this year = sales dated in today's calendar year. Each sale is counted once: sales counted = sales with at least one matched share; sales without a purchase = sales with none matched. Every sale with shares no purchase covers is listed with its date, the shares sold, the shares matched and the gain on the matched part (nothing when none matched). Example: bought 10 at $50, sold 15 at $70 → gain 10 × ($70 − $50) = $200; sales counted 1, sales without a purchase 0; listed: sold 15, matched 10, gain $200.",
-   "read_from": "76476892c3",
+   "rule": "Uses buy, opening-position and sale records that name a ticker, with shares above zero and a price, for the ticker and account asked for, in date order. A sale is matched to the earliest purchases first, within one account and one ticker. A record's fee counts only when it is a number above zero and the record does not say its price already carries it; otherwise it is 0. A purchase's fee is part of what was paid for its shares: each time a sale takes shares from a purchase, it takes the same share of that purchase's fee still unmatched as the shares it takes are of the purchase's shares still unmatched (10 bought with a $4 fee and 5 of them sold carry $2 of it). A sale's own fee comes off what it brought in, in the share its matched shares are of the shares sold. Gain on a sale = (matched shares × sale price − what those shares cost) × the contract multiplier of the holding asked about (100 for an option unless it states its own; 1 when no holding is named) − the sale's fee on its matched shares − the purchase fees its matched shares carry; the fees are dollars and are not multiplied. All-time = every sale; this year = sales dated in today's calendar year. Each sale is counted once: sales counted = sales with at least one matched share; sales without a purchase = sales with none matched. Every sale with shares no purchase covers is listed with its date, the shares sold, the shares matched and the gain on the matched part (nothing when none matched). Example: bought 10 at $50, sold 15 at $70 → gain 10 × ($70 − $50) = $200; sales counted 1, sales without a purchase 0; listed: sold 15, matched 10, gain $200. With fees: bought 10 at $100, sold 10 at $120 with a $5 fee not in the price → gain 10 × ($120 − $100) − $5 = $195.",
+   "read_from": "8e9d556f9f",
    "sent_as": "d9a38128b3",
    "figures_checked_by_hand": {
     "$200": "the worked example's gain: 10 × ($70 − $50) — an example, not a figure the code holds",
@@ -1920,7 +1980,13 @@
     "$70": "the worked example's sale price — an example, not a figure the code holds",
     "10": "the worked example's matched shares — an example, not a figure the code holds",
     "15": "the worked example's shares sold — an example, not a figure the code holds",
-    "5": "the worked example's shares with no purchase on record (15 − 10) — an example, not a figure the code holds"
+    "5": "the worked example's shares with no purchase on record (15 − 10) — an example, not a figure the code holds",
+    "$4": "the worked example's purchase fee — an example, not a figure the code holds",
+    "$2": "the worked example's purchase fee carried by 5 of the 10 shares: $4 × 5 ÷ 10 — an example, not a figure the code holds",
+    "$100": "the fee example's purchase price — an example, not a figure the code holds",
+    "$120": "the fee example's sale price — an example, not a figure the code holds",
+    "$5": "the fee example's sale fee — an example, not a figure the code holds",
+    "$195": "the fee example's gain: 10 × ($120 − $100) − $5 — an example, not a figure the code holds"
    }
   },
   "MK-PF-F-029": {
@@ -1931,8 +1997,8 @@
   },
   "MK-PF-F-031": {
    "name": "contractMultiplier",
-   "rule": "The holding's own multiplier when it states one above zero; otherwise 100 for an option and 1 for everything else.",
-   "read_from": "afd31bd634",
+   "rule": "For an option, its own shares per contract when it states a real number above zero (a stated figure counts for an option only, and one that is not finite counts as none — 2026-10-21); otherwise one hundredth for a bond the broker quotes per $100 of face value (its quantity is the face amount and its price is per $100 of it — the same reading the daily record uses); otherwise 100 for an option and 1 for everything else.",
+   "read_from": "8b30886e22",
    "sent_as": "afd31bd634"
   },
   "MK-PF-F-032": {
@@ -1960,11 +2026,12 @@
   },
   "MK-NW-F-105": {
    "name": "whyNoReturn",
-   "rule": "The sentence shown where a time-weighted return cannot be measured; empty when it was measured. Money moved on a day with no recorded value: names the day and says a return cannot be measured across it. A movement with no date: says so. A deposit or withdrawal with no amount on record: names the day and says a return cannot be measured across it. Shares moved in or out: names the day and says the records do not say what they were worth. Nothing to grow from on a day (the previous evening's value + money added − money taken out is zero or less while that day holds a value): names the day and says which — a value recorded with nothing there the evening before and no money added, or more money taken out than was there the evening before plus the money added that day. Since DEC-4439 (2026-10-11) a value below the money added is a loss, measured, and has no sentence. Nothing invested over the period: says there is no return to state. Today's value not on record: says so. A beginning that cannot be read has no sentence here — the period is shown as not covered instead.",
-   "read_from": "6526d6d8a2",
+   "rule": "The sentence shown where a time-weighted return cannot be measured; empty when it was measured. Money moved on a day with no recorded value: names the day and says a return cannot be measured across it. A movement with no date: says so. A deposit or withdrawal with no amount on record: names the day and says a return cannot be measured across it. Shares moved in or out: names the day and says the records do not say what they were worth. Nothing to grow from on a day (the previous evening's value + money added − money taken out is zero or less while that day holds a value): names the day and says which — a value recorded with nothing there the evening before and no money added, or more money taken out than was there the evening before plus the money added that day. Since DEC-4439 (2026-10-11) a value below the money added is a loss, measured, and has no sentence. Nothing invested over the period: says there is no return to state. Today's value not on record: says so. A record the app could not name (an activity word it does not know): says the broker recorded that amount (or an activity, when it carries no amount) on that day under its own word (or, when the broker sent no word, that it came with no word for what it was), that a return cannot be measured across that day, and that it is not counted as money put in or taken out. Interest, a dividend or a coupon with no amount on record (2026-10-21, DEC-3523 tenet 3): names the kind (Interest, A dividend, A coupon) and the day, says it has no amount in the records so a return cannot be measured across that day, and says the walk's Interest line (the Dividends line, for a dividend) does not count it. A beginning that cannot be read has no sentence here — the period is shown as not covered instead.",
+   "read_from": "ce1a1d105e",
    "sent_as": "",
    "figures_checked_by_hand": {
-    "4439": "not a figure: the number of the owner decision DEC-4439 (2026-10-11) that this rule follows"
+    "4439": "not a figure: the number of the owner decision DEC-4439 (2026-10-11) that this rule follows",
+    "3523": "not a figure: the number of the owner decision DEC-3523 (2026-10-09, the eight tenets) that this rule follows"
    }
   },
   "MK-NW-F-104": {
@@ -2006,9 +2073,12 @@
   },
   "MK-NW-F-109": {
    "name": "holdingClassOf",
-   "rule": "The class of one holding inside an account. What was stored: the broker's or importer's tag (bond → Bonds & CDs, other → Alternatives, cash → cash, any other tag → Stocks / Funds), else the class of the kind picked when it was added (not real estate or personal property), else nothing. (1) If the person said what it is, their answer — the stored class, or Unclassified when nothing is stored. (2) If it is marked as asked, Unclassified (owner rule, 2026-09-30: \"Refuse the line and ask\"). (3) The class its ticker and name are evidence for, unless that is cash: a money-market fund is Stocks / Funds, a CD or a T-bill is Bonds & CDs, whatever tag the broker sent (owner rule, 2026-08-04: cash means cash only). (4) Otherwise what was stored; with nothing stored, cash when the name says cash, else Unclassified — never a guessed Stocks / Funds.",
-   "read_from": "57edaca889",
-   "sent_as": ""
+   "rule": "The class of one holding inside an account, by the one order of evidence for a holding's class (owner ruling, 2026-10-20: \"always the class broker sends\", which settles DEC-2159 against brief B7's name-first order). What was stored: the broker's or importer's tag (bond → Bonds & CDs, other → Alternatives, cash → cash, any other tag → Stocks / Funds), else the class of the kind picked when it was added (not real estate or personal property), else nothing. (1) If the person said what it is, their answer — the stored class, or Unclassified when nothing is stored. (2) The class the broker sent, kept on the holding as it was sent: its cash-equivalent flag is Cash; otherwise its own type — a broker code that names a class (common stock, preferred stock, ADR, ETF, open-end, closed-end or mutual fund → Stocks / Funds; bond or CD → Bonds & CDs; crypto, precious metals, warrant, right → Alternatives), or the words of an import file's type column, read in this order: cash, money market or sweep → Cash; option, crypto, precious metal, commodity, warrant, right or future → Alternatives; equity, stock, share, ETF, fund, ADR or closed end → Stocks / Funds; fixed income, bond, CD, certificate of deposit, Treasury, T-bill or muni → Bonds & CDs. A type that names none of these (unit, structured product, when issued, blank) says nothing. (3) If it is marked as asked, Unclassified (owner rule, 2026-09-30: \"Refuse the line and ask\"). (4) The class its ticker and name are evidence for: a money-market fund is Stocks / Funds, a sweep or settlement balance is cash, a CD or a T-bill is Bonds & CDs (owner rule, 2026-08-04: cash means cash only). (5) A maturity date that reads as a date: Bonds & CDs. (6) What was stored. (7) Otherwise Unclassified — never a guessed Stocks / Funds or cash.",
+   "read_from": "1ea0b6754e",
+   "sent_as": "",
+   "figures_checked_by_hand": {
+    "2159": "not a figure: the number of the owner decision DEC-2159 (2026-09-30) that his ruling of 2026-10-20 settles"
+   }
   },
   "MK-NW-F-110": {
    "name": "primaryHomeIdOf",
@@ -2018,8 +2088,12 @@
   },
   "MK-NW-F-112": {
    "name": "yearlyInterest",
-   "rule": "A year's interest from one bond or CD. Nothing when no rate was entered. Face value × rate when a face value was entered; otherwise today's value × rate.",
-   "read_from": "733a2da652"
+   "rule": "A year's interest from one bond or CD. Nothing when no rate was entered. Face value × rate when a face value was entered; otherwise the value shown × rate — the market value, else what was paid, else the face value, and 0 when no value was entered (owner decision DEC-0281 for the value shown; owner ruling DEC-2748c, 2026-10-07, for face × rate and, with no face, value × rate).",
+   "read_from": "e2641389aa",
+   "figures_checked_by_hand": {
+    "0281": "not a figure: the number of the owner decision DEC-0281 (2026-08-26) that this rule follows",
+    "2748": "not a figure: the number of the owner ruling DEC-2748c (2026-10-07) that this rule follows"
+   }
   },
   "MK-NW-F-113": {
    "name": "altPartsOf",
@@ -2062,10 +2136,12 @@
   },
   "MK-NW-F-119": {
    "name": "estimatedAccrued",
-   "rule": "The interest earned since the last yearly coupon, estimated from the coupon schedule: face × rate × the days since the last maturity anniversary ÷ the days in that coupon year, with the days. Nothing for a CD bought from the bank (a CD bought through a broker is estimated like a bond, DEC-3837, 2026-10-10), a bond with no face or no rate above zero, no maturity date or a day that does not exist, a matured bond, or on a coupon day (nothing has accrued).",
-   "read_from": "c59f7c7500",
+   "rule": "The interest earned since the last coupon, estimated from the coupon schedule, with the days. The payment dates step back from the maturity date by 12 ÷ the payments a year months — every 12 months when it pays once a year, every 6 when twice; once a year when how often it pays was not entered (the lead's decision of 2026-10-20 under DEC-3390). A payment day the month does not have is that month's last day. Amount = face × rate ÷ payments a year × the days since the last payment date ÷ the days between that payment and the next. Nothing for a CD bought from the bank (a CD bought through a broker is estimated like a bond, DEC-3837, 2026-10-10), a bond with no face or no rate above zero, no maturity date or a day that does not exist, a matured bond, or on a payment day (nothing has accrued).",
+   "read_from": "c0a9ab9666",
    "figures_checked_by_hand": {
-    "3837": "not a figure: the number of the owner decision DEC-3837 (2026-10-10) that this rule follows"
+    "3837": "not a figure: the number of the owner decision DEC-3837 (2026-10-10) that this rule follows",
+    "6": "not a figure the code holds: 12 ÷ 2, the months between payments when it pays twice a year",
+    "3390": "not a figure: the number of the owner decision DEC-3390 under which the lead decided how often a bond pays (2026-10-20)"
    }
   },
   "MK-NW-F-124": {
@@ -2113,12 +2189,15 @@
   },
   "MK-NW-F-127": {
    "name": "gainOfRow",
-   "rule": "What one holding gained over the window, or nothing when that cannot be known. Bought inside the window: its own gain (value less cost) plus the interest it was paid in the window (a bond's or CD's, carried on the row; 0 for anything else — owner decision DEC-6212, 2026-10-19). With a return for the period: the return over the WHOLE window (the window total the row carries; else, when the window is longer than one year, the yearly rate compounded over the window's years — (1 + rate) to the power years − 1; else the return as given); then (value now + the interest it was paid in the window) × (1 − 1 ÷ (1 + that)) — the price change plus the interest, since a bond's total holds its interest — and $0 when it holds nothing. A CD with a stated rate of zero or more (an entered 0% is a rate: it gains $0; a rate never entered is no rate — DEC-2748b, 2026-10-12): value now × (1 − 1 ÷ (1 + the rate) to the power of the window's years), and $0 when it holds nothing. A cash position (its class is cash) with neither: $0 — cash gains nothing and is never unknown (owner decision DEC-5291, 2026-10-13). Otherwise: $0 when it holds nothing (heldValueOf is 0), and nothing (unknown) when it holds something or its worth is unknown — a holding with no price history and no rate.",
-   "read_from": "ebedb9ae6f",
+   "rule": "What one holding gained over the window, or nothing when that cannot be known. Bought inside the window: its own gain (value less cost) plus the interest it was paid in the window (a bond's or CD's, carried on the row; 0 for anything else — owner decision DEC-6212, 2026-10-19). With a return for the period: the return over the WHOLE window (the window total the row carries; else, when the window is longer than one year, the yearly rate compounded over the window's years — (1 + rate) to the power years − 1; else the return as given); then, with a value now above zero, (value now + the interest it was paid in the window) × (1 − 1 ÷ (1 + that)) — the price change plus the interest, since a bond's total holds its interest. WORTH $0 TODAY (2026-10-21; owner decision DEC-5068, tenet 4: a known $0 is $0): (value now + interest) − the value it was worth when the window began, the start the row carries — a holding that fell from $1,000 to $0 lost $1,000; $0 when that start is $0 or less (it held nothing); with no start carried, $0 when its return is above −100%, and nothing (unknown) when it is −100% or worse. A CD with a stated rate of zero or more (an entered 0% is a rate: it gains $0; a rate never entered is no rate — DEC-2748b, 2026-10-12): value now × (1 − 1 ÷ (1 + the rate) to the power of the window's years), and $0 when it holds nothing. A cash position (its class by holdingClassOf is cash — a money-market fund the broker flags cash-equivalent is cash, owner ruling 2026-10-20) with neither: $0 — cash gains nothing and is never unknown (owner decision DEC-5291, 2026-10-13). Otherwise: $0 when it holds nothing (heldValueOf is 0 and it holds no shares), and nothing (unknown) when it holds something or its worth is unknown — a holding with no price history and no rate; shares the broker marks at $0 are something held (2026-10-21), so they are unknown, never $0 gained.",
+   "read_from": "64d49796d6",
    "figures_checked_by_hand": {
     "2748": "not a figure: the owner decision id DEC-2748b (2026-10-12), named in the code comment",
     "5291": "not a figure: the number of the owner decision DEC-5291 (2026-10-13) that this rule follows",
-    "6212": "not a figure: the number of the owner decision DEC-6212 (2026-10-19) that this rule follows"
+    "6212": "not a figure: the number of the owner decision DEC-6212 (2026-10-19) that this rule follows",
+    "5068": "not a figure: the number of the owner decision DEC-5068 (2026-10-13) that this rule follows",
+    "$1,000": "the example's start, not a figure the code holds",
+    "100": "not a figure: −100%, the return at or below which a holding with no start carried is unknown"
    }
   },
   "MK-NW-F-128": {
@@ -2163,20 +2242,24 @@
   },
   "MK-ST-F-081": {
    "name": "timeWeightedReturn",
-   "rule": "Works from the daily record, which holds one value per account per day, taken after that day's money moved; the previous usable day stands for the evening before. Days after the last day asked for, and days not written as year-month-day (isDay), are ignored. Each measured account has its own line of values, from its first recorded day to its last. The total on a day = the values that day of the measured accounts whose line covers that day. An account that has ever held a priced security must have a value on that very day, or the day is not used at all; any other account (a typed or cash balance) keeps its last earlier value until its next one. THE BEGINNING = the latest recorded day on or before the start day whose total can be formed with at least one account in it; with none it refuses (the start is not recorded). The last day asked for must be in the record and its total formed, or it refuses (the end is not recorded). It refuses when a deposit or withdrawal on a measured account that is not cash has no year-month-day date, when shares were moved on any day after the beginning up to the last day (naming the first such day), and when a deposit, withdrawal or transfer with no amount on record is dated after the beginning up to the last day (naming the first such day). THE PIECES: from the beginning, take each later usable day in order. Money in on that day, account by account: an account there now but not on the previous usable day joined the record: it brings in the money added to it that day when there is any (it was worth nothing the evening before, so that money is its base — DEC-4439), otherwise its whole value; one there before but not now takes out its last value (it left); a cash account brings in its change in value less the interest credited to it after the previous usable day up to this day (cash earns only interest); any other account brings in its deposits (plus) and withdrawals (minus) dated after the previous usable day up to this day, and if one of those is dated before this day it refuses, naming that day (money moved on a day with no recorded value). THE DAY'S LINK (owner decision DEC-4439, 2026-10-11: money that moves on a day counts for that whole day): the base = the previous usable day's total + money in. When the base is more than half a cent, the growth so far is multiplied by this day's total (never below zero) ÷ the base, and the measured period starts at the previous day if it has not started yet — or at this day when the previous total was half a cent or less (the first money's day). When the base is half a cent or less: if it is below minus half a cent, or this day's total is more than half a cent either way, it refuses, naming the day (nothing to grow from), and says when more was taken out than the previous total plus the money added; otherwise nothing is measured for that piece. When no piece was measured it refuses (nothing invested). THE RETURN = the pieces multiplied together − 1, as a share at full precision (not a percent, and never turned into a yearly rate here), with the day the measured period started. It never falls back to another method.",
-   "read_from": "52abbfc477",
+   "rule": "Works from the daily record, which holds one value per account per day, taken after that day's money moved; the previous usable day stands for the evening before. Days after the last day asked for, and days not written as year-month-day (isDay), are ignored. Each measured account has its own line of values, from its first recorded day to its last. The total on a day = the values that day of the measured accounts whose line covers that day. An account that has ever held a priced security must have a value on that very day, or the day is not used at all; any other account (a typed or cash balance) keeps its last earlier value until its next one. THE BEGINNING = the latest recorded day on or before the start day whose total can be formed with at least one account in it; with none it refuses (the start is not recorded). The last day asked for must be in the record and its total formed, or it refuses (the end is not recorded). It refuses when a deposit or withdrawal on a measured account that is not cash has no year-month-day date, when shares were moved on any day after the beginning up to the last day (naming the first such day), and when a deposit, withdrawal or transfer with no amount on record is dated after the beginning up to the last day (naming the first such day), and when interest, a dividend or a coupon with no amount on record is on a measured account, cash or not, dated after the beginning up to the last day (naming the first such day and its kind — 2026-10-21, DEC-3523 tenet 3), and when a record the app could not name sits on a measured account that is not cash, dated after the beginning up to the last day (naming the first such day, the broker's word for it and its amount). THE PIECES: from the beginning, take each later usable day in order. Money in on that day, account by account: an account there now but not on the previous usable day joined the record: it brings in the money added to it that day when there is any (it was worth nothing the evening before, so that money is its base — DEC-4439), otherwise its whole value; one there before but not now takes out its last value (it left); a cash account brings in its change in value less the interest credited to it after the previous usable day up to this day (cash earns only interest); any other account brings in its deposits (plus) and withdrawals (minus) dated after the previous usable day up to this day, and if one of those is dated before this day it refuses, naming that day (money moved on a day with no recorded value). THE DAY'S LINK (owner decision DEC-4439, 2026-10-11: money that moves on a day counts for that whole day): the base = the previous usable day's total + money in. When the base is more than half a cent, the growth so far is multiplied by this day's total (never below zero) ÷ the base, and the measured period starts at the previous day if it has not started yet — or at this day when the previous total was half a cent or less (the first money's day). When the base is half a cent or less: if it is below minus half a cent, or this day's total is more than half a cent either way, it refuses, naming the day (nothing to grow from), and says when more was taken out than the previous total plus the money added; otherwise nothing is measured for that piece. When no piece was measured it refuses (nothing invested). THE RETURN = the pieces multiplied together − 1, as a share at full precision (not a percent, and never turned into a yearly rate here), with the day the measured period started. It never falls back to another method.",
+   "read_from": "a23f886e67",
    "sent_as": "",
    "figures_checked_by_hand": {
-    "4439": "not a figure: the number of the owner decision DEC-4439 (2026-10-11) that this rule follows"
+    "4439": "not a figure: the number of the owner decision DEC-4439 (2026-10-11) that this rule follows",
+    "3523": "not a figure: the number of the owner decision DEC-3523 (2026-10-09, the eight tenets) that this rule follows",
+    "3": "not a figure: tenet 3 of DEC-3523, unknown is not zero"
    }
   },
   "MK-ST-F-082": {
    "name": "movementsOf",
-   "rule": "Sorts a household's records, for the accounts being measured, into money moving in or out, interest, and days shares were moved. Each record's date is its first ten characters. A deposit or withdrawal on a measured account with NO amount (missing or not a number) is not money in or out at all: its day goes on the list of days with an amount missing, and the return refuses there; the same for a transfer with no amount that crosses the edge of the measured accounts (one side measured, the other not). That list is handed back only when it has a day on it. Any other missing or unreadable amount counts as zero. A deposit on a measured account is money in (plus its amount); a withdrawal on one is money out (minus its amount) — the sign comes from the kind of record, so a withdrawal written as a negative amount becomes money in. A transfer is money out of its first account when that account is measured, and money into its second account when that one is measured, so a transfer between two measured accounts appears as both. Shares moved (a transfer in kind): nothing when both accounts named are measured, or neither is, or when only one account is named and it is not measured. Otherwise it is money into or out of the measured account at what the shares were worth — the record's amount when above zero, else shares × price: in when they arrive in the measured account (or, with one account named, when the record says in), out when they leave (or the record says out). When the direction is neither in nor out, or the worth is not above zero, the day goes on the list of days shares were moved instead. Interest on a measured account that was not reinvested is interest (plus its amount). Every other kind of record is ignored. Each movement keeps its own day; the time-weighted return counts it for that whole day (DEC-4439, 2026-10-11).",
-   "read_from": "07b5ca630f",
+   "rule": "Sorts a household's records, for the accounts being measured, into money moving in or out, interest, and days shares were moved. Each record's date is its first ten characters. A deposit or withdrawal on a measured account with NO amount (missing or not a number) is not money in or out at all: its day goes on the list of days with an amount missing, and the return refuses there; the same for a transfer with no amount that crosses the edge of the measured accounts (one side measured, the other not). That list is handed back only when it has a day on it. Interest, a dividend or a coupon on a measured account with no amount (missing or not a number) is not counted at all: its day and kind go on the list of earnings with no amount, handed back only when it has one, and the return refuses there (2026-10-21, DEC-3523 tenet 3: unknown is not zero). Any other missing or unreadable amount counts as zero. Every amount is read by the one rule for a stored amount (2026-10-21): when the record says which way the money went (in or out), its amount without a sign, that way; otherwise its kind's own way with the sign it was stored with — a deposit plus, a withdrawal minus, so a withdrawal written as a negative amount becomes money in and a deposit written as a negative amount (a reversal) money out. A deposit on a measured account is that money in, a withdrawal that money out; a deposit the broker sent with a minus is stored saying it went out, and is money out. A transfer is money out of its first account when that account is measured, and money into its second account when that one is measured, so a transfer between two measured accounts appears as both. Shares moved (a transfer in kind): nothing when both accounts named are measured, or neither is, or when only one account is named and it is not measured. Otherwise it is money into or out of the measured account at what the shares were worth — the record's amount when above zero, else shares × price: in when they arrive in the measured account (or, with one account named, when the record says in), out when they leave (or the record says out). When the direction is neither in nor out, or the worth is not above zero, the day goes on the list of days shares were moved instead. A transfer that names only one account and says which way it went (a broker's journal, in or out) is money into that account when it says in and money out when it says out, when that account is measured. Interest on a measured account that was not reinvested is interest (its amount, read by the same rule). A record the app could not name (a record carrying the broker's own word for an activity the app does not know, with an amount or shares) on a measured account goes on the list of records not named, with its day, that word and its amount without a sign; that list is handed back only when it has one on it. Every other kind of record is ignored. Each movement keeps its own day; the time-weighted return counts it for that whole day (DEC-4439, 2026-10-11).",
+   "read_from": "1a491b1d51",
    "sent_as": "",
    "figures_checked_by_hand": {
-    "4439": "not a figure: the number of the owner decision DEC-4439 (2026-10-11) that this rule follows"
+    "4439": "not a figure: the number of the owner decision DEC-4439 (2026-10-11) that this rule follows",
+    "3523": "not a figure: the number of the owner decision DEC-3523 (2026-10-09, the eight tenets) that this rule follows",
+    "3": "not a figure: tenet 3 of DEC-3523, unknown is not zero"
    }
   },
   "MK-NW-F-132": {
@@ -2244,8 +2327,11 @@
   },
   "MK-PF-F-040": {
    "name": "returnSincePurchases",
-   "rule": "A holding bought inside the period, time-weighted from its purchases. Nothing when there is no price today. Every purchase must have a share count and a cost per share that are real numbers, or the answer is nothing. Purchases of zero or fewer shares are skipped. Each purchase is placed on its own date (the date's year-month-day part), or on the period's first purchase day handed in when its date is missing or unreadable; purchases on the same day are added together: shares added, and paid = shares × cost per share added. Nothing when no purchase is left. Walk the days from earliest to latest, starting with shares held 0, money in the piece 0, growth 1. On the first day: money in the piece = what was paid that day. On each later day: take the last close on or before that day (nothing if there is none, or if the money in the piece is zero or less); growth = growth × (shares held × that close) ÷ money in the piece; then money in the piece = shares held × that close + what was paid that day. After each day, shares held grows by that day's shares. At the end: nothing when the money in the piece is zero or less; otherwise the return = growth × (shares held × today's price) ÷ money in the piece − 1. With a single purchase day this is today's value ÷ what was paid − 1.",
-   "read_from": "b86484e382"
+   "rule": "A holding bought inside the period, time-weighted from its purchases. Nothing when there is no price today. Every purchase must have a share count that is a real number, and every purchase of more than zero shares a price paid on record (a cost per share above 0 that is a real number — a stored $0 is not on record), or the answer is nothing. Purchases of zero or fewer shares are skipped. Each purchase is placed on its own date (the date's year-month-day part), or on the period's first purchase day handed in when its date is not on record (purchaseDateOnRecord: missing, written another way, or a day the calendar does not have, such as 31 February); purchases on the same day are added together: shares added, and paid = shares × cost per share added. Nothing when no purchase is left. The pieces are purchasePieces: walk the days from earliest to latest, starting with shares held 0, money in the piece 0, growth 1. On the first day: money in the piece = what was paid that day. On each later day: take the last close on or before that day (nothing if there is none, or if the money in the piece is zero or less); growth = growth × (shares held × that close) ÷ money in the piece; then money in the piece = shares held × that close + what was paid that day. After each day, shares held grows by that day's shares. At the end: nothing when the money in the piece is zero or less; otherwise the return = growth × (shares held × today's price) ÷ money in the piece − 1. With a single purchase day this is today's value ÷ what was paid − 1.",
+   "read_from": "3958c49912",
+   "figures_checked_by_hand": {
+    "31": "not a figure: the 31 of 31 February, named as a day the calendar does not have"
+   }
   },
   "MK-PF-F-041": {
    "name": "isoDay",
@@ -2264,16 +2350,18 @@
   },
   "MK-PF-F-044": {
    "name": "startValues",
-   "rule": "For each holding row, read its return over the window. Keep the row only when that return is known, is above −1 (a loss of less than everything), and the holding's value today is above zero; every other row is left out. For each row kept: its value when the window began = (today's value + the interest it was paid in the window, a bond's or CD's only — owner decision DEC-6212, 2026-10-19) ÷ (1 + the return), because a bond's return holds that interest. The answer is the list of rows kept, each with its return and that starting value. No rows gives an empty list.",
-   "read_from": "86c09543d4",
+   "rule": "For each holding row, read its return over the window; a row with no return is left out. A row whose return is above −1 (a loss of less than everything) and whose value today is above zero: its value when the window began = (today's value + the interest it was paid in the window, a bond's or CD's only — owner decision DEC-6212, 2026-10-19) ÷ (1 + the return), because a bond's return holds that interest. Any other row — worth $0 today, or a return of −1 or worse — is kept at the start the row carries (its start value: what buildPerformance read it was worth when the window began; 2026-10-21, owner decision DEC-5068, tenet 4: a known $0 is $0) when that start is above zero, and left out when it is not. The answer is the list of rows kept, each with its return and its starting value. No rows gives an empty list.",
+   "read_from": "cc61ab1582",
    "figures_checked_by_hand": {
-    "6212": "not a figure: the number of the owner decision DEC-6212 (2026-10-19) that this rule follows"
+    "6212": "not a figure: the number of the owner decision DEC-6212 (2026-10-19) that this rule follows",
+    "5068": "not a figure: the number of the owner decision DEC-5068 (2026-10-13) that this rule follows",
+    "4": "not a figure: tenet 4 of the eight tenets (owner decision DEC-3523, 2026-10-09) that this rule follows"
    }
   },
   "MK-PF-F-045": {
    "name": "priceHistoryShortSentence",
-   "rule": "Nothing (an empty line) for a window name the app does not have, no window start, no prices, or a first price dated on or before the window's first day (the coverage engine reads the price dates). Otherwise months = whole months from the first price date to today (the same day of the month counts the month; never below 0), and the line reads: \"Prices for this holding go back {months} month(s), so the {label} figure covers {months} month(s) — not {words}.\" Labels and words: 1M 1-month / a month; 3M 3-month / three months; 6M 6-month / six months; YTD year-so-far / the whole year so far; 1Y 1-year / a year; 2Y 2-year / two years; Since: Since / since the day before the window opens. Example: first price 4 May 2026, 1Y window opening 10 Oct 2025, today 10 Oct 2026 → 5 months: \"Prices for this holding go back 5 months, so the 1-year figure covers 5 months — not a year.\"",
-   "read_from": "e30a46186c",
+   "rule": "Nothing (an empty line) for a window name the app does not have, no window start, a today not written year-month-day, no prices, or a first price dated on or before the window's first day (the coverage engine reads the price dates). Otherwise months = whole months from the first price date to today (the same day of the month counts the month; never below 0), and the line reads: \"Prices for this holding go back {months} month(s), so the {label} figure covers {months} month(s) — not {words}.\" Labels and words: 1M 1-month / a month; 3M 3-month / three months; 6M 6-month / six months; YTD year-so-far / the whole year so far; 1Y 1-year / a year; 2Y 2-year / two years; Since: Since / since the day the caller hands in for the page's own Since chip, shown as a date, when it is a day written year-month-day — otherwise the day before the window opens (2026-10-21: an account with no daily record opens Since on its first day money moved, so the sentence names the same day the chip does). Example: first price 4 May 2026, 1Y window opening 10 Oct 2025, today 10 Oct 2026 → 5 months: \"Prices for this holding go back 5 months, so the 1-year figure covers 5 months — not a year.\"",
+   "read_from": "93cdb675f8",
    "figures_checked_by_hand": {
     "2025": "a date in the example (10 Oct 2025), not a figure the code holds",
     "2026": "a date in the example (4 May / 10 Oct 2026), not a figure the code holds",
@@ -2284,7 +2372,7 @@
   "MK-PF-F-046": {
    "name": "saleShortOfPurchasesSentence",
    "rule": "For one sale whose shares are not all covered by a recorded purchase. The sold quantity is written with the holding's unit (quantityWithUnit). When some shares were matched: \"{gain} gain on {matched} of {sold with unit} sold; what you paid for the other {sold − matched} is not on record.\" — \"loss\" in place of \"gain\" when the gain is below zero, the amount shown without its sign. When none was matched: \"{sold with unit} sold; what you paid for them is not on record, so no gain is counted.\" Example: 10 of 15 shares matched, gain $200 → \"$200 gain on 10 of 15 shares sold; what you paid for the other 5 is not on record.\"",
-   "read_from": "eca9c6056d",
+   "read_from": "6a71a8414f",
    "figures_checked_by_hand": {
     "$200": "the worked example's gain: 10 × ($70 − $50) — an example, not a figure the code holds",
     "10": "the worked example's matched shares — an example, not a figure the code holds",
@@ -2294,7 +2382,7 @@
   },
   "MK-NW-F-138": {
    "name": "knownHoldingsReturn",
-   "rule": "The return of the holdings whose growth over the period is known (owner decision DEC-5068, 2026-10-13). For each holding with a value above zero: its return over the WHOLE period (the period total it carries; else, when the period is longer than one year, its yearly rate compounded over the period's years — (1 + rate) to the power years − 1; else the return as given); a holding with no return that states a yearly rate of zero or more (only a certificate of deposit is given one) grows by (1 + rate) to the power years − 1. A holding with neither, or with a return of −100% or worse, is LEFT OUT — never counted at 0%. Each kept holding's worth = its value + the interest it was paid in the period (a bond's or CD's, carried on the row; 0 for anything else — owner decision DEC-6212, 2026-10-19), and its start = that worth ÷ (1 + its return). Answer = the worths added up ÷ the starts added up − 1; nothing when no holding is kept. Example: VTI $40,000 at +10% and Treasury 2031 $10,000 with no price history → 40,000 ÷ 36,363.64 − 1 = +10.00%.",
+   "rule": "The return of the holdings whose growth over the period is known (owner decision DEC-5068, 2026-10-13). For each holding: its return over the WHOLE period (the period total it carries; else, when the period is longer than one year, its yearly rate compounded over the period's years — (1 + rate) to the power years − 1; else the return as given); a holding with no return that states a yearly rate of zero or more (only a certificate of deposit is given one) grows by (1 + rate) to the power years − 1. A holding with neither is LEFT OUT — never counted at 0%. Each holding's worth = its value + the interest it was paid in the period (a bond's or CD's, carried on the row; 0 for anything else — owner decision DEC-6212, 2026-10-19). A holding with a value above zero and a return above −100%: its start = that worth ÷ (1 + its return). A holding worth $0 today, or with a return of −100% or worse, counts at the start the row carries (what it was worth when the period began — 2026-10-21, tenet 4: a known $0 is $0) when that start is above zero, and is LEFT OUT when it carries none. Answer = the worths added up ÷ the starts added up − 1 (everything lost is −100%, a return); nothing when no start is counted. Example: VTI $40,000 at +10% and Treasury 2031 $10,000 with no price history → 40,000 ÷ 36,363.64 − 1 = +10.00%. Example: AAA $1,000 → $0 (start $1,000) and BBB $1,000 → $1,200 at +20% → 1,200 ÷ 2,000 − 1 = −40.00%.",
    "figures_checked_by_hand": {
     "5068": "not a figure: the number of the owner decision DEC-5068 (2026-10-13) that this rule follows",
     "100": "not a figure: −100%, the return at or below which a holding has no start and is left out",
@@ -2305,9 +2393,16 @@
     "36,363.64": "the example's VTI start worked by hand: 40,000 ÷ 1.10",
     "10.00%": "the example's answer worked by hand; pinned by dec_worked_back_known_holdings.test.ts",
     "2031": "not a figure: part of the example holding's name, Treasury 2031",
-    "6212": "not a figure: the number of the owner decision DEC-6212 (2026-10-19) that this rule follows"
+    "6212": "not a figure: the number of the owner decision DEC-6212 (2026-10-19) that this rule follows",
+    "$1,000": "the example's AAA start and BBB start, not a figure the code holds",
+    "1,200": "the example's BBB value now",
+    "$1,200": "the example's BBB value now",
+    "20%": "the example's BBB return",
+    "2,000": "the example's starts added, by hand: 1,000 + 1,000",
+    "40.00%": "the example's answer worked by hand; pinned by holding_worth_zero_counts.test.tsx and outside_performance_rerun_openai_tax.test.ts case 6",
+    "4": "not a figure: tenet 4 of the eight tenets (owner decision DEC-3523, 2026-10-09) that this rule follows"
    },
-   "read_from": "4c04b4a340"
+   "read_from": "87f000e8d3"
   },
   "MK-CF-F-216": {
    "name": "typed",
@@ -2332,13 +2427,13 @@
   },
   "MK-NW-F-139": {
    "name": "leftOutValueOf",
-   "rule": "What a holding left out of Return is worth today, for the brackets of the left-out sentence (owner decision DEC-6076, 2026-10-19). The holding's value as heldValueOf gives it (MK-NW-F-128: its market value when above zero; else its shares × the broker's last price × the contract multiplier; else the value typed by hand; 0 when it holds no shares; nothing when its shares have no price). When that is nothing: what was paid for it (MK-PF-F-002 costBasis: each purchase's shares × cost per share, added; nothing when a purchase has no share count or no cost). Nothing when the row carries no holding.",
+   "rule": "What a holding left out of Return is worth today, for the brackets of the left-out sentence (owner decision DEC-6076, 2026-10-19). The holding's value as heldValueOf gives it (MK-NW-F-128: its market value when above zero; else its shares × the broker's last price × the contract multiplier; else the value typed by hand; 0 when it holds no shares; nothing when its shares have no price). When that is nothing: what was paid for it (paidOnRecord, 2026-10-21: shares × cost per share over the purchases whose price paid is on record — a cost above 0 — × the contract multiplier; nothing when a purchase has no share count, or when shares are held and none of them has a price paid on record). Nothing when the row carries no holding.",
    "figures_checked_by_hand": {
     "6076": "not a figure: the number of the owner decision DEC-6076 (2026-10-19) this rule follows",
     "128": "not a figure: part of the identifier MK-NW-F-128",
     "002": "not a figure: part of the identifier MK-PF-F-002"
    },
-   "read_from": "c3a0bccf38"
+   "read_from": "776c7e6f7e"
   },
   "MK-PF-F-047": {
    "name": "isIndividualBondOrCD",
@@ -2351,16 +2446,16 @@
   },
   "MK-PF-F-048": {
    "name": "bondInterestInWindow",
-   "rule": "The interest one bond or CD was paid from a given day (owner decision DEC-6212, 2026-10-19). Nothing when the holding is not one bond or one CD, or no day is given. The holding's account = the account handed in whose holdings include this holding's id; it is \"this bond's own account\" when it holds exactly one holding and its class is Bonds & CDs. Adds up every record of type INTEREST or COUPON whose date (its first 10 characters, written year-month-day) is on or after the day given, skipping one that names an account other than the holding's account (when that account is known), and counting it only when it names this holding — by holding id, or by ticker with spaces and capitals ignored — or names no ticker and no holding and sits in this bond's own account. Amounts are added signed; a record whose amount is not a number adds nothing. Answer: that total, 0 when none.",
+   "rule": "The interest one bond or CD was paid from a given day (owner decision DEC-6212, 2026-10-19). Nothing when the holding is not one bond or one CD, or no day is given. The holding's account = the account handed in whose holdings include this holding's id; it is \"this bond's own account\" when it holds exactly one holding and its class is Bonds & CDs. Adds up every record of type INTEREST or COUPON whose date (its first 10 characters, written year-month-day) is on or after the day given, skipping one that names an account other than the holding's account (when that account is known), and counting it only when it names this holding — by holding id, or by ticker with spaces and capitals ignored — or names no ticker and no holding and sits in this bond's own account. Each record adds the money it moved into the account: when it says which way the money went, its size — plus when it arrived, minus when it left, so a reversed coupon cancels; when it does not, its amount with the sign it was stored with. A record whose amount is missing, blank or not a number adds nothing (2026-10-21, the one reading of a stored amount). Answer: that total, 0 when none.",
    "figures_checked_by_hand": {
     "6212": "not a figure: the number of the owner decision DEC-6212 (2026-10-19) that this rule follows",
     "10": "not a figure: the first 10 characters of a date, year-month-day"
    },
-   "read_from": "19818fff28"
+   "read_from": "7939336393"
   },
   "MK-PF-F-049": {
    "name": "returnWithInterest",
-   "rule": "A return with the interest paid added (owner decision DEC-6212, 2026-10-19): (1 + the price return) × (1 + interest ÷ value today) − 1. Unchanged — the price return as given, or nothing when it is nothing — when the interest is nothing or 0, or the value today is nothing or not above zero. Example: price return 0%, interest $85, value today $4,000 → 1 × (1 + 85 ÷ 4,000) − 1 = 2.125%.",
+   "rule": "A return with the interest paid added (owner decision DEC-6212, 2026-10-19): (1 + the price return) × (1 + interest ÷ value today) − 1. WORTH $0 TODAY, with a start handed in above zero (2026-10-21; owner decision DEC-5068, tenet 4): interest ÷ that start − 1, when the price return is known and the interest is not 0 — $50 of interest on a $1,000 start, now $0, is −95.00%. Otherwise unchanged — the price return as given, or nothing when it is nothing — when the interest is nothing or 0, or the value today is nothing or not above zero (a value of exactly $0 with a start above zero is the case above). Example: price return 0%, interest $85, value today $4,000 → 1 × (1 + 85 ÷ 4,000) − 1 = 2.125%.",
    "figures_checked_by_hand": {
     "6212": "not a figure: the number of the owner decision DEC-6212 (2026-10-19) that this rule follows",
     "$85": "the example's interest, not a figure the code holds",
@@ -2368,9 +2463,14 @@
     "$4,000": "the example's value, not a figure the code holds",
     "4,000": "the example's value",
     "2.125%": "the example's answer worked by hand; pinned by dec6212_bond_interest.test.ts",
-    "0%": "the example's price return"
+    "0%": "the example's price return",
+    "5068": "not a figure: the number of the owner decision DEC-5068 (2026-10-13) that this rule follows",
+    "$50": "the example's interest, not a figure the code holds",
+    "$1,000": "the example's start, not a figure the code holds",
+    "95.00%": "the example's answer worked by hand: 50 ÷ 1,000 − 1; pinned by holding_worth_zero_counts.test.tsx",
+    "4": "not a figure: tenet 4 of the eight tenets (owner decision DEC-3523, 2026-10-09) that this rule follows"
    },
-   "read_from": "03c39ab324"
+   "read_from": "3bc17d0300"
   },
   "MK-PF-F-050": {
    "name": "worthWithInterest",
@@ -2382,16 +2482,17 @@
   },
   "MK-NW-F-141": {
    "name": "holdingBondFacts",
-   "rule": "A bond or CD held as a holding, its facts for the line under its name (owner decision DEC-6212, 2026-10-19): it is read as a bond account would be (the bond row of the bonds door) with its holding id (else ticker) as the account, its name (else ticker) as the label, its type, face value, coupon rate and maturity date, and the value handed in as its balance. Answer: face value (nothing unless above zero), coupon rate (as entered, nothing when not), and yield to maturity — for a bank CD its rate; otherwise the yield at which the bond's remaining payments price it at its value plus the interest built up since its last coupon; nothing when matured, undated, without a face or a rate; the maturity date (owner decision DEC-6323, 2026-10-19), written year-month-day when the date entered is a real calendar day by the one reading of a maturity date, nothing otherwise; and matured, which is true when that date is known and the years left to it are zero (today or earlier).",
+   "rule": "A bond or CD held as a holding, its facts for the line under its name (owner decision DEC-6212, 2026-10-19): it is read as a bond account would be (the bond row of the bonds door) with its holding id (else ticker) as the account, its name (else ticker) as the label, its type, face value, coupon rate, maturity date and how many times a year it pays, and the value handed in as its balance — a market value. Its face value is the one entered; with none entered, a bond the broker quotes per $100 of face value counts its quantity — the shares of its purchases added up, when above zero — as its face value (Q38 part 1, decided 2026-10-20). Where a CD was bought is not passed on, so a CD held as a holding is read as bought from the bank. Answer: face value (nothing unless above zero), coupon rate (as entered, nothing when not), and yield to maturity — for a CD its rate; otherwise the yield at which the bond's remaining payments price it at its value plus the interest built up since its last coupon; nothing when matured, undated, without a face or a rate; the maturity date (owner decision DEC-6323, 2026-10-19), written year-month-day when the date entered is a real calendar day by the one reading of a maturity date, nothing otherwise; and matured, which is true when that date is known and the years left to it are zero (today or earlier).",
    "figures_checked_by_hand": {
     "6212": "not a figure: the number of the owner decision DEC-6212 (2026-10-19) that this rule follows",
-    "6323": "not a figure: the number of the owner decision DEC-6323 (2026-10-19) that this rule follows"
+    "6323": "not a figure: the number of the owner decision DEC-6323 (2026-10-19) that this rule follows",
+    "38": "not a figure: question 38 of the master file, whose part 1 was decided 2026-10-20"
    },
-   "read_from": "2e0409415d"
+   "read_from": "1fdfd0765d"
   },
   "MK-NW-F-142": {
    "name": "classReturnOf",
-   "rule": "What one category grew by over the window (outside review MK-NW-F-084; owner decision DEC-6212, 2026-10-19). Of the items handed in, keep those with a total that is known and above −100% and a value today above zero. Each kept item's worth = value today + its interest in the window (0 when missing); its start = worth ÷ (1 + total). Answer = the worths added up ÷ the starts added up − 1; nothing when the worths or the starts add to zero or less (no item kept). Example: $5,000 with $100 interest and $4,000 with $85, both totals from a flat price plus that interest → 9,185 ÷ 9,000 − 1 = 2.06%.",
+   "rule": "What one category grew by over the window (outside review MK-NW-F-084; owner decision DEC-6212, 2026-10-19). Of the items handed in, keep those with a total that is known and above −100% and a value today above zero. Each kept item's worth = value today + its interest in the window (0 when missing); its start = worth ÷ (1 + total). An item with a known total that is not kept — worth $0 today, or a total of −100% or worse — counts too when it carries a start above zero (what it was worth when the window began; 2026-10-21, owner decision DEC-5068, tenet 4: a known $0 is $0): worth = value today + its interest, start = that start. Answer = the worths added up ÷ the starts added up − 1; nothing when the starts add to zero or less, or the worths to less than zero. Example: $5,000 with $100 interest and $4,000 with $85, both totals from a flat price plus that interest → 9,185 ÷ 9,000 − 1 = 2.06%. Example: one holding alone, $1,000 → $0 → 0 ÷ 1,000 − 1 = −100.00%.",
    "figures_checked_by_hand": {
     "6212": "not a figure: the number of the owner decision DEC-6212 (2026-10-19) that this rule follows",
     "100": "−100%, the total at or below which an item has no start; also the example's interest",
@@ -2402,17 +2503,22 @@
     "9,185": "the example's worths added, by hand",
     "9,000": "the example's starts added, by hand",
     "2.06%": "the example's answer worked by hand; pinned by dec6212_bond_interest.test.ts",
-    "084": "not a figure: the identifier MK-NW-F-084 of categoryEarnings, whose outside review this rule follows"
+    "084": "not a figure: the identifier MK-NW-F-084 of categoryEarnings, whose outside review this rule follows",
+    "5068": "not a figure: the number of the owner decision DEC-5068 (2026-10-13) that this rule follows",
+    "$1,000": "the example's start, not a figure the code holds",
+    "1,000": "the example's start",
+    "100.00%": "the example's answer worked by hand; pinned by holding_worth_zero_counts.test.tsx (the account page's Stocks / Funds row)",
+    "4": "not a figure: tenet 4 of the eight tenets (owner decision DEC-3523, 2026-10-09) that this rule follows"
    },
-   "read_from": "ffa2e34d72"
+   "read_from": "6426900949"
   },
   "MK-NW-F-143": {
    "name": "gainRowBetween",
-   "rule": "What one holding did over the days before the daily record begins (owner decision DEC-6412, 2026-10-19): from the evening before a window (from) to the record's first day (to). Each purchase is dated by its own purchase date, else by the purchase date the window used for a holding bought inside it, else it was held from before the window. Purchases dated after the first day are left out; when the holding has purchases and none is held by the first day, the answer is nothing (it had no part in those days), and so is a holding with no purchases on file that the window counts as bought after the first day. Its close on the first day = the latest close on or before that day; its close at the start = the latest close on or before the evening before the window, else, where its prices begin inside those days, its first close. When the close on the first day is not known, or the close at the start is not known for shares held from before, the holding comes back with no return (and no interest, no purchase date): its gain over those days is unknown. Value on the first day = the shares held that day × that day's close × the contract multiplier. Start = the shares held from before × the close at the start × the multiplier + what was paid for the shares bought inside those days (shares × cost per share × the multiplier; a purchase with no cost on file makes the return unknown). A holding with no purchases on file: value on the first day = today's value × that day's close ÷ the latest close; start = today's value × the close at the start ÷ the latest close (unknown when the latest close or today's value is not above zero). Start not above zero: unknown. Interest = the interest a bond or CD was paid from the window's first day on, less what it was paid from the day after the record's first day on (bondInterestInWindow; nothing for anything else). Return = (1 + value on the first day ÷ start − 1) × (1 + interest ÷ value on the first day) − 1 (returnWithInterest), given as both the period return and the period total, with the value on the first day as its value.",
+   "rule": "What one holding did over the days before the daily record begins (owner decision DEC-6412, 2026-10-19): from the evening before a window (from) to the record's first day (to). Each purchase is dated by its own purchase date when it is on record (a real calendar day written year-month-day; 31 February is not), else by the purchase date the window used for a holding bought inside it, else it was held from before the window. Purchases dated after the first day are left out; when the holding has purchases and none is held by the first day, the answer is nothing (it had no part in those days), and so is a holding with no purchases on file that the window counts as bought after the first day. Its close on the first day = the latest close on or before that day; its close at the start = the latest close on or before the evening before the window, else, where its prices begin inside those days, its first close. When the close on the first day is not known, or the close at the start is not known for shares held from before, the holding comes back with no return (and no interest, no purchase date): its gain over those days is unknown. Value on the first day = the shares held that day × that day's close × the contract multiplier. Start = the shares held from before × the close at the start × the multiplier + what was paid for the shares bought inside those days (shares × cost per share × the multiplier; a purchase with no price paid on record — none, or a stored $0: a price paid is on record only when it is a number above zero — makes the return unknown). A holding with no purchases on file: value on the first day = today's value × that day's close ÷ the latest close; start = today's value × the close at the start ÷ the latest close (unknown when the latest close or today's value is not above zero). Start not above zero: unknown. Interest = the interest a bond or CD was paid from the window's first day on, less what it was paid from the day after the record's first day on (bondInterestInWindow; nothing for anything else). Return = (1 + value on the first day ÷ start − 1) × (1 + interest ÷ value on the first day) − 1 (returnWithInterest; worth $0 on the first day, interest ÷ start − 1), given as both the period return and the period total, with the value on the first day as its value and the start as the value it carries for when those days began (2026-10-21: a holding worth $0 on the record's first day is counted with what it lost); a holding that comes back with no return carries no start.",
    "figures_checked_by_hand": {
     "6412": "not a figure: the number of the owner decision DEC-6412 (2026-10-19) that this rule follows"
    },
-   "read_from": "efdd346aea"
+   "read_from": "3fab6df6cd"
   },
   "MK-NW-F-144": {
    "name": "beforeTheRecordSentence",
@@ -2426,6 +2532,233 @@
     "2025": "not a figure: part of the example date, Oct 1, 2025"
    },
    "read_from": "a02ea93a6e"
+  },
+  "MK-NW-F-145": {
+   "name": "netWorthInputs",
+   "rule": "Gathers, once, from what the app has saved, the facts every Net worth question is asked about: the person (their user id, or 'local' when there is none), their accounts, their debts, every expense they logged, their answers (an empty answer set when they gave none), every record of money moving, and the daily record of what each account was worth — each an empty list when there is none. It also hands back the rows Home counts: the same accounts and debts once Net worth is set up, and before that the estimate made from the sign-up answers (MK-XS-F-033). It adds and changes no amount. It also hands back a holding's price today, by its ticker — the one price lookup latestCloseLookup, the latest close in the price history the app holds, nothing when it holds none — which the Net worth screen hands to its amber box; it prices nothing itself. Every door in the family — MK-NW-O-003 theNetWorth and MK-NW-O-004 theEmergencyFund — is handed this, and never facts a screen gathered for itself (owner decision DEC-0345).",
+   "figures_checked_by_hand": {
+    "0345": "not a figure: the number of the owner decision DEC-0345 that this rule follows",
+    "033": "not a figure: the identifier MK-XS-F-033 of resolveNetWorthRows, which this function asks",
+    "003": "not a figure: the identifier MK-NW-O-003 of theNetWorth, which reads what this function gathers",
+    "004": "not a figure: the identifier MK-NW-O-004 of theEmergencyFund, which reads what this function gathers"
+   },
+   "read_from": "c5dd651539"
+  },
+  "MK-NW-F-156": {
+   "name": "bondValue",
+   "rule": "The one value rule for a bond or CD (owner decision DEC-0281, 2026-08-26): the market value when one was entered (a typed 0 is a value of $0, DEC-2748b), marked market; else what was paid when entered, marked paid; else the face value when above zero, marked face; else nothing, marked none — Value not entered, left out of every total (DEC-3657).",
+   "figures_checked_by_hand": {
+    "0281": "not a figure: the number of the owner decision DEC-0281 (2026-08-26) that this rule follows",
+    "2748": "not a figure: the number of the owner decision DEC-2748b that this rule follows",
+    "3657": "not a figure: the number of the owner decision DEC-3657 that this rule follows"
+   },
+   "read_from": "573f3a3da7"
+  },
+  "MK-NW-F-157": {
+   "name": "bondValueOf",
+   "rule": "What a bond or CD held as its own account is worth, read off the account as the value rule stored it: nothing (none) when the account has no balance; otherwise its balance, marked with where it came from — paid or face when the account says so, a market value otherwise.",
+   "read_from": "41a9adca25"
+  },
+  "MK-NW-F-158": {
+   "name": "bondValueNote",
+   "rule": "The sentence beside a value that is not a market value: for what was paid, The value shown is what you paid — no market value entered.; for the face value, The value shown is the face value — no market value entered.; nothing for a market value or no value.",
+   "read_from": "360a34febf"
+  },
+  "MK-NW-F-159": {
+   "name": "settleBondValue",
+   "rule": "The one value rule written onto an account as it is saved. Not a bond or CD (isBond) and not marked: unchanged. A balance in the change being saved, with no mark, is a market value entered — unless it is the same balance the account was opened with while that balance was what was paid or the face value, which keeps its mark. A market value clears any mark and is kept. Otherwise the balance is what was paid, else the face value (above zero), marked paid or face; with neither, the account keeps no balance and no mark (Value not entered).",
+   "read_from": "151eb92a18"
+  },
+  "MK-NW-F-160": {
+   "name": "pricePer100OfFace",
+   "rule": "A bond's price the way a broker quotes one (Q38 part 3, decided 2026-10-20 under DEC-0281): its market value ÷ its face value × 100 — worth $9,850 on $10,000 of face is $98.50. Nothing when the value shown is not a market value (what was paid, the face value, or none), or no face value was entered.",
+   "figures_checked_by_hand": {
+    "3": "not a figure: part 3 of question 38 of the master file (Q38 part 3)",
+    "0281": "not a figure: the number of the owner decision DEC-0281 (2026-08-26) that this rule follows",
+    "$9,850": "the example's market value, not a figure the code holds",
+    "$10,000": "the example's face value, not a figure the code holds",
+    "$98.50": "the example's answer worked by hand: 9,850 ÷ 10,000 × 100"
+   },
+   "read_from": "57c43cd948"
+  },
+  "MK-NW-F-155": {
+   "name": "knownAmount",
+   "rule": "Whether a figure is an amount: a number that is finite. Nothing, text and not-a-number are not amounts.",
+   "read_from": "0a51e7fb09"
+  },
+  "MK-NW-F-161": {
+   "name": "shownOf",
+   "rule": "The value a bond's totals add up: the value shown when the value rule gave one that is not the market value (0 when none was entered, so it adds nothing); otherwise its market value.",
+   "read_from": "69a88ed45f"
+  },
+  "MK-PF-F-054": {
+   "name": "latestCloseLookup",
+   "rule": "A holding's price today, looked up by its ticker: the ticker is trimmed and put in upper case, and the answer is MK-PF-F-009 latestClose of the price history the app holds for it — the close on the latest date; nothing when the app holds no history for that ticker. It changes no amount. The amber box (MK-XS-F-002, the list of what is missing) is handed this one lookup on Net worth (through MK-NW-F-145 netWorthInputs), on Performance and on the account page, so a holding added by hand with no price today is named on all three or on none.",
+   "figures_checked_by_hand": {
+    "009": "not a figure: the identifier MK-PF-F-009 of latestClose, which this function asks",
+    "002": "not a figure: the identifier MK-XS-F-002 of the amber box's list of what is missing, which is handed this function's answer",
+    "145": "not a figure: the identifier MK-NW-F-145 of netWorthInputs, which hands this lookup to Net worth"
+   },
+   "read_from": "ff542704ea"
+  },
+  "MK-PF-F-051": {
+   "name": "paidOnRecord",
+   "rule": "What was paid = Σ shares × cost per share over the purchases with a cost above 0, × the contract multiplier; it also returns the shares counted and the shares held. All three unknown when a purchase has no share count; what was paid is unknown when shares are held and none has a cost on record.",
+   "read_from": "8b3d8b8ecb"
+  },
+  "MK-NW-F-153": {
+   "name": "uninvestedCashOf",
+   "rule": "How much of a linked account is cash that is not a holding: the uninvested cash the broker reports (0 when none is reported), plus the part of the broker's total that the priced holdings, the options and that cash do not reach, when that part is above zero and no holding with shares lacks a price — whatever its size when the broker listed at least one holding or option (owner decision DEC-0095: the difference is treated as cash), and when it listed none, only when that part is no bigger than the larger of $1 or 1% of the balance. Nothing for an account built by hand. Example: broker total $50,000, 100 shares at $400 and $5,000 of cash reported: $5,000 + ($50,000 − $40,000 − $5,000) = $10,000.",
+   "figures_checked_by_hand": {
+    "0095": "not a figure: the number of the owner decision DEC-0095 that files the difference as cash",
+    "$50,000": "the worked example: the broker's total",
+    "$400": "the worked example: the price of one share",
+    "$5,000": "the worked example: the cash the broker reports, and the difference left over ($50,000 − $40,000 − $5,000)",
+    "$40,000": "100 × $400",
+    "$10,000": "$5,000 + $5,000"
+   },
+   "read_from": "807b6d844d"
+  },
+  "MK-NW-F-154": {
+   "name": "accountInvestments",
+   "rule": "How much of one account counts in Investments: its stocks and funds, bonds and CDs, alternatives and not-yet-classed parts, read from the same class split Net worth's Investments line adds up (MK-NW-F-027 accountClassBreakdown); an account with no split counts its whole balance when its own class is one of those four, and nothing otherwise. Cash and property are not invested money (owner decision DEC-0457). Example: a $50,000 brokerage holding $10,000 of cash: $40,000; a $310,000 rental: $0.",
+   "figures_checked_by_hand": {
+    "027": "not a figure: the identifier MK-NW-F-027 of accountClassBreakdown, which this function reads",
+    "0457": "not a figure: the number of the owner decision DEC-0457 that this rule follows",
+    "$50,000": "the worked example: a brokerage's balance",
+    "$10,000": "the worked example: the cash inside that brokerage",
+    "$40,000": "the worked example: $50,000 less the $10,000 of cash",
+    "$310,000": "the worked example: a rental property's value, none of it invested"
+   },
+   "read_from": "f6034e63ab"
+  },
+  "MK-NW-F-147": {
+   "name": "paymentNotEntered",
+   "rule": "Whether a debt's monthly payment was never entered: neither its minimum payment nor its payment is on record as a number. A typed 0 is entered; a debt due in one lump has no monthly payment and is never named. The emergency fund (MK-NW-O-004) and the Net worth door (MK-NW-O-003) name such a debt beside their debt payments instead of counting it as $0 (owner decision DEC-3523, tenet 3: unknown is not zero).",
+   "read_from": "11e7dad03f",
+   "figures_checked_by_hand": {
+    "0": "not a figure: a typed 0, named as an entry that counts as entered",
+    "$0": "not a figure: the amount a debt with no payment entered must never be counted as",
+    "004": "not a figure: the identifier MK-NW-O-004 of theEmergencyFund, which names such a debt",
+    "003": "not a figure: the identifier MK-NW-O-003 of theNetWorth, which names such a debt",
+    "3523": "not a figure: the number of the owner decision DEC-3523 that this rule follows",
+    "3": "not a figure: tenet 3 of DEC-3523, unknown is not zero"
+   }
+  },
+  "MK-NW-F-152": {
+   "name": "unpricedValueOf",
+   "rule": "What a linked account's holdings with no price are worth, on the best evidence there is: the part of the broker's total that the priced holdings, the options and the cash do not reach, when that part is above zero and at least one holding with shares has no price; filed under that holding's class, or Unclassified when the holdings with no price span classes. Nothing when every holding is priced, the total leaves nothing over, or the account was built by hand. Example: broker total $50,000, 100 shares at $400, $5,000 of cash and 10 shares with no price: $5,000.",
+   "read_from": "e695920693",
+   "figures_checked_by_hand": {
+    "$50,000": "not a figure: the broker total in the worked example",
+    "$400": "not a figure: the price of the priced holding in the worked example (100 shares at $400 = $40,000)",
+    "$5,000": "the cash in the worked example, and the answer worked by hand: $50,000 − $40,000 − $5,000 = $5,000"
+   }
+  },
+  "MK-PF-F-052": {
+   "name": "purchaseDateOnRecord",
+   "rule": "A purchase date on record: what is stored, read with spaces at the ends ignored, when it begins with a date written year-month-day and that date is a day the calendar has (MK-NW-F-124 maturityParts, the app's one reader of a written day) — the answer is that date; otherwise nothing: no date stored, a date written another way, or a day that does not exist, such as 31 February. Unknown is not a date: a missing date is never read as 1 January 1970 or as today.",
+   "figures_checked_by_hand": {
+    "124": "not a figure: the identifier MK-NW-F-124 of maturityParts, which this function asks",
+    "31": "not a figure: 31 February, named as a day the calendar does not have",
+    "1970": "not a figure: 1 January 1970, named as the date a missing date must never be read as"
+   },
+   "read_from": "b096d817db"
+  },
+  "MK-PF-F-053": {
+   "name": "isBroadIndexOption",
+   "rule": "Whether a holding is an option on a broad-based stock index, whose gain IRS Publication 550 (2025) taxes 60% long-term and 40% short-term however long it was held. False for anything that is not an option. For an option: its ticker is read with spaces at the ends ignored and in capitals; its root is the letters at the start (after a leading $ or ^ when there is one) that are followed by the end of the ticker, a space or a digit; true when that root is one of SPX, SPXW, XSP (the S&P 500), NDX, NDXP (the Nasdaq-100), RUT, MRUT (the Russell 2000), VIX (the volatility index), DJX (the Dow) or OEX, XEO (the S&P 100). An option on SPY or on a single company is false.",
+   "figures_checked_by_hand": {
+    "550": "not a figure: the number of IRS Publication 550, the source of the 60/40 rule",
+    "2025": "not a figure: the year of the edition of IRS Publication 550 quoted",
+    "60%": "the long-term share set by IRS Publication 550, held by the constant this list travels with; this function returns only true or false",
+    "40%": "the short-term share set by IRS Publication 550 (100 − 60); this function returns only true or false",
+    "500": "not a figure: the name of the S&P 500 index",
+    "100": "not a figure: the names of the Nasdaq-100 and the S&P 100 indexes",
+    "2000": "not a figure: the name of the Russell 2000 index"
+   },
+   "read_from": "b2674c5b19"
+  },
+  "MK-NW-F-146": {
+   "name": "undatedGainSentence",
+   "rule": "The line under the gains if sold today for the purchases with no purchase date on record: their gain without its sign in money, then loss when the gain is below zero and gain otherwise, then on, then how many units they are with the holding's own unit word (shares, contracts, coins, ounces or units; the bare count when the holding has none), then whose purchase date is not on record, so it is neither long-term nor short-term. For example: $57 gain on 3.25 contracts whose purchase date is not on record, so it is neither long-term nor short-term.",
+   "figures_checked_by_hand": {
+    "$57": "not a figure: the worked example in the function's own note, a sentence shape",
+    "3.25": "not a figure: the worked example in the function's own note, a sentence shape"
+   },
+   "read_from": "7296d9f695"
+  },
+  "MK-PF-F-055": {
+   "name": "valueAtClose",
+   "rule": "What a holding was worth at the close a window figure is measured from (2026-10-21; owner decision DEC-5068, tenet 4: a known $0 is $0, so a holding worth $0 today keeps the start it lost). The close = the last close on or before the day handed in (a day written year-month-day is read as the start of that day in UTC), or the first close on record when the day handed in is before every price. Nothing when the app holds no prices for it, or that close is not above zero. Otherwise the shares held (every purchase's shares added up) × that close × the contract multiplier (contractMultiplier) — marketValue at that close: 0 when no shares are held, nothing when a purchase has no share count.",
+   "figures_checked_by_hand": {
+    "5068": "not a figure: the number of the owner decision DEC-5068 (2026-10-13) that this rule follows",
+    "4": "not a figure: tenet 4 of the eight tenets (owner decision DEC-3523, 2026-10-09) that this rule follows"
+   },
+   "read_from": "490006b281"
+  },
+  "MK-PF-F-056": {
+   "name": "purchasePieces",
+   "rule": "The pieces a holding bought inside the window is measured in (owner decision DEC-1669, time-weighted from its purchases; kept apart 2026-10-21 so the value its return is measured from can be read when it is worth $0 today). Every purchase must have a share count that is a real number, and every purchase of more than zero shares a price paid on record (a cost per share above 0 that is a real number — a stored $0 is not on record), or the answer is nothing. Purchases of zero or fewer shares are skipped. Each purchase is placed on its own date when that date is on record (purchaseDateOnRecord), otherwise on the first day handed in; purchases on the same day are added together: shares added, and paid = shares × cost per share added. Nothing when no purchase is left. Walk the days from earliest to latest, starting with shares held 0, money in the piece 0, growth 1. On the first day: money in the piece = what was paid that day. On each later day: take the last close on or before that day (closeOnOrBefore; nothing if there is none, or if the money in the piece is zero or less); growth = growth × (shares held × that close) ÷ money in the piece; then money in the piece = shares held × that close + what was paid that day. After each day, shares held grows by that day's shares. At the end: nothing when the money in the piece is zero or less; otherwise the answer is the shares held, the money in the last piece and the growth of the pieces before it. With a single purchase day the money in the piece is what was paid and the growth is 1.",
+   "figures_checked_by_hand": {
+    "1669": "not a figure: the number of the owner decision DEC-1669 that this rule follows"
+   },
+   "read_from": "03730b24ba"
+  },
+  "MK-NW-F-148": {
+   "name": "lastCloseLabel",
+   "rule": "The words on the band of a holding's page above its price (2026-10-21, the lead's decision under owner decision DEC-3523): the price the page shows is the latest close in the price history the app holds, never a live quote. The words are LAST CLOSE, a dot, and the day of the latest close — the latest date among the prices whose date is written year-month-day — written by the app's one date writer (short month, day, year) in capitals. Just LAST CLOSE when the history holds no dated price.",
+   "figures_checked_by_hand": {
+    "3523": "not a figure: the number of the owner decision DEC-3523 (the eight tenets, 2026-10-09) that this rule follows"
+   },
+   "read_from": "0a1df4459e"
+  },
+  "MK-NW-F-149": {
+   "name": "withoutBlankRows",
+   "rule": "One recorded day, with the rows of accounts whose balance was left blank taken out (owner decision DEC-3279e, \"A missing balance is never $0\"; DEC-3523). An account's row is kept when the day holds a holding in that account, a value typed by hand (a typed $0 is a value and stays), a total the broker stated, or cash other than $0; any other row is a balance never entered and is dropped, so that account is off the record that day and joins it, as money put in, on the day its balance is entered. A day with no list of accounts, or with every row kept, comes back as it was.",
+   "figures_checked_by_hand": {
+    "3279": "not a figure: the number of the owner decision DEC-3279e that this rule follows",
+    "3523": "not a figure: the number of the owner decision DEC-3523 (the eight tenets, 2026-10-09) that this rule follows"
+   },
+   "read_from": "a5d9bfa0df"
+  },
+  "MK-PF-F-057": {
+   "name": "feeNotInPrice",
+   "rule": "The fee on a buy or a sale that its price does not already carry, in dollars (2026-10-21): the record's fee when it is a number above zero and the record does not say the fee is inside its price; otherwise 0 — no fee on record, a fee that is not a number or not above zero, or a fee the record says is inside its price.",
+   "read_from": "a0625b2c7a"
+  },
+  "MK-CF-F-219": {
+   "name": "rentEntryMonthly",
+   "rule": "What one rent entry comes to a month, as typed: its rent and its running costs, each read only when it is a plain number (digits with at most one decimal point, allowing a leading dollar sign, thousands commas and spaces) — a figure with letters or other text in it is not entered and counts as 0, never as the digits inside it, and a figure not entered counts as 0; and its net = rent − running costs, which can be below zero. No entry: all three 0. The sign-up rent step shows these figures and rentalList counts with the same reading (owner rule DEC-3768c, 2026-10-10).",
+   "figures_checked_by_hand": {
+    "3768": "not a figure: the number of the owner decision DEC-3768c (2026-10-10) that this rule follows"
+   },
+   "read_from": "0b36271912"
+  },
+  "MK-NW-F-150": {
+   "name": "heldInOf",
+   "rule": "Which Held in choice an account's saved answer is, so a form opened on it shows that choice again; nothing when there is no account or the answer cannot be told apart. The choice kept on the account, when it is one of the six (Taxable, 401(k), Traditional IRA, Roth IRA, Roth 401(k), HSA). Otherwise by the account's kind: a 401(k) is a Roth 401(k) when its tax bucket is Roth, else a 401(k); a Traditional IRA is Traditional IRA; a Roth IRA is Roth IRA; an HSA is HSA. Otherwise Taxable when its tax bucket is taxable; nothing for anything else — a pre-tax or Roth bucket with no wrapper kind could be any of several, so it is not guessed.",
+   "read_from": "db6575b79e"
+  },
+  "MK-NW-F-151": {
+   "name": "linkedSplit",
+   "rule": "A linked account split into its classes, with the cash in it that is not a holding and the value of its holdings with no price. It starts with Cash = the uninvested cash stored on the account (0 when none), every other class 0, and the cash that is not a holding at the same figure. Each holding is put in its class by holdingClassOf. A holding with a last price adds its shares (the shares of its purchases added up, a missing count as 0) × that price × the one multiplier (contractMultiplier: the shares a contract stands for — 100 for an option unless another figure is stated — one hundredth for a bond quoted per $100 of face value, else one) to its class; a holding with no price adds nothing, and when its shares are not 0 its class is noted as unpriced. Every option adds its value (0 when none) to Alternatives. The difference = the account's balance (0 when none) − the classes added up. When the difference is not 0: (1) above zero with at least one unpriced holding: the difference is those holdings' value — added to their class, or to Unclassified when they span classes — and handed back as the unpriced part with that class; (2) otherwise above zero with at least one holding or option listed: all of it is Cash, whatever its size (owner decision DEC-0095), and is added to the cash that is not a holding; (3) otherwise within the larger of $1 or 1% of the balance (sizes without their signs): above zero it is Cash and is added to the cash that is not a holding, below zero it goes to the largest class; (4) otherwise it goes to the account's own class (assetClassOf), Unclassified when that is not known. The unpriced part is nothing except in case (1).",
+   "figures_checked_by_hand": {
+    "0095": "not a figure: the number of the owner decision DEC-0095 that this rule follows",
+    "$100": "the face-value base a bond is quoted per (MK-XS-I-068); the code holds it as one hundredth"
+   },
+   "read_from": "af06155146"
+  },
+  "MK-PF-F-058": {
+   "name": "gainOnPartSentence",
+   "rule": "The one line for a gain counted on only part of a holding (owner wording DEC-4643, used for what is still held too). The whole part is its count with the holding's own unit word (quantityWithUnit; the bare count when it has none), followed by the word sold for a sale. When the gain is not known, or no unit has a price paid on record: that whole part, then ; what you paid for them is not on record, so no gain is counted. Otherwise: the gain without its sign in money, then loss when it is below zero and gain otherwise, then on, the units counted, of, the whole part, then ; what you paid for the other (the whole count less the units counted) is not on record. For example: $200 gain on 10 of 20 shares; what you paid for the other 10 is not on record.",
+   "figures_checked_by_hand": {
+    "4643": "not a figure: the number of the owner decision DEC-4643 whose wording this line follows",
+    "$200": "not a figure: the worked example in the function's own note, a sentence shape",
+    "10": "not a figure: the worked example in the function's own note, a sentence shape",
+    "20": "not a figure: the worked example in the function's own note, a sentence shape"
+   },
+   "read_from": "cecc38d7c7"
   }
  },
  "pack_sent": {
@@ -2605,5 +2938,97 @@
    "words": "Investment = stock + etfs + bonds + alternatives? It does not include cash or cash equivalents - Right?",
    "about": "Investments do not include cash; Home and Net worth show one Investments figure."
   }
- ]
+ ],
+ "awaiting_id": {
+  "note": "Rules written 2026-10-20 for functions that have no identifier yet. The build issues each one its identifier from moneykeel_function_register.json; then each entry moves under rules with that identifier, and build-outside-test-cards.py --reread records its fingerprint. Never hand-type an identifier here. 2026-10-21: the build issued identifiers (moneykeel_function_register.json); every entry in a Net worth, Performance or Cash flow family moved under rules. The entries still here are engine and sync functions (MK-ST, MK-XS), which build-outside-test-cards.py does not card unless they are named in its ALSO_CARDED list, so under rules they would stop the build as rules for a function that is not tested; each carries the identifier the register issued it.",
+  "bondQuoteBasis": {
+   "file": "src/services/sync/ingest.ts",
+   "rule": "How each linked bond's price is quoted, from the broker's own total of the account, in exact decimals to the cent. Each holding is worth quantity × price, or what was paid when it has no price. A holding is a bond here when it is an individual bond or CD with a quantity above zero and a worth. No bond: no answer for any holding. As a share: every holding at its worth plus the options and cash; per $100 of face: each bond at its worth ÷ 100, the rest as before. The one that equals the broker's total (a total above zero; the sync hands in no total when the broker's is not in US dollars) is every bond's answer, the share reading first. When neither does, or there is no total: per $100 of face for a bond whose entered face value equals its quantity, unclear otherwise. A holding that is not a bond has no answer.",
+   "id": "MK-XS-F-190"
+  },
+  "unitWorth": {
+   "file": "Calculation Module code/engines/snapshots.ts",
+   "rule": "What one unit at one price is worth: one hundredth for a bond quoted per $100 of face value, one for everything else.",
+   "id": "MK-ST-F-091"
+  },
+  "holdingName": {
+   "file": "src/domain/gaps/index.ts",
+   "rule": "What a gap calls a holding: its readable name when its ticker is a 9-character security identifier with a digit in it (a bond's or CD's) and it has a name; otherwise its ticker, else its name, else the words A holding.",
+   "id": "MK-XS-F-186"
+  },
+  "brokerClassOf": {
+   "file": "Calculation Module code/engines/holding-class.ts",
+   "rule": "What the broker says a holding is, or nothing (owner ruling, 2026-10-20: \"always the class broker sends\"). Cash when the broker's cash-equivalent flag is true. Otherwise the type it sent, capitals and spaces at the ends ignored: a broker code that names a class — common stock, preferred stock, ADR, ETF, open-end fund, closed-end fund or mutual fund → Stocks / Funds; bond or CD → Bonds & CDs; crypto, precious metals, warrant or right → Alternatives. Otherwise the words of an import file's type column, the first that matches in this order: cash, money market or sweep → Cash; option, crypto, precious metal, commodity, warrant, right or future → Alternatives; equity, stock, share, ETF, fund, ADR or closed end → Stocks / Funds; fixed income, bond, CD, certificate of deposit, Treasury, T-bill, muni or municipal → Bonds & CDs. Nothing for a blank type or one that names none of these (unit, structured product, when issued).",
+   "id": "MK-ST-F-086"
+  },
+  "typedValueOnItsDate": {
+   "file": "Calculation Module code/engines/snapshots.ts",
+   "rule": "For a typed balance whose as-of date is a real day no later than today, walk back over recorded days from the latest one to the as-of date. Stop at a day without the account, with holdings for it, or holding a different value than the one replaced. Each day passed gets a newer row with the new value. Returns each day moved, oldest first, with old and new value.",
+   "id": "MK-ST-F-093"
+  },
+  "unnamedActivityOf": {
+   "file": "Calculation Module code/engines/ledger.ts",
+   "rule": "A record the app could not name is an ADJUSTMENT carrying the broker's word (its own field, or the note \"broker word: …\") with a non-zero amount or shares. It gives the word and the unsigned amount (none when only shares).",
+   "id": "MK-ST-F-090"
+  },
+  "typedValueDatedBack": {
+   "file": "src/store/useStore.ts",
+   "rule": "Only for a save carrying value_as_of. It calls typedValueOnItsDate with the account before and after, and moves the daily net worth and daily cash-plus-investments totals by the same amount on each day moved.",
+   "id": "MK-XS-F-192"
+  },
+  "moneyIntoAccount": {
+   "file": "Calculation Module code/engines/ledger.ts",
+   "rule": "The one rule for a signed amount on a stored record (2026-10-21): the money it moved into its account, plus in and minus out. No amount on record (missing, empty or not a finite number) gives nothing. When the record says which way the money went — IN, it arrived in this account; OUT, it left — the answer is its amount without a sign, that way. Otherwise its kind decides, keeping the sign the amount was stored with: a deposit, sale, dividend, interest or coupon is plus the amount; a withdrawal, buy, fee, debt payment or transfer (out of the account it is written on) is minus the amount; any other kind gives nothing. Example: a broker's deposit of −$500, stored as $500 with direction OUT, is −$500; a typed deposit of −$500 with no direction is also −$500.",
+   "id": "MK-ST-F-088"
+  },
+  "amountNotOnRecord": {
+   "file": "Calculation Module code/engines/ledger.ts",
+   "rule": "True for a deposit, withdrawal, transfer, dividend, interest, coupon or fee whose amount is not on record (moneyIntoAccount gives nothing): its money is unknown, never $0 (DEC-3523 tenet 3). A buy, sale or share transfer is never one: its money is its shares × price or what the shares were worth.",
+   "id": "MK-ST-F-089"
+  },
+  "fixStoredMoney": {
+   "file": "src/services/sync/ingest.ts",
+   "rule": "Gives a money record saved before 2026-10-21 the direction the broker reports for it, and its real $0 (2026-10-21). Only a record that came through the link, states no direction, and is a deposit, withdrawal, transfer, dividend, interest, coupon or fee is looked at. Each fix the sync hands back (from a broker activity already stored: its account, day, kind, ticker, its size to the cent or nothing when the broker sent no amount, and the way the money went when the broker's sign says) is used once, on the first such record with the same account, the same day (first ten characters), the same kind and the same ticker (none counts as empty), whose stored size equals the fix's size within half a cent (the stored size read without a sign) — or, when the record holds no amount, whose fix's size is exactly 0. A matched record takes the fix's direction when the fix has one, and the amount 0 when it held no amount and the broker sent 0. Every other record is returned unchanged; with no fixes the list itself is returned.",
+   "id": "MK-XS-F-187"
+  },
+  "refetchMarkKey": {
+   "file": "src/services/sync/snaptradeSync.ts",
+   "rule": "The key under which the one-time full re-fetch for signs is marked as done for one linked account, beside that account's cursor: the word refetch, a colon, and the broker's account identifier. The sync reads the whole history of a linked account whose mark is not the current marker (signs-2026-10-21), and writes the mark when it has read the whole history; the mark is saved only with the sync that read it, so an account that could not be reached is re-read the next time.",
+   "id": "MK-XS-F-191"
+  },
+  "lotCostOnRecord": {
+   "file": "Calculation Module code/engines/snapshots.ts",
+   "rule": "Whether what was paid for a purchase is on record: its cost per share is a number, finite and above zero. A missing cost is not on record, and neither is a stored $0 — what a blank cost in the holding editor saved, and what a sync wrote for a missing cost until 2026-10-20 — so it is never read as a real $0 (owner decision DEC-6627, tenet 4).",
+   "figures_checked_by_hand": {
+    "6627": "not a figure: the number of the owner decision DEC-6627 that this rule follows",
+    "4": "not a figure: tenet 4 of the MoneyKeel tenets (DEC-3523)"
+   },
+   "id": "MK-ST-F-092"
+  },
+  "tradeFeeOnRecord": {
+   "file": "src/services/sync/ingest.ts",
+   "rule": "The broker's fee on a buy or a sale, as the sync keeps it on the record, and whether the stored price already carries it (2026-10-21). Not a buy or a sale, or no fee sent (nothing, or not a number): nothing is kept. Otherwise the fee kept is the size of the broker's figure, its sign dropped, to the cent, worked in exact decimals. With no cash figure from the broker, a cash figure of zero, or no share count or a count of zero: the fee is not inside the price (the stored price is then the broker's own price). Otherwise the fee is inside the price (the stored price is the cash ÷ the shares), unless the broker sent a price, the fee is not zero and the cash, its sign dropped and to the cent, equals the shares (sign dropped) × that price to the cent — that cash was counted before the fee, so the fee is not inside the price. Example: 10 sold at $120 with a $5 fee and $1,195 of cash → fee $5, inside the price; the same sale reported with $1,200 of cash → fee $5, not inside the price.",
+   "figures_checked_by_hand": {
+    "10": "the worked example's shares sold — an example, not a figure the code holds",
+    "$120": "the worked example's price — an example, not a figure the code holds",
+    "$5": "the worked example's fee — an example, not a figure the code holds",
+    "$1,195": "the worked example's cash after the fee: 10 × $120 − $5 — an example, not a figure the code holds",
+    "$1,200": "the worked example's cash before the fee: 10 × $120 — an example, not a figure the code holds"
+   },
+   "id": "MK-XS-F-189"
+  },
+  "fixStoredFees": {
+   "file": "src/services/sync/ingest.ts",
+   "rule": "Gives each buy or sale stored from a linked broker before the sync kept fees the fee the broker reports for it now, and whether its price already carries it (2026-10-21). With no reported fees: the records unchanged. A record is left as it is when it was not stored from a linked broker (the person typed it), it already holds a fee (a stored 0 included), or it is not a buy or a sale. Otherwise it takes the first reported fee not yet used whose account, kind, day (the record's date read to the day), ticker (none on either counts as the same) and share count (equal to within a billionth of a share) match; a reported fee with no share count matches nothing. Each reported fee is used once. A record nothing matches is left as it is.",
+   "id": "MK-XS-F-188"
+  },
+  "buildDayFromAccounts": {
+   "file": "Calculation Module code/engines/snapshots.ts",
+   "rule": "Today's record of what each account holds, from the accounts as they stand, for the date handed in, marked observed and stamped with the time it was written. For each holding with a ticker and with shares above zero (the shares of its purchases added up, a missing count as 0): its worth = shares × the broker's last price, × one hundredth for a bond quoted per $100 of face value; with no last price, what was paid over its purchases with shares and a cost on record (a cost per share above zero), shares × cost per share added up, × the same one hundredth for such a bond; with neither, the value the account's balance was last built from. A holding whose worth is none of these is not known, and its WHOLE account is left off the day — never written as worth $0. Each holding kept is recorded with its shares, its price (nothing when none), its worth, in US dollars, under its ticker. Each account kept is recorded with: its cash = the uninvested cash stored on it, else the whole balance of a cash account (0 when none), else 0; the total its broker stated = the balance of a linked account (nothing when none), nothing for an account added by hand; the value typed = the balance of an account added by hand that is not cash and has no holdings (nothing when none), else nothing.",
+   "figures_checked_by_hand": {
+    "$100": "the face-value base a bond is quoted per (MK-XS-I-068); the code holds it as one hundredth"
+   },
+   "id": "MK-ST-F-028"
+  }
+ }
 }

@@ -10,7 +10,10 @@
  * is fixed). `test.failing` + `// BRIEF WRONG` = the auditor's own expectation is wrong (its arithmetic, or an owner
  * decision says otherwise); the auditor's answer is kept. `// UNCLEAR` = no single expected answer and no decision
  * settles it: the app's current behaviour is asserted and the open question named. `test.skip` + `// BLOCKED` = the
- * case tests an input the app has no notion of.
+ * case tests an input the app has no notion of. Re-judged 2026-10-20, each case once marked UNCLEAR now carries one of:
+ * `// SETTLED BY DEC-…` (a ruling decides it), `// BRIEF WRONG (… was UNCLEAR)` on a passing test (the card or a rule
+ * gives the answer, and the app gives it), `// PLAN SCOPE` (it changes nothing on Net worth; the Plan module decides).
+ * A `pin ·` test beside one holds a right answer of the app's.
  * The last describe block holds PROOF RUNS for the two WRONG formula checks (F-053, F-054). They are not among the
  * 130 cases; each is marked the same way.
  *
@@ -64,7 +67,7 @@ import {
   earmarkedAmount, retirementEarmarkedValue, benchmarkReturn, blendedVolatility, benchmarkInfo, blendedReturn,
   buildAssetsState, assetsFromOnboarding, monthlyContributionsFromOnboarding, sourceWording, historyCoverage,
   uberGroupOf, uberGroupRows, UBER_LABEL, BENCHMARK_META, holdingClassOf, carValueNotEnteredNotes,
-  earmarkLeavesOutWords, asksCashOrInvestments, CASH_OR_INVESTMENTS_ASK, type AssetClass,
+  earmarkLeavesOutWords, asksCashOrInvestments, CASH_OR_INVESTMENTS_ASK, ASSET_CLASS_LABEL, type AssetClass,
 } from '../../../src/domain/assets';
 import {
   itemizedTotal, itemizeMissingCount, itemizeRemainder, itemizedResultTotal, buildItemizedAccounts, type ItemHolding,
@@ -223,11 +226,19 @@ describe('MK-NW-F-030 earmarkDefault — five cases', () => {
     expect({ A: earmarkDefault(A), B: earmarkDefault(B) }).toEqual({ A: 0, B: 0 });   // each alone: the only property is the home
   });
   test('edge · Saved share outside range', () => {
-    // UNCLEAR: earmarkDefault never reads a saved share; earmarkedAmount holds a saved 130% at 100% (index.ts:1895), so
-    // $10,000 counts $10,000. No decision on stored shares out of range; the card's own MK-NW-F-032 text says "held
-    // between 0% and 100%". Open question: clamp (as built) or refuse the stored value?
+    // BRIEF WRONG (re-judged 2026-10-20, was UNCLEAR): two cards answer it. (1) MK-NW-F-030 earmarkDefault is the DEFAULT
+    // share and reads no saved share at all — a brokerage's default is 100% (DEC-0100), whatever is saved. (2) The saved
+    // share is MK-NW-F-032 earmarkedAmount's, and its card says the stated share is "held between 0% and 100%": 130% is
+    // held at 100%, so $10,000 × 100% = $10,000 (index.ts:2093-2096). Nor can 130% be saved: every place a share is
+    // typed holds it to 0–100 as it is typed (AddAccountScreen.tsx:132, the Retirement cockpit's sheet
+    // RetirementCockpit.tsx:984 in EarmarkSheet; PlanInputs.tsx:166 writes 0 or 100) — a stored 130% is only ever damaged data.
     const a = acct({ kind: 'brokerage', balance: 10000, retirement_pct: 130 });
     expect([earmarkDefault(a), earmarkedAmount(a)]).toEqual([100, 10000]);
+  });
+  test('pin · the default ignores any saved share; the saved share inside 0–100 is used as saved (BRIEF WRONG above)', () => {
+    expect(earmarkDefault(acct({ kind: 'brokerage', balance: 10000, retirement_pct: 40 }))).toBe(100);
+    expect(earmarkedAmount(acct({ kind: 'brokerage', balance: 10000, retirement_pct: 40 }))).toBeCloseTo(4000, 6);
+    expect(earmarkedAmount(acct({ kind: 'brokerage', balance: 10000, retirement_pct: 100 }))).toBeCloseTo(10000, 6);
   });
 });
 
@@ -266,9 +277,15 @@ describe('MK-NW-F-032 earmarkedAmount — five cases', () => {
     expect(earmarkedAmount(acct({ id: 'B', kind: 'home', re_use: 'secondary', balance: 200000 }), undefined, 'A')).toBeCloseTo(200000, 6);
   });
   test('edge · Out-of-range share', () => {
-    // UNCLEAR: app holds a saved −10% at 0% (index.ts:1895) → $0, never −$500; the card itself says "held between 0%
-    // and 100%". Open question (no decision): clamp a corrupt stored share, as built, or refuse it?
+    // BRIEF WRONG (re-judged 2026-10-20, was UNCLEAR): the card defines it — the stated share is "held between 0% and
+    // 100%", so −10% is held at 0%: $5,000 × 0% = $0, never −$500 (index.ts:2095). The auditor's "formula does not define
+    // invalid stored percentages" misreads "held between". A −10% cannot be typed either: every share field holds its
+    // figure to 0–100 as it is typed (AddAccountScreen.tsx:132, RetirementCockpit.tsx:984, EarmarkSheet).
     expect(earmarkedAmount(acct({ kind: 'brokerage', balance: 5000, retirement_pct: -10 }))).toBe(0);
+  });
+  test('pin · a share at the edges is used exactly: 0% gives $0, 100% the whole balance (BRIEF WRONG above)', () => {
+    expect(earmarkedAmount(acct({ kind: 'brokerage', balance: 5000, retirement_pct: 0 }))).toBe(0);
+    expect(earmarkedAmount(acct({ kind: 'brokerage', balance: 5000, retirement_pct: 100 }))).toBeCloseTo(5000, 6);
   });
 });
 
@@ -311,8 +328,15 @@ describe('MK-NW-F-034 benchmarkReturn — five cases', () => {
     expect({ rate: benchmarkReturn('rare asset'), label: benchmarkInfo('rare asset').source }).toEqual({ rate: 0.06, label: 'Generic blended estimate' });
   });
   test('edge · Missing kind gets generic estimate or refusal?', () => {
-    // UNCLEAR: app gives 6% for a missing kind, labelled "Generic blended estimate", estimate true (index.ts:1960, 2098);
-    // open question: should a missing kind refuse rather than take the generic 6%? No decision on it.
+    // PLAN SCOPE (re-judged 2026-10-20, was UNCLEAR). What the auditor asked of Net worth is met: the card says "6% for a
+    // kind that is unknown or missing", and the app labels it "Generic blended estimate", estimate true, never a
+    // kind's own benchmark (index.ts:2167-2170, 2306-2314). No Net worth screen shows this 6%: the account page prints a
+    // typical return only for an Alternatives account (AccountPortfolioScreen.tsx:847), and every Alternatives account
+    // has a kind — the editor offers no Alternatives for a kind-less account (NetWorthScreen.tsx:1209-1211), a link gets
+    // 'brokerage' at worst (snaptrade.ts:147). The 6% reaches only the Plan: MK-NW-F-037 blendedReturn weighs a kind-less
+    // account (Quick add, the sign-up "Savings / portfolio") at 6% in the rate the retirement money grows at (Retirement
+    // cockpit, will it last). Whether such an account should refuse instead is the Plan module's question — beside
+    // DEC-2746c, which took out an invented 6% when nothing is set aside.
     const info = benchmarkInfo(undefined);
     expect({ rate: benchmarkReturn(undefined), source: info.source, estimate: info.estimate }).toEqual({ rate: 0.06, source: 'Generic blended estimate', estimate: true });
   });
@@ -559,9 +583,21 @@ describe('MK-NW-F-047 uberGroupOf — five cases', () => {
       .toEqual(['Cash', 'Investments', 'Investments', 'Investments', 'Investments', 'Personal property', 'Personal property']);
   });
   test('complex · Unknown class must not be assigned arbitrarily', () => {
-    // UNCLEAR: app puts a class it does not know under Investments (CLASS_UBER[cls] ?? 'investments', index.ts:2619);
-    // open question: refuse/flag an invalid class instead? No decision. (The AssetClass type admits only the seven.)
+    // BRIEF WRONG (re-judged 2026-10-20, was UNCLEAR): the case hands the function something its card rules out. The card
+    // hands it a class — one of the seven (`cls: AssetClass`) — and maps all seven. Nothing in the app can store an
+    // eighth: the Net worth editor's choices (NetWorthScreen.tsx:1209-1211, 1258-1296), the holdings import (its
+    // class table is total over the seven, ImportHoldingsScreen.tsx:134-149), the sweep (reclassify.ts, an AssetClass)
+    // and itemising (itemize.ts:196) each write one of the seven. So "mystery" never reaches the screen and its
+    // 'investments' fallback (index.ts:2779) decides nothing a person sees. The seven are pinned below.
     expect(g('mystery')).toBe('Investments');
+  });
+  test('pin · every class the app can store maps to its group, and there are exactly seven (BRIEF WRONG above)', () => {
+    const keys = Object.keys(ASSET_CLASS_LABEL) as AssetClass[];
+    expect(keys.length).toBe(7);
+    expect(Object.fromEntries(keys.map((k) => [k, g(k)]))).toEqual({
+      cash: 'Cash', stocks_etf: 'Investments', bonds: 'Investments', alternatives: 'Investments', mixed: 'Investments',
+      real_estate: 'Personal property', personal_property: 'Personal property',
+    });
   });
   test('edge · Unclassified remains investment group', () => { expect(g('mixed')).toBe('Investments'); });
 });
@@ -758,11 +794,18 @@ describe('PROOF RUNS for the WRONG formula checks MK-NW-F-053 / MK-NW-F-054 (not
     expect(reclassifyAccounts([a]).accounts[0].asset_class).toBe('real_estate');
   });
   test('F-053 / F-054 · a class the person picked on the Net worth editor carries no confirmation', () => {
-    // UNCLEAR: the only account confirmation is wrapper_confirmed (kind / tax bucket, set by confirmWrapper,
-    // useStore.ts:782); a class picked in the Net worth editor sets asset_class and no flag (NetWorthScreen.tsx:1155-1165),
-    // so the sweep re-files it. Open question: does DEC-2748h's "account the person confirmed" include a class they picked?
+    // SETTLED BY DEC-2748h (re-judged 2026-10-20, was UNCLEAR; and tenet 5, DEC-3523: what the person chose "is never
+    // overwritten by a rule, a sync or a sweep"). Built: a class the person picks is now marked theirs — class_source
+    // 'user' on the account, set by the editor when they change "What's it invested in?" (NetWorthScreen.tsx:1286-1296)
+    // and when they add an account by its class (NetWorthScreen.tsx:1299-1304) — and the sweep leaves that class alone
+    // (reclassify.ts, `a.class_source === 'user' ? null : correctClassOf(a)`). The account below carries no such mark:
+    // its class was the app's (an import or an older save), so the sweep correcting it to Bonds & CDs is right.
     const r = reclassifyAccounts([acct({ label: 'CD 2030 ladder', kind: 'brokerage', asset_class: 'stocks_etf' })]);
     expect({ class: r.accounts[0].asset_class, changed: r.changed }).toEqual({ class: 'bonds', changed: 1 });
+  });
+  test('pin · the same account with the class the person picked keeps it — 0 changes (DEC-2748h, tenet 5)', () => {
+    const r = reclassifyAccounts([acct({ label: 'CD 2030 ladder', kind: 'brokerage', asset_class: 'stocks_etf', class_source: 'user' })]);
+    expect({ class: r.accounts[0].asset_class, changed: r.changed }).toEqual({ class: 'stocks_etf', changed: 0 });
   });
   test('F-054 · a Gold holding the person classed as Alternatives becomes Stocks / Funds', () => {
     // FIXED 2026-10-09 after OpenAI's final audit — it was a FINDING: app rewrites the person's 'other' (Alternatives) to 'stock_etf' and counts a change (reclassify.ts:109-113 —

@@ -380,7 +380,10 @@ test('untickered income is not pinned onto every holding — a CD never shows "d
   const AccountPortfolioScreen = require('../screens/AccountPortfolioScreen').default;
   render(<AccountPortfolioScreen />);
   // the whole-account Income figure still counts it — the money is real and is not hidden
-  expect(screen.getAllByText('$27,694').length).toBeGreaterThan(0);   // the balance: trio, account row and Total row
+  // said in the note's sum (the account-page drawing v01, row 12): the interest that names no holding is the cash's (the
+  // drawing's cash row), the dividend that names none stays at the account level as the sum's last part
+  expect(screen.getByText(/\(10,787 ＋ 16,907 = \$27,694 for this account\)/)).toBeOnTheScreen();
+  expect(screen.getByText('Income: $10,787 interest')).toBeOnTheScreen();   // under "Cash in this account", never under a CD
   // …but no holding row claims it, and no CD is ever shown paying dividends
   expect(screen.queryByText(/\$16,907 dividends/)).toBeNull();
   expect(screen.queryByText(/Income: .*dividends/)).toBeNull();

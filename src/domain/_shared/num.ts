@@ -46,17 +46,17 @@ export { round2 } from '../../../Calculation Module code/engines/money';
  *               MK-XS-F-004 buildDatedGrid · MK-XS-F-030 effectiveAnnualContribution
  *               MK-XS-F-031 buildSnapshot · MK-XS-F-058 parseReceipt
  *
- * Reaches ..... 241 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 359 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-O-014 M
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               … and 223 more — the full list is on functions_from_code
+ *               … and 341 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -90,20 +90,20 @@ export const toNum = (v: any): number => {
  *     n   if number.is finite(n)
  *     nothing   otherwise
  *
- * Called by ... MK-CF-F-067 rentalList · MK-NW-F-114 rentAmount
- *               MK-NW-O-004 theEmergencyFund
+ * Called by ... MK-CF-F-067 rentalList · MK-CF-F-219 rentEntryMonthly
+ *               MK-NW-F-114 rentAmount · MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 162 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 281 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-O-014 M
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               … and 144 more — the full list is on functions_from_code
+ *               … and 263 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -131,22 +131,24 @@ export const rentFigure = (v: any): number | null => {
  *               MK-CF-F-184 incomeFromAccounts · MK-CF-O-001 basePay
  *               MK-NW-F-041 monthlyContributionsFromOnboarding · MK-NW-F-078 ONE
  *               MK-NW-F-081 LB · MK-NW-F-134 carValueNotEnteredNotes
- *               MK-PF-F-013 benchmarkTicker · MK-PF-F-020 portfolioBenchReturn
- *               MK-PF-F-041 isoDay · MK-PF-F-046 saleShortOfPurchasesSentence
+ *               MK-NW-F-146 undatedGainSentence · MK-NW-F-147 paymentNotEntered
+ *               MK-NW-O-008 thePerformance · MK-PF-F-013 benchmarkTicker
+ *               MK-PF-F-020 portfolioBenchReturn · MK-PF-F-041 isoDay
+ *               MK-PF-F-046 saleShortOfPurchasesSentence · MK-PF-F-058 gainOnPartSentence
  *               MK-PL-F-030 onCourseSentence · MK-ST-F-012 toLedgerRow
  *               MK-ST-F-044 setMoneyFormat · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 158 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 277 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-081 LB · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-081 LB
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
  *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               … and 140 more — the full list is on functions_from_code
+ *               … and 259 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

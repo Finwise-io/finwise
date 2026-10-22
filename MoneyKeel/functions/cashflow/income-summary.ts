@@ -586,7 +586,7 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  * Ruled by .... DEC-0078 · DEC-0108 · DEC-0149 · DEC-0152 · DEC-0165 · DEC-0166
  *               DEC-0178 · DEC-0181 · DEC-0182 · DEC-0184 · DEC-0187 · DEC-0188
  *               DEC-0189 · DEC-0191 · DEC-0194 · DEC-0195 · DEC-0197 · DEC-0207
- *               DEC-0208 · DEC-0209 · DEC-0347 · DEC-0389 · DEC-0431
+ *               DEC-0208 · DEC-0209 · DEC-0389 · DEC-0431
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *

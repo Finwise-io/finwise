@@ -63,6 +63,6 @@ const styles = StyleSheet.create({
   message:     { fontSize: Typography.sizes.sm, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: Spacing.lg },
   devBox:      { backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.sm, maxHeight: 200, width: '100%', marginBottom: Spacing.lg },
   devText:     { fontSize: 11, color: Colors.amber, fontFamily: 'monospace' },
-  button:      { backgroundColor: Colors.primary, paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md, borderRadius: Radii.pill },
+  button:      { backgroundColor: Colors.primary, paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md, borderRadius: Radii.md /* DEC-0231: rounded corners, not semicircle ends */ },
   buttonText:  { color: Colors.white, fontWeight: '700', fontSize: Typography.sizes.md },
 });

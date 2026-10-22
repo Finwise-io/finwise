@@ -43,7 +43,12 @@ describe('NW_CHANGE_WALK', () => {
   test('negatives are floored on the way IN, so a bad input cannot flip a sign quietly', () => {
     const w = buildChangeWalk({ beginning: 100, ending: 200, contributions: -50, dividends: -10, fromLabel: 'a', toLabel: 'b' });
     expect(w.contributions).toBe(0);
-    expect(w.dividends).toBe(0);
+    // 2026-10-21: a net −$10 of dividends is a reversal read by the one rule for a stored amount (moneyIntoAccount) — it
+    // stays a minus on its own line, and the walk still reaches the ending (the change in investment value takes the rest)
+    expect(w.dividends).toBe(-10);
+    expect(w.withdrawals).toBe(50);
+    expect(w.beginning + w.contributions - w.withdrawals + w.wealthGenerated).toBe(w.ending);
+    expect(w.dividends + w.interest + w.marketChange).toBe(w.wealthGenerated);
   });
 });
 
@@ -67,12 +72,17 @@ const pos = (o: any) => mapPosition({ units: 100, price: 10, ...o } as any);
 const sym = (raw: string, description = '', code = 'cs') => ({ symbol: { symbol: { raw_symbol: raw, symbol: raw, description, type: { code } } } });
 
 describe('INGEST_POSITION_CLASS', () => {
-  test('a money-market fund is MEASURED, not cash — F6', () => {
-    expect(pos({ ...sym('VMFXX', 'VANGUARD FEDERAL MONEY MARKET FUND', 'mf'), cash_equivalent: true })!.assetClass).toBe('stocks_etf');
+  // DEC-2159 / his 2026-10-20 words, "always the class broker sends": the broker's flag and type decide; F6's
+  // name-first answer (Stocks / Funds) holds only where the broker sends no usable class.
+  test('DEC-2159 / his 2026-10-20 words: a money-market fund the broker FLAGS cash-equivalent is Cash; unflagged, its fund type makes it Stocks / Funds (was: Stocks / Funds either way — F6)', () => {
+    expect(pos({ ...sym('VMFXX', 'VANGUARD FEDERAL MONEY MARKET FUND', 'mf'), cash_equivalent: true })!.assetClass).toBe('cash');
+    expect(pos(sym('VMFXX', 'VANGUARD FEDERAL MONEY MARKET FUND', 'oef'))!.assetClass).toBe('stocks_etf');
   });
 
-  test('a CD lands in bonds even without the bond type code — the maturity is in the TEXT', () => {
-    expect(pos(sym('06418AAA1', 'KEYBANK NA 4.00% CD 08/24/26'))!.assetClass).toBe('bonds');
+  test('DEC-2159 / his 2026-10-20 words: a CD sent with NO type code (as live CDs arrive) lands in bonds by its TEXT; a type the broker sends decides first', () => {
+    expect(pos(sym('06418AAA1', 'KEYBANK NA 4.00% CD 08/24/26', ''))!.assetClass).toBe('bonds');
+    expect(pos(sym('06418AAA1', 'KEYBANK NA 4.00% CD 08/24/26', 'bnd'))!.assetClass).toBe('bonds');
+    expect(pos(sym('06418AAA1', 'KEYBANK NA 4.00% CD 08/24/26', 'cs'))!.assetClass).toBe('stocks_etf');   // was bonds: the name outranked 'cs'
   });
 
   test('a plain share is equities', () => {

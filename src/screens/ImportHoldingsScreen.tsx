@@ -14,7 +14,7 @@ import { SectionBand } from '../components/SectionBand';
 import { importHoldings, decodeCsvBase64, matchImportAccount, type ImportResult } from '../domain/import/holdingsImport';
 import { ASSET_CLASS_LABEL, type AssetClass, type TaxBucket } from '../domain/assets';
 import { newEntityId } from '../domain/_shared/ids';
-import { round2, money2 } from '../domain/_shared/num';
+import { money2 } from '../domain/_shared/num';
 import { Colors, Spacing, Radii, Typography } from '../utils/theme';
 import { isoLocalDate } from '../domain/_shared/dates';
 
@@ -109,11 +109,20 @@ export default function ImportHoldingsScreen() {
       let added = 0;
 
       if (equities.length) {
+        // SAVED EXACTLY AS THE FILE GIVES THEM (DEC-0403, 2026-09-09): the cost per share, the account's value and each
+        // row's value were rounded to cents here until 2026-10-20 — a $1,500 cost over 7 shares was kept as $214.29 a
+        // share, so the stored cost read $1,500.03. Rounding happens once, on screen.
         const positions = equities.map((h) => ({
           position_id: newEntityId('pos'), ticker: h.ticker, label: h.label, kind: 'stocks_etf',
-          lots: [{ lot_id: newEntityId('lot'), shares: h.shares, cost_per_share: round2(h.costPerShare), purchase_date: h.date || todayIso() }],
+          // the file's own type for the row, kept as written, so the holding stays in the class the file gave it on every
+          // read (his ruling, 2026-10-20: "always the class broker sends"; MK-NW-F-109 holdingClassOf reads it first)
+          ...(h.brokerType ? { broker_type: h.brokerType } : {}),
+          // A FILE WITH NO PURCHASE DATE KEEPS THE DATE AS NOT ON RECORD (2026-10-21; tenet 3, DEC-3523), stored blank as a
+          // linked broker's missing date is. It was given the day of the import, which read as bought that day: short-term
+          // on the Holding page, and its return since purchase measured from the import.
+          lots: [{ lot_id: newEntityId('lot'), shares: h.shares, cost_per_share: h.costPerShare, purchase_date: h.date ?? '' }],
         }));
-        const mktValue = round2(equities.reduce((t, h) => t + (h.value || h.shares * h.costPerShare), 0));
+        const mktValue = equities.reduce((t, h) => t + (h.value || h.shares * h.costPerShare), 0);
         if (matched && mergeChoice === 'update') {
           // Merge-not-duplicate (Import v2): refresh the existing account — asset_id is preserved,
           // so its history, retirement earmark and class settings survive. Never a twin.
@@ -146,7 +155,7 @@ export default function ImportHoldingsScreen() {
         const kind = h.assetClass === 'alternatives' && /\b(put|call)s?\b/i.test(`${h.symbol} ${h.label}`) ? 'options' : def.kind;
         store.addAsset({
           label: h.label || h.symbol, kind, tax_bucket: def.tax_bucket,
-          asset_class: h.assetClass, balance: round2(h.value || 0), target_return: def.ret,
+          asset_class: h.assetClass, balance: h.value || 0, target_return: def.ret,
           value_as_of: todayIso(), ...provenance,
         });
         added += 1;
@@ -313,7 +322,7 @@ const styles = StyleSheet.create({
   totalVal: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, textAlign: 'right' },
   note: { fontSize: 11, color: Colors.textTertiary, lineHeight: 16, textAlign: 'center', marginTop: 12 },
   error: { fontSize: 13, color: Colors.red, lineHeight: 19, marginBottom: Spacing.base, textAlign: 'center' },
-  primary: { backgroundColor: Colors.primary, borderRadius: Radii.pill, paddingVertical: 15, alignItems: 'center', justifyContent: 'center', minHeight: 50, marginTop: 6 },
+  primary: { backgroundColor: Colors.primary, borderRadius: Radii.md /* DEC-0231: rounded corners, not semicircle ends */, paddingVertical: 15, alignItems: 'center', justifyContent: 'center', minHeight: 50, marginTop: 6 },
   primaryTxt: { color: Colors.white, fontWeight: '800', fontSize: Typography.sizes.md },
   secondary: { paddingVertical: 14, alignItems: 'center', marginTop: 4 },
   secondaryTxt: { color: Colors.primary, fontWeight: '700', fontSize: Typography.sizes.md },

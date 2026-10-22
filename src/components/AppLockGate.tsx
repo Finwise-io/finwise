@@ -73,6 +73,6 @@ const styles = StyleSheet.create({
   emoji: { fontSize: 38, marginBottom: Spacing.md },
   title: { fontSize: Typography.sizes.lg, fontWeight: '700', color: Colors.textPrimary, marginBottom: Spacing.sm },
   sub: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: Spacing.lg },
-  button: { backgroundColor: Colors.primary, paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md, borderRadius: Radii.pill, minWidth: 160, alignItems: 'center' },
+  button: { backgroundColor: Colors.primary, paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md, borderRadius: Radii.md /* DEC-0231: rounded corners, not semicircle ends */, minWidth: 160, alignItems: 'center' },
   buttonText: { color: Colors.white, fontWeight: '700', fontSize: Typography.sizes.md },
 });

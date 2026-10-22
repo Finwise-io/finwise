@@ -479,7 +479,8 @@
    "difference": "app refuses; auditor asks for a ruling",
    "formula_gives_match": "formula_gives (first gate refuses)",
    "note": "Face gate (src/domain/bonds/index.ts:442) runs before the CD branch (:446). No decision settles it. Open question: does a CD typed by its balance (the common case, DEC-2748c \"no face\") show its stated rate as its yield to maturity, or nothing?",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-060 approxYTM — five cases › complex · CD with rate but no face value"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-060 approxYTM — five cases › complex · CD with rate but no face value",
+   "settled": "SETTLED 2026-10-10 by DEC-3837: a bank CD's yield to maturity is its interest rate — no face value needed — so it shows its stated 4.2%. Held by outside_networth_final_openai_part3.test.ts:185."
   },
   {
    "id": "MK-NW-F-060",
@@ -675,7 +676,8 @@
    "difference": "",
    "formula_gives_match": "formula_gives",
    "note": "App counts undated interest. DEC-0332 (no date = unknown, not due now) governs F-058/060/064, not interest. Open question: count undated interest, or refuse and name the missing date?",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-062 couponIncomeAnnual — five cases › edge · Maturity date missing"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-062 couponIncomeAnnual — five cases › edge · Maturity date missing",
+   "settled": "SETTLED 2026-10-10 by DEC-4036b: a bond or CD with no maturity date keeps counting its interest (unknown, not matured) — $200 — and reads \"maturity date not entered\". Held by outside_networth_final_openai_part3.test.ts:253."
   },
   {
    "id": "MK-NW-F-063",
@@ -753,7 +755,8 @@
    "difference": "",
    "formula_gives_match": "formula_gives (200)",
    "note": "Same question as F-062 edge; src/domain/bonds/index.ts:602 drops only a date before today.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-063 interestIncomeAnnual — five cases › edge · Undated bond interest is treated as active"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-063 interestIncomeAnnual — five cases › edge · Undated bond interest is treated as active",
+   "settled": "SETTLED 2026-10-10 by DEC-4036b: an undated bond's interest counts ($200); only a maturity date before today drops it. Held by outside_networth_final_openai_part3.test.ts:273."
   },
   {
    "id": "MK-NW-F-064",
@@ -1077,7 +1080,8 @@
    "difference": "",
    "formula_gives_match": "formula_gives",
    "note": "src/domain/assets/index.ts:1625; no decision. Open question: must every caller pass the plural (today's callers pass nouns that take s), or should the helper know English plurals?",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-067 plural — five cases › edge · Plural not supplied for irregular noun"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-067 plural — five cases › edge · Plural not supplied for irregular noun",
+   "settled": "SETTLED 2026-10-10 by DEC-4082: the one list of words knows property → properties, so \"2 properties\". Held by outside_networth_final_openai_part3.test.ts:357."
   },
   {
    "id": "MK-NW-F-068",
@@ -1357,7 +1361,8 @@
    "difference": "",
    "formula_gives_match": "formula_gives (true)",
    "note": "bondInfo reads the institution with the name (src/domain/bonds/index.ts:107). DEC-3279h lists the words, not where they may come from. Open question: may an institution's name alone (CD Capital) make an account a CD?",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-071 isCertificateOfDeposit — five cases › complex · Institution name alone triggers CD according to formula"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-071 isCertificateOfDeposit — five cases › complex · Institution name alone triggers CD according to formula",
+   "settled": "SETTLED 2026-10-10 by DEC-4036c: \"CD\" is read only from an account's own name or type, never its institution — an account at \"CD Capital\" is not a CD. Held by outside_networth_final_openai_part3.test.ts:404."
   },
   {
    "id": "MK-NW-F-071",
@@ -1743,7 +1748,8 @@
    "difference": "",
    "formula_gives_match": "formula_gives (overflow to Mar 3)",
    "note": "setUTCMonth overflows (performance.ts:124-125): 1M from Mar 31 starts Mar 3 (a 28-day window); also 2024-03-31 → 2024-03-02 and 1Y from 2024-02-29 → 2023-03-01. No decision (DEC-0647 approves Performance v17, silent on month-ends). Open question: clamp to the month's last day?",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-090 windowStartKey — five cases › complex · One month back from month-end"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-090 windowStartKey — five cases › complex · One month back from month-end",
+   "settled": "SETTLED 2026-10-10 by DEC-3768b: months back stop at the month's last day — Mar 31, 2024 less one month is Feb 29, 2024 (fixed). Held by outside_networth_final_openai_part3.test.ts:507."
   },
   {
    "id": "MK-NW-F-090",
@@ -2340,7 +2346,8 @@
    "difference": "",
    "formula_gives_match": "formula_gives",
    "note": "As the card says (performance.ts:289). No decision. Open question (auditor's): confirm, and that the return then refuses (END_NOT_RECORDED).",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-104 closedWith — five cases › complex · Latest record has none of named accounts"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-104 closedWith — five cases › complex · Latest record has none of named accounts",
+   "settled": "BRIEF WRONG — re-judged 2026-10-20: the card says the record \"is returned unchanged when … it holds none of those accounts\"; the app returns it unchanged, and the return then shows no percent (pinned). Held by outside_networth_final_openai_part3.test.ts:621."
   },
   {
    "id": "MK-NW-F-104",
@@ -2354,7 +2361,8 @@
    "difference": "no duplicate row",
    "formula_gives_match": "neither (formula_gives feared a duplicate; there is none)",
    "note": "closedWith finds no earlier day (performance.ts:287-288) and its caller never calls it when today is recorded (performance.ts:409). No decision. Open question: should a newer ending value replace today's recorded one?",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-104 closedWith — five cases › edge · Today already exists"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part3.test.ts › MK-NW-F-104 closedWith — five cases › edge · Today already exists",
+   "settled": "BRIEF WRONG — re-judged 2026-10-20: the card returns the record unchanged when there is no earlier day, and the caller never calls it once today is recorded — no duplicate. On every screen today's row is rebuilt from the accounts, so the newer $1,100 replaces $1,000 (+10.00%, pinned). Held by outside_networth_final_openai_part3.test.ts:638."
   }
  ],
  "formula_checks": [

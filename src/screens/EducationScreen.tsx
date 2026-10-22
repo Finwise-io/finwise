@@ -30,7 +30,8 @@ export default function EducationScreen() {
   const tone = plan.onTrackPct >= 100 ? Colors.primary : plan.onTrackPct >= 50 ? Colors.amber : Colors.red;
 
   const saveGoal = () => {
-    store.addGoal?.({ label: 'College fund', icon: '🎓', target: Math.round(plan.futureTotalCost), saved: num(saved), duration: String(num(yearsUntil) * 12), color: Colors.primary });
+    // the goal keeps the cost exactly as calculated (DEC-0403); it was rounded to the dollar when saved until 2026-10-20
+    store.addGoal?.({ label: 'College fund', icon: '🎓', target: plan.futureTotalCost, saved: num(saved), duration: String(num(yearsUntil) * 12), color: Colors.primary });
     Alert.alert('Goal added', 'Your college fund is now in Goals — track it alongside everything else.');
     router.back();
   };

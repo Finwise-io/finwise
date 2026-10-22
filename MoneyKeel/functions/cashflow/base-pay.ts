@@ -885,9 +885,9 @@ export const FIGURES = declareFigures({
  *               MK-CF-M-034 · MK-CF-M-035 · MK-CF-M-036 · MK-CF-M-045
  *               MK-CF-M-046
  * Reads ....... MK-XS-I-030 tax filing status and age
- * Ruled by .... DEC-0178 · DEC-0184 · DEC-0188 · DEC-0192 · DEC-0194 · DEC-0195
- *               DEC-0197 · DEC-0205 · DEC-0207 · DEC-0208 · DEC-0209 · DEC-0326
- *               DEC-0389 · DEC-0503
+ * Ruled by .... DEC-0178 · DEC-0184 · DEC-0188 · DEC-0194 · DEC-0195 · DEC-0197
+ *               DEC-0205 · DEC-0207 · DEC-0208 · DEC-0209 · DEC-0326 · DEC-0389
+ *               DEC-0503
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *

@@ -8,6 +8,8 @@
  *    MK-NW-M-045  each bond's coupon rate on its row      (no identifier; "not entered" borrowed MK-NW-M-055, the face)
  *    MK-NW-M-014  the emergency fund's sum line           (only its two amounts carried identifiers)
  *    MK-NW-M-017  "Assets $X − Debts $Y = Net worth $Z" in the guided setup (only its three amounts carried identifiers)
+ *    MK-NW-M-015  the retirement card's sentence, "retire at 67 with ~$X, …" (no identifier at all — launch check 2026-10-20;
+ *                 its row described a straight-line projection the card had stopped printing on 2026-08-04)
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
@@ -81,4 +83,27 @@ test('MK-NW-M-017: the guided setup\'s whole sum is recorded under its own ident
   render(<NetWorthScreen />);
   expect(printed('MK-NW-M-017')).toEqual(['Assets $18,000 − Debts $14,000 = Net worth $4,000']);
   expect(screen.getByText('Assets $18,000 − Debts $14,000 = Net worth $4,000')).toBeOnTheScreen();
+});
+
+test('MK-NW-M-015: the retirement card prints its sentence under its own identifier, the sentence the Plan tab speaks', () => {
+  useStore.setState({
+    onboardingProfile: { status: 'employed', incomeSources: ['employment'], birthYear: String(new Date().getFullYear() - 55), targetRetirementAge: '67', monthlySpending: '5000', horizonAge: '92' },
+    assetAccounts: [{ asset_id: 'ira', label: 'IRA', kind: 'trad_ira', tax_bucket: 'PRE_TAX', balance: 400000 }],
+  } as any);
+  render(<NetWorthScreen />);
+  const line = printed('MK-NW-M-015');
+  expect(line).toHaveLength(1);
+  expect(line[0]).toMatch(/^retire at 67 with ~\$[\d,]+,000, (lasting past 92 with ~\$[\d,]+,000 to spare|running short (around age \d+|before 92))$/);
+  // drawn as before: the odds in bold, then " · ", the sentence, " ›" — one line a person reads (Net worth v08)
+  expect(screen.getByText(new RegExp(`odds of lasting to age 92 · ${line[0].replace(/[$~.,()]/g, '\\$&')} ›$`))).toBeOnTheScreen();
+  // the worked example on the row runs the same two functions the card runs, and its answer is checked by
+  // src/__tests__/worked_examples.test.ts; the row describes the sentence, not the straight-line projection
+  const { figureSpec } = require('../../../MoneyKeel/functions/figures');
+  expect(figureSpec('MK-NW-M-015').unit).toBe('words');
+  expect(figureSpec('MK-NW-M-015').formula).toMatch(/middle of the 1,000 simulated futures/);
+});
+
+test('MK-NW-M-015 is not printed when there is no sentence: the card shows the sample, labelled as one', () => {
+  render(<NetWorthScreen />);
+  expect(printed('MK-NW-M-015')).toEqual([]);
 });

@@ -14,6 +14,7 @@ import { totalGrossAnnual, salaryAnnual } from '../domain/income';
 import { k401Headroom, IRS_LIMITS } from '../domain/income/limits';
 import { TOXIC_APR } from '../domain/debt';
 import { theEmergencyFund } from '../../MoneyKeel/functions/networth-and-performance/emergency-fund';
+import { useNetWorthInputs } from '../hooks/useNetWorthInputs';   // the Net worth family's inputs, built once (MK-NW-F-145, DEC-0345)
 import { fig } from '../components/figure';
 import { buildInsights, type Insight, type InsightTheme } from '../domain/insights';
 import { maskDollars, spokenDollars } from '../components/useMoney';
@@ -41,6 +42,8 @@ const THEME_META: Record<InsightTheme, { label: string; icon: string }> = {
 export function useInsights(limit?: number): Insight[] {
   const store = useStore() as any;
   const plan = usePlanCompleteness();
+  // THE NET WORTH FAMILY'S INPUTS, BUILT ONCE (owner, DEC-0345): MK-NW-F-145 netWorthInputs — both doors below read it
+  const nwIn = useNetWorthInputs();
   return useMemo(() => {
     const op = store.onboardingProfile ?? {};
     const accounts = store.assetAccounts ?? [];
@@ -53,17 +56,22 @@ export function useInsights(limit?: number): Insight[] {
     // HELOC, car..."). On one household that is 8.9 months here against 5.6 there: a 59% overstatement
     // of someone's safety net, on the screen whose whole job is to say what needs attention. The
     // ruling reached the door and the three screens that read it, and never reached this one.
-    const ef = theEmergencyFund({ accounts, expenses: store.expenses ?? [], profile: op, debts: liabilities });
+    const ef = theEmergencyFund(nwIn);
     const monthlySpending = ef.essentialsMonthly;
     const essentialsLabel = ef.essentialsBasis;
     // ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1 ruled 2026-09-27: "Yes - for home, NW tab, and
     // insights"). Insights took these two its own way; they are the same two the Net worth tab shows,
     // so they come from the same answer now and the screens cannot disagree about them.
-    const worth = theNetWorth({ uid: String(store.user?.uid ?? 'local'), accounts, debts: store.liabilities ?? [] });
+    const worth = theNetWorth(nwIn);
     const cash = worth.cash;
     const investable = worth.investable;
-    const investAccts = accounts.filter((a: any) => a.tax_bucket !== 'PROPERTY' && a.tax_bucket !== 'CASH');
-    const topAccount = investAccts.length ? Math.max(...investAccts.map((a: any) => a.balance || 0)) : 0;
+    // THE ONE-ACCOUNT CARD MEASURES INVESTED MONEY (2026-10-21, DEC-0457): the largest account's part of Net worth's own
+    // Investments line, out of that line. It took every account that was not a property or a cash bucket — a rental filed
+    // as taxable and a checking account were "invested money" — and divided by everything owned but property, so one
+    // household read "$310,000 (160%) of your invested money" and another "$18,000 (100%)" for a checking account.
+    const byAccount = worth.investmentsByAccount;
+    const invested = worth.investments;
+    const topAccount = byAccount[0]?.amount ?? 0;
     // holding-level concentration: the SAME shared rule Invest main shows (one concept, one helper)
     const allPositions = accounts.flatMap((a: any) => a.positions ?? []);
     const priceOf = (t: string) => (store.priceCache ?? {})[t.trim().toUpperCase()];
@@ -73,7 +81,7 @@ export function useInsights(limit?: number): Insight[] {
     const bench = blendedReturn(accounts, undefined, Array.isArray(op?.rentals) ? op.rentals : null);   // the home as Net worth reads it (DEC-4913)
     const gross = totalGrossAnnual(op);
     const nm = (a: any) => a.institution?.trim() || a.label;
-    const shareOf = (v: number) => (investable > 0 ? `${money(v)} · ${Math.round((v / investable) * 100)}%` : money(v));
+    const shareOf = (v: number) => (invested > 0 ? `${money(v)} · ${Math.round((v / invested) * 100)}%` : money(v));
 
     // ── FCC inputs ──
     // F10: the newest open worth-a-look flag leads; a user-flagged one keeps a quiet follow-up.
@@ -139,7 +147,7 @@ export function useInsights(limit?: number): Insight[] {
       k401Remaining: k401Headroom(age, num(op.c_401k) * 12).remaining,
       hasEarnedIncome: salaryAnnual(op) > 0,
       retireChance: typeof store.lastRetireChance === 'number' ? store.lastRetireChance : null,   // cached by the Retire cockpit; null until viewed
-      topAccountPct: investable > 0 ? (topAccount / investable) * 100 : 0,
+      topAccountPct: invested > 0 ? (topAccount / invested) * 100 : 0,
       topAccountAmount: topAccount,                       // walk row 9: dollar-first wording
       topHolding,
       planPct: plan.pct,
@@ -150,9 +158,9 @@ export function useInsights(limit?: number): Insight[] {
 
     // provenance: which accounts + the math behind each number (so the user can trace it).
     const detailsById: Record<string, () => Detail[]> = {
-      concentration: () => investAccts.slice().sort((a: any, b: any) => (b.balance || 0) - (a.balance || 0)).slice(0, 5)
-        .map((a: any) => ({ label: nm(a), value: shareOf(a.balance || 0) }))
-        .concat([{ label: 'Total invested', value: money(investable) }]),
+      concentration: () => byAccount.slice(0, 5)
+        .map((x) => ({ label: x.label, value: shareOf(x.amount) }))
+        .concat([{ label: 'Total invested', value: money(invested) }]),
       'cash-drag': () => accounts.filter((a: any) => assetClassOf(a) === 'cash').map((a: any) => ({ label: nm(a), value: money(a.balance || 0) }))
         .concat([{ label: 'Cash total', value: money(cash) }, { label: 'Investable total', value: money(investable) },
                  { label: 'Cash share', value: investable > 0 ? `${Math.round((cash / investable) * 100)}%` : '—' }]),
@@ -187,7 +195,7 @@ export function useInsights(limit?: number): Insight[] {
     const rentNotKnownMonths = ef.rentNotKnown && ef.monthsCovered != null && ef.monthsCovered >= 0.1 ? fig('MK-NW-M-013', ef.monthsCovered) : undefined;
     return built.filter(notDismissed).slice(0, limit ?? built.length).map((i) => ({ ...i, details: detailsById[i.id]?.(),
       ...(i.id === 'runway' && rentNotKnownMonths ? { rentNotKnownMonths } : {}) }));
-  }, [store.onboardingProfile, store.assetAccounts, store.liabilities, store.lastRetireChance, store.txnFlags, store.goals, store.retirementAssumptions, plan.pct, limit]);
+  }, [store.onboardingProfile, store.assetAccounts, store.liabilities, store.lastRetireChance, store.txnFlags, store.goals, store.retirementAssumptions, plan.pct, limit, nwIn]);
 }
 
 /** RENT NOT KNOWN (DEC-3836, 2026-10-10): the Net worth line (DEC-3769) in the same words — "<months>, rent not

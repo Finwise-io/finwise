@@ -5,12 +5,12 @@
   "Q51": {
    "answered": "2026-09-30",
    "his_words": "Q51 - make it “you +3.69% (including dividend), market + 2.83%, ahead by 0.85%.” ... Q51 - including dividend and interest. … Q51 -approved.",
-   "what_was_built": "Corrected 2026-10-12: the market figure uses SPY and AGG adjusted closes, which include their dividends and interest. (DEC-4645) — The Home card compares your return with the market's, and the two were NOT measured the same way: yours counts the dividends and interest you actually received (his one-meaning-of-return ruling, 2026-09-25), while the market figure is the index's PRICE only, because no price feed we hold gives an index's dividends. Without saying so, the gap read as skill when part of it is simply income the market side cannot see.\nThe line now reads: you +3.69% (including dividends and interest) · market +2.83% · ahead by 0.85%.\nHIS WORDING, AND THE ONE WORD I CHANGED: he wrote “including dividend and interest”. It is built as “dividends and interest” — the plural is the word the change walk, the category table and the glossary already use for these two, and one term per con"
+   "what_was_built": "Corrected 2026-10-12: the market figure uses SPY and AGG adjusted closes, which include their dividends and interest. (DEC-4645) — The Home card compares your return with the market's, and the two were NOT measured the same way: yours counts the dividends and interest you actually received (his one-meaning-of-return ruling, 2026-09-25), while the market figure is the index's PRICE only, because no price feed we hold gives an index's dividends. (more in the decision log) APPROVED 2026-09-30 in one word: “Q51 -approved.” The line is built and pinned. ONE WORD DIFFERS FROM HIS TYPING and he approved it knowing so: he wrote “including dividend and interest” and the screen reads “dividends”, the plural the change walk, the category table and the glossary already use for these two — one term per concept."
   },
   "Q52": {
    "answered": "2026-09-30",
    "his_words": "Q52 - use option B … v17 approved.",
-   "what_was_built": "TODAY, when money moved in or out in amounts large enough that WHEN it moved would decide the percentage, the Return states nothing and the screen shows the dollar walk alone. That person — someone actively adding money — is the one who most needs a rate and currently never sees one.\nHIS RULING: show the exact rate there instead. Where the walk now says there is no percentage, it will read that counting when you added money, the rate was X% a year.\nWHY THIS IS SAFE, measured: the two methods are not different answers. The window Return divides the gain once by a straight-line average of the money at work; the money-weighted rate compounds each amount over its own days and solves for the rate. On $100,000 with $10,000 added on 1 July and $118,000 at the end, they give 7.6161% and 7.6341% — 0.018 of a percentage point apart. They can never be far apart, because the window Return REFUSES th"
+   "what_was_built": "TODAY, when money moved in or out in amounts large enough that WHEN it moved would decide the percentage, the Return states nothing and the screen shows the dollar walk alone. That person — someone actively adding money — is the one who most needs a rate and currently never sees one.\nHIS RULING: show the exact rate there instead. Where the walk now says there is no percentage, it will read that counting when you added money, the rate was X% a year.\nWHY THIS IS SAFE, measured: the two methods are not different answers. (more in the decision log) APPROVED in two words. THREE THINGS BUILT. (16) Where the window Return declines to state a percentage, the exact rate per year stands in its place instead of an em-dash, and the note beneath says what the figure IS rather than why there is none — on the Performance tab and on an account’s own page. IT IS THE WINDOW’S RATE, never the whole record’s: the solver is given this window’s beginning as an opening amount and this window’s own money in and out, so the figure answers the period the label names. (more in the decision log)"
   },
   "Q53": {
    "answered": "2026-09-30",
@@ -29,8 +29,8 @@
   },
   "Q10": {
    "answered": "2026-09-30",
-   "his_words": "Q10: Draft order is correct",
-   "what_was_built": "He approved the draft order. NOT BUILT, and for a reason he should see: the draft I wrote puts the institution's own class field first, which is the opposite of his own brief B7 (2026-08-20), \"name first, broker tag as fallback only\". That brief came from his Vanguard money-market fund being counted as cash because the tag overrode the name."
+   "his_words": "Q10: Draft order is correct … always the class broker sends.",
+   "what_was_built": "He approved the draft order. NOT BUILT, and for a reason he should see: the draft I wrote puts the institution's own class field first, which is the opposite of his own brief B7 (2026-08-20), \"name first, broker tag as fallback only\". That brief came from his Vanguard money-market fund being counted as cash because the tag overrode the name. “always the class broker sends.” For a linked or imported holding, the class the broker sends decides what it is. The name, a maturity date and the app's other automatic rules are used only when the broker sends no usable class. A class the person sets themselves still outranks every automatic rule. Example: a money-market fund the broker flags as cash is Cash; a T-bill ETF the broker sends as an ETF is Stocks / Funds."
   },
   "Q11": {
    "answered": "2026-09-30",
@@ -51,6 +51,46 @@
    "answered": "2026-09-30",
    "his_words": "Call an account by it's name - no need to label it unless it is checking or savings account.",
    "what_was_built": "An account is called by its name. No class word is printed under it — not \"Mixed\", not \"Unclassified\"."
+  },
+  "Q04": {
+   "answered": "2026-10-07",
+   "his_words": "perfect. Commit it all, and execute PFS.",
+   "what_was_built": "Every change from the fifth batch of the outside review of Net worth stands as his decision: a face value or rate never entered is blank, never $0; one rule for a year of interest; a matured bond pays nothing more; yields use the price without accrued interest; the rates-move estimate compares like with like and refuses a CD; years count calendar days; a confirmed account is never re-classed; a record with no accounts is nothing saved."
+  },
+  "Q05": {
+   "answered": "2026-10-09",
+   "his_words": "I like your recommendation to add accrued interest. Say \"Added estimated $1,119 in accrued interest to bond value at 4.5% coupon for 363 days to calculate YTM. If this is not accurate, enter actual accrued interest\"",
+   "what_was_built": "The value typed for a bond is what the statement shows, which leaves out the interest earned since the last coupon. For the yield to maturity, that interest is added: the figure entered, or an estimate from the coupon schedule, and then the screen reads: \"Added estimated $1,119 in accrued interest to bond value at 4.5% coupon for 363 days to calculate YTM. If this is not accurate, enter actual accrued interest\". The yield on today's value is on the value as entered. A $25,000 4.5% Treasury worth $24,200 two days before its coupon now reads 5.69%, not 7.44%."
+  },
+  "Q37": {
+   "answered": "2026-10-12",
+   "his_words": "4 - why the app does not block user from selling more than what's in portfolio. … then: \"3,4, 8-approved.\"",
+   "what_was_built": "A linked broker sends about two years of activity, so a sale can reach past the oldest purchase it sent. Example: bought 10 at $50 on record, sold 15 at $70. The sale is counted once; its gain is on the 10 matched shares; the page reads \"$200 gain on 10 of 15 shares sold; what you paid for the other 5 is not on record.\" Before, it counted one sale with a gain AND one sale without a purchase, which read as two sales. A sale typed by hand is still blocked from selling more than you own."
+  },
+  "Q38": {
+   "answered": "2026-10-20",
+   "his_words": "no words of his — decided by Claude (the lead) under his existing rulings; what was built is below",
+   "what_was_built": "NOT A DECISION OF HIS — the lead's decision of 2026-10-20 under his ruling DEC-0281 (the nine facts on a bond), made without asking him, as his order of 2026-09-30 says. A bond's or CD's quantity is its face amount: $10,000 of face is a quantity of 10,000. The face value box is the quantity, so nothing new is asked. One word from him reverses it. NOT A DECISION OF HIS — the lead's decision of 2026-10-20 under his rulings DEC-0281 and DEC-6212, made without asking him, as his order of 2026-09-30 says. A bond's earned interest is its interest and coupon records dated in the window — the interest DEC-6212 already counts in its return. Nothing new is captured. One word from him reverses it. NOT A DECISION OF HIS — the lead's decision of 2026-10-20 under his ruling DEC-0281, made without asking him, as his order of 2026-09-30 says. A bond's price is quoted per $100 of its face value, the way brokers quote bonds, and worked out — never a box to fill in: market value ÷ face value × 100. Example: $9,850 ÷ $10,000 × 100 = $98.50. One word from him reverses it."
+  },
+  "Q01": {
+   "answered": "2026-10-20",
+   "his_words": "no words of his — decided by Claude (the lead) under his existing rulings; what was built is below",
+   "what_was_built": "NOT A DECISION OF HIS — the lead's decision of 2026-10-20 under his ruling DEC-0281 (the nine facts on a bond), made without asking him, as his order of 2026-09-30 says. A bond's or CD's quantity is its face amount: $10,000 of face is a quantity of 10,000. The face value box is the quantity, so nothing new is asked. One word from him reverses it. NOT A DECISION OF HIS — the lead's decision of 2026-10-20 under his ruling DEC-0281, made without asking him, as his order of 2026-09-30 says. A bond's price is quoted per $100 of its face value, the way brokers quote bonds, and worked out — never a box to fill in: market value ÷ face value × 100. Example: $9,850 ÷ $10,000 × 100 = $98.50. One word from him reverses it."
+  },
+  "Q15": {
+   "answered": "2026-10-20",
+   "his_words": "no words of his — decided by Claude (the lead) under his existing rulings; what was built is below",
+   "what_was_built": "NOT A DECISION OF HIS — the lead's decision of 2026-10-20 under his rulings DEC-0296 (an unknown input gives no number and a reason), DEC-3523 tenet 3 (unknown is not zero) and DEC-2160, made without asking him, as his order of 2026-09-30 says. A record the broker sends under a word the app does not know is kept with that word. It counts as neither money put in nor taken out, and the balance stays the broker's. A return over a window holding that day shows no percent, and the amber box names the broker, the word, the date and the amount. (more in the decision log)"
+  },
+  "Q03": {
+   "answered": "2026-10-20",
+   "his_words": "no words of his — decided by Claude (the lead) under his existing rulings; what was built is below",
+   "what_was_built": "NOT A NEW DECISION, AND NOT ONE OF HIS WORDS — the lead found on 2026-10-20 that his ruling DEC-0051 (2026-08-04, confirmed as written 2026-09-30) already answers master question Q03, whether a certificate of deposit sits under Fixed Income or in a class of its own. DEC-0051: a CD or a Treasury bill is classed as Bonds & CDs, whatever its maturity. Nothing changes in the app."
+  },
+  "Q20": {
+   "answered": "2026-10-20",
+   "his_words": "no words of his — decided by Claude (the lead) under his existing rulings; what was built is below",
+   "what_was_built": "NOT A DECISION OF HIS — the lead's decision of 2026-10-20 under his rulings DEC-4643 (count the part on record and say what is not), made without asking him, as his order of 2026-09-30 says. On a holding page, the gains if sold today, the average price paid and Total paid count the purchases whose price paid is on record, and a line says how many shares are left out. A price paid left blank is saved as not on record, never $0. Example: 10 shares at $100 and 10 with no price paid, today $120: Total paid $1,000 and the gain +$200, both on the 10, and 10 shares named as left out. (more in the decision log)"
   }
  }
 }

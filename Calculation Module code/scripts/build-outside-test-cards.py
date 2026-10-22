@@ -262,14 +262,20 @@ def types_named(sig, lines):
     return out
 
 
-def body_of(lines, at):
+def body_of(lines, at, strict=True):
     """The whole of one function, comments removed — used ONLY for its fingerprint and to trace the
     numbers in its rule. It never goes on a card (the leak check below would stop the build).
 
     Read character by character, because a function ends where its brackets close and an apostrophe
-    in a comment or a "}" in a string must not be mistaken for code."""
-    text = '\n'.join(lines[at:at + 400])
-    out, depth, i, seen = [], 0, 0, False
+    in a comment or a "}" in a string must not be mistaken for code.
+
+    Reads to the function's own end, however long (2026-10-21: it read only the first 400 lines, so a change in the
+    last 30 lines of thePerformance — its return and yearly rate — never stopped the build). A function whose
+    brackets never close stops the build instead of being fingerprinted short. `strict=False` is only for the
+    file-wide scan that finds what a function CALLS (screen components with apostrophes in their text cannot be
+    read to their end): there an unclosed body keeps its old first-400-lines reading, as before 2026-10-21."""
+    text = '\n'.join(lines[at:])
+    out, depth, i, seen, closed = [], 0, 0, False, False
     stack = []                       # where we are: a quote character, or the bracket depth a ${ opened at
     while i < len(text):
         ch, two = text[i], text[i:i + 2]
@@ -310,12 +316,19 @@ def body_of(lines, at):
                     rest = text[i + 1:].lstrip()
                     if rest[:1] not in ('{', '>', '|', '&', '[', ',', ')') and not rest.startswith('=>'):
                         out.append(ch)
+                        closed = True
                         break
             elif ch == ';' and depth == 0 and seen:
                 out.append(ch)
+                closed = True
                 break
         out.append(ch)
         i += 1
+    if not closed:
+        if strict:
+            raise SystemExit(f'STOPPED: the function starting at line {at + 1} never closes its brackets — its fingerprint would be read short')
+        if len(lines) - at > 400:
+            return body_of(lines[:at + 400], at, strict=False)
     return '\n'.join(l.rstrip() for l in ''.join(out).split('\n') if l.strip())
 
 
@@ -350,7 +363,7 @@ def constants_named(body, file_text):
                             m = (re.match(r'(?:export )?(?:default )?(?:async )?function\s+([A-Za-z0-9_]+)', ln)
                                  or re.match(r'(?:export )?const\s+([a-z][A-Za-z0-9_]*)\s*(?::[^=]+)?=\s*(?:async\s*)?(?:<[^>(]*>)?\s*\(', ln))
                             if m:
-                                _FUNC.setdefault(m.group(1), []).append(body_of(lines, k))
+                                _FUNC.setdefault(m.group(1), []).append(body_of(lines, k, strict=False))
     # only what the function really reaches: a function it CALLS (name followed by a bracket) and a
     # constant it names (a capital first letter) — following every word would find any number anywhere
     words = lambda t: set(re.findall(r'\b([A-Za-z_][A-Za-z0-9_]{2,})\s*\(', t)) | set(re.findall(r'\b[A-Z][A-Za-z0-9_]{2,}\b', t))

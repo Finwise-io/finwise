@@ -4,11 +4,11 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { secureStorage } from './secureStorage';
-import { assetsFromOnboarding, type AssetAccount } from '../domain/assets';
-import { benchmarkTicker, marketValue, latestClose, closeOnOrBefore, costBasis, type Position, type PriceSeries } from '../domain/performance';
+import { assetsFromOnboarding, isRealAsset, type AssetAccount } from '../domain/assets';
+import { settleBondValue } from '../../MoneyKeel/functions/networth-and-performance/bonds';   // the one value rule, through the bonds door (DEC-0281)
+import { benchmarkTicker, marketValue, latestCloseLookup, closeOnOrBefore, paidOnRecord, type Position, type PriceSeries } from '../domain/performance';
 import { applyTransaction, makeTransaction, undoSnapshot, restoreUndo, inverseOf, type Transaction } from '../domain/transactions';
 import { reviewTransactions, type TxnFlag } from '../domain/transactions/flags';
-import { round2 } from '../domain/_shared/num';
 import { fetchPriceSeries } from '../services/marketData';
 
 // Recompute the cached `balance` of every ledger-managed account = cash sleeve + Σ(position × live price).
@@ -22,36 +22,29 @@ import { fetchPriceSeries } from '../services/marketData';
  *     a   when source = 'connected'
  *     ledger managed = derive balance = true (or cash balance ≠ nothing when missing or zero)
  *     a   when ledger managed is missing
- *     positions = for each of positions (or none when missing): const px = latest close(cache[ticker.trim().to upper case()]); return { ...each, value now: (px == null ? cost basis(each) : market value(each, px)) ?? value now ?? 0 }; = const px = latest close(cache[ticker.trim().to upper case()]); return { ...each, value now: (px == null ? cost basis(each) : market value(each, px)) ?? value now ?? 0 };
+ *     positions = for each of positions (or none when missing): const px = latest close lookup(cache)(ticker); return { ...each, value now: (px == null ? paid on record(each).paid : market value(each, px)) ?? value now ?? 0 }; = const px = latest close lookup(cache)(ticker); return { ...each, value now: (px == null ? paid on record(each).paid : market value(each, px)) ?? value now ?? 0 };
  *     mv = Σ over positions of (value now)
  *     the answer:
  *     ...a = ...a
  *     positions = positions
- *     balance = round((cash balance or 0) + mv, 2 dp)
+ *     balance = (cash balance or 0) + mv
  *
- * Called by ... MK-XS-F-175 uid
+ * Called by ... MK-ST-F-027 accountId · MK-XS-F-175 uid
  *
- * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 35 more — the full list is on functions_from_code
+ * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 248 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
- *               MK-XS-I-005 holding price
- *               MK-XS-I-006 price fetched at
- *               MK-XS-I-007 purchase price and date (per lot)
- *               MK-XS-I-010 transaction words (the institution's own wording)
- *               MK-XS-I-018 retirement age
- *               MK-XS-I-020 Social Security monthly amount
  *
  * Decides .....
  *     · If value now is missing it uses 0.
@@ -79,14 +72,91 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
     // A STORED BALANCE IS A NUMBER: where a holding's worth is unknown (a share count or a cost not entered — outside
     // review Claude Performance, 2026-10-11, tenet 3) it keeps the value it was last built at, and the holding's own
     // figures refuse on screen. Before, the missing figure counted as 0 here.
-    const positions = (a.positions ?? []).map((p) => { const px = latestClose(cache[p.ticker.trim().toUpperCase()]); return { ...p, value_now: (px == null ? costBasis(p) : marketValue(p, px)) ?? p.value_now ?? 0 }; });
+    // the one price-by-ticker lookup the amber box and every screen read (latestCloseLookup, 2026-10-21)
+    // WHAT WAS PAID IS READ ONE WAY (paidOnRecord, 2026-10-21): with no price a holding counts what was paid for the purchases
+    // whose price paid is on record — the Holding page's large figure and its Total paid. costBasis read a stored $0 as a real
+    // $0, so a holding whose only purchase was saved at $0 shrank the balance to $0, and one purchase with none kept a stale value
+    const positions = (a.positions ?? []).map((p) => { const px = latestCloseLookup(cache)(p.ticker); return { ...p, value_now: (px == null ? paidOnRecord(p).paid : marketValue(p, px)) ?? p.value_now ?? 0 }; });
     const mv = positions.reduce((t, p) => t + p.value_now, 0);
-    return { ...a, positions, balance: round2((a.cash_balance || 0) + mv) };
+    // HELD AT FULL PRECISION (DEC-0403, 2026-09-09): the stored balance is the exact sum; it was rounded to cents here
+    // until 2026-10-20, so every later sum started from a rounded figure. Rounding happens once, on screen.
+    return { ...a, positions, balance: (a.cash_balance || 0) + mv };
   });
 }
+
+/** A VALUE TYPED WITH AN EARLIER "VALUE AS OF" DATE GOES ON THAT DATE (2026-10-20). The Bonds and Other investments
+ *  editors let a person date a value ("$24,900, as of Sep 30"); the daily record was written from today's accounts, so
+ *  that value read as a change today. The function typedValueOnItsDate (snapshots.ts) supersedes the recorded days from
+ *  the as-of date to today that still hold the value being replaced; the two one-number daily totals written beside
+ *  the record (net worth, cash + investments) move on the same days by the same amounts, so the trend and the change
+ *  line read the record's own days. Only a save that states the date (`value_as_of` in the change) is dated back: a
+ *  balance the app lowers by itself (a bond split out of an account, a sale) carries no date and moves no history.
+ *  The month records (monthlySnapshots) are left as captured: a month's point is read as its first day, so moving it
+ *  would take a change out of a window that holds it. */
+/* ─ MK-XS-F-192 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * typedValueDatedBack
+ *
+ * Answers ..... A VALUE TYPED WITH AN EARLIER "VALUE AS OF" DATE GOES ON THAT DATE (2026-10-20).
+ *
+ * Formula .....
+ *     {}   when account is missing (or update is missing (or not ('value_as_of' in update) when missing or zero) when missing or zero)
+ *     before = (asset accounts ?? []).find((x: asset account) => asset id = account.asset id)
+ *     {}   when count of moved is missing
+ *     nw daily = { ...(nw daily ?? {}) }
+ *     inv daily = { ...(inv daily ?? {}) }
+ *     investable = !is real asset(account)
+ *     the answer:
+ *     snapshot days = days
+ *     nw daily = nw daily
+ *     inv daily = inv daily
+ *
+ * Called by ... MK-XS-F-175 uid
+ *
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 35 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-006 price fetched at
+ *               MK-XS-I-010 transaction words (the institution's own wording)
+ *               MK-XS-I-018 retirement age
+ *               MK-XS-I-020 Social Security monthly amount
+ *               MK-XS-I-021 Social Security claim age
+ *               MK-XS-I-024 logged expenses
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-192
+ * Changed ..... not in git yet (—)
+ */
+function typedValueDatedBack(s: any, update: Partial<AssetAccount>, account: AssetAccount | undefined): Record<string, unknown> {
+  if (!account || !update || !('value_as_of' in update)) return {};
+  const before = (s.assetAccounts ?? []).find((x: AssetAccount) => x.asset_id === account.asset_id);
+  const { days, moved } = typedValueOnItsDate(s.snapshotDays ?? [], account as any, isoLocalDate(new Date()), new Date().toISOString(), before as any);
+  if (!moved.length) return {};
+  const nwDaily: Record<string, number> = { ...(s.nwDaily ?? {}) };
+  const invDaily: Record<string, number> = { ...(s.invDaily ?? {}) };
+  const investable = !isRealAsset(account);   // the one rule cash + investments is summed by (investableAssets)
+  for (const m of moved) {
+    if (typeof nwDaily[m.date] === 'number') nwDaily[m.date] += m.now - m.was;
+    if (investable && typeof invDaily[m.date] === 'number') invDaily[m.date] += m.now - m.was;
+  }
+  return { snapshotDays: days, nwDaily, invDaily };
+}
 import { debtsFromOnboarding, type Debt } from '../domain/debt';
-import { ingestSync as ingestSyncPure, type AccountSyncPayload } from '../services/sync/ingest';
-import { buildDayFromAccounts, record as recordSnapshotDay, prune as pruneSnapshots, dailyWindowStart, type SnapshotDay } from '../../Calculation Module code/engines/snapshots';
+import { ingestSync as ingestSyncPure, fixStoredMoney, fixStoredFees, type AccountSyncPayload } from '../services/sync/ingest';
+import { buildDayFromAccounts, record as recordSnapshotDay, prune as pruneSnapshots, dailyWindowStart, typedValueOnItsDate, type SnapshotDay } from '../../Calculation Module code/engines/snapshots';
 import { rebuildDays, fillBetweenObservations } from '../../Calculation Module code/engines/rebuild-history';
 import { newEntityId } from '../domain/_shared/ids';
 import { goalsFromOnboarding } from '../domain/goals';
@@ -586,7 +656,6 @@ const DEFAULT_BADGES: Badge[] = [
  *     · If saved is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Uses a built-in total of 0.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Rounds the answer to two decimals (cents).
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-175
  * Changed ..... not in git yet (—)
@@ -756,7 +825,8 @@ export const useStore = create<AppState>()(
       updateExpense: (id, updates) => set((s) => ({ expenses: s.expenses.map((e) => e.id === id ? { ...e, ...updates } : e) })),
 
       // ── Net Worth: assets & liabilities ──────────────────────────
-      addAsset:       (a) => set((s) => ({ assetAccounts: [{ ...a, asset_id: newEntityId('ast') }, ...s.assetAccounts] })),
+      // a bond's or CD's balance follows the one value rule (DEC-0281, settleBondValue): market value, else paid, else face
+      addAsset:       (a) => set((s) => ({ assetAccounts: [settleBondValue({ ...a, asset_id: newEntityId('ast') } as AssetAccount, a), ...s.assetAccounts] })),
       // SnapTrade sync (design v2): holdings are authoritative; activities append as HISTORY ONLY
       // (never applied to balances — the no-double-count rule pinned in ingest.test.ts).
       // AUDIT FIX 2026-07-18 (P1 race): ingest runs INSIDE set() against the state as it is at
@@ -767,13 +837,15 @@ export const useStore = create<AppState>()(
         const r = ingestSyncPure(s.assetAccounts, s.snaptradeSeenKeys ?? {}, payloads);
         return {
           assetAccounts: r.accounts,
-          // an older share transfer that carries no direction takes the one the broker reports for it
-          transactions: [...r.newTransactions, ...s.transactions.map((t: any) => {
+          // an older share transfer that carries no direction takes the one the broker reports for it; an older money
+          // record takes the broker's direction, and its real $0, the same way (fixStoredMoney, 2026-10-21); an older buy or
+          // sale takes the broker's fee (fixStoredFees, 2026-10-21)
+          transactions: [...r.newTransactions, ...fixStoredFees(fixStoredMoney(s.transactions.map((t: any) => {
             if (t.type !== 'TRANSFER_IN_KIND' || t.direction) return t;
             const d = (r.directionOf ?? []).find((x) => x.account_id === String(t.account_id) && x.date === String(t.date).slice(0, 10)
               && (x.ticker ?? '') === (t.ticker ?? '') && (x.shares ?? null) === (t.shares ?? null));
             return d ? { ...t, direction: d.direction } : t;
-          })],
+          }), r.moneyOf ?? []), r.feeOf ?? [])],
           snaptradeSeenKeys: r.seenKeys,
           snaptradeConnections: connections,
           snaptradeLastSyncAt: new Date().toISOString(),
@@ -796,7 +868,12 @@ export const useStore = create<AppState>()(
           wrapperConfirmQueue: (s.wrapperConfirmQueue ?? []).filter((id) => !connIds.has(id) || keepAsManual),
         };
       }),
-      updateAsset:    (id, u) => set((s) => ({ assetAccounts: s.assetAccounts.map((x) => x.asset_id === id ? { ...x, ...u } : x) })),
+      // a value typed with an earlier "Value as of" date is written onto the recorded days from that date (2026-10-20)
+      updateAsset:    (id, u) => set((s) => {
+        // a bond's or CD's balance follows the one value rule (DEC-0281, settleBondValue): market value, else paid, else face
+        const assetAccounts = s.assetAccounts.map((x) => x.asset_id === id ? settleBondValue({ ...x, ...u }, u, x) : x);
+        return { assetAccounts, ...typedValueDatedBack(s, u, assetAccounts.find((x) => x.asset_id === id)) };
+      }),
       deleteAsset:    (id) => set((s) => ({ assetAccounts: s.assetAccounts.filter((x) => x.asset_id !== id) })),
       addPosition: (accountId, position) => set((s) => {
         // a holding the person adds to a LINKED account is theirs: a sync that does not list it keeps it
@@ -805,7 +882,7 @@ export const useStore = create<AppState>()(
         const pos = { ...position, position_id: newEntityId('pos'), ...(linked ? { added_by: 'user' as const, cost_source: 'user' as const } : {}) };
         const accounts = s.assetAccounts.map((a) => a.asset_id === accountId ? { ...a, positions: [...(a.positions ?? []), pos] } : a);
         // log an OPENING_POSITION transaction per lot (first-time capture of holdings you already own)
-        const txns = (pos.lots ?? []).map((l) => makeTransaction({ date: l.purchase_date, type: 'OPENING_POSITION', account_id: accountId, position_id: pos.position_id, ticker: pos.ticker, kind: pos.kind, shares: l.shares, price: l.cost_per_share }));
+        const txns = (pos.lots ?? []).map((l) => makeTransaction({ date: l.purchase_date, type: 'OPENING_POSITION', account_id: accountId, position_id: pos.position_id, ticker: pos.ticker, kind: pos.kind, shares: l.shares, price: l.cost_per_share ?? undefined }));   // a cost not on record gives the row no price
         return { assetAccounts: recomputeBalances(accounts, s.priceCache), transactions: [...txns, ...s.transactions] };
       }),
       updatePosition: (accountId, positionId, patch) => set((s) => {
@@ -975,8 +1052,9 @@ export const useStore = create<AppState>()(
           total += it.amount;
           return {
             ...g,
-            saved: Math.round(((g.saved || 0) + it.amount) * 100) / 100,
-            fundedByMonth: { ...(g.fundedByMonth ?? {}), [ym]: Math.round((((g.fundedByMonth ?? {})[ym] ?? 0) + it.amount) * 100) / 100 },
+            // held exact (DEC-0403): these two were rounded to cents when saved until 2026-10-20
+            saved: (g.saved || 0) + it.amount,
+            fundedByMonth: { ...(g.fundedByMonth ?? {}), [ym]: ((g.fundedByMonth ?? {})[ym] ?? 0) + it.amount },
           };
         });
         return { goals, allocatedByMonth: { ...s.allocatedByMonth, [ym]: (s.allocatedByMonth[ym] ?? 0) + total } };

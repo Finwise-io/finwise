@@ -161,7 +161,8 @@ const styles = StyleSheet.create({
     fontSize: Typography.sizes.md, color: Colors.textPrimary,
   },
   labelGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
-  labelBtn: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: Radii.pill, backgroundColor: Colors.bgSecondary, borderWidth: 0.5, borderColor: Colors.border },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  labelBtn: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: Radii.md, backgroundColor: Colors.bgSecondary, borderWidth: 0.5, borderColor: Colors.border },
   labelBtnOn: { backgroundColor: Colors.primaryLight, borderColor: Colors.primaryMid },
   labelBtnText: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, fontWeight: '500' },
   labelBtnTextOn: { color: Colors.primaryDeep },

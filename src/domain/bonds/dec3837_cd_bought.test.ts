@@ -10,6 +10,7 @@ const ON_COUPON_DAY = new Date(2026, 9, 10);      // exactly two years before 20
 const MID_YEAR = new Date(2027, 3, 10);           // half-way between coupons
 
 describe('DEC-3837 · where a CD was bought', () => {
+  // its FIGURES are a bank CD's while nothing is answered; its page no longer says it was marked so, and asks (2026-10-21)
   test('not answered reads as bought from the bank (today’s behaviour)', () => {
     expect(bondInfo(cd({})).cdBought).toBe('bank');
     expect(pricedLikeBond(bondInfo(cd({})))).toBe(false);
@@ -51,10 +52,19 @@ describe('DEC-3837 · where a CD was bought', () => {
     const b = bondInfo(cd({ cd_bought: 'bank' }));
     expect(bondRateSensitivity(b, MID_YEAR)).toBeNull();
     expect(accruedInterestCaveat(b, MID_YEAR)).toBeNull();
-    const one = theBonds({ accounts: [cd({})], accountId: 'cd1', today: MID_YEAR }).one!;
+    // marked as bought from the bank (it read an unanswered CD until 2026-10-21; that one now asks — the test below)
+    const one = theBonds({ accounts: [cd({ cd_bought: 'bank' })], accountId: 'cd1', today: MID_YEAR }).one!;
     expect(one.ratesMove).toBeNull();
     expect(one.accruedCaveat).toBeNull();
     expect(one.ratesMoveRefusal).toMatch(/^Nothing happens to this CD\. It is not traded/);
     expect(one.ratesMoveRefusal).toMatch(/marked as bought from the bank/);
+  });
+
+  test('a CD never answered is not said to be marked as bought from the bank — it says where it was bought is not entered (2026-10-21)', () => {
+    const one = theBonds({ accounts: [cd({})], accountId: 'cd1', today: MID_YEAR }).one!;
+    expect(one.ratesMove).toBeNull();
+    expect(one.cdBoughtNotEntered).toBe(true);
+    expect(one.ratesMoveRefusal).toMatch(/^Where this CD was bought is not entered\./);
+    expect(one.ratesMoveRefusal).not.toMatch(/marked as bought from the bank/);
   });
 });

@@ -1,35 +1,42 @@
-// Account portfolio — ONE screen per account, built to Performance v17 frame 2 (his DEC-0646, 2026-10-01):
-// the five windows across the top, the SUMMARY trio on one row, the value line, this account's own walk,
-// then — in his caption's words — "its holdings, income and activity are v14's, unchanged": what it
-// holds by category, the three record doors, its full activity, and the editors. Every figure comes
-// from one door (MK-NW-O-002 theAccount, MK-NW-O-008 thePerformance); the screen calculates nothing.
+// Account portfolio — ONE screen per account (his DEC-0646, 2026-10-01: the Account detail screen IS this screen), BUILT
+// TO THE ACCOUNT-PAGE DRAWING v01, APPROVED 2026-10-19 (his word "approved." — DEC-6457), which replaces Performance
+// v17 frame 2 as its design: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_account-page_v01.html, six
+// states A to F (F, a bond whose value is its face value, added 2026-10-20). Top to bottom, as drawn: the name; the source chip; the class and tax type; the five windows; THIS
+// ACCOUNT · <window> with the trio on one row; the amber box of missing information; HOW $X BECAME $Y · THIS ACCOUNT;
+// BY CATEGORY & HOLDING; Edit · Update value (an account built by hand); BOND FACTS, IF INTEREST RATES MOVE, HISTORIC
+// 12-MONTH RETURN; ACTIVITY · <window> with its three doors. Held word for word, state by state, by
+// src/screens/__tests__/account_page_drawing_states.test.tsx. Every figure comes from one door (MK-NW-O-002 theAccount,
+// MK-NW-O-008 thePerformance); the screen calculates nothing.
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
 import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { percentDigits } from '../../MoneyKeel/functions/_figure-spec';   // the one writer of a percent's digits (DEC-6212)
-import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
+import { Colors, Spacing, Radii, ClassMarkColors, Shadows } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
-import { periodReturnSince, buildPerformance, priceHistoryShortSentence, bondInterestInWindow, returnWithInterest, isIndividualBondOrCD, type Period, type Position } from '../domain/performance';
+import { periodReturnSince, buildPerformance, priceHistoryShortSentence, bondInterestInWindow, returnWithInterest, isIndividualBondOrCD, latestCloseLookup, valueAtClose, type Period, type Position } from '../domain/performance';
 import { DateLink } from '../components/DateField';   // (DEC-4059c, 2026-10-10)
-import { EDIT_HISTORY_START, historyCoverage, assetClassOf, taxWordsOf, TAX_TYPE_NOT_STATED, holdingClassOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount, sourceWording } from '../domain/assets';
+import { EDIT_HISTORY_START, historyCoverage, assetClassOf, taxWordsOf, TAX_TYPE_NOT_STATED, holdingClassOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount } from '../domain/assets';
+import { dataGaps } from '../domain/gaps';
+import { DataGapsBanner } from '../components/DataGapsBanner';   // the app's one amber box of missing information (drawing v01, state D)
+import { SourceChip } from '../components/SourceChip';   // the one source chip: "🔗 Linked", its age only when stale
 import { theBonds, holdingBondFacts, MATURITY_NOT_ENTERED } from '../../MoneyKeel/functions/networth-and-performance/bonds';
 import { theAccount } from '../../MoneyKeel/functions/networth-and-performance/account';
-import { windowStartKey, thePerformance, categoryEarnings, classReturnOf } from '../../MoneyKeel/functions/networth-and-performance/performance';
-import { ValueGraph } from '../components/ValueGraph';
+import { theHolding } from '../../MoneyKeel/functions/networth-and-performance/holding';   // each holding's value, by its own door
+import { Dec } from '../../Calculation Module code/engines/decimal';   // exact money subtraction, so nothing is cut to cents
+import { windowStartKey, thePerformance, classReturnOf } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
+import { moneyIntoAccount } from '../../Calculation Module code/engines/ledger';
 import { maskedMoney, spokenMoney, typedAmount } from '../components/useMoney';
 import { InfoDot, EstimateTag } from '../components/UI';
 import { modalAnimation } from '../hooks/reducedMotion';
 import TopBar from '../components/TopBar';
 import { HISTORIC_TTM_TITLE, HISTORIC_TTM_BODY } from '../constants/historicReturn';
+import { CD_BOUGHT_QUESTION, CD_BOUGHT_CHOICES } from '../constants/cdBought';   // the one wording (DEC-3837)
 import { WindowSelector } from '../components/WindowSelector';   // one card, one set of words (DEC-6005)
-// ONE walk builder and ONE window return for the whole app: the account page calls exactly what the
-// Performance screen calls, so an account's figures and the portfolio's can never disagree.
-import { valueOn } from '../../Calculation Module code/engines/snapshots';
 
 import { isoLocalDate as iso, dateShown, maturityParts } from '../domain/_shared/dates';   // maturityParts: the one reading of a maturity date (MK-NW-F-124, 2026-10-13)
 
@@ -51,6 +58,9 @@ const pct2 = (v: number | null): string => (v == null ? '—' : `${v >= 0 ? '+' 
 /** A stated yearly rate, worded the one way the canon allows (cluster 14 spells the period in full). */
 const rateWords = (rate: number): string => `${percentDigits(rate)}%/year`;
 const WINDOW_KEYS = ['SINCE', '1M', 'YTD', '1Y', '2Y'] as const;
+/** THE ONE RIGHT EDGE (drawing v01, row 8; DEC-0093): every figure is followed by the same 16-point column — "›" on a
+ *  row that opens a page, "✎" on a record you entered, empty elsewhere — so every figure ends on one line. */
+const GUTTER = 16;
 const WINDOW_WORDS: Record<string, string> = {
   '1M': '1M', YTD: 'This year', '1Y': '1Y', '2Y': '2Y',
 };
@@ -76,7 +86,7 @@ const activityDay = (iso: string): string => {
 
 export default function AccountPortfolioScreen() {
   const router = useRouter();
-  const { id: idParam, accountId, class: classParam } = useLocalSearchParams<{ id?: string; accountId?: string; class?: string }>();
+  const { id: idParam, accountId, class: classParam, period: periodParam, show: showParam } = useLocalSearchParams<{ id?: string; accountId?: string; class?: string; period?: string; show?: string }>();
   const id = idParam ?? accountId;
   // B47 finding 7 (APPROVED): arriving from a class slice = the class-only view; the whole
   // account is one labeled tap away (clearing the param).
@@ -86,9 +96,18 @@ export default function AccountPortfolioScreen() {
   // which DOOR is open, and so which kinds of record its sheet offers (mock v14: three doors)
   const [door, setDoor] = useState<ActionType[] | null>(null);
   const [showAll, setShowAll] = useState(false);
+  // THE WAY DOWN TO ACTIVITY (Q15, 2026-10-20, the drawing's rows 49-50): the amber box's door for a record under a word
+  // the app does not know goes down to ACTIVITY with every record listed — on this page, and when another screen opens
+  // this page for it (show=activity). Pushing this page's own route again opened a second copy of it.
+  const scrollRef = useRef<ScrollView>(null);
+  const activityY = useRef<number | null>(null);
+  const arrivedAtActivity = useRef(false);
+  const goToActivity = () => { setShowAll(true); if (activityY.current != null) scrollRef.current?.scrollTo({ y: activityY.current, animated: true }); };
   const [valueSheet, setValueSheet] = useState(false);
   const [editRow, setEditRow] = useState<Transaction | null>(null);   // a row YOU entered, opened to correct
-  const [period, setPeriod] = useState<string>('SINCE');               // the window picked across the top (v17 frame 2)
+  // the window a person picks on THIS page; until they pick one, the page opens on the window it was opened with (below)
+  const [picked, setPicked] = useState<string | null>(null);
+  const [closed, setClosed] = useState<Record<string, boolean>>({});   // a class bar tapped shut (▾ → ▸), drawing v01
 
   // FOUNDER FINDING 2026-08-11: this was unsorted, and the list below shows only the first eight —
   // so on an account with any history the dividends and interest could be sitting past the cut and
@@ -124,11 +143,13 @@ export default function AccountPortfolioScreen() {
   const bondOne = cls === 'bonds' ? theBonds({ accounts: [account], accountId: String(account.asset_id) }).one : null;
   const maturedOn = bondOne?.matured ? maturityParts(bondOne.maturity) : null;
   const source = account.source ?? 'manual';
-  // walk row 8: the ONE source sentence (detail keeps its read-only clarifier for connected)
-  const sourceChip = source === 'connected' ? `${sourceWording(account).split(' · ')[0]} · read-only` : sourceWording(account);
-  const updatedLine = source === 'connected' && account.last_synced
-    ? `Updated ${new Date(account.last_synced).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`
-    : account.value_as_of ? `Value as of ${dateShown(account.value_as_of)}` : null;   // the one date writer, "Jun 2, 2026" (2026-10-19)
+  // SOURCE ALWAYS, DATE ONLY WHEN STALE (the account-page drawing v01, approved 2026-10-19, row 7; DEC-0223, DEC-0355): the
+  // chip says where the figures come from — "🔗 Linked", with its age only once it is stale, the one chip Net worth and
+  // Performance print. A linked account used to print "Updated Sep 30, 1:00 AM" beside it on every visit, so a date was
+  // there whether or not it meant anything. A value typed by hand carries the day it was typed (row 36): "Value as of
+  // Jun 2, 2026", through the one date writer.
+  const valueAsOfLine = source !== 'connected' && account.value_as_of ? `Value as of ${dateShown(account.value_as_of)}` : null;
+  const paused = !!(account.connection_id && (store.snaptradeConnections ?? []).find((c: any) => c.id === account.connection_id && c.disabled));
   // Build-43 finding #4: a bare CUSIP ("49306SX43") reads as noise — show the security's NAME for
   // identifier-style tickers (9 alphanumerics with digits), the ticker for everything else.
   const holdingWord = (p: { ticker?: string; name?: string }) => {
@@ -142,6 +163,9 @@ export default function AccountPortfolioScreen() {
   // Build-47 walk row 5 (audit Design ICP #29): a hand-entered value with NO date shows the
   // approved one-line nudge instead of silence — the quiet data-quality hole, closed.
   const undated = !account.source && !account.value_as_of && !(account.positions?.length) && (account.balance || 0) > 0;
+  /** A BALANCE NEVER ENTERED (the drawing's row 16, DEC-3657): Market value reads the one wording for it, and Wealth
+   *  generated and Return a dash — never $0. */
+  const hasValue = account.balance != null && Number.isFinite(account.balance as number);
 
   // APPROVED account-detail mock (2026-07-19): connected accounts show WHAT'S INSIDE · BY TYPE —
   // every holding with a readable name, class dot and value; the cash sleeve; each option row.
@@ -156,14 +180,15 @@ export default function AccountPortfolioScreen() {
   const breakdown = account.source === 'connected' ? accountClassBreakdown(account) : null;
   const breakdownClasses = breakdown ? (Object.keys(breakdown) as (keyof typeof breakdown)[]).filter((k) => breakdown[k] !== 0) : [];
   const ledger = ((store.transactions ?? []) as any[]).filter((t) => t.account_id === account.asset_id);
-  const incomeOf = (rw: any): string => {
-    // BY THE HOLDING'S TICKER, which is what a record names. It read the row's NAME, so a bond shown by its name (a
-    // 9-character security id gives way to the name) matched no record and its interest line never showed (found
-    // 2026-10-19 running the account-page drawing's state A, DEC-6212). A row with no ticker keeps its name.
-    const words = answer.incomeOfHolding(String(rw.ticker ?? '').trim() || String(rw.name ?? '').split(' · ')[0].trim()).words;
-    return words.replace(/(\d+) dividends/, (_m, n) => `${fig('MK-NW-M-019', Number(n))} dividends`)
-                .replace(/(\d+) interest/, (_m, n) => `${fig('MK-NW-M-019', Number(n))} interest`);
-  };
+  /** A holding row's income, from the door: by the holding's TICKER, which is what a record names. It read the row's NAME,
+   *  so a bond shown by its name (a 9-character security id gives way to the name) matched no record and its interest
+   *  line never showed (found 2026-10-19 running the account-page drawing's state A, DEC-6212). The cash row's income is
+   *  the interest that names no holding (theAccount.incomeOfCash, drawing v01 state A: "Income: $15 interest"). */
+  const incomeRowOf = (rw: any) => (rw.key === '__cash' ? answer.incomeOfCash
+    : answer.incomeOfHolding(String(rw.ticker ?? '').trim() || String(rw.name ?? '').split(' · ')[0].trim()));
+  const incomeOf = (rw: any): string => incomeRowOf(rw).words
+    .replace(/(\d+) dividends/, (_m, n) => `${fig('MK-NW-M-019', Number(n))} dividends`)
+    .replace(/(\d+) interest/, (_m, n) => `${fig('MK-NW-M-019', Number(n))} interest`);
   const acctIncome = answer.income;
 
   // ── THE WINDOW (Performance v17 frame 2, his DEC-0646) ─────────────────────────────────────
@@ -181,7 +206,12 @@ export default function AccountPortfolioScreen() {
   /** The first day this account's own records reach back to — what "Since" means here: a day somebody
    *  recorded a value first; only with no record at all does the first money movement stand in. */
   const okDay = (d: string) => /^\d{4}-\d{2}-\d{2}$/.test(d);
-  const recordedDays = days.map((d: any) => String(d.date).slice(0, 10)).filter(okDay).sort();
+  // THIS ACCOUNT'S OWN DAYS (2026-10-19, found building the account-page drawing v01, row 19: "on this page the account's
+  // own record begins Jun 2, 2026"). Every day in the record was read, so an account added today beside accounts recorded
+  // for a year opened on "Since" a year ago, a day it was not in the record at all.
+  const holdsThis = (d: any) => (d.accounts ?? []).some((a: any) => String(a.accountId) === String(account.asset_id))
+    || (d.holdings ?? []).some((h: any) => String(h.accountId) === String(account.asset_id));
+  const recordedDays = days.filter(holdsThis).map((d: any) => String(d.date).slice(0, 10)).filter(okDay).sort();
   const movedDays = ledger.map((t: any) => String(t.date).slice(0, 10)).filter(okDay).sort();
   const dataStart: string | null = recordedDays[0] ?? movedDays[0] ?? null;
   // A HOLDING'S PURCHASE DATE, for the cap — the Performance tab's rule (invest-v3 FINAL, 2026-07-19): dated lots win; a
@@ -229,44 +259,53 @@ export default function AccountPortfolioScreen() {
       accounts: [account] as any[],
       wholeRecord: p === 'SINCE',   // "Since" is the window's own total, never a yearly rate (v17, phone 3)
     });
-  };  const byWindow: Record<string, ReturnType<typeof figuresFor>> = {};
+  };
+  const byWindow: Record<string, ReturnType<typeof figuresFor>> = {};
   for (const k of WINDOW_KEYS) byWindow[k] = figuresFor(k);
+  /** THE WINDOW THE PAGE OPENS ON (the drawing's row 18, approved 2026-10-19, DEC-6457): "The page opens on the window
+   *  picked on Performance; opened from Net worth, on Since." Performance hands its window over (?period=1Y); every other
+   *  door hands none, so Since. A window this account cannot show — one its own record and no price history reach, which
+   *  cannot be picked here (row 19) — opens on Since instead, as states B and E are drawn. */
+  const handed = WINDOW_KEYS.find((k) => k === String(periodParam ?? '').toUpperCase()) ?? 'SINCE';
+  const cannotPick = (k: string) => k !== 'SINCE' && byWindow[k]?.covered === false && !byWindow[k]?.workedBack;
+  const period: string = picked ?? (cannotPick(handed) ? 'SINCE' : handed);
   const now = byWindow[period];
-  const walk = now?.walk;
+  const walk = hasValue ? now?.walk : null;
   const windowStart: string | null = now?.windowStart ?? null;
-  /** DAY ONE: nothing recorded and no money moved — the value is real, the return starts today. */
-  const dayOne = !dataStart;
+  /** DAY ONE: nothing this account recorded or moved is dated before today — the value is real, the return starts today.
+   *  AS THE APP HAS IT (2026-10-19, the account-page drawing v01, DEC-6075): Home writes today's values to the daily
+   *  record the moment it opens, so on the day an account is linked or added its record already holds ONE day, today.
+   *  The day-one test read "no record at all", which never happens once Home has opened — so the approved day-one lines
+   *  never showed. A record that begins today is day one, as the Performance tab has always read it. */
+  const dayOne = !(recordedDays[0] && recordedDays[0] < todayKey) && !(movedDays[0] && movedDays[0] < todayKey);
+  /** A WINDOW WORKED BACK FROM TODAY IS NOT DAY ONE (DEC-5068, DEC-5291): with a record that begins today, 1M, This year,
+   *  1Y and 2Y open before it and are worked back from each holding's price history (state D); only the window that
+   *  begins today reads as day one (state C). The Performance tab's own rule. */
+  const dayOneView = dayOne && !now?.workedBack;
   /** The day the figures start from, as the drawing writes it: the record's first day. */
-  // read from the record: its first day; from the activity records alone: the first day money moved
-  const since: string | null = recordedDays.length ? (now?.beginningAsOf ?? null) : (movedDays[0] ?? null);
-  const sinceWords = dayOne || !since ? 'today' : dateShown(since);
+  // read from the record: its first day; from the activity records alone: the first day money moved — for SINCE only. ANY
+  // OTHER WINDOW BEGINS WHERE THE DOOR SAYS (beginningAsOf), as on the Performance tab (2026-10-21, one date for one window):
+  // with no daily record a 1M walk read "Beginning market value (Nov 20, 2024)", the first money movement, where the
+  // Performance tab's 1M read Sep 20, 2026.
+  const since: string | null = recordedDays.length || period !== 'SINCE' ? (now?.beginningAsOf ?? null) : (movedDays[0] ?? null);
+  const sinceWords = dayOneView || !since ? 'today' : dateShown(since);
   const windowWords = period === 'SINCE' ? `since ${sinceWords}` : (PHRASE[period] ?? 'this window');
-  /** WHAT EACH CATEGORY EARNED — the same door, so a category cannot read differently here. */
-  const cats = categoryEarnings({
-    transactions: ledger,
-    windowStart: now?.windowStart ?? todayKey,
-    rows: buildPerformance(positions, priceOf, period as Period, new Date(), boughtOn, period === 'SINCE' ? now?.windowStart ?? null : undefined, income) as any,
-  });  const catsTotal = cats.reduce((n, b) => n + b.earned, 0);
-  /** THE VALUE LINE — this account's worth on each recorded day inside the window, at most 26 points. */
-  const graphPoints: { date: string; value: number }[] = [];
-  if (days.length && now?.windowStart) {
-    const from = now.beginningAsOf ?? now.windowStart!;
-    const inWindow = days.map((d: any) => String(d.date)).filter((d: string) => d >= from).sort();
-    const step = Math.max(1, Math.ceil(inWindow.length / 26));
-    for (let i = 0; i < inWindow.length; i += step) {
-      const v = valueOn(days, ids, inWindow[i]);
-      if (v != null) graphPoints.push({ date: inWindow[i], value: v });
-    }
-    if (account.balance != null) graphPoints.push({ date: todayKey, value: account.balance });
-  }
-  /** How far back this account's own records reach — said only when the window asks for more. */
+  /** How far back this account's own records reach — on this page only the refusal of a start date that cannot be read,
+   *  with its Edit date door (DEC-4059c, row 20 of the drawing). A window reaching past what the broker shared is said by
+   *  the amber box below (the history-depth gap); "no activity records" is said by nothing on the drawing — it read
+   *  "Vanguard hasn't shared any activity records yet" on an account showing fifteen of them. */
   const coverage = historyCoverage(account, now?.windowStart ?? todayKey, new Date());
+  // THE AMBER BOX OF MISSING INFORMATION (the drawing's state D, rows 11 and 35): this account's own gaps, from the one
+  // function the Performance and Net worth banners read. Not on day one: nothing is measured yet, so no number is
+  // missing an input (state C draws none).
+  // the price history the app holds, so a holding added by hand is judged for a price today too (R7, 2026-10-20)
+  const gaps = dayOneView ? [] : dataGaps([account], now?.windowStart ?? null, Date.now(), ledger as any, (store.syncFailures ?? []) as any, [], latestCloseLookup(priceCache));   // the one price lookup, the same on Net worth and Performance (2026-10-21)
   // the Total row of BY CATEGORY & HOLDING carries the account's own return — the window's, from the
   // door above, never a second method; where it cannot be measured there is no figure
-  const acctReturnText = pct2(now?.ret ?? null);
+  const acctReturnText = hasValue ? pct2(now?.ret ?? null) : '—';
   // ONE string for this account's market value: the band, the trio and the Total row all print it,
   // so three places on one screen can never show three different roundings of the same figure.
-  const marketValueText = fig('MK-NW-M-018', account.balance || 0);
+  const marketValueText = hasValue ? fig('MK-NW-M-018', account.balance as number) : figWords('MK-NW-M-018', 'Value not entered');
   /** THE LINE UNDER A BOND'S OR A CD'S NAME, as a stock's carries its shares (DEC-6212, 2026-10-19): face value, coupon
    *  rate, yield to maturity and, since DEC-6323 (owner, 2026-10-19: "Line under a bond - new line missing maturity
    *  date."), the maturity date — "$5,000 face · 4.00% · YTM 4.00% · matures Mar 31, 2027", the date in the app's one
@@ -284,20 +323,53 @@ export default function AccountPortfolioScreen() {
     ].filter(Boolean);
     return parts.length ? parts.join(' · ') : 'CDs & Treasuries';
   };
+  /** The cash sleeve has a row of its own when the account holds cash; only then is interest naming no holding the cash's
+   *  (its row, its activity line). With no cash row it stays at the account level, never pinned on a holding (2026-08-11). */
+  // THE CASH ROW IS THE DOOR'S (theAccount.uninvestedCash, 2026-10-21, DEC-0095): the cash the broker reports plus the part of
+  // its total no listed holding accounts for, so the rows add up to the market value. It read the reported cash alone, so a
+  // $50,000 account holding $40,000 of shares and reporting $5,000 of cash listed rows of $45,000 under a $50,000 total.
+  const cashRowValue: number = answer.uninvestedCash ?? (account as any).cash_balance ?? 0;
+  const hasCashRow = cashRowValue !== 0;
   const insideRows = !breakdown ? [] : [
     ...((account.positions ?? []) as any[]).map((p) => {
       const sh = (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0), 0);
-      const value = p.last_price != null ? Math.round(sh * p.last_price * 100) / 100 : 0;
+      // THE HOLDING'S VALUE, ASKED OF ITS OWN DOOR (MK-NW-O-006 theHolding): quantity × the broker's price × the one
+      // multiplier (an option's 100; a bond quoted per $100 of face, a hundredth). Held at full precision (DEC-0403): it was
+      // cut to cents here until 2026-10-20, before the rows were added up. Rounded once, where it is printed.
+      // A HOLDING WITH NO PRICE IS NOT WORTH $0 (2026-10-21, tenets 2 and 3): alone, it is worth what the broker's total leaves
+      // over (theAccount.unpriced — the figure Net worth counts for it); with others, they share one row of their own below
+      // and each says it has no price. It printed $0 while its class total carried its value, so the rows fell short.
+      const noPrice = p.last_price == null && sh !== 0;
+      const aloneUnpriced = noPrice && answer.unpriced != null && answer.unpriced.count === 1;
+      const value = p.last_price != null
+        ? (theHolding({ position: p, accountId: String(account.asset_id), price: p.last_price, transactions: [] }).value ?? 0)
+        : aloneUnpriced ? answer.unpriced!.value : 0;
       const cls2 = holdingClassOf(p);   // the one test — the same one the class figure above these rows was split by
+      if (noPrice) return {
+        key: p.position_id ?? p.ticker, posId: p.position_id, name: holdingWord(p),
+        sub: `${plural(sh, 'share', sh.toLocaleString())} · no price today${aloneUnpriced ? ` — the rest of ${who}'s total` : ''}`,
+        color: ClassMarkColors[cls2], value, cls: cls2, ticker: p.ticker,
+        ...(aloneUnpriced ? {} : { valueWords: 'no price today' }),
+      };
       return {
         key: p.position_id ?? p.ticker,
         posId: p.position_id,
-        name: cls2 === 'stocks_etf' && sh > 0 ? `${holdingWord(p)} · ${plural(sh, 'share', sh.toLocaleString())}` : holdingWord(p),
-        sub: cls2 === 'bonds' ? bondLine(p, value) : cls2 === 'cash' ? 'counts as cash' : undefined,
+        // THE NAME, AND BENEATH IT THE SHARES AND THE PRICE (drawing v01, state A: "VOO", then "160 shares · $562.50"; v17
+        // frame 2: "LCTX", then "965 shares · $41.45"). The shares used to ride the name, "VOO · 160 shares", with no price.
+        name: holdingWord(p),
+        sub: cls2 === 'bonds' ? bondLine(p, value)
+          : cls2 === 'cash' ? 'counts as cash'
+          : sh > 0 ? `${plural(sh, 'share', sh.toLocaleString())}${p.last_price != null ? ` · ${fig('MK-NW-M-029', p.last_price)}` : ''}`
+          : undefined,
         color: ClassMarkColors[cls2], value, cls: cls2, ticker: p.ticker,
       };
     }),
-    ...(((account as any).cash_balance ?? 0) !== 0 ? [{ key: '__cash', name: 'Cash in this account', sub: undefined as string | undefined, color: ClassMarkColors.cash, value: (account as any).cash_balance as number, cls: 'cash' }] : []),
+    // several holdings with no price share the part of the total the rest leaves over, on one row under their class
+    ...(answer.unpriced && answer.unpriced.count > 1 ? [{ key: '__unpriced', name: 'Holdings with no price today',
+      sub: `${plural(answer.unpriced.count, 'holding')} · the rest of ${who}'s total` as string | undefined,
+      color: ClassMarkColors[answer.unpriced.cls] ?? ClassMarkColors.mixed, value: answer.unpriced.value, cls: answer.unpriced.cls }] : []),
+    // the cash sleeve, named and described as both drawings name it: "Cash in this account", "uninvested balance"
+    ...(hasCashRow ? [{ key: '__cash', name: 'Cash in this account', sub: 'uninvested balance' as string | undefined, color: ClassMarkColors.cash, value: cashRowValue, cls: 'cash' }] : []),
     ...(((account.option_holdings ?? []) as any[]).map((o) => ({
       key: o.label, name: o.label,
       sub: `option — ${plural(Math.abs(o.contracts), 'contract')}${o.contracts < 0 ? ', short' : ''}`,
@@ -333,7 +405,9 @@ export default function AccountPortfolioScreen() {
   };
   /** A holding's own price move over the window the header names — nothing else folded in. */
   const priceReturnOf = (ticker?: string): number | null => {
-    if (!ticker || !windowStart) return null;
+    // DAY ONE: the window begins today, so it has no length and no holding has a figure yet — a dash, as the drawing's
+    // state C draws every holding (found 2026-10-19: with Home's record of today each holding read "+0.00%")
+    if (!ticker || !windowStart || dayOneView) return null;
     return periodReturnSince(store.priceCache?.[String(ticker).trim().toUpperCase()], windowStart);
   };
   /** The holding behind a row of the table, when the row is one. */
@@ -341,34 +415,72 @@ export default function AccountPortfolioScreen() {
   /** A bond's or CD's interest in the window the header names (DEC-6212); null for anything else. */
   const interestOfRow = (rw: any): number | null => {
     const q = positionOfRow(rw);
-    return q && windowStart ? bondInterestInWindow(q, ledger, windowStart, [account]) : null;
+    return q && windowStart && !dayOneView ? bondInterestInWindow(q, ledger, windowStart, [account]) : null;
   };
   /** A holding's figure over the window: its own price move, and for a bond or a CD the interest it was paid (DEC-6212). */
-  const holdingTotalOf = (rw: any): number | null => returnWithInterest(priceReturnOf(rw?.ticker), Math.abs(rw?.value || 0), interestOfRow(rw));
+  const holdingTotalOf = (rw: any): number | null => returnWithInterest(priceReturnOf(rw?.ticker), Math.abs(rw?.value || 0), interestOfRow(rw), startOfRow(rw));
   const returnTextFor = (rw: any): string => {
     const stated = statedYearlyRate(rw.cls);
     if (stated != null) return rateWords(stated);
-    if (Math.round(rw.value) === Math.round(account.balance || 0)) return acctReturnText;
+    if (isWholeAccount(rw.value, (x) => x.key === rw.key)) return acctReturnText;
     return pct2(holdingTotalOf(rw));
   };
   /** WHERE A HOLDING'S PRICES BEGIN AFTER THE WINDOW OPENS its figure is measured from its first price, and the
    *  row says so — the same sentence, from the same function, as the Holding page (his approval, 2026-10-12,
    *  DEC-4641). Only on a row whose return column shows its own price figure. */
   const shortHistoryOf = (rowClass: string, value: number, ticker?: string): string => {
-    if (!ticker || statedYearlyRate(rowClass) != null || Math.round(value) === Math.round(account.balance || 0)) return '';
+    if (!ticker || statedYearlyRate(rowClass) != null || isWholeAccount(value, (x) => x.ticker === ticker)) return '';
     if (priceReturnOf(ticker) == null) return '';
-    return priceHistoryShortSentence(store.priceCache?.[String(ticker).trim().toUpperCase()]?.points, windowStart, period, todayKey);
+    // "not since <day>" names the day the Since chip above names (dataStart), one date for one window (2026-10-21; the one
+    // date writer, MK-ST-F-078): with no daily record the window opens ON the first day money moved, not the day after it
+    return priceHistoryShortSentence(store.priceCache?.[String(ticker).trim().toUpperCase()]?.points, windowStart, period, todayKey, dataStart);
   };
   /** A class's price return, weighted by what each holding inside it is worth. */
   const classReturnText = (rowClass: string, total: number, rowsInClass: any[]): string => {
     const stated = statedYearlyRate(rowClass);
     if (stated != null) return rateWords(stated);
-    if (Math.round(total) === Math.round(account.balance || 0)) return acctReturnText;
+    if (isWholeAccount(total, (x) => x.cls === rowClass)) return acctReturnText;
     // weighed by what each holding was worth when the window began, its interest counted (MK-NW-F-084, DEC-6212) — it
     // weighed by today's values, a second rule beside the Performance tab's
-    const r = classReturnOf(rowsInClass.map((rw) => ({ marketValue: Math.abs(rw.value || 0), interest: interestOfRow(rw), total: holdingTotalOf(rw) })));
+    // a holding worth $0 today counts at what it was worth when the window began — read at the same close its own figure
+    // divides by (valueAtClose) — so a holding that lost everything is in its class with that loss (2026-10-21, tenet 4)
+    const r = classReturnOf(rowsInClass.map((rw) => ({ marketValue: Math.abs(rw.value || 0), interest: interestOfRow(rw), total: holdingTotalOf(rw), startValue: startOfRow(rw) })));
     return r == null ? '—' : pct2(r);
   };
+  /** What a holding was worth when the window the header names began: its shares at the close its own figure is measured
+   *  from (valueAtClose, the close periodReturnSince reads) — the start a holding worth $0 today is counted at. */
+  const startOfRow = (rw: any): number | null => {
+    const q = positionOfRow(rw);
+    if (!q || !rw?.ticker || !windowStart || dayOneView) return null;
+    return valueAtClose(q, store.priceCache?.[String(rw.ticker).trim().toUpperCase()], windowStart);
+  };
+  /** IS THIS PART THE WHOLE ACCOUNT, so its return IS the account's: worth the account's balance today, and no other
+   *  holding here worth anything when the window began (2026-10-21; DEC-5068, tenet 4: a known $0 is $0). A holding beside
+   *  it that fell to $0 is in the account's return and not in this part's — Beta $1,200 beside Alpha $1,000 → $0 read the
+   *  account's −40.00%, where Beta's own is +20.00%. */
+  const isWholeAccount = (value: number, inPart: (rw: any) => boolean): boolean =>
+    Math.round(value) === Math.round(account.balance || 0)
+    && !insideRows.some((rw: any) => !inPart(rw) && (startOfRow(rw) ?? 0) > 0);
+  /** THE CLASSES THE TABLE LISTS, in the drawing's order: the four always, and Unclassified only when this account holds
+   *  something nobody has classed yet — it is counted there on Net worth, so it is listed there here. */
+  const tableClasses = [...(['stocks_etf', 'bonds', 'cash', 'alternatives'] as const), ...(insideRows.some((rw: any) => rw.cls === 'mixed') ? (['mixed'] as const) : [])];
+  /** THE INCOME SUM UNDER THE TABLE (the drawing's row 12, frame 2's sum, redrawn): each holding's income in the order the
+   *  rows run, "1,500 ＋ 100 ＋ 85 ＋ 15 = $1,700 for this account". Income no holding carries (a dividend that names no
+   *  holding) is the last part, so the parts always add up to the account's income (MK-NW-M-019). */
+  const incomeParts: number[] = [];
+  if (acctIncome != null && acctIncome > 0) {
+    for (const k of tableClasses) for (const rw of insideRows.filter((r: any) => r.cls === k)) {
+      // dividends + interest added exactly, in decimals, so no binary leftover rides into the sum below
+      const inc = incomeRowOf(rw); const n = Number(Dec.of(inc.dividends || 0).add(Dec.of(inc.interest || 0)).toString());
+      if (n > 0) incomeParts.push(n);
+    }
+    // the income no holding carries, subtracted EXACTLY (in decimals, not binary fractions), so a remainder that is really
+    // nothing reads nothing — it was cut to cents here until 2026-10-20 to hide the binary leftovers (DEC-0403)
+    const rest = Dec.of(acctIncome).sub(Dec.sum(incomeParts.map((n) => Dec.of(n))));
+    if (!rest.isNeg() && !rest.isZero()) incomeParts.push(Number(rest.toString()));
+  }
+  /** A part of the sum is written as the drawing writes it: whole dollars, no currency sign ("1,500"). */
+  const sumPart = (n: number) => fig('MK-NW-M-019', n).replace(currencySymbol(), '');
 
   // per-class actions (design: only what makes sense for this account)
   // FINAL mock (mockup-vf/performance-FINAL): EVERY kind of record has a way in on every account —
@@ -390,7 +502,36 @@ export default function AccountPortfolioScreen() {
   const moneyKinds = MONEY_KINDS.filter((k) => actions.includes(k));
   const incomeKinds = INCOME_KINDS.filter((k) => actions.includes(k));
 
-  const shown = showAll ? txns : txns.slice(0, 8);
+  // ── ACTIVITY · <THE WINDOW> (drawing v01: the bar names the window and counts its records) ───────────────────────
+  // The records dated inside the picked window (on or after its first day, the day a bond's interest counts from,
+  // DEC-6212); "Since" is the account's whole life, so it lists every record. The first eight show; "See all activity"
+  // opens the rest, older ones included, and names the date the list stops at.
+  const inWindowTxns = period === 'SINCE' || !windowStart ? txns : txns.filter((t) => String(t.date ?? '').slice(0, 10) >= windowStart);
+  const shown = showAll ? txns : inWindowTxns.slice(0, 8);
+  const hiddenCount = txns.length - shown.length;
+  const cutDay = inWindowTxns.length > shown.length || period === 'SINCE' || !windowStart
+    ? String(shown[shown.length - 1]?.date ?? '').slice(0, 10) : windowStart;
+  /** WHAT A RECORD WAS ABOUT, named as the table names it (drawing v01: "Interest · KeyBank CD", never its security id;
+   *  "Interest · cash in this account" for interest that names no holding; "Buy · VOO · 10 shares @ $600.00"). */
+  const recordAbout = (t: Transaction): string => {
+    const q = t.ticker ? positions.find((p: any) => String(p.ticker ?? '').trim().toUpperCase() === String(t.ticker).trim().toUpperCase()) : undefined;
+    const name = t.ticker ? (q ? holdingWord(q as any) : String(t.ticker)) : (t.type === 'INTEREST' && hasCashRow ? 'cash in this account' : '');
+    const sh = Number((t as any).shares) || 0;
+    return `${txnLabel(t.type)}${name ? ` · ${name}` : ''}${sh ? ` · ${plural(sh, 'share', sh.toLocaleString())}${(t as any).price ? ` @ ${fig('MK-NW-M-061', (t as any).price)}` : ''}` : ''}`;
+  };
+  /** A RECORD UNDER A WORD THE APP DOES NOT KNOW (Q15, 2026-10-20, the drawing's row 50): the broker's own word first, so
+   *  the person can find it on a statement, then the amber box's words for it; the shares it moved, if any, unsigned —
+   *  the app cannot tell which way they went. It read "Broker adjustment". */
+  const unknownAbout = (t: Transaction, word: string): string => {
+    const sh = Math.abs(Number((t as any).shares) || 0);
+    return `${word ? `${word} · an activity the app does not know` : 'An activity the app does not know'}${sh ? ` · ${plural(sh, 'share', sh.toLocaleString())}` : ''}`;
+  };
+
+  /** THE TRIO'S COLOURS (drawing v01): Market value in the deep green; Wealth generated and Return green when measured and
+   *  not below zero, red below zero, and in the text colour where nothing is measured yet (day one, a dash). */
+  const signColor = (v: number | null | undefined) => (v == null || dayOneView ? Colors.textPrimary : v < 0 ? Colors.red : Colors.gainText);
+  const taxNotStated = taxWordsOf(account) === TAX_TYPE_NOT_STATED;
+  const classWords = breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls];
 
   return (
     // TOP BAR (approved mock v14, second phone): the app's own MoneyKeel bar, with "‹ Back" where a
@@ -398,16 +539,28 @@ export default function AccountPortfolioScreen() {
     // it needs. The screen title stays the app's one title size, 20 points (s.h1).
     <View style={s.page}>
     <TopBar back />
-    <ScrollView automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
-      {/* header: name + source + freshness — same source language everywhere */}
+    <ScrollView ref={scrollRef} automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+      {/* ── THE HEAD, as the account-page drawing v01 draws it (approved 2026-10-19): the name; the source chip with its
+          info dot (and, for a value typed by hand, the day it was typed); the class and the tax type ─────────────────── */}
       <Text style={s.h1}>{accountDisplayNames((store.assetAccounts ?? []) as AssetAccount[]).get(account.asset_id) ?? account.label}</Text>
       <View style={s.chipRow}>
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-          <Text style={s.chip}>{sourceChip}</Text>
-          <InfoDot term="provenance" />
-        </View>
-        {updatedLine && <Text style={s.updated}>{updatedLine}</Text>}
+        <SourceChip account={account} paused={paused} />
+        <InfoDot term="provenance" size={11} />
+        {valueAsOfLine && <Text style={s.updated}>{valueAsOfLine}</Text>}
       </View>
+      {/* APPROVED account-detail mock (2026-07-19): an account holding several types is called what it is — "Mixed
+          holdings" — and its tax treatment is said beside it, directly under the name (drawing v01, row 7).
+          NO TAX TYPE STATED IS SAID, AND OFFERED (DEC-4036f, 2026-10-10): an account with no account type chosen reads
+          "tax type not stated" — never "taxable" by default — and "choose ›", in the link colour, opens the account's own
+          editor, whose "Held in" choice sets it. */}
+      {taxNotStated ? (
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Tax type not stated. Tap to choose."
+          onPress={() => router.push(`/add-account?edit=${account.asset_id}` as any)}>
+          <Text style={s.headClass}>{classWords} · {TAX_TYPE_NOT_STATED} — <Text style={s.headClassLink}>choose ›</Text></Text>
+        </TouchableOpacity>
+      ) : (
+        <Text style={s.headClass}>{classWords} · {taxWordsOf(account)}</Text>
+      )}
 
       {classView && breakdown ? (
         <View style={s.card}>
@@ -431,22 +584,20 @@ export default function AccountPortfolioScreen() {
               <TouchableOpacity key={rw.key} style={s.insideRow} disabled={!(rw as any).posId}
                 accessibilityRole={(rw as any).posId ? 'button' : undefined} accessible
                 onPress={() => (rw as any).posId && router.push(`/holding-detail?account=${account.asset_id}&position=${(rw as any).posId}` as any)}
-                accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${figSaid('MK-NW-M-030', Math.abs(rw.value))}${(rw as any).posId ? '. Opens its page.' : ''}`}>
+                accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${(rw as any).valueWords ?? figSaid('MK-NW-M-030', Math.abs(rw.value))}${(rw as any).posId ? '. Opens its page.' : ''}`}>
                 <View style={[s.insideDot, { backgroundColor: rw.color }]} />
                 <View style={{ flex: 1 }}>
                   <Text style={s.optLabel} numberOfLines={2}>{rw.name}</Text>
                   {!!rw.sub && <Text style={s.insideSub}>{rw.sub}</Text>}
                 </View>
-                <Text style={s.optVal}>{fig('MK-NW-M-030', rw.value)}</Text>
+                <Text style={s.optVal}>{(rw as any).valueWords ? figWords('MK-NW-M-030', (rw as any).valueWords) : fig('MK-NW-M-030', rw.value)}</Text>
               </TouchableOpacity>
             ))}
-            <Text style={s.optNote}>{insideRows.filter((rw: any) => rw.cls === classView).map((rw: any) => fig('MK-NW-M-030', rw.value)).join(' + ')} = {fig('MK-NW-M-020', (breakdown as any)[classView] || 0)}. Everything else lives on the whole-account page — one tap away above.</Text>
+            <Text style={s.optNote}>{insideRows.filter((rw: any) => rw.cls === classView && !rw.valueWords).map((rw: any) => fig('MK-NW-M-030', rw.value)).join(' + ')} = {fig('MK-NW-M-020', (breakdown as any)[classView] || 0)}. Everything else lives on the whole-account page — one tap away above.</Text>
           </View>
         </View>
       ) : (
       <>
-      <Text style={p.sub}>{dateShown(todayKey)}</Text>
-
       {/* ── THE WINDOW SELECTOR · the Performance tab's own control, the same five windows (DEC-6079, 2026-10-19, his
           words: "Also check in perf 17 did we have bar to select time period at the top on account page or not? We
           should have one.") — one component, so the two can never drift apart ────────────────────── */}
@@ -455,27 +606,30 @@ export default function AccountPortfolioScreen() {
         // window's beginning, so with 1Y picked it read "Since Sep 29, 2025" on a record that begins today (state D of
         // the account-page drawing, found 2026-10-19, DEC-6212)
         windows={WINDOW_KEYS.map((k) => ({ key: k, label: k === 'SINCE' ? (dayOne || !dataStart || dataStart >= todayKey ? 'Since today' : `Since ${dateShown(dataStart)}`) : WINDOW_WORDS[k] }))}
-        chosen={period} figures={byWindow as any} onPick={(k) => setPeriod(k as any)} />
+        // A BALANCE NEVER ENTERED IS NEVER $0 (DEC-3657, the drawing's row 16): no window has a figure — they read
+        // −100.00% when the missing balance was counted as nothing (found 2026-10-19)
+        chosen={period} figures={(hasValue ? byWindow : Object.fromEntries(WINDOW_KEYS.map((k) => [k, { ...byWindow[k], ret: null, perYear: null }]))) as any}
+        onPick={(k) => setPicked(k)} />
       {period === '2Y' && (
         <Text style={p.note}>2Y is shown per year, so it sits fairly beside 1Y</Text>
       )}
 
-      {/* ── SUMMARY · the trio ON ONE ROW ──────────────────────────────────────────────────── */}
-      <View style={s.card}>
-        <SectionBand inCard title={`SUMMARY · ${windowWords.toUpperCase()}`} infoTerm="timeWeighted" />
+      {/* ── THIS ACCOUNT · <THE WINDOW> · the trio ON ONE ROW (drawing v01; v17 frame 2's band) ─────────────────────── */}
+      <View style={s.card} testID="card-summary">
+        <SectionBand inCard gutter={GUTTER} title={`THIS ACCOUNT · ${windowWords.toUpperCase()}`} value={marketValueText} />
         <View style={p.trio}>
           <View style={p.trioCell}>
-            <Text style={p.trioL}>Ending value</Text>
-            <Text style={p.trioV}>{fig('MK-PF-M-004', account.balance || 0)}</Text>
+            <Text style={p.trioL}>Market value</Text>
+            <Text style={[p.trioV, { color: Colors.primaryDark }]}>{marketValueText}</Text>
           </View>
           <View style={p.trioCell}>
             <Text style={p.trioL}>Wealth generated</Text>
-            <Text style={p.trioV}>{walk ? fig('MK-PF-M-014', walk.wealthGenerated) : '—'}</Text>
+            <Text style={[p.trioV, { color: signColor(walk?.wealthGenerated) }]}>{walk ? fig('MK-PF-M-014', walk.wealthGenerated) : '—'}</Text>
           </View>
           <View style={p.trioCell}>
             <Text style={p.trioL}>Return</Text>
-            <Text style={[p.trioV, (now?.ret ?? 0) < 0 && { color: Colors.red }]}>
-              {now?.ret == null ? '—' : fig('MK-PF-M-016', now.ret)}
+            <Text style={[p.trioV, { color: signColor(hasValue ? now?.ret : null) }]}>
+              {!hasValue || now?.ret == null ? '—' : fig('MK-PF-M-016', now.ret)}
             </Text>
           </View>
         </View>
@@ -483,10 +637,10 @@ export default function AccountPortfolioScreen() {
             than a year — his Q49 ruling, stated on the screen rather than assumed */}
         <View style={p.noteRow}>
           <Text style={p.note}>
-            {dayOne
+            {dayOneView
               /* THE ACCOUNT PAGE'S OWN DAY-ONE LINE (his approval, 2026-10-19, "approved", DEC-6075): a linked account
                  whose broker sent no past activity names the broker; one added by hand says it was added today. A linked
-                 account WITH past activity is not day one — its history is rebuilt (the ↺ line below). */
+                 account WITH past activity is not day one — its history is rebuilt. */
               ? (source === 'connected'
                 ? `You linked this account today. ${who} sent no past activity, so its figures start today.`
                 : 'You added this account today, so its figures start today.')
@@ -504,125 +658,73 @@ export default function AccountPortfolioScreen() {
                 ? `Your daily record does not reach back to ${sinceWords} yet, so the beginning is worked back from today's values and each holding's price history.`
                 : `Return is for the window you picked (${sinceWords} → ${dateShown(todayKey)}) — not a yearly rate · time-weighted`)}
           </Text>
-          <InfoDot term="timeWeighted" />
+          {/* the day-one line explains no return, so it carries no dot (drawing v01, state C) */}
+          {!dayOneView && <InfoDot term="timeWeighted" size={11} />}
         </View>
+        {/* A BOND'S OR CD'S VALUE THAT IS NOT A MARKET VALUE SAYS SO (DEC-0281, the one value rule, bondValue): what you
+            paid, or the face value, because no market value was entered — so Market value above is not read as one. */}
+        {!!bondOne?.valueNote && <Text style={p.note}>{figWords('MK-NW-M-018', bondOne.valueNote)}</Text>}
         {/* BELOW THE SUMMARY, the holding left out of Wealth generated and Return (DEC-5068, 2026-10-13, his words:
             "Below it display …"). Only where the beginning is worked back and a holding has no price history. */}
-        {!dayOne && !!now?.notIncluded && <Text style={p.note}>{now.notIncluded}</Text>}
-        {/* where the figures came from, and the first day that source can speak for */}
-        {/* not for a worked-back window: the broker's records do not reach its beginning (DEC-5291, 2026-10-13) */}
-        {account.source === 'connected' && dataStart && !now?.workedBack && (
-          <Text style={p.note}>
-            ↺ Rebuilt from {who}&apos;s own records, back to {sinceWords} — the first day it shares.
-          </Text>
-        )}
-        {coverage && <Text style={p.note}>{coverage.sentence}{coverage.kind === 'unreadable' && (<>
+        {!dayOneView && !!now?.notIncluded && <Text style={p.note}>{now.notIncluded}</Text>}
+        {coverage?.kind === 'unreadable' && <Text style={p.note}>{coverage.sentence}{' '}
           {/* (DEC-4059c, 2026-10-10) "Say date cannot be read. Edit date. and give user an option to enter or correct date." */}
-          {' '}<DateLink text={EDIT_HISTORY_START} label="Edit the history start date" maximumDate={new Date()}
-            onPick={(iso) => store.updateAsset?.(account.asset_id, { history_start_override: iso })} /></>)}</Text>}
+          <DateLink text={EDIT_HISTORY_START} label="Edit the history start date" maximumDate={new Date()}
+            onPick={(iso) => store.updateAsset?.(account.asset_id, { history_start_override: iso })} /></Text>}
       </View>
 
-      {/* ── THE VALUE LINE · with its own axis ──────────────────────────────────────────────── */}
-      {graphPoints.length >= 2 && (
-        <View style={[s.card, { paddingHorizontal: 0 }]} testID="account-portfolio-value-line"
-          accessibilityLabel={`Value over the window, ${graphPoints.length} recorded days`}>
-          <ValueGraph points={graphPoints} />
-        </View>
-      )}
+      {/* ── THE AMBER BOX OF MISSING INFORMATION (drawing v01, state D; the shared box, DEC-5982 · DEC-6078) ─────── */}
+      <DataGapsBanner gaps={gaps}
+        onPage={{ sync: source === 'connected', onFix: (g) => (g.kind === 'no-activity' ? (setDoor(incomeKinds), true)
+          : g.kind === 'unknown-activity' ? (goToActivity(), true) : false) }} />
 
       {/* ── THE WALK · how the beginning became the ending ─────────────────────────────────── */}
       {walk != null && walk.beginning != null && (
-        <View style={s.card}>
-          <SectionBand inCard
+        <View style={s.card} testID="card-walk">
+          <SectionBand inCard gutter={GUTTER}
             /* one title in every state, day one included, "· THIS ACCOUNT" as Performance v17 frame 2 draws it
                (DEC-5136, 2026-10-13: "HOW $38,000 BECAME $52,704 · ALL ACCOUNTS - this is the title.") */
             title={figWords('MK-PF-M-003', `HOW ${fig('MK-PF-M-013', walk.beginning)} BECAME ${fig('MK-PF-M-004', walk.ending)} · THIS ACCOUNT`)} />
           {([
-            [`Beginning market value (${sinceWords})`, walk.beginning, 'MK-PF-M-013'],
-            ['Contributions', walk.contributions, 'MK-PF-M-015'],
-            ['Withdrawals', -Math.abs(walk.withdrawals), 'MK-PF-M-015'],
-            ['Wealth generated', walk.wealthGenerated, 'MK-PF-M-014'],
-            ['Dividends', walk.dividends, 'MK-PF-M-015'],
-            ['Interest', walk.interest, 'MK-PF-M-015'],
-            ['Change in investment value', walk.marketChange, 'MK-PF-M-015'],
-          ] as [string, number, string][]).map(([label, v, metric]) => (
-            <View key={label} style={p.wRow} accessible
+            [`Beginning market value (${sinceWords})`, walk.beginning, 'MK-PF-M-013', ''],
+            ['Contributions', walk.contributions, 'MK-PF-M-015', 'flow'],
+            ['Withdrawals', -Math.abs(walk.withdrawals), 'MK-PF-M-015', 'flow'],
+            ['Wealth generated', walk.wealthGenerated, 'MK-PF-M-014', 'strong'],
+            ['Dividends', walk.dividends, 'MK-PF-M-015', 'sub'],
+            ['Interest', walk.interest, 'MK-PF-M-015', 'sub'],
+            ['Change in investment value', walk.marketChange, 'MK-PF-M-015', 'sub'],
+          ] as [string, number, string, string][]).map(([label, v, metric, kind]) => (
+            <View key={label} style={[p.wRow, kind === 'sub' && p.wSub]} accessible
               accessibilityLabel={`${label}, ${v < 0 ? 'minus ' : ''}${figSaid(metric, Math.abs(v))}`}>
-              <Text style={p.wL}>{label}</Text>
-              <Text style={[p.wV, v < 0 && { color: Colors.red }]}>
+              <Text style={[p.wL, kind === 'strong' && p.wStrongL]}>{label}</Text>
+              {/* money taken out is not a loss, so Withdrawals stays in the text colour; red is for a figure that fell
+                  (the Performance tab's rule, 2026-10-12) */}
+              <Text style={[p.wV, kind === 'strong' && p.wStrongV, v < 0 && kind !== 'flow' && { color: Colors.red }]}>
                 {v < 0 ? '−' : ''}{fig(metric, Math.abs(v))}
               </Text>
+              <View testID="right-gutter" style={p.gutter} />
             </View>
           ))}
           <View style={[p.wRow, p.wTotal]} accessible
             accessibilityLabel={`Ending market value today, ${figSaid('MK-PF-M-004', walk.ending)}`}>
-            <Text style={[p.wL, p.wStrong]}>Ending market value ({dayOne ? 'today' : dateShown(todayKey)})</Text>
-            <Text style={[p.wV, p.wStrong]}>{fig('MK-PF-M-004', walk.ending)}</Text>
+            <Text style={[p.wL, p.wStrongL]}>Ending market value ({dayOneView ? 'today' : dateShown(todayKey)})</Text>
+            <Text style={[p.wV, p.wStrongV, { color: Colors.primaryDark }]}>{fig('MK-PF-M-004', walk.ending)}</Text>
+            <View testID="right-gutter" style={p.gutter} />
           </View>
-          <Text style={p.note}>
-            {dayOne
-              ? 'Every line fills in as days pass — the structure never changes.'
-              : `Every line here comes from ${who}’s own records. A hand-entered account has no records to rebuild from, so its walk starts the day you entered it.`}
-          </Text>
+          {/* THE FOOTNOTE (drawing v01, row 9): the lines open nothing, so nothing here promises they do. Day one says the
+              structure fills in; a linked account says where every line comes from; an account built by hand keeps the
+              second sentence only; a worked-back window has none — its figures come from price history, as the
+              summary already says. */}
+          {dayOneView ? (
+            <Text style={[p.note, p.notePad]}>Every line fills in as days pass — the structure never changes.</Text>
+          ) : now?.workedBack ? null : source === 'connected' ? (
+            <Text style={[p.note, p.notePad]}>Every line here comes from {who}’s own records. A hand-entered account has no records to rebuild from, so its walk starts the day you entered it.</Text>
+          ) : (
+            <Text style={[p.note, p.notePad]}>A hand-entered account has no records to rebuild from, so its walk starts the day you entered it.</Text>
+          )}
         </View>
       )}
 
-      {/* ── THIS ACCOUNT'S OWN ROW ─────────────────────────────────────────────────────────── */}
-      <TouchableOpacity accessibilityRole="button" style={p.acctRow}
-        accessibilityLabel={`${who} ${account.label}, ${figSaid('MK-PF-M-004', account.balance || 0)}. Opens its holdings.`}
-        onPress={() => router.push(`/holding-detail?account=${account.asset_id}` as any)}>
-        <Text style={p.acctName} numberOfLines={1}>▸ {who} {account.label}</Text>
-        <Text style={p.acctV}>{fig('MK-PF-M-004', account.balance || 0)}</Text>
-        <Text style={p.chev}>›</Text>
-      </TouchableOpacity>
-      <Text style={p.acctSub}>
-        {sourceWording(account)}{walk ? ` · wealth generated ${fig('MK-PF-M-014', walk.wealthGenerated)} ${windowWords}` : ''}
-      </Text>
-      {/* APPROVED account-detail mock (2026-07-19): an account holding several types is called what it
-          is — "Mixed holdings" — and its tax treatment is said beside it. v17 frame 2 is drawn for the
-          portfolio, where there is no one treatment to name; on one account the line keeps its home. */}
-      {/* NO TAX TYPE STATED IS SAID, AND OFFERED (DEC-4036f, 2026-10-10): an account with no account type chosen
-          reads "tax type not stated" — never "taxable" by default — and a tap opens the account's own editor,
-          whose "Held in" choice sets it. */}
-      {taxWordsOf(account) === TAX_TYPE_NOT_STATED ? (
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Tax type not stated. Tap to choose."
-          onPress={() => router.push(`/add-account?edit=${account.asset_id}` as any)}>
-          <Text style={s.classLine}>{breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]} · {TAX_TYPE_NOT_STATED} — choose ›</Text>
-        </TouchableOpacity>
-      ) : (
-        <Text style={s.classLine}>{breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]} · {taxWordsOf(account)}</Text>
-      )}
-
-      {/* ── WHAT EACH CATEGORY EARNED ──────────────────────────────────────────────────────── */}
-      {cats.length > 0 && (
-        <View style={s.card}>
-          <SectionBand inCard title="WHAT EACH CATEGORY EARNED" value={windowWords} />
-          <View style={p.catHead}>
-            <Text style={p.catHeadL}>CATEGORY</Text>
-            <Text style={[p.catHeadR, p.colEarned]}>EARNED</Text>
-            <Text style={[p.catHeadR, p.colReturn]}>RETURN</Text>
-          </View>
-          {cats.map((b) => (
-            <View key={b.label} style={p.catRow} accessible
-              accessibilityLabel={`${b.label}, earned ${figSaid('MK-NW-M-019', b.earned)}, return ${b.ret == null ? 'no figure' : pct2(b.ret)}`}>
-              <Text style={p.catL} numberOfLines={1}>{b.label}</Text>
-              <Text style={[p.catV, p.colEarned]}>{fig('MK-NW-M-019', b.earned)}</Text>
-              <Text style={[p.catV, p.colReturn]}>{b.ret == null ? '—' : pct2(b.ret)}</Text>
-            </View>
-          ))}
-          <View style={[p.catRow, p.wTotal]}>
-            <Text style={[p.catL, p.wStrong]}>All categories</Text>
-            <Text style={[p.catV, p.colEarned, p.wStrong]}>{fig('MK-NW-M-019', catsTotal)}</Text>
-            <Text style={[p.catV, p.colReturn]} />
-          </View>
-          <View style={p.noteRow}>
-            <Text style={p.note}>
-              Earned = dividends + interest received in this window
-            </Text>
-            <InfoDot term="benchmark" />
-          </View>
-        </View>
-      )}
         {/* THE WAY INTO ITEMIZE, and the only one (2026-10-01).
             The Itemize screen had no door in any approved design: the Net worth mock v08 does not draw
             one, and the approved Account portfolio (Performance v17 frame 2) has no Edit button — so
@@ -633,7 +735,7 @@ export default function AccountPortfolioScreen() {
             lump into its real holdings is the same question continued — not a detour through an edit
             sheet two screens away. It shows only when the account holds money and nothing is recorded
             inside it, which is exactly when the screen has nothing to show and the person has
-            something to say. */}
+            something to say — in the place the holdings table would take. */}
         {/* ONLY AN ACCOUNT THAT CAN HOLD SEVERAL HOLDINGS (DEC-5849, 2026-10-19, his word "approved." — asked after
             "state B - why "itemize your holdings" when we already know it is Bond?"): the door shows on a Stocks /
             Funds or unclassified account (brokerage, 401(k), IRA, Roth, HSA) typed as one total. A bond or CD, a
@@ -652,31 +754,37 @@ export default function AccountPortfolioScreen() {
       </>
       )}
 
-      {/* BY CATEGORY & HOLDING (approved mock v14, second phone) — its own card, with a RETURN column
+      {/* BY CATEGORY & HOLDING (approved mock v14, second phone; drawing v01) — its own card, with a RETURN column
           beside MARKET VALUE and a Total row that carries the account's own two figures. Holdings sit
           UNDER their class; each holding carries its own income beneath it, because income belongs to
-          the holding that earned it, not to the class. */}
+          the holding that earned it, not to the class. Every figure ends on ONE right edge, followed by the same
+          16-point column, which holds "›" only on a row that opens a page — each holding (drawing v01, row 8). */}
       {!classView && insideRows.length > 0 && (
-        <View style={s.card}>
-          <SectionBand inCard title="BY CATEGORY & HOLDING" />
+        <View style={s.card} testID="card-holdings">
+          <SectionBand inCard gutter={GUTTER} title="BY CATEGORY & HOLDING" />
           <View style={s.colHdrRow} accessible accessibilityLabel="Columns: category or holding, market value, return">
             <Text style={[s.colHdr, { flex: 1, textAlign: 'left' }]}>CATEGORY / HOLDING</Text>
             <Text style={[s.colHdr, s.colValW]}>MARKET VALUE</Text>
             <Text style={[s.colHdr, s.colRetW]}>RETURN</Text>
+            <View testID="right-gutter" style={s.gutter} />
           </View>
-          {/* the four classes the drawing shows, always; and Unclassified only when this account holds
-              something nobody has classed yet — it is counted there on Net worth, so it is listed there here */}
-          {([...(['stocks_etf', 'bonds', 'cash', 'alternatives'] as const), ...(insideRows.some((rw: any) => rw.cls === 'mixed') ? (['mixed'] as const) : [])]).map((k) => {
+          {tableClasses.map((k) => {
             const inClass = insideRows.filter((rw: any) => rw.cls === k);
             const total = inClass.reduce((t: number, rw: any) => t + (rw.value || 0), 0);
+            // ▾ a class with holdings, open; ▸ one with nothing in it, or closed by a tap on its bar (drawing v01)
+            const open = inClass.length > 0 && !closed[k];
             return (
               <View key={k}>
                 {/* the light-green class band, hand-built for ONE reason: SectionBand carries a single
                     trailing figure and this row carries two (market value AND return). Same band
                     colour, same 11-point caps, same square edge-to-edge bar as every other band. */}
-                <View style={s.classBand} accessible
+                <TouchableOpacity style={s.classBand} disabled={inClass.length === 0} activeOpacity={0.8}
+                  onPress={() => setClosed((c) => ({ ...c, [k]: !c[k] }))}
+                  accessibilityRole={inClass.length ? 'button' : undefined}
+                  accessibilityState={inClass.length ? { expanded: open } : undefined}
                   accessibilityLabel={`${ASSET_CLASS_LABEL[k]}, ${figSaid('MK-NW-M-020', Math.round(total))}, return ${classReturnText(k, total, inClass)}`}>
-                  <Text style={s.classBandT} numberOfLines={1}>{ASSET_CLASS_LABEL[k]}</Text>
+                  <View style={[s.classDot, { backgroundColor: ClassMarkColors[k] }]} />
+                  <Text style={s.classBandT} numberOfLines={1}>{open ? '▾' : '▸'} {ASSET_CLASS_LABEL[k]}</Text>
                   <Text style={[s.classBandV, s.colValW]}>{fig('MK-NW-M-020', total)}</Text>
                   {/* THE BONDS & CDS YEARLY RATE CARRIES ITS INFO DOT (DEC-5847, 2026-10-19, his words: "Let's add info dot
                       next to "4.11%/year" in the sub-titel bar."). The rate itself is unchanged — each bond's and CD's own
@@ -687,21 +795,23 @@ export default function AccountPortfolioScreen() {
                     {statedYearlyRate(k) != null && <InfoDot term="yearlyPace" size={15} />}
                     <Text style={s.classBandV}>{classReturnText(k, total, inClass)}</Text>
                   </View>
-                </View>
+                  <View testID="right-gutter" style={s.gutter} />
+                </TouchableOpacity>
                 {inClass.length === 0 && <Text style={s.insideEmpty}>Nothing held in this account</Text>}
-                {inClass.map((rw: any) => (
+                {open && inClass.map((rw: any) => (
                   <View key={rw.key}>
                     <TouchableOpacity style={s.insideRow} disabled={!rw.posId}
                       accessibilityRole={rw.posId ? 'button' : undefined} accessible
                       onPress={() => rw.posId && router.push(`/holding-detail?account=${account.asset_id}&position=${rw.posId}` as any)}
-                      accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${figSaid('MK-NW-M-030', Math.abs(rw.value))}, return ${returnTextFor(rw)}${incomeOf(rw) ? `, ${incomeOf(rw)}` : ''}${rw.posId ? '. Opens its page.' : ''}`}>
+                      accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${rw.valueWords ?? figSaid('MK-NW-M-030', Math.abs(rw.value))}, return ${returnTextFor(rw)}${incomeOf(rw) ? `, ${incomeOf(rw)}` : ''}${rw.posId ? '. Opens its page.' : ''}`}>
                       <View style={[s.insideDot, { backgroundColor: rw.color }]} />
                       <View style={{ flex: 1 }}>
                         <Text style={s.optLabel} numberOfLines={2}>{rw.name}</Text>
                         {!!rw.sub && <Text style={s.insideSub}>{rw.sub}</Text>}
                       </View>
-                      <Text style={[s.optVal, s.colValW]}>{fig('MK-NW-M-030', rw.value)}</Text>
+                      <Text style={[s.optVal, s.colValW]}>{rw.valueWords ? figWords('MK-NW-M-030', rw.valueWords) : fig('MK-NW-M-030', rw.value)}</Text>
                       <Text style={[s.optRet, s.colRetW]}>{returnTextFor(rw)}</Text>
+                      <View testID="right-gutter" style={s.gutter}>{!!rw.posId && <Text style={s.gutterMark}>›</Text>}</View>
                     </TouchableOpacity>
                     {!!incomeOf(rw) && <Text style={s.incomeLine}>{figWords('MK-NW-M-021', `Income: ${incomeOf(rw)}`)}</Text>}
                     {!!shortHistoryOf(rw.cls, rw.value, rw.ticker) && <Text style={s.incomeLine}>{shortHistoryOf(rw.cls, rw.value, rw.ticker)}</Text>}
@@ -713,20 +823,24 @@ export default function AccountPortfolioScreen() {
           {/* the Total row (mock v14): the account's market value and the account's return — the SAME
               string the header trio printed, so the two places can never say different things. */}
           <View style={[s.insideRow, s.totalRow]} accessible
-            accessibilityLabel={`Total, ${figSaid('MK-NW-M-018', Math.round(account.balance || 0))}, return ${acctReturnText}`}>
+            accessibilityLabel={`Total, ${hasValue ? figSaid('MK-NW-M-018', Math.round(account.balance as number)) : 'Value not entered'}, return ${acctReturnText}`}>
             <Text style={[s.optLabel, { fontWeight: '800' }]}>Total</Text>
             <Text style={[s.optVal, s.colValW]}>{marketValueText}</Text>
             <Text style={[s.optRet, s.colRetW, { fontWeight: '800' }]}>{acctReturnText}</Text>
+            <View testID="right-gutter" style={s.gutter} />
           </View>
-          {/* "the income is also on the line beneath it" — two words dropped, as income already means paid (DEC-5848, 2026-10-19) */}
-          <Text style={s.optNote}>
-            {/* a bond's or a CD's return counts its interest (DEC-6212, 2026-10-19), so the sentence says so */}
-            Counted inside this account's total — listed here so nothing is hidden. A holding's return is
-            what its own price did in this window, its dividends included, and a bond's or CD's interest added; the income is also on the line beneath it. Income sits with the
-            holding that earned it{acctIncome != null && acctIncome > 0
-              ? <Text> — <Text style={s.optNoteFig}>{fig('MK-NW-M-019', acctIncome)}</Text> for this account</Text>
-              : null}.
-          </Text>
+          {/* THE NOTE UNDER THE TABLE (drawing v01, rows 12 and 24): the ruled holding-return sentence (DEC-4645, DEC-5848,
+              a bond's or CD's interest added since DEC-6212), then — where the account has income — the sum, holding by
+              holding, as frame 2 drew it; then what a tap does, and its dot */}
+          <View style={p.noteRow}>
+            <Text style={[p.note, p.notePad]}>
+              A holding’s return is what its own price did in this window, its dividends included, and a bond’s or CD’s interest added; the income is also on the line beneath it.
+              {incomeParts.length > 0 && acctIncome != null
+                ? ` Income sits with the holding that earned it (${incomeParts.map(sumPart).join(' ＋ ')} = ${fig('MK-NW-M-019', acctIncome)} for this account).`
+                : ''} Tap a holding for its own page.
+            </Text>
+            <InfoDot term="priceReturn" size={11} />
+          </View>
         </View>
       )}
 
@@ -786,20 +900,24 @@ export default function AccountPortfolioScreen() {
         </View>
       )}
 
-      {/* edit + update value */}
-      <View style={{ flexDirection: 'row', gap: 8 }}>
-        <TouchableOpacity accessibilityRole="button" style={s.secondaryBtn}
-          onPress={() => router.push((cls === 'bonds' ? '/bonds' : cls === 'alternatives' ? '/other-investments' : `/(tabs)/analytics?edit=${account.asset_id}`) as any)}
-          accessibilityLabel={`Edit ${account.label}`}>
-          <Text style={s.secondaryTxt}>Edit</Text>
-        </TouchableOpacity>
-        {!account.derive_balance && source !== 'connected' && (
-          <TouchableOpacity accessibilityRole="button" style={s.secondaryBtn} onPress={() => setValueSheet(true)}
-            accessibilityLabel="Update this account's value">
-            <Text style={s.secondaryTxt}>Update value</Text>
+      {/* EDIT · UPDATE VALUE — on an account built by hand only (drawing v01, states B and E). A linked account's figures
+          are the broker's (states A, C and D draw no buttons): its name and tax type are set where it was linked, and
+          "choose ›" above opens that editor when the tax type is missing. */}
+      {source !== 'connected' && (
+        <View style={s.btnRow} testID="account-buttons">
+          <TouchableOpacity accessibilityRole="button" style={s.secondaryBtn}
+            onPress={() => router.push((cls === 'bonds' ? '/bonds' : cls === 'alternatives' ? '/other-investments' : `/(tabs)/analytics?edit=${account.asset_id}`) as any)}
+            accessibilityLabel={`Edit ${account.label}`}>
+            <Text style={s.secondaryTxt}>Edit</Text>
           </TouchableOpacity>
-        )}
-      </View>
+          {!account.derive_balance && (
+            <TouchableOpacity accessibilityRole="button" style={s.secondaryBtn} onPress={() => setValueSheet(true)}
+              accessibilityLabel="Update this account's value">
+              <Text style={s.secondaryTxt}>Update value</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      )}
 
       {/* bond facts + yields + the if-interest-rates-move ESTIMATE (design v1.1, Invest sheet) */}
       {cls === 'bonds' && <BondDetail account={account} />}
@@ -815,17 +933,25 @@ export default function AccountPortfolioScreen() {
           "enter the yield to maturity if it's different" helps. */}
       {(cls === 'alternatives' || (cls === 'bonds' && !yieldToMaturityKnown(account))) && <ReportedReturnCard account={account} />}
 
-      {/* activity history — the ledger, in plain words with signed effects */}
-      <SectionBand title="ACTIVITY" value={txns.length ? plural(txns.length, 'record', fig('MK-NW-M-022', txns.length)) : undefined} />
-      <View style={s.card}>
+      {/* ── ACTIVITY · <THE WINDOW> — the ledger, in plain words with signed effects, its bar inside its card (drawing v01) */}
+      <View style={s.card} testID="card-activity" onLayout={(e) => {
+        activityY.current = e.nativeEvent.layout.y;
+        if (showParam === 'activity' && !arrivedAtActivity.current) { arrivedAtActivity.current = true; goToActivity(); }
+      }}>
+        <SectionBand inCard gutter={GUTTER} title={`ACTIVITY · ${windowWords.toUpperCase()}`}
+          value={inWindowTxns.length ? plural(inWindowTxns.length, 'record', fig('MK-NW-M-022', inWindowTxns.length)) : undefined} />
         {txns.length === 0 && <Text style={s.empty}>Log a deposit or a buy — your history starts here.</Text>}
         {shown.map((t) => {
           const incoming = String(t.counter_account_id) === String(id) && t.type === 'TRANSFER';
           // THE AMOUNT COMES FROM THE DOOR (2026-10-01). It was calculated here — a transfer coming
           // in counts as its own amount, anything else as its cash effect — which is a money figure
           // calculated on a screen. MK-NW-O-002 theAccount answers it, and the screen prints it.
-          const eff = answer.activity.find((a) => a.recordId === String(t.id))?.amount
-            ?? (incoming ? (t.amount || 0) : cashEffect(t));
+          const fromDoor = answer.activity.find((a) => a.recordId === String(t.id));
+          // A WORD THE APP DOES NOT KNOW (Q15, the drawing's row 50): the broker's word and the amount it sent, unsigned,
+          // in the text colour — never the $0 its effect on the totals is
+          const unknown = fromDoor?.unknown ?? null;
+          const eff = fromDoor?.amount
+            ?? (incoming ? 0 - (moneyIntoAccount(t) ?? 0) : cashEffect(t));   // the one rule for a stored amount (2026-10-21)
             // HANDOFF 2026-08-11: a row is either the BROKER'S fact or YOURS, and the list has to say
             // which. A broker row cannot be edited — the next sync would overwrite it — so it says
             // where it came from and offers nothing. A row you entered is yours to correct, so it wears
@@ -833,25 +959,39 @@ export default function AccountPortfolioScreen() {
             // you made was indistinguishable from the broker's own record and equally unfixable.
             const mine = t.source !== 'connected';
             const from = mine ? 'you entered this' : `from ${account.institution?.trim() || 'your broker'}`;
+            const about = unknown ? unknownAbout(t, unknown.word) : recordAbout(t);
+            // the amount as the broker sent it, with no direction; a record that moved only shares has no amount — a dash
+            // A RECORD WHOSE AMOUNT IS NOT ON RECORD (2026-10-21, DEC-3523 tenet 3): a dash too, in the text colour — it
+            // read $0 in green while the return refused across its day (the door says which: theAccount, noAmount)
+            const noAmount = !unknown && !!fromDoor?.noAmount;
+            const amountText = unknown ? (unknown.amount != null ? fig('MK-NW-M-062', unknown.amount) : '—')
+              : noAmount ? '—'
+              : `${eff < 0 ? '−' : ''}${fig('MK-NW-M-062', Math.abs(eff))}`;
+            const amountSaid = unknown ? `${unknown.amount != null ? figSaid('MK-NW-M-062', unknown.amount) : 'no amount'}, which way it went is not known`
+              : noAmount ? 'no amount on record'
+              : `${eff < 0 ? 'minus ' : 'plus '}${figSaid('MK-NW-M-062', Math.abs(eff))}`;
             return (
-            <View key={String(t.id)} style={s.txnRow} accessible
-              accessibilityLabel={`${t.date}: ${txnLabel(t.type)}${t.ticker ? ` ${t.ticker}` : ''}, ${eff < 0 ? 'minus ' : 'plus '}${figSaid('MK-NW-M-062', Math.abs(eff))}. ${mine ? 'You entered this — editable.' : `${from}, read-only.`}`}>
+            <View key={String(t.id)} style={s.txnRow} accessible={!mine}
+              accessibilityLabel={`${t.date}: ${about}, ${amountSaid}. ${mine ? 'You entered this — editable.' : `${from}, read-only.`}`}>
               {/* THE ROW AS BOTH APPROVED DRAWINGS WRITE IT (Performance v17 frame 2, and v14 before it):
                   "Dividend · LCTX", then "Aug 1 · from E*TRADE", then "$120". It printed the date as "08-01"
                   in a column of its own and "+$120" (mock-match audit, 2026-10-11). A minus stays a minus. */}
               <View style={{ flex: 1 }}>
-                <Text style={s.txnLabel} numberOfLines={1}>
-                  {txnLabel(t.type)}{t.ticker ? ` · ${t.ticker}` : ''}{t.shares ? ` · ${t.shares} sh${t.price ? ` @ ${fig('MK-NW-M-061', t.price)}` : ''}` : ''}
-                </Text>
+                <Text style={s.txnLabel} numberOfLines={1}>{about}</Text>
                 <Text style={mine ? s.txnMine : s.txnFrom}>{activityDay(String(t.date))} · {from}</Text>
               </View>
-              <Text style={[s.txnAmt, { color: eff >= 0 ? Colors.gainText : Colors.textPrimary }]}>
-                {eff < 0 ? '−' : ''}{fig('MK-NW-M-062', Math.abs(eff))}
+              <Text style={[s.txnAmt, { color: !unknown && !noAmount && eff >= 0 ? Colors.gainText : Colors.textPrimary }]}>
+                {amountText}
               </Text>
-              {mine ? (
-                <Text style={s.txnEdit} onPress={() => setEditRow(t)} suppressHighlighting
-                  accessibilityRole="button" accessibilityLabel={`Edit or delete your ${txnLabel(t.type).toLowerCase()} of ${figSaid('MK-NW-M-062', Math.abs(eff))}`}>✎</Text>
-              ) : <Text style={s.txnEditGap} />}
+              {/* the one right-hand column: ✎ on a record you entered (it opens its editor), nothing on the broker's */}
+              <View testID="right-gutter" style={s.gutter}>
+                {mine && (
+                  <TouchableOpacity onPress={() => setEditRow(t)} hitSlop={{ top: 12, bottom: 12, left: 14, right: 14 }}
+                    accessibilityRole="button" accessibilityLabel={`Edit or delete your ${txnLabel(t.type).toLowerCase()} of ${figSaid('MK-NW-M-062', Math.abs(eff))}`}>
+                    <Text style={s.txnEdit}>✎</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
             </View>
           );
         })}
@@ -859,11 +999,13 @@ export default function AccountPortfolioScreen() {
             already says "from E*TRADE" or "you entered this"; this says what that means for what you
             can do with it — the difference between a record you may fix and one that would be
             overwritten by the next sync. */}
-        {txns.length > 0 && (
-          <Text style={s.txnNote}>
-            Records from {account.institution?.trim() || 'your broker'} can’t be edited — they are the broker’s own.
-            Anything you add is marked “you entered this” and stays editable.
-          </Text>
+        {shown.length > 0 && (
+          <View style={p.noteRow}>
+            <Text style={[p.note, p.notePad]}>
+              Records from {account.institution?.trim() || 'your broker'} can’t be edited — they are the broker’s own. Anything you add is marked “you entered this” and stays editable.
+            </Text>
+            <InfoDot term="provenance" size={11} />
+          </View>
         )}
         {/* THE THREE DOORS (approved mock v14, second phone) — they sit at the foot of the ACTIVITY
             card, in the mock's order and wording. Five separate buttons never read as one thing, and
@@ -890,16 +1032,15 @@ export default function AccountPortfolioScreen() {
         {/* HANDOFF 2026-08-11: the door names the DATE the list stops at, not just a count. "10 more"
             tells you nothing about whether the missing rows are last week or four years ago — and
             this list is what someone checks when a total looks wrong, so the boundary is the fact
-            that matters. The rows are newest-first, so the cut is the date of the last one shown. */}
-        {txns.length > 8 && !showAll && (() => {
-          const cut = String(shown[shown.length - 1]?.date ?? '');
-          const when = cut ? new Date(`${cut}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
-          const hidden = txns.length - shown.length;
+            that matters. The rows are newest-first, so the cut is the date of the last one shown; with a window picked
+            and nothing past the first eight, it is the window's first day (v17 frame 2: "older than Jul 19"). */}
+        {hiddenCount > 0 && !showAll && (() => {
+          const when = cutDay ? new Date(`${cutDay}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
           return (
             <TouchableOpacity accessibilityRole="button" onPress={() => setShowAll(true)}
-              accessibilityLabel={`See all activity — ${plural(hidden, 'record', `${hidden} more`)}${when ? `, older than ${when}` : ''}`}>
+              accessibilityLabel={`See all activity — ${plural(hiddenCount, 'record', `${hiddenCount} more`)}${when ? `, older than ${when}` : ''}`}>
               <Text style={s.link}>See all activity{when ? ` (older than ${when})` : ''} ›</Text>
-              <Text style={s.txnFrom}>{plural(hidden, 'record', `${hidden} more`)} below this date</Text>
+              <Text style={[p.note, s.seeAllCount]}>{plural(hiddenCount, 'record', `${hiddenCount} more`)} below this date</Text>
             </TouchableOpacity>
           );
         })()}
@@ -930,6 +1071,7 @@ function BondDetail({ account }: { account: AssetAccount }) {
   // It now asks the question once and reads the figures off the answer.
   const answer = theBonds({ accounts: [account], accountId: String(account.asset_id) });
   const one = answer.one;
+  const saveAsset = (useStore() as any).updateAsset;   // a CD's answer to where it was bought is saved here (DEC-3837)
   // a bond FUND (no maturity) — no honest bond math. A face or a rate never entered still gets its facts: the card used to
   // vanish with no rate, taking face value and maturity with it (outside review OpenAI final, 2026-10-09, DEC-2748b + DEC-2748c)
   // A BOND OR CD WITH NO MATURITY DATE STILL HAS ITS FACTS (DEC-4036b, 2026-10-10): the card used to vanish, so a
@@ -940,9 +1082,14 @@ function BondDetail({ account }: { account: AssetAccount }) {
   const years = one.yearsLeft ?? 0;
   return (
     <>
-      <View style={s.card}>
+      <View style={s.card} testID="card-bond-facts">
         <Text style={s.cardHdr2}>BOND FACTS</Text>
         <FactRow label="Face value" value={one.face != null ? fig('MK-NW-M-023', one.face) : figWords('MK-NW-M-023', 'not entered')} />
+        {/* DEC-0281 (2026-08-26): the current price and the cost, two of the nine facts a bond shows. The price is quoted
+            the way a broker quotes a bond, per $100 of face — market value ÷ face × 100 (Q38 part 3), only with both;
+            what you paid only when entered (MK-XS-I-067). */}
+        {one.pricePer100 != null && <FactRow label="Price" value={`${fig('MK-NW-M-066', one.pricePer100)} per $100 of face`} />}
+        {one.paid != null && <FactRow label="What you paid" value={fig('MK-NW-M-065', one.paid)} />}
         {/* no rate entered: the rate reads "not entered" and a year's interest $0, said so in the Bonds screen's words (DEC-2748c) */}
         <FactRow label="Interest payments" value={figWords('MK-NW-M-024', one.couponRate == null
           ? `not entered · ${fig('MK-NW-M-056', 0)}/year — coupon rate not entered`
@@ -958,10 +1105,25 @@ function BondDetail({ account }: { account: AssetAccount }) {
         <View style={s.card}>
           <SectionBand inCard title="IF INTEREST RATES MOVE" />
           <Text style={s.bondNote}>{one.ratesMoveRefusal}</Text>
+          {/* WHERE THE CD WAS BOUGHT IS NOT ENTERED (2026-10-21, DEC-3837, DEC-3523 tenet 3): the card asks the one question in
+              its one wording, with its two answers; an answer is saved on the account and the card then reads as that answer */}
+          {one.cdBoughtNotEntered && (
+            <>
+              <Text style={[s.bondNote, { color: Colors.textPrimary, fontWeight: '700' }]}>{CD_BOUGHT_QUESTION}</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 }}>
+                {CD_BOUGHT_CHOICES.map(({ value, label, spoken }) => (
+                  <TouchableOpacity key={value} accessibilityRole="button" accessibilityLabel={`${spoken}. Saves it on this CD.`} style={s.choiceBtn}
+                    onPress={() => saveAsset?.(account.asset_id, { cd_bought: value } as any)}>
+                    <Text style={s.choiceBtnTxt}>{label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </>
+          )}
         </View>
       )}
       {one.ratesMove && (
-        <View style={s.card} accessible
+        <View style={s.card} testID="card-rates" accessible
           accessibilityLabel={`Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly ${figSaid('MK-NW-M-028', one.ratesMove.ratesUp.low)} to ${figSaid('MK-NW-M-028', one.ratesMove.ratesUp.high)}. If rates fall one percent, roughly ${figSaid('MK-NW-M-028', one.ratesMove.ratesDown.low)} to ${figSaid('MK-NW-M-028', one.ratesMove.ratesDown.high)}. Held to maturity, ${figSaid('MK-NW-M-023', one.face)} comes back if the issuer pays as promised.`}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Text style={s.cardHdr2}>IF INTEREST RATES MOVE</Text>
@@ -1017,9 +1179,9 @@ function ReportedReturnCard({ account }: { account: AssetAccount }) {
     setEditing(false);
   };
   return (
-    <View style={s.card}>
+    <View style={s.card} testID="card-historic">
       <Text style={s.cardHdr2}>{HISTORIC_TTM_TITLE}</Text>
-      <Text style={s.optNote}>{HISTORIC_TTM_BODY}</Text>
+      <Text style={s.bondNote}>{HISTORIC_TTM_BODY}</Text>
       {editing ? (
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
           <TextInput style={s.ttmInput} keyboardType="numbers-and-punctuation" placeholder="e.g. 2.1"
@@ -1194,10 +1356,14 @@ const s = StyleSheet.create({
   content: { padding: Spacing.lg },
   h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 15, color: Colors.textSecondary, marginTop: 6, lineHeight: 20 },
-  chipRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 6, marginBottom: Spacing.sm, flexWrap: 'wrap' },
+  // the head (drawing v01): the chip row 6 apart, then the class line 4 below it and 8 above the window bar
+  chipRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6, flexWrap: 'wrap' },
+  headClass: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, marginBottom: 8 },
+  headClassLink: { color: Colors.primary, fontWeight: '700' },
   chip: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, backgroundColor: Colors.bgTertiary, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4, overflow: 'hidden' },
-  updated: { fontSize: 13, color: Colors.textTertiary },
-  card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
+  updated: { fontSize: 13, color: Colors.textTertiary, marginLeft: 4 },
+  // a card (drawing v01 .card): white, 16 round, 12 in from its edges and 10 at its foot, 8 apart, the theme's card shadow
+  card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, paddingBottom: 10, marginBottom: Spacing.sm, ...Shadows.card },
   balance: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary },
   classLine: { fontSize: 13, color: Colors.textSecondary, marginTop: 4 },
   holdsLine: { fontSize: 13, color: Colors.textTertiary, marginTop: 2 },
@@ -1207,7 +1373,8 @@ const s = StyleSheet.create({
   insideDot: { width: 9, height: 9, borderRadius: 5 },
   insideSub: { fontSize: 11, color: Colors.textTertiary, marginTop: 1 },
   txnNote: { fontSize: 11, color: Colors.textTertiary, lineHeight: 16, paddingHorizontal: Spacing.md, paddingTop: 8, paddingBottom: 4 },
-  insideEmpty: { fontSize: 13, color: Colors.textTertiary, paddingHorizontal: Spacing.md, paddingVertical: 10 },
+  // under a class with nothing in it, on the holdings' left edge (dot 9 + gap 8 = 17), drawing v01 .empty
+  insideEmpty: { fontSize: 13, color: Colors.textTertiary, paddingLeft: 17, paddingTop: 4, paddingBottom: 8 },
   // AMBER, NOT GREEN (DEC-5982, 2026-10-19, his words: "ITemize your holdings box should be amber per color scheme and
   // not green."): the door is a thing the person still has to do, so it wears the app's one amber action box — the
   // exact box of DataGapsBanner (amberLight, a 1-point amber edge, Radii.lg, Spacing.md) — with its title in amber,
@@ -1231,15 +1398,21 @@ const s = StyleSheet.create({
   walkTotal: { borderTopWidth: 1, borderTopColor: Colors.border, marginTop: 4, paddingTop: 8 },
   walkNote: { fontSize: 11, fontWeight: '700', color: Colors.primary, marginTop: 8, paddingVertical: 12, minHeight: 44 },
   // BY CATEGORY & HOLDING: the two right-hand columns every row, band and total share
-  colHdrRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingBottom: 2 },
+  colHdrRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 4 },
   colHdr: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.4, textAlign: 'right' },
-  colValW: { minWidth: 84, textAlign: 'right' },
-  colRetW: { minWidth: 64, textAlign: 'right' },
+  // two fixed columns, then the one 16-point column every row ends in (drawing v01 .cv 76, .cr 88, .g 16)
+  colValW: { width: 76, textAlign: 'right' },
+  colRetW: { width: 88, textAlign: 'right' },
+  gutter: { width: GUTTER, marginLeft: -8, alignItems: 'flex-end' },   // a row spaces its cells 8 apart; the column sits flush
+  gutterMark: { fontSize: 15, color: Colors.textTertiary },
+  btnRow: { flexDirection: 'row', gap: 8, marginBottom: Spacing.sm },
+  seeAllCount: { marginTop: -8 },
   optRet: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   // the class band: SectionBand's light band, rebuilt here because this row carries TWO figures
   classBand: { alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', gap: 8,
     backgroundColor: Colors.bandLight, paddingVertical: 8, paddingHorizontal: Spacing.md,
-    marginHorizontal: -Spacing.md, marginBottom: Spacing.xs, borderRadius: 0 },
+    marginHorizontal: -Spacing.md, marginTop: 2, marginBottom: Spacing.xs, borderRadius: 0 },
+  classDot: { width: 8, height: 8, borderRadius: 4 },
   classBandT: { flex: 1, color: Colors.primaryDeep, fontSize: 11, fontWeight: '800', letterSpacing: 0.5, textTransform: 'uppercase' },
   classBandRet: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', gap: 4 },
   classBandV: { color: Colors.primaryDeep, fontSize: 15, fontWeight: '800', fontVariant: ['tabular-nums'] },
@@ -1253,7 +1426,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 14, minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start', marginTop: 6 },
   doorOutlineTxt: { fontSize: 13, fontWeight: '800', color: Colors.primaryDeep },
   kindRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: Spacing.sm, justifyContent: 'center' },
-  incomeLine: { fontSize: 11, color: Colors.textSecondary, paddingLeft: 20, paddingBottom: 6, marginTop: -2 },
+  incomeLine: { fontSize: 11, color: Colors.textSecondary, paddingLeft: 17, paddingBottom: 6, marginTop: -2 },
   optNote: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 18 },
   maturedCard: { backgroundColor: Colors.amberLight, borderRadius: Radii.md, padding: 12, marginBottom: Spacing.sm },
   maturedTitle: { fontSize: 15, fontWeight: '800', color: Colors.amber },
@@ -1267,12 +1440,15 @@ const s = StyleSheet.create({
   staleTxt: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   staleBtn: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, paddingVertical: 8, paddingHorizontal: 14, minHeight: 40, justifyContent: 'center' },
   staleBtnTxt: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
+  // an answer to a question on a card: the shape of the amber box's own doors (rounded corners, DEC-0231)
+  choiceBtn: { backgroundColor: Colors.white, borderWidth: 1.5, borderColor: Colors.primaryDeep, borderRadius: Radii.md, minHeight: 44, paddingHorizontal: 14, justifyContent: 'center' },
+  choiceBtnTxt: { fontSize: 13, fontWeight: '800', color: Colors.primaryDeep },
   section: { fontSize: 13, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: 6 },
   link: { fontSize: 15, fontWeight: '700', color: Colors.primary, marginTop: 4, paddingVertical: 12, minHeight: 44, textAlignVertical: 'center' },
   txnRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, minHeight: 40 },
   txnMine: { fontSize: 11, fontWeight: '700', color: Colors.primaryDark, marginTop: 1 },
   txnFrom: { fontSize: 11, color: Colors.textTertiary, marginTop: 1 },
-  txnEdit: { fontSize: 15, color: Colors.primaryDark, fontWeight: '800', paddingHorizontal: 8, paddingVertical: 6 },
+  txnEdit: { fontSize: 15, color: Colors.primaryDark, fontWeight: '800' },
   txnEditGap: { width: 31 },
   txnLabel: { flex: 1, fontSize: 15, color: Colors.textPrimary },
   txnAmt: { fontSize: 15, fontWeight: '700', fontVariant: ['tabular-nums'] },
@@ -1295,7 +1471,8 @@ const s = StyleSheet.create({
   destOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   destTxt: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary, textTransform: 'capitalize' },
   dayRow: { flexDirection: 'row', gap: 8, marginTop: Spacing.sm, justifyContent: 'center' },
-  dayChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, minHeight: 40, justifyContent: 'center' },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  dayChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, minHeight: 40, justifyContent: 'center' },
   preview: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, textAlign: 'center', marginTop: Spacing.sm },
   cardHdr2: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: 4 },
   estTag: { fontSize: 11, fontWeight: '800', color: Colors.amber, letterSpacing: 0.3, marginBottom: 4 },
@@ -1407,14 +1584,21 @@ const p = StyleSheet.create({
   trioL: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.3 },
   trioV: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 3, fontVariant: ['tabular-nums'] },
 
-  noteRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 },
+  // a note and its dot: the dot sits at the note's last line, as the drawing puts it at the end of the words
+  noteRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 6 },
   note: { fontSize: 11, color: Colors.textTertiary, lineHeight: 16, marginTop: 6, flexShrink: 1 },
+  notePad: { paddingTop: 2 },
 
-  wRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 8, gap: 12 },
-  wL: { fontSize: 15, color: Colors.textSecondary, flexShrink: 1 },
+  // the walk (drawing v01 .wr): 15-point label in the secondary grey, 15/700 figure, 7 above and below; Wealth generated
+  // and the ending in 800, its three parts indented 20; every figure followed by the one 16-point column
+  wRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 7, gap: 8 },
+  wSub: { paddingLeft: 20 },
+  wL: { flex: 1, fontSize: 15, color: Colors.textSecondary },
   wV: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'], textAlign: 'right' },
+  wStrongL: { color: Colors.textPrimary, fontWeight: '800' },
+  wStrongV: { fontWeight: '800' },
   wTotal: { borderTopWidth: 1, borderTopColor: Colors.border, marginTop: 4 },
-  wStrong: { fontWeight: '800', color: Colors.textPrimary },
+  gutter: { width: GUTTER, marginLeft: -8 },
 
   acctRow: {
     flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, backgroundColor: Colors.cardBg,

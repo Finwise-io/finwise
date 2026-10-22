@@ -26,7 +26,7 @@ export type FccTab = 'home' | 'analytics' | 'invest' | 'cashflow' | 'plan';
  *     'retired'   when status = 'partial' and current retirement income monthly(op ?? {}) > 0
  *     the answer = 'working'
  *
- * Called by ... MK-XS-F-174 recomputeBalances
+ * Called by ... MK-XS-F-192 typedValueDatedBack
  *
  * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN

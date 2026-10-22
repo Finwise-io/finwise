@@ -168,6 +168,7 @@ export function mapAccountType(rawType: string | null | undefined, category?: st
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-070 the class a broker sends for a holding — its security type and its cash-equivalent flag
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-145
  * Changed ..... not in git yet (—)
@@ -186,17 +187,17 @@ export interface MappedPosition {
   price: number | null;
   costPerShare: number | null;
   assetClass: MappedAssetClass;
-  brokerTag: string;              // the broker's own type code, passed through for the continuity check
-  cashEquivalent: boolean;
+  brokerTag: string;              // the broker's own type code, kept on the saved holding (broker_type) — it decides the class
+  cashEquivalent: boolean;        // the broker's "this is cash" flag, kept on the saved holding — it decides the class: Cash
   lots: { purchase_date: string | null; shares: number; cost_per_share: number | null }[];
 }
-// B7 (founder brief 2026-08-20): classification lives in the ONE function — name first, broker tag
-// as fallback only. This road only gathers the evidence. (Supersedes the inline 2026-08-04 rule
-// and the B47 finding-5 fixed-income patterns — both moved into the function, behavior kept.)
+// Classification lives in the ONE function (B7, founder brief 2026-08-20); this road only gathers the evidence. Its
+// order is his ruling of 2026-10-20, "always the class broker sends": the person's own answer, then the class the
+// broker sends (the cash-equivalent flag, else the type code), then the name and the other rules.
 /* ─ MK-XS-F-105 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * mapPosition
  *
- * Answers ..... B7 (founder brief 2026-08-20): classification lives in the ONE function — name first, broker tag as fallback only.
+ * Answers ..... Classification lives in the ONE function (B7, founder brief 2026-08-20); this road only gathers the evidence.
  *
  * Formula .....
  *     sym = flat symbol(p)
@@ -214,6 +215,7 @@ export interface MappedPosition {
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-007 purchase price and date (per lot)
  *               MK-XS-I-010 transaction words (the institution's own wording)
+ *               MK-XS-I-070 the class a broker sends for a holding — its security type and its cash-equivalent flag
  *
  * Decides .....
  *     · If units is missing it uses 0.
@@ -310,7 +312,6 @@ export interface MappedOption { label: string; contracts: number; value: number;
  * Decides .....
  *     · If units is missing it uses 0.
  *     · If price is missing it uses 0.
- *     · Rounds the answer to two decimals (cents).
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-106
  * Changed ..... 2026-07-18 (99d220a)
@@ -329,11 +330,12 @@ export function mapOptionHolding(o: StOptionHolding, multiplierGiven?: number): 
   return {
     label: `${under} ${strike} ${kindWord} · exp ${prettyExpiry(os.expiration_date)}${contracts < 0 ? ' (short)' : ''}`.replace(/\s+/g, ' ').trim(),
     contracts,
-    value: Math.round((o.price ?? 0) * contracts * multiplier * 100) / 100,
+    // both are stored on the account as calculated (DEC-0403) — they were rounded to cents here until 2026-10-20
+    value: (o.price ?? 0) * contracts * multiplier,
     // LIVE-VERIFIED 2026-07-19 (real E*TRADE): `price` is per SHARE (×100 for the contract) but
     // `average_purchase_price` is already the whole CONTRACT's dollars — it matched the actual
     // BUY_TO_OPEN cash to the cent. Multiplying it too would overstate the basis 100-fold.
-    costBasis: o.average_purchase_price != null ? Math.round(o.average_purchase_price * contracts * 100) / 100 : null,
+    costBasis: o.average_purchase_price != null ? o.average_purchase_price * contracts : null,
     // carried onto the stored option row, so whatever reads it later uses the broker's figure, never a guessed 100
     multiplier,
   };
@@ -513,7 +515,7 @@ export function dedupeActivities(accountId: string, incoming: StActivity[], seen
  * Answers ..... ── the cash sleeve, deduped ─────────────────────────────────────────────────────────────────── SnapTrade counts money-market (cash_equivalent) positions INSIDE balances.cash too.
  *
  * Formula .....
- *     net = round((balances cash ?? 0) − mmf, 2 dp)
+ *     net = (balances cash ?? 0) − mmf
  *     the answer:
  *     0   if net < 0 and net > -1
  *     net   otherwise
@@ -525,11 +527,11 @@ export function dedupeActivities(accountId: string, incoming: StActivity[], seen
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-070 the class a broker sends for a holding — its security type and its cash-equivalent flag
  *
  * Decides .....
  *     · If price is missing it uses 0.
  *     · If balances cash is missing it uses 0.
- *     · Rounds the answer to two decimals (cents).
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-110
  * Changed ..... 2026-08-07 (0482964)
@@ -537,7 +539,8 @@ export function dedupeActivities(accountId: string, incoming: StActivity[], seen
 export function netCashSleeve(balancesCash: number | null | undefined, positions: MappedPosition[]): number {
   const mmf = positions.filter((p) => p.cashEquivalent)
     .reduce((t, p) => t + (p.price ?? 0) * p.shares, 0);
-  const net = Math.round(((balancesCash ?? 0) - mmf) * 100) / 100;
+  // held exact (DEC-0403): the sleeve was rounded to cents here until 2026-10-20; it is stored as the account's cash
+  const net = (balancesCash ?? 0) - mmf;
   // a real margin debit stays NEGATIVE (audit fix — flooring it overstated the account);
   // only sub-dollar rounding dust clamps to zero
   return net < 0 && net > -1 ? 0 : net;

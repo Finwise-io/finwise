@@ -18,7 +18,7 @@ import { valueOn } from '../../Calculation Module code/engines/snapshots';
 import { Colors, Spacing, Radii, Shadows, ClassMarkColors } from '../utils/theme';
 import { money, money2 } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
-import { ASSET_KINDS, accountAllowsTicker, assetClassOf, ASSET_CLASS_LABEL, type AssetAccount, accountDisplayNames, benchmarkReturn } from '../domain/assets';
+import { ASSET_KINDS, accountAllowsTicker, assetClassOf, holdingClassOf, ASSET_CLASS_LABEL, type AssetAccount, accountDisplayNames, benchmarkReturn } from '../domain/assets';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { isBond } from '../domain/bonds';
 import { isAlternative } from '../domain/alternatives';
@@ -30,7 +30,7 @@ import {
   // the screen's return has come from the door since B-97 was fixed. It only showed up now because
   // Home stopped calling it too, so the build recategorised it from DISPLAYED to DEPENDENT and the
   // D1 ratchet saw a screen reaching past a door for a figure it does not even use.
-  buildPerformance, benchmarkTicker, totalShares, costBasis,
+  buildPerformance, benchmarkTicker, totalShares, paidOnRecord, latestCloseLookup,
   type Period, type Position, type Lot,
 } from '../domain/performance';
 import { txnLabel, cashEffect, availableCash, type Transaction, type TxnType } from '../domain/transactions';
@@ -41,6 +41,8 @@ import { priceFreshness, isPlausibleTicker } from '../services/marketData';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { BondEditor } from './BondsScreen';
+import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bonds';
+import { COUPONS_PER_YEAR_QUESTION, COUPONS_PER_YEAR_CHOICES, type CouponsPerYear } from '../constants/couponsPerYear';   // the one wording (DEC-3390)
 import { AltEditor } from './OtherInvestmentsScreen';
 import { isoLocalDate, dateShown } from '../domain/_shared/dates';
 import { rebuiltSentence } from '../../Calculation Module code/engines/rebuild-history';
@@ -376,7 +378,8 @@ export default function PerformanceScreen() {
       </View>
 
       {!nothingEntered && (
-        <DataGapsBanner gaps={dataGaps(accounts, now.windowStart, Date.now(), (store.transactions ?? []) as any, (store.syncFailures ?? []) as any)} />
+        // the price history the app holds, so a holding added by hand is judged for a price today too (R7, 2026-10-20)
+        <DataGapsBanner gaps={dataGaps(accounts, now.windowStart, Date.now(), (store.transactions ?? []) as any, (store.syncFailures ?? []) as any, [], latestCloseLookup(priceCache))} />
       )}
 
       {/* THE WALK — how the beginning became the ending, every account together */}
@@ -435,10 +438,11 @@ export default function PerformanceScreen() {
                 onPress={() => setOpenAcctWalk((m) => ({ ...m, [id]: !isOpen }))}
                 accessibilityLabel={`${label}, ${figSaid('MK-PF-M-005', acct.balance || 0)}.${dayOneView ? '' : ` ${isOpen ? 'Collapses' : 'Expands'} its walk.`}`}>
                 <SectionBand inCard title={`${dayOneView ? '' : isOpen ? '▾ ' : '▸ '}${label}`} value={fig('MK-PF-M-005', acct.balance || 0)}
-                  onTitlePress={() => router.push(`/account-detail?id=${id}` as any)}
+                  // the page opens on the window picked here (account-page drawing v01, row 18, DEC-6457)
+                  onTitlePress={() => router.push(`/account-detail?id=${id}&period=${period}` as any)}
                   /* v17 draws "›" after every account bar: the bar opens that account's page (frame 2). It sits in the
                      right gutter every money row keeps, so the bar total stays on the rows' edge (DEC-0093) */
-                  gutter={GUTTER} onChevronPress={() => router.push(`/account-detail?id=${id}` as any)}
+                  gutter={GUTTER} onChevronPress={() => router.push(`/account-detail?id=${id}&period=${period}` as any)}
                   titleHint={`Open ${label} — this account's own page`} />
               </TouchableOpacity>
               {!isOpen ? (
@@ -618,6 +622,14 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
   // SHARES PER CONTRACT for an option typed by hand (his approval, 2026-10-12, DEC-4646; MK-XS-I-063): 100 unless the
   // person states otherwise — a mini option is 10. Saved to the holding's `multiplier`, which MK-PF-F-031 reads.
   const [perContract, setPerContract] = useState('100');
+  // A BOND OR CD HELD IN AN ACCOUNT: its face value, coupon rate and maturity date (DEC-0281, DEC-6212, 2026-10-20). A linked
+  // broker sends none of the three, so the person gives them here; the line under the bond on its account reads them.
+  const [bondFace, setBondFace] = useState('');
+  const [bondRate, setBondRate] = useState('');
+  const [bondMaturity, setBondMaturity] = useState('');
+  // HOW OFTEN A HELD BOND PAYS (2026-10-21, under DEC-3390; MK-XS-I-069): the question a bond held as its own account is asked
+  // on Add an account and the Bonds editor, in the same words — a bond only, never a CD, nothing chosen for the person
+  const [couponsPerYear, setCouponsPerYear] = useState<CouponsPerYear | null>(null);
   const [tickerFocus, setTickerFocus] = useState(false);
   // autocomplete: suggest common tickers as they type (hidden once it's an exact symbol match)
   const suggestions = useMemo(() => {
@@ -633,9 +645,14 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
       setAccountId(existing.accountId); setTicker(existing.position.ticker); setLabel(existing.position.label ?? '');
       setKind(existing.position.kind ?? 'stocks_etf'); setLots(existing.position.lots.length ? existing.position.lots : [blankLot()]);
       setPerContract(String(existing.position.multiplier != null && existing.position.multiplier > 0 ? existing.position.multiplier : 100));
+      setBondFace(existing.position.face_value != null ? String(existing.position.face_value) : '');
+      setBondRate(existing.position.coupon_rate != null ? String(+(existing.position.coupon_rate * 100).toFixed(6)) : '');
+      setBondMaturity(existing.position.maturity_date ?? '');
+      setCouponsPerYear(existing.position.coupons_per_year === 1 || existing.position.coupons_per_year === 2 ? existing.position.coupons_per_year : null);
     } else {
       setAccountId(investAccts[0]?.asset_id ?? '__new__'); setTicker(''); setLabel(''); setKind('stocks_etf'); setLots([blankLot()]);
       setPerContract('100');
+      setBondFace(''); setBondRate(''); setBondMaturity(''); setCouponsPerYear(null);
     }
   }, [open]);
 
@@ -645,23 +662,50 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
   const [lotRaw, setLotRaw] = useState<Record<string, string>>({});
   const setLotNum = (i: number, field: 'shares' | 'cost_per_share', t: string) => {
     setLotRaw((m) => ({ ...m, [`${i}-${field}`]: t }));
-    setLot(i, { [field]: num(t) } as Partial<Lot>);
+    // A PRICE PAID LEFT BLANK IS NOT ON RECORD (null), never $0 (2026-10-20): saved as 0 it was counted as a real $0 cost by
+    // what was paid in total and the gain at the top, while the average and the gains if sold today left it out
+    setLot(i, { [field]: field === 'cost_per_share' && t.trim() === '' ? null : num(t) } as Partial<Lot>);
   };
-  const lotVal = (i: number, field: 'shares' | 'cost_per_share', n: number) =>
+  // a cost not on record (null — a linked purchase the broker sent none for, 2026-10-20) shows as an empty field
+  const lotVal = (i: number, field: 'shares' | 'cost_per_share', n: number | null) =>
     lotRaw[`${i}-${field}`] ?? (n ? String(n) : '');
   // new-investor friendly: only ticker + shares are required; cost/share + date are optional
   // (without cost we just can't show return-since-purchase — value & vs-benchmark still work).
   const isOption = kind === 'options';
+  // classed Bonds & CDs by the one test of a holding's class (holdingClassOf) — a held bond or CD, which this sheet edits
+  const isBondHolding = !isNew && holdingClassOf({ ...(existing?.position ?? {}), kind } as any) === 'bonds';
+  // A CD IS NEVER ASKED HOW OFTEN IT PAYS, as on the two forms: judged by the bonds door (MK-NW-O-001) on the holding's name and
+  // kind, the reading the line under it on its account page uses (holdingBondFacts reads the name, else the ticker)
+  const isCdHolding = useMemo(() => isBondHolding && !!theBonds({ accounts: [{ asset_id: 'draft', label: label.trim() || ticker.trim(), kind,
+    asset_class: 'bonds', tax_bucket: 'TAXABLE', balance: 0, target_return: 0 } as any] }).rows[0]?.isCD, [isBondHolding, label, ticker, kind]);
   const perContractN = num(perContract);
-  const valid = ticker.trim().length > 0 && lots.some((l) => l.shares > 0) && (!isOption || perContractN > 0);
+  // SAVE STAYS OFF FOR A FIGURE THAT IS NOT A REAL NUMBER (2026-10-21; outside re-run OpenAI part 3, MK-PF-F-031): a box keeps
+  // the digits typed, so 309 of them read as Infinity, passed the above-zero check, and every value it touched was infinite.
+  // One test for every number this sheet reads — the shares, the price paid, the shares per contract and a bond's face value
+  // and rate — the one the figure printer applies (a value that is not finite is a refused figure, DEC-3523).
+  const real = (n: number | null | undefined) => n == null || Number.isFinite(n);
+  const allReal = lots.every((l) => real(l.shares) && real(l.cost_per_share))
+    && (!isOption || Number.isFinite(perContractN))
+    && (!isBondHolding || (real(num(bondFace)) && real(num(bondRate))));
+  const valid = ticker.trim().length > 0 && lots.some((l) => l.shares > 0) && (!isOption || perContractN > 0) && allReal;
 
   const save = () => {
     const clean = lots.filter((l) => l.shares > 0).map((l) => ({ ...l, lot_id: l.lot_id || `lot_${Math.random().toString(36).slice(2, 8)}` }));
     const position: Position = {
       position_id: existing?.position.position_id ?? `pos_${Math.random().toString(36).slice(2, 8)}`,
       ticker: ticker.trim().toUpperCase(), label: label.trim() || undefined, kind, lots: clean,
-      // an option keeps the shares per contract the person typed (default 100); anything else carries none
-      ...(isOption ? { multiplier: perContractN } : {}),
+      // an option keeps the shares per contract the person typed (default 100); anything else carries none — and a holding
+      // changed away from an option has its figure cleared (the store merges, so a key left out kept the old 100: 10 shares at
+      // $50 read $50,000) (2026-10-21; outside re-run OpenAI part 3, MK-PF-F-031)
+      multiplier: isOption ? perContractN : undefined,
+      // a bond's own facts: an empty box is not entered (DEC-2748b) — a typed 0% is 0%
+      ...(isBondHolding ? {
+        face_value: num(bondFace) > 0 ? num(bondFace) : undefined,
+        coupon_rate: bondRate.trim() === '' ? undefined : num(bondRate) / 100,
+        maturity_date: bondMaturity.trim() || undefined,
+        // how often it pays, as chosen; not chosen is not entered, and a CD keeps none (2026-10-21, under DEC-3390)
+        coupons_per_year: !isCdHolding && couponsPerYear != null ? couponsPerYear : undefined,
+      } : {}),
     };
     onSave(accountId, position, isNew);
   };
@@ -729,11 +773,40 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
             <View key={i} style={styles.lotRow}>
               <View style={styles.lotCell}><Text style={styles.lotL}>Shares</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={lotVal(i, 'shares', l.shares)} onChangeText={(t) => setLotNum(i, 'shares', t)} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Cost / share (opt)</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={lotVal(i, 'cost_per_share', l.cost_per_share)} onChangeText={(t) => setLotNum(i, 'cost_per_share', t)} placeholder="—" placeholderTextColor={Colors.textTertiary} /></View>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Date (opt)</Text><DateField value={l.purchase_date ?? ''} onChange={(iso) => setLot(i, { purchase_date: iso })} label="purchase date" style={styles.lotIn} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Date (opt)</Text><DateField value={l.purchase_date ?? ''} onChange={(iso) => setLot(i, { purchase_date: iso })} label="purchase date" style={styles.lotIn} maximumDate={new Date()} /></View>
               {lots.length > 1 && <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel={`Remove lot ${i + 1}`} onPress={() => setLots((ls) => ls.filter((_, j) => j !== i))}><Text style={styles.lotDel}>✕</Text></TouchableOpacity>}
             </View>
           ))}
           <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Add another lot" onPress={() => setLots((ls) => [...ls, blankLot()])}><Text style={styles.addLink}>＋ Add another lot</Text></TouchableOpacity>
+          {isBondHolding && (
+            <>
+              {/* a bond's or CD's own facts (DEC-0281, DEC-6212) — the same three questions, in the same words, as Add an account */}
+              <Text style={styles.fieldL}>Face value (optional)</Text>
+              <TextInput style={styles.input} keyboardType="decimal-pad" value={bondFace} onChangeText={setBondFace} accessibilityLabel="Face value"
+                placeholder="$10,000" placeholderTextColor={Colors.textTertiary} />
+              <Text style={styles.fieldL}>Interest rate % (optional)</Text>
+              <TextInput style={styles.input} keyboardType="decimal-pad" value={bondRate} onChangeText={setBondRate} accessibilityLabel="Coupon percent"
+                placeholder="4.5" placeholderTextColor={Colors.textTertiary} />
+              {!isCdHolding && (
+                <>
+                  {/* (2026-10-21, under DEC-3390) how often a held bond pays — the yield to maturity's accrued-interest estimate
+                      reads it; the same question, words and chips as Add an account and the Bonds editor; never asked of a CD */}
+                  <Text style={styles.fieldL}>{COUPONS_PER_YEAR_QUESTION}</Text>
+                  <View style={styles.kindWrap}>
+                    {COUPONS_PER_YEAR_CHOICES.map(({ value: v, label: t, spoken }) => (
+                      <TouchableOpacity key={v} accessibilityRole="radio" accessibilityLabel={spoken} accessibilityState={{ selected: couponsPerYear === v }}
+                        style={[styles.kindChip, couponsPerYear === v && styles.kindChipOn]} onPress={() => setCouponsPerYear(v)}>
+                        <Text style={[styles.kindChipT, couponsPerYear === v && styles.kindChipTOn]}>{t}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </>
+              )}
+              <Text style={styles.fieldL}>Matures (optional)</Text>
+              <DateField value={bondMaturity} onChange={setBondMaturity} label="maturity date" style={styles.input}
+                initial={`${new Date().getFullYear() + 10}-01-01`} minimumDate={new Date(2000, 0, 1)} />
+            </>
+          )}
 
           {accounts.length > 0 && (
             <>
@@ -763,7 +836,8 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
           )}
 
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid} accessibilityRole="button" accessibilityLabel={isNew ? 'Add holding' : 'Save holding'} onPress={save}>
-            <Text style={styles.saveBtnT}>{isNew ? 'Add holding' : 'Save'}{valid && (costBasis({ position_id: '', ticker, lots, kind, multiplier: isOption ? perContractN : undefined } as Position) ?? 0) > 0 ? ` · cost ${fig('MK-NW-M-033', costBasis({ position_id: '', ticker, lots, kind, multiplier: isOption ? perContractN : undefined } as Position))}` : ''}</Text>
+            {/* the cost on the button is Total paid, read the one way the Holding page reads it (paidOnRecord, 2026-10-21) */}
+            <Text style={styles.saveBtnT}>{isNew ? 'Add holding' : 'Save'}{valid && (paidOnRecord({ position_id: '', ticker, lots, kind, multiplier: isOption ? perContractN : undefined } as Position).paid ?? 0) > 0 ? ` · cost ${fig('MK-NW-M-033', paidOnRecord({ position_id: '', ticker, lots, kind, multiplier: isOption ? perContractN : undefined } as Position).paid)}` : ''}</Text>
           </TouchableOpacity>
           {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete holding" onPress={onDelete}><Text style={styles.deleteLink}>Delete holding</Text></TouchableOpacity>}
           <View style={{ height: 20 }} />
@@ -773,7 +847,8 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
     </Modal>
   );
 }
-const blankLot = (): Lot => ({ lot_id: `lot_${Math.random().toString(36).slice(2, 8)}`, shares: 0, cost_per_share: 0, purchase_date: isoLocalDate(new Date()) });
+// a new purchase's price paid starts NOT ON RECORD (null), never $0 — a blank box is not entered (2026-10-20)
+const blankLot = (): Lot => ({ lot_id: `lot_${Math.random().toString(36).slice(2, 8)}`, shares: 0, cost_per_share: null, purchase_date: isoLocalDate(new Date()) });
 
 
 /** THE WINDOW SELECTOR — mock v14 (founder-approved 2026-09-25), after three tries.
@@ -967,13 +1042,13 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
             <View style={[styles.lotRow, { marginTop: 12 }]}>
               <View style={styles.lotCell}><Text style={styles.lotL}>Shares</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={shares} onChangeText={setShares} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Price / share</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={price} onChangeText={setPrice} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><DateField value={date} onChange={setDate} label="transaction date" style={styles.lotIn} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><DateField value={date} onChange={setDate} label="transaction date" style={styles.lotIn} maximumDate={new Date()} /></View>
             </View>
           )}
           {(isCash || isTransfer || (isDiv && !reinvest)) && (
             <View style={[styles.lotRow, { marginTop: 12 }]}>
               <View style={styles.lotCell}><Text style={styles.lotL}>Amount</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={amount} onChangeText={setAmount} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><DateField value={date} onChange={setDate} label="transaction date" style={styles.lotIn} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><DateField value={date} onChange={setDate} label="transaction date" style={styles.lotIn} maximumDate={new Date()} /></View>
             </View>
           )}
 
@@ -1208,7 +1283,8 @@ const styles = StyleSheet.create({
   acName: { fontSize: 13, color: Colors.textSecondary, flex: 1 },
   input: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 11, fontSize: 15, color: Colors.textPrimary },
   kindWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 7 },
-  kindChip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.pill, paddingHorizontal: 11, paddingVertical: 7 },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  kindChip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 11, paddingVertical: 7 },
   kindChipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   kindChipT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   kindChipTOn: { color: Colors.primaryDark },

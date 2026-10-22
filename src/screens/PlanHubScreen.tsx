@@ -34,6 +34,7 @@ import { PlanPrepare } from '../components/PlanPrepare';
 import { targetAtRetirement } from '../domain/planning/target';
 import { onCourseSentence, planDoor, nextDecision, shortfallAgeFromBand, oddsLine, sampleOddsLine, SS_DECISION_FROM, SS_DECISION_TO } from '../domain/planning/hub';
 import { simulate } from '../domain/retirement';
+import { figWords } from '../components/figure';   // the odds and the retirement sentence print under their identifiers (2026-10-20)
 import { useCashflowModel } from '../hooks/useCashflowModel';
 import { salaryAnnual } from '../domain/income';
 
@@ -224,14 +225,15 @@ export default function PlanHubScreen() {
             typedTarget={A?.targetNestEgg ?? null}
             lens={lens}
           />
-          {trying && <Text style={styles.tryingTag}>Trying it out — your plan still says {wil.chance}%.</Text>}
+          {trying && <Text style={styles.tryingTag}>Trying it out — your plan still says {figWords('MK-XS-M-002', `${wil.chance}%`)}.</Text>}
           {/* the withdrawal rate USED to be tacked on to the retired line below, beside the money left
               over — a rate describing money going OUT, printed next to money staying in. It measures
               the draw (expenses less guaranteed income), so it now sits with that draw on the paycheck
               card further down (founder 2026-08-13). */}
           {lens === 'retired' ? (
             <Text style={styles.ifLine}>
-              Your {maskedMoney(planSpend)}/month expenses{onCourse ? ` — ${onCourse}` : ` — ${oddsLine(lens, wil.chance!, wil.horizonAge)}`}.
+              {/* the Net worth card's sentence, MK-NW-M-015, and the odds, MK-XS-M-002 — under the identifiers Net worth prints them under */}
+              Your {maskedMoney(planSpend)}/month expenses{onCourse ? ` — ${figWords('MK-NW-M-015', onCourse)}` : ` — ${figWords('MK-XS-M-002', oddsLine(lens, wil.chance!, wil.horizonAge))}`}.
             </Text>
           ) : (
             // the outcome block and the inputs directly beneath it now say all of this, and say it

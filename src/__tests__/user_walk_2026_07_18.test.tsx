@@ -108,7 +108,9 @@ describe('USER WALK · 10 common flows', () => {
     expect(screen.getAllByText(/\$52,000/).length).toBeGreaterThan(0);   // the header trio repeats the value, as the approved mock does          // the broker's total — authoritative
     expect(screen.getAllByText(/VTI/).length).toBeGreaterThan(0);
     expect(screen.getByText('AAPL $220 call · exp Jan 16 2027')).toBeOnTheScreen();
-    expect(screen.getByText(/Counted inside this account's total/)).toBeOnTheScreen();
+    // the note under the holdings, as the account-page drawing v01 words it (approved 2026-10-19; "Counted inside this
+    // account's total — listed here so nothing is hidden." is not on the drawing)
+    expect(screen.getByText(/^A holding’s return is what its own price did in this window/)).toBeOnTheScreen();
   });
 
   test('W6 · the connected ledger: contribution + dividend rows landed as history', () => {

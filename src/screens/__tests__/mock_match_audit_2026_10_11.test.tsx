@@ -228,7 +228,9 @@ describe('9–10 · Holding detail: a purchase with no price paid, and prices th
   test('10 · two days of prices: the holding +0.96% ($239.53 → $241.84) beside the market over the same two days, +0.33% ($610 → $612)', () => {
     const lines = show();
     const y = lines.indexOf('Your return, past year');
-    expect(lines.slice(y, y + 6)).toEqual(['Your return, past year', '+0.96%', 'The market, same dates', '+0.33%', 'You are', 'ahead by 0.6 points']);
+    // the gap to two decimals like the two returns (Q49; Holding detail v02 READ THIS FIRST 2026-10-21): 0.9644% − 0.3279% = 0.64 points;
+    // it read 0.6
+    expect(lines.slice(y, y + 6)).toEqual(['Your return, past year', '+0.96%', 'The market, same dates', '+0.33%', 'You are', 'ahead by 0.64 points']);
   });
 });
 

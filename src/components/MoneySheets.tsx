@@ -52,7 +52,7 @@ export function ExpenseFab({ onPress }: { onPress: () => void }) {
   );
 }
 const fab = StyleSheet.create({
-  btn: { position: 'absolute', right: Spacing.lg, bottom: 24, backgroundColor: Colors.primary, borderRadius: 28, paddingHorizontal: 20, paddingVertical: 14, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 5 },
+  btn: { position: 'absolute', right: Spacing.lg, bottom: 24, backgroundColor: Colors.primary, borderRadius: Radii.md /* DEC-0231: rounded corners, not semicircle ends */, paddingHorizontal: 20, paddingVertical: 14, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 5 },
   txt: { color: Colors.white, fontSize: 17, fontWeight: '800' },
 });
 
@@ -265,8 +265,10 @@ export function AllocateSavings({ state, onClose }: { state: { open: boolean; ym
   const hasTargets = accounts.length > 0 || goals.length > 0;
 
   const save = () => {
-    const items = accounts.map((a) => ({ assetId: a.asset_id, amount: Math.round(dollarOf(a.asset_id) * 100) / 100 })).filter((i) => i.amount > 0);
-    const goalItems = goals.map((g) => ({ goalId: g.id, amount: Math.round(goalDollarOf(g.id) * 100) / 100 })).filter((i) => i.amount > 0);
+    // the amounts go to the store exactly as calculated (DEC-0403): a third of the surplus is a third, not a third
+    // rounded to cents — these were rounded when saved until 2026-10-20
+    const items = accounts.map((a) => ({ assetId: a.asset_id, amount: dollarOf(a.asset_id) })).filter((i) => i.amount > 0);
+    const goalItems = goals.map((g) => ({ goalId: g.id, amount: goalDollarOf(g.id) })).filter((i) => i.amount > 0);
     if (items.length && state.ym) store.allocateSavings?.(state.ym, items);
     if (goalItems.length && state.ym) store.fundGoals?.(state.ym, goalItems);
     onClose();
@@ -498,7 +500,8 @@ const sh = StyleSheet.create({
   chipTxt: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
   input: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.md, fontSize: 15, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, marginTop: Spacing.md, minHeight: 48 },
   dayRow: { flexDirection: 'row', gap: 8, marginTop: Spacing.md },
-  dayChip: { paddingHorizontal: 18, borderRadius: 22, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, minHeight: 44, justifyContent: 'center' },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  dayChip: { paddingHorizontal: 18, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, minHeight: 44, justifyContent: 'center' },
   toggleRow: { flexDirection: 'row', gap: 8, marginTop: Spacing.md, justifyContent: 'center' },
   seg: { flex: 1, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, alignItems: 'center', minHeight: 44, justifyContent: 'center' },
   freqRow: { flexDirection: 'row', gap: 8, marginTop: Spacing.md },

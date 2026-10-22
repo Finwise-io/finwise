@@ -1,13 +1,14 @@
 // Asset Ledger module (spec service 2). The accounts come from the store (its saved-document reader and writer were removed 2026-10-14).
 // Tracks balances + tax bucket + target return; provides total value & allocation.
 import type { UserId, EntityId } from '../_shared/ids';
-import { nameEvidence } from '../../../Calculation Module code/engines/holding-class';
+import { nameEvidence, classifyHoldingClass, type HoldingClass } from '../../../Calculation Module code/engines/holding-class';
 import { newEntityId } from '../_shared/ids';
 import { toNum, rentFigure } from '../_shared/num';
 import { employerMatchMonthly } from '../income/onboarding';
 import { annual401kLimit, ageAttainedInYear } from '../income/limits';
 import { ageLabel, isStale } from '../_shared/freshness';
 import { isoLocalDate, maturityParts } from '../_shared/dates';   // (DEC-4059c, 2026-10-10) today, as the person's own calendar has it
+import { paidOnRecord, contractMultiplier } from '../performance';   // the one reading of what was paid (DEC-6627) and of a unit's worth
 import { plural } from '../_shared/plural';   // (DEC-4082, 2026-10-10) one list of words and plurals
 export { plural, PLURAL_WORDS, type CountedWord } from '../_shared/plural';
 
@@ -65,6 +66,11 @@ export interface AssetAccount {
                                   // positions are partial performance trackers (never overwrite balance).
   cash_balance?: number;          // uninvested cash sleeve in an investment account (a brokerage isn't 100%
                                   // invested). Account value = cash_balance + Σ(position market value).
+  // THE CURRENCY OF A LINKED ACCOUNT'S TOTAL, as the broker states it — a three-letter code ('USD', 'EUR', 'CAD').
+  // Stored since 2026-10-20 (DEC-0312: "non-USD holdings deferred, not dropped — store the currency field now").
+  // Absent = US dollars: an account added by hand is typed in dollars, and a broker that states none is read as
+  // dollars. NOTHING converts it — conversion stays deferred by his ruling, so no figure reads this field.
+  currency?: string;
   // Individual bond fields (Phase B) — present → this account is a bond; balance = current value.
   face_value?: number;            // par/face value (total)
   coupon_rate?: number;           // annual coupon, decimal (e.g. 0.045)
@@ -73,6 +79,16 @@ export interface AssetAccount {
   // (DEC-3837, 2026-10-10) where a CD was bought: 'bank' = held at the bank to maturity, its yield is its
   // rate; 'broker' = bought through a brokerage, priced like a bond. Not answered reads as 'bank'.
   cd_bought?: 'bank' | 'broker';
+  // WHAT THE PERSON PAID FOR A BOND OR CD held as its own account, in dollars (DEC-0281, 2026-08-26: "cost"; MK-XS-I-067).
+  // Optional: absent = not entered, a typed 0 = $0 (DEC-2748b). It is step 2 of the one value rule (bondValue).
+  amount_paid?: number;
+  // WHERE A BOND'S OR CD'S BALANCE CAME FROM, when it is not a market value (DEC-0281): 'paid' = what the person paid,
+  // 'face' = its face value, because no market value was entered. Absent = the balance is a value entered or sent.
+  // Written only by settleBondValue, so the balance and the words beside it cannot disagree.
+  value_basis?: 'paid' | 'face';
+  // HOW OFTEN A BOND OR CD PAYS ITS INTEREST, times a year (2026-10-20, under DEC-3390; MK-XS-I-069): 1 = once a year,
+  // 2 = twice a year. Optional: absent = not entered, and the accrued-interest estimate keeps its once-a-year assumption.
+  coupons_per_year?: 1 | 2;
   origin?: 'onboarding';          // seeded from onboarding answers; re-seeding replaces ONLY these
                                   // rows (absent = user-created, never touched by seeding/restart)
   // Two-axis classification (taxonomy spec). Optional + EXPLICIT — when absent, derived from
@@ -87,6 +103,10 @@ export interface AssetAccount {
   mask?: string;                  // '••4821' — how banks disambiguate accounts
   status?: 'open' | 'closed' | 'archived' | 'unavailable';   // broker-reported; closed is SHOWN, never dropped
   wrapper_confirmed?: boolean;    // the USER confirmed kind/tax_bucket — syncs never override it
+  // THE "HELD IN" CHOICE THE PERSON PICKED, on a form whose kind names the asset, not the account (a bond, an
+  // alternative): its tax bucket alone cannot say which of 401(k), Traditional IRA or HSA was picked, so the choice is
+  // kept to show it again. Nothing calculates from it (DEC-2441, DEC-2484h, 2026-10-20).
+  held_in?: AddWrapper;
   // the PERSON chose this account's class in the Net worth editor — the class sweep never changes it
   // (the same word a holding carries; outside review OpenAI final, 2026-10-09, DEC-2748h)
   class_source?: 'user';
@@ -313,17 +333,17 @@ export const CASH_GROUP_LABEL = 'Cash and cash equivalents';
  * Called by ... MK-NW-F-012 taxTreatmentOf · MK-NW-F-034 benchmarkReturn
  *               MK-PL-F-086 splitBucketOf
  *
- * Reaches ..... 31 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
- *               MK-NW-F-140 LEFT_OUT · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
- *               MK-NW-F-002 alternativesSummary · MK-NW-F-036 benchmarkInfo
- *               MK-NW-F-034 benchmarkReturn · MK-NW-F-037 blendedReturn
- *               MK-NW-F-052 buildItemizedAccounts · MK-XS-F-031 buildSnapshot
- *               MK-XS-F-002 dataGaps · MK-CF-O-017 futurePaycheck
- *               MK-XS-F-102 ingestSync · MK-XS-F-119 namesFor
- *               … and 13 more — the full list is on functions_from_code
+ *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-025 accountDisplayName
+ *               MK-NW-F-026 accountDisplayNames · MK-NW-F-002 alternativesSummary
+ *               MK-NW-F-036 benchmarkInfo · MK-NW-F-034 benchmarkReturn
+ *               MK-NW-F-037 blendedReturn · MK-NW-F-052 buildItemizedAccounts
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-002 dataGaps
+ *               MK-CF-O-017 futurePaycheck · MK-XS-F-102 ingestSync
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -367,17 +387,17 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
  *
  * Called by ... MK-NW-F-120 classEvidenceOf · MK-NW-F-123 holdingNameEvidence
  *
- * Reaches ..... 214 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               … and 196 more — the full list is on functions_from_code
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 248 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -402,17 +422,17 @@ export function incomeBearingClassOf(label?: string): AssetClass | null {
  *
  * Called by ... MK-NW-F-120 classEvidenceOf · MK-NW-F-124 maturityParts
  *
- * Reaches ..... 213 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               … and 195 more — the full list is on functions_from_code
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 248 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -472,6 +492,58 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string | undefine
   }
 }
 
+/** THE ONE LIST OF "HELD IN" CHOICES (DEC-2441, approved by the owner 2026-10-06 as owed and not built: the by-hand
+ *  form's one 401(k) / IRA choice; DEC-2484h, 2026-10-07: a Roth 401(k) is its own choice). Every form that asks how an
+ *  account is taxed reads it — Add an account, the Net worth add sheet, the Bonds editor and the Alternatives editor —
+ *  so all four offer the same six choices, in this order, in these words. Each word is the one the account is then called by (MK-NW-F-025
+ *  accountDisplayName, DEC-0083: a tax-advantaged account shows its wrapper): a Traditional IRA is "Traditional IRA" on
+ *  the form and in the name. Until 2026-10-20 each form kept its own list — Add an account offered one "401(k) / IRA"
+ *  choice, the two editors one "Trad IRA / 401k", the add sheet "Trad. IRA" — and only the add sheet had a Roth 401(k). */
+export const HELD_IN_CHOICES: { key: AddWrapper; label: string }[] = [
+  { key: 'taxable', label: 'Taxable' }, { key: '401k', label: '401(k)' }, { key: 'trad_ira', label: 'Traditional IRA' },
+  { key: 'roth', label: 'Roth IRA' }, { key: 'roth_401k', label: 'Roth 401(k)' }, { key: 'hsa', label: 'HSA' },
+];
+
+/** Which "Held in" choice an account's saved answer is — so a form opened on it shows that choice again — or nothing
+ *  when the saved answer cannot be told apart. The choice kept on the account first (a bond's or an alternative's,
+ *  whose kind names the asset); then the account's kind, which names its wrapper (a 401(k) in the Roth bucket is a
+ *  Roth 401(k)); then a taxable bucket. A pre-tax or Roth bucket with no wrapper kind — saved by the old one-choice
+ *  forms — is not guessed: it could be any of three, or either of two, so no choice shows and the saved bucket stays. */
+/* ─ MK-NW-F-150 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * heldInOf
+ *
+ * Answers ..... Which "Held in" choice an account's saved answer is — so a form opened on it shows that choice again — or nothing when the saved answer cannot be told apart.
+ *
+ * Formula .....
+ *     nothing   when a is missing
+ *     held in   when held in and HELD_IN_CHOICES.some((c) => key = held in)
+ *     'roth_401k'   if tax bucket = 'ROTH'
+ *     '401k'   otherwise   when kind = '401k'
+ *     'trad_ira'   when kind = 'trad_ira'
+ *     'roth'   when kind = 'roth_ira'
+ *     'hsa'   when kind = 'hsa'
+ *     'taxable'   if tax bucket = 'TAXABLE'
+ *     nothing   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-150
+ * Changed ..... not in git yet (—)
+ */
+export function heldInOf(a?: { kind?: string; tax_bucket?: TaxBucket; held_in?: AddWrapper } | null): AddWrapper | null {
+  if (!a) return null;
+  if (a.held_in && HELD_IN_CHOICES.some((c) => c.key === a.held_in)) return a.held_in;
+  if (a.kind === '401k') return a.tax_bucket === 'ROTH' ? 'roth_401k' : '401k';
+  if (a.kind === 'trad_ira') return 'trad_ira';
+  if (a.kind === 'roth_ira') return 'roth';
+  if (a.kind === 'hsa') return 'hsa';
+  return a.tax_bucket === 'TAXABLE' ? 'taxable' : null;
+}
+
 /** What an account's own facts say its class is, before its kind is read: a maturity date first, then
  *  its name — never a property's name. ONE order, read by MK-NW-F-011 assetClassOf and MK-NW-F-053
  *  correctClassOf, which used to read the name first and re-filed 'Ally Money Market CD' maturing
@@ -490,17 +562,17 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string | undefine
  *
  * Called by ... MK-NW-F-011 assetClassOf · MK-NW-F-053 correctClassOf
  *
- * Reaches ..... 213 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               … and 195 more — the full list is on functions_from_code
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 248 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -552,20 +624,21 @@ export function classEvidenceOf(a: AssetAccount): AssetClass | null {
  *               MK-NW-F-029 assetAllocation · MK-NW-F-030 earmarkDefault
  *               MK-NW-F-055 isBond · MK-NW-F-063 interestIncomeAnnual
  *               MK-NW-F-106 mortgagesByProperty · MK-NW-F-117 propertyUseMap
- *               MK-NW-F-137 asksCashOrInvestments · MK-NW-O-003 theNetWorth
+ *               MK-NW-F-137 asksCashOrInvestments · MK-NW-F-151 linkedSplit
+ *               MK-NW-F-154 accountInvestments · MK-NW-O-003 theNetWorth
  *               MK-PF-F-048 bondInterestInWindow
  *
- * Reaches ..... 213 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               … and 195 more — the full list is on functions_from_code
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 248 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -614,19 +687,20 @@ export function assetClassOf(a: AssetAccount): AssetClass {
  *     the answer = 'taxable'
  *
  * Called by ... MK-NW-F-025 accountDisplayName · MK-NW-F-108 taxWordsOf
- *               MK-PL-F-086 splitBucketOf · MK-PL-F-087 taxTypeNotStated
+ *               MK-NW-O-006 theHolding · MK-PL-F-086 splitBucketOf
+ *               MK-PL-F-087 taxTypeNotStated
  *
- * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
- *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-093 QUIET_PERF · MK-NW-F-025 accountDisplayName
- *               MK-NW-F-026 accountDisplayNames · MK-XS-F-031 buildSnapshot
- *               MK-XS-F-002 dataGaps · MK-CF-O-017 futurePaycheck
- *               MK-XS-F-102 ingestSync · MK-XS-F-119 namesFor
- *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-068 selectWillItLast
- *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-086 splitBucketOf
- *               MK-PL-F-001 taxBucketSplit · MK-PL-F-087 taxTypeNotStated
- *               … and 4 more — the full list is on functions_from_code
+ * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-080 HOLD
+ *               MK-NW-F-140 LEFT_OUT · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-002 dataGaps
+ *               MK-CF-O-017 futurePaycheck · MK-XS-F-102 ingestSync
+ *               MK-XS-F-119 namesFor · MK-PL-F-049 retirementSpendMonthly
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-PL-F-086 splitBucketOf · MK-PL-F-001 taxBucketSplit
+ *               … and 7 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -920,10 +994,19 @@ export function primaryHomeIdOf(accounts: AssetAccount[], rentals?: RentEntry[] 
  *     the answer = c = 'real_estate' (or c = 'personal_property' when missing or zero)
  *
  * Called by ... MK-NW-F-022 investableAssets · MK-NW-O-003 theNetWorth
+ *               MK-XS-F-192 typedValueDatedBack
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-022 investableAssets · MK-NW-O-003 theNetWorth
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -955,9 +1038,17 @@ export function isRealAsset(a: AssetAccount): boolean {
  *
  * Called by ... MK-NW-F-022 investableAssets
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-022 investableAssets · MK-NW-O-003 theNetWorth
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -1039,11 +1130,19 @@ export function cashTotal(accounts: AssetAccount[]): number {
  *     by = asset allocation(accounts)
  *     the answer = by.stocks etf + by.bonds + by.alternatives + by.mixed
  *
- * Called by ... MK-NW-O-003 theNetWorth
+ * Called by ... MK-NW-F-153 uninvestedCashOf · MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-O-003 theNetWorth
+ * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-118 cashEffect · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-XS-F-188 fixStoredFees · MK-CF-F-041 getDebtState
+ *               … and 42 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1066,11 +1165,19 @@ export function investmentsTotal(accounts: AssetAccount[]): number {
  * Formula .....
  *     sum where(accounts, (a) => !is real asset(a)).total
  *
- * Called by ... MK-NW-O-003 theNetWorth
+ * Called by ... MK-NW-O-003 theNetWorth · MK-XS-F-192 typedValueDatedBack
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-O-003 theNetWorth
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1109,17 +1216,17 @@ const KIND_TO_WRAPPER: Record<string, string> = {
  *
  * Called by ... MK-NW-F-022 investableAssets · MK-NW-F-025 accountDisplayName
  *
- * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 71 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-082 NW · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-025 accountDisplayName
- *               MK-NW-F-026 accountDisplayNames · MK-XS-F-031 buildSnapshot
- *               MK-XS-F-002 dataGaps · MK-CF-O-017 futurePaycheck
- *               MK-XS-F-102 ingestSync · MK-NW-F-022 investableAssets
- *               MK-XS-F-119 namesFor · MK-PL-F-049 retirementSpendMonthly
- *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
- *               … and 4 more — the full list is on functions_from_code
+ *               MK-NW-F-026 accountDisplayNames · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               … and 53 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -1146,7 +1253,7 @@ export const wrapperWord = (kind?: string, a?: { wrapper_confirmed?: boolean }):
  *
  * Called by ... MK-NW-F-025 accountDisplayName
  *
- * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-025 accountDisplayName
@@ -1156,6 +1263,7 @@ export const wrapperWord = (kind?: string, a?: { wrapper_confirmed?: boolean }):
  *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-068 selectWillItLast
  *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
  *               MK-NW-O-008 thePerformance · MK-PL-F-067 willItLastInputs
+ *               … and 1 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1197,9 +1305,9 @@ export function accountLastFour(a: { mask?: string; account_number?: string }): 
  *     pos = ((a as any).positions ?? []) as any[]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-NW-F-026 accountDisplayNames
+ * Called by ... MK-NW-F-010 wrapperAccount · MK-NW-F-026 accountDisplayNames
  *
- * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-025 accountDisplayName
@@ -1209,6 +1317,7 @@ export function accountLastFour(a: { mask?: string; account_number?: string }): 
  *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-068 selectWillItLast
  *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
  *               MK-NW-O-008 thePerformance · MK-PL-F-067 willItLastInputs
+ *               … and 1 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
@@ -1302,7 +1411,7 @@ export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution'
  *               MK-PL-F-001 taxBucketSplit · MK-XS-F-102 ingestSync
  *               MK-XS-F-119 namesFor
  *
- * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-025 accountDisplayName
@@ -1312,6 +1421,7 @@ export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution'
  *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-068 selectWillItLast
  *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
  *               MK-NW-O-008 thePerformance · MK-PL-F-067 willItLastInputs
+ *               … and 1 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
@@ -1341,47 +1451,54 @@ export function accountDisplayNames(accounts: (Pick<AssetAccount, 'asset_id' | '
   return out;
 }
 
-/** What one holding inside an account is, by the one rule the split, the words under it and the account's page all use.
- *  The person's own answer first — it outranks everything. A holding nothing could class is not yet
- *  known, until they say (owner, 2026-09-30). Otherwise its name decides unless the name says cash —
- *  a money-market fund is Stocks / Funds, a CD or a T-bill is Bonds & CDs, whatever tag the broker
- *  sent (owner, DEC-0051, DEC-0092) — and then the class stored when it arrived. */
+/** What one holding inside an account is, by the one order the split, the class rows, the emergency fund, Performance's
+ *  categories and the account's page all use — MK-ST-F-011 classifyHoldingClass, read here for a saved holding. The
+ *  person's own answer first — it outranks everything. Then THE CLASS THE BROKER SENDS (his ruling, 2026-10-20: "always
+ *  the class broker sends", settling DEC-2159 against brief B7): its cash-equivalent flag is Cash, else its type decides
+ *  — so a flagged money-market fund is Cash and a bond ETF is Stocks / Funds, whatever the name says. A holding nothing
+ *  could class is not yet known, until they say (owner, 2026-09-30). Only when the broker sent no usable class: its
+ *  name, a maturity date, and then the class stored when it arrived. */
 /* ─ MK-NW-F-109 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * holdingClassOf
  *
- * Answers ..... What one holding inside an account is, by the one rule the split, the words under it and the account's page all use.
+ * Answers ..... What one holding inside an account is, by the one order the split, the class rows, the emergency fund, Performance's categories and the account's page all use — MK-ST-F-011 classifyHoldingClass, read here for a saved holding.
  *
  * Formula .....
  *     tag = asset class
  *     by kind = KIND_TO_CLASS[kind]   if kind
  *     undefined   otherwise
- *     stored (or 'mixed' when missing)   when class source = 'user'
+ *     'mixed'   when class source = 'user' and !stored
+ *     cls   when source = 'user' (or source = 'broker' when missing or zero)
  *     'mixed'   when class asked
- *     by name = holding name evidence(p)
- *     by name   when by name and by name ! = 'cash'
  *     the answer:
- *     stored (or 'cash'   if by name = 'cash'
- *     'mixed'   otherwise when missing)
+ *     'mixed'   if source = 'security − default' (or source = 'unlabelled' when missing or zero)
+ *     cls   otherwise
  *
  * Called by ... MK-NW-F-027 accountClassBreakdown · MK-NW-F-028 classPortionLabel
- *               MK-NW-F-113 altPartsOf · MK-PF-F-047 isIndividualBondOrCD
+ *               MK-NW-F-054 reclassifyAccounts · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-113 altPartsOf · MK-NW-F-127 gainOfRow
+ *               MK-NW-F-151 linkedSplit · MK-NW-F-154 accountInvestments
+ *               MK-PF-F-047 isIndividualBondOrCD
  *
- * Reaches ..... 79 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 95 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
- *               MK-NW-F-088 BENCH · MK-NW-F-079 EF
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-NW-F-079 EF
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-NW-F-082 NW
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
- *               MK-NW-F-002 alternativesSummary · MK-NW-F-029 assetAllocation
- *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-048 bondInterestInWindow
- *               … and 61 more — the full list is on functions_from_code
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-154 accountInvestments
+ *               MK-NW-F-113 altPartsOf · MK-NW-F-002 alternativesSummary
+ *               … and 77 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-048 the person’s own asset-class answer
+ * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
+ *               MK-XS-I-013 bond maturity date
+ *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-056 how a holding was classified, and by whom
+ *               MK-XS-I-070 the class a broker sends for a holding — its security type and its cash-equivalent flag
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-109
  * Changed ..... not in git yet (—)
@@ -1395,11 +1512,24 @@ export function holdingClassOf(p: any): AssetClass {
   const byKind = p?.kind ? KIND_TO_CLASS[p.kind] : undefined;
   const stored: AssetClass | null = holdingTagClass(tag)
     ?? (byKind && byKind !== 'real_estate' && byKind !== 'personal_property' ? byKind : null);
-  if (p?.class_source === 'user') return stored ?? 'mixed';
+  if (p?.class_source === 'user' && !stored) return 'mixed';
+  // THE ONE ORDER lives in classifyHoldingClass; a saved holding carries the broker's own type and flag as they were
+  // sent (broker_type, cash_equivalent — stored by the sync and the importer since 2026-10-20), so a rule change
+  // re-classes every saved holding the moment it is read, and a holding saved before that takes the broker's class at
+  // its next sync. A holding with neither falls through to the rules below the broker's, as before.
+  const v = classifyHoldingClass({
+    userAnswer: p?.class_source === 'user' ? stored as HoldingClass : null,
+    brokerTag: p?.broker_type ?? null,
+    cashEquivalent: p?.cash_equivalent === true,
+    ticker: p?.ticker, name: p?.name ?? p?.description ?? p?.label,
+    maturityDate: p?.maturity_date ?? null,
+    storedClass: p?.class_asked ? null : stored as HoldingClass | null,
+  });
+  if (v.source === 'user' || v.source === 'broker') return v.cls;
+  // waiting on the person's answer: in no class until they say (DEC-2160)
   if (p?.class_asked) return 'mixed';
-  const byName = holdingNameEvidence(p);
-  if (byName && byName !== 'cash') return byName;
-  return stored ?? (byName === 'cash' ? 'cash' : 'mixed');
+  // nothing says what it is: Unclassified, never a guessed Stocks / Funds or Cash (DEC-2160, DEC-3035f)
+  return v.source === 'security-default' || v.source === 'unlabelled' ? 'mixed' : v.cls;
 }
 
 /** The class a holding's stored tag stands for — 'bond' Bonds & CDs, 'other' Alternatives, 'cash' Cash,
@@ -1419,17 +1549,17 @@ export function holdingClassOf(p: any): AssetClass {
  *
  * Called by ... MK-NW-F-054 reclassifyAccounts · MK-NW-F-109 holdingClassOf
  *
- * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 95 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
- *               MK-NW-F-088 BENCH · MK-NW-F-079 EF
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-NW-F-079 EF
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-NW-F-082 NW
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
- *               MK-NW-F-002 alternativesSummary · MK-NW-F-029 assetAllocation
- *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-048 bondInterestInWindow
- *               … and 63 more — the full list is on functions_from_code
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-154 accountInvestments
+ *               MK-NW-F-113 altPartsOf · MK-NW-F-002 alternativesSummary
+ *               … and 77 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1455,17 +1585,17 @@ export function holdingTagClass(tag?: string | null): AssetClass | null {
  *
  * Called by ... MK-NW-F-054 reclassifyAccounts
  *
- * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 95 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
- *               MK-NW-F-088 BENCH · MK-NW-F-079 EF
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-NW-F-079 EF
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-NW-F-082 NW
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
- *               MK-NW-F-002 alternativesSummary · MK-NW-F-029 assetAllocation
- *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-048 bondInterestInWindow
- *               … and 63 more — the full list is on functions_from_code
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-154 accountInvestments
+ *               MK-NW-F-113 altPartsOf · MK-NW-F-002 alternativesSummary
+ *               … and 77 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1476,7 +1606,7 @@ export function holdingTagFor(cls: AssetClass): 'bond' | 'other' | 'cash' | 'sto
   return cls === 'bonds' ? 'bond' : cls === 'alternatives' ? 'other' : cls === 'cash' ? 'cash' : cls === 'stocks_etf' ? 'stock_etf' : null;
 }
 /** What a holding's name (ticker and description together) is evidence for, or null. */
-/* ─ MK-NW-F-123 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-NW-F-123 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * holdingNameEvidence
  *
  * Answers ..... What a holding's name (ticker and description together) is evidence for, or null.
@@ -1484,19 +1614,7 @@ export function holdingTagFor(cls: AssetClass): 'bond' | 'other' | 'cash' | 'sto
  * Formula .....
  *     income bearing class of(`${ticker ?? ''} ${name ?? description ?? label ?? ''}`)
  *
- * Called by ... MK-NW-F-054 reclassifyAccounts · MK-NW-F-109 holdingClassOf
- *
- * Reaches ..... 81 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
- *               MK-NW-F-088 BENCH · MK-NW-F-079 EF
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-NW-F-082 NW
- *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-113 altPartsOf
- *               MK-NW-F-002 alternativesSummary · MK-NW-F-029 assetAllocation
- *               MK-NW-F-040 assetsFromOnboarding · MK-PF-F-048 bondInterestInWindow
- *               … and 63 more — the full list is on functions_from_code
+ * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
@@ -1510,14 +1628,18 @@ export function holdingNameEvidence(p: any): AssetClass | null {
 
 /** How much of one account sits in each class, with the parts adding up exactly to the account's balance.
  *  A LINKED account: its uninvested cash is cash; each holding is shares × price under its class
- *  (MK-NW-F-109 holdingClassOf — a money-market fund under Stocks / Funds, a CD under Bonds & CDs);
+ *  (MK-NW-F-109 holdingClassOf — the class the broker sends first, his ruling of 2026-10-20: a money-market fund the
+ *  broker flags as cash-equivalent under Cash, a bond ETF under Stocks / Funds, a bond or CD under Bonds & CDs);
  *  each option is its value as synced, contracts × price × 100 (owner, Q06), under Alternatives.
  *  If the parts do not reach the balance and a holding has NO PRICE, the difference is that
  *  holding's — filed under its class, or as not yet known when unpriced holdings span classes —
  *  never under cash: an unpriced $1,500 share was being counted as $1,500 of cash, which the
- *  emergency fund then spent (outside review, 2026-10-05). With every holding priced, a difference
- *  no bigger than the larger of $1 or 1% of the balance is cash when positive (owner, DEC-0095) and
- *  comes off the largest class when negative; a bigger one goes under the account's own class.
+ *  emergency fund then spent (outside review, 2026-10-05). With every holding priced, a POSITIVE difference
+ *  is cash whatever its size when the broker listed holdings (owner, DEC-0095: "the difference is treated as
+ *  CASH"; 2026-10-21 — a $5,000 gap under a $50,000 total was filed under the account's own class, so the
+ *  account page's rows came to $45,000 under a $50,000 total). A difference no bigger than the larger of $1
+ *  or 1% of the balance comes off the largest class when negative. An account that lists no holdings at all
+ *  (a CD ladder, a savings account) files a bigger difference under its own class, as before.
  *  AN ACCOUNT BUILT BY HAND that records its own uninvested cash: that cash is cash, and the rest
  *  stays whole under the account's class (outside review, 2026-10-05 — it was counted nowhere).
  *  An account with only a typed balance has no answer: nothing is known about what is inside it. */
@@ -1538,12 +1660,13 @@ export function holdingNameEvidence(p: any): AssetClass | null {
  *     uninvested = cash balance (or 0 when missing)
  *     held = (derive balance = true ? (positions ?? []) : []) as any[]
  *     sh = (lots ?? []).reduce((t: number, l: any) => t + (shares or 0), 0)
- *     paid = (lots ?? []).reduce((t: number, l: any) => t + (shares or 0) × (cost per share or 0), 0)
+ *     paid = paid on record(p).paid
  *     the answer:
  *     cls = holding class of(p)
- *     w = sh × last price   if last price ≠ nothing
+ *     w = sh × last price × contract multiplier(p)   if last price ≠ nothing
  *     value now   if value now ≠ nothing
- *     paid   otherwise   otherwise
+ *     paid   if paid ≠ nothing
+ *     0   otherwise   otherwise   otherwise
  *     classes = a list with no repeats of for each of weights: cls
  *     splits by holding = classes.size > 1 (or classes.size = 1 and !classes.has(asset class of(a)) when missing or zero)
  *     nothing   when !(keeps its own cash and uninvested > 0) and !splits by holding
@@ -1552,34 +1675,31 @@ export function holdingNameEvidence(p: any): AssetClass | null {
  *
  * Called by ... MK-NW-F-016 cashTotal · MK-NW-F-029 assetAllocation
  *               MK-NW-F-094 ledgerGroups · MK-NW-F-113 altPartsOf
- *               MK-NW-O-002 theAccount
+ *               MK-NW-F-154 accountInvestments · MK-NW-O-002 theAccount
  *
- * Reaches ..... 67 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 73 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-113 altPartsOf
- *               MK-NW-F-002 alternativesSummary · MK-NW-F-029 assetAllocation
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               … and 49 more — the full list is on functions_from_code
+ *               MK-NW-F-101 PLAN · MK-NW-F-154 accountInvestments
+ *               MK-NW-F-113 altPartsOf · MK-NW-F-002 alternativesSummary
+ *               MK-NW-F-029 assetAllocation · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               … and 55 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-005 holding price
- *               MK-XS-I-007 purchase price and date (per lot)
- *               MK-XS-I-034 option positions — contracts, strike, expiry, put or call
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *
  * Decides .....
  *     · If cash balance is missing it uses 0.
  *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · If cost per share is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · If value is missing it counts as zero, so nothing recorded and a real zero look the same.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-027
  * Changed ..... 2026-08-17 (cf71d68)
@@ -1602,9 +1722,17 @@ export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, numbe
     const held = (a.derive_balance === true ? (a.positions ?? []) : []) as any[];
     const weights = held.map((p) => {
       const sh = (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0), 0);
-      const paid = (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0) * (l.cost_per_share || 0), 0);
+      // WHAT WAS PAID, READ THE ONE WAY (paidOnRecord, 2026-10-21, DEC-6627 tenet 4): only purchases whose price paid is on
+      // record — a stored $0, what a blank cost saves, is not a real $0 — and a contract's shares counted; with none on
+      // record it is not known, and the holding weighs nothing here, as the balance it is shared out of counts nothing for it
+      const paid = paidOnRecord(p).paid;
       // today's value: the broker's mark, else the value the balance was built from, else what was paid
-      return { cls: holdingClassOf(p), w: p.last_price != null ? sh * p.last_price : p.value_now != null ? p.value_now : paid };
+      // — each read through the one multiplier below
+      // ONE SCALING EACH, THE BALANCE'S AND THE HOLDING PAGE'S (2026-10-21): quantity × price × contractMultiplier — an
+      // option's 100, a bond quoted per $100 of face a hundredth, else 1 — and what was paid already carries that same
+      // multiplier (paidOnRecord), so it is not scaled again. It was: an option's price was not × 100, and a per-$100 bond's
+      // cost was cut to a hundredth twice — $9,900 bond and $10,000 stock read Bonds $195.08 / Stocks $19,704.92
+      return { cls: holdingClassOf(p), w: p.last_price != null ? sh * p.last_price * contractMultiplier(p) : p.value_now != null ? p.value_now : paid != null ? paid : 0 };
     }).filter((x) => x.w > 0);
     const classes = new Set(weights.map((x) => x.cls));
     const splitsByHolding = classes.size > 1 || (classes.size === 1 && !classes.has(assetClassOf(a)));
@@ -1622,17 +1750,85 @@ export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, numbe
     }
     return out;
   }
+  return linkedSplit(a).out;
+}
+
+/** A LINKED account split into its classes, and how much of it is cash that is not a holding: the uninvested cash the
+ *  broker reports plus any difference filed as cash under DEC-0095. One body for both, so the account page's cash row and
+ *  Net worth's Cash line cannot differ (2026-10-21). */
+/* ─ MK-NW-F-151 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * linkedSplit
+ *
+ * Answers ..... A LINKED account split into its classes, and how much of it is cash that is not a holding: the uninvested cash the broker reports plus any difference filed as cash under DEC-0095.
+ *
+ * Formula .....
+ *     out = cash = 0
+ *     bonds = 0
+ *     stocks etf = 0
+ *     alternatives = 0
+ *     real estate = 0
+ *     personal property = 0
+ *     mixed = 0
+ *     uninvested = (a as any).cash balance (or 0 when missing)
+ *     unpriced part = nothing
+ *     unpriced = new set<asset class>()
+ *     sh = (lots ?? []).reduce((t: number, l: any) => t + (shares or 0), 0)
+ *     cls = holding class of(p)
+ *     sum = Σ over object.values(out) as number[] of (each)
+ *     r = (balance or 0) − sum
+ *     cls = the first of [...unpriced]   if unpriced.size = 1
+ *     'mixed'   otherwise
+ *     own = asset class of(a)
+ *     bucket = 'mixed'   if own = 'mixed'
+ *     own   otherwise
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-NW-F-027 accountClassBreakdown · MK-NW-F-152 unpricedValueOf
+ *               MK-NW-F-153 uninvestedCashOf
+ *
+ * Reaches ..... 76 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
+ *               MK-NW-F-079 EF · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-027 accountClassBreakdown
+ *               MK-NW-F-154 accountInvestments · MK-NW-F-113 altPartsOf
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-029 assetAllocation
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               … and 58 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-005 holding price
+ *               MK-XS-I-034 option positions — contracts, strike, expiry, put or call
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
+ *
+ * Decides .....
+ *     · If cash balance is missing it uses 0.
+ *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If value is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-151
+ * Changed ..... not in git yet (—)
+ */
+function linkedSplit(a: AssetAccount): { out: Record<AssetClass, number>; uninvested: number; unpricedPart: { value: number; cls: AssetClass } | null } {
+  const out: Record<AssetClass, number> = { cash: 0, bonds: 0, stocks_etf: 0, alternatives: 0, real_estate: 0, personal_property: 0, mixed: 0 };
   out.cash += (a as any).cash_balance ?? 0;
-  // FOUNDER RULE 2026-08-04, applied HERE 2026-08-11: cash means cash only. A broker tags VMFXX as
-  // 'cash' and a CD as 'cash' too; the name decides instead (holdingClassOf). This used to live ONLY
-  // in the one-time migration over stored data, so a position synced AFTER the migration ran landed
-  // back in Cash — the same defect as the founder's original CD-under-Cash finding, mirrored in time.
+  let uninvested: number = (a as any).cash_balance ?? 0;
+  let unpricedPart: { value: number; cls: AssetClass } | null = null;
+  // EACH HOLDING BY THE ONE ORDER (MK-NW-F-109 holdingClassOf), read here on every call, never only in the one-time
+  // migration over stored data (2026-08-11: a position synced after the migration ran landed back where the old rule
+  // put it). Since his ruling of 2026-10-20 ("always the class broker sends") that order puts the broker's own class
+  // first — its cash-equivalent flag is Cash — and the name decides only when the broker sends none.
   const unpriced = new Set<AssetClass>();
   for (const p of (a.positions ?? []) as any[]) {
     const sh = (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0), 0);
     const cls = holdingClassOf(p);
     if (p.last_price == null) { if (sh !== 0) unpriced.add(cls); continue; }
-    out[cls] += sh * p.last_price;
+    out[cls] += sh * p.last_price * contractMultiplier(p);   // the one multiplier: a per-$100 bond a hundredth (MK-XS-I-068), an option 100
   }
   for (const o of ((a as any).option_holdings ?? []) as any[]) out.alternatives += o.value || 0;
   (Object.keys(out) as AssetClass[]).forEach((k) => { out[k] = (out[k]); });
@@ -1646,6 +1842,14 @@ export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, numbe
       // known, and it is said so (not yet known) rather than guessed.
       const cls: AssetClass = unpriced.size === 1 ? [...unpriced][0] : 'mixed';
       out[cls] = (out[cls] + r);
+      unpricedPart = { value: r, cls };
+    } else if (r > 0 && (((a.positions ?? []) as any[]).length > 0 || (((a as any).option_holdings ?? []) as any[]).length > 0)) {
+      // THE BROKER'S TOTAL IS MORE THAN WHAT IT LISTED, every holding priced: the difference is CASH, whatever its size
+      // (owner, DEC-0095, 2026-08-11: "why is cash added to CD and not cash?"). Only a difference within $1 or 1% was
+      // cash until 2026-10-21; a bigger one went under the account's own class — Unclassified for a brokerage — so the
+      // account page's rows came to $45,000 under a $50,000 total (outside review, Performance re-run part 1, MK-NW-M-020).
+      out.cash = (out.cash + r);
+      uninvested += r;
     } else if (Math.abs(r) <= Math.max(1, 0.01 * Math.abs(a.balance || 0))) {
       // FOUNDER FINDING 2026-08-11 ("why is cash added to CD and not cash?"): this leftover used to
       // be added to the LARGEST class, so on a CD-heavy account the uninvested money was counted as
@@ -1661,6 +1865,7 @@ export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, numbe
       // into cash would show a negative cash balance, which is worse than a rounding nudge.
       if (r > 0) {
         out.cash = (out.cash + r);
+        uninvested += r;
       } else {
         const largest = (Object.keys(out) as AssetClass[]).sort((x, y) => out[y] - out[x])[0];
         out[largest] = (out[largest] + r);
@@ -1676,10 +1881,122 @@ export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, numbe
       out[bucket] = (out[bucket] + r);
     }
   }
-  return out;
+  return { out, uninvested, unpricedPart };
 }
 
-const CD_RE = /\b(cd|certificate of deposit)\b/i;
+/** WHAT A LINKED ACCOUNT'S HOLDINGS WITH NO PRICE ARE WORTH, on the best evidence there is: the part of the broker's total the
+ *  priced holdings, the options and the cash do not reach, and the class it is filed under (theirs, or Unclassified when
+ *  they span classes). Null when no holding lacks a price, or the total leaves nothing over for them. The account page
+ *  prints it on their row, so its rows add up to the total instead of showing $0 for a holding it cannot price (2026-10-21).
+ *  No identifier yet: the build issues one (its rule waits under awaiting_id in moneykeel_function_rules.json). */
+/* ─ MK-NW-F-152 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * unpricedValueOf
+ *
+ * Answers ..... WHAT A LINKED ACCOUNT'S HOLDINGS WITH NO PRICE ARE WORTH, on the best evidence there is: the part of the broker's total the priced holdings, the options and the cash do not reach, and the class it is filed under (theirs, or Unclassified when they span classes).
+ *
+ * Formula .....
+ *     linked split(a).unpriced part   if source = 'connected'
+ *     nothing   otherwise
+ *
+ * Called by ... MK-NW-O-002 theAccount · MK-XS-F-002 dataGaps
+ *
+ * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-118 cashEffect · MK-XS-F-002 dataGaps
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-XS-F-188 fixStoredFees
+ *               … and 42 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-152
+ * Changed ..... not in git yet (—)
+ */
+export function unpricedValueOf(a: AssetAccount): { value: number; cls: AssetClass } | null {
+  return a.source === 'connected' ? linkedSplit(a).unpricedPart : null;
+}
+
+/** THE CASH IN A LINKED ACCOUNT THAT IS NOT A HOLDING: the uninvested cash the broker reports, plus the part of its total
+ *  no listed holding accounts for, which is cash by DEC-0095. The account page's "Cash in this account" row is this figure,
+ *  so its rows add up to the broker's total (2026-10-21). Null for an account built by hand: its page lists no rows.
+ *  No identifier yet: the build issues one (its rule waits under awaiting_id in moneykeel_function_rules.json). */
+/* ─ MK-NW-F-153 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * uninvestedCashOf
+ *
+ * Answers ..... THE CASH IN A LINKED ACCOUNT THAT IS NOT A HOLDING: the uninvested cash the broker reports, plus the part of its total no listed holding accounts for, which is cash by DEC-0095.
+ *
+ * Formula .....
+ *     linked split(a).uninvested   if source = 'connected'
+ *     nothing   otherwise
+ *
+ * Called by ... MK-NW-O-002 theAccount
+ *
+ * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-082 NW
+ *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-118 cashEffect · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-XS-F-188 fixStoredFees · MK-CF-F-041 getDebtState
+ *               … and 41 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-153
+ * Changed ..... not in git yet (—)
+ */
+export function uninvestedCashOf(a: AssetAccount): number | null {
+  return a.source === 'connected' ? linkedSplit(a).uninvested : null;
+}
+
+/** HOW MUCH OF ONE ACCOUNT IS INVESTED: its stocks and funds, bonds and CDs, alternatives and what is not yet classed —
+ *  the same class split the Investments line adds up (MK-NW-F-021 investmentsTotal), one account at a time. A checking
+ *  account has none; a rental property has none; a brokerage has all of it but its cash (DEC-0457, DEC-0343).
+ *  No identifier yet: the build issues one (its rule waits under awaiting_id in moneykeel_function_rules.json). */
+/* ─ MK-NW-F-154 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * accountInvestments
+ *
+ * Answers ..... HOW MUCH OF ONE ACCOUNT IS INVESTED: its stocks and funds, bonds and CDs, alternatives and what is not yet classed — the same class split the Investments line adds up (MK-NW-F-021 investmentsTotal), one account at a time.
+ *
+ * Formula .....
+ *     b = account class breakdown(a)
+ *     stocks etf + bonds + alternatives + mixed   when b
+ *     own = asset class of(a)
+ *     the answer:
+ *     balance (or 0 when missing or zero)   if own = 'stocks_etf' (or own = 'bonds' (or own = 'alternatives' (or own = 'mixed' when missing or zero) when missing or zero) when missing or zero)
+ *     0   otherwise
+ *
+ * Called by ... MK-NW-O-003 theNetWorth
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-O-003 theNetWorth
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *
+ * Decides .....
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-154
+ * Changed ..... not in git yet (—)
+ */
+export function accountInvestments(a: AssetAccount): number {
+  const b = accountClassBreakdown(a);
+  if (b) return b.stocks_etf + b.bonds + b.alternatives + b.mixed;
+  const own = assetClassOf(a);
+  return own === 'stocks_etf' || own === 'bonds' || own === 'alternatives' || own === 'mixed' ? (a.balance || 0) : 0;
+}
+
+const CD_RE =/\b(cd|certificate of deposit)\b/i;
 // broker wording too — 'UNITED STATES TREAS BILLS', 'US TREAS NT', 'UST' (outside review, 2026-10-07).
 // 'government' / 'govt' are NOT Treasury words: an agency or a foreign government bond is not a US
 // Treasury — 'US Government Agency 2032' is a bond (outside review OpenAI final, 2026-10-09, DEC-3035g)
@@ -1779,17 +2096,17 @@ export function classPortionLabel(a: AssetAccount, cls: AssetClass): string {
  * Called by ... MK-NW-F-016 cashTotal · MK-NW-F-021 investmentsTotal
  *               MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-079 EF · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ * Reaches ..... 64 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-079 EF
+ *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-118 cashEffect
  *               MK-NW-F-016 cashTotal · MK-CF-F-038 debtsFromOnboarding
  *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               … and 39 more — the full list is on functions_from_code
+ *               … and 46 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -2391,6 +2708,9 @@ const DEFAULT_RETURN = 0.07;
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-028 assumed return
+ * Ruled by .... DEC-0343
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-039
  * Changed ..... 2026-06-05 (f742136)

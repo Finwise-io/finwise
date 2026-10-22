@@ -69,7 +69,7 @@ describe('the account page, past year (DEC-5068, 2026-10-13)', () => {
     fireEvent.press(oneYear!);
 
     // THE SUMMARY TRIO
-    expect(screen.getByText('SUMMARY · THE PAST YEAR')).toBeOnTheScreen();
+    expect(screen.getByText('THIS ACCOUNT · THE PAST YEAR')).toBeOnTheScreen();   // the account-page drawing v01's band (state D)
     expect(screen.getAllByText('$50,000').length).toBeGreaterThan(0);
     expect(screen.getAllByText('$3,636').length).toBeGreaterThan(0);          // Wealth generated
     expect(screen.getAllByText('+10.00%').length).toBeGreaterThan(0);         // Return

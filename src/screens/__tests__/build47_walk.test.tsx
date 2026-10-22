@@ -86,7 +86,11 @@ test('rows 6-11: the consolidations hold at the source', () => {
   // row 8: one source-wording helper; the inline variants are gone
   expect(read('domain/assets/index.ts')).toMatch(/export function sourceWording/);
   expect(read('screens/NetWorthScreen.tsx')).not.toMatch(/Manual · you update it/);
-  expect(read('screens/AccountPortfolioScreen.tsx')).toMatch(/sourceWording\(account\)/);
+  // the account page prints its source through the ONE chip Net worth and Performance print (the account-page drawing v01,
+  // approved 2026-10-19, draws it: "🔗 Linked", "✍️ By hand · you update it"); its inline variant ("Linked · read-only")
+  // is gone with the "Updated <date, time>" line beside it
+  expect(read('screens/AccountPortfolioScreen.tsx')).toMatch(/<SourceChip account=\{account\}/);
+  expect(read('screens/AccountPortfolioScreen.tsx')).not.toMatch(/· read-only`/);
   // row 9: the RMD schedule grows by the shared step, clamp gone
   expect(read('domain/decumulation/index.ts')).toMatch(/growOneYear\(bal/);
   expect(read('domain/decumulation/index.ts')).not.toMatch(/Math\.min\(0\.12, expReturn/);
@@ -261,7 +265,9 @@ test('source chips: connected/imported/by-hand pills on NW account rows; paused 
   expect(r1.getByText('🔗 Linked')).toBeTruthy();   // founder 2026-09-14: Linked, a date only when stale
   r1.unmount();
   const r2 = render(<SourceChip account={{ asset_id: 'a', label: 'x', tax_bucket: 'TAXABLE', balance: 1, source: 'imported', last_synced: '2026-06-12T00:00:00Z' } as any} />);
-  expect(r2.getByText('📄 Imported · Jun 12, 2026')).toBeTruthy();   // the day in words, through dateShown (2026-10-19)
+  // an import from June is stale, so it says how old it is — in the one source sentence's words (DEC-0301, 2026-10-20);
+  // a fresh import carries no date at all (src/screens/__tests__/dec_0301_source_chip_one_wording.test.tsx)
+  expect(r2.getByText(/^📄 Imported · \d+ days old$/)).toBeTruthy();
   r2.unmount();
   const r3 = render(<SourceChip account={{ asset_id: 'a', label: 'x', tax_bucket: 'TAXABLE', balance: 1 } as any} />);
   expect(r3.getByText('✍️ By hand · you update it')).toBeTruthy();
@@ -441,7 +447,10 @@ test('B47 finding 7: arriving with ?class= renders the class-only view with the 
   // this slice, of the account total, and what the remainder is
   expect(screen.getByText(/of .* in Vanguard/)).toBeOnTheScreen();
   expect(screen.getByText('See the whole account ›')).toBeOnTheScreen();
-  expect(screen.getByText(/VTI · 400 shares/)).toBeOnTheScreen();          // the stocks row (ticker naming)
+  // the stocks row (ticker naming): its name, and beneath it the shares and the price, as the account-page drawing v01
+  // draws a holding ("VOO", "160 shares · $562.50")
+  expect(screen.getByText('VTI')).toBeOnTheScreen();
+  expect(screen.getByText('400 shares · $250.00')).toBeOnTheScreen();
   expect(screen.queryByText(/CUSIP9/)).toBeNull();                          // the CD stays out of the stocks view
   // and the NW slice passes the class for split accounts
   const fs = require('fs'); const path = require('path');

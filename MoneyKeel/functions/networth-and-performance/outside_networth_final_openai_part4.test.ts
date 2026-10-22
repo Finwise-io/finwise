@@ -10,6 +10,8 @@
  *        `test.failing` + `// BRIEF WRONG:` = the auditor's expectation is wrong (arithmetic, or an owner decision).
  *        `// UNCLEAR:` = a RULE UNCLEAR / INVALID STATE case no decision settles; the app's current answer is held.
  *        `test.skip` + `// BLOCKED:` = the case cannot be put to the app as written.
+ *        `// SETTLED BY DEC-…` = a RULE UNCLEAR case a ruling now decides (re-judged 2026-10-20; none is UNCLEAR any more).
+ *        A `pin ·` test beside one holds a right answer of the app's.
  *
  * INPUT NAMES MAPPED (the app's fields, not the answers):
  *   · PROPERTIES: a property is an account kind 'home', bucket PROPERTY. "stored_use"/"marked home": 'home' or
@@ -98,6 +100,8 @@ const recorded = (date: string, accounts: any[]) => buildDayFromAccounts(account
 const linkedAt = (id: string, invested: number) => linked({ asset_id: id, label: id, balance: invested,
   positions: [{ position_id: `p${id}`, ticker: 'X', last_price: invested, lots: [{ lot_id: 'l', shares: 1, cost_per_share: 1, purchase_date: '2024-01-02' }] }] });
 const plan = (essentials: number, extra: any[] = []) => [{ id: 'g', label: 'Groceries', amount: essentials, bucket: 'flexible', tier: 'need' }, ...extra];
+/** the emergency fund for the rent pins (re-judged 2026-10-20): cash in one checking account, no debts, nothing logged */
+const EF0 = (cash: number, profile: any, accounts: any[] = []) => theEmergencyFund({ accounts: [cashAcct('chk', cash), ...accounts], expenses: [], profile, debts: [] });
 
 // ══════════════════════════════════════════════════════════════════════════════════════════════════════
 describe('MK-NW-F-105 whyNoReturn — five cases', () => {
@@ -112,14 +116,25 @@ describe('MK-NW-F-105 whyNoReturn — five cases', () => {
     expect(s).toMatch(/Sep 1, 2026/); expect(s).toMatch(/do not say what they were worth/); expect(s).toMatch(/a return cannot be measured/);
   });
   test('complex · Several failure conditions use one stable explanation', () => {
-    // UNCLEAR: app picks ONE reason by a fixed order (time-weighted-return.ts:175-219: start, END, no date, shares,
-    // then day by day) — here "today's value not on record", the missing deposit day is not named;
-    // open question: name every reason, or keep one primary reason?
+    // SETTLED BY DEC-1669 (re-judged 2026-10-20, was UNCLEAR): where a return cannot be measured the screens "show no
+    // percent, with a sentence saying why" — one sentence. The auditor allowed exactly this: "or a deterministic primary
+    // reason selected". The app takes the first reason in one fixed order (time-weighted-return.ts, timeWeightedReturn:
+    // start, today, a movement with no date, shares moved, a movement with no amount, then day by day), so the same
+    // record always gives the same sentence; here "Today's value is not in your records yet…". On a screen this reason
+    // cannot arise — each screen hands its accounts in and today's row is built from them (performance.ts:893-894) — so
+    // there the next reason, the deposit day, is the one named: pinned below.
     const day = (date: string, v: number) => recorded(date, [linkedAt('v', v)]);
     const v = timeWeightedReturn({ days: [day('2026-09-01', 1000)], accountIds: new Set(['v']), flows: [{ accountId: 'v', date: '2026-10-03', amount: 500 }], start: '2026-09-01', end: '2026-10-09' } as any);
     expect(v.refused).toBe('END_NOT_RECORDED');
     expect(whyNoReturn(v)).toBe('Today’s value is not in your records yet, so a return cannot be measured.');
     expect(whyNoReturn(v)).toBe(whyNoReturn(timeWeightedReturn({ days: [day('2026-09-01', 1000)], accountIds: new Set(['v']), flows: [{ accountId: 'v', date: '2026-10-03', amount: 500 }], start: '2026-09-01', end: '2026-10-09' } as any)));
+  });
+  test('pin · today recorded, the one sentence names the next reason: the deposit day with no value (DEC-1669)', () => {
+    const day = (date: string, v: number) => recorded(date, [linkedAt('v', v)]);
+    const v = timeWeightedReturn({ days: [day('2026-09-01', 1000), day('2026-10-09', 1600)], accountIds: new Set(['v']), flows: [{ accountId: 'v', date: '2026-10-03', amount: 500 }], start: '2026-09-01', end: '2026-10-09' } as any);
+    expect({ refused: v.refused, day: v.day, rate: v.rate }).toEqual({ refused: 'MOVEMENT_DAY_NOT_RECORDED', day: '2026-10-03', rate: null });
+    expect(whyNoReturn(v)).toMatch(/Oct 3, 2026/);
+    expect(whyNoReturn(v)).toMatch(/a return cannot be measured/);
   });
   test('edge · Nothing invested', () => {
     expect(whyNoReturn({ rate: null, refused: 'NOTHING_INVESTED', measuredFrom: null })).toBe('Nothing was invested over this period, so there is no return to state.');
@@ -172,9 +187,22 @@ describe('MK-NW-F-107 propertyUses — five cases', () => {
     expect(asMap(propertyUses([prop('A'), prop('B')], [rent(null, 1000)]))).toEqual({ B: 'home', A: 'second' });
   });
   test('edge · Rent data unavailable is not known empty', () => {
-    // UNCLEAR: app keeps the stored word — not handed the entries, 'rental' stands (index.ts:801 `!told`; the card says so);
-    // open question: rent data not handed in — keep the stored 'rental', or refuse the use? DEC-3035p only rules the handed-in case.
+    // SETTLED BY DEC-3769 (re-judged 2026-10-20, was UNCLEAR), with DEC-3035p. What the auditor asks — rent data not handed
+    // in is not "no entries" — is what the app does: the card's rule (a stored rental counts "only when no rent entries are
+    // handed in at all") keeps the stored 'rental' (index.ts:838-847, `!told`); DEC-3035p turns it into a second home only
+    // when the entries ARE handed in and none names it. The one Net worth figure the difference reaches is the emergency
+    // fund, and DEC-3769 rules what it says when "the rent entries could not be read": the months are counted without
+    // rent and the card adds "rent not included. Enter rent to include." (NetWorthScreen.tsx:1076-1084) — pinned below.
+    // Only older saved accounts carry the word 'rental': adding a property today saves 'primary' or 'secondary'
+    // (AddAccountScreen.tsx re_use).
     expect(asMap(propertyUses([prop('A', { stored_use: 'rental' })], null))).toEqual({ A: 'rental' });
+  });
+  test('pin · rent entries not read, a property kept as a rental: 5 months, "rent not included" (DEC-3769)', () => {
+    const props = [prop('home', { stored_use: 'home' }), prop('A', { stored_use: 'rental' })];
+    for (const profile of [{ spendCats: plan(2000) }, { spendCats: plan(2000), rentals: { broken: true } }]) {
+      const e = EF0(10000, profile, props);
+      expect({ months: e.monthsCovered, rent: e.rentalIncomeMonthly, rentNotKnown: e.rentNotKnown }).toEqual({ months: 5, rent: 0, rentNotKnown: true });
+    }
   });
 });
 
@@ -280,9 +308,17 @@ describe('MK-NW-F-114 rentAmount — five cases', () => {
   test('easy · Entered rent digits preserved', () => { expect(RENT.rentAmount(1800)).toBe(1800); });
   test('easy · Explicit no-rent entry is zero', () => { expect(RENT.rentAmount(0)).toBe(0); });
   test('complex · Rent field missing is not confirmed zero', () => {
-    // UNCLEAR: app returns 0 for a missing figure (index.ts:689); the 0 only decides whether an entry is live (> 0), and
-    // DEC-1926 reads "no rent entered" as no rental — open question: does an unloaded rent figure need its own state?
+    // SETTLED BY DEC-3768c and DEC-3769 (re-judged 2026-10-20, was UNCLEAR). A figure not given "counts as not entered"
+    // (DEC-3768c). rentAmount's 0 is never shown as rent: it only answers "does this entry carry a figure?" for liveRent
+    // (index.ts:733, 764-765), so the entry adds no rent and makes no rental. Where that rent matters on Net worth — the
+    // emergency fund — DEC-3769 rules it: the months are counted without it and the card says "rent not included. Enter
+    // rent to include."; the rent line itself shows only when there is rent above $0 (NetWorthScreen.tsx:213). Pinned below.
     expect(RENT.rentAmount(null)).toBe(0);
+  });
+  test('pin · a rent entry with no figure: no rent counted, 5 months, "rent not included" (DEC-3769)', () => {
+    const e = EF0(10000, { spendCats: plan(2000), rentals: [{ type: 'long', income: null, expenses: null, property_id: 'lake' }] },
+      [prop('home', { stored_use: 'home' }), prop('lake', { stored_use: 'second' })]);
+    expect({ months: e.monthsCovered, rent: e.rentalIncomeMonthly, rentNotKnown: e.rentNotKnown }).toEqual({ months: 5, rent: 0, rentNotKnown: true });
   });
   test('complex · Positive rent and costs remain distinct', () => { expect([2100, 450].map(RENT.rentAmount)).toEqual([2100, 450]); });
   test('edge · Invalid text refuses validation', () => {
@@ -299,17 +335,34 @@ describe('MK-NW-F-115 liveRent — five cases', () => {
   test('easy · All-zero entry is not live', () => { expect(RENT.liveRent([rent('A', 0, 0)]).length).toBe(0); });
   test('complex · Costs-only entry is live', () => { expect(RENT.liveRent([rent('A', 0, 350)]).length).toBe(1); });
   test('complex · Several entries and missing value', () => {
-    // UNCLEAR: live A and B as expected; C (nothing typed) is dropped without a word (index.ts:719);
-    // open question: should an entry with no figures be flagged for validation rather than read as no rent (DEC-1926)?
+    // SETTLED BY DEC-3769 (re-judged 2026-10-20, was UNCLEAR): live A and B, as the auditor expects. C (nothing typed) is not
+    // live — "above zero" is the card's test (index.ts:764-765) — but it is not dropped without a word: an entry whose rent
+    // is blank is a rent "not known" (DEC-3769), and the emergency fund says "rent not included. Enter rent to include."
+    // — the flag the auditor asks for, pinned below.
     // the entries name their properties: an entry with none is not rent (DEC-4059d, 2026-10-10)
     const live = RENT.liveRent([{ id: 'A', property_id: 'A', income: 1500, expenses: 0 }, { id: 'B', property_id: 'B', income: 0, expenses: 200 }, { id: 'C', property_id: 'C', income: null, expenses: null }]);
     expect(live.map((r: any) => r.id)).toEqual(['A', 'B']);
     // SETTLED 2026-10-10 by DEC-4059d: the same figures with no property named are not live rent
     expect(RENT.liveRent([{ id: 'A', income: 1500, expenses: 0 }])).toEqual([]);
   });
+  test('pin · the blank entry C raises "rent not included" on the emergency fund (DEC-3769)', () => {
+    const e = EF0(10000, { spendCats: plan(2000), rentals: [{ id: 'A', property_id: 'A', income: 1500, expenses: 0 }, { id: 'B', property_id: 'B', income: 0, expenses: 200 }, { id: 'C', property_id: 'C', income: null, expenses: null }] },
+      [prop('home', { stored_use: 'home' }), prop('A'), prop('B'), prop('C')]);
+    expect(e.rentNotKnown).toBe(true);
+  });
   test('edge · Negative amount should not be live without explicit rule', () => {
-    // UNCLEAR: app excludes −$50 (not above zero) silently; open question: is a negative rent invalid input to refuse?
+    // SETTLED BY DEC-3768c (re-judged 2026-10-20, was UNCLEAR): "the rent field on the Income screen takes digits only" —
+    // a minus sign cannot be typed (IncomeManagerScreen.tsx, plainAmount keeps digits and one point), and "−50" as text is
+    // not a number the rent reader takes (rentFigure gives none), so it counts as not entered and the emergency fund says
+    // "rent not included" (DEC-3769). A stored −50 can only be damaged data; it is not above zero, so not live (the card).
     expect(RENT.liveRent([rent('A', -50, 0)]).length).toBe(0);
+  });
+  test('pin · "−50" typed as text is not read as rent: not entered, never −$50 (DEC-3768c, DEC-3769)', () => {
+    expect(rentFigure('-50')).toBeNull();
+    expect(RENT.rentAmount('-50')).toBe(0);
+    const e = EF0(10000, { spendCats: plan(2000), rentals: [{ type: 'long', income: '-50', expenses: '', property_id: 'lake' }] },
+      [prop('home', { stored_use: 'home' }), prop('lake', { stored_use: 'second' })]);
+    expect({ months: e.monthsCovered, rent: e.rentalIncomeMonthly, rentNotKnown: e.rentNotKnown }).toEqual({ months: 5, rent: 0, rentNotKnown: true });
   });
 });
 
@@ -320,9 +373,18 @@ describe('MK-NW-F-116 rentedIdsOf — five cases', () => {
   test('complex · Several entries deduplicate IDs', () => { expect([...RENT.rentedIdsOf(live('A', 'A', 'B'))]).toEqual(['A', 'B']); });
   test('complex · Unmatched property identifier preserved for diagnostics', () => { expect([...RENT.rentedIdsOf(live('X'))]).toEqual(['X']); });
   test('edge · Missing property ID not inferred', () => {
-    // UNCLEAR: app returns no identifier (index.ts:749) — nothing guessed; the unlinked rent is handled downstream by
-    // propertyUseMap's one-property-left rule (index.ts:815-816); open question: should unlinked rent be reported as such?
+    // SETTLED BY DEC-4059d (re-judged 2026-10-20, was UNCLEAR): no identifier comes back, nothing is guessed (index.ts:793-794
+    // with liveRent's property test, 764). The "one property left" rule this note once named is gone — DEC-4059d: an entry
+    // with no property makes nothing a rental. The unlinked rent IS reported, as the auditor asks: the Income screen shows
+    // "Which property is it?" in amber on that entry (IncomeManagerScreen.tsx:350), and the emergency fund counts no rent
+    // from it and says "rent not included. Enter rent to include." (DEC-3769) — pinned below.
     expect([...RENT.rentedIdsOf(live(null))]).toEqual([]);
+  });
+  test('pin · rent naming no property: no rental made, no rent counted, "rent not included" (DEC-4059d, DEC-3769)', () => {
+    const props = [prop('home', { stored_use: 'home' }), prop('lake')];
+    expect(asMap(propertyUseMap(props, [rent(null, 1000)]))).toEqual({ home: 'home', lake: 'second' });
+    const e = EF0(10000, { spendCats: plan(2000), rentals: [rent(null, 1000)] }, props);
+    expect({ months: e.monthsCovered, rent: e.rentalIncomeMonthly, rentNotKnown: e.rentNotKnown }).toEqual({ months: 5, rent: 0, rentNotKnown: true });
   });
 });
 
@@ -340,10 +402,16 @@ describe('MK-NW-F-117 propertyUseMap — five cases', () => {
     expect(asMap(propertyUseMap([prop('A'), prop('B')], [rent('A', 2000)]))).toEqual({ A: 'rental', B: 'home' });
   });
   test('edge · Unavailable rent list is not empty rent list', () => {
-    // UNCLEAR: null (not handed in) is NOT read as an empty list — the stored 'rental' stands (index.ts:794,801), so the
-    // "none entered → second home" rule does not fire; open question: keep the stored word, or refuse the use, when rent
-    // data were not handed in? (DEC-3035p rules only the handed-in case.)
+    // SETTLED BY DEC-3769 (re-judged 2026-10-20, was UNCLEAR), with DEC-3035p. The auditor's own requirement — unavailable
+    // data must not set off the "none entered → second home" rule — is what the app does: not handed a list, the stored
+    // 'rental' stands (index.ts:839, 846-847, `!told`); handed one, DEC-3035p applies. What a person then sees is ruled by
+    // DEC-3769: the emergency fund counts its months without that rent and says "rent not included. Enter rent to include."
+    // (the pin under MK-NW-F-107 above). An empty list handed in is the other case, below.
     expect(asMap(propertyUseMap([prop('A', { stored_use: 'rental' })], null))).toEqual({ A: 'rental' });
+  });
+  test('pin · handed an empty list, the same stored rental is a second home (DEC-3035p, DEC-1926) — and no rent is missing', () => {
+    expect(asMap(propertyUseMap([prop('A', { stored_use: 'rental' })], []))).toEqual({ A: 'second' });
+    expect(EF0(10000, { spendCats: plan(2000), rentals: [] }, [prop('home', { stored_use: 'home' }), prop('A', { stored_use: 'rental' })]).rentNotKnown).toBe(false);
   });
 });
 
@@ -391,7 +459,8 @@ describe('MK-NW-O-001 theBonds — five cases', () => {
     expect(b.rows.map((r) => r.label)).toEqual(['B', 'A', 'C']);
   });
   test('easy · CD gets no rate-move figure', () => {
-    const one = theBonds({ accounts: [bond('CD', { kind: 'cd', balance: 5000, maturity_date: '2028-01-01' })], accountId: 'CD', today: T }).one!;
+    // a CD bought from the bank, as the brief's case reads (2026-10-21: one never answered asks where it was bought instead)
+    const one = theBonds({ accounts: [bond('CD', { kind: 'cd', cd_bought: 'bank', balance: 5000, maturity_date: '2028-01-01' })], accountId: 'CD', today: T }).one!;
     refuses(one.ratesMove);
     // the brief's message is a paraphrase; the app's sentence carries both facts
     expect(one.ratesMoveRefusal).toMatch(/It is not traded/); expect(one.ratesMoveRefusal).toMatch(/worth its balance until it matures/);
@@ -407,7 +476,7 @@ describe('MK-NW-O-001 theBonds — five cases', () => {
   test('complex · All totals and rows reconcile', () => {
     const b = theBonds({ accounts: [bond('A', { balance: 980, face_value: 1000, coupon_rate: 0.05, maturity_date: '2027-01-01' }),
       bond('B', { balance: 2000, face_value: 2000, coupon_rate: 0.04, maturity_date: '2028-01-01' })], today: T });
-    expect({ count: b.count, total_value: b.totalValue, total_face: b.totalFace, annual_interest: b.couponPerYear, rows_sum_value: b.rows.reduce((t, r) => t + r.value, 0) })
+    expect({ count: b.count, total_value: b.totalValue, total_face: b.totalFace, annual_interest: b.couponPerYear, rows_sum_value: b.rows.reduce((t, r) => t + (r.value ?? 0), 0) })
       .toEqual({ count: 2, total_value: 2980, total_face: 3000, annual_interest: near(130), rows_sum_value: 2980 });
   });
   test('edge · No bond data refuses face total completeness', () => {
@@ -504,10 +573,19 @@ describe('MK-NW-O-004 theEmergencyFund — five cases', () => {
     expect(e.fromCashMonthly).toBe(0); refuses(e.monthsCovered); expect(e.rentCoversEssentials).toBe(true);
   });
   test('edge · Rent data unavailable is not confirmed zero', () => {
-    // UNCLEAR: app reads rent it was not given as $0 (incomeSummary of a profile with no rentals) and states 5 months
-    // (emergency-fund.ts:169,188); open question: is a profile without rent entries "confirmed none" or "unknown"?
+    // SETTLED BY DEC-3769 (re-judged 2026-10-20, was UNCLEAR) — his ruling on this very case, MK-NW-O-004, with the same
+    // figures: "Cash $10,000, essentials $2,000 a month: 5 months." When "the rent entries could not be read" the months are
+    // still given, counted without rent, and the card says "rent not included. Enter rent to include." — never no figure
+    // (the auditor's suggestion, which was my recommendation and was overruled). Here there is no property at all, so no
+    // rent can be missing: 10,000 ÷ 2,000 = 5 months and no line (DEC-3769: a property with no rent entry is a second home,
+    // DEC-1926, "not a missing rent"). With a property that is not the home and rent entries that cannot be read: pinned below.
     const e = EF(10000, { spendCats: plan(2000) });
     expect({ rent: e.rentalIncomeMonthly, months_covered: e.monthsCovered }).toEqual({ rent: 0, months_covered: 5 });
+    expect(e.rentNotKnown).toBe(false);
+  });
+  test('pin · rent entries that cannot be read, beside a second home: 5 months and "rent not included" (DEC-3769)', () => {
+    const e = EF(10000, { spendCats: plan(2000), rentals: { broken: true } }, [prop('home', { stored_use: 'home' }), prop('lake', { stored_use: 'second' })]);
+    expect({ rent: e.rentalIncomeMonthly, months_covered: e.monthsCovered, rentNotKnown: e.rentNotKnown }).toEqual({ rent: 0, months_covered: 5, rentNotKnown: true });
   });
 });
 
@@ -515,7 +593,7 @@ describe('MK-NW-O-005 theAlternativesOutlook — five cases', () => {
   test('easy · One alternative row', () => {
     // INPUT MAPPING: "Gold at 8%" — the outlook takes no rate per row; a kind whose benchmark is 8% (crypto) carries it
     const o = theAlternativesOutlook({ accounts: [acct({ asset_id: 'g', label: 'Gold', kind: 'crypto', balance: 5000 })] });
-    expect({ count: o.count, total: o.totalValue, blended_rate: o.expectedReturn, growth: o.estimatedGrowthPerYear, rows_sum: o.rows.reduce((t, r) => t + r.value, 0) })
+    expect({ count: o.count, total: o.totalValue, blended_rate: o.expectedReturn, growth: o.estimatedGrowthPerYear, rows_sum: o.rows.reduce((t, r) => t + (r.value ?? 0), 0) })
       .toEqual({ count: 1, total: 5000, blended_rate: near(0.08), growth: near(400), rows_sum: 5000 });
   });
   test('easy · No alternatives refuses growth', () => {

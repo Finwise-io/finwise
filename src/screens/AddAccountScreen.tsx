@@ -9,13 +9,15 @@ import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Platform } 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { assetClassOf } from '../domain/assets';
+import { assetClassOf, assetKind, HELD_IN_CHOICES, heldInOf, wrapperAccount, type AddWrapper } from '../domain/assets';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { typedAmount } from '../components/useMoney';
 import { InfoDot } from '../components/UI';
 import { isoLocalDate } from '../domain/_shared/dates';
 import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bonds';
+import { CD_BOUGHT_QUESTION, CD_BOUGHT_CHOICES } from '../constants/cdBought';   // the one wording (DEC-3837)
+import { COUPONS_PER_YEAR_QUESTION, COUPONS_PER_YEAR_CHOICES, type CouponsPerYear } from '../constants/couponsPerYear';   // the one wording (DEC-3390)
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 // native date picker (audit AA-1: no hand-typed YYYY-MM-DD) — same helpers the Bonds editor uses
@@ -32,9 +34,14 @@ const CLASSES: { id: Cls; label: string }[] = [
 const KIND_BY_CLASS: Record<Exclude<Cls, 'debt'>, string> = { cash: 'checking', stocks: 'brokerage', bonds: 'fixed_income', alts: 'other_asset', property: 'real_estate' };
 // HIS RULING, 2026-10-06 (restating 2026-08-04): "this phase of app no longer has options for Private Equity and
 // Hedge fund." Neither is offered here; a row saved with either kind earlier keeps it.
-const ALT_TYPES = [['crypto', 'Crypto'], ['commodities', 'Gold / commodities'], ['annuities', 'Annuity'], ['other_asset', 'Other']] as const;
+// ONE WORD PER KIND (DEC-4529, 2026-10-11; DEC-0382): each chip's word is read from the one list of kinds
+// (ASSET_KINDS), the list the Alternatives screen reads too — so annuities read "Annuities" here, as they do there.
+// This form typed its own words and wrote "Annuity" until 2026-10-20.
+const ALT_TYPES = (['crypto', 'commodities', 'annuities', 'other_asset'] as const).map((k) => [k, assetKind(k)?.label ?? 'Other'] as const);
 const KEPT_ALT_KINDS = ['private_equity', 'hedge_funds', 'options'];   // saved earlier, kept as they are, not offered
-const WRAPPERS = [['TAXABLE', 'Taxable'], ['PRE_TAX', '401(k) / IRA'], ['ROTH', 'Roth']] as const;
+// HELD IN IS THE ONE LIST (DEC-2441, DEC-2484h, 2026-10-20): the six choices every form reads, HELD_IN_CHOICES beside
+// MK-NW-F-010 wrapperAccount. This form offered one "401(k) / IRA" choice and saved only the tax bucket, so a 401(k)
+// typed here was named "Vanguard 401(k) / IRA" and compared with SPY instead of AOR.
 
 const classOfExisting = (a: any): Cls => {
   if (!a) return 'cash';
@@ -61,8 +68,10 @@ export default function AddAccountScreen() {
   const [rate, setRate] = useState<string>('');
   // an account whose tax type was never stated starts with no chip chosen — never Taxable by default — and is
   // saved with no tax type until one is picked (DEC-4036f, 2026-10-10). A NEW account starts the same way: Taxable
-  // used to be preselected, a default that looked like an answer.
-  const [wrapper, setWrapper] = useState<string>(existing?.tax_bucket && existing.tax_bucket !== 'CASH' && existing.tax_bucket !== 'PROPERTY' ? existing.tax_bucket : '');
+  // used to be preselected, a default that looked like an answer. An account being edited shows the choice it was saved
+  // with (heldInOf); a pre-tax or Roth bucket the old one-choice form saved shows none, and keeps its bucket on Save.
+  const [wrapper, setWrapper] = useState<AddWrapper | null>(() => heldInOf(existing));
+  const keptBucket = editMode && existing?.tax_bucket !== 'CASH' && existing?.tax_bucket !== 'PROPERTY' ? existing?.tax_bucket : undefined;
   const [earmark, setEarmark] = useState<string>(existing?.retirement_pct != null ? String(existing.retirement_pct) : '');
   const [altType, setAltType] = useState<string>(existing?.kind && (ALT_TYPES.some(([k]) => k === existing.kind) || KEPT_ALT_KINDS.includes(existing.kind)) ? existing.kind : 'crypto');
   const [owe, setOwe] = useState<string>('');
@@ -85,6 +94,12 @@ export default function AddAccountScreen() {
   // could be different from coupon/interest rate % for CD bought in secondary market." A bank CD yields
   // its rate; a broker CD is priced like a bond. Not answered = bank, so the choice starts there.
   const [cdBought, setCdBought] = useState<'bank' | 'broker'>(existing?.cd_bought === 'broker' ? 'broker' : 'bank');
+  // WHAT WAS PAID FOR THE BOND OR CD (DEC-0281, 2026-10-20; MK-XS-I-067): a money box like the others — empty is not entered,
+  // a typed 0 is $0 (DEC-2748b). It is the second step of a bond's value: the value entered, else what was paid, else its face.
+  const [paid, setPaid] = useState<string>(existing?.amount_paid != null ? String(existing.amount_paid) : '');
+  // HOW OFTEN THE BOND PAYS ITS INTEREST (2026-10-20, under DEC-3390; MK-XS-I-069): asked of a bond, never a CD. Nothing is
+  // chosen for the person; not answered is not entered, and the accrued-interest estimate keeps its once-a-year assumption.
+  const [couponsPerYear, setCouponsPerYear] = useState<CouponsPerYear | null>(existing?.coupons_per_year === 1 || existing?.coupons_per_year === 2 ? existing.coupons_per_year : null);
   // debt fields
   const [apr, setApr] = useState<string>('');
   const [minPay, setMinPay] = useState<string>('');
@@ -113,13 +128,29 @@ export default function AddAccountScreen() {
       router.back();
       return;
     }
+    // HELD IN (DEC-2441, DEC-2484h, 2026-10-20): a Stocks / Funds account IS the wrapper it is held in, so it takes the
+    // kind and the tax bucket from MK-NW-F-010 wrapperAccount — a 401(k) is kind 401(k), named "Vanguard 401(k)" and
+    // compared with AOR. A bond's or an alternative's kind names the asset, so it takes the bucket and keeps the choice.
+    // Nothing picked keeps what the account had: no tax type for a new one (DEC-4036f), its saved kind and bucket for
+    // one being edited.
+    const held = wrapper ? wrapperAccount(wrapper) : null;
     const base: any = {
       label: name.trim(), institution: institution.trim() || undefined,
       balance: num(balance), value_as_of: today, source: 'manual' as const,
-      kind: cls === 'alts' ? altType : KIND_BY_CLASS[cls],
-      tax_bucket: cls === 'cash' ? 'CASH' : cls === 'property' ? 'PROPERTY' : wrapper || undefined,
+      kind: cls === 'alts' ? altType : cls === 'stocks' ? held?.kind ?? existing?.kind ?? KIND_BY_CLASS.stocks : KIND_BY_CLASS[cls],
+      tax_bucket: cls === 'cash' ? 'CASH' : cls === 'property' ? 'PROPERTY' : held ? held.tax_bucket : keptBucket,
     };
+    if ((cls === 'bonds' || cls === 'alts') && wrapper) base.held_in = wrapper;
+    // THE PERSON'S ANSWER DECIDES THE CLASS (tenet 5, DEC-2748h): "What is it?" answered Stocks / Funds is a Stocks / Funds
+    // account. It was saved with no class, so one with no holdings read Unclassified. The class picked here is marked
+    // theirs, as the Net worth add sheet marks it, so the class sweep never changes it.
+    if (cls === 'stocks' && !editMode) base.asset_class = 'stocks_etf';
+    if (isInvestment && !editMode) base.class_source = 'user';
     if (cls === 'bonds') { base.asset_class = 'bonds'; base.face_value = num(face) || undefined; base.coupon_rate = coupon.trim() === '' ? undefined : num(coupon) / 100; /* DEC-2748b: a typed 0% is 0%, an empty box is unknown */ base.maturity_date = maturity.trim() || undefined; if (isCd) base.cd_bought = cdBought; }   // (DEC-3837, 2026-10-10)
+    // what was paid, as typed: empty is not entered (the key is written empty, so an edit that clears it clears it), 0 is $0
+    if (cls === 'bonds') base.amount_paid = paid.trim() === '' ? undefined : num(paid);   // (DEC-0281, DEC-2748b, 2026-10-20)
+    // a bond's payment schedule; a CD is never asked, and keeps none (2026-10-20, under DEC-3390)
+    if (cls === 'bonds') base.coupons_per_year = !isCd && couponsPerYear != null ? couponsPerYear : undefined;
     if (cls === 'alts') base.asset_class = 'alternatives';
     if (cls === 'property') {
       base.re_use = livedIn ? 'primary' : 'secondary';
@@ -185,15 +216,31 @@ export default function AddAccountScreen() {
       {cls === 'bonds' && (
         <>
           {field('Face value (optional)', face, setFace, { placeholder: '$10,000', keyboard: 'decimal-pad', a11y: 'Face value' })}
+          {/* (DEC-0281, 2026-10-20) what was paid — the second step of a bond's value, shown on its account page */}
+          {field('What you paid (optional)', paid, setPaid, { placeholder: '$9,700', keyboard: 'decimal-pad', a11y: 'What you paid' })}
           {field('Interest rate % (optional)', coupon, setCoupon, { placeholder: '4.5', keyboard: 'decimal-pad', a11y: 'Coupon percent' })}
+          {!isCd && (
+            <>
+              {/* (2026-10-20, under DEC-3390) how often a bond pays — asked of a bond, never a CD */}
+              <Text style={s.fieldL}>{COUPONS_PER_YEAR_QUESTION}</Text>
+              <View style={s.chipWrap}>
+                {COUPONS_PER_YEAR_CHOICES.map(({ value: v, label, spoken }) => (
+                  <TouchableOpacity accessibilityRole="radio" key={v} style={[s.chip, couponsPerYear === v && s.chipOn]} accessibilityState={{ selected: couponsPerYear === v }}
+                    accessibilityLabel={spoken} onPress={() => setCouponsPerYear(v)}>
+                    <Text style={[s.chipTxt, couponsPerYear === v && { color: Colors.primaryDark }]}>{label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </>
+          )}
           {isCd && (
             <>
               {/* (DEC-3837, 2026-10-10) asked once, for a CD only */}
-              <Text style={s.fieldL}>Bought from the bank, or through a broker?</Text>
+              <Text style={s.fieldL}>{CD_BOUGHT_QUESTION}</Text>
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
-                {([['bank', 'From the bank'], ['broker', 'Through a broker']] as const).map(([v, label]) => (
+                {CD_BOUGHT_CHOICES.map(({ value: v, label, spoken }) => (
                   <TouchableOpacity key={v} style={[s.chip, cdBought === v && s.chipOn]} accessibilityRole="button" accessibilityState={{ selected: cdBought === v }}
-                    accessibilityLabel={v === 'bank' ? 'CD bought from the bank' : 'CD bought through a broker'} onPress={() => setCdBought(v)}>
+                    accessibilityLabel={spoken} onPress={() => setCdBought(v)}>
                     <Text style={[s.chipTxt, cdBought === v && { color: Colors.primaryDark }]}>{label}</Text>
                   </TouchableOpacity>
                 ))}
@@ -258,7 +305,7 @@ export default function AddAccountScreen() {
         <>
           <Text style={s.fieldL}>Held in</Text>
           <View style={s.chipWrap}>
-            {WRAPPERS.map(([v, label]) => (
+            {HELD_IN_CHOICES.map(({ key: v, label }) => (
               <TouchableOpacity accessibilityRole="radio" key={v} style={[s.chip, wrapper === v && s.chipOn]}
                 onPress={() => setWrapper(v)} accessibilityState={{ selected: wrapper === v }} accessibilityLabel={`Held in ${label}`}>
                 <Text style={[s.chipTxt, wrapper === v && { color: Colors.primaryDark }]}>{label}</Text>

@@ -102,7 +102,8 @@
    "difference": "no refusal: cash is held at $0 and the whole −$100 is filed under the account's own class (a bare brokerage → Unclassified)",
    "formula_gives_match": "neither",
    "note": "index.ts:1533 (cash = min(cash, max(0, balance)) = 0), index.ts:1539. No decision on an overdrawn hand-built account. Open question: refuse/flag it, or show it overdrawn under its own class as built?",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-027 accountClassBreakdown — five cases › edge · Negative balance with positive cash field"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-027 accountClassBreakdown — five cases › edge · Negative balance with positive cash field",
+   "settled": "SETTLED 2026-10-10 by DEC-4036i: an overdrawn hand-built account is negative cash — balance −$100 with a cash field of $50 is Cash −$100. Held by outside_networth_final_openai_part2.test.ts:133."
   },
   {
    "id": "MK-NW-F-028",
@@ -166,7 +167,8 @@
    "difference": "app counts the agency bond as a Treasury",
    "formula_gives_match": "formula_gives",
    "note": "TREASURY_RE carries govt|government (index.ts:1602); DEC-3035g names TREAS, UST, T-bond and T-bill wording only. Open question: is 'government' a Treasury word? (An agency bond is not a US Treasury.)",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-028 classPortionLabel — five cases › complex · Government word may overstate Treasury classification"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-028 classPortionLabel — five cases › complex · Government word may overstate Treasury classification",
+   "settled": "SETTLED by DEC-3035g: the Treasury words are TREAS, UST, T-bill, T-note, T-bond; \"government\" is not one, so an agency bond is a bond (fixed 2026-10-09). Held by outside_networth_final_openai_part2.test.ts:148."
   },
   {
    "id": "MK-NW-F-028",
@@ -379,7 +381,8 @@
    "difference": "saved 130% held at 100%",
    "formula_gives_match": null,
    "note": "earmarkDefault reads no saved share; earmarkedAmount clamps 0–100 (index.ts:1895). No decision; the card's own F-032 text says 'held between 0% and 100%'. Open question: clamp (built) or refuse a corrupt stored share?",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-030 earmarkDefault — five cases › edge · Saved share outside range"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-030 earmarkDefault — five cases › edge · Saved share outside range",
+   "settled": "BRIEF WRONG — re-judged 2026-10-20: earmarkDefault reads no saved share (a brokerage defaults to 100%, DEC-0100); the saved share is MK-NW-F-032's, \"held between 0% and 100%\": 130% → 100%, $10,000 × 100% = $10,000. Every share field holds 0–100 as it is typed. Held by outside_networth_final_openai_part2.test.ts:228."
   },
   {
    "id": "MK-NW-F-031",
@@ -459,7 +462,8 @@
    "difference": "app ranks the vehicle with no value as $0 and names B",
    "formula_gives_match": null,
    "note": "(balance || 0), index.ts:1853. No decision. Open question: may the car driven be named while another vehicle's value is unknown?",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-031 primaryCarIdOf — five cases › edge · Missing balance among vehicles"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-031 primaryCarIdOf — five cases › edge · Missing balance among vehicles",
+   "settled": "SETTLED 2026-10-10 by DEC-4036j: the car you drive is picked among the vehicles with a value (B), and the screen says \"A's value not entered — it may be the car you drive.\" Held by outside_networth_final_openai_part2.test.ts:257."
   },
   {
    "id": "MK-NW-F-032",
@@ -554,7 +558,8 @@
    "difference": "saved −10% held at 0% → $0 (not −$500)",
    "formula_gives_match": "neither",
    "note": "index.ts:1895 clamps; the card says 'held between 0% and 100%' (so the formula does state it). No decision on corrupt stored shares.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-032 earmarkedAmount — five cases › edge · Out-of-range share"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-032 earmarkedAmount — five cases › edge · Out-of-range share",
+   "settled": "BRIEF WRONG — re-judged 2026-10-20: the card says the stated share is \"held between 0% and 100%\": −10% → 0%, $5,000 × 0% = $0, never −$500. A minus cannot be typed in a share field. Held by outside_networth_final_openai_part2.test.ts:279."
   },
   {
    "id": "MK-NW-F-033",
@@ -737,7 +742,8 @@
    "difference": "app takes the generic 6%, labelled an estimate",
    "formula_gives_match": null,
    "note": "index.ts:1960, 2098. No decision on a missing kind. Open question: refuse, or the labelled 6% as built?",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-034 benchmarkReturn — five cases › edge · Missing kind gets generic estimate or refusal?"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-034 benchmarkReturn — five cases › edge · Missing kind gets generic estimate or refusal?",
+   "settled": "PLAN SCOPE — re-judged 2026-10-20: the 6% the card states is labelled \"Generic blended estimate\", estimate true, as the auditor asks; no Net worth screen shows it (every Alternatives account has a kind). It reaches only the Plan's retirement growth rate (MK-NW-F-037 blendedReturn); whether a kind-less account should refuse there is the Plan module's question (beside DEC-2746c). Held by outside_networth_final_openai_part2.test.ts:330."
   },
   {
    "id": "MK-NW-F-035",
@@ -1359,7 +1365,8 @@
    "difference": "app files the answer as taxable Stocks / Funds",
    "formula_gives_match": "formula_gives",
    "note": "index.ts:2278. No decision on what the old 'savings or portfolio' answer means.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-040 assetsFromOnboarding — five cases › edge · Ambiguous “savings or portfolio” value"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-040 assetsFromOnboarding — five cases › edge · Ambiguous “savings or portfolio” value",
+   "settled": "SETTLED 2026-10-10 by DEC-4036g: the old answer is filed Unclassified with no kind, no tax type and no growth, and Net worth asks \"Is this cash savings or investments?\" Held by outside_networth_final_openai_part2.test.ts:471."
   },
   {
    "id": "MK-NW-F-041",
@@ -1687,7 +1694,8 @@
    "difference": "no negative figure, no refusal: a future start reads 'a few days'",
    "formula_gives_match": "neither",
    "note": "index.ts:2533-2546. No decision. A malformed start ('abc') gives monthsCovered NaN and '… a few days of history (from ) …'. Open question: refuse an invalid or future start?",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-046 historyCoverage — five cases › edge · Future history date"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-046 historyCoverage — five cases › edge · Future history date",
+   "settled": "SETTLED 2026-10-10 by DEC-4059b/c: a history start after today, or not a real date, is refused — \"History start date cannot be read.\" — with \"Edit date\"; the person's date is saved and used. Held by outside_networth_final_openai_part2.test.ts:565."
   },
   {
    "id": "MK-NW-F-047",
@@ -1767,7 +1775,8 @@
    "difference": "an unknown class lands in Investments",
    "formula_gives_match": null,
    "note": "CLASS_UBER[cls] ?? 'investments' (index.ts:2619). No decision. The AssetClass type admits only the seven, so only bad stored data reaches it.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-047 uberGroupOf — five cases › complex · Unknown class must not be assigned arbitrarily"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part2.test.ts › MK-NW-F-047 uberGroupOf — five cases › complex · Unknown class must not be assigned arbitrarily",
+   "settled": "BRIEF WRONG — re-judged 2026-10-20: the card hands the function one of the seven classes and maps all seven; nothing in the app can store an eighth (editor, import, sweep and itemising each write one of the seven), so \"mystery\" never reaches a screen. Held by outside_networth_final_openai_part2.test.ts:585."
   },
   {
    "id": "MK-NW-F-047",

@@ -7,7 +7,9 @@ import type { EntityId } from '../_shared/ids';
 import { plural } from '../_shared/plural';
 import { dateShown } from '../_shared/dates';
 import { coverageFor } from '../../../Calculation Module code/engines/coverage';
+import { unitWorth, lotCostOnRecord } from '../../../Calculation Module code/engines/snapshots';
 import { TBILL_ETF_TICKERS } from '../../../Calculation Module code/engines/holding-class';
+import { moneyIntoAccount } from '../../../Calculation Module code/engines/ledger';
 import { holdingClassOf, assetClassOf } from '../assets';
 import { maturityParts } from '../_shared/dates';
 
@@ -15,7 +17,10 @@ import { maturityParts } from '../_shared/dates';
 export interface Lot {
   lot_id: EntityId;
   shares: number;
-  cost_per_share: number;       // purchase price per share, in account currency
+  // purchase price per share, in account currency. NULL = NOT ON RECORD: a linked broker sent no cost for this purchase
+  // (stored as null since 2026-10-20 — it was stored as $0, which the average price read as a real $0 cost). Ask
+  // lotCostOnRecord whether a lot's cost can be counted; never read a missing cost as 0.
+  cost_per_share: number | null;
   purchase_date: string;        // 'YYYY-MM-DD'
 }
 
@@ -35,6 +40,12 @@ export interface Position {
   // HIS RULING, 2026-09-30 (master Q11): when nothing says what a holding is — "Refuse the line and ask".
   class_asked?: true;           // nothing said what this is: it is in no class until the person says
   class_flag?: { was: string; evidenceSays: string };   // B7: a sync wanted to move the class; kept + flagged instead
+  // THE CLASS THE BROKER SENT, kept exactly as sent (his ruling, 2026-10-20: "always the class broker sends"): its own
+  // type — SnapTrade's code ('et', 'oef', 'bnd', …) or an import file's type words — and its cash-equivalent flag, the
+  // broker saying "this is cash". MK-NW-F-109 holdingClassOf reads them first after the person's own answer, so the
+  // class follows the broker on every read, not only at the sync that stored them. Absent = the broker sent none.
+  broker_type?: string;
+  cash_equivalent?: true;
   last_price?: number;          // broker's daily mark (connected accounts — no live feed needed)
   value_now?: number;           // a hand-built holding's value at the price its account balance was last built from (2026-10-07)
   multiplier?: number;          // Q06 (founder, 2026-08-26): an option contract is 100 shares unless the broker or the person states otherwise
@@ -44,6 +55,14 @@ export interface Position {
   face_value?: number;
   coupon_rate?: number;
   maturity_date?: string;
+  // how often a held bond pays its interest, 1 or 2 a year, as the person chose it in the holding editor (2026-10-21, under
+  // DEC-3390; MK-XS-I-069) — read by the accrued-interest estimate in its yield to maturity. Absent = not entered.
+  coupons_per_year?: 1 | 2;
+  // HOW A LINKED BOND'S PRICE IS QUOTED (MK-XS-I-068, 2026-10-20), calculated at each sync from the broker's own total
+  // (bondQuoteBasis, in the sync): 'per_100_of_face' = the quantity is the face amount and the price is per $100 of it, so
+  // value = quantity × price ÷ 100; 'unclear' = the evidence cannot tell, so the value is shown as quantity × price and the
+  // missing-information box names the bond. Absent = quantity × price, as for a share.
+  price_quote?: 'per_100_of_face' | 'unclear';
   lots: Lot[];
 }
 
@@ -60,36 +79,48 @@ export const OPTION_CONTRACT_MULTIPLIER = 100;
  * Answers ..... How many units one contract stands for: 100 for an option unless the holding states its own figure, and 1 for everything else.
  *
  * Formula .....
- *     multiplier   when multiplier ≠ nothing and multiplier > 0
+ *     multiplier   when kind = 'options' and multiplier ≠ nothing and number.is finite(multiplier) and multiplier > 0
+ *     unit worth(p)   when unit worth(p) ! = 1
  *     OPTION_CONTRACT_MULTIPLIER   if kind = 'options'
  *     1   otherwise
  *
- * Called by ... MK-NW-F-128 heldValueOf · MK-NW-F-143 gainRowBetween
- *               MK-NW-O-006 theHolding · MK-PF-F-002 costBasis
- *               MK-PF-F-004 marketValue · MK-PF-F-006 capGains
- *               MK-PF-F-028 realizedFromLedger
+ * Called by ... MK-NW-F-027 accountClassBreakdown · MK-NW-F-128 heldValueOf
+ *               MK-NW-F-143 gainRowBetween · MK-NW-F-151 linkedSplit
+ *               MK-PF-F-002 costBasis · MK-PF-F-004 marketValue
+ *               MK-PF-F-005 unrealizedGain · MK-PF-F-006 capGains
+ *               MK-PF-F-028 realizedFromLedger · MK-PF-F-051 paidOnRecord
+ *               MK-PL-F-081 taxableGainShare · MK-XS-F-102 ingestSync
  *
- * Reaches ..... 80 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
+ * Reaches ..... 270 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
- *               MK-NW-F-082 NW · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               MK-NW-F-093 QUIET_PERF · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-144 beforeTheRecordSentence · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               … and 62 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 252 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
+ *               MK-XS-I-068 how a linked bond's price is quoted — per $100 of face value, or per unit like a share
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-031
  * Changed ..... not in git yet (—)
  */
-export function contractMultiplier(p: Pick<Position, 'kind' | 'multiplier'>): number {
-  if (p.multiplier != null && p.multiplier > 0) return p.multiplier;
+export function contractMultiplier(p: Pick<Position, 'kind' | 'multiplier'> & { price_quote?: Position['price_quote'] }): number {
+  // SHARES PER CONTRACT ARE AN OPTION'S FIGURE (2026-10-21; DEC-0274, DEC-4646; outside re-run OpenAI part 3, MK-PF-F-031): a
+  // stated figure counts only for an option, and only when it is a real number above zero — like 0 or a negative, a figure
+  // that is not finite is no statement, so the option's 100 stands. Before: an option changed to a stock kept its 100, so
+  // 10 shares at $50 read $50,000, not $500; and a 309-digit figure typed in the box made every value it touched infinite.
+  if (p.kind === 'options' && p.multiplier != null && Number.isFinite(p.multiplier) && p.multiplier > 0) return p.multiplier;
+  // A BOND QUOTED PER $100 OF FACE (MK-XS-I-068, 2026-10-20): its quantity is the face amount and its price is per $100
+  // of it, so each unit of quantity × price stands for one hundredth of a dollar — $100,000 face at 99.50 is $99,500,
+  // not $9,950,000. Value and cost are both read through here, so both follow it.
+  if (unitWorth(p) !== 1) return unitWorth(p);   // the one reading of the quote: unitWorth, beside the daily record's builder
   return p.kind === 'options' ? OPTION_CONTRACT_MULTIPLIER : 1;
 }
 
@@ -112,8 +143,17 @@ export function contractMultiplier(p: Pick<Position, 'kind' | 'multiplier'>): nu
  *
  * Called by ... MK-PF-F-033 quantityWithUnit
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-PF-F-033 quantityWithUnit · MK-PF-F-046 saleShortOfPurchasesSentence
+ * Reaches ..... 270 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 252 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -143,10 +183,19 @@ export function quantityUnit(p: Pick<Position, 'kind' | 'unit'>): QuantityUnit {
  *     unit = quantity unit(p)
  *     the answer = `${format(qty)} ${math.abs(qty) = 1 ? unit.replace( ÷ s$ ÷ , '') : unit}`
  *
- * Called by ... MK-PF-F-046 saleShortOfPurchasesSentence
+ * Called by ... MK-NW-F-146 undatedGainSentence · MK-PF-F-058 gainOnPartSentence
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-PF-F-046 saleShortOfPurchasesSentence
+ * Reaches ..... 269 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 251 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -183,20 +232,21 @@ export const PERIODS: Period[] = ['1M', '3M', '6M', 'YTD', '1Y', '2Y'];
  * Formula .....
  *     total shares(holding) = Σ over every lot of (shares, or 0 when missing)
  *
- * Called by ... MK-CF-F-111 applyTransaction · MK-NW-F-128 heldValueOf
- *               MK-NW-O-006 theHolding · MK-PF-F-004 marketValue
+ * Called by ... MK-CF-F-111 applyTransaction · MK-NW-F-127 gainOfRow
+ *               MK-NW-F-128 heldValueOf · MK-NW-O-006 theHolding
+ *               MK-PF-F-004 marketValue
  *
- * Reaches ..... 76 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
+ * Reaches ..... 269 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
- *               MK-NW-F-082 NW · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               MK-NW-F-093 QUIET_PERF · MK-CF-F-111 applyTransaction
- *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-144 beforeTheRecordSentence
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               … and 58 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 251 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -217,7 +267,7 @@ export function totalShares(p: Position): number | null {
 }
 
 /** Whether a purchase's figure was never entered — missing or not a number. A real 0 is a figure. */
-/* ─ MK-PF-F-035 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+/* ─ MK-PF-F-035 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * unknownFigure
  *
  * Answers ..... Whether a purchase's figure was never entered — missing or not a number.
@@ -226,18 +276,19 @@ export function totalShares(p: Position): number | null {
  *     v = nothing (or v is not a number (or !number.is finite(v) when missing or zero) when missing or zero)
  *
  * Called by ... MK-PF-F-002 costBasis · MK-PF-F-006 capGains
+ *               MK-PF-F-051 paidOnRecord
  *
- * Reaches ..... 69 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-080 HOLD
- *               MK-NW-F-140 LEFT_OUT · MK-NW-F-082 NW
- *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PF-F-014 buildPerformance
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               … and 51 more — the full list is on functions_from_code
+ * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 248 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -245,7 +296,77 @@ export function totalShares(p: Position): number | null {
  * Changed ..... not in git yet (—)
  */
 const unknownFigure = (v: unknown): boolean => v == null || typeof v !== 'number' || !Number.isFinite(v);
-/* ─ MK-PF-F-002 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+
+/** Is what was paid for this purchase on record — a cost per share above zero? ONE RULE for the average price paid and
+ *  the gains if sold today, so the two can never read one purchase two ways (2026-10-20). Not on record: no cost at
+ *  all (a linked broker that sent none), or the 0 that a blank cost in the holding editor saves, and that a sync wrote
+ *  for a missing cost until 2026-10-20 — the same test capGains has applied since 2026-10-11. */
+//  THE RULE LIVES BESIDE unitWorth since 2026-10-21 (Calculation Module code/engines/snapshots.ts), so the
+//  daily record reads a cost the same way; it is re-exported here, so every caller keeps importing it from this module.
+export { lotCostOnRecord };
+
+/** WHAT WAS PAID, OVER THE PURCHASES WHOSE PRICE PAID IS ON RECORD (lotCostOnRecord), and how many units that covers of how
+ *  many held (2026-10-20). The one reading of what was paid for Total paid, the gain at the top of a holding, its return on
+ *  what was paid and the Performance row — the reading the average price paid and the gains if sold today already use, so
+ *  every figure on the page counts the same purchases. 10 shares at $100 and 10 with no price paid: $1,000 on 10 of 20.
+ *  A purchase with no share count makes all three unknown; shares held with no price paid on record at all leave `paid`
+ *  unknown, never $0. The person is told what is left out (gainOnPartSentence, and the WHAT YOU BOUGHT line). */
+/* ─ MK-PF-F-051 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * paidOnRecord
+ *
+ * Answers ..... WHAT WAS PAID, OVER THE PURCHASES WHOSE PRICE PAID IS ON RECORD (lotCostOnRecord), and how many units that covers of how many held (2026-10-20).
+ *
+ * Formula .....
+ *     paid = 0, counted = 0, held = 0
+ *     paid = nothing
+ *     counted = nothing
+ *     held = nothing   when unknown figure(shares)
+ *     the answer:
+ *     paid = nothing   if held ! = 0 and counted = 0
+ *     paid × contract multiplier(p)   otherwise
+ *     counted = counted
+ *     held = held
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *
+ * Called by ... MK-NW-F-027 accountClassBreakdown · MK-NW-F-139 leftOutValueOf
+ *               MK-NW-F-144 beforeTheRecordSentence · MK-NW-O-006 theHolding
+ *               MK-PF-F-005 unrealizedGain · MK-PF-F-007 totalROI
+ *               MK-PF-F-013 benchmarkTicker · MK-PF-F-014 buildPerformance
+ *               MK-PL-F-081 taxableGainShare · MK-XS-F-174 recomputeBalances
+ *
+ * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 248 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-051
+ * Changed ..... not in git yet (—)
+ */
+export function paidOnRecord(p: Position): { paid: number | null; counted: number | null; held: number | null } {
+  let paid = 0, counted = 0, held = 0;
+  for (const l of p.lots ?? []) {
+    if (unknownFigure(l?.shares)) return { paid: null, counted: null, held: null };
+    if (l.shares === 0) continue;
+    held += l.shares;
+    if (!lotCostOnRecord(l)) continue;
+    counted += l.shares;
+    paid += l.shares * (l.cost_per_share as number);
+  }
+  return { paid: held !== 0 && counted === 0 ? null : paid * contractMultiplier(p), counted, held };
+}
+/* ─ MK-PF-F-002 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * costBasis
  *
  * Answers ..... What did I pay for this in total?
@@ -253,22 +374,11 @@ const unknownFigure = (v: unknown): boolean => v == null || typeof v !== 'number
  * Formula .....
  *     cost basis(holding) = Σ over every lot of (shares × cost per share)
  *
- * Called by ... MK-NW-F-139 leftOutValueOf · MK-NW-O-006 theHolding
- *               MK-PF-F-005 unrealizedGain · MK-PF-F-007 totalROI
- *               MK-PF-F-014 buildPerformance · MK-PL-F-081 taxableGainShare
- *               MK-XS-F-102 ingestSync · MK-XS-F-174 recomputeBalances
+ * Called by ... MK-NW-O-006 theHolding · MK-XS-F-102 ingestSync
  *
- * Reaches ..... 67 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-080 HOLD
- *               MK-NW-F-140 LEFT_OUT · MK-NW-F-082 NW
- *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PF-F-014 buildPerformance
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               … and 49 more — the full list is on functions_from_code
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-080 HOLD · MK-XS-F-102 ingestSync
+ *               MK-NW-O-006 theHolding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -287,7 +397,7 @@ export function costBasis(p: Position): number | null {
     if (unknownFigure(l?.shares)) return null;
     if (l.shares === 0) continue;
     if (unknownFigure(l?.cost_per_share)) return null;
-    t += l.shares * l.cost_per_share;
+    t += l.shares * (l.cost_per_share as number);   // a cost not on record returned above
   }
   return t * contractMultiplier(p);
 }
@@ -303,20 +413,20 @@ export function costBasis(p: Position): number | null {
  *
  * Called by ... MK-NW-F-075 ACC · MK-NW-F-084 categoryEarnings
  *               MK-NW-O-006 theHolding · MK-PF-F-005 unrealizedGain
- *               MK-PF-F-014 buildPerformance · MK-PL-F-081 taxableGainShare
- *               MK-XS-F-174 recomputeBalances
+ *               MK-PF-F-014 buildPerformance · MK-PF-F-055 valueAtClose
+ *               MK-PL-F-081 taxableGainShare · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 69 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
+ * Reaches ..... 267 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
- *               MK-NW-F-082 NW · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               MK-NW-F-093 QUIET_PERF · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               … and 51 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 249 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -340,42 +450,157 @@ export function marketValue(p: Position, price: number | null | undefined): numb
  * Answers ..... Unrealized gain = market value − cost basis (unknown when either is unknown — no price is no gain to state).
  *
  * Formula .....
- *     mv = nothing   if price = nothing
- *     market value(p, price)   otherwise
- *     basis = cost basis(p)
- *     the answer:
- *     nothing   if mv = nothing (or basis = nothing when missing or zero)
- *     mv − basis   otherwise
+ *     nothing   when price = nothing
+ *     c = paid on record(p)
+ *     nothing   when paid = nothing (or counted = nothing when missing or zero)
+ *     nothing   if market value(p, price) = nothing
+ *     0   otherwise   when counted = 0
+ *     the answer = counted × price × contract multiplier(p) − paid
  *
- * Called by ... MK-PF-F-007 totalROI · MK-PF-F-014 buildPerformance
+ * Called by ... MK-NW-O-006 theHolding · MK-PF-F-007 totalROI
+ *               MK-PF-F-014 buildPerformance
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
- *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-093 QUIET_PERF · MK-PF-F-014 buildPerformance
- *               MK-NW-O-008 thePerformance · MK-PF-F-007 totalROI
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-080 HOLD
+ *               MK-NW-F-140 LEFT_OUT · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-091 pricedGainOf
+ *               MK-NW-O-006 theHolding · MK-NW-O-008 thePerformance
+ *               MK-PF-F-007 totalROI
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-007 purchase price and date (per lot)
+ * Reads ....... MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-005
  * Changed ..... 2026-08-20 (77eea92)
  */
 export function unrealizedGain(p: Position, price: number | null | undefined): number | null {
   // with no price the gain is unknown — $0 said "no gain" (tenet 3, DEC-3523; outside review Claude Performance, 2026-10-11)
-  const mv = price == null ? null : marketValue(p, price);
-  const basis = costBasis(p);
-  return mv == null || basis == null ? null : mv - basis;
+  if (price == null) return null;
+  // OVER THE SAME PURCHASES AS WHAT WAS PAID (paidOnRecord, 2026-10-20): the value of the units whose price paid is on
+  // record, less what was paid for them. A blank price paid was saved as $0, so 10 shares at $100 and 10 with none, today
+  // $120, read a gain of $2,400 − $1,000 = $1,400 beside a long-term gain of $200; now both read $200. With every price paid
+  // on record the units counted are every unit held, and this is the value less what was paid, as it always was.
+  const c = paidOnRecord(p);
+  if (c.paid == null || c.counted == null) return null;
+  if (c.counted === 0) return marketValue(p, price) == null ? null : 0;   // nothing held: no gain
+  return c.counted * price * contractMultiplier(p) - c.paid;
 }
+
+/** A PURCHASE DATE ON RECORD: a real calendar day written year-month-day, or nothing (2026-10-21; tenet 3, DEC-3523 —
+ *  unknown is not zero). ONE RULE for every reader of a purchase's date on the Holding page — the gains if sold today
+ *  and the purchase rows. Not on record: no date (a linked broker that sent none, stored blank), a date written another
+ *  way, or a day that does not exist — 31 February read as 3 March. A missing date was read as 1 January 1970, so its
+ *  gain showed as long-term; a blank one as short-term. */
+/* ─ MK-PF-F-052 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * purchaseDateOnRecord
+ *
+ * Answers ..... A PURCHASE DATE ON RECORD: a real calendar day written year-month-day, or nothing (2026-10-21; tenet 3, DEC-3523 — unknown is not zero).
+ *
+ * Formula .....
+ *     m = ÷ ^\d{4}-\d{2}-\d{2} ÷ .exec(string(d ?? '').trim())
+ *     the answer:
+ *     the first of m   if m and maturity parts(m[0])
+ *     nothing   otherwise
+ *
+ * Called by ... MK-CF-F-139 removeShares · MK-NW-F-143 gainRowBetween
+ *               MK-PF-F-006 capGains · MK-PF-F-012 earliestPurchaseDate
+ *               MK-PF-F-053 isBroadIndexOption · MK-PF-F-056 purchasePieces
+ *               MK-XS-F-127 toIsoDate
+ *
+ * Reaches ..... 73 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-080 HOLD
+ *               MK-NW-F-140 LEFT_OUT · MK-NW-F-082 NW
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
+ *               MK-CF-F-111 applyTransaction · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PF-F-014 buildPerformance · MK-PL-F-053 buildRetirementState
+ *               … and 55 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses a built-in s e c t i o n 1256 l o n g t e r m p e r c e n t of 60.
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-052
+ * Changed ..... not in git yet (—)
+ */
+export function purchaseDateOnRecord(d: string | null | undefined): string | null {
+  const m = /^\d{4}-\d{2}-\d{2}/.exec(String(d ?? '').trim());
+  // the day must be one the calendar has, by the app's one reader of a written day (MK-NW-F-124 maturityParts)
+  return m && maturityParts(m[0]) ? m[0] : null;
+}
+
+/** THE ONE LIST OF BROAD-BASED INDEX OPTIONS (2026-10-21; DEC-0378, every figure set by law typed from the published
+ *  source). An option on one of these indexes is a nonequity option — a section 1256 contract — and IRS Publication 550
+ *  (2025) says: "Gains or losses on section 1256 contracts open at the end of the year, or terminated during the year,
+ *  are treated as 60% long-term and 40% short-term, regardless of how long the contracts were held." A broad-based stock
+ *  index "is based on the value of a group of diversified stocks or securities (such as the Standard and Poor's 500
+ *  index)". The S&P 500 (SPX, SPXW, the mini XSP), the Nasdaq-100 (NDX, NDXP), the Russell 2000 (RUT, the mini MRUT),
+ *  the volatility index (VIX), the Dow (DJX) and the S&P 100 (OEX, XEO). An option on SPY or on a single company is an
+ *  equity option and keeps the holding-period split. */
+export const SECTION_1256_INDEX_OPTION_ROOTS: ReadonlySet<string> = new Set([
+  'SPX', 'SPXW', 'XSP', 'NDX', 'NDXP', 'RUT', 'MRUT', 'VIX', 'DJX', 'OEX', 'XEO',
+]);
+/** The long-term share of a section 1256 contract's gain, in percent (IRS Publication 550 (2025), the 60/40 rule); the
+ *  rest, 40, is short-term. */
+export const SECTION_1256_LONG_TERM_PERCENT = 60;
+
+/** Is this holding an option on a broad-based index (SECTION_1256_INDEX_OPTION_ROOTS)? Read from the option's ticker —
+ *  its root, the letters before the expiry: 'SPX', 'SPX  261218C06000000', 'SPXW261218C06000000', 'SPX 12/18/2026 6000 C'. */
+/* ─ MK-PF-F-053 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * isBroadIndexOption
+ *
+ * Answers ..... Is this holding an option on a broad-based index (SECTION_1256_INDEX_OPTION_ROOTS)?
+ *
+ * Formula .....
+ *     false   when kind ! = 'options'
+ *     m = ÷ ^[$^]?([A − Z]+)(?=$|[\s\d]) ÷ .exec(string(ticker ?? '').trim().to upper case())
+ *     the answer = !!m and SECTION_1256_INDEX_OPTION_ROOTS.has(m[1])
+ *
+ * Called by ... MK-PF-F-006 capGains
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-080 HOLD · MK-PF-F-006 capGains
+ *               MK-NW-O-006 theHolding
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-053
+ * Changed ..... not in git yet (—)
+ */
+export function isBroadIndexOption(p: Pick<Position, 'kind' | 'ticker'>): boolean {
+  if (p.kind !== 'options') return false;
+  const m = /^[$^]?([A-Z]+)(?=$|[\s\d])/.exec(String(p.ticker ?? '').trim().toUpperCase());
+  return !!m && SECTION_1256_INDEX_OPTION_ROOTS.has(m[1]);
+}
+
 /** Unrealized capital gains split by holding period — long-term (held MORE than one year, the
- *  IRS line, day-precise) vs short-term. Computed per lot from its purchase date; lots without a
- *  cost basis are skipped.
+ *  IRS line, day-precise) vs short-term. Computed per lot from its purchase date; a lot without a
+ *  cost on record is left out of the gain and counted in heldShares but not countedShares, so the page can say so.
  *  E7 (founder brief 2026-08-20): the old rule counted CALENDAR MONTHS — bought Jan 31, sold
  *  Jan 1 was 335 days yet read as long-term, always erring toward the LOWER tax. Day-precise now:
  *  long-term begins the day AFTER the one-year anniversary; exactly one year is still short.
- *  An unparseable purchase date stays SHORT-term — the cautious side (understating a tax bill is
- *  the worse mistake). */
-export interface CapGains { longGain: number | null; shortGain: number | null; totalGain: number | null; }
+ *  A PURCHASE DATE NOT ON RECORD (purchaseDateOnRecord) puts the lot in NEITHER part (2026-10-21; tenet 3): its gain is in
+ *  the total and in `undated`, and with no dated purchase held the two parts are unknown. Until then an unparseable date
+ *  was short-term ("the cautious side", a code choice of 2026-08-20) and a missing one long-term (1 January 1970).
+ *  AN OPTION ON A BROAD-BASED INDEX (isBroadIndexOption) is split 60% long-term and 40% short-term whatever the holding
+ *  period, by law (IRS Publication 550); its purchase dates are not needed. */
+export interface CapGains {
+  longGain: number | null; shortGain: number | null; totalGain: number | null;
+  /** HOW MUCH OF THE HOLDING THE GAIN COUNTS (Q20, 2026-10-20, by DEC-4643's rule): the shares whose price paid is on
+   *  record, of the shares held — in the holding's own unit. Null when a share count is not on record, or no price. */
+  countedShares: number | null; heldShares: number | null;
+  /** PRESENT ONLY WHEN A PURCHASE HELD HAS NO PURCHASE DATE ON RECORD (2026-10-21): the gain on those purchases whose price
+   *  paid is on record (null when none has one), the shares it counts, and the shares with no date held. In neither part. */
+  undated?: { gain: number | null; counted: number; held: number };
+  /** PRESENT ONLY FOR AN OPTION ON A BROAD-BASED INDEX: the split is the 60/40 rule of section 1256, not the holding period. */
+  split?: 'section_1256';
+}
 /* ─ MK-PF-F-006 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * capGains
  *
@@ -404,37 +629,68 @@ export interface CapGains { longGain: number | null; shortGain: number | null; t
  */
 export function capGains(p: Position, price: number | null | undefined, now: Date = new Date()): CapGains {
   // no price: no gain to split — unknown, never $0 (tenet 3, DEC-3523; outside review Claude Performance, 2026-10-11)
-  if (price == null) return { longGain: null, shortGain: null, totalGain: null };
-  let lg = 0, sg = 0, lgKnown = true, sgKnown = true;
+  if (price == null) return { longGain: null, shortGain: null, totalGain: null, countedShares: null, heldShares: null };
+  // per part of the split: the gain on the lots whose cost is on record, the shares counted, the shares held, and whether
+  // every share count is on record
+  const fresh = () => ({ gain: 0, counted: 0, held: 0, sharesKnown: true });
+  const part = { long: fresh(), short: fresh(), undated: fresh() };
+  const p2 = (n: number) => String(n).padStart(2, '0');
+  const nowKey = `${now.getFullYear()}-${p2(now.getMonth() + 1)}-${p2(now.getDate())}`;
   for (const lot of (p.lots ?? [])) {
     if (!unknownFigure(lot.shares) && !(lot.shares > 0)) continue;   // no shares held in this lot
-    // A LOT WITH NO COST ON RECORD (none, or the 0 a sync writes when the broker sends none) or no share count is
-    // not skipped: its part of the split is unknown, and so is the total — its shares used to vanish and the total
-    // disagreed with the gain above it (tenet 3; tenet 4) (outside review Claude Performance, 2026-10-11)
-    const unknownLot = unknownFigure(lot.shares) || unknownFigure(lot.cost_per_share) || !(lot.cost_per_share > 0);
-    // × the contract multiplier, as cost and value are (Q06): an option's long/short split was 100 times
-    // too small, so its two parts did not add up to the gain above them (outside review, 2026-10-04)
-    const gain = lot.shares * (price - lot.cost_per_share) * contractMultiplier(p);
-    const bought = new Date(lot.purchase_date);
-    let longTerm = false;
-    if (!isNaN(bought.getTime())) {
-      // compare CALENDAR DAYS, not instants — a date-only string parses as UTC while `now` is
-      // local, and mixing the two moved the line by a timezone's worth of hours
-      const anniversary = new Date(bought);
-      anniversary.setUTCFullYear(anniversary.getUTCFullYear() + 1);
+    // NO PURCHASE DATE ON RECORD, NO HOLDING PERIOD (2026-10-21; tenet 3): the lot goes in neither part. A missing date was
+    // read as bought on 1 January 1970 (long-term) and a blank or impossible one as short-term — a split nothing supports.
+    const day = purchaseDateOnRecord(lot.purchase_date);
+    let into = part.undated;
+    if (day != null) {
+      // compare CALENDAR DAYS, not instants — the day as written, against today's local day
+      const [y, mo, d] = day.split('-').map(Number);
+      const anniversary = new Date(Date.UTC(y + 1, mo - 1, d));
       // bought on 29 February: the next year has no such day, and the date rolled to 1 March, which
       // put the line one day late. The anniversary is the last day of February (Gemini, 2026-10-05).
-      if (anniversary.getUTCMonth() !== bought.getUTCMonth()) anniversary.setUTCDate(0);
+      if (anniversary.getUTCMonth() !== mo - 1) anniversary.setUTCDate(0);
       const annKey = anniversary.toISOString().slice(0, 10);
-      const p2 = (n: number) => String(n).padStart(2, '0');
-      const nowKey = `${now.getFullYear()}-${p2(now.getMonth() + 1)}-${p2(now.getDate())}`;
-      longTerm = nowKey > annKey;
+      into = nowKey > annKey ? part.long : part.short;
     }
-    if (unknownLot) { if (longTerm) lgKnown = false; else sgKnown = false; continue; }
-    if (longTerm) lg += gain; else sg += gain;
+    // A LOT WITH NO SHARE COUNT makes its part of the split unknown, and the total with it: how much of the holding is
+    // counted cannot be said (tenet 3; tenet 4) (outside review Claude Performance, 2026-10-11)
+    if (unknownFigure(lot.shares)) { into.sharesKnown = false; continue; }
+    into.held += lot.shares;
+    // A LOT WITH NO COST ON RECORD IS LEFT OUT, AND SAID (Q20, 2026-10-20, by his rule for sales, DEC-4643: "$200 gain on
+    // 10 of 15 shares sold; what you paid for the other 5 is not on record"). Its whole part used to be refused, so one
+    // purchase with no price paid hid the gain on every purchase that has one.
+    if (!lotCostOnRecord(lot)) continue;
+    into.counted += lot.shares;
+    // × the contract multiplier, as cost and value are (Q06): an option's long/short split was 100 times
+    // too small, so its two parts did not add up to the gain above them (outside review, 2026-10-04)
+    into.gain += lot.shares * (price - (lot.cost_per_share as number)) * contractMultiplier(p);
   }
-  const longGain = lgKnown ? lg : null, shortGain = sgKnown ? sg : null;
-  return { longGain, shortGain, totalGain: longGain == null || shortGain == null ? null : longGain + shortGain };
+  // a part with shares held but none with a price paid on record has no gain to count: unknown, never $0
+  const gainOf = (x: typeof part.long) => (!x.sharesKnown || (x.held > 0 && x.counted === 0) ? null : x.gain);
+  const sharesKnown = part.long.sharesKnown && part.short.sharesKnown && part.undated.sharesKnown;
+  const counted = part.long.counted + part.short.counted + part.undated.counted;
+  const held = part.long.held + part.short.held + part.undated.held;
+  const totalGain = !sharesKnown || (held > 0 && counted === 0) ? null : part.long.gain + part.short.gain + part.undated.gain;
+  const shares = { countedShares: sharesKnown ? counted : null, heldShares: sharesKnown ? held : null };
+  // AN OPTION ON A BROAD-BASED INDEX: 60% long-term and 40% short-term of the whole gain, however long it was held (IRS
+  // Publication 550, the 60/40 rule; 2026-10-21). It was split by holding period like a share: 2 SPX calls bought 1 July at
+  // $50, now $80, read $6,000 short-term and $0 long-term; the law says $3,600 long-term and $2,400 short-term. The
+  // short-term part is what is left, so the two add up to the total exactly.
+  if (isBroadIndexOption(p)) {
+    const longGain = totalGain == null ? null : (totalGain * SECTION_1256_LONG_TERM_PERCENT) / 100;
+    return { longGain, shortGain: totalGain == null || longGain == null ? null : totalGain - longGain, totalGain, ...shares, split: 'section_1256' };
+  }
+  // with no dated purchase held, how the gain splits is not known: neither part is stated (the line under them gives it)
+  const noneDated = part.long.held === 0 && part.short.held === 0 && part.long.sharesKnown && part.short.sharesKnown
+    && (part.undated.held > 0 || !part.undated.sharesKnown);
+  return {
+    longGain: noneDated ? null : gainOf(part.long),
+    shortGain: noneDated ? null : gainOf(part.short),
+    totalGain,
+    ...shares,
+    ...(part.undated.held > 0 || !part.undated.sharesKnown
+      ? { undated: { gain: gainOf(part.undated), counted: part.undated.counted, held: part.undated.held } } : {}),
+  };
 }
 // capGainsTax was CUT by the founder 2026-08-20 (brief §C, Q12) with the embedded-tax
 // metric: an estimate on an unrealised gain cannot be calculated honestly.
@@ -446,27 +702,27 @@ export function capGains(p: Position, price: number | null | undefined, now: Dat
  * Answers ..... Total return since purchase = gain / cost basis (decimal).
  *
  * Formula .....
- *     basis = cost basis(p)
+ *     basis = paid on record(p).paid
  *     gain = unrealized gain(p, price)
  *     nothing   when price = nothing (or basis = nothing (or basis ≤ 0 (or gain = nothing when missing or zero) when missing or zero) when missing or zero)
  *     the answer = gain ÷ basis
  *
- * Called by ... MK-PF-F-014 buildPerformance
+ * Called by ... MK-NW-O-006 theHolding · MK-PF-F-014 buildPerformance
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
- *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-093 QUIET_PERF · MK-PF-F-014 buildPerformance
- *               MK-NW-O-008 thePerformance
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-080 HOLD
+ *               MK-NW-F-140 LEFT_OUT · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-091 pricedGainOf
+ *               MK-NW-O-006 theHolding · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-007 purchase price and date (per lot)
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-007
  * Changed ..... 2026-08-01 (84a3ba5)
  */
 export function totalROI(p: Position, price: number | null | undefined): number | null {
-  const basis = costBasis(p);
+  const basis = paidOnRecord(p).paid;   // the same purchases the gain counts (2026-10-20)
   const gain = unrealizedGain(p, price);
   if (price == null || basis == null || basis <= 0 || gain == null) return null;
   return gain / basis;
@@ -543,6 +799,11 @@ export function startDateFor(period: Period, now: Date): Date | null {
  */
 export function priceHistoryShortSentence(
   points: { date: string }[] | null | undefined, windowStart: string | null, period: string, today: string,
+  /** THE DAY THE PAGE'S OWN "Since" CHIP NAMES, when the caller has one (2026-10-21, one date for one window): on the account
+   *  page an account with no daily record opens Since ON its first day money moved, so the day before it is not the day
+   *  the chip names — the page read "Since Feb 1, 2024" above "not since Jan 31, 2024". Left out, the day before the window
+   *  opens, as before. */
+  sinceDay?: string | null,
 ): string {
   // ONE SENTENCE, ONE PLACE (his approval, 2026-10-12, DEC-4641: "1, 2 - approved"). A holding whose prices
   // begin after the window opens is still measured from its first price; the sentence the Holding page already
@@ -553,7 +814,7 @@ export function priceHistoryShortSentence(
     '1M': ['1-month', 'a month'], '3M': ['3-month', 'three months'], '6M': ['6-month', 'six months'],
     YTD: ['year-so-far', 'the whole year so far'], '1Y': ['1-year', 'a year'], '2Y': ['2-year', 'two years'],
     // "Since" names the record's first day, the day before the window opens — as its chip does ("Since Jul 19, 2026")
-    SINCE: ['Since', `since ${windowStart ? dateShown(new Date(Date.parse(`${windowStart}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10)) : ''}`],
+    SINCE: ['Since', `since ${sinceDay && /^\d{4}-\d{2}-\d{2}$/.test(sinceDay) ? dateShown(sinceDay) : windowStart ? dateShown(new Date(Date.parse(`${windowStart}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10)) : ''}`],
   };
   const named = NAMED[period];
   if (!named || !windowStart || !/^\d{4}-\d{2}-\d{2}$/.test(today)) return '';
@@ -663,8 +924,9 @@ function dayBefore(d: Date): Date {
  *     the answer = chosen (or pts[0].close when missing)
  *
  * Called by ... MK-PF-F-011 periodReturnSince · MK-PF-F-039 periodReturnParts
+ *               MK-PF-F-055 valueAtClose
  *
- * Reaches ..... 21 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 22 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
@@ -674,7 +936,7 @@ function dayBefore(d: Date): Date {
  *               MK-NW-F-130 notIncludedSentence · MK-PF-F-010 periodReturn
  *               MK-PF-F-039 periodReturnParts · MK-PF-F-011 periodReturnSince
  *               MK-PF-F-038 periodTotalReturn · MK-PF-F-020 portfolioBenchReturn
- *               … and 3 more — the full list is on functions_from_code
+ *               … and 4 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -710,10 +972,10 @@ function closeAsOf(series: PriceSeries | null | undefined, target: Date): number
  *     chosen.close   if chosen
  *     nothing   otherwise
  *
- * Called by ... MK-NW-F-143 gainRowBetween · MK-PF-F-040 returnSincePurchases
+ * Called by ... MK-NW-F-143 gainRowBetween · MK-PF-F-056 purchasePieces
  *               MK-XS-F-175 uid
  *
- * Reaches ..... 62 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 64 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-082 NW · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
@@ -723,7 +985,7 @@ function closeAsOf(series: PriceSeries | null | undefined, target: Date): number
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
  *               MK-PF-F-014 buildPerformance · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               … and 44 more — the full list is on functions_from_code
+ *               … and 46 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -753,19 +1015,19 @@ export function closeOnOrBefore(series: PriceSeries | null | undefined, isoDate:
  *
  * Called by ... MK-NW-F-143 gainRowBetween · MK-PF-F-011 periodReturnSince
  *               MK-PF-F-014 buildPerformance · MK-PF-F-039 periodReturnParts
- *               MK-XS-F-174 recomputeBalances
+ *               MK-PF-F-054 latestCloseLookup
  *
- * Reaches ..... 75 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
- *               MK-NW-F-086 CATS · MK-NW-F-140 LEFT_OUT
- *               MK-NW-F-082 NW · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               MK-NW-F-093 QUIET_PERF · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-144 beforeTheRecordSentence · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PF-F-014 buildPerformance
- *               … and 57 more — the full list is on functions_from_code
+ * Reaches ..... 275 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 257 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -778,6 +1040,38 @@ export function latestClose(series: PriceSeries | null | undefined): number | nu
   const pts = (series?.points ?? []).filter((p) => /^\d{4}-\d{2}-\d{2}/.test(String(p?.date ?? '')));
   if (!pts.length) return null;
   return pts.reduce((a, b) => (String(b.date).slice(0, 10) >= String(a.date).slice(0, 10) ? b : a)).close;
+}
+/** A holding's price today, looked up by its ticker: the latest close in the price history the app holds, nothing when it holds none. The one lookup the amber box is handed on Net worth, Performance and the account page, so a hand-added holding with no price is named on all three or on none (2026-10-21). */
+/* ─ MK-PF-F-054 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * latestCloseLookup
+ *
+ * Answers ..... A holding's price today, looked up by its ticker: the latest close in the price history the app holds, nothing when it holds none.
+ *
+ * Formula .....
+ *     (ticker: string) => latest close(cache.[string(ticker ?? '').trim().to upper case()])
+ *
+ * Called by ... MK-XS-F-174 recomputeBalances
+ *
+ * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 248 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-005 holding price
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-054
+ * Changed ..... not in git yet (—)
+ */
+export function latestCloseLookup(cache: Record<string, PriceSeries> | null | undefined): (ticker: string) => number | null {
+  return (ticker: string) => latestClose(cache?.[String(ticker ?? '').trim().toUpperCase()]);
 }
 /** Price return of a ticker over a period (decimal). null if insufficient data. */
 /* ─ MK-PF-F-010 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
@@ -836,11 +1130,11 @@ export function periodReturn(series: PriceSeries | null | undefined, period: Per
  *
  * Called by ... MK-PF-F-014 buildPerformance
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-PF-F-014 buildPerformance
- *               MK-NW-O-008 thePerformance
+ *               MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -939,11 +1233,11 @@ function periodReturnParts(series: PriceSeries | null | undefined, period: Perio
  *
  * Called by ... MK-PF-F-014 buildPerformance
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-PF-F-014 buildPerformance
- *               MK-NW-O-008 thePerformance
+ *               MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -962,6 +1256,40 @@ export function periodReturnSince(series: PriceSeries | null | undefined, sinceI
   return ((end / start - 1));
 }
 
+/** WHAT A HOLDING WAS WORTH AT THE CLOSE A WINDOW FIGURE IS MEASURED FROM (2026-10-21; DEC-5068, tenet 4): the shares it
+ *  holds × the close on or before that day (its first close where its prices begin later — the close periodReturnSince and
+ *  periodReturnParts divide by) × its multiplier. A day written YYYY-MM-DD is read as periodReturnSince reads it. Unknown
+ *  where no close above $0 is held for it, or the share count is unknown. The one start a holding worth $0 today has. */
+/* ─ MK-PF-F-055 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * valueAtClose
+ *
+ * Answers ..... WHAT A HOLDING WAS WORTH AT THE CLOSE A WINDOW FIGURE IS MEASURED FROM (2026-10-21; DEC-5068, tenet 4): the shares it holds × the close on or before that day (its first close where its prices begin later — the close periodReturnSince and periodReturnParts divide by) × its multiplier.
+ *
+ * Formula .....
+ *     close = close as of(series, typeof from = 'string' ? new date(from) : from)
+ *     the answer:
+ *     nothing   if close = nothing (or not (close > 0) when missing or zero)
+ *     market value(p, close)   otherwise
+ *
+ * Called by ... MK-PF-F-014 buildPerformance
+ *
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-PF-F-014 buildPerformance
+ *               MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-005 holding price
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-055
+ * Changed ..... not in git yet (—)
+ */
+export function valueAtClose(p: Position, series: PriceSeries | null | undefined, from: Date | string): number | null {
+  const close = closeAsOf(series, typeof from === 'string' ? new Date(from) : from);
+  return close == null || !(close > 0) ? null : marketValue(p, close);
+}
+
 /** Earliest dated lot — the day this holding became YOUR money. null when no lot carries a date. */
 /* ─ MK-PF-F-012 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * earliestPurchaseDate
@@ -969,18 +1297,18 @@ export function periodReturnSince(series: PriceSeries | null | undefined, sinceI
  * Answers ..... Earliest dated lot — the day this holding became YOUR money.
  *
  * Formula .....
- *     dates = for each of lots (or none when missing): purchase date where ÷ ^\each{4}-\each{2}-\each{2} ÷ .test(each ?? '')
+ *     dates = for each of lots (or none when missing): purchase date on record(purchase date) where (d): d is string => d ≠ nothing
  *     the answer:
- *     the first 10 of dates.sort()[0]!   if count of dates
+ *     dates.sort()[0]!   if count of dates
  *     nothing   otherwise
  *
  * Called by ... MK-PF-F-014 buildPerformance
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-PF-F-014 buildPerformance
- *               MK-NW-O-008 thePerformance
+ *               MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
@@ -989,8 +1317,10 @@ export function periodReturnSince(series: PriceSeries | null | undefined, sinceI
  * Changed ..... 2026-07-20 (8f9b9f1)
  */
 export function earliestPurchaseDate(p: Position): string | null {
-  const dates = (p.lots ?? []).map((l) => l.purchase_date).filter((d) => /^\d{4}-\d{2}-\d{2}/.test(d ?? ''));
-  return dates.length ? dates.sort()[0]!.slice(0, 10) : null;
+  // the one reading of a purchase date (purchaseDateOnRecord, 2026-10-21): a day that does not exist (31 February) is not on
+  // record here either, as on the gains if sold today
+  const dates = (p.lots ?? []).map((l) => purchaseDateOnRecord(l.purchase_date)).filter((d): d is string => d != null);
+  return dates.length ? dates.sort()[0]! : null;
 }
 
 /** Default benchmark ETF proxy per asset kind — the index we compare a holding against, same period. */
@@ -1028,7 +1358,7 @@ export const BENCHMARK_TICKER: Record<string, string> = {
  *
  * Called by ... MK-PF-F-014 buildPerformance · MK-XS-F-175 uid
  *
- * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 61 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-082 NW · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
@@ -1038,7 +1368,7 @@ export const BENCHMARK_TICKER: Record<string, string> = {
  *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
  *               MK-PF-F-014 buildPerformance · MK-PL-F-053 buildRetirementState
  *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               … and 42 more — the full list is on functions_from_code
+ *               … and 43 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
@@ -1070,7 +1400,7 @@ export interface PerformanceRow {
   position: Position;
   price: number | null;
   marketValue: number | null;     // null: worth something unknown — shares with no price (tenet 3)
-  costBasis: number | null;       // null: a share count or a cost not entered
+  costBasis: number | null;       // what was paid over the purchases whose price paid is on record (paidOnRecord); null: a share count not entered, or no price paid on record
   gain: number | null;
   totalROI: number | null;        // since purchase
   periodReturn: number | null;    // YOUR return over the window (capped at purchase — see cappedSince); a yearly rate over 2Y
@@ -1087,6 +1417,12 @@ export interface PerformanceRow {
    *  window's first day — already inside periodReturn and periodTotal. Null for anything that is not an individual bond
    *  or CD (a fund's distributions are in its adjusted closes, DEC-4644), and where nothing was handed to read. */
   interest?: number | null;
+  /** WHAT THE HOLDING WAS WORTH WHEN ITS WINDOW FIGURE BEGAN (2026-10-21; DEC-5068, tenet 4): the shares it holds × the
+   *  close its window figure is measured from × its multiplier — for a holding bought inside the window, the value its
+   *  return since its purchases is measured from. Its value today ÷ (1 + its window total) is this same figure whenever
+   *  it is worth more than $0; worth $0 today, this is the only way to read it, so the readers that work a window back
+   *  count what it lost instead of leaving it out. A known $0 is $0. Null where that close or share count is unknown. */
+  startValue?: number | null;
 }
 /** Build the per-holding rows for a period from positions + a price-series lookup.
  *  APPROVED 2026-07-19 (invest-v3 FINAL): a holding younger than the period counts from the day
@@ -1121,12 +1457,13 @@ export interface PerformanceRow {
  *     capped = bought ≠ nothing and period start ≠ nothing and (given and lot date = nothing ? bought > period start : bought ≥ period start)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-NW-O-008 thePerformance
+ * Called by ... MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-093 QUIET_PERF · MK-NW-O-008 thePerformance
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-091 pricedGainOf
+ *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -1204,7 +1541,15 @@ export function buildPerformance(
     const mv = marketValue(p, price);
     const from = capped ? bought : short ? isoDay(new Date(Date.parse(`${firstISO!.slice(0, 10)}T12:00:00`) + 86_400_000)) : periodStart;
     const interest = income ? bondInterestInWindow(p, income.transactions ?? [], from, income.accounts ?? []) : null;
-    const prTotal = returnWithInterest(priceTotal, mv, interest);
+    // WHAT IT WAS WORTH WHEN ITS WINDOW FIGURE BEGAN (2026-10-21; DEC-5068, tenet 4): the shares held × the very close its
+    // window figure divides by × its multiplier; bought inside the window, the value its return since its purchases is
+    // measured from. A holding that fell to $0 keeps it, so nothing that works the window back can lose what it lost.
+    const pieces = capped && priceTotal != null ? purchasePieces(p, series, bought!) : null;
+    const startValue = priceTotal == null ? null
+      : capped ? (pieces && pieces.growth > 0 ? marketValue(p, pieces.after / (pieces.growth * pieces.held)) : null)
+      : valueAtClose(p, series, given ? beginISO! : dayBefore(opens!));
+    // worth $0 today, its interest is counted on that start (returnWithInterest, 2026-10-21)
+    const prTotal = returnWithInterest(priceTotal, mv, interest, startValue);
     // over a window longer than a year the figure shown is a yearly rate over the span the prices cover (MK-PF-F-039)
     // (periodReturn's own rule, applied to the total with its interest; a purchase cap or a handed-over first day is
     // never made yearly)
@@ -1212,12 +1557,13 @@ export function buildPerformance(
     const pr = parts && parts.years > 1 && prTotal != null ? Math.pow(1 + prTotal, 1 / parts.years) - 1 : prTotal;
     return {
       position: p, price,
-      marketValue: mv, costBasis: costBasis(p), gain: unrealizedGain(p, price),
+      // what was paid and the gain over the purchases whose price paid is on record — the holding page's Total paid (2026-10-20)
+      marketValue: mv, costBasis: paidOnRecord(p).paid, gain: unrealizedGain(p, price),
       totalROI: totalROI(p, price), periodReturn: pr, periodTotal: prTotal,
       benchTicker, benchReturn, benchTotal,
       beatBy: pr != null && benchReturn != null ? ((pr - benchReturn)) : null,
       cappedSince: capped ? bought : null,
-      interest,
+      interest, startValue,
     };
   });
 }
@@ -1239,13 +1585,14 @@ export function buildPerformance(
  *     false   when TBILL_ETF_TICKERS.has(t)
  *     security id = ÷ ^[0 − 9A − Z]{9}$ ÷ .test(t) and ÷ \d ÷ .test(t)
  *
- * Called by ... MK-PF-F-048 bondInterestInWindow
+ * Called by ... MK-PF-F-048 bondInterestInWindow · MK-XS-F-102 ingestSync
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-PF-F-048 bondInterestInWindow
  *               MK-PF-F-014 buildPerformance · MK-NW-F-143 gainRowBetween
+ *               MK-XS-F-102 ingestSync · MK-NW-F-091 pricedGainOf
  *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -1290,20 +1637,20 @@ export function isIndividualBondOrCD(p: Position | null | undefined): boolean {
  *     rtk = string(ticker ?? '').trim().to upper case()
  *     named = pid ≠ nothing and position id ≠ nothing and string(position id) = pid (or !!rtk and rtk = tk when missing or zero)
  *     unnamed here = !rtk and position id = nothing and home is this bond and string(account id ?? '') = string(home!.asset id)
- *     amt = amount read as a number
+ *     amt = money into account(t)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-143 gainRowBetween · MK-PF-F-014 buildPerformance
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-PF-F-014 buildPerformance
- *               MK-NW-F-143 gainRowBetween · MK-NW-O-008 thePerformance
+ *               MK-NW-F-143 gainRowBetween · MK-NW-F-091 pricedGainOf
+ *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-008 transaction amount
- *               MK-XS-I-009 transaction date
+ * Reads ....... MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
  *
  * Decides .....
@@ -1330,38 +1677,45 @@ export function bondInterestInWindow(p: Position, transactions: any[], fromDay: 
     const named = (pid != null && t.position_id != null && String(t.position_id) === pid) || (!!rtk && rtk === tk);
     const unnamedHere = !rtk && t.position_id == null && homeIsThisBond && String(t.account_id ?? '') === String(home!.asset_id);
     if (!named && !unnamedHere) continue;
-    const amt = Number(t.amount);
-    if (Number.isFinite(amt)) total += amt;
+    // the one rule for a stored amount (moneyIntoAccount, 2026-10-21): a reversed coupon cancels, never adds
+    const amt = moneyIntoAccount(t);
+    if (amt != null) total += amt;
   }
   return total;
 }
 
 /** A RETURN WITH THE INTEREST PAID ADDED (DEC-6212): (1 + the price return) × (1 + interest ÷ value today) − 1. That is
  *  (value today + interest) ÷ value at the start − 1, because value at the start = value today ÷ (1 + price return). The
- *  price return alone where there is no interest, no price return, or no value today to divide by. */
+ *  price return alone where there is no interest, no price return, or no value today to divide by. WORTH $0 TODAY, its
+ *  start handed in (2026-10-21; DEC-5068, tenet 4: a known $0 is $0): (0 + interest) ÷ that start − 1 — a bond that fell
+ *  to $0 after paying $50 on a $1,000 start is −95.00%; its interest was left out and it read −100.00%. */
 /* ─ MK-PF-F-049 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * returnWithInterest
  *
  * Answers ..... A RETURN WITH THE INTEREST PAID ADDED (DEC-6212): (1 + the price return) × (1 + interest ÷ value today) − 1.
  *
  * Formula .....
+ *     interest ÷ start − 1   when price total ≠ nothing and interest and value now = 0 and start ≠ nothing and start > 0
  *     price total   when price total = nothing (or interest is missing (or value now = nothing (or not (value now > 0) when missing or zero) when missing or zero) when missing or zero)
  *     (1 + price total) × (1 + interest ÷ value now) − 1
  *
  * Called by ... MK-NW-F-143 gainRowBetween · MK-PF-F-014 buildPerformance
  *
- * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-PF-F-014 buildPerformance
- *               MK-NW-F-143 gainRowBetween · MK-NW-O-008 thePerformance
+ *               MK-NW-F-143 gainRowBetween · MK-NW-F-091 pricedGainOf
+ *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Formula also on the master file · functions_from_code · MK-PF-F-049
  * Changed ..... not in git yet (—)
  */
-export function returnWithInterest(priceTotal: number | null, valueNow: number | null | undefined, interest: number | null | undefined): number | null {
+export function returnWithInterest(priceTotal: number | null, valueNow: number | null | undefined, interest: number | null | undefined,
+  start?: number | null): number | null {
+  if (priceTotal != null && interest && valueNow === 0 && start != null && start > 0) return interest / start - 1;
   if (priceTotal == null || !interest || valueNow == null || !(valueNow > 0)) return priceTotal;
   return (1 + priceTotal) * (1 + interest / valueNow) - 1;
 }
@@ -1415,11 +1769,45 @@ export function worthWithInterest(r: { marketValue?: number | null; interest?: n
  *
  * Formula .....
  *     nothing   when price = nothing
+ *     k = purchase pieces(p, series, first day)
+ *     the answer:
+ *     nothing   if k = nothing
+ *     growth × (held × price) ÷ after − 1   otherwise
+ *
+ * Called by ... MK-PF-F-014 buildPerformance
+ *
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-PF-F-014 buildPerformance
+ *               MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-040
+ * Changed ..... not in git yet (—)
+ */
+function returnSincePurchases(p: Position, series: PriceSeries | null | undefined, price: number | null, firstDay: string): number | null {
+  if (price == null) return null;
+  const k = purchasePieces(p, series, firstDay);
+  return k == null ? null : k.growth * (k.held * price) / k.after - 1;
+}
+
+/** THE PIECES A HOLDING BOUGHT INSIDE THE WINDOW IS MEASURED IN (DEC-1669) — returnSincePurchases' own steps, kept apart so
+ *  the value its return is measured from can be read when the holding is worth $0 today (2026-10-21, tenet 4): the shares
+ *  held after the last purchase, the money in the last piece when it began, and the growth of the pieces before it. The
+ *  return is growth × shares × today's price ÷ that money − 1; the value it is measured from is shares × (that money ÷
+ *  (growth × shares)) — what was paid, for a holding bought on one day. Unknown as returnSincePurchases is. */
+/* ─ MK-PF-F-056 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * purchasePieces
+ *
+ * Answers ..... THE PIECES A HOLDING BOUGHT INSIDE THE WINDOW IS MEASURED IN (DEC-1669) — returnSincePurchases' own steps, kept apart so the value its return is measured from can be read when the holding is worth $0 today (2026-10-21, tenet 4): the shares held after the last purchase, the money in the last piece when it began, and the growth of the pieces before it.
+ *
+ * Formula .....
  *     by day = new map<string, { shares: number; paid: number }>()
  *     sh = shares as number | nothing | undefined, c = cost per share as number | nothing | undefined
- *     nothing   when sh = nothing (or !number.is finite(sh) (or c = nothing (or !number.is finite(c) when missing or zero) when missing or zero) when missing or zero)
- *     d = the first 10 of purchase date   if ÷ ^\d{4}-\d{2}-\d{2} ÷ .test(purchase date ?? '')
- *     first day   otherwise
+ *     nothing   when sh = nothing (or !number.is finite(sh) (or sh > 0 and !lot cost on record(l) when missing or zero) when missing or zero)
+ *     d = purchase date on record(purchase date) (or first day when missing)
  *     g = by day.get(d) (or shares = 0
  *     paid = 0 when missing)
  *     days = [...by day.keys()], in order
@@ -1427,15 +1815,17 @@ export function worthWithInterest(r: { marketValue?: number | null; interest?: n
  *     held = 0, after = 0, growth = 1
  *     g = by day.get(d)!
  *     close = close on or before(series, d)
+ *     nothing   when close = nothing (or not (after > 0) when missing or zero)
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-PF-F-014 buildPerformance
+ * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-040 returnSincePurchases
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-PF-F-014 buildPerformance
+ *               MK-NW-F-091 pricedGainOf · MK-PF-F-040 returnSincePurchases
  *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -1443,19 +1833,22 @@ export function worthWithInterest(r: { marketValue?: number | null; interest?: n
  *               MK-XS-I-005 holding price
  *               MK-XS-I-007 purchase price and date (per lot)
  *
- * Formula also on the master file · functions_from_code · MK-PF-F-040
+ * Formula also on the master file · functions_from_code · MK-PF-F-056
  * Changed ..... not in git yet (—)
  */
-function returnSincePurchases(p: Position, series: PriceSeries | null | undefined, price: number | null, firstDay: string): number | null {
-  if (price == null) return null;
+function purchasePieces(p: Position, series: PriceSeries | null | undefined, firstDay: string): { held: number; after: number; growth: number } | null {
   const byDay = new Map<string, { shares: number; paid: number }>();
   for (const l of p.lots ?? []) {
     const sh = l?.shares as number | null | undefined, c = l?.cost_per_share as number | null | undefined;
-    if (sh == null || !Number.isFinite(sh) || c == null || !Number.isFinite(c)) return null;
+    // a cost is read ONE way (lotCostOnRecord, 2026-10-21): a stored $0 is not on record, as a missing one is — it was a
+    // purchase that cost nothing, so its piece began at $0
+    if (sh == null || !Number.isFinite(sh) || (sh > 0 && !lotCostOnRecord(l))) return null;
     if (!(sh > 0)) continue;
-    const d = /^\d{4}-\d{2}-\d{2}/.test(l.purchase_date ?? '') ? l.purchase_date.slice(0, 10) : firstDay;
+    // the one reading of a purchase date (purchaseDateOnRecord, 2026-10-21): a day that does not exist (31 February) is not on
+    // record, as a missing one is — it was read by its shape and priced at a close that is not that day's
+    const d = purchaseDateOnRecord(l.purchase_date) ?? firstDay;
     const g = byDay.get(d) ?? { shares: 0, paid: 0 };
-    g.shares += sh; g.paid += sh * c;
+    g.shares += sh; g.paid += sh * (c as number);   // on record: checked above
     byDay.set(d, g);
   }
   const days = [...byDay.keys()].sort();
@@ -1474,7 +1867,7 @@ function returnSincePurchases(p: Position, series: PriceSeries | null | undefine
     held += g.shares;
   }
   if (!(after > 0)) return null;
-  return growth * (held * price) / after - 1;
+  return { held, after, growth };
 }
 
 /** A Date as its local calendar day, YYYY-MM-DD. */
@@ -1489,11 +1882,11 @@ function returnSincePurchases(p: Position, series: PriceSeries | null | undefine
  *
  * Called by ... MK-PF-F-014 buildPerformance
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-PF-F-014 buildPerformance
- *               MK-NW-O-008 thePerformance
+ *               MK-NW-F-091 pricedGainOf · MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1615,11 +2008,11 @@ export function windowTotal(rate: number | null | undefined, total: number | nul
  */
 const windowTotalOfRow = (r: PerformanceRow): number | null => windowTotal(r.periodReturn, r.periodTotal);
 
-/** Each holding that has a window total above −100% and a value today, with its value when the window began. */
+/** Each holding that has a window total, with its value when the window began — a holding worth $0 today counted at the start it was read at (2026-10-21). */
 /* ─ MK-PF-F-044 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * startValues
  *
- * Answers ..... Each holding that has a window total above −100% and a value today, with its value when the window began.
+ * Answers ..... Each holding that has a window total, with its value when the window began — a holding worth $0 today counted at the start it was read at (2026-10-21).
  *
  * Formula .....
  *     out = []
@@ -1633,6 +2026,9 @@ const windowTotalOfRow = (r: PerformanceRow): number | null => windowTotal(r.per
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
+ * Decides .....
+ *     · If start value is missing it uses 0.
+ *
  * Formula also on the master file · functions_from_code · MK-PF-F-044
  * Changed ..... not in git yet (—)
  */
@@ -1640,7 +2036,14 @@ function startValues(rows: PerformanceRow[], retOf: (r: PerformanceRow) => numbe
   const out: { row: PerformanceRow; ret: number; start: number }[] = [];
   for (const r of rows ?? []) {
     const ret = retOf(r);
-    if (ret == null || !(ret > -1) || !((r.marketValue as number) > 0)) continue;
+    if (ret == null) continue;
+    // WORTH $0 TODAY, WORTH SOMETHING WHEN THE WINDOW BEGAN (2026-10-21; tenet 4, DEC-5068): it is in the person's return
+    // with what it lost, so it is in the market's average at that start — a known $0 is $0, never left out. Its start is
+    // the one buildPerformance read (startValue); a row that carries none is still left out, as before.
+    if (!(ret > -1) || !((r.marketValue as number) > 0)) {
+      if ((r.startValue ?? 0) > 0) out.push({ row: r, ret, start: r.startValue as number });
+      continue;
+    }
     // a bond's window total holds its interest, so its start is its value today plus that interest ÷ (1 + total) (DEC-6212)
     out.push({ row: r, ret, start: worthWithInterest(r) / (1 + ret) });
   }

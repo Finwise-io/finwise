@@ -26,7 +26,7 @@ import { trendPoints, buildChangeWalk } from '../domain/history';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { connectionFreshness } from '../services/sync';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording, CASH_GROUP_LABEL, uberGroupRows, type UberGroup, uberGroupOf, asksCashOrInvestments, CASH_OR_INVESTMENTS_ASK, TAX_TYPE_NOT_STATED } from '../domain/assets';
+import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, HELD_IN_CHOICES, sourceWording, CASH_GROUP_LABEL, uberGroupRows, type UberGroup, uberGroupOf, asksCashOrInvestments, CASH_OR_INVESTMENTS_ASK, TAX_TYPE_NOT_STATED } from '../domain/assets';
 import { buildDebtState, debtKind, TOXIC_APR, Debt } from '../domain/debt';
 // ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1 ruled 2026-09-27). This tab and Home each built
 // their own net worth; they read one answer now.
@@ -37,8 +37,7 @@ import { plannedMonthlySpend } from '../domain/budget';
 // at the life you plan to live, so nothing is hidden behind one divisor. Both now carry the debt
 // minimums, which were in neither figure until he asked.
 import { theEmergencyFund } from '../../MoneyKeel/functions/networth-and-performance/emergency-fund';
-import { willItLastInputs } from '../domain/retirement/willItLast';
-import { projectNestEgg } from '../domain/retirement';
+import { useNetWorthInputs } from '../hooks/useNetWorthInputs';   // the family's inputs, built once (MK-NW-F-145, DEC-0345)
 import { KeyboardAwareSheet } from '../components/KeyboardAwareSheet';   // Theme 3: shared keyboard-safe sheet
 import { InfoDot, EmptyNote } from '../components/UI';
 import { ADD_ACCOUNT_DOORS, ADD_ACCOUNT_QUESTION, EMPTY_DOORS } from '../constants/doors';
@@ -53,6 +52,8 @@ import { SourceChip } from '../components/SourceChip';
 import { DebtEditorSheet } from '../components/DebtEditorSheet';   // B47 finding 11: THE one debt editor
 import { isoLocalDate } from '../domain/_shared/dates';
 import { DateField } from '../components/DateField';   // (DEC-4059b, 2026-10-10) bond and CD dates are picked, never typed
+import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bonds';   // the bonds door says what a CD is (MK-NW-O-001)
+import { CD_BOUGHT_QUESTION, CD_BOUGHT_CHOICES, type CdBought } from '../constants/cdBought';   // the one wording (DEC-3837)
 
 // asset class → glossary term, so the By-class group headers carry an in-context "what is this?" dot.
 const CLASS_TO_TERM: Partial<Record<AssetClass, GlossaryTerm>> = {
@@ -187,22 +188,22 @@ export default function NetWorthScreen() {
   }, []);
   useEffect(() => { store.maybeRefreshPrices?.(); }, []);   // keep balances live with the market
   const op = store.onboardingProfile;
-  const uid = store.user?.uid ?? 'local';
-  const assets: AssetAccount[] = store.assetAccounts ?? [];
-  const liabilities: Debt[] = store.liabilities ?? [];
+  // THE FAMILY'S INPUTS, BUILT ONCE (owner, DEC-0345): MK-NW-F-145 netWorthInputs builds what both doors on this screen
+  // are asked about; the screen no longer picks its accounts, debts, expenses and answers out of the store itself.
+  const nwIn = useNetWorthInputs();
+  const uid = nwIn.uid;
+  const assets: AssetAccount[] = nwIn.accounts;
+  const liabilities: Debt[] = nwIn.debts;
   // existing users (accounts already set up, e.g. seeded) skip the intro and go straight to the manager
   const choice = (store.nwSetupChoice as ('guided' | 'self' | null)) ?? ((assets.length || liabilities.length || store.nwSeeded) ? 'self' : null);
-  const worth = useMemo(() => theNetWorth({ uid, accounts: assets, debts: liabilities }),
-    [uid, assets, liabilities]);
+  const worth = useMemo(() => theNetWorth(nwIn), [nwIn]);
   const aState = useMemo(() => buildAssetsState(uid, assets), [assets]);
   const dState = useMemo(() => buildDebtState(uid, liabilities), [liabilities]);
   // emergency-fund runway: cash ÷ monthly expenses
   const cashOnHand = worth.cash;   // the ONE cash figure (Q-NW-1) — Insights shows this same one
   // G21 / Q21 / Q47 (2026-09-08): ONE essentials figure (MK-CF-F-190) — the average of logged expenses
   // over the months logged, labelled "N month average"; the typed plan only when nothing is logged.
-  const emergencyFund = useMemo(() => theEmergencyFund({
-    accounts: assets, expenses: store.expenses ?? [], profile: op, debts: liabilities,
-  }), [assets, store.expenses, op, liabilities]);
+  const emergencyFund = useMemo(() => theEmergencyFund(nwIn), [nwIn]);
   const essentials = { monthly: emergencyFund.essentialsMonthly, label: emergencyFund.essentialsBasis };
   const monthlySpend = emergencyFund.essentialsMonthly;
   const runwayMonths = emergencyFund.monthsCovered;
@@ -231,14 +232,9 @@ export default function NetWorthScreen() {
   // Walk row 8 (v7 FINAL, audit Home·NW #13): the inventory grouping — class is the approved default
   const [nwGrouping, setNwGrouping] = useState<'class' | 'institution' | 'type'>('class');
 
-  // Walk row 7 (v7 FINAL + doc, audit Home·NW #15): the Plan's projection for the path-ahead row.
-  // Number only when the plan is computable AND retirement is still ahead — never an invented figure.
-  const pathAhead = useMemo(() => {
-    const inputs = willItLastInputs({ op, accounts: assets, assumptions: store.retirementAssumptions ?? {}, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus });
-    if (!inputs || inputs.start_balance <= 0 || inputs.retire_age <= inputs.current_age) return null;
-    const egg = Math.round(projectNestEgg(inputs).will_have);
-    return egg > 0 ? { egg, age: inputs.retire_age } : null;
-  }, [op, assets, store.retirementAssumptions, store.inflationRate, store.employmentStatus]);
+  // (2026-10-20) The straight-line "path ahead" projection computed here was printed nowhere since the retirement card
+  // took his verdict sentence (2026-08-04) — and MK-NW-M-015's row described it, not the sentence. It is gone; the card's
+  // sentence is MK-NW-M-015, printed under that identifier below.
 
   // FCC: the Account detail screen's Edit button lands here with ?edit=<id> → open the one editor
   const { edit: editParam } = useLocalSearchParams<{ edit?: string }>();
@@ -249,7 +245,13 @@ export default function NetWorthScreen() {
     router.setParams({ edit: undefined } as any);   // consume the param so back/refocus doesn't reopen
   }, [editParam]);
 
-  const sectionTotals = ASSET_SECTIONS.map((sec) => ({ sec, total: assets.filter((a) => sectionOf(a) === sec).reduce((t, a) => t + (a.balance != null && Number.isFinite(a.balance) ? a.balance : 0), 0) }));   // a missing balance is left out (DEC-3279e)
+  // ONE CONCEPT, ONE FUNCTION (owner, DEC-0343, 2026-09-13): "total assets over all accounts, and over one institution's
+  // accounts, is the same function." Every total of accounts on this screen — WHAT YOU OWN, a section, an institution —
+  // is MK-NW-F-039 buildAssetsState called over that set, so a missing balance ("Value not entered", DEC-3657) is left out
+  // the same way everywhere (DEC-3279e). The sections and the institutions used to be added up here by hand, the
+  // institutions with `balance || 0`. Held by src/screens/__tests__/nw_totals_one_function.test.tsx.
+  const totalOf = (rows: AssetAccount[]) => buildAssetsState(uid, rows).total_asset_value;
+  const institutionOf = (a: AssetAccount) => a.institution?.trim() || 'No institution';
   const alloc = assetAllocation(assets);   // #19: assets grouped by ASSET CLASS (the taxonomy)
   // FOUNDER DECISION 2026-08-11 (audit Q2) — supersedes the pre-48 audit A7 liquidity order:
   // categories read BIGGEST FIRST, in the bar and in the list alike, so the two always tell the
@@ -267,17 +269,19 @@ export default function NetWorthScreen() {
   const displayNames = accountDisplayNames(assets);   // masks only when real digits; twins get " · 1/2"
   // the same accounts, grouped by who holds them — biggest first, so the bar and the list beneath
   // it read in the same order. Colours come from the validated categorical palette.
-  const institutionRows = useMemo(() => {
-    const by = new Map<string, number>();
-    for (const a of assets) {
-      const k = a.institution?.trim() || 'No institution';
-      by.set(k, (by.get(k) ?? 0) + (a.balance || 0));
-    }
-    return [...by.entries()]
-      .filter(([, total]) => total > 0)
-      .sort((x, y) => y[1] - x[1])
-      .map(([label, total], i) => ({ key: label, label, color: ChartPalette[i % ChartPalette.length], total }));
-  }, [assets]);
+  // one grouping by institution, read by the bar and by the list beneath it; each institution's total is the one total function
+  const institutionGroups = useMemo(() => {
+    const by = new Map<string, AssetAccount[]>();
+    for (const a of assets) by.set(institutionOf(a), [...(by.get(institutionOf(a)) ?? []), a]);
+    return [...by.entries()].map(([label, members]) => ({
+      label, members, total: totalOf(members),
+      known: members.filter((a) => a.balance != null && Number.isFinite(a.balance as number)).length,
+    })).sort((x, y) => y.total - x.total);
+  }, [assets, uid]);
+  const institutionRows = useMemo(() => institutionGroups
+    .filter((g) => g.total > 0)
+    .map((g, i) => ({ key: g.label, label: g.label, color: ChartPalette[i % ChartPalette.length], total: g.total })),
+  [institutionGroups]);
   const costliest = dState.highest_rate_debt && dState.highest_rate_debt.interest_rate_apr > TOXIC_APR ? dState.highest_rate_debt : null;
   const totalAssets = aState.total_asset_value;
   // NW-9: the headline insight names the largest asset CLASS (matches the bar), not the account section.
@@ -418,7 +422,7 @@ export default function NetWorthScreen() {
 
   const renderAssetSection = (sec: string) => {
     const rows = assets.filter((a) => sectionOf(a) === sec);
-    const total = rows.reduce((t, a) => t + (a.balance != null && Number.isFinite(a.balance) ? a.balance : 0), 0);   // a missing balance is left out (DEC-3279e)
+    const total = totalOf(rows);   // the one total function over this section's accounts — a missing balance is left out (DEC-0343, DEC-3279e)
     const head = (
       <View style={styles.secHead}>
         <SectionBand light title={`${SECTION_ICON[sec]}  ${secLabel(sec).toUpperCase()}`} value={total > 0 ? fig('MK-NW-M-006', total) : undefined} />
@@ -539,7 +543,8 @@ export default function NetWorthScreen() {
                       <Text style={styles.rowTitle}>{d.label}</Text>
                       {costliest?.debt_id === d.debt_id && <View style={styles.hotPill}><Text style={styles.hotPillTxt}>pay first</Text></View>}
                     </View>
-                    <Text style={[styles.rowSub, hot && { color: Colors.red }]}>{(d.interest_rate_apr * 100).toFixed(2)}% APR · {figPer('MK-NW-M-011', d.minimum_monthly_payment)}</Text>
+                    {/* a payment never entered reads so, never a made-up $0/month (2026-10-21, DEC-3523 tenet 3) */}
+                    <Text style={[styles.rowSub, hot && { color: Colors.red }]}>{(d.interest_rate_apr * 100).toFixed(2)}% APR · {worth.debtPaymentsNotEntered.some((x) => x.id === String(d.debt_id)) ? figWords('MK-NW-M-011', 'payment not entered') : figPer('MK-NW-M-011', d.minimum_monthly_payment)}</Text>
                   </View>
                   <Text style={styles.rowVal}>{fig('MK-NW-M-010', d.remaining_balance)}</Text>
                 </TouchableOpacity>
@@ -552,6 +557,10 @@ export default function NetWorthScreen() {
                 The minimum is still on the door (monthlyDebtMinimum) for debt-to-income, where the
                 obligation is the right figure. */}
             <View style={[styles.row, styles.divider]}><Text style={[styles.rowSub, { flex: 1 }]}>Monthly debt payments</Text><Text style={styles.rowVal}>{figPer('MK-NW-M-012', worth.monthlyDebtPayments)}</Text></View>
+            {/* the sum above leaves out a payment never entered, and says so beside it (2026-10-21, DEC-3523 tenet 3) */}
+            {worth.debtPaymentsNotEntered.length > 0 && (
+              <Text style={styles.rowSub}>{worth.debtPaymentsNotEntered.map((x) => x.label).join(', ')} {plural(worth.debtPaymentsNotEntered.length, 'payment', '·')} not entered, so {worth.debtPaymentsNotEntered.length === 1 ? 'it is' : 'they are'} not included.</Text>
+            )}
           </>)}
       </View>
     </View>
@@ -747,7 +756,7 @@ export default function NetWorthScreen() {
     // asked of the door, with the baseline day this screen has just calculated. The door hands a
     // RATE (0…1); this line has always printed a percentage, so it multiplies once, here.
     const invRate = janPoint
-      ? theNetWorth({ uid, accounts: assets, debts: liabilities, snapshotDays: (store as any).snapshotDays, transactions: store.transactions, since: janPoint.month }).investableChangePct
+      ? theNetWorth({ ...nwIn, since: janPoint.month }).investableChangePct   // the family's inputs, asked from this screen's baseline day (DEC-0345)
       : null;
     const invPct = invRate == null ? null : invRate * 100;
     // Founder wording 2026-08-10: the two halves are NAMED — the dollar move is the change in net
@@ -776,7 +785,9 @@ export default function NetWorthScreen() {
       : null;
     // FINAL mock: the missing-data banner — computed against the SAME window the change line
     // above it reports, so the depth check can never imply older income sits inside the change.
-    const gaps = dataGaps(assets, janPoint?.month ?? null, Date.now(), (store.transactions ?? []) as any, (store.syncFailures ?? []) as any, liabilities as any);   // a debt with no balance is named too (OpenAI final, 2026-10-09, DEC-3279e)
+    // A HAND-ADDED HOLDING WITH NO PRICE TODAY is named here as Performance and the account page name it (2026-10-21):
+    // the box is handed the one price lookup, built with the family's inputs (MK-NW-F-145) — the screen looks up nothing.
+    const gaps = dataGaps(assets, janPoint?.month ?? null, Date.now(), (store.transactions ?? []) as any, (store.syncFailures ?? []) as any, liabilities as any, nwIn.latestCloseOf);   // a debt with no balance is named too (OpenAI final, 2026-10-09, DEC-3279e)
     // FINAL mock State E: tapping the change opens the walk. Built from the SAME window the line
     // reports and the SAME ledger the account pages show — the rows sum to the headline by design.
     const inWindow = (t: any) => !janPoint || String(t.date ?? '').slice(0, 10) >= String(janPoint.month).slice(0, 10);
@@ -890,7 +901,9 @@ export default function NetWorthScreen() {
                   showing the verdict WORD with no number beside it — Home says "78% odds", the Plan
                   hub says "84 in 100". A bare adjective is not a verdict. The number travels with it. */}
               {nwOnCourse
-                ? <Text><Text style={{ fontWeight: '800' }}>{oddsLine(nwLens, nwWil.chance!, nwWil.horizonAge)}</Text> · {nwOnCourse} ›</Text>
+                // MK-NW-M-015 — the sentence is printed under its own identifier (launch check, 2026-10-20: it printed under none)
+                // and the odds in front of it under theirs, MK-XS-M-002 (launch check, 2026-10-20: they printed under none)
+                ? <Text><Text style={{ fontWeight: '800' }}>{figWords('MK-XS-M-002', oddsLine(nwLens, nwWil.chance!, nwWil.horizonAge))}</Text> · {figWords('MK-NW-M-015', nwOnCourse)} ›</Text>
                 : 'See your plan ›'}
             </Text>)}
             <InfoDot term="nestEggMath" />
@@ -919,16 +932,10 @@ export default function NetWorthScreen() {
               first. An institution's row is what it HOLDS — a debt at the same bank never merges into
               it; the Chase Visa stays under DEBTS. Open/closed is remembered per view. */}
           {nwGrouping === 'institution' && (() => {
-            // a bank whose every balance is missing reads 'Value not entered' (DEC-3657), never "$0" (OpenAI final, 2026-10-09, DEC-3279e)
-            const groups = new Map<string, { total: number; known: number; members: AssetAccount[] }>();
-            for (const a of assets) {
-              const k = a.institution?.trim() || 'No institution';
-              const g = groups.get(k) ?? { total: 0, known: 0, members: [] };
-              const has = a.balance != null && Number.isFinite(a.balance as number);
-              g.total += has ? (a.balance as number) : 0; g.known += has ? 1 : 0; g.members.push(a);
-              groups.set(k, g);
-            }
-            return [...groups.entries()].sort((x, y) => y[1].total - x[1].total).map(([label, g]) => {
+            // a bank whose every balance is missing reads 'Value not entered' (DEC-3657), never "$0" (OpenAI final, 2026-10-09, DEC-3279e);
+            // the groups and their totals are the bar's own (institutionGroups: the one total function, DEC-0343)
+            return institutionGroups.map((g) => {
+              const label = g.label;
               const open = openInst[label] !== false;
               const n = g.members.length;
               const count = plural(n, 'account');
@@ -1108,6 +1115,21 @@ export default function NetWorthScreen() {
               {emergencyFund.debtMinimums > 0 && (
                 <Text style={styles.cushionMath}>Both include {figPer('MK-NW-M-047', emergencyFund.debtMinimums)} of debt payments you cannot stop.</Text>
               )}
+              {/* A PAYMENT NEVER ENTERED IS NOT $0 (2026-10-21, DEC-3523 tenet 3): the months above leave that debt out, and the
+                  card names it — the shape of his rent line (DEC-3769, "rent not included. Enter rent to include."), and the
+                  words open that debt's editor */}
+              {emergencyFund.paymentsNotEntered.length > 0 && (() => {
+                const missing = emergencyFund.paymentsNotEntered;
+                const one = missing.length === 1;
+                const names = one ? missing[0].label : `${missing.slice(0, -1).map((m) => m.label).join(', ')} and ${missing[missing.length - 1].label}`;
+                const said = `${names} ${plural(missing.length, 'payment', '·')} not entered, so ${one ? 'it is' : 'they are'} not included. Enter ${one ? 'it' : 'them'} to include.`;
+                return (
+                  <TouchableOpacity accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }} accessibilityLabel={`${said} Opens the debt.`}
+                    onPress={() => { const d = liabilities.find((x: any) => String(x.debt_id) === missing[0].id); if (d) setDebtSheet({ open: true, edit: d }); }}>
+                    <Text style={styles.cushionMath}>{names} {plural(missing.length, 'payment', '·')} not entered, so {one ? 'it is' : 'they are'} not included. <Text style={{ color: Colors.primary, fontWeight: '700' }}>Enter {one ? 'it' : 'them'} to include.</Text></Text>
+                  </TouchableOpacity>
+                );
+              })()}
               {rentArriving > 0 && (
                 <Text style={styles.cushionMath}>Both count {figPer('MK-NW-M-064', rentArriving)} of rent from your property, which keeps arriving if your pay stops.</Text>
               )}
@@ -1194,10 +1216,9 @@ const ADD_ACCT_PICKS = [
   { key: 'retirement' as const, icon: '🏛️', label: 'Retirement (401k / IRA / HSA)' },
   { key: 'brokerage' as const, icon: '🗂️', label: 'Brokerage (taxable, a mix)' },
 ];
-const WRAPPER_OPTS: { key: AddWrapper; label: string }[] = [
-  { key: 'taxable', label: 'Taxable' }, { key: '401k', label: '401(k)' },
-  { key: 'trad_ira', label: 'Trad. IRA' }, { key: 'roth', label: 'Roth IRA' }, { key: 'roth_401k', label: 'Roth 401(k)' }, { key: 'hsa', label: 'HSA' },
-];
+// HELD IN IS THE ONE LIST (DEC-2441, DEC-2484h, 2026-10-20): the six choices every form reads, beside MK-NW-F-010
+// wrapperAccount in the domain. This sheet kept its own copy, which wrote the Traditional IRA as an abbreviation.
+const WRAPPER_OPTS: { key: AddWrapper; label: string }[] = HELD_IN_CHOICES;
 /** The day a maturity picker opens on when no date is chosen yet: January 1, ten years out — the Bonds editor's and Add an account's (DEC-4059b, 2026-10-10). */
 const TEN_YEARS_OUT = () => isoLocalDate(new Date(new Date().getFullYear() + 10, 0, 1));
 const RET_OPTS: { key: AddWrapper; label: string }[] = WRAPPER_OPTS.filter((w) => w.key !== 'taxable');
@@ -1222,12 +1243,22 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
   const [wrapper, setWrapper] = useState<AddWrapper | null>(null);
   const [inside, setInside] = useState<AssetClass | 'mixed'>('mixed');
   const [maturity, setMaturity] = useState(''); const [inst, setInst] = useState(''); const [bal, setBal] = useState('');
+  // WHERE A CD WAS BOUGHT (DEC-3837, 2026-10-10) — asked here as Add an account and the Bonds editor ask it; not
+  // answered = from the bank. This sheet never asked until 2026-10-20, so a CD added here was priced as a bond.
+  const [cdBought, setCdBought] = useState<CdBought>('bank');
+  // A CD'S INTEREST RATE (DEC-3837, 2026-10-10: a bank CD's yield to maturity is its rate) — the box Add an account asks
+  // for a bond or a CD, in its words. This sheet asked none until 2026-10-20, so a CD added here read its yield as not
+  // entered. An empty box is not entered; a typed 0 is 0% (DEC-2748b).
+  const [rate, setRate] = useState('');
 
   useEffect(() => {
     if (!state.open) return;
     setSub(''); setWrapper(null); setMaturity(editing?.maturity_date ?? '');   // (DEC-4036f, 2026-10-10)
+    setCdBought(editing?.cd_bought === 'broker' ? 'broker' : 'bank');   // an edited CD shows its saved answer (DEC-3837)
+    setRate(editing?.coupon_rate != null ? String(Number((editing.coupon_rate * 100).toPrecision(12))) : '');   // and its saved rate
     if (editing) {
-      setStep('edit'); setInst(editing.institution ?? ''); setBal(String(editing.balance));
+      // a balance never entered opens as an empty box, never the word "undefined" read as $0 (DEC-3657)
+      setStep('edit'); setInst(editing.institution ?? ''); setBal(editing.balance != null && Number.isFinite(editing.balance) ? String(editing.balance) : '');
       setInside((editing.asset_class as AssetClass) ?? 'mixed');
     } else {
       // NW-12: a section's "+ Add" jumps straight to that section's form (the cash/retirement forms have a
@@ -1251,6 +1282,11 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
   // other personal property is never asked "What's it invested in?", and its edit saves no class from it.
   const isProperty = !!editing && (editing.tax_bucket === 'PROPERTY'
     || assetClassOf(editing) === 'real_estate' || assetClassOf(editing) === 'personal_property');
+  // the CD question shows for a CD only: picked as CD here, or an edited account the bonds door calls a CD — asked of the
+  // door (MK-NW-O-001), as Add an account and the Bonds editor ask it, so the three forms use one test (DEC-3837)
+  const asksCdBought = (step === 'cash' && sub === 'cd')
+    || (step === 'edit' && !!editing && !isProperty && !!theBonds({ accounts: [editing] }).rows[0]?.isCD);
+  const rateEntered = rate.trim() === '' ? undefined : num(rate) / 100;   // an empty box is not entered (DEC-2748b)
   const save = () => {
     if (needsKind) return;
     let patch: Partial<AssetAccount> = { institution: inst.trim(), balance: v };
@@ -1258,7 +1294,11 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
       // founder rule 2026-08-04: CDs → Bonds & CDs (any maturity) · money market → Stocks/ETFs · cash = cash only
       const cls: AssetClass = sub === 'cd' ? 'bonds' : sub === 'money_market' ? 'stocks_etf' : 'cash';
       // a CD or money market fund picked here is asked no tax type, so it has none — never Taxable (DEC-4036f, 2026-10-10)
-      patch = { ...patch, asset_class: cls, kind: cls === 'bonds' ? 'fixed_income' : sub, tax_bucket: cls === 'cash' ? 'CASH' : undefined, maturity_date: maturity || undefined, label: lbl(assetKind(sub)?.label ?? 'Cash') };
+      // A CD IS SAVED AS A CD (DEC-3837, 2026-10-10). It was saved as kind 'fixed_income' and named by its institution, so
+      // "Chase" was read as a bond, not a CD: priced like one, with a rates-move estimate a bank CD does not have. Its kind
+      // is 'cd' now, and it carries where it was bought.
+      patch = { ...patch, asset_class: cls, kind: sub, tax_bucket: cls === 'cash' ? 'CASH' : undefined, maturity_date: maturity || undefined, label: lbl(assetKind(sub)?.label ?? 'Cash'),
+        ...(sub === 'cd' ? { cd_bought: cdBought, coupon_rate: rateEntered } : {}) };
     } else if (step === 'stocks' || step === 'bonds') {
       const wa = wrapperAccount(wrapper);
       patch = { ...patch, asset_class: step === 'stocks' ? 'stocks_etf' : 'bonds', kind: wa.kind, tax_bucket: wa.tax_bucket, label: lbl(step === 'stocks' ? 'Stocks / Funds' : 'Bonds') };
@@ -1286,12 +1326,19 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
       // THE PERSON PICKED A CLASS: it is marked theirs, so the class sweep never changes it; a maturity
       // date decides the class instead of the pick (outside review OpenAI final, 2026-10-09, DEC-2748h)
       const picked = !byDate && inside !== 'mixed' && inside !== editing.asset_class;
+      // A NEW VALUE IS DATED TODAY (2026-10-20), as Add an account and the account page's Update value date it — the one
+      // date writer, isoLocalDate. This sheet saved a new balance and left the old date, so the account page printed
+      // "Value as of" the old day beside the new value. A save that does not change the value keeps its date; an empty
+      // box keeps the balance as it was. Today's date moves no recorded day back (the store's typedValueDatedBack).
+      const balance = bal.trim() === '' ? editing.balance : v;
+      const dated = balance !== editing.balance ? { value_as_of: isoLocalDate(new Date()) } : {};
       if (isProperty) {   // the question is not on a property's sheet, so nothing from it is saved (DEC-4529, 2026-10-11)
-        store.updateAsset?.(editing.asset_id, { institution: inst.trim(), balance: v });
+        store.updateAsset?.(editing.asset_id, { institution: inst.trim(), balance, ...dated });
         onClose(); return;
       }
       store.updateAsset?.(editing.asset_id, {
-        institution: inst.trim(), balance: v, asset_class: inside === 'mixed' ? undefined : inside,
+        institution: inst.trim(), balance, ...dated, asset_class: inside === 'mixed' ? undefined : inside,
+        ...(asksCdBought ? { cd_bought: cdBought, coupon_rate: rateEntered } : {}),   // (DEC-3837, 2026-10-10)
         ...(picked ? { class_source: 'user' as const } : inside === 'mixed' && editing.asset_class ? { class_source: undefined } : {}),
         ...(byDate ? { maturity_date: maturity.trim(), asset_class: maturityClass(maturity.trim()) } : {}),
       });
@@ -1322,6 +1369,18 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
       <TouchableOpacity key={id} accessibilityRole="button" accessibilityLabel={assetKind(id)?.label ?? id} style={[sh.chip, sub === id && sh.chipOn]} onPress={() => setSub(id)}><Text style={sh.chipTxt}>{assetKind(id)?.label ?? id}</Text></TouchableOpacity>
     ))}</View>
   );
+  // (DEC-3837, 2026-10-10) the one question, in the one wording Add an account and the Bonds editor use — after the CD's
+  // rate, in Add an account's order (the rate, then where it was bought, then when it matures)
+  const cdQuestions = (<>
+    <Text style={sh.lbl}>Interest rate % (optional)</Text>
+    <TextInput style={sh.input} keyboardType="decimal-pad" placeholder="4.5" placeholderTextColor={Colors.textTertiary}
+      value={rate} onChangeText={setRate} accessibilityLabel="Coupon percent" />
+    <Text style={sh.lbl}>{CD_BOUGHT_QUESTION}</Text>
+    <View style={sh.chips}>{CD_BOUGHT_CHOICES.map(({ value, label, spoken }) => (
+      <TouchableOpacity key={value} accessibilityRole="button" accessibilityLabel={spoken} accessibilityState={{ selected: cdBought === value }}
+        style={[sh.chip, cdBought === value && sh.chipOn]} onPress={() => setCdBought(value)}><Text style={sh.chipTxt}>{label}</Text></TouchableOpacity>
+    ))}</View>
+  </>);
   const Wrappers = ({ opts }: { opts: { key: AddWrapper; label: string }[] }) => (
     <View style={sh.chips}>{opts.map((w) => (
       <TouchableOpacity key={w.key} accessibilityRole="button" accessibilityLabel={w.label} style={[sh.chip, wrapper === w.key && sh.chipOn]} onPress={() => setWrapper(w.key)}><Text style={sh.chipTxt}>{w.label}</Text></TouchableOpacity>
@@ -1347,6 +1406,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
           {!editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back" onPress={() => setStep('pick')}><Text style={sh.backLink}>‹ Back</Text></TouchableOpacity>}
           {step === 'cash' && (<>
             <Chips ids={CASH_OPTS} />
+            {asksCdBought && cdQuestions}
             {/* A CD'S MATURITY IS PICKED, NEVER TYPED (DEC-4059b, 2026-10-10) — the date picker Add an account and Bonds use */}
             {sub === 'cd' && (<><Text style={sh.lbl}>Matures (optional)</Text><DateField value={maturity} onChange={setMaturity} label="maturity date" initial={TEN_YEARS_OUT()} minimumDate={new Date(2000, 0, 1)} style={sh.input} /></>)}
           </>)}
@@ -1354,7 +1414,9 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
           {step === 'property' && <Chips ids={PROP_OPTS} />}
           {(step === 'stocks' || step === 'bonds' || step === 'alts') && (<>
             <Text style={sh.clsLabel}>Held in</Text><Wrappers opts={WRAPPER_OPTS} />
-            <Text style={sh.note}>{step === 'bonds' ? 'Enter a total value below — or track each bond (coupon, maturity) on the Bonds screen.' : step === 'stocks' ? 'Enter a total value below — or track specific tickers (shares, cost) on the Stocks / Funds screen.' : 'Enter a total value below — or track each holding on the Alternatives screen. Crypto, PE, hedge funds, commodities, annuities, options.'}</Text>
+            <Text style={sh.note}>{step === 'bonds' ? 'Enter a total value below — or track each bond (coupon, maturity) on the Bonds screen.' : step === 'stocks' ? 'Enter a total value below — or track specific tickers (shares, cost) on the Stocks / Funds screen.' : 'Enter a total value below — or track each holding on the Alternatives screen. Crypto, commodities, annuities, options.'}</Text>
+            {/* the kinds named are the four this sheet offers — private equity and hedge funds are not offered in this phase
+                (DEC-2334, 2026-10-06); this line still named them until 2026-10-20 */}
             {/* NW-16: make the "track specifics" path actionable — route to the holdings detail screen */}
             <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add specific holdings" onPress={() => { onClose(); router.push(step === 'stocks' ? '/performance' : step === 'bonds' ? '/bonds' : '/other-investments'); }}>
               <Text style={sh.specifics}>＋ Add specific holdings instead →</Text>
@@ -1368,6 +1430,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
             ))}</View>
           </>)}
           {step === 'edit' && (<>
+            {asksCdBought && cdQuestions}
             {(editing?.kind === 'cd' || (editing && assetClassOf(editing) === 'bonds') || editing?.maturity_date) && (<>
               {/* PICKED, NEVER TYPED, A FULL DATE (DEC-4059b, 2026-10-10): "Use date picker for date." */}
               <Text style={sh.lbl}>Matures (CDs and dated bonds count under Bonds & CDs)</Text>
@@ -1467,7 +1530,8 @@ const styles = StyleSheet.create({
   // Founder note 4 (2026-08-10): LEFT justified, sharing the ledger's left edge.
   groupPills: { flexDirection: 'row', gap: 8, marginTop: Spacing.sm, marginBottom: Spacing.xs,
     justifyContent: 'flex-start', paddingHorizontal: Spacing.base },
-  groupPill: { borderWidth: 1, borderColor: Colors.border, borderRadius: 999, paddingHorizontal: 14, minHeight: 44, justifyContent: 'center', backgroundColor: Colors.cardBg },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  groupPill: { borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 14, minHeight: 44, justifyContent: 'center', backgroundColor: Colors.cardBg },
   groupPillOn: { backgroundColor: Colors.textPrimary, borderColor: Colors.textPrimary },
   groupPillTxt: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
   groupPillTxtOn: { color: Colors.cardBg },
@@ -1584,7 +1648,8 @@ const sh = StyleSheet.create({
   grip: { width: 38, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
   title: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginBottom: Spacing.sm },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'flex-start' },
-  chip: { paddingHorizontal: 12, paddingVertical: 10, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  chip: { paddingHorizontal: 12, paddingVertical: 10, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipTxt: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
   clsLabel: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, alignSelf: 'flex-start', marginTop: 4, marginBottom: 8 },

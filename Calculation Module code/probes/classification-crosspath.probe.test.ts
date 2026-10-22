@@ -20,44 +20,52 @@ const st = (raw: string, description = '', code = 'cs') =>
   mapPosition({ units: 100, price: 10, symbol: { symbol: { raw_symbol: raw, symbol: raw, description, type: { code } } } } as any)!.assetClass;
 
 describe('THE SAME HOLDING, THREE DOORS', () => {
-  test('they AGREE on the ordinary cases — shares, funds, CDs, crypto', () => {
-    for (const [sym, desc, expected] of [
-      ['VTI', 'VANGUARD TOTAL STOCK MARKET ETF', 'stocks_etf'],
-      ['VMFXX', 'VANGUARD FEDERAL MONEY MARKET FUND', 'stocks_etf'],
-      ['06418AAA1', 'KEYBANK NA 4.00% CD 08/24/26', 'bonds'],
-      ['SGOV', 'ISHARES 0-3 MONTH TREASURY BOND ETF', 'bonds'],
+  // DEC-2159 / his 2026-10-20 words, "always the class broker sends": each door is handed the type the broker sends
+  // (SnapTrade's code; a file's type column), and that type decides. With none sent, the name decides on both.
+  test('they AGREE on the ordinary cases — shares, funds, CDs, a T-bill ETF (DEC-2159 / his 2026-10-20 words: the same broker type, the same class, on both doors)', () => {
+    for (const [sym, desc, code, fileType, expected] of [
+      ['VTI', 'VANGUARD TOTAL STOCK MARKET ETF', 'et', 'ETFs & Closed End Funds', 'stocks_etf'],
+      ['VMFXX', 'VANGUARD FEDERAL MONEY MARKET FUND', 'oef', 'Mutual Funds', 'stocks_etf'],
+      ['06418AAA1', 'KEYBANK NA 4.00% CD 08/24/26', '', '', 'bonds'],                                   // live CDs arrive with no type
+      ['SGOV', 'ISHARES 0-3 MONTH TREASURY BOND ETF', 'et', 'ETFs & Closed End Funds', 'stocks_etf'],  // was bonds by its name
+      ['SGOV', 'ISHARES 0-3 MONTH TREASURY BOND ETF', '', '', 'bonds'],                                 // no type sent: the name decides
     ] as const) {
-      expect(assetClassForSymbol(sym, desc)).toBe(expected);
-      expect(st(sym, desc)).toBe(expected);
+      expect(assetClassForSymbol(sym, desc, fileType || null)).toBe(expected);
+      expect(st(sym, desc, code)).toBe(expected);
     }
   });
 
   // The three DEFECT pins below documented the doors DISAGREEING. B7 (founder brief 2026-08-20)
   // built the ONE classifier both doors now call, so they pin AGREEMENT instead — same holdings,
   // same answers, whichever way the data arrives.
-  test('FIXED BY B7 — a COMMODITY fund is alternatives through BOTH doors', () => {
+  test('FIXED BY B7 — a COMMODITY fund is alternatives through BOTH doors when the broker sends no type; DEC-2159 / his 2026-10-20 words: sent as an ETF it is Stocks / Funds through both', () => {
     expect(assetClassForSymbol('GLD', 'SPDR GOLD SHARES')).toBe('alternatives');
-    expect(st('GLD', 'SPDR GOLD SHARES')).toBe('alternatives');
+    expect(st('GLD', 'SPDR GOLD SHARES', '')).toBe('alternatives');
     expect(assetClassForSymbol('SLV', 'ISHARES SILVER TRUST')).toBe('alternatives');
-    expect(st('SLV', 'ISHARES SILVER TRUST')).toBe('alternatives');
+    expect(st('SLV', 'ISHARES SILVER TRUST', '')).toBe('alternatives');
+    expect(st('GLD', 'SPDR GOLD SHARES', 'et')).toBe('stocks_etf');                                     // was alternatives (DEC-2162)
+    expect(assetClassForSymbol('GLD', 'SPDR GOLD SHARES', 'ETFs & Closed End Funds')).toBe('stocks_etf');
   });
 
-  test('FIXED BY B7 — a CRYPTO fund is alternatives even when the broker tags it an equity', () => {
-    // IBIT arrives with the ordinary equity code 'cs'; name evidence now outranks the tag.
+  test('DEC-2159 / his 2026-10-20 words — a CRYPTO fund the broker sends as an equity or an ETF is Stocks / Funds (was: alternatives, the name outranked the tag); sent as crypto, or with no type, it is alternatives', () => {
     expect(assetClassForSymbol('IBIT', 'ISHARES BITCOIN TRUST')).toBe('alternatives');
-    expect(st('IBIT', 'ISHARES BITCOIN TRUST')).toBe('alternatives');
+    expect(st('IBIT', 'ISHARES BITCOIN TRUST', '')).toBe('alternatives');
+    expect(st('IBIT', 'ISHARES BITCOIN TRUST', 'cs')).toBe('stocks_etf');
+    expect(st('IBIT', 'ISHARES BITCOIN TRUST', 'et')).toBe('stocks_etf');
     expect(st('BTC', 'BITCOIN', 'crypto')).toBe('alternatives');
   });
 
-  test('FIXED BY B7 — an OPTION in a positions row is alternatives through BOTH doors', () => {
+  test('FIXED BY B7 — an OPTION in a positions row with no type sent is alternatives through BOTH doors (DEC-2159 / his 2026-10-20 words: a type the broker sends would decide)', () => {
     expect(assetClassForSymbol('AAPL250117C00220000', '')).toBe('alternatives');
-    expect(st('AAPL250117C00220000', 'AAPL JAN 17 25 CALL 220')).toBe('alternatives');
+    expect(st('AAPL250117C00220000', 'AAPL JAN 17 25 CALL 220', '')).toBe('alternatives');
+    expect(assetClassForSymbol('AAPL250117C00220000', '', 'Option')).toBe('alternatives');
   });
 
-  test('FIXED BY B7 — the CURRENCYSHARES gap is closed (the shortened one-word name, and the seen tickers)', () => {
+  test('FIXED BY B7 — the CURRENCYSHARES gap is closed where the broker sends no type; DEC-2159 / his 2026-10-20 words: sent as an ETF it is Stocks / Funds', () => {
     expect(assetClassForSymbol('FXE', 'INVESCO CURRENCYSHARES EURO TRUST')).toBe('alternatives');
-    expect(st('FXE', 'INVESCO CURRENCYSHARES EURO TRUST')).toBe('alternatives');
+    expect(st('FXE', 'INVESCO CURRENCYSHARES EURO TRUST', '')).toBe('alternatives');
     expect(assetClassForSymbol('FXY', 'INVESCO CURRENCYSHARES JAPANESE YEN')).toBe('alternatives');
+    expect(st('FXE', 'INVESCO CURRENCYSHARES EURO TRUST', 'et')).toBe('stocks_etf');                   // was alternatives
   });
 
   test('the file path protects a MINING STOCK from the commodity rule; the point is it HAS the rule', () => {

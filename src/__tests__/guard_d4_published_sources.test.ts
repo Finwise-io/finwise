@@ -27,6 +27,8 @@ const STATUTORY: [string, string][] = [
   ['UNIFORM_LIFETIME', 'Calculation Module code/engines/rmd.ts'], ['rmdStartAge', 'Calculation Module code/engines/rmd.ts'],
   ['INFLATION_DEFAULT', 'src/domain/retirement/inflation.ts'],
   ['SS_WAGE_BASE', 'MoneyKeel/functions/cashflow/base-pay.ts'], ['MEDICARE_ADDITIONAL_THRESHOLD', 'MoneyKeel/functions/cashflow/base-pay.ts'],
+  // the 60/40 rule for an option on a broad-based index, and the one list of those indexes (IRS Publication 550, 2026-10-21)
+  ['SECTION_1256_INDEX_OPTION_ROOTS', 'src/domain/performance/index.ts'], ['SECTION_1256_LONG_TERM_PERCENT', 'src/domain/performance/index.ts'],
 ];
 
 test('every register entry points at a symbol that exists in the file it names', () => {

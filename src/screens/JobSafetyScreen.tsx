@@ -3,7 +3,7 @@
 // single 34pt hero with its math spelled out in one sentence, honest inputs (no silent $2,500
 // default — the screen ASKS when nothing is logged), and a real action (save the gap as a goal)
 // instead of chatty alerts. Answers persist on tap; there is no Save button to forget.
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
@@ -11,6 +11,8 @@ import { useStore } from '../store/useStore';
 import { useRouter } from 'expo-router';
 // ONE DOOR (MK-NW-O-004 theEmergencyFund, Q-NW-5 ruled 2026-09-27: "Yes.").
 import { theEmergencyFund } from '../../MoneyKeel/functions/networth-and-performance/emergency-fund';
+import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/net-worth';   // Investments, the Net worth figure (MK-XS-M-003)
+import { useNetWorthInputs } from '../hooks/useNetWorthInputs';   // the Net worth family's inputs, built once (MK-NW-F-145, DEC-0345)
 import { Disclaimer } from '../components/Disclaimer';
 import { money } from '../domain/_shared/num';
 import { figPer } from '../components/figure';
@@ -29,7 +31,7 @@ const EXAMPLE_PACE = 300;   // $/month — always LABELED as an example, never p
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 
 export default function JobSafetyScreen() {
-  const { jobRiskLevel, emergencyMonths, setJobRisk, setEmergencyMonths, savings, investments, goals, addGoal } = useStore() as any;
+  const { jobRiskLevel, emergencyMonths, setJobRisk, setEmergencyMonths, goals, addGoal } = useStore() as any;
   // G21 / Q21 / Q47 (2026-09-08): the logged baseline is the average over the months logged (MK-CF-F-189),
   // not this month's spend alone; the label says how many months it stands on.
   // THE DEFECT THIS CLOSES (measured 2026-09-27). This screen read the LOGGED average only, while the
@@ -38,11 +40,10 @@ export default function JobSafetyScreen() {
   // nothing but typed a monthly spend, this screen showed essentials of $0, so the target it set for
   // their emergency fund was $0 and the gap was $0: it told them they needed nothing. The other two
   // screens showed $4,000 for the same person on the same day.
-  const store = useStore() as any;
   const router = useRouter();
-  const emergencyFund = theEmergencyFund({
-    accounts: store.assetAccounts ?? [], expenses: store.expenses ?? [], profile: store.onboardingProfile ?? {}, debts: store.liabilities ?? [],
-  });
+  // THE NET WORTH FAMILY'S INPUTS, BUILT ONCE (owner, DEC-0345): MK-NW-F-145 netWorthInputs — the screen no longer picks them out itself
+  const nwIn = useNetWorthInputs();
+  const emergencyFund = theEmergencyFund(nwIn);
   const monthSpend = emergencyFund.essentialsMonthly;
 
   const [selected, setSelected] = useState<RiskLevel | null>(jobRiskLevel ?? null);
@@ -50,8 +51,12 @@ export default function JobSafetyScreen() {
   const [basis, setBasis] = useState<'savings' | 'all'>('savings');
   const [customExpenses, setCustomExpenses] = useState('');
 
-  const totalSavings = (savings ?? []).reduce((s: number, e: any) => s + e.amount, 0);
-  const totalInvestments = (investments ?? []).reduce((s: number, e: any) => s + e.amount, 0);
+  // WHAT THE SAVINGS ARE (2026-10-21, MK-NW-M-013): the cash the emergency fund counts on Net worth and Stress test — the
+  // same door's figure — and, with investments, Net worth's own Investments line. This screen added up an old savings log
+  // nobody fills any more, so a person with $18,000 in checking read "your savings cover $0" and "$20,820 still needed"
+  // here while Net worth read 5.2 months on the same $18,000.
+  const totalSavings = emergencyFund.cash;
+  const totalInvestments = useMemo(() => theNetWorth(nwIn).investments, [nwIn]);
   // Honest baseline: what the user typed, else what their logs show — never a silent default.
   const ess = num(customExpenses) || monthSpend || 0;
   const available = basis === 'savings' ? totalSavings : totalSavings + totalInvestments;
@@ -59,10 +64,7 @@ export default function JobSafetyScreen() {
   // typed one. It counts the rent from a property that keeps arriving (founder, 2026-10-04: "add it
   // to the cash as losing job does not mean loosing rental income too") — this screen multiplied the
   // month out for itself, so the ruling would have reached Net worth and Stress test and not here.
-  const asked = num(customExpenses) > 0 ? theEmergencyFund({
-    accounts: store.assetAccounts ?? [], expenses: store.expenses ?? [], profile: store.onboardingProfile ?? {}, debts: store.liabilities ?? [],
-    essentialsOverride: num(customExpenses),
-  }) : emergencyFund;
+  const asked = num(customExpenses) > 0 ? theEmergencyFund({ ...nwIn, essentialsOverride: num(customExpenses) }) : emergencyFund;   // the month the person typed
   const rent = asked.rentalIncomeMonthly;
   const target = asked.targetFor(months)?.target ?? 0;
   const gap = Math.max(0, target - available);
@@ -76,7 +78,8 @@ export default function JobSafetyScreen() {
   const saveAsGoal = () => {
     const exists = (goals ?? []).some((g: any) => /emergency/i.test(String(g.label)));
     if (exists) { Alert.alert('Already tracking it', 'Your Emergency fund goal is on the Goals screen.'); return; }
-    addGoal?.({ label: 'Emergency fund', icon: '🛟', target: Math.round(target), saved: Math.round(Math.min(available, target)), duration: String(Math.max(monthsToClose, 1)), color: Colors.primary });
+    // saved exactly as calculated (DEC-0403); both were rounded to the dollar when saved until 2026-10-20
+    addGoal?.({ label: 'Emergency fund', icon: '🛟', target, saved: Math.min(available, target), duration: String(Math.max(monthsToClose, 1)), color: Colors.primary });
     Alert.alert('Saved as a goal', 'Track it on the Goals screen — fund it from any month’s surplus.');
   };
 
@@ -205,7 +208,8 @@ const s = StyleSheet.create({
   askLine: { fontSize: 15, color: Colors.textPrimary, marginTop: 6, lineHeight: 21 },
   input: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 17, color: Colors.textPrimary, marginTop: 8, minHeight: 48, backgroundColor: Colors.cardBg },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
-  chip: { paddingHorizontal: 16, borderRadius: 22, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, minHeight: 44, justifyContent: 'center' },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  chip: { paddingHorizontal: 16, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, minHeight: 44, justifyContent: 'center' },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipTxt: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
   chipTxtOn: { fontWeight: '800', color: Colors.primaryDark },

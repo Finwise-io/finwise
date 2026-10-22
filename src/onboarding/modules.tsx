@@ -378,7 +378,7 @@ export function retirementMonthlyIncome(a: Record<string, any>): number {
   return ['ss', 'pension', 'withdrawals', 'rmd', 'annuities', 'other']
     .reduce((t, k) => t + num(a['ri_' + k]) / (CAD_DIV[a['ri_' + k + '_freq']] ?? 1), 0);
 }
-import { employerMatchMonthly } from '../domain/income/onboarding';
+import { employerMatchMonthly, rentEntryMonthly } from '../domain/income/onboarding';
 import { hasMonthlySalaryTable, salaryCalendarYear, salaryYearFromCells, salaryMonths } from '../domain/income/salary-months';
 import { FilingStatusQuestions } from '../screens/FilingStatusScreen';
 import { incomeFromAccounts } from '../domain/income/from-accounts';
@@ -2211,9 +2211,15 @@ export function rentStepReady(answers: Record<string, any>, properties: any[]): 
   if (!properties.length) return true;
   const ids = new Set(properties.map((a) => String(a.asset_id)));
   return ((answers.rentals ?? []) as any[])
-    .filter((r) => num(r?.income) > 0 || num(r?.expenses) > 0)
+    .filter((r) => rentIn(r) > 0 || rentOut(r) > 0)
     .every((r) => ids.has(String(r?.property_id ?? '')));
 }
+/** A RENT OR RUNNING-COST FIGURE AT SIGN-UP IS READ BY THE ONE STRICT READER (DEC-3768c, 2026-10-10): "about 2k" is not a
+ *  number, so it reads as not entered — never as $2. The step used the lenient reader, which keeps the digits, so a
+ *  pasted "about 2k" showed "Net $2/month" while what is counted (rentalList) read it as nothing. Fixed 2026-10-20:
+ *  the step asks rentEntryMonthly, which reads with the same strict reader rentalList counts with. */
+const rentIn = (r: any): number => rentEntryMonthly(r).income;
+const rentOut = (r: any): number => rentEntryMonthly(r).expenses;
 
 // Rental properties — one editable card each, type toggle on top, summed into net income.
 export function RentalEditor({ ctx }: { ctx: StepCtx }) {
@@ -2233,9 +2239,9 @@ export function RentalEditor({ ctx }: { ctx: StepCtx }) {
   // in Net worth. With no property held yet this step cannot ask — so the sum shown here is the typed one, and says it
   // is not counted yet. With one or more held, the step asks "Which property is it?" right here (DEC-4327, 2026-10-11).
   const named = (r: any) => properties.some((a) => String(a.asset_id) === String(r?.property_id ?? ''));
-  const allNamed = list.filter((r) => num(r.income) > 0 || num(r.expenses) > 0).every(named);
-  const netMonthly = list.reduce((t, r) => t + num(r.income) - num(r.expenses), 0);
-  const count = list.filter((r) => num(r.income) > 0).length;
+  const allNamed = list.filter((r) => rentIn(r) > 0 || rentOut(r) > 0).every(named);
+  const netMonthly = list.reduce((t, r) => t + rentEntryMonthly(r).net, 0);
+  const count = list.filter((r) => rentIn(r) > 0).length;
 
   return (<>
     <Header emoji="🏠" title="Rental property" sub="Income net of what it costs to run." />
@@ -2265,7 +2271,7 @@ export function RentalEditor({ ctx }: { ctx: StepCtx }) {
           </View>
         </View>
         {(r.type ?? 'long') === 'short' && <Text style={s.hint}>Short-term income varies by season — enter a typical month, or your annual total ÷ 12.</Text>}
-        {num(r.income) > 0 && <Text style={s.note2}>Net <Text style={{ fontWeight: '700' }}>{money(num(r.income) - num(r.expenses))}/month{(r.type ?? 'long') === 'short' ? ' avg' : ''}</Text></Text>}
+        {rentIn(r) > 0 && <Text style={s.note2}>Net <Text style={{ fontWeight: '700' }}>{money(rentEntryMonthly(r).net)}/month{(r.type ?? 'long') === 'short' ? ' avg' : ''}</Text></Text>}
         {/* WHICH PROPERTY IS IT? (DEC-4327, 2026-10-11, "1: yes") — the Income screen's question and pick, asked here
             when a property is already held; picking saves property_id on the entry, so the rent counts at once. */}
         {properties.length > 0 && (<>
@@ -2467,7 +2473,8 @@ const s = StyleSheet.create({
   calloutTxt: { fontSize: 15, fontWeight: '700', color: Colors.primaryDark, lineHeight: 20 },
   calloutTxtWarn: { color: Colors.red },
   calloutSub: { fontSize: 13, color: Colors.primaryDark, marginTop: 4, opacity: 0.85 },
-  chip: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  chip: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipTxt: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary },
   chipTxtOn: { color: Colors.primary, fontWeight: '700' },
@@ -2580,7 +2587,7 @@ const s = StyleSheet.create({
   unitToggleTxt: { fontSize: 15, fontWeight: '700', color: Colors.primary },
   addRow: { paddingVertical: 8, marginTop: 2 },
   addAnother: { fontSize: 15, fontWeight: '700', color: Colors.primary, paddingVertical: 8 },
-  cadChip: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 14, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
+  cadChip: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: Radii.md /* DEC-0231: 14 on a 28.5-point chip drew semicircle ends */, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
   cadChipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   cadTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   cadTxtOn: { color: Colors.primaryDark },

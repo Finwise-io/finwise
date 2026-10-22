@@ -32,6 +32,7 @@
 //   · money moved on a day the record holds no value for;
 //   · shares were moved in or out and the record does not say what they were worth that day;
 //   · a deposit or withdrawal has no amount on record;
+//   · interest, a dividend or a coupon on a measured account has no amount on record (2026-10-21);
 //   · the previous evening's value + money added − money taken out is zero or less while that
 //     evening's value is not — nothing to grow from: a value that appeared with nothing there the
 //     evening before and no money added, or more taken out than was there (DEC-0316: refuse when the
@@ -51,6 +52,7 @@
 //   3. CASH EARNS ONLY INTEREST. Every other change in a cash balance is money moving, so it is
 //      counted as money in or out on the day the record first shows it — never as a gain or a loss.
 import { accountValuesOn, type SnapshotDay } from './snapshots';
+import { unnamedActivityOf, moneyIntoAccount } from './ledger';
 
 /** One dated amount on one measured account. Signed: plus is money in, minus is money out. */
 export interface DatedAmount { date: string; accountId: string; amount: number }
@@ -72,6 +74,14 @@ export interface TimeWeightedInput {
    *  money moved, how much is unknown, so the return refuses there (outside review Claude Performance,
    *  2026-10-11, DEC-3523 tenet 3: unknown is not zero). */
   amountMissing?: string[];
+  /** Records on a measured account that the app could not name (2026-10-20, Q15): the institution's own word, the
+   *  day, and the amount it carries. Money may have moved and the record does not say which way, so the return
+   *  refuses there and names the word, never reading it as earned. */
+  unnamed?: UnnamedMovement[];
+  /** Interest, dividends and coupons on a measured account whose amount is not on record (2026-10-21, DEC-3523 tenet 3:
+   *  unknown is not zero). Read as $0, a savings account worth $10,000 then $10,040 read its $40 as money paid in, and
+   *  the return +0.00%. The return refuses across the day and its sentence names the record. */
+  incomeMissing?: IncomeWithoutAmount[];
   /** The day whose close is the beginning, and the last day. */
   start: string;
   end: string;
@@ -83,6 +93,10 @@ export interface TimeWeightedInput {
 export const TIME_WEIGHTED_REFUSALS = [
   'START_NOT_RECORDED', 'END_NOT_RECORDED', 'MOVEMENT_HAS_NO_DATE', 'MOVEMENT_DAY_NOT_RECORDED',
   'SHARES_MOVED', 'MOVEMENT_HAS_NO_AMOUNT', 'NOTHING_TO_GROW_FROM', 'NOTHING_INVESTED',
+  // a record the app could not name sits inside the window (2026-10-20, Q15 — the institution-word rule)
+  'ACTIVITY_NOT_KNOWN',
+  // interest, a dividend or a coupon with no amount on record sits inside the window (2026-10-21, DEC-3523 tenet 3)
+  'INCOME_HAS_NO_AMOUNT',
 ] as const;
 export type TimeWeightedRefusal = typeof TIME_WEIGHTED_REFUSALS[number];
 
@@ -99,7 +113,18 @@ export interface TimeWeightedVerdict {
    *  value plus the money added; absent where a value appeared with nothing there and no money added —
    *  so the sentence can say which (outside review Claude Performance, 2026-10-11; DEC-4439). */
   moreTakenOutThanThere?: boolean;
+  /** ACTIVITY_NOT_KNOWN only: the institution's own word for the record (empty when it sent none), and the amount it
+   *  carries (null when it carries shares and no amount) — so the sentence can name what the person is to label. */
+  word?: string;
+  amount?: number | null;
+  /** INCOME_HAS_NO_AMOUNT only: which kind of record it is — INTEREST, DIVIDEND or COUPON — so the sentence names it. */
+  kind?: IncomeWithoutAmount['kind'];
 }
+
+/** A record on a measured account the app could not name: where it is, the institution's word, and its amount. */
+export interface UnnamedMovement { date: string; accountId: string; word: string; amount: number | null }
+/** Interest, a dividend or a coupon on a measured account whose amount is not on record: where it is, and its kind. */
+export interface IncomeWithoutAmount { date: string; accountId: string; kind: 'INTEREST' | 'DIVIDEND' | 'COUPON' }
 
 /** Whether a value is a calendar day written as year-month-day. */
 /* ─ MK-ST-F-080 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
@@ -165,6 +190,7 @@ const SAME = 0.005;
  *               MK-NW-O-008 thePerformance
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Decides .....
  *     · Uses a built-in total of 0.
@@ -223,6 +249,21 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
   // Performance, 2026-10-11, DEC-3523 tenet 3) — never read as a $0 movement
   const noAmount = (a.amountMissing ?? []).filter((d) => d > begin!.date && d <= a.end).sort()[0];
   if (noAmount) return refuse('MOVEMENT_HAS_NO_AMOUNT', noAmount);
+  // INTEREST, A DIVIDEND OR A COUPON WITH NO AMOUNT ON RECORD (2026-10-21, DEC-3523 tenet 3: unknown is not zero). On a
+  // cash account only interest is earned (rule 3), so its amount is what splits the day's change into earned and moved:
+  // read as $0, savings worth $10,000 then $10,040 read the $40 as money paid in and the return +0.00%. On a linked
+  // account the days before are rebuilt by undoing each record, and a record of unknown size cannot be undone. On every
+  // account the walk's Interest or Dividends line leaves it out. So the return refuses across that day, on every
+  // measured account, and the sentence names the record.
+  const noIncome = (a.incomeMissing ?? []).filter((x) => ids.has(x.accountId) && x.date > begin!.date && x.date <= a.end)
+    .sort((x, y) => x.date.localeCompare(y.date))[0];
+  if (noIncome) return { ...refuse('INCOME_HAS_NO_AMOUNT', noIncome.date), kind: noIncome.kind };
+  // A RECORD THE APP COULD NOT NAME (2026-10-20, Q15). It is counted in no total, but the broker's balance moved by
+  // it, so the link across its day would read that money as earned. The return refuses there and names the word.
+  // A cash account is left out: every change in cash is already money moving (rule 3), never a gain.
+  const unnamed = (a.unnamed ?? []).filter((u) => ids.has(u.accountId) && !cash.has(u.accountId) && u.date > begin!.date && u.date <= a.end)
+    .sort((x, y) => x.date.localeCompare(y.date))[0];
+  if (unnamed) return { ...refuse('ACTIVITY_NOT_KNOWN', unnamed.date), word: unnamed.word, amount: unnamed.amount };
 
   let prev = begin;
   let growth = 1;
@@ -279,56 +320,70 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
  *
  * Formula .....
  *     flows = [], interest: dated amount[] = [], shares moved: string[] = [], amount missing: string[] = []
+ *     unnamed = []
+ *     income missing = []
  *     date = the first 10 of string(date ?? '')
  *     acc = string(account id)   if account id ≠ nothing
  *     ''   otherwise
  *     other = string(counter account id)   if counter account id ≠ nothing
  *     ''   otherwise
  *     amount = amount read as a number (or 0 when missing or zero)
- *     no amount = amount = nothing (or amount = '' (or !number.is finite(number(amount)) when missing or zero) when missing or zero)
- *     the answer:
- *     flows = flows
- *     interest = interest
- *     shares moved = shares moved
- *     ...(amount missing.length ? { amount missing } : {}) = ...(amount missing.length ? { amount missing } : {})
+ *     moved = money into account(t)
+ *     no amount = moved = nothing
  *
  * Called by ... MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
+ *               MK-ST-F-012 toLedgerRow
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 62 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-082 NW · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               MK-NW-F-093 QUIET_PERF · MK-NW-O-003 theNetWorth
- *               MK-NW-O-008 thePerformance
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               … and 44 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
- *               MK-XS-I-008 transaction amount
  *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Formula also on the master file · functions_from_code · MK-ST-F-082
  * Changed ..... not in git yet (—)
  */
-export function movementsOf(transactions: any[], ids: Set<string>): { flows: DatedAmount[]; interest: DatedAmount[]; sharesMoved: string[]; amountMissing?: string[] } {
+export function movementsOf(transactions: any[], ids: Set<string>): { flows: DatedAmount[]; interest: DatedAmount[]; sharesMoved: string[]; amountMissing?: string[]; unnamed?: UnnamedMovement[]; incomeMissing?: IncomeWithoutAmount[] } {
   const flows: DatedAmount[] = [], interest: DatedAmount[] = [], sharesMoved: string[] = [], amountMissing: string[] = [];
+  const unnamed: UnnamedMovement[] = [];
+  const incomeMissing: IncomeWithoutAmount[] = [];
   for (const t of transactions ?? []) {
     const date = String(t?.date ?? '').slice(0, 10);
     const acc = t?.account_id != null ? String(t.account_id) : '';
     const other = t?.counter_account_id != null ? String(t.counter_account_id) : '';
     const amount = Number(t?.amount) || 0;
+    // THE MONEY THIS RECORD MOVED INTO ITS ACCOUNT, read by the one rule for a stored amount (moneyIntoAccount,
+    // ledger.ts, 2026-10-21): its direction where the record states one, else its kind's own way. A broker's −$500
+    // "deposit" — a reversal — is stored as $500 with direction OUT and is −$500 here; before 2026-10-21 its direction
+    // was dropped at the sync and the return read $500 coming in. Null: the amount is not on record.
+    const moved = moneyIntoAccount(t);
     // A MOVEMENT WITH NO AMOUNT IS UNKNOWN, NOT $0 (outside review Claude Performance, 2026-10-11, DEC-3523
     // tenet 3): as $0 the return counted the deposit as growth. Its day is named and the return refuses there.
-    const noAmount = t?.amount == null || t.amount === '' || !Number.isFinite(Number(t.amount));
+    const noAmount = moved == null;
     switch (t?.type) {
-      case 'DEPOSIT': if (ids.has(acc)) { if (noAmount) amountMissing.push(date); else flows.push({ date, accountId: acc, amount }); } break;
-      case 'WITHDRAWAL': if (ids.has(acc)) { if (noAmount) amountMissing.push(date); else flows.push({ date, accountId: acc, amount: -amount }); } break;
+      case 'DEPOSIT': case 'WITHDRAWAL': if (ids.has(acc)) { if (noAmount) amountMissing.push(date); else flows.push({ date, accountId: acc, amount: moved }); } break;
       // cash between accounts: it leaves the first and arrives in the second, the way the balances are kept
       case 'TRANSFER':
         // with no amount, a transfer between two measured accounts still nets to nothing; one that crosses
         // the edge of the measured accounts moved an unknown sum
         if (noAmount) { if (ids.has(acc) !== ids.has(other)) amountMissing.push(date); break; }
-        if (ids.has(acc)) flows.push({ date, accountId: acc, amount: -amount });
-        if (ids.has(other)) flows.push({ date, accountId: other, amount });
+        // A BROKER'S ONE-SIDED TRANSFER — a journal — names one account and says which way the money went (written
+        // since 2026-10-20). It was read as leaving that account whatever its sign, so $500 journalled IN read as
+        // $500 out and the return counted $1,000 as earned. The one rule reads that direction; a transfer naming no
+        // direction leaves the first account and arrives in the second.
+        if (ids.has(acc)) flows.push({ date, accountId: acc, amount: moved });
+        if (other && ids.has(other)) flows.push({ date, accountId: other, amount: -moved });
         break;
       // SHARES MOVED. Between two measured accounts nothing arrived or left. Across the edge of the
       // measured accounts they are money in or out AT WHAT THEY WERE WORTH — when the record says
@@ -346,12 +401,25 @@ export function movementsOf(transactions: any[], ids: Set<string>): { flows: Dat
         else sharesMoved.push(date);
         break;
       }
-      case 'INTEREST':
-        if (ids.has(acc) && !t.reinvested) interest.push({ date, accountId: acc, amount });
+      // INTEREST, A DIVIDEND OR A COUPON WITH NO AMOUNT ON RECORD is unknown, never $0 (2026-10-21, DEC-3523 tenet 3): it is
+      // listed with its day and kind, and the return refuses across that day. With an amount, interest credited to the
+      // account is what a cash account earns (rule 3); a dividend or coupon is inside the account's value.
+      case 'INTEREST': case 'DIVIDEND': case 'COUPON':
+        if (!ids.has(acc)) break;
+        if (noAmount) { incomeMissing.push({ date, accountId: acc, kind: t.type }); break; }
+        if (t.type === 'INTEREST' && !t.reinvested) interest.push({ date, accountId: acc, amount: moved });
         break;
+      // a record the app could not name (2026-10-20, Q15): its day is named and the return refuses there
+      case 'ADJUSTMENT': {
+        const u = unnamedActivityOf(t);
+        if (u && ids.has(acc)) unnamed.push({ date, accountId: acc, word: u.word, amount: u.amount });
+        break;
+      }
       default: break;
     }
   }
-  // the days with no amount are named only when there are some, so a record with none reads as it always did
-  return { flows, interest, sharesMoved, ...(amountMissing.length ? { amountMissing } : {}) };
+  // the days with no amount, and the records not named, are listed only when there are some, so a record with none
+  // reads as it always did
+  return { flows, interest, sharesMoved, ...(amountMissing.length ? { amountMissing } : {}), ...(unnamed.length ? { unnamed } : {}),
+    ...(incomeMissing.length ? { incomeMissing } : {}) };
 }

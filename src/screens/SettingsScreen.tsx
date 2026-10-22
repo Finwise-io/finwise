@@ -375,7 +375,7 @@ export default function SettingsScreen() {
                 const active = resolveLens(onboardingProfile, lensOverride) === v;
                 return (
                   <TouchableOpacity accessibilityRole="button" key={v} onPress={() => setLensOverride?.(v)}
-                    style={{ paddingVertical: 8, paddingHorizontal: 14, borderRadius: 18, backgroundColor: active ? Colors.primary : Colors.bgSecondary, borderWidth: 1, borderColor: active ? Colors.primary : Colors.border }}
+                    style={{ paddingVertical: 8, paddingHorizontal: 14, borderRadius: Radii.md /* DEC-0231: rounded corners, not semicircle ends */, backgroundColor: active ? Colors.primary : Colors.bgSecondary, borderWidth: 1, borderColor: active ? Colors.primary : Colors.border }}
                     accessibilityLabel={label}
                     accessibilityState={{ selected: active }}
                     accessibilityHint="Sets up your Home and tab order">
@@ -717,7 +717,7 @@ const styles = StyleSheet.create({
   delShow: { paddingVertical: 10, paddingLeft: 12, minHeight: 44, justifyContent: 'center' },
   delShowTxt: { color: Colors.primary, fontWeight: '700', fontSize: Typography.sizes.sm },
   delRow: { flexDirection: 'row', gap: Spacing.sm },
-  delBtn: { flex: 1, minHeight: 44, borderRadius: Radii.pill, alignItems: 'center', justifyContent: 'center', paddingVertical: 12 },
+  delBtn: { flex: 1, minHeight: 44, borderRadius: Radii.md /* DEC-0231: rounded corners, not semicircle ends */, alignItems: 'center', justifyContent: 'center', paddingVertical: 12 },
   delCancel: { backgroundColor: Colors.bgSecondary, borderWidth: 0.5, borderColor: Colors.borderStrong },
   delCancelTxt: { color: Colors.textPrimary, fontWeight: '700', fontSize: Typography.sizes.md },
   delConfirm: { backgroundColor: Colors.red },
@@ -744,7 +744,8 @@ const styles = StyleSheet.create({
   modalSave: { fontSize: Typography.sizes.base, fontWeight: '700', color: Colors.primary },
   inputLabel: { fontSize: Typography.sizes.base, fontWeight: '500', color: Colors.textPrimary, marginBottom: 6 },
   input: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, borderWidth: 0.5, borderColor: Colors.border, paddingHorizontal: Spacing.md, paddingVertical: 13, fontSize: Typography.sizes.md, color: Colors.textPrimary },
-  typeBtn: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: Radii.pill, backgroundColor: Colors.bgSecondary, borderWidth: 0.5, borderColor: Colors.border },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  typeBtn: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: Radii.md, backgroundColor: Colors.bgSecondary, borderWidth: 0.5, borderColor: Colors.border },
   typeBtnOn: { backgroundColor: Colors.primaryLight, borderColor: Colors.primaryMid },
   typeBtnText: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, fontWeight: '500' },
   typeBtnTextOn: { color: Colors.primaryDeep, fontWeight: '600' },

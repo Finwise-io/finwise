@@ -16,10 +16,11 @@ import { CONSENT_COPY } from '../services/sync';
 import { snaptradeApi } from '../services/sync/snaptradeClient';
 import { runSnapTradeSync } from '../services/sync/snaptradeSync';
 import { BROKER_COVERAGE, UNSUPPORTED_INSTITUTIONS, UNSUPPORTED_FALLBACK, COVERAGE_AS_OF, type BrokerCoverage } from '../constants/brokerCoverage';
+import { HELD_IN_CHOICES, wrapperAccount } from '../domain/assets';
 
-const WRAPPER_CHOICES = [
-  ['brokerage', 'TAXABLE', 'Taxable'], ['401k', 'PRE_TAX', '401(k)'], ['trad_ira', 'PRE_TAX', 'Traditional IRA'], ['roth_ira', 'ROTH', 'Roth'],
-] as const;
+// THE WRAPPER QUESTION READS THE ONE LIST (DEC-2441, DEC-2484h, 2026-10-20): the six choices every form that asks how an account
+// is taxed offers, saved as a kind and a tax bucket by MK-NW-F-010 wrapperAccount. This step kept its own four, which called a
+// Roth IRA "Roth" and had no Roth 401(k) or HSA — so a linked Roth 401(k) or HSA could not be answered truthfully here.
 
 export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string }) {
   const router = useRouter();
@@ -212,10 +213,10 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
         <View key={a.asset_id} style={s.card}>
           <Text style={s.rowTxt}>{a.label} {a.mask ?? ''}</Text>
           <View style={s.chipRow}>
-            {WRAPPER_CHOICES.map(([kind, bucket, label]) => (
-              <TouchableOpacity accessibilityRole="radio" accessibilityState={{ selected: false }} key={kind}
+            {HELD_IN_CHOICES.map(({ key, label }) => (
+              <TouchableOpacity accessibilityRole="radio" accessibilityState={{ selected: false }} key={key}
                 style={s.chip} accessibilityLabel={`${a.label} is a ${label} account`}
-                onPress={() => store.confirmAccountWrapper?.(a.asset_id, kind, bucket)}>
+                onPress={() => { const w = wrapperAccount(key); store.confirmAccountWrapper?.(a.asset_id, w.kind, w.tax_bucket); }}>
                 <Text style={s.chipTxt}>{label}</Text>
               </TouchableOpacity>
             ))}
@@ -244,6 +245,7 @@ const s = StyleSheet.create({
   quietBtn: { minHeight: 44, justifyContent: 'center', alignItems: 'center', marginTop: 4 },
   quietTxt: { fontSize: 15, fontWeight: '700', color: Colors.primary },
   chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
-  chip: { paddingHorizontal: 14, borderRadius: 22, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, minHeight: 44, justifyContent: 'center' },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  chip: { paddingHorizontal: 14, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, minHeight: 44, justifyContent: 'center' },
   chipTxt: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
 });

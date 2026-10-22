@@ -12,6 +12,7 @@ import { useRouter } from 'expo-router';
 // ONE DOOR (MK-NW-O-004 theEmergencyFund, Q-NW-5 ruled 2026-09-27: "Yes."). The emergency fund on Net
 // worth, Job safety and this screen ask one question under three names; they read one answer now.
 import { theEmergencyFund } from '../../MoneyKeel/functions/networth-and-performance/emergency-fund';
+import { useNetWorthInputs } from '../hooks/useNetWorthInputs';   // the Net worth family's inputs, built once (MK-NW-F-145, DEC-0345)
 import { Disclaimer } from '../components/Disclaimer';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -26,15 +27,15 @@ export default function StressTestScreen() {
   const store = useStore() as any;
   const router = useRouter();
   const op = store.onboardingProfile ?? {};
-  const accounts = store.assetAccounts ?? [];
-  const cashGuess = theEmergencyFund({ accounts, expenses: store.expenses ?? [], profile: op, debts: store.liabilities ?? [] }).cash;
+  // THE NET WORTH FAMILY'S INPUTS, BUILT ONCE (owner, DEC-0345): MK-NW-F-145 netWorthInputs — the screen no longer picks them out itself
+  const nwIn = useNetWorthInputs();
+  const cashGuess = theEmergencyFund(nwIn).cash;
 
   const [cashStr, setCashStr] = useState(cashGuess > 0 ? String(Math.round(cashGuess)) : '');
   const [shockStr, setShockStr] = useState('3000');
   const cash = num(cashStr), shock = num(shockStr);
   // G21 / Q21 / Q47 (2026-09-08): ONE essentials figure (MK-CF-F-190) — logged average first, typed categories only when nothing is logged
-  const answer = useMemo(() => theEmergencyFund({ accounts, expenses: store.expenses ?? [], profile: op, debts: store.liabilities ?? [], cashOverride: cash }),
-    [accounts, store.expenses, op, cash]);
+  const answer = useMemo(() => theEmergencyFund({ ...nwIn, cashOverride: cash }), [nwIn, cash]);   // the cash the person is trying
   const ess = answer.essentialsMonthly;
   const essLabel = answer.essentialsBasis;
   const hit = answer.afterAShock(shock);
@@ -138,7 +139,8 @@ const styles = StyleSheet.create({
   fieldL: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, marginBottom: 5, marginTop: 8 },
   input: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 17, color: Colors.textPrimary },
   presets: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
-  preset: { paddingHorizontal: 14, borderRadius: 22, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, minHeight: 44, justifyContent: 'center' },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  preset: { paddingHorizontal: 14, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, minHeight: 44, justifyContent: 'center' },
   presetOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   presetTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   presetTxtOn: { color: Colors.primaryDark },

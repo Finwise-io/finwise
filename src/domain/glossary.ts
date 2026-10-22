@@ -47,8 +47,10 @@ export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   emergencyFund:{ title: 'Emergency fund', body: 'Cash set aside for the unexpected — a common target is 3–6 months of your essential expenses.' },
   cash:         { title: 'Cash', body: 'Cash held in checking, savings, or a brokerage sweep — cash only. Money-market funds and CDs pay dividends or interest, so they count under Stocks / Funds and Bonds & CDs, where their earnings are measured.' },
   stocks:       { title: 'Stocks / Funds', body: 'Shares of companies, or funds — ETFs and mutual funds — that bundle many stocks together. Higher long-term growth, with more ups and downs along the way.' },
-  bonds:        { title: 'Bonds', body: 'Loans to a government or company that pay you interest (a coupon) and return the face value at maturity. Steadier than stocks; you can also sell them before maturity.' },
-  alternatives: { title: 'Alternatives', body: 'Investments outside plain stocks and bonds — crypto, private equity, commodities, options. Often higher risk and harder to value.' },
+  // the class's one name (ASSET_CLASS_LABEL), and the T-bill question answered on the page (DEC-0449, 2026-06-30)
+  bonds:        { title: 'Bonds & CDs', body: 'Loans to a government or company that pay you interest (a coupon) and return the face value at maturity. Steadier than stocks; you can also sell them before maturity. Treasury bills and CDs (certificates of deposit) count here too, however soon they mature.' },
+  // only the kinds the app captures (ALT_KINDS_CAPTURE) — private equity and hedge funds came out of the first phase (DEC-0045, 2026-08-04)
+  alternatives: { title: 'Alternatives', body: 'Investments outside plain stocks and bonds — crypto, gold and other commodities, annuities, options. Often higher risk and harder to value.' },
   realEstate:   { title: 'Real estate', body: 'Property you own — your home, rentals, or land. Counts toward net worth; your primary home is left out of the retirement nest egg.' },
   personalProperty: { title: 'Personal property', body: 'Valuable things you own — vehicles, jewelry, collectibles. Counted in net worth, but not in investable assets.' },
   grossIncome:  { title: 'Gross income', body: 'Your total pay before any taxes or deductions. Take-home is the surplus after tax and your 401(k).' },

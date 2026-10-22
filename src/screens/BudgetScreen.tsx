@@ -1114,9 +1114,10 @@ const styles = StyleSheet.create({
   undoBar: { position: 'absolute', left: Spacing.base, right: Spacing.base, bottom: 74, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: Colors.textPrimary, borderRadius: Radii.lg, paddingHorizontal: Spacing.md, paddingVertical: 12 },
   undoTxt: { flex: 1, color: Colors.white, fontSize: Typography.sizes.sm, fontWeight: Typography.weights.medium },
   undoAction: { color: Colors.primaryMid, fontSize: Typography.sizes.base, fontWeight: Typography.weights.bold, paddingLeft: Spacing.md },
-  fab: { position: 'absolute', right: Spacing.base, bottom: 18, backgroundColor: Colors.primary, borderRadius: 24, paddingHorizontal: 20, paddingVertical: 13, shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } },
+  fab: { position: 'absolute', right: Spacing.base, bottom: 18, backgroundColor: Colors.primary, borderRadius: Radii.md /* DEC-0231: rounded corners, not semicircle ends */, paddingHorizontal: 20, paddingVertical: 13, shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } },
   fabTxt: { color: Colors.white, fontSize: Typography.sizes.base, fontWeight: Typography.weights.bold },
-  txCatChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: Colors.bgSecondary, borderRadius: Radii.pill, paddingHorizontal: 13, borderWidth: 1, borderColor: Colors.border, minHeight: 44 },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  txCatChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, paddingHorizontal: 13, borderWidth: 1, borderColor: Colors.border, minHeight: 44 },
   txCatChipOn: { backgroundColor: Colors.primaryLight, borderColor: Colors.primary },
   txCatChipT: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, fontWeight: Typography.weights.medium },
   txCatChipTOn: { color: Colors.primaryDeep, fontWeight: Typography.weights.bold },
@@ -1138,7 +1139,8 @@ const styles = StyleSheet.create({
 
   // Filter
   filterRow: { flexDirection: 'row', paddingHorizontal: Spacing.base, gap: Spacing.sm, marginBottom: Spacing.xs },
-  filterBtn: { paddingHorizontal: 16, borderRadius: Radii.pill, backgroundColor: Colors.bgSecondary, borderWidth: 0.5, borderColor: Colors.border, minHeight: 44, justifyContent: 'center' },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  filterBtn: { paddingHorizontal: 16, borderRadius: Radii.md, backgroundColor: Colors.bgSecondary, borderWidth: 0.5, borderColor: Colors.border, minHeight: 44, justifyContent: 'center' },
   filterBtnOn: { backgroundColor: Colors.primaryLight, borderColor: Colors.primaryMid },
   filterText: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, fontWeight: Typography.weights.medium },
   filterTextOn: { color: Colors.primaryDeep },

@@ -32,7 +32,9 @@ test('no silent default: with nothing logged the screen ASKS for essential expen
 });
 
 test('the gap is the hero with its math in one sentence; months persist on tap', () => {
-  useStore.setState({ savings: [{ id: 's1', amount: 8400, date: '2026-07-01' }] } as any);
+  // the savings are the cash in the accounts, as the emergency fund counts it on Net worth (2026-10-21, MK-NW-M-013): this
+  // set an old savings log the screen read until then, which a person with $8,400 in checking never fills
+  useStore.setState({ assetAccounts: [{ asset_id: 'c1', label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 8400, asset_class: 'cash' }] } as any);
   render(<JobSafetyScreen />);
   fireEvent.changeText(screen.getByLabelText('Essential monthly expenses'), '2800');
   // 6 months default: target 16,800 − 8,400 savings = 8,400 gap
@@ -44,7 +46,7 @@ test('the gap is the hero with its math in one sentence; months persist on tap',
 });
 
 test('the example pace is LABELED and the gap saves as a real goal', () => {
-  useStore.setState({ savings: [{ id: 's1', amount: 2400, date: '2026-07-01' }] } as any);
+  useStore.setState({ assetAccounts: [{ asset_id: 'c1', label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 2400, asset_class: 'cash' }] } as any);   // cash in an account (2026-10-21)
   render(<JobSafetyScreen />);
   fireEvent.changeText(screen.getByLabelText('Essential monthly expenses'), '2800');
   expect(screen.getByText(/an example pace, set your own/)).toBeOnTheScreen();

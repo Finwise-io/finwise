@@ -75,7 +75,7 @@ export function realizedFromLedger(
     .sort((a, b) => a.date.localeCompare(b.date));    // oldest first — FIFO needs time order
 
   // FIFO queues per ticker+account (a Schwab AAPL lot never covers a Robinhood AAPL sale)
-  const queues = new Map<string, { shares: number; price: number }[]>();
+  const queues = new Map<string, { shares: number; price: number; fee: number }[]>();
   const keyOf = (t: Transaction) => `${t.account_id}|${String(t.ticker).toUpperCase()}`;
   let all = 0, year = 0, counted = 0, uncovered = 0;
   const short: SaleShortOfPurchases[] = [];
@@ -84,23 +84,37 @@ export function realizedFromLedger(
     const k = keyOf(t);
     if (t.type !== 'SELL') {
       const q = queues.get(k) ?? [];
-      q.push({ shares: t.shares!, price: t.price! });
+      // A PURCHASE'S OWN FEE IS PART OF WHAT WAS PAID (2026-10-21; IRS Publication 550: the basis of shares includes the
+      // commissions paid to buy them) — counted only where the price does not already carry it (feeNotInPrice)
+      q.push({ shares: t.shares!, price: t.price!, fee: feeNotInPrice(t) });
       queues.set(k, q);
       continue;
     }
     const q = queues.get(k) ?? [];
     let toSell = t.shares!;
-    let basis = 0, covered = 0;
+    let basis = 0, covered = 0, buyFees = 0;
     while (toSell > 0 && q.length > 0) {
       const lot = q[0];
       const take = Math.min(lot.shares, toSell);
       basis += take * lot.price;
+      // the purchase fee goes with the shares it bought: 10 bought with a $4 fee and 5 of them sold carry $2 of it
+      const lotFee = lot.fee * (take / lot.shares);
+      buyFees += lotFee;
+      lot.fee -= lotFee;
       covered += take;
       lot.shares -= take;
       toSell -= take;
       if (lot.shares <= 1e-9) q.shift();
     }
-    const gain = covered > 0 ? (covered * t.price! - basis) * mult : null;
+    // A SALE'S OWN FEES COME OFF WHAT IT BROUGHT IN (2026-10-21, the lead's decision under DEC-3523 tenets 1 and 7; US tax
+    // rule: selling expenses reduce the amount realized — IRS Publication 550, Form 8949). A sale recorded with its fee —
+    // 10 shares sold at $120 with a $5 fee, bought at $100 — gained $195, not $200. Where only part of the sale has a
+    // purchase on record, that part carries its share of the fee. A sale with no fee recorded is counted as before.
+    // A synced sale's price is the broker's cash ÷ shares, already after its fee when the broker's cash is (fee_in_price):
+    // that fee is never taken off a second time (2026-10-21, feeNotInPrice).
+    const fee = feeNotInPrice(t);
+    const feeOnCovered = fee > 0 && t.shares! > 0 ? fee * (covered / t.shares!) : 0;
+    const gain = covered > 0 ? (covered * t.price! - basis) * mult - feeOnCovered - buyFees : null;
     if (gain != null) {
       all += gain;
       if (t.date.startsWith(yr)) year += gain;
@@ -123,6 +137,37 @@ export function realizedFromLedger(
   };
 }
 
+/** THE FEE ON A BUY OR A SALE THAT ITS PRICE DOES NOT ALREADY CARRY, in dollars (2026-10-21). The broker's fee is stored at
+ *  sync (tradeFeeOnRecord, ingest.ts) with fee_in_price saying whether the stored price is already net of it; a record with a
+ *  fee and no such word — typed, or from an older import — has a price before its fee. No fee on record, or one inside the
+ *  price, is 0 here. */
+/* ─ MK-PF-F-057 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * feeNotInPrice
+ *
+ * Answers ..... THE FEE ON A BUY OR A SALE THAT ITS PRICE DOES NOT ALREADY CARRY, in dollars (2026-10-21).
+ *
+ * Formula .....
+ *     fee = fee read as a number
+ *     the answer:
+ *     fee   if fee in price ! = true and number.is finite(fee) and fee > 0
+ *     0   otherwise
+ *
+ * Called by ... MK-PF-F-028 realizedFromLedger
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-080 HOLD · MK-PF-F-028 realizedFromLedger
+ *               MK-NW-O-006 theHolding
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-057
+ * Changed ..... not in git yet (—)
+ */
+export function feeNotInPrice(t: Pick<Transaction, 'fee' | 'fee_in_price'>): number {
+  const fee = Number(t.fee);
+  return t.fee_in_price !== true && Number.isFinite(fee) && fee > 0 ? fee : 0;
+}
+
 /** The line for a sale whose shares are not all covered by a recorded purchase: the gain on the part that is, and how many shares have no price paid on record. */
 /* ─ MK-PF-F-046 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * saleShortOfPurchasesSentence
@@ -130,10 +175,7 @@ export function realizedFromLedger(
  * Answers ..... The line for a sale whose shares are not all covered by a recorded purchase: the gain on the part that is, and how many shares have no price paid on record.
  *
  * Formula .....
- *     sold words = quantity with unit(holding, sale.sold, count) (or count(sale.sold) when missing)
- *     rest = sale.sold − sale.matched
- *     the answer = `${sold words} sold; what you paid for them is not on record, so no gain is counted.`
- *     g = sale.gain
+ *     gain on part sentence({ gain: sale.gain, counted: sale.matched, of: sale.sold }, holding, money, count, ' sold')
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -149,12 +191,53 @@ export function saleShortOfPurchasesSentence(
   count: (n: number) => string = String,
 ): string {
   // HIS WORDS, 2026-10-12 (DEC-4643): "$200 gain on 10 of 15 shares sold; what you paid for the other 5 is not on
-  // record." The unit is the holding's own (MK-PF-F-033 quantityWithUnit): shares, contracts, coins, ounces.
-  const soldWords = quantityWithUnit(holding, sale.sold, count) ?? count(sale.sold);
-  const rest = sale.sold - sale.matched;
-  if (sale.gain == null || sale.matched <= 0) {
-    return `${soldWords} sold; what you paid for them is not on record, so no gain is counted.`;
+  // record." Written by the one sentence writer below, which the gains if sold today use too (Q20, 2026-10-20).
+  return gainOnPartSentence({ gain: sale.gain, counted: sale.matched, of: sale.sold }, holding, money, count, ' sold');
+}
+
+/** The ONE line for a gain counted on only part of a holding: the gain on the part whose price paid is on record, and
+ *  how much is left out — "$200 gain on 10 of 20 shares; what you paid for the other 10 is not on record." */
+/* ─ MK-PF-F-058 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * gainOnPartSentence
+ *
+ * Answers ..... The ONE line for a gain counted on only part of a holding: the gain on the part whose price paid is on record, and how much is left out — "$200 gain on 10 of 20 shares; what you paid for the other 10 is not on record."
+ *
+ * Formula .....
+ *     of words = quantity with unit(holding, part.of, count) (or count(part.of) when missing)
+ *     the answer = `${of words}${sold}; what you paid for them is not on record, so no gain is counted.`
+ *     g = part.gain
+ *
+ * Called by ... MK-PF-F-035 unknownFigure · MK-PF-F-046 saleShortOfPurchasesSentence
+ *
+ * Reaches ..... 267 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 249 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-058
+ * Changed ..... not in git yet (—)
+ */
+export function gainOnPartSentence(
+  part: { gain: number | null; counted: number; of: number }, holding: Pick<Position, 'kind' | 'unit'>,
+  money: (n: number) => string, count: (n: number) => string = String, sold: '' | ' sold' = '',
+): string {
+  // the shape is his, for sales (DEC-4643, 2026-10-12); applied unchanged to what is still held (Q20, 2026-10-20). The
+  // unit is the holding's own (MK-PF-F-033 quantityWithUnit): shares, contracts, coins, ounces.
+  const ofWords = quantityWithUnit(holding, part.of, count) ?? count(part.of);
+  if (part.gain == null || part.counted <= 0) {
+    return `${ofWords}${sold}; what you paid for them is not on record, so no gain is counted.`;
   }
-  const g = sale.gain;
-  return `${money(Math.abs(g))} ${g < 0 ? 'loss' : 'gain'} on ${count(sale.matched)} of ${soldWords} sold; what you paid for the other ${count(rest)} is not on record.`;
+  const g = part.gain;
+  return `${money(Math.abs(g))} ${g < 0 ? 'loss' : 'gain'} on ${count(part.counted)} of ${ofWords}${sold}; what you paid for the other ${count(part.of - part.counted)} is not on record.`;
 }

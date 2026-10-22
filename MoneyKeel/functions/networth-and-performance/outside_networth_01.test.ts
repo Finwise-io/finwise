@@ -47,7 +47,7 @@ describe('MK-NW-O-001 theBonds — five cases', () => {
     expect(b.rows.map((r) => [r.value, r.couponPerYear])).toEqual([[8213.47, 328], [14637.5, 787.5], [24200, 1125]].map(([v, c]) => [v, expect.closeTo(c, 6)]));
     expect(b.count).toBe(3);
     expect(b.totalValue).toBeCloseTo(47050.97, 4);
-    expect(b.rows.reduce((t, r) => t + r.value, 0)).toBeCloseTo(b.totalValue, 6);              // the rows add to the total
+    expect(b.rows.reduce((t, r) => t + (r.value ?? 0), 0)).toBeCloseTo(b.totalValue, 6);              // the rows add to the total
     expect(b.totalFace).toBeCloseTo(48000, 4);
     expect(b.couponPerYear).toBeCloseTo(2240.5, 4);
     expect(b.rows.reduce((t, r) => t + (r.couponPerYear ?? 0), 0)).toBeCloseTo(b.couponPerYear, 6);
@@ -387,7 +387,7 @@ describe('MK-NW-O-005 theAlternativesOutlook — five cases', () => {
     expect(o.count).toBe(2);
     expect(o.rows.map((r) => [r.label, r.value])).toEqual([['Coinbase', 14382.77], ['RE fund', 8640.15]]);
     expect(o.totalValue).toBeCloseTo(23022.92, 4);                         // the formula as sent gave $18,288 above rows adding to $23,023
-    expect(o.rows.reduce((t, r) => t + r.value, 0)).toBeCloseTo(o.totalValue, 6);
+    expect(o.rows.reduce((t, r) => t + (r.value ?? 0), 0)).toBeCloseTo(o.totalValue, 6);
     expect(assetAllocation(accounts).alternatives).toBeCloseTo(o.totalValue, 6);   // the same total as the Net worth tab's Alternatives slice
   });
 
@@ -398,7 +398,7 @@ describe('MK-NW-O-005 theAlternativesOutlook — five cases', () => {
     expect(o.count).toBe(2);
     expect(o.rows.map((r) => [r.label, r.value])).toEqual([['Coinbase', 21906.48], ['Gold', 4310]]);
     expect(o.totalValue).toBeCloseTo(26216.48, 4);
-    expect(o.rows.reduce((t, r) => t + r.value, 0)).toBeCloseTo(o.totalValue, 6);
+    expect(o.rows.reduce((t, r) => t + (r.value ?? 0), 0)).toBeCloseTo(o.totalValue, 6);
     expect(21906.48 / 26216.48).toBeCloseTo(0.8356, 4);
     expect(o.expectedReturn).toBeCloseTo((21906.48 * rCrypto + 4310 * rGold) / 26216.48, 9);
   });

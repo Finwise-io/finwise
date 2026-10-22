@@ -47,7 +47,7 @@ the founder had approved all of it. Never again.
 ## ONE TERM PER CONCEPT — app-wide standing order (founder, 2026-09-02)
 - "Always use same words to describe same thing in the app. There is no score for creative writing
   use different terms to describe same thing." One canonical word per concept in EVERY user-visible
-  string; synonyms are RETIRED. The canon table — 21 rows: take-home, calculated, the retired word "engine" (0c, 2026-09-13), the connect door "Connect your bank ›" (17, 2026-09-14), Linked / Link again (18, 2026-09-14), and the sixteen
+  string; synonyms are RETIRED. The canon table — 22 rows: take-home, calculated, the retired word "engine" (0c, 2026-09-13), the connect door "Connect your bank ›" (17, 2026-09-14), Linked / Link again (18, 2026-09-14), Annuities as the kind's name (22, DEC-4529, written 2026-10-20), and the sixteen
   cluster rulings of 2026-09-10 (Surplus, odds out of 100 simulated futures, Expenses, you entered,
   Inflow (sources), Emergency fund, Budget, Gross (before any deductions), Performance / Net worth,
   Debt, Holding, activity, one-time, /month · /year, Will my money last, spouse) — lives in ONE
@@ -84,9 +84,11 @@ the founder had approved all of it. Never again.
 - Mocks show the FULL SCREEN, top to bottom (founder order, same day): status bar → header → hero →
   every section → tab bar. Never a cropped card. Reference: `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v08.html` (the current Net worth design),
   `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v17.html` (the Performance
-  design, APPROVED IN FULL on 2026-10-01 — all five frames; its frame 2, Account portfolio, is also the Account
-  detail screen's design, one screen and one design). The tab is BUILT to v17 since 2026-10-03 and held there,
-  word for word, by `src/screens/__tests__/perf_matches_v17.test.tsx`),
+  design, APPROVED IN FULL on 2026-10-01 — all five frames. Its frame 2 is NO LONGER the account page's design:
+  since 2026-10-19 (DEC-6457) the account page — Account detail / Account portfolio, one screen — is built to
+  `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_account-page_v01.html`, states A to E (state F, a bond valued at face before a market value, added by a dated READ THIS FIRST row on 2026-10-21), held word
+  for word by `src/screens/__tests__/account_page_drawing_states.test.tsx`). The tab is BUILT to v17 frames 1, 3, 4
+  and 5 since 2026-10-03 and held there by `src/screens/__tests__/perf_matches_v17.test.tsx`),
   `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_add-account-by-hand_v01.html` (Add an account
   by hand, approved 2026-10-01). Numbers inside mocks must ADD UP (accuracy rule applies).
 - WHICH DESIGN EACH SCREEN IS BUILT FROM, and which is current, lives in ONE record:

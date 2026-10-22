@@ -33,12 +33,12 @@ describe('mapPosition — instrument classing + lots', () => {
     expect(m.assetClass).toBe('stocks_etf');
     expect(m.lots).toEqual([{ purchase_date: null, shares: 10, cost_per_share: 200 }]);
   });
-  test("type.code 'bnd' → bonds; 'crypto' → alternatives; cash_equivalent flag no longer means class 'cash' (founder rule 2026-08-04)", () => {
+  test("type.code 'bnd' → bonds; 'crypto' → alternatives; the cash_equivalent flag means class 'cash' again (DEC-2159 / his 2026-10-20 words: always the class broker sends)", () => {
     expect(mapPosition(pos({ symbol: { id: 's', raw_symbol: 'T', type: { code: 'bnd' } } as any }))!.assetClass).toBe('bonds');
     expect(mapPosition(pos({ symbol: { id: 's', raw_symbol: 'BTC', type: { code: 'crypto' } } as any }))!.assetClass).toBe('alternatives');
     const mm = mapPosition(pos({ cash_equivalent: true }))!;
-    expect(mm.assetClass).toBe('stocks_etf');   // a money-market FUND is measured as a fund
-    expect(mm.cashEquivalent).toBe(true);       // …but the sleeve dedupe flag survives (never double-counted)
+    expect(mm.assetClass).toBe('cash');         // the broker saying "this is cash" decides (it was Stocks / Funds by DEC-0051)
+    expect(mm.cashEquivalent).toBe(true);       // …and the sleeve dedupe flag survives (never double-counted)
   });
   test('real broker tax lots pass through as our lots', () => {
     const m = mapPosition(pos({ tax_lots: [{ original_purchase_date: '2023-04-01', quantity: 6, purchased_price: 180 }, { original_purchase_date: '2024-09-09', quantity: 4, purchased_price: 230 }] }))!;

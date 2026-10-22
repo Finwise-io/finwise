@@ -21,7 +21,8 @@ Unclassified. The first of these that applies decides (MK-NW-F-011 assetClassOf)
    (DEC-0051): a CD or a T-bill pays interest and is measured, however soon it matures.
 3. What its name is evidence for — **cash means cash only** (DEC-0051, DEC-0309): a money-market fund
    is Stocks / Funds (it pays dividends), a CD or a T-bill is Bonds & CDs, a sweep or settlement
-   balance is cash. The name decides before any tag the institution sent.
+   balance is cash. For a whole account this is read before its kind. For a HOLDING inside a linked or
+   imported account, the class the broker sends comes first (§2, his ruling of 2026-10-20).
 4. Its kind: checking, savings, high-yield savings, cash management and foreign currency are cash;
    money market and stocks are Stocks / Funds; CD and fixed income are Bonds & CDs; crypto,
    commodities, annuities, options, other, private equity and hedge funds are Alternatives; a home or
@@ -52,14 +53,51 @@ means an option only with an option's shape (an expiry date or a strike).
 
 ## 2. What a holding inside an account is
 
-One test, used wherever a holding's class matters — the split, the words under an account, the
-account's own page (MK-NW-F-109 holdingClassOf):
+One order, in one function (MK-ST-F-011 classifyHoldingClass), used wherever a holding's class matters —
+the sync, the file importer, the split, the class rows, the emergency fund, Performance's categories, the
+words under an account and the account's own page (MK-NW-F-109 holdingClassOf reads a saved holding into it).
+**His ruling of 2026-10-20: "always the class broker sends."** It settles DEC-2159 (2026-09-30, "Q10: Draft
+order is correct" — the institution's own class field first) against brief B7 (2026-08-20, "name first,
+broker tag as fallback only"); the newer ruling wins.
 
-1. The person's own answer, always. It outranks everything and survives every sync.
-2. A holding nothing could class, that the person has not answered about, is **Unclassified** — the
+1. The person's own answer, always. It outranks everything and survives every sync (B7; DEC-2161).
+2. **The class the broker sends.** Its cash-equivalent flag — the broker saying "this is cash" — is Cash.
+   Otherwise its own type: SnapTrade's security type code, or the words of an import file's type column
+   ("Security Type", "Asset Class", "Investment Type"; a bare "Type" is not read — Fidelity's means Cash or
+   Margin). The sync and the importer keep both on the saved holding, exactly as sent, so a holding is read
+   by them every time, not only when it arrives. The broker's class is never held back between syncs.
+3. A holding nothing could class, that the person has not answered about, is **Unclassified** — the
    owner's ruling of 2026-09-30, "Refuse the line and ask" (DEC-2160). Net worth asks.
-3. What its ticker and name are evidence for, unless that is cash (rule 3 above).
-4. Otherwise the class stored when it arrived.
+4. Only when the broker sends no usable class: what its ticker and name are evidence for (rule 3 above),
+   then a maturity date, then the class stored when it arrived (or the kind picked when it was added by
+   hand). When these would move a holding between syncs, the previous class is kept and flagged.
+
+What the broker sends, and the class it decides (SnapTrade documents 14 type codes; `mf` is the Vanguard
+fixture's; MK-ST-F-011 holds the table as BROKER_TYPE_CLASS):
+
+| The broker sends | Class |
+|---|---|
+| the cash-equivalent flag, true | Cash |
+| cs Common Stock · ps Preferred Stock · ad ADR · et ETF · oef Open Ended Fund · cef Closed End Fund · mf mutual fund | Stocks / Funds |
+| bnd Bond · cd | Bonds & CDs |
+| crypto · pm Precious Metals · wt Warrant · rt Right | Alternatives |
+| ut Unit · struct Structured Product · wi When Issued · no code · any other code | no class — step 4 decides |
+| a file's type words: cash, money market, sweep | Cash |
+| … option, crypto, precious metal, commodity, warrant, right, future | Alternatives |
+| … equity, stock, share, ETF, fund, ADR, closed end | Stocks / Funds |
+| … fixed income, bond, CD, certificate of deposit, Treasury, T-bill, muni | Bonds & CDs |
+
+What it changes (worked example, run through the sync, the split, the class rows and the emergency fund in
+`src/services/sync/dec2159_broker_class.test.ts`): Chase checking $9,000; linked Vanguard Brokerage with VTI
+400 × $250 = $100,000 (type ETF), VMFXX 50,000 × $1 = $50,000 (flagged cash-equivalent) and $1,000 uninvested;
+essentials $6,000 a month. Before (name first): Cash $10,000, Stocks / Funds $150,000, emergency fund
+$10,000 ÷ $6,000 = 1.7 months. After: Cash $60,000, Stocks / Funds $100,000, emergency fund $60,000 ÷ $6,000 =
+10.0 months. What you own is $160,000 both times. A bond ETF (BND) and a T-bill ETF (SGOV) the broker sends as
+ETFs are Stocks / Funds — they were Bonds & CDs by their names; a gold, bitcoin or currency fund sent as an ETF
+is Stocks / Funds — it was Alternatives by its name (DEC-2162). A Treasury or CD the broker sends as a bond, or
+with no type (as CDs arrive live), stays Bonds & CDs. A money-market fund the broker sends as a fund without
+the flag (E*TRADE, live 2026-07-19) stays Stocks / Funds. A holding saved before 2026-10-20 carries no broker
+type yet: it is read by the rules below the broker's until its next sync stores them.
 
 A holding with nothing stored — no broker tag, no kind picked, nothing in its name — is Unclassified
 and asked about (DEC-2160, 'Refuse the line and ask'); it is never filed as Stocks / Funds by default.
@@ -76,17 +114,20 @@ MK-NW-F-027 accountClassBreakdown. The parts always add up to the account's bala
   broker (SnapTrade) marks it a mini option, else 100, stored with the option; an option typed by hand has a "Shares per
   contract" box, 100 unless changed, saved with the holding (MK-XS-I-063, read by MK-PF-F-031 contractMultiplier). If the parts fall short of the balance and a holding has **no
   price**, the difference is that holding's and goes under its class (Unclassified when unpriced
-  holdings span classes) — never cash. With every holding priced, a difference no bigger than the
-  larger of $1 or 1% of the balance is cash when positive (owner, 2026-08-11, DEC-0095: "why is cash
-  added to CD and not cash?") and comes off the largest class when negative; a bigger one goes under
-  the account's own class.
+  holdings span classes) — never cash. With every holding priced, a POSITIVE difference is cash, whatever
+  its size, when the broker listed holdings (owner, 2026-08-11, DEC-0095: "why is cash added to CD and not
+  cash?"; until 2026-10-21 only one within $1 or 1% was, so a $50,000 account listing $45,000 put $5,000
+  under Unclassified). It is part of the account page's cash row (MK-NW-O-002 theAccount.uninvestedCash), so
+  the rows add up to the total. A negative difference within the larger of $1 or 1% comes off the largest
+  class; an account that lists no holdings files a bigger difference under its own class.
 - **An account built by hand** that records its own uninvested cash (its balance is built from its
   records): that cash is cash, never more than the balance; the rest stays whole under the account's
   class. A recorded cash figure of zero or below is a purchase recorded without its deposit — not
   cash, not a loan — and the account stays whole.
 - **An account with only a typed balance** is not split. Nothing is known about what is inside it.
-- **A money-market fund the institution flags as "cash equivalent" is a holding** under Stocks /
-  Funds; the cash beside it is net of it, so it is counted once.
+- **A money-market fund the institution flags as "cash equivalent" is a holding** under Cash (§2 — the
+  class the broker sends, his ruling of 2026-10-20; it was under Stocks / Funds by DEC-0051 until then); the
+  cash beside it is net of it, so it is counted once.
 
 A hand-built account whose balance is built from its holdings is split holding by holding: each is
 weighed at today's value (the price its balance was built from; what was paid only when there is none), and the invested part is shared out by
@@ -349,7 +390,9 @@ MK-NW-F-056 bondInfo to MK-NW-F-064 bondRateSensitivity, MK-NW-F-112 yearlyInter
   it once (Add an account and the Bonds screen's form). A bank CD yields its interest rate ($10,000 at 4.2%
   → 4.20%; with no face entered, still its rate). A broker CD is priced like a bond from its face value,
   interest rate, statement value and maturity date ($10,000 face, 4.2%, worth $9,850, 2 years left → about
-  5.01%), with the accrued-interest estimate and note. A CD never answered reads as a bank CD.
+  5.01%), with the accrued-interest estimate and note. A CD never answered is worked as a bank CD for its figures,
+  but its page does not say it was marked so: it says where it was bought is not entered and asks the question, and
+  the answer is saved on the CD (2026-10-21, tenet 3).
 - **A missing balance or holding value is never $0**: it is left out of the total, the amber box names
   the account, and an itemised remainder with a missing value is not final. Sums of money are exact
   decimals. A kind that names contents (crypto, private equity, hedge funds, other) claims no
@@ -394,5 +437,7 @@ Built and tested 2026-10-05 to 2026-10-07 (the outside review of Net worth batch
 reviews of batches 2, 3 and 4, and the defects found while fixing them). Tests: `MoneyKeel/functions/networth-and-performance/outside_networth_02.test.ts`, `outside_networth_03.test.ts`, `outside_networth_04.test.ts`, `outside_networth_05.test.ts`, `src/screens/__tests__/outside_networth_05.test.tsx`, `outside_networth_02_final.test.ts`, `outside_networth_03_final.test.ts`, `outside_networth_04_final.test.ts`,
 `outside_networth_02_found.test.ts`, `src/screens/__tests__/outside_networth_02.test.tsx`,
 `src/domain/assets/classification.test.ts`, `src/domain/assets/selectors.test.ts`,
-`src/services/sync/f6_money_market.test.ts`, `src/__tests__/founder_2026_08_11.test.tsx`.
+`src/services/sync/f6_money_market.test.ts`, `src/__tests__/founder_2026_08_11.test.tsx`,
+`src/services/sync/dec2159_broker_class.test.ts` and `src/screens/__tests__/dec2159_import_broker_type.test.tsx`
+(§2's order, his ruling of 2026-10-20).
 Drawings: Net worth v08, Performance v17 and Bonds v02 carry these changes at their top.

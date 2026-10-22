@@ -11,25 +11,25 @@
   "asset_class": "Fixed income",
   "item": "Holding Account Number",
   "where": "—",
-  "status": "NOT CAPTURED",
+  "status": "NOT NEEDED FOR LAUNCH",
   "decider": "new",
-  "note": "A connected account keeps the last four digits (the mask); nothing stores the number for a typed account."
+  "note": "not needed for launch: no ruling requires it, nothing reads it (checked 2026-10-20). A linked account carries its last four digits (the mask), which the account name uses (DEC-0083); accountLastFour in src/domain/assets/index.ts would also look at an account_number field, but no screen or sync fills one. Before: A connected account keeps the last four digits (the mask); nothing stores the number for a typed account."
  },
  {
   "asset_class": "Fixed income",
   "item": "Issuer",
-  "where": "—",
-  "status": "NOT CAPTURED",
-  "decider": "Q38 (2026-09-08)",
-  "note": "The institution field stands in for the issuer today."
+  "where": "the Bonds editor's \"Name / issuer\" box (src/screens/BondsScreen.tsx; Bonds v02, phone 3)",
+  "status": "CAPTURED",
+  "decider": "Bonds v02 (DEC-0650, with his corrections DEC-4529)",
+  "note": "Checked 2026-10-20: the name typed for a bond is its issuer — one box, drawn as \"Name / issuer\" on Bonds v02. Before: \"The institution field stands in for the issuer today.\""
  },
  {
   "asset_class": "Fixed income",
   "item": "CUSIP / ISIN / Ticker",
   "where": "—",
-  "status": "NOT CAPTURED",
+  "status": "NOT NEEDED FOR LAUNCH",
   "decider": "Q38 (2026-09-08)",
-  "note": "Stocks carry a ticker; a bond record carries none."
+  "note": "not needed for launch: no ruling requires it, nothing reads it (checked 2026-10-20). This is for a typed bond. A linked bond can arrive with a CUSIP as its ticker, and the account page then shows the security's name instead (src/screens/AccountPortfolioScreen.tsx). Before: Stocks carry a ticker; a bond record carries none."
  },
  {
   "asset_class": "Fixed income",
@@ -42,26 +42,26 @@
  {
   "asset_class": "Fixed income",
   "item": "Quantity",
-  "where": "—",
-  "status": "NOT CAPTURED",
-  "decider": "Q38 (1) (2026-09-08)",
-  "note": "Number of bonds versus total face — your answer decides the field."
+  "where": "MK-XS-I-011 bond face value",
+  "status": "COVERED — the face value is the quantity",
+  "decider": "DEC-6212 (a bond row reads \"$5,000 face · 4.00% · YTM …\") · the lead's decision of 2026-10-20 on Q38 part 1",
+  "note": "Checked 2026-10-20: a bond is held as its face value, so the number of bonds is not a separate field (src/screens/AccountPortfolioScreen.tsx, the bond row and BOND FACTS \"Face value\"). Before: \"Number of bonds versus total face — your answer decides the field.\""
  },
  {
   "asset_class": "Fixed income",
   "item": "Cost Price",
   "where": "—",
-  "status": "NOT CAPTURED",
-  "decider": "Q38 (2026-09-08)",
-  "note": ""
+  "status": "NOT CAPTURED — being built today (DEC-0281)",
+  "decider": "DEC-0281 (2026-08-26)",
+  "note": "DEC-0281: \"value = current, else cost, else face; else 'need more information'\". The cost field is being built today, 2026-10-20; it is not in the code at the time of this check."
  },
  {
   "asset_class": "Fixed income",
   "item": "Current Price",
-  "where": "—",
-  "status": "NOT CAPTURED",
-  "decider": "Q38 (3) (2026-09-08)",
-  "note": ""
+  "where": "MK-XS-I-001 / MK-XS-I-049 the balance — the market value the statement shows",
+  "status": "COVERED — the market value is the current value",
+  "decider": "DEC-6212 · DEC-3390",
+  "note": "Checked 2026-10-20: the value typed or linked is the statement's market value; for the yield to maturity the accrued interest is added to it (DEC-3390). The price per $100 of face is worked out from it, not typed — being built today as a BOND FACTS row on the account page; it is not in the code at the time of this check."
  },
  {
   "asset_class": "Fixed income",
@@ -91,9 +91,9 @@
   "asset_class": "Fixed income",
   "item": "Purchase Date",
   "where": "—",
-  "status": "NOT CAPTURED",
+  "status": "NOT NEEDED FOR LAUNCH",
   "decider": "Q38 (2026-09-08)",
-  "note": "Stocks keep a purchase date per lot (MK-XS-I-007); bonds do not."
+  "note": "not needed for launch: no ruling requires it, nothing reads it (checked 2026-10-20). Before: Stocks keep a purchase date per lot (MK-XS-I-007); bonds do not."
  },
  {
   "asset_class": "Fixed income",
@@ -117,7 +117,7 @@
   "where": "—",
   "status": "NOT CAPTURED",
   "decider": "new",
-  "note": "Needed for accrued interest and the paid-interest calendar."
+  "note": "going to the owner 2026-10-20: the approved account-page drawing row 21 assumes once a year (moneykeel_pres_mock_account-page_v01.html, READ THIS FIRST row 21: \"the app pays the coupon once a year on the maturity date’s anniversary\"). Before: Needed for accrued interest and the paid-interest calendar."
  },
  {
   "asset_class": "Fixed income",
@@ -138,10 +138,10 @@
  {
   "asset_class": "Fixed income",
   "item": "Accrued Interest",
-  "where": "—",
-  "status": "NOT CAPTURED",
-  "decider": "A47 (2026-08-26)",
-  "note": ""
+  "where": "MK-XS-I-065 accrued interest — the accrued_interest field, typed in the Bonds editor (src/screens/BondsScreen.tsx)",
+  "status": "CAPTURED",
+  "decider": "A47 (2026-08-26), coded 2026-09-11 · DEC-3390 (an estimate when it is not entered)",
+  "note": "Checked 2026-10-20: captured since 2026-09-11 (rulings ledger A47, coded 2026-09-11). Where it is not entered, the yield to maturity adds an estimate and says so (DEC-3390)."
  },
  {
   "asset_class": "Stocks / funds",
@@ -155,9 +155,9 @@
   "asset_class": "Stocks / funds",
   "item": "Holding Account Number",
   "where": "—",
-  "status": "NOT CAPTURED",
+  "status": "NOT NEEDED FOR LAUNCH",
   "decider": "new",
-  "note": ""
+  "note": "not needed for launch: no ruling requires it, nothing reads it (checked 2026-10-20). A linked account carries its last four digits (the mask), which the account name uses (DEC-0083); accountLastFour in src/domain/assets/index.ts would also look at an account_number field, but no screen or sync fills one."
  },
  {
   "asset_class": "Stocks / funds",
@@ -235,9 +235,9 @@
   "asset_class": "Stocks / funds",
   "item": "Divident Frequency",
   "where": "—",
-  "status": "NOT CAPTURED",
+  "status": "NOT NEEDED FOR LAUNCH",
   "decider": "new",
-  "note": ""
+  "note": "not needed for launch: no ruling requires it, nothing reads it (checked 2026-10-20)."
  },
  {
   "asset_class": "Stocks / funds",
@@ -259,25 +259,25 @@
   "asset_class": "Currencies",
   "item": "Holding Account Number",
   "where": "—",
-  "status": "NOT CAPTURED",
+  "status": "NOT NEEDED FOR LAUNCH",
   "decider": "new",
-  "note": ""
+  "note": "not needed for launch: no ruling requires it, nothing reads it (checked 2026-10-20). A linked account carries its last four digits (the mask), which the account name uses (DEC-0083); accountLastFour in src/domain/assets/index.ts would also look at an account_number field, but no screen or sync fills one."
  },
  {
   "asset_class": "Currencies",
   "item": "Currency Code",
-  "where": "—",
-  "status": "NOT CAPTURED",
-  "decider": "Q43 · Q09 (2026-09-08)",
-  "note": "No unit on the quantity today (finding S32)."
+  "where": "the account record's currency field (src/domain/assets/index.ts); src/services/sync/ingest.ts keeps the broker's three-letter code",
+  "status": "CAPTURED — linked accounts only, from 2026-10-20 (DEC-0312); a typed account is in dollars",
+  "decider": "DEC-0312 (2026-08-20)",
+  "note": "Checked 2026-10-20: being built today — the field and the sync line are in the working copy, not yet committed. Nothing is converted to dollars: DEC-0312 put conversion off (\"deferred, not dropped\"). Before: \"No unit on the quantity today (finding S32).\""
  },
  {
   "asset_class": "Currencies",
   "item": "Quantity",
-  "where": "MK-XS-I-004 (no unit)",
-  "status": "CAPTURED — no unit",
-  "decider": "Q09 (2026-09-08)",
-  "note": ""
+  "where": "MK-XS-I-004 holding quantity, with its unit MK-XS-I-064",
+  "status": "CAPTURED",
+  "decider": "DEC-0277 (2026-08-26), coded 2026-09-11",
+  "note": "Checked 2026-10-20: the unit is kept beside the quantity (MK-PF-F-032 quantityUnit, MK-PF-F-033 quantityWithUnit, src/domain/performance/index.ts)."
  },
  {
   "asset_class": "Currencies",
@@ -363,9 +363,9 @@
   "asset_class": "Crypto",
   "item": "Holding Account Number",
   "where": "—",
-  "status": "NOT CAPTURED",
+  "status": "NOT NEEDED FOR LAUNCH",
   "decider": "new",
-  "note": ""
+  "note": "not needed for launch: no ruling requires it, nothing reads it (checked 2026-10-20). A linked account carries its last four digits (the mask), which the account name uses (DEC-0083); accountLastFour in src/domain/assets/index.ts would also look at an account_number field, but no screen or sync fills one."
  },
  {
   "asset_class": "Crypto",
@@ -467,9 +467,9 @@
   "asset_class": "Options",
   "item": "Holding Account Number",
   "where": "—",
-  "status": "NOT CAPTURED",
+  "status": "NOT NEEDED FOR LAUNCH",
   "decider": "new",
-  "note": ""
+  "note": "not needed for launch: no ruling requires it, nothing reads it (checked 2026-10-20). A linked account carries its last four digits (the mask), which the account name uses (DEC-0083); accountLastFour in src/domain/assets/index.ts would also look at an account_number field, but no screen or sync fills one."
  },
  {
   "asset_class": "Options",
@@ -506,10 +506,10 @@
  {
   "asset_class": "Options",
   "item": "Quantity",
-  "where": "MK-XS-I-034 contracts — the ×100 rule not applied",
-  "status": "CAPTURED — rule pending",
-  "decider": "Q42 · your Q06 (2026-08-26)",
-  "note": ""
+  "where": "MK-XS-I-034 contracts, with the shares per contract MK-XS-I-063",
+  "status": "CAPTURED",
+  "decider": "DEC-0274 (2026-08-26), coded 2026-09-11 · DEC-4646 (a mini option is 10 a contract)",
+  "note": "Checked 2026-10-20: the ×100 rule is built (MK-PF-F-031 contractMultiplier, src/domain/performance/index.ts)."
  },
  {
   "asset_class": "Options",
@@ -530,10 +530,10 @@
  {
   "asset_class": "Options",
   "item": "Current Value",
-  "where": "derived — MK-PF-F-004, no contract multiplier today",
-  "status": "DERIVED — wrong until Q42",
-  "decider": "Q42 (2026-09-08)",
-  "note": ""
+  "where": "derived — MK-PF-F-004 marketValue × MK-PF-F-031 contractMultiplier",
+  "status": "DERIVED",
+  "decider": "DEC-0274 · DEC-4646",
+  "note": "Checked 2026-10-20: contracts × shares per contract × price."
  },
  {
   "asset_class": "Options",

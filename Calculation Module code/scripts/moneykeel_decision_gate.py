@@ -192,7 +192,8 @@ def supersede_question(new, prior):
 #
 # These two controls bind what comes NEXT. What is already in the log was written before they existed,
 # and the numbers below are what that cost, measured on 2026-10-01 rather than estimated:
-NO_PATH = 341             # 341 from 342 on 2026-10-19 (DEC-5847..5849 recorded with all three answers; the count fell by one).
+NO_PATH = 338             # 338 from 341 on 2026-10-20 (DEC-0469, DEC-0103 and DEC-0219, none answering the three questions, marked OLD, NOT IN USE — replaced in full by DEC-0066, DEC-0112 and DEC-0644; they are no longer in force, so they leave the debt).
+                          # 341 from 342 on 2026-10-19 (DEC-5847..5849 recorded with all three answers; the count fell by one).
                           # (344 of 492 until DEC-0104 was marked restated as DEC-0109.)
                           # of the 492 decisions in force, this many do not answer all three questions.
                           # 148 do. Every one of the 344 is a decision nobody can act on without

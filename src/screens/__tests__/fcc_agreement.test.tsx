@@ -87,8 +87,12 @@ describe('pin 1 — investments: Home’s YOUR INVESTMENTS and Performance’s e
     for (const src of [home, perf]) {
       expect(src).not.toMatch(/investmentsTotal\(/);           // no screen adds the figure up itself
       expect(src).not.toMatch(/^\s*ending:/m);                 // no screen hands the function an ending of its own
-      expect(src).toMatch(/resolveNetWorthRows\(/);
     }
+    // both count the resolved rows (B-49): Performance resolves them itself; Home reads them from the Net worth family's
+    // inputs, built once by MK-NW-F-145 netWorthInputs over resolveNetWorthRows (DEC-0345, 2026-10-20)
+    expect(perf).toMatch(/resolveNetWorthRows\(/);
+    expect(home).toMatch(/useNetWorthInputs\(\)/);
+    expect(home).toMatch(/theNetWorth\(\{ \.\.\.nwIn, \.\.\.nwIn\.withEstimate \}\)\.investments/);
   });
 
 });

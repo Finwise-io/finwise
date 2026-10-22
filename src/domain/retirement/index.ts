@@ -319,12 +319,13 @@ function pctOfSorted(sorted: number[], p: number): number {
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-F-042 mortgageOddsEffect · MK-CF-F-106 solveSafeDraw
- *               MK-CF-O-017 futurePaycheck · MK-PL-F-035 retireAgeWithContribution
- *               MK-PL-F-036 weighGoals · MK-PL-F-042 savingToReachTarget
- *               MK-PL-F-043 howTheGapCloses · MK-PL-F-044 planTarget
- *               MK-PL-F-053 buildRetirementState · MK-PL-F-055 projectNestEgg
- *               MK-PL-F-065 volOf · MK-PL-F-068 selectWillItLast
- *               MK-PL-F-069 oddsAt · MK-PL-F-071 oddsOf
+ *               MK-CF-O-017 futurePaycheck · MK-NW-F-101 PLAN
+ *               MK-PL-F-035 retireAgeWithContribution · MK-PL-F-036 weighGoals
+ *               MK-PL-F-042 savingToReachTarget · MK-PL-F-043 howTheGapCloses
+ *               MK-PL-F-044 planTarget · MK-PL-F-053 buildRetirementState
+ *               MK-PL-F-055 projectNestEgg · MK-PL-F-065 volOf
+ *               MK-PL-F-068 selectWillItLast · MK-PL-F-069 oddsAt
+ *               MK-PL-F-071 oddsOf
  *
  * Reaches ..... 26 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-101 PLAN · MK-CF-F-107 buildPaycheckYear

@@ -17,6 +17,7 @@ import type { AssetAccount } from '../assets';
 import { assetClassOf } from '../assets';
 import { money } from '../_shared/num';
 import { isoLocalDate } from '../_shared/dates';
+import { moneyIntoAccount } from '../../../Calculation Module code/engines/ledger';
 
 export interface AccountIncomeLine {
   label: string;        // the account, as the person named it
@@ -78,11 +79,7 @@ const asPercent = (r: number) => `${+(r * 100).toFixed(2)}%`;   // two decimals 
  *               MK-CF-F-184 incomeFromAccounts · MK-CF-O-007 theTaxOrganizer
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-008 transaction amount
- *               MK-XS-I-024 logged expenses
- *
- * Decides .....
- *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
+ * Reads ....... MK-XS-I-024 logged expenses
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-183
  * Changed ..... not in git yet (—)
@@ -96,7 +93,8 @@ function paidOutByAccount(txns: any[] | null | undefined, now: Date): Map<string
     if (String(t?.date ?? '') < cutoff) continue;
     const id = String(t?.account_id ?? '');
     if (!id) continue;
-    out.set(id, ((out.get(id) ?? 0) + (t.amount || 0)));
+    // the one rule for a stored amount (moneyIntoAccount, 2026-10-21): a −$50 dividend — a reversal — cancels, never adds
+    out.set(id, ((out.get(id) ?? 0) + (moneyIntoAccount(t) ?? 0)));
   }
   return out;
 }

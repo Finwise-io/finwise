@@ -65,7 +65,8 @@ describe('the holdings note (DEC-5848)', () => {
     seed(BOND_ACCOUNT);
     render(<AccountPortfolioScreen />);
     // since 2026-10-19 the sentence also says a bond's or CD's interest is in its return (DEC-6212)
-    expect(screen.getByText(/its dividends included, and a bond's or CD's interest added; the income is also on the line beneath it\./)).toBeOnTheScreen();
+    // written with the drawing's own apostrophes since the page was built to the account-page drawing v01 (2026-10-19)
+    expect(screen.getByText(/its dividends included, and a bond’s or CD’s interest added; the income is also on the line beneath it\./)).toBeOnTheScreen();
     expect(screen.queryByText(/the income it paid/)).toBeNull();
   });
 });
@@ -162,5 +163,112 @@ describe('the account page carries the Performance tab’s own window control (D
     const src = require('fs').readFileSync(require('path').join(__dirname, '..', 'AccountPortfolioScreen.tsx'), 'utf8');
     expect(src).toMatch(/<WindowSelector/);
     expect(require('fs').readFileSync(require('path').join(__dirname, '..', 'PerformanceScreen.tsx'), 'utf8')).toMatch(/<WindowSelector/);
+  });
+});
+
+describe('DEC-0281 — the value line and the two BOND FACTS rows (account-page drawing rows 45-47, 2026-10-20)', () => {
+  const NOTE_FACE = 'The value shown is the face value — no market value entered.';
+  const NOTE_PAID = 'The value shown is what you paid — no market value entered.';
+  const bond = { asset_id: 'e', label: 'US Treasury 4.00% 2030', institution: 'Bank', source: 'manual', kind: 'fixed_income', asset_class: 'bonds',
+    tax_bucket: 'TAXABLE', face_value: 10000, coupon_rate: 0.04, maturity_date: '2030-09-30', positions: [] };
+  test('a market value entered: no line under the summary; Price $98.50 per $100 of face and What you paid $9,700 in BOND FACTS', () => {
+    seed({ ...bond, balance: 9850, amount_paid: 9700 });
+    render(<AccountPortfolioScreen />);
+    expect(screen.queryByText(NOTE_FACE)).toBeNull();
+    expect(screen.queryByText(NOTE_PAID)).toBeNull();
+    expect(screen.getByText('$98.50 per $100 of face')).toBeOnTheScreen();
+    expect(screen.getByText('What you paid')).toBeOnTheScreen();
+  });
+  test('saved through the store with no market value: the face value is shown and said; the yields refuse, so the 12-month card shows (DEC-6077)', () => {
+    useStore.getState().resetAll();
+    useStore.getState().addAsset({ ...bond } as any);   // the editor's hand-over: a face value, no market value, nothing paid
+    const saved = useStore.getState().assetAccounts[0];
+    expect(saved).toMatchObject({ balance: 10000, value_basis: 'face' });
+    mockParams = { id: String(saved.asset_id) };
+    useStore.setState({ hideBalances: false, transactions: [] } as any);
+    render(<AccountPortfolioScreen />);
+    expect(screen.getByText(NOTE_FACE)).toBeOnTheScreen();
+    expect(screen.queryByText('Price')).toBeNull();
+    expect(screen.queryByText('Yield if held to maturity')).toBeNull();
+    expect(screen.getByText('HISTORIC 12-MONTH RETURN')).toBeOnTheScreen();
+  });
+  test('saved with what was paid and no market value: what you paid is shown, and said', () => {
+    useStore.getState().resetAll();
+    useStore.getState().addAsset({ ...bond, amount_paid: 9700 } as any);
+    const saved = useStore.getState().assetAccounts[0];
+    expect(saved).toMatchObject({ balance: 9700, value_basis: 'paid' });
+    mockParams = { id: String(saved.asset_id) };
+    useStore.setState({ hideBalances: false, transactions: [] } as any);
+    render(<AccountPortfolioScreen />);
+    expect(screen.getByText(NOTE_PAID)).toBeOnTheScreen();
+    expect(screen.getByText('What you paid')).toBeOnTheScreen();
+  });
+  test('a linked account classed Bonds & CDs: its balance is the broker\'s — never marked, no line', () => {
+    seed(BOND_ACCOUNT);
+    render(<AccountPortfolioScreen />);
+    expect(screen.queryByText(NOTE_FACE)).toBeNull();
+    expect(screen.queryByText(NOTE_PAID)).toBeNull();
+  });
+});
+
+describe('Q15 — a record under a word the app does not know (account-page drawing rows 49-50, 2026-10-20)', () => {
+  // the lead's example: Robinhood sent XYZ_ADJUST, $500, on Oct 5, 2026 — stored by the REAL writer, the sync
+  const { ingestSync } = require('../../services/sync/ingest');
+  const sync = ingestSync([], {}, [{
+    account: { id: 'acc-rh', brokerage_authorization: 'conn-1', name: 'Robinhood Individual', number: '99887766', institution_name: 'Robinhood',
+      raw_type: 'Individual', balance: { total: { amount: 25_500, currency: 'USD' } },
+      sync_status: { holdings: { initial_sync_completed: true, last_successful_sync: new Date().toISOString() } } },
+    balancesCash: 500,
+    positions: [{ symbol: { id: 'u-vti', raw_symbol: 'VTI', description: 'Vanguard Total', type: { code: 'et' } }, units: 100, price: 250, average_purchase_price: 200 }],
+    activities: [{ id: 'x1', type: 'XYZ_ADJUST', trade_date: '2026-10-05', amount: 500 },
+      { id: 'd1', type: 'DIVIDEND', trade_date: '2026-10-01', amount: 12, symbol: { id: 'u-vti', raw_symbol: 'VTI' } }],
+  }], '2026-10-20T12:00:00.000Z');
+  const acct = sync.accounts[0];
+  const open = () => {
+    useStore.getState().resetAll();
+    mockParams = { id: String(acct.asset_id) };
+    useStore.setState({ hideBalances: false, assetAccounts: [acct], transactions: sync.newTransactions } as any);
+    render(<AccountPortfolioScreen />);
+  };
+  test('the row names the broker\'s word and shows the $500 it sent, in the text colour, with no plus or minus — never "Broker adjustment · $0"', () => {
+    const stored = sync.newTransactions.find((t: any) => t.unclassified_word === 'XYZ_ADJUST');
+    expect(stored).toMatchObject({ type: 'ADJUSTMENT', amount: 500 });   // the writer's own record
+    open();
+    expect(screen.getByText('XYZ_ADJUST · an activity the app does not know')).toBeOnTheScreen();
+    expect(screen.getByText('Oct 5 · from Robinhood')).toBeOnTheScreen();
+    expect(screen.queryByText(/^Broker adjustment/)).toBeNull();
+    const row = screen.getByLabelText(/^2026-10-05: XYZ_ADJUST · an activity the app does not know, \$500, which way it went is not known\. from Robinhood, read-only\.$/);
+    const { within } = require('@testing-library/react-native');
+    const { Colors } = require('../../utils/theme');
+    const amount = within(row).getByText('$500');   // the amount it sent — no + or −
+    const amt = Object.assign({}, ...[amount.props.style].flat(5).filter(Boolean));
+    expect(amt.color).toBe(Colors.textPrimary);       // not the green of money known to have come in
+    expect(within(row).queryByText('$0')).toBeNull();
+  });
+  test('the door opens this page\'s ACTIVITY, never a second copy of the page; from another screen it carries show=activity', () => {
+    const { dataGaps } = require('../../domain/gaps');
+    const gap = dataGaps([acct], null, Date.now(), sync.newTransactions).find((g: any) => g.kind === 'unknown-activity');
+    expect(gap.fixLabel).toBe('See the activity');
+    expect(gap.route).toBe(`/account-detail?id=${acct.asset_id}&show=activity`);
+    // on the page itself the amber box names it, and its door lists every record here instead of opening the page again
+    open();
+    expect(screen.getByText(/^Robinhood sent an activity the app does not know: "XYZ_ADJUST"\./)).toBeOnTheScreen();
+    fireEvent.press(screen.getByLabelText('See the activity'));   // the expo-router mock has no router.push: a push would throw
+    expect(screen.getByText('XYZ_ADJUST · an activity the app does not know')).toBeOnTheScreen();
+  });
+  test('opened by that door from another screen (show=activity), the page lists every record once ACTIVITY is laid out', () => {
+    // ten dividends after the unknown record push it below the first eight the list shows
+    const more = Array.from({ length: 10 }, (_, i) => ({ id: `dv${i}`, date: `2026-10-${String(10 + i).padStart(2, '0')}`, type: 'DIVIDEND',
+      amount: 1, ticker: 'VTI', account_id: acct.asset_id, source: 'connected' }));
+    useStore.getState().resetAll();
+    useStore.setState({ hideBalances: false, assetAccounts: [acct], transactions: [...sync.newTransactions, ...more] } as any);
+    mockParams = { id: String(acct.asset_id) };
+    render(<AccountPortfolioScreen />);
+    expect(screen.queryByText('XYZ_ADJUST · an activity the app does not know')).toBeNull();   // past the first eight
+    screen.unmount();
+    mockParams = { id: String(acct.asset_id), show: 'activity' };
+    render(<AccountPortfolioScreen />);
+    fireEvent(screen.getByTestId('card-activity'), 'layout', { nativeEvent: { layout: { x: 0, y: 1200, width: 360, height: 600 } } });
+    expect(screen.getByText('XYZ_ADJUST · an activity the app does not know')).toBeOnTheScreen();
   });
 });

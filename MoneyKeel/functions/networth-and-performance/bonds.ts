@@ -18,9 +18,14 @@ import type { AssetAccount } from '../../../src/domain/assets';
 import {
   isBond, bondInfo, yearlyInterest, yearlyInterestNow, yearsToMaturity, currentYield, approxYTM,
   bondSummary, accruedInterestCaveat, bondRateSensitivity, pricedLikeBond, maturityParts,
-  type BondInfo, type RateSensitivity,
+  bondValueNote, pricePer100OfFace,
+  type BondInfo, type RateSensitivity, type BondValueBasis,
 } from '../../../src/domain/bonds';
 
+/** THE ONE VALUE RULE, WRITTEN ONTO A BOND OR CD WHEN IT IS SAVED (DEC-0281, 2026-08-26): the market value entered, else
+ *  what was paid, else the face value, marked with where it came from. The store asks it of this door, as every screen
+ *  asks what a bond is worth here, so the balance every screen adds up is the value the Bonds list shows. */
+export { settleBondValue } from '../../../src/domain/bonds';
 
 /** Whether an account is a certificate of deposit, judged from its name. */
 /* ─ MK-NW-F-071 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
@@ -59,7 +64,8 @@ export const MATURITY_NOT_ENTERED = 'maturity date not entered';
 export interface BondRow {
   accountId: string;
   label: string;
-  /** What the person calls the place it is held — the row's heading on the Bonds screen. */
+  /** What the person calls the place it is held (the account's name when none was typed). The Bonds screen's heading is the
+   *  bond's own name, `label`, as its approved drawing draws it (DEC-0281: the issuer is shown, 2026-10-20). */
   institution: string;
   face: number | null;
   couponRate: number | null;
@@ -68,7 +74,17 @@ export interface BondRow {
   yearsLeft: number | null;
   currentYield: number | null;
   yieldToMaturity: number | null;
-  value: number;
+  /** By the one value rule (DEC-0281, bondValue): the market value, else what was paid, else the face value; null when
+   *  none was entered — "Value not entered", left out of the total, as Net worth leaves it out. */
+  value: number | null;
+  /** Where `value` comes from (DEC-0281). */
+  valueBasis: BondValueBasis;
+  /** The sentence beside a value that is what was paid or the face value; null for a market value or none. */
+  valueNote: string | null;
+  /** What the person paid for it (MK-XS-I-067), as entered; null when not entered. */
+  paid: number | null;
+  /** Its price per $100 of face (pricePer100OfFace): market value ÷ face × 100; null without both. */
+  pricePer100: number | null;
   isCD: boolean;
   /** (DEC-3837, 2026-10-10) A bond, or a CD bought through a broker: its yield is solved from its price
    *  and a move in rates changes its value. False for a CD bought from the bank. */
@@ -83,6 +99,10 @@ export interface OneBond extends BondRow {
   ratesMove: RateSensitivity | null;
   /** Why the rates-move estimate is not shown, when it is not. Empty when it is. */
   ratesMoveRefusal: string;
+  /** A CD WHOSE QUESTION WAS NEVER ANSWERED — bought from the bank, or through a broker (DEC-3837 asks it once). True only
+   *  for a CD with no answer stored: the page asks it there, with the two answers, instead of saying it "is marked as bought
+   *  from the bank" when nobody marked it (2026-10-21, DEC-3523 tenet 3). */
+  cdBoughtNotEntered: boolean;
 }
 
 export interface Bonds {
@@ -94,11 +114,19 @@ export interface Bonds {
   /** The bonds the average yield leaves out, by name: the ones with no value today. A screen that
    *  shows the average names them, so nobody reads it as an average of every bond listed. */
   leftOutOfAverage: string[];
+  /** WHY EACH OF THEM IS LEFT OUT (2026-10-21, by the one value rule, DEC-0281). A yield needs a market value, so the average
+   *  leaves out a bond whose value was not entered at all, whose market value is $0, or whose value shown is what was paid or
+   *  its face value (no market value entered) — the screen says which, one line each. Every name in leftOutOfAverage is in
+   *  exactly one of the four. A value that is what was paid or the face value used to be called "no value today". */
+  averageLeavesOut: { notEntered: string[]; noValueToday: string[]; valueIsPaid: string[]; valueIsFace: string[] };
   /** The bonds the average yield and the year's interest leave out because no rate was entered — named
    *  the same way (outside review, 2026-10-07: they had counted as paying 0%). */
   leftOutNoRate: string[];
   /** The bonds the total face value leaves out because none was entered — named, never counted as $0. */
   faceNotEntered: string[];
+  /** (DEC-0281, DEC-3657) The bonds the total value leaves out because no value of any kind was entered — no market
+   *  value, nothing paid, no face value — named, never counted as $0, as Net worth leaves them out. */
+  valueNotEntered: string[];
   /** The soonest maturity date among them, so the screen need not sort for itself. */
   nextMaturity: string | null;
   rows: BondRow[];
@@ -123,18 +151,19 @@ export interface BondsInput {
  *     b = bond info(a)
  *
  * Called by ... MK-NW-F-141 holdingBondFacts · MK-NW-O-001 theBonds
+ *               MK-ST-F-093 typedValueOnItsDate
  *
- * Reaches ..... 129 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
- *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
- *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               … and 111 more — the full list is on functions_from_code
+ * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 248 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
@@ -162,7 +191,12 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
     yearsLeft: yearsToMaturity(b.maturity, now),
     currentYield: currentYield(b),
     yieldToMaturity: approxYTM(b, now),
-    value: b.value,
+    // THE ONE VALUE RULE (DEC-0281, 2026-08-26): the value shown, with where it came from — never $0 for a value not entered
+    value: b.shown !== undefined ? b.shown : b.value,
+    valueBasis: b.basis ?? 'market',
+    valueNote: bondValueNote(b.basis ?? 'market'),
+    paid: b.paid ?? null,
+    pricePer100: pricePer100OfFace(b),
     isCD: !!b.isCd,
     pricedLikeBond: pricedLikeBond(b),   // the one test (DEC-3837, 2026-10-10)
     accruedCaveat: accruedInterestCaveat(b, now),
@@ -179,6 +213,9 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
  * Answers ..... A BOND OR CD HELD AS A HOLDING, its facts for the line under its name (DEC-6212, 2026-10-19): face value, coupon rate, yield to maturity and maturity date (DEC-6323, 2026-10-19), with whether it has matured — read by the same rules as a bond held as its own account (rowOf), with the holding's value today as its value.
  *
  * Formula .....
+ *     units = Σ over lots (or none when missing) of (shares read as a number (or 0 when missing or zero))
+ *     face = face value (or units   if price quote = 'per_100_of_face' and units > 0
+ *     undefined   otherwise when missing)
  *     parts = maturity parts(row.maturity)
  *     maturity = `${parts[0]}-${string(parts[1]).pad start(2, '0')}-${string(parts[2]).pad start(2, '0')}`   if parts
  *     nothing   otherwise
@@ -193,10 +230,13 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-011 bond face value
  *               MK-XS-I-012 bond coupon rate
  *               MK-XS-I-013 bond maturity date
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-068 how a linked bond's price is quoted — per $100 of face value, or per unit like a share
+ *               MK-XS-I-069 how many times a year a bond or CD pays its interest — once or twice
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
@@ -205,10 +245,14 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
  * Changed ..... not in git yet (—)
  */
 export function holdingBondFacts(p: { position_id?: string | number; ticker?: string; label?: string; kind?: string;
-  face_value?: number; coupon_rate?: number; maturity_date?: string }, value: number, now: Date = new Date()):
+  face_value?: number; coupon_rate?: number; maturity_date?: string; coupons_per_year?: 1 | 2; price_quote?: string; lots?: { shares?: number }[] }, value: number, now: Date = new Date()):
   { face: number | null; couponRate: number | null; yieldToMaturity: number | null; maturity: string | null; matured: boolean } {
+  // A BOND QUOTED PER $100 OF FACE IS HELD IN FACE DOLLARS (MK-XS-I-068, 2026-10-20; Q38 part 1, a bond's quantity is its
+  // face amount): with no face value given, its quantity is its face value. A face the person entered comes first.
+  const units = (p.lots ?? []).reduce((t, l) => t + (Number(l?.shares) || 0), 0);
+  const face = p.face_value ?? (p.price_quote === 'per_100_of_face' && units > 0 ? units : undefined);
   const row = rowOf({ asset_id: String(p.position_id ?? p.ticker ?? ''), label: p.label ?? p.ticker ?? '', kind: p.kind,
-    face_value: p.face_value, coupon_rate: p.coupon_rate, maturity_date: p.maturity_date, balance: value } as any, now);
+    face_value: face, coupon_rate: p.coupon_rate, maturity_date: p.maturity_date, coupons_per_year: p.coupons_per_year, balance: value } as any, now);
   // THE MATURITY DATE, the fourth part of the line (owner, 2026-10-19: "Line under a bond - new line missing maturity
   // date."): read by the one reading of a maturity date (MK-NW-F-124), so a date that is missing, written another way or
   // impossible is not known and is left out; matured is the Bonds door's own rule, years left is zero (MK-NW-O-001).
@@ -236,25 +280,33 @@ export function holdingBondFacts(p: { position_id?: string | number; ticker?: st
  *     b = bond info(opened)
  *     row = row of(opened, now)
  *     matured today = row.years left = 0
+ *     not answered = row.is cd and opened.cd bought ! = 'bank' and opened.cd bought ! = 'broker'
+ *     out = not entered = [] as string[]
+ *     no value today = [] as string[]
+ *     value is paid = [] as string[]
+ *     value is face = [] as string[]
+ *     the answer = out
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-077 ALL · MK-NW-F-078 ONE
  *
- * Reaches ..... 128 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-077 ALL · MK-NW-F-076 ALT
- *               MK-NW-F-088 BENCH · MK-CF-F-205 COMING
- *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               MK-NW-F-082 NW · MK-NW-F-078 ONE
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               … and 110 more — the full list is on functions_from_code
+ * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
+ *               … and 248 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-023 · MK-NW-M-024 · MK-NW-M-025 · MK-NW-M-026
  *               MK-NW-M-027 · MK-NW-M-041 · MK-NW-M-042 · MK-NW-M-043
  *               MK-NW-M-044 · MK-NW-M-045 · MK-NW-M-053 · MK-NW-M-054
  *               MK-NW-M-055 · MK-NW-M-056 · MK-NW-M-057 · MK-NW-M-058
+ *               MK-NW-M-065 · MK-NW-M-066
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-003 institution name
@@ -300,7 +352,13 @@ export function theBonds(input: BondsInput): Bonds {
     // A BANK CD IS NOT MARKED TO MARKET — the founder's ruling (2026-09-27), built into the door so no
     // screen has to remember it. The app now asks where a CD was bought (DEC-3837, 2026-10-10): a CD
     // bought through a broker trades, so it gets the estimate like a bond and this sentence is not shown.
-    const refusal = row.isCD && !row.pricedLikeBond
+    // WHERE THE CD WAS BOUGHT IS NOT ENTERED (2026-10-21, DEC-3523 tenet 3, DEC-3837): no answer is not "from the bank". The
+    // card says what each answer means and asks it; the bank sentence below is for a CD marked as bought from the bank.
+    const notAnswered = row.isCD && opened.cd_bought !== 'bank' && opened.cd_bought !== 'broker';
+    const refusal = notAnswered
+      ? 'Where this CD was bought is not entered. A CD bought from the bank is not traded, so its value does not move with '
+        + 'rates. A CD bought through a broker is traded, and its value does move with rates.'
+      : row.isCD && !row.pricedLikeBond
       ? 'Nothing happens to this CD. It is not traded, so its value does not move with rates — it is worth '
         + 'its balance until it matures, when the face value above comes back. '
         + 'The only way out early is to break it, and your bank charges a fixed penalty for that, usually some '
@@ -313,6 +371,7 @@ export function theBonds(input: BondsInput): Bonds {
       ratesMove: !row.pricedLikeBond || maturedToday ? null : bondRateSensitivity(b, now),
       yieldToMaturity: maturedToday ? null : row.yieldToMaturity,
       ratesMoveRefusal: refusal,
+      cdBoughtNotEntered: notAnswered,
     };
   }
 
@@ -324,8 +383,19 @@ export function theBonds(input: BondsInput): Bonds {
     avgYield: sum.avgYield,
     // the same test the average itself uses: a value today, after accrued interest, above zero
     leftOutOfAverage: held.filter((a) => { const b = bondInfo(a); return !(b.value > 0); }).map((a) => a.label),
+    // the same bonds, by why (2026-10-21): where the value shown came from, as the one value rule stored it (bondInfo's basis)
+    averageLeavesOut: (() => {
+      const out = { notEntered: [] as string[], noValueToday: [] as string[], valueIsPaid: [] as string[], valueIsFace: [] as string[] };
+      for (const a of held) {
+        const b = bondInfo(a);
+        if (b.value > 0) continue;
+        (b.basis === 'paid' ? out.valueIsPaid : b.basis === 'face' ? out.valueIsFace : b.basis === 'none' ? out.notEntered : out.noValueToday).push(a.label);
+      }
+      return out;
+    })(),
     leftOutNoRate: held.filter((a) => { const b = bondInfo(a); return b.value > 0 && yearlyInterest(b) == null; }).map((a) => a.label),
     faceNotEntered: held.filter((a) => bondInfo(a).face == null).map((a) => a.label),
+    valueNotEntered: rows.filter((r) => r.value == null).map((r) => r.label),
     nextMaturity: (sum as any).nextMaturity ?? null,
     rows,
     one,
@@ -345,12 +415,12 @@ export function theBonds(input: BondsInput): Bonds {
 const TODAY = new Date('2026-09-28T12:00:00');
 const EXAMPLE = [
   { asset_id: 'b1', label: 'US Treasury 2029', institution: 'Fidelity', kind: 'bond', tax_bucket: 'TAXABLE',
-    balance: 24200, target_return: 0, face_value: 25000, coupon_rate: 0.045, maturity_date: '2029-09-30' },
+    balance: 24200, target_return: 0, face_value: 25000, coupon_rate: 0.045, maturity_date: '2029-09-30', amount_paid: 23900 },
   { asset_id: 'b2', label: 'Ally 12-month CD', institution: 'Ally', kind: 'bond', tax_bucket: 'TAXABLE',
     balance: 10000, target_return: 0, face_value: 10000, coupon_rate: 0.0505, maturity_date: '2027-03-15' },
 ] as any[];
 const GIVEN =
-  'Two bonds on 28 Sep 2026: a $25,000-face Treasury paying 4.5%, maturing 30 Sep 2029, worth $24,200 today; '
+  'Two bonds on 28 Sep 2026: a $25,000-face Treasury paying 4.5%, maturing 30 Sep 2029, worth $24,200 today, bought for $23,900; '
   + 'and a $10,000 Ally CD paying 5.05%, maturing 15 Mar 2027, worth its $10,000.';
 
 /** Example only: runs theBonds on the worked example and calculates nothing of its own. */
@@ -364,17 +434,17 @@ const GIVEN =
  *
  * Called by ... MK-NW-F-078 ONE
  *
- * Reaches ..... 127 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-O-014 M
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-NW-F-078 ONE · MK-CF-O-011 PAY
- *               MK-CF-O-012 PAY_ESTIMATED · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               … and 109 more — the full list is on functions_from_code
+ *               … and 248 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -392,19 +462,20 @@ const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
- * Called by ... MK-CF-F-005 actualMonthFlow · MK-NW-O-003 theNetWorth
+ * Called by ... MK-CF-F-005 actualMonthFlow · MK-NW-F-127 gainOfRow
+ *               MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 126 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
+ *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-O-014 M
  *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               … and 108 more — the full list is on functions_from_code
+ *               … and 248 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -450,9 +521,13 @@ export const BOND_FIGURES = declareFigures({
   'MK-NW-M-054': {
     label: 'one bond\u2019s value', unit: 'money', screens: ['/bonds'], grain: 'one bond',
     answers: 'What this one bond or CD is worth today.',
-    formula: 'the bond account\u2019s own balance',
-    inputs: ['MK-XS-I-001 account balance'],
-    refusal: '\u2014 the row is not drawn at all when there is no bond.',
+    // DEC-0281 (2026-08-26): "Current Value if available, if not, cost value, if not face value" \u2014 the one value rule, bondValue
+    formula: 'the market value entered; else what you paid; else the face value; else Value not entered (left out of the total)',
+    inputs: ['MK-XS-I-001 account balance', 'MK-XS-I-067 what was paid for a bond or CD', 'MK-XS-I-011 bond face value'],
+    decisions: ['DEC-0281: a value that is what was paid or the face value says so beside it, so nobody reads it as a market value.',
+      'DEC-3657: no market value, nothing paid and no face value \u2014 the row reads Value not entered and the bond is left out of the total, as Net worth leaves it out.'],
+    // printed as it stands when there is no value (the words the canon gives a balance never entered, DEC-3657)
+    refusal: 'Value not entered',
     ruled: '2026-10-01',
     worked: { given: GIVEN, answer: '$10,000', run: () => ALL().rows.find((r) => r.label === 'Ally 12-month CD')!.value },
   },
@@ -496,9 +571,14 @@ export const BOND_FIGURES = declareFigures({
     label: 'Yield to maturity', unit: 'percent-2dp', screens: ['/bonds'], grain: 'one bond',
     answers: 'What this bond would earn a year if held to maturity, counting the gain or loss between '
       + 'what it is worth now and what it pays back.',
-    formula: 'the coupon a year plus (face \u2212 value) spread over the years left, \u00f7 the value today',
-    inputs: ['MK-XS-I-001 account balance'],
+    // the solved yield since 2026-10-07; how often the bond pays since 2026-10-20 (DEC-3390). The words read the old
+    // approximation until 2026-10-20, a disagreement between this row and the code.
+    formula: 'the yield at which the coupons still to come and the face value, discounted, equal the full price: the value today plus the interest built up since the last coupon — as entered, else estimated as face × rate ÷ payments a year × days since the last payment ÷ days between payments, the payments stepping back from the maturity date (once a year when how often it pays was not entered)',
+    inputs: ['MK-XS-I-001 account balance', 'MK-XS-I-011 bond face value', 'MK-XS-I-012 bond coupon rate', 'MK-XS-I-013 bond maturity date',
+      'MK-XS-I-065 accrued interest', 'MK-XS-I-069 how many times a year it pays'],
     decisions: ['AN ESTIMATE, and the foot of the screen says so in those words.',
+      'DEC-3390, 2026-10-09: the interest built up since the last coupon is added to the value; estimated when not entered, '
+      + 'and the screen says so. Since 2026-10-20 the estimate counts from the last payment by how often the bond pays.',
       'DEC-3837, 2026-10-10: a CD bought from the bank yields its interest rate; a CD bought through a broker '
       + 'is priced like a bond, its yield solved from its face value, rate, value and maturity date. '
       + 'A CD whose answer was never given is read as bought from the bank.'],
@@ -509,7 +589,8 @@ export const BOND_FIGURES = declareFigures({
   'MK-NW-M-041': {
     label: 'total value of your bonds', unit: 'money', screens: ['/bonds'],
     answers: 'What every bond and CD you hold is worth today, added up.',
-    formula: 'the sum of each bond account’s balance',
+    // each bond by the one value rule (DEC-0281, bondValue); a bond whose value was not entered adds nothing and is named
+    formula: 'the sum of each bond’s value (the market value, else what you paid, else the face value); a bond with none is left out and named',
     inputs: ['MK-NW-I-001 your accounts'],
     refusal: 'No bonds entered yet, so it says so rather than showing $0.',
     ruled: '2026-09-27',
@@ -614,9 +695,12 @@ export const BOND_FIGURES = declareFigures({
   'MK-NW-M-026': {
     label: 'Yield if held to maturity', unit: 'percent-2dp', screens: ['/account-detail'], grain: 'one bond',
     answers: 'What it earns a year if you hold it to the end, counting the gap between its price and its face value.',
-    formula: '(coupon + (face − value) ÷ years left) ÷ ((face + value) ÷ 2) — the standard approximation',
-    inputs: ['MK-NW-I-001 your accounts'],
-    decisions: ['An approximation, and labelled an estimate on screen.'],
+    // the solved yield since 2026-10-07; the words read the old approximation until 2026-10-20 (row and code disagreed)
+    formula: 'the yield at which the coupons still to come and the face value, discounted, equal the full price: the value today plus the interest built up since the last coupon — as entered, else estimated as face × rate ÷ payments a year × days since the last payment ÷ days between payments, the payments stepping back from the maturity date (once a year when how often it pays was not entered)',
+    inputs: ['MK-NW-I-001 your accounts', 'MK-XS-I-065 accrued interest', 'MK-XS-I-069 how many times a year it pays'],
+    decisions: ['An estimate, and labelled an estimate on screen.',
+      'DEC-3390, 2026-10-09: the interest built up since the last coupon is added to the value. Since 2026-10-20 the '
+      + 'estimate counts from the last payment by how often the bond pays; not entered, once a year.'],
     refusal: 'Matured, or no maturity date — it refuses rather than divide by nothing.',
     ruled: '2026-09-27',
     worked: {
@@ -640,6 +724,32 @@ export const BOND_FIGURES = declareFigures({
       answer: '4.65%',
       run: () => ONE().currentYield,
     },
+  },
+  // ISSUED 2026-10-20 under DEC-0281 (his words, 2026-08-26: "Information to display on screen for Bond is Maturity, Face
+  // Value, Issuer, coupon rate, cost, current price, quantity, accrued interest, earned interest"): the cost and the
+  // current price, the two of the nine a bond's own page did not show. Quantity is the face value (Q38 part 1).
+  'MK-NW-M-065': {
+    label: 'What you paid', unit: 'money', screens: ['/account-detail'], grain: 'one bond',
+    answers: 'What you paid for this bond or CD, as you entered it.',
+    formula: 'the amount you entered as what you paid',
+    inputs: ['MK-XS-I-067 what was paid for a bond or CD'],
+    decisions: ['DEC-0281: cost is one of the nine facts a bond shows; it is step 2 of the one value rule.',
+      'Optional: not entered, the row is not shown; a typed 0 is $0 (DEC-2748b).'],
+    refusal: 'Not entered — the row is not shown.',
+    ruled: '2026-10-20',
+    worked: { given: GIVEN, answer: '$23,900', run: () => ONE().paid },
+  },
+  'MK-NW-M-066': {
+    label: 'Price', unit: 'money-cents', screens: ['/account-detail'], grain: 'one bond',
+    answers: 'What this bond costs per $100 of its face value today — the way a broker quotes a bond.',
+    formula: 'its market value ÷ its face value × 100',
+    inputs: ['MK-XS-I-001 account balance', 'MK-XS-I-011 bond face value'],
+    decisions: ['Q38 part 3, decided 2026-10-20 under DEC-0281: the price is calculated from the value and the face, not a box to fill in.',
+      'Only with a market value: a value that is what you paid or the face value is not a price.'],
+    refusal: 'No market value or no face value — the row is not shown.',
+    ruled: '2026-10-20',
+    // $24,200 ÷ $25,000 × 100 = $96.80, printed "$96.80 per $100 of face"
+    worked: { given: GIVEN, answer: '$96.80', run: () => ONE().pricePer100 },
   },
   'MK-NW-M-028': {
     // MONEY, NOT WORDS (2026-10-14): each amount on the two lines is printed through this figure, so it masks with

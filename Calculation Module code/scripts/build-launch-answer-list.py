@@ -129,9 +129,17 @@ for tab, name in MODULES.items():
             'The decision stays marked as my reconstruction, so anything built on it rests on my reading of what you meant.')
 
 # ── 4 · the questions HE asked that were never answered ─────────────────────────────────────────
+# A QUESTION THAT HAS BEEN ANSWERED IS NOT ASKED AGAIN (2026-10-20). This listed every question row in force
+# whatever its state, so DEC-0475, DEC-0476 and DEC-0478 — each answered by the code as built and held by a
+# test — still read "NOBODY ANSWERED". The answer is written on the row's own open-question column
+# ("ANSWERED <date> …"), which prints in the decision log; the count of questions skipped is printed below,
+# so this cannot go quiet by skipping more than it says.
+answered_qs = []
 for tab, name in MODULES.items():
     qs = [r for r in dec if r.get('tab') == tab
           and str(r.get('plain', '')).startswith(('HIS QUESTION', 'A QUESTION')) and in_force(r)]
+    answered_qs += [r['id'] for r in qs if str(r.get('open_q') or '').startswith('ANSWERED')]
+    qs = [r for r in qs if not str(r.get('open_q') or '').startswith('ANSWERED')]
     for r in qs:
         add(name, 'A QUESTION YOU ASKED AND NOBODY ANSWERED: ' + str(r.get('his_words') or '')[:400],
             'moneykeel_log_decisions_v01.xlsx', tab, r['id'],
@@ -200,3 +208,4 @@ print('wrote', OUT)
 from collections import Counter
 c = Counter(i[1] for i in items)
 print(f'   {len(items)} things need you · ' + ' · '.join(f'{v} {k}' for k, v in c.most_common()))
+print(f'   {len(answered_qs)} question(s) of his not asked again — answered on their row: ' + (' '.join(answered_qs) or 'none'))

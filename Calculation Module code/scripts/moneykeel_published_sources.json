@@ -133,5 +133,23 @@
   "valid_through": 2099,
   "checked": "2026-09-12",
   "note": "withholding threshold, regardless of filing status"
+ },
+ {
+  "symbol": "SECTION_1256_INDEX_OPTION_ROOTS",
+  "file": "src/domain/performance/index.ts",
+  "what": "Options on a broad-based stock index (SPX, SPXW, XSP, NDX, NDXP, RUT, MRUT, VIX, DJX, OEX, XEO) — section 1256 contracts, whose gain is split 60/40 whatever the holding period",
+  "publication": "IRS Publication 550 (2025), Section 1256 Contracts Marked to Market — Nonequity option: broad-based stock index options; IRC §1256(b), (g)(3)",
+  "valid_through": 2026,
+  "checked": "2026-10-21",
+  "note": "read from irs.gov on 2026-10-21; Publication 550 names the S&P 500 as its example of a broad-based index and lists no tickers, so the list is the lead's reading of it (2026-10-21) — re-check the list each year"
+ },
+ {
+  "symbol": "SECTION_1256_LONG_TERM_PERCENT",
+  "file": "src/domain/performance/index.ts",
+  "what": "The long-term share of a section 1256 contract's gain, 60%; the other 40% is short-term",
+  "publication": "IRC §1256(a)(3); IRS Publication 550 (2025), 60/40 rule — \"treated as 60% long-term and 40% short-term, regardless of how long the contracts were held\"",
+  "valid_through": 2099,
+  "checked": "2026-10-21",
+  "note": "set by the statute, not by a yearly figure"
  }
 ]

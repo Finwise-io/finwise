@@ -52,7 +52,9 @@ export default function RothScreen() {
   const [rateOverride, setRateOverride] = useState<string>('');
   const [rateOpen, setRateOpen] = useState(false);
   const rate = rateOverride !== '' ? Math.min(0.6, num(rateOverride) / 100) : (estRate ?? 0.22);
-  const taxCost = Math.round(amt * rate);
+  // the tax is held exact and saved exact (DEC-0403); it was rounded to the dollar here until 2026-10-20 — every place
+  // that prints it rounds it on the way out
+  const taxCost = amt * rate;
 
   // later effects (r38): the ONE rmdAtAge path, pre-tax balance projected to 73 with the shared return
   const growTo73 = (bal: number) => {
@@ -116,7 +118,7 @@ export default function RothScreen() {
       {amt > 0 && !adopted && (
         <TouchableOpacity accessibilityRole="button" style={s.saveScenarioLink}
           accessibilityLabel={`Save this scenario: convert ${spokenMoney(amt)}`}
-          onPress={() => { store.saveRetirementScenario?.(`Roth: convert ${maskedMoney(amt)}`, { rothConversionThisYear: amt, rothConversionTax: Math.round(amt * rate) } as any, Number(A.retireAge) || 0, after?.chance ?? before.chance ?? 0); }}>
+          onPress={() => { store.saveRetirementScenario?.(`Roth: convert ${maskedMoney(amt)}`, { rothConversionThisYear: amt, rothConversionTax: taxCost } as any, Number(A.retireAge) || 0, after?.chance ?? before.chance ?? 0); }}>
           <Text style={s.saveScenarioTxt}>Save this scenario — compare it later on the Plan hub ›</Text>
         </TouchableOpacity>
       )}

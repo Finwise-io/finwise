@@ -714,7 +714,8 @@
    "difference": "no single expected",
    "formula_gives_match": null,
    "note": "UNCLEAR: app treats any non-blank text as a maturity date (src/domain/assets/index.ts:416). Open question: is an unreadable date refused or kept as Bonds & CDs? No decision found (DEC-0332 covers a missing date only).",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-009 maturityClass — five cases › edge · Invalid nonblank date needs owner clarification"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-009 maturityClass — five cases › edge · Invalid nonblank date needs owner clarification",
+   "settled": "SETTLED 2026-10-10 by DEC-4059b/c: a stored maturity text that is not a real date is read as no date — cash, never a bond; dates are picked, never typed. Held by outside_networth_final_openai_part1.test.ts:200."
   },
   {
    "id": "MK-NW-F-010",
@@ -786,7 +787,8 @@
    "difference": "no single expected",
    "formula_gives_match": "formula_gives",
    "note": "UNCLEAR: app defaults no choice to taxable brokerage (index.ts:455). Open question: is that an approved capture default, or must the wrapper stay unknown (tenet 3)? DEC-2441 approved F-010's Roth 401(k) fix only.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-010 wrapperAccount — five cases › edge · No wrapper chosen"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-010 wrapperAccount — five cases › edge · No wrapper chosen",
+   "settled": "SETTLED 2026-10-10 by DEC-4036f: an account with no account type chosen is never assumed taxable — the wrapper stays unknown and the account page says \"tax type not stated\". Held by outside_networth_final_openai_part1.test.ts:218."
   },
   {
    "id": "MK-NW-F-011",
@@ -898,7 +900,8 @@
    "difference": "no single expected",
    "formula_gives_match": null,
    "note": "UNCLEAR: stated treatment wins (index.ts:570) while taxWordsOf prints 'tax-free for education' for the same account (index.ts:609). Open question: may a 529 carry a stated 'taxable' treatment? DEC-3035c fixes the words only.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-012 taxTreatmentOf — five cases › complex · 529 with explicit taxable conflicts with fixed 529 rule"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-012 taxTreatmentOf — five cases › complex · 529 with explicit taxable conflicts with fixed 529 rule",
+   "settled": "SETTLED 2026-10-10 by DEC-4036d: a 529 is always tax-free for education, whatever tax setting is stored. Held by outside_networth_final_openai_part1.test.ts:246."
   },
   {
    "id": "MK-NW-F-012",
@@ -912,7 +915,8 @@
    "difference": "no single expected",
    "formula_gives_match": null,
    "note": "UNCLEAR: Roth-bucket fallback gives tax_free (index.ts:573) while taxWordsOf says 'pre-tax — tax-free for medical costs' (index.ts:610). Open question: can an HSA sit in the Roth bucket? DEC-2441 (KEPT) only sorts an HSA with pre-tax by default.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-012 taxTreatmentOf — five cases › complex · HSA in Roth bucket tests owner-specific wording"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-012 taxTreatmentOf — five cases › complex · HSA in Roth bucket tests owner-specific wording",
+   "settled": "SETTLED 2026-10-10 by DEC-4036e: an HSA is always pre-tax going in and tax-free for medical costs, whatever bucket it is filed in. Held by outside_networth_final_openai_part1.test.ts:251."
   },
   {
    "id": "MK-NW-F-012",
@@ -1830,7 +1834,8 @@
    "difference": "no single expected",
    "formula_gives_match": "expected",
    "note": "UNCLEAR: a mask with under four digits falls through to the account number (index.ts:1205-1208), which is the auditor's own 'intended fallback reading' (formula_gives said null). Open question: is that the intended reading of the card's 'or failing that'? No decision found.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-024 accountLastFour — five cases › complex · Unusable mask fallback ambiguity"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-024 accountLastFour — five cases › complex · Unusable mask fallback ambiguity",
+   "settled": "BRIEF WRONG — re-judged 2026-10-20: the card gives null only when the digits are genuinely unknown; a two-digit mask fails, so the account number is read: 00012345 → 2345 (DEC-0083: institution + last four). The app gives 2345. Held by outside_networth_final_openai_part1.test.ts:367."
   },
   {
    "id": "MK-NW-F-024",

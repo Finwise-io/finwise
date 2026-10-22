@@ -6,6 +6,7 @@
 // DR-6: ids are assigned by the caller via newEntityId, never derived from the file.
 
 import { type AssetClass } from '../assets';
+import { purchaseDateOnRecord } from '../performance';
 import { classifyHoldingClass } from '../../../Calculation Module code/engines/holding-class';
 
 export interface ImportedHolding {
@@ -16,7 +17,11 @@ export interface ImportedHolding {
   value: number;           // market value (USD) from the file; 0 if absent
   date?: string;           // 'YYYY-MM-DD' purchase date if the file had one
   label?: string;          // security description, if present
-  assetClass: AssetClass;  // classified from symbol/name (CD→cash, Put→alternatives, …)
+  /** THE FILE'S OWN TYPE for this row, exactly as written, when the file has a type column ("Security Type",
+   *  "Asset Class"…). It decides the class (his ruling, 2026-10-20: "always the class broker sends"), and the account
+   *  keeps it on the saved holding so every reader asks the same order. Absent = the file names no type. */
+  brokerType?: string;
+  assetClass: AssetClass;  // the one order: the file's own type first, else the symbol and name (MK-ST-F-011)
 }
 
 export interface ImportResult {
@@ -273,8 +278,8 @@ function findCol(headers: string[], patterns: RegExp[]): number {
  *     t = (v ?? '').trim()
  *     undefined   when t is missing
  *     m = match( ÷ ^(\d{4})[- ÷ ](\d{1,2})[- ÷ ](\d{1,2})$ ÷ )
- *     `${m[1]}-${m[2].pad start(2, '0')}-${m[3].pad start(2, '0')}`   when m
- *     `${m[3]}-${m[1].pad start(2, '0')}-${m[2].pad start(2, '0')}`   when m
+ *     purchase date on record(`${m[1]}-${m[2].pad start(2, '0')}-${m[3].pad start(2, '0')}`) (or undefined when missing)   when m
+ *     purchase date on record(`${m[3]}-${m[1].pad start(2, '0')}-${m[2].pad start(2, '0')}`) (or undefined when missing)   when m
  *     the answer = undefined
  *
  * Called by ... MK-XS-F-015 importHoldings
@@ -291,9 +296,11 @@ function toIsoDate(v: string): string | undefined {
   const t = (v ?? '').trim();
   if (!t) return undefined;
   let m = t.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);          // YYYY-MM-DD
-  if (m) return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`;
+  // A DAY THAT DOES NOT EXIST IS NOT A PURCHASE DATE (2026-10-21; tenet 3): 02/31/2026 was kept as written and read as
+  // 3 March. It is left as not on record, by the one reading of a purchase date (purchaseDateOnRecord).
+  if (m) return purchaseDateOnRecord(`${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}`) ?? undefined;
   m = t.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/);              // MM/DD/YYYY
-  if (m) return `${m[3]}-${m[1].padStart(2, '0')}-${m[2].padStart(2, '0')}`;
+  if (m) return purchaseDateOnRecord(`${m[3]}-${m[1].padStart(2, '0')}-${m[2].padStart(2, '0')}`) ?? undefined;
   return undefined;
 }
 
@@ -337,7 +344,7 @@ function cleanTicker(v: string): string | null {
  * Answers ..... B7 (founder brief 2026-08-20): classification lives in the ONE function — this road only adapts.
  *
  * Formula .....
- *     classify holding class({ ticker: symbol, name, has security identity: true }).cls
+ *     classify holding class({ ticker: symbol, name, broker tag: broker type ?? nothing, has security identity: true }).cls
  *
  * Called by ... MK-XS-F-015 importHoldings
  *
@@ -345,12 +352,13 @@ function cleanTicker(v: string): string | null {
  *               MK-XS-F-015 importHoldings
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-070 the class a broker sends for a holding — its security type and its cash-equivalent flag
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-172
  * Changed ..... not in git yet (—)
  */
-export function assetClassForSymbol(symbol: string, name = ''): AssetClass {
-  return classifyHoldingClass({ ticker: symbol, name, hasSecurityIdentity: true }).cls;
+export function assetClassForSymbol(symbol: string, name = '', brokerType?: string | null): AssetClass {
+  return classifyHoldingClass({ ticker: symbol, name, brokerTag: brokerType ?? null, hasSecurityIdentity: true }).cls;
 }
 
 /** Find the real positions header — the first row that has BOTH a symbol/ticker AND a quantity/shares
@@ -407,7 +415,7 @@ function findHeaderRow(rows: string[][]): number {
  *     total cost col = find col(headers, [ ÷ cost basis|total cost|cost amount|book cost ÷ i])
  *     value col = find col(headers, [ ÷ ^value\s × \$?$ ÷ i, ÷ market value|current value|^value ÷ i])
  *     date col = find col(headers, [ ÷ purchase date|acquired|acquisition|trade date|date ÷ i])
- *     name col = find col(headers, [ ÷ description|security|name|fund|investment|holding|instrument ÷ i])
+ *     type col = headers.find index((h) => ÷ ^(security|asset|investment|product|holding)\s × (type|class)$ ÷ test(h))
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -416,6 +424,7 @@ function findHeaderRow(rows: string[][]): number {
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-010 transaction words (the institution's own wording)
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *               MK-XS-I-070 the class a broker sends for a holding — its security type and its cash-equivalent flag
  *
  * Decides .....
  *     · Uses a built-in skipped of 0.
@@ -435,7 +444,11 @@ export function importHoldings(text: string): ImportResult {
   const totalCostCol = findCol(headers, [/cost basis|total cost|cost amount|book cost/i]);
   const valueCol = findCol(headers, [/^value\s*\$?$/i, /market value|current value|^value/i]);
   const dateCol = findCol(headers, [/purchase date|acquired|acquisition|trade date|date/i]);
-  const nameCol = findCol(headers, [/description|security|name|fund|investment|holding|instrument/i]);   // broadened: brokerages label the name column many ways
+  // THE FILE'S OWN TYPE COLUMN, when it has one (Schwab: "Security Type"; others: "Asset Class", "Investment Type") —
+  // the broker's class for each row (his ruling, 2026-10-20). A bare "Type" is NOT read: Fidelity's means the account
+  // type (Cash / Margin), not the holding's. The type column is never mistaken for the name column below.
+  const typeCol = headers.findIndex((h) => /^(security|asset|investment|product|holding)\s*(type|class)$/i.test(h));
+  const nameCol = findCol(headers.map((h, i) => (i === typeCol ? '' : h)), [/description|security|name|fund|investment|holding|instrument/i]);   // broadened: brokerages label the name column many ways
 
   const holdings: ImportedHolding[] = [];
   let skipped = 0;
@@ -456,7 +469,8 @@ export function importHoldings(text: string): ImportResult {
       const totalCost = totalCostCol >= 0 ? numOrNaN(r[totalCostCol]) : NaN;
       costPerShare = totalCost >= 0 && shares > 0 ? totalCost / shares : 0;
     }
-    const assetClass: AssetClass = isCashLine ? 'cash' : assetClassForSymbol(symbol, name);
+    const brokerType = typeCol >= 0 ? (r[typeCol] ?? '').trim() : '';
+    const assetClass: AssetClass = isCashLine ? 'cash' : assetClassForSymbol(symbol, name, brokerType || null);
     const ticker = assetClass === 'stocks_etf' ? cleanTicker(symbol) : null;   // only equities track by ticker
     holdings.push({
       symbol,
@@ -466,6 +480,7 @@ export function importHoldings(text: string): ImportResult {
       value: Number.isFinite(value) && value >= 0 ? value : 0,
       date: dateCol >= 0 ? toIsoDate(r[dateCol]) : undefined,
       label: name || undefined,
+      ...(brokerType ? { brokerType } : {}),
       assetClass,
     });
   }

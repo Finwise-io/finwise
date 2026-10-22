@@ -17,6 +17,7 @@ import { InfoDot } from './UI';
 import { maskedMoney, maskedPct, spokenMoney } from './useMoney';
 import { planTarget, howTheGapCloses, leverDeltas, TARGET_ODDS } from '../domain/planning/target';
 import { oddsLine, oddsTail } from '../domain/planning/hub';
+import { figWords } from './figure';   // the odds print under their identifier, MK-XS-M-002 (2026-10-20)
 import type { RetirementInputs } from '../domain/retirement';
 
 export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annualIncome, roomAnnual, roomFromMonthly, typedTarget, lens }: {
@@ -65,7 +66,9 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
         accessibilityLabel={`Will my money last: ${oddsLine(lens, chance, horizonAge)}, an estimate${band ? `. In the worst markets ${band.low} percent, in the best ${band.high} percent` : ''}.`}>
         <GaugeArc pct={chance} />
         <View style={s.gaugeText}>
-          <Text style={s.pct}>{chance}%</Text>
+          {/* the number under its identifier, the sign printed beside it as before — so the photograph of this screen
+              (photograph_figures.test.tsx) reads the same two pieces it always read */}
+          <Text style={s.pct}>{figWords('MK-XS-M-002', String(chance))}%</Text>
           <Text style={s.pctSub}>{oddsTail(horizonAge)}</Text>
           {band && <Text style={s.band}>range {band.low}–{band.high}% across bad-to-good markets</Text>}
         </View>

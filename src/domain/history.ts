@@ -24,7 +24,7 @@ export interface MonthlySnapshot {
   savings: number;
   allocated: number;
   planned_budget: number;
-  savings_rate: number;          // integer percent
+  savings_rate: number;          // percent, held exact (DEC-0403) — rounded only where it is shown
   by_category: Record<string, number>;
   assets: AccountSnap[];
   debts: DebtSnap[];
@@ -50,10 +50,19 @@ export interface TrendPoint { key: string; nw: number }   // key 'YYYY-MM' (mont
  *     the answer = pts.sort((a, b) => key.locale compare(key))
  *
  * Called by ... MK-NW-F-099 SNAP · MK-NW-F-100 TREND
+ *               MK-NW-F-147 paymentNotEntered
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 58 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-NW-F-082 NW
  *               MK-NW-F-101 PLAN · MK-NW-F-099 SNAP
- *               MK-NW-F-100 TREND
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               … and 40 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
@@ -120,10 +129,17 @@ export function pruneDaily(daily: Record<string, number>): Record<string, number
  *
  * Called by ... MK-XS-F-008 normalizeSnapshot
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 61 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-NW-F-082 NW
  *               MK-NW-F-101 PLAN · MK-NW-F-099 SNAP
- *               MK-NW-F-100 TREND · MK-XS-F-008 normalizeSnapshot
- *               MK-XS-F-009 readHistory · MK-XS-F-005 trendPoints
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               … and 43 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -153,11 +169,11 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  *               MK-ST-F-051 moneyCompact · MK-ST-F-052 toNum
  *               MK-ST-F-053 money · MK-ST-F-054 money2
  *               MK-ST-F-058 numberOrUndefined · MK-ST-F-085 rentFigure
- *               MK-XS-F-007 makeMonthlySnapshot · MK-XS-F-008 normalizeSnapshot
- *               MK-XS-F-131 toInt · MK-XS-F-171 numOrNaN
- *               MK-XS-F-175 uid
+ *               MK-ST-F-088 moneyIntoAccount · MK-XS-F-007 makeMonthlySnapshot
+ *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-131 toInt
+ *               MK-XS-F-171 numOrNaN · MK-XS-F-175 uid
  *
- * Reaches ..... 365 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 425 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -167,7 +183,7 @@ const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
  *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 347 more — the full list is on functions_from_code
+ *               … and 407 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -223,10 +239,17 @@ export function makeMonthlySnapshot(i: Omit<MonthlySnapshot, 'v' | 'net_worth'> 
  *
  * Called by ... MK-XS-F-009 readHistory
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 60 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-NW-F-082 NW
  *               MK-NW-F-101 PLAN · MK-NW-F-099 SNAP
- *               MK-NW-F-100 TREND · MK-XS-F-009 readHistory
- *               MK-XS-F-005 trendPoints
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               … and 42 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -273,9 +296,17 @@ export function normalizeSnapshot(ym: string, raw: unknown): MonthlySnapshot | n
  *
  * Called by ... MK-XS-F-005 trendPoints
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-NW-F-082 NW
  *               MK-NW-F-101 PLAN · MK-NW-F-099 SNAP
- *               MK-NW-F-100 TREND · MK-XS-F-005 trendPoints
+ *               MK-NW-F-100 TREND · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               … and 41 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
@@ -312,10 +343,11 @@ export interface ChangeWalk {
  * Answers ..... My net worth changed since last time — what actually caused it?
  *
  * Formula .....
- *     contributions = max(0, args.contributions (or 0 when missing))
- *     withdrawals = max(0, args.withdrawals (or 0 when missing))
- *     dividends = max(0, args.dividends (or 0 when missing))
- *     interest = max(0, args.interest (or 0 when missing))
+ *     c in = args.contributions (or 0, c out = args.withdrawals (or 0 when missing) when missing)
+ *     contributions = max(0, c in) + math.max(0, -c out)
+ *     withdrawals = max(0, c out) + math.max(0, -c in)
+ *     dividends = args.dividends (or 0 when missing)
+ *     interest = args.interest (or 0 when missing)
  *     debt principal = max(0, args.debt principal (or 0 when missing))
  *     total = args.ending − args.beginning
  *     wealth generated = total − contributions + withdrawals − debt principal
@@ -336,6 +368,8 @@ export interface ChangeWalk {
  *     · If dividends is missing it uses 0.
  *     · If interest is missing it uses 0.
  *     · If debt principal is missing it uses 0.
+ *     · Never lets c in fall below 0.
+ *     · Never lets c out fall below 0.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-011
  * Changed ..... 2026-08-09 (cd7fd4a)
@@ -344,10 +378,18 @@ export function buildChangeWalk(args: {
   beginning: number; ending: number; fromLabel: string; toLabel: string;
   contributions?: number; withdrawals?: number; dividends?: number; interest?: number; debtPrincipal?: number;
 }): ChangeWalk {
-  const contributions = Math.max(0, args.contributions ?? 0);
-  const withdrawals = Math.max(0, args.withdrawals ?? 0);
-  const dividends = Math.max(0, args.dividends ?? 0);
-  const interest = Math.max(0, args.interest ?? 0);
+  // MORE REVERSED THAN PUT IN IS MONEY TAKEN OUT (2026-10-21, DEC-3523 tenet 1). A broker's −$500 deposit — a reversal —
+  // lowers what was put in (personalFlowTotals reads it so); with no deposit in the window to cancel, what was put in is
+  // −$500. It was cut to $0 here and the $500 landed in wealth generated as a loss of $500 nobody had. A net negative
+  // put in is now money taken out, and a net negative taken out is money put in, so the walk still ends on the ending.
+  const cIn = args.contributions ?? 0, cOut = args.withdrawals ?? 0;
+  const contributions = Math.max(0, cIn) + Math.max(0, -cOut);
+  const withdrawals = Math.max(0, cOut) + Math.max(0, -cIn);
+  // A DIVIDEND OR INTEREST TAKEN BACK IS A MINUS ON ITS OWN LINE (2026-10-21, DEC-3523 tenet 1). A broker's −$50 dividend —
+  // a reversal — is read so by the one rule for a stored amount (moneyIntoAccount); with no dividend in the window to
+  // cancel, the dividends are −$50. Cut to $0 here, the $50 landed in the change in investment value, which no price moved.
+  const dividends = args.dividends ?? 0;
+  const interest = args.interest ?? 0;
   const debtPrincipal = Math.max(0, args.debtPrincipal ?? 0);
   const total = (args.ending - args.beginning);
   // the residual IS market movement — the walk must reach the ending value exactly

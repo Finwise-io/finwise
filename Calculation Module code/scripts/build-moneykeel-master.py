@@ -377,7 +377,9 @@ NM = 'NOT IN OLD MASTER'
 
 # figures shown on MORE THAN ONE parent screen — they live here once, with every label they wear
 MULTI = [
- ('Will my money last / Is my money lasting (odds)','Home · Plan · Cashflow',     'wil.chance',        'WILL_IT_LAST_RESULT'),
+ # MK-XS-M-002 (the odds — Will my money last) LEFT THIS LIST 2026-10-20, as MK-XS-M-004 did: it is declared in the code
+ # now, by MK-NW-O-003 theNetWorth beside the retirement sentence it is printed in front of (MK-NW-M-015), so its row is
+ # PRINTED from that declaration below. The identifier is unchanged — the metric register keeps its key.
  # MK-XS-M-004 (▲ up/▼ down $X (Y%) this month · Return · YOUR RETURN) LEFT THIS LIST 2026-09-30.
  # It is declared in the code now, by MK-NW-O-008 thePerformance, so its row is PRINTED from that
  # declaration below (rule 11) rather than typed here. Leaving both put the identifier on two rows,
@@ -401,7 +403,7 @@ HOME = [
 # declarations (rule 11), each with a worked example a test runs:
 #   MK-NW-M-001 Change in net worth        MK-NW-M-003 the trend line
 #   MK-NW-M-006 a band and its total       MK-NW-M-008 each account and its balance
-#   MK-NW-M-015 on track for $X by age Y   MK-NW-M-016 Net worth so far (setup)
+#   MK-NW-M-015 the retirement sentence    MK-NW-M-016 Net worth so far (setup)
 # MK-NW-M-006 is the one that mattered most: its own row said "this section total is computed on the
 # screen itself" and it named NO function. It is MK-NW-F ledgerGroups now.
 # Leaving a row in BOTH places puts one identifier on two rows, which the build's own reconciliation
@@ -717,6 +719,9 @@ def declared_row(mid, f, tab):
              if f.get('ruled') else ('RULED? NOT YET — read this row and say yes, or say what changes. Nothing moves behind ' + door + ' until you do.')),
             ((f['worked']['given'] + '\nGIVES: ' + f['worked']['answer'] + '\n(the test re-runs this through ' + door + ' on every build)')
              if f.get('worked') else 'NONE YET — no worked example is declared for this figure, so nothing re-runs it (step 6)')]
+
+# what the declared-row writer above puts in the ROW VERIFIED column — never to be read back as his mark
+BUILDER_TEXT_IN_HIS_COLUMN = ('TESTED, NOT VERIFIED', 'RULED? NOT YET')
 
 # ---- engine identifiers: one per engine, assigned once
 ENGINE_FAMILY = {}
@@ -1673,6 +1678,10 @@ for _t in ['multiple_screens','home','networth','performance','plan','cashflow',
         # VERIFIED is HIS stage alone: only his dated mark moves a row there, and only from TESTED
         _iRV = _ci('ROW VERIFIED — founder, date and how')
         _his = str(_sh.cell(_r, _iRV).value or '').strip() if _iRV else ''
+        # THE BUILDER'S OWN TEXT IS NOT HIS MARK (found 2026-10-20): a declared row gets "TESTED, NOT VERIFIED — you
+        # ruled…" or "RULED? NOT YET…" written into this column above, and reading any text here as his mark made four
+        # rows (MK-NW-M-029, -031, -033, -037) show VERIFIED when he had marked none of them.
+        if _his.startswith(BUILDER_TEXT_IN_HIS_COLUMN): _his = ''
         if _his and _parts and all(p.startswith(('TESTED, NOT VERIFIED', 'WAITING ON YOU — answer to read')) for p in _parts):
             _parts = ['VERIFIED — ' + _his[:60]]; _fill = _BLUE
         elif _his and any(p.startswith('WAITING ON YOU') for p in _parts) and not any(p.startswith(('RULED', 'CODED', 'OPEN FINDING')) for p in _parts):

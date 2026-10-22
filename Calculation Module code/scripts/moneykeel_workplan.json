@@ -324,14 +324,14 @@
   {
    "task": "Bond display rule (nine facts on a bond; value = current, else cost, else face) — ruled, not coded; three specifics open as Q38",
    "todo": "Founder: answer Q38 (bond fields and display); then Claude: mock, then code + test",
-   "status": "WAITING ON YOU",
+   "status": "DONE 2026-10-20 — Q38 answered by the lead's decisions DEC-6615, DEC-6616 and DEC-6617 under DEC-0281; built and tested; not committed",
    "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · rulings tab · row \"Bond display rule\" · questions column Q38",
    "date": "2026-08-26",
-   "comments": "What's the questions?",
+   "comments": "What's the questions? | ANSWERED 2026-10-21 (records): your question was which three things Q38 asked. (1) Is a bond's quantity its face amount or a count of bonds? — the face amount (DEC-6615). (2) Is earned interest the interest records for the bond? — yes, the interest and coupon records dated in the window, as DEC-6212 already counts (DEC-6616). (3) Is current price per $100 of face or a dollar value? — per $100 of face, worked out from the value and the face, never typed (DEC-6617). All three decided by the lead on 2026-10-20 without asking you; one word reverses any. Built: one value rule (market value, else what was paid, else face, else Value not entered) on Bonds, the account page and Net worth; What you paid and Price in BOND FACTS. Tests: bond_value_agreement.test.tsx 5 of 5, account_page_drawing_states.test.tsx 59 of 59, bond_units.test.ts 5 of 5 (2026-10-21).",
    "key": "1561d2b714",
    "_written": {
-    "status": "WAITING ON YOU",
-    "comments": "What's the questions?"
+    "status": "DONE 2026-10-20 — Q38 answered by the lead's decisions DEC-6615, DEC-6616 and DEC-6617 under DEC-0281; built and tested; not committed",
+    "comments": "What's the questions? | ANSWERED 2026-10-21 (records): your question was which three things Q38 asked. (1) Is a bond's quantity its face amount or a count of bonds? — the face amount (DEC-6615). (2) Is earned interest the interest records for the bond? — yes, the interest and coupon records dated in the window, as DEC-6212 already counts (DEC-6616). (3) Is current price per $100 of face or a dollar value? — per $100 of face, worked out from the value and the face, never typed (DEC-6617). All three decided by the lead on 2026-10-20 without asking you; one word reverses any. Built: one value rule (market value, else what was paid, else face, else Value not entered) on Bonds, the account page and Net worth; What you paid and Price in BOND FACTS. Tests: bond_value_agreement.test.tsx 5 of 5, account_page_drawing_states.test.tsx 59 of 59, bond_units.test.ts 5 of 5 (2026-10-21)."
    }
   },
   {
@@ -584,14 +584,14 @@
   {
    "task": "Two judgment calls in the coding to confirm: A46 read strictly (an assumed return no longer stands in for a missing coupon); A47 applied to current yield only, not yield to maturity",
    "todo": "Founder: confirm or redirect",
-   "status": "WAITING ON YOU",
+   "status": "DONE 2026-10-09 — both calls settled by his later rulings: A47 replaced by DEC-3390; the strict reading of A46 held by DEC-2748b",
    "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · rulings tab · rows A46, A47 (notes column)",
    "date": "2026-09-11",
-   "comments": "",
+   "comments": "CHECKED 2026-10-20: A47 → DEC-3390 (2026-10-09, accrued interest added for the yield to maturity, commit 9f9eda02); A46 read strictly → DEC-0279 with DEC-2748b (a rate never entered stays blank, no built-in yield stands in); test src/domain/bonds/a46_a47_coupon_and_accrued.test.ts.",
    "key": "bf2a50eee6",
    "_written": {
-    "status": "WAITING ON YOU",
-    "comments": ""
+    "status": "DONE 2026-10-09 — both calls settled by his later rulings: A47 replaced by DEC-3390; the strict reading of A46 held by DEC-2748b",
+    "comments": "CHECKED 2026-10-20: A47 → DEC-3390 (2026-10-09, accrued interest added for the yield to maturity, commit 9f9eda02); A46 read strictly → DEC-0279 with DEC-2748b (a rate never entered stays blank, no built-in yield stands in); test src/domain/bonds/a46_a47_coupon_and_accrued.test.ts."
    }
   },
   {
@@ -662,14 +662,14 @@
   {
    "task": "EIGHT live mocks still DRAW words the canon retired (measured 2026-09-26 over the drawn frames, not the commentary): cash-flow this-month v06 (\"In (take-home)\", \"spending\") · income end-to-end v07 (\"A usual month\", \"Gross a year\") · look-ahead v03 (\"/mo\") · money-four-tabs v01 (\"In (take-home)\", \"Out (\", \"/mo\", \"spending\") · account-detail v01 (\"Connected ·\") · empty-state-pattern v01 (\"WHAT YOU OWE\", \"spending\") · filing-status v02 (\"partner\", \"$X a month\") · plan v05 (odds said \"out of 10\", \"spending\", \"/mo\", \"%/yr\"). The app copy is on the canon; these mocks are not. Net worth v08 and Performance v14 are clean in their frames.",
    "todo": "Founder: say whether each gets a new version on the canon now (old archived), or at its next change. Plan v05 already carries its list inside the file as mark 14 and is fixed when v06 is drawn.",
-   "status": "WAITING ON YOU",
+   "status": "DONE 2026-10-20 — none of the eight mocks draws a retired word now: six are archived, the other two are clean in their frames",
    "ref": "MoneyKeel/documents/cashflow/, networth-and-performance/ — the five files named",
    "date": "2026-09-12",
-   "comments": "Recounted 2026-09-26: the old row said five; the drawn-frame scan finds eight.",
+   "comments": "Recounted 2026-09-26: the old row said five; the drawn-frame scan finds eight. | CHECKED 2026-10-20: archived — cash-flow-this-month-and-spending_v06, look-ahead_v03, money-four-tabs_v01, filing-status-question_v02 and plan_v05 (cashflow/ and plan/archive/, 2026-09-26), account-detail_v01 (networth-and-performance/archive/, 2026-10-01, DEC-0646). Still live and clean in their drawn frames: income-end-to-end_v07 (none of \"A usual month\", \"Gross a year\", \"In (take-home)\", \"spending\") and empty-state-pattern_v01 (edited in place 2026-10-20: \"spending\" and \"owe\" now appear only in its dated note about the change). Nothing is left to ask him.",
    "key": "f4f7289f57",
    "_written": {
-    "status": "WAITING ON YOU",
-    "comments": "Recounted 2026-09-26: the old row said five; the drawn-frame scan finds eight."
+    "status": "DONE 2026-10-20 — none of the eight mocks draws a retired word now: six are archived, the other two are clean in their frames",
+    "comments": "Recounted 2026-09-26: the old row said five; the drawn-frame scan finds eight. | CHECKED 2026-10-20: archived — cash-flow-this-month-and-spending_v06, look-ahead_v03, money-four-tabs_v01, filing-status-question_v02 and plan_v05 (cashflow/ and plan/archive/, 2026-09-26), account-detail_v01 (networth-and-performance/archive/, 2026-10-01, DEC-0646). Still live and clean in their drawn frames: income-end-to-end_v07 (none of \"A usual month\", \"Gross a year\", \"In (take-home)\", \"spending\") and empty-state-pattern_v01 (edited in place 2026-10-20: \"spending\" and \"owe\" now appear only in its dated note about the change). Nothing is left to ask him."
    }
   },
   {
@@ -1270,13 +1270,13 @@
   {
    "task": "Nothing recorded which design each screen was built from. The Build 53 Net worth and Performance finals (networth-FINAL.html, performance-FINAL.html, the two Net worth PDFs, Net worth screens 01 to 11) were filed under networth-and-performance/archive/ on 2026-09-01, which marks them replaced. They were not replaced. Six hours of mocks then started from the wrong files. CORRECTION 2026-09-14: Build 53 Net worth was built from Quiet Instrument mock v5 (full-width banners, 2026-08-11) on top of networth-FINAL, plus square bar corners built the same day with no mock (founder: 'no mock up ... just build it'). No mock file draws the square-cornered screen; v5 still shows rounded top corners.",
    "todo": "Claude: done 2026-09-14 — Build 53 files matched by exact content and recorded in MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md. Founder: (1) confirm Net worth = v5 + square corners; (2) say whether to draw Net worth v6 from the Build 53 code (v5 with square corners) so one picture matches what shipped; (3) say whether to move the Build 53 set out of archive/. Home, Cash flow and the other screens are still to be traced.",
-   "status": "WAITING ON YOU",
+   "status": "DONE 2026-10-01 — his three asks are settled: Net worth v06 was confirmed (DEC-0219, 2026-09-14), then v08 was approved in full and built (DEC-0644, 2026-10-01)",
    "ref": "MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md · MoneyKeel/documents/networth-and-performance/archive/2026-08-10_moneykeel_pres_mock_net-worth_v01.html · …_performance_v01.html · commit 263f741",
    "date": "2026-09-14",
-   "comments": "",
+   "comments": "CHECKED 2026-10-20: the design record MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md names v08 for Net worth and the approved Cash flow drawings; src/screens/__tests__/networth_matches_v08.test.tsx holds the screen to v08. Asks (1) and (2) are answered by DEC-0219 then DEC-0644; ask (3), moving the Build 53 set out of archive/, is moot — v08 is the design of record. Tracing Home's Build 53 design is my own work, not a question for him (the record's own note, \"Home and every screen opened from another screen still need their Build 53 design traced\").",
    "_written": {
-    "status": "WAITING ON YOU",
-    "comments": ""
+    "status": "DONE 2026-10-01 — his three asks are settled: Net worth v06 was confirmed (DEC-0219, 2026-09-14), then v08 was approved in full and built (DEC-0644, 2026-10-01)",
+    "comments": "CHECKED 2026-10-20: the design record MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md names v08 for Net worth and the approved Cash flow drawings; src/screens/__tests__/networth_matches_v08.test.tsx holds the screen to v08. Asks (1) and (2) are answered by DEC-0219 then DEC-0644; ask (3), moving the Build 53 set out of archive/, is moot — v08 is the design of record. Tracing Home's Build 53 design is my own work, not a question for him (the record's own note, \"Home and every screen opened from another screen still need their Build 53 design traced\")."
    }
   },
   {
@@ -1294,13 +1294,13 @@
   {
    "task": "Net worth v07 — the three ways to add an account on Net worth (first day, the add sheet, the add button), plus every ruling since Build 53 that touches the screen (empty state, Debts, Emergency fund, Stocks / Funds, /month, you entered, expenses, odds to the nearest 5), each marked",
    "todo": "Founder: say yes to v08, or name a mark. Also: today's money for the retirement figures and tax on taxable withdrawals (recommended); whether dark/light bars replace the Plan tab's quiet labels. Claude: once approved, record v08 as the current Net worth design, archive v06, then build marks 1–4 and 10–14 with tests (odds exact and Linked / Link again are app-wide).",
-   "status": "WAITING ON YOU",
+   "status": "DONE 2026-10-03 — v08 approved in full (DEC-0644, 2026-10-01: \"Quite Instrument v08 - approved all screens from A to G.\") and built; held word for word in all eight states",
    "ref": "MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v08.html (v07 in archive/)",
    "date": "2026-09-14",
-   "comments": "2026-09-14 founder reviewed v07: odds exact · return 2 decimals · keep Tight ⚠ · Linked unless stale · Linked / Link again · dark bars for sections, light-green for sub-headings · state C too much duplication · asked whether the retirement figures are right. v08 answers all of it.",
+   "comments": "2026-09-14 founder reviewed v07: odds exact · return 2 decimals · keep Tight ⚠ · Linked unless stale · Linked / Link again · dark bars for sections, light-green for sub-headings · state C too much duplication · asked whether the retirement figures are right. v08 answers all of it. | CHECKED 2026-10-20: src/screens/__tests__/networth_matches_v08.test.tsx (commit f6c70644); v06 and v07 are in networth-and-performance/archive/. The two Plan asks on this row (today's money and tax on taxable withdrawals; the Plan tab's bars) belong to the row \"The retirement sentence (Net worth, Plan, Home)…\" and the Plan build.",
    "_written": {
-    "status": "WAITING ON YOU",
-    "comments": "2026-09-14 founder reviewed v07: odds exact · return 2 decimals · keep Tight ⚠ · Linked unless stale · Linked / Link again · dark bars for sections, light-green for sub-headings · state C too much duplication · asked whether the retirement figures are right. v08 answers all of it."
+    "status": "DONE 2026-10-03 — v08 approved in full (DEC-0644, 2026-10-01: \"Quite Instrument v08 - approved all screens from A to G.\") and built; held word for word in all eight states",
+    "comments": "2026-09-14 founder reviewed v07: odds exact · return 2 decimals · keep Tight ⚠ · Linked unless stale · Linked / Link again · dark bars for sections, light-green for sub-headings · state C too much duplication · asked whether the retirement figures are right. v08 answers all of it. | CHECKED 2026-10-20: src/screens/__tests__/networth_matches_v08.test.tsx (commit f6c70644); v06 and v07 are in networth-and-performance/archive/. The two Plan asks on this row (today's money and tax on taxable withdrawals; the Plan tab's bars) belong to the row \"The retirement sentence (Net worth, Plan, Home)…\" and the Plan build."
    }
   },
   {
@@ -1318,13 +1318,13 @@
   {
    "task": "The retirement sentence (Net worth, Plan, Home) prints future dollars without saying so, and the odds calculation charges no tax on withdrawals from taxable accounts — found checking the founder's question on v07 ($4.1M at 65 is about $2.0M in today's money)",
    "todo": "Founder: say whether to show today's money and to tax taxable withdrawals (recommended). Claude: then write both as findings on the master rows (MK-XS-M-002 and the pot/leftover figures) before any code.",
-   "status": "WAITING ON YOU",
+   "status": "DONE 2026-09-26 — ruled by DEC-0365: the retirement number stays before tax and as shipped; the present-value question moved to the row \"Plan · present value vs future value\"",
    "ref": "src/domain/retirement/index.ts simulate (MK-PL-F-050) · src/domain/retirement/willItLast.ts willItLastInputs (MK-PL-F-067) · onCourseSentence",
    "date": "2026-09-14",
-   "comments": "",
+   "comments": "CHECKED 2026-10-20: DEC-0365, his words: \"…to keep retirement number pre-tax, as we cannot determine tax accurately. The lengthly explanation is horrible.\"; proof MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v06.html. This is a Plan row: the figures are the Plan's, printed also on Net worth and Home.",
    "_written": {
-    "status": "WAITING ON YOU",
-    "comments": ""
+    "status": "DONE 2026-09-26 — ruled by DEC-0365: the retirement number stays before tax and as shipped; the present-value question moved to the row \"Plan · present value vs future value\"",
+    "comments": "CHECKED 2026-10-20: DEC-0365, his words: \"…to keep retirement number pre-tax, as we cannot determine tax accurately. The lengthly explanation is horrible.\"; proof MoneyKeel/documents/plan/moneykeel_pres_mock_plan_v06.html. This is a Plan row: the figures are the Plan's, printed also on Net worth and Home."
    }
   },
   {
@@ -1450,13 +1450,13 @@
   {
    "task": "App-wide · selector corner radius is inconsistent — 23 places use the semicircle (Radii.pill) and 157 use the 12-point corner (Radii.md); the Performance window chips were semicircles. Founder, 2026-09-25: “make the buttons same as all radio buttons across all screens — rounded corners not semicircle ends.”",
    "todo": "Performance chips are fixed in mock v11 (mark 10). Sweep the other semicircle selectors and bring them to 12 points, screen by screen, each with its own mock.",
-   "status": "TO DO",
+   "status": "DONE 2026-10-21 — no button or choice app-wide has semicircle ends (DEC-0231 TESTED)",
    "ref": "grep Radii.pill · MonthlyIncomeScreen, NetWorthScreen groupPill, BondsScreen, IncomeManagerScreen, SnapTradeConnect, JobSafetyScreen and others",
    "date": "2026-09-25",
-   "comments": "Counted 2026-09-25.",
+   "comments": "Counted 2026-09-25. | 2026-10-20 (DEC-0231): the choice chips on Bonds, Alternatives, Itemize and Net worth (By category · By institution and the add sheet) now use the 12-point corner, with correction lines on their drawings. Still on the semicircle (Radii.pill), counted 2026-10-21 while another agent rounds the remaining action buttons app-wide: 11 uses — buttons and badges on Import holdings, Settings, the Retirement cockpit, the error screen, the UI badge, and Performance's period pills. Left open until that agent reports; DEC-0231 is marked TESTED then. | 2026-10-21 CLOSED: 8 button styles in 9 places and the onboarding Monthly · Yearly choice moved to the 12-point corner; 14 drawings carry a dated line. Test: src/__tests__/decisions_are_held.test.ts, 4 DEC-0231 tests, 123 of 123 pass.",
    "_written": {
-    "status": "TO DO",
-    "comments": "Counted 2026-09-25."
+    "status": "DONE 2026-10-21 — no button or choice app-wide has semicircle ends (DEC-0231 TESTED)",
+    "comments": "Counted 2026-09-25. | 2026-10-20 (DEC-0231): the choice chips on Bonds, Alternatives, Itemize and Net worth (By category · By institution and the add sheet) now use the 12-point corner, with correction lines on their drawings. Still on the semicircle (Radii.pill), counted 2026-10-21 while another agent rounds the remaining action buttons app-wide: 11 uses — buttons and badges on Import holdings, Settings, the Retirement cockpit, the error screen, the UI badge, and Performance's period pills. Left open until that agent reports; DEC-0231 is marked TESTED then. | 2026-10-21 CLOSED: 8 button styles in 9 places and the onboarding Monthly · Yearly choice moved to the 12-point corner; 14 drawings carry a dated line. Test: src/__tests__/decisions_are_held.test.ts, 4 DEC-0231 tests, 123 of 123 pass."
    }
   },
   {
@@ -1666,25 +1666,25 @@
   {
    "task": "Performance · four lines of the approved design (mock v14) were never built",
    "todo": "Nothing for him — built, with tests. An empty category vanished from the account page instead of keeping its heading; the activity list never said which records can be edited; a linked account's walk never said where its lines come from; the value line had no day-one caption.",
-   "status": "CODED, NOT VERIFIED",
+   "status": "DONE 2026-09-26 — built and tested; since superseded by Performance v17 (DEC-0647) and the account-page drawing v01 (DEC-6457)",
    "ref": "src/screens/AccountDetailScreen.tsx · PerformanceScreen.tsx · src/screens/__tests__/performance_mock_v14_gaps.test.tsx",
    "date": "2026-09-26",
-   "comments": "B-108 to B-110. Found by comparing every static string mock v14 draws against every string the app can render.",
+   "comments": "B-108 to B-110. Found by comparing every static string mock v14 draws against every string the app can render. | CHECKED 2026-10-20: src/screens/__tests__/performance_mock_v14_gaps.test.tsx (first committed ac8114ca). AccountDetailScreen.tsx no longer exists: /account-detail opens AccountPortfolioScreen.tsx (041921af).",
    "_written": {
-    "status": "CODED, NOT VERIFIED",
-    "comments": "B-108 to B-110. Found by comparing every static string mock v14 draws against every string the app can render."
+    "status": "DONE 2026-09-26 — built and tested; since superseded by Performance v17 (DEC-0647) and the account-page drawing v01 (DEC-6457)",
+    "comments": "B-108 to B-110. Found by comparing every static string mock v14 draws against every string the app can render. | CHECKED 2026-10-20: src/screens/__tests__/performance_mock_v14_gaps.test.tsx (first committed ac8114ca). AccountDetailScreen.tsx no longer exists: /account-detail opens AccountPortfolioScreen.tsx (041921af)."
    }
   },
   {
    "task": "Performance · the cash row said a phrase he had already declined",
    "todo": "Nothing for him — I should never have asked. He ruled it on 2026-08-11: the cash row says \"cash in this account\" with the account's own name above it, and the shorter \"sweep cash\" was declined by name. Net worth has obeyed it since; Performance, Account detail and my own mock v14 never heard it. All three now say it.",
-   "status": "CODED, NOT VERIFIED",
+   "status": "DONE 2026-09-27 — the account page says \"Cash in this account\"; no screen says \"sweep cash\"",
    "ref": "Changelog 2026-08-11 \"Net worth (hero + cash row)\" · canon row 19 · PerformanceScreen.tsx · AccountDetailScreen.tsx · mock v14",
    "date": "2026-09-27",
-   "comments": "B-111. The ruling lived in a changelog row with nothing enforcing it — that is why it was lost.",
+   "comments": "B-111. The ruling lived in a changelog row with nothing enforcing it — that is why it was lost. | CHECKED 2026-10-20: src/screens/AccountPortfolioScreen.tsx line 325 (\"Cash in this account\"); a search of src/, app/ and MoneyKeel/functions finds \"sweep cash\" only in a test name and comments.",
    "_written": {
-    "status": "CODED, NOT VERIFIED",
-    "comments": "B-111. The ruling lived in a changelog row with nothing enforcing it — that is why it was lost."
+    "status": "DONE 2026-09-27 — the account page says \"Cash in this account\"; no screen says \"sweep cash\"",
+    "comments": "B-111. The ruling lived in a changelog row with nothing enforcing it — that is why it was lost. | CHECKED 2026-10-20: src/screens/AccountPortfolioScreen.tsx line 325 (\"Cash in this account\"); a search of src/, app/ and MoneyKeel/functions finds \"sweep cash\" only in a test name and comments."
    }
   },
   {
@@ -1702,13 +1702,13 @@
   {
    "task": "Orchestrators for Net worth, Performance and Cash flow — ONE AT A TIME",
    "todo": "11 of 12 DONE. Net worth 6 of 6, Performance 2 of 2, Cash flow 4 of 5 (Q-CF-3, Q-CF-4, Q-CF-5, Q-CF-6). Q-CF-1 needed nothing. ONE LEFT AND IT IS MINE: Q-CF-2, no longer blocked — he settled it on 2026-09-28 by pointing at the approved design, and C-2 is withdrawn.",
-   "status": "TO DO",
+   "status": "DONE 2026-09-28 — 12 of 12 built: the last one, theMonth for Q-CF-2, is built",
    "ref": "Calculation Module code/scripts/moneykeel_undeclared_figures.json · moneykeel_calc_spec_orchestrator-map_v01.xlsx",
    "date": "2026-09-27",
-   "comments": "Each one: his row (done — he ruled all 13), the photograph, the door beside the old code, callers moved one at a time, old doors closed with a guard.",
+   "comments": "Each one: his row (done — he ruled all 13), the photograph, the door beside the old code, callers moved one at a time, old doors closed with a guard. | CHECKED 2026-10-20: MoneyKeel/functions/cashflow/the-month.ts (theMonth, MK-CF-O-010 in the code today) + the-month.test.ts; the twelve doors and their guard_one_door_* tests were first committed in ac8114ca.",
    "_written": {
-    "status": "TO DO",
-    "comments": "Each one: his row (done — he ruled all 13), the photograph, the door beside the old code, callers moved one at a time, old doors closed with a guard."
+    "status": "DONE 2026-09-28 — 12 of 12 built: the last one, theMonth for Q-CF-2, is built",
+    "comments": "Each one: his row (done — he ruled all 13), the photograph, the door beside the old code, callers moved one at a time, old doors closed with a guard. | CHECKED 2026-10-20: MoneyKeel/functions/cashflow/the-month.ts (theMonth, MK-CF-O-010 in the code today) + the-month.test.ts; the twelve doors and their guard_one_door_* tests were first committed in ac8114ca."
    }
   },
   {
@@ -1762,37 +1762,37 @@
   {
    "task": "A CD was told its value falls when interest rates rise — it does not",
    "todo": "ANSWERED 2026-09-28: \"CD - keep.\" The app does not ask whether a CD is a bank one or a brokered one; it says the true thing for a bank CD and names the difference. Built and in the code as his ruling.",
-   "status": "CODED, NOT VERIFIED",
+   "status": "DONE 2026-09-28 — a bank CD gets no rates-move estimate; refined since by DEC-3837 (a CD bought through a broker is priced like a bond)",
    "date": "2026-09-27",
    "ref": "src/screens/AccountDetailScreen.tsx (BondDetail) · src/domain/bonds/index.ts MK-NW-F-064 bondRateSensitivity · src/screens/__tests__/performance_mock_v14_gaps.test.tsx",
-   "comments": "Found by his question on Q-NW-4: \"CD rates don't move and one can do nothing if CD rates move.\" He was right. A real bond still gets the estimate — pinned by a test.",
+   "comments": "Found by his question on Q-NW-4: \"CD rates don't move and one can do nothing if CD rates move.\" He was right. A real bond still gets the estimate — pinned by a test. | CHECKED 2026-10-20: src/domain/bonds/index.ts pricedLikeBond (MK-NW-F-131) · src/domain/bonds/dec3837_cd_bought.test.ts · MoneyKeel/functions/networth-and-performance/bonds.test.ts.",
    "_written": {
-    "status": "CODED, NOT VERIFIED",
-    "comments": "Found by his question on Q-NW-4: \"CD rates don't move and one can do nothing if CD rates move.\" He was right. A real bond still gets the estimate — pinned by a test."
+    "status": "DONE 2026-09-28 — a bank CD gets no rates-move estimate; refined since by DEC-3837 (a CD bought through a broker is priced like a bond)",
+    "comments": "Found by his question on Q-NW-4: \"CD rates don't move and one can do nothing if CD rates move.\" He was right. A real bond still gets the estimate — pinned by a test. | CHECKED 2026-10-20: src/domain/bonds/index.ts pricedLikeBond (MK-NW-F-131) · src/domain/bonds/dec3837_cd_bought.test.ts · MoneyKeel/functions/networth-and-performance/bonds.test.ts."
    }
   },
   {
    "task": "Q-NW-1 · what the Alternatives screen has to do with \"what am I worth\"",
    "todo": "ANSWERED 2026-09-27: \"Alternative - ok.\" The Alternatives TOTAL stays in \"what am I worth\"; EST. GROWTH /year moved out to its own question, Q-NW-6, and has its own door (MK-NW-O-006).",
-   "status": "CODED, NOT VERIFIED",
+   "status": "DONE 2026-09-27 — the Alternatives total stays in \"what am I worth\"; EST. GROWTH /year has its own door",
    "date": "2026-09-27",
    "ref": "src/screens/OtherInvestmentsScreen.tsx · Q-NW-1 on the Map tab · MK-MN-M-022 · MK-MN-M-023",
-   "comments": "His question on the answer sheet: \"Not sure where on alternatives screen is the question what am I worth - provide more context?\"",
+   "comments": "His question on the answer sheet: \"Not sure where on alternatives screen is the question what am I worth - provide more context?\" | CHECKED 2026-10-20: MoneyKeel/functions/networth-and-performance/alternatives-outlook.ts (theAlternativesOutlook — MK-NW-O-005 in the code today, not O-006 as written above) + alternatives-outlook.test.ts; first committed ac8114ca.",
    "_written": {
-    "status": "CODED, NOT VERIFIED",
-    "comments": "His question on the answer sheet: \"Not sure where on alternatives screen is the question what am I worth - provide more context?\""
+    "status": "DONE 2026-09-27 — the Alternatives total stays in \"what am I worth\"; EST. GROWTH /year has its own door",
+    "comments": "His question on the answer sheet: \"Not sure where on alternatives screen is the question what am I worth - provide more context?\" | CHECKED 2026-10-20: MoneyKeel/functions/networth-and-performance/alternatives-outlook.ts (theAlternativesOutlook — MK-NW-O-005 in the code today, not O-006 as written above) + alternatives-outlook.test.ts; first committed ac8114ca."
    }
   },
   {
    "task": "The canon guard could not see a retired period label written in capitals",
    "todo": "Nothing for him — fixed. Row 14 entries were case-sensitive, so \"COUPON / YR\" on Bonds and \"EST. GROWTH / YR\" on Alternatives matched nothing. They now carry the ignore-case flag, and both labels read /year.",
-   "status": "CODED, NOT VERIFIED",
+   "status": "DONE 2026-09-27 — canon row 14 matches capitals; both labels read /year",
    "date": "2026-09-27",
    "ref": "moneykeel_naming_spec_calculation-vocabulary_v01.md row 14 · src/screens/BondsScreen.tsx:62 · src/screens/OtherInvestmentsScreen.tsx:59",
-   "comments": "Third hole found in the same canon row this week: the spaced form, the curly quotes, now the capitals.",
+   "comments": "Third hole found in the same canon row this week: the spaced form, the curly quotes, now the capitals. | CHECKED 2026-10-20: row 14 of moneykeel_naming_spec_calculation-vocabulary_v01.md carries the /i flag; src/screens/BondsScreen.tsx line 71 \"COUPON /year\", src/screens/OtherInvestmentsScreen.tsx line 74 \"EST. GROWTH /year\"; guard src/__tests__/one_term_per_concept.test.ts.",
    "_written": {
-    "status": "CODED, NOT VERIFIED",
-    "comments": "Third hole found in the same canon row this week: the spaced form, the curly quotes, now the capitals."
+    "status": "DONE 2026-09-27 — canon row 14 matches capitals; both labels read /year",
+    "comments": "Third hole found in the same canon row this week: the spaced form, the curly quotes, now the capitals. | CHECKED 2026-10-20: row 14 of moneykeel_naming_spec_calculation-vocabulary_v01.md carries the /i flag; src/screens/BondsScreen.tsx line 71 \"COUPON /year\", src/screens/OtherInvestmentsScreen.tsx line 74 \"EST. GROWTH /year\"; guard src/__tests__/one_term_per_concept.test.ts."
    }
   },
   {
@@ -1822,85 +1822,85 @@
   {
    "task": "Orchestrator 1 of 12 — MK-NW-O-001 theBonds (Q-NW-4)",
    "todo": "Nothing for him. The door is built, both its screens are behind it, and the old doors are closed. The Bonds screen and an account's own page now read ONE answer — before this each called six bond functions and assembled its own, which is how they could disagree. His CD ruling is built INTO the door: a CD is refused the rates-move estimate and the door supplies the sentence the screen prints, so the reason cannot drift from the rule. The photograph is byte-identical: nothing a person sees changed. 11 figures moved out of the hand-typed lists and are PRINTED from the declaration.",
-   "status": "CODED, NOT VERIFIED",
+   "status": "DONE 2026-09-27 — built and tested; the Bonds screen and the account page read one door",
    "date": "2026-09-27",
    "ref": "MoneyKeel/functions/networth-and-performance/bonds.ts · bonds.test.ts (8 laws) · src/__tests__/guard_one_door_bonds.test.ts · BondsScreen.tsx · AccountDetailScreen.tsx · build-moneykeel-master.py (11 rows removed from SECONDARY)",
-   "comments": "The build caught two things I would have missed: the 11 figures declared AND still hand-typed, and five of his open bond questions (Q01-Q05) left with no row to sit on when those rows moved. Both fixed — Q01-Q05 now ride the declared figures.",
+   "comments": "The build caught two things I would have missed: the 11 figures declared AND still hand-typed, and five of his open bond questions (Q01-Q05) left with no row to sit on when those rows moved. Both fixed — Q01-Q05 now ride the declared figures. | CHECKED 2026-10-20: MoneyKeel/functions/networth-and-performance/bonds.ts (MK-NW-O-001 theBonds) + bonds.test.ts + src/__tests__/guard_one_door_bonds.test.ts; first committed ac8114ca. The account page is now AccountPortfolioScreen.tsx.",
    "_written": {
-    "status": "CODED, NOT VERIFIED",
-    "comments": "The build caught two things I would have missed: the 11 figures declared AND still hand-typed, and five of his open bond questions (Q01-Q05) left with no row to sit on when those rows moved. Both fixed — Q01-Q05 now ride the declared figures."
+    "status": "DONE 2026-09-27 — built and tested; the Bonds screen and the account page read one door",
+    "comments": "The build caught two things I would have missed: the 11 figures declared AND still hand-typed, and five of his open bond questions (Q01-Q05) left with no row to sit on when those rows moved. Both fixed — Q01-Q05 now ride the declared figures. | CHECKED 2026-10-20: MoneyKeel/functions/networth-and-performance/bonds.ts (MK-NW-O-001 theBonds) + bonds.test.ts + src/__tests__/guard_one_door_bonds.test.ts; first committed ac8114ca. The account page is now AccountPortfolioScreen.tsx."
    }
   },
   {
    "task": "Orchestrator 2 of 12 — MK-NW-O-002 theAccount (Q-NW-2)",
    "todo": "Nothing for him. An account's own page and the itemise screen now read ONE answer. The page used to assemble this in five pieces of its own while itemise assembled its own. Two findings that were paid for once now live in the door instead of in a screen: an untickered record names NO holding (the 2026-08-11 finding where a CD showed dividends it cannot pay, and two CDs showed one figure twice), and a hand-entered lump has no inside to read. Photograph byte-identical. 8 more figures moved out of the hand-typed lists.",
-   "status": "CODED, NOT VERIFIED",
+   "status": "DONE 2026-09-27 — built and tested",
    "date": "2026-09-27",
    "ref": "MoneyKeel/functions/networth-and-performance/account.ts · account.test.ts (6 laws) · src/__tests__/guard_one_door_account.test.ts · AccountDetailScreen.tsx · ItemizeScreen.tsx",
-   "comments": "The build again caught a question with no row to sit on (Q15, the institution-word rule) and it was re-homed on MK-NW-M-019 Income.",
+   "comments": "The build again caught a question with no row to sit on (Q15, the institution-word rule) and it was re-homed on MK-NW-M-019 Income. | CHECKED 2026-10-20: MoneyKeel/functions/networth-and-performance/account.ts (MK-NW-O-002 theAccount) + account.test.ts + src/__tests__/guard_one_door_account.test.ts; first committed ac8114ca.",
    "_written": {
-    "status": "CODED, NOT VERIFIED",
-    "comments": "The build again caught a question with no row to sit on (Q15, the institution-word rule) and it was re-homed on MK-NW-M-019 Income."
+    "status": "DONE 2026-09-27 — built and tested",
+    "comments": "The build again caught a question with no row to sit on (Q15, the institution-word rule) and it was re-homed on MK-NW-M-019 Income. | CHECKED 2026-10-20: MoneyKeel/functions/networth-and-performance/account.ts (MK-NW-O-002 theAccount) + account.test.ts + src/__tests__/guard_one_door_account.test.ts; first committed ac8114ca."
    }
   },
   {
    "task": "Orchestrator 3 of 12 — MK-NW-O-003 theNetWorth (Q-NW-1)",
    "todo": "Nothing for him. Home, the Net worth tab, Insights and Alternatives now read ONE answer for what he is worth. Four screens each assembled it before — Home built its own net worth from its own assets state, the Net worth tab built another, Insights took cash and investable its own way, Alternatives took investable a third. These are the figures a person compares first, so a disagreement would be seen immediately. The change on cash and investments now REFUSES when the record holds no baseline day, instead of printing a movement from a day nobody recorded. Photograph byte-identical. 13 figures moved out of the hand-typed lists.",
-   "status": "CODED, NOT VERIFIED",
+   "status": "DONE 2026-09-27 — built and tested",
    "date": "2026-09-27",
    "ref": "MoneyKeel/functions/networth-and-performance/net-worth.ts · net-worth.test.ts (6 laws) · src/__tests__/guard_one_door_net_worth.test.ts · HomeScreen · NetWorthScreen · InsightsScreen · OtherInvestmentsScreen",
-   "comments": "The build caught three things: the multi-screen tab never printed declared figures at all (a gap in the rule-11 machinery — fixed), five more of his questions lost their row (Q10-Q13, Q17 — re-homed), and his ruling G19 on the debt payment rule had to be carried into the declaration or the row would have lost it.",
+   "comments": "The build caught three things: the multi-screen tab never printed declared figures at all (a gap in the rule-11 machinery — fixed), five more of his questions lost their row (Q10-Q13, Q17 — re-homed), and his ruling G19 on the debt payment rule had to be carried into the declaration or the row would have lost it. | CHECKED 2026-10-20: MoneyKeel/functions/networth-and-performance/net-worth.ts (MK-NW-O-003 theNetWorth) + net-worth.test.ts + src/__tests__/guard_one_door_net_worth.test.ts; first committed ac8114ca.",
    "_written": {
-    "status": "CODED, NOT VERIFIED",
-    "comments": "The build caught three things: the multi-screen tab never printed declared figures at all (a gap in the rule-11 machinery — fixed), five more of his questions lost their row (Q10-Q13, Q17 — re-homed), and his ruling G19 on the debt payment rule had to be carried into the declaration or the row would have lost it."
+    "status": "DONE 2026-09-27 — built and tested",
+    "comments": "The build caught three things: the multi-screen tab never printed declared figures at all (a gap in the rule-11 machinery — fixed), five more of his questions lost their row (Q10-Q13, Q17 — re-homed), and his ruling G19 on the debt payment rule had to be carried into the declaration or the row would have lost it. | CHECKED 2026-10-20: MoneyKeel/functions/networth-and-performance/net-worth.ts (MK-NW-O-003 theNetWorth) + net-worth.test.ts + src/__tests__/guard_one_door_net_worth.test.ts; first committed ac8114ca."
    }
   },
   {
    "task": "Orchestrator 4 of 12 — MK-NW-O-004 theEmergencyFund (Q-NW-5)",
    "todo": "Nothing for him on the door itself. Job safety and Stress test now read ONE answer. IT CLOSED A REAL DEFECT: Job safety read the LOGGED average only, while the other two read his ONE essentials figure — the logged average with the typed plan as the fallback (his ruling G21, 2026-09-08). For a person who had logged nothing but typed $4,000 a month, Job safety showed essentials of $0, so the emergency-fund target it set was $0 and the gap was $0: it told them they needed nothing. The other two screens showed $4,000 that same day.",
-   "status": "CODED, NOT VERIFIED",
+   "status": "DONE 2026-09-27 — built and tested",
    "date": "2026-09-27",
    "ref": "MoneyKeel/functions/networth-and-performance/emergency-fund.ts · emergency-fund.test.ts (6 laws) · src/__tests__/guard_one_door_emergency_fund.test.ts · JobSafetyScreen.tsx · StressTestScreen.tsx",
-   "comments": "My own file failed the canon guard — I had written \"cushion\", \"must-pay bills\" and \"you typed\". The door is named theEmergencyFund now.",
+   "comments": "My own file failed the canon guard — I had written \"cushion\", \"must-pay bills\" and \"you typed\". The door is named theEmergencyFund now. | CHECKED 2026-10-20: MoneyKeel/functions/networth-and-performance/emergency-fund.ts (MK-NW-O-004 theEmergencyFund) + emergency-fund.test.ts + src/__tests__/guard_one_door_emergency_fund.test.ts; first committed ac8114ca.",
    "_written": {
-    "status": "CODED, NOT VERIFIED",
-    "comments": "My own file failed the canon guard — I had written \"cushion\", \"must-pay bills\" and \"you typed\". The door is named theEmergencyFund now."
+    "status": "DONE 2026-09-27 — built and tested",
+    "comments": "My own file failed the canon guard — I had written \"cushion\", \"must-pay bills\" and \"you typed\". The door is named theEmergencyFund now. | CHECKED 2026-10-20: MoneyKeel/functions/networth-and-performance/emergency-fund.ts (MK-NW-O-004 theEmergencyFund) + emergency-fund.test.ts + src/__tests__/guard_one_door_emergency_fund.test.ts; first committed ac8114ca."
    }
   },
   {
    "task": "Net worth’s emergency fund — both numbers, and the debt payments in them",
    "todo": "SETTLED by him 2026-09-28: \"give both numbers\" and \"What about credit card debt, HELOC, car loan?\" The screen now shows BOTH runways — on essentials, and at the planned spend — so neither is hidden behind one divisor. And BOTH now carry the debt minimums, which were in neither figure before he asked: a household with a $250 car loan, a $120 card and a $200 HELOC had $570/month missing, so its emergency fund read longer than it is. The mortgage is never counted twice — where a Rent / Mortgage budget carries it, its minimum is left out.",
-   "status": "CODED, NOT VERIFIED",
+   "status": "DONE 2026-09-28 — both runways and the debt payments are shown; how debts are counted has since changed (DEC-1923: every debt from Debts)",
    "date": "2026-09-27",
    "ref": "src/screens/NetWorthScreen.tsx (the held-back line, with the reason in the code) · MK-NW-O-004 theEmergencyFund · MK-NW-M-013 · MK-NW-M-014",
-   "comments": "On the pinned test household the figure moved 2.0 → 2.4 months: essentials ($3,600) instead of planned spend ($4,500) makes it longer, the $150 Visa minimum makes it shorter, and the $2,400 mortgage is correctly excluded. Three new figures declared: MK-NW-M-046, MK-NW-M-047, MK-NW-M-048.",
+   "comments": "On the pinned test household the figure moved 2.0 → 2.4 months: essentials ($3,600) instead of planned spend ($4,500) makes it longer, the $150 Visa minimum makes it shorter, and the $2,400 mortgage is correctly excluded. Three new figures declared: MK-NW-M-046, MK-NW-M-047, MK-NW-M-048. | CHECKED 2026-10-20: src/screens/NetWorthScreen.tsx prints MK-NW-M-013, MK-NW-M-046 and MK-NW-M-047 (\"Both include … of debt payments you cannot stop\"); MoneyKeel/functions/networth-and-performance/emergency-fund.test.ts.",
    "_written": {
-    "status": "CODED, NOT VERIFIED",
-    "comments": "On the pinned test household the figure moved 2.0 → 2.4 months: essentials ($3,600) instead of planned spend ($4,500) makes it longer, the $150 Visa minimum makes it shorter, and the $2,400 mortgage is correctly excluded. Three new figures declared: MK-NW-M-046, MK-NW-M-047, MK-NW-M-048."
+    "status": "DONE 2026-09-28 — both runways and the debt payments are shown; how debts are counted has since changed (DEC-1923: every debt from Debts)",
+    "comments": "On the pinned test household the figure moved 2.0 → 2.4 months: essentials ($3,600) instead of planned spend ($4,500) makes it longer, the $150 Visa minimum makes it shorter, and the $2,400 mortgage is correctly excluded. Three new figures declared: MK-NW-M-046, MK-NW-M-047, MK-NW-M-048. | CHECKED 2026-10-20: src/screens/NetWorthScreen.tsx prints MK-NW-M-013, MK-NW-M-046 and MK-NW-M-047 (\"Both include … of debt payments you cannot stop\"); MoneyKeel/functions/networth-and-performance/emergency-fund.test.ts."
    }
   },
   {
    "task": "A mortgage was about to be counted twice in the emergency fund",
    "todo": "Nothing for him — caught and fixed the same hour. My guard against double-counting read `type === \"mortgage\"`, but the field is `debt_type` and its values are upper case (\"MORTGAGE\"), so it matched nothing: the test household's $2,400 mortgage was counted BOTH as its $2,300 Rent / Mortgage budget and again as a debt. The pinned figure caught it, not my reading.",
-   "status": "CODED, NOT VERIFIED",
+   "status": "DONE 2026-09-28 — fixed and tested; since DEC-1923 the mortgage is counted from Debts",
    "date": "2026-09-28",
    "ref": "MoneyKeel/functions/networth-and-performance/emergency-fund.ts · emergency-fund.test.ts (\"a mortgage is never counted twice\")",
-   "comments": "Same class as the canon guard misses this week: a rule written against a shape the data does not have.",
+   "comments": "Same class as the canon guard misses this week: a rule written against a shape the data does not have. | CHECKED 2026-10-20: emergency-fund.test.ts, the test \"a mortgage is never counted twice — and since 2026-10-04 it is counted from Debts, not from the budget line (DEC-1923)\".",
    "_written": {
-    "status": "CODED, NOT VERIFIED",
-    "comments": "Same class as the canon guard misses this week: a rule written against a shape the data does not have."
+    "status": "DONE 2026-09-28 — fixed and tested; since DEC-1923 the mortgage is counted from Debts",
+    "comments": "Same class as the canon guard misses this week: a rule written against a shape the data does not have. | CHECKED 2026-10-20: emergency-fund.test.ts, the test \"a mortgage is never counted twice — and since 2026-10-04 it is counted from Debts, not from the budget line (DEC-1923)\"."
    }
   },
   {
    "task": "Orchestrators 5 and 6 of 12 — MK-NW-O-005 theHolding (Q-NW-3) and MK-NW-O-006 theAlternativesOutlook (Q-NW-6)",
    "todo": "Nothing for him — neither carried a decision: one screen, one question each. The holding page assembled its answer from six functions plus its own dividend filter; it asks once now. Two refusals moved into the door where a screen cannot forget them: with NO price a holding shows WHAT YOU PAID and states no gain at all (never a $0 position, which would quietly shrink the whole portfolio), and a dividend record belongs to a holding only when it NAMES that ticker. The alternatives forecast now refuses entirely when nothing is held, because a $0 forecast reads as a forecast. NET WORTH IS NOW COMPLETE: 6 of 6.",
-   "status": "CODED, NOT VERIFIED",
+   "status": "DONE 2026-09-28 — built and tested",
    "date": "2026-09-28",
    "ref": "MoneyKeel/functions/networth-and-performance/holding.ts (+ test, 6 laws) · alternatives-outlook.ts (+ test, 3 laws) · src/__tests__/guard_one_door_holding.test.ts · HoldingDetailScreen.tsx · OtherInvestmentsScreen.tsx",
-   "comments": "10 more figures moved out of the hand-typed lists; three of his questions (Q07, Q20, Q21) re-homed on the figures they ask about. 2,917 tests green.",
+   "comments": "10 more figures moved out of the hand-typed lists; three of his questions (Q07, Q20, Q21) re-homed on the figures they ask about. 2,917 tests green. | CHECKED 2026-10-20: holding.ts (theHolding — MK-NW-O-006 in the code today) + holding.test.ts + src/__tests__/guard_one_door_holding.test.ts; alternatives-outlook.ts (theAlternativesOutlook — MK-NW-O-005 today) + alternatives-outlook.test.ts; the two numbers in the title are the other way round from the code; first committed ac8114ca.",
    "_written": {
-    "status": "CODED, NOT VERIFIED",
-    "comments": "10 more figures moved out of the hand-typed lists; three of his questions (Q07, Q20, Q21) re-homed on the figures they ask about. 2,917 tests green."
+    "status": "DONE 2026-09-28 — built and tested",
+    "comments": "10 more figures moved out of the hand-typed lists; three of his questions (Q07, Q20, Q21) re-homed on the figures they ask about. 2,917 tests green. | CHECKED 2026-10-20: holding.ts (theHolding — MK-NW-O-006 in the code today) + holding.test.ts + src/__tests__/guard_one_door_holding.test.ts; alternatives-outlook.ts (theAlternativesOutlook — MK-NW-O-005 today) + alternatives-outlook.test.ts; the two numbers in the title are the other way round from the code; first committed ac8114ca."
    }
   },
   {
@@ -1990,37 +1990,37 @@
   {
    "task": "ALL TWELVE ORCHESTRATORS ARE BUILT",
    "todo": "Nothing for him. Net worth 6, Performance 2, Cash flow 4 — every question on the map that had one to build is behind its door, each with its own tests and a guard that stops a screen reaching past it. 60 figures moved out of the hand-typed lists and are PRINTED from the code. What is left of the orchestrator plan is its own phases 3-6: the pilot through the six steps, \"will my money last\" (16 files, 65 places — the big one), the rest by blast radius, and turning every ratchet into a wall.",
-   "status": "CODED, NOT VERIFIED",
+   "status": "DONE 2026-09-28 — all twelve doors built, each with its tests and a guard",
    "date": "2026-09-28",
    "ref": "MoneyKeel/functions/networth-and-performance/ · MoneyKeel/functions/cashflow/ · the nine guard_one_door_* tests",
-   "comments": "2,947 tests green, every gate passing, nothing committed.",
+   "comments": "2,947 tests green, every gate passing, nothing committed. | CHECKED 2026-10-20: MoneyKeel/functions/networth-and-performance/ and MoneyKeel/functions/cashflow/; guards src/__tests__/guard_one_door_account, _bonds, _cashflow, _emergency_fund, _holding, _net_worth, _performance, _will_it_last (.test.ts); first committed ac8114ca. Phases 3 to 6 of the orchestrator plan are their own rows.",
    "_written": {
-    "status": "CODED, NOT VERIFIED",
-    "comments": "2,947 tests green, every gate passing, nothing committed."
+    "status": "DONE 2026-09-28 — all twelve doors built, each with its tests and a guard",
+    "comments": "2,947 tests green, every gate passing, nothing committed. | CHECKED 2026-10-20: MoneyKeel/functions/networth-and-performance/ and MoneyKeel/functions/cashflow/; guards src/__tests__/guard_one_door_account, _bonds, _cashflow, _emergency_fund, _holding, _net_worth, _performance, _will_it_last (.test.ts); first committed ac8114ca. Phases 3 to 6 of the orchestrator plan are their own rows."
    }
   },
   {
    "task": "The twelve doors carried identifiers the register never issued",
    "todo": "Nothing for him — found, analysed and fixed, with a guard so it cannot recur. Starting step 6 I compared each door against the register and 26 references across 20 files named numbers that had never been issued to those functions. TWO FAULTS UNDERNEATH: (1) I wrote the ORCHESTRATOR marker as a plain block comment, which the header generator OWNS and overwrites — so all twelve doors lost it on the first build and two were typed F instead of O; the marker is a doc comment now, which the generator cannot touch. (2) The register is keyed by NAME, so renaming a function minted a NEW number and stranded the old one on a dead name — `spending`→`expenses` left MK-CF-O-002 on the dead name, and `theCushion`→`theEmergencyFund` did the same. A rename is recorded in the register now and the number follows the FUNCTION, not the string; MK-CF-O-009 and MK-NW-F-074, minted by those renames, are retired with their reasons.",
-   "status": "CODED, NOT VERIFIED",
+   "status": "DONE 2026-09-28 — fixed, with a guard",
    "date": "2026-09-28",
    "ref": "Calculation Module code/scripts/moneykeel_functions.py (RENAMED, _record_rename, _retire) · moneykeel_function_register.json (renamed, retired) · src/__tests__/guard_identifiers_match_register.test.ts · 20 files",
-   "comments": "The new guard found a 27th on its first run, and that one predates me: FilingStatusScreen named MK-CF-F-099 taxOwedFor, but F-099 is deductionFor and taxOwedFor is F-101 — a comment sending the next reader to the wrong function. This is what step 6 is for: the file and the code have to agree, and until now nothing checked that they did.",
+   "comments": "The new guard found a 27th on its first run, and that one predates me: FilingStatusScreen named MK-CF-F-099 taxOwedFor, but F-099 is deductionFor and taxOwedFor is F-101 — a comment sending the next reader to the wrong function. This is what step 6 is for: the file and the code have to agree, and until now nothing checked that they did. | CHECKED 2026-10-20: src/__tests__/guard_identifiers_match_register.test.ts (first committed ac8114ca); moneykeel_function_register.json records renames and retirements (\"renamed\", \"retired\").",
    "_written": {
-    "status": "CODED, NOT VERIFIED",
-    "comments": "The new guard found a 27th on its first run, and that one predates me: FilingStatusScreen named MK-CF-F-099 taxOwedFor, but F-099 is deductionFor and taxOwedFor is F-101 — a comment sending the next reader to the wrong function. This is what step 6 is for: the file and the code have to agree, and until now nothing checked that they did."
+    "status": "DONE 2026-09-28 — fixed, with a guard",
+    "comments": "The new guard found a 27th on its first run, and that one predates me: FilingStatusScreen named MK-CF-F-099 taxOwedFor, but F-099 is deductionFor and taxOwedFor is F-101 — a comment sending the next reader to the wrong function. This is what step 6 is for: the file and the code have to agree, and until now nothing checked that they did. | CHECKED 2026-10-20: src/__tests__/guard_identifiers_match_register.test.ts (first committed ac8114ca); moneykeel_function_register.json records renames and retirements (\"renamed\", \"retired\")."
    }
   },
   {
    "task": "STEP 6 OF THE SIX IS DONE — every figure on the twelve doors carries a worked example that RUNS",
    "todo": "Nothing for him unless he wants to read one. 93 of the 102 declared figures now carry a concrete case in plain English — these inputs, this answer — and src/__tests__/worked_examples.test.ts builds that case, calls the REAL orchestrator and fails the build when the answer on the row and the answer the code gives differ by a character. The master file PRINTS the example in a new column, so it is a printout of something that executed rather than something I typed. The nine without one are figures the door hands back no value for (a sentence a screen composes itself); they sit on a ratchet that may only fall. Proved it bites: changing one answer from 5.3 to 5.4 months turned the build red.",
-   "status": "CODED, NOT VERIFIED",
+   "status": "DONE 2026-09-28 — the worked examples run through the real doors on every build",
    "ref": "src/__tests__/worked_examples.test.ts · MoneyKeel/functions/_figure-spec.ts (the `worked` shape and writeFigure) · the master file, column 'Worked example' on networth / performance / cashflow / menu / multiple_screens",
-   "comments": "This is the step the objectives standard names: “the row's worked example runs through the real orchestrator, the identifier joins them, then: file and code are both updated and they match 100%.” It had never been done for any question. The writing of a figure also moved into ONE place (writeFigure) — an example formatted by a second copy of the rounding would prove nothing about what a person sees.",
+   "comments": "This is the step the objectives standard names: “the row's worked example runs through the real orchestrator, the identifier joins them, then: file and code are both updated and they match 100%.” It had never been done for any question. The writing of a figure also moved into ONE place (writeFigure) — an example formatted by a second copy of the rounding would prove nothing about what a person sees. | CHECKED 2026-10-20: src/__tests__/worked_examples.test.ts (first committed ac8114ca).",
    "date": "2026-09-28",
    "_written": {
-    "status": "CODED, NOT VERIFIED",
-    "comments": "This is the step the objectives standard names: “the row's worked example runs through the real orchestrator, the identifier joins them, then: file and code are both updated and they match 100%.” It had never been done for any question. The writing of a figure also moved into ONE place (writeFigure) — an example formatted by a second copy of the rounding would prove nothing about what a person sees."
+    "status": "DONE 2026-09-28 — the worked examples run through the real doors on every build",
+    "comments": "This is the step the objectives standard names: “the row's worked example runs through the real orchestrator, the identifier joins them, then: file and code are both updated and they match 100%.” It had never been done for any question. The writing of a figure also moved into ONE place (writeFigure) — an example formatted by a second copy of the rounding would prove nothing about what a person sees. | CHECKED 2026-10-20: src/__tests__/worked_examples.test.ts (first committed ac8114ca)."
    }
   },
   {
@@ -2086,25 +2086,25 @@
   {
    "task": "My worked example for the emergency fund was incoherent — it budgeted $2,300 for a $2,400 mortgage",
    "todo": "Nothing for him — fixed, and he found it: “when budget is $2,300 rent / mortgage, why is debt $2,400/month for mortgage?” Both are $2,400 now. It moved the answer, because the door uses the BUDGET figure and leaves the mortgage debt’s minimum out so the home is not counted twice: the emergency fund reads 5.2 months, not 5.3, and eight of the ten answers on that door changed. The worked-example guard caught every stale one the moment the fixture changed, which is what it is for.",
-   "status": "TESTED, NOT VERIFIED",
+   "status": "DONE 2026-09-28 — the example household budgets and owes the same $2,400",
    "ref": "MoneyKeel/functions/networth-and-performance/emergency-fund.ts (the EXAMPLE fixture and all ten answers) · src/__tests__/worked_examples.test.ts",
    "date": "2026-09-28",
-   "comments": "A worked example has to be a household that could exist, or it is not a case anyone can follow — the same rule as numbers inside a mock having to add up. I wrote one that could not.",
+   "comments": "A worked example has to be a household that could exist, or it is not a case anyone can follow — the same rule as numbers inside a mock having to add up. I wrote one that could not. | CHECKED 2026-10-20: MoneyKeel/functions/networth-and-performance/emergency-fund.ts, the EXAMPLE fixture (Rent / Mortgage $2,400 and a $2,400 mortgage debt); src/__tests__/worked_examples.test.ts.",
    "_written": {
-    "status": "TESTED, NOT VERIFIED",
-    "comments": "A worked example has to be a household that could exist, or it is not a case anyone can follow — the same rule as numbers inside a mock having to add up. I wrote one that could not."
+    "status": "DONE 2026-09-28 — the example household budgets and owes the same $2,400",
+    "comments": "A worked example has to be a household that could exist, or it is not a case anyone can follow — the same rule as numbers inside a mock having to add up. I wrote one that could not. | CHECKED 2026-10-20: MoneyKeel/functions/networth-and-performance/emergency-fund.ts, the EXAMPLE fixture (Rent / Mortgage $2,400 and a $2,400 mortgage debt); src/__tests__/worked_examples.test.ts."
    }
   },
   {
    "task": "When the Rent / Mortgage budget and the mortgage debt disagree, the app is silent about it",
    "todo": "ANSWERED by him 2026-09-29: \"Yes, ask User to correct, if not input from user, use the budget.\" CODED THE SAME DAY: MK-NW-O-004 theEmergencyFund returns housingDisagreement {budgeted, owed, difference} where the two differ, and null where they agree or where one is missing — asking somebody to reconcile a figure they never entered is a worse question than no question. The BUDGET figure still drives the arithmetic, so no number moved; only what the person is told. DEC-0471, held by a test. STILL TO DO, mine: the screen has to actually ASK — the door reports it, no screen shows it yet.",
-   "status": "TESTED, NOT VERIFIED",
+   "status": "DONE 2026-10-05 — closed by a later ruling: DEC-0441 (\"use the budget\") was replaced by DEC-1923, so the two figures can no longer disagree and there is nothing left for a screen to ask",
    "ref": "MK-NW-M-047 (the finding is on its master row) · MK-NW-O-004 theEmergencyFund, the housingBudgeted guard",
    "date": "2026-09-28",
-   "comments": "The in-chat decision hole is closed with it: moneykeel_decisions_in_chat.json is the sixth source, and the log now carries what he says in conversation the same day.",
+   "comments": "The in-chat decision hole is closed with it: moneykeel_decisions_in_chat.json is the sixth source, and the log now carries what he says in conversation the same day. | CHECKED 2026-10-20: since DEC-1923 every debt is counted from Debts and the Rent / Mortgage budget line stands down when the home's mortgage is in Debts (MoneyKeel/functions/cashflow/budget-counted.ts + budget-counted.test.ts); housingDisagreement was removed in a398a5aa. The decision above is DEC-0441, not DEC-0471 as written.",
    "_written": {
-    "status": "TESTED, NOT VERIFIED",
-    "comments": "The in-chat decision hole is closed with it: moneykeel_decisions_in_chat.json is the sixth source, and the log now carries what he says in conversation the same day."
+    "status": "DONE 2026-10-05 — closed by a later ruling: DEC-0441 (\"use the budget\") was replaced by DEC-1923, so the two figures can no longer disagree and there is nothing left for a screen to ask",
+    "comments": "The in-chat decision hole is closed with it: moneykeel_decisions_in_chat.json is the sixth source, and the log now carries what he says in conversation the same day. | CHECKED 2026-10-20: since DEC-1923 every debt is counted from Debts and the Rent / Mortgage budget line stands down when the home's mortgage is in Debts (MoneyKeel/functions/cashflow/budget-counted.ts + budget-counted.test.ts); housingDisagreement was removed in a398a5aa. The decision above is DEC-0441, not DEC-0471 as written."
    }
   },
   {
@@ -2242,25 +2242,25 @@
   {
    "task": "Net worth — step 1.a of his seven steps: screens designed, approved, coded",
    "todo": "SCOPE SET BY HIM, 2026-10-01 (DEC-0649): the Net worth module is SEVEN screens — Net worth, Account detail, Add account by hand, Itemize, Bonds, Other investments, Holding detail. Home, Insights, Import holdings, Job safety and Stress test are not part of it. Step 1.a: 3 of 7 approved and coded (Net worth v08 all seven frames A to G, Account detail = Performance v17 frame 2, Add account by hand v01). Itemize v01 is DRAWN and open for his look. Bonds, Other investments and Holding detail have no design at all — mine to draw, after investments_v07 was archived as the old Invest page (DEC-0648).",
-   "status": "IN PROGRESS — 3 of 7 screens approved. 4 to go before step 1.a can pass.",
+   "status": "DONE 2026-10-01 — 7 of 7 screens designed, approved and coded; step 1.a passes",
    "ref": "MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md · Calculation Module code/scripts/module-launch-steps.py step 1.a",
    "date": "2026-10-01",
-   "comments": "My scope error, twice: I first put twelve screens in this module by merging two questions — which screens must OBEY its decisions, and which need an APPROVED DESIGN from it. Step 1.a asks the second. The three that print a Net worth figure (Home MK-NW-M-012, Insights MK-NW-M-005/047/048, Job safety MK-NW-M-013) are still bound by its decisions in step 1.b; what they are released from is needing a Net worth design. The five are now subtracted BY NAME rather than the derivation being dropped, so a new screen printing a Net worth figure is still noticed.",
+   "comments": "My scope error, twice: I first put twelve screens in this module by merging two questions — which screens must OBEY its decisions, and which need an APPROVED DESIGN from it. Step 1.a asks the second. The three that print a Net worth figure (Home MK-NW-M-012, Insights MK-NW-M-005/047/048, Job safety MK-NW-M-013) are still bound by its decisions in step 1.b; what they are released from is needing a Net worth design. The five are now subtracted BY NAME rather than the derivation being dropped, so a new screen printing a Net worth figure is still noticed. | CHECKED 2026-10-20: the evening re-run on the row \"Net worth — his seven steps: 17 of 17 pass\" (1.a PASS); approvals DEC-0644 (Net worth v08), DEC-0645 (Add account by hand), DEC-0646 (Account detail = the Account portfolio screen), DEC-0650 (Bonds, Other investments, Holding detail), DEC-0651 (Itemize); report moneykeel_calc_report_networth-launch-readiness_v02.docx. The account page has since its own approved drawing (DEC-6457).",
    "_written": {
-    "status": "IN PROGRESS — 3 of 7 screens approved. 4 to go before step 1.a can pass.",
-    "comments": "My scope error, twice: I first put twelve screens in this module by merging two questions — which screens must OBEY its decisions, and which need an APPROVED DESIGN from it. Step 1.a asks the second. The three that print a Net worth figure (Home MK-NW-M-012, Insights MK-NW-M-005/047/048, Job safety MK-NW-M-013) are still bound by its decisions in step 1.b; what they are released from is needing a Net worth design. The five are now subtracted BY NAME rather than the derivation being dropped, so a new screen printing a Net worth figure is still noticed."
+    "status": "DONE 2026-10-01 — 7 of 7 screens designed, approved and coded; step 1.a passes",
+    "comments": "My scope error, twice: I first put twelve screens in this module by merging two questions — which screens must OBEY its decisions, and which need an APPROVED DESIGN from it. Step 1.a asks the second. The three that print a Net worth figure (Home MK-NW-M-012, Insights MK-NW-M-005/047/048, Job safety MK-NW-M-013) are still bound by its decisions in step 1.b; what they are released from is needing a Net worth design. The five are now subtracted BY NAME rather than the derivation being dropped, so a new screen printing a Net worth figure is still noticed. | CHECKED 2026-10-20: the evening re-run on the row \"Net worth — his seven steps: 17 of 17 pass\" (1.a PASS); approvals DEC-0644 (Net worth v08), DEC-0645 (Add account by hand), DEC-0646 (Account detail = the Account portfolio screen), DEC-0650 (Bonds, Other investments, Holding detail), DEC-0651 (Itemize); report moneykeel_calc_report_networth-launch-readiness_v02.docx. The account page has since its own approved drawing (DEC-6457)."
    }
   },
   {
    "task": "Net worth — steps 1.b and 1.c of his seven steps",
    "todo": "1.b NOT COMPLIANT: all 11 standards guards pass (38 tests, 0 failed) and no decision is breached, but 118 of 225 decisions touching Net worth are UNCONFIRMED — they leave only a faint mark in the screen code. 20 more quote wording found on no screen; all 20 were read by hand on 2026-10-01 and are his own remarks rather than screen text, but that reading is not pinned by a test. 1.c NOT COMPLIANT: 138 figures print with no identifier across ALL 7 screens — NetWorth 51, AccountDetail 31, HoldingDetail 18, Bonds 17, Itemize 11, OtherInvestments 9, AddAccount 1. App-wide 654 across 57 files.",
-   "status": "TO DO — 1.c is mechanical and goes first; then confirm the 113 in 1.b.",
+   "status": "DONE 2026-10-01 — step 1.b closed and step 1.c passes (no untagged figure on the 7 screens)",
    "ref": "Calculation Module code/scripts/module-launch-steps.py steps 1.b and 1.c · moneykeel_undeclared_figures.json · moneykeel_validation_networth.json",
    "date": "2026-10-01",
-   "comments": "The existing ratchet guard on unidentified figures PASSES, which only means the count has not risen since 2026-09-14. It was never going to reach zero on its own.",
+   "comments": "The existing ratchet guard on unidentified figures PASSES, which only means the count has not risen since 2026-09-14. It was never going to reach zero on its own. | CHECKED 2026-10-20: the final run on the row \"Net worth — his seven steps: 17 of 17 pass\" (1.b: 162 decisions, each held by a named test, checked directly or carrying his words in its file; 1.c: PASS); src/__tests__/decisions_are_held.test.ts; report moneykeel_calc_report_networth-launch-readiness_v02.docx.",
    "_written": {
-    "status": "TO DO — 1.c is mechanical and goes first; then confirm the 113 in 1.b.",
-    "comments": "The existing ratchet guard on unidentified figures PASSES, which only means the count has not risen since 2026-09-14. It was never going to reach zero on its own."
+    "status": "DONE 2026-10-01 — step 1.b closed and step 1.c passes (no untagged figure on the 7 screens)",
+    "comments": "The existing ratchet guard on unidentified figures PASSES, which only means the count has not risen since 2026-09-14. It was never going to reach zero on its own. | CHECKED 2026-10-20: the final run on the row \"Net worth — his seven steps: 17 of 17 pass\" (1.b: 162 decisions, each held by a named test, checked directly or carrying his words in its file; 1.c: PASS); src/__tests__/decisions_are_held.test.ts; report moneykeel_calc_report_networth-launch-readiness_v02.docx."
    }
   },
   {
@@ -2302,13 +2302,13 @@
   {
    "task": "Net worth — DEC-0299 \"class and liquidity are separate fields\": no liquidity field exists on an account",
    "todo": "Decide where liquidity lives: today what a thing IS is asset_class and what can be used is computed in planning (liquidSavings). The rule (never one field for both) holds; the field he named does not exist. Either add `liquidity` to the account record with its editor, or record on DEC-0299 that the computed form is the intended one.",
-   "status": "OPEN — found 2026-10-01 while proving Net worth step 1.b; no screen shows a wrong number because of it.",
+   "status": "DECIDED 2026-10-20 — option A, his words: \"A. This was a question you asked me without knowing why and where to use it. So, go with option A.\" The liquidity field is left out of this phase and is added when a screen needs it.",
    "ref": "DEC-0299 · src/domain/assets/index.ts · src/domain/planning/index.ts",
    "date": "2026-10-01",
-   "comments": "",
+   "comments": "Option A: the account record gets no liquidity field in this phase; it is added when a screen needs one (for example \"money you can reach within 30 days\" on the emergency fund). No screen uses it and no number is wrong without it. DEC-0299's rule stands: class and liquidity are never one field. Decision row written 2026-10-20 to moneykeel_decisions_in_chat.json (governs DEC-0299); it takes its DEC id when the decision log is next built. DEC-0313 (liquidity tiers — Liquid / Sellable / Locked / Not spendable) needs this field, so it waits with DEC-0299; nothing is decided for DEC-0313 here.",
    "_written": {
-    "status": "OPEN — found 2026-10-01 while proving Net worth step 1.b; no screen shows a wrong number because of it.",
-    "comments": ""
+    "status": "DECIDED 2026-10-20 — option A, his words: \"A. This was a question you asked me without knowing why and where to use it. So, go with option A.\" The liquidity field is left out of this phase and is added when a screen needs it.",
+    "comments": "Option A: the account record gets no liquidity field in this phase; it is added when a screen needs one (for example \"money you can reach within 30 days\" on the emergency fund). No screen uses it and no number is wrong without it. DEC-0299's rule stands: class and liquidity are never one field. Decision row written 2026-10-20 to moneykeel_decisions_in_chat.json (governs DEC-0299); it takes its DEC id when the decision log is next built. DEC-0313 (liquidity tiers — Liquid / Sellable / Locked / Not spendable) needs this field, so it waits with DEC-0299; nothing is decided for DEC-0313 here."
    }
   },
   {
@@ -2350,13 +2350,13 @@
   {
    "task": "Before any build — line-by-line match of each tab against its approved drawing",
    "todo": "The seven steps check that a drawing exists and is approved; they do not compare the screen with it. Done so far by diff test: Account portfolio (v17 frame 2). To do: Performance tab (v17 phones 1, 3, 4, 5), Net worth (v08 A to G), Cash flow tab (cash-flow_v01 frames 1 to 4), Income (income-end-to-end_v07). Each gets a test like account_portfolio_vs_mock.test.tsx, and every gap is closed.",
-   "status": "IN PROGRESS — matched and locked by test: Account portfolio, Performance tab (4 phones), Net worth (8 states), Cash flow all four tabs (6 frames). NOT YET: the Income screens (income-end-to-end_v07, 17 phones: picker, base pay, bonus and stock, rent, interest and dividends, income manager, filing status, summary) and the two kept editors (Bill calendar v02, Monthly income v02).",
+   "status": "DONE 2026-10-04 — every tab and screen named here is held to its drawing by a word-for-word test",
    "ref": "docs/MOCK-MATCH-AUDIT-STANDING-ORDER.md · CLAUDE.md § RELEASE GATE",
    "date": "2026-10-03",
-   "comments": " 2026-10-03: Performance tab matched to v17 phones 1, 3, 4, 5 by src/screens/__tests__/perf_matches_v17.test.tsx. 2026-10-03: Net worth matched to v08 in all eight states (networth_matches_v08.test.tsx). Cash flow This month REBUILT to cash-flow_v01 frames A and B (cashflow_matches_v01.test.tsx): it had been showing a hero, a pace line, a budget card, twelve bars and a will-it-last strip that the approved drawing does not have, and no Actual card at all. FOUND, NOT YET BUILT: the Expenses, Income and Debts tabs are still the 2026-07-19 design — the calculations behind the approved one exist in the doors, the screens do not draw them. 2026-10-03 later: Cash flow Expenses, Income and Debts tabs rebuilt to cash-flow_v01 frames C to F; every named difference is listed in cashflow_matches_v01.test.tsx.",
+   "comments": " 2026-10-03: Performance tab matched to v17 phones 1, 3, 4, 5 by src/screens/__tests__/perf_matches_v17.test.tsx. 2026-10-03: Net worth matched to v08 in all eight states (networth_matches_v08.test.tsx). Cash flow This month REBUILT to cash-flow_v01 frames A and B (cashflow_matches_v01.test.tsx): it had been showing a hero, a pace line, a budget card, twelve bars and a will-it-last strip that the approved drawing does not have, and no Actual card at all. FOUND, NOT YET BUILT: the Expenses, Income and Debts tabs are still the 2026-07-19 design — the calculations behind the approved one exist in the doors, the screens do not draw them. 2026-10-03 later: Cash flow Expenses, Income and Debts tabs rebuilt to cash-flow_v01 frames C to F; every named difference is listed in cashflow_matches_v01.test.tsx. | CHECKED 2026-10-20: src/screens/__tests__/networth_matches_v08, perf_matches_v17, cashflow_matches_v01, income_matches_v07 (cf7e218a), income_manager_matches_v07, basepay_matches_v07, filing_matches_v07, kept_editors_match (b7f1d4ed). The account page, found not to match on 2026-10-11, is the row \"Account page: redraw …\" (rebuilt 2026-10-19, not committed).",
    "_written": {
-    "status": "IN PROGRESS — matched and locked by test: Account portfolio, Performance tab (4 phones), Net worth (8 states), Cash flow all four tabs (6 frames). NOT YET: the Income screens (income-end-to-end_v07, 17 phones: picker, base pay, bonus and stock, rent, interest and dividends, income manager, filing status, summary) and the two kept editors (Bill calendar v02, Monthly income v02).",
-    "comments": " 2026-10-03: Performance tab matched to v17 phones 1, 3, 4, 5 by src/screens/__tests__/perf_matches_v17.test.tsx. 2026-10-03: Net worth matched to v08 in all eight states (networth_matches_v08.test.tsx). Cash flow This month REBUILT to cash-flow_v01 frames A and B (cashflow_matches_v01.test.tsx): it had been showing a hero, a pace line, a budget card, twelve bars and a will-it-last strip that the approved drawing does not have, and no Actual card at all. FOUND, NOT YET BUILT: the Expenses, Income and Debts tabs are still the 2026-07-19 design — the calculations behind the approved one exist in the doors, the screens do not draw them. 2026-10-03 later: Cash flow Expenses, Income and Debts tabs rebuilt to cash-flow_v01 frames C to F; every named difference is listed in cashflow_matches_v01.test.tsx."
+    "status": "DONE 2026-10-04 — every tab and screen named here is held to its drawing by a word-for-word test",
+    "comments": " 2026-10-03: Performance tab matched to v17 phones 1, 3, 4, 5 by src/screens/__tests__/perf_matches_v17.test.tsx. 2026-10-03: Net worth matched to v08 in all eight states (networth_matches_v08.test.tsx). Cash flow This month REBUILT to cash-flow_v01 frames A and B (cashflow_matches_v01.test.tsx): it had been showing a hero, a pace line, a budget card, twelve bars and a will-it-last strip that the approved drawing does not have, and no Actual card at all. FOUND, NOT YET BUILT: the Expenses, Income and Debts tabs are still the 2026-07-19 design — the calculations behind the approved one exist in the doors, the screens do not draw them. 2026-10-03 later: Cash flow Expenses, Income and Debts tabs rebuilt to cash-flow_v01 frames C to F; every named difference is listed in cashflow_matches_v01.test.tsx. | CHECKED 2026-10-20: src/screens/__tests__/networth_matches_v08, perf_matches_v17, cashflow_matches_v01, income_matches_v07 (cf7e218a), income_manager_matches_v07, basepay_matches_v07, filing_matches_v07, kept_editors_match (b7f1d4ed). The account page, found not to match on 2026-10-11, is the row \"Account page: redraw …\" (rebuilt 2026-10-19, not committed)."
    }
   },
   {
@@ -2458,13 +2458,13 @@
   {
    "task": "A bond four months from maturity reads 'matures Feb 1, 2027 · 0y'",
    "todo": "Bonds screen, each bond's line. The years to maturity are rounded down, so anything under a year reads 0y. Seen 2026-10-04 while holding the screen to its drawing; the word-for-word test cannot see it because a figure is compared as a figure. Say months when it is under a year.",
-   "status": "OPEN — mine.",
+   "status": "DONE 2026-10-11 — ruled by DEC-4529: \"0y\" is right; the years left are rounded to the nearest whole year",
    "ref": "src/screens/BondsScreen.tsx",
    "date": "2026-10-04",
-   "comments": "",
+   "comments": "CHECKED 2026-10-20: DEC-4529 (his \"agree - leave the drawing, add line detailing correction … ok\"): the Bonds v02 READ THIS FIRST line gives this exact bond, Chase 12-month CD matures Feb 1, 2027 = 123 days = 0.34 year → 0y; src/screens/BondsScreen.tsx rounds with Math.round.",
    "_written": {
-    "status": "OPEN — mine.",
-    "comments": ""
+    "status": "DONE 2026-10-11 — ruled by DEC-4529: \"0y\" is right; the years left are rounded to the nearest whole year",
+    "comments": "CHECKED 2026-10-20: DEC-4529 (his \"agree - leave the drawing, add line detailing correction … ok\"): the Bonds v02 READ THIS FIRST line gives this exact bond, Chase 12-month CD matures Feb 1, 2027 = 123 days = 0.34 year → 0y; src/screens/BondsScreen.tsx rounds with Math.round."
    }
   },
   {
@@ -2530,13 +2530,13 @@
   {
    "task": "Time-weighted return — what it cannot measure yet, and one place the dollar walk still disagrees with it",
    "todo": "KNOWN LIMITS, 2026-10-04, each shown on screen as no percent with a sentence: (1) SHARES MOVED IN OR OUT of an account (a broker \"transfer in kind\", an exchange of one fund for another): the record does not say what they were worth that day, so any window containing that day shows no return. Building it means valuing the shares at that day's price and settling which way they moved — the stored record keeps the size but not always the direction. (2) A HAND-ENTERED ACCOUNT WITH HOLDINGS has a value only on days the app was opened, so money that moved in a LINKED account on a day the app was not opened cannot be measured for the two together. (3) THE DOLLAR WALK does not yet count cash transferred in from another account, or an account that joined the record inside the window, as money put in — it lands in \"change in investment value\". The return treats both as money in, so on those households the walk and the percent tell different stories. (4) A balance typed back-dated: the record assumes each day's value already holds that day's money.",
-   "status": "DONE except one limit: a balance typed back-dated (item 4).",
+   "status": "DONE — item 4 closed 2026-10-20: a balance typed with an earlier Value-as-of date is booked on that date (DEC-6619)",
    "ref": "Calculation Module code/engines/time-weighted-return.ts",
    "date": "2026-10-04",
-   "comments": "2026-10-04, on his instruction to fix them. (1) SHARES MOVED IN OR OUT: now counted as money in or out at what they were worth, when the record says which way they went and what they were worth. The sync now stores the direction (it was lost: \"in\" and \"out\" both became one type), the rebuilt history respects it, and the walk counts it. STILL REFUSED: share-transfer rows synced BEFORE today carry no direction, so a window containing one still shows no return — the direction cannot be recovered from what was stored. (2) HAND-ENTERED ACCOUNT WITH HOLDINGS: fixed — on rebuilt days between two days it was observed holding exactly the same shares and cash, it is given those shares at each day's close (fillBetweenObservations). Different on the two sides: nothing is filled. (3) THE DOLLAR WALK: fixed — cash or shares transferred in from outside, and an account that joined the record inside the window, count as money put in; the walk and the percent tell one story. (4) A BALANCE TYPED BACK-DATED: unchanged — the record assumes each day's value already holds that day's money. 2026-10-05 — item 1 finished: a share transfer synced before 2026-10-04 is given its direction on the next sync, from the activity the broker reports again; it is never imported twice (ingest.test.ts). Until that sync runs, a window holding such a row still shows no return. APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\"",
+   "comments": "2026-10-04, on his instruction to fix them. (1) SHARES MOVED IN OR OUT: now counted as money in or out at what they were worth, when the record says which way they went and what they were worth. The sync now stores the direction (it was lost: \"in\" and \"out\" both became one type), the rebuilt history respects it, and the walk counts it. STILL REFUSED: share-transfer rows synced BEFORE today carry no direction, so a window containing one still shows no return — the direction cannot be recovered from what was stored. (2) HAND-ENTERED ACCOUNT WITH HOLDINGS: fixed — on rebuilt days between two days it was observed holding exactly the same shares and cash, it is given those shares at each day's close (fillBetweenObservations). Different on the two sides: nothing is filled. (3) THE DOLLAR WALK: fixed — cash or shares transferred in from outside, and an account that joined the record inside the window, count as money put in; the walk and the percent tell one story. (4) A BALANCE TYPED BACK-DATED: unchanged — the record assumes each day's value already holds that day's money. 2026-10-05 — item 1 finished: a share transfer synced before 2026-10-04 is given its direction on the next sync, from the activity the broker reports again; it is never imported twice (ingest.test.ts). Until that sync runs, a window holding such a row still shows no return. APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\" | 2026-10-20, ITEM 4 CLOSED (DEC-6619, the lead's decision under DEC-0013 and DEC-0230): a value typed with an earlier Value-as-of date now replaces the old value on each recorded day from that date to today that still holds it, and the daily totals move with it — $24,900 retyped Oct 20 as of Sep 30 reads September +$250, October $0. A new account with a past date is not written back (DEC-6620); the month records are not moved (DEC-6621). Test: MoneyKeel/functions/networth-and-performance/typed_value_on_its_date.test.ts 13 of 13 (2026-10-21).",
    "_written": {
-    "status": "DONE except one limit: a balance typed back-dated (item 4).",
-    "comments": "2026-10-04, on his instruction to fix them. (1) SHARES MOVED IN OR OUT: now counted as money in or out at what they were worth, when the record says which way they went and what they were worth. The sync now stores the direction (it was lost: \"in\" and \"out\" both became one type), the rebuilt history respects it, and the walk counts it. STILL REFUSED: share-transfer rows synced BEFORE today carry no direction, so a window containing one still shows no return — the direction cannot be recovered from what was stored. (2) HAND-ENTERED ACCOUNT WITH HOLDINGS: fixed — on rebuilt days between two days it was observed holding exactly the same shares and cash, it is given those shares at each day's close (fillBetweenObservations). Different on the two sides: nothing is filled. (3) THE DOLLAR WALK: fixed — cash or shares transferred in from outside, and an account that joined the record inside the window, count as money put in; the walk and the percent tell one story. (4) A BALANCE TYPED BACK-DATED: unchanged — the record assumes each day's value already holds that day's money. 2026-10-05 — item 1 finished: a share transfer synced before 2026-10-04 is given its direction on the next sync, from the activity the broker reports again; it is never imported twice (ingest.test.ts). Until that sync runs, a window holding such a row still shows no return. APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\""
+    "status": "DONE — item 4 closed 2026-10-20: a balance typed with an earlier Value-as-of date is booked on that date (DEC-6619)",
+    "comments": "2026-10-04, on his instruction to fix them. (1) SHARES MOVED IN OR OUT: now counted as money in or out at what they were worth, when the record says which way they went and what they were worth. The sync now stores the direction (it was lost: \"in\" and \"out\" both became one type), the rebuilt history respects it, and the walk counts it. STILL REFUSED: share-transfer rows synced BEFORE today carry no direction, so a window containing one still shows no return — the direction cannot be recovered from what was stored. (2) HAND-ENTERED ACCOUNT WITH HOLDINGS: fixed — on rebuilt days between two days it was observed holding exactly the same shares and cash, it is given those shares at each day's close (fillBetweenObservations). Different on the two sides: nothing is filled. (3) THE DOLLAR WALK: fixed — cash or shares transferred in from outside, and an account that joined the record inside the window, count as money put in; the walk and the percent tell one story. (4) A BALANCE TYPED BACK-DATED: unchanged — the record assumes each day's value already holds that day's money. 2026-10-05 — item 1 finished: a share transfer synced before 2026-10-04 is given its direction on the next sync, from the activity the broker reports again; it is never imported twice (ingest.test.ts). Until that sync runs, a window holding such a row still shows no return. APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\" | 2026-10-20, ITEM 4 CLOSED (DEC-6619, the lead's decision under DEC-0013 and DEC-0230): a value typed with an earlier Value-as-of date now replaces the old value on each recorded day from that date to today that still holds it, and the daily totals move with it — $24,900 retyped Oct 20 as of Sep 30 reads September +$250, October $0. A new account with a past date is not written back (DEC-6620); the month records are not moved (DEC-6621). Test: MoneyKeel/functions/networth-and-performance/typed_value_on_its_date.test.ts 13 of 13 (2026-10-21)."
    }
   },
   {
@@ -2590,13 +2590,13 @@
   {
    "task": "Post Feedback Sync, 2026-10-05 — his two feedback files folded in and archived",
    "todo": "HIS INSTRUCTION, 2026-10-05: \"make sure to execute on PFS.\" TWO FILES, both waiting since the end of September. (1) THE LAUNCH ANSWER LIST (moneykeel_calc_plan_launch-answer-list_v01-jj.xlsx): four answer cells on the Net worth tab, holding seven answers. Q17 \"Money paid should not be counted as a gain. The formula is incorrect and should be corrected. Formula Time weighted return.\" — built on 2026-10-04 from his later words (DEC-1669); now on record as said here first. Q32 \"Don't understand the question - what trend are your referring to?\" — answered on its row: the trend is the net worth line chart; decided without asking again that the chart shows and a figure the daily record cannot cover says so. Q10 \"Draft order is correct\" — NOT BUILT: my draft put the institution's class field first, which contradicts his brief B7 (\"name first, broker tag as fallback only\", 2026-08-20) and his rule of 2026-08-04; the code stays on B7 and the conflict is put to him by name. Q11 \"Refuse the line and ask\" — BUILT: a holding nothing can class is in no class, shows as Unclassified, and Net worth asks. Q12 \"user entry stays … cost basis should not be overwritten in future sync\" — BUILT: a sync keeps a cost the person set and a holding they added. Q13 \"incomplete question\" — the question had been cut off; put in full on its row and decided as built (GLD is an alternative; physical metal is a hand-entered value). Q14 \"Call an account by it's name\" — the Net worth rows already do; one older list fixed. (2) THE MASTER (moneykeel_calc_master_calculation-master_v01-jj.xlsx, returned 2026-09-28): 14 cells of his in the answer and verified columns; 13 are word for word in the master today; the 14th, Q30 \"rise with inflation each year\", sat on a row retired on 2026-10-02 — recorded in the decision log; the draw is already shown in today's dollars. COVERAGE: 2 of 2 files · 21 answers and typed cells read · 13 already in the original · 8 newly recorded in his words · 3 rulings built and tested the same day (Q11, Q12, Q14) · 1 already built (Q17) · 3 answered or decided on the row (Q13, Q32, Q30) · 1 not built, held for him (Q10) · 2 files archived as 2026-10-05_folded-in_…",
-   "status": "DONE — except Q10, which waits on him: his two rulings disagree.",
+   "status": "DONE — Q10 ruled by him 2026-10-20 (DEC-6614: “always the class broker sends.”) and built the same day",
    "ref": "MoneyKeel/documents/other/JJ-feedback-archive/",
    "date": "2026-10-05",
-   "comments": "The gate that printed \"PFS pending: 2 files\" is clear. check-questions-answered: every answer of his reaches the master, and none is still being asked.",
+   "comments": "The gate that printed \"PFS pending: 2 files\" is clear. check-questions-answered: every answer of his reaches the master, and none is still being asked. | 2026-10-20, Q10 CLOSED: put to him as the conflict between B7 (name first) and his Q10 answer (the broker's class first); his word: “always the class broker sends.” (DEC-6614). Built: classifyHoldingClass (holding-class.ts) asks the person's own class, then the class the broker sends, then the name. Test: Calculation Module code/engines/__tests__/holding-class.test.ts 13 of 13 (2026-10-21).",
    "_written": {
-    "status": "DONE — except Q10, which waits on him: his two rulings disagree.",
-    "comments": "The gate that printed \"PFS pending: 2 files\" is clear. check-questions-answered: every answer of his reaches the master, and none is still being asked."
+    "status": "DONE — Q10 ruled by him 2026-10-20 (DEC-6614: “always the class broker sends.”) and built the same day",
+    "comments": "The gate that printed \"PFS pending: 2 files\" is clear. check-questions-answered: every answer of his reaches the master, and none is still being asked. | 2026-10-20, Q10 CLOSED: put to him as the conflict between B7 (name first) and his Q10 answer (the broker's class first); his word: “always the class broker sends.” (DEC-6614). Built: classifyHoldingClass (holding-class.ts) asks the person's own class, then the class the broker sends, then the name. Test: Calculation Module code/engines/__tests__/holding-class.test.ts 13 of 13 (2026-10-21)."
    }
   },
   {
@@ -2650,13 +2650,13 @@
   {
    "task": "An account added by hand as Roth or 401(k) / IRA was shown as \"Brokerage\"",
    "todo": "FOUND 2026-10-05 while checking the reviewer's point on MK-NW-F-010 (the kind must follow the tax wrapper). The by-hand form asks \"Taxable · 401(k) / IRA · Roth\" and records the answer as the tax bucket on a plain brokerage kind, so a Roth at Vanguard read \"Vanguard Brokerage\" — against his naming rule of 2026-08-11 (a tax-advantaged account always shows what it is). FIXED in MK-NW-F-025 accountDisplayName: where the kind says only Brokerage, the word is the tax answer — \"Vanguard Roth\", \"Fidelity 401(k) / IRA\". DECIDED BY ME: the two words are the form's own. To reverse or reword: one line. NOT DONE: the form has one choice for a 401(k) and an IRA, so nothing later can tell which of the two such an account is.",
-   "status": "DONE for the name. OPEN: the by-hand form has one choice for 401(k) and IRA.",
+   "status": "DONE 2026-10-20 — the name, and the one 401(k) / IRA choice: Held in now offers the one list of six (DEC-2441, DEC-2484h)",
    "ref": "src/domain/assets/index.ts (MK-NW-F-025) · src/screens/AddAccountScreen.tsx · MoneyKeel/functions/networth-and-performance/outside_networth_02_found.test.ts",
    "date": "2026-10-05",
-   "comments": "APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\"",
+   "comments": "APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\" | 2026-10-20: the open half is closed — Add an account, the Bonds and Alternatives editors and Net worth's add sheet offer Held in as one list of six (Taxable, 401(k), Traditional IRA, Roth IRA, Roth 401(k), HSA); a Vanguard 401(k) typed by hand is named Vanguard 401(k) and compared with AOR. Tests: held_in_and_bond_forms.test.tsx 17 of 17, kept_editors_match.test.tsx 42 of 42 (2026-10-21).",
    "_written": {
-    "status": "DONE for the name. OPEN: the by-hand form has one choice for 401(k) and IRA.",
-    "comments": "APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\""
+    "status": "DONE 2026-10-20 — the name, and the one 401(k) / IRA choice: Held in now offers the one list of six (DEC-2441, DEC-2484h)",
+    "comments": "APPROVED BY HIM, 2026-10-07: \"all the code changes, findings and changes - for batch one and two - I approved.\" | 2026-10-20: the open half is closed — Add an account, the Bonds and Alternatives editors and Net worth's add sheet offer Held in as one list of six (Taxable, 401(k), Traditional IRA, Roth IRA, Roth 401(k), HSA); a Vanguard 401(k) typed by hand is named Vanguard 401(k) and compared with AOR. Tests: held_in_and_bond_forms.test.tsx 17 of 17, kept_editors_match.test.tsx 42 of 42 (2026-10-21)."
    }
   },
   {
@@ -2830,13 +2830,13 @@
   {
    "task": "Final outside test of the whole Net worth module — brief for OpenAI",
    "todo": "His words, 2026-10-09: 'write one last brief for Open AI to run one last set of test across entire NW module to ensure all fixes are in, and all screens, and functions meet tenants.' Written from the code as it stands (build-outside-test-cards.py --module-audit NW --for OpenAI): the tenets; four jobs (formula check and five cases for every function; each decided rule HELD or NOT; each screen figure against the tenets); his settled rulings (A47 replaced by DEC-3390); the 67 rules decided in the outside reviews, in force, from the decision log; the 71 figures the Net worth screens print, from the figure register; 101 function cards in four parts.",
-   "status": "WAITING ON HIM — to send to OpenAI",
+   "status": "DONE 2026-10-09 — sent; OpenAI's audit came back the same day and was run against the app",
    "ref": "MoneyKeel/documents/audit/outside-test-cases/to-send/moneykeel_audit_module_nw_for-openai_v01.md + _cards-part-1..4-of-4.md",
    "date": "2026-10-09",
-   "comments": "Batch 06's full 60-case JSON was never returned — only its fix brief; the brief's 23 tests are in. Tenets are draft v01, not yet approved by him.",
+   "comments": "Batch 06's full 60-case JSON was never returned — only its fix brief; the brief's 23 tests are in. Tenets are draft v01, not yet approved by him. | CHECKED 2026-10-20: brief commit 409f2a69 (tenets added 8f791996); audit run in e7da11ae (505 of 505 cases); the re-run brief v02 followed (f477e05b, 0cd68f22).",
    "_written": {
-    "status": "WAITING ON HIM — to send to OpenAI",
-    "comments": "Batch 06's full 60-case JSON was never returned — only its fix brief; the brief's 23 tests are in. Tenets are draft v01, not yet approved by him."
+    "status": "DONE 2026-10-09 — sent; OpenAI's audit came back the same day and was run against the app",
+    "comments": "Batch 06's full 60-case JSON was never returned — only its fix brief; the brief's 23 tests are in. Tenets are draft v01, not yet approved by him. | CHECKED 2026-10-20: brief commit 409f2a69 (tenets added 8f791996); audit run in e7da11ae (505 of 505 cases); the re-run brief v02 followed (f477e05b, 0cd68f22)."
    }
   },
   {
@@ -2857,10 +2857,10 @@
    "status": "IN PROGRESS — 16 app errors fixed or held; open points to decide",
    "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/ (moneykeel_nw_part1..4_audit.json, results/)",
    "date": "2026-10-09",
-   "comments": "Not pushed. MK-NW-F-091 held: making an unknown gain 'unknown' blanks two states of the approved account page (v17 frame 2) for any hand-typed CD or bond.",
+   "comments": "Not pushed. MK-NW-F-091 held: making an unknown gain 'unknown' blanks two states of the approved account page (v17 frame 2) for any hand-typed CD or bond. | NOTE 2026-10-20: left open — the UNCLEAR outside cases still to decide are being classified now, one by one; the row closes when each is settled. Done so far: open points settled by DEC-3656, DEC-3657, DEC-3768b, DEC-3768c, DEC-3769, DEC-3837, DEC-4036b–k, DEC-4059b–d, DEC-4082, DEC-4105; re-run parts 1–4 (51a1fa67, 0f7adefa, 0e12a591); 10 cases classified in 7268efb4.",
    "_written": {
     "status": "IN PROGRESS — 16 app errors fixed or held; open points to decide",
-    "comments": "Not pushed. MK-NW-F-091 held: making an unknown gain 'unknown' blanks two states of the approved account page (v17 frame 2) for any hand-typed CD or bond."
+    "comments": "Not pushed. MK-NW-F-091 held: making an unknown gain 'unknown' blanks two states of the approved account page (v17 frame 2) for any hand-typed CD or bond. | NOTE 2026-10-20: left open — the UNCLEAR outside cases still to decide are being classified now, one by one; the row closes when each is settled. Done so far: open points settled by DEC-3656, DEC-3657, DEC-3768b, DEC-3768c, DEC-3769, DEC-3837, DEC-4036b–k, DEC-4059b–d, DEC-4082, DEC-4105; re-run parts 1–4 (51a1fa67, 0f7adefa, 0e12a591); 10 cases classified in 7268efb4."
    }
   },
   {
@@ -2890,13 +2890,13 @@
   {
    "task": "Account page: redraw Performance v17 frame 2 so its figures add up, then rebuild the page to it",
    "todo": "Draw from the code's census strings and tokens; one phone, final state; his approval; then rebuild and mock-match.",
-   "status": "OPEN — next Net worth task",
+   "status": "DONE 2026-10-19 — drawing v01 approved (DEC-6457) and the page rebuilt to it in all five states, word for word: A 124 of 124 lines, B 65 of 65, C 83 of 83, D 89 of 89, E 71 of 71; not committed",
    "ref": "MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v17.html",
    "date": "2026-10-11",
-   "comments": "",
+   "comments": "Drawing: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_account-page_v01.html. Held by src/screens/__tests__/account_page_drawing_states.test.tsx; audit MoneyKeel/documents/audit/moneykeel_audit_mock-match_account-page_2026-10-19_v01.md. Found on the way: the old match test read v17 phone 3 (the Performance tab), so the page carried the Performance tab's sections; the day-one lines never showed once Home wrote today's record; an account with no balance entered read −100.00%.",
    "_written": {
-    "status": "OPEN — next Net worth task",
-    "comments": ""
+    "status": "DONE 2026-10-19 — drawing v01 approved (DEC-6457) and the page rebuilt to it in all five states, word for word: A 124 of 124 lines, B 65 of 65, C 83 of 83, D 89 of 89, E 71 of 71; not committed",
+    "comments": "Drawing: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_account-page_v01.html. Held by src/screens/__tests__/account_page_drawing_states.test.tsx; audit MoneyKeel/documents/audit/moneykeel_audit_mock-match_account-page_2026-10-19_v01.md. Found on the way: the old match test read v17 phone 3 (the Performance tab), so the page carried the Performance tab's sections; the day-one lines never showed once Home wrote today's record; an account with no balance entered read −100.00%."
    }
   },
   {
@@ -3005,6 +3005,162 @@
    "_written": {
     "status": "DONE 2026-10-19 — built and tested; not committed",
     "comments": "Before: state A 1Y +7.12%, 2Y +9.57% (worked back whole); Performance v17 phone 1 1Y +6.10%, 2Y +11.10%. Now: state A 1Y +8.26% (= Since), 2Y +10.87% a year; phone 1 1Y +7.46% (= Since), 2Y +11.81% a year. States B to E unchanged."
+   }
+  },
+  {
+   "task": "Net worth launch check, 2026-10-20 — six gaps fixed: one total function (DEC-0343), inputs built once (DEC-0345), the gap cards' ring (v08), MK-NW-M-015's label, the odds under MK-XS-M-002, a CD's rate on the add sheet",
+   "todo": "(1) DEC-0343: the section and institution totals are MK-NW-F-039 buildAssetsState over their accounts. (2) DEC-0345: the Net worth family's inputs are built once (MK-NW-F-145 netWorthInputs) and seven screens read them. (3) The fix sheet's gap cards carry v08's 1-point ring. (4) MK-NW-M-015 describes the sentence the card prints, and the records naming its old label are corrected. (5) The odds print under MK-XS-M-002 on Net worth, the Plan tab and Home. (6) A CD added on Net worth's sheet is asked its rate (DEC-6626).",
+   "status": "DONE 2026-10-20 — built and tested; not committed",
+   "ref": "src/screens/__tests__/nw_totals_one_function.test.tsx · src/screens/__tests__/networth_family_inputs.test.tsx · src/__tests__/guard_one_door_networth_inputs.test.ts · src/screens/__tests__/networth_matches_v08.test.tsx · src/screens/__tests__/networth_sheet_cd_rate_and_value_date.test.tsx · src/hooks/useNetWorthInputs.ts · src/screens/NetWorthScreen.tsx · src/components/DataGapsBanner.tsx",
+   "date": "2026-10-20",
+   "comments": "Added 2026-10-21 by the records job: the lead asked for the rows of these six to be closed, and none existed, so the work is recorded as one row, already done. Tests 2026-10-21: nw_totals_one_function 4 of 4, networth_family_inputs 8 of 8, guard_one_door_networth_inputs 3 of 3, networth_matches_v08 11 of 11, networth_sheet_cd_rate_and_value_date 7 of 7. DEC-0343 and DEC-0345 recorded TESTED.",
+   "_written": {
+    "status": "DONE 2026-10-20 — built and tested; not committed",
+    "comments": "Added 2026-10-21 by the records job: the lead asked for the rows of these six to be closed, and none existed, so the work is recorded as one row, already done. Tests 2026-10-21: nw_totals_one_function 4 of 4, networth_family_inputs 8 of 8, guard_one_door_networth_inputs 3 of 3, networth_matches_v08 11 of 11, networth_sheet_cd_rate_and_value_date 7 of 7. DEC-0343 and DEC-0345 recorded TESTED."
+   }
+  },
+  {
+   "task": "His ruling of 2026-10-20 — a linked or imported holding takes the class the broker sends first (DEC-6614, settles Q10 / DEC-2159 against brief B7)",
+   "todo": "classifyHoldingClass (holding-class.ts) asks the person's own class, then the class the broker sends (its cash-equivalent flag, else its type: SnapTrade's security type code or an import file's type column), then the name and the other automatic rules; the sync and the importer keep the broker's class on the saved holding (MK-XS-I-070); the class standard §2 and a Net worth v08 line say so; DEC-2159 answered; B7 narrowed.",
+   "status": "DONE 2026-10-21 — built and tested; not committed",
+   "ref": "Calculation Module code/engines/holding-class.ts · Calculation Module code/engines/__tests__/holding-class.test.ts · src/services/sync/dec2159_broker_class.test.ts · src/screens/__tests__/dec2159_import_broker_type.test.tsx · MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md",
+   "date": "2026-10-21",
+   "comments": "Worked example (Net worth v08 line, 2026-10-21): VMFXX $50,000 flagged cash-equivalent — Cash $10,000 becomes $60,000, the emergency fund 1.7 months becomes 10.0 months, what you own $160,000 either way. run 2026-10-21, all passing: holding-class.test.ts 13 of 13 · dec2159_import_broker_type.test.tsx 1 of 1 · dec2159_broker_class.test.ts 9 of 9.",
+   "_written": {
+    "status": "DONE 2026-10-21 — built and tested; not committed",
+    "comments": "Worked example (Net worth v08 line, 2026-10-21): VMFXX $50,000 flagged cash-equivalent — Cash $10,000 becomes $60,000, the emergency fund 1.7 months becomes 10.0 months, what you own $160,000 either way. run 2026-10-21, all passing: holding-class.test.ts 13 of 13 · dec2159_import_broker_type.test.tsx 1 of 1 · dec2159_broker_class.test.ts 9 of 9."
+   }
+  },
+  {
+   "task": "Sync: a reversed deposit and income with no amount (Performance re-run part 4)",
+   "todo": "(1) A broker's minus on a deposit kept as its direction (DEC-6672, DEC-6673). (2) Interest, a dividend or a coupon with no amount is unknown; the return refuses across its day (DEC-6674); a real $0 saved as 0 (DEC-6675).",
+   "status": "DONE 2026-10-21 — built and tested; not committed",
+   "ref": "MoneyKeel/functions/networth-and-performance/reversal_and_missing_amount.test.ts · src/screens/__tests__/reversal_and_missing_amount_screens.test.tsx · src/services/sync/ingest.ts · Calculation Module code/engines/ledger.ts · Calculation Module code/engines/time-weighted-return.ts",
+   "date": "2026-10-21",
+   "comments": "Run 2026-10-21: 17 of 17 and 6 of 6 pass. Drawings: account page v01 rows 53 and 54, Performance v17 line. Open follow-ups (code jobs): a dividend reversal or fee refund still loses its sign at sync; records saved before 2026-10-21 have no direction.",
+   "_written": {
+    "status": "DONE 2026-10-21 — built and tested; not committed",
+    "comments": "Run 2026-10-21: 17 of 17 and 6 of 6 pass. Drawings: account page v01 rows 53 and 54, Performance v17 line. Open follow-ups (code jobs): a dividend reversal or fee refund still loses its sign at sync; records saved before 2026-10-21 have no direction."
+   }
+  },
+  {
+   "task": "A holding worth $0 today dropped out of the worked-back figures (12 readers)",
+   "todo": "Every reader keeps a holding's starting value at the window's start (DEC-6676..DEC-6681, under DEC-5068).",
+   "status": "DONE 2026-10-21 — 12 of 12 readers fixed; built and tested; not committed",
+   "ref": "src/screens/__tests__/holding_worth_zero_counts.test.tsx · MoneyKeel/functions/networth-and-performance/performance.ts · src/domain/performance/index.ts",
+   "date": "2026-10-21",
+   "comments": "Run 2026-10-21: holding_worth_zero_counts.test.tsx 6 of 6. A $1,000 → $0, B $1,000 → $1,200: −40.00%, −$800; market +6.00%. No drawn figure moved.",
+   "_written": {
+    "status": "DONE 2026-10-21 — 12 of 12 readers fixed; built and tested; not committed",
+    "comments": "Run 2026-10-21: holding_worth_zero_counts.test.tsx 6 of 6. A $1,000 → $0, B $1,000 → $1,200: −40.00%, −$800; market +6.00%. No drawn figure moved."
+   }
+  },
+  {
+   "task": "Holding page gains: five defects + spoken labels",
+   "todo": "Undated purchase in neither part (DEC-6687); tax-advantaged accounts show Gain whole (DEC-6688); index options 60/40 (DEC-6689); no-price large figure = Total paid (DEC-6690); import keeps a missing date blank (DEC-6691); \"not on record\" (DEC-6692); spoken percents to two decimals (DEC-0264).",
+   "status": "DONE 2026-10-21 — built and tested; not committed",
+   "ref": "src/screens/__tests__/holding_gains_if_sold_today.test.tsx · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_holding-detail_v02.html",
+   "date": "2026-10-21",
+   "comments": "Run 2026-10-21: holding_gains_if_sold_today.test.tsx 17 of 17. Open (drawing wins): MK-NW-M-061#8 option purchase line reads \"2 sh @\" — to tell him.",
+   "_written": {
+    "status": "DONE 2026-10-21 — built and tested; not committed",
+    "comments": "Run 2026-10-21: holding_gains_if_sold_today.test.tsx 17 of 17. Open (drawing wins): MK-NW-M-061#8 option purchase line reads \"2 sh @\" — to tell him."
+   }
+  },
+  {
+   "task": "Performance outside re-run, part 1 (OpenAI) — 125 cases assessed",
+   "todo": "Assess every case: agree, app wrong, reviewer wrong, ruling needed, blocked.",
+   "status": "DONE 2026-10-21 — 125 of 125 assessed: 60 agree, 28 app wrong, 27 reviewer wrong, 7 need a ruling, 3 blocked; 30 were in flight (ZERO 12, ACCOUNT 11, GAINS 5, SYNC 2)",
+   "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/results/performance_openai_rerun_01_results.json",
+   "date": "2026-10-21",
+   "comments": "Still open, each its own job: the Net worth fix batch (D MK-NW-F-103, E and F MK-NW-O-008, H MK-NW-M-024); the Performance queue (MK-PF-F-040, MK-PF-M-003/015, -017, -020, head-of-household brackets); 7 rulings for the lead (MK-NW-F-084, MK-CF-M-051, MK-MN-M-003, MK-NW-M-029, MK-NW-M-035, MK-PF-M-001, MK-PF-M-016); disagreements #36-#38 and #43. | 2026-10-21 NWFIX CLOSED: MK-NW-F-103 (a blank balance is not a recorded day), MK-NW-O-008 ×2 (a record after today read on today, DEC-6824; a new account's first day), MK-NW-F-084 (Alternatives row, DEC-6825), MK-NW-M-029 (LAST CLOSE, DEC-6826), MK-NW-M-035 (a sale's fee, DEC-6827), the amber box (DEC-6828). MK-NW-M-024 kept: his DEC-2748c (face × rate; with no face, value × rate) stands, so test #18 is REVIEWER WRONG. Test: nwfix_performance_rerun_01.test.ts 16 of 17 (one amber-box test red while another agent edits the unpriced row).",
+   "_written": {
+    "status": "DONE 2026-10-21 — 125 of 125 assessed: 60 agree, 28 app wrong, 27 reviewer wrong, 7 need a ruling, 3 blocked; 30 were in flight (ZERO 12, ACCOUNT 11, GAINS 5, SYNC 2)",
+    "comments": "Still open, each its own job: the Net worth fix batch (D MK-NW-F-103, E and F MK-NW-O-008, H MK-NW-M-024); the Performance queue (MK-PF-F-040, MK-PF-M-003/015, -017, -020, head-of-household brackets); 7 rulings for the lead (MK-NW-F-084, MK-CF-M-051, MK-MN-M-003, MK-NW-M-029, MK-NW-M-035, MK-PF-M-001, MK-PF-M-016); disagreements #36-#38 and #43. | 2026-10-21 NWFIX CLOSED: MK-NW-F-103 (a blank balance is not a recorded day), MK-NW-O-008 ×2 (a record after today read on today, DEC-6824; a new account's first day), MK-NW-F-084 (Alternatives row, DEC-6825), MK-NW-M-029 (LAST CLOSE, DEC-6826), MK-NW-M-035 (a sale's fee, DEC-6827), the amber box (DEC-6828). MK-NW-M-024 kept: his DEC-2748c (face × rate; with no face, value × rate) stands, so test #18 is REVIEWER WRONG. Test: nwfix_performance_rerun_01.test.ts 16 of 17 (one amber-box test red while another agent edits the unpriced row)."
+   }
+  },
+  {
+   "task": "Dividend/fee sign class: a reversed dividend or a refunded fee lost its sign at sync (13 readers)",
+   "todo": "Sync keeps the direction for all seven kinds (DEC-6796); one-time full re-fetch (DEC-6797); walk shows a net reversal as a minus (DEC-6798); outside case BRIEF WRONG (DEC-6799); isMoneyOut (DEC-6800); inverseOf (DEC-6801).",
+   "status": "DONE 2026-10-21 — readers 13 of 13, kinds 7 of 7, re-fetch built; not committed",
+   "ref": "MoneyKeel/functions/networth-and-performance/dividend_fee_signs.test.ts · src/screens/__tests__/dividend_fee_signs_screens.test.tsx · src/services/sync/signs_refetch.orch.test.ts · src/__tests__/guard_one_reader_for_stored_amounts.test.ts",
+   "date": "2026-10-21",
+   "comments": "Run 2026-10-21: 8 of 8, 4 of 4, 2 of 2, 2 of 2 pass.",
+   "_written": {
+    "status": "DONE 2026-10-21 — readers 13 of 13, kinds 7 of 7, re-fetch built; not committed",
+    "comments": "Run 2026-10-21: 8 of 8, 4 of 4, 2 of 2, 2 of 2 pass."
+   }
+  },
+  {
+   "task": "Net worth figures from the Performance re-run part 1 screen checks (ACCOUNT, 8 fixes + the walk date)",
+   "todo": "DEC-6759 gap is cash · DEC-6760/DEC-6761 debt payment not entered · DEC-6765 Job safety · DEC-6764 CD asked · DEC-6763 Unclassified · DEC-6767 one date per window · DEC-6762 Home note · DEC-6766 concentration.",
+   "status": "DONE 2026-10-21 — 8 of 8 fixed and the walk date; not committed",
+   "ref": "src/screens/__tests__/networth_rerun01_fixes.test.tsx · src/screens/__tests__/outside_performance_rerun_openai_01_screens.test.tsx · MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01_rules.test.ts",
+   "date": "2026-10-21",
+   "comments": "Run 2026-10-21: networth_rerun01_fixes.test.tsx 29 of 29. Home and Job safety have no recorded drawing — to tell him.",
+   "_written": {
+    "status": "DONE 2026-10-21 — 8 of 8 fixed and the walk date; not committed",
+    "comments": "Run 2026-10-21: networth_rerun01_fixes.test.tsx 29 of 29. Home and Job safety have no recorded drawing — to tell him."
+   }
+  },
+  {
+   "task": "A stored $0 price paid read one way in every reader (cost 14 of 15, dates 7 of 7)",
+   "todo": "DEC-6768 tax gain share · DEC-6769 account balance · DEC-6770 sync cost · DEC-6771 window return · DEC-6772 daily record · DEC-6773 oldest-first sale.",
+   "status": "DONE 2026-10-21 — 14 of 15 cost readers (the 15th with ACCOUNT), 7 of 7 date readers; not committed",
+   "ref": "src/screens/__tests__/paid_read_one_way_agreement.test.tsx",
+   "date": "2026-10-21",
+   "comments": "Run 2026-10-21: 11 of 11 pass.",
+   "_written": {
+    "status": "DONE 2026-10-21 — 14 of 15 cost readers (the 15th with ACCOUNT), 7 of 7 date readers; not committed",
+    "comments": "Run 2026-10-21: 11 of 11 pass."
+   }
+  },
+  {
+   "task": "Trade fee at sync: the broker's fee kept on record; realized gain takes it once; older trades fixed at next sync",
+   "todo": "DEC-6873 stored · DEC-6874 before or after · DEC-6875 purchase fee · DEC-6876 older trades.",
+   "status": "DONE 2026-10-21 — built and tested; not committed",
+   "ref": "src/screens/__tests__/trade_fee_at_sync.test.tsx",
+   "date": "2026-10-21",
+   "comments": "Run 2026-10-21: 8 of 8. Drawing to make: the trade sheet's fee box — to tell him.",
+   "_written": {
+    "status": "DONE 2026-10-21 — built and tested; not committed",
+    "comments": "Run 2026-10-21: 8 of 8. Drawing to make: the trade sheet's fee box — to tell him."
+   }
+  },
+  {
+   "task": "Undo of a transfer moved the money twice (MK-CF-F-116 inverseOf)",
+   "todo": "DEC-6993: a transfer undo swaps accounts and keeps direction; others flip.",
+   "status": "DONE 2026-10-21 — built and tested; not committed",
+   "ref": "src/domain/transactions/undo_round_trip.test.ts",
+   "date": "2026-10-21",
+   "comments": "Run 2026-10-21: 35 of 35; 17 kinds round-trip to the cent.",
+   "_written": {
+    "status": "DONE 2026-10-21 — built and tested; not committed",
+    "comments": "Run 2026-10-21: 35 of 35; 17 kinds round-trip to the cent."
+   }
+  },
+  {
+   "task": "Class split scaled a bond twice and an option not at all (MK-NW-F-027)",
+   "todo": "A bond per $100 scaled once; an option price × 100. $195.08 → $9,900; $76.92 → $1,600.",
+   "status": "DONE 2026-10-21 — fixed and tested; not committed",
+   "ref": "src/screens/__tests__/networth_rerun01_fixes.test.tsx (section 14)",
+   "date": "2026-10-21",
+   "comments": "Run 2026-10-21: 34 of 34. A fix under existing rulings, no new decision.",
+   "_written": {
+    "status": "DONE 2026-10-21 — fixed and tested; not committed",
+    "comments": "Run 2026-10-21: 34 of 34. A fix under existing rulings, no new decision."
+   }
+  },
+  {
+   "task": "Build check B7 read only the first 400 lines of a function",
+   "todo": "Fingerprint each whole function; stop if a function is not closed.",
+   "status": "DONE 2026-10-21 — built; not committed",
+   "ref": "Calculation Module code/scripts/build-outside-test-cards.py (body_of)",
+   "date": "2026-10-21",
+   "comments": "thePerformance (MK-NW-O-008) is now read whole.",
+   "_written": {
+    "status": "DONE 2026-10-21 — built; not committed",
+    "comments": "thePerformance (MK-NW-O-008) is now read whole."
    }
   }
  ]

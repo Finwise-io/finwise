@@ -79,7 +79,8 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
     const k = (editing?.debt_type as DebtType) ?? 'CREDIT_CARD';
     setKind(k); setInst(editing?.institution ?? '');
     setBal(editing ? String(editing.remaining_balance) : ''); setApr(editing ? String(editing.interest_rate_apr * 100) : '');
-    setPay(editing ? String(editing.minimum_monthly_payment) : '');
+    // a payment never entered opens as an empty box, never the word "undefined" (2026-10-21)
+    setPay(editing && editing.minimum_monthly_payment != null ? String(editing.minimum_monthly_payment) : '');
     setDue(editing?.due_day ? String(editing.due_day) : ''); setMonthly(editing?.monthly_payment ? String(editing.monthly_payment) : '');
     setShape(editing?.payment_type ?? defaultPaymentType(k)); setShapeTouched(!!editing?.payment_type);
     const pm = editing?.payoff_date?.match(/^(\d{4})-(\d{2})/);
@@ -130,14 +131,19 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
     const dd = Math.min(31, Math.max(0, Math.round(num(due)))) || undefined;
     const base = { label, institution: inst.trim(), debt_type: kind, remaining_balance: amt, interest_rate_apr: aprDec, payment_type: shape,
       property_id: onAProperty && propertyId !== '' ? propertyId : undefined };
+    // A PAYMENT LEFT BLANK IS NOT $0 (2026-10-21, DEC-3523 tenet 3): it is saved as not entered, so Net worth and the
+    // emergency fund name the debt instead of counting $0 for it. A typed 0 is 0; a payment calculated from an end date is a
+    // payment. It was saved as $0, which read as a debt that costs nothing a month.
+    const payTyped = pay.trim() !== '' || monthly.trim() !== '';
+    const installmentKnown = payTyped || (drives === 'date' && !!endIso && amt > 0);
     const patch =
       shape === 'due_in_full'
         // a lump has NO monthly payment — it lands as a dated big-ticket in cash flow instead
         ? { ...base, minimum_monthly_payment: 0, monthly_payment: undefined, due_day: undefined, payoff_date: dueIso }
         : shape === 'installment'
           // the real payment IS the obligation (there's no separate "minimum" on a mortgage)
-          ? { ...base, minimum_monthly_payment: calcPayment, monthly_payment: calcPayment, due_day: dd, payoff_date: calcPayoffIso, first_payment_date: startIso }
-          : { ...base, minimum_monthly_payment: num(pay), monthly_payment: monthly.trim() === '' ? undefined : (num(monthly) || num(pay)), due_day: dd, payoff_date: undefined };
+          ? { ...base, minimum_monthly_payment: installmentKnown ? calcPayment : undefined, monthly_payment: installmentKnown ? calcPayment : undefined, due_day: dd, payoff_date: calcPayoffIso, first_payment_date: startIso }
+          : { ...base, minimum_monthly_payment: pay.trim() === '' ? undefined : num(pay), monthly_payment: monthly.trim() === '' ? undefined : (num(monthly) || num(pay)), due_day: dd, payoff_date: undefined };
     if (editing) store.updateLiability?.(editing.debt_id, patch); else store.addLiability?.(patch);
     onClose();
   };
@@ -247,7 +253,8 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
 
 const sh = StyleSheet.create({
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'flex-start' },
-  chip: { paddingHorizontal: 12, paddingVertical: 10, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  chip: { paddingHorizontal: 12, paddingVertical: 10, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipTxt: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
   input: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.md, fontSize: 15, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, marginTop: Spacing.sm },

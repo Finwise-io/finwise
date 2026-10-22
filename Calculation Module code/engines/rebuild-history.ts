@@ -22,6 +22,7 @@
 // so someone who bought last month was shown a year-long line that never happened (workplan,
 // 2026-09-25). Shares are now whatever the records say they were on the day.
 import type { AccountLike, SnapshotDay, HoldingSnapshot, AccountSnapshot } from './snapshots';
+import { moneyIntoAccount } from './ledger';
 
 /** The transaction fields this engine needs — structural, so it imports nothing from the app. */
 export interface RebuildTxn {
@@ -250,6 +251,7 @@ export function rebuildableFrom(txns: RebuildTxn[], accountId: string): string |
  *     cash = (id: string, by: number) => cash of.set(id, (cash of.get(id) ?? 0) + by)
  *     m = `${id}|${k}`
  *     cur = held.get(m) (or units = 0 when missing)
+ *     moved = money into account(t) (or 0 when missing)
  *     came = -1   if direction = 'OUT'
  *     1   otherwise
  *
@@ -269,7 +271,6 @@ export function rebuildableFrom(txns: RebuildTxn[], accountId: string): string |
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
- *               MK-XS-I-008 transaction amount
  *               MK-XS-I-024 logged expenses
  *               MK-XS-I-031 daily and monthly snapshots
  *
@@ -295,17 +296,19 @@ function undo(t: RebuildTxn, held: Map<string, Held>, cashOf: Map<string, number
       units(acc, key, amountOf(t.shares));
       cash(acc, -amountOf(t.shares) * amountOf(t.price));
       break;
+    // MONEY IN OR OUT IS UNDONE BY THE ONE RULE FOR A STORED AMOUNT (moneyIntoAccount, ledger.ts, 2026-10-21): the
+    // direction the record states, else its kind's own way. A broker's −$500 deposit — a reversal, $500 that left — is
+    // put back; it was taken away a second time, so every rebuilt day before it read $1,000 short. A journal into this
+    // account is taken back out (it was put back in, the same fault). One account's loss is the other's gain.
     case 'DEPOSIT':
-      cash(acc, -amountOf(t.amount));
-      break;
     case 'WITHDRAWAL':
     case 'FEE':
-      cash(acc, amountOf(t.amount));
+    case 'TRANSFER': {
+      const moved = moneyIntoAccount(t) ?? 0;
+      cash(acc, -moved);
+      if (t.type === 'TRANSFER' && t.counter_account_id) cash(t.counter_account_id, moved);
       break;
-    case 'TRANSFER':                                   // one account's loss is the other's gain
-      cash(acc, amountOf(t.amount));
-      if (t.counter_account_id) cash(t.counter_account_id, -amountOf(t.amount));
-      break;
+    }
     case 'TRANSFER_IN_KIND': {
       // shares that came IN are taken back out; shares that went OUT are put back. A row that does
       // not say which way is read as it always was — as shares that came in.
@@ -317,8 +320,10 @@ function undo(t: RebuildTxn, held: Map<string, Held>, cashOf: Map<string, number
     case 'DIVIDEND':
     case 'INTEREST':
     case 'COUPON':
+      // read by the one rule for a stored amount (moneyIntoAccount, 2026-10-21): a broker's −$50 dividend — a reversal,
+      // $50 that left — is put back, never taken away a second time
       if (t.reinvested) units(acc, key, -amountOf(t.shares));
-      else cash(acc, -amountOf(t.amount));
+      else cash(acc, -(moneyIntoAccount(t) ?? 0));
       break;
     // OPENING_POSITION / OPENING_CASH mark where the records stop — the walk never passes them.
     // ADJUSTMENT is a visible history row that touches nothing.
@@ -383,7 +388,7 @@ export interface RebuildResult {
  *     symbol of = new map<string, string>()
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-XS-F-174 recomputeBalances · MK-XS-F-175 uid
+ * Called by ... MK-XS-F-175 uid · MK-XS-F-192 typedValueDatedBack
  *
  * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN

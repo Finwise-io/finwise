@@ -5,13 +5,17 @@
 // IT REFUSES RATHER THAN GUESSES, in two places that were paid for once already:
 //   · with no price today, the holding shows WHAT YOU PAID and says so — it is never priced at zero,
 //     and the gain, the return and the tax estimate simply do not appear (rule r30);
-//   · a dividend row belongs to this holding only when the record NAMES this ticker. The same rule
-//     the account page carries, for the same reason: an untickered row belongs to no holding.
+//   · a dividend row belongs to this holding only when the record NAMES this ticker AND sits in this
+//     account. The same rule the account page carries, for the same reason: an untickered row belongs
+//     to no holding, and a row in another account belongs to that account's holding (2026-10-20).
 import { declareFigures } from '../_figure-spec';
 import {
-  totalShares, costBasis, capGains, marketValue, contractMultiplier, type Position, type CapGains,
+  totalShares, capGains, marketValue, contractMultiplier, lotCostOnRecord, paidOnRecord, unrealizedGain, totalROI,
+  quantityWithUnit, SECTION_1256_LONG_TERM_PERCENT, type Position, type CapGains,
 } from '../../../src/domain/performance';
 import { realizedFromLedger, type RealizedResult } from '../../../src/domain/performance/realized';
+import { moneyIntoAccount } from '../../../Calculation Module code/engines/ledger';
+import { taxTreatmentOf, type AssetAccount } from '../../../src/domain/assets';
 
 export interface HoldingAnswer {
   ticker: string;
@@ -20,10 +24,17 @@ export interface HoldingAnswer {
   shares: number | null;
   /** True once every share is sold — the screen says "Holding liquidated", never a $0 position. */
   closed: boolean;
-  /** What was paid for what is still held. Null when a share count or a cost is not entered. */
+  /** What was paid for what is still held, over the purchases whose price paid is on record (paidOnRecord, 2026-10-20) — the
+   *  same purchases the average and the gains count; `avgLeavesOut` is how many units it leaves out. Null when a share count
+   *  is not on record, or no purchase has a price paid on record. */
   totalPaid: number | null;
-  /** Per share, unrounded — rounding happens at display (Q49), not here. Null with no shares held or a figure not entered. */
+  /** Per share, unrounded — rounding happens at display (Q49), not here. Taken over the purchases whose price paid is on
+   *  record (lotCostOnRecord) — a purchase with none is left out, never read as $0 (2026-10-20). Null with no shares
+   *  held, a share count not on record, or no purchase with a price paid on record. */
   avgPaidPerShare: number | null;
+  /** The shares the average leaves out because what was paid for them is not on record — the page says so. 0 when
+   *  none is left out; null when a share count is not on record. */
+  avgLeavesOut: number | null;
   /** Today's price, or null when none is held. */
   price: number | null;
   /** What it is worth. With no price this is WHAT YOU PAID, and `priced` says so. Null when that is not known. */
@@ -40,10 +51,18 @@ export interface HoldingAnswer {
   /** EACH PURCHASE, oldest first — what the average cost is made of, so it can be checked rather
    *  than trusted. The screen read `position.lots` directly, which is the position's own shape
    *  leaking onto a screen; the door names the three things a person reads and nothing else. */
-  purchases: { lotId: string; date: string; shares: number; costPerShare: number }[];
-  /** Only when priced: the gain split by how long it has been held. */
+  purchases: { lotId: string; date: string; shares: number; costPerShare: number | null }[];
+  /** Only when priced: the gain split by how long it has been held — a purchase with no purchase date on record in neither
+   *  part, and an option on a broad-based index 60/40 by law (MK-PF-F-006 capGains, 2026-10-21). */
   capitalGains: CapGains | null;
-  /** Dividends whose record NAMES this ticker. */
+  /** TRUE WHEN THE HOLDING SITS IN AN ACCOUNT TAXED AS PRE-TAX OR TAX-FREE — a 401(k), a Traditional IRA, a Roth IRA, a Roth
+   *  401(k), an HSA or a 529 (MK-NW-F-012 taxTreatmentOf, 2026-10-21). A sale inside such an account is not taxed as a
+   *  capital gain, so the long-term / short-term split has no tax meaning there and the page shows the gain whole. IRS
+   *  Publication 550: "The rules in this publication do not apply to investments held in individual retirement
+   *  arrangements (IRAs), section 401(k) plans, and other qualified retirement plans." An account whose tax type is not
+   *  stated keeps the split. */
+  notCapitalGains: boolean;
+  /** Dividends whose record NAMES this ticker and sits in this account. */
   dividends: { trailing12: number; allTime: number };
   /** What earlier sales of this holding actually made — and how many sales could NOT be priced
    *  honestly, because no purchase was ever recorded for them. A figure that leaves those out
@@ -66,14 +85,15 @@ export interface HoldingAnswer {
  *     p = input.position
  *     ticker = string((p as any).ticker ?? '')
  *     shares = total shares(p)
- *     paid = cost basis(p)
+ *     paid = paid on record(p).paid
  *     priced = input.price ≠ nothing
+ *     treatment = tax treatment of(input.account)   if input.account
+ *     'not_stated'   otherwise
  *     value = market value(p, input.price as number)   if priced
  *     paid   otherwise
+ *     tk = ticker.trim().to upper case()
  *     a year ago = the first 10 of the date now.get time() − 365 × 24 × 3600 × 1000).to isostring(
  *     div rows = named where type = 'DIVIDEND'
- *     sum = Σ over (list: any[]) => list of (amount (or 0 when missing or zero))
- *     c = input.recent closes (or none when missing)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-080 HOLD
@@ -85,22 +105,16 @@ export interface HoldingAnswer {
  *               MK-NW-M-033 · MK-NW-M-034 · MK-NW-M-035 · MK-NW-M-036
  *               MK-NW-M-037 · MK-NW-M-059 · MK-NW-M-060 · MK-NW-M-061
  * Reads ....... MK-XS-I-004 holding quantity (shares)
- *               MK-XS-I-005 holding price
  *               MK-XS-I-007 purchase price and date (per lot)
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
- *               MK-XS-I-048 the person’s own asset-class answer
- *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  * Ruled by .... DEC-0092 · DEC-0108 · DEC-0152 · DEC-0165 · DEC-0264 · DEC-0301
  *               DEC-0310 · DEC-0475 · DEC-0476
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
- *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · If cost per share is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
  * Formula also on the master file · functions_from_code · MK-NW-O-006
@@ -109,6 +123,8 @@ export interface HoldingAnswer {
 export function theHolding(input: {
   position: Position;
   accountId: string;
+  /** The account the holding sits in — how it is taxed decides whether a sale is a capital gain (2026-10-21). */
+  account?: AssetAccount | null;
   price: number | null;
   transactions: any[];
   now?: Date;
@@ -119,37 +135,66 @@ export function theHolding(input: {
   const p = input.position;
   const ticker = String((p as any).ticker ?? '');
   const shares = totalShares(p);
-  const paid = costBasis(p);
+  // WHAT WAS PAID IS READ ONE WAY ON THE WHOLE PAGE (2026-10-21; DEC-6627, tenet 4): over the purchases whose price paid is
+  // on record (paidOnRecord), as Total paid, the average and the gains. With no price this is the large figure, and it was
+  // read through costBasis, which counted a stored $0 as a real $0 and refused the whole figure for one purchase with no
+  // price paid: 0.5 coins at $56,000 and 0.25 with none read no figure beside Total paid $28,000; one purchase stored at
+  // $0 read $0 beside Total paid saying no purchase price recorded.
+  const paid = paidOnRecord(p).paid;
   const priced = input.price != null;
+  const treatment = input.account ? taxTreatmentOf(input.account) : 'not_stated';
   // r30: NO PRICE, NO INVENTED VALUE. The holding shows what was paid, and every figure that needs a
   // price refuses — a holding priced at zero would quietly shrink the whole portfolio.
   const value = priced ? marketValue(p, input.price as number) : paid;
 
+  // THIS ACCOUNT'S RECORDS ONLY (2026-10-20). A holding is one ticker IN ONE ACCOUNT, and its sales are
+  // already counted that way (realizedFromLedger, accountId below). The dividends matched the ticker across
+  // EVERY account, so VTI held at Vanguard ($40 of dividends) and at Fidelity ($10) read $50 on both pages,
+  // and the two pages added up to $100 against the $50 received. The ticker is trimmed the way the account
+  // page reads it (MK-NW-O-002, "a broker's "VTI " is VTI"), so the two pages count one set of records.
+  const tk = ticker.trim().toUpperCase();
   const named = (input.transactions ?? []).filter(
-    (t) => !!t.ticker && String(t.ticker).toUpperCase() === ticker.toUpperCase());
+    (t) => String(t?.account_id ?? '') === String(input.accountId)
+      && !!t.ticker && String(t.ticker).trim().toUpperCase() === tk);
   const aYearAgo = new Date(now.getTime() - 365 * 24 * 3600 * 1000).toISOString().slice(0, 10);
   const divRows = named.filter((t) => t.type === 'DIVIDEND');
-  const sum = (list: any[]) => list.reduce((t, x) => t + (x.amount || 0), 0);
+  // the one rule for a stored amount (moneyIntoAccount, 2026-10-21): a −$50 dividend — a reversal — cancels, never adds
+  const sum = (list: any[]) => list.reduce((t, x) => t + (moneyIntoAccount(x) ?? 0), 0);
 
   return {
     ticker,
     name: String((p as any).label ?? '').trim() || ticker,
     shares,
     closed: shares != null && shares <= 0,
+    // OVER THE PURCHASES WHOSE PRICE PAID IS ON RECORD (2026-10-20), as the average and the gains: a blank price paid saved as
+    // $0 made 10 at $100 and 10 with none read $1,000 for all 20; it is $1,000 for the 10, and the page names the other 10
     totalPaid: paid,
     // IN THE UNIT THE PRICE IS QUOTED IN. An option's price is per share and a contract is 100 of them;
     // total paid carries that 100, so the average is taken back per share — it read $683.33 beside a
     // price of $9.10 (outside review, 2026-10-04).
-    avgPaidPerShare: shares != null && shares > 0 && paid != null ? paid / (shares * contractMultiplier(p as any)) : null,
+    // OVER THE PURCHASES WHOSE PRICE PAID IS ON RECORD (2026-10-20). It was what was paid ÷ every share, and a linked
+    // purchase the broker sent with no cost was stored as $0 — so 10 shares at $100 and 10 with no cost read $50.00
+    // while the gains below left the second purchase out. One rule now decides both (lotCostOnRecord). Taken per
+    // share, as the price is quoted: Σ shares × cost ÷ Σ shares equals what was paid ÷ (shares × the multiplier).
+    avgPaidPerShare: (() => {
+      if (shares == null || !(shares > 0)) return null;
+      const onRecord = ((p as any).lots ?? []).filter((l: any) => l.shares > 0 && lotCostOnRecord(l));
+      const counted = onRecord.reduce((t: number, l: any) => t + l.shares, 0);
+      return counted > 0 ? onRecord.reduce((t: number, l: any) => t + l.shares * l.cost_per_share, 0) / counted : null;
+    })(),
+    avgLeavesOut: shares == null ? null
+      : ((p as any).lots ?? []).filter((l: any) => l.shares > 0 && !lotCostOnRecord(l)).reduce((t: number, l: any) => t + l.shares, 0),
     price: input.price ?? null,
     value,
     priced,
-    gain: priced && value != null && paid != null ? value - paid : null,
+    // the gain and the return on what was paid count the same purchases as Total paid (unrealizedGain, totalROI — one reading)
+    gain: priced ? unrealizedGain(p, input.price as number) : null,
     purchases: ((p as any).lots ?? []).map((l: any) => ({
       lotId: String(l.lot_id ?? ''),
       date: String(l.purchase_date ?? ''),
       shares: l.shares || 0,
-      costPerShare: l.cost_per_share || 0,
+      // a cost not on record stays not on record — it read 0 here (2026-10-20)
+      costPerShare: lotCostOnRecord(l) ? l.cost_per_share : null,
     })),
     dayChange: (() => {
       const c = input.recentCloses ?? [];
@@ -158,8 +203,9 @@ export function theHolding(input: {
       // a previous close of zero cannot be divided by, and a share of nothing is not a move
       return prev > 0 ? { amount: last - prev, share: (last - prev) / prev } : null;
     })(),
-    returnOnCost: priced && value != null && paid != null && paid > 0 ? (value - paid) / paid : null,
+    returnOnCost: priced ? totalROI(p, input.price as number) : null,
     capitalGains: priced ? capGains(p, input.price as number, now) : null,
+    notCapitalGains: treatment === 'tax_deferred' || treatment === 'tax_free',
     dividends: {
       trailing12: sum(divRows.filter((t) => String(t.date) >= aYearAgo)),
       allTime: sum(divRows),
@@ -168,6 +214,48 @@ export function theHolding(input: {
     realised: realizedFromLedger(input.transactions ?? [], { ticker, accountId: input.accountId, holding: p as any }),
   };
 }
+
+/** THE LINE FOR PURCHASES WITH NO PURCHASE DATE ON RECORD, under the gains if sold today (2026-10-21; tenet 3, DEC-3523):
+ *  their gain, in the holding's own unit, and why it is in neither part — "$57 gain on 3.25 contracts whose purchase date
+ *  is not on record, so it is neither long-term nor short-term." The shape of his line for sales (DEC-4643): the figure,
+ *  what it counts, and what is not on record, in one sentence. */
+/* ─ MK-NW-F-146 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * undatedGainSentence
+ *
+ * Answers ..... THE LINE FOR PURCHASES WITH NO PURCHASE DATE ON RECORD, under the gains if sold today (2026-10-21; tenet 3, DEC-3523): their gain, in the holding's own unit, and why it is in neither part — "$57 gain on 3.25 contracts whose purchase date is not on record, so it is neither long-term nor short-term." The shape of his line for sales (DEC-4643): the figure, what it counts, and what is not on record, in one sentence.
+ *
+ * Formula .....
+ *     qty = quantity with unit(holding, undated.counted, count) (or count(undated.counted) when missing)
+ *     the answer = `${money(math.abs(undated.gain))} ${undated.gain < 0 ? 'loss' : 'gain'} on ${qty} whose purchase date is not on record, so it is neither long − term nor short − term.`
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-005 holding price
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-048 the person’s own asset-class answer
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-146
+ * Changed ..... not in git yet (—)
+ */
+export function undatedGainSentence(
+  undated: { gain: number; counted: number }, holding: Pick<Position, 'kind' | 'unit'>,
+  money: (n: number) => string, count: (n: number) => string = String,
+): string {
+  const qty = quantityWithUnit(holding, undated.counted, count) ?? count(undated.counted);
+  return `${money(Math.abs(undated.gain))} ${undated.gain < 0 ? 'loss' : 'gain'} on ${qty} whose purchase date is not on record, so it is neither long-term nor short-term.`;
+}
+
+/** THE LINE UNDER AN INDEX OPTION'S GAINS (2026-10-21): why its split is 60/40 and not by how long it was held. The shares are
+ *  the law's, read from the one constant (SECTION_1256_LONG_TERM_PERCENT), and the source is named. */
+export const SECTION_1256_LINE =
+  `An index option's gain is taxed ${SECTION_1256_LONG_TERM_PERCENT}% long-term and ${100 - SECTION_1256_LONG_TERM_PERCENT}% short-term, however long it was held (IRS Publication 550).`;
+
+/** THE LINE IN PLACE OF THE SPLIT inside an account taxed as pre-tax or tax-free (notCapitalGains, 2026-10-21). */
+export const NOT_CAPITAL_GAINS_LINE = 'Gains inside this account are not taxed as capital gains, so they are not split into long-term and short-term.';
 
 /** THE WORKED EXAMPLE — ONE HOLDING, EVERY FIGURE ON THIS DOOR (six steps, step 6, 2026-09-28).
  *
@@ -272,7 +360,7 @@ export const HOLDING_FIGURES = declareFigures({
     worked: { given: GIVEN, answer: '$210.00', run: () => HOLD().purchases[0].costPerShare },
   },
   'MK-NW-M-029': {
-    label: 'CURRENT PRICE · LIVE', unit: 'money-cents', screens: ['/holding-detail'], grain: 'one holding',
+    label: 'LAST CLOSE', unit: 'money-cents', screens: ['/holding-detail'], grain: 'one holding',
     answers: 'What one share is worth right now, and how fresh that price is.',
     formula: 'the last close the price feed holds for this ticker',
     inputs: ['MK-NW-I-005 the price feed'],
@@ -290,10 +378,12 @@ export const HOLDING_FIGURES = declareFigures({
     answers: 'What this holding is worth today.',
     formula: 'shares × today’s price',
     inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-005 the price feed'],
-    decisions: ['r30: with NO price it shows what you paid, never a zero — a holding priced at zero would quietly shrink your whole portfolio.'],
+    decisions: ['r30: with NO price it shows what you paid, never a zero — a holding priced at zero would quietly shrink your whole portfolio.',
+      'With no price, what you paid is Total paid, read the one way (2026-10-21, DEC-6627): over the purchases whose price paid '
+      + 'is on record, a stored $0 not on record. 0.5 coins at $56,000 and 0.25 with none read $28,000, as Total paid does.'],
     // the second sentence covers the states the outside review opened (Claude Performance, 2026-10-11, tenet 3): a
     // value that cannot be known is refused, never printed as $0
-    refusal: 'No price — it shows what you paid, labelled as that. Not stated where a purchase has no share count or price paid on record.',
+    refusal: 'No price — it shows what you paid, labelled as that. Not stated where a purchase has no share count on record, or no purchase has a price paid on record.',
     ruled: '2026-09-28',
     worked: {
       given: GIVEN,
@@ -344,9 +434,11 @@ export const HOLDING_FIGURES = declareFigures({
   'MK-NW-M-034': {
     label: 'Dividends received (12 mo)', unit: 'money', screens: ['/holding-detail'], grain: 'one holding',
     answers: 'What this holding has paid you over the last twelve months.',
-    formula: 'the DIVIDEND records naming this ticker, dated within the last year',
+    formula: 'the DIVIDEND records in this account naming this ticker, dated within the last year',
     inputs: ['MK-NW-I-004 the activity records'],
-    decisions: ['A record that names no ticker belongs to no holding — the same rule the account page carries.'],
+    decisions: ['A record that names no ticker belongs to no holding — the same rule the account page carries.',
+      'A record in another account belongs to that account’s holding (2026-10-20): VTI at Vanguard ($40) and at '
+      + 'Fidelity ($10) read $40 and $10, never $50 on both — the same records the sales on this page are counted from.'],
     refusal: 'No records naming this holding — the line does not appear.',
     ruled: '2026-09-28',
     worked: {
@@ -371,9 +463,17 @@ export const HOLDING_FIGURES = declareFigures({
   'MK-NW-M-036': {
     label: 'Gain — long-term (held over 1 yr)', unit: 'money', screens: ['/holding-detail'], grain: 'one holding',
     answers: 'The gain on shares you have held more than a year — the part taxed at the lower rate.',
-    formula: 'for each lot bought over a year ago: shares × (today’s price − what you paid)',
+    formula: 'for each lot bought over a year ago: shares × (today’s price − what you paid); for an option on a broad-based index, 60% of the whole gain',
     inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-005 the price feed'],
-    refusal: 'No price today — no gain is stated at all. Not stated where a purchase in this part has no price paid or share count on record.',
+    decisions: [
+      'A PURCHASE WITH NO PURCHASE DATE ON RECORD IS IN NEITHER PART (2026-10-21; tenet 3, DEC-3523): its gain is in the '
+      + 'total and on its own line. It was read as bought on 1 January 1970, so it showed as long-term.',
+      'AN OPTION ON A BROAD-BASED INDEX (SPX, NDX, RUT, VIX and the rest — one list) is 60% long-term whatever the holding '
+      + 'period (IRS Publication 550, the 60/40 rule; 2026-10-21). 2 SPX calls bought at $50, now $80: $3,600 of $6,000.',
+      'INSIDE AN ACCOUNT TAXED AS PRE-TAX OR TAX-FREE (401(k), IRA, Roth, HSA, 529) there is no split: a sale there is not '
+      + 'taxed as a capital gain, so the gain is shown whole (2026-10-21).',
+    ],
+    refusal: 'No price today — no gain is stated at all. Not stated where a purchase in this part has no price paid or share count on record, or no purchase held has a purchase date on record.',
     ruled: '2026-09-28',
     worked: {
       given: GIVEN,
@@ -384,9 +484,16 @@ export const HOLDING_FIGURES = declareFigures({
   'MK-NW-M-037': {
     label: 'Gain — short-term (held 1 yr or less)', unit: 'money', screens: ['/holding-detail'], grain: 'one holding',
     answers: 'The gain on shares held under a year — the part taxed as ordinary income.',
-    formula: 'for each lot bought within the year: shares × (today’s price − what you paid)',
+    formula: 'for each lot bought within the year: shares × (today’s price − what you paid); for an option on a broad-based index, the whole gain less its 60% long-term part',
     inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-005 the price feed'],
-    refusal: 'No price today — no gain is stated at all. Not stated where a purchase in this part has no price paid or share count on record.',
+    decisions: [
+      'A PURCHASE WITH NO PURCHASE DATE ON RECORD IS IN NEITHER PART (2026-10-21; tenet 3, DEC-3523). A date stored blank '
+      + 'was read as short-term.',
+      'AN OPTION ON A BROAD-BASED INDEX is 40% short-term whatever the holding period (IRS Publication 550; 2026-10-21): '
+      + '2 SPX calls bought at $50, now $80: $2,400 of $6,000, not $6,000.',
+      'INSIDE AN ACCOUNT TAXED AS PRE-TAX OR TAX-FREE there is no split (2026-10-21).',
+    ],
+    refusal: 'No price today — no gain is stated at all. Not stated where a purchase in this part has no price paid or share count on record, or no purchase held has a purchase date on record.',
     ruled: '2026-09-28',
     worked: {
       given: GIVEN,

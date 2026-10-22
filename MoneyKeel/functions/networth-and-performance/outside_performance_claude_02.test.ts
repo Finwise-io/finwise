@@ -142,10 +142,15 @@ describe('MK-PF-F-006 capGains — five cases', () => {
   // with no cost on record (stored as 0) is skipped, so its 50 shares vanish from the split and the total disagrees
   // with unrealizedGain for the same holding (tenet 3, DEC-3523; tenet 4).
   // FIXED 2026-10-11 (outside review Claude Performance, DEC-3523 tenets 3 and 4): the lot with no cost makes its part (short) and the total unknown.
+  // RE-RULED 2026-10-20 — Q20, by his rule for sales (DEC-4643: count the matched part, say what is not on record): the
+  // 50 shares no longer vanish AND no longer hide the rest. The short part, where nothing has a price paid, still
+  // refuses; the total counts the 100 shares that have one and says so: countedShares 100 of heldShares 150.
   test('complex · A lot transferred in with no basis', () => {
     const c = capGains(pos({ lots: [{ date: '2023-04-17', shares: 100, cost: 42.1 }, { date: '2026-01-20', shares: 50, cost: 0 }] }), 55.3, NOW());
     expect(c.longGain).toBeCloseTo(1320, 9);
-    refuses(c.shortGain); refuses(c.totalGain);
+    refuses(c.shortGain);
+    expect(c.totalGain).toBeCloseTo(1320, 9);
+    expect([c.countedShares, c.heldShares]).toEqual([100, 150]);
   });
   test('edge · Bought on the leap day, today is 1 March the next year', () => {
     expect(split(capGains(pos({ lots: [{ date: '2024-02-29', shares: 10, cost: 100 }] }), 130, NOW('2025-03-01')))).toEqual([300, 0, 300]);

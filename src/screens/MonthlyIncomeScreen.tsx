@@ -181,11 +181,13 @@ const styles = StyleSheet.create({
   inputSm: { borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.md, padding: 10, fontSize: 17, color: Colors.textPrimary, backgroundColor: Colors.bgSecondary, width: 90 },
   row: { flexDirection: 'row', gap: 8, marginBottom: Spacing.xs },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: Spacing.xs },
-  chip: { paddingHorizontal: 16, borderRadius: 999, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.bgSecondary, minHeight: 44, justifyContent: 'center' },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  chip: { paddingHorizontal: 16, borderRadius: Radii.md, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.bgSecondary, minHeight: 44, justifyContent: 'center' },
   chipOn: { backgroundColor: Colors.primaryLight, borderColor: Colors.primary },
   chipT: { fontSize: 15, color: Colors.textSecondary },
   chipTOn: { color: Colors.primaryDark, fontWeight: '600' },
-  mChip: { paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.bgSecondary, minHeight: 44, justifyContent: 'center' },
+  // rounded corners, not semicircle ends — the one shape of a choice (DEC-0231, 2026-09-25; corrected 2026-10-20)
+  mChip: { paddingHorizontal: 12, borderRadius: Radii.md, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.bgSecondary, minHeight: 44, justifyContent: 'center' },
   mChipT: { fontSize: 15, color: Colors.textSecondary },
   link: { color: Colors.primary, fontSize: 15, fontWeight: '600', marginTop: Spacing.xs },
   totalCard: { backgroundColor: Colors.primaryLight, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.xs, marginBottom: Spacing.md },

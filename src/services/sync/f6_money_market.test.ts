@@ -16,10 +16,17 @@ const VMFXX = {
   units: 50_000, price: 1, average_purchase_price: 1, cash_equivalent: true,
 } as any;
 
-test('the classifier itself gets it RIGHT — a money-market fund is measured, not cash', () => {
+// DEC-2159 / his 2026-10-20 words, "always the class broker sends": the founder rule of 2026-08-04 above made a
+// money-market fund Stocks / Funds by its name. His newer ruling makes the class the broker sends decide, and a broker
+// that flags a fund cash-equivalent is saying "this is cash". So F6's reported behaviour — VMFXX under Cash — is now the
+// rule wherever the broker flags it; a fund the broker does not flag (E*TRADE sends VMFXX as 'oef', flag false) is
+// Stocks / Funds. The cash beside it is still net of it, so it is counted once.
+test('DEC-2159 / his 2026-10-20 words: a money-market fund the broker flags cash-equivalent is Cash (was: measured under Stocks / Funds)', () => {
   const m = mapPosition(VMFXX)!;
-  expect(m.assetClass).toBe('stocks_etf');        // founder rule 2026-08-04
-  expect(m.cashEquivalent).toBe(true);            // the broker still flags it as cash-like
+  expect(m.assetClass).toBe('cash');              // was 'stocks_etf' (founder rule 2026-08-04, DEC-0051)
+  expect(m.cashEquivalent).toBe(true);            // the broker flags it as cash
+  const unflagged = mapPosition({ ...VMFXX, cash_equivalent: false, symbol: { symbol: { ...VMFXX.symbol.symbol, type: { code: 'oef' } } } })!;
+  expect(unflagged.assetClass).toBe('stocks_etf'); // no flag: the broker's fund type decides
 });
 
 test('and the cash sleeve nets it out, so the same money is never counted twice', () => {
@@ -36,7 +43,7 @@ test('and the cash sleeve nets it out, so the same money is never counted twice'
 import { ingestSync } from './ingest';
 import { accountClassBreakdown, cashTotal } from '../../domain/assets';
 
-test.each([[50_000], [900]])('a money-market fund the broker flags as cash-equivalent ($%d) is a holding under Stocks / Funds, and the account adds up', (fund) => {
+test.each([[50_000], [900]])('a money-market fund the broker flags as cash-equivalent ($%d) is a holding under Cash (DEC-2159 / his 2026-10-20 words; was Stocks / Funds), and the account adds up', (fund) => {
   const NOW = '2026-10-05T12:00:00Z';
   const total = 100_000 + fund + 1_000;                                    // VTI + the fund + uninvested cash
   const r = ingestSync([], {}, [{
@@ -54,9 +61,9 @@ test.each([[50_000], [900]])('a money-market fund the broker flags as cash-equiv
   expect(a.cash_balance).toBe(1_000);                                      // and the cash is still net of it — counted once
   expect(a.recon_break).toBeUndefined();                                   // it used to read "does not add up" by exactly the fund
   const b = accountClassBreakdown(a)!;
-  expect(b.cash).toBe(1_000);                                              // a $900 fund used to make this $1,900
-  expect(b.stocks_etf).toBe(100_000 + fund);
-  expect(cashTotal([a])).toBe(1_000);                                      // so the emergency fund does not count the fund as cash
+  expect(b.cash).toBe(1_000 + fund);                                       // was 1,000: the broker's flag says the fund is cash
+  expect(b.stocks_etf).toBe(100_000);                                      // was 100,000 + the fund
+  expect(cashTotal([a])).toBe(1_000 + fund);                               // so the emergency fund counts it, once (was 1,000)
 });
 
 // ── THE SECOND CONTRADICTION, and the one that puts it on screen under Cash ──────────────────────

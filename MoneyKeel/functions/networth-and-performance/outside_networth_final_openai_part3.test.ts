@@ -9,7 +9,9 @@
  * Markers: `// FINDING:` the app fails a correct expectation (test.failing) · `// BRIEF WRONG:` the auditor's own
  * expectation is wrong (test.failing, their number kept) · `// UNCLEAR:` the auditor wrote RULE UNCLEAR, no decision
  * settles it, so the app's current behaviour is asserted · `// SETTLED BY DEC-…:` the auditor wrote RULE UNCLEAR and a
- * decision answers it · `// BLOCKED:` the case cannot be handed to the function (test.skip).
+ * decision answers it · `// BLOCKED:` the case cannot be handed to the function (test.skip) · `// BRIEF WRONG (… was
+ * UNCLEAR):` on a passing test = the auditor wrote RULE UNCLEAR but the card gives the answer, and the app gives it
+ * (re-judged 2026-10-20) · a `pin ·` test beside one holds a right answer of the app's.
  *
  * INPUT NAMES MAPPED (the app's fields, not the answers):
  *   today → the function's `now` (a local Date at that calendar day) or `today` string; a case with no today runs
@@ -51,7 +53,7 @@ import { dataGaps } from '../../../src/domain/gaps';
 import { rowOf, isCertificateOfDeposit, theBonds } from './bonds';
 import { itemising } from './account';
 import { ledgerGroups } from './net-worth';
-import { categoryEarnings, windowStartKey, pricedGainOf, investmentAccountIdsOf, investmentRecordDates } from './performance';
+import { categoryEarnings, windowStartKey, pricedGainOf, investmentAccountIdsOf, investmentRecordDates, thePerformance } from './performance';
 
 // ── the two functions the app does not export, compiled from their own source text ──────────────────
 const fromSource = (file: string, start: RegExp, end: string, name: string) => {
@@ -612,17 +614,37 @@ describe('MK-NW-F-104 closedWith — five cases', () => {
   // cannot be handed in. Run with their sum, $20,000, the app writes the whole $20,000 on A and $0 on B (performance.ts:290)
   // — the total, which is all the return reads, is right.
   test.skip('complex · Several named accounts carry ending values', () => { /* one ending total only */ });
-  // UNCLEAR: app returns the record unchanged and the caller's $1,000 is not added (performance.ts:289) — as the card says;
-  // no decision. Open question (the auditor's): confirm, and that the return then refuses (END_NOT_RECORDED).
+  // BRIEF WRONG (re-judged 2026-10-20, was UNCLEAR): the card says it in so many words — "The record is returned unchanged
+  // when there is no earlier day or it holds none of those accounts" — and the auditor's own expected line repeats it. The
+  // latest earlier day (Oct 8) holds only C, none of A, so nothing is added and the $1,000 is not written on anyone
+  // (performance.ts:622-629). The auditor's second ask, that the return then refuses, holds: pinned below.
   test('complex · Latest record has none of named accounts', () => {
     const rec = [day('2026-10-08', { C: 500 })];
     expect(closedWith(rec, new Set(['A']), '2026-10-09', 1000)).toBe(rec);
   });
-  // UNCLEAR: app leaves the record unchanged — closedWith finds no EARLIER day (performance.ts:287-288), and its caller never
-  // calls it when today is already recorded (performance.ts:409); the recorded $1,000 stands and the caller's $1,100 is
-  // ignored. No duplicate row. No decision; open question: should a newer ending value replace today's recorded one?
+  test('pin · with no record of A the return refuses — no percent is shown (BRIEF WRONG above)', () => {
+    const v = thePerformance({ windowStart: '2026-10-02', windowLabel: 'this week', today: '2026-10-09', ending: 1000, transactions: [],
+      snapshotDays: [day('2026-10-01', { C: 500 }), day('2026-10-08', { C: 500 })], investmentAccountIds: new Set(['A']) });
+    expect({ ret: v.ret, cumulative: v.cumulative, covered: v.covered }).toEqual({ ret: null, cumulative: null, covered: false });
+  });
+  // BRIEF WRONG (re-judged 2026-10-20, was UNCLEAR): the card answers it — closedWith adds today after "the latest EARLIER
+  // recorded day", and "the record is returned unchanged when there is no earlier day". Here the only day is today, so the
+  // record comes back as it was, $1,000, with no second Oct 9 row (performance.ts:623-624). Nor is it ever asked: its one
+  // caller skips it when today is already recorded (performance.ts:895). The auditor's "replace today's value?" is
+  // answered on every screen: each of the four that ask (Performance twice, the account page, Home) hands the accounts
+  // in, and today's row is then REBUILT from them (performance.ts:893-894), so the newer $1,100 replaces the recorded
+  // $1,000 — pinned below. Seen beside it, reached by no screen: called with no accounts, today already recorded and
+  // another ending handed in, the return reads the recorded $1,000 (0.00%) while the walk ends at the handed $1,100.
   test('edge · Today already exists', () => {
     const rec = [day('2026-10-09', { A: 1000 })];
     expect(plain(closedWith(rec, new Set(['A']), '2026-10-09', 1100))).toEqual([{ date: '2026-10-09', values: { A: 1000 } }]);
+  });
+  test('pin · on every screen the newer value replaces today\'s recorded one: $1,000 → $1,100 is +10.00% and +$100 (BRIEF WRONG above)', () => {
+    const A = { asset_id: 'A', label: 'A', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 1100, target_return: 0 };
+    const v = thePerformance({ windowStart: '2026-10-02', windowLabel: 'this week', today: '2026-10-09', transactions: [],
+      snapshotDays: [day('2026-10-01', { A: 1000 }), day('2026-10-09', { A: 1000 })], investmentAccountIds: new Set(['A']), accounts: [A] });
+    expect(v.ret).toBeCloseTo(0.10, 12);
+    expect({ beginning: v.walk?.beginning, ending: v.walk?.ending, generated: v.walk?.wealthGenerated, endingFigure: v.ending })
+      .toEqual({ beginning: 1000, ending: 1100, generated: 100, endingFigure: 1100 });
   });
 });

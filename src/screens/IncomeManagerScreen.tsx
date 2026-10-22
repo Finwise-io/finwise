@@ -30,6 +30,7 @@ import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/
 import { RsuEditor, renderStep } from '../onboarding/modules';
 import type { StepCtx } from '../onboarding/modules';
 import { modalAnimation } from '../hooks/reducedMotion';
+import { useNetWorthInputs } from '../hooks/useNetWorthInputs';   // the Net worth family's inputs, built once (MK-NW-F-145, DEC-0345)
 import { isoLocalDate } from '../domain/_shared/dates';
 
 type View_ = null | ManagedSource['key'] | 'bonus';
@@ -307,7 +308,8 @@ function Rent({ op, set, onDone }: { op: any; set: (p: Record<string, any>) => v
   // "no mortgage without property" — so each rent entry says which property in Net worth it is for,
   // and that is also what makes the property a rental rather than a second home (DEC-1926).
   const properties = ((store.assetAccounts ?? []) as any[]).filter((a) => assetClassOf(a) === 'real_estate');
-  const onProperty = theNetWorth({ uid: 'local', accounts: store.assetAccounts ?? [], debts: store.liabilities ?? [] }).mortgageCheck.byProperty;
+  const nwIn = useNetWorthInputs();   // the family's inputs, built once — never picked out of the store here (DEC-0345)
+  const onProperty = theNetWorth(nwIn).mortgageCheck.byProperty;
   const mortgageOn = (id: any) => onProperty.find((p) => p.propertyId === String(id ?? ''))?.mortgage ?? null;
   /** Leaving the screen: a payment typed for a property with no mortgage is added to Debts, on that property. */
   const leave = () => {

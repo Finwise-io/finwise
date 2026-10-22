@@ -1,0 +1,847 @@
+{
+ "batch": "pf module re-run (OpenAI) — tax sources and acceptance, and the validation counts",
+ "run_by": "Claude Code, 2026-10-21 (measuring phase: no app code changed)",
+ "source": "MoneyKeel/documents/audit/outside-test-cases/returned/MoneyKeel_Performance_Audit_Package/MoneyKeel_tax_sources_and_acceptance.json; MoneyKeel_audit_validation.json",
+ "test_file": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts",
+ "command": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts",
+ "run_result": "57 tests: 56 green (incl. 11 test.failing that fail as marked), 1 skipped (BLOCKED)",
+ "run_against": "the working tree on 2026-10-21 with other agents' uncommitted Net worth edits present (time-weighted-return.ts, snapshots.ts, performance.ts, src/domain/performance/index.ts, HomeScreen.tsx, bonds) — none of the 29 items turns on them",
+ "coverage": "29 of 29 items: 22 agree, 5 app wrong, 0 reviewer wrong, 1 need a ruling, 1 blocked, 0 in-flight. Validation file: 14 of 14 counts match the four parts and the pack.",
+ "summary": {
+  "APP WRONG": 5,
+  "AGREES": 22,
+  "BLOCKED": 1,
+  "NEEDS A RULING": 1
+ },
+ "validation_check": {
+  "result": "no mismatch",
+  "checked": {
+   "card_count 51": "51 formula checks, 51 distinct IDs; pack cards 13 / 13 / 13 / 12, same IDs part by part",
+   "case_count 250": "60 + 65 + 65 + 60",
+   "formula_verdicts": "16 WRONG · 18 INCOMPLETE · 16 RIGHT · 1 CANNOT TELL — and the brief's 51-row index agrees card by card",
+   "parts": "13/60 · 13/65 · 13/65 · 12/60",
+   "five_cases_per_testable_card / two_easy_two_complex_one_edge": "50 cards × (2 easy, 2 complex, 1 edge); MK-NW-F-104 closedWith has none",
+   "wrong_incomplete_have_disagreement_witness": "all 34 WRONG / INCOMPLETE cards have a formula_gives or RULE UNCLEAR case",
+   "full_precision_display_fields_checked": "257 expected \"exact\" fields, each with its \"shown\"",
+   "rule_count 49": "pack lists 15 owner rules + 33 outside-review rules; the 49th, DEC-2748b, is named only inside cards (MK-NW-F-084, F-091, F-127, O-008), not in the pack's rule lists",
+   "rule_verdicts": "7 NOT HELD · 39 CANNOT TELL · 3 HELD",
+   "screen_figures 53 / screen_checks 424": "53 figures in the pack register, the same 53 in the checks, 8 tenets each",
+   "screen_fail_figures 40": "40 figures with at least one FAIL (43 FAIL checks)",
+   "ready_to_close": "false in all five files",
+   "app_code_executed": "false",
+   "independent_decimal_arithmetic_spot_checks 22": "not checkable — the package does not list them"
+  }
+ },
+ "side_findings": [
+  {
+   "id": "S1",
+   "classification": "APP WRONG (citation only)",
+   "what": "The register cites §2.15 for STANDARD_DEDUCTION and \"§§2.15, 4.01\" for TAX_TABLES; deductionFor's header cites §3.18. In Rev. Proc. 2025-32 the 2026 standard deduction and 65+ add-on are §4.14 (§2.15 is the 2025 section of Rev. Proc. 2024-40, removed by §3.01).",
+   "fix": "Calculation Module code/scripts/moneykeel_published_sources.json and src/domain/income/tax.ts header: cite §4.14. No figure moves.",
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › source_checks — the published 2026 figures, read from the publications › the register cites the section the 2026 standard deduction is printed in: Rev. Proc. 2025-32 §4.14"
+  },
+  {
+   "id": "S2",
+   "classification": "file gap",
+   "what": "MK-NW-F-104 closedWith: the written formula does not say the ending goes all on the first account, $0 on the others. No figure moves.",
+   "fix": "write the split into the card and the master formula row"
+  },
+  {
+   "id": "S3",
+   "classification": "a guard that did not look",
+   "what": "The master Reference row says the four-status band table is \"typed into statutory_constants.test.ts by hand\"; that test types the single and joint bands only — so the head-of-household error passed it.",
+   "fix": "part of the HOH fix above"
+  },
+  {
+   "id": "S4",
+   "classification": "can close",
+   "what": "The register's notes \"the notice number is as the founder should confirm\" (IRS_LIMITS) and \"the procedure number is as the founder should confirm\" (annualHsaLimit): Notice 2025-67 and Rev. Proc. 2025-19 are confirmed against the IRS publications."
+  },
+  {
+   "id": "S5",
+   "classification": "register gap",
+   "what": "The long-term holding rule (more than one year, IRS Topic 409) is a rule set by law with no register row; ageAttainedInYear, also a rule, has one."
+  }
+ ],
+ "items": [
+  {
+   "section": "source_checks",
+   "item": "Federal income tax2026",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "status": "FINDING",
+   "expected": {
+    "HOH_tops": [
+     17700,
+     67450,
+     105700,
+     201750,
+     256200,
+     640600
+    ],
+    "witnesses": {
+     "201775": 39215.0,
+     "256225": 56639.75,
+     "300000": 71961.0
+    }
+   },
+   "actual": {
+    "HOH_tops": [
+     17700,
+     67450,
+     105700,
+     201775,
+     256225,
+     640600
+    ],
+    "witnesses": {
+     "201775": 39213,
+     "256225": 56637,
+     "300000": 71958.25
+    },
+    "band_at_taxable_201760": 0.24,
+    "single": [
+     12400,
+     50400,
+     105700,
+     201775,
+     256225,
+     640600
+    ],
+    "married": [
+     24800,
+     100800,
+     211400,
+     403550,
+     512450,
+     768700
+    ],
+    "mfs": [
+     12400,
+     50400,
+     105700,
+     201775,
+     256225,
+     384350
+    ]
+   },
+   "difference": "Head of household 24% and 32% tops are the single filer's ($201,775 / $256,225); Rev. Proc. 2025-32 §4.01 table 2 prints $201,750 / $256,200. Tax low by up to $2.75 a year. Single, joint and separate tables match the IRS tables 3, 1 and 4. OpenAI's formula_gives equals the app exactly.",
+   "rests_on": "IRS Rev. Proc. 2025-32 §4.01 table 2 (read from the IRS PDF 2026-10-21); DEC-0378 / DEC-0205 (every figure set by law typed from the published source)",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › source_checks — the published 2026 figures, read from the publications › head of household: the bands are $17,700 · $67,450 · $105,700 · $201,750 · $256,200 · $640,600",
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › source_checks — the published 2026 figures, read from the publications › head of household witnesses: $201,775 → $39,215.00 · $256,225 → $56,639.75 · $300,000 → $71,961.00",
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › source_checks — the published 2026 figures, read from the publications › head of household: taxable $201,760 sits in the 32% band"
+   ],
+   "note": "",
+   "proposed_fix": {
+    "function": "TAX_TABLES.hoh (MK-CF-F-101 taxOwedFor, MK-CF-F-103 marginalBracketFor read it)",
+    "file": "src/domain/income/tax.ts",
+    "change": "hoh brackets [201_775, 0.24] → [201_750, 0.24] and [256_225, 0.32] → [256_200, 0.32]; type the HOH and MFS bands into src/__tests__/statutory_constants.test.ts (it types single and joint only, though the master Reference row says the whole table is typed there); correct the HOH column of the Reference row in Calculation Module code/scripts/moneykeel_overrides.json (STATUTORY TABLE 2026).",
+    "figures_move": "Head-of-household filers above $201,750 taxable: MK-CF-M-033 / MK-CF-M-044 Calculated federal tax up by at most $2.75 a year; MK-CF-M-031 / MK-CF-M-037 take-home (calculated) down by at most $0.23 a month; MK-CF-M-032 / MK-CF-M-043 Federal tax bracket reads 32% (not 24%) for taxable $201,750–$201,775 and 35% (not 32%) for $256,200–$256,225.",
+    "drawings": "none"
+   }
+  },
+  {
+   "section": "source_checks",
+   "item": "Standard and aged additional standard deductions2026",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": {
+    "standard_deduction": {
+     "single": 16100,
+     "MFJ": 32200,
+     "MFS": 16100,
+     "HOH": 24150
+    },
+    "aged_add_on": {
+     "unmarried": 2050,
+     "married": 1650
+    }
+   },
+   "actual": {
+    "single": 16100,
+    "married": 32200,
+    "mfs": 16100,
+    "hoh": 24150,
+    "STANDARD_DEDUCTION": 16100,
+    "over65": {
+     "single": 2050,
+     "hoh": 2050,
+     "married": 1650,
+     "mfs": 1650
+    }
+   },
+   "difference": "none in the figures. Side finding S1: the register cites §2.15 (and deductionFor's header §3.18) for the 2026 standard deduction; it is §4.14 of Rev. Proc. 2025-32, as OpenAI cites.",
+   "rests_on": "IRS Rev. Proc. 2025-32 §4.14(1) and (3)",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › source_checks — the published 2026 figures, read from the publications › standard deduction $16,100 · $32,200 · $16,100 · $24,150; 65+ add-on $2,050 unmarried, $1,650 married (§4.14)",
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › source_checks — the published 2026 figures, read from the publications › the register cites the section the 2026 standard deduction is printed in: Rev. Proc. 2025-32 §4.14"
+   ],
+   "note": ""
+  },
+  {
+   "section": "source_checks",
+   "item": "Long-term capital-gains2026 thresholds",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": {
+    "single": [
+     49450,
+     545500
+    ],
+    "MFJ": [
+     98900,
+     613700
+    ],
+    "MFS": [
+     49450,
+     306850
+    ],
+    "HOH": [
+     66200,
+     579600
+    ]
+   },
+   "actual": {
+    "rate_at_zero_top_zero_top_plus_1_fifteen_top_fifteen_top_plus_1": {
+     "single": [
+      0,
+      0.15,
+      0.15,
+      0.2
+     ],
+     "married": [
+      0,
+      0.15,
+      0.15,
+      0.2
+     ],
+     "mfs": [
+      0,
+      0.15,
+      0.15,
+      0.2
+     ],
+     "hoh": [
+      0,
+      0.15,
+      0.15,
+      0.2
+     ]
+    }
+   },
+   "difference": "none",
+   "rests_on": "IRS Rev. Proc. 2025-32 §4.03",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › source_checks — the published 2026 figures, read from the publications › long-term capital gains: 0% / 15% tops $49,450 / $545,500 · $98,900 / $613,700 · $49,450 / $306,850 · $66,200 / $579,600 (§4.03)"
+   ],
+   "note": "ltcgRateFor gives the rate on the next dollar of gain above ordinary taxable income — the stacking OpenAI names."
+  },
+  {
+   "section": "source_checks",
+   "item": "Senior deduction2025–2028",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "status": "FINDING",
+   "expected": {
+    "per_person": 6000,
+    "phase_out": "6% above $75,000 / $150,000 joint, each person's $6,000 reduced",
+    "MFJ_both_65_at_200000": 6000,
+    "MFJ_both_65_at_250000": 0
+   },
+   "actual": {
+    "single_60k": 6000,
+    "hoh_100k": 4500,
+    "single_175k": 0,
+    "mfj1_200k": 3000,
+    "mfj2_200k": 9000,
+    "mfj2_250k": 6000,
+    "mfj2_260k": 5400,
+    "mfj2_349k": 60,
+    "mfs": 0,
+    "tax_mfj2_200k": 23634
+   },
+   "difference": "Two people 65+ on a joint return: the statute reduces EACH person's $6,000 by 6% of income over $150,000 (gone at $250,000); the app takes 6% once off $12,000 (gone at $350,000). At $200,000: $9,000 instead of $6,000, federal tax $23,634 instead of $24,294. One-person returns, filing separately, the zero floor and unknown income are right. MAGI: the app hands in gross less 401(k), documented on MK-CF-F-187.",
+   "rests_on": "26 U.S.C. §151(d)(5)(C)(iii)(I) as enacted by P.L. 119-21 §70103 — the app's own cited source (read 2026-10-21); DEC-0240; DEC-0378",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › source_checks — the published 2026 figures, read from the publications › married filing jointly, both 65+: $200,000 → $6,000 · $250,000 → $0 · $260,000 → $0",
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › source_checks — the published 2026 figures, read from the publications › what it does to the tax: $200,000 joint, both 65+ — taxable $158,500, federal tax $24,294 (the app: $155,500, $23,634)"
+   ],
+   "note": "",
+   "proposed_fix": {
+    "function": "MK-CF-F-187 seniorDeductionFor",
+    "file": "src/domain/income/tax.ts",
+    "change": "return people × max(0, $6,000 − 6% × max(0, magi − start)) instead of max(0, people × $6,000 − 6% × excess); update its header formula and the two lines of src/__tests__/statutory_constants.test.ts that pin 9,000 and 44,500 (to 6,000 and 41,500).",
+    "figures_move": "Joint returns with both spouses 65+ and income $150,000–$350,000 only. Example $200,000: deduction $9,000 → $6,000; MK-CF-M-033 / MK-CF-M-044 Calculated federal tax $23,634 → $24,294 (+$660 a year); MK-CF-M-031 / MK-CF-M-037 take-home (calculated) about $55 a month lower; MK-MN-M-028 Standard deduction line on the tax organizer $44,500 → $41,500; Plan's retirement tax (MK-PL-F-082 taxableIncomeSteps) and the Will my money last odds that read it.",
+    "drawings": "none known"
+   }
+  },
+  {
+   "section": "source_checks",
+   "item": "401(k) andIRA2026 limits",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": {
+    "401k": 24500,
+    "catch_up_50": 8000,
+    "ages_60_63": 11250,
+    "IRA": 7500,
+    "IRA_catch_up": 1100
+   },
+   "actual": {
+    "annual401kLimit_at_45_55_60_63_64": [
+     24500,
+     32500,
+     35750,
+     35750,
+     32500
+    ],
+    "annualIraLimit_at_45_50": [
+     7500,
+     8600
+    ]
+   },
+   "difference": "none",
+   "rests_on": "IRS Notice 2025-67 (the IRS release, read 2026-10-21)",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › source_checks — the published 2026 figures, read from the publications › 401(k) $24,500, +$8,000 at 50, +$11,250 instead at 60–63; IRA $7,500, +$1,100 at 50 (Notice 2025-67)"
+   ],
+   "note": "Roth-only catch-ups for higher earners are not a limit amount; not modelled, as OpenAI notes."
+  },
+  {
+   "section": "source_checks",
+   "item": "HSA2026 limits",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": {
+    "self_only": 4400,
+    "family": 8750,
+    "catch_up_55": 1000
+   },
+   "actual": {
+    "annualHsaLimit_50_55_family50_family60_medicare66": [
+     4400,
+     5400,
+     8750,
+     9750,
+     0
+    ]
+   },
+   "difference": "none",
+   "rests_on": "IRS Rev. Proc. 2025-19",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › source_checks — the published 2026 figures, read from the publications › HSA $4,400 self-only, $8,750 family, +$1,000 at 55, nothing once on Medicare (Rev. Proc. 2025-19)"
+   ],
+   "note": "The limit assumes a full year of eligible cover; on Medicare it is $0 (DEC-0243)."
+  },
+  {
+   "section": "source_checks",
+   "item": "Social Security andMedicare2026",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": {
+    "wage_base": 184500,
+    "withholding_threshold": 200000,
+    "MFJ_150k_each": {
+     "household_additional_tax": 450,
+     "per_employer_withholding": 0
+    },
+    "MFS_150k": {
+     "household_additional_tax": 225
+    }
+   },
+   "actual": {
+    "SS_WAGE_BASE": 184500,
+    "MEDICARE_ADDITIONAL_THRESHOLD": 200000,
+    "extra_150k": 0,
+    "extra_250k": 450,
+    "withheld_150k": 11475
+   },
+   "difference": "none — the app's figure is what each paycheck withholds (DEC-0340: 'use the real withholding … 0.9% more above $200,000'), the rule OpenAI says to keep. The $450 / $225 are owed at filing; no screen claims them.",
+   "rests_on": "SSA 2026 contribution and benefit base; IRS Topic 560 (read 2026-10-21); DEC-0340",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › source_checks — the published 2026 figures, read from the publications › a paycheck withholds 6.2% up to $184,500, 1.45% of all of it, 0.9% more above $200,000 — per employer, whatever the filing status",
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › source_checks — the published 2026 figures, read from the publications › OpenAI's witnesses: two spouses on $150,000 each — each employer withholds $0 extra (the app's figure); the $450 owed at filing is not a paycheck figure"
+   ],
+   "note": ""
+  },
+  {
+   "section": "cross_card_acceptance_cases",
+   "item": "Calendar annualization equality",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": {
+    "total": 0.21,
+    "shown": "+21.00%"
+   },
+   "actual": {
+    "windowStart": "2023-10-13",
+    "ret": 0.20999999999999996,
+    "perYear": null,
+    "holding": 0.20999999999999996
+   },
+   "difference": "none",
+   "rests_on": "DEC-0237; DEC-3768b",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › cross_card_acceptance_cases — each through the functions the screens call › exactly one calendar year over 366 days stays the window total: +21.00%, never 20.937%"
+   ],
+   "note": ""
+  },
+  {
+   "section": "cross_card_acceptance_cases",
+   "item": "Leap-spanning exact2Y has two competing pace conventions",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "status": "FINDING",
+   "expected": {
+    "card_periodReturn": {
+     "exact": 0.1,
+     "exact_decimal": "0.100000000000",
+     "shown": "+10.00%"
+    },
+    "orchestrator_days_over365": {
+     "exact": 0.09985658773828732,
+     "exact_decimal": "0.099856587738",
+     "shown": "+9.99%"
+    }
+   },
+   "actual": {
+    "Holding page (periodReturn 2Y)": 0.10000000000000009,
+    "Performance tab (thePerformance perYear)": 0.09971358593414115,
+    "years_used_by_door": 2.0054794520547947,
+    "window_total": 0.20999999999999996
+   },
+   "difference": "One question, two answers: the Holding page gives +10.00% a year (exponent ½), the Performance tab +9.97% a year (732 days ÷ 365). OpenAI's second reading (731 days, +9.99%) is not the app's rule: the beginning is the close of the day before the window (DEC-0315), so 732 days are measured — that detail is BRIEF WRONG.",
+   "rests_on": "Precision standard § Every return is a time-weighted return: \"(1 + the return)^(365 ÷ days) − 1\"; DEC-6412 approved \"+22.95% over 731 days = +10.87% a year\" (exponent ½ gives +10.88%); DEC-0315",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › cross_card_acceptance_cases — each through the functions the screens call › one rule: the Holding page's 2Y yearly rate equals the Performance tab's for the same window and total",
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › cross_card_acceptance_cases — each through the functions the screens call › OpenAI's orchestrator reading: 731 days ÷ 365 → 0.0998565877"
+   ],
+   "note": "",
+   "proposed_fix": {
+    "function": "MK-PF-F-039 periodReturnParts (read by MK-PF-F-010 periodReturn); MK-PF-F-020 portfolioBenchReturn short span",
+    "file": "src/domain/performance/index.ts",
+    "change": "years = the window's days (windowBounds, both edge days) ÷ 365 when the prices reach back, instead of 2; a short history's span ÷ 365 days, not 365.25 — in periodReturnParts and in portfolioBenchReturn's short-span line.",
+    "figures_move": "Holding page 2Y line and the Account page holding rows' 2Y figure: 21% over 732 days +10.00% a year → +9.97% a year (the Performance tab already says +9.97%). Window totals do not move.",
+    "drawings": "none — no approved drawing prints a holding's 2Y yearly rate"
+   }
+  },
+  {
+   "section": "cross_card_acceptance_cases",
+   "item": "New account deposit first-day loss",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": {
+    "wealth": -200,
+    "TWR": -0.02
+   },
+   "actual": {
+    "beginning": 0,
+    "contributions": 10000,
+    "wealth": -200,
+    "ending": 9800,
+    "ret": -0.020000000000000018,
+    "sentence": ""
+   },
+   "difference": "none",
+   "rests_on": "DEC-4439",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › cross_card_acceptance_cases — each through the functions the screens call › a new account: $0 the evening before, $10,000 deposited, $9,800 that evening — wealth −$200, return −2.00%"
+   ],
+   "note": ""
+  },
+  {
+   "section": "cross_card_acceptance_cases",
+   "item": "Flow day absent from usable valuations",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": "REFUSES",
+   "actual": {
+    "engine": {
+     "rate": null,
+     "refused": "MOVEMENT_DAY_NOT_RECORDED",
+     "day": "2026-09-02",
+     "measuredFrom": null
+    },
+    "ret": null,
+    "sentence": "Money moved in or out on Sep 2, 2026 and no value was recorded that day, so a return cannot be measured across it. The dollar figures here are still right."
+   },
+   "difference": "none (the $2,050 ending is a stand-in; OpenAI gives none)",
+   "rests_on": "DEC-4439; the engine's MOVEMENT_DAY_NOT_RECORDED",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › cross_card_acceptance_cases — each through the functions the screens call › money moved on 2 Sep, values only on 1 and 3 Sep: REFUSES, naming the day — never shifted to 3 Sep"
+   ],
+   "note": ""
+  },
+  {
+   "section": "cross_card_acceptance_cases",
+   "item": "Explicit ratezero versus missingrate",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": {
+    "coupon0": {
+     "gain": 0,
+     "synthetic_beginning": 10500
+    },
+    "coupon_missing": {
+     "gain": null,
+     "beginning": null
+    }
+   },
+   "actual": {
+    "gain_zero": 0,
+    "gain_missing": null,
+    "zero_with_record": {
+     "beginning": 10500,
+     "wealth": 0,
+     "ret": 0,
+     "sentence": "",
+     "notIncluded": ""
+    },
+    "missing_with_record": {
+     "beginning": null,
+     "wealth": null,
+     "ret": null,
+     "sentence": "The record begins Oct 13, 2026, so it cannot say what this account was worth on Oct 12, 2025.",
+     "notIncluded": ""
+    },
+    "missing_no_record": {
+     "beginning": 10500,
+     "wealth": 0,
+     "ret": null,
+     "sentence": "",
+     "notIncluded": "Bank CD ($10,500) has no price history, so its gains are not included."
+    }
+   },
+   "difference": "none as the app runs (the daily record exists from the day the app opens). Edge only: with no record at all, no rate → the walk still shows beginning $10,500 and names the CD (DEC-5068's words); Home writes today's record on opening, so the screens do not reach it.",
+   "rests_on": "DEC-2748b; DEC-5068; DEC-5291",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › cross_card_acceptance_cases — each through the functions the screens call › a CD worth $10,500 over a year: an entered 0% gains $0 (beginning $10,500); no rate entered gains \"unknown\"",
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › cross_card_acceptance_cases — each through the functions the screens call › the same through the Performance tab, with the record the app writes the day it opens: 0% → beginning $10,500; no rate → no beginning"
+   ],
+   "note": ""
+  },
+  {
+   "section": "cross_card_acceptance_cases",
+   "item": "Known 100% loss remains in portfolio",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "status": "FINDING",
+   "expected": {
+    "return": -0.4,
+    "beginning": 2000,
+    "wealth_generated": -800
+   },
+   "actual": {
+    "record": {
+     "beginning": 2000,
+     "wealth": -800,
+     "ret": -0.4
+    },
+    "worked_back": {
+     "beginning": 1000,
+     "wealth": 200,
+     "ret": 0.19999999999999996,
+     "notIncluded": "",
+     "sentence": ""
+    }
+   },
+   "difference": "With the daily record reaching back: −40.00%, right. Worked back from prices (no record): +20.00%, beginning $1,000, wealth +$200, and nothing named — the wiped-out holding's −100% has 'no start to divide by', so it is dropped from Return and its gain counted $0.",
+   "rests_on": "DEC-5068 (Return for every asset with a history — this one has one: 100 → 0); tenet 1; tenet 3",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › cross_card_acceptance_cases — each through the functions the screens call › the same holdings with no daily record: worked back from prices, −40.00%, beginning $2,000, wealth −$800"
+   ],
+   "note": "Overlaps the part-1 cards MK-NW-F-127 / F-128 and the brief's priority-1 row on total losses.",
+   "proposed_fix": {
+    "function": "MK-NW-F-127 gainOfRow and MK-NW-F-138 knownHoldingsReturn (fed by MK-PF-F-014 buildPerformance)",
+    "file": "MoneyKeel/functions/networth-and-performance/performance.ts; src/domain/performance/index.ts",
+    "change": "buildPerformance writes each row's start value = shares held × the close the evening before the window (it already reads that close). Where a holding's window total is −100% (value now $0), gainOfRow uses that start (gain = −start) and knownHoldingsReturn adds it to the starts. Where shares moved in the window, no start: the holding is unknown and named in the left-out sentence — never $0.",
+    "figures_move": "Performance tab, Account page and Home month line, worked-back windows holding a total loss: MK-PF-M-016 Return +20.00% → −40.00%; MK-PF-M-003 walk Wealth generated +$200 → −$800; MK-PF-M-013 Beginning $1,000 → $2,000; MK-XS-M-004 Home's month line; MK-PF-M-021 the value the return is on.",
+    "drawings": "none — no approved drawing shows a total loss"
+   }
+  },
+  {
+   "section": "cross_card_acceptance_cases",
+   "item": "Home visible percentage gap",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "status": "FINDING",
+   "expected": "RULE UNCLEAR — preserve approved words; require the full-precision witness or a dated correction note",
+   "actual": {
+    "hidden": "0.85%",
+    "visible": "0.86%"
+   },
+   "difference": "The arithmetic is settled, not unclear: DEC-0264 (full precision, round once) — Home subtracts the unrounded returns and rounds once, so 3.6851% − 2.8349% reads 0.85% and the approved words hold. What is missing is the witness: the gap is worked out on the Home screen, so it has no row and no worked example.",
+   "rests_on": "Orchestrator rule 5 (one-door standard): 'Screens compute nothing — a figure derived on screen from two others (a share, a difference, a percentage) is a function with a row'; DEC-0264; DEC-4645",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › cross_card_acceptance_cases — each through the functions the screens call › Home works the gap at full precision and rounds once (DEC-0264): 3.6851% − 2.8349% → \"ahead by 0.85%\"; exactly 3.69% − 2.83% → \"0.86%\"",
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › cross_card_acceptance_cases — each through the functions the screens call › the \"ahead by\" gap comes from a function with a row, not from arithmetic on the Home screen"
+   ],
+   "note": "",
+   "proposed_fix": {
+    "function": "a new function beside MK-PF-F-020 portfolioBenchReturn — the gap between your return and the market's",
+    "file": "MoneyKeel/functions/networth-and-performance/performance.ts; src/screens/HomeScreen.tsx",
+    "change": "move Math.abs(youReturn − marketReturn) and the ahead / behind word off HomeScreen.tsx into one function with its own figure row and worked example (3.6851% and 2.8349% → 0.8502% → \"ahead by 0.85%\"); Home prints what it returns.",
+    "figures_move": "none — the same number, now with a row",
+    "drawings": "none; the approved Home words stay word for word (DEC-4645)"
+   }
+  },
+  {
+   "section": "cross_card_acceptance_cases",
+   "item": "Missing wage/rent/debt dependency evidence",
+   "classification": "BLOCKED",
+   "in_flight": false,
+   "status": "BLOCKED",
+   "expected": "CANNOT TELL",
+   "actual": null,
+   "difference": "No inputs: two earners, entered take-home, rent and paid / unpaid debt are named as a class, not a household. Those are Cash flow and Emergency fund cards with their own outside reviews.",
+   "rests_on": "OpenAI's own CANNOT TELL",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › cross_card_acceptance_cases — each through the functions the screens call › OpenAI marks it CANNOT TELL and hands in no inputs"
+   ],
+   "note": ""
+  },
+  {
+   "section": "scope_limits",
+   "item": "No app implementation, existing tests or live output inspected.",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": "No app implementation, existing tests or live output inspected.",
+   "actual": "Stated in the pack itself ('You are not shown the code inside any function, the existing tests, or any answer the app gives') and in the validation file (app_code_executed false). An audit-method limit; no screen needs it.",
+   "difference": "none",
+   "rests_on": "the package, the pack and the code",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › scope_limits — is each limit stated where a reader of the pack or the standards can see it › 1 · \"No app implementation, existing tests or live output inspected\" — the pack itself says the judge is not shown the code"
+   ],
+   "note": ""
+  },
+  {
+   "section": "scope_limits",
+   "item": "closedWith has no exact cases because its multiaccount allocation contract is not supplied.",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": "closedWith has no exact cases because its multiaccount allocation contract is not supplied.",
+   "actual": "Not stated anywhere: the card says the ending is carried 'between them'; the code puts all of it on the first account and $0 on the others. No figure moves — the return reads only the total, and every screen hands its accounts in, so none calls it. Side finding S2: write the split into MK-NW-F-104's formula.",
+   "difference": "the allocation contract is missing in the file (S2)",
+   "rests_on": "the package, the pack and the code",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › scope_limits — is each limit stated where a reader of the pack or the standards can see it › 2 · closedWith has no allocation contract — and none is written: the card says \"carrying between them\"; the code puts it ALL on the first account"
+   ],
+   "note": ""
+  },
+  {
+   "section": "scope_limits",
+   "item": "CANNOT TELL rules are retained as evidence gaps, not invented failures.",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": "CANNOT TELL rules are retained as evidence gaps, not invented failures.",
+   "actual": "Stated in the pack's Job 3 (HELD / NOT HELD / CANNOT TELL). 39 of 49 rules are CANNOT TELL, each with its why.",
+   "difference": "none",
+   "rests_on": "the package, the pack and the code",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › scope_limits — is each limit stated where a reader of the pack or the standards can see it › 3 · CANNOT TELL rules are kept as gaps: 39 of 49, each with its why"
+   ],
+   "note": ""
+  },
+  {
+   "section": "scope_limits",
+   "item": "No money paths for Cashflow/EmergencyFund functions absent from the cards were invented.",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": "No money paths for Cashflow/EmergencyFund functions absent from the cards were invented.",
+   "actual": "Stated in the pack ('Formulas these cards lean on … You are not asked to judge or test those'). All 250 cases belong to the 51 cards; none is a Cash flow card.",
+   "difference": "none",
+   "rests_on": "the package, the pack and the code",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › scope_limits — is each limit stated where a reader of the pack or the standards can see it › 4 · no Cash flow / Emergency fund money paths invented: every case belongs to one of the 51 cards"
+   ],
+   "note": ""
+  },
+  {
+   "section": "scope_limits",
+   "item": "Fivecasespertestablecard yields250cases, not255; 51formula checks are complete.",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": "Fivecasespertestablecard yields250cases, not255; 51formula checks are complete.",
+   "actual": "Stated in the reviewer's brief and validation file; the pack asks five cases per card without naming the closedWith exception. 50 × 5 = 250.",
+   "difference": "none",
+   "rests_on": "the package, the pack and the code",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › scope_limits — is each limit stated where a reader of the pack or the standards can see it › 5 · five cases per testable card: 50 × 5 = 250, not 255; 51 formula checks"
+   ],
+   "note": ""
+  },
+  {
+   "section": "sources",
+   "item": "IRS Revenue Procedure2025-32, section4.01,.03,.14 (2026 amounts)",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": "Federal income brackets, capital-gains thresholds, standard deductions and aged additional standard deductions.",
+   "actual": null,
+   "difference": "In the register for TAX_BRACKETS, TAX_TABLES, STANDARD_DEDUCTION, TAX_YEAR. The section cited for the standard deduction is wrong (S1).",
+   "rests_on": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › sources — each against the app's own register of published sources › 1 · IRS Rev. Proc. 2025-32 — in the register for the bands, the deduction and the tax year"
+   ],
+   "note": ""
+  },
+  {
+   "section": "sources",
+   "item": "IRS Notice2025-67 / 2026 retirement limits announcement",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": "401(k), IRA and age-specific catch-up amounts.",
+   "actual": null,
+   "difference": "The register's IRS_LIMITS source. The IRS release names Notice 2025-67, so the register's \"founder should confirm\" note can close.",
+   "rests_on": "https://www.irs.gov/newsroom/401k-limit-increases-to-24500-for-2026-ira-limit-increases-to-7500",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › sources — each against the app's own register of published sources › 2 · IRS Notice 2025-67 — the register's IRS_LIMITS source; the IRS release names Notice 2025-67, so its \"founder should confirm\" note can close"
+   ],
+   "note": ""
+  },
+  {
+   "section": "sources",
+   "item": "IRS Revenue Procedure2025-19 (2026 HSA amounts)",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": "Self-only4400 and family8750.",
+   "actual": null,
+   "difference": "The register's annualHsaLimit source; $4,400 / $8,750 confirmed, so its \"founder should confirm\" note can close.",
+   "rests_on": "https://www.irs.gov/pub/irs-drop/rp-25-19.pdf",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › sources — each against the app's own register of published sources › 3 · IRS Rev. Proc. 2025-19 — the register's HSA source; it prints $4,400 and $8,750"
+   ],
+   "note": ""
+  },
+  {
+   "section": "sources",
+   "item": "SSA Contribution and Benefit Base, 2026",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": "Wage base184500 and employee6.2%.",
+   "actual": null,
+   "difference": "The register's SS_WAGE_BASE source; $184,500 confirmed.",
+   "rests_on": "https://www.ssa.gov/oact/cola/cbb.html",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › sources — each against the app's own register of published sources › 4 · SSA 2026 contribution and benefit base — the register's SS_WAGE_BASE source, $184,500"
+   ],
+   "note": ""
+  },
+  {
+   "section": "sources",
+   "item": "IRS Topic560, Additional Medicare tax",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": "0.9% and liability thresholds250000MFJ,125000MFS,200000others; separate employer withholding200000.",
+   "actual": null,
+   "difference": "The register's MEDICARE_ADDITIONAL_THRESHOLD source, written as a withholding threshold.",
+   "rests_on": "https://www.irs.gov/taxtopics/tc560",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › sources — each against the app's own register of published sources › 5 · IRS Topic 560 — the register's source for the $200,000 withholding threshold, written as a withholding figure"
+   ],
+   "note": ""
+  },
+  {
+   "section": "sources",
+   "item": "IRS Topic409, Capital gains and losses",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": "Morethan1yearlong-term;1yearorlessshort-term.",
+   "actual": {
+    "on_anniversary": {
+     "longGain": 0,
+     "shortGain": 200,
+     "totalGain": 200,
+     "countedShares": 10,
+     "heldShares": 10
+    },
+    "day_after": {
+     "longGain": 200,
+     "shortGain": 0,
+     "totalGain": 200,
+     "countedShares": 10,
+     "heldShares": 10
+    }
+   },
+   "difference": "The rule is held (MK-PF-F-006 capGains: long-term the day after the first anniversary; 29 February handled). The register has no row for it (S5).",
+   "rests_on": "https://www.irs.gov/taxtopics/tc409",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › sources — each against the app's own register of published sources › 6 · IRS Topic 409 — more than one year is long-term: a lot bought 13 Oct 2025 is short-term on 13 Oct 2026, long-term on 14 Oct"
+   ],
+   "note": ""
+  },
+  {
+   "section": "sources",
+   "item": "IRS Publication550 (2025), Investment income and expenses",
+   "classification": "NEEDS A RULING",
+   "in_flight": false,
+   "status": "UNCLEAR",
+   "expected": "Adjusted basis, option tax exceptions and section1256contract distinction.",
+   "actual": {
+    "longGain": 0,
+    "shortGain": 6000,
+    "totalGain": 6000,
+    "countedShares": 2,
+    "heldShares": 2
+   },
+   "difference": "Not in the register. An index option (a section 1256 contract) is split by holding period like a share: 2 SPX calls bought Jul 1 at $50, now $80 → $6,000 short-term, $0 long-term; section 1256 says $3,600 long, $2,400 short. No ruling.",
+   "rests_on": "https://www.irs.gov/publications/p550",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › sources — each against the app's own register of published sources › 7 · IRS Publication 550 — not in the register; an index option's gain is split by holding period like a share's",
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › sources — each against the app's own register of published sources › the section 1256 reading for 2 SPX calls bought at $50, now $80: $3,600 long-term, $2,400 short-term"
+   ],
+   "note": "",
+   "recheck_2026_10_21": "FIXED — IRS Publication 550 (2025) is in the register for the 60/40 rule; an SPX option splits 60/40 (DEC-6689)"
+  },
+  {
+   "section": "sources",
+   "item": "IRS Enhanced deduction for seniors eligibility (2025–2028)",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": "6000per eligible senior; MAGI phase-out thresholds and eligibility.",
+   "actual": null,
+   "difference": "The register cites the statute itself (P.L. 119-21 §70103), the page's source; the per-person phase-out finding sits in source check 4.",
+   "rests_on": "https://www.irs.gov/newsroom/check-your-eligibility-for-the-new-enhanced-deduction-for-seniors",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › sources — each against the app's own register of published sources › 8 · IRS senior-deduction page — the register cites the statute itself (P.L. 119-21 §70103), the page's source"
+   ],
+   "note": ""
+  },
+  {
+   "section": "sources",
+   "item": "CFA Institute 2020 GIPS Standards for Firms, definitions and calculation methodology",
+   "classification": "AGREES",
+   "in_flight": false,
+   "status": "PASS",
+   "expected": "TWR negates external flows; income inside portfolio is earned; owner governs specific daily convention.",
+   "actual": null,
+   "difference": "Cited in the precision standard for when a return is made yearly. Not a figure set by law, so not in the register.",
+   "rests_on": "https://www.gipsstandards.org/wp-content/uploads/2021/03/2020_gips_standards_firms.pdf",
+   "tests": [
+    "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › sources — each against the app's own register of published sources › 9 · GIPS 2020 — cited in the precision standard for when a return is made yearly; not a statutory figure, so not in the register"
+   ],
+   "note": ""
+  }
+ ]
+}

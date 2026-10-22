@@ -1,6 +1,6 @@
 // Orchestrator pins (design v2 §3): daily debounce, one store write, broken accounts never sink
 // the sync, connections meta carries the disabled flag for the Home fix line.
-import { runSnapTradeSync, shouldDailySync } from './snaptradeSync';
+import { runSnapTradeSync, shouldDailySync, SIGNS_REFETCH, refetchMarkKey } from './snaptradeSync';
 import { useStore } from '../../store/useStore';
 
 jest.mock('./snaptradeClient', () => ({
@@ -71,7 +71,8 @@ test('a cursor with NO connected ledger rows behind it is ignored — full histo
 
 test('a cursor WITH ledger rows behind it is honored (overlap window, no full refetch)', async () => {
   await runSnapTradeSync({ force: true });                     // first sync lands rows + sets cursor? (sync_status empty → no cursor)
-  useStore.setState({ snaptradeActivityCursor: { 'acc-1': '2026-07-10T00:00:00.000Z' } } as any);
+  // the one-time full re-fetch for signs (SIGNS_REFETCH, 2026-10-21) already ran for this account, so its marker is kept
+  useStore.setState({ snaptradeActivityCursor: { 'acc-1': '2026-07-10T00:00:00.000Z', [refetchMarkKey('acc-1')]: SIGNS_REFETCH } } as any);
   jest.clearAllMocks();
   await runSnapTradeSync({ force: true });
   const call = api.activities.mock.calls.find((c: any[]) => c[0] === 'acc-1');

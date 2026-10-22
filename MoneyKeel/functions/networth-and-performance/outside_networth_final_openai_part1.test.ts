@@ -9,7 +9,9 @@
  * MARKS: `test.failing` + `// FINDING` = the app gives another answer than a correct expectation (goes red the day it
  * is fixed). `test.failing` + `// BRIEF WRONG` = the auditor's own expectation is wrong (its arithmetic, or an owner
  * decision says otherwise); the auditor's answer is kept. `// UNCLEAR` = no single expected answer and no decision
- * settles it: the app's current behaviour is asserted and the open question named.
+ * settles it: the app's current behaviour is asserted and the open question named. `// BRIEF WRONG (… was UNCLEAR)` on a
+ * passing test = the auditor wrote RULE UNCLEAR but the card or a rule gives the answer; that answer, which the app
+ * gives, is asserted (re-judged 2026-10-20). A `pin ·` test holds a right answer of the app's next to it.
  *
  * TOLERANCE: money to 1e-6 dollars (toBeCloseTo 6), rates to 1e-12 (toBeCloseTo 12) — floating-point sums only.
  *
@@ -363,10 +365,17 @@ describe('MK-NW-F-024 accountLastFour — five cases', () => {
   test('easy · No digits returns null', () => { expect(accountLastFour({ mask: 'joint acct', account_number: null as any })).toBeNull(); });
   test('complex · Mask wins over account number', () => { expect(accountLastFour({ mask: 'xx-9876', account_number: '1234567890' })).toBe('9876'); });
   test('complex · Unusable mask fallback ambiguity', () => {
-    // UNCLEAR: app does '2345' — a mask with fewer than four digits falls through to the account number
-    // (src/domain/assets/index.ts:1205-1208); open question: is that fallback the intended reading of "or failing that
-    // its account number"? No decision found (rulings-for.py "last four", "mask", "account number").
+    // BRIEF WRONG (re-judged 2026-10-20, was UNCLEAR): the card itself answers it — the function gives "the last four
+    // digits of an account, or null when we genuinely don't have them". A mask with two digits ("••12") has failed to give
+    // four, so "failing that its account number" is read: 00012345 → digits 00012345 → last four 2345. We DO have them, so
+    // null would hide digits we hold (DEC-0083: an account reads institution + last four, "Vanguard -5738"). The app gives
+    // '2345' (src/domain/assets/index.ts:1165-1171, mask first, then the number, each needing four digits).
+    // outside_networth_04.test.ts holds the same fallback ('••21' + '000987654321' → '4321').
     expect(accountLastFour({ mask: '••12', account_number: '00012345' })).toBe('2345');
+  });
+  test('pin · a mask with four digits is used and the account number is never read (BRIEF WRONG above)', () => {
+    expect(accountLastFour({ mask: '••1234', account_number: '00012345' })).toBe('1234');
+    expect(accountLastFour({ mask: '••12', account_number: '345' })).toBeNull();   // neither holds four digits: genuinely unknown
   });
   test('edge · Mask contains more than four digits', () => { expect(accountLastFour({ mask: 'acct 12-34-5678', account_number: null as any })).toBe('5678'); });
 });

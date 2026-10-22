@@ -100,7 +100,7 @@ describe('portfolio use-cases', () => {
     // E3: FIFO cost basis after partial sell across 2 lots (10@100 + 10@200, sell 12) → 8 left, basis = 8×200=1600
     let e3 = [acct('MS', { kind: 'brokerage', cash_balance: 0, positions: [{ position_id: 'p', ticker: 'AAPL', kind: 'stocks_etf', lots: [{ lot_id: 'a', shares: 10, cost_per_share: 100, purchase_date: '2023-01-01' }, { lot_id: 'b', shares: 10, cost_per_share: 200, purchase_date: '2024-01-01' }] }] })];
     e3 = run(e3, { type: 'SELL', account_id: 'MS', ticker: 'AAPL', shares: 12, price: 250 });
-    const e3basis = round2((e3[0].positions![0].lots).reduce((t, l) => t + l.shares * l.cost_per_share, 0));
+    const e3basis = round2((e3[0].positions![0].lots).reduce((t, l) => t + l.shares * (l.cost_per_share ?? NaN), 0));   // a cost not on record may be null (2026-10-20)
     check('E3 FIFO leaves 8 sh, basis $1,600 (from the $200 lot)', totalShares(e3[0].positions![0]) === 8 && e3basis === 1600, `sh=${totalShares(e3[0].positions![0])}, basis=${e3basis}`);
 
     // E4: withdrawal spends cash → NW DROPS by the amount (money left the tracked system)

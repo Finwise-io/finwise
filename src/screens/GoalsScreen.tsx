@@ -326,7 +326,9 @@ function GoalEditor({ goal, open, onClose, onSave, onDelete }: {
   const [icon, setIcon] = useState('🎯');
   React.useEffect(() => {
     if (!open) return;
-    setLabel(goal?.label ?? ''); setTarget(goal ? String(goal.target) : ''); setSaved(goal ? String(goal.saved) : '');
+    // a goal is held at full precision (DEC-0403), so the field shows it to the cent — never "33.333333333333336"
+    const asTyped = (n: number) => (Number.isFinite(n) ? n.toFixed(2).replace(/\.?0+$/, '') : '');
+    setLabel(goal?.label ?? ''); setTarget(goal ? asTyped(goal.target) : ''); setSaved(goal ? asTyped(goal.saved) : '');
     const m = String(goal?.targetDate ?? '').match(/(\d{4})-(\d{1,2})/);
     setTMonth(m ? m[2] : ''); setTYear(m ? m[1] : ''); setIcon(goal?.icon || '🎯');
   }, [open]);

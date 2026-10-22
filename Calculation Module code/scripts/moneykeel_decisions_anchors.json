@@ -64,7 +64,7 @@
   "DEC-0047": {
    "governs": "MK-NW-M-006 · MK-NW-M-007 · MK-NW-M-008",
    "why_it_governs_those": "By type removed and What you own restructured — the bands, the class rows and the account rows",
-   "proof": "MoneyKeel/functions/networth-and-performance/net-worth.test.ts — the grouped ledger"
+   "proof": "src/screens/__tests__/NetWorthScreen.test.tsx — \"TWO pills only (By type removed, founder 2026-08-04); By institution rolls both E*TRADE accounts under ONE he…\" · src/screens/__tests__/NetWorthScreen.test.tsx — \"WHAT YOU OWN shows the three uber-groups with their totals, classes inside\" · MoneyKeel/functions/networth-and-performance/net-worth.test.ts — \"MK-NW-M-006 and MK-NW-M-008 — the grouped ledger\" · named on this row before: MoneyKeel/functions/networth-and-performance/net-worth.test.ts — the grouped ledger · run green 2026-10-20: the 52 test files cited for these decisions, 820 tests passing"
   },
   "DEC-0051": {
    "governs": "MK-NW-M-005 CASH · MK-NW-M-020 · assetClassOf in src/domain/assets",
@@ -87,7 +87,7 @@
   "DEC-0069": {
    "governs": "MK-NW-M-007 · MK-NW-M-008",
    "why_it_governs_those": "By institution rebuilt to work like By category: collapse, remember, and the class mix inside each",
-   "proof": "MoneyKeel/functions/networth-and-performance/net-worth.test.ts — an institution names the class mix inside it"
+   "proof": "src/screens/__tests__/NetWorthScreen.test.tsx — \"By institution: groups collapse, and a bank's debt never joins its asset total\" · src/screens/__tests__/networth_matches_v08.test.tsx — \"A2 — by institution\" · MoneyKeel/functions/networth-and-performance/net-worth.test.ts — \"MK-NW-M-008 — an institution names the class mix inside it, biggest first\" · named on this row before: MoneyKeel/functions/networth-and-performance/net-worth.test.ts — an institution names the class mix inside it · run green 2026-10-20: the 52 test files cited for these decisions, 820 tests passing"
   },
   "DEC-0177": {
    "governs": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v07.html",
@@ -923,9 +923,9 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0184": {
-   "governs": "MK-MN-M-028 · MK-CF-M-032 · MK-CF-M-043 · MK-NW-M-016",
-   "why_it_governs_those": "its own words appear in these figures: MK-MN-M-028 (taxed, deduction, filing, status); MK-CF-M-032 (filing, status); MK-CF-M-043 (filing, status); MK-NW-M-016 (arithmetic, zero)",
-   "evidence": "searched the figure register"
+   "governs": "MK-CF-F-100 taxableIncomeFor · MK-CF-F-101 taxOwedFor · MK-CF-F-102 effectiveRateOnGrossFor · MK-CF-F-103 marginalBracketFor · MK-CF-F-097 grossFromNet (src/domain/income/tax.ts) · MK-CF-M-032 · MK-CF-M-043 · MK-MN-M-028",
+   "why_it_governs_those": "re-mapped 2026-10-21 by reading: the one filing-status-aware tax calculation in src/domain/income/tax.ts, and the figures that print it — the federal tax bracket on Cash flow and the Menu's tax organizer. MK-NW-M-016 (Net worth so far) was matched on the words arithmetic and zero and has nothing to do with tax.",
+   "evidence": "read 2026-10-21"
   },
   "DEC-0185": {
    "governs": "MK-XS-M-004",
@@ -964,9 +964,9 @@
    "evidence": "searched the figure register"
   },
   "DEC-0192": {
-   "governs": "MK-XS-M-004 · MK-CF-M-036 · MK-NW-M-021 · MK-NW-M-015",
-   "why_it_governs_those": "its own words appear in these figures: MK-XS-M-004 (metric, moved, identifier); MK-CF-M-036 (moved, takes); MK-NW-M-021 (counted, finding); MK-NW-M-015 (counted, family)",
-   "evidence": "searched the figure register"
+   "governs": "Calculation Module code/scripts/moneykeel_metric_register.json · Calculation Module code/scripts/build-moneykeel-master.py (nid — an identifier issued once, against what the figure is)",
+   "why_it_governs_those": "re-mapped 2026-10-21 by reading: a rule about how the master file issues identifiers — tooling for every module. The four figures it named (MK-XS-M-004, MK-CF-M-036, MK-NW-M-021, MK-NW-M-015) only shared words with it.",
+   "evidence": "read 2026-10-21"
   },
   "DEC-0194": {
    "governs": "MK-CF-M-035 · MK-CF-M-037 · MK-CF-M-031 · MK-CF-M-046",
@@ -1358,8 +1358,8 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0317": {
-   "governs": "src/domain/assets/index.ts · src/screens/NetWorthScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (silently, pair, side, stable, flagged, choice, transaction, snaptrade); src/screens/NetWorthScreen.tsx (silently, sync, choose, stable, choice, identity)",
+   "governs": "MK-CF-F-109 reviewTransactions (src/domain/transactions/flags.ts) · src/services/sync/snaptrade.ts (a stable row identity, so a re-sync never doubles money)",
+   "why_it_governs_those": "re-mapped 2026-10-21: his rule is about imported transactions that look like ones the person entered — Cash flow (OPEN-QUESTIONS C-8). It was read on 2026-10-01 against flags.ts reviewTransactions; the Net worth screen and the assets file only shared words with it.",
    "evidence": "searched every calculation file",
    "verified_by_reading": "2026-10-01 — read against src/domain/transactions/flags.ts reviewTransactions; held by decisions_are_held.test.ts"
   },
@@ -1401,9 +1401,9 @@
    "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0343": {
-   "governs": "MK-NW-M-006",
-   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-006 (pinned, computed)",
-   "evidence": "searched the figure register",
+   "governs": "MK-NW-F-039 buildAssetsState (src/domain/assets/index.ts), called over each section's and each institution's accounts · src/screens/NetWorthScreen.tsx (the section and institution totals) · MK-NW-M-006",
+   "why_it_governs_those": "re-mapped 2026-10-21 by reading: since 2026-10-20 Net worth's section and institution totals are the one function MK-NW-F-039 called over their accounts (nw_totals_one_function.test.tsx); MK-NW-M-006 is one of those section totals.",
+   "evidence": "read 2026-10-21; held by src/screens/__tests__/nw_totals_one_function.test.tsx",
    "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md §4 — every total read from the one split; Cash + Investments = Investable"
   },
   "DEC-0344": {
@@ -1412,9 +1412,9 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0345": {
-   "governs": "MK-NW-M-015",
-   "why_it_governs_those": "its own words appear in these figures: MK-NW-M-015 (start, family)",
-   "evidence": "searched the figure register"
+   "governs": "MK-NW-F-145 netWorthInputs (src/hooks/useNetWorthInputs.ts) · src/screens/NetWorthScreen.tsx · src/screens/HomeScreen.tsx · src/screens/InsightsScreen.tsx · src/screens/OtherInvestmentsScreen.tsx · src/screens/StressTestScreen.tsx · src/screens/JobSafetyScreen.tsx · src/screens/IncomeManagerScreen.tsx",
+   "why_it_governs_those": "re-mapped 2026-10-21 by reading: since 2026-10-20 the Net worth family's inputs are built once by MK-NW-F-145 netWorthInputs and read by these seven screens (guard_one_door_networth_inputs.test.ts). MK-NW-M-015 was matched on two words.",
+   "evidence": "read 2026-10-21; held by src/__tests__/guard_one_door_networth_inputs.test.ts"
   },
   "DEC-0346": {
    "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md · src/screens/AccountPortfolioScreen.tsx",
@@ -1423,9 +1423,9 @@
    "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0347": {
-   "governs": "MK-CF-M-037 · MK-NW-M-006",
-   "why_it_governs_those": "its own words appear in these figures: MK-CF-M-037 (holds, reaches); MK-NW-M-006 (holds, whose)",
-   "evidence": "searched the figure register"
+   "governs": "Calculation Module code/scripts/build-orchestrator-map.py (each question's closure, read from the code) · MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md § The design rules",
+   "why_it_governs_those": "re-mapped 2026-10-21 by reading: a rule about how the orchestrator map records shared functions — tooling for every module. MK-CF-M-037 and MK-NW-M-006 only shared words with it.",
+   "evidence": "read 2026-10-21"
   },
   "DEC-0348": {
    "governs": "MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md · src/screens/NetWorthScreen.tsx",
@@ -1925,9 +1925,9 @@
    "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; a rule for specifications, not a screen; the Home and Net worth files were matched on shared words only"
   },
   "DEC-0474": {
-   "governs": "src/screens/BudgetScreen.tsx · src/screens/FirstRunScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/BudgetScreen.tsx (format, columns, import); src/screens/FirstRunScreen.tsx (connect, import, specific)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/ImportHoldingsScreen.tsx · src/domain/import/holdingsImport.ts",
+   "why_it_governs_those": "re-mapped 2026-10-21 by reading: the import screen names the file type and the columns a file must have, and holdingsImport.ts is the reader that needs them. The two files it named before (BudgetScreen, FirstRunScreen) only shared words with it.",
+   "evidence": "read; held by src/screens/__tests__/dec_0474_import_file_format.test.tsx"
   },
   "DEC-0475": {
    "governs": "MK-NW-M-030",
@@ -2094,7 +2094,7 @@
    "proof": "src/__tests__/one_term_per_concept.test.ts"
   },
   "DEC-0048": {
-   "governs": "MK-NW-M-015 YOUR RETIREMENT PLAN — on track for $X by age Y · src/screens/NetWorthScreen.tsx",
+   "governs": "MK-NW-M-015 YOUR RETIREMENT PLAN — retire at <age> with ~$X, lasting past <age> with ~$Y to spare, or running short around age <age> · src/screens/NetWorthScreen.tsx",
    "why_it_governs_those": "searched: the renamed section IS that figure’s own label, and the words appear on the Net worth screen and in the insights"
   },
   "DEC-0256": {
