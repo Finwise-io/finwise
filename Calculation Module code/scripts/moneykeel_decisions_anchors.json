@@ -1908,7 +1908,7 @@
    "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; an ambiguous description in a specification; Net worth and the net-worth door were matched on shared words"
   },
   "DEC-0470": {
-   "governs": "src/screens/AccountPortfolioScreen.tsx (UpdateValueSheet, and its three doors: Update value, the box for a value 6 or more months old, the box for a value with no date) · MK-NW-F-003 valueFreshness · MK-NW-M-018 · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_update-value-sheet_v01.html",
+   "governs": "src/screens/AccountPortfolioScreen.tsx (UpdateValueSheet, and its three doors: Update value, the box for a value 6 or more months old, the box for a value with no date) · MK-NW-F-003 valueFreshness · MK-NW-M-018 · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_update-value-sheet_v02.html",
    "why_it_governs_those": "re-mapped 2026-10-21 by reading: his question asks what the screen for a manual update looks like; that screen is the Update value sheet on the account page, drawn in eight states. It was matched on the words fresh, including, connected and manual to src/domain/glossary.ts and src/domain/assets/index.ts, which do not draw it.",
    "evidence": "read 2026-10-21",
    "verified_by_reading": "2026-10-21 — held by src/screens/__tests__/update_value_sheet_drawing.test.tsx"

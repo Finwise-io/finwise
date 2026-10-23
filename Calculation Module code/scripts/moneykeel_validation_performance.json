@@ -414,10 +414,10 @@
  },
  {
   "id": "DEC-0470",
-  "verdict": "BROKEN RECORD",
-  "check": "EXISTS",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
   "governs": "src/screens/AccountPortfolioScreen.tsx (UpdateValueShe",
-  "notes": "names what is not there: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_update-value-sheet_v01.html"
+  "notes": "12 of 17 of his words appear in what implements it: account comes connected fresh manual question"
  },
  {
   "id": "DEC-0471",
@@ -1226,10 +1226,10 @@
  },
  {
   "id": "DEC-7306",
-  "verdict": "NOT FOUND",
-  "check": "REQUIRES",
+  "verdict": "COMPLIES",
+  "check": "FORBIDS",
   "governs": "withArticle, ID awaiting (src/domain/_shared/plural.ts",
-  "notes": "quoted copy nowhere a person reads: \"Record a interest\"; \"Record a withdraw\""
+  "notes": "2 forbidden phrase(s) absent; "
  },
  {
   "id": "DEC-7307",
@@ -1275,24 +1275,24 @@
  },
  {
   "id": "DEC-7314",
-  "verdict": "BROKEN RECORD",
-  "check": "EXISTS",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
   "governs": "the holding editor (src/screens/PerformanceScreen.tsx)",
-  "notes": "names what is not there: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_holding-editor_v01.html"
+  "notes": "only 11 of 29 appear — present: account character contracts equity funds · absent: asking chips control doesn't editor"
  },
  {
   "id": "DEC-7315",
-  "verdict": "BROKEN RECORD",
-  "check": "EXISTS",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
   "governs": "the trade sheet · src/screens/HoldingDetailScreen.tsx ",
-  "notes": "names what is not there: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_trade-sheet_v01.html"
+  "notes": "only 2 of 21 appear — present: performance ticker · absent: account asking audit chose holding's"
  },
  {
   "id": "DEC-7316",
-  "verdict": "NOT FOUND",
-  "check": "REQUIRES",
+  "verdict": "COMPLIES",
+  "check": "FORBIDS",
   "governs": "the activity sheet · src/screens/HoldingDetailScreen.t",
-  "notes": "quoted copy nowhere a person reads: \"Every transaction you've recorded\""
+  "notes": "1 forbidden phrase(s) absent; "
  },
  {
   "id": "DEC-7317",
@@ -1303,10 +1303,10 @@
  },
  {
   "id": "DEC-7318",
-  "verdict": "BROKEN RECORD",
-  "check": "EXISTS",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
   "governs": "MK-ST-F-078 dateShown · the activity sheet · the edit-",
-  "notes": "names what is not there: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_edit-record-sheet_v01.html"
+  "notes": "13 of 20 of his words appear in what implements it: dateshown field fixed guard lead's order"
  },
  {
   "id": "DEC-7320",
