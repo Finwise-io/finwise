@@ -37,7 +37,7 @@ describe('the Bonds & CDs bar carries an info dot beside its yearly rate (DEC-58
   test('the dot sits in the bar, before the rate, and opens the Yearly pace words', () => {
     seed(BOND_ACCOUNT);
     render(<AccountPortfolioScreen />);
-    const band = screen.getByLabelText(/^Bonds & CDs, .*return 4\.11%\/year$/);
+    const band = screen.getByLabelText(/^Bonds & CDs, .*return 4\.11% a year$/);
     // inside the bar, in this order: the name, the market value, the dot, the rate
     const texts: string[] = [];
     const walk = (n: any) => { if (typeof n === 'string') texts.push(n); else (n?.children ?? []).forEach(walk); };
@@ -237,7 +237,7 @@ describe('Q15 — a record under a word the app does not know (account-page draw
     expect(screen.getByText('XYZ_ADJUST · an activity the app does not know')).toBeOnTheScreen();
     expect(screen.getByText('Oct 5 · from Robinhood')).toBeOnTheScreen();
     expect(screen.queryByText(/^Broker adjustment/)).toBeNull();
-    const row = screen.getByLabelText(/^2026-10-05: XYZ_ADJUST · an activity the app does not know, \$500, which way it went is not known\. from Robinhood, read-only\.$/);
+    const row = screen.getByLabelText(/^Oct 5, 2026: XYZ_ADJUST · an activity the app does not know, \$500, which way it went is not known\. from Robinhood, read-only\.$/);
     const { within } = require('@testing-library/react-native');
     const { Colors } = require('../../utils/theme');
     const amount = within(row).getByText('$500');   // the amount it sent — no + or −

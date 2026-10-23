@@ -198,7 +198,7 @@ export interface RetirementState {
  *
  * Called by ... MK-PL-F-050 simulate
  *
- * Reaches ..... 27 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 28 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-101 PLAN · MK-CF-F-107 buildPaycheckYear
  *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
  *               MK-CF-O-017 futurePaycheck · MK-PL-F-043 howTheGapCloses
@@ -208,7 +208,7 @@ export interface RetirementState {
  *               MK-PL-F-041 requiredAnnualSaving · MK-PL-F-035 retireAgeWithContribution
  *               MK-PL-F-042 savingToReachTarget · MK-PL-F-068 selectWillItLast
  *               MK-PL-F-050 simulate · MK-XS-F-032 snapshotFromOnboarding
- *               … and 9 more — the full list is on functions_from_code
+ *               … and 10 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -234,7 +234,7 @@ function mulberry32(seed: number) {
  *
  * Called by ... MK-PL-F-050 simulate
  *
- * Reaches ..... 27 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 28 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-101 PLAN · MK-CF-F-107 buildPaycheckYear
  *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
  *               MK-CF-O-017 futurePaycheck · MK-PL-F-043 howTheGapCloses
@@ -244,7 +244,7 @@ function mulberry32(seed: number) {
  *               MK-PL-F-041 requiredAnnualSaving · MK-PL-F-035 retireAgeWithContribution
  *               MK-PL-F-042 savingToReachTarget · MK-PL-F-068 selectWillItLast
  *               MK-PL-F-050 simulate · MK-XS-F-032 snapshotFromOnboarding
- *               … and 9 more — the full list is on functions_from_code
+ *               … and 10 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -270,7 +270,7 @@ function normal(rng: () => number, mean: number, sd: number): number {
  *
  * Called by ... MK-PL-F-050 simulate
  *
- * Reaches ..... 27 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 28 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-101 PLAN · MK-CF-F-107 buildPaycheckYear
  *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
  *               MK-CF-O-017 futurePaycheck · MK-PL-F-043 howTheGapCloses
@@ -280,7 +280,7 @@ function normal(rng: () => number, mean: number, sd: number): number {
  *               MK-PL-F-041 requiredAnnualSaving · MK-PL-F-035 retireAgeWithContribution
  *               MK-PL-F-042 savingToReachTarget · MK-PL-F-068 selectWillItLast
  *               MK-PL-F-050 simulate · MK-XS-F-032 snapshotFromOnboarding
- *               … and 9 more — the full list is on functions_from_code
+ *               … and 10 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -320,14 +320,14 @@ function pctOfSorted(sorted: number[], p: number): number {
  *
  * Called by ... MK-CF-F-042 mortgageOddsEffect · MK-CF-F-106 solveSafeDraw
  *               MK-CF-O-017 futurePaycheck · MK-NW-F-101 PLAN
- *               MK-PL-F-035 retireAgeWithContribution · MK-PL-F-036 weighGoals
- *               MK-PL-F-042 savingToReachTarget · MK-PL-F-043 howTheGapCloses
- *               MK-PL-F-044 planTarget · MK-PL-F-053 buildRetirementState
- *               MK-PL-F-055 projectNestEgg · MK-PL-F-065 volOf
- *               MK-PL-F-068 selectWillItLast · MK-PL-F-069 oddsAt
- *               MK-PL-F-071 oddsOf
+ *               MK-NW-F-185 valueChanged · MK-PL-F-035 retireAgeWithContribution
+ *               MK-PL-F-036 weighGoals · MK-PL-F-042 savingToReachTarget
+ *               MK-PL-F-043 howTheGapCloses · MK-PL-F-044 planTarget
+ *               MK-PL-F-053 buildRetirementState · MK-PL-F-055 projectNestEgg
+ *               MK-PL-F-065 volOf · MK-PL-F-068 selectWillItLast
+ *               MK-PL-F-069 oddsAt · MK-PL-F-071 oddsOf
  *
- * Reaches ..... 26 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 27 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-101 PLAN · MK-CF-F-107 buildPaycheckYear
  *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
  *               MK-CF-O-017 futurePaycheck · MK-PL-F-043 howTheGapCloses
@@ -337,7 +337,7 @@ function pctOfSorted(sorted: number[], p: number): number {
  *               MK-PL-F-041 requiredAnnualSaving · MK-PL-F-035 retireAgeWithContribution
  *               MK-PL-F-042 savingToReachTarget · MK-PL-F-068 selectWillItLast
  *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-056 solveRetireAge
- *               … and 8 more — the full list is on functions_from_code
+ *               … and 9 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-022 · MK-PL-M-034 · MK-XS-M-002
  * Reads ....... MK-XS-I-018 retirement age
@@ -642,12 +642,12 @@ export interface NestEggProjection {
  *         + Σ for year y = 0 … n−1 of ( contribution × (1 + g)^y × (1 + r)^(n − y − 1) )
  *     where r = the assumed return and g = the rate contributions grow
  *
- * Called by ... MK-NW-F-101 PLAN · MK-PL-F-035 retireAgeWithContribution
+ * Called by ... MK-NW-F-185 valueChanged · MK-PL-F-035 retireAgeWithContribution
  *               MK-PL-F-056 solveRetireAge
  *
  * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-101 PLAN · MK-PL-F-035 retireAgeWithContribution
- *               MK-PL-F-056 solveRetireAge · MK-PL-F-037 trimHints
+ *               MK-PL-F-035 retireAgeWithContribution · MK-PL-F-056 solveRetireAge
+ *               MK-PL-F-037 trimHints · MK-NW-F-185 valueChanged
  *               MK-PL-F-036 weighGoals
  *
  * Serves ...... MK-PL-M-026 · MK-PL-M-033

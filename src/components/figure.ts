@@ -39,14 +39,15 @@ function write(spec: FigureSpec, value: number | null, hidden: boolean, spoken: 
   return writeFigure(spec, value);
 }
 
-function print(id: string, raw: number | null, spoken: boolean, withPeriod: boolean): string {
+function print(id: string, raw: number | null, spoken: boolean, withPeriod: boolean, perOverride?: 'month' | 'year'): string {
   // a value that is not a real number (NaN, Infinity) is a refused figure, exactly like null — it
   // never reaches the screen as "NaN" or a number. (outside review OpenAI final, 2026-10-09, DEC-3523)
   const value = raw != null && Number.isFinite(raw) ? raw : null;
   const spec = figureSpec(id);
   const hidden = useStore.getState().hideBalances;
   let text = write(spec, value, hidden, spoken);
-  if (withPeriod && value != null && spec.per) text += spoken ? ` a ${spec.per}` : `/${spec.per}`;   // spoken keeps "a month" (cluster 14)
+  const per = perOverride ?? spec.per;   // a figure that is yearly only sometimes names its period here (2026-10-21)
+  if (withPeriod && value != null && per) text += spoken ? ` a ${per}` : `/${per}`;   // spoken keeps "a month" (cluster 14)
   PRINTED.push({ id, value, text, spoken });
   return text;
 }
@@ -81,6 +82,26 @@ export const figSpoken = (id: string, value: number | null): string => `${figure
  *  exactly what happened — an activity row came out as "Withdrawal, minus what one record moved:
  *  $300" instead of "Withdrawal, minus $300". The sentence around the figure already names it, so
  *  here the number is said on its own: spoken wording, masked under hide-balances, no label. */
-export const figSaid = (id: string, value: number | null): string => print(id, value, true, true);
+export const figSaid = (id: string, value: number | null, per?: 'month' | 'year'): string => print(id, value, true, true, per);
+/*  ↑ `per` (2026-10-21, Performance audit row 29): a return is a yearly rate only over a window longer than a year, so its
+    declaration carries no period and the screen wrote " a year" after it by hand. Passing 'year' says it through the one
+    spoken writer — "+7.30% a year", never "+7.30%/year" read aloud as "slash year". */
+/** A LINE OF PRINTED FIGURES, AS A SCREEN READER SAYS IT (2026-10-22, W-A11Y; the Performance audit's rows 28 and 29, carried
+ *  to the account page and the Holding page). A line composed around figures fig() already wrote — "4.00%/year · $400/year",
+ *  "HOW •••• BECAME ••••", "~8.20% · estimate" — was read aloud as written: "slash year", "bullet bullet bullet bullet",
+ *  "tilde". This says it the way figSaid says one figure: the period the canon prints after a figure is "a year" / "a month"
+ *  (cluster 14), a hidden balance is "hidden", and the marks a reader spells out are words ("→" to, "~" about, "＋" plus).
+ *  It changes nothing else, so a line with none of these is said exactly as it is printed. */
+export const saidSentence = (text: string): string => text
+  .split(BALANCE_MASK).join('hidden')
+  .replace(/(\d|%|hidden)\/(month|year|quarter|week)\b/g, '$1 a $2')
+  .replace(/\s*→\s*/g, ' to ')
+  .replace(/~\s?(?=[\d$h])/g, 'about ')
+  .replace(/\s*＋\s*/g, ' plus ');
 /** The words beside it, from the declaration — so the screen and the master file cannot say different things. */
 export const figLabel = (id: string): string => figureSpec(id).label;
+
+
+/** The lines of a walk as printed, in whole dollars that add up to its ending — written by the one writer
+ *  (MoneyKeel/functions/_figure-spec.ts walkShown, 2026-10-21), re-exported here beside fig for the screens. */
+export { walkShown, type WalkLines } from '../../MoneyKeel/functions/_figure-spec';

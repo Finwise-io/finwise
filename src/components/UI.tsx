@@ -76,7 +76,9 @@ export function Button({ label, onPress, variant = 'primary', loading, disabled,
     <TouchableOpacity
       onPress={onPress}
       disabled={disabled || loading}
-      style={[styles.btn, variantStyle, sizeStyle, disabled && { opacity: 0.5 }, style]}
+      // ONE FADE for a button that cannot be pressed: 40%, as the approved drawings draw it (Add an account v02, Itemize v02;
+      // 2026-10-22, it was 50% here and on the edit sheet for a record you entered)
+      style={[styles.btn, variantStyle, sizeStyle, disabled && { opacity: 0.4 }, style]}
       activeOpacity={0.8}
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel ?? label}

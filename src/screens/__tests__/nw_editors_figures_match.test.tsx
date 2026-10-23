@@ -174,6 +174,8 @@ const HOLDING_SOLD = 'Holding detail v02 READ THIS FIRST 2026-10-04 (DEC-1559): 
 const HOLDING_PRECISION = 'Holding detail v02 READ THIS FIRST 2026-10-21 (DEC-4529 · Q49 · DEC-0275 · MK-ST-F-078 dateShown): DRAWING ERROR — fifteen figures '
   + 'written as the precision rule and the one date writer write them: a balance or a total in whole dollars, a percent to two decimals and a '
   + 'return with its sign, a coin quantity with its trailing zeros dropped, a date with its month cut to three letters';
+const HOLDING_TTM = 'Holding detail v02 READ THIS FIRST 2026-10-21 (Q35 · canon row 23): DIVIDENDS & REALIZED — the label reads Dividends received '
+  + '(trailing twelve months), the window spelled out; the drawn (12 mo) carried a figure, 12, the built label does not';
 const HOLDING_LAST_CLOSE = 'Holding detail v02 READ THIS FIRST 2026-10-21 (DEC-3523 tenets 1, 2, 7 · MK-NW-M-029 · MK-ST-F-078 dateShown): phones A and C — '
   + 'the band above the price, drawn as the current price, live, names the price as the last close, then that close\u2019s date written the app\u2019s one way';
 const ADD_PAID = 'Add an account v02 READ THIS FIRST 2026-10-20 (DEC-0281 · DEC-2748b · MK-XS-I-067): Bonds (phone 3): "a box for what you paid, marked optional, under the face value"';
@@ -218,6 +220,8 @@ const KNOWN: Known[] = [
   ['holding 1', ['january 9, 2026'], ['jan 9, 2026'], HOLDING_PRECISION],
   ['holding 1', ['$24,500.00'], ['$24,500'], HOLDING_PRECISION],
   ['holding 1', ['$134.40'], ['$134'], HOLDING_PRECISION],
+  // after the two above: the 12 of the drawn label (12 mo) sits between Total paid and the dividends, and the built label has no figure
+  ['holding 1', ['$24,500', '12', '$134'], ['$24,500', '$134'], HOLDING_TTM],
   // phone B: what was paid in the large figure, the quantity, the purchase date, Total paid
   ['holding 2', ['$28,000.00'], ['$28,000'], HOLDING_PRECISION],
   ['holding 2', ['0.50000000'], ['0.5'], HOLDING_PRECISION],

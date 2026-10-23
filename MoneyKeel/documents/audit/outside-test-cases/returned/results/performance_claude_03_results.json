@@ -188,7 +188,8 @@
    "difference": "period return 0.155556 (return on cost) and beat-by 0.055556 vs time-weighted 0.30 / 0.20 — DEC-1669",
    "formula_gives_match": "yes — the app gives what the auditor said the formula gives",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-014 buildPerformance — five cases › complex · Bought twice inside the period at different prices"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-014 buildPerformance — five cases › complex · Bought twice inside the period at different prices",
+   "recheck_2026_10_21": "BRIEF WRONG since 2026-10-21 (DEC-4439): +30.00% with the evening-before close; +15.56% where the record holds no close between the purchases"
   },
   {
    "id": "MK-PF-F-014",
@@ -298,7 +299,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-014 buildPerformance — five cases › complex · Two years, a stock fund and a bond fund, both held throughout"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_03.test.ts › MK-PF-F-014 buildPerformance — five cases › complex · Two years, a stock fund and a bond fund, both held throughout",
+   "recheck_2026_10_21": "BRIEF WRONG since 2026-10-21 (DEC-7217): each total made yearly over 731 days ÷ 365"
   },
   {
    "id": "MK-PF-F-014",

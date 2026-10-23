@@ -163,13 +163,24 @@ describe('MK-NW-F-005 accountAllowsTicker — five cases', () => {
   test('easy · Empty brokerage', () => {
     expect(accountAllowsTicker(acct({ kind: 'brokerage' }))).toBe(true);
   });
-  test('complex · 529 with holdings, typed CD, crypto account, tax-advantaged accounts', () => {
+  // THE REVIEWER'S 529 IS AGAINST HIS RULING (2026-10-22): DEC-2484g — "Any account that already lists holdings can take a recorded
+  // buy or sale" — covers a 529 listing its funds; the card it was written from said otherwise and was corrected. The
+  // reviewer's answer is kept, failing; the pin below holds the ruling, with the other three answers unchanged.
+  test.failing('complex · 529 with holdings, typed CD, crypto account, tax-advantaged accounts', () => {
     expect({
       529: accountAllowsTicker(acct({ kind: '529', positions: listing(2) })),
       'Ally CD': accountAllowsTicker(acct({ kind: 'cd' })),
       Crypto: accountAllowsTicker(acct({ kind: 'crypto' })),
       HSA: accountAllowsTicker(acct({ kind: 'hsa', tax_bucket: 'PRE_TAX' })),
     }).toEqual({ 529: false, 'Ally CD': false, Crypto: false, HSA: true });
+  });
+  test('pin · the same four by his ruling (DEC-2484g): the 529 that lists holdings takes a buy or sale', () => {
+    expect({
+      529: accountAllowsTicker(acct({ kind: '529', positions: listing(2) })),
+      'Ally CD': accountAllowsTicker(acct({ kind: 'cd' })),
+      Crypto: accountAllowsTicker(acct({ kind: 'crypto' })),
+      HSA: accountAllowsTicker(acct({ kind: 'hsa', tax_bucket: 'PRE_TAX' })),
+    }).toEqual({ 529: true, 'Ally CD': false, Crypto: false, HSA: true });
   });
   test('complex · Cash-management, savings, home and unclassified account', () => {
     expect({

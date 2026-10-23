@@ -131,7 +131,7 @@ test('dividends & realized: one card — trailing 12 months from the one ledger,
   } as any);
   render(<HoldingDetailScreen />);
   expect(screen.getByText('DIVIDENDS & REALIZED')).toBeOnTheScreen();
-  expect(screen.getByText('Dividends received (12 mo)')).toBeOnTheScreen();
+  expect(screen.getByText('Dividends received (trailing twelve months)')).toBeOnTheScreen();   // Q35, 2026-10-21 (canon row 23)
   expect(screen.getByText('$310')).toBeOnTheScreen();                    // a TOTAL: whole dollars
   expect(screen.getByText(/\$0 — nothing sold/)).toBeOnTheScreen();       // the zero is a sentence, not a hidden card — kept by his ruling of 2026-10-04
 });
@@ -235,5 +235,8 @@ test('a purchase with no share count: the quantity is refused, not printed as a 
   render(<HoldingDetailScreen />);
   expect(screen.getByText('Quantity')).toBeOnTheScreen();
   expect(screen.queryByText('360 shares')).toBeNull();
-  expect(screen.getByText(/Not stated where a purchase has no share count on record\./)).toBeOnTheScreen();
+  // the row says the count is not on record, in the words Price paid (average) and Total paid use — never the row's refusal
+  // sentence, which begins "All sold" (2026-10-21, W-HOLDING; outside re-run OpenAI part 1, MK-NW-M-031#3)
+  expect(screen.getAllByText('Not stated — a purchase has no share count on record.').length).toBeGreaterThanOrEqual(2);
+  expect(screen.queryByText(/^All sold/)).toBeNull();
 });

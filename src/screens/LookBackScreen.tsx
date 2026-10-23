@@ -3,7 +3,7 @@
 // forward estimate, never a suggestion to trade now. When prices don't reach back far enough, the
 // screen says so — it never invents a price.
 import TopBar from '../components/TopBar';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
@@ -13,7 +13,7 @@ import { currencySymbol } from '../domain/_shared/money';
 // ONE DOOR (MK-NW-O-007 theLookBack, Q-PF-2) — one screen, one question.
 import { theLookBack } from '../../MoneyKeel/functions/networth-and-performance/look-back';
 import { type PriceSeries } from '../domain/performance';
-import { fig, figSaid } from '../components/figure';   // rule 11: a figure prints with its identifier
+import { fig, figSaid } from '../components/figure';   // rule 11: a figure prints with its identifier — the percents too (MK-PF-M-025, 026; audit row 9, 2026-10-21)
 
 const WINDOWS = [{ m: 12, label: '12 months ago' }, { m: 24, label: '2 years ago' }, { m: 36, label: '3 years ago' }] as const;
 
@@ -42,6 +42,23 @@ export default function LookBackScreen() {
   const [months, setMonths] = useState<12 | 24 | 36>(12);
 
   const amt = parseFloat(String(amount).replace(/[^0-9.]/g, '')) || 0;
+  // IT FETCHES WHAT IT COMPARES (2026-10-22): on opening, and when the pairing changes, the pairing, SPY and the four
+  // yardsticks he asked for (DEC-1624) are fetched by the app's one price refresh (store.maybeRefreshPrices → refreshPrices →
+  // fetchPriceSeries: the same source, the same 10-minute freshness rule, the same failure flag). It fetched only what you
+  // hold and its yardstick, so with nothing held it could never answer. A ticker still missing is named: while the refresh
+  // runs, "getting"; after it, "couldn't refresh", the app's one word for a refresh that brought nothing.
+  const [asking, setAsking] = useState(true);
+  useEffect(() => {
+    let live = true;
+    setAsking(true);
+    Promise.resolve(store.maybeRefreshPrices?.([from, to, 'SPY', ...OFFERED])).catch(() => {}).finally(() => { if (live) setAsking(false); });
+    return () => { live = false; };
+  }, [from, to]);   // eslint-disable-line react-hooks/exhaustive-deps
+  const missingWords = (): string => {
+    const missing = [...new Set([from, to])].filter((t) => !priceCache[t]);
+    return asking ? `Getting prices for ${missing.join(' and ')}…`
+      : `Couldn't refresh prices for ${missing.join(' or ')}, so there is nothing to compare yet. Look back tries again each time it opens.`;
+  };
   const result = useMemo(
     () => theLookBack({ amount: amt, fromSeries: priceCache[from], toSeries: priceCache[to], months }),
     [amt, priceCache, from, to, months]);
@@ -92,15 +109,15 @@ export default function LookBackScreen() {
 
       {result ? (
         <View style={s.card} accessible
-          accessibilityLabel={`What actually happened: left in ${from} it became ${figSaid('MK-PF-M-010', result.stayed.endValue)}, ${result.stayed.pct.toFixed(2)} percent. Moved to ${to} it would be ${figSaid('MK-PF-M-011', result.moved.endValue)}, ${result.moved.pct.toFixed(2)} percent. Difference ${figSaid('MK-PF-M-012', Math.abs(result.difference))} ${result.difference >= 0 ? 'more' : 'less'} if you had moved. Real past prices, not a prediction.`}>
+          accessibilityLabel={`What actually happened: left in ${from} it became ${figSaid('MK-PF-M-010', result.stayed.endValue)}, ${figSaid('MK-PF-M-025', result.stayed.pct / 100)}. Moved to ${to} it would be ${figSaid('MK-PF-M-011', result.moved.endValue)}, ${figSaid('MK-PF-M-026', result.moved.pct / 100)}. Difference ${figSaid('MK-PF-M-012', Math.abs(result.difference))} ${result.difference >= 0 ? 'more' : 'less'} if you had moved. Real past prices, not a prediction.`}>
           <SectionBand title="WHAT ACTUALLY HAPPENED" />
           <Text style={s.legLine}>
             Left in {from} it became <Text style={s.strong}>{fig('MK-PF-M-010', result.stayed.endValue)}</Text>
-            {'  '}({result.stayed.delta >= 0 ? 'up' : 'down'} {fig('MK-PF-M-010', Math.abs(result.stayed.delta))}, {result.stayed.pct >= 0 ? '+' : ''}{result.stayed.pct.toFixed(2)}%)
+            {'  '}({result.stayed.delta >= 0 ? 'up' : 'down'} {fig('MK-PF-M-010', Math.abs(result.stayed.delta))}, {fig('MK-PF-M-025', result.stayed.pct / 100)})
           </Text>
           <Text style={s.legLine}>
             Moved to {to} it would be <Text style={s.strong}>{fig('MK-PF-M-011', result.moved.endValue)}</Text>
-            {'  '}({result.moved.delta >= 0 ? 'up' : 'down'} {fig('MK-PF-M-011', Math.abs(result.moved.delta))}, {result.moved.pct >= 0 ? '+' : ''}{result.moved.pct.toFixed(2)}%)
+            {'  '}({result.moved.delta >= 0 ? 'up' : 'down'} {fig('MK-PF-M-011', Math.abs(result.moved.delta))}, {fig('MK-PF-M-026', result.moved.pct / 100)})
           </Text>
           <View style={s.diffBox}>
             <Text style={s.diffTxt}>
@@ -113,7 +130,8 @@ export default function LookBackScreen() {
         <View style={s.card}>
           <Text style={s.note}>
             {amt <= 0 ? 'Enter an amount to look back on.'
-              : `We don't have ${!priceCache[from] || !priceCache[to] ? 'prices for that pairing yet' : 'prices reaching back that far'} — open the Performance tab and refresh prices, or pick a shorter window.`}
+              : !priceCache[from] || !priceCache[to] ? missingWords()
+              : "We don't have prices reaching back that far — open the Performance tab and refresh prices, or pick a shorter window."}
           </Text>
         </View>
       )}

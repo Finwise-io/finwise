@@ -1,5 +1,5 @@
 // Individual bonds (Phase B). A bond is held as an AssetAccount with bond fields (face_value,
-// coupon_rate, maturity_date); its `balance` is the current value, so it flows into Net Worth and the
+// coupon_rate, maturity_date); its `balance` is the current value, so it flows into Net worth and the
 // nest egg via the existing balance machinery. These pure helpers compute the bond-specific metrics.
 import { plural } from '../_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import type { AssetAccount } from '../assets';
@@ -50,17 +50,17 @@ export interface BondInfo {
  * Called by ... MK-NW-F-060 approxYTM · MK-NW-F-064 bondRateSensitivity
  *               MK-NW-F-072 rowOf · MK-NW-F-119 estimatedAccrued
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -89,17 +89,17 @@ export type BondValueBasis = 'market' | 'paid' | 'face' | 'none';
  *               MK-NW-F-157 bondValueOf · MK-NW-F-159 settleBondValue
  *               MK-NW-F-160 pricePer100OfFace
  *
- * Reaches ..... 268 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 307 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 250 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 289 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -127,20 +127,20 @@ const knownAmount = (v: unknown): v is number => typeof v === 'number' && Number
  *     value = nothing
  *     basis = 'none'
  *
- * Called by ... MK-NW-F-071 isCertificateOfDeposit · MK-NW-F-078 ONE
- *               MK-NW-F-159 settleBondValue
+ * Called by ... MK-NW-F-071 isCertificateOfDeposit · MK-NW-F-159 settleBondValue
+ *               MK-NW-F-179 balanceWithBondTakenOut
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
- *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
- *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ * Reaches ..... 64 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-082 NW · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-179 balanceWithBondTakenOut
+ *               MK-NW-F-156 bondValue · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               … and 46 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -171,17 +171,17 @@ export function bondValue(f: { market?: number | null; paid?: number | null; fac
  *
  * Called by ... MK-NW-F-056 bondInfo
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -209,17 +209,17 @@ export function bondValueOf(a: { balance?: number | null; value_basis?: 'paid' |
  *
  * Called by ... MK-NW-F-072 rowOf
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -264,17 +264,17 @@ export function bondValueNote(basis: BondValueBasis): string | null {
  * Called by ... MK-NW-F-156 bondValue · MK-XS-F-102 ingestSync
  *               MK-XS-F-175 uid
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
- *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
- *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ * Reaches ..... 64 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-082 NW · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-179 balanceWithBondTakenOut
+ *               MK-NW-F-156 bondValue · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               … and 46 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -318,17 +318,17 @@ const CD_WORDS = /\b(cds?|certificates? of deposit|share certificates?)\b/i;
  * Called by ... MK-NW-F-062 couponIncomeAnnual · MK-NW-F-159 settleBondValue
  *               MK-NW-O-001 theBonds
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -356,17 +356,17 @@ export function isBond(a: AssetAccount): boolean {
  *               MK-NW-F-071 isCertificateOfDeposit · MK-NW-F-072 rowOf
  *               MK-NW-O-001 theBonds
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -425,17 +425,17 @@ export function bondInfo(a: AssetAccount): BondInfo {
  *
  * Called by ... MK-NW-F-071 isCertificateOfDeposit · MK-NW-F-072 rowOf
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -461,17 +461,17 @@ export function pricePer100OfFace(b: BondInfo): number | null {
  *
  * Called by ... MK-NW-F-069 priceAtYield · MK-NW-O-001 theBonds
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -500,17 +500,17 @@ export function annualCoupon(b: BondInfo): number | null {
  * Called by ... MK-NW-F-059 currentYield · MK-NW-F-061 bondSummary
  *               MK-NW-F-126 yearlyInterestNow · MK-NW-O-001 theBonds
  *
- * Reaches ..... 267 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 306 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 249 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 288 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -541,17 +541,17 @@ export function yearlyInterest(b: BondInfo): number | null {
  *
  * Called by ... MK-NW-F-061 bondSummary · MK-NW-F-112 yearlyInterest
  *
- * Reaches ..... 268 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 307 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 250 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 289 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-049 bond price — what the bond is worth today
@@ -577,17 +577,17 @@ const shownOf = (b: BondInfo): number => (b.shown !== undefined ? (b.shown ?? 0)
  *
  * Called by ... MK-NW-F-061 bondSummary · MK-NW-F-126 yearlyInterestNow
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-013 bond maturity date
@@ -619,17 +619,17 @@ export function isPastMaturity(maturity: string, now: Date = new Date()): boolea
  * Called by ... MK-NW-F-061 bondSummary · MK-NW-F-062 couponIncomeAnnual
  *               MK-NW-F-063 interestIncomeAnnual · MK-NW-F-072 rowOf
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-013 bond maturity date
@@ -656,17 +656,17 @@ export function yearlyInterestNow(b: BondInfo, now: Date = new Date()): number |
  * Called by ... MK-NW-F-060 approxYTM · MK-NW-F-069 priceAtYield
  *               MK-NW-F-072 rowOf
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-013 bond maturity date
@@ -709,19 +709,19 @@ export function yearsToMaturity(maturity: string, now: Date = new Date()): numbe
  * Formula .....
  *     current yield = annual coupon ÷ current value
  *
- * Called by ... MK-NW-F-072 rowOf · MK-NW-F-078 ONE
+ * Called by ... MK-NW-F-072 rowOf · MK-NW-F-179 balanceWithBondTakenOut
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-049 bond price — what the bond is worth today
@@ -754,17 +754,17 @@ export function currentYield(b: BondInfo): number | null {
  *
  * Called by ... MK-NW-F-072 rowOf
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-012 bond coupon rate
@@ -815,17 +815,17 @@ export function accruedInterestCaveat(b: BondInfo, now: Date = new Date()): stri
  *
  * Called by ... MK-NW-F-060 approxYTM · MK-NW-F-070 accruedInterestCaveat
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -885,17 +885,17 @@ export function estimatedAccrued(b: BondInfo, now: Date = new Date()): { amount:
  *
  * Called by ... MK-NW-F-064 bondRateSensitivity · MK-NW-F-072 rowOf
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -974,17 +974,17 @@ export interface BondSummary { count: number; totalValue: number; totalFace: num
  *
  * Called by ... MK-NW-O-001 theBonds
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -1124,17 +1124,17 @@ export interface RateSensitivity { ratesUp: RateMove; ratesDown: RateMove }
  *
  * Called by ... MK-NW-F-060 approxYTM · MK-NW-F-064 bondRateSensitivity
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -1184,17 +1184,17 @@ export function priceAtYield(b: BondInfo, y: number, now: Date): number | null {
  *
  * Called by ... MK-NW-O-001 theBonds
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-028
  * Reads ....... MK-XS-I-011 bond face value

@@ -90,13 +90,32 @@ describe('MK-PF-F-014 buildPerformance — five cases', () => {
   // shows is time-weighted — split at each purchase: 250 ÷ 200 × 260 ÷ 250 − 1 = +30%, set beside SPY's +10% since the
   // same day. The (value − cost) ÷ cost rule is the invest-v3 approval of 2026-07-19, which DEC-1669 post-dates.
   // FIXED 2026-10-11 (outside review Claude Performance, DEC-1669): a holding bought inside the window is time-weighted from its purchases (returnSincePurchases).
-  test('complex · Bought twice inside the period at different prices', () => {
+  // BRIEF WRONG since 2026-10-21 (DEC-4439, his "approved." of 2026-10-11: money that arrives on a day counts for that whole
+  // day; outside re-run OpenAI MK-PF-F-040). The auditor's +30% ends the first piece at the SECOND purchase day's close
+  // ($250 on 15 Jun) — the end-of-day rule DEC-4439 retired. The piece now ends at the previous evening's close; these
+  // closes hold none between 15 Jan and 15 Jun, so the last value on record stands (the piece began at $2,000 and ends
+  // there): 5,200 ÷ (2,000 + 2,500) − 1 = +15.56%. With a 14 Jun close of $250 — as a daily price list has — it is +30.00%,
+  // the auditor's figure (the second test). The auditor's case is kept, failing.
+  test.failing('complex · Bought twice inside the period at different prices', () => {
     const rows = buildPerformance([holding('VTI', 'stock fund', [{ date: '2026-01-15', shares: 10, cost_per_share: 200 }, { date: '2026-06-15', shares: 10, cost_per_share: 250 }])],
       series({ VTI: [['2026-01-15', 200], ['2026-06-15', 250], ['2026-10-09', 260]], SPY: [['2026-01-15', 600], ['2026-10-09', 660]] }), '1Y', TODAY);
     checkRow(rows[0], { price: 260, market_value: 5200, cost: 4500, gain: 700, return_on_cost: 0.155556, period_return: 0.3, yardstick: 'SPY',
       yardstick_return: 0.1, beat_by: 0.2, capped_since: '2026-01-15' });
   });
-  test('complex · Two years, a stock fund and a bond fund, both held throughout', () => {
+  test('complex · Bought twice inside the period at different prices — DEC-4439 (2026-10-21): +30.00% with the evening-before close; +15.56% where the record holds no close between the purchases', () => {
+    const lots = [{ date: '2026-01-15', shares: 10, cost_per_share: 200 }, { date: '2026-06-15', shares: 10, cost_per_share: 250 }];
+    const [daily] = buildPerformance([holding('VTI', 'stock fund', lots)],
+      series({ VTI: [['2026-01-15', 200], ['2026-06-14', 250], ['2026-06-15', 250], ['2026-10-09', 260]], SPY: [['2026-01-15', 600], ['2026-10-09', 660]] }), '1Y', TODAY);
+    near(daily.periodReturn, (10 * 250) / 2000 * 5200 / (10 * 250 + 2500) - 1);    // 1.25 × 1.04 − 1 = +30.00%
+    const [sparse] = buildPerformance([holding('VTI', 'stock fund', lots)],
+      series({ VTI: [['2026-01-15', 200], ['2026-06-15', 250], ['2026-10-09', 260]], SPY: [['2026-01-15', 600], ['2026-10-09', 660]] }), '1Y', TODAY);
+    near(sparse.periodReturn, 5200 / (2000 + 2500) - 1);                           // +15.56%
+    near(sparse.benchReturn, 0.1); expect(sparse.cappedSince).toBe('2026-01-15');
+  });
+  // BRIEF WRONG since 2026-10-21 (one rule for a yearly rate on every screen, the precision standard's "(1 + the return)^(365 ÷
+  // days) − 1"; outside re-run OpenAI MK-PF-M-016): the auditor made 2Y yearly over exactly 2 years (+10.00% for +21%); the
+  // window 9 Oct 2024 → 10 Oct 2026 is 731 days, so +9.99% a year, as the account's own figure reads the same window. Kept, failing.
+  test.failing('complex · Two years, a stock fund and a bond fund, both held throughout', () => {
     const rows = buildPerformance([
       holding('VTI', 'stock fund', [{ date: '2023-05-01', shares: 30, cost_per_share: 180 }]),
       holding('BND', 'fixed income', [{ date: '2022-01-03', shares: 50, cost_per_share: 85 }]),
@@ -108,6 +127,18 @@ describe('MK-PF-F-014 buildPerformance — five cases', () => {
       yardstick_return: 0.048809, beat_by: 0.051191, capped_since: null });
     checkRow(rows[1], { price: 74.74, market_value: 3737, cost: 4250, gain: -513, return_on_cost: -0.120706, period_return: 0.004988, yardstick: 'AGG',
       yardstick_return: 0.01, beat_by: -0.005012, capped_since: null });
+  });
+  test('complex · Two years, a stock fund and a bond fund — one rule (2026-10-21): each total made yearly over 731 days ÷ 365', () => {
+    const rows = buildPerformance([
+      holding('VTI', 'stock fund', [{ date: '2023-05-01', shares: 30, cost_per_share: 180 }]),
+      holding('BND', 'fixed income', [{ date: '2022-01-03', shares: 50, cost_per_share: 85 }]),
+    ], series({
+      VTI: [['2024-10-09', 260], ['2024-10-10', 260], ['2026-10-09', 314.6]], BND: [['2024-10-09', 74], ['2024-10-10', 74], ['2026-10-09', 74.74]],
+      SPY: [['2024-10-09', 570], ['2024-10-10', 570], ['2026-10-09', 627]], AGG: [['2024-10-09', 100], ['2024-10-10', 100], ['2026-10-09', 102.01]],
+    }), '2Y', TODAY);
+    const yr = (t: number) => Math.pow(1 + t, 365 / 731) - 1;
+    near(rows[0].periodReturn, yr(0.21), 12); near(rows[0].benchReturn, yr(0.1), 12); near(rows[0].periodTotal, 0.21, 12);
+    near(rows[1].periodReturn, yr(0.01), 12); near(rows[1].benchReturn, yr(0.0201), 12); near(rows[1].periodTotal, 0.01, 12);
   });
   // FINDING: app gives capped_since null, expected '2025-10-10' — `bought > periodStart` (index.ts:829) leaves a purchase
   // made ON the first day uncapped. DEC-0315 (Q3): both boundary days are inside the window and the beginning is the close

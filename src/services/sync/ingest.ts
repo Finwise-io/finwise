@@ -86,15 +86,15 @@ const MONEY_KINDS = new Set(['DEPOSIT', 'WITHDRAWAL', 'TRANSFER', 'DIVIDEND', 'I
  *               MK-XS-F-192 typedValueDatedBack
  *
  * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
  *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -145,15 +145,15 @@ export function fixStoredMoney<T extends { type?: any; account_id?: any; date?: 
  *               MK-XS-F-192 typedValueDatedBack
  *
  * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
  *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -211,9 +211,10 @@ export function fixStoredFees<T extends { type?: any; account_id?: any; date?: a
  *
  * Called by ... MK-PF-F-028 realizedFromLedger · MK-XS-F-102 ingestSync
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-080 HOLD · MK-XS-F-102 ingestSync
- *               MK-PF-F-028 realizedFromLedger · MK-NW-O-006 theHolding
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-XS-F-102 ingestSync · MK-PF-F-028 realizedFromLedger
+ *               MK-NW-O-006 theHolding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

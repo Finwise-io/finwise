@@ -38,7 +38,9 @@
    "classification": "APP WRONG (citation only)",
    "what": "The register cites §2.15 for STANDARD_DEDUCTION and \"§§2.15, 4.01\" for TAX_TABLES; deductionFor's header cites §3.18. In Rev. Proc. 2025-32 the 2026 standard deduction and 65+ add-on are §4.14 (§2.15 is the 2025 section of Rev. Proc. 2024-40, removed by §3.01).",
    "fix": "Calculation Module code/scripts/moneykeel_published_sources.json and src/domain/income/tax.ts header: cite §4.14. No figure moves.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › source_checks — the published 2026 figures, read from the publications › the register cites the section the 2026 standard deduction is printed in: Rev. Proc. 2025-32 §4.14"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › source_checks — the published 2026 figures, read from the publications › the register cites the section the 2026 standard deduction is printed in: Rev. Proc. 2025-32 §4.14",
+   "recheck_2026_10_21": "FIXED 2026-10-22 (PF-TOOLS, DEC-7397 beside it): the register cites Rev. Proc. 2025-32 §4.14 for STANDARD_DEDUCTION and §§4.01, 4.14 for TAX_TABLES, read from the IRS document itself; the test.failing case is a passing test, the old citation kept as test.failing",
+   "fixed": "2026-10-22"
   },
   {
    "id": "S2",
@@ -139,7 +141,8 @@
     "change": "hoh brackets [201_775, 0.24] → [201_750, 0.24] and [256_225, 0.32] → [256_200, 0.32]; type the HOH and MFS bands into src/__tests__/statutory_constants.test.ts (it types single and joint only, though the master Reference row says the whole table is typed there); correct the HOH column of the Reference row in Calculation Module code/scripts/moneykeel_overrides.json (STATUTORY TABLE 2026).",
     "figures_move": "Head-of-household filers above $201,750 taxable: MK-CF-M-033 / MK-CF-M-044 Calculated federal tax up by at most $2.75 a year; MK-CF-M-031 / MK-CF-M-037 take-home (calculated) down by at most $0.23 a month; MK-CF-M-032 / MK-CF-M-043 Federal tax bracket reads 32% (not 24%) for taxable $201,750–$201,775 and 35% (not 32%) for $256,200–$256,225.",
     "drawings": "none"
-   }
+   },
+   "recheck_2026_10_21": "LEFT 2026-10-21 — the 2026 head-of-household brackets use the single filer's 24% and 32% tops; a Cash flow tax item, with that round"
   },
   {
    "section": "source_checks",
@@ -276,7 +279,8 @@
     "change": "return people × max(0, $6,000 − 6% × max(0, magi − start)) instead of max(0, people × $6,000 − 6% × excess); update its header formula and the two lines of src/__tests__/statutory_constants.test.ts that pin 9,000 and 44,500 (to 6,000 and 41,500).",
     "figures_move": "Joint returns with both spouses 65+ and income $150,000–$350,000 only. Example $200,000: deduction $9,000 → $6,000; MK-CF-M-033 / MK-CF-M-044 Calculated federal tax $23,634 → $24,294 (+$660 a year); MK-CF-M-031 / MK-CF-M-037 take-home (calculated) about $55 a month lower; MK-MN-M-028 Standard deduction line on the tax organizer $44,500 → $41,500; Plan's retirement tax (MK-PL-F-082 taxableIncomeSteps) and the Will my money last odds that read it.",
     "drawings": "none known"
-   }
+   },
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a married couple both 65+ gets the deduction once, not per person ($9,000 where $6,000…); a Cash flow tax item, with that round"
   },
   {
    "section": "source_checks",
@@ -430,7 +434,8 @@
     "change": "years = the window's days (windowBounds, both edge days) ÷ 365 when the prices reach back, instead of 2; a short history's span ÷ 365 days, not 365.25 — in periodReturnParts and in portfolioBenchReturn's short-span line.",
     "figures_move": "Holding page 2Y line and the Account page holding rows' 2Y figure: 21% over 732 days +10.00% a year → +9.97% a year (the Performance tab already says +9.97%). Window totals do not move.",
     "drawings": "none — no approved drawing prints a holding's 2Y yearly rate"
-   }
+   },
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-7217): one rule, days ÷ 365 — both readers +9.97% over 732 days"
   },
   {
    "section": "cross_card_acceptance_cases",
@@ -567,7 +572,8 @@
     "change": "buildPerformance writes each row's start value = shares held × the close the evening before the window (it already reads that close). Where a holding's window total is −100% (value now $0), gainOfRow uses that start (gain = −start) and knownHoldingsReturn adds it to the starts. Where shares moved in the window, no start: the holding is unknown and named in the left-out sentence — never $0.",
     "figures_move": "Performance tab, Account page and Home month line, worked-back windows holding a total loss: MK-PF-M-016 Return +20.00% → −40.00%; MK-PF-M-003 walk Wealth generated +$200 → −$800; MK-PF-M-013 Beginning $1,000 → $2,000; MK-XS-M-004 Home's month line; MK-PF-M-021 the value the return is on.",
     "drawings": "none — no approved drawing shows a total loss"
-   }
+   },
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-6676): the holding worth $0 counts with its $1,000 start — −40.00%, beginning $2,000"
   },
   {
    "section": "cross_card_acceptance_cases",
@@ -593,7 +599,8 @@
     "change": "move Math.abs(youReturn − marketReturn) and the ahead / behind word off HomeScreen.tsx into one function with its own figure row and worked example (3.6851% and 2.8349% → 0.8502% → \"ahead by 0.85%\"); Home prints what it returns.",
     "figures_move": "none — the same number, now with a row",
     "drawings": "none; the approved Home words stay word for word (DEC-4645)"
-   }
+   },
+   "recheck_2026_10_21": "FIXED 2026-10-21 (PF-B): \"ahead by\" comes from marketGap, one function, not arithmetic on the Home screen"
   },
   {
    "section": "cross_card_acceptance_cases",
@@ -608,7 +615,8 @@
    "tests": [
     "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts › cross_card_acceptance_cases — each through the functions the screens call › OpenAI marks it CANNOT TELL and hands in no inputs"
    ],
-   "note": ""
+   "note": "",
+   "recheck_2026_10_21": "SETTLED 2026-10-22 — not a Performance item: the reviewer supplied no wage, rent or debt figures to run, so there is nothing to hand a function; the tax figures themselves are checked by statutory_constants.test.ts. It goes with the Cash flow round."
   },
   {
    "section": "scope_limits",

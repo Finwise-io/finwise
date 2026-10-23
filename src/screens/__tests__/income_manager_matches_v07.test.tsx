@@ -18,8 +18,9 @@
  *  5. Phone 11 reads "= We work out"; the drawing's own change block retires that phrase for "we
  *     calculate" (canon, 2026-09-10) and missed this line. The build uses the canon word.
  *  6. Phone 11's third account reads "1.3% dividend yield". The app holds no yield for shares and
- *     funds and invents none (MK-CF-F-184); it shows what the account actually paid out over the last
- *     year, and says so.
+ *     funds and invents none (MK-CF-F-184); it shows what the account actually paid out over the
+ *     trailing twelve months, and says so — in those words since 2026-10-21 (Q35, canon row 23; the
+ *     drawing carries a dated READ THIS FIRST row).
  *  7. Phone 11 says dividends "never land in your bank account"; the build says "never reach", the
  *     word the Income summary already uses for the same fact (canon: one word a concept).
  *  8. Phone 10's hint under "What it costs to run each month" reads "Mortgage interest, tax, insurance,
@@ -137,7 +138,7 @@ test('phone 11 · Interest & dividends — calculated from the accounts, taxed, 
   show('dividends');
   const want = drawn(11, /^Save$/)
     .replace('= we work out', '= we calculate')                                                            // 5
-    .replace('vti and holdings #% dividend yield', 'vti and holdings paid out over the last year')           // 6
+    .replace('vti and holdings #% dividend yield', 'vti and holdings paid out over the trailing twelve months')   // 6
     .replace('never land in your bank account', 'never reach your bank account');                            // 7
   expect(want.split(' ').length).toBeGreaterThan(95);
   expect(firstDifference(want, built())).toBe('');

@@ -96,17 +96,17 @@ export const holdingId = (s: Pick<HoldingSnapshot, 'date' | 'accountId' | 'secur
  *               MK-XS-F-147 call · MK-XS-F-149 allActivities
  *               MK-XS-F-175 uid
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -157,17 +157,17 @@ export interface AccountLike {
  *
  * Called by ... MK-PF-F-031 contractMultiplier · MK-ST-F-028 buildDayFromAccounts
  *
- * Reaches ..... 302 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 333 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 284 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 315 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-068 how a linked bond's price is quoted — per $100 of face value, or per unit like a share
@@ -193,21 +193,22 @@ export const unitWorth = (p: { price_quote?: string }): number => (p.price_quote
  *
  * Called by ... MK-NW-F-143 gainRowBetween · MK-NW-O-006 theHolding
  *               MK-PF-F-006 capGains · MK-PF-F-035 unknownFigure
- *               MK-PF-F-051 paidOnRecord · MK-PF-F-056 purchasePieces
- *               MK-ST-F-028 buildDayFromAccounts · MK-ST-F-091 unitWorth
- *               MK-XS-F-102 ingestSync · MK-XS-F-184 theirCost
+ *               MK-PF-F-051 paidOnRecord · MK-PF-F-067 purchaseDays
+ *               MK-PF-F-073 sharesThroughWindow · MK-ST-F-028 buildDayFromAccounts
+ *               MK-ST-F-091 unitWorth · MK-XS-F-102 ingestSync
+ *               MK-XS-F-184 theirCost
  *
- * Reaches ..... 303 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 334 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 285 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 316 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
@@ -249,17 +250,17 @@ export function lotCostOnRecord(lot: { cost_per_share?: number | null } | null |
  *               MK-ST-F-030 record · MK-ST-F-093 typedValueOnItsDate
  *               MK-XS-F-175 uid · MK-XS-F-192 typedValueDatedBack
  *
- * Reaches ..... 297 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 329 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 279 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 311 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -348,15 +349,15 @@ export const DAILY_YEARS = 2;
  *               MK-XS-F-192 typedValueDatedBack
  *
  * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
  *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -444,34 +445,39 @@ export function prune(days: SnapshotDay[], today: string): SnapshotDay[] {
  *     the answer = [...rest, day].sort((a, b) => date.locale compare(date))
  *
  * Called by ... MK-CF-F-211 DEBTS · MK-NW-F-075 ACC
- *               MK-NW-F-080 HOLD · MK-NW-F-083 PERF
- *               MK-NW-F-084 categoryEarnings · MK-NW-F-143 gainRowBetween
+ *               MK-NW-F-083 PERF · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-088 BENCH · MK-NW-F-127 gainOfRow
+ *               MK-NW-F-139 leftOutValueOf · MK-NW-F-143 gainRowBetween
  *               MK-NW-F-144 beforeTheRecordSentence · MK-NW-F-146 undatedGainSentence
+ *               MK-NW-F-167 COMPARE · MK-NW-F-171 listedShares
  *               MK-NW-O-002 theAccount · MK-NW-O-003 theNetWorth
  *               MK-NW-O-004 theEmergencyFund · MK-NW-O-006 theHolding
  *               MK-NW-O-008 thePerformance · MK-PF-F-005 unrealizedGain
  *               MK-PF-F-006 capGains · MK-PF-F-013 benchmarkTicker
  *               MK-PF-F-014 buildPerformance · MK-PF-F-028 realizedFromLedger
- *               MK-PF-F-039 periodReturnParts · MK-PF-F-046 saleShortOfPurchasesSentence
- *               MK-PF-F-053 isBroadIndexOption · MK-PF-F-056 purchasePieces
- *               MK-PF-F-058 gainOnPartSentence · MK-ST-F-012 toLedgerRow
+ *               MK-PF-F-029 closeAsOf · MK-PF-F-039 periodReturnParts
+ *               MK-PF-F-046 saleShortOfPurchasesSentence · MK-PF-F-053 isBroadIndexOption
+ *               MK-PF-F-055 valueAtClose · MK-PF-F-056 purchasePieces
+ *               MK-PF-F-058 gainOnPartSentence · MK-PF-F-064 purchasesHeld
+ *               MK-PF-F-067 purchaseDays · MK-PF-F-072 tradesAfter
+ *               MK-PF-F-076 firstEvent · MK-ST-F-012 toLedgerRow
  *               MK-ST-F-081 timeWeightedReturn · MK-ST-F-087 readingOf
  *               MK-ST-F-093 typedValueOnItsDate · MK-XS-F-009 readHistory
  *               MK-XS-F-102 ingestSync · MK-XS-F-127 toIsoDate
  *               MK-XS-F-174 recomputeBalances · MK-XS-F-184 theirCost
  *               MK-XS-F-188 fixStoredFees · MK-XS-F-192 typedValueDatedBack
  *
- * Reaches ..... 296 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 328 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 278 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 310 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
@@ -535,17 +541,17 @@ export interface TypedValueMove { date: string; was: number; now: number }
  *
  * Called by ... MK-XS-F-174 recomputeBalances · MK-XS-F-192 typedValueDatedBack
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
@@ -661,10 +667,10 @@ export function valueOn(days: SnapshotDay[], accountIds: Set<string>, date: stri
  * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-082 NW · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               MK-NW-F-093 QUIET_PERF · MK-NW-F-103 investmentRecordDates
- *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
- *               MK-ST-F-081 timeWeightedReturn · MK-ST-F-031 valueOn
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-103 investmentRecordDates · MK-NW-O-003 theNetWorth
+ *               MK-NW-O-008 thePerformance · MK-ST-F-081 timeWeightedReturn
+ *               MK-NW-F-185 valueChanged · MK-ST-F-031 valueOn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots
@@ -770,12 +776,12 @@ export function onOrBefore<T extends { date: string }>(days: T[], date: string):
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-101 PLAN
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
- *               MK-CF-F-143 annualisedGross · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-F-210 annualOfSource · MK-CF-F-143 annualisedGross
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
  *               … and 65 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -805,12 +811,12 @@ export function firstDate<T extends { date: string }>(days: T[]): string | null 
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
  *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-NW-F-101 PLAN
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
- *               MK-CF-F-143 annualisedGross · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-F-210 annualOfSource · MK-CF-F-143 annualisedGross
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
  *               … and 60 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -842,17 +848,17 @@ export function covers(days: SnapshotDay[], from: string): boolean {
  *
  * Called by ... MK-CF-F-177 wageGrossByMonth · MK-XS-F-028 surplusByMonth
  *
- * Reaches ..... 281 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 320 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 263 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 302 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-031 daily and monthly snapshots

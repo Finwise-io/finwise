@@ -100,12 +100,12 @@ const GIVEN =
  *
  * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-210 annualOfSource · MK-CF-F-036 buildDebtState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
- *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
- *               MK-XS-F-028 surplusByMonth · MK-CF-O-018 theDebts
- *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
+ *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-041 getDebtState · MK-XS-F-029 monthlySavings
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-028 surplusByMonth
+ *               MK-CF-O-018 theDebts · MK-NW-O-003 theNetWorth
+ *               MK-CF-F-024 totalDebtMonthly · MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -148,14 +148,14 @@ const SOURCES_GIVEN =
  *
  * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-CF-F-201 INCOME
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-CF-F-207 SOURCE · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-210 annualOfSource · MK-CF-F-036 buildDebtState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
- *               MK-CF-O-016 incomeSources · MK-XS-F-029 monthlySavings
- *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-028 surplusByMonth
- *               MK-CF-O-018 theDebts · MK-NW-O-003 theNetWorth
- *               MK-CF-F-024 totalDebtMonthly
+ *               MK-NW-F-082 NW · MK-CF-F-207 SOURCE
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
+ *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-041 getDebtState · MK-CF-O-016 incomeSources
+ *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-CF-O-018 theDebts
+ *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
+ *               MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-040 whether a stream is already being received
@@ -458,14 +458,14 @@ export interface IncomeSource {
  *
  * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-CF-F-201 INCOME
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-CF-F-207 SOURCE · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-210 annualOfSource · MK-CF-F-036 buildDebtState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
- *               MK-CF-O-016 incomeSources · MK-XS-F-029 monthlySavings
- *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-028 surplusByMonth
- *               MK-CF-O-018 theDebts · MK-NW-O-003 theNetWorth
- *               MK-CF-F-024 totalDebtMonthly
+ *               MK-NW-F-082 NW · MK-CF-F-207 SOURCE
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
+ *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-041 getDebtState · MK-CF-O-016 incomeSources
+ *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-CF-O-018 theDebts
+ *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
+ *               MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-022 pension monthly amount
@@ -563,13 +563,13 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  * Reaches ..... 63 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-210 annualOfSource · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
  *               … and 45 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-006 · MK-CF-M-007 · MK-CF-M-008 · MK-CF-M-009

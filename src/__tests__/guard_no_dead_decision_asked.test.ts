@@ -64,6 +64,9 @@ test('no file built for the founder asks about a decision he has superseded', ()
     }
   }
   // A GUARD MUST PROVE IT LOOKED: without this the whole test passes on two empty workbooks.
-  expect(cellsRead).toBeGreaterThanOrEqual(300);
+  // 300 → 200 on 2026-10-22: the launch answer list shrank as answers landed (15 things to 11 — his questions DEC-0479,
+  // DEC-0483, DEC-0497 and DEC-0510 answered on their rows), so the two files hold 246 cells today. Two empty workbooks
+  // hold under 50, so 200 still proves the files were read; lower it again only for the same reason, and say so.
+  expect(cellsRead).toBeGreaterThanOrEqual(200);
   expect(offences).toEqual([]);
 });

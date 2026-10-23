@@ -257,8 +257,12 @@ test('DEC-0403 — "held as a float, decimals shown only for prices": nothing is
   const notJudged = hits.filter((h) => h.verdict === 'not judged');
   // the detector itself must still fire: 25 shortening roundings were found on 2026-10-20, 8 of them words on screen; 18 on
   // 2026-10-21, after the Holding page's spoken percents moved to the two-decimal formatter its figures use (three
-  // one-decimal roundings in its spoken words removed, not hidden) — the floor is the true number found that day
-  expect(shortening.length).toBeGreaterThanOrEqual(18);
+  // one-decimal roundings in its spoken words removed, not hidden) — the floor is the true number found that day. 17 later on
+  // 2026-10-21: the Performance tab's "N.N years" words moved into the one writer both pages now ask (yearsWords, in
+  // MoneyKeel/functions/networth-and-performance/performance.ts — words, read by the calculation-folder test above), so it is
+  // counted there, not here (MK-PF-M-016). 16 on 2026-10-22: Home's own percent writer (pctTwoDp, Math.round(d * 10000) / 100)
+  // is gone — its glance line prints through fig() and the one writer (DEC-0402 step 2; MK-XS-M-004, MK-PF-M-008, MK-PF-M-027)
+  expect(shortening.length).toBeGreaterThanOrEqual(16);
   expect(words.length).toBeGreaterThanOrEqual(6);
 
   const key = (file: string, verdict: string, code: string) => `${file} | ${verdict} | ${code}`;

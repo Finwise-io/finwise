@@ -8,13 +8,16 @@
  *     5 is not on record"): the gain if sold today counts the purchases with a price paid and says what is left out.
  *     Before, one purchase with no price paid refused the whole gain. */
 import React from 'react';
-import { render, screen } from '@testing-library/react-native';
+import { render, screen, fireEvent } from '@testing-library/react-native';
 import HoldingDetailScreen from '../HoldingDetailScreen';
 import { useStore } from '../../store/useStore';
 import { ingestSync, stAssetId } from '../../services/sync/ingest';
 import { theHolding } from '../../../MoneyKeel/functions/networth-and-performance/holding';
 import { capGains } from '../../domain/performance';
 import { gainOnPartSentence, saleShortOfPurchasesSentence } from '../../domain/performance/realized';
+import { GLOSSARY } from '../../domain/glossary';
+import { figureSpec } from '../../../MoneyKeel/functions/figures';
+import { builtLines } from '../../testing/mockMatch';
 
 let mockParams: Record<string, string> = {};
 jest.mock('expo-router', () => ({
@@ -57,7 +60,7 @@ test('a linked purchase with no cost is stored as not on record, and the average
   expect(screen.getByText('$100.00')).toBeOnTheScreen();                                         // Price paid (average)
   expect(screen.queryByText('$50.00')).toBeNull();
   expect(screen.getByText('The average above and the total paid leave out 10 shares with no price paid on record.')).toBeOnTheScreen();
-  expect(screen.getByText(/10 sh @ no purchase price recorded/)).toBeOnTheScreen();
+  expect(screen.getByText(/10 sh @ no price paid on record/)).toBeOnTheScreen();   // one wording on the card (Q34, 2026-10-21; canon row 24)
   // the gain says the second purchase's cost is unknown: 10 × ($120 − $100) = $200 on the 10 that have one
   expect(screen.getByText('$200 gain on 10 of 20 shares; what you paid for the other 10 is not on record.')).toBeOnTheScreen();
 });
@@ -86,4 +89,55 @@ test('one sentence writer: the sale line of DEC-4643 reads exactly as before, an
     .toBe('20 shares; what you paid for them is not on record, so no gain is counted.');
   expect(gainOnPartSentence({ gain: -30, counted: 1, of: 2 }, { kind: 'crypto' } as any, m))
     .toBe('$30 loss on 1 of 2 coins; what you paid for the other 1 is not on record.');
+});
+
+// ═══ Q34 · THE AVERAGE-PRICE RULE IN WORDS (2026-10-21, the lead's decision under DEC-6627, DEC-4643 and DEC-3523) ════════
+// His comment of 2026-08-26 on MK-NW-M-032 asked for an info dot saying a purchase with no price or quantity is left out of
+// the average. The dot says what the code does; the card says an unknown price paid one way; a missing share count says so.
+
+const RULE = 'Price paid (average) is what you paid per share, over the purchases with a price paid on record. Shares with no '
+  + 'price paid on record are left out of the average, and What you bought says how many. A price of $0 counts as not on record. '
+  + 'If a purchase has no share count on record, no average is shown.';
+const brokerage = (lots: any[]) => ({ asset_id: 'brk', label: 'Brokerage', institution: 'Fidelity', kind: 'brokerage', tax_bucket: 'TAXABLE',
+  balance: 0, derive_balance: true, positions: [{ position_id: 'p1', ticker: 'XYZ', label: 'XYZ Inc.', kind: 'stocks_etf', lots }] });
+
+test('Q34 · the info dot beside Price paid (average) states the rule, and the master row carries the same words', () => {
+  expect(GLOSSARY.averagePricePaid).toEqual({ title: 'Price paid (average)', body: RULE });
+  expect(figureSpec('MK-NW-M-032').decisions).toContain(RULE);        // the master's column Q prints this line
+  open(brokerage([{ lot_id: 'a', shares: 10, cost_per_share: 100, purchase_date: '2023-01-10' },
+    { lot_id: 'b', shares: 10, cost_per_share: 0, purchase_date: '2023-06-10' }]), 120);
+  const L = builtLines(screen.toJSON());
+  const at = L.indexOf('Price paid (average)');
+  expect(L.slice(at, at + 3)).toEqual(['Price paid (average)', 'ⓘ', '$100.00']);   // a $0 price is left out: 1,000 ÷ 10, not ÷ 20
+  expect(L).toContain('10 sh @ no price paid on record');
+  expect(L).toContain('The average above and the total paid leave out 10 shares with no price paid on record.');
+  fireEvent.press(screen.getByLabelText('What is Price paid (average)?'));
+  expect(screen.getByText(RULE)).toBeOnTheScreen();
+});
+
+test('Q34 · the two refusals: no purchase with a price paid, and a purchase with no share count', () => {
+  open(brokerage([{ lot_id: 'a', shares: 10, cost_per_share: null, purchase_date: '2023-01-10' }]), 120);
+  let L = builtLines(screen.toJSON());
+  expect(L[L.indexOf('Price paid (average)') + 2]).toBe('No price paid on record.');
+  expect(L[L.indexOf('Total paid') + 1]).toBe('No price paid on record.');
+  expect(L.join('\n')).not.toMatch(/purchase price recorded/i);                        // canon row 24
+  open(brokerage([{ lot_id: 'a', shares: 10, cost_per_share: 100, purchase_date: '2023-01-10' },
+    { lot_id: 'b', shares: null, cost_per_share: 90, purchase_date: '2023-06-10' }]), 120);
+  L = builtLines(screen.toJSON());
+  expect(L[L.indexOf('Price paid (average)') + 2]).toBe('Not stated — a purchase has no share count on record.');
+  expect(L[L.indexOf('Total paid') + 1]).toBe('Not stated — a purchase has no share count on record.');
+});
+
+test('Q35 · the twelve-month window is spelled out: Dividends received (trailing twelve months)', () => {
+  open(brokerage([{ lot_id: 'a', shares: 10, cost_per_share: 100, purchase_date: '2023-01-10' }]), 120);
+  // the line is drawn only when a dividend record names the holding (MK-NW-M-034's refusal; 2026-10-21, W-HOLDING): one record, $12
+  expect(builtLines(screen.toJSON()).some((l) => l.startsWith('Dividends received'))).toBe(false);
+  screen.unmount();
+  useStore.setState({ transactions: [{ txn_id: 'd1', account_id: 'brk', ticker: 'XYZ', type: 'DIVIDEND', amount: 12, date: monthsAgo(2) }] } as any);
+  render(<HoldingDetailScreen />);
+  const L = builtLines(screen.toJSON());
+  expect(L[L.indexOf('Dividends received (trailing twelve months)') + 1]).toBe('$12');
+  expect(L).toContain('Dividends received (trailing twelve months)');
+  expect(L.join('\n')).not.toMatch(/\(12 ?mo\)/);
+  expect(figureSpec('MK-NW-M-034').label).toBe('Dividends received (trailing twelve months)');
 });

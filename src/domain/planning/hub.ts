@@ -35,10 +35,10 @@ export const SS_DECISION_TO = 70;
  * Formula .....
  *     `${chance}% ${odds tail(horizon age)}`
  *
- * Called by ... MK-NW-F-101 PLAN
+ * Called by ... MK-NW-F-185 valueChanged
  *
  * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-101 PLAN
+ *               MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -62,7 +62,7 @@ export function oddsLine(_lens: 'retired' | string, chance: number, horizonAge: 
  * Called by ... MK-PL-F-024 oddsLine
  *
  * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-101 PLAN · MK-PL-F-024 oddsLine
+ *               MK-PL-F-024 oddsLine · MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -331,10 +331,10 @@ export function shortfallAgeFromBand(band?: { age: number; p50: number }[] | nul
  *     nothing   when not (args.pot at retire! > 0)
  *     the answer = `retire at ${args.retire age} with ~${near(args.pot at retire!)}, ${ending}`
  *
- * Called by ... MK-NW-F-101 PLAN
+ * Called by ... MK-NW-F-101 PLAN · MK-NW-F-185 valueChanged
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-101 PLAN
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-101 PLAN · MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-018 retirement age

@@ -246,9 +246,18 @@ describe('FIXED by the drawing check of 2026-10-12 — what a word stream cannot
     expect(r.slice(at1, at1 + 5)).toEqual(['Return is for the window you picked (Jun 3, 2024 → Aug 4, 2026) — not a yearly rate', 'ⓘ', '·', 'time-weighted, so money you added never counts as return', 'ⓘ']);
     const at2 = r.indexOf('Earned = dividends + interest received in this window');
     expect(r.slice(at2, at2 + 5)).toEqual(['Earned = dividends + interest received in this window', 'ⓘ', '·', 'a /year figure is that category’s yearly pace', 'ⓘ']);
-    // and they sit in one wrapping row, not a row each
-    const rowOf = (t: string) => screen.getByText(t).parent?.parent;
-    expect(rowOf('time-weighted, so money you added never counts as return')).toBe(rowOf('Return is for the window you picked (Jun 3, 2024 → Aug 4, 2026) — not a yearly rate'));
+    // and they sit in one wrapping row, not a row each. THE ROW IS THE NEAREST VIEW LAID OUT AS A ROW above each note — read by
+    // what it is, not by counting parents: a Text that speaks its figures (SaidText, 2026-10-22) is one more component between a
+    // note and its row, and a fixed ".parent.parent" then named the wrapper. Compared as a yes/no, so a failure prints one line,
+    // never two whole element trees (which ran the run out of memory, 2026-10-22).
+    const rowOf = (t: string) => {
+      let n: any = screen.getByText(t).parent;
+      while (n && !(n.type === 'View' && StyleSheet.flatten(n.props?.style)?.flexDirection === 'row')) n = n.parent;
+      return n;
+    };
+    const one = rowOf('Return is for the window you picked (Jun 3, 2024 → Aug 4, 2026) — not a yearly rate');
+    expect(one != null).toBe(true);
+    expect(rowOf('time-weighted, so money you added never counts as return') === one ? 'one row' : 'two rows').toBe('one row');
   });
 
   test('2 · the window control\'s colours (v17 .segK, .segNo, .segOn)', () => {

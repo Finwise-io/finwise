@@ -7,8 +7,9 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors, Spacing } from '../utils/theme';
 import { InfoDot } from './UI';
+import { saidSentence } from './figure';   // a title or total that holds a figure is said through the one spoken writer
 
-export function SectionBand({ title, value, light, inCard, inset = Spacing.md, infoTerm, trailing = 0, quiet, onTitlePress, titleHint, gutter, onChevronPress }: {
+export function SectionBand({ title, value, light, inCard, inset = Spacing.md, infoTerm, trailing = 0, quiet, onTitlePress, titleHint, gutter, onChevronPress, titleSaid, valueSaid }: {
   title: string; value?: string; light?: boolean; inCard?: boolean; inset?: number; infoTerm?: string;
   /** THE NAME IS ITS OWN DOOR (founder, 2026-09-27: "build it" — approved mock v14, first phone,
    *  "Tap ▾ to collapse · tap the name to open this account's portfolio ›"). One bar, two jobs: the
@@ -35,8 +36,15 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
   gutter?: number;
   /** "›" in the gutter, for a bar that opens a screen (v17: each account bar opens that account's page). */
   onChevronPress?: () => void;
+  /** WHAT A SCREEN READER SAYS FOR A TITLE OR A TOTAL THAT HOLDS A FIGURE (2026-10-21, Performance audit row 29): the figure's
+   *  spoken form (figSaid) — "hidden" under hide-balances, never the dots. Given without them, nothing changes. */
+  titleSaid?: string; valueSaid?: string;
 }) {
   const valuePad = (inCard ? inset : 0) + trailing;
+  // said as printed unless the printed words carry a hidden balance or a period mark: then "hidden", "a year" (2026-10-22)
+  const said = (t: string | undefined) => (t == null ? undefined : saidSentence(t) !== t ? saidSentence(t) : undefined);
+  const titleLabel = titleSaid ?? said(title);
+  const valueLabel = valueSaid ?? said(value);
 
   if (quiet) {
     // ALIGNMENT (audit D10). For a FILLED band, `inCard` means "bleed out to the card's edges". A
@@ -52,7 +60,7 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
         <Text style={s.quietTitle} numberOfLines={1}>{title}</Text>
         {!!infoTerm && <InfoDot size={11} term={infoTerm as any} color={Colors.primaryDeep} />}
         <View style={{ flex: 1 }} />
-        {value != null && <Text style={s.quietValue}>{value}</Text>}
+        {value != null && <Text style={s.quietValue} accessibilityLabel={valueLabel}>{value}</Text>}
       </View>
     );
   }
@@ -68,14 +76,14 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
           <Text style={[s.title, { flex: 0, flexShrink: 1, textDecorationLine: 'underline' }, light && s.textLight]} numberOfLines={1}>{title}</Text>
         </TouchableOpacity>
       ) : (
-        <Text style={[s.title, { flex: 0, flexShrink: 1 }, light && s.textLight]} numberOfLines={1}>{title}</Text>
+        <Text style={[s.title, { flex: 0, flexShrink: 1 }, light && s.textLight]} numberOfLines={1} accessibilityLabel={titleLabel}>{title}</Text>
       )}
       {/* the band title is 11pt — the dot matches it rather than looming over it */}
       {!!infoTerm && <InfoDot size={11} term={infoTerm as any} color={light ? Colors.primaryDeep : Colors.white} />}
       <View style={{ flex: 1 }} />
       {/* founder gap 4 (2026-08-10): the band bleeds to the card edge while rows are inset, so the
           value carries the same inset back — every number on the screen shares ONE right edge. */}
-      {value != null && <Text style={[s.value, light && s.textLight, gutter == null && valuePad > 0 && { marginRight: valuePad }]}>{value}</Text>}
+      {value != null && <Text style={[s.value, light && s.textLight, gutter == null && valuePad > 0 && { marginRight: valuePad }]} accessibilityLabel={valueLabel}>{value}</Text>}
       {gutter != null && (
         <View testID="right-gutter" style={{ width: gutter, alignItems: 'flex-end', marginLeft: -6 }}>
           {!!onChevronPress && (

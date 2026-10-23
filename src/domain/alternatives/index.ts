@@ -1,6 +1,6 @@
 // Other / alternative investments (Phase C) — crypto, private equity, hedge funds, commodities,
 // annuities, and anything else that isn't a ticker stock/ETF (Performance) or an individual bond
-// (Bonds). Modeled as manually-valued AssetAccounts, so they already flow to Net Worth + nest egg.
+// (Bonds). Modeled as manually-valued AssetAccounts, so they already flow to Net worth + nest egg.
 import { benchmarkReturn, assetClassOf, accountClassBreakdown, holdingClassOf, type AssetAccount } from '../assets';
 
 export const ALT_KINDS = ['crypto', 'private_equity', 'hedge_funds', 'commodities', 'annuities', 'options', 'other_asset'] as const;

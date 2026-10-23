@@ -73,7 +73,7 @@ describe('portfolio use-cases', () => {
 
     // C4: buy must be affordable (UI guard) — cost vs available cash in the account
     const poor = acct('MS', { kind: 'brokerage', cash_balance: 0 });
-    const cost = 10 * 300, canAfford = cost <= availableCash(poor);
+    const cost = 10 * 300, canAfford = cost <= (availableCash(poor) ?? Infinity);   // null: cash not entered (MK-PF-M-020) — this one has $0 entered
     check('C4 buy needs sufficient cash (UI guard)', !canAfford, `cost=${cost} > available=${availableCash(poor)} → blocked`);
 
     // C5: buy funded from savings (transfer savings→brokerage, then buy) → NW unchanged end-to-end
@@ -111,7 +111,7 @@ describe('portfolio use-cases', () => {
 
     // E5: withdraw more than available → UI guard predicate blocks
     const e5acct = acct('Save', { kind: 'savings', tax_bucket: 'CASH', balance: 1000 });
-    check('E5 over-withdraw blocked (UI guard)', !(2000 <= availableCash(e5acct)), `avail=${availableCash(e5acct)} < 2000 → blocked`);
+    check('E5 over-withdraw blocked (UI guard)', !(2000 <= (availableCash(e5acct) ?? Infinity)), `avail=${availableCash(e5acct)} < 2000 → blocked`);
 
     // E6: property/cash accounts untouched by an unrelated brokerage transaction → NW only moves by that txn
     let e6 = recompute([acct('Home', { kind: 'home', tax_bucket: 'PROPERTY', balance: 600000 }), acct('MS', { kind: 'brokerage', cash_balance: 1000 })], CACHE);

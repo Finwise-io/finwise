@@ -47,8 +47,9 @@ export const RULES: RuleRow[] = [
         { lot_id: 'a', shares: 10, cost_per_share: 100, purchase_date: '2026-09-01' }, { lot_id: 'b', shares: 10, cost_per_share: 110, purchase_date: '2026-09-02' }] };
       const series = close([['2026-08-31', 100], ['2026-09-01', 100], ['2026-09-02', 121]]);
       const row = buildPerformance([pos], () => series as any, '1M' as any, new Date('2026-09-02T12:00:00'))[0];
-      expect(row.periodReturn).toBeCloseTo(2420 / (1000 + 1100) - 1, 10);           // +15.24% — today it is +26.76%
-    } },
+      expect(row.periodReturn).toBeCloseTo(2420 / (1000 + 1100) - 1, 10);           // +15.24% — before 2026-10-21 it was +26.76%
+    },
+    fixed: '2026-10-21: a holding bought in pieces counts each purchase from the start of its day, as the account does (DEC-4439, MK-PF-F-040)' },
   { n: 2, key: 'owner-2', cls: 'AGREES', proof: ['MoneyKeel/functions/networth-and-performance/emergency_fund_rent.test.ts', 'src/screens/__tests__/emergency_fund_rent.test.tsx'],
     why: 'Held: the emergency fund divides cash by (essentials − rent that keeps arriving); proven by the two emergency-fund rent tests.' },
   { n: 3, key: 'owner-3', cls: 'AGREES', proof: ['src/screens/__tests__/housing_rule.test.tsx', 'src/__tests__/decisions_are_held.test.ts'],
@@ -102,13 +103,22 @@ export const RULES: RuleRow[] = [
       expect(cd.walk!.wealthGenerated).toBeCloseTo(500, 6);                           // his example (1) — held
       expect(cd.walk!.beginning).toBeCloseTo(10000, 6);
     },
+    // the reviewer's holding as the app builds its row (2026-10-22): a row written by hand carried no start and no price paid,
+    // which the app's own rows always carry — 10 shares bought Aug 1, 10 more for $1,100 on Sep 2 (close $100 the evening before
+    // the window, $121 now), the $1,100 paid in that day. Hand-worked: $2,420 − ($2,420 − $1,000 − $1,100 = $320) − $1,100 = $1,000
     wrong: () => {
+      const XX = { position_id: 'xx', ticker: 'XX', kind: 'stock', asset_class: 'stock_etf',
+        lots: [{ lot_id: 'a', shares: 10, cost_per_share: 90, purchase_date: '2026-08-01' }, { lot_id: 'b', shares: 10, cost_per_share: 110, purchase_date: '2026-09-02' }] };
+      const rows = buildPerformance([XX] as any, () => ({ points: [{ date: '2026-08-31', close: 100 }, { date: '2026-09-02', close: 121 }] }) as any,
+        '1M', new Date('2026-09-02T12:00:00'), undefined, '2026-09-01');
       const p = thePerformance({ windowStart: '2026-09-01', windowLabel: 'x', today: '2026-09-02', snapshotDays: [], investmentAccountIds: new Set(['s']),
         transactions: [{ txn_id: 'c', account_id: 's', type: 'DEPOSIT', amount: 1100, date: '2026-09-02' }],
-        accounts: [{ asset_id: 's', label: 'B', kind: 'brokerage', asset_class: 'stocks_etf', balance: 2420, positions: [{}] }] as any,
-        holdings: [{ position: { ticker: 'XX', lots: [{ shares: 10, purchase_date: '2026-08-01' }, { shares: 10, purchase_date: '2026-09-02' }] }, marketValue: 2420, periodReturn: 0.21 }] } as any);
-      expect(p.walk!.beginning).toBeCloseTo(1000, 6);                                 // today: $900
-    } },
+        accounts: [{ asset_id: 's', label: 'B', kind: 'brokerage', asset_class: 'stocks_etf', balance: 2420, positions: [XX] }] as any,
+        holdings: rows as any } as any);
+      expect(p.walk!.beginning).toBeCloseTo(1000, 6);                                 // until 2026-10-22: $900
+      expect(p.walk!.wealthGenerated).toBeCloseTo(320, 6);                            // until 2026-10-22: $420
+    },
+    fixed: '2026-10-22 (DEC-3656; W-START): the start is what the shares held when the window began were worth, and the money paid for shares bought inside it is not a gain — Beginning $1,000 (was $900), Wealth generated $320 (was $420)' },
   { n: 18, key: 'DEC-3657', cls: 'AGREES', proof: ['src/screens/__tests__/networth_missing_balance_and_class_pick.test.tsx', 'src/screens/__tests__/nw_totals_one_function.test.tsx'],
     why: 'Held, rendered: a brokerage with no balance reads "Stocks / Funds — Value not entered" and "Fidelity Brokerage has no balance" on Net worth.' },
   { n: 19, key: 'DEC-3768b', cls: 'AGREES', proof: ['src/domain/performance/start_date_month_end.test.ts'],
@@ -147,11 +157,24 @@ export const RULES: RuleRow[] = [
         flows: [{ accountId: 'v', date: '2026-09-02', amount: 10000 }] as any, start: '2026-09-01', end: '2026-09-02' });
       expect(v.rate).toBeCloseTo(0.005, 10);                                           // his Vanguard day — held
     },
+    // FIXED 2026-10-21, both places: (1) a holding bought in pieces counts each purchase from the start of its day (MK-PF-F-040,
+    // +15.24%); (2) the Since window reads a new account's first day as money put in on an evening at $0 — in the door that
+    // every screen asks (thePerformance), which hands the engine that evening, so his example reads +0.50% (+$50). The engine
+    // handed no evening still refuses (START_NOT_RECORDED): it never invents a day, the door writes the one his rule gives.
     wrong: () => {
-      const first = timeWeightedReturn({ days: [day('2026-09-02', 'n', 10050)] as any, accountIds: new Set(['n']),
-        flows: [{ accountId: 'n', date: '2026-09-02', amount: 10000 }] as any, start: '2026-09-01', end: '2026-09-02' });
-      expect(first.rate).toBeCloseTo(0.005, 10);                                       // today: refused, START_NOT_RECORDED
-    } },
+      const pos: any = { position_id: 'p', ticker: 'XX', asset_class: 'stock_etf', lots: [
+        { lot_id: 'a', shares: 10, cost_per_share: 100, purchase_date: '2026-09-01' }, { lot_id: 'b', shares: 10, cost_per_share: 110, purchase_date: '2026-09-02' }] };
+      const row = buildPerformance([pos], () => close([['2026-08-31', 100], ['2026-09-01', 100], ['2026-09-02', 121]]) as any, '1M' as any, new Date('2026-09-02T12:00:00'))[0];
+      expect(row.periodReturn).toBeCloseTo(2420 / (1000 + 1100) - 1, 10);             // (1) +15.24%
+      const days = [day('2026-09-02', 'n', 10050), day('2026-09-03', 'n', 10050)];
+      const first = thePerformance({ windowStart: windowStartKey('SINCE', ['2026-09-02'], '2026-09-03'), windowLabel: 'since Sep 2, 2026', today: '2026-09-03',
+        transactions: [{ id: 'd', account_id: 'n', type: 'DEPOSIT', amount: 10000, date: '2026-09-02' }], snapshotDays: days as any,
+        investmentAccountIds: new Set(['n']), wholeRecord: true,
+        accounts: [{ asset_id: 'n', label: 'New', kind: 'brokerage', asset_class: 'stocks_etf', tax_bucket: 'TAXABLE', source: 'connected', balance: 10050, cash_balance: 10050, positions: [] }] as any });
+      expect(first.cumulative!).toBeCloseTo(0.005, 10);                                // (2) his new account: +0.50%
+      expect(first.walk!.wealthGenerated).toBeCloseTo(50, 6);
+    },
+    fixed: '2026-10-21: a holding bought in pieces counts each purchase from the start of its day (MK-PF-F-040), and Since reads a new account\'s first deposit as money put in on an evening at $0 (DEC-4439)' },
   { n: 41, key: 'DEC-4528', cls: 'AGREES', proof: ['src/screens/__tests__/nw_no_accounts_one_door.test.tsx', 'src/screens/__tests__/networth_v08.test.tsx'], why: 'Held: with no debt entered the Debts door reads "Add your debts ›"; proven by the empty-state tests.' },
   { n: 42, key: 'DEC-4529', cls: 'AGREES', proof: ['src/screens/__tests__/networth_figures_match_v08.test.tsx', 'src/screens/__tests__/kept_editors_match.test.tsx'], why: 'Held: wrong figures on approved drawings are named in each drawing\'s READ THIS FIRST box with the arithmetic; proven by the drawing-match tests.' },
   { n: 43, key: 'DEC-4640', cls: 'AGREES', proof: ['src/domain/performance/start_date_month_end.test.ts', 'MoneyKeel/functions/networth-and-performance/outside_performance_claude_01.test.ts'],

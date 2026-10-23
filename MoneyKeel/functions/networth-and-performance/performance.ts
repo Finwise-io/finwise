@@ -20,7 +20,7 @@
 //     brokerage statements do the same). His ruling: show BOTH, and label them.
 import { availableCash } from '../../../src/domain/transactions';
 import { declareFigures, writeFigure } from '../_figure-spec';
-import { portfolioBenchReturn, startDateFor, contractMultiplier, totalShares, windowTotal, paidOnRecord, purchaseDateOnRecord, lotCostOnRecord, worthWithInterest, closeOnOrBefore, latestClose, bondInterestInWindow, returnWithInterest, type Period, type PriceSeries } from '../../../src/domain/performance';
+import { portfolioBenchReturn, startDateFor, contractMultiplier, totalShares, windowTotal, paidOnRecord, purchaseDateOnRecord, lotCostOnRecord, worthWithInterest, closeOnOrBefore, latestClose, bondInterestInWindow, returnWithInterest, periodReturnSince, marketGap, calendarDay, returnSplitAtPurchases, type HoldingPath, type Period, type PriceSeries } from '../../../src/domain/performance';
 import { formatMoney } from '../../../src/domain/_shared/money';
 import { buildChangeWalk, type ChangeWalk } from '../../../src/domain/history';
 import { personalFlowTotals, moneyIntoAccount } from '../../../Calculation Module code/engines/ledger';
@@ -31,6 +31,7 @@ import { dateShown, isoLocalDate } from '../../../src/domain/_shared/dates';
 import { accountDisplayNames, holdingClassOf, ASSET_CLASS_LABEL } from '../../../src/domain/assets';
 import { plural } from '../../../src/domain/_shared/plural';
 import { isCertificateOfDeposit } from './bonds';
+import { holdingRowsIn } from './holding';   // one holding's window row, asked one way (MK-PF-M-023, 2026-10-22)
 import { ACCOUNT_FIGURES } from './account';
 
 export interface WindowFigures {
@@ -186,21 +187,34 @@ export function investmentRecordDates(snapshotDays: any[], investmentAccountIds:
  * Formula .....
  *     pts = series.points (or none when missing) where ÷ ^\d{4}-\d{2}-\d{2} ÷ .test(string(date ?? ''))
  *     'LAST CLOSE'   when count of pts is missing
- *     last = the first the first 10) ? y : x of 10) ≥ string(date) of pts.reduce((x, y) => (string(date)
- *     the answer = `LAST CLOSE · ${date shown(string(last.date).slice(0, 10)).to upper case()}`
+ *     last = the first 10) ≥ string(date).slice(0, 10) ? y : x)).date).slice(0, 10 of string(pts.reduce((x, y) => (string(date)
+ *     day = today   if calendar day(today) ≠ nothing and last > today
+ *     last   otherwise
+ *     the answer = `LAST CLOSE · ${date shown(day).to upper case()}`
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-NW-F-167 COMPARE
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-167 COMPARE
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-148
  * Changed ..... not in git yet (—)
  */
-export function lastCloseLabel(series: PriceSeries | null | undefined): string {
+export function lastCloseLabel(series: PriceSeries | null | undefined, today: string = isoLocalDate(new Date())): string {
   const pts = (series?.points ?? []).filter((p) => /^\d{4}-\d{2}-\d{2}/.test(String(p?.date ?? '')));
   if (!pts.length) return 'LAST CLOSE';
-  const last = pts.reduce((x, y) => (String(y.date).slice(0, 10) >= String(x.date).slice(0, 10) ? y : x));
-  return `LAST CLOSE · ${dateShown(String(last.date).slice(0, 10)).toUpperCase()}`;
+  const last = String(pts.reduce((x, y) => (String(y.date).slice(0, 10) >= String(x.date).slice(0, 10) ? y : x)).date).slice(0, 10);
+  // NEVER A DAY AFTER THE PERSON'S OWN TODAY (2026-10-21; DEC-0189, DEC-0282 — every day in the app is the person's calendar
+  // day). The price feed dates each close by the day in London (marketData.ts, toISOString), so at 8 pm in California a coin's
+  // latest price — taken that evening — is dated tomorrow, and the band read OCT 22 on Oct 21. That price was taken on the
+  // person's today, so the band says today; a close dated on or before today keeps its own day.
+  const day = calendarDay(today) != null && last > today ? today : last;
+  return `LAST CLOSE · ${dateShown(day).toUpperCase()}`;
 }
 
 /** A BALANCE NEVER ENTERED IS NOT A RECORDED VALUE (DEC-3279e, "A missing balance is never $0"; DEC-3523 tenet 3).
@@ -318,6 +332,18 @@ export type GainRow = {
    *  same figure as (value today + interest) ÷ (1 + its window total) wherever that can be divided — read instead where the
    *  holding is worth $0 today, so what it lost is counted, never left out (tenet 4). */
   startValue?: number | null;
+  /** What was paid for shares bought inside the window (buildPerformance, 2026-10-21; DEC-3656) — for a holding bought inside
+   *  it, every purchase in it (2026-10-22): null where one of them has no price paid on record; absent where it bought none. */
+  paidInside?: number | null;
+  /** What its sales inside the window brought in (buildPerformance, 2026-10-22; DEC-3656): null where a sale has no price and no
+   *  amount on record; absent where it sold nothing in the window. */
+  soldInside?: number | null;
+  /** Bought inside the window but held when it began too (sold out, then bought again): what the shares held then were worth
+   *  (buildPerformance, 2026-10-22). */
+  heldAtStart?: number | null;
+  /** Its value across the window on the days money went into any holding built beside it (buildPerformance, 2026-10-21;
+   *  DEC-1669) — read where the holdings' return is split at those days (classReturnOf). */
+  path?: HoldingPath;
 };
 
 /** THE ONE RULE FOR WHAT A HOLDING GAINED OVER THE WINDOW (DEC-3656, 2026-10-09), or null when it cannot
@@ -330,15 +356,14 @@ export type GainRow = {
  * Answers ..... THE ONE RULE FOR WHAT A HOLDING GAINED OVER THE WINDOW (DEC-3656, 2026-10-09), or null when it cannot be known.
  *
  * Formula .....
- *     (gain ?? 0) + (interest ?? 0)   when capped since
+ *     nothing   when market value = nothing (or paid inside = nothing (or sold inside = nothing (or held at start = nothing when missing or zero) when missing or zero) when missing or zero)
+ *     the answer = worth with interest(r) + (sold inside ?? 0) − paid inside − (held at start ?? 0)
  *     mv = market value (or 0 when missing)
  *     pr = window total(period return, period total, years)
  *     worth with interest(r) × (1 − 1 ÷ (1 + pr))   when mv > 0
  *     worth with interest(r) − start value   if start value > 0
  *     0   otherwise   when start value ≠ nothing
- *     the answer:
- *     0   if pr > -1
- *     nothing   otherwise
+ *     nothing   when (position as any).sold out
  *     mv × (1 − 1 ÷ math.pow(1 + coupon rate, years))   if mv > 0
  *     0   otherwise   when coupon rate ≠ nothing and number.is finite(coupon rate) and coupon rate ≥ 0
  *     0   when position and holding class of(position) = 'cash'
@@ -358,16 +383,29 @@ export type GainRow = {
  *               MK-XS-I-012 bond coupon rate
  *
  * Decides .....
+ *     · If sold inside is missing it uses 0.
+ *     · If held at start is missing it uses 0.
  *     · If gain is missing it uses 0.
  *     · If interest is missing it uses 0.
  *     · If market value is missing it uses 0.
+ *     · If paid inside is missing it uses 0.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-127
  * Changed ..... not in git yet (—)
  */
 function gainOfRow(r: GainRow, years: number): number | null {
   // A BOND'S OR CD'S GAIN IS ITS PRICE CHANGE PLUS THE INTEREST IT PAID IN THE WINDOW (DEC-6212, 2026-10-19)
-  if (r.cappedSince) return (r.gain ?? 0) + (r.interest ?? 0);
+  if (r.cappedSince) {
+    // BOUGHT INSIDE THE WINDOW, WITH EVERY PURCHASE AND SALE IN IT ON THE ROW (2026-10-22; DEC-3656): its value today + interest
+    // + what its sales brought in − everything it paid in the window. A sale used to vanish: 10 bought at $100, 5 sold at $120,
+    // 5 left at $130 gained $150 on the 5 still held and the $100 the sale made was left out of the beginning. What it paid
+    // not on record, or its value not known: what it gained is not known, and it is named (tenet 3) — it read $0.
+    if (r.paidInside !== undefined) {
+      if (r.marketValue == null || r.paidInside == null || r.soldInside === null || r.heldAtStart === null) return null;
+      return worthWithInterest(r) + (r.soldInside ?? 0) - r.paidInside - (r.heldAtStart ?? 0);
+    }
+    return (r.gain ?? 0) + (r.interest ?? 0);
+  }
   const mv = r.marketValue ?? 0;
   // THE WINDOW'S OWN TOTAL, never a yearly rate: over 2Y a holding's period return is a yearly rate, and read as
   // the window's total it worked the gain back one year, not two — $12,100 at 10% a year gained $2,100, it read
@@ -375,6 +413,18 @@ function gainOfRow(r: GainRow, years: number): number | null {
   const pr = windowTotal(r.periodReturn, r.periodTotal, years);
   // (value today + interest) × (1 − 1 ÷ (1 + total)) = (value today + interest) − value at the start (DEC-6212)
   if (pr != null) {
+    // SHARES BOUGHT INSIDE THE WINDOW BY A HOLDING HELD WHEN IT BEGAN (2026-10-21; DEC-3656: "today's value less what each
+    // holding gained, less the money moved"; outside re-run OpenAI part 1, MK-NW-F-091 / MK-NW-F-127). Its start is what the
+    // shares held then were worth (startValue), and the money paid for the rest is not a gain: 10 held at $100, 10 more bought
+    // at $110, now 20 at $121 → $2,420 − $1,000 − $1,100 = $320. Worked back from today's 20 shares ($2,420 ÷ 1.21 = $2,000) it
+    // read $420 and a beginning that never was. A purchase whose price paid is not on record: what it gained is unknown (tenet 3).
+    // AND SHARES SOLD INSIDE THE WINDOW (2026-10-22): its start counts them (they were held then), and what they brought in is
+    // part of what it has to show — 20 held at $100, 10 sold at $110, 10 left at $121 → $1,210 − $2,000 + $1,100 = $310; from
+    // today's 10 shares it read $210 and a beginning $100 too high. A sale with no price or amount on record: unknown.
+    if (r.paidInside !== undefined || r.soldInside !== undefined) {
+      return r.paidInside === null || r.soldInside === null || r.startValue == null ? null
+        : worthWithInterest(r) - r.startValue - (r.paidInside ?? 0) + (r.soldInside ?? 0);
+    }
     if (mv > 0) return worthWithInterest(r) * (1 - 1 / (1 + pr));
     // WORTH $0 TODAY IS A VALUE, NOT A MISSING ONE (2026-10-21; DEC-5068, tenet 4). A holding that was worth something
     // when the window began lost it: (value today + interest) − its start, the start buildPerformance read (startValue).
@@ -383,6 +433,9 @@ function gainOfRow(r: GainRow, years: number): number | null {
     if (r.startValue != null) return r.startValue > 0 ? worthWithInterest(r) - r.startValue : 0;
     return pr > -1 ? 0 : null;
   }
+  // SOLD IN FULL INSIDE THE WINDOW, WITH NO FIGURE FOR IT (2026-10-22; tenet 3): with no prices to say what it was worth when the
+  // window began, what it gained is not known — it holds nothing today, and that is not a gain of $0
+  if ((r.position as any)?.sold_out) return null;
   // AN ENTERED 0% IS A RATE OF 0%, gaining $0; a rate never entered (null) stays unknown below (DEC-2748b, 2026-10-12:
   // "a typed 0 rate is a zero-coupon bond" / "a face value or rate that was never entered stays blank")
   if (r.couponRate != null && Number.isFinite(r.couponRate) && r.couponRate >= 0) return mv > 0 ? mv * (1 - 1 / Math.pow(1 + r.couponRate, years)) : 0;
@@ -404,7 +457,7 @@ function gainOfRow(r: GainRow, years: number): number | null {
  * Answers ..... What a holding is worth when no price series prices it: the broker's last mark × shares, or the value it was built at by hand.
  *
  * Formula .....
- *     market value as number   when (market value ?? 0) > 0
+ *     market value   when market value ≠ nothing and number.is finite(market value) and market value ≥ 0
  *     p = position
  *     0   when p is missing
  *     shares = total shares({ lots: lots ?? [] } as any)
@@ -430,14 +483,14 @@ function gainOfRow(r: GainRow, years: number): number | null {
  *               MK-XS-I-005 holding price
  *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *
- * Decides .....
- *     · If market value is missing it uses 0.
- *
  * Formula also on the master file · functions_from_code · MK-NW-F-128
  * Changed ..... not in git yet (—)
  */
 function heldValueOf(r: GainRow): number | null {
-  if ((r.marketValue ?? 0) > 0) return r.marketValue as number;
+  // A KNOWN $0 IS A VALUE (2026-10-21; DEC-3523 tenets 3 and 4; outside re-run OpenAI part 1, MK-NW-F-128): a row whose own
+  // value is $0 (its latest close is $0) read the broker's older mark instead — 10 × $20 = $200 beside a row reading $0.
+  // The row's value wins at $0 too; only a value not on record falls back to the mark or the value it was built at.
+  if (r.marketValue != null && Number.isFinite(r.marketValue) && r.marketValue >= 0) return r.marketValue;
   const p = r.position;
   if (!p) return 0;
   // the one count of shares (MK-PF-F-001): unknown when a purchase has no share count
@@ -499,16 +552,17 @@ function gainRowName(r: GainRow): string {
  *     was = by name.get(n)!   if by name.has(n)
  *     0   otherwise
  *     once = [...by name.keys()]
- *     values = for each of left (or none when missing): value (or nothing when missing)
+ *     values = for each of group: value (or nothing when missing)
  *     left value = values.reduce((t: number, v) => t + (v as number), 0)   if values.length and values.every((v) => v ≠ nothing)
  *     nothing   otherwise
  *     n = 2   if once.length > 1
  *     1   otherwise
  *     who = `${list} (${write figure(PERFORMANCE_FIGURES['MK − PF − M − 022'], left value)})`   if left value ≠ nothing
  *     list   otherwise
- *     second = `${plural(n, 'has', who)} no price history, ${plural(n, 'its', 'so')} gains are not included.`
- *     opens = `A${second.slice(1)}`   if list = 'a holding'
- *     second   otherwise
+ *     said = `${plural(n, 'has', who)} ${what}, ${plural(n, 'its', 'so')} gains are not included.`
+ *     the answer:
+ *     `A${said.slice(1)}`   if list = 'a holding'
+ *     said   otherwise
  *
  * Called by ... MK-NW-F-144 beforeTheRecordSentence · MK-NW-O-008 thePerformance
  *
@@ -523,37 +577,49 @@ function gainRowName(r: GainRow): string {
  * Formula also on the master file · functions_from_code · MK-NW-F-130
  * Changed ..... not in git yet (—)
  */
-function notIncludedSentence(left: { name: string; value: number | null }[], countedValue: number): string {
-  // one fund held in two accounts is named once, its values added (outside review Claude Performance, 2026-10-11). A
-  // blank name is no name: it is dropped before the names are counted (outside review OpenAI re-run part 4,
-  // MK-NW-F-130, SETTLED 2026-10-13). Names all blank still give the sentence, about "a holding": the caller only asks
-  // when a holding is left out.
-  const byName = new Map<string, number | null>();
-  for (const r of left ?? []) {
-    const n = String(r?.name ?? '').trim();
-    if (n === '') continue;
-    const was = byName.has(n) ? byName.get(n)! : 0;
-    byName.set(n, was == null || r.value == null ? null : was + r.value);
-  }
-  const once = [...byName.keys()];
-  const list = once.length <= 1 ? (once[0] ?? 'a holding')
-    : `${once.slice(0, -1).join(', ')} and ${once[once.length - 1]}`;
-  const values = (left ?? []).map((r) => r?.value ?? null);
-  const leftValue = values.length && values.every((v) => v != null) ? values.reduce((t: number, v) => t + (v as number), 0) : null;
+function notIncludedSentence(left: { name: string; value: number | null; why?: 'history' | 'paid' | 'sale' }[], countedValue: number): string {
   // HIS WORDING (DEC-6076, 2026-10-19, "approved.", after "State D - for summary box - we need to explain that 10%
   // return is on 40K and not 50K."): the first sentence names the dollars the return is on — the holdings
   // knownHoldingsReturn (MK-NW-F-138) counts — and the second names what is left out with its value today. Each
   // amount is written by the one figure writer under its own figure (MK-PF-M-021, MK-PF-M-022). has / have and
   // its / their come from the one list of words and plurals (DEC-4082). Where NO holding is counted there is no
   // return to explain, so only the second sentence is said (never "Return is on the $0").
-  const n = once.length > 1 ? 2 : 1;
-  const who = leftValue != null ? `${list} (${writeFigure(PERFORMANCE_FIGURES['MK-PF-M-022'], leftValue)})` : list;
-  const second = `${plural(n, 'has', who)} no price history, ${plural(n, 'its', 'so')} gains are not included.`;
-  // a sentence that opens on the generic name opens with a capital; a holding's own name is printed as it is
-  const opens = list === 'a holding' ? `A${second.slice(1)}` : second;
+  // THE TRUE REASON FOR EACH ONE LEFT OUT (2026-10-22; tenets 1 and 3, canon row 24): a holding with a price history whose
+  // purchase in the window has no price paid on record was named as having no price history. It is named for what is
+  // missing: no price history; a purchase with no price paid on record; a sale with no amount in your records — one
+  // sentence for each reason, in that order, each naming its holdings and their value today.
+  const sentence = (group: { name: string; value: number | null }[], why: 'history' | 'paid' | 'sale'): string => {
+    // one fund held in two accounts is named once, its values added (outside review Claude Performance, 2026-10-11). A
+    // blank name is no name: it is dropped before the names are counted (outside review OpenAI re-run part 4,
+    // MK-NW-F-130, SETTLED 2026-10-13). Names all blank still give the sentence, about "a holding".
+    const byName = new Map<string, number | null>();
+    for (const r of group) {
+      const n = String(r?.name ?? '').trim();
+      if (n === '') continue;
+      const was = byName.has(n) ? byName.get(n)! : 0;
+      byName.set(n, was == null || r.value == null ? null : was + r.value);
+    }
+    const once = [...byName.keys()];
+    const list = once.length <= 1 ? (once[0] ?? 'a holding')
+      : `${once.slice(0, -1).join(', ')} and ${once[once.length - 1]}`;
+    const values = group.map((r) => r?.value ?? null);
+    const leftValue = values.length && values.every((v) => v != null) ? values.reduce((t: number, v) => t + (v as number), 0) : null;
+    const n = once.length > 1 ? 2 : 1;
+    const who = leftValue != null ? `${list} (${writeFigure(PERFORMANCE_FIGURES['MK-PF-M-022'], leftValue)})` : list;
+    const what = why === 'paid' ? `${n === 1 ? 'a ' : ''}${plural(n, 'purchase', '').trim()} with no price paid on record`
+      : why === 'sale' ? `${n === 1 ? 'a ' : ''}${plural(n, 'sale', '').trim()} with no amount in your records`
+      : 'no price history';
+    const said = `${plural(n, 'has', who)} ${what}, ${plural(n, 'its', 'so')} gains are not included.`;
+    // a sentence that opens on the generic name opens with a capital; a holding's own name is printed as it is
+    return list === 'a holding' ? `A${said.slice(1)}` : said;
+  };
+  const said = (['history', 'paid', 'sale'] as const)
+    .map((why) => ({ why, group: (left ?? []).filter((r) => (r?.why ?? 'history') === why) }))
+    .filter((x) => x.group.length > 0)
+    .map((x) => sentence(x.group, x.why)).join(' ') || sentence([], 'history');
   return countedValue > 0
-    ? `Return is on the ${writeFigure(PERFORMANCE_FIGURES['MK-PF-M-021'], countedValue)} with a price history. ${second}`
-    : opens;
+    ? `Return is on the ${writeFigure(PERFORMANCE_FIGURES['MK-PF-M-021'], countedValue)} with a price history. ${said}`
+    : said;
 }
 
 /** MK-NW-F-092 · Which accounts this door measures: the invested ones. Cash and property are not
@@ -598,11 +664,7 @@ export function investmentAccountIdsOf(
  * Answers ..... THE RETURN OF THE HOLDINGS WHOSE GROWTH IS KNOWN, where the beginning is worked back from today (DEC-5068, 2026-10-13: "Wealth Generated and Return should be calculated and displayed for every asset with history").
  *
  * Formula .....
- *     now = 0, start = 0
- *     mv = market value (or 0 when missing)
  *     pr = window total(period return, period total, years)
- *     nothing   when not (now ≥ 0) or !(start > 0)
- *     the answer = now ÷ start − 1
  *
  * Called by ... MK-NW-F-130 notIncludedSentence · MK-NW-O-008 thePerformance
  *
@@ -615,38 +677,25 @@ export function investmentAccountIdsOf(
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-012 bond coupon rate
  *
- * Decides .....
- *     · If market value is missing it uses 0.
- *     · If start value is missing it uses 0.
- *
  * Formula also on the master file · functions_from_code · MK-NW-F-138
  * Changed ..... not in git yet (—)
  */
 export function knownHoldingsReturn(rows: GainRow[], years = 0): number | null {
-  let now = 0, start = 0;
-  for (const r of rows ?? []) {
-    const mv = r.marketValue ?? 0;
+  // THE SAME METHOD AS EACH CATEGORY'S RETURN, BY ONE FUNCTION (2026-10-21; the standard "how an account is classed and
+  // counted": "… the same method as each category's return"): it was written out twice, here and in classReturnOf, and
+  // only one of them would have learned to split the window at a purchase (DEC-1669). Each holding's own total over the
+  // window, or a CD's stated rate grown over the years; one with neither is left out, never read as 0. A holding worth
+  // $0 today, down 100%, counts at the start buildPerformance read (DEC-5068, tenet 4); worth $0 then too, or no start
+  // written, it is left out.
+  return classReturnOf((rows ?? []).map((r) => {
     const pr = windowTotal(r.periodReturn, r.periodTotal, years);
-    const tot = pr != null ? pr
+    const total = pr != null ? pr
       : r.couponRate != null && Number.isFinite(r.couponRate) && r.couponRate >= 0 ? Math.pow(1 + r.couponRate, years) - 1
       : null;
-    // no return over the window: left out, never read as 0
-    if (tot == null) continue;
-    // WORTH $0 TODAY, DOWN 100% (2026-10-21; DEC-5068, tenet 4): no start can be divided out of $0, so the start
-    // buildPerformance read is counted — the holding is in the return with what it lost, as the daily record has it. It
-    // was left out: $1,000 → $0 beside $1,000 → $1,200 read +20.00%, not −40.00%. Worth $0 then too, or no start written:
-    // left out, never read as 0.
-    if (!(mv > 0) || !(tot > -1)) {
-      if ((r.startValue ?? 0) > 0) { now += worthWithInterest(r); start += r.startValue as number; }
-      continue;
-    }
-    // a bond's or CD's interest in the window is part of what it has to show for it (DEC-6212, 2026-10-19)
-    now += worthWithInterest(r);
-    start += worthWithInterest(r) / (1 + tot);
-  }
-  // everything lost is −100.00%, a return; only nothing to start from is no return
-  if (!(now >= 0) || !(start > 0)) return null;
-  return now / start - 1;
+    // a holding bought inside the window starts from what it was measured from; the real start is a held one's (2026-10-22)
+    return { marketValue: r.marketValue, interest: r.interest, total, startValue: r.startValue, path: r.path,
+      paidInside: r.cappedSince ? undefined : r.paidInside, soldInside: r.cappedSince ? undefined : r.soldInside };
+  }));
 }
 
 /** WHY A RETURN CANNOT BE MEASURED, in words a person reads. One sentence per reason, written once,
@@ -721,8 +770,66 @@ export function whyNoReturn(v: TimeWeightedVerdict | null): string {
     }
     case 'NOTHING_INVESTED': return 'Nothing was invested over this period, so there is no return to state.';
     case 'END_NOT_RECORDED': return 'Today’s value is not in your records yet, so a return cannot be measured.';
+    // A VALUE BELOW ZERO (2026-10-21, DEC-3523 tenet 1; MK-PF-M-017): it read −100.00%, as if the money were merely gone. The
+    // day is named, so the person can find it; what is owed and what is held still add up in the dollar lines.
+    case 'VALUE_BELOW_ZERO': return `The value recorded on ${on} is below $0, so a return cannot be measured across that day. The dollar figures here are still right.`;
     default: return '';
   }
+}
+
+/** HOW LONG A WINDOW LONGER THAN A YEAR IS, IN THE WORDS ITS YEARLY-RATE LINE SAYS ("+16.69% over the two years, which is
+ *  +8.00%/year"): "two years" for a 2Y window, else its years to one decimal. One writer, so the Performance tab and the
+ *  account page say the same window the same way (2026-10-21, MK-PF-M-016; the words are the Performance tab's own). */
+/* ─ MK-NW-F-162 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * yearsWords
+ *
+ * Answers ..... HOW LONG A WINDOW LONGER THAN A YEAR IS, IN THE WORDS ITS YEARLY-RATE LINE SAYS ("+16.69% over the two years, which is +8.00%/year"): "two years" for a 2Y window, else its years to one decimal.
+ *
+ * Formula .....
+ *     'two years'   if years ≥ 1.9 and years < 2.1
+ *     `${years.to fixed(1)} years`   otherwise
+ *
+ * Called by ... MK-NW-F-174 overTheYearsSentence
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-174 overTheYearsSentence
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Shows 1 decimal place.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-162
+ * Changed ..... not in git yet (—)
+ */
+export function yearsWords(years: number): string {
+  return years >= 1.9 && years < 2.1 ? 'two years' : `${years.toFixed(1)} years`;
+}
+
+/** THE ONE SENTENCE FOR A WINDOW LONGER THAN A YEAR (DEC-0237, DEC-0404; his precision order Q49): the window's own total,
+ *  then the yearly rate it makes, said as one — "+32.41% over the two years, which is +15.05%/year" (Performance v17, phone
+ *  3). The caller hands in each figure already written by its own writer (on screen with "/year", spoken with "a year"), so
+ *  one sentence serves the summary, every account row and the account page. Null when the window is not made yearly. */
+/* ─ MK-NW-F-174 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * overTheYearsSentence
+ *
+ * Answers ..... THE ONE SENTENCE FOR A WINDOW LONGER THAN A YEAR (DEC-0237, DEC-0404; his precision order Q49): the window's own total, then the yearly rate it makes, said as one — "+32.41% over the two years, which is +15.05%/year" (Performance v17, phone 3).
+ *
+ * Formula .....
+ *     nothing   when per year = nothing (or cumulative = nothing when missing or zero)
+ *     `${write(cumulative)} over the ${years words(years)}, which is ${write(per year, 'year')}`
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-174
+ * Changed ..... not in git yet (—)
+ */
+export function overTheYearsSentence(f: { cumulative: number | null; perYear: number | null; years: number },
+  write: (v: number, per?: 'year') => string): string | null {
+  if (f.perYear == null || f.cumulative == null) return null;
+  return `${write(f.cumulative)} over the ${yearsWords(f.years)}, which is ${write(f.perYear, 'year')}`;
 }
 
 /** The daily record with today added to it, worth what the caller says the measured accounts are worth now. */
@@ -799,7 +906,10 @@ function closedWith(days: any[], ids: Set<string>, today: string, ending: number
 function gainRowBetween(r: GainRow, from: string, to: string, priceOf: (ticker: string) => PriceSeries | null | undefined,
   transactions: any[], accounts: any[]): GainRow | null {
   const p = r.position as any;
-  const unknown: GainRow = { ...r, periodReturn: null, periodTotal: null, interest: null, gain: undefined, cappedSince: null, startValue: null };
+  // the row's money paid inside the window and its path across it are the whole window's, not these days' (2026-10-21): here
+  // a purchase inside these days is in the start at what was paid, so what it gained is its value then less that start
+  const unknown: GainRow = { ...r, periodReturn: null, periodTotal: null, interest: null, gain: undefined, cappedSince: null, startValue: null,
+    paidInside: undefined, soldInside: undefined, heldAtStart: undefined, path: undefined };
   if (!p) return unknown;
   const lots = ((p.lots ?? []) as any[]).filter((l) => Number(l?.shares) > 0);
   // the day each purchase was made: its own date, else the stand-in the window used (a holding bought inside it), else
@@ -828,7 +938,8 @@ function gainRowBetween(r: GainRow, from: string, to: string, priceOf: (ticker: 
   } else {
     const sh = (xs: any[]) => xs.reduce((t, l) => t + Number(l.shares), 0);
     // a cost read ONE way (lotCostOnRecord, 2026-10-21): a purchase inside the window saved at $0 is not on record — it began at $0
-    if (inside.some((l) => !lotCostOnRecord(l))) return unknown;
+    // …and is named for that reason, not for a price history it has (2026-10-22, canon row 24): paidInside null says so
+    if (inside.some((l) => !lotCostOnRecord(l))) return { ...unknown, paidInside: null };
     valueThen = (sh(before) + sh(inside)) * closeTo * mult;
     start = sh(before) * (closeFrom ?? 0) * mult + inside.reduce((t, l) => t + Number(l.shares) * l.cost_per_share, 0) * mult;
   }
@@ -840,7 +951,8 @@ function gainRowBetween(r: GainRow, from: string, to: string, priceOf: (ticker: 
   const total = returnWithInterest(valueThen / start - 1, valueThen, interest, start);
   // its value at the start of those days rides with it (2026-10-21): a holding worth $0 on the record's first day lost it,
   // and the days before count that loss rather than leaving the holding out (tenet 4)
-  return { ...r, marketValue: valueThen, periodReturn: total, periodTotal: total, interest, gain: undefined, cappedSince: null, startValue: start };
+  return { ...r, marketValue: valueThen, periodReturn: total, periodTotal: total, interest, gain: undefined, cappedSince: null, startValue: start,
+    paidInside: undefined, soldInside: undefined, heldAtStart: undefined, path: undefined };
 }
 
 /** THE LEFT-OUT SENTENCE WHERE A WINDOW IS JOINED AT THE RECORD'S FIRST DAY (DEC-6412, 2026-10-19): DEC-6076's sentence,
@@ -896,6 +1008,33 @@ function beforeTheRecordSentence(left: { name: string; value: number | null }[],
  */
 const leftOutValueOf = (r: GainRow): number | null => heldValueOf(r) ?? (r.position ? paidOnRecord(r.position as any).paid : null);
 
+/** WHY A HOLDING'S GAIN OVER THE WINDOW IS NOT KNOWN, for the left-out line (2026-10-22; tenets 1 and 3): a purchase in the window
+ *  with no price paid on record (canon row 24), a sale in it with no amount in your records, or — otherwise — no price
+ *  history. Each is said as it is; a holding with a price history was named as having none. */
+/* ─ MK-NW-F-175 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * whyLeftOut
+ *
+ * Answers ..... WHY A HOLDING'S GAIN OVER THE WINDOW IS NOT KNOWN, for the left-out line (2026-10-22; tenets 1 and 3): a purchase in the window with no price paid on record (canon row 24), a sale in it with no amount in your records, or — otherwise — no price history.
+ *
+ * Formula .....
+ *     'paid'   if paid inside = nothing
+ *     'sale'   if sold inside = nothing
+ *     'history'   otherwise   otherwise
+ *
+ * Called by ... MK-NW-O-008 thePerformance
+ *
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-O-008 thePerformance
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-175
+ * Changed ..... not in git yet (—)
+ */
+const whyLeftOut = (r: GainRow): 'history' | 'paid' | 'sale' => (r.paidInside === null ? 'paid' : r.soldInside === null ? 'sale' : 'history');
+
 /** How are my investments doing over a period: where they started, what I put in and took out, what they made, where they ended, and the return?
  *  ── ORCHESTRATOR ── the one function a screen asks for this.
  *  The one function a screen calls for this question. Written as a DOC comment on purpose: the
@@ -936,7 +1075,7 @@ const leftOutValueOf = (r: GainRow): number | null => heldValueOf(r) ?? (r.posit
  *               MK-PF-M-007 · MK-PF-M-008 · MK-PF-M-013 · MK-PF-M-014
  *               MK-PF-M-015 · MK-PF-M-016 · MK-PF-M-017 · MK-PF-M-018
  *               MK-PF-M-019 · MK-PF-M-020 · MK-PF-M-021 · MK-PF-M-022
- *               MK-XS-M-004
+ *               MK-PF-M-023 · MK-PF-M-024 · MK-PF-M-027 · MK-XS-M-004
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-005 holding price
  *               MK-XS-I-009 transaction date
@@ -946,9 +1085,10 @@ const leftOutValueOf = (r: GainRow): number | null => heldValueOf(r) ?? (r.posit
  *               DEC-0065 · DEC-0084 · DEC-0093 · DEC-0097 · DEC-0106 · DEC-0112
  *               DEC-0126 · DEC-0133 · DEC-0134 · DEC-0135 · DEC-0136 · DEC-0142
  *               DEC-0143 · DEC-0149 · DEC-0160 · DEC-0165 · DEC-0173 · DEC-0182
- *               DEC-0185 · DEC-0204 · DEC-0229 · DEC-0230 · DEC-0236 · DEC-0255
- *               DEC-0257 · DEC-0322 · DEC-0323 · DEC-0357 · DEC-0368 · DEC-0382
- *               DEC-0402 · DEC-0445 · DEC-0479 · DEC-0482 · DEC-0490 · DEC-0498
+ *               DEC-0185 · DEC-0204 · DEC-0229 · DEC-0230 · DEC-0236 · DEC-0248
+ *               DEC-0255 · DEC-0257 · DEC-0322 · DEC-0323 · DEC-0357 · DEC-0368
+ *               DEC-0382 · DEC-0402 · DEC-0445 · DEC-0479 · DEC-0482 · DEC-0483
+ *               DEC-0490 · DEC-0498
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
@@ -1136,7 +1276,9 @@ export function thePerformance(input: {
   const years = bounds ? bounds.days / 365 : 0;   // the window's days ÷ 365 — the same years the yearly rate uses
   const names = accountDisplayNames((input.accounts ?? []) as any[]);
   const instrumentAccounts = ((input.accounts ?? []) as any[])
-    .filter((a: any) => input.investmentAccountIds.has(String(a?.asset_id)) && !(a?.positions?.length) && (a?.balance || 0) > 0);
+    .filter((a: any) => input.investmentAccountIds.has(String(a?.asset_id)) && !(a?.positions?.length) && (a?.balance || 0) > 0
+      // an account whose holdings were sold in full inside the window is read from those sales, not as an instrument (2026-10-22)
+      && !(input.holdings ?? []).some((r: any) => r?.position?.sold_out && String(r?.position?.account_id) === String(a?.asset_id)));
   const instrumentRows: GainRow[] = instrumentAccounts
     .map((a: any) => ({
       name: names.get(a.asset_id) ?? a.label ?? 'this account',
@@ -1147,8 +1289,8 @@ export function thePerformance(input: {
     }));
   const gainRows: GainRow[] = [...(input.holdings ?? []), ...instrumentRows];
   const rowGains = gainRows.map((r) => pricedGainOf([r], years));
-  const unknownNames: { name: string; value: number | null }[] = gainRows.filter((_, i) => rowGains[i] == null)
-    .map((r) => ({ name: gainRowName(r), value: leftOutValueOf(r) }));
+  const unknownNames: { name: string; value: number | null; why?: 'history' | 'paid' | 'sale' }[] = gainRows.filter((_, i) => rowGains[i] == null)
+    .map((r) => ({ name: gainRowName(r), value: leftOutValueOf(r), why: whyLeftOut(r) }));
   // a caller still handing over a dollar figure (no holdings) whose gain is unknown: named generically, its value unknown
   if (!input.holdings && input.pricedGain === null) unknownNames.push({ name: 'a holding', value: null });
   // THE DOLLARS THE RETURN IS ON (DEC-6076, 2026-10-19): today's value of each holding knownHoldingsReturn keeps,
@@ -1189,7 +1331,8 @@ export function thePerformance(input: {
   if (bounds && measured != null && windowStart !== today && input.investmentAccountIds.size > 1 && input.holdings) {
     const accountOfPosition = new Map<string, string>();
     for (const a of (input.accounts ?? []) as any[]) for (const p of a?.positions ?? []) accountOfPosition.set(String(p?.position_id), String(a?.asset_id));
-    const ownerOf = (r: GainRow) => accountOfPosition.get(String(r.position?.position_id));
+    // a holding sold in full names its own account (soldOutPositions, 2026-10-22)
+    const ownerOf = (r: GainRow) => accountOfPosition.get(String(r.position?.position_id)) ?? ((r.position as any)?.account_id as string | undefined);
     // only when every holding handed in can be placed in its account — otherwise the parts could not be told apart
     if (input.holdings.every((r) => ownerOf(r) != null)) {
       const rowsOf = (id: string): GainRow[] => [
@@ -1218,7 +1361,7 @@ export function thePerformance(input: {
           // −100% there is not left out of the summary (2026-10-21, tenet 4)
           ...(reached.cumulative != null ? [{ marketValue: reached.ending, periodReturn: reached.cumulative, periodTotal: reached.cumulative, startValue: reached.measured }] : []),
         ], years);
-        const left = lateRows.filter((r) => gainOfRow(r, years) == null).map((r) => ({ name: gainRowName(r), value: leftOutValueOf(r) }));
+        const left = lateRows.filter((r) => gainOfRow(r, years) == null).map((r) => ({ name: gainRowName(r), value: leftOutValueOf(r), why: whyLeftOut(r) }));
         // the dollars the return is on: the reached accounts' value where their return is measured, and each late
         // holding knownHoldingsReturn keeps — asked of it one row at a time, so the rule is its own (DEC-6076)
         const countedHere = (reached.cumulative != null ? reached.ending : 0)
@@ -1264,7 +1407,8 @@ export function thePerformance(input: {
     const there = accountValuesOn(dayOne, (x) => input.investmentAccountIds.has(x));
     const accountOfPosition = new Map<string, string>();
     for (const a of (input.accounts ?? []) as any[]) for (const p of a?.positions ?? []) accountOfPosition.set(String(p?.position_id), String(a?.asset_id));
-    const ownerOf = (r: GainRow) => accountOfPosition.get(String(r.position?.position_id));
+    // a holding sold in full names its own account (soldOutPositions, 2026-10-22)
+    const ownerOf = (r: GainRow) => accountOfPosition.get(String(r.position?.position_id)) ?? ((r.position as any)?.account_id as string | undefined);
     const partHasHistory = (r: GainRow) => !!r.cappedSince || windowTotal(r.periodReturn, r.periodTotal, partYears) != null
       || (r.couponRate != null && Number.isFinite(r.couponRate) && r.couponRate >= 0);
     const placed = input.investmentAccountIds.size > 1 && input.holdings!.every((r) => ownerOf(r) != null);
@@ -1310,7 +1454,7 @@ export function thePerformance(input: {
     const per = cum != null && yb != null && windowStart! < yb && yrs > 1 && !input.wholeRecord ? Math.pow(1 + cum, 1 / yrs) - 1 : null;
     // THE LEFT-OUT SENTENCE, for the days before the record only (DEC-6076's words, said of those days). Its amounts are
     // today's values, as DEC-6076 has them: the holdings the days before count, and each one left out.
-    const left = pairs.filter((_, i) => gapGains[i] == null).map((x) => ({ name: gainRowName(x.now), value: leftOutValueOf(x.now) }));
+    const left = pairs.filter((_, i) => gapGains[i] == null).map((x) => ({ name: gainRowName(x.now), value: leftOutValueOf(x.now), why: whyLeftOut(x.gap) }));
     const countedToday = pairs.filter((x) => knownHoldingsReturn([x.gap], gapYears) != null).reduce((t, x) => t + (x.now.marketValue ?? 0), 0);
     return {
       windowStart, ledger, walk: walkJoined, ending: walkJoined.ending, measured: null, covered: false,
@@ -1459,6 +1603,9 @@ export interface CategoryEarned {
  *               MK-XS-I-024 logged expenses
  *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ * Ruled by .... DEC-0248
+ *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
+ *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
  *     · If balance is missing it uses 0.
@@ -1474,7 +1621,7 @@ export function categoryEarnings(input: {
   /** the window’s first day, or null for "since the record began" */
   windowStart: string | null;
   /** each holding with its class and its own return, as buildPerformance produces them */
-  rows: { position?: { ticker?: string; kind?: string; asset_class?: string }; periodReturn?: number | null; periodTotal?: number | null; marketValue?: number; interest?: number | null; startValue?: number | null }[];
+  rows: { position?: { ticker?: string; kind?: string; asset_class?: string }; periodReturn?: number | null; periodTotal?: number | null; marketValue?: number; interest?: number | null; startValue?: number | null; paidInside?: number | null; soldInside?: number | null; cappedSince?: string | null; path?: HoldingPath }[];
   /** Every bond or CD held as its own account: which account it is, what it is worth and the yearly rate it states. */
   bonds?: { asset_id?: string | number; balance?: number; coupon_rate?: number }[];
   /** DAY ONE: every category is shown at $0 — "every line fills in as days pass, the structure never
@@ -1526,7 +1673,9 @@ export function categoryEarnings(input: {
     // which holdings count is classReturnOf's rule alone — a holding worth $0 today counts at the start it was read at
     // (2026-10-21, tenet 4); it was dropped here before classReturnOf could see it
     const usable = inClass.map((r) => ({ r, tot: windowTotal(r.periodReturn, r.periodTotal) })).filter((x) => x.tot != null);
-    return classReturnOf(usable.map((x) => ({ marketValue: x.r.marketValue, interest: x.r.interest, total: x.tot, startValue: x.r.startValue })));
+    // with each holding's path across the window, so the class is split at every day money went into it (DEC-1669, 2026-10-21)
+    return classReturnOf(usable.map((x) => ({ marketValue: x.r.marketValue, interest: x.r.interest, total: x.tot, startValue: x.r.startValue,
+      paidInside: x.r.cappedSince ? undefined : x.r.paidInside, soldInside: x.r.cappedSince ? undefined : x.r.soldInside, path: x.r.path })));
   };
 
   // A BOND STATES ITS OWN YEARLY RATE, and where every bond held states one the category shows that
@@ -1589,6 +1738,52 @@ export function categoryEarnings(input: {
   return input.dayOne ? buckets.filter((b) => (b.key !== 'mixed' || anyUnclassed) && (b.key !== 'alternatives' || anyAlternative)).map((b) => ({ ...b, ret: null, yearly: false })) : buckets.filter((b) => b.earned > 0);
 }
 
+/** ALL CATEGORIES, THE TABLE'S LAST LINE: what every category categoryEarnings lists earned, added up (2026-10-22; DEC-0346,
+ *  screens compute nothing). The Performance tab added it up itself; it is the sum of the lines above it, so the lines and
+ *  the total cannot drift (tenet 2). $1,500 of dividends and $700 of interest: $2,200. */
+/* ─ MK-NW-F-176 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * categoriesEarnedTotal
+ *
+ * Answers ..... ALL CATEGORIES, THE TABLE'S LAST LINE: what every category categoryEarnings lists earned, added up (2026-10-22; DEC-0346, screens compute nothing).
+ *
+ * Formula .....
+ *     Σ over categories (or none when missing) of (earned   if number.is finite(earned)
+ *     0   otherwise)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-176
+ * Changed ..... not in git yet (—)
+ */
+export function categoriesEarnedTotal(categories: { earned: number }[]): number {
+  return (categories ?? []).reduce((n, b) => n + (Number.isFinite(b?.earned) ? b.earned : 0), 0);
+}
+
+/** THE WORDS FOR WHICH WAY THE VALUE WENT over a window, beginning to ending — "up to", "down to" or "level at" (2026-10-22;
+ *  DEC-0346): the Performance tab's spoken graph compared the two figures itself. */
+/* ─ MK-NW-F-177 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * walkDirectionWords
+ *
+ * Answers ..... THE WORDS FOR WHICH WAY THE VALUE WENT over a window, beginning to ending — "up to", "down to" or "level at" (2026-10-22; DEC-0346): the Performance tab's spoken graph compared the two figures itself.
+ *
+ * Formula .....
+ *     'up to'   if ending > beginning
+ *     'down to'   if ending < beginning
+ *     'level at'   otherwise   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-177
+ * Changed ..... not in git yet (—)
+ */
+export function walkDirectionWords(beginning: number, ending: number): 'up to' | 'down to' | 'level at' {
+  return ending > beginning ? 'up to' : ending < beginning ? 'down to' : 'level at';
+}
+
 /** WHAT ONE CATEGORY GREW BY OVER THE WINDOW, each holding weighed by what it was worth when the window began (outside
  *  review MK-NW-F-084, 2026-10-09; DEC-1669): Σ (value today + interest) ÷ Σ start − 1, each start = (value today +
  *  interest) ÷ (1 + its window total). The interest is a bond's or CD's, paid in the window (DEC-6212, 2026-10-19); it is
@@ -1603,16 +1798,30 @@ export function categoryEarnings(input: {
  * Formula .....
  *     usable = items (or none when missing) where total ≠ nothing and total > -1 and (market value ?? 0) > 0
  *     lost = items (or none when missing) where total ≠ nothing and !usable.includes(each) and (start value ?? 0) > 0
- *     now = Σ over usable of (worth with interest(each))Σ over + lost of (worth with interest(each))
- *     start = Σ over usable of (worth with interest(each) ÷ (1 + (total as number)))Σ over + lost of (start value as number)
+ *     between = items (or none when missing) where total ≠ nothing and !usable.includes(each) and !lost.includes(each) and !!path.marks.some((m) => after > 1e − 9)
+ *     counted = [...usable, ...lost, ...between]
+ *     r = return split at purchases([path])   if path
+ *     undefined   otherwise
+ *     the answer = r ≠ nothing and total ≠ nothing and size of(r − total) ≤ 1e − 9 × max(1, size of(total))
+ *     split = return split at purchases(counted.map((x) => path!))
+ *     split   when split ! = undefined
  *     nothing   when not (now ≥ 0) or !(start > 0)
- *     the answer = now ÷ start − 1
  *
- * Called by ... MK-NW-F-084 categoryEarnings
+ * Called by ... MK-NW-F-084 categoryEarnings · MK-NW-F-088 BENCH
+ *               MK-NW-F-091 pricedGainOf · MK-NW-F-138 knownHoldingsReturn
+ *               MK-PF-F-078 yardstickOn
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 30 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
- *               MK-NW-F-086 CATS · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
+ *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
+ *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-065 firstDatedPurchase
+ *               MK-PF-F-070 holdingPath · MK-NW-F-168 holdingRowsIn
+ *               … and 12 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -1625,13 +1834,41 @@ export function categoryEarnings(input: {
  * Formula also on the master file · functions_from_code · MK-NW-F-142
  * Changed ..... not in git yet (—)
  */
-export function classReturnOf(items: { marketValue?: number | null; interest?: number | null; total: number | null; startValue?: number | null }[]): number | null {
+export function classReturnOf(items: { marketValue?: number | null; interest?: number | null; total: number | null; startValue?: number | null;
+  paidInside?: number | null; soldInside?: number | null; path?: HoldingPath }[]): number | null {
   const usable = (items ?? []).filter((x) => x.total != null && x.total > -1 && (x.marketValue ?? 0) > 0);
   // WORTH $0 TODAY, DOWN 100%, with the start it was read at (2026-10-21; tenet 4): in the class with what it lost — a
   // known $0 is $0. With no start, or worth $0 then too, it is left out as before.
   const lost = (items ?? []).filter((x) => x.total != null && !usable.includes(x) && (x.startValue ?? 0) > 0);
-  const now = usable.reduce((t, x) => t + worthWithInterest(x), 0) + lost.reduce((t, x) => t + worthWithInterest(x), 0);
-  const start = usable.reduce((t, x) => t + worthWithInterest(x) / (1 + (x.total as number)), 0) + lost.reduce((t, x) => t + (x.startValue as number), 0);
+  // SPLIT AT EVERY DAY MONEY WENT INTO THE CATEGORY (2026-10-21; DEC-1669, his words: "All return should be True Weighted
+  // Return and not Dietz return."; outside re-run OpenAI part 1, MK-PF-M-006): where every holding counted carries its path
+  // across the window (buildPerformance), each piece between two such days is measured and the pieces are multiplied
+  // (returnSplitAtPurchases). Weighed by value now ÷ (1 + each return), shares bought inside the window counted as held all
+  // along: A $1,000 that bought $9,450 more at $105 and B $10,000 that then halved read −20.00% where −21.60% is right; a
+  // holding bought last week weighed as if held all year. A category of one holding reads that holding's own return.
+  // bought and sold inside the window, nothing held at either end (2026-10-22): it still weighed while it was held, so its path
+  // is in the split; with nothing to start from it has no weight of its own in the starts
+  const between = (items ?? []).filter((x) => x.total != null && !usable.includes(x) && !lost.includes(x) && !!x.path?.marks.some((m) => m.after > 1e-9));
+  const counted = [...usable, ...lost, ...between];
+  // (each path must give back its own holding's figure, or the item was changed after its row was built: then the starts)
+  const ownFigure = (x: { path?: HoldingPath; total: number | null }) => {
+    const r = x.path ? returnSplitAtPurchases([x.path]) : undefined;
+    return r != null && x.total != null && Math.abs(r - x.total) <= 1e-9 * Math.max(1, Math.abs(x.total));
+  };
+  if (counted.length && counted.every(ownFigure)) {
+    const split = returnSplitAtPurchases(counted.map((x) => x.path!));
+    if (split !== undefined) return split;
+  }
+  // OTHERWISE each holding's own return, weighed by what it was worth when the window began: value now ÷ (1 + its return)
+  // where no shares were bought inside the window (the same figure), else the start read from the shares held then
+  // (startValue, 2026-10-21: worked back from today's shares it counted the shares bought inside as held all along)
+  const realStart = (x: { paidInside?: number | null; soldInside?: number | null; startValue?: number | null }) =>
+    (x.paidInside !== undefined || x.soldInside !== undefined) && (x.startValue ?? 0) > 0;
+  const now = usable.reduce((t, x) => t + (realStart(x) ? (x.startValue as number) * (1 + (x.total as number)) : worthWithInterest(x)), 0)
+    // a holding sold in full in the window holds nothing today: its start grows by its own return, as a held one's does (2026-10-22)
+    + lost.reduce((t, x) => t + (realStart(x) ? (x.startValue as number) * (1 + (x.total as number)) : worthWithInterest(x)), 0);
+  const start = usable.reduce((t, x) => t + (realStart(x) ? x.startValue as number : worthWithInterest(x) / (1 + (x.total as number))), 0)
+    + lost.reduce((t, x) => t + (x.startValue as number), 0);
   // everything lost is −100.00%, a return; only nothing to start from is no return
   if (!(now >= 0) || !(start > 0)) return null;
   return now / start - 1;
@@ -1892,12 +2129,13 @@ const BENCH_GIVEN =
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-003 institution name
  *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-005 holding price
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-024 logged expenses
  *               MK-XS-I-048 the person’s own asset-class answer
- *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-088
  * Changed ..... not in git yet (—)
@@ -1928,17 +2166,17 @@ export const PERFORMANCE_FIGURES = declareFigures({
   'MK-PF-M-013': {
     label: 'Beginning market value', unit: 'money', screens: ['/account-detail', '/invest'],
     grain: 'one account',
-    answers: 'What this one account was worth on the day the window opens, READ from the record \u2014 '
-      + 'never back-solved from today.',
+    answers: 'What this one account was worth on the day the window opens \u2014 read from the record; where the record does not reach '
+      + 'that day, worked back from each holding\u2019s price history, and the screen says so (DEC-3656, DEC-5291).',
     formula: 'the account\u2019s value on the day before the window opens, as recorded',
     inputs: ['MK-NW-I-003 the recorded history'],
     decisions: [
-      'IT IS READ, NOT BACK-SOLVED. Working it out from today\u2019s value less the flows would make the '
-      + 'walk add up by construction and prove nothing (his ruling behind MK-NW-F-090).',
+      'READ FROM THE RECORD where it reaches the day; where it does not, WORKED BACK from today\u2019s values less each holding\u2019s '
+      + 'known gain less the money moved, and said in a sentence ("…so the beginning is worked back from today\u2019s values and each '
+      + 'holding\u2019s price history") (DEC-3656, DEC-5068, DEC-5291; row words corrected 2026-10-21 \u2014 they said never back-solved).',
       'THE DAY BEFORE THE WINDOW OPENS, not the day it opens \u2014 B-115, found 2026-09-30.',
     ],
-    refusal: 'The record does not reach back that far, so the walk is not drawn at all rather than '
-      + 'started from a guess.',
+    refusal: 'Neither the record nor a price history reaches that far: the holding with no price history is named and left out (DEC-5068).',
     ruled: '2026-10-01',
     worked: { given: GIVEN, answer: '$30,000', run: () => PERF().walk!.beginning },
   },
@@ -1989,11 +2227,73 @@ export const PERFORMANCE_FIGURES = declareFigures({
       'EVERY RETURN IS TIME-WEIGHTED (owner, 2026-10-04, DEC-1669): "All return should be True Weighted Return and not Dietz return."',
       'WHERE IT CANNOT BE MEASURED IT SHOWS NO PERCENT, and never another method in its place.',
       'ONE METHOD WITH THE PORTFOLIO: the same door the Performance tab calls, asked for this one account.',
+      'LONGER THAN A YEAR IS READ ON THE CALENDAR (DEC-3768b, DEC-0237): a window that opens one year back to the day is a year, though it counts 366 days, and is never made yearly; a longer one is made yearly over its own days \u00f7 365, the one rule every screen uses (2026-10-21, MK-PF-M-016) \u2014 21% over 731 days is +9.99% a year on the account and on each holding alike. Over a year the page says it: the window\u2019s own total, which is this yearly rate.',
     ],
-    refusal: 'No percent, and a sentence saying why: the record does not reach the start, money moved on a day with no recorded value, shares were moved in or out, or there was nothing to grow from that day (the previous evening plus the money moved is zero or less while the day holds a value). It never shows another kind of figure in its place.',
+    refusal: 'No percent, and a sentence saying why: the record does not reach the start, money moved on a day with no recorded value, shares were moved in or out, there was nothing to grow from that day (the previous evening plus the money moved is zero or less while the day holds a value), or the value recorded on a day is below $0 (2026-10-21) \u2014 never read as $0 and \u2212100.00%. It never shows another kind of figure in its place.',
     ruled: '2026-10-04',
     // $30,000 became $32,000 with nothing paid in or out: ($32,000 \u2212 $30,000) \u00f7 $30,000 = +6.67%
     worked: { given: QUIET_GIVEN, answer: '+6.67%', run: () => QUIET_PERF().ret },
+  },
+  // ISSUED AND DECLARED 2026-10-21 (Performance audit row 9, rule 11): the account page's BY CATEGORY & HOLDING table printed
+  // each holding's and each class's Return with no identifier — the guard that counts unnamed figures read dollars only, so it
+  // could not see a percent. Issued under rule 11 (every figure a person reads is declared) and the decisions each row names;
+  // `ruled` is the issue date, as MK-NW-M-065 and 066 were issued under DEC-0281. To reverse: delete the two rows and print pct2 again.
+  'MK-PF-M-023': {
+    label: 'Return (one holding) · Your return, past <window> · Your return since purchase', unit: 'percent-signed',
+    screens: ['/account-detail', '/holding-detail'], grain: 'one holding',
+    answers: 'How much one holding grew over the window picked, dividends included, and for a bond or a CD the interest it was paid — '
+      + 'from its purchases when it was bought inside the window. The same figure on its account\u2019s page and on its own page.',
+    formula: 'the holding\u2019s latest close \u00f7 its close on the day before the window opens, less 1, dividend-adjusted (DEC-0315, DEC-4645); '
+      + 'bought inside the window: from each purchase, time-weighted (DEC-1669, DEC-4439); for a bond or a CD, (1 + that) \u00d7 (1 + the '
+      + 'interest paid in the window \u00f7 what it was worth when its figure began) \u2212 1 (MK-PF-F-049 returnWithInterest); over 2Y a yearly '
+      + 'rate, (1 + the return)^(365 \u00f7 days) \u2212 1 (MK-PF-F-014 buildPerformance, asked one way by holdingRowsIn in holding.ts)',
+    inputs: ['MK-NW-I-005 the price feed', 'MK-NW-I-004 the activity records'],
+    decisions: [
+      'TWO DECIMALS AND ITS SIGN (Q49): +10.00%, \u221210.00%.',
+      'A BOND\u2019S OR A CD\u2019S RETURN COUNTS THE INTEREST IT WAS PAID (DEC-6212, 2026-10-19).',
+      'MEASURED FROM THE CLOSE BEFORE THE WINDOW\u2019S FIRST DAY (DEC-0315).',
+      'A ROW THAT IS THE WHOLE ACCOUNT prints the account\u2019s own Return (MK-PF-M-016), so one figure is never written two ways.',
+      'ONE HOLDING, ONE FIGURE ON BOTH PAGES (2026-10-22; tenet 4): the account page and the Holding page ask one function, '
+      + 'holdingRowsIn, and print this identifier. MK-NW-M-069, issued the day before for the Holding page, is retired into it. Before, '
+      + 'the account page printed the holding\u2019s price move over the whole window, so one bought inside the window read a figure '
+      + 'its own page did not, and over 2Y it printed the window\u2019s total beside the account\u2019s yearly rate.',
+      'OVER 2Y IT IS A YEARLY RATE (DEC-0237, DEC-0404, DEC-0368): the Holding page writes /year and the window\u2019s own total beside it; '
+      + 'on the account page it sits beside the account\u2019s own yearly rate, whose sentence says so.',
+    ],
+    refusal: 'An em-dash: no price history reaches the window\u2019s first day, or the window begins today (day one); on the Holding page a line says which.',
+    ruled: '2026-10-21',
+    // VOO closed $500.00 the day before the window opened and $550.00 today, nothing paid: $550 ÷ $500 − 1 = +10.00%
+    worked: {
+      given: 'VOO, 10 shares bought Jan 2, 2024, worth $5,500 today (Oct 21, 2026). The past year opens Oct 21, 2025; the last close on or '
+        + 'before the day before is $500.00 on Sep 30, 2025, and the latest is $550.00 on Oct 20, 2026. Nothing was paid on it.',
+      answer: '+10.00%',
+      run: () => holdingRowsIn({
+        account: { asset_id: 'v', label: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 5_500 } as any,
+        positions: [{ position_id: 'voo', ticker: 'VOO', asset_class: 'stock_etf', lots: [{ lot_id: 'l', shares: 10, cost_per_share: 400, purchase_date: '2024-01-02' }] } as any],
+        priceOf: () => ({ ticker: 'VOO', points: [{ date: '2025-09-30', close: 500 }, { date: '2026-10-20', close: 550 }] }),
+        period: '1Y', transactions: [], now: new Date('2026-10-21T12:00:00'),
+      })[0].periodReturn,
+    },
+  },
+  'MK-PF-M-024': {
+    label: 'Return (one class inside one account)', unit: 'percent-signed', screens: ['/account-detail'], grain: 'one class in one account',
+    answers: 'How much one kind of holding inside this account grew over the window — its holdings together, each counted at what it was worth when the window began.',
+    formula: 'what the class’s holdings are worth now (with the interest they were paid) ÷ what they were worth when the window began (each one’s now ÷ (1 + its own return)), less 1 (MK-NW-F-142 classReturnOf)',
+    inputs: ['MK-NW-I-005 the price feed', 'MK-NW-I-001 your accounts'],
+    decisions: [
+      'TWO DECIMALS AND ITS SIGN (Q49).',
+      'WEIGHED BY WHAT EACH HOLDING WAS WORTH WHEN THE WINDOW BEGAN, the Performance tab’s rule (MK-NW-F-084), never by today’s values.',
+      'A HOLDING WORTH $0 TODAY counts at what it was worth when the window began (2026-10-21, tenet 4).',
+      'A CLASS THAT IS THE WHOLE ACCOUNT prints the account’s own Return (MK-PF-M-016).',
+    ],
+    refusal: 'An em-dash: no holding in the class can be measured over this window.',
+    ruled: '2026-10-21',
+    // $6,600 now at +10% began at $6,000; $3,600 now at −10% began at $4,000: $10,200 ÷ $10,000 − 1 = +2.00%
+    worked: {
+      given: 'Two stock holdings in one account: one worth $6,600 today that returned +10% over the window, one worth $3,600 that returned −10%.',
+      answer: '+2.00%',
+      run: () => classReturnOf([{ marketValue: 6_600, total: 0.10 }, { marketValue: 3_600, total: -0.10 }]),
+    },
   },
   // ISSUED AND DECLARED 2026-10-01 (Performance step 1.c): the Performance tab printed its own Return,
   // its walk and its trade sheet's cash with no identifier — 23 figures. These are EVERY ACCOUNT TOGETHER,
@@ -2009,19 +2309,20 @@ export const PERFORMANCE_FIGURES = declareFigures({
       'EVERY RETURN IS TIME-WEIGHTED (owner, 2026-10-04, DEC-1669). Where it cannot be measured it shows no percent, and never another method in its place.',
       'AN ACCOUNT THAT JOINS THE RECORD inside the window counts as money in, at its first recorded value \u2014 nothing it was already worth is earned; when money was added to it that day, that money is what arrived and it was worth $0 the evening before (DEC-4439).',
       'THE SAME DOOR AS ONE ACCOUNT\u2019S RETURN (MK-PF-M-016), asked for every account at once \u2014 one method, never two.',
+      'LONGER THAN A YEAR IS READ ON THE CALENDAR (DEC-3768b, DEC-0237): a window that opens one year back to the day is a year, though it counts 366 days, and is never made yearly; a longer one is made yearly over its own days \u00f7 365, the one rule every screen uses (2026-10-21, MK-PF-M-016).',
     ],
-    refusal: 'No percent, and a sentence saying why: the record does not reach the start, money moved on a day with no recorded value, shares were moved in or out, or there was nothing to grow from that day (the previous evening plus the money moved is zero or less while the day holds a value). It never shows another kind of figure in its place.',
+    refusal: 'No percent, and a sentence saying why: the record does not reach the start, money moved on a day with no recorded value, shares were moved in or out, there was nothing to grow from that day (the previous evening plus the money moved is zero or less while the day holds a value), or the value recorded on a day is below $0 (2026-10-21) \u2014 never read as $0 and \u2212100.00%. It never shows another kind of figure in its place.',
     ruled: '2026-10-04',
     // $30,000 became $32,000 with nothing paid in or out: ($32,000 \u2212 $30,000) \u00f7 $30,000 = +6.67%
     worked: { given: QUIET_GIVEN, answer: '+6.67%', run: () => QUIET_PERF().ret },
   },
   'MK-PF-M-018': {
     label: 'Beginning market value', unit: 'money', screens: ['/invest'], grain: 'every account together',
-    answers: 'What all your investments were worth on the day the window opens, READ from the daily record.',
+    answers: 'What all your investments were worth on the day the window opens \u2014 read from the daily record, or worked back from each holding\u2019s price history where the record does not reach it.',
     formula: 'the recorded value of every investment account at the close of the day before the window opens',
     inputs: ['MK-NW-I-003 the recorded history'],
-    decisions: ['READ, NEVER BACK-SOLVED: with no recorded value the walk says so instead of inventing a start.'],
-    refusal: 'No recorded value that far back \u2014 the walk starts the day the record does, and says so.',
+    decisions: ['READ FROM THE DAILY RECORD where it reaches the day; where it does not, worked back from today\u2019s values and each holding\u2019s price history and said in a sentence (DEC-3656, DEC-5068, DEC-5291; row words corrected 2026-10-21 \u2014 they said never back-solved).'],
+    refusal: 'Neither the record nor a price history reaches that far: the holding with no price history is named and left out (DEC-5068).',
     ruled: '2026-10-01',
     worked: { given: GIVEN, answer: '$30,000', run: () => PERF().walk!.beginning },
   },
@@ -2041,10 +2342,11 @@ export const PERFORMANCE_FIGURES = declareFigures({
     answers: 'The cash in this account that a buy, a withdrawal or a transfer can use right now.',
     formula: 'the cash sleeve of a brokerage account; the whole balance of a cash account',
     inputs: ['MK-NW-I-001 your accounts'],
-    decisions: ['A BUY OR WITHDRAWAL BIGGER THAN THIS IS REFUSED on the sheet, with the words to deposit or transfer cash in first.'],
-    refusal: 'No account picked \u2014 the line is not shown.',
+    decisions: ['A BUY OR WITHDRAWAL BIGGER THAN THIS IS REFUSED on the sheet, with the words to deposit or transfer cash in first.',
+      'CASH NEVER ENTERED IS NOT $0 (2026-10-21; DEC-3279e, tenet 3): an investment account with no cash on record reads not entered, and the sheet does not refuse a buy or a withdrawal on it. No account picked: the line is not shown.'],
+    refusal: 'not entered',
     ruled: '2026-10-01',
-    worked: { given: 'A savings account holding $5,000 and nothing else.', answer: '$5,000', run: () => availableCash({ asset_id: 'x', label: 'Savings', balance: 5_000 } as any) },
+    worked: { given: 'A savings account holding $5,000 and nothing else.', answer: '$5,000', run: () => availableCash({ asset_id: 'x', label: 'Savings', kind: 'savings', tax_bucket: 'CASH', balance: 5_000 } as any) },
   },
   // ISSUED 2026-10-19 by DEC-6076: the two amounts inside the sentence under the summary where a holding with no
   // price history is left out, each written by the one figure writer under its own identifier.
@@ -2094,7 +2396,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     inputs: ['MK-XS-I-020 the records of money movements'],
     decisions: [
       'LEDGER ONLY: what was actually RECEIVED, never a rate applied to a balance.',
-      'A record with no ticker is classed by what it IS — a dividend comes from a fund, interest from a bond.',
+      'A RECORD WITH NO TICKER names no holding (row words corrected 2026-10-21, outside re-run OpenAI part 1, to what the screen does): interest with no ticker is interest on the account\u2019s own cash and sits under Cash in this account; a dividend with no ticker sits under Unclassified (DEC-2160), never a guessed class.',
       'A class that received nothing is not shown at all; where nothing was received the table does not appear.',
     ],
     refusal: 'The table does not appear — nothing was received in this window.',
@@ -2108,14 +2410,17 @@ export const PERFORMANCE_FIGURES = declareFigures({
   'MK-PF-M-008': {
     label: 'market +X%', unit: 'percent-2dp', screens: ['/home'],
     answers: 'What the market did over the SAME days, matched to what you actually hold.',
-    formula: "each holding's own benchmark return over the same dates, weighted by what that holding was worth when the window began (its value now ÷ (1 + its own return); a holding worth $0 today, the value it was read at when the window began — 2026-10-21); a holding with no return of its own is left out of the blend",
+    // the formula and the refusal as the code is built (PF-RECORDS wrote them on the master 2026-10-21 from portfolioBenchReturn;
+    // carried here 2026-10-22 so the declaration and the file say one thing, and the override lines retire)
+    formula: "Each holding is set beside its own yardstick over the same dates as its own return \u2014 from the window's start, or from the day it was bought inside the window (DEC-7223). The window is split at the same days as your return \u2014 every day money went into or out of a holding \u2014 and on each piece every yardstick is weighted by what that holding was worth when the piece began, the weights your own return carries (2026-10-22, the lead's decision under DEC-1669 and tenets 1 and 7). With no money moved inside the window there is one piece, weighted by what each holding was worth when the window began: the shares held then \u00d7 that day's close (DEC-7221). A holding with no return of its own is left out of both sides. If a holding counted in your return has no yardstick, there is no market figure (DEC-7224). Every yardstick includes its dividends and interest (DEC-4645).",
     inputs: ['MK-NW-I-001 your accounts', 'MK-XS-I-006 the price fetched at'],
     decisions: [
       'The benchmark runs over the SAME DATES as your return — including where your window is cut short at your own purchase date. Comparing your three months against the market\'s twelve is not a comparison.',
       'Weighted by what each holding was worth when the window began, so the blend answers "the market, matched to my mix" rather than a plain average of indices — and a holding that grew does not grow its yardstick\'s weight (outside review Claude Performance, 2026-10-11, DEC-1669, DEC-3035b).',
       'THE MARKET INCLUDES ITS DIVIDENDS AND INTEREST (DEC-4645, 2026-10-12): SPY and AGG are read through the same dividend-adjusted closes as every holding (src/services/marketData.ts, adjclose).',
     ],
-    refusal: 'No benchmark can be priced over this window, so none is shown.',
+    refusal: "No market figure is shown: no yardstick can be priced over the window, or a holding counted in your return has none (DEC-7224). It is a percent, so the $0 empty-state line (Q48, for dollar figures) never applied to it.",
+    ruled: '2026-09-30',   // his "Q51 -approved." on the Home line (DEC-0640), with DEC-0595 and DEC-4645; Q33 answered by DEC-7229
     worked: {
       given: BENCH_GIVEN,
       answer: '8.80%',
@@ -2129,6 +2434,23 @@ export const PERFORMANCE_FIGURES = declareFigures({
       + 'while the "you" side beside it counts dividends and interest \u2014 so the "ahead by" is not a like-for-like gap. '
       + 'Corrected 2026-10-12: the market figure uses SPY and AGG adjusted closes, which include their dividends and interest. Both sides of "ahead by" therefore count income, and the line is like-for-like; his approved wording stays '
       + 'word for word (DEC-4645).',
+  },
+  // ISSUED AND DECLARED 2026-10-22 (W-A11Y; DEC-0402 step 2, found BREACHED by PF-DECISIONS): Home's glance line printed
+  // "ahead by 0.85%" with a percent writer of its own, so the gap carried no identifier. It is the gap marketGap gives — the
+  // one function each holding's "You are ahead by" reads (MK-NW-M-071) — for every investment together, as MK-PF-M-008 is the
+  // market for every investment together beside MK-NW-M-070's one holding. `ruled` is the issue date, as MK-NW-M-065 was.
+  // To reverse: delete this row and print the gap with Home's own writer again.
+  'MK-PF-M-027': {
+    label: 'ahead by / behind by (your return less the market\u2019s)', unit: 'percent-2dp', screens: ['/home'], grain: 'every investment together',
+    answers: 'How far your investments\u2019 return over the month is above or below the market\u2019s over the same days, matched to what you hold.',
+    formula: 'your return (MK-XS-M-004) less the market\u2019s (MK-PF-M-008) \u2014 marketGap (src/domain/performance), the one function the Holding page\u2019s gap reads; "ahead" when it is 0 or more, "behind" otherwise, and the size printed without its sign',
+    inputs: ['MK-NW-I-001 your accounts', 'MK-XS-I-006 the price fetched at', 'MK-XS-I-020 the records of money movements'],
+    decisions: ['HIS RULING ON Q51 (2026-09-30): "you +3.69% (including dividend and interest), market +2.83%, ahead by 0.85%" \u2014 his words, printed word for word.',
+      'TWO DECIMALS (Q49).', 'BOTH SIDES COUNT DIVIDENDS AND INTEREST (DEC-4645): the market is read from adjusted closes, so the gap is like for like.'],
+    refusal: 'Either side missing: the line is not shown.',
+    ruled: '2026-10-22',
+    // your holdings did not move (+0.00%); the market, matched to them, rose 8.80%: 0.00% \u2212 8.80% = behind by 8.80%
+    worked: { given: BENCH_GIVEN + ' Your own return over those days: +0.00%.', answer: '8.80%', run: () => Math.abs(marketGap(0, BENCH()) as number) },
   },
   'MK-XS-M-004': {
     label: '\u25b2 up/\u25bc down $X (Y%) this month \u00b7 Return \u00b7 YOUR RETURN', unit: 'percent-2dp', screens: ['/invest', '/home'],
@@ -2158,7 +2480,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
       + 'for the two screens to disagree about. It is an MK-XS identifier because it is on more than one screen.',
   },
   'MK-PF-M-001': {
-    label: 'Ending value', unit: 'money', screens: ['/invest'],
+    label: 'Ending value', unit: 'money', screens: ['/invest', '/home'],
     answers: 'What your investments are worth at the end of the window you picked.',
     formula: 'the sum of every investment account’s value today',
     inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-005 the price feed'],
@@ -2170,8 +2492,10 @@ export const PERFORMANCE_FIGURES = declareFigures({
       run: () => PERF().walk!.ending,
     },
   },
+  // ON HOME TOO (2026-10-22, W-A11Y): Home's "up $8,200 this month" is this figure for the 1M window — one figure, its identifier
+  // reused, never a second (held on both screens by pfb_cross_screen_agreement_2026_10_21, section 4)
   'MK-PF-M-002': {
-    label: 'Wealth generated', unit: 'money', screens: ['/invest'],
+    label: 'Wealth generated', unit: 'money', screens: ['/invest', '/home'],
     answers: 'What the money itself made in the window — not what you added to it.',
     formula: 'ending − beginning − what you put in + what you took out',
     inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-004 the activity records', 'MK-NW-I-003 the recorded history'],
@@ -2186,6 +2510,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
   },
   'MK-PF-M-003': {
     label: 'HOW $X BECAME $Y · ALL ACCOUNTS', unit: 'words', screens: ['/invest'],
+    period: 'the window picked',   // the walk's beginning and ending are the window's (2026-10-22, the master's Period row)
     answers: 'Every line that took the beginning to the ending, so it can be checked by eye.',
     formula: 'beginning + contributions − withdrawals + wealth generated = ending, by construction',
     inputs: ['MK-NW-I-003 the recorded history', 'MK-NW-I-004 the activity records'],
@@ -2220,7 +2545,10 @@ export const PERFORMANCE_FIGURES = declareFigures({
     formula: 'each investment account’s value, named by the account',
     inputs: ['MK-NW-I-001 your accounts'],
     decisions: ['Named by ACCOUNT, not by institution — two accounts at one broker must be tellable apart (founder screenshot, 2026-08-17).'],
-    refusal: 'One account only — the whole walk above already says it.',
+    // AS BUILT (2026-10-22, Performance audit, workplan "The $0 empty-state refusal of Q48…"): it said "One account only — the
+    // whole walk above already says it", but the screen lists a lone account too (v17 phone 3, closed), and the master printed
+    // Q48's "$0" over it, which this list never shows — with nothing entered it is not drawn at all.
+    refusal: 'No account line while nothing is entered: the one line and its door to add an account stand in their place (Q48). An account is listed once it has a balance above $0 or a holding in it.',
     ruled: '2026-09-27',
     worked: {
       given: GIVEN + ' Each account is asked separately, from the same door as the total.',

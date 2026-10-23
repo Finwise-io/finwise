@@ -168,9 +168,11 @@ gains by its rate — $10,500 at 5% for a year began at $10,000. A holding with 
 of DEC-3656: *"Wealth Generated and Return should be calculated and displayed for every asset with history.
 Below it display "Wealth Generated and Return does not include treasury gains as no price history
 available.""*). It adds no gain — its value is taken as unchanged — Wealth generated and the walk come from
-the holdings whose gain is known, and Return is the return of those holdings only: their values now added
-up ÷ their start values added up − 1, each start = value now ÷ (1 + its own return over the window), the
-same method as each category's return; one with no history is left out, never counted at 0%, and with
+the holdings whose gain is known, and Return is the return of those holdings only, split at every day money went into them and each piece's
+growth multiplied (2026-10-22, DEC-7324; with no money moved inside the window this is their values now
+added up ÷ their start values added up − 1, each start = the shares held when the window began × that day's
+close, DEC-7221 — it read "value now ÷ (1 + its own return)", which counts shares bought inside the window
+as held from the start), the same method as each category's return; one with no history is left out, never counted at 0%, and with
 none there is no Return. Below the summary, on the account page and on that account's card on the
 Performance tab: "Wealth generated and Return do not include Treasury 2031's gains, as it has no price
 history." (several: "… do not include the gains of Treasury 2031 and Muni 2029, as they have no price

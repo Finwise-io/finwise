@@ -36,7 +36,8 @@ test('no screen types a door title itself — every one comes from src/constants
 
 test('the three screens that offer the doors all read the one list', () => {
   for (const f of ['src/screens/HomeScreen.tsx', 'src/screens/SharpenPlanScreen.tsx', 'src/components/PlanInputs.tsx']) {
-    expect(fs.readFileSync(f, 'utf8')).toMatch(/import \{ DOORS \} from '\.\.\/constants\/doors'/);
+    // DOORS may sit beside other names from the same list (Home also reads EMPTY_DOORS for its hero card's spoken label, 2026-10-22)
+    expect(fs.readFileSync(f, 'utf8')).toMatch(/import \{[^}]*\bDOORS\b[^}]*\} from '\.\.\/constants\/doors'/);
   }
 });
 

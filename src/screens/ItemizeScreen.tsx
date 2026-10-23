@@ -18,7 +18,7 @@ import {
 } from '../domain/assets/itemize';
 // ONE DOOR (MK-NW-O-002 theAccount, Q-NW-2 ruled 2026-09-27): what an account is worth and what is
 // inside it is ONE question, and this screen asks it through the same door the account page uses.
-import { itemising } from '../../MoneyKeel/functions/networth-and-performance/account';
+import { itemising, itemisedShare } from '../../MoneyKeel/functions/networth-and-performance/account';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 
@@ -72,7 +72,7 @@ export default function ItemizeScreen() {
   const overBy = remainder < 0 ? -remainder : 0;
   const pickDef = CLS_PICKS.find((p) => p.id === pick)!;
   const canAdd = name.trim() !== '' && num(val) > 0;
-  const pctFilled = lump.balance > 0 ? Math.max(0, Math.min(1, allocated / lump.balance)) : 0;
+  const pctFilled = itemisedShare(allocated, lump.balance);   // calculated by the door (DEC-0346, 2026-10-22)
 
   const addHolding = () => {
     if (!canAdd) return;

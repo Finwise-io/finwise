@@ -99,14 +99,14 @@ export interface EmergencyFund {
  *
  * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-079 EF · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
  *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-046 · MK-NW-M-047 · MK-NW-M-048 · MK-NW-M-064
@@ -335,6 +335,8 @@ export const EMERGENCY_FUND_FIGURES = declareFigures({
     inputs: ['MK-NW-I-001 your accounts', 'MK-CF-I-001 your logged expenses'],
     decisions: [
       'ONE essentials figure across all three screens (his ruling G21, 2026-09-08): the average of what has been logged, over the months logged.',
+      'NOTHING LOGGED YET (DEC-0251, 2026-09-08): "The typed plan is the fallback for someone who has logged nothing — never the other way round." '
+      + 'The essentials typed in the plan stand in, and the line says so: "$18,000 cash ÷ $3,470/month essentials — you entered". (Row words corrected 2026-10-21, outside re-run OpenAI part 1; no figure moves.)',
       'FOUNDER 2026-10-04: "add it to the cash as losing job does not mean loosing rental income too." Rent arrives every month, '
       + 'so it is added to the cash every month — which is the cash ÷ (the month − the rent).',
     ],

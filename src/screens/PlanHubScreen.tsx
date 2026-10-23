@@ -37,6 +37,7 @@ import { simulate } from '../domain/retirement';
 import { figWords } from '../components/figure';   // the odds and the retirement sentence print under their identifiers (2026-10-20)
 import { useCashflowModel } from '../hooks/useCashflowModel';
 import { salaryAnnual } from '../domain/income';
+import { dateShown } from '../domain/_shared/dates';   // every stored date in words, the one date writer (MK-ST-F-078)
 
 /** How a withdrawal rate reads in words — ONE home for it, in the module that owns the band
  *  (DEC-0036 reworded it to his own-math framing, DEC-0215 says it changes on every screen). */
@@ -193,7 +194,7 @@ export default function PlanHubScreen() {
   const confirmRevert = () => {
     const prev = planHistory[0];
     if (!prev) return;
-    Alert.alert('Back to your previous plan?', `Restores the plan saved ${prev.date} (${prev.label}). Every number switches back exactly.`, [
+    Alert.alert('Back to your previous plan?', `Restores the plan saved ${dateShown(prev.date)} (${prev.label}). Every number switches back exactly.`, [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Switch back', onPress: () => store.revertPlan?.() },
     ]);

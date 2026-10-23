@@ -153,17 +153,17 @@ export interface BondsInput {
  * Called by ... MK-NW-F-141 holdingBondFacts · MK-NW-O-001 theBonds
  *               MK-ST-F-093 typedValueOnItsDate
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
@@ -290,17 +290,17 @@ export function holdingBondFacts(p: { position_id?: string | number; ticker?: st
  *
  * Called by ... MK-NW-F-077 ALL · MK-NW-F-078 ONE
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-023 · MK-NW-M-024 · MK-NW-M-025 · MK-NW-M-026
  *               MK-NW-M-027 · MK-NW-M-041 · MK-NW-M-042 · MK-NW-M-043
@@ -432,19 +432,10 @@ const GIVEN =
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
- * Called by ... MK-NW-F-078 ONE
+ * Called by ... MK-NW-F-179 balanceWithBondTakenOut
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
- *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
- *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-179 balanceWithBondTakenOut
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -454,7 +445,7 @@ const GIVEN =
 const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
 
 /** Example only: runs theBonds for one bond of the worked example and calculates nothing of its own. */
-/* ─ MK-NW-F-078 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-NW-F-078 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * ONE
  *
  * Answers ..... Example only: runs theBonds for one bond of the worked example and calculates nothing of its own.
@@ -463,19 +454,40 @@ const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-NW-F-127 gainOfRow
- *               MK-NW-O-003 theNetWorth
+ *               MK-NW-F-179 balanceWithBondTakenOut · MK-NW-O-003 theNetWorth
+ *               MK-PF-F-044 startValues
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-078
+ * Changed ..... not in git yet (—)
+ */
+const ONE = () => theBonds({ accounts: EXAMPLE, accountId: 'b1', today: TODAY }).one!;
+
+/** AN ACCOUNT'S BALANCE ONCE A BOND ADDED AS PART OF IT IS TAKEN OUT (2026-10-22; DEC-0346: the Bonds screen calculated it) — "Part
+ *  of it" lowers the account by what the bond is worth, so nothing is counted twice, and never below $0. $50,000 holding a
+ *  $10,000 bond: $40,000. */
+/* ─ MK-NW-F-179 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * balanceWithBondTakenOut
+ *
+ * Answers ..... AN ACCOUNT'S BALANCE ONCE A BOND ADDED AS PART OF IT IS TAKEN OUT (2026-10-22; DEC-0346: the Bonds screen calculated it) — "Part of it" lowers the account by what the bond is worth, so nothing is counted twice, and never below $0.
+ *
+ * Formula .....
+ *     max(0, (account balance or 0) − bond worth)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -490,13 +502,16 @@ const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
  *     · If current yield is missing it uses 0.
  *     · If coupon rate is missing it uses 0.
  *     · If years left is missing it uses 0.
+ *     · If account balance is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Shows 2 decimal places.
  *     · Shows 1 decimal place.
  *
- * Formula also on the master file · functions_from_code · MK-NW-F-078
+ * Formula also on the master file · functions_from_code · MK-NW-F-179
  * Changed ..... not in git yet (—)
  */
-const ONE = () => theBonds({ accounts: EXAMPLE, accountId: 'b1', today: TODAY }).one!;
+export function balanceWithBondTakenOut(accountBalance: number | null | undefined, bondWorth: number): number {
+  return Math.max(0, (accountBalance || 0) - bondWorth);
+}
 
 /** THE FIGURES THIS DOOR HANDS OUT (rule 11). The master file's rows are printed from here. */
 export const BOND_FIGURES = declareFigures({

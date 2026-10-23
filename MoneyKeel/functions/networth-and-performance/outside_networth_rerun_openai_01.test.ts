@@ -154,7 +154,10 @@ describe('MK-NW-F-005 accountAllowsTicker — five cases', () => {
     expect(accountAllowsTicker(acct({ kind: 'fixed_income', asset_class: 'bonds', positions: [BOND(100)] }))).toBe(true);
   });
   test('complex · Manual alternative no holdings', () => { expect(accountAllowsTicker(acct({ kind: 'other_asset', asset_class: 'alternatives', positions: [] }))).toBe(false); });
-  test('edge · 529 blocked regardless holdings', () => { expect(accountAllowsTicker(acct({ kind: 'college_529', positions: [STOCK(100)] }))).toBe(false); });
+  // BRIEF WRONG (2026-10-22): his ruling DEC-2484g — "Any account that already lists holdings can take a recorded buy or sale"
+  // — covers a 529 listing its funds; the card it was written from said otherwise and was corrected. The auditor's answer is kept.
+  test.failing('edge · 529 blocked regardless holdings', () => { expect(accountAllowsTicker(acct({ kind: 'college_529', positions: [STOCK(100)] }))).toBe(false); });
+  test('pin · a 529 that lists holdings takes a buy or sale (DEC-2484g)', () => { expect(accountAllowsTicker(acct({ kind: 'college_529', positions: [STOCK(100)] }))).toBe(true); });
 });
 
 // REMOVED 2026-10-19 (DEC-5758, his words: "Removing #4,5,6,7-10,11 - approved."): MK-NW-F-006 isCashKind left the code —

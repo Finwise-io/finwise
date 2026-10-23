@@ -285,8 +285,11 @@ describe('whyNoReturn — a sentence for every refusal the time-weighted return 
   // nine since 2026-10-20: ACTIVITY_NOT_KNOWN, a record the app could not name (Q15) — its sentence names the word.
   // ten since 2026-10-21: INCOME_HAS_NO_AMOUNT, interest, a dividend or a coupon with no amount (DEC-3523 tenet 3) — its
   // sentence names the kind and the day (reversal_and_missing_amount.test.ts)
-  test('the engine lists ten refusals, and the two DEC-4439 removed are gone', () => {
-    expect(TIME_WEIGHTED_REFUSALS.length).toBe(10);
+  // eleven since 2026-10-21 (the lead's decision under DEC-3523 tenet 1; MK-PF-M-017): VALUE_BELOW_ZERO, a day the measured
+  // accounts together were worth less than $0 — it read −100.00%; its sentence names the day
+  test('the engine lists eleven refusals, and the two DEC-4439 removed are gone', () => {
+    expect(TIME_WEIGHTED_REFUSALS.length).toBe(11);
+    expect(TIME_WEIGHTED_REFUSALS as readonly string[]).toContain('VALUE_BELOW_ZERO');
     expect(TIME_WEIGHTED_REFUSALS as readonly string[]).toContain('ACTIVITY_NOT_KNOWN');
     expect(TIME_WEIGHTED_REFUSALS as readonly string[]).toContain('INCOME_HAS_NO_AMOUNT');
     expect(TIME_WEIGHTED_REFUSALS as readonly string[]).not.toContain('VALUE_BELOW_MONEY_ADDED');

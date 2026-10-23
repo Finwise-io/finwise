@@ -177,8 +177,16 @@ describe('MK-PF-F-012 earliestPurchaseDate — five cases', () => {
   const dated = (dates: any[]) => pos({ lots: dates.map((d) => ({ shares: 1, cost: 1, date: d })) });
   test('easy · Two dated lots', () => { expect(earliestPurchaseDate(dated(['2024-03-01', '2025-07-15']))).toBe('2024-03-01'); });
   test('easy · No lots at all', () => { refuses(earliestPurchaseDate(dated([]))); });
-  test('complex · Lots out of order, one undated', () => { expect(earliestPurchaseDate(dated(['2025-11-03', null, '2023-08-22', '2024-01-09']))).toBe('2023-08-22'); });
-  test('complex · Blank and placeholder dates from a broker', () => { expect(earliestPurchaseDate(dated(['', 'pending', '2022-06-30']))).toBe('2022-06-30'); });
+  // BRIEF WRONG since 2026-10-21 (the lead's decision under DEC-3523 tenet 3; outside re-run OpenAI MK-PF-F-012): a purchase
+  // with no date beside dated ones may be the first, so the day the holding became your money is not on record — the
+  // auditor's earliest DATED day is a guess at it. The window still counts the holding as bought inside from that day, and
+  // its return since purchase refuses (MK-PF-F-040). The auditor's two cases are kept, failing; the app's answer beside them.
+  test.failing('complex · Lots out of order, one undated', () => { expect(earliestPurchaseDate(dated(['2025-11-03', null, '2023-08-22', '2024-01-09']))).toBe('2023-08-22'); });
+  test.failing('complex · Blank and placeholder dates from a broker', () => { expect(earliestPurchaseDate(dated(['', 'pending', '2022-06-30']))).toBe('2022-06-30'); });
+  test('complex · Lots out of order, one undated; blank and placeholder dates — DECIDED 2026-10-21 (tenet 3): the first day is not on record', () => {
+    refuses(earliestPurchaseDate(dated(['2025-11-03', null, '2023-08-22', '2024-01-09'])));
+    refuses(earliestPurchaseDate(dated(['', 'pending', '2022-06-30'])));
+  });
   test('edge · Every lot undated', () => { refuses(earliestPurchaseDate(dated([null, null]))); });
 });
 

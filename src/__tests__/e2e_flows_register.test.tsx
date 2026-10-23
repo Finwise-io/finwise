@@ -145,9 +145,9 @@ test('E2E-43 deposit then withdraw on a cash account: balance right, history sho
   fireEvent.changeText(screen.getByLabelText('Amount'), '500');
   fireEvent.press(screen.getByLabelText('Save this deposit'));
   fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Checking'));
-  fireEvent.press(screen.getByLabelText('Record a withdraw for Checking'));
+  fireEvent.press(screen.getByLabelText('Record a withdrawal for Checking'));   // the record's own name (audit row 30, 2026-10-21)
   fireEvent.changeText(screen.getByLabelText('Amount'), '200');
-  fireEvent.press(screen.getByLabelText('Save this withdraw'));
+  fireEvent.press(screen.getByLabelText('Save this withdrawal'));
   const st = useStore.getState() as any;
   expect(st.assetAccounts[0].balance).toBe(1300);
   expect(st.transactions).toHaveLength(2);

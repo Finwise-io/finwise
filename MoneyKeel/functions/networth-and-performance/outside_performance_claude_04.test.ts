@@ -34,7 +34,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
-import { startDateFor, latestClose, periodReturn, periodReturnSince, closeOnOrBefore, priceHistoryShortSentence, type PriceSeries } from '../../../src/domain/performance';
+import { startDateFor, latestClose, periodReturn, periodReturnSince, closeOnOrBefore, firstClose, calendarDay, priceHistoryShortSentence, type PriceSeries } from '../../../src/domain/performance';
 import { factorOverMonths, lookBack } from '../../../src/domain/performance/lookBack';
 import { theLookBack } from './look-back';
 
@@ -45,7 +45,8 @@ const fromSource = (file: string, start: RegExp, end: string, name: string) => {
   if (at < 0) throw new Error(`${name} not found in ${file}`);
   const code = text.slice(at, text.indexOf(end, at) + end.length);
   const js = ts.transpileModule(code, { compilerOptions: { target: ts.ScriptTarget.ES2019 } }).outputText;
-  return new Function(`${js}\nreturn ${name};`)();
+  // (2026-10-21) closeAsOf compares days on the person's own calendar, by the app's one day readers — handed over
+  return new Function('closeOnOrBefore', 'firstClose', 'calendarDay', `${js}\nreturn ${name};`)(closeOnOrBefore, firstClose, calendarDay);
 };
 const closeAsOf: (series: PriceSeries | null | undefined, target: Date) => number | null =
   fromSource('../../../src/domain/performance/index.ts', /function closeAsOf\(/, '\n}\n', 'closeAsOf');
@@ -178,8 +179,14 @@ describe('MK-PF-F-010 periodReturn — five cases', () => {
     near(periodReturn(S([['2026-09-09', 100], ['2026-09-10', 102], ['2026-10-09', 110]]), '1M', TODAY), 0.1);
   });
   test('easy · No prices', () => { refuses(periodReturn(S([]), '3M', TODAY)); });
-  test('complex · Exactly two years, given as a yearly rate', () => {
+  // BRIEF WRONG since 2026-10-21 (one rule for a yearly rate on every screen, the precision standard's "(1 + the return)^(365 ÷
+  // days) − 1", outside re-run OpenAI MK-PF-M-016): the auditor made it yearly over exactly 2 years; 9 Oct 2024 → 10 Oct 2026 is
+  // 731 days, so (662.39 ÷ 480)^(365 ÷ 731) − 1 = +17.45% a year, the account's own reading of the same window. Kept, failing.
+  test.failing('complex · Exactly two years, given as a yearly rate', () => {
     near(periodReturn(S([['2024-10-09', 480.0], ['2024-10-10', 480.0], ['2025-10-09', 571.2], ['2026-10-09', 662.39]]), '2Y', TODAY), 0.174725);
+  });
+  test('complex · Exactly two years, given as a yearly rate — one rule (2026-10-21): over 731 days ÷ 365', () => {
+    near(periodReturn(S([['2024-10-09', 480.0], ['2024-10-10', 480.0], ['2025-10-09', 571.2], ['2026-10-09', 662.39]]), '2Y', TODAY), Math.pow(662.39 / 480, 365 / 731) - 1);
   });
   // UNCLEAR: app gives 0.034 (from the first close on record, 4 May 2026, index.ts:506 via :626), expected REFUSES. The
   // fallback is deliberate (closeAsOf "target predates the series → first available"; the 2Y branch says the figure "covers

@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-22",
+ "generated": "2026-10-23",
  "states": [
   "worker",
   "rich",
@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "evening"
+     "s": "morning"
     },
     {
      "k": "t",
@@ -52,7 +52,7 @@
     },
     {
      "k": "a",
-     "s": "Your investments: $165,000"
+     "s": "Your investments: $165,000. change shows once your holdings have prices. as of Oct 23. See your growth."
     },
     {
      "k": "t",
@@ -80,7 +80,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 21"
+     "s": "Oct 23"
     },
     {
      "k": "t",
@@ -232,7 +232,7 @@
     },
     {
      "k": "t",
-     "s": "21"
+     "s": "23"
     },
     {
      "k": "t",
@@ -278,15 +278,27 @@
     },
     {
      "k": "t",
-     "s": "evening"
+     "s": "morning"
     },
     {
      "k": "t",
      "s": "Ava"
     },
     {
+     "k": "t",
+     "s": "📡 Couldn't refresh — showing your numbers from"
+    },
+    {
+     "k": "t",
+     "s": "your last session"
+    },
+    {
+     "k": "t",
+     "s": "."
+    },
+    {
      "k": "a",
-     "s": "Your investments: $709,800, prices updated not updated yet"
+     "s": "Your investments: $709,800. change shows once your holdings have prices. prices may be out of date, updated not updated yet. Vanguard part as of Sep 12, 41 days old, pull to refresh. See your growth."
     },
     {
      "k": "t",
@@ -322,7 +334,7 @@
     },
     {
      "k": "t",
-     "s": "⏱ Vanguard part as of Sep 12 — 39 days old"
+     "s": "⏱ Vanguard part as of Sep 12 — 41 days old"
     },
     {
      "k": "t",
@@ -482,7 +494,7 @@
     },
     {
      "k": "t",
-     "s": "21"
+     "s": "23"
     },
     {
      "k": "t",
@@ -528,7 +540,7 @@
     },
     {
      "k": "t",
-     "s": "evening"
+     "s": "morning"
     },
     {
      "k": "t",
@@ -796,7 +808,7 @@
     },
     {
      "k": "t",
-     "s": "21"
+     "s": "23"
     },
     {
      "k": "t",
@@ -915,7 +927,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 21, 2026"
+     "s": "YOUR NET WORTH · OCT 23, 2026"
     },
     {
      "k": "a",
@@ -1253,7 +1265,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 21, 2026"
+     "s": "YOUR NET WORTH · OCT 23, 2026"
     },
     {
      "k": "a",
@@ -1575,7 +1587,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 21, 2026"
+     "s": "YOUR NET WORTH · OCT 23, 2026"
     },
     {
      "k": "a",
@@ -2049,7 +2061,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 21, 2026"
+     "s": "YOUR NET WORTH · OCT 23, 2026"
     },
     {
      "k": "a",
@@ -2285,7 +2297,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 39 days old"
+     "s": "Linked · 41 days old"
     },
     {
      "k": "t",
@@ -2571,7 +2583,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 21, 2026"
+     "s": "YOUR NET WORTH · OCT 23, 2026"
     },
     {
      "k": "a",
@@ -2877,7 +2889,7 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 21, 2026"
+     "s": "YOUR NET WORTH · OCT 23, 2026"
     },
     {
      "k": "a",
@@ -3538,7 +3550,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 21, 2026"
+     "s": "Oct 23, 2026"
     },
     {
      "k": "a",
@@ -3613,6 +3625,10 @@
      "s": "ⓘ"
     },
     {
+     "k": "a",
+     "s": "Ending value, $165,000"
+    },
+    {
      "k": "t",
      "s": "Ending value"
     },
@@ -3621,12 +3637,20 @@
      "s": "$165,000"
     },
     {
+     "k": "a",
+     "s": "Wealth generated, $0"
+    },
+    {
      "k": "t",
      "s": "Wealth generated"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Return, no figure for this window"
     },
     {
      "k": "t",
@@ -3649,6 +3673,10 @@
      "s": "ⓘ"
     },
     {
+     "k": "a",
+     "s": "Value of your investments: $165,000 today. The line starts today."
+    },
+    {
      "k": "t",
      "s": "$165,000"
     },
@@ -3658,15 +3686,23 @@
     },
     {
      "k": "t",
-     "s": "Oct 21"
+     "s": "Oct 23"
     },
     {
      "k": "t",
-     "s": "Oct 21"
+     "s": "Oct 23"
+    },
+    {
+     "k": "a",
+     "s": "How $165,000 became $165,000, all accounts"
     },
     {
      "k": "t",
      "s": "HOW $165,000 BECAME $165,000 · ALL ACCOUNTS"
+    },
+    {
+     "k": "a",
+     "s": "Beginning market value (today), $165,000"
     },
     {
      "k": "t",
@@ -3677,12 +3713,20 @@
      "s": "$165,000"
     },
     {
+     "k": "a",
+     "s": "Contributions, $0"
+    },
+    {
      "k": "t",
      "s": "Contributions"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Withdrawals, $0"
     },
     {
      "k": "t",
@@ -3693,12 +3737,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Wealth generated, $0"
+    },
+    {
      "k": "t",
      "s": "Wealth generated"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Dividends, $0"
     },
     {
      "k": "t",
@@ -3709,6 +3761,10 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Interest, $0"
+    },
+    {
      "k": "t",
      "s": "Interest"
     },
@@ -3717,12 +3773,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Change in investment value, $0"
+    },
+    {
      "k": "t",
      "s": "Change in investment value"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Ending market value (today), $165,000"
     },
     {
      "k": "t",
@@ -3777,12 +3841,20 @@
      "s": "By hand · you update it"
     },
     {
+     "k": "a",
+     "s": "Beginning market value (today), $120,000"
+    },
+    {
      "k": "t",
      "s": "Beginning market value (today)"
     },
     {
      "k": "t",
      "s": "$120,000"
+    },
+    {
+     "k": "a",
+     "s": "Contributions, $0"
     },
     {
      "k": "t",
@@ -3793,12 +3865,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Withdrawals, $0"
+    },
+    {
      "k": "t",
      "s": "Withdrawals"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Wealth generated, $0"
     },
     {
      "k": "t",
@@ -3809,12 +3889,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Dividends, $0"
+    },
+    {
      "k": "t",
      "s": "Dividends"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Interest, $0"
     },
     {
      "k": "t",
@@ -3825,12 +3913,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Change in investment value, $0"
+    },
+    {
      "k": "t",
      "s": "Change in investment value"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Ending market value (today), $120,000"
     },
     {
      "k": "t",
@@ -3885,12 +3981,20 @@
      "s": "By hand · you update it"
     },
     {
+     "k": "a",
+     "s": "Beginning market value (today), $45,000"
+    },
+    {
      "k": "t",
      "s": "Beginning market value (today)"
     },
     {
      "k": "t",
      "s": "$45,000"
+    },
+    {
+     "k": "a",
+     "s": "Contributions, $0"
     },
     {
      "k": "t",
@@ -3901,12 +4005,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Withdrawals, $0"
+    },
+    {
      "k": "t",
      "s": "Withdrawals"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Wealth generated, $0"
     },
     {
      "k": "t",
@@ -3917,12 +4029,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Dividends, $0"
+    },
+    {
      "k": "t",
      "s": "Dividends"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Interest, $0"
     },
     {
      "k": "t",
@@ -3933,12 +4053,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Change in investment value, $0"
+    },
+    {
      "k": "t",
      "s": "Change in investment value"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Ending market value (today), $45,000"
     },
     {
      "k": "t",
@@ -4029,6 +4157,10 @@
      "s": "—"
     },
     {
+     "k": "a",
+     "s": "All categories, earned $0"
+    },
+    {
      "k": "t",
      "s": "All categories"
     },
@@ -4056,7 +4188,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 21, 2026"
+     "s": "Oct 23, 2026"
     },
     {
      "k": "t",
@@ -4143,6 +4275,10 @@
      "s": "ⓘ"
     },
     {
+     "k": "a",
+     "s": "Ending value, $709,800"
+    },
+    {
      "k": "t",
      "s": "Ending value"
     },
@@ -4151,12 +4287,20 @@
      "s": "$709,800"
     },
     {
+     "k": "a",
+     "s": "Wealth generated, $0"
+    },
+    {
      "k": "t",
      "s": "Wealth generated"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Return, no figure for this window"
     },
     {
      "k": "t",
@@ -4179,6 +4323,10 @@
      "s": "ⓘ"
     },
     {
+     "k": "a",
+     "s": "Value of your investments: $709,800 today. The line starts today."
+    },
+    {
      "k": "t",
      "s": "$709,800"
     },
@@ -4188,11 +4336,11 @@
     },
     {
      "k": "t",
-     "s": "Oct 21"
+     "s": "Oct 23"
     },
     {
      "k": "t",
-     "s": "Oct 21"
+     "s": "Oct 23"
     },
     {
      "k": "a",
@@ -4227,8 +4375,16 @@
      "s": "Vanguard Brokerage hasn't shared dividend records"
     },
     {
+     "k": "a",
+     "s": "How $709,800 became $709,800, all accounts"
+    },
+    {
      "k": "t",
      "s": "HOW $709,800 BECAME $709,800 · ALL ACCOUNTS"
+    },
+    {
+     "k": "a",
+     "s": "Beginning market value (today), $709,800"
     },
     {
      "k": "t",
@@ -4239,12 +4395,20 @@
      "s": "$709,800"
     },
     {
+     "k": "a",
+     "s": "Contributions, $0"
+    },
+    {
      "k": "t",
      "s": "Contributions"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Withdrawals, $0"
     },
     {
      "k": "t",
@@ -4255,12 +4419,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Wealth generated, $0"
+    },
+    {
      "k": "t",
      "s": "Wealth generated"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Dividends, $0"
     },
     {
      "k": "t",
@@ -4271,6 +4443,10 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Interest, $0"
+    },
+    {
      "k": "t",
      "s": "Interest"
     },
@@ -4279,12 +4455,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Change in investment value, $0"
+    },
+    {
      "k": "t",
      "s": "Change in investment value"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Ending market value (today), $709,800"
     },
     {
      "k": "t",
@@ -4336,7 +4520,11 @@
     },
     {
      "k": "t",
-     "s": "Linked · 39 days old"
+     "s": "Linked · 41 days old"
+    },
+    {
+     "k": "a",
+     "s": "Beginning market value (today), $300,000"
     },
     {
      "k": "t",
@@ -4347,12 +4535,20 @@
      "s": "$300,000"
     },
     {
+     "k": "a",
+     "s": "Contributions, $0"
+    },
+    {
      "k": "t",
      "s": "Contributions"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Withdrawals, $0"
     },
     {
      "k": "t",
@@ -4363,12 +4559,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Wealth generated, $0"
+    },
+    {
      "k": "t",
      "s": "Wealth generated"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Dividends, $0"
     },
     {
      "k": "t",
@@ -4379,6 +4583,10 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Interest, $0"
+    },
+    {
      "k": "t",
      "s": "Interest"
     },
@@ -4387,12 +4595,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Change in investment value, $0"
+    },
+    {
      "k": "t",
      "s": "Change in investment value"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Ending market value (today), $300,000"
     },
     {
      "k": "t",
@@ -4447,12 +4663,20 @@
      "s": "By hand · you update it"
     },
     {
+     "k": "a",
+     "s": "Beginning market value (today), $400,000"
+    },
+    {
      "k": "t",
      "s": "Beginning market value (today)"
     },
     {
      "k": "t",
      "s": "$400,000"
+    },
+    {
+     "k": "a",
+     "s": "Contributions, $0"
     },
     {
      "k": "t",
@@ -4463,12 +4687,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Withdrawals, $0"
+    },
+    {
      "k": "t",
      "s": "Withdrawals"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Wealth generated, $0"
     },
     {
      "k": "t",
@@ -4479,12 +4711,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Dividends, $0"
+    },
+    {
      "k": "t",
      "s": "Dividends"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Interest, $0"
     },
     {
      "k": "t",
@@ -4495,12 +4735,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Change in investment value, $0"
+    },
+    {
      "k": "t",
      "s": "Change in investment value"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Ending market value (today), $400,000"
     },
     {
      "k": "t",
@@ -4555,12 +4803,20 @@
      "s": "By hand · you update it"
     },
     {
+     "k": "a",
+     "s": "Beginning market value (today), $9,800"
+    },
+    {
      "k": "t",
      "s": "Beginning market value (today)"
     },
     {
      "k": "t",
      "s": "$9,800"
+    },
+    {
+     "k": "a",
+     "s": "Contributions, $0"
     },
     {
      "k": "t",
@@ -4571,12 +4827,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Withdrawals, $0"
+    },
+    {
      "k": "t",
      "s": "Withdrawals"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Wealth generated, $0"
     },
     {
      "k": "t",
@@ -4587,12 +4851,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Dividends, $0"
+    },
+    {
      "k": "t",
      "s": "Dividends"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Interest, $0"
     },
     {
      "k": "t",
@@ -4603,12 +4875,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Change in investment value, $0"
+    },
+    {
      "k": "t",
      "s": "Change in investment value"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Ending market value (today), $9,800"
     },
     {
      "k": "t",
@@ -4699,6 +4979,10 @@
      "s": "—"
     },
     {
+     "k": "a",
+     "s": "All categories, earned $0"
+    },
+    {
      "k": "t",
      "s": "All categories"
     },
@@ -4726,7 +5010,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 21, 2026"
+     "s": "Oct 23, 2026"
     },
     {
      "k": "a",
@@ -4801,6 +5085,10 @@
      "s": "ⓘ"
     },
     {
+     "k": "a",
+     "s": "Ending value, $250,000"
+    },
+    {
      "k": "t",
      "s": "Ending value"
     },
@@ -4809,12 +5097,20 @@
      "s": "$250,000"
     },
     {
+     "k": "a",
+     "s": "Wealth generated, $0"
+    },
+    {
      "k": "t",
      "s": "Wealth generated"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Return, no figure for this window"
     },
     {
      "k": "t",
@@ -4837,6 +5133,10 @@
      "s": "ⓘ"
     },
     {
+     "k": "a",
+     "s": "Value of your investments: $250,000 today. The line starts today."
+    },
+    {
      "k": "t",
      "s": "$250,000"
     },
@@ -4846,15 +5146,23 @@
     },
     {
      "k": "t",
-     "s": "Oct 21"
+     "s": "Oct 23"
     },
     {
      "k": "t",
-     "s": "Oct 21"
+     "s": "Oct 23"
+    },
+    {
+     "k": "a",
+     "s": "How $250,000 became $250,000, all accounts"
     },
     {
      "k": "t",
      "s": "HOW $250,000 BECAME $250,000 · ALL ACCOUNTS"
+    },
+    {
+     "k": "a",
+     "s": "Beginning market value (today), $250,000"
     },
     {
      "k": "t",
@@ -4865,12 +5173,20 @@
      "s": "$250,000"
     },
     {
+     "k": "a",
+     "s": "Contributions, $0"
+    },
+    {
      "k": "t",
      "s": "Contributions"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Withdrawals, $0"
     },
     {
      "k": "t",
@@ -4881,12 +5197,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Wealth generated, $0"
+    },
+    {
      "k": "t",
      "s": "Wealth generated"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Dividends, $0"
     },
     {
      "k": "t",
@@ -4897,6 +5221,10 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Interest, $0"
+    },
+    {
      "k": "t",
      "s": "Interest"
     },
@@ -4905,12 +5233,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Change in investment value, $0"
+    },
+    {
      "k": "t",
      "s": "Change in investment value"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Ending market value (today), $250,000"
     },
     {
      "k": "t",
@@ -4965,12 +5301,20 @@
      "s": "By hand · you update it"
     },
     {
+     "k": "a",
+     "s": "Beginning market value (today), $250,000"
+    },
+    {
      "k": "t",
      "s": "Beginning market value (today)"
     },
     {
      "k": "t",
      "s": "$250,000"
+    },
+    {
+     "k": "a",
+     "s": "Contributions, $0"
     },
     {
      "k": "t",
@@ -4981,12 +5325,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Withdrawals, $0"
+    },
+    {
      "k": "t",
      "s": "Withdrawals"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Wealth generated, $0"
     },
     {
      "k": "t",
@@ -4997,12 +5349,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Dividends, $0"
+    },
+    {
      "k": "t",
      "s": "Dividends"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Interest, $0"
     },
     {
      "k": "t",
@@ -5013,12 +5373,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Change in investment value, $0"
+    },
+    {
      "k": "t",
      "s": "Change in investment value"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Ending market value (today), $250,000"
     },
     {
      "k": "t",
@@ -5109,6 +5477,10 @@
      "s": "—"
     },
     {
+     "k": "a",
+     "s": "All categories, earned $0"
+    },
+    {
      "k": "t",
      "s": "All categories"
     },
@@ -5136,7 +5508,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 21, 2026"
+     "s": "Oct 23, 2026"
     },
     {
      "k": "a",
@@ -5211,6 +5583,10 @@
      "s": "ⓘ"
     },
     {
+     "k": "a",
+     "s": "Ending value, $0"
+    },
+    {
      "k": "t",
      "s": "Ending value"
     },
@@ -5219,12 +5595,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Wealth generated, $0"
+    },
+    {
      "k": "t",
      "s": "Wealth generated"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Return, no figure for this window"
     },
     {
      "k": "t",
@@ -5247,6 +5631,10 @@
      "s": "Add your accounts ›"
     },
     {
+     "k": "a",
+     "s": "Value of your investments: $0 today. The line starts with your first account."
+    },
+    {
      "k": "t",
      "s": "$0"
     },
@@ -5256,15 +5644,23 @@
     },
     {
      "k": "t",
-     "s": "Oct 21"
+     "s": "Oct 23"
     },
     {
      "k": "t",
-     "s": "Oct 21"
+     "s": "Oct 23"
+    },
+    {
+     "k": "a",
+     "s": "How $0 became $0, all accounts"
     },
     {
      "k": "t",
      "s": "HOW $0 BECAME $0 · ALL ACCOUNTS"
+    },
+    {
+     "k": "a",
+     "s": "Beginning market value (today), $0"
     },
     {
      "k": "t",
@@ -5275,12 +5671,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Contributions, $0"
+    },
+    {
      "k": "t",
      "s": "Contributions"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Withdrawals, $0"
     },
     {
      "k": "t",
@@ -5291,12 +5695,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Wealth generated, $0"
+    },
+    {
      "k": "t",
      "s": "Wealth generated"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Dividends, $0"
     },
     {
      "k": "t",
@@ -5307,6 +5719,10 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Interest, $0"
+    },
+    {
      "k": "t",
      "s": "Interest"
     },
@@ -5315,12 +5731,20 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Change in investment value, $0"
+    },
+    {
      "k": "t",
      "s": "Change in investment value"
     },
     {
      "k": "t",
      "s": "$0"
+    },
+    {
+     "k": "a",
+     "s": "Ending market value (today), $0"
     },
     {
      "k": "t",
@@ -5409,6 +5833,10 @@
     {
      "k": "t",
      "s": "—"
+    },
+    {
+     "k": "a",
+     "s": "All categories, earned $0"
     },
     {
      "k": "t",
@@ -9482,6 +9910,14 @@
     },
     {
      "k": "t",
+     "s": "🔔"
+    },
+    {
+     "k": "t",
+     "s": "payment due in 9 days"
+    },
+    {
+     "k": "t",
      "s": "−"
     },
     {
@@ -9680,7 +10116,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 68 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 74 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -9712,7 +10148,7 @@
     },
     {
      "k": "t",
-     "s": "68"
+     "s": "74"
     },
     {
      "k": "t",
@@ -10066,7 +10502,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 68 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 74 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -10098,7 +10534,7 @@
     },
     {
      "k": "t",
-     "s": "68"
+     "s": "74"
     },
     {
      "k": "t",
@@ -14096,7 +14532,7 @@
     },
     {
      "k": "t",
-     "s": "Add your accounts in the Net Worth tab to build your nest egg."
+     "s": "Add your accounts in the Net worth tab to build your nest egg."
     },
     {
      "k": "t",
@@ -17588,7 +18024,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 39 days old"
+     "s": "Linked · 41 days old"
     },
     {
      "k": "a",
@@ -18058,7 +18494,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 39 days old"
+     "s": "Linked · 41 days old"
     },
     {
      "k": "a",
@@ -19512,7 +19948,7 @@
     },
     {
      "k": "a",
-     "s": "Interest payments: 4.00%/year · $400/year"
+     "s": "Interest payments: 4.00% a year · $400 a year"
     },
     {
      "k": "t",
@@ -19560,7 +19996,7 @@
     },
     {
      "k": "t",
-     "s": "Added estimated $174 in accrued interest to bond value at 4% coupon for 159 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+     "s": "Added estimated $176 in accrued interest to bond value at 4% coupon for 161 days to calculate YTM. If this is not accurate, enter actual accrued interest"
     },
     {
      "k": "a",
@@ -21751,7 +22187,7 @@
     },
     {
      "k": "t",
-     "s": "Added estimated $174 in accrued interest to bond value at 4% coupon for 159 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+     "s": "Added estimated $176 in accrued interest to bond value at 4% coupon for 161 days to calculate YTM. If this is not accurate, enter actual accrued interest"
     },
     {
      "k": "a",
@@ -24497,6 +24933,14 @@
      "s": "Price paid (average)"
     },
     {
+     "k": "a",
+     "s": "What is Price paid (average)?"
+    },
+    {
+     "k": "t",
+     "s": "ⓘ"
+    },
+    {
      "k": "t",
      "s": "$90.00"
     },
@@ -24518,11 +24962,11 @@
     },
     {
      "k": "t",
-     "s": "3000"
+     "s": "3000 sh"
     },
     {
      "k": "t",
-     "s": "sh @"
+     "s": "@"
     },
     {
      "k": "t",
@@ -28699,7 +29143,7 @@
     },
     {
      "k": "t",
-     "s": "We don't have prices for that pairing yet — open the Performance tab and refresh prices, or pick a shorter window."
+     "s": "Getting prices for AGG and SPY…"
     }
    ],
    "rich": [
@@ -28877,7 +29321,7 @@
     },
     {
      "k": "t",
-     "s": "We don't have prices for that pairing yet — open the Performance tab and refresh prices, or pick a shorter window."
+     "s": "Getting prices for VTI and SPY…"
     }
    ],
    "retiree": [
@@ -29039,7 +29483,7 @@
     },
     {
      "k": "t",
-     "s": "We don't have prices for that pairing yet — open the Performance tab and refresh prices, or pick a shorter window."
+     "s": "Getting prices for AGG and SPY…"
     }
    ],
    "new": [
@@ -29201,7 +29645,7 @@
     },
     {
      "k": "t",
-     "s": "We don't have prices for that pairing yet — open the Performance tab and refresh prices, or pick a shorter window."
+     "s": "Getting prices for AGG and SPY…"
     }
    ]
   },
@@ -37456,7 +37900,7 @@
  },
  "callsites": [
   {
-   "site": "MoneyKeel/functions/_figure-spec.ts:117",
+   "site": "MoneyKeel/functions/_figure-spec.ts:120",
    "routes": [
     "/account-detail",
     "/analytics",
@@ -37538,10 +37982,10 @@
     "$45,000",
     "$0"
    ],
-   "renders": 1266
+   "renders": 1408
   },
   {
-   "site": "MoneyKeel/functions/_figure-spec.ts:119",
+   "site": "MoneyKeel/functions/_figure-spec.ts:122",
    "routes": [
     "/account-detail",
     "/holding-detail"
@@ -37992,7 +38436,7 @@
    "renders": 2
   },
   {
-   "site": "src/components/UI.tsx:179",
+   "site": "src/components/UI.tsx:181",
    "routes": [
     "/tips"
    ],
@@ -38010,7 +38454,7 @@
    "renders": 12
   },
   {
-   "site": "src/domain/income/from-accounts.ts:174",
+   "site": "src/domain/income/from-accounts.ts:175",
    "routes": [
     "/income-detail",
     "/tax-organizer"
@@ -38497,24 +38941,26 @@
    "renders": 2
   },
   {
-   "site": "src/screens/HomeScreen.tsx:331",
+   "site": "src/screens/HomeScreen.tsx:354",
    "routes": [
     "/home"
    ],
    "states": [
+    "/home|retiree",
     "/home|rich",
     "/home|worker"
    ],
    "inside": "HomeScreen",
-   "line": "accessibilityLabel={`Your investments: ${spokenMoney(investTotal)}${youReturn != null ? `, ${youReturn >= 0 ? 'up' : 'down'} ${Math.abs(Math.round(youReturn * 1000) / 10)} percent this month` : ''}${f",
+   "line": "`Your investments: ${spokenMoney(investTotal)}`,",
    "values": [
     "$165,000",
-    "$709,800"
+    "$709,800",
+    "$250,000"
    ],
-   "renders": 5
+   "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:336",
+   "site": "src/screens/HomeScreen.tsx:386",
    "routes": [
     "/home"
    ],
@@ -38531,7 +38977,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/HomeScreen.tsx:456",
+   "site": "src/screens/HomeScreen.tsx:513",
    "routes": [
     "/home"
    ],
@@ -38550,7 +38996,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:459",
+   "site": "src/screens/HomeScreen.tsx:516",
    "routes": [
     "/home"
    ],
@@ -38569,7 +39015,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:549",
+   "site": "src/screens/HomeScreen.tsx:606",
    "routes": [
     "/home"
    ],
@@ -38588,7 +39034,7 @@
    "renders": 21
   },
   {
-   "site": "src/screens/HomeScreen.tsx:562",
+   "site": "src/screens/HomeScreen.tsx:619",
    "routes": [
     "/home"
    ],
@@ -38606,7 +39052,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:563",
+   "site": "src/screens/HomeScreen.tsx:620",
    "routes": [
     "/home"
    ],
@@ -38623,7 +39069,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:566",
+   "site": "src/screens/HomeScreen.tsx:623",
    "routes": [
     "/home"
    ],
@@ -39171,7 +39617,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:236",
+   "site": "src/screens/PlanHubScreen.tsx:237",
    "routes": [
     "/plan"
    ],
@@ -39186,7 +39632,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:276",
+   "site": "src/screens/PlanHubScreen.tsx:277",
    "routes": [
     "/plan"
    ],
@@ -39203,7 +39649,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:311",
+   "site": "src/screens/PlanHubScreen.tsx:312",
    "routes": [
     "/plan"
    ],
@@ -39220,7 +39666,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:317",
+   "site": "src/screens/PlanHubScreen.tsx:318",
    "routes": [
     "/plan"
    ],
@@ -39236,7 +39682,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:319",
+   "site": "src/screens/PlanHubScreen.tsx:320",
    "routes": [
     "/plan"
    ],
@@ -39251,7 +39697,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:320",
+   "site": "src/screens/PlanHubScreen.tsx:321",
    "routes": [
     "/plan"
    ],
@@ -39266,7 +39712,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:321",
+   "site": "src/screens/PlanHubScreen.tsx:322",
    "routes": [
     "/plan"
    ],
@@ -39281,7 +39727,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:330",
+   "site": "src/screens/PlanHubScreen.tsx:331",
    "routes": [
     "/plan"
    ],
@@ -39297,7 +39743,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/PlanHubScreen.tsx:331",
+   "site": "src/screens/PlanHubScreen.tsx:332",
    "routes": [
     "/plan"
    ],

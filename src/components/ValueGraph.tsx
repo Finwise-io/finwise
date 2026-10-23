@@ -15,20 +15,24 @@ import { Colors, Spacing } from '../utils/theme';
 import { maskedMoney } from './useMoney';
 import { dateShown } from '../domain/_shared/dates';
 
-export function ValueGraph({ points, dayOneNote, dayOneValue, today }: {
+export function ValueGraph({ points, dayOneNote, dayOneValue, today, description }: {
   points: { date: string; value: number }[];
   /** DAY ONE (Performance v17, phones 4 and 5): no line yet, so the frame says where it will start —
    *  today's value on the axis, the note in the middle, today's date at both ends. It used to draw
    *  nothing at all with fewer than two points, so the note could never appear. */
   /** today's value ALREADY PRINTED by the screen with its identifier — the graph prints no figure of its own */
   dayOneNote?: string; dayOneValue?: string; today?: string;
+  /** WHAT A SCREEN READER SAYS FOR THE LINE (Performance audit row 28, 2026-10-21): the window, where it starts and ends, and
+   *  the change — composed by the screen from the figures it prints (figSaid), so the graph says no number of its own. The
+   *  line was silent: VoiceOver read the gridline amounts and two dates, or nothing. With it, the graph is one element. */
+  description?: string;
 }) {
   const [w, setW] = useState(0);
   if (points.length < 2) {
     if (!dayOneNote) return null;
     const d = today ? new Date(`${today}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
     return (
-      <View style={{ paddingHorizontal: Spacing.base, paddingBottom: 10 }}>
+      <View style={{ paddingHorizontal: Spacing.base, paddingBottom: 10 }} accessible={!!description} accessibilityRole={description ? 'image' : undefined} accessibilityLabel={description}>
         {/* inside the frame the words are the chart's own labels, in the tertiary grey the gridline figures use
             (v17 phones 4 and 5, .axlab); the dates under it stay secondary. Drawing check, 2026-10-12 */}
         <View style={s.dayOneFrame}>
@@ -59,7 +63,8 @@ export function ValueGraph({ points, dayOneNote, dayOneValue, today }: {
   const day = (iso: string) => (longerThanAYear ? dateShown(iso)
     : new Date(`${iso}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
   return (
-    <View onLayout={(e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width)} style={{ paddingHorizontal: Spacing.base, paddingBottom: 10 }}>
+    <View onLayout={(e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width)} style={{ paddingHorizontal: Spacing.base, paddingBottom: 10 }}
+      accessible={!!description} accessibilityRole={description ? 'image' : undefined} accessibilityLabel={description}>
       {w > 0 && (
         <>
           <Svg width={w} height={H}>

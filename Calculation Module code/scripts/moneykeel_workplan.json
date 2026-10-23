@@ -297,15 +297,15 @@
   },
   {
    "task": "Formula audit — 25 findings B01–B25: B05 (401(k) taxed) fixed; B02, B03, B04 are file fixes; B01 (minimum-payment rule never built) and B06 (three return methods, one label) need your decision; B07–B25 not re-verified",
-   "todo": "Claude: re-verify B07–B25 against the screen; Founder: decide B01 and B06",
+   "todo": "Claude: re-verify B07–B25 against the screen; B06 settled (DEC-1669); B01 stands",
    "status": "TO DO",
    "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · screen tabs · column \"Formula audit — metric vs the function it names (2026-08-26)\" · standards/moneykeel_calc_spec_two-day-status_v01.html",
    "date": "2026-08-26",
-   "comments": "",
+   "comments": "2026-10-22 B06 SETTLED: \"three return methods, one label\" is settled by his DEC-1669 (2026-10-04, every return time-weighted), held by guard_every_return_is_time_weighted.test.ts; it is not his to decide again.",
    "key": "e5e4b38684",
    "_written": {
     "status": "TO DO",
-    "comments": ""
+    "comments": "2026-10-22 B06 SETTLED: \"three return methods, one label\" is settled by his DEC-1669 (2026-10-04, every return time-weighted), held by guard_every_return_is_time_weighted.test.ts; it is not his to decide again."
    }
   },
   {
@@ -457,11 +457,11 @@
    "status": "WAITING ON YOU",
    "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · multiple_screens and screen tabs · column \"Questions for you\" · Q34–Q45, Q50",
    "date": "2026-09-08",
-   "comments": "",
+   "comments": "2026-10-22 ANSWERED: Q34 (DEC-7170) and Q35 (DEC-7171) on 2026-10-21, Q36 by DEC-6618 (2026-10-20) — each the lead's decision under his rulings, printed in YOUR ANSWER; Q37 and Q38 were answered before. Still open on the master: Q39–Q45 and Q50.",
    "key": "28e3d89013",
    "_written": {
     "status": "WAITING ON YOU",
-    "comments": ""
+    "comments": "2026-10-22 ANSWERED: Q34 (DEC-7170) and Q35 (DEC-7171) on 2026-10-21, Q36 by DEC-6618 (2026-10-20) — each the lead's decision under his rulings, printed in YOUR ANSWER; Q37 and Q38 were answered before. Still open on the master: Q39–Q45 and Q50."
    }
   },
   {
@@ -1549,10 +1549,10 @@
    "status": "WAITING ON YOU",
    "ref": "moneykeel_calc_spec_one-door-per-question_v01.md · Map rows Q-PL-1, Q-PL-2",
    "date": "2026-09-26",
-   "comments": "Performance was rebuilt in front of its door on 2026-09-25 (Q-PF-1 is still PROPOSED), so it will move again later — a recorded debt, not a surprise.",
+   "comments": "Performance was rebuilt in front of its door on 2026-09-25 (Q-PF-1 is still PROPOSED), so it will move again later — a recorded debt, not a surprise. | 2026-10-22 Q-PF-1: ruled \"yes\" on 2026-09-27 and built — the Performance tab, each account and Home ask MK-NW-O-008 thePerformance; TESTED in the rulings ledger (guard_one_door_performance.test.ts, 3 of 3). The Performance half of this debt is paid.",
    "_written": {
     "status": "WAITING ON YOU",
-    "comments": "Performance was rebuilt in front of its door on 2026-09-25 (Q-PF-1 is still PROPOSED), so it will move again later — a recorded debt, not a surprise."
+    "comments": "Performance was rebuilt in front of its door on 2026-09-25 (Q-PF-1 is still PROPOSED), so it will move again later — a recorded debt, not a surprise. | 2026-10-22 Q-PF-1: ruled \"yes\" on 2026-09-27 and built — the Performance tab, each account and Home ask MK-NW-O-008 thePerformance; TESTED in the rulings ledger (guard_one_door_performance.test.ts, 3 of 3). The Performance half of this debt is paid."
    }
   },
   {
@@ -1693,10 +1693,10 @@
    "status": "CODED, NOT VERIFIED",
    "ref": "src/components/SectionBand.tsx (onTitlePress) · src/screens/PerformanceScreen.tsx · src/screens/__tests__/performance_mock_v14_gaps.test.tsx",
    "date": "2026-09-26",
-   "comments": "Every other band in the app passes no door and is untouched.",
+   "comments": "Every other band in the app passes no door and is untouched. | 2026-10-22: the door is drawn on Performance v17 (approved in full, DEC-0647: \"Tap ▾ to collapse · tap the name to open this account's portfolio ›\") and opens the account page built to its drawing v01 (DEC-6457); the v14 test that holds it stays.",
    "_written": {
     "status": "CODED, NOT VERIFIED",
-    "comments": "Every other band in the app passes no door and is untouched."
+    "comments": "Every other band in the app passes no door and is untouched. | 2026-10-22: the door is drawn on Performance v17 (approved in full, DEC-0647: \"Tap ▾ to collapse · tap the name to open this account's portfolio ›\") and opens the account page built to its drawing v01 (DEC-6457); the v14 test that holds it stays."
    }
   },
   {
@@ -2197,22 +2197,22 @@
    "status": "WAITING ON YOU",
    "ref": "MoneyKeel/documents/other/moneykeel_calc_plan_launch-answer-list_v01.xlsx · build-launch-answer-list.py",
    "date": "2026-09-29",
-   "comments": "The big number underneath is the VERIFIED marks: 48 Net worth rows, 53 Cash flow, 12 Performance are TESTED but not VERIFIED. A test proves a figure is what the code gives; it can never prove it is the figure he wanted, which is why his ladder has that rung and why launch-ready cannot be claimed without it.",
+   "comments": "The big number underneath is the VERIFIED marks: 48 Net worth rows, 53 Cash flow, 12 Performance are TESTED but not VERIFIED. A test proves a figure is what the code gives; it can never prove it is the figure he wanted, which is why his ladder has that rung and why launch-ready cannot be claimed without it. | 2026-10-22 NOW: 11 things — 4 Net worth, 6 Cash flow, 1 Performance (VERIFY 26 rows; it was 5 on 2026-10-21: his four old questions DEC-0479, DEC-0483, DEC-0497 and DEC-0510 are answered on their rows). The 61 / \"10 Performance\" above is the count of 2026-09-29.",
    "_written": {
     "status": "WAITING ON YOU",
-    "comments": "The big number underneath is the VERIFIED marks: 48 Net worth rows, 53 Cash flow, 12 Performance are TESTED but not VERIFIED. A test proves a figure is what the code gives; it can never prove it is the figure he wanted, which is why his ladder has that rung and why launch-ready cannot be claimed without it."
+    "comments": "The big number underneath is the VERIFIED marks: 48 Net worth rows, 53 Cash flow, 12 Performance are TESTED but not VERIFIED. A test proves a figure is what the code gives; it can never prove it is the figure he wanted, which is why his ladder has that rung and why launch-ready cannot be claimed without it. | 2026-10-22 NOW: 11 things — 4 Net worth, 6 Cash flow, 1 Performance (VERIFY 26 rows; it was 5 on 2026-10-21: his four old questions DEC-0479, DEC-0483, DEC-0497 and DEC-0510 are answered on their rows). The 61 / \"10 Performance\" above is the count of 2026-09-29."
    }
   },
   {
    "task": "BEFORE THE NEXT BUILD — review and correct every underlying calculation for Net worth, Cash flow and Performance",
-   "todo": "His instruction, 2026-09-29: ‘before next build let’s review and correct all underlying calculations for NW, CF and Performance modules.’ NOT STARTED. What it means concretely: walk every figure on those three modules against its formula, its inputs and its worked example, and correct what disagrees — the file-and-code rule, both or neither. 93 Net worth decisions, 52 Cash flow, 39 Performance are in the log; 123 of those have no test. This is mine, not his — his half is the answer list above.",
+   "todo": "His instruction, 2026-09-29: ‘before next build let’s review and correct all underlying calculations for NW, CF and Performance modules.’ STARTED 2026-10-20: Net worth done (committed 4698075c); Performance done on 2026-10-21 but for the items on the PF-A and PF-B rows; Cash flow next. What it means concretely: walk every figure on those three modules against its formula, its inputs and its worked example, and correct what disagrees — the file-and-code rule, both or neither. 93 Net worth decisions, 52 Cash flow, 39 Performance are in the log; 123 of those have no test. This is mine, not his — his half is the answer list above.",
    "status": "TO DO",
    "ref": "the master file's networth / cashflow / performance tabs · the decision log · MoneyKeel/functions/",
    "date": "2026-09-29",
-   "comments": "Gates the next build. No build is cut without his explicit ‘cut the build’ to a presented checklist.",
+   "comments": "Gates the next build. No build is cut without his explicit ‘cut the build’ to a presented checklist. | 2026-10-22 PERFORMANCE: every figure walked against the outside re-run (OpenAI parts 1 to 4 and tax, 1,180 tests) and fixed by PF-A and PF-B on 2026-10-21; what is left is on their rows.",
    "_written": {
     "status": "TO DO",
-    "comments": "Gates the next build. No build is cut without his explicit ‘cut the build’ to a presented checklist."
+    "comments": "Gates the next build. No build is cut without his explicit ‘cut the build’ to a presented checklist. | 2026-10-22 PERFORMANCE: every figure walked against the outside re-run (OpenAI parts 1 to 4 and tax, 1,180 tests) and fixed by PF-A and PF-B on 2026-10-21; what is left is on their rows."
    }
   },
   {
@@ -2905,10 +2905,10 @@
    "status": "IN PROGRESS — his answers of 2026-10-12 built (DEC-4640 … DEC-4646): the 6 decision points and the two dividend questions are closed — unknown window name refuses, prices starting late are measured and named, six unused functions removed, a partly matched sale counted once, the typed-balance case was the judge's double count (withdrawn), a holding's return carries its dividends once, the market figure's record corrected, option shares per contract",
    "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/results/performance_claude_0{1..4}_results.json",
    "date": "2026-10-11",
-   "comments": "Briefs v02 in to-send/moneykeel_brief_performance_0N_claude-code_v02.md. 2026-10-12: 35 outside cases settled or removed (1 + 3 + 25 removed + 5 re-pointed + 1 + 1 + 1 brief wrong); results files carry a 'settled' line on each. Not committed.",
+   "comments": "Briefs v02 in to-send/moneykeel_brief_performance_0N_claude-code_v02.md. 2026-10-12: 35 outside cases settled or removed (1 + 3 + 25 removed + 5 re-pointed + 1 + 1 + 1 brief wrong); results files carry a 'settled' line on each. Not committed. | 2026-10-22 STATE: 32 of 225 cases still carry no settled line (file 01: 11, 02: 7, 03: 10, 04: 4); the OpenAI re-run of 2026-10-21 covered the same functions and PF-A and PF-B fixed most of them. Five cases marked BRIEF WRONG and one superseded on 2026-10-22. Marking the 32 one by one is the next records job.",
    "_written": {
     "status": "IN PROGRESS — his answers of 2026-10-12 built (DEC-4640 … DEC-4646): the 6 decision points and the two dividend questions are closed — unknown window name refuses, prices starting late are measured and named, six unused functions removed, a partly matched sale counted once, the typed-balance case was the judge's double count (withdrawn), a holding's return carries its dividends once, the market figure's record corrected, option shares per contract",
-    "comments": "Briefs v02 in to-send/moneykeel_brief_performance_0N_claude-code_v02.md. 2026-10-12: 35 outside cases settled or removed (1 + 3 + 25 removed + 5 re-pointed + 1 + 1 + 1 brief wrong); results files carry a 'settled' line on each. Not committed."
+    "comments": "Briefs v02 in to-send/moneykeel_brief_performance_0N_claude-code_v02.md. 2026-10-12: 35 outside cases settled or removed (1 + 3 + 25 removed + 5 re-pointed + 1 + 1 + 1 brief wrong); results files carry a 'settled' line on each. Not committed. | 2026-10-22 STATE: 32 of 225 cases still carry no settled line (file 01: 11, 02: 7, 03: 10, 04: 4); the OpenAI re-run of 2026-10-21 covered the same functions and PF-A and PF-B fixed most of them. Five cases marked BRIEF WRONG and one superseded on 2026-10-22. Marking the 32 one by one is the next records job."
    }
   },
   {
@@ -3073,10 +3073,10 @@
    "status": "DONE 2026-10-21 — 125 of 125 assessed: 60 agree, 28 app wrong, 27 reviewer wrong, 7 need a ruling, 3 blocked; 30 were in flight (ZERO 12, ACCOUNT 11, GAINS 5, SYNC 2)",
    "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/results/performance_openai_rerun_01_results.json",
    "date": "2026-10-21",
-   "comments": "Still open, each its own job: the Net worth fix batch (D MK-NW-F-103, E and F MK-NW-O-008, H MK-NW-M-024); the Performance queue (MK-PF-F-040, MK-PF-M-003/015, -017, -020, head-of-household brackets); 7 rulings for the lead (MK-NW-F-084, MK-CF-M-051, MK-MN-M-003, MK-NW-M-029, MK-NW-M-035, MK-PF-M-001, MK-PF-M-016); disagreements #36-#38 and #43. | 2026-10-21 NWFIX CLOSED: MK-NW-F-103 (a blank balance is not a recorded day), MK-NW-O-008 ×2 (a record after today read on today, DEC-6824; a new account's first day), MK-NW-F-084 (Alternatives row, DEC-6825), MK-NW-M-029 (LAST CLOSE, DEC-6826), MK-NW-M-035 (a sale's fee, DEC-6827), the amber box (DEC-6828). MK-NW-M-024 kept: his DEC-2748c (face × rate; with no face, value × rate) stands, so test #18 is REVIEWER WRONG. Test: nwfix_performance_rerun_01.test.ts 16 of 17 (one amber-box test red while another agent edits the unpriced row).",
+   "comments": "Still open, each its own job: the Net worth fix batch (D MK-NW-F-103, E and F MK-NW-O-008, H MK-NW-M-024); the Performance queue (MK-PF-F-040, MK-PF-M-003/015, -017, -020, head-of-household brackets); 7 rulings for the lead (MK-NW-F-084, MK-CF-M-051, MK-MN-M-003, MK-NW-M-029, MK-NW-M-035, MK-PF-M-001, MK-PF-M-016); disagreements #36-#38 and #43. | 2026-10-21 NWFIX CLOSED: MK-NW-F-103 (a blank balance is not a recorded day), MK-NW-O-008 ×2 (a record after today read on today, DEC-6824; a new account's first day), MK-NW-F-084 (Alternatives row, DEC-6825), MK-NW-M-029 (LAST CLOSE, DEC-6826), MK-NW-M-035 (a sale's fee, DEC-6827), the amber box (DEC-6828). MK-NW-M-024 kept: his DEC-2748c (face × rate; with no face, value × rate) stands, so test #18 is REVIEWER WRONG. Test: nwfix_performance_rerun_01.test.ts 16 of 17 (one amber-box test red while another agent edits the unpriced row). | 2026-10-22 PF CLOSED (marked in the results file): PF-A and PF-B fixed or decided #26, #29, #31, #33, #35, #41, #42, #43, #46 and the F-084 / F-128 cases; #36–#38 reviewer wrong (DEC-7220); #15 decided by DEC-6760; #6 and #52 settled (not launch items). Left: #3, #7 (MK-NW-F-091/127, second wave), #11, #14, #50 (Cash flow and Menu rounds); screens MK-PF-M-006 T1 (second wave), the Holding page wording (W-HOLDING), six Cash flow / Home checks, and MK-NW-M-024 T3, -026 T1, -028 T1 still in flight. | 2026-10-22 SECOND WAVE (marked in the results files): #3, #7 and rule 17 fixed (DEC-7323); screens MK-PF-M-006 T1 fixed (DEC-7324); MK-NW-M-030 T3, -031 T3, -034 T3, -061 T8 and F3 fixed (W-HOLDING). Left: #11, #14, #50 (Cash flow and Menu rounds), six Cash flow / Home screen checks, MK-NW-M-024 T3, -026 T1, -028 T1 still in flight.",
    "_written": {
     "status": "DONE 2026-10-21 — 125 of 125 assessed: 60 agree, 28 app wrong, 27 reviewer wrong, 7 need a ruling, 3 blocked; 30 were in flight (ZERO 12, ACCOUNT 11, GAINS 5, SYNC 2)",
-    "comments": "Still open, each its own job: the Net worth fix batch (D MK-NW-F-103, E and F MK-NW-O-008, H MK-NW-M-024); the Performance queue (MK-PF-F-040, MK-PF-M-003/015, -017, -020, head-of-household brackets); 7 rulings for the lead (MK-NW-F-084, MK-CF-M-051, MK-MN-M-003, MK-NW-M-029, MK-NW-M-035, MK-PF-M-001, MK-PF-M-016); disagreements #36-#38 and #43. | 2026-10-21 NWFIX CLOSED: MK-NW-F-103 (a blank balance is not a recorded day), MK-NW-O-008 ×2 (a record after today read on today, DEC-6824; a new account's first day), MK-NW-F-084 (Alternatives row, DEC-6825), MK-NW-M-029 (LAST CLOSE, DEC-6826), MK-NW-M-035 (a sale's fee, DEC-6827), the amber box (DEC-6828). MK-NW-M-024 kept: his DEC-2748c (face × rate; with no face, value × rate) stands, so test #18 is REVIEWER WRONG. Test: nwfix_performance_rerun_01.test.ts 16 of 17 (one amber-box test red while another agent edits the unpriced row)."
+    "comments": "Still open, each its own job: the Net worth fix batch (D MK-NW-F-103, E and F MK-NW-O-008, H MK-NW-M-024); the Performance queue (MK-PF-F-040, MK-PF-M-003/015, -017, -020, head-of-household brackets); 7 rulings for the lead (MK-NW-F-084, MK-CF-M-051, MK-MN-M-003, MK-NW-M-029, MK-NW-M-035, MK-PF-M-001, MK-PF-M-016); disagreements #36-#38 and #43. | 2026-10-21 NWFIX CLOSED: MK-NW-F-103 (a blank balance is not a recorded day), MK-NW-O-008 ×2 (a record after today read on today, DEC-6824; a new account's first day), MK-NW-F-084 (Alternatives row, DEC-6825), MK-NW-M-029 (LAST CLOSE, DEC-6826), MK-NW-M-035 (a sale's fee, DEC-6827), the amber box (DEC-6828). MK-NW-M-024 kept: his DEC-2748c (face × rate; with no face, value × rate) stands, so test #18 is REVIEWER WRONG. Test: nwfix_performance_rerun_01.test.ts 16 of 17 (one amber-box test red while another agent edits the unpriced row). | 2026-10-22 PF CLOSED (marked in the results file): PF-A and PF-B fixed or decided #26, #29, #31, #33, #35, #41, #42, #43, #46 and the F-084 / F-128 cases; #36–#38 reviewer wrong (DEC-7220); #15 decided by DEC-6760; #6 and #52 settled (not launch items). Left: #3, #7 (MK-NW-F-091/127, second wave), #11, #14, #50 (Cash flow and Menu rounds); screens MK-PF-M-006 T1 (second wave), the Holding page wording (W-HOLDING), six Cash flow / Home checks, and MK-NW-M-024 T3, -026 T1, -028 T1 still in flight. | 2026-10-22 SECOND WAVE (marked in the results files): #3, #7 and rule 17 fixed (DEC-7323); screens MK-PF-M-006 T1 fixed (DEC-7324); MK-NW-M-030 T3, -031 T3, -034 T3, -061 T8 and F3 fixed (W-HOLDING). Left: #11, #14, #50 (Cash flow and Menu rounds), six Cash flow / Home screen checks, MK-NW-M-024 T3, -026 T1, -028 T1 still in flight."
    }
   },
   {
@@ -3161,6 +3161,354 @@
    "_written": {
     "status": "DONE 2026-10-21 — built; not committed",
     "comments": "thePerformance (MK-NW-O-008) is now read whole."
+   }
+  },
+  {
+   "task": "Performance re-run: returns and windows (PF-A) — 9 app-wrong items and 7 rulings",
+   "todo": "Fix every open returns-and-windows item of the outside re-run. Decisions DEC-7216 (undated purchase), DEC-7217 (one yearly rate), DEC-7218 (value below $0), DEC-7219 (a close dated after today), DEC-7220 (Look back words), DEC-7221 (start from the shares held then).",
+   "status": "DONE 2026-10-21 — 9 of 9 app-wrong fixed, plus 1 found; 7 of 7 rulings decided; not committed",
+   "ref": "src/screens/__tests__/returns_and_windows_agree.test.tsx · src/domain/performance/index.ts · Calculation Module code/engines/time-weighted-return.ts",
+   "date": "2026-10-21",
+   "comments": "Run 2026-10-21: returns_and_windows_agree.test.tsx 10 of 10; every outside file passes (1,180 tests, 4 skipped as BLOCKED). Left to the second wave: MK-NW-F-091 / MK-NW-F-127, a holding with shares added inside the window works its gain back as $420 where $320 is right (needs a start-shares field per row). | 2026-10-22 LEFT ITEM FIXED: MK-NW-F-091 / MK-NW-F-127 by W-START (DEC-7323): $420 → $320.",
+   "_written": {
+    "status": "DONE 2026-10-21 — 9 of 9 app-wrong fixed, plus 1 found; 7 of 7 rulings decided; not committed",
+    "comments": "Run 2026-10-21: returns_and_windows_agree.test.tsx 10 of 10; every outside file passes (1,180 tests, 4 skipped as BLOCKED). Left to the second wave: MK-NW-F-091 / MK-NW-F-127, a holding with shares added inside the window works its gain back as $420 where $320 is right (needs a start-shares field per row). | 2026-10-22 LEFT ITEM FIXED: MK-NW-F-091 / MK-NW-F-127 by W-START (DEC-7323): $420 → $320."
+   }
+  },
+  {
+   "task": "Performance re-run: holdings, the market comparison, rows and labels (PF-B) — 17 of 22 app-wrong, 15 of 15 rulings",
+   "todo": "Fix every open item of the re-run not about returns and windows. Decisions DEC-7222 (Home names the change's base), DEC-7223 (own dates), DEC-7224 (no yardstick → no market), DEC-7225 (sale after today), DEC-7226 (largest holding), DEC-7227 (a kind with no yardstick), DEC-7228 (two closes one day); Look back words with DEC-7220.",
+   "status": "DONE 2026-10-21 — 17 of 22 app-wrong fixed, 15 of 15 rulings decided; not committed",
+   "ref": "src/screens/__tests__/pfb_cross_screen_agreement_2026_10_21.test.tsx · src/domain/performance/index.ts · src/screens/HomeScreen.tsx · MoneyKeel/functions/_figure-spec.ts (walkShown)",
+   "date": "2026-10-21",
+   "comments": "Run 2026-10-21: pfb_cross_screen_agreement_2026_10_21.test.tsx 10 of 10; the full suite 310 + 176 suites green at PF-B's end. Left (W-HOLDING): Holding page wording MK-NW-M-030, -031, -034, -061 and the \"0 months\" line.",
+   "_written": {
+    "status": "DONE 2026-10-21 — 17 of 22 app-wrong fixed, 15 of 15 rulings decided; not committed",
+    "comments": "Run 2026-10-21: pfb_cross_screen_agreement_2026_10_21.test.tsx 10 of 10; the full suite 310 + 176 suites green at PF-B's end. Left (W-HOLDING): Holding page wording MK-NW-M-030, -031, -034, -061 and the \"0 months\" line."
+   }
+  },
+  {
+   "task": "Performance outside re-run, part 2 (OpenAI) — 87 items assessed",
+   "todo": "Assess every case, formula check and still-open line; fix or decide each.",
+   "status": "DONE 2026-10-21 — 87 of 87 assessed (59 agree, 19 app wrong, 4 reviewer wrong, 5 rulings, 8 in flight); every app-wrong item fixed and every ruling decided by PF-A and PF-B; marked 2026-10-22",
+   "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/results/performance_openai_rerun_02_results.json · MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts",
+   "date": "2026-10-21",
+   "comments": "Run 2026-10-21: outside_performance_rerun_openai_02.test.ts 92 pass. Nothing left open.",
+   "_written": {
+    "status": "DONE 2026-10-21 — 87 of 87 assessed (59 agree, 19 app wrong, 4 reviewer wrong, 5 rulings, 8 in flight); every app-wrong item fixed and every ruling decided by PF-A and PF-B; marked 2026-10-22",
+    "comments": "Run 2026-10-21: outside_performance_rerun_openai_02.test.ts 92 pass. Nothing left open."
+   }
+  },
+  {
+   "task": "Performance outside re-run, part 3 (OpenAI) — 87 items assessed",
+   "todo": "Assess every case, formula check and still-open line; fix or decide each.",
+   "status": "DONE 2026-10-21 — 87 of 87 assessed (56 agree, 14 app wrong, 6 reviewer wrong, 11 rulings); every app-wrong item fixed and every ruling decided by PF-A and PF-B; marked 2026-10-22",
+   "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/results/performance_openai_rerun_03_results.json · MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts",
+   "date": "2026-10-21",
+   "comments": "Run 2026-10-21: outside_performance_rerun_openai_03.test.ts 94 pass. Nothing left open.",
+   "_written": {
+    "status": "DONE 2026-10-21 — 87 of 87 assessed (56 agree, 14 app wrong, 6 reviewer wrong, 11 rulings); every app-wrong item fixed and every ruling decided by PF-A and PF-B; marked 2026-10-22",
+    "comments": "Run 2026-10-21: outside_performance_rerun_openai_03.test.ts 94 pass. Nothing left open."
+   }
+  },
+  {
+   "task": "Performance outside re-run, part 4 (OpenAI) — 80 items assessed",
+   "todo": "Assess every case, formula check and still-open line; fix or decide each.",
+   "status": "DONE 2026-10-21 — 80 of 80 assessed; every app-wrong item fixed and every ruling decided by PF-A (and SYNC for MK-ST-F-082); marked 2026-10-22",
+   "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/results/performance_openai_rerun_04_results.json · MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts",
+   "date": "2026-10-21",
+   "comments": "Run 2026-10-21: outside_performance_rerun_openai_04.test.ts 89 pass. Nothing left open. The file's own CHECKS table keeps the first verdict beside its FIXED / DECIDED reason, by design.",
+   "_written": {
+    "status": "DONE 2026-10-21 — 80 of 80 assessed; every app-wrong item fixed and every ruling decided by PF-A (and SYNC for MK-ST-F-082); marked 2026-10-22",
+    "comments": "Run 2026-10-21: outside_performance_rerun_openai_04.test.ts 89 pass. Nothing left open. The file's own CHECKS table keeps the first verdict beside its FIXED / DECIDED reason, by design."
+   }
+  },
+  {
+   "task": "Performance outside re-run, tax sources and acceptance (OpenAI) — 29 items assessed",
+   "todo": "Assess every item; fix or decide each.",
+   "status": "DONE 2026-10-21 for Performance — 29 of 29 assessed; the three Performance items fixed (2Y over a leap year, a 100% loss kept, Home's gap from one function); the blocked item settled 2026-10-22",
+   "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/results/performance_openai_rerun_tax_results.json · MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts",
+   "date": "2026-10-21",
+   "comments": "Left, with the Cash flow round: 2026 head-of-household brackets (24% and 32% tops), the senior deduction for a married couple both 65+ (cut once, not per person), and the register citing §2.15 where Rev. Proc. 2025-32 §4.14 is right — that last one needs the register line and its test.failing case changed together. | 2026-10-22 PF-TOOLS: the §2.15 citation is FIXED, read from the IRS text of Rev. Proc. 2025-32 (§4.14 Standard Deduction: $32,200 · $24,150 · $16,100 · $16,100; (3) aged or blind $1,650 / $2,050): register STANDARD_DEDUCTION §4.14 and TAX_TABLES §§4.01, 4.14; the master's Reference rows (§3.18 → §4.14; capital gains §3.03 → §4.03) and deductionFor's line in moneykeel_code_formula.py (§3.18 → §4.14). The test.failing case is now a passing test, the old citation pinned as test.failing. src/domain/income/tax.ts line 253 reprints at the next write-headers.py.",
+   "_written": {
+    "status": "DONE 2026-10-21 for Performance — 29 of 29 assessed; the three Performance items fixed (2Y over a leap year, a 100% loss kept, Home's gap from one function); the blocked item settled 2026-10-22",
+    "comments": "Left, with the Cash flow round: 2026 head-of-household brackets (24% and 32% tops), the senior deduction for a married couple both 65+ (cut once, not per person), and the register citing §2.15 where Rev. Proc. 2025-32 §4.14 is right — that last one needs the register line and its test.failing case changed together. | 2026-10-22 PF-TOOLS: the §2.15 citation is FIXED, read from the IRS text of Rev. Proc. 2025-32 (§4.14 Standard Deduction: $32,200 · $24,150 · $16,100 · $16,100; (3) aged or blind $1,650 / $2,050): register STANDARD_DEDUCTION §4.14 and TAX_TABLES §§4.01, 4.14; the master's Reference rows (§3.18 → §4.14; capital gains §3.03 → §4.03) and deductionFor's line in moneykeel_code_formula.py (§3.18 → §4.14). The test.failing case is now a passing test, the old citation pinned as test.failing. src/domain/income/tax.ts line 253 reprints at the next write-headers.py."
+   }
+  },
+  {
+   "task": "extract-decisions.py uses up about 22 decision numbers each run before merging them away",
+   "todo": "Merge reworded rows BEFORE a number is issued, so a merged row never takes one.",
+   "status": "TO DO",
+   "ref": "Calculation Module code/scripts/extract-decisions.py (add, merge_reworded)",
+   "date": "2026-10-21",
+   "comments": "Found by NWQ, measured 2026-10-21: the run that recorded PF-A and PF-B issued DEC-7195 to DEC-7215 to rows it then merged into older ones (DEC-7195 → DEC-0125 and 21 more), so the 14 new decisions took DEC-7216 to DEC-7229. A number is never reused, so none is wrong — they are lost, and the highest number overstates the log (762 rows, highest 7230).",
+   "_written": {
+    "status": "TO DO",
+    "comments": "Found by NWQ, measured 2026-10-21: the run that recorded PF-A and PF-B issued DEC-7195 to DEC-7215 to rows it then merged into older ones (DEC-7195 → DEC-0125 and 21 more), so the 14 new decisions took DEC-7216 to DEC-7229. A number is never reused, so none is wrong — they are lost, and the highest number overstates the log (762 rows, highest 7230)."
+   }
+  },
+  {
+   "task": "The master file reads its own text back as his in ROW VERIFIED",
+   "todo": "moneykeel_keep.read: skip a ROW VERIFIED value that begins with the builder's own text (TESTED, NOT VERIFIED / RULED? NOT YET).",
+   "status": "DONE 2026-10-22 — 38 of 38 of his entries kept word for word; 201 of the build's own (179 ROW VERIFIED, 22 printed answers) no longer read back as his; not committed",
+   "ref": "Calculation Module code/scripts/moneykeel_keep.py · build-moneykeel-master.py (BUILDER_TEXT_IN_HIS_COLUMN)",
+   "date": "2026-10-21",
+   "comments": "Found 2026-10-21 by PF-RECORDS: the builder's line is carried forward as if he typed it, so its date goes stale — MK-NW-M-002, MK-NW-M-047, MK-PF-M-016 and MK-PF-M-017 say \"you ruled on this row\" on a date their Row status contradicts, and MK-PF-M-008 and MK-XS-M-004 still carry \"RULED? NOT YET — read this row and say yes\", a question in a file he opens, after they were ruled. Overriding that cell stops the build (his words changed), so the fix is the reader. | 2026-10-22 PF-TOOLS: moneykeel_keep.split takes the build's own sentence out of ROW VERIFIED and its printed answers out of YOUR ANSWER before anything is read back as his; 8 self-checks on made-up cells run at the start of every build and stop it (6 of them fail under the old reader). The build also stops if it writes a sentence in his columns the reader would not recognise (195 seen). A ruled date now also comes from a Row status override. Result: MK-PF-M-008 and MK-XS-M-004 read 'you ruled on this row 2026-09-30'; MK-NW-M-002, MK-NW-M-047, MK-PF-M-016, MK-PF-M-017 read 2026-10-04, as their Row status does; Q10, Q51, Q52 and Q53 print the decision log's answer. The same defect was in YOUR ANSWER, so both columns are fixed.",
+   "_written": {
+    "status": "DONE 2026-10-22 — 38 of 38 of his entries kept word for word; 201 of the build's own (179 ROW VERIFIED, 22 printed answers) no longer read back as his; not committed",
+    "comments": "Found 2026-10-21 by PF-RECORDS: the builder's line is carried forward as if he typed it, so its date goes stale — MK-NW-M-002, MK-NW-M-047, MK-PF-M-016 and MK-PF-M-017 say \"you ruled on this row\" on a date their Row status contradicts, and MK-PF-M-008 and MK-XS-M-004 still carry \"RULED? NOT YET — read this row and say yes\", a question in a file he opens, after they were ruled. Overriding that cell stops the build (his words changed), so the fix is the reader. | 2026-10-22 PF-TOOLS: moneykeel_keep.split takes the build's own sentence out of ROW VERIFIED and its printed answers out of YOUR ANSWER before anything is read back as his; 8 self-checks on made-up cells run at the start of every build and stop it (6 of them fail under the old reader). The build also stops if it writes a sentence in his columns the reader would not recognise (195 seen). A ruled date now also comes from a Row status override. Result: MK-PF-M-008 and MK-XS-M-004 read 'you ruled on this row 2026-09-30'; MK-NW-M-002, MK-NW-M-047, MK-PF-M-016, MK-PF-M-017 read 2026-10-04, as their Row status does; Q10, Q51, Q52 and Q53 print the decision log's answer. The same defect was in YOUR ANSWER, so both columns are fixed."
+   }
+  },
+  {
+   "task": "Master placeholder rows say \"screen not yet read\" for screens whose figures are declared",
+   "todo": "build-moneykeel-master.py: a route with declared figures prints READ and names them, not NOT STARTED.",
+   "status": "DONE 2026-10-22 — 60 of 60 screen lines derived from the declarations; 0 NOT STARTED; not committed",
+   "ref": "Calculation Module code/scripts/build-moneykeel-master.py (the NOT STARTED placeholder) · moneykeel_figures.json",
+   "date": "2026-10-21",
+   "comments": "Performance audit item 13: on the performance tab /account-detail (21 figures declared), /bonds (11), /holding-detail (12), /itemize (3) and /look-back (3) read NOT STARTED; /add-account is right (no figure). The same rows repeat on the home, networth, plan and cashflow tabs. A row with no Metric ID cannot take an override, so the fix is in the builder. | 2026-10-22 PF-TOOLS: each line is built by column name from the declarations: 40 READ, naming each figure by ID and the tab it is printed on (/account-detail 25, /holding-detail 17, /bonds 11, /look-back 5, /itemize 3 …), 16 READ with no figure, 4 the same screen as /invest. The status had been landing in his 'Your name for it' column, two columns early; it is now in Row status and his column is empty on those lines.",
+   "_written": {
+    "status": "DONE 2026-10-22 — 60 of 60 screen lines derived from the declarations; 0 NOT STARTED; not committed",
+    "comments": "Performance audit item 13: on the performance tab /account-detail (21 figures declared), /bonds (11), /holding-detail (12), /itemize (3) and /look-back (3) read NOT STARTED; /add-account is right (no figure). The same rows repeat on the home, networth, plan and cashflow tabs. A row with no Metric ID cannot take an override, so the fix is in the builder. | 2026-10-22 PF-TOOLS: each line is built by column name from the declarations: 40 READ, naming each figure by ID and the tab it is printed on (/account-detail 25, /holding-detail 17, /bonds 11, /look-back 5, /itemize 3 …), 16 READ with no figure, 4 the same screen as /invest. The status had been landing in his 'Your name for it' column, two columns early; it is now in Row status and his column is empty on those lines."
+   }
+  },
+  {
+   "task": "The $0 empty-state refusal of Q48 still prints over declared figures' own refusals",
+   "todo": "Retire the 2026-09-09 Q48 overrides on rows whose declaration now carries its own refusal; keep Q48 where the screen shows $0 and the door.",
+   "status": "TO DO",
+   "ref": "Calculation Module code/scripts/moneykeel_overrides.json (58 entries, \"What it says when it cannot be computed\")",
+   "date": "2026-10-21",
+   "comments": "Found 2026-10-21 by PF-RECORDS. Corrected for Performance's two percents, MK-PF-M-006 and MK-PF-M-008 (a percent cannot read $0). MK-PF-M-005 and MK-PF-M-007 to check against v17's first-day phone; the other 54 rows are Net worth, Cash flow, Menu, Plan and cross-screen figures, each checked with its module. | 2026-10-22 PF-TOOLS: Performance's part DONE — 4 of 4. MK-PF-M-005 and MK-PF-M-007's Q48 overrides retired; their master rows now print the declaration's own refusal, read against PerformanceScreen.tsx (005's was wrong, 'One account only…', and is rewritten as built: no account line while nothing is entered; 007's stands: no table when nothing was received). MK-PF-M-006 and MK-PF-M-008 were done 2026-10-21. Left for their own rounds, 54 rows: Net worth 18, Cash flow 15, Menu 12, Plan 5, cross-screen 4 — 37 of them declared with a refusal of their own, 16 on hand-typed rows.",
+   "_written": {
+    "status": "TO DO",
+    "comments": "Found 2026-10-21 by PF-RECORDS. Corrected for Performance's two percents, MK-PF-M-006 and MK-PF-M-008 (a percent cannot read $0). MK-PF-M-005 and MK-PF-M-007 to check against v17's first-day phone; the other 54 rows are Net worth, Cash flow, Menu, Plan and cross-screen figures, each checked with its module. | 2026-10-22 PF-TOOLS: Performance's part DONE — 4 of 4. MK-PF-M-005 and MK-PF-M-007's Q48 overrides retired; their master rows now print the declaration's own refusal, read against PerformanceScreen.tsx (005's was wrong, 'One account only…', and is rewritten as built: no account line while nothing is entered; 007's stands: no table when nothing was received). MK-PF-M-006 and MK-PF-M-008 were done 2026-10-21. Left for their own rounds, 54 rows: Net worth 18, Cash flow 15, Menu 12, Plan 5, cross-screen 4 — 37 of them declared with a refusal of their own, 16 on hand-typed rows."
+   }
+  },
+  {
+   "task": "Every declared figure's Period column reads \"as of today\", window figures included",
+   "todo": "Give a declaration its window (a period field), and print it in the master's Period column.",
+   "status": "DONE 2026-10-22 for Performance — 26 window figures name the window, 6 more carry their own period; Cash flow's this month waits; not committed",
+   "ref": "MoneyKeel/functions/_figure-spec.ts · build-moneykeel-master.py (declared_row)",
+   "date": "2026-10-21",
+   "comments": "Found 2026-10-21 by PF-RECORDS: on the performance tab every row reads \"as of today\", though Return, Wealth generated, the walk and the market figure are over the window picked. MK-PF-M-008's period is written by override (the 1M window) until the declaration carries it. | 2026-10-22 PF-TOOLS: moneykeel_period.py derives the Period from the declaration: its own period field first (none carry one yet), a month or a year (50), over a window when its words say window or the same dates (25 — each screen's choices read from its code: Performance Since · 1M · This year · 1Y · 2Y, Home 1M fixed, Look back 12 months ago · 2 years ago · 3 years ago, Holding page 1M to 2Y), else as of today (104). Bill calendar lists no window choices the build can read; its one row says so. Left: figures over a span that never say window (Cash flow's this month, since purchase, trailing twelve months, since the previous close) still read as of today — a period field on those declarations is the way. | 2026-10-22 PF-TOOLS, Performance's span figures: a period field on the declaration (_figure-spec.ts) now prints on the Period row — MK-NW-M-034 the trailing twelve months, MK-NW-M-035 every sale on record, MK-NW-M-059 and -067 since purchase, MK-NW-M-060 and -068 since the previous close (holding.ts); MK-PF-M-003, the walk's title, declares 'the window picked' and lists Performance's choices (performance.ts). Build: over a window 26 · own period 6 · a month or a year 50 · as of today 97.",
+   "_written": {
+    "status": "DONE 2026-10-22 for Performance — 26 window figures name the window, 6 more carry their own period; Cash flow's this month waits; not committed",
+    "comments": "Found 2026-10-21 by PF-RECORDS: on the performance tab every row reads \"as of today\", though Return, Wealth generated, the walk and the market figure are over the window picked. MK-PF-M-008's period is written by override (the 1M window) until the declaration carries it. | 2026-10-22 PF-TOOLS: moneykeel_period.py derives the Period from the declaration: its own period field first (none carry one yet), a month or a year (50), over a window when its words say window or the same dates (25 — each screen's choices read from its code: Performance Since · 1M · This year · 1Y · 2Y, Home 1M fixed, Look back 12 months ago · 2 years ago · 3 years ago, Holding page 1M to 2Y), else as of today (104). Bill calendar lists no window choices the build can read; its one row says so. Left: figures over a span that never say window (Cash flow's this month, since purchase, trailing twelve months, since the previous close) still read as of today — a period field on those declarations is the way. | 2026-10-22 PF-TOOLS, Performance's span figures: a period field on the declaration (_figure-spec.ts) now prints on the Period row — MK-NW-M-034 the trailing twelve months, MK-NW-M-035 every sale on record, MK-NW-M-059 and -067 since purchase, MK-NW-M-060 and -068 since the previous close (holding.ts); MK-PF-M-003, the walk's title, declares 'the window picked' and lists Performance's choices (performance.ts). Build: over a window 26 · own period 6 · a month or a year 50 · as of today 97."
+   }
+  },
+  {
+   "task": "Records gaps from the Performance audit of 2026-10-21 (PF-RECORDS)",
+   "todo": "Record PF-A, PF-B and NWQ; answer his four old questions on their rows; take MK-PF-M-008 out of DRAFT; mark the outside results; fix the design record and the stale plan rows.",
+   "status": "DONE 2026-10-22 — 14 decisions recorded, 32 Changelog rows, 186 results marks, 4 anchors re-mapped by reading; not committed",
+   "ref": "Calculation Module code/scripts/moneykeel_decisions_in_chat.json · moneykeel_decisions_anchors.json · moneykeel_overrides.json · moneykeel_rulings.json · docs/FCC-core-55-70/FCC-core-detailed-design-v1.3-2026-10-07.xlsx (Changelog) · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
+   "date": "2026-10-21",
+   "comments": "Left for code (the lead): MK-PF-M-008's declaration in performance.ts needs ruled 2026-09-30 and the formula and refusal as built (the master carries them by override until then); the route comment in app/account-detail.tsx still says Performance v17 frame 2 (DEC-0646) — since DEC-6457 it is the account-page drawing v01. | 2026-10-22 UPDATE: the route comment in app/account-detail.tsx was fixed by W-SHEETS (gap 47). Q33's answer could not reach MK-PF-M-008's answer cell — his kept answer to Q51 was written back over it — so build-moneykeel-master.py now adds a decision-log answer under his kept text, his words unchanged at the top; check-questions-answered.py passes. | 2026-10-22 PASS 4: MK-PF-M-008's declaration now carries ruled 2026-09-30 (W-A11Y) and its Row status override is retired (PF-TOOLS); its other overrides go at the final pass.",
+   "_written": {
+    "status": "DONE 2026-10-22 — 14 decisions recorded, 32 Changelog rows, 186 results marks, 4 anchors re-mapped by reading; not committed",
+    "comments": "Left for code (the lead): MK-PF-M-008's declaration in performance.ts needs ruled 2026-09-30 and the formula and refusal as built (the master carries them by override until then); the route comment in app/account-detail.tsx still says Performance v17 frame 2 (DEC-0646) — since DEC-6457 it is the account-page drawing v01. | 2026-10-22 UPDATE: the route comment in app/account-detail.tsx was fixed by W-SHEETS (gap 47). Q33's answer could not reach MK-PF-M-008's answer cell — his kept answer to Q51 was written back over it — so build-moneykeel-master.py now adds a decision-log answer under his kept text, his words unchanged at the top; check-questions-answered.py passes. | 2026-10-22 PASS 4: MK-PF-M-008's declaration now carries ruled 2026-09-30 (W-A11Y) and its Row status override is retired (PF-TOOLS); its other overrides go at the final pass."
+   }
+  },
+  {
+   "task": "Holding page: the comparison band, units, the dividends line, a short history, the LAST CLOSE day, 2Y words, five IDs (W-HOLDING)",
+   "todo": "Performance audit gaps 4, 5, 6, 9 and 10 for the Holding page, 34, the date check and PF-B's five Holding-page leftovers. Decisions DEC-7297 to DEC-7303.",
+   "status": "DONE 2026-10-21 — finished 2026-10-22: 6 of 6 gaps, 5 of 5 leftovers, 9 of 9 rulings; not committed",
+   "ref": "src/screens/__tests__/holding_page_comparison_and_unknowns_2026_10_21.test.tsx · src/__tests__/last_close_day_on_persons_calendar.test.ts · MoneyKeel/functions/networth-and-performance/holding.ts · src/screens/HoldingDetailScreen.tsx",
+   "date": "2026-10-21",
+   "comments": "Run 2026-10-22 by W-HOLDING: 18 of 18 and 5 of 5; the outside screens file 455 of 455. Sent back, being fixed: MK-PF-M-023 and MK-NW-M-069 are one concept with two IDs; heldOnDay called from the account page (guard D1). | 2026-10-22 SENT BACK CLOSED: MK-NW-M-069 retired into MK-PF-M-023 (DEC-7369); heldOnDay had already moved.",
+   "_written": {
+    "status": "DONE 2026-10-21 — finished 2026-10-22: 6 of 6 gaps, 5 of 5 leftovers, 9 of 9 rulings; not committed",
+    "comments": "Run 2026-10-22 by W-HOLDING: 18 of 18 and 5 of 5; the outside screens file 455 of 455. Sent back, being fixed: MK-PF-M-023 and MK-NW-M-069 are one concept with two IDs; heldOnDay called from the account page (guard D1). | 2026-10-22 SENT BACK CLOSED: MK-NW-M-069 retired into MK-PF-M-023 (DEC-7369); heldOnDay had already moved."
+   }
+  },
+  {
+   "task": "Performance: spoken words, every percent by ID, the screens agreeing (W-A11Y) — audit rows 9 and 28 to 33",
+   "todo": "Tag the untagged percents, give the graph and every figure a spoken form, fix a and an, set the accessibility counts true, pin the same figure across screens. Decisions DEC-7304 to DEC-7311.",
+   "status": "DONE 2026-10-21 — finished 2026-10-22: 7 of 7 gaps, 8 of 8 calls; not committed",
+   "ref": "src/screens/__tests__/performance_spoken_and_agree_2026_10_21.test.tsx · src/domain/_shared/article.test.ts · src/__tests__/guard_figures_declared.test.ts · src/__tests__/a11y-baseline.json",
+   "date": "2026-10-21",
+   "comments": "Run 2026-10-22 09:15: 34 of 34 and 26 of 26. Sent back, being fixed: the account page and Holding page say \"%/year\" aloud; Home's left-out sentence shows dollars under hidden balances; the metric register collision; account_detail_journey. | 2026-10-22 SENT BACK CLOSED: the spoken \"%/year\" on the account page and Holding page; Home's left-out sentence under hidden balances; the register collision (each ID once); account_detail_journey passes.",
+   "_written": {
+    "status": "DONE 2026-10-21 — finished 2026-10-22: 7 of 7 gaps, 8 of 8 calls; not committed",
+    "comments": "Run 2026-10-22 09:15: 34 of 34 and 26 of 26. Sent back, being fixed: the account page and Holding page say \"%/year\" aloud; Home's left-out sentence shows dollars under hidden balances; the metric register collision; account_detail_journey. | 2026-10-22 SENT BACK CLOSED: the spoken \"%/year\" on the account page and Holding page; Home's left-out sentence under hidden balances; the register collision (each ID once); account_detail_journey passes."
+   }
+  },
+  {
+   "task": "Account page doors and the five sheets drawn from the code (W-SHEETS) — audit gaps 7, 8, 24 to 27 and 47",
+   "todo": "Open the trade sheet from the account page, remove the six sheets with no door, draw the five sheets from the code, hold the Holding page buttons and state F's look, test Look back empty, fix the route comment. Decisions DEC-7312 to DEC-7322.",
+   "status": "DONE 2026-10-21 — finished 2026-10-22: 7 of 7 gaps, 5 of 5 sheets drawn (35 states), 11 of 11 decisions; not committed",
+   "ref": "src/screens/__tests__/sheet_doors_2026_10_21.test.tsx · src/screens/__tests__/sheets_drawn_from_code.test.tsx · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md",
+   "date": "2026-10-21",
+   "comments": "Run 2026-10-22: sheet_doors 10 of 10; sheets_drawn_from_code 42 of 42 at 08:59 — three drawings and the Update value sheet are being redrawn as v02 since 09:13. The five drawings wait for his approval. Sent back, being fixed: the date guard does not read a record's date; a 529 against DEC-2484g; Look back's empty sentence; Record a transaction against the canon word activity; \"Net Worth\" with a capital W; the edit sheet's save button fades to 50%. | 2026-10-22 SENT BACK CLOSED: all seven, by the W-SHEETS follow-ups row (DEC-7377, DEC-7379, DEC-7380, DEC-7381, DEC-7382; the 529 by his DEC-2484g).",
+   "_written": {
+    "status": "DONE 2026-10-21 — finished 2026-10-22: 7 of 7 gaps, 5 of 5 sheets drawn (35 states), 11 of 11 decisions; not committed",
+    "comments": "Run 2026-10-22: sheet_doors 10 of 10; sheets_drawn_from_code 42 of 42 at 08:59 — three drawings and the Update value sheet are being redrawn as v02 since 09:13. The five drawings wait for his approval. Sent back, being fixed: the date guard does not read a record's date; a 529 against DEC-2484g; Look back's empty sentence; Record a transaction against the canon word activity; \"Net Worth\" with a capital W; the edit sheet's save button fades to 50%. | 2026-10-22 SENT BACK CLOSED: all seven, by the W-SHEETS follow-ups row (DEC-7377, DEC-7379, DEC-7380, DEC-7381, DEC-7382; the 529 by his DEC-2484g)."
+   }
+  },
+  {
+   "task": "Shares added inside the window: start, gain, category return (W-START)",
+   "todo": "With shares bought inside the window, the worked-back gain and start, and a category's return. Decisions DEC-7323 and DEC-7324; DEC-7221 now names classReturnOf, categoryEarnings and gainOfRow.",
+   "status": "DONE 2026-10-22 — 3 of 3 gaps, 8 of 8 outside marks; not committed",
+   "ref": "MoneyKeel/functions/networth-and-performance/dec3656_shares_added_inside_window.test.ts · src/screens/__tests__/shares_added_inside_window_agree.test.tsx · MoneyKeel/documents/standards/moneykeel_calc_spec_how-an-account-is-classed-and-counted_v01.md",
+   "date": "2026-10-22",
+   "comments": "Run 2026-10-22 09:15: 12 of 12 and 8 of 8. Left: sales inside the window ($2,100 where $2,000 is right — needs the sale records replayed); a purchase with no price paid is named with \"has no price history\", the wrong reason; Home's market is weighed by starts while your return is split at each purchase. | 2026-10-22 SENT BACK CLOSED by W-START round 2: sales inside the window (DEC-7398); the true reason for a left-out holding (DEC-7400); Home's market on the same days (DEC-7399).",
+   "_written": {
+    "status": "DONE 2026-10-22 — 3 of 3 gaps, 8 of 8 outside marks; not committed",
+    "comments": "Run 2026-10-22 09:15: 12 of 12 and 8 of 8. Left: sales inside the window ($2,100 where $2,000 is right — needs the sale records replayed); a purchase with no price paid is named with \"has no price history\", the wrong reason; Home's market is weighed by starts while your return is split at each purchase. | 2026-10-22 SENT BACK CLOSED by W-START round 2: sales inside the window (DEC-7398); the true reason for a left-out holding (DEC-7400); Home's market on the same days (DEC-7399)."
+   }
+  },
+  {
+   "task": "Performance decisions read against the screen (PF-DECISIONS) — 186 of 186",
+   "todo": "Read every decision in Performance's scope against its screen, figure or function, with a test that runs today.",
+   "status": "DONE 2026-10-22 — HELD 145 (36 moved to TESTED, 109 had it; test names added), SUPERSEDED 9 marked OLD, NOT PERFORMANCE 27 re-tagged, BREACHED 4 left for their fixes, DEC-0470 in flight (drawings made, approval his)",
+   "ref": "src/screens/__tests__/perf_decisions_held_1.test.tsx, _2, _3, _5 · MoneyKeel/functions/networth-and-performance/perf_decisions_held_4.test.ts, _6 · Calculation Module code/scripts/moneykeel_decisions.json (each row's status and proof)",
+   "date": "2026-10-22",
+   "comments": "Run 2026-10-22 09:15: perf_decisions_held_1 24 of 24, _2 16 of 16, _3 9 of 9, _4 9 of 9. Six anchors re-mapped by reading (DEC-0232, DEC-0233, DEC-0248, DEC-0088, DEC-0148, DEC-0159). DEC-6076's proof names its real file.",
+   "_written": {
+    "status": "DONE 2026-10-22 — HELD 145 (36 moved to TESTED, 109 had it; test names added), SUPERSEDED 9 marked OLD, NOT PERFORMANCE 27 re-tagged, BREACHED 4 left for their fixes, DEC-0470 in flight (drawings made, approval his)",
+    "comments": "Run 2026-10-22 09:15: perf_decisions_held_1 24 of 24, _2 16 of 16, _3 9 of 9, _4 9 of 9. Six anchors re-mapped by reading (DEC-0232, DEC-0233, DEC-0248, DEC-0088, DEC-0148, DEC-0159). DEC-6076's proof names its real file."
+   }
+  },
+  {
+   "task": "Four Performance decisions breached on the screen: DEC-0237 and DEC-0404 (2Y total), DEC-0346 (screens compute nothing), DEC-0402 (Home's market by ID)",
+   "todo": "Print the two years' own total beside a 2Y yearly rate on the summary and every account row; move the screen sums into functions; print Home's market, you and ahead by through their IDs.",
+   "status": "DONE 2026-10-22 — 4 of 4 fixed: DEC-0237 and DEC-0404 (PF-A), DEC-0346 (W-HOLDING), DEC-0402 (W-A11Y); each TESTED",
+   "ref": "src/screens/PerformanceScreen.tsx · src/screens/AccountPortfolioScreen.tsx · src/screens/HomeScreen.tsx · perf_decisions_held_1 and _4 (the test.failing cases)",
+   "date": "2026-10-22",
+   "comments": "Found by the decisions read: in his v17 phone 1 household, 2Y reads +3.46% with no total; \"All categories $2,200\" is added on the screen; Home writes \"market +2.83%\" with its own formatter.",
+   "_written": {
+    "status": "DONE 2026-10-22 — 4 of 4 fixed: DEC-0237 and DEC-0404 (PF-A), DEC-0346 (W-HOLDING), DEC-0402 (W-A11Y); each TESTED",
+    "comments": "Found by the decisions read: in his v17 phone 1 household, 2Y reads +3.46% with no total; \"All categories $2,200\" is added on the screen; Home writes \"market +2.83%\" with its own formatter."
+   }
+  },
+  {
+   "task": "One holding return, one ID; screens compute nothing on Performance (W-HOLDING follow-ups)",
+   "todo": "Merge the account page's and the Holding page's holding return; move the screen sums into functions; build guard D1b. Decisions DEC-7369, DEC-7370, DEC-7371, DEC-7372.",
+   "status": "DONE 2026-10-22 — 4 of 4; account page 10 places → 0, Performance tab 3 → 0; not committed",
+   "ref": "src/screens/__tests__/holding_return_one_figure_2026_10_22.test.tsx · MoneyKeel/functions/networth-and-performance/dec0346_screens_compute_nothing.test.ts · src/__tests__/guard_d1_nobody_in_the_kitchen.test.ts",
+   "date": "2026-10-22",
+   "comments": "Run 2026-10-22 14:09: 7 of 7, 13 of 13, 3 of 3. NEW: 10 shares at $100 + 10 at $110, $121 today, 1Y: account page +51.25% → +21.00%, as the Holding page.",
+   "_written": {
+    "status": "DONE 2026-10-22 — 4 of 4; account page 10 places → 0, Performance tab 3 → 0; not committed",
+    "comments": "Run 2026-10-22 14:09: 7 of 7, 13 of 13, 3 of 3. NEW: 10 shares at $100 + 10 at $110, $121 today, 1Y: account page +51.25% → +21.00%, as the Holding page."
+   }
+  },
+  {
+   "task": "A share count not on record on the account page; screens compute nothing on Net worth (W-HOLDING round 3)",
+   "todo": "The lead's ruling (tenet 3) on a purchase with no share count, applied on the account page; DEC-0346 closed on Net worth, Itemize and Bonds; the Holding page's 2Y lines from the one writer. Decisions DEC-7373, DEC-7374, DEC-7375, DEC-7376.",
+   "status": "DONE 2026-10-22 — 3 of 3; D1b 75 places in 23 files, every Net worth and Performance screen at 0; not committed",
+   "ref": "src/screens/__tests__/holding_return_one_figure_2026_10_22.test.tsx · dec0346_screens_compute_nothing.test.ts · returns_and_windows_agree.test.tsx (section 2)",
+   "date": "2026-10-22",
+   "comments": "Run by W-HOLDING: 3,791 pass, 1 fail not its (networth_family_inputs, since fixed by W-A11Y: 8 of 8). 10 shares at $40 + a purchase with no count: 10 shares / $500 → Not stated … / not stated.",
+   "_written": {
+    "status": "DONE 2026-10-22 — 3 of 3; D1b 75 places in 23 files, every Net worth and Performance screen at 0; not committed",
+    "comments": "Run by W-HOLDING: 3,791 pass, 1 fail not its (networth_family_inputs, since fixed by W-A11Y: 8 of 8). 10 shares at $40 + a purchase with no count: 10 shares / $500 → Not stated … / not stated."
+   }
+  },
+  {
+   "task": "W-SHEETS follow-ups — the seven items left open (date guard, 529, Look back words, Update value title, Record activity, Net worth case, one fade)",
+   "todo": "Close the seven items W-SHEETS left. Decisions DEC-7377, DEC-7378, DEC-7379, DEC-7380, DEC-7381, DEC-7382; the 529 applies his DEC-2484g.",
+   "status": "DONE 2026-10-22 — 7 of 7; four drawings redrawn as v02, v01s archived; not committed",
+   "ref": "src/__tests__/date_writer_guard.test.ts · src/screens/__tests__/sheets_drawn_from_code.test.tsx · sheet_doors_2026_10_21.test.tsx · src/__tests__/one_term_per_concept.test.ts",
+   "date": "2026-10-22",
+   "comments": "Run 2026-10-22 14:09: 3 of 3, 42 of 42, 10 of 10, 3 of 3. Canon rows 9 and 12 changed (note \"Two more, 2026-10-22\"). The sheet drawing generator was lost with /tmp; a redraw needs it rebuilt.",
+   "_written": {
+    "status": "DONE 2026-10-22 — 7 of 7; four drawings redrawn as v02, v01s archived; not committed",
+    "comments": "Run 2026-10-22 14:09: 3 of 3, 42 of 42, 10 of 10, 3 of 3. Canon rows 9 and 12 changed (note \"Two more, 2026-10-22\"). The sheet drawing generator was lost with /tmp; a redraw needs it rebuilt."
+   }
+  },
+  {
+   "task": "Look back fetches what it compares (W-SHEETS)",
+   "todo": "Fetch Look back's pairing, SPY and his four yardsticks (DEC-1624) through the one price refresh. Decisions DEC-7383, DEC-7384, DEC-7385.",
+   "status": "DONE 2026-10-22 — 1 of 1; not committed",
+   "ref": "src/screens/__tests__/look_back_fetches_what_it_compares.test.tsx · src/store/useStore.ts · src/screens/LookBackScreen.tsx",
+   "date": "2026-10-22",
+   "comments": "Run 2026-10-22 14:09: 5 of 5. Nothing held, AGG→SPY: Left in AGG it became $20,500; Moved to SPY $23,200; $2,700 more.",
+   "_written": {
+    "status": "DONE 2026-10-22 — 1 of 1; not committed",
+    "comments": "Run 2026-10-22 14:09: 5 of 5. Nothing held, AGG→SPY: Left in AGG it became $20,500; Moved to SPY $23,200; $2,700 more."
+   }
+  },
+  {
+   "task": "DEC-0237 and DEC-0404: a 2Y yearly rate with the two years' own total beside it (PF-A)",
+   "todo": "Fix the two breaches: the summary and every account row over 2Y.",
+   "status": "DONE 2026-10-22 — 2 of 2 breaches, 2 of 2 pins flipped; DEC-0237 and DEC-0404 TESTED; not committed",
+   "ref": "src/screens/__tests__/perf_decisions_held_1.test.tsx · returns_and_windows_agree.test.tsx (test 7) · overTheYearsSentence (performance.ts)",
+   "date": "2026-10-22",
+   "comments": "Run 2026-10-22 14:09: 24 of 24, 11 of 11. His phone-1 household 2Y: +7.05% over the two years, which is +3.46%/year (before: +3.46% alone).",
+   "_written": {
+    "status": "DONE 2026-10-22 — 2 of 2 breaches, 2 of 2 pins flipped; DEC-0237 and DEC-0404 TESTED; not committed",
+    "comments": "Run 2026-10-22 14:09: 24 of 24, 11 of 11. His phone-1 household 2Y: +7.05% over the two years, which is +3.46%/year (before: +3.46% alone)."
+   }
+  },
+  {
+   "task": "W-A11Y follow-ups, the Home hero card and its nested door",
+   "todo": "DEC-0402 on Home, spoken words on the account page and Holding page, Home's left-out sentence masked, the hero card read line by line, its door spoken. Decisions DEC-7386, DEC-7387, DEC-7388, DEC-7389, DEC-7390, DEC-7391, DEC-7392.",
+   "status": "DONE 2026-10-22 — 7 of 7, 2 of 2, 1 of 1; DEC-0402 TESTED; not committed",
+   "ref": "src/screens/__tests__/performance_spoken_and_agree_2026_10_21.test.tsx (sections E to H) · perf_decisions_held_4.test.ts · src/components/SaidText.tsx",
+   "date": "2026-10-22",
+   "comments": "Run 2026-10-22 14:09: 48 of 48, 9 of 9. MK-PF-M-027 and MK-PF-M-002 on Home need master rows (the final build).",
+   "_written": {
+    "status": "DONE 2026-10-22 — 7 of 7, 2 of 2, 1 of 1; DEC-0402 TESTED; not committed",
+    "comments": "Run 2026-10-22 14:09: 48 of 48, 9 of 9. MK-PF-M-027 and MK-PF-M-002 on Home need master rows (the final build)."
+   }
+  },
+  {
+   "task": "Master file defects (PF-TOOLS, rounds 1 and 2)",
+   "todo": "The reader that kept the builder's text as his; stale ruled dates; screen lines from declarations; the Period column; two citations; Performance's $0 refusals; three overrides retired. Decisions DEC-7393, DEC-7394, DEC-7395, DEC-7396, DEC-7397, DEC-7402, DEC-7403, DEC-7404, DEC-7405.",
+   "status": "DONE 2026-10-22 — 4 of 4 and 3 of 3; his 38 cells word for word; not committed",
+   "ref": "Calculation Module code/scripts/moneykeel_keep.py · build-moneykeel-master.py · moneykeel_period.py · moneykeel_published_sources.json · moneykeel_overrides.json",
+   "date": "2026-10-22",
+   "comments": "Build exit 0; self-checks 8. Left for the final pass: MK-PF-M-008 overrides 393, 394 and 207 (the formula and refusal are now in the declaration, and W-START changed the formula) — retire or rewrite as built.",
+   "_written": {
+    "status": "DONE 2026-10-22 — 4 of 4 and 3 of 3; his 38 cells word for word; not committed",
+    "comments": "Build exit 0; self-checks 8. Left for the final pass: MK-PF-M-008 overrides 393, 394 and 207 (the formula and refusal are now in the declaration, and W-START changed the formula) — retire or rewrite as built."
+   }
+  },
+  {
+   "task": "Shares sold inside the window; Home's market on the same days as your return (W-START round 2)",
+   "todo": "Close W-START's three loose ends and the four red market cases. Decisions DEC-7398, DEC-7399, DEC-7400, DEC-7401; DEC-7399 amends DEC-7221 where money moved.",
+   "status": "DONE 2026-10-22 — 3 of 3, 4 of 4 market cases, 2 of 2 F-044 entries; not committed",
+   "ref": "MoneyKeel/functions/networth-and-performance/dec3656_shares_added_inside_window.test.ts · src/screens/__tests__/shares_added_inside_window_agree.test.tsx · pfb_cross_screen_agreement_2026_10_21.test.tsx",
+   "date": "2026-10-22",
+   "comments": "Run 2026-10-22: 22 of 22, 15 of 15, 11 of 11. 20 held at $100, 10 sold at $110, 10 left at $121: $210 → $310, $2,100 → $2,000. Home market for one household +8.80% (start weights alone +8.00%). W-START is on three more leftovers (sold out inside the window, bought and sold inside it, sale fees). | 2026-10-22 LEFTOVERS CLOSED: sold out inside the window (DEC-7450), bought and sold inside it (DEC-7451), sale fees (DEC-7452).",
+   "_written": {
+    "status": "DONE 2026-10-22 — 3 of 3, 4 of 4 market cases, 2 of 2 F-044 entries; not committed",
+    "comments": "Run 2026-10-22: 22 of 22, 15 of 15, 11 of 11. 20 held at $100, 10 sold at $110, 10 left at $121: $210 → $310, $2,100 → $2,000. Home market for one household +8.80% (start weights alone +8.00%). W-START is on three more leftovers (sold out inside the window, bought and sold inside it, sale fees). | 2026-10-22 LEFTOVERS CLOSED: sold out inside the window (DEC-7450), bought and sold inside it (DEC-7451), sale fees (DEC-7452)."
+   }
+  },
+  {
+   "task": "Metric register: duplicate IDs already in HEAD (MK-CF-M-001 to 004, MK-MN-M-011 and 013, MK-PL-M-023)",
+   "todo": "Read each duplicate with its module and give each figure one ID.",
+   "status": "TO DO — with Cash flow, Menu and Plan",
+   "ref": "Calculation Module code/scripts/moneykeel_metric_register.json",
+   "date": "2026-10-22",
+   "comments": "Found by W-A11Y on 2026-10-22 checking its own IDs; not Performance.",
+   "_written": {
+    "status": "TO DO — with Cash flow, Menu and Plan",
+    "comments": "Found by W-A11Y on 2026-10-22 checking its own IDs; not Performance."
+   }
+  },
+  {
+   "task": "DEC-0641 lost its dollar amounts on 2026-09-30, and the scan for the same fault",
+   "todo": "Restore the amounts from their source and scan every record file for amounts eaten by a shell.",
+   "status": "DONE 2026-10-22 — restored in 4 records; scan read 19,390 strings, 1 real case",
+   "ref": "Calculation Module code/scripts/moneykeel_decisions_in_chat.json · moneykeel_decisions.json · moneykeel_question_answers.json · docs/FCC-core-55-70/FCC-core-detailed-design-v1.3-2026-10-07.xlsx (Changelog row 270)",
+   "date": "2026-10-22",
+   "comments": "Source: src/screens/NetWorthScreen.tsx:538-541. \"On a card with a $200 minimum paid at $600, it read $200 and now reads $600.\" The scan's other 67 hits are function brackets, his own \"$\" and drawn radio buttons.",
+   "_written": {
+    "status": "DONE 2026-10-22 — restored in 4 records; scan read 19,390 strings, 1 real case",
+    "comments": "Source: src/screens/NetWorthScreen.tsx:538-541. \"On a card with a $200 minimum paid at $600, it read $200 and now reads $600.\" The scan's other 67 hits are function brackets, his own \"$\" and drawn radio buttons."
+   }
+  },
+  {
+   "task": "Holdings sold in full or bought and sold inside the window; a sale's fee counted once (W-START round 3 and its correction)",
+   "todo": "Close W-START's three leftovers. Decisions DEC-7450, DEC-7451 (the correction's final rule, round 3's earlier wording noted on it), DEC-7452.",
+   "status": "DONE 2026-10-22 — 3 of 3, and the correction in 2 of 2 places; not committed",
+   "ref": "MoneyKeel/functions/networth-and-performance/dec3656_shares_added_inside_window.test.ts · src/screens/__tests__/shares_added_inside_window_agree.test.tsx · soldOutPositions, eventPath (src/domain/performance/index.ts)",
+   "date": "2026-10-22",
+   "comments": "Run 2026-10-22: 56 of 56. 10 held at $100 sold at $110: +10.00%, gained $100 (round 3 first read +8.00%); bought and sold inside the window +30.00% (was +18.18%). No outside case covers these, so no results file is marked. Later, not wrong numbers: a sold-out Unclassified holding leaves Home with no market figure (tenet 3); a holding whose prices start late and is then sold in full is weighed from the window's first day.",
+   "_written": {
+    "status": "DONE 2026-10-22 — 3 of 3, and the correction in 2 of 2 places; not committed",
+    "comments": "Run 2026-10-22: 56 of 56. 10 held at $100 sold at $110: +10.00%, gained $100 (round 3 first read +8.00%); bought and sold inside the window +30.00% (was +18.18%). No outside case covers these, so no results file is marked. Later, not wrong numbers: a sold-out Unclassified holding leaves Home with no market figure (tenet 3); a holding whose prices start late and is then sold in full is weighed from the window's first day."
    }
   }
  ]

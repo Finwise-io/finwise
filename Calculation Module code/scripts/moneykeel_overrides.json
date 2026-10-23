@@ -1180,15 +1180,6 @@
   },
   {
     "tab": "functions_from_code",
-    "key": "MK-PF-F-003",
-    "col": "Answer to the founder comment — checked against the code, 2026-09-08 (what the code does · verdict · fix)",
-    "mode": "replace",
-    "text": "Unused by any screen (it clips to cents; the screen wants 3 decimals) and it divides by ALL shares. Retire it or make it the averagePricePaid of JJ-1 (cost > 0 lots only, no cents clipping).",
-    "date": "2026-09-08",
-    "why": "answer to the founder comment"
-  },
-  {
-    "tab": "functions_from_code",
     "key": "MK-PF-F-004",
     "col": "Answer to the founder comment — checked against the code, 2026-09-08 (what the code does · verdict · fix)",
     "mode": "replace",
@@ -1246,9 +1237,9 @@
     "key": "STATUTORY TABLE 2026 — standard deduction and age-65 add-on",
     "col": "Detail",
     "mode": "replace",
-    "text": "Standard deduction: $16,100 single · $32,200 married filing jointly · $16,100 married filing separately · $24,150 head of household. Add-on per person 65 or older: $2,050 single / head of household · $1,650 married (each). Source: IRS Rev. Proc. 2025-32 §3.18. In code as TAX_TABLES.deduction / over65Add (MK-CF-F-099).",
-    "date": "2026-09-08",
-    "why": "added by hand"
+    "text": "Standard deduction: $16,100 single · $32,200 married filing jointly · $16,100 married filing separately · $24,150 head of household. Add-on per person 65 or older: $2,050 single / head of household · $1,650 married (each). Source: IRS Rev. Proc. 2025-32 §4.14. In code as TAX_TABLES.deduction / over65Add (MK-CF-F-099).",
+    "date": "2026-10-22",
+    "why": "added by hand; 2026-10-22 the section corrected from the IRS text of Rev. Proc. 2025-32 (outside re-run, side finding S1)"
   },
   {
     "tab": "Reference",
@@ -1264,9 +1255,9 @@
     "key": "STATUTORY TABLE 2026 — long-term capital gains bands",
     "col": "Detail",
     "mode": "replace",
-    "text": "Taxable income up to which the rate is 0%, then 15% up to, then 20% above: single $49,450 / $545,500 · married filing jointly $98,900 / $613,700 · married filing separately $49,450 / $306,850 · head of household $66,200 / $579,600. Source: IRS Rev. Proc. 2025-32 §3.03. In code as LTCG (MK-CF-F-104).",
-    "date": "2026-09-08",
-    "why": "added by hand"
+    "text": "Taxable income up to which the rate is 0%, then 15% up to, then 20% above: single $49,450 / $545,500 · married filing jointly $98,900 / $613,700 · married filing separately $49,450 / $306,850 · head of household $66,200 / $579,600. Source: IRS Rev. Proc. 2025-32 §4.03. In code as LTCG (MK-CF-F-104).",
+    "date": "2026-10-22",
+    "why": "added by hand; 2026-10-22 the section corrected from the IRS text of Rev. Proc. 2025-32 (outside re-run, side finding S1)"
   },
   {
     "tab": "Reference",
@@ -1811,15 +1802,6 @@
   {
     "tab": "performance",
     "key": "MK-PF-M-005",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Add your accounts ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "performance",
-    "key": "MK-PF-M-005",
     "col": "Where each finding stands",
     "mode": "append",
     "text": "G32 / Q48 — RULED 2026-09-09: $0 stays, with the sentence '$0 — nothing entered yet.' and this row's door ('Add your accounts ›'). File written; the screen follows the approved empty-state mock (one pattern, one screen), then every screen.",
@@ -1847,27 +1829,9 @@
   {
     "tab": "performance",
     "key": "MK-PF-M-007",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Add your accounts ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "performance",
-    "key": "MK-PF-M-007",
     "col": "Where each finding stands",
     "mode": "append",
     "text": "G32 / Q48 — RULED 2026-09-09: $0 stays, with the sentence '$0 — nothing entered yet.' and this row's door ('Add your accounts ›'). File written; the screen follows the approved empty-state mock (one pattern, one screen), then every screen.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "performance",
-    "key": "MK-PF-M-008",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Add your accounts ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
     "date": "2026-09-09",
     "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
   },
@@ -3480,5 +3444,113 @@
     "mode": "append",
     "text": "Your comment, 2026-09-14, in 'Inputs — approved list': \"Not sure what you want me to approve?\" — ANSWER: that column asked you to type the input identifiers this figure rests on. For net worth those are MK-XS-I-001 (account balance) and MK-XS-I-014 (debt balance), and the row already names both. It was batch 1 of ten rows in the inputs check (G28). You do not need to do it. Under rule 11 a figure's inputs are part of its row, so you approve them when you rule on the row. The separate ask is retired on all ten rows of batch 1. Your comment stays on the row exactly as you wrote it, and the build no longer reads it as an approval.",
     "why": "Post Feedback Sync 2026-09-14 — his comment answered on its row"
+  },
+  {
+    "tab": "networth",
+    "key": "MK-NW-M-032",
+    "col": "Formula (mathematical)",
+    "mode": "replace",
+    "text": "average price paid = Σ (shares × price paid) ÷ Σ shares, over the purchases with a price paid on record (a price of $0 counts as not on record); no average when a purchase has no share count on record",
+    "date": "2026-10-21",
+    "why": "Q34 (2026-10-21, DEC-7170, the lead’s decision): the master row says what the code does, word for word as the info dot"
+  },
+  {
+    "tab": "networth",
+    "key": "MK-NW-M-032",
+    "col": "Formula (in words)",
+    "mode": "replace",
+    "text": "Price paid (average) is what you paid per share, over the purchases with a price paid on record. Shares with no price paid on record are left out of the average, and What you bought says how many. A price of $0 counts as not on record. If a purchase has no share count on record, no average is shown.",
+    "date": "2026-10-21",
+    "why": "Q34 (2026-10-21, DEC-7170, the lead’s decision): the master row says what the code does, word for word as the info dot"
+  },
+  {
+    "tab": "networth",
+    "key": "MK-NW-M-032",
+    "col": "What it says when it cannot be computed",
+    "mode": "replace",
+    "text": "No price paid on record. — when no purchase has a price paid on record. Not stated — a purchase has no share count on record. — when a purchase has no share count. The empty-state line of Q48 does not reach this row: a holding page exists only once a holding is entered.",
+    "date": "2026-10-21",
+    "why": "Q34 (2026-10-21, DEC-7170, the lead’s decision): the master row says what the code does, word for word as the info dot; the row said $0 with the empty-state line, which the page never shows"
+  },
+  {
+    "tab": "networth",
+    "key": "MK-NW-M-032",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "JJ-1 — CLOSED 2026-10-21: the average counts only the purchases with a price paid on record (DEC-6627, 2026-10-20), and this row’s H, I, L and Q now say so in the info dot’s words (Q34, DEC-7170). Example: 100 shares at $10 and 50 with no price paid read $10.00, not $6.67.",
+    "date": "2026-10-21",
+    "why": "Q34 (2026-10-21, DEC-7170, the lead’s decision): the master row says what the code does, word for word as the info dot"
+  },
+  {
+    "tab": "networth",
+    "key": "MK-NW-M-034",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "JJ-2 — CLOSED 2026-10-21: the figure comes from MK-NW-O-006 theHolding, not the screen; it counts this account’s records only (DEC-6618, which answers Q36); its window is named Dividends received (trailing twelve months), the 365 days ending today (Q35, DEC-7171).",
+    "date": "2026-10-21",
+    "why": "Q35 (2026-10-21, DEC-7171, the lead’s decision)"
+  },
+  {
+    "tab": "performance",
+    "key": "MK-PF-M-008",
+    "col": "Formula (mathematical)",
+    "mode": "replace",
+    "text": "market = Π over the pieces of [Σ (each holding's weight × its yardstick's close at the piece's end ÷ its close at the piece's start) ÷ Σ weights] − 1. The pieces: the window split at every day money went into or out of a holding — the days your return is split at. A piece's weights: what each holding was worth when it began (the first: the shares held when the window began × that day's close, DEC-7221; each later: its value once that day's money is in); shares sold on a day leave the market at that day's close. No money moved inside the window: one piece, Σ (yardstick return × start) ÷ Σ starts. A holding with no return of its own is in neither side; a holding in your return with no yardstick → no figure (DEC-7224).",
+    "date": "2026-10-22",
+    "why": "2026-10-22 PF-TOOLS: the same-day split W-START built (marketSplitAtPurchases, under DEC-1669 and DEC-7221), so the master's mathematical form says what the code does; the words, the refusal and the 2026-09-09 $0 line are retired because the declaration in performance.ts now carries them"
+  },
+  {
+    "tab": "performance",
+    "key": "MK-PF-M-008",
+    "col": "Period — as of when, over what window",
+    "mode": "replace",
+    "text": "Over the 1M window ending today — the same dates as your return beside it on Home's line; a holding bought inside the window is compared from the day it was bought (DEC-7223).",
+    "date": "2026-10-21",
+    "why": "2026-10-21 PF-RECORDS (Performance audit item 11): MK-PF-M-008 is ruled by DEC-0640 (\"Q51 -approved.\", 2026-09-30) with DEC-0595 and DEC-4645; Q33 answered by DEC-7229; its refusal, period and formula written as the code is built (portfolioBenchReturn, src/domain/performance/index.ts; DEC-7221, DEC-7223, DEC-7224)"
+  },
+  {
+    "tab": "performance",
+    "key": "MK-PF-M-008",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-21 — CLOSED: the refusal printed here was the $0 empty-state line of Q48, which is for dollar figures; it is now the figure's own. Q33 answered by DEC-7229 (the yardstick for what each holding is; changed through the holding's class; any of five on Look back). Ruled 2026-09-30 (DEC-0640).",
+    "date": "2026-10-21",
+    "why": "2026-10-21 PF-RECORDS (Performance audit item 11): MK-PF-M-008 is ruled by DEC-0640 (\"Q51 -approved.\", 2026-09-30) with DEC-0595 and DEC-4645; Q33 answered by DEC-7229; its refusal, period and formula written as the code is built (portfolioBenchReturn, src/domain/performance/index.ts; DEC-7221, DEC-7223, DEC-7224)"
+  },
+  {
+    "tab": "performance",
+    "key": "MK-PF-M-006",
+    "col": "What it says when it cannot be computed",
+    "mode": "replace",
+    "text": "An em-dash: no holding in that class can be priced over this window. It is a return, so the $0 empty-state line (Q48, for dollar figures) never applied to it.",
+    "date": "2026-10-21",
+    "why": "2026-10-21 PF-RECORDS: the row printed the $0 line of Q48 over the declaration's own refusal (MK-NW-O-008 thePerformance); a percent cannot read $0"
+  },
+  {
+    "tab": "multiple_screens",
+    "key": "MK-XS-M-004",
+    "col": "Row status",
+    "mode": "replace",
+    "text": "RULED 2026-09-30 — his \"Q51 -approved.\" on the Home line \"you +3.69% (including dividends and interest)\" (DEC-0640), with DEC-0595; Q-PF-1 (2026-09-27); time-weighted by DEC-1669. Declared in the code (rule 11). Written here from the decision log on 2026-10-21: the declaration carries no ruled date yet, which is why the build printed DRAFT; adding it there retires this line.",
+    "date": "2026-10-21",
+    "why": "2026-10-21 PF-RECORDS (Performance audit item 11, the same class): the you side of the approved Home line"
+  },
+  {
+    "tab": "performance",
+    "key": "MK-PF-M-005",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-22 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. This list is not drawn while nothing is entered — the one line and its door stand in its place — so its refusal is now the declaration's own, written as the screen does it (performance.ts).",
+    "date": "2026-10-22",
+    "why": "2026-10-22 PF-TOOLS (workplan \"The $0 empty-state refusal of Q48…\", Performance part): the declaration carries its own refusal, read against the screen"
+  },
+  {
+    "tab": "performance",
+    "key": "MK-PF-M-007",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-22 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. The table is not drawn when nothing was received in the window (day one draws each category at a real $0 with its note), so its refusal is now the declaration's own.",
+    "date": "2026-10-22",
+    "why": "2026-10-22 PF-TOOLS (workplan \"The $0 empty-state refusal of Q48…\", Performance part): the declaration carries its own refusal, read against the screen"
   }
 ]

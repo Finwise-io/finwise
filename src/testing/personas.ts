@@ -26,7 +26,7 @@ export const retiree75: OnboardingProfile = {
 };
 
 /** Employed professional with spouse: salary, 401(k)+match, Roth + taxable investing, a car loan,
- *  retirement savings + holdings to seed Net Worth, and two goals. */
+ *  retirement savings + holdings to seed Net worth, and two goals. */
 export const employedPartner: OnboardingProfile = {
   taxMode: 'manual', manualTaxRate: '20',
   status: 'employed', name: 'Ava', birthYear: '1991', birthMonth: '7',

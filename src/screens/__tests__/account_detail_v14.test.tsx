@@ -229,8 +229,9 @@ test('three doors, in the mock\'s order and wording, with every kind of record s
 
   // door one: money in, money out, and a move between accounts
   fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Account 1'));
-  for (const k of ['deposit', 'withdraw', 'transfer']) {
-    expect(screen.getByLabelText(`Record a ${k} for Account 1`)).toBeOnTheScreen();
+  // each kind said by the record's own name with the one article rule (audit row 30, 2026-10-21: it read "Record a withdraw")
+  for (const k of ['a deposit', 'a withdrawal', 'a transfer']) {
+    expect(screen.getByLabelText(`Record ${k} for Account 1`)).toBeOnTheScreen();
   }
   fireEvent.press(screen.getByLabelText('Record a deposit for Account 1'));
   fireEvent.changeText(screen.getByLabelText('Amount'), '500');
@@ -247,13 +248,18 @@ test('door two records income, and door three opens the buy-or-sale flow', () =>
   render(<AccountPortfolioScreen />);
   fireEvent.press(screen.getByLabelText('Add a dividend or interest for Account 1'));
   expect(screen.getByLabelText('Record a dividend for Account 1')).toBeOnTheScreen();
-  expect(screen.getByLabelText('Record a interest for Account 1')).toBeOnTheScreen();
+  // interest is never counted, so it takes no article (audit row 30, 2026-10-21: it read "Record a interest")
+  expect(screen.getByLabelText('Record interest for Account 1')).toBeOnTheScreen();
+  expect(screen.queryByLabelText('Record a interest for Account 1')).toBeNull();
   fireEvent.changeText(screen.getByLabelText('Amount'), '75');
   fireEvent.press(screen.getByLabelText('Save this dividend'));
   expect((useStore.getState() as any).transactions.some((t: any) => t.type === 'DIVIDEND' && t.amount === 75)).toBe(true);
 
+  // door three opens the ONE trade sheet on this page, this account chosen (2026-10-21, gap 7): it sent the person to the
+  // Performance tab, which cannot record a trade. src/screens/__tests__/sheet_doors_2026_10_21.test.tsx walks the buy.
   fireEvent.press(screen.getByLabelText('Add a buy or sale for Account 1'));
-  expect(mockPushes).toContain('/(tabs)/invest');
+  expect(mockPushes).not.toContain('/(tabs)/invest');
+  expect(screen.getByText('Record activity')).toBeOnTheScreen();
 });
 
 // ── 5 · THE TOP BAR ─────────────────────────────────────────────────────────────────────────────

@@ -3,8 +3,8 @@
   "CF-M": 75,
   "HM-M": 4,
   "MN-M": 30,
-  "NW-M": 66,
-  "PF-M": 22,
+  "NW-M": 73,
+  "PF-M": 27,
   "PL-M": 37,
   "XS-I": 48,
   "XS-M": 7
@@ -305,7 +305,19 @@
   "PF|M|/invest|the value the return is on (with a price history)|021": "MK-PF-M-021",
   "PF|M|/invest|the value left out (no price history)|022": "MK-PF-M-022",
   "NW|M|declared|What you paid (one bond or CD)": "MK-NW-M-065",
-  "NW|M|declared|Price per $100 of face (one bond)": "MK-NW-M-066"
+  "NW|M|declared|Price per $100 of face (one bond)": "MK-NW-M-066",
+  "PF|M|declared|Return (one holding, on the account page)": "MK-PF-M-023",
+  "PF|M|declared|Return (one class inside one account)": "MK-PF-M-024",
+  "PF|M|declared|Look back — the percent the money in the first fund moved": "MK-PF-M-025",
+  "PF|M|declared|Look back — the percent the other fund moved": "MK-PF-M-026",
+  "NW|M|declared|Typical yearly return for this type (one alternative)": "MK-NW-M-072",
+  "NW|M|declared|Historic 12-month return (one account, as entered)": "MK-NW-M-073",
+  "NW|M|declared|Change since purchase (percent) (one holding)": "MK-NW-M-067",
+  "NW|M|declared|up … today (percent) (one holding)": "MK-NW-M-068",
+  "NW|M|declared|Your return, past <window> (one holding, on its own page)": "MK-NW-M-069",
+  "NW|M|declared|The market, same dates (one holding)": "MK-NW-M-070",
+  "NW|M|declared|You are ahead by / behind by … points (one holding)": "MK-NW-M-071",
+  "PF|M|declared|ahead by / behind by — your return less the market’s (every investment together, Home)": "MK-PF-M-027"
  },
  "note": "A metric identifier is issued once against its key and never re-pointed. A number here is never handed to a different figure, even if the figure it was issued to is deleted — the retired block keeps it with the reason. | 2026-09-14: identifiers whose key begins \"declared\" are DECLARED IN THE CODE (founder rule 11) — the door owns them; they are listed here only so no other row is issued the same number.",
  "retired": {
@@ -324,6 +336,7 @@
   "MK-PF-M-009": "issued to \"Return (money-weighted, when the record covers it)\" — a true XIRR shown nowhere since approved mock v14 removed that card on 2026-09-25; the row left the declarations on 2026-09-30 (Performance pass 2). The number is never reused.",
   "note 2026-10-02 — MK-CF-M-001 to 004": "Issued on 2026-08-28 to the hand-typed rows \"Expected in\", \"Planned out\", \"= Planned surplus\" and \"Out (spent + debt)\", then given to theMonth's declared rows (Expenses, = Planned surplus, = Actual surplus so far, each row of the month) on 2026-09-27 before the never-re-point rule was written down. They stay with the declared rows; the old hand-typed keys remain here so the history reads true.",
   "MK-CF-M-065": "\"total income / year (gross)\" on the Income manager — retired 2026-10-04 when the manager was rebuilt to its approved drawing (income-end-to-end v07, frame 3d), which shows how many sources are entered and one line each, and no yearly total. What the year is taxed on is MK-CF-M-041 on the Income summary. The number is never reused.",
-  "MK-NW-M-003": "\"the trend line\" (how many points the Net worth line is drawn from) — retired 2026-10-14: the line is no longer on the Net worth screen, and its door MK-NW-O-003 theNetWorth stopped taking the monthly and daily history it was drawn from, which none of its eight callers passed (inputs-and-use audit, 2026-10-11, Net worth). The change on the screen is MK-NW-M-001, read from the record by MK-XS-F-005 trendPoints. The number is never reused."
+  "MK-NW-M-003": "\"the trend line\" (how many points the Net worth line is drawn from) — retired 2026-10-14: the line is no longer on the Net worth screen, and its door MK-NW-O-003 theNetWorth stopped taking the monthly and daily history it was drawn from, which none of its eight callers passed (inputs-and-use audit, 2026-10-11, Net worth). The change on the screen is MK-NW-M-001, read from the record by MK-XS-F-005 trendPoints. The number is never reused.",
+  "MK-NW-M-069": "\"Your return, past <window>\" on the Holding page — retired 2026-10-22, the day after it was issued: it is the account page's holding Return, MK-PF-M-023 (one holding, one window, one figure; tenet 4). Both pages now print that older identifier from one function, holdingRowsIn (holding.ts). The number is never reused."
  }
 }

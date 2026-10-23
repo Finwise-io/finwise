@@ -3,13 +3,15 @@
 // the hub (before-chance = hub chance) and the +$/month dial moves both estimates; the 401(k)-room
 // try-it prefill lands with its number.
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react-native';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
 import LookBackScreen from '../LookBackScreen';
 import WhatIfScreen from '../WhatIfScreen';
 import { useStore } from '../../store/useStore';
 import { selectWillItLast } from '../../domain/retirement/willItLast';
 
 let mockParams: Record<string, string> = {};
+// Look back fetches what it compares (2026-10-22); the price source answers nothing here, so no test reaches the network
+jest.mock('../../services/marketData', () => ({ ...jest.requireActual('../../services/marketData'), fetchPriceSeries: async () => ({}) }));
 jest.mock('expo-router', () => ({
   useRouter: () => ({ back: jest.fn(), push: jest.fn(), replace: jest.fn() }),
   useLocalSearchParams: () => mockParams,
@@ -51,10 +53,21 @@ describe('Look back', () => {
     expect(screen.getByText(/not a prediction of what happens next/)).toBeOnTheScreen();
   });
 
-  test('prices not reaching back → the honest absence, never an invented number', () => {
+  test('no prices at all → the honest absence, never an invented number', async () => {
     useStore.setState({ priceCache: {} } as any);
     render(<LookBackScreen />);
-    expect(screen.getByText(/We don't have prices for that pairing yet — open the Performance tab and refresh prices, or pick a shorter window\.$/)).toBeOnTheScreen();   // the sentence as its drawing ends it (look-back v01, state B)
+    // Look back fetches what it compares (2026-10-22, the drawing's dated row); the refresh brought nothing, so it names the two
+    // tickers it could not get — rather than "pick a shorter window", which brings no price that is missing altogether
+    await waitFor(() => expect(screen.getByText("Couldn't refresh prices for AGG or SPY, so there is nothing to compare yet. Look back tries again each time it opens.")).toBeOnTheScreen());
+  });
+
+  test('no prices for a holding → the one refresh is asked, and what it could not get is named (2026-10-22)', async () => {
+    useStore.setState({ priceCache: {}, assetAccounts: [{ asset_id: 'b', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 50000,
+      positions: [{ position_id: 'p1', ticker: 'BND', kind: 'fixed_income', lots: [{ lot_id: 'l1', shares: 100, cost_per_share: 100, purchase_date: '2024-01-01' }] }] }] } as any);
+    render(<LookBackScreen />);
+    expect(screen.getByText('Getting prices for BND and SPY…')).toBeOnTheScreen();
+    await waitFor(() => expect(screen.getByText("Couldn't refresh prices for BND or SPY, so there is nothing to compare yet. Look back tries again each time it opens.")).toBeOnTheScreen());
+    expect(screen.queryByText(/Difference:/)).toBeNull();
     expect(screen.queryByText(/Difference:/)).toBeNull();
   });
 });

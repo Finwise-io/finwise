@@ -12,19 +12,19 @@
   "symbol": "TAX_TABLES",
   "file": "src/domain/income/tax.ts",
   "what": "Federal bands, standard deduction and 65+ add-on per filing status",
-  "publication": "IRS Rev. Proc. 2025-32 §§2.15, 4.01",
+  "publication": "IRS Rev. Proc. 2025-32 §§4.01, 4.14",
   "valid_through": 2026,
-  "checked": "2026-09-01",
-  "note": "married filing separately derived as half the joint figures (IRC §1)"
+  "checked": "2026-10-22",
+  "note": "married filing separately derived as half the joint figures (IRC §1); section read from the IRS text of Rev. Proc. 2025-32 on 2026-10-22: §4.14(1) the four amounts, §4.14(3) the 65+ add-on; §2.15 was the 2025 section of Rev. Proc. 2024-40, removed by Rev. Proc. 2025-32 §3.01 (outside re-run, side finding S1)"
  },
  {
   "symbol": "STANDARD_DEDUCTION",
   "file": "src/domain/income/tax.ts",
   "what": "Standard deduction, single",
-  "publication": "IRS Rev. Proc. 2025-32 §2.15",
+  "publication": "IRS Rev. Proc. 2025-32 §4.14",
   "valid_through": 2026,
-  "checked": "2026-09-01",
-  "note": ""
+  "checked": "2026-10-22",
+  "note": "section read from the IRS text of Rev. Proc. 2025-32 on 2026-10-22: §4.14(1) the four amounts, §4.14(3) the 65+ add-on; §2.15 was the 2025 section of Rev. Proc. 2024-40, removed by Rev. Proc. 2025-32 §3.01 (outside re-run, side finding S1)"
  },
  {
   "symbol": "SENIOR_DEDUCTION",

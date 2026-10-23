@@ -394,7 +394,8 @@
    "difference": "none",
    "formula_gives_match": null,
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-005 accountAllowsTicker — five cases › complex · 529 remains disallowed even with holdings"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_networth_final_openai_part1.test.ts › MK-NW-F-005 accountAllowsTicker — five cases › complex · 529 remains disallowed even with holdings",
+   "recheck_2026_10_22": "BRIEF WRONG since 2026-10-22: his ruling DEC-2484g — \"Any account that already lists holdings can take a recorded buy or sale\" — covers a 529 listing its funds; the auditor's answer is kept as test.failing, and the pin holds the app: a 529 that lists holdings takes a buy or sale, one that lists none does not"
   },
   {
    "id": "MK-NW-F-005",

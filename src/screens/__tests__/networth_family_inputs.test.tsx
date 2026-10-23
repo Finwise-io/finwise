@@ -127,6 +127,12 @@ const BEFORE = path.join(__dirname, 'networth_family_inputs.before.json');
  *  record itself is never re-recorded; every other number must still read as it did. Each entry names what it was, so a
  *  record that no longer holds that number at that place fails rather than passing quietly. */
 const MOVED_ON_PURPOSE: Record<string, { at: number; was: string; now: string; why: string }[]> = {
+  // 2026-10-22 (W-A11Y): the figure did not move — the punctuation after it did. Home's hero card's spoken label said
+  // "Your investments: $433,200, prices updated …", and this file's number reader takes a trailing comma with the digits; the
+  // label now says each printed line as its own sentence ("Your investments: $433,200. …"), so the same figure reads clean
+  Home: [
+    { at: 0, was: '$433,200,', now: '$433,200', why: 'the spoken label ends the total with a full stop, not a comma' },
+  ],
   // 2026-10-21, DEC-0457 (re-run part 1, F1): the one-account card is the largest account's part of Net worth's Investments
   // line — Vanguard without its $838 of cash — out of that line ($433,200), not out of everything but property
   Insights: [

@@ -10,7 +10,7 @@ import { SectionBand } from '../components/SectionBand';
 import { SourceChip, sourceWords } from '../components/SourceChip';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { dataGaps } from '../domain/gaps';
-import { thePerformance, categoryEarnings, windowStartKey, investmentAccountIdsOf, investmentRecordDates } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { thePerformance, categoryEarnings, categoriesEarnedTotal, walkDirectionWords, windowStartKey, investmentAccountIdsOf, investmentRecordDates, overTheYearsSentence } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { windowBounds } from '../../Calculation Module code/engines/window-return';
 import { Dec } from '../../Calculation Module code/engines/decimal';
@@ -23,7 +23,10 @@ import { resolveNetWorthRows } from '../domain/snapshot';
 import { isBond } from '../domain/bonds';
 import { isAlternative } from '../domain/alternatives';
 import { valueFreshness } from '../domain/assets';
-import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
+import { fig, figSaid, figWords, walkShown } from '../components/figure';   // rule 11: a figure prints with its identifier
+import { maskDollars, spokenDollars } from '../components/useMoney';
+import { plural } from '../domain/_shared/plural';
+import { SaidText } from '../components/SaidText';   // a note's marks said as words: "Oct 1, 2025 to Sep 30, 2026" (2026-10-22)   // a count said in words takes its plural from the one list (DEC-4082)   // a sentence's dollars: dots on screen, "hidden" spoken, under hide-balances
 import { searchTickers } from '../constants/tickers';
 import {
   // portfolioPeriodReturn is GONE from this screen (2026-09-30). It was imported and never called:
@@ -40,23 +43,21 @@ import { ADD_ACCOUNT_DOORS, ADD_ACCOUNT_QUESTION } from '../constants/doors';
 import { priceFreshness, isPlausibleTicker } from '../services/marketData';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { modalAnimation } from '../hooks/reducedMotion';
-import { BondEditor } from './BondsScreen';
 import { theBonds } from '../../MoneyKeel/functions/networth-and-performance/bonds';
 import { COUPONS_PER_YEAR_QUESTION, COUPONS_PER_YEAR_CHOICES, type CouponsPerYear } from '../constants/couponsPerYear';   // the one wording (DEC-3390)
-import { AltEditor } from './OtherInvestmentsScreen';
 import { isoLocalDate, dateShown } from '../domain/_shared/dates';
 import { rebuiltSentence } from '../../Calculation Module code/engines/rebuild-history';
 
 /** the width of the right gutter: an arrow column, as on Net worth (ARROW 16) */
 const GUTTER = 16;
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
-// Q49 (founder, 2026-09-09): two decimals on every return — one rounding, at display.
-const pct = (v: number | null) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${(v * 100).toFixed(2)}%`);
+// (a hand-made percent writer, `pct`, stood here unused: every return on this tab prints through fig() — removed 2026-10-21, audit row 9)
 // A holding's TYPE = its instrument class (sets the benchmark) — not an account type (401k/IRA/529/brokerage).
 const ACCOUNT_TYPE_IDS = ['brokerage', '401k', 'trad_ira', 'roth_ira', 'hsa', 'college_529', 'checking', 'savings', 'home', 'vehicle'];
 const KIND_OPTIONS = ASSET_KINDS.filter((k) => k.section === 'Investments' && !ACCOUNT_TYPE_IDS.includes(k.id));
-// types that route to their own editors instead of the ticker form (B46 findings 3+6)
-const ALT_ROUTE_KINDS = ['options', 'crypto', 'private_equity', 'hedge_funds', 'commodities', 'annuities'];
+// NOT OFFERED IN THIS PHASE (DEC-2334, 2026-10-06: "this phase of app no longer has options for Private Equity and Hedge
+// fund"): the holding editor offered both as Type chips. A holding saved as one earlier keeps its chip (2026-10-21).
+const NOT_OFFERED_KINDS = ['private_equity', 'hedge_funds'];
 
 export default function PerformanceScreen() {
   const router = useRouter();
@@ -69,14 +70,11 @@ export default function PerformanceScreen() {
   // 2026-08-17: "HOW −$448,028 BECAME $362,089").
   const [period, setPeriod] = useState<Period>('SINCE' as any);
   const [openAcctWalk, setOpenAcctWalk] = useState<Record<string, boolean>>({});   // per-account walks (final mock)
-  // B46 findings 3+6 router: the non-ticker types open their OWN editors (separate fields)
-  const [bondAddOpen, setBondAddOpen] = React.useState(false);
-  const [altAddKind, setAltAddKind] = React.useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [addOpen, setAddOpen] = useState(false);
-  const [edit, setEdit] = useState<{ accountId: string; position: Position } | null>(null);
-  const [txnOpen, setTxnOpen] = useState(false);
-  const [historyOpen, setHistoryOpen] = useState(false);
+  // NO SHEET OF ITS OWN BUT THE THREE WAYS TO ADD AN ACCOUNT (2026-10-21, gap 8 of the Performance launch audit): this tab
+  // mounted six sheets nothing could open — Add / Edit holding, the trade sheet, History, the Bond editor and the
+  // Alternatives editor — since v14 removed their buttons (2026-09-25; v17 keeps none). Each is opened where its door is
+  // drawn: the Holding page (Edit, Record buy/sell, Activity), the account page (Add a buy or sale), Bonds and Alternatives.
   const [addChooser, setAddChooser] = useState(false);   // mock v14 mark 9: the one line opens the three ways to add an account
 
   // every position across accounts, tagged with its owning account
@@ -254,10 +252,35 @@ export default function PerformanceScreen() {
   const beginWords = dayOneView ? 'today' : dateShown(now.beginningAsOf);
   const endWords = dayOneView ? 'today' : dateShown(todayKey);
   const shownReturn = now.ret;
-  const yearsWord = now.years >= 1.9 && now.years < 2.1 ? 'two years' : `${now.years.toFixed(1)} years`;
+  // A WINDOW LONGER THAN A YEAR SAYS ITS OWN TOTAL AND THE YEARLY RATE IT MAKES, IN ONE SENTENCE, EVERYWHERE ITS RATE IS SHOWN
+  // (DEC-0237, DEC-0404; his precision order Q49; 2026-10-22, the decisions check): on screen with "/year", spoken with "a
+  // year". The summary said it only where the daily record reached back two years, and each account's row never did — in his
+  // own shape the 2Y summary read +3.46% and E*TRADE's row "return +4.87%", yearly rates nothing said were yearly.
+  const yearsShown = (id: string, f: { cumulative: number | null; perYear: number | null; years: number }) =>
+    overTheYearsSentence(f, (v, per) => (per ? `${fig(id, v)}/year` : fig(id, v)));
+  const yearsSaid = (id: string, f: { cumulative: number | null; perYear: number | null; years: number }) =>
+    overTheYearsSentence(f, (v, per) => figSaid(id, v, per));
+  /** the summary's yearly-rate line (v17 phone 3), drawn wherever the window has a yearly rate — read from the record, worked
+   *  back, or joined at the record's first day alike */
+  const yearlyLine = () => (yearsShown('MK-PF-M-017', now) == null ? null : (
+    <Text style={styles.sumNote} accessibilityLabel={`${yearsSaid('MK-PF-M-017', now)} — a yearly rate, so it sits fairly beside a one-year window.`}>
+      {`${yearsShown('MK-PF-M-017', now)} — a yearly rate, so it sits fairly beside a one-year window.`}
+    </Text>
+  ));
   const stale = positions.length > 0 ? priceFreshness(store.pricesFetchedAt, Date.now()) : null;
+  // WHAT THE VALUE LINE SAYS TO A SCREEN READER (audit row 28, 2026-10-21) — the window, where the line starts and ends and
+  // the change, from the figures this screen prints beside it (the walk's beginning MK-PF-M-018, the Ending value MK-PF-M-001,
+  // the Return MK-PF-M-017), so the graph says no number of its own. The line was silent: no label at all.
+  const graphSaid = dayOne
+    ? `Value of your investments: ${figSaid('MK-PF-M-001', now.ending)} today. ${nothingEntered ? 'The line starts with your first account.' : 'The line starts today.'}`
+    : walk == null
+      ? `Value of your investments ${phraseFor(period)}: ${figSaid('MK-PF-M-001', now.ending)} on ${endWords}. No beginning value can be read for this window.`
+      : `Value of your investments ${phraseFor(period)}: ${figSaid('MK-PF-M-018', walk.beginning)} on ${beginWords}, `
+        + `${walkDirectionWords(walk.beginning, walk.ending)} ${figSaid('MK-PF-M-001', walk.ending)} on ${endWords}`
+        + `${shownReturn != null ? `, a return of ${figSaid('MK-PF-M-017', shownReturn, now.perYear != null ? 'year' : undefined)}` : ''}.`;
   /** One walk, drawn the same way for every account together and for each account alone. */
-  const walkRows = (w: NonNullable<typeof walk>, ids: { begin: string; line: string; wealth: string; end: string }) => (
+  // the lines as printed: whole dollars that add up to the ending (walkShown, 2026-10-21; tenet 2, MK-PF-M-003)
+  const walkRows = (exact: NonNullable<typeof walk>, ids: { begin: string; line: string; wealth: string; end: string }, w = walkShown(exact)) => (
     <>
       {[
         { l: `Beginning market value (${beginWords})`, v: w.beginning, m: ids.begin },
@@ -268,7 +291,9 @@ export default function PerformanceScreen() {
         { l: 'Interest', v: w.interest, indent: true, m: ids.line },
         { l: 'Change in investment value', v: w.marketChange, indent: true, m: ids.line },
       ].map((r) => (
-        <View key={r.l} style={[styles.walkRow, (r as any).indent && { paddingLeft: 20 }]}>
+        // SPOKEN AS IT READS (audit row 29, 2026-10-21): the line's words and its figure through the one spoken writer —
+        // "Withdrawals, −$1,200", "hidden" under hide-balances. VoiceOver read the two Texts apart, and the dots as dots.
+        <View key={r.l} style={[styles.walkRow, (r as any).indent && { paddingLeft: 20 }]} accessible accessibilityLabel={`${r.l}, ${figSaid(r.m, r.v || 0)}`}>
           {/* v17's weights (drawing check 2026-10-12): the strong label is a plain <b>, 700; its figure 900.
               Money taken out is not a loss, so Withdrawals stays in the text colour (v17 phone 3, "−$1,200") —
               red is for a figure that fell. It printed red, the Net worth walk's defect of 2026-10-11 again. */}
@@ -279,7 +304,7 @@ export default function PerformanceScreen() {
           <View testID="right-gutter" style={styles.gutter} />
         </View>
       ))}
-      <View style={[styles.walkRow, styles.walkTotal]}>
+      <View style={[styles.walkRow, styles.walkTotal]} accessible accessibilityLabel={`Ending market value (${endWords}), ${figSaid(ids.end, w.ending)}`}>
         <Text style={[styles.walkL, { fontWeight: '700' }]}>Ending market value ({endWords})</Text>
         <Text style={[styles.walkV, { fontWeight: '900', color: Colors.primaryDark }]}>{fig(ids.end, w.ending)}</Text>
         <View testID="right-gutter" style={styles.gutter} />
@@ -315,11 +340,13 @@ export default function PerformanceScreen() {
       <View style={styles.card}>
         <SectionBand inCard gutter={GUTTER} title={`SUMMARY · ${phraseFor(period).toUpperCase()}`} infoTerm="performanceSummary" />
         <View style={styles.trioRow}>
-          <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{fig('MK-PF-M-001', now.ending)}</Text></View>
+          {/* each cell is said as one thing, its figure through the one spoken writer (audit row 29, 2026-10-21) */}
+          <View style={styles.trioCell} accessible accessibilityLabel={`Ending value, ${figSaid('MK-PF-M-001', now.ending)}`}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{fig('MK-PF-M-001', now.ending)}</Text></View>
           {/* no beginning the record can read, no wealth generated — a dash, never a figure worked back from today (Performance v17) */}
-          <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text>{walk == null
+          <View style={styles.trioCell} accessible accessibilityLabel={`Wealth generated, ${walk == null ? 'no figure for this window' : figSaid('MK-PF-M-002', walkShown(walk).wealthGenerated)}`}><Text style={styles.sumLbl}>Wealth generated</Text>{walk == null
             ? <Text style={[styles.sumValBig, { color: Colors.textTertiary }]}>—</Text>
-            : <Text style={[styles.sumValBig, { color: dayOneView ? Colors.textTertiary : walk.wealthGenerated >= 0 ? Colors.gainText : Colors.red }]}>{walk.wealthGenerated < 0 ? '−' : ''}{fig('MK-PF-M-002', Math.abs(walk.wealthGenerated))}</Text>}</View>
+            // the walk's own Wealth generated as printed beneath (walkShown), so the summary and the walk show one figure
+            : <Text style={[styles.sumValBig, { color: dayOneView ? Colors.textTertiary : walkShown(walk).wealthGenerated >= 0 ? Colors.gainText : Colors.red }]}>{walkShown(walk).wealthGenerated < 0 ? '−' : ''}{fig('MK-PF-M-002', Math.abs(walkShown(walk).wealthGenerated))}</Text>}</View>
           {/* MARKS 16 AND 18, approved as mock v17 (2026-09-30). 16: where the window return
               refuses, the EXACT rate per year stands in its place instead of an em-dash — the
               person actively adding money is the one who most needs a rate and used to get
@@ -327,7 +354,8 @@ export default function PerformanceScreen() {
               with its words sits under the chosen window above. Measured at the app's type
               sizes: the three cells need 270 of the card's 334 points that way, against 328
               with "/year" in here — six points of headroom, which is why it wrapped. */}
-          <View style={styles.trioCell}><Text style={styles.sumLbl}>Return</Text><Text style={[styles.sumValBig, { color: shownReturn == null ? Colors.textTertiary : shownReturn >= 0 ? Colors.gainText : Colors.red }]}>{shownReturn == null ? '—' : fig('MK-PF-M-017', shownReturn)}</Text></View>
+          {/* spoken with "a year" where the window is longer than one (its words are under the window bar on screen) */}
+          <View style={styles.trioCell} accessible accessibilityLabel={`Return, ${shownReturn == null ? 'no figure for this window' : figSaid('MK-PF-M-017', shownReturn, now.perYear != null ? 'year' : undefined)}`}><Text style={styles.sumLbl}>Return</Text><Text style={[styles.sumValBig, { color: shownReturn == null ? Colors.textTertiary : shownReturn >= 0 ? Colors.gainText : Colors.red }]}>{shownReturn == null ? '—' : fig('MK-PF-M-017', shownReturn)}</Text></View>
         </View>
         {nothingEntered ? (
           /* Q48 (MK-PF-M-005..008): $0 above, the one line, the door. Mock v14 mark 9: the line opens
@@ -342,21 +370,26 @@ export default function PerformanceScreen() {
             : "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."}</Note>
         ) : now.recordBegins ? (
           /* a window joined at the record's first day: only the days before it are worked back (DEC-6412, 2026-10-19) */
-          <Text style={styles.sumNote}>Your daily record begins {dateShown(now.recordBegins)}, so the days before it are worked back from each holding's price history.</Text>
+          <>
+            <Text style={styles.sumNote}>Your daily record begins {dateShown(now.recordBegins)}, so the days before it are worked back from each holding's price history.</Text>
+            {/* over 2Y, the two years' own total beside the yearly rate (DEC-0237, DEC-0404; 2026-10-22) */}
+            {yearlyLine()}
+          </>
         ) : now.workedBack ? (
           /* the beginning was worked back, not read: say so, as the account page does (DEC-5068) */
-          <Text style={styles.sumNote}>Your daily record does not reach back to {dateShown(now.beginningAsOf)} yet, so the beginning is worked back from today's values and each holding's price history.</Text>
+          <>
+            <Text style={styles.sumNote}>Your daily record does not reach back to {dateShown(now.beginningAsOf)} yet, so the beginning is worked back from today's values and each holding's price history.</Text>
+            {yearlyLine()}
+          </>
         ) : now.sentence ? (
           /* a return that cannot be measured shows no percent and says why (owner, 2026-10-04: every
              return is time-weighted, and nothing stands in for one) */
-          <Text style={styles.sumNote}>{now.sentence}</Text>
+          <Text style={styles.sumNote} accessibilityLabel={spokenDollars(now.sentence)}>{maskDollars(now.sentence)}</Text>
         ) : now.perYear != null && now.cumulative != null ? (
           <>
             {/* a fixed window longer than a year shows the yearly rate, with the window's own total
                 beside it and the words on both (his ruling of 2026-09-25, DEC-0368's wording) */}
-            <Text style={styles.sumNote}>
-              {fig('MK-PF-M-017', now.cumulative)} over the {yearsWord}, which is {fig('MK-PF-M-017', now.perYear)}/year — a yearly rate, so it sits fairly beside a one-year window.
-            </Text>
+            {yearlyLine()}
             <Note term="moneyAddedIsNotReturn">time-weighted, so money you added never counts as return</Note>
           </>
         ) : (
@@ -367,14 +400,15 @@ export default function PerformanceScreen() {
           ]} />
         )}
         {/* below the summary, the holding left out of Wealth generated and Return (DEC-5068, 2026-10-13) */}
-        {!dayOneView && !!now.notIncluded && <Text style={styles.sumNote}>{now.notIncluded}</Text>}
+        {!dayOneView && !!now.notIncluded && <Text style={styles.sumNote} accessibilityLabel={spokenDollars(now.notIncluded)}>{maskDollars(now.notIncluded)}</Text>}
         {/* WHERE THE HISTORY CAME FROM (mock v14 mark 13): a rebuilt line names its source and first day */}
         {/* drawn at the row size, 13 (v17 phone 3, .emptynote) — it was an 11-point footnote */}
         {!!rebuilt && !dayOneView && <Note term="rebuiltHistory" size={13}>↺ {rebuilt.sentence}</Note>}
         {/* the value graph lives INSIDE the summary card, with a Y axis (mock v14 mark 11), drawn ONLY
             from days we have a record for — never today's share count priced at old dates */}
         <ValueGraph points={dayOne ? [] : graphPoints} dayOneValue={fig('MK-PF-M-001', now.ending)} today={todayKey}
-          dayOneNote={!dayOne ? undefined : nothingEntered ? 'your line starts with your first account' : 'your line starts today'} />
+          dayOneNote={!dayOne ? undefined : nothingEntered ? 'your line starts with your first account' : 'your line starts today'}
+          description={graphSaid} />
       </View>
 
       {!nothingEntered && (
@@ -388,10 +422,11 @@ export default function PerformanceScreen() {
             ALL ACCOUNTS - this is the title. Not - "How xxx stands. ALl Accounts""). Day one reads "HOW $354,314 BECAME
             $354,314 · ALL ACCOUNTS". With no walk (a record that begins too late) there is no beginning to name. */}
         {walk == null
-          ? <SectionBand inCard gutter={GUTTER} title="ALL ACCOUNTS" value={fig('MK-PF-M-001', now.ending)} />
-          : <SectionBand inCard gutter={GUTTER} title={figWords('MK-PF-M-003', `HOW ${fig('MK-PF-M-018', walk.beginning)} BECAME ${fig('MK-PF-M-001', walk.ending)} · ALL ACCOUNTS`)} />}
+          ? <SectionBand inCard gutter={GUTTER} title="ALL ACCOUNTS" value={fig('MK-PF-M-001', now.ending)} valueSaid={figSaid('MK-PF-M-001', now.ending)} />
+          : <SectionBand inCard gutter={GUTTER} title={figWords('MK-PF-M-003', `HOW ${fig('MK-PF-M-018', walk.beginning)} BECAME ${fig('MK-PF-M-001', walk.ending)} · ALL ACCOUNTS`)}
+              titleSaid={`How ${figSaid('MK-PF-M-018', walk.beginning)} became ${figSaid('MK-PF-M-001', walk.ending)}, all accounts`} />}
         {walk == null
-          ? <Text style={styles.sumNote}>{now.sentence}</Text>
+          ? <Text style={styles.sumNote} accessibilityLabel={spokenDollars(now.sentence ?? '')}>{maskDollars(now.sentence ?? '')}</Text>
           : walkRows(walk, { begin: 'MK-PF-M-018', line: 'MK-PF-M-019', wealth: 'MK-PF-M-002', end: 'MK-PF-M-001' })}
         {dayOneView
           ? <Text style={styles.sumNote}>Every line fills in as days pass — the structure never changes.</Text>
@@ -413,7 +448,8 @@ export default function PerformanceScreen() {
           // this account's own holdings: the door decides their gain, and an account with no positions counts as its
           // own instrument — a CD by its rate (DEC-3656, 2026-10-09), anything else left out of Wealth generated and
           // Return and named below them (DEC-5068, 2026-10-13)
-          const held = (rows as any[]).filter((r) => owned.find((x) => x.p.position_id === r.position.position_id)?.accountId === acct.asset_id);
+          // (a holding sold in full inside the window names its own account — its row is built from the sale records, 2026-10-22)
+          const held = (rows as any[]).filter((r) => (owned.find((x) => x.p.position_id === r.position.position_id)?.accountId ?? r.position?.account_id) === acct.asset_id);
           const one = thePerformance({
             windowStart: now.windowStart, windowLabel: phraseFor(period), today: todayKey,
             holdings: held,
@@ -448,28 +484,37 @@ export default function PerformanceScreen() {
               {!isOpen ? (
                 /* closed: where its numbers come from, what it made, and its return — one quiet line */
                 <>
-                  <Text style={styles.sumNote}>
-                    {src.icon} {src.text}{w ? ` · wealth generated ${w.wealthGenerated < 0 ? '−' : ''}${fig('MK-PF-M-014', Math.abs(w.wealthGenerated))}` : ''}{oneReturn ? ` · return ${oneReturn}` : ''}
+                  {/* said with each figure through the one spoken writer, the return with "a year" over a window longer than one (audit row 29) */}
+                  <Text style={styles.sumNote} accessibilityLabel={`${src.text}${w ? `, wealth generated ${figSaid('MK-PF-M-014', walkShown(w).wealthGenerated)}` : ''}${one.ret != null ? `, return ${yearsSaid('MK-PF-M-016', one) ?? figSaid('MK-PF-M-016', one.ret)}` : ''}`}>
+                    {/* over a window longer than a year, the account's own total and the yearly rate it makes (DEC-0237, DEC-0404) */}
+                    {src.icon} {src.text}{w ? ` · wealth generated ${walkShown(w).wealthGenerated < 0 ? '−' : ''}${fig('MK-PF-M-014', Math.abs(walkShown(w).wealthGenerated))}` : ''}{oneReturn ? ` · return ${yearsShown('MK-PF-M-016', one) ?? oneReturn}` : ''}
                   </Text>
                   {/* below the figures it qualifies: the holding left out of them (DEC-5068, 2026-10-13) */}
-                  {!dayOneView && !!one.notIncluded && <Text style={styles.sumNote}>{one.notIncluded}</Text>}
+                  {!dayOneView && !!one.notIncluded && <Text style={styles.sumNote} accessibilityLabel={spokenDollars(one.notIncluded)}>{maskDollars(one.notIncluded)}</Text>}
                 </>
               ) : (
                 <>
                   <View style={styles.walkChip}><SourceChip account={acct} /></View>
-                  {!dayOneView && !!one.sentence && <Text style={styles.sumNote}>{one.sentence}</Text>}
+                  {!dayOneView && !!one.sentence && <Text style={styles.sumNote} accessibilityLabel={spokenDollars(one.sentence)}>{maskDollars(one.sentence)}</Text>}
                   {w && walkRows(w, { begin: 'MK-PF-M-013', line: 'MK-PF-M-015', wealth: 'MK-PF-M-014', end: 'MK-PF-M-004' })}
                   {dayOneView ? (
                     <Text style={styles.sumNote}>Every line fills in as days pass — the structure never changes.</Text>
                   ) : (
                     <>
-                      <View style={[styles.walkRow, styles.walkTotal]}>
+                      <View style={[styles.walkRow, styles.walkTotal]} accessible
+                        accessibilityLabel={`Return, ${one.ret == null ? 'no figure for this window' : figSaid('MK-PF-M-016', one.ret, one.perYear != null ? 'year' : undefined)}`}>
                         <Text style={styles.walkL}>Return</Text>
                         <Text style={[styles.walkV, { color: oneReturn == null ? Colors.textTertiary : (one.ret ?? 0) >= 0 ? Colors.gainText : Colors.red }]}>{oneReturn ?? '—'}</Text>
                         <View testID="right-gutter" style={styles.gutter} />
                       </View>
+                      {/* the Return above is a yearly rate over a window longer than a year: the account's own total beside it (DEC-0237, DEC-0404) */}
+                      {one.ret != null && yearsShown('MK-PF-M-016', one) != null && (
+                        <Text style={styles.sumNote} accessibilityLabel={`${yearsSaid('MK-PF-M-016', one)} — a yearly rate, so it sits fairly beside a one-year window.`}>
+                          {`${yearsShown('MK-PF-M-016', one)} — a yearly rate, so it sits fairly beside a one-year window.`}
+                        </Text>
+                      )}
                       {/* below Wealth generated and Return: the holding left out of both (DEC-5068, 2026-10-13) */}
-                      {!!one.notIncluded && <Text style={styles.sumNote}>{one.notIncluded}</Text>}
+                      {!!one.notIncluded && <Text style={styles.sumNote} accessibilityLabel={spokenDollars(one.notIncluded)}>{maskDollars(one.notIncluded)}</Text>}
                       {/* printed because both taps are real: the arrow collapses, the name opens the account */}
                       <Text style={styles.sumNote}>Tap ▾ to collapse · tap the name to open this account's portfolio ›</Text>
                     </>
@@ -494,7 +539,7 @@ export default function PerformanceScreen() {
           dayOne: dayOneView,
         });
         if (!shown.length) return null;
-        const total = shown.reduce((n, b) => n + b.earned, 0);
+        const total = categoriesEarnedTotal(shown);   // added up by the door, not here (DEC-0346, 2026-10-22)
         return (
           <View style={styles.card}>
             <SectionBand inCard gutter={GUTTER} title="WHAT EACH CATEGORY EARNED" value={phraseFor(period).toUpperCase()} />
@@ -508,7 +553,7 @@ export default function PerformanceScreen() {
               const ret = b.ret == null ? '—' : `${fig('MK-PF-M-006', b.ret)}${b.yearly ? '/year' : ''}`;
               return (
                 <View key={b.key} style={styles.catRow} accessible
-                  accessibilityLabel={`${b.label}, earned ${figSaid('MK-PF-M-007', b.earned)}, return ${b.ret == null ? 'not known' : `${fig('MK-PF-M-006', b.ret)}${b.yearly ? ' a year' : ''}`}`}>
+                  accessibilityLabel={`${b.label}, earned ${figSaid('MK-PF-M-007', b.earned)}, return ${b.ret == null ? 'not known' : figSaid('MK-PF-M-006', b.ret, b.yearly ? 'year' : undefined)}`}>
                   <View style={[styles.catDot, { backgroundColor: (ClassMarkColors as any)[b.key] }]} />
                   <View style={styles.catName}>
                     <Text style={styles.catLabel}>{b.label}</Text>
@@ -521,7 +566,7 @@ export default function PerformanceScreen() {
                 </View>
               );
             })}
-            <View style={[styles.catRow, styles.walkTotal]}>
+            <View style={[styles.catRow, styles.walkTotal]} accessible accessibilityLabel={`All categories, earned ${figSaid('MK-PF-M-007', total)}`}>
               <Text style={[styles.catL, { fontWeight: '700', marginLeft: 14, flex: 1 }]}>All categories</Text>
               <Text style={[styles.catV, { fontWeight: '900' }]}>{fig('MK-PF-M-007', total)}</Text>
               <Text style={styles.catR}> </Text>
@@ -566,54 +611,24 @@ export default function PerformanceScreen() {
           </View>
         </TouchableOpacity>
       </Modal>
-      <HoldingEditor
-        open={addOpen || edit != null}
-        accounts={accounts}
-        existing={edit}
-        onRoute={(k) => { setAddOpen(false); setEdit(null); if (k === 'bond') setBondAddOpen(true); else setAltAddKind(k); }}
-        onClose={() => { setAddOpen(false); setEdit(null); }}
-        onSave={(accountId, position, isNew) => {
-          if (isNew) {
-            if (accountId === '__new__') {
-              // A NEW ACCOUNT MADE HERE IS ASKED NO TAX TYPE, SO IT STATES NONE (DEC-4036f, 2026-10-10) — it used to be saved Taxable
-              store.addAsset({ label: 'Brokerage', kind: 'brokerage', tax_bucket: undefined, balance: 0, target_return: 0.08, positions: [], derive_balance: true });
-              // newest account is at index 0
-              const newId = (useStore.getState() as any).assetAccounts[0].asset_id;
-              store.addPosition(newId, position);
-            } else {
-              store.addPosition(accountId, position);
-            }
-          } else {
-            store.updatePosition(accountId, position.position_id, position);
-          }
-          setAddOpen(false); setEdit(null); setTimeout(refresh, 50);
-        }}
-        onDelete={edit ? () => { store.deletePosition(edit.accountId, edit.position.position_id); setEdit(null); } : undefined}
-      />
-      <TransactionSheet open={txnOpen} accounts={accounts} onClose={() => setTxnOpen(false)}
-        onSave={(t) => { store.recordTransaction(t); setTxnOpen(false); setTimeout(refresh, 50); }} />
-      <BondEditor bond={null} open={bondAddOpen} onClose={() => setBondAddOpen(false)}
-        onSave={(fields) => { store.addAsset({ kind: 'fixed_income', target_return: fields.coupon_rate ?? 0.04, ...fields }); setBondAddOpen(false); }} />
-      <AltEditor item={null} open={altAddKind != null} presetKind={altAddKind ?? undefined} onClose={() => setAltAddKind(null)}
-        onSave={(fields) => { store.addAsset({ target_return: benchmarkReturn(fields.kind), ...fields }); setAltAddKind(null); }} />
-      <HistorySheet open={historyOpen} transactions={store.transactions ?? []} accounts={accounts}
-        onClose={() => setHistoryOpen(false)} onDelete={(id) => {
-          if (!store.deleteTransaction(id)) Alert.alert(
-            'Can\u2019t remove this entry',
-            'It was recorded before balance-safe deletes existed, so removing it can\u2019t undo its effect on your balances. Record a correcting entry instead (e.g. a matching deposit or withdrawal).');
-        }} />
     </ScrollView>
   );
 }
 
-// ───────────────────────── Add / edit holding (ticker + lots) ─────────────────────────
-export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete, onRoute }: {
-  open: boolean; accounts: AssetAccount[]; existing: { accountId: string; position: Position } | null;
+// ───────────────────────── Edit a holding (ticker + lots) ─────────────────────────
+// IT EDITS A HOLDING THE PERSON HAS (2026-10-21, gap 8 of the Performance launch audit). Its one door is the Holding page's
+// ✎ Edit. Its "Add a holding" mode had no door since v14 removed "＋ Add a holding" from Performance (held absent by
+// invest_fcc.test.tsx), so that mode is gone with its "＋ New account" chip: a holding is added by a buy on the trade sheet,
+// by Itemize, or by Add an account. Every Type chip now sets the type; in Edit, five of them did nothing when tapped (they
+// were routed to the Bond and Alternatives editors, which only the add mode could open). The Account row shows the account
+// the holding is in: choosing another one saved nothing, because the holding is not in it. Drawn as built:
+// MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_holding-editor_v02.html.
+export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: {
+  open: boolean; accounts: AssetAccount[]; existing: { accountId: string; position: Position };
   onClose: () => void; onSave: (accountId: string, position: Position, isNew: boolean) => void; onDelete?: () => void;
-  onRoute?: (kind: 'bond' | string) => void;   // B46 findings 3+6: non-ticker types open their own editors
 }) {
-  const isNew = existing == null;
-  const investAccts = accounts.filter(accountAllowsTicker);   // only security-eligible accounts (excludes cash/property/529)
+  // the account the holding is in, shown, not chosen (a holding moves by a sale in one account and a buy in another)
+  const investAccts = accounts.filter((a) => a.asset_id === existing.accountId);
   const [accountId, setAccountId] = useState<string>('');
   const [ticker, setTicker] = useState('');
   const [label, setLabel] = useState('');
@@ -641,7 +656,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
 
   useEffect(() => {
     if (!open) return;
-    if (existing) {
+    {
       setAccountId(existing.accountId); setTicker(existing.position.ticker); setLabel(existing.position.label ?? '');
       setKind(existing.position.kind ?? 'stocks_etf'); setLots(existing.position.lots.length ? existing.position.lots : [blankLot()]);
       setPerContract(String(existing.position.multiplier != null && existing.position.multiplier > 0 ? existing.position.multiplier : 100));
@@ -649,10 +664,6 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
       setBondRate(existing.position.coupon_rate != null ? String(+(existing.position.coupon_rate * 100).toFixed(6)) : '');
       setBondMaturity(existing.position.maturity_date ?? '');
       setCouponsPerYear(existing.position.coupons_per_year === 1 || existing.position.coupons_per_year === 2 ? existing.position.coupons_per_year : null);
-    } else {
-      setAccountId(investAccts[0]?.asset_id ?? '__new__'); setTicker(''); setLabel(''); setKind('stocks_etf'); setLots([blankLot()]);
-      setPerContract('100');
-      setBondFace(''); setBondRate(''); setBondMaturity(''); setCouponsPerYear(null);
     }
   }, [open]);
 
@@ -673,7 +684,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
   // (without cost we just can't show return-since-purchase — value & vs-benchmark still work).
   const isOption = kind === 'options';
   // classed Bonds & CDs by the one test of a holding's class (holdingClassOf) — a held bond or CD, which this sheet edits
-  const isBondHolding = !isNew && holdingClassOf({ ...(existing?.position ?? {}), kind } as any) === 'bonds';
+  const isBondHolding = holdingClassOf({ ...(existing?.position ?? {}), kind } as any) === 'bonds';
   // A CD IS NEVER ASKED HOW OFTEN IT PAYS, as on the two forms: judged by the bonds door (MK-NW-O-001) on the holding's name and
   // kind, the reading the line under it on its account page uses (holdingBondFacts reads the name, else the ticker)
   const isCdHolding = useMemo(() => isBondHolding && !!theBonds({ accounts: [{ asset_id: 'draft', label: label.trim() || ticker.trim(), kind,
@@ -707,7 +718,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
         coupons_per_year: !isCdHolding && couponsPerYear != null ? couponsPerYear : undefined,
       } : {}),
     };
-    onSave(accountId, position, isNew);
+    onSave(accountId, position, false);
   };
 
   return (
@@ -717,7 +728,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
       <View style={styles.sheet}>
         <View style={styles.grab} />
         <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ maxHeight: '92%' }}>
-          <Text style={styles.sheetT}>{isNew ? 'Add a holding' : 'Edit holding'}</Text>
+          <Text style={styles.sheetT}>Edit holding</Text>
 
           <Text style={styles.fieldL}>Ticker</Text>
           <TextInput style={styles.input} value={ticker} onChangeText={setTicker} autoCapitalize="characters" autoCorrect={false}
@@ -737,7 +748,9 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
           )}
           {/* B-18: gently flag a ticker that can't be a symbol so the user fixes a typo instead of
               silently getting no live price. */}
-          {ticker.trim().length > 0 && !isPlausibleTicker(ticker) && (
+          {/* a broker's security id (9 letters and digits, a bond's or a CD's CUSIP) is not a typo — the account page names such a
+              holding by its name for the same reason (Build-43 finding #4); it was warned as one (2026-10-22, gap 24) */}
+          {ticker.trim().length > 0 && !isPlausibleTicker(ticker) && !(/^[0-9A-Z]{9}$/.test(ticker.trim()) && /\d/.test(ticker)) && (
             <Text style={styles.tickerWarn}>That doesn't look like a ticker symbol — check for a typo (e.g. AAPL, VTI).</Text>
           )}
           <Text style={styles.fieldL}>Name (optional)</Text>
@@ -745,15 +758,11 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
 
           <Text style={styles.fieldL}>Type (sets the benchmark — {benchmarkTicker(kind)})</Text>
           <View style={styles.kindWrap}>
-            {KIND_OPTIONS.map((k) => (
+            {KIND_OPTIONS.filter((k) => !NOT_OFFERED_KINDS.includes(k.id) || k.id === existing.position.kind).map((k) => (
               <TouchableOpacity key={k.id} style={[styles.kindChip, kind === k.id && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel={`Type: ${k.label}`}
-                onPress={() => {
-                  // B46 findings 3+6 (router, approved 2026-07-31): non-ticker types open their OWN
-                  // form — separate fields, correct class. Only ticker types stay on this sheet.
-                  if (k.id === 'fixed_income') { onRoute?.('bond'); return; }
-                  if (ALT_ROUTE_KINDS.includes(k.id)) { onRoute?.(k.id); return; }
-                  setKind(k.id);
-                }}>
+                // the holding is already in its account, so its type is set here (B46's router to the Bond and Alternatives
+                // editors was for ADDING one, a mode with no door since v14)
+                onPress={() => setKind(k.id)}>
                 <Text style={[styles.kindChipT, kind === k.id && styles.kindChipTOn]}>{k.label}</Text>
               </TouchableOpacity>
             ))}
@@ -817,11 +826,6 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
                     <Text style={[styles.kindChipT, accountId === a.asset_id && styles.kindChipTOn]}>{a.institution?.trim() || a.label}</Text>
                   </TouchableOpacity>
                 ))}
-                {isNew && (
-                  <TouchableOpacity style={[styles.kindChip, accountId === '__new__' && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel="Add a new account" onPress={() => setAccountId('__new__')}>
-                    <Text style={[styles.kindChipT, accountId === '__new__' && styles.kindChipTOn]}>＋ New account</Text>
-                  </TouchableOpacity>
-                )}
               </View>
               {(() => {
                 const sel = accounts.find((a) => a.asset_id === accountId);
@@ -829,15 +833,16 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
                 // performance only (B-60). A position-derived account is built FROM its holdings.
                 if (!sel || sel.derive_balance === true) return null;
                 return (
-                  <Text style={styles.note}>📊 Tracked for performance — this won't change {sel.institution?.trim() || sel.label}'s {fig('MK-NW-M-018', sel.balance)} total. Edit the account total in Net Worth.</Text>
+                  <Text style={styles.note} accessibilityLabel={`Tracked for performance — this won't change ${sel.institution?.trim() || sel.label}'s ${figSaid('MK-NW-M-018', sel.balance)} total. Edit the account total in Net worth.`}>📊 Tracked for performance — this won't change {sel.institution?.trim() || sel.label}'s {fig('MK-NW-M-018', sel.balance)} total. Edit the account total in Net worth.</Text>
                 );
               })()}
             </>
           )}
 
-          <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid} accessibilityRole="button" accessibilityLabel={isNew ? 'Add holding' : 'Save holding'} onPress={save}>
+          <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid} accessibilityRole="button" onPress={save} accessibilityLabel="Save holding"
+            accessibilityHint={valid && (paidOnRecord({ position_id: '', ticker, lots, kind, multiplier: isOption ? perContractN : undefined } as Position).paid ?? 0) > 0 ? `Cost ${figSaid('MK-NW-M-033', paidOnRecord({ position_id: '', ticker, lots, kind, multiplier: isOption ? perContractN : undefined } as Position).paid)}` : undefined}>
             {/* the cost on the button is Total paid, read the one way the Holding page reads it (paidOnRecord, 2026-10-21) */}
-            <Text style={styles.saveBtnT}>{isNew ? 'Add holding' : 'Save'}{valid && (paidOnRecord({ position_id: '', ticker, lots, kind, multiplier: isOption ? perContractN : undefined } as Position).paid ?? 0) > 0 ? ` · cost ${fig('MK-NW-M-033', paidOnRecord({ position_id: '', ticker, lots, kind, multiplier: isOption ? perContractN : undefined } as Position).paid)}` : ''}</Text>
+            <Text style={styles.saveBtnT}>Save{valid && (paidOnRecord({ position_id: '', ticker, lots, kind, multiplier: isOption ? perContractN : undefined } as Position).paid ?? 0) > 0 ? ` · cost ${fig('MK-NW-M-033', paidOnRecord({ position_id: '', ticker, lots, kind, multiplier: isOption ? perContractN : undefined } as Position).paid)}` : ''}</Text>
           </TouchableOpacity>
           {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete holding" onPress={onDelete}><Text style={styles.deleteLink}>Delete holding</Text></TouchableOpacity>}
           <View style={{ height: 20 }} />
@@ -862,7 +867,7 @@ const blankLot = (): Lot => ({ lot_id: `lot_${Math.random().toString(36).slice(2
 function Note({ term, children, size = 11 }: { term: GlossaryTerm; children: React.ReactNode; size?: 11 | 13 }) {
   return (
     <View style={styles.noteRow}>
-      <Text style={[styles.noteT, size === 13 && { fontSize: 13, lineHeight: 18 }]}>{children}</Text>
+      <SaidText style={[styles.noteT, size === 13 && { fontSize: 13, lineHeight: 18 }]}>{children}</SaidText>
       <InfoDot size={size} term={term} />
     </View>
   );
@@ -876,7 +881,7 @@ function NoteLine({ parts }: { parts: { term: GlossaryTerm; text: string }[] }) 
       {parts.map((p, i) => (
         <React.Fragment key={p.term}>
           {i > 0 && <Text style={styles.noteT}>·</Text>}
-          <Text style={styles.noteT}>{p.text}</Text>
+          <SaidText style={styles.noteT}>{p.text}</SaidText>
           <InfoDot size={11} term={p.term} />
         </React.Fragment>
       ))}
@@ -889,7 +894,8 @@ function NoteLine({ parts }: { parts: { term: GlossaryTerm; text: string }[] }) 
 
 // THE VALUE LINE now lives in src/components/ValueGraph.tsx, shared with the Account portfolio screen.
 
-// ───────────────────────── Record a transaction ─────────────────────────
+// ───────────────────────── The trade sheet: record activity ─────────────────────────
+// Drawn as built, approval pending: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_trade-sheet_v02.html (held by src/screens/__tests__/sheets_drawn_from_code.test.tsx).
 const TXN_TYPES: { k: TxnType; label: string }[] = [
   { k: 'BUY', label: 'Buy' }, { k: 'SELL', label: 'Sell' }, { k: 'DEPOSIT', label: 'Deposit cash' },
   { k: 'WITHDRAWAL', label: 'Withdraw' }, { k: 'TRANSFER', label: 'Transfer' }, { k: 'DIVIDEND', label: 'Dividend' },
@@ -922,12 +928,15 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
   const isDiv = type === 'DIVIDEND';
   const acctList = isTrade ? eligible : cashAccts;
   const acct = accounts.find((a) => a.asset_id === accountId);
+  // null: the account's cash was never entered — shown as not entered, never refused on (MK-PF-M-020, 2026-10-21; tenet 3)
   const avail = acct ? availableCash(acct) : 0;
   const held = (acct?.positions ?? []).map((p) => p.ticker);          // holdings you can sell / receive dividends from
-  useEffect(() => { setTicker(''); }, [accountId, type]);              // don't carry a stale holding across account/type
+  // don't carry a stale holding across account/type — but the holding the sheet was OPENED for, in its own account, is not
+  // stale: the Holding page's "Record buy/sell" lost its ticker the moment the sheet set its account (2026-10-21, gap 25)
+  useEffect(() => { setTicker((t) => (prefill?.ticker && t === prefill.ticker && accountId === prefill.accountId ? t : '')); }, [accountId, type]);
   // cash guards: can't spend more than the account's available cash
   const cost = num(shares) * num(price);
-  const enough = isBuy ? cost <= avail : (type === 'WITHDRAWAL' || isTransfer) ? num(amount) <= avail : true;
+  const enough = avail == null ? true : isBuy ? cost <= avail : (type === 'WITHDRAWAL' || isTransfer) ? num(amount) <= avail : true;
   const tickerOk = isBuy ? !!ticker.trim() : (isSell || isDiv) ? held.includes(ticker) : true;
   const ownedShares = isSell ? totalShares((acct?.positions ?? []).find((p) => p.ticker === ticker) ?? { lots: [] } as any) : 0;
   // a holding whose share count is not on record cannot be checked against, so the sale waits (tenet 3; outside review Claude Performance, 2026-10-11)
@@ -959,7 +968,8 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
       <View style={styles.sheet}>
         <View style={styles.grab} />
         <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ maxHeight: '92%' }}>
-          <Text style={styles.sheetT}>Record a transaction</Text>
+          {/* the records are activity, one word for them everywhere (canon row 12, 2026-10-22: the title used another word) */}
+          <Text style={styles.sheetT}>Record activity</Text>
           <View style={[styles.kindWrap, { marginTop: 8 }]}>
             {TXN_TYPES.map((t) => (
               <TouchableOpacity key={t.k} style={[styles.kindChip, type === t.k && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel={`Transaction type: ${t.label}`} onPress={() => setType(t.k)}>
@@ -1013,7 +1023,7 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
 
           {/* available-cash note for spend actions */}
           {(isBuy || type === 'WITHDRAWAL' || isTransfer) && acct && (
-            <Text style={[styles.note, !enough && { color: Colors.red, fontWeight: '700' }]}>Available cash: {fig('MK-PF-M-020', avail)}{!enough ? '  ⚠ not enough — deposit or transfer cash in first' : ''}</Text>
+            <Text style={[styles.note, !enough && { color: Colors.red, fontWeight: '700' }]} accessibilityLabel={`Available cash: ${figSaid('MK-PF-M-020', avail)}${!enough ? '. Not enough — deposit or transfer cash in first' : ''}`}>Available cash: {fig('MK-PF-M-020', avail)}{!enough ? '  ⚠ not enough — deposit or transfer cash in first' : ''}</Text>
           )}
 
           {isBuy && (<><Text style={styles.fieldL}>Ticker</Text>
@@ -1062,9 +1072,16 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
 }
 
 // ───────────────────────── Activity / history ─────────────────────────
+// Drawn as built, approval pending: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_activity-sheet_v01.html (held by src/screens/__tests__/sheets_drawn_from_code.test.tsx).
 export function HistorySheet({ open, transactions, accounts, onClose, onDelete }: {
-  open: boolean; transactions: Transaction[]; accounts: AssetAccount[]; onClose: () => void; onDelete: (id: string) => void;
+  open: boolean; transactions: Transaction[]; accounts: AssetAccount[]; onClose: () => void; onDelete: (id: string) => boolean | void;
 }) {
+  // A DELETE THE LEDGER REFUSES SAYS SO, wherever the sheet is opened (2026-10-21, gap 8): the words lived on the Performance
+  // tab's mount, which nothing opened, while the Holding page's ✕ on such a record did nothing and said nothing.
+  const remove = (id: string) => {
+    if (onDelete(id) === false) Alert.alert('Can\u2019t remove this entry',
+      'It was recorded before balance-safe deletes existed, so removing it can\u2019t undo its effect on your balances. Record a correcting entry instead (e.g. a matching deposit or withdrawal).');
+  };
   const acctName = (id?: string) => { const a = accounts.find((x) => x.asset_id === id); return a ? (a.institution?.trim() || a.label) : '—'; };
   return (
     <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
@@ -1073,21 +1090,25 @@ export function HistorySheet({ open, transactions, accounts, onClose, onDelete }
       <View style={styles.sheet}>
         <View style={styles.grab} />
         <Text style={styles.sheetT}>Activity</Text>
-        <Text style={styles.sheetS}>Every transaction you've recorded — your full history.</Text>
+        {/* ITS ONE DOOR IS A HOLDING'S PAGE (2026-10-22, gap 24): it said "Every transaction you've recorded — your full history."
+            over one holding's records, and listed them in the order they were stored; newest first now, as the account page lists */}
+        <Text style={styles.sheetS}>Every record of this holding, newest first.</Text>
         <ScrollView automaticallyAdjustKeyboardInsets style={{ maxHeight: 460 }}>
-          {transactions.length === 0 && <Text style={styles.hEmpty}>No transactions yet.</Text>}
-          {transactions.map((t) => {
+          {transactions.length === 0 && <Text style={styles.hEmpty}>No activity for this holding yet.</Text>}
+          {[...transactions].sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? ''))).map((t) => {
             const eff = cashEffect(t);
             // B47 finding 8: a PRICE is cents-precise — $250.10, never $250 (the B44 precision rule, applied here too)
             const detail = t.ticker ? `${t.ticker}${t.shares ? ` · ${t.shares} sh` : ''}${t.price ? ` @ ${fig('MK-NW-M-061', t.price)}` : ''}` : acctName(t.account_id);
             return (
               <View key={t.id} style={styles.hRow}>
-                <View style={{ flex: 1 }}>
+                {/* the record said as one thing, its amount through the one spoken writer (audit row 29, 2026-10-22) */}
+                <View style={{ flex: 1 }} accessible accessibilityLabel={`${txnLabel(t.type)}, ${t.ticker ? `${t.ticker}${t.shares ? `, ${plural(t.shares, 'share')}` : ''}${t.price ? ` at ${figSaid('MK-NW-M-061', t.price)}` : ''}` : acctName(t.account_id)}, ${dateShown(t.date)}`}>
                   <Text style={styles.hType}>{txnLabel(t.type)} <Text style={styles.hDetail}>{detail}</Text></Text>
-                  <Text style={styles.hMeta}>{t.date} · {acctName(t.account_id)}{t.counter_account_id ? ` → ${acctName(t.counter_account_id)}` : ''}{t.reinvested ? ' · reinvested' : ''}</Text>
+                  {/* a record's day through the one date writer, "Aug 2, 2026" — it printed "2026-08-02" (2026-10-22, gap 24) */}
+                  <Text style={styles.hMeta}>{dateShown(t.date)} · {acctName(t.account_id)}{t.counter_account_id ? ` → ${acctName(t.counter_account_id)}` : ''}{t.reinvested ? ' · reinvested' : ''}</Text>
                 </View>
-                {eff !== 0 && <Text style={[styles.hAmt, { color: eff >= 0 ? Colors.gainText : Colors.red }]}>{eff >= 0 ? '+' : ''}{fig('MK-NW-M-062', eff)}</Text>}
-                <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel={`Delete ${txnLabel(t.type).toLowerCase()}${t.ticker ? ` ${t.ticker}` : ''}`} onPress={() => onDelete(t.id)}><Text style={styles.hDel}>✕</Text></TouchableOpacity>
+                {eff !== 0 && <Text style={[styles.hAmt, { color: eff >= 0 ? Colors.gainText : Colors.red }]} accessibilityLabel={`${eff > 0 ? 'plus ' : ''}${figSaid('MK-NW-M-062', eff)}`}>{eff >= 0 ? '+' : ''}{fig('MK-NW-M-062', eff)}</Text>}
+                <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel={`Delete ${txnLabel(t.type).toLowerCase()}${t.ticker ? ` ${t.ticker}` : ''}`} onPress={() => remove(t.id)}><Text style={styles.hDel}>✕</Text></TouchableOpacity>
               </View>
             );
           })}

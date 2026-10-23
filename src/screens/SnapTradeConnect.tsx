@@ -17,6 +17,7 @@ import { snaptradeApi } from '../services/sync/snaptradeClient';
 import { runSnapTradeSync } from '../services/sync/snaptradeSync';
 import { BROKER_COVERAGE, UNSUPPORTED_INSTITUTIONS, UNSUPPORTED_FALLBACK, COVERAGE_AS_OF, type BrokerCoverage } from '../constants/brokerCoverage';
 import { HELD_IN_CHOICES, wrapperAccount } from '../domain/assets';
+import { withArticle } from '../domain/_shared/plural';   // the one article rule: "is an HSA account" (2026-10-21)
 
 // THE WRAPPER QUESTION READS THE ONE LIST (DEC-2441, DEC-2484h, 2026-10-20): the six choices every form that asks how an account
 // is taxed offers, saved as a kind and a tax bucket by MK-NW-F-010 wrapperAccount. This step kept its own four, which called a
@@ -215,7 +216,7 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
           <View style={s.chipRow}>
             {HELD_IN_CHOICES.map(({ key, label }) => (
               <TouchableOpacity accessibilityRole="radio" accessibilityState={{ selected: false }} key={key}
-                style={s.chip} accessibilityLabel={`${a.label} is a ${label} account`}
+                style={s.chip} accessibilityLabel={`${a.label} is ${withArticle(label)} account`}
                 onPress={() => { const w = wrapperAccount(key); store.confirmAccountWrapper?.(a.asset_id, w.kind, w.tax_bucket); }}>
                 <Text style={s.chipTxt}>{label}</Text>
               </TouchableOpacity>

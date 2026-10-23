@@ -73,8 +73,15 @@ _HIST=_life.History(datetime.date.today().isoformat())
 
 _spk=_il.spec_from_file_location('mkk', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_keep.py'))
 _keepmod=_il.module_from_spec(_spk); _spk.loader.exec_module(_keepmod)
-_KEPT = _keepmod.read(OUT)
-print('read back from the file on disk: %d entries of his own' % len(_KEPT))
+# THE READER MUST STILL TELL HIS WORDS FROM THE BUILD'S (2026-10-22): fed made-up cells whose answer is known, never
+# this master, so nothing resolved in the master can make it pass. Under the reader before today it fails six ways.
+_kbad = _keepmod.self_check()
+if _kbad:
+    raise SystemExit('BUILD STOPPED — the read-back can no longer tell his words from the build\'s own:\n   ' + '\n   '.join(_kbad))
+_KEPT, _SET_ASIDE = _keepmod.read_split(OUT)
+print('read back from the file on disk: %d entries of his own · the build\'s own text in his columns, not read back as his: '
+      '%d (%s) · reader self-checks: %d of %d pass' % (len(_KEPT), len(_SET_ASIDE), ', '.join(
+          '%s %d' % (c.split(' —')[0], n) for c, n in sorted(__import__('collections').Counter(x[2] for x in _SET_ASIDE).items())), _keepmod.self_check.ran, _keepmod.self_check.ran))
 
 _spi=_il.spec_from_file_location('mki', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_inputs.py'))
 _inp=_il.module_from_spec(_spi); _spi.loader.exec_module(_inp)
@@ -589,6 +596,17 @@ def build_nav():
     return {'routes':routes,'reach':{k:sorted(v) for k,v in reach.items()}}
 
 nav = build_nav()
+# the file each screen is, read from the disk as build_nav reads it — for the Period column's window choices and the
+# one line per screen on each tab (2026-10-22)
+_SCREEN_FILE = {}
+for _dp, _dn, _fs in os.walk('src/screens'):
+    if '__tests__' in _dp: continue
+    for _fn_ in _fs:
+        if _fn_.endswith('.tsx'): _SCREEN_FILE.setdefault(_fn_[:-4], os.path.join(_dp, _fn_))
+_spp = _il.spec_from_file_location('mkp', os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_period.py'))
+_period = _il.module_from_spec(_spp); _spp.loader.exec_module(_period)
+_file_of_route = lambda r: _SCREEN_FILE.get(nav['routes'].get(r, ''))
+_name_of_route = lambda r: ('%s (%s)' % (SCREEN_OF_ROUTE[r], r)) if r in SCREEN_OF_ROUTE else r
 TABS = {'/home':'home','/analytics':'networth','/invest':'performance','/cashflow':'cashflow','/plan':'plan'}
 
 def screens_for(tab):
@@ -672,9 +690,29 @@ def declared_for(tab):
     """the declared figures whose family is this tab's, newest last"""
     fam = FAM_OF_TAB.get(tab)
     return sorted(((i, f) for i, f in DECLARED.items() if i.split('-')[1] == fam), key=lambda x: x[0])
+_ROW_STATUS_RULED = {}
+def _ruled_of(mid, f, tab):
+    """The day he ruled on this row: the declaration's own date, else the date a Row status override records for it.
+
+    THE TWO RECORDS OF ONE RULING MUST NOT DISAGREE (2026-10-22, Performance audit). MK-XS-M-004 was ruled 2026-09-30
+    (DEC-0640); its declaration carries no date yet, so a Row status override says "RULED 2026-09-30 — …". The Row status
+    read RULED while ROW VERIFIED, printed from the declaration alone, still asked "RULED? NOT YET — read this row and say
+    yes" — a question in a file he opens, on a row he had ruled. The override's own words are read, never a typed list."""
+    if f.get('ruled'):
+        return f['ruled']
+    if not _ROW_STATUS_RULED:
+        _ROW_STATUS_RULED[None] = None
+        for _o in (json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_overrides.json')))
+                   if os.path.exists(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_overrides.json')) else []):
+            _m = re.match(r'RULED (\d{4}-\d{2}-\d{2})\b', str(_o.get('text') or ''))
+            if _o.get('col') == 'Row status' and _o.get('mode', 'replace') == 'replace' and _m:
+                _ROW_STATUS_RULED[(_o['tab'], _o['key'])] = _m.group(1)
+    return _ROW_STATUS_RULED.get((tab, mid))
+
 def declared_row(mid, f, tab):
     """one row of the master, printed from a door's declaration — nothing here is typed twice"""
     door = f.get('door', ''); fid = door.split(' ')[0] if door else ''
+    ruled = _ruled_of(mid, f, tab)
     per = (' a ' + f['per']) if f.get('per') else ''
     routes = [r for r in f.get('screens', [])]
     unit = UNIT_WORDS.get(f.get('unit', ''), f.get('unit', ''))
@@ -695,7 +733,7 @@ def declared_row(mid, f, tab):
             door.split(' ', 1)[1] if ' ' in door else '', fid,
             f['formula'], f['formula'],
             '\n'.join(f.get('inputs') or []), unit + per, f['refusal'],
-            f.get('grain') or 'one figure per household', ('a ' + f['per']) if f.get('per') else 'as of today',
+            f.get('grain') or 'one figure per household', _period.period_of(f, _file_of_route, _name_of_route),
             'Declared by ' + door, 'Declared by ' + door, decisions, decisions,
             '', decisions, f.get('note', ''),
             # THIS COLUMN NO LONGER CARRIES "IS THIS ROW RIGHT?" (founder, 2026-09-30: "what kind of
@@ -706,7 +744,7 @@ def declared_row(mid, f, tab):
             # column AM is where he gives it. A question goes here only when it names the thing to
             # decide, the way Q53 does.
             '', '',
-            '', '', ('DECLARED IN THE CODE (rule 11) — printed from the door, not typed. RULED ' + f['ruled'] if f.get('ruled')
+            '', '', ('DECLARED IN THE CODE (rule 11) — printed from the door, not typed. RULED ' + ruled if ruled
                      else 'DRAFT — declared in the code and printed here, WAITING FOR YOUR VERDICT before the screens move behind the door (rule 10)'),
             '', '', '', '', '', 'ACTIVE', TODAY,
             # FIVE blanks, for the five columns between 'Date last modified' and 'ROW VERIFIED':
@@ -715,13 +753,15 @@ def declared_row(mid, f, tab):
             # shifted right by one from here on and its ROW VERIFIED text fell off the end of the
             # sheet entirely. Found by the worked-example column landing in the wrong place.
             '', '', '', '', '',
-            (('TESTED, NOT VERIFIED — you ruled on this row ' + f['ruled'] + '; the figure, its formula, inputs and refusal live in ' + door)
-             if f.get('ruled') else ('RULED? NOT YET — read this row and say yes, or say what changes. Nothing moves behind ' + door + ' until you do.')),
+            (('TESTED, NOT VERIFIED — you ruled on this row ' + ruled + '; the figure, its formula, inputs and refusal live in ' + door)
+             if ruled else ('RULED? NOT YET — read this row and say yes, or say what changes. Nothing moves behind ' + door + ' until you do.')),
             ((f['worked']['given'] + '\nGIVES: ' + f['worked']['answer'] + '\n(the test re-runs this through ' + door + ' on every build)')
              if f.get('worked') else 'NONE YET — no worked example is declared for this figure, so nothing re-runs it (step 6)')]
 
-# what the declared-row writer above puts in the ROW VERIFIED column — never to be read back as his mark
-BUILDER_TEXT_IN_HIS_COLUMN = ('TESTED, NOT VERIFIED', 'RULED? NOT YET')
+# what the declared-row writer above puts in the ROW VERIFIED column is never read back as his mark: the two sentences
+# live in moneykeel_keep.BUILDER_SENTENCES, and the check before his cells are put back stops the build if any sentence
+# written here is one that list does not recognise (2026-10-22 — a prefix list here was used only for STATUS, while the
+# read-back took the same sentences as his and froze them)
 
 # ---- engine identifiers: one per engine, assigned once
 ENGINE_FAMILY = {}
@@ -755,6 +795,15 @@ for _mid, _fig in declared_for('multiple_screens'):
 
 OWNED = {r for rows in SECONDARY.values() for (r,_,_,_) in rows}
 FAM = {'menu':'MN','home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL'}
+# for the one-row-per-screen lines below: the file each screen is (read from the disk, as build_nav reads it) and the
+# figures each file may still print with no identifier (moneykeel_undeclared_figures.json, a ceiling that only falls)
+_SCREEN_ROWS = []
+_UNDECLARED = {}
+_ud_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_undeclared_figures.json')
+if os.path.exists(_ud_path):
+    _ud = json.load(open(_ud_path))
+    for _k in ('baseline', 'percent_baseline'):
+        for _file, _n in (_ud.get(_k) or {}).items(): _UNDECLARED[_file] = _UNDECLARED.get(_file, 0) + int(_n)
 for tab in ['home','networth','performance','plan','cashflow','menu']:
     ws = sheet(tab, COLS)
     for label, metric, engine in VERIFIED.get(tab, []):
@@ -783,21 +832,69 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
                    _HIST.state(_mid, _DUP_OF.get(_mid,('',''))[0]),
                    _HIST.stamp(_mid, (m, w, _FN_OF[1], sp))])
     NO_FIGURES = {'/auth','/first-run','/settings','/tips','/rewards','/estate','/income','/sharpen','/connect','/add-account','/import-holdings','/onboarding'}
+    # ONE ROW PER SCREEN THIS TAB REACHES, SAID FROM THE DECLARATIONS (2026-10-22, Performance audit row 13). These rows
+    # were written by position, and COLS had grown since: the status landed two columns early, in his "Your name for
+    # it" column, and every screen with no hand-typed row read "NOT STARTED — screen not yet read" — /account-detail,
+    # /bonds, /holding-detail, /itemize and /look-back included, whose figures are declared in the code and printed on
+    # their own rows. A row is now built by column name, and a screen whose figures are declared says READ and names
+    # them, by identifier and by the tab each is printed on; NOT STARTED is left only where no figure names the screen.
+    def _screen_row(route, status, name):
+        row = [''] * len(COLS)
+        row[COLS.index('Parent Screen Name')], row[COLS.index('Secondary Screen Name')] = PARENTS[tab], route
+        for _c in ('Name on Screen', 'Name of Underlying Metric', 'Function that produces it'):
+            row[COLS.index(_c)] = name
+        row[COLS.index('Core screen?')], row[COLS.index('Row status')] = 'NOT DETERMINED', status
+        return row
     for r in routes:
         if not r or r in done or r in OWNED: continue
+        _ids = sorted(i for i, _fg in DECLARED.items() if r in (_fg.get('screens') or []))
         if r == '/performance':
-            ws.append(['', PARENTS[tab], r, '—', '—', '—'] + ['']*17 + ['NOT DETERMINED',
-                       'READ 2026-08-22 — the same screen as /invest, reached by a second route'])
+            ws.append(_screen_row(r, 'READ 2026-08-22 — the same screen as /invest, reached by a second route', '—'))
+            _SCREEN_ROWS.append((tab, r, 'same screen'))
+            continue
+        if _ids:
+            _by_tab = {}
+            for _i in _ids:
+                _by_tab.setdefault(next((t for t, fam in FAM_OF_TAB.items() if fam == _i.split('-')[1]), '?'), []).append(_i)
+            _where = ' · '.join('%d on %s (%s)' % (len(v), 'this tab' if t == tab else 'the %s tab' % t, ', '.join(v))
+                                for t, v in sorted(_by_tab.items(), key=lambda kv: (kv[0] != tab, kv[0])))
+            _file = _SCREEN_FILE.get(nav['routes'].get(r, ''), '')
+            _left = _UNDECLARED.get(_file, 0)
+            ws.append(_screen_row(r, 'READ — the figures this screen prints are declared in the code, each on its own row: '
+                                  + _where + ('. Its file %s may still print up to %d figure%s with no identifier (the '
+                                              'undeclared-figures ratchet)' % (_file, _left, '' if _left == 1 else 's') if _left else ''),
+                                  '%d declared figure%s — see the rows named in Row status' % (len(_ids), '' if len(_ids) == 1 else 's')))
+            _SCREEN_ROWS.append((tab, r, 'declared'))
+            if r in NO_FIGURES:
+                print('   NOTE  %s on %s: the hand list says no calculated figure, %d declarations name it — the declarations win' % (r, tab, len(_ids)))
             continue
         if r in NO_FIGURES:
-            ws.append(['', PARENTS[tab], r, '—', '—', '—'] + ['']*17 + ['NOT DETERMINED',
-                       'READ 2026-08-22 — no calculated figure on this screen'])
+            ws.append(_screen_row(r, 'READ 2026-08-22 — no calculated figure on this screen', '—'))
+            _SCREEN_ROWS.append((tab, r, 'no figure'))
             continue
-        ws.append(['', PARENTS[tab], r] + ['']*20 + ['NOT STARTED — screen not yet read'])
+        ws.append(_screen_row(r, 'NOT STARTED — screen not yet read: no declared figure names it', ''))
+        _SCREEN_ROWS.append((tab, r, 'not started'))
     # the figures this family's doors DECLARE (founder rule 11) — printed, never typed
     for _mid, _fig in declared_for(tab):
         _row = declared_row(_mid, _fig, tab)
         ws.append(_row + [''] * (len(COLS) - len(_row)) if len(_row) < len(COLS) else _row[:len(COLS)])
+
+# the screen rows above, counted, so a route list that stops being read goes red rather than quiet (2026-10-22)
+_sr_kinds = __import__('collections').Counter(k for _t, _r, k in _SCREEN_ROWS)
+print('screens with no hand-typed row, one line each per tab: %d — READ, figures declared: %d · READ, no calculated figure: %d · '
+      'the same screen as /invest: %d · NOT STARTED, no declared figure names it: %d%s' % (
+          len(_SCREEN_ROWS), _sr_kinds['declared'], _sr_kinds['no figure'], _sr_kinds['same screen'], _sr_kinds['not started'],
+          (' (' + ', '.join(sorted({'%s %s' % (t, r) for t, r, k in _SCREEN_ROWS if k == 'not started'})) + ')') if _sr_kinds['not started'] else ''))
+print('the Period column on the declared rows, read from each declaration: over a window %d · a month or a year %d · its own '
+      'period %d · as of today %d · screens a window figure is on whose window choices the build could not read: %d%s' % (
+          _period.STATS['over a window'], _period.STATS['per month or year'], _period.STATS['own period'], _period.STATS['as of today'],
+          len(_period.UNREAD), (' (' + ', '.join(sorted(_period.UNREAD)) + ')') if _period.UNREAD else ''))
+if _period.STATS['over a window'] < 20:
+    raise SystemExit('BUILD STOPPED — only %d declared figures read as over a window (25 on 2026-10-22): the declarations\' words '
+                     'are not being read.' % _period.STATS['over a window'])
+if len(_SCREEN_ROWS) < 40 or _sr_kinds['declared'] < 20:
+    raise SystemExit('BUILD STOPPED — only %d screen lines (%d with declared figures; 60 and 40 on 2026-10-22): the route list or the '
+                     'declarations are not being read.' % (len(_SCREEN_ROWS), _sr_kinds['declared']))
 
 # ---- POST-PASS over the screen tabs (2026-09-08, founder rulings G26 · G34 · questions by identifier)
 def dep_from_functions(fid_cell):
@@ -1432,7 +1529,7 @@ ref = [
  ('COLUMN — What comes out (S04)', 'Dollars, a percentage, a date, a count; how it is held and how it is shown. Marked "derived by rule" where it was worked out from the label and formula rather than read from the engine — those need confirming.'),
  ('COLUMN — What it says when it cannot be computed (S05)', 'The refusal. Written where the engine has been read; NOT DETERMINED where it has not, rather than guessed.'),
  ('COLUMN — Grain (S06)', 'One figure per what: holding, account, debt, goal, category, month, or person.'),
- ('COLUMN — Period (S07)', 'As of when, and over what window.'),
+ ('COLUMN — Period (S07)', 'As of when, and over what window. On a declared row it is derived from the declaration (2026-10-22): its own period when it states one; a month or a year when it is shown per month or per year; the window picked on the screen, with that screen\'s choices as its code lists them, when its formula is over a window; otherwise as of today.'),
  ('COLUMN — Dependency (S11)', 'The engines this one leans on, each named by ITS identifier and by the output it gives. Read from the code itself, never from a document. "None" means the engine reads raw inputs only.'),
  ('COLUMN — Secondary calculations and decisions the engine makes', 'The judgements an engine must make BEFORE its headline figure exists: what class an asset is, what to call it on screen, which units apply, whether a value is fresh. Each of these is a formula of its own and needs its own row.'),
  ('COLUMN — Function ID', 'Every function in the code carries one, MK-[family]-F-[number]. The family comes from the folder the code sits in.'),
@@ -1461,7 +1558,7 @@ ref = [
  ('COLUMN — Engine ID', 'The identifier of that engine. Blank where the figure is worked out on the screen itself rather than by an engine — which is itself a finding.'),
  ('COLUMN — Your name for it (72-metric file)', "The founder's own name for the same figure, from METRICS-DELIVERABLE-ANSWERED-2026-08-20.xlsx. This column is the bridge between his vocabulary and the code's."),
  ('COLUMN — Core screen?', 'Whether the screen is part of the 55-70 core, the agreed first scope. Currently NOT DETERMINED on every row: the core list has never been written down, so no row can honestly claim to be in or out of it.'),
- ('COLUMN — Row status', 'VERIFIED with its date means a person read the screen and confirmed the chain. NOT STARTED means the screen has not been read yet. Nothing in between is claimed.'),
+ ('COLUMN — Row status', 'VERIFIED with its date means a person read the screen and confirmed the chain. DECLARED IN THE CODE means the row is printed from the figure\'s declaration beside the code, with the day it was ruled, or DRAFT when it has not been. On a line with no Metric ID, the line for a screen: READ names the declared figures that screen prints and the tab each is printed on; NOT STARTED means no declared figure names the screen and it has not been read. Nothing in between is claimed (2026-10-22: these lines are derived from the declarations, never typed).'),
  ('', ''),
  ('COLUMN — Where the code keeps it', 'The field name the value is stored under in the code. This is the join between a value a person would name — "bond maturity date" — and the code, and it is what makes the next column checkable rather than remembered.'),
  ('COLUMN — Functions that read it', 'Every function whose body touches that field, swept from the code on every build. Replaces the two engine columns this tab carried until 2026-08-26: the word engine was retired by the vocabulary standard, and neither the engine name nor its E identifier could be looked up in the code.'),
@@ -1475,7 +1572,7 @@ ref = [
  ('Complies with — objectives', 'MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md'),
  ('', ''),
  ('COVERAGE — screens read so far', '49 of 49. Every screen in the app has been read: the five parent screens, every secondary screen and every menu screen. Twelve screens carry no calculated figure and say so.'),
- ('COVERAGE — what that means', 'Every screen in the app is listed on its tab. Only Home carries figures so far; the rest are marked NOT STARTED. A rising count is not completeness while screens remain unread.'),
+ ('COVERAGE — what that means', 'Every screen in the app is listed on its tab: as the rows of its figures, or as one line for the screen saying whether its figures are declared, it has none, or it is not started. The build prints the count of each kind. A rising count is not completeness while a screen file still prints figures with no identifier — the line for that screen says how many it may.'),
 ] + [(' ',' '),
  ('AUDIT — 2026-08-25 review', 'Read against the three standards: the vocabulary, the identifiers, '
   'and the objectives-and-verification. These findings belong to the FILE rather than to any one '
@@ -1554,9 +1651,57 @@ if _gone:
     for _g in _gone[:12]: print('   ' + _g)
 _HIST.save()
 
+# EVERYTHING THE BUILD WROTE IN HIS COLUMNS MUST BE TEXT THE READ-BACK RECOGNISES AS THE BUILD'S (2026-10-22). Until
+# now nothing is in those cells but the build's own: the declared rows' ROW VERIFIED sentence and the decision log's
+# printed answers. A sentence the reader does not recognise would come back next build as if he had typed it and freeze
+# there — the defect that kept "RULED? NOT YET" on MK-PF-M-008 and MK-XS-M-004 after they were ruled. Counted, so a
+# pattern that stops matching goes red rather than quiet.
+_own_seen, _own_bad = 0, []
+for _t in ['multiple_screens', 'home', 'networth', 'performance', 'plan', 'cashflow', 'menu']:
+    _sh = wb[_t]; _hd = [str(c.value) if c.value is not None else '' for c in _sh[1]]
+    for _col in (_keepmod.ROW_VERIFIED, _keepmod.YOUR_ANSWER):
+        if _col not in _hd: continue
+        _ci = _hd.index(_col) + 1
+        for _r in range(2, _sh.max_row + 1):
+            _v = _sh.cell(_r, _ci).value
+            if not _sh.cell(_r, 1).value or _v is None or not str(_v).strip(): continue
+            _own_seen += 1
+            _left = _keepmod.split(_col, _v)[0]
+            if _left: _own_bad.append('%s · %s · %s: %r' % (_t, _sh.cell(_r, 1).value, _col.split(' —')[0], _left[:80]))
+if _own_bad:
+    raise SystemExit('BUILD STOPPED — the build wrote text into his columns that the read-back would take as his:\n   '
+                     + '\n   '.join(_own_bad[:20]))
+if _own_seen < 150:
+    raise SystemExit('BUILD STOPPED — only %d cells of the build\'s own text in his columns were seen (179 ROW VERIFIED sentences '
+                     'on 2026-10-22); the check is not looking where the text is.' % _own_seen)
+# an answer printed at an earlier build that is not the decision log's answer now is the build's old text, not his: it is
+# set aside like the rest, and named here so its going is never silent
+_printed_now = {canon(f"{_qn} — ANSWERED {_a['answered']}: {_a['his_words']}\n\nBUILT: {_a['what_was_built']}") for _qn, _a in _QANS.items()}
+_older = [(t, k, b) for (t, k, c, b) in _SET_ASIDE if c == _keepmod.YOUR_ANSWER and b not in _printed_now]
+print('the build\'s own text in his columns: %d cells written this build, all recognised · printed answers from an earlier build '
+      'set aside, the decision log\'s answer printed in their place: %d%s' % (_own_seen, len(_older),
+      ''.join('\n   %s · %s · %s' % (t, k, b[:90].replace('\n', ' ')) for t, k, b in _older)))
 _placed, _lost = _keepmod.apply(wb, _KEPT)
 _keepmod.write_orphans(_lost, os.path.join(os.path.dirname(OUT), 'kept-but-unplaced.md'))
 print(_keepmod.report(_placed, _lost))
+# A LATER ANSWER REACHES A ROW THAT ALREADY CARRIES ONE (2026-10-22). The answers above are written before his kept
+# cells are put back, so on a row whose answer cell already held text (MK-PF-M-008 carries Q51's) the kept text
+# overwrote the new answer and Q33's, decided by DEC-7229, could never reach the file — check-questions-answered.py
+# stopped the build. Each answer in the decision log whose number is not yet in the cell is added under the kept text,
+# which stays word for word at the top (the guard below holds that). The count is printed so it cannot go quiet.
+_late = []
+for _t in ['multiple_screens', 'home', 'networth', 'performance', 'plan', 'cashflow', 'menu']:
+    _sh = wb[_t]; _hd = [c.value for c in _sh[1]]
+    _iV, _iA = _hd.index('Questions for you (numbered)') + 1, _hd.index('YOUR ANSWER — use the same number') + 1
+    for _r in range(2, _sh.max_row + 1):
+        if not _sh.cell(_r, 1).value: continue
+        _qtext = str(_sh.cell(_r, _iV).value or ''); _have = str(_sh.cell(_r, _iA).value or '')
+        _add = [canon(f"{_qn} — ANSWERED {_a['answered']}: {_a['his_words']}\n\nBUILT: {_a['what_was_built']}")
+                for _qn, _a in _QANS.items() if re.search(r'\b' + _qn + r'\b', _qtext) and not re.search(r'\b' + _qn + r'\b', _have)]
+        if _add:
+            _sh.cell(_r, _iA).value = (_have.rstrip() + '\n\n' if _have.strip() else '') + '\n\n'.join(_add)
+            _late.append('%s · %s' % (_t, _sh.cell(_r, 1).value))
+print('answers from the decision log added under kept text: %d%s' % (len(_late), (' — ' + ', '.join(_late)) if _late else ''))
 
 # ---- OVERRIDES: cells read by hand against the code, keyed by identifier (2026-09-08).
 # A generated cell that was found wrong is corrected HERE, with its date and reason, so the
@@ -1677,11 +1822,11 @@ for _t in ['multiple_screens','home','networth','performance','plan','cashflow',
             if _fixed_no_proof and not _rs: _parts.append('CODED, NOT TESTED (finding ' + ', '.join(sorted(set(_fixed_no_proof))) + ' names no test)'); _fill = _fill or _YELLOW
         # VERIFIED is HIS stage alone: only his dated mark moves a row there, and only from TESTED
         _iRV = _ci('ROW VERIFIED — founder, date and how')
-        _his = str(_sh.cell(_r, _iRV).value or '').strip() if _iRV else ''
         # THE BUILDER'S OWN TEXT IS NOT HIS MARK (found 2026-10-20): a declared row gets "TESTED, NOT VERIFIED — you
         # ruled…" or "RULED? NOT YET…" written into this column above, and reading any text here as his mark made four
-        # rows (MK-NW-M-029, -031, -033, -037) show VERIFIED when he had marked none of them.
-        if _his.startswith(BUILDER_TEXT_IN_HIS_COLUMN): _his = ''
+        # rows (MK-NW-M-029, -031, -033, -037) show VERIFIED when he had marked none of them. His mark is what is left
+        # once the build's sentence is taken out — the same reader the read-back uses (2026-10-22).
+        _his = _keepmod.split(_keepmod.ROW_VERIFIED, _sh.cell(_r, _iRV).value)[0] if _iRV else ''
         if _his and _parts and all(p.startswith(('TESTED, NOT VERIFIED', 'WAITING ON YOU — answer to read')) for p in _parts):
             _parts = ['VERIFIED — ' + _his[:60]]; _fill = _BLUE
         elif _his and any(p.startswith('WAITING ON YOU') for p in _parts) and not any(p.startswith(('RULED', 'CODED', 'OPEN FINDING')) for p in _parts):
@@ -1767,7 +1912,9 @@ def _his_words_unchanged():
         _ki, _ci = _h.index(_keepmod.KEY_COL[_tab]), _h.index(_col)
         for _r in range(2, _w.max_row + 1):
             if str(_w.cell(_r, _ki + 1).value or '').strip() == _key:
-                if str(_w.cell(_r, _ci + 1).value or '').strip() != str(_val).strip():
+                _now, _was = str(_w.cell(_r, _ci + 1).value or '').strip(), str(_val).strip()
+                # an answer added under his kept text (2026-10-22) leaves his text whole at the top of the cell
+                if _now != _was and not (_col == 'YOUR ANSWER — use the same number' and _now.startswith(_was)):
                     bad.append('%s · %s · %s' % (_tab, _key, _col))
                 break
     _led = {e['id']: e['ruling'] for e in json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_rulings.json')))}

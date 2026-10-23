@@ -164,7 +164,8 @@ export function incomeFromAccounts(
     const rate = (a as any).coupon_rate || 0;
     const actual = paid.get(String((a as any).asset_id ?? ''));
     if (actual != null && actual > 0) {
-      lines.push({ label, why: 'paid out over the last year', annual: actual, assumed: false });
+      // the window in its one name (Q35, 2026-10-21, DEC-7171; canon row 23): the twelve months ending today, as Holding detail says it
+      lines.push({ label, why: 'paid out over the trailing twelve months', annual: actual, assumed: false });
       continue;                                       // it happened; nothing to project
     }
 

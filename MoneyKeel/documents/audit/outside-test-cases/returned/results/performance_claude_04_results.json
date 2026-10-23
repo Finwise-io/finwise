@@ -601,7 +601,8 @@
    "difference": "none",
    "formula_gives_match": "n/a",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-010 periodReturn — five cases › complex · Exactly two years, given as a yearly rate"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts › MK-PF-F-010 periodReturn — five cases › complex · Exactly two years, given as a yearly rate",
+   "recheck_2026_10_21": "BRIEF WRONG since 2026-10-21 (DEC-7217): +17.45% a year over 731 days ÷ 365, the account's own reading"
   },
   {
    "id": "MK-PF-F-010",

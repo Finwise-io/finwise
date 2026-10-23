@@ -484,7 +484,8 @@
    "rests_on": "No ruling on a stored $0 price paid. Working tree (Net worth agents, 2026-10-20): lotCostOnRecord reads $0 as not on record, because the holding editor saved a blank as $0 until that day. DEC-2161 (a cost the person sets is kept); tenet 5 (the person's word outranks the app's guess).",
    "note": "costBasis (MK-PF-F-002) still counts $0 as a figure: one lot, two readings (tenet 4). Since 2026-10-20 a blank is stored as null by the editor (blankLot) and the sync, so a $0 typed from now on could be told apart; $0 values saved before cannot.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-006 capGains — five cases › complex · Three lots and known zero adjusted basis",
-   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today",
+   "recheck_2026_10_21": "DECIDED (DEC-7170, Q34): a price paid of $0 counts as not on record (canon row 24) — settled 2026-10-21, no code change"
   },
   {
    "id": "MK-PF-F-006",
@@ -793,7 +794,8 @@
    "difference": "OpenAI asks for a rule or a refusal; the app takes the close listed later ($97.31).",
    "rests_on": "No ruling on two closes for one day. The feed lists points in time order and marketData.ts sorts by date keeping that order for ties, so the later one is the newer quote.",
    "note": "Recommendation: keep the later-listed close (the newer quote) and write that on the card.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-009 latestClose — five cases › complex · Conflicting latest date"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-009 latestClose — five cases › complex · Conflicting latest date",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7228): of two closes for one day the later one is the price"
   },
   {
    "id": "MK-PF-F-009",
@@ -850,7 +852,8 @@
    "difference": "none",
    "rests_on": "DEC-0237 (2Y is a yearly rate; the total, +21%, beside it)",
    "note": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-010 periodReturn — five cases › easy · Two-year total versus yearly pace"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-010 periodReturn — five cases › easy · Two-year total versus yearly pace",
+   "recheck_2026_10_21": "REVIEWER WRONG since 2026-10-21 (DEC-7217): one yearly rate on every screen, days ÷ 365 — +21% over 731 days is +9.99% a year"
   },
   {
    "id": "MK-PF-F-010",
@@ -889,7 +892,8 @@
    "rests_on": "DEC-0315 (a window holds both its boundary days and ends today; a close after today is outside it).",
    "note": "Reach: only a device clock behind the feed, or a caller handing an earlier `now`; the feed never sends a day after today.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-010 periodReturn — five cases › complex · As-of endpoint excludes future point",
-   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today",
+   "recheck_2026_10_21": "REVIEWER WRONG — DECIDED 2026-10-21 (DEC-7219): the latest close is a real price, whatever date the feed gives it"
   },
   {
    "id": "MK-PF-F-010",
@@ -981,7 +985,8 @@
    "rests_on": "DEC-0315, as the case above.",
    "note": "",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-011 periodReturnSince — five cases › complex · Future point must not be used",
-   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today",
+   "recheck_2026_10_21": "REVIEWER WRONG — DECIDED 2026-10-21 (DEC-7219): the latest close is a real price, whatever date the feed gives it"
   },
   {
    "id": "MK-PF-F-011",
@@ -997,7 +1002,8 @@
    "rests_on": "DEC-3523 tenet 3 (a window that has not begun has no move; +0.00% reads as \"no change\"); DEC-0315.",
    "note": "Reach: the holding editor's purchase date has no latest day, so a purchase typed after today caps the row there and the market 'same dates' reads +0.00% (measured in the test file).",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-011 periodReturnSince — five cases › edge · Start later than now",
-   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (tenet 3): a window that has not begun has no figure (it read +0.00%)"
   },
   {
    "id": "MK-PF-F-012",
@@ -1058,7 +1064,8 @@
    "rests_on": "DEC-1669 (\"a period that starts with nothing starts at the first deposit\"); tenet 4 — costBasis, capGains, paidOnRecord and returnSincePurchases all pass over a lot of 0 shares.",
    "note": "Reach: low — sales remove emptied lots and the editor drops 0-share lots; an imported value-only line is stored with 0 shares.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-012 earliestPurchaseDate — five cases › complex · Zero lot precedes actual purchase",
-   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (tenet 4): a lot of 0 shares is no purchase — +21.64% → +17.00% from May 19"
   },
   {
    "id": "MK-PF-F-012",
@@ -1074,7 +1081,8 @@
    "rests_on": "No ruling on a holding with one undated and one dated purchase. The approved invest-v3 rule (2026-07-19) covers a holding with no dated purchase (the ledger's first buy fills in).",
    "note": "Recommendation: ask the ledger (purchaseDateOf) first; otherwise treat it like a holding with no dated purchase (tenet 4).",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-012 earliestPurchaseDate — five cases › edge · One missing date before known dates is possible",
-   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7216): the first day of a holding with an undated purchase is not on record; no return since purchase"
   },
   {
    "id": "MK-PF-F-013",
@@ -1138,7 +1146,8 @@
    "rests_on": "His ruling 2026-10-20, \"always the class broker sends\" (DEC-2159 re-ruled; being landed by the Net worth agents); tenet 4 (one holding, one class).",
    "note": "benchmarkTicker lets only a class the PERSON set outrank a kind with a yardstick (index.ts benchmarkTicker, the byClass line). Re-run after the broker-class work lands.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-013 benchmarkTicker — five cases › complex · Broker-classified bond in retirement wrapper",
-   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-6614): the yardstick follows the class the broker sends — AOR → AGG"
   },
   {
    "id": "MK-PF-F-013",
@@ -1424,7 +1433,8 @@
    "rests_on": "DEC-4439 (his \"approved.\", 2026-10-11): money that arrives on a day counts for that whole day — evening value ÷ (previous evening + money added) − 1; DEC-1669 (every return is time-weighted).",
    "note": "returnSincePurchases ends each piece at the PURCHASE DAY's close, crediting the old shares with that day's rise before the new money arrives: 1.21 × 2,420 ÷ 2,310 − 1.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_02.test.ts › MK-PF-F-014 buildPerformance — five cases › complex · Inside-window morning purchase TWR",
-   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today"
+   "marked": "test.failing (OpenAI's answer kept) + a test pinning the app's answer today",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-4439): a purchase counts from the start of its day — +26.76% → +15.24%"
   },
   {
    "id": "MK-PF-F-014",
@@ -1567,7 +1577,8 @@
      "classification": "NEEDS A RULING",
      "see": "the split is shown in IRAs, 401(k)s and Roth accounts, where neither rate applies; its labels state the holding period (\"held over 1 yr\"), not a tax"
     }
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21: a purchase with no date is in neither part (DEC-6687); a $0 price paid is not on record (DEC-7170)"
   },
   {
    "id": "MK-PF-F-007",
@@ -1615,7 +1626,8 @@
    "what_the_code_actually_does": "latestClose reads the close on the latest valid date, in any order, skipping unreadable dates; for two closes on one date it takes the one listed later. It has no `now`: capping at today belongs to its callers (see MK-PF-F-010, F-011).",
    "governing_decisions": [],
    "plain_example": "Two 20 Sep closes, $91.43 then $97.31: 10 shares are worth $973.10 (later one) or $914.30 (earlier one).",
-   "recommendation": "Keep the later-listed close (the feed lists in time order, so it is the newer quote) and say so on the card."
+   "recommendation": "Keep the later-listed close (the feed lists in time order, so it is the newer quote) and say so on the card.",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7228): the later close for one day stands"
   },
   {
    "id": "MK-PF-F-010",
@@ -1649,7 +1661,8 @@
      "classification": "NEEDS A RULING",
      "example": "same +21.00% over 13 Oct 2024 → 13 Oct 2026: holding row +10.00% a year, Performance total +9.99% a year (731 days)"
     }
-   ]
+   ],
+   "recheck_2026_10_21": "DECIDED 2026-10-21: one yearly rate (DEC-7217); a close the feed dates after today is a real price (DEC-7219) — REVIEWER WRONG on that part"
   },
   {
    "id": "MK-PF-F-011",
@@ -1676,7 +1689,8 @@
      "classification": "NEEDS A RULING",
      "why": "DEC-0237 makes a window longer than a year a yearly rate; the v17 exception covers the record's Since, not a purchase cap"
     }
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21: a start after today gives no figure (tenet 3); the future point is REVIEWER WRONG (DEC-7219)"
   },
   {
    "id": "MK-PF-F-012",
@@ -1707,7 +1721,8 @@
      "classification": "NEEDS A RULING",
      "see": "case \"One missing date before known dates is possible\""
     }
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21: a 0-share lot is no purchase; DECIDED (DEC-7216): an undated purchase makes the first day not on record"
   },
   {
    "id": "MK-PF-F-013",
@@ -1735,7 +1750,8 @@
      "classification": "NEEDS A RULING",
      "example": "an Alternatives holding (class other, no kind) is set beside the S&P 500"
     }
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21: the broker's class picks the yardstick (DEC-6614); DECIDED (DEC-7227): a kind with none of its own is set beside the stock market"
   },
   {
    "id": "MK-PF-F-014",
@@ -1774,7 +1790,8 @@
      "classification": "REVIEWER WRONG",
      "why": "one reader in the code (DEC-4641)"
     }
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-4439): a purchase counts from the start of its day"
   }
  ],
  "still_open": [
@@ -1783,7 +1800,8 @@
    "text": "MK-PF-F-006: Accept an explicitly entered zero adjusted basis; with missing holding dates give unknown tax-duration split. Label this as holding-duration information unless wrapper and special option tax rules are accounted for.",
    "classification": "APP WRONG",
    "in_flight": true,
-   "what_is_left": "Undated lots: APP WRONG. $0 price paid and the split in tax-free accounts: need a ruling."
+   "what_is_left": "Undated lots: APP WRONG. $0 price paid and the split in tax-free accounts: need a ruling.",
+   "recheck_2026_10_21": "FIXED 2026-10-21: a purchase with no date is in neither part (DEC-6687); a $0 price paid is not on record (DEC-7170)"
   },
   {
    "id": "MK-PF-F-007",
@@ -1804,42 +1822,48 @@
    "text": "MK-PF-F-009: Enforce valid finite points at ingestion and specify conflicts; callers measuring to today must cap points to today and expose stale as-of dates.",
    "classification": "NEEDS A RULING",
    "in_flight": false,
-   "what_is_left": "Duplicate-date precedence. Capping at today belongs to the callers (F-010, F-011)."
+   "what_is_left": "Duplicate-date precedence. Capping at today belongs to the callers (F-010, F-011).",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7228): the later close for one day stands"
   },
   {
    "id": "MK-PF-F-010",
    "text": "MK-PF-F-010: Use one parts reader with the decided first-price fallback, valid as-of bound, actual coverage dates and one owner-approved annualization convention.",
    "classification": "APP WRONG",
    "in_flight": false,
-   "what_is_left": "Cap the end at today. The 2Y yearly-rate convention needs a ruling."
+   "what_is_left": "Cap the end at today. The 2Y yearly-rate convention needs a ruling.",
+   "recheck_2026_10_21": "DECIDED 2026-10-21: one yearly rate (DEC-7217); a close the feed dates after today is a real price (DEC-7219) — REVIEWER WRONG on that part"
   },
   {
    "id": "MK-PF-F-011",
    "text": "MK-PF-F-011: Require a valid start not after now, select latest valid price on/before now, return total with coverage metadata and let one presentation rule decide annualization.",
    "classification": "APP WRONG",
    "in_flight": false,
-   "what_is_left": "Read `now`; refuse a start after today or unreadable. Annualising a since-purchase span over a year needs a ruling."
+   "what_is_left": "Read `now`; refuse a start after today or unreadable. Annualising a since-purchase span over a year needs a ruling.",
+   "recheck_2026_10_21": "FIXED 2026-10-21: a start after today gives no figure (tenet 3); the future point is REVIEWER WRONG (DEC-7219)"
   },
   {
    "id": "MK-PF-F-012",
    "text": "MK-PF-F-012: Select genuine positive purchases through today; expose missing purchase-date coverage rather than silently call the earliest known lot the first purchase.",
    "classification": "APP WRONG",
    "in_flight": false,
-   "what_is_left": "Pass over 0-share lots. Partly undated holdings need a ruling."
+   "what_is_left": "Pass over 0-share lots. Partly undated holdings need a ruling.",
+   "recheck_2026_10_21": "FIXED 2026-10-21: a 0-share lot is no purchase; DECIDED (DEC-7216): an undated purchase makes the first day not on record"
   },
   {
    "id": "MK-PF-F-013",
    "text": "MK-PF-F-013: Keep confirmed class first; refuse unresolved classification; do not use tax wrapper as investment allocation. Specify recognized-kind versus broker-class precedence.",
    "classification": "APP WRONG",
    "in_flight": true,
-   "what_is_left": "Broker class before the wrapper kind (after the 2026-10-20 work lands). Unknown kinds → SPY needs a ruling."
+   "what_is_left": "Broker class before the wrapper kind (after the 2026-10-20 work lands). Unknown kinds → SPY needs a ruling.",
+   "recheck_2026_10_21": "FIXED 2026-10-21: the broker's class picks the yardstick (DEC-6614); DECIDED (DEC-7227): a kind with none of its own is set beside the stock market"
   },
   {
    "id": "MK-PF-F-014",
    "text": "MK-PF-F-014: Use daily movement-neutral links with the DEC-4439 beginning-of-day convention, refuse undated genuine flows, and share all total/coverage/date readers. Keep row dollar facts distinct from TWR.",
    "classification": "APP WRONG",
    "in_flight": false,
-   "what_is_left": "DEC-4439 in returnSincePurchases. Undated purchases need a ruling."
+   "what_is_left": "DEC-4439 in returnSincePurchases. Undated purchases need a ruling.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-4439): a purchase counts from the start of its day"
   }
  ],
  "app_wrong_fixes": [

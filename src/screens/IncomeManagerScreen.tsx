@@ -31,7 +31,7 @@ import { RsuEditor, renderStep } from '../onboarding/modules';
 import type { StepCtx } from '../onboarding/modules';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { useNetWorthInputs } from '../hooks/useNetWorthInputs';   // the Net worth family's inputs, built once (MK-NW-F-145, DEC-0345)
-import { isoLocalDate } from '../domain/_shared/dates';
+import { isoLocalDate, dateShown } from '../domain/_shared/dates';   // dateShown: every stored date in words (MK-ST-F-078)
 
 type View_ = null | ManagedSource['key'] | 'bonus';
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -464,7 +464,7 @@ function AskedBefore({ source, onDone }: { source: ManagedSource['key']; onDone:
                 <View key={i.id} style={s.linkRow}>
                   <View style={{ flex: 1 }}>
                     <Text style={s.linkL}>{i.source || i.type}</Text>
-                    <Text style={s.whoSub}>{i.date}{i.notes ? ` · ${i.notes}` : ''}</Text>
+                    <Text style={s.whoSub}>{dateShown(i.date)}{i.notes ? ` · ${i.notes}` : ''}</Text>
                   </View>
                   <Text style={s.rowV}>{fig('MK-CF-M-012', i.amount)}</Text>
                   <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Delete ${i.source || i.type}`} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}

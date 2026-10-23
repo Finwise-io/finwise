@@ -344,14 +344,19 @@ test('matured bond: the dated banner with the three outcomes; paid-out writes th
   (Alert.alert as jest.Mock).mockRestore();
 });
 
-test('router: bond/alt type chips leave the ticker sheet for their own editors; Record gains the doors', () => {
+// THE ROUTER (B46 findings 3+6, approved 2026-07-31): a bond or an alternative is added and recorded on its own screen, never on
+// the ticker sheet. Since 2026-10-21 (gap 8 of the Performance launch audit) the router's first half went with the "Add a
+// holding" mode it lived in — a mode opened only by the Performance tab's button, which v14 removed — and so did the tab's
+// unreachable Bond and Alternatives editors; Bonds and Alternatives open their own. The trade sheet keeps its doors.
+test('router: bonds and alternatives are added and recorded on their own screens; the trade sheet keeps its doors to them', () => {
   const fs = require('fs'); const path = require('path');
-  const src = fs.readFileSync(path.join(__dirname, '..', 'PerformanceScreen.tsx'), 'utf8');
-  expect(src).toMatch(/if \(k\.id === 'fixed_income'\) \{ onRoute\?\.\('bond'\); return; \}/);
-  expect(src).toMatch(/ALT_ROUTE_KINDS\.includes\(k\.id\)/);
-  expect(src).toMatch(/<BondEditor bond=\{null\} open=\{bondAddOpen\}/);
-  expect(src).toMatch(/<AltEditor item=\{null\} open=\{altAddKind != null\} presetKind/);
+  const read = (f: string) => fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+  const src = read('PerformanceScreen.tsx');
   expect(src).toMatch(/Bonds & alternatives — recorded on their own pages/);
+  expect(src).toMatch(/router\.push\(\(assetClassOf\(a\) === 'bonds' \? '\/bonds' : '\/other-investments'\)/);
+  expect(src).not.toMatch(/<BondEditor|<AltEditor|onRoute/);                    // no second copy, no route to one
+  expect(read('BondsScreen.tsx')).toMatch(/<BondEditor bond=\{addOpen \? null : edit\}/);
+  expect(read('OtherInvestmentsScreen.tsx')).toMatch(/<AltEditor item=\{addOpen \? null : edit\}/);
 });
 
 // ── Loading & offline (verdict 2026-07-31): banner approved; grey bars REPLACED by the hydration

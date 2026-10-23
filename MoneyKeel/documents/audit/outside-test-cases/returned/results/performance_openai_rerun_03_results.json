@@ -192,7 +192,8 @@
    "difference": "figures none; the caption calls the lump-sum what-if \"what actually happened\"",
    "formula_gives_match": "yes — the app prints the caption formula_gives names",
    "note": "The three figures agree. The heading is drawn on the approved Look back drawing v01 (DEC-1069, 2026-10-02), so his decision keeps it until he rules (tenet 6). No decision says what the card should be called when money was added inside the window. Ruling R6.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-023 lookBack — five cases › complex · Lump sum differs from actual cash-flow path"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-023 lookBack — five cases › complex · Lump sum differs from actual cash-flow path",
+   "recheck_2026_10_21": "REVIEWER WRONG — DECIDED 2026-10-21 (DEC-7220): Look back keeps his approved words (DEC-1069)"
   },
   {
    "id": "MK-PF-F-023",
@@ -304,7 +305,8 @@
    "difference": "none",
    "formula_gives_match": "yes — A, one of the two possible results",
    "note": "The holding listed first is named; a later one replaces it only when strictly larger (index.ts:1630). Value and share are settled; which name is not. Ruling R1.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-015 topHoldingConcentration — five cases › easy · Two equal holdings"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-015 topHoldingConcentration — five cases › easy · Two equal holdings",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7226): of two equal holdings the card names the first listed"
   },
   {
    "id": "MK-PF-F-015",
@@ -375,7 +377,8 @@
    "difference": "none",
    "formula_gives_match": "yes — net 112",
    "note": "Reachable: a linked broker's short sends negative units, kept as a negative purchase (snaptrade.ts:225-250 mapPosition), so the total is net of the short. Ruling R2.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-015 topHoldingConcentration — five cases › complex · Signed positions give impossible net concentration"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-015 topHoldingConcentration — five cases › complex · Signed positions give impossible net concentration",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7226): a holding below $0 means no card (it read 112%)"
   },
   {
    "id": "MK-PF-F-015",
@@ -394,7 +397,8 @@
    "difference": "none",
    "formula_gives_match": "yes — A, 25, 1000",
    "note": "The 25% line includes 25% (card, settled). Four equal holdings: the first listed is named. Ruling R1.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-015 topHoldingConcentration — five cases › edge · Exactly 25% threshold"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-015 topHoldingConcentration — five cases › edge · Exactly 25% threshold",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7226): four holdings at 25% each — the card names the first listed at 25%"
   },
   {
    "id": "MK-PF-F-020",
@@ -447,7 +451,8 @@
    "difference": "app +5.70%, OpenAI refuses",
    "formula_gives_match": "yes — 0.0569920923601018",
    "note": "A full-year yardstick (+7.31%) and a three-month one (+1.57%, the holding bought 2026-07-19 inside the window) are blended into one market figure. No decision says how the market is matched when a holding was bought inside the window. Ruling R4.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-020 portfolioBenchReturn — five cases › complex · Different capped periods cannot be one window"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-020 portfolioBenchReturn — five cases › complex · Different capped periods cannot be one window",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7223): each holding beside the market over its own dates, blended (invest-v3)"
   },
   {
    "id": "MK-PF-F-020",
@@ -469,7 +474,8 @@
    "difference": "app +7.00%, expected +6.00% (static beginning mix)",
    "formula_gives_match": "yes — 0.07",
    "note": "Start value worked back as $2,420 ÷ 1.21 = $2,000; $1,000 was held when the window began. The function's own rule — \"the market, matched to the mix held when the window began\" (index.ts portfolioBenchReturn, DEC-1669, DEC-3035b: weigh by what was held when the period began) — makes OpenAI right. Reachable: buildPerformance gives exactly this row for a holding topped up inside the window (witness). The flow-adjusted comparator OpenAI left RULE UNCLEAR is Ruling R4.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-020 portfolioBenchReturn — five cases › complex · Authentic beginning weights with share addition"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-020 portfolioBenchReturn — five cases › complex · Authentic beginning weights with share addition",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-7221): weighed by the start held when the window began — +7.00% → +6.00%"
   },
   {
    "id": "MK-PF-F-020",
@@ -484,7 +490,8 @@
    "difference": "app +5.00% from the covered holding alone; OpenAI refuses",
    "formula_gives_match": "yes — 0.05",
    "note": "A holding with its own return and no yardstick (nothing says what it is, DEC-2160, or no yardstick prices) is out of the market figure but inside the person's return. No decision says whether to refuse or label the part covered. Ruling R5.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-020 portfolioBenchReturn — five cases › edge · Missing comparator in one holding"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-020 portfolioBenchReturn — five cases › edge · Missing comparator in one holding",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7224): a holding in your return with no yardstick makes the market unknown"
   },
   {
    "id": "MK-PF-F-022",
@@ -765,7 +772,8 @@
    "difference": "app counts the 1 Oct sale on 30 Sep (+$48.40); OpenAI $0",
    "formula_gives_match": "yes — 48.4, 48.4, 1",
    "note": "Reachable: the transaction form's date picker sets no latest day (PerformanceScreen.tsx, DateField label \"transaction date\", no maximumDate). Recording a sale takes its shares out of the holding at once (transactions/index.ts:507 SELL), so leaving the gain out until the day comes would drop it from both realized and unrealized meanwhile. No decision on future-dated activity. Ruling R7.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-028 realizedFromLedger — five cases › complex · Future mini-option sale should not count today"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-028 realizedFromLedger — five cases › complex · Future mini-option sale should not count today",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7225): a sale dated after today counts as today's"
   },
   {
    "id": "MK-PF-F-028",
@@ -993,7 +1001,8 @@
    "difference": "app 37.5; the card's purpose (1) is the ruled reading",
    "formula_gives_match": "formula_value 37.5",
    "note": "Shares per contract are an option's figure: DEC-0274 (\"options: value = contracts × 100 × price unless the broker or the person states otherwise\") and DEC-4646 (the hand-typed option's \"Shares per contract\" box). Reachable: an option changed to Stocks/Funds in the holding editor keeps its 100 (the editor saves no multiplier key for a non-option, PerformanceScreen.tsx save; useStore.ts:853 merges the edit over the old holding) — witness measures $500 of stock reading $50,000.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-031 contractMultiplier — five cases (IN-FLIGHT: the bond quoted per $100 of face runs through it) › complex · Custom nonoption multiplier conflicts with purpose"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-031 contractMultiplier — five cases (IN-FLIGHT: the bond quoted per $100 of face runs through it) › complex · Custom nonoption multiplier conflicts with purpose",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-0274): a stated shares-per-contract counts only for an option"
   },
   {
    "id": "MK-PF-F-031",
@@ -1008,7 +1017,8 @@
    "difference": "app Infinity; OpenAI refuses",
    "formula_gives_match": "n/a (formula_gives: RULE UNCLEAR)",
    "note": "An infinite figure passes the \"above zero\" test (index.ts:110), so every value it touches is infinite — tenet 1 (DEC-3523) and DEC-0274 (a contract is a number of shares). Reachable only by typing a 309-digit number into \"Shares per contract\" (the editor keeps digits only and parses them, PerformanceScreen.tsx:52); a broker cannot send it.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-031 contractMultiplier — five cases (IN-FLIGHT: the bond quoted per $100 of face runs through it) › edge · Invalid entered infinity"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-031 contractMultiplier — five cases (IN-FLIGHT: the bond quoted per $100 of face runs through it) › edge · Invalid entered infinity",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (tenet 3): a figure that is not finite is no statement, so the option's 100 stands"
   },
   {
    "id": "MK-PF-F-032",
@@ -1418,7 +1428,8 @@
     "R2",
     "R3"
    ],
-   "plain_example": "A and B $1,000 each: names A. A $12,346, short B −$4,568, C $3,211: 112%. VTI $30,000 + $30,000 in two accounts, SCHD $50,000: names SCHD 45%."
+   "plain_example": "A and B $1,000 each: names A. A $12,346, short B −$4,568, C $3,211: 112%. VTI $30,000 + $30,000 in two accounts, SCHD $50,000: names SCHD 45%.",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7226): below $0 no card; one ticker in two accounts is one holding; a tie names the first listed"
   },
   {
    "id": "MK-PF-F-020",
@@ -1440,7 +1451,8 @@
     "R5"
    ],
    "plain_example": "10 shares at $100 held, 10 more bought at $110 inside the window, now 20 at $121 ($2,420, +21%); a second holding $2,000 flat; yardsticks +10% and +4%. App: start $2,000 + $2,000 → market +7.00%. Held when the window began: $1,000 + $2,000 → +6.00%.",
-   "shared_with": "MK-PF-F-044 startValues (part 4 of this package) — one fix serves both"
+   "shared_with": "MK-PF-F-044 startValues (part 4 of this package) — one fix serves both",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-7221, start weights); DECIDED (DEC-7223 own dates; DEC-7224 no yardstick → no figure)"
   },
   {
    "id": "MK-PF-F-022",
@@ -1474,7 +1486,8 @@
    "ruling_needed": [
     "R6"
    ],
-   "plain_example": "$2,871.43 for 3 months: left in the first fund $2,962, moved $2,804, difference −$158 — right. A person who also added $319.17 in those months did not see $2,962; the heading says it is what actually happened."
+   "plain_example": "$2,871.43 for 3 months: left in the first fund $2,962, moved $2,804, difference −$158 — right. A person who also added $319.17 in those months did not see $2,962; the heading says it is what actually happened.",
+   "recheck_2026_10_21": "REVIEWER WRONG — DECIDED 2026-10-21 (DEC-7220)"
   },
   {
    "id": "MK-PF-F-028",
@@ -1497,7 +1510,8 @@
    "notes": [
     "Option contracts sharing one ticker in one account would share one queue: a hand-typed option's ticker is the person's own text; linked options are kept as option rows without sale records, so no case of it was found.",
     "Fees: the gain is sale proceeds less what was paid; a FEE record is not taken off. No decision either way; not raised."
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-4643, tenet 3): a purchase with no price paid keeps its place in line; DECIDED (DEC-7225): a sale dated after today counts today"
   },
   {
    "id": "MK-PF-F-029",
@@ -1527,7 +1541,8 @@
     "DEC-4646",
     "DEC-3523"
    ],
-   "plain_example": "XYZ saved as an option (100 shares a contract), then changed to Stocks/Funds: 10 shares at $50 read $50,000 instead of $500 (witness, measured through the store). IN-FLIGHT: the card's \"1 for everything else\" is no longer true — the bond per-$100 rule now runs through this function, so the card and its re-run wait for that work to land."
+   "plain_example": "XYZ saved as an option (100 shares a contract), then changed to Stocks/Funds: 10 shares at $50 read $50,000 instead of $500 (witness, measured through the store). IN-FLIGHT: the card's \"1 for everything else\" is no longer true — the bond per-$100 rule now runs through this function, so the card and its re-run wait for that work to land.",
+   "recheck_2026_10_21": "FIXED 2026-10-21: a stated shares-per-contract counts only for an option; a figure that is not finite is no statement"
   },
   {
    "id": "MK-PF-F-032",
@@ -1556,7 +1571,8 @@
     "DEC-4082",
     "DEC-0277"
    ],
-   "plain_example": "\"1 coin\", \"1 ounce\", \"1 unit\" are made by dropping the s; coin, ounce and unit are not on the one list DEC-4082 rules every counted word comes from (src/domain/_shared/plural.ts). Every word printed today is right; the rule is not held. OpenAI's other two points (Infinity, free-text units) are already true of the code."
+   "plain_example": "\"1 coin\", \"1 ounce\", \"1 unit\" are made by dropping the s; coin, ounce and unit are not on the one list DEC-4082 rules every counted word comes from (src/domain/_shared/plural.ts). Every word printed today is right; the rule is not held. OpenAI's other two points (Infinity, free-text units) are already true of the code.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-4082): unit words come from the one plural list (coin, ounce, unit added)"
   },
   {
    "id": "MK-PF-F-034",
@@ -1571,7 +1587,8 @@
     "DEC-3523",
     "DEC-4059c"
    ],
-   "plain_example": "An import file's purchase date 02/31/2026 is kept as 2026-02-31; this reader prices it at the 27 Feb close ($87.29), the yardstick's reader at the 2 Mar close ($91.43). Non-finite closes cannot arrive: missing closes are skipped where they are fetched (marketData.ts:68-70) and the feed's JSON cannot carry infinity. Two closes on one day: the feed sends daily bars; none was seen, so it is not raised."
+   "plain_example": "An import file's purchase date 02/31/2026 is kept as 2026-02-31; this reader prices it at the 27 Feb close ($87.29), the yardstick's reader at the 2 Mar close ($91.43). Non-finite closes cannot arrive: missing closes are skipped where they are fetched (marketData.ts:68-70) and the feed's JSON cannot carry infinity. Two closes on one day: the feed sends daily bars; none was seen, so it is not raised.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (tenet 3): 31 February is no day; a close that is not a number is passed over"
   },
   {
    "id": "MK-PF-F-035",
@@ -1621,14 +1638,16 @@
    "text": "MK-PF-F-015: Define aggregation by holding and tie order; state long-only scope or settle gross-versus-net exposure for shorts.",
    "classification": "NEEDS A RULING",
    "in_flight": false,
-   "answer": "Tie order, short positions and one ticker in two accounts are each unsettled — rulings R1, R2, R3, each with its own numbers."
+   "answer": "Tie order, short positions and one ticker in two accounts are each unsettled — rulings R1, R2, R3, each with its own numbers.",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7226): below $0 no card; one ticker in two accounts is one holding; a tie names the first listed"
   },
   {
    "id": "MK-PF-F-020",
    "text": "MK-PF-F-020: Require a common covered span and authentic start weights; for flows use an explicitly decided rebalanced comparator or refuse. Disclose excluded holdings and match scope to the user return.",
    "classification": "APP WRONG",
    "in_flight": false,
-   "answer": "Authentic start weights: APP WRONG (fix F1, shared with MK-PF-F-044). Holdings bought inside the window / money added: ruling R4. A holding with no yardstick: ruling R5. Scope against the person's return (cash, flows) is the package's open \"cash scope\" item and is not decided here."
+   "answer": "Authentic start weights: APP WRONG (fix F1, shared with MK-PF-F-044). Holdings bought inside the window / money added: ruling R4. A holding with no yardstick: ruling R5. Scope against the person's return (cash, flows) is the package's open \"cash scope\" item and is not decided here.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-7221, start weights); DECIDED (DEC-7223 own dates; DEC-7224 no yardstick → no figure)"
   },
   {
    "id": "MK-PF-F-022",
@@ -1642,35 +1661,40 @@
    "text": "MK-PF-F-023: Label this a hypothetical lump-sum, distribution-reinvested comparison before personal taxes and trading costs; require full same-date coverage and finite positive amount.",
    "classification": "NEEDS A RULING",
    "in_flight": false,
-   "answer": "The figures are right and full coverage is already required (lookBack.ts:60); the label \"WHAT ACTUALLY HAPPENED\" is on his approved drawing — ruling R6. Finite amount: typed digits, checked above 0 but not for being finite; only a 309-digit entry could be infinite — fold a finite check into the fix F3 pass."
+   "answer": "The figures are right and full coverage is already required (lookBack.ts:60); the label \"WHAT ACTUALLY HAPPENED\" is on his approved drawing — ruling R6. Finite amount: typed digits, checked above 0 but not for being finite; only a 309-digit entry could be infinite — fold a finite check into the fix F3 pass.",
+   "recheck_2026_10_21": "REVIEWER WRONG — DECIDED 2026-10-21 (DEC-7220)"
   },
   {
    "id": "MK-PF-F-028",
    "text": "MK-PF-F-028: Limit to valid transactions through today; state whether gains exclude costs and use distinct security identity for options; refuse missing basis rather than silently drop unknown lots.",
    "classification": "APP WRONG",
    "in_flight": true,
-   "answer": "A purchase with no price paid must keep its first-in-first-out place (fix F6, IN-FLIGHT). Sales dated after today: ruling R7. Distinct option contracts and fees: noted, no case found, not raised."
+   "answer": "A purchase with no price paid must keep its first-in-first-out place (fix F6, IN-FLIGHT). Sales dated after today: ruling R7. Distinct option contracts and fees: noted, no case found, not raised.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-4643, tenet 3): a purchase with no price paid keeps its place in line; DECIDED (DEC-7225): a sale dated after today counts today"
   },
   {
    "id": "MK-PF-F-031",
    "text": "MK-PF-F-031: Require finite positive multiplier for options; settle custom nonoption instruments explicitly and refuse invalid stated multipliers rather than quietly use 100.",
    "classification": "APP WRONG",
    "in_flight": true,
-   "answer": "Use a stated multiplier only for an option, and only a real number above 0 (fixes F2, F3); a broker cannot send a non-finite one. IN-FLIGHT with the bond per-$100 rule in the same function."
+   "answer": "Use a stated multiplier only for an option, and only a real number above 0 (fixes F2, F3); a broker cannot send a non-finite one. IN-FLIGHT with the bond per-$100 rule in the same function.",
+   "recheck_2026_10_21": "FIXED 2026-10-21: a stated shares-per-contract counts only for an option; a figure that is not finite is no statement"
   },
   {
    "id": "MK-PF-F-033",
    "text": "MK-PF-F-033: Use finite quantity validation and the canonical approved unit/plural list; reject unsupported units.",
    "classification": "APP WRONG",
    "in_flight": false,
-   "answer": "Finite quantity: already true. Closed unit list: already true. The one plural list (DEC-4082): not used — fix F5."
+   "answer": "Finite quantity: already true. Closed unit list: already true. The one plural list (DEC-4082): not used — fix F5.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-4082): unit words come from the one plural list (coin, ounce, unit added)"
   },
   {
    "id": "MK-PF-F-034",
    "text": "MK-PF-F-034: Use isDay plus finite price validation and specify duplicate-date conflicts.",
    "classification": "APP WRONG",
    "in_flight": false,
-   "answer": "Use the app's real-calendar-day rule (MK-ST-F-080 isDay) — fix F4. Non-finite closes cannot arrive (skipped at the fetch; JSON cannot carry infinity). Two closes on one day: daily bars, none seen, not raised."
+   "answer": "Use the app's real-calendar-day rule (MK-ST-F-080 isDay) — fix F4. Non-finite closes cannot arrive (skipped at the fetch; JSON cannot carry infinity). Two closes on one day: daily bars, none seen, not raised.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (tenet 3): 31 February is no day; a close that is not a number is passed over"
   },
   {
    "id": "MK-PF-F-036",
@@ -1875,7 +1899,8 @@
    "now_proposed": "$102 (18 Sep)",
    "fix": "closeAsOf compares the person's own calendar day (as closeOnOrBefore does), not the moment.",
    "screens": "Every window figure on Performance, the account page and the holding page, for people east of London early in their day.",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-029 closeAsOf — five cases › witness · the person's own day decides, wherever they are (Tokyo, 08:00 on 18 Sep)"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts › MK-PF-F-029 closeAsOf — five cases › witness · the person's own day decides, wherever they are (Tokyo, 08:00 on 18 Sep)",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-0189, DEC-0282): closeAsOf reads the person's own calendar day"
   }
  ],
  "in_flight": [

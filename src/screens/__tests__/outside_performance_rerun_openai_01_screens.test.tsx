@@ -19,7 +19,7 @@
  *  Results: MoneyKeel/documents/audit/outside-test-cases/returned/results/performance_openai_rerun_01_screens_results.json
  */
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react-native';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -28,7 +28,23 @@ import { fig, figuresPrinted, resetFiguresPrinted } from '../../components/figur
 import { figureSpec } from '../../../MoneyKeel/functions/figures';
 import { theNetWorth } from '../../../MoneyKeel/functions/networth-and-performance/net-worth';
 import { categoryEarnings } from '../../../MoneyKeel/functions/networth-and-performance/performance';
-import { portfolioBenchReturn } from '../../domain/performance';
+import { portfolioBenchReturn, buildPerformance } from '../../domain/performance';
+
+/** MK-PF-M-006#1 (2026-10-22): the reviewer's Stocks / Funds return, from the rows the app builds; `split` false strips each
+ *  row's path and money paid inside, which is how the category was weighed until then */
+const reviewerStocks = (split: boolean): number | null => {
+  const lot = (shares: number, cost: number, date: string) => ({ lot_id: `${date}-${shares}`, shares, cost_per_share: cost, purchase_date: date });
+  const px: Record<string, any> = {
+    A: { points: [{ date: '2026-08-29', close: 100 }, { date: '2026-09-14', close: 105 }, { date: '2026-09-30', close: 110 }] },
+    B: { points: [{ date: '2026-08-29', close: 100 }, { date: '2026-09-14', close: 100 }, { date: '2026-09-30', close: 50 }] },
+  };
+  const rows = buildPerformance([
+    { position_id: 'a', ticker: 'A', kind: 'stock', asset_class: 'stock_etf', lots: [lot(10, 95, '2026-01-02'), lot(90, 105, '2026-09-15')] },
+    { position_id: 'b', ticker: 'B', kind: 'stock', asset_class: 'stock_etf', lots: [lot(100, 80, '2026-01-02')] }] as any, (t) => px[t], '1M', new Date('2026-09-30T12:00:00'))
+    .map((r) => (split ? r : { ...r, path: undefined, paidInside: undefined }));
+  return categoryEarnings({ windowStart: '2026-08-30', rows: rows as any, transactions: [{ txn_id: 'd', type: 'DIVIDEND', ticker: 'A', amount: 10, date: '2026-09-20' }] })
+    .find((x) => x.key === 'stocks_etf')!.ret;
+};
 import { availableCash } from '../../domain/transactions';
 
 let mockParams: Record<string, string | undefined> = {};
@@ -267,6 +283,9 @@ const RENDERS: Record<string, () => Shot> = {
   CR_HOME: () => shoot('home', H_CR, '2026-09-29'),
   CR_NOBIRTH: () => shoot('room', { ...H_CR, onboardingProfile: { ...H_CR.onboardingProfile, birthYear: '' } }, '2026-09-29'),
   BENCH_HOME: () => shoot('home', H_BENCH, '2026-09-28'),
+  // MK-PF-M-008 after a share change (2026-10-21): half the VTI bought inside the 1M window — 50 shares held when it began
+  BENCH_TOPUP_HOME: () => shoot('home', { ...H_BENCH, assetAccounts: H_BENCH.assetAccounts.map((a: any) => ({ ...a, positions: a.positions.map((p: any) => (p.ticker === 'VTI'
+    ? { ...p, lots: [{ lot_id: 'z1', shares: 50, cost_per_share: 300, purchase_date: '2024-01-01' }, { lot_id: 'z1b', shares: 50, cost_per_share: 400, purchase_date: '2026-09-10' }] } : p)) })) }, '2026-09-28'),
   CAT_INV: () => shoot('invest', H_CAT, '2026-09-28', {}, pickWindow('This year')),
   UNTICKERED: () => shoot('invest', { assetAccounts: [linked('u1', 50_000, { cash_balance: 10_000, positions: [{ position_id: 'p', ticker: 'VTI', asset_class: 'stock_etf', last_price: 400,
       lots: [{ lot_id: 'x', shares: 100, cost_per_share: 300, purchase_date: '2024-01-01' }] }] })],
@@ -383,10 +402,11 @@ const FIGS: Record<string, Fig> = {
   'MK-NW-M-031': { main: 'FID_HOLD', text: '140 shares', label: 'Quantity', drawing: DRAW.kept },
   'MK-NW-M-032': { main: 'FID_HOLD', text: '$225.71', label: 'Price paid (average)', drawing: DRAW.kept,
     t2: () => { expect(Math.round((31600 / 140) * 100) / 100).toBe(225.71); },
-    t3: () => { expect(after('HOLD_NOCOST', 'Price paid (average)')).toBe('No purchase price recorded.'); } },
+    // the line after the label is its info dot (Q34, 2026-10-21); the figure is the line after that — one wording on the card
+    t3: () => { expect(after('HOLD_NOCOST', 'Price paid (average)', 2)).toBe('No price paid on record.'); } },
   'MK-NW-M-033': { main: 'FID_HOLD', text: '$31,600', label: 'Total paid', drawing: DRAW.kept,
     t2: () => { expect(has('FID_HOLD', '100 sh @ $210.00') && has('FID_HOLD', '40 sh @ $265.00')).toBe(true); expect(100 * 210 + 40 * 265).toBe(31600); } },
-  'MK-NW-M-034': { main: 'FID_HOLD', text: '$825', label: 'Dividends received (12 mo)', drawing: DRAW.kept },
+  'MK-NW-M-034': { main: 'FID_HOLD', text: '$825', label: 'Dividends received (trailing twelve months)', drawing: DRAW.kept },   // Q35, 2026-10-21
   'MK-NW-M-035': { main: 'FID_HOLD', text: '$1,700', label: 'Realized from sales', drawing: DRAW.kept,
     t2: () => { expect(20 * 285 - 20 * 200).toBe(1700); },
     t3: () => { expect(after('HOLD_NOCOST', 'Realized from sales')).toBe('$0 — nothing sold'); } },
@@ -426,7 +446,9 @@ const FIGS: Record<string, Fig> = {
   'MK-PF-M-008': { main: 'BENCH_HOME', text: '8.80%', label: /· market \+8\.80% ·/, drawing: DRAW.home,
     t3: () => { expect(R('PERF_HOME').lines.join(' ')).not.toMatch(/market [+−]/); } },
   'MK-PF-M-010': { main: 'LB', text: '$10,250', label: /^Left in BND it became \$10,250/, drawing: DRAW.kept,
-    t3: () => { expect(has('LB_NOPRICE', /^We don't have prices for that pairing yet/)).toBe(true); } },
+    // a shot is read before Look back's price refresh settles (2026-10-22: it fetches what it compares), so it names what it
+    // is getting; the settled line, with the price source stubbed to bring nothing, is held below ("LB_NOPRICE, settled")
+    t3: () => { expect(has('LB_NOPRICE', 'Getting prices for BND and SPY…')).toBe(true); } },
   'MK-PF-M-011': { main: 'LB', text: '$11,600', label: /^Moved to VTI it would be \$11,600/, drawing: DRAW.kept,
     t3: () => { expect(R('LB_NOPRICE').lines.join(' ')).not.toMatch(/Moved to/); } },
   'MK-PF-M-012': { main: 'LB', text: '$1,350', label: 'Difference: $1,350 more if you had moved.', drawing: DRAW.kept,
@@ -482,7 +504,9 @@ function t1(id: string) {
     case 'MK-PF-M-006': expect(after('CAT_INV', 'Stocks / Funds', 2)).toBe('+12.00%'); return;
     case 'MK-PF-M-007': expect(after('CAT_INV', 'Stocks / Funds')).toBe('$865'); return;
     case 'MK-PF-M-008': expect(has('BENCH_HOME', /· market \+8\.80% ·/)).toBe(true); return;
-    case 'MK-PF-M-020': expect(fig('MK-PF-M-020', availableCash({ asset_id: 'x', label: 'Savings', balance: 5_000 } as any))).toBe('$5,000'); return;
+    // the register's worked savings account as the app stores one (kind savings, held as cash) — since 2026-10-21 an account
+    // nothing says is a bank account has no cash on record unless its cash was entered (MK-PF-M-020, DEC-3279e)
+    case 'MK-PF-M-020': expect(fig('MK-PF-M-020', availableCash({ asset_id: 'x', label: 'Savings', kind: 'savings', tax_bucket: 'CASH', balance: 5_000 } as any))).toBe('$5,000'); return;
     case 'MK-XS-M-001': expect(first('NW_NW', id)).toBe('$261,200'); expect(after('NW_HOME', 'Net worth', 2)).toBe('$261,200'); return;
     case 'MK-XS-M-003': expect(after('NW_HOME', 'YOUR INVESTMENTS', 2)).toBe('$175,200'); return;
     case 'MK-XS-M-004': expect(first('QUIET_INV', 'MK-PF-M-017')).toBe('+6.67%'); return;
@@ -596,7 +620,8 @@ const CLASS: Record<string, Item> = {
     why: 'The screen is right: with nothing logged it uses the essentials typed in the plan and says so — "$18,000 cash ÷ $3,470/month essentials — you entered" — his DEC-0251: "the typed plan is the fallback for someone who has logged nothing". The row leaves the fallback out ("the average of what has been logged"), so the reviewer read the worked example as logged history.',
     fix: 'MK-NW-M-013 row decisions (MoneyKeel/functions/networth-and-performance/emergency-fund.ts): add DEC-0251\'s fallback in his words. No figure moves.',
     check: () => { expect(has('EF_NW', /\$18,000 cash ÷ \$3,470\/month essentials — you entered/)).toBe(true); },
-    wrong: () => { expect((figureSpec('MK-NW-M-013').decisions ?? []).join(' ')).toMatch(/typed plan|fallback/i); } },
+    wrong: () => { expect((figureSpec('MK-NW-M-013').decisions ?? []).join(' ')).toMatch(/typed plan|fallback/i); },
+    fixed: '2026-10-21: the row carries DEC-0251\'s fallback in his words — nothing logged, the typed plan stands in (no figure moves)' },
   'MK-NW-M-013#4': { cls: 'APP WRONG',
     why: 'Found rendering (the reviewer passed it): one household, Net worth "5.2 months", Stress test "5.2", but Job safety "6 months of essentials is $20,820 ($3,470/month) — your savings cover $0 of it" and "STILL NEEDED $20,820". Job safety counts an old savings log (store.savings), not the $18,000 in the accounts.',
     fix: 'src/screens/JobSafetyScreen.tsx: "savings" = theEmergencyFund(nwIn).cash, "savings and investments" = that + investments. Job safety: "cover $0 … still needed $20,820" → "cover $18,000 … still needed $2,820".',
@@ -636,29 +661,36 @@ const CLASS: Record<string, Item> = {
     why: 'A purchase with no share count: under Current value the page prints "No price — it shows what you paid, labelled as that. Not stated where a purchase has no share count or price paid on record." — the master row\'s sentence about the figure, and it blames a missing price while $290.00 shows above. (Options are right: 2 mini contracts at $8 read $160.)',
     fix: 'src/screens/HoldingDetailScreen.tsx: when the share count is missing, Current value reads "Share count not entered — tap Edit to add it"; the refusal text stays on the master row. Holding page words only.',
     check: () => { expect(after('HOLD_MINI', 'Current value')).toBe('$160'); },
-    wrong: () => { expect(after('HOLD_NOSHARES', 'Current value')).not.toMatch(/^No price/); } },
+    wrong: () => { expect(after('HOLD_NOSHARES', 'Current value')).not.toMatch(/^No price/); expect(after('HOLD_NOSHARES', 'Current value')).toBe('Not stated — a purchase has no share count on record.'); },
+    fixed: '2026-10-21 (W-HOLDING, tenets 3 and 4): Current value says the share count is not on record, in the words Price paid (average) and Total paid use for the same cause — not the row\'s refusal sentence',
+    was: () => { expect(after('HOLD_NOSHARES', 'Current value')).toMatch(/^No price/); } },
   'MK-NW-M-031#3': { cls: 'APP WRONG',
     why: 'The same holding reads, under Quantity, "All sold — the screen says the holding is liquidated rather than showing 0 shares. Not stated where…" — it says all sold when the count was never entered. (The unit is right: options read "2 contracts".)',
     fix: 'src/screens/HoldingDetailScreen.tsx: Quantity reads "not entered" when a purchase has no share count; "Holding liquidated" only when the records say every share was sold. Holding page words only.',
     check: () => { expect(after('HOLD_MINI', 'Quantity')).toBe('2 contracts'); },
-    wrong: () => { expect(after('HOLD_NOSHARES', 'Quantity')).not.toMatch(/^All sold/); } },
+    wrong: () => { expect(after('HOLD_NOSHARES', 'Quantity')).not.toMatch(/^All sold/); expect(after('HOLD_NOSHARES', 'Quantity')).toBe('Not stated — a purchase has no share count on record.'); },
+    fixed: '2026-10-21 (W-HOLDING, tenet 3): Quantity says the share count is not on record; All sold only when every share is sold (Holding liquidated, no Quantity row)',
+    was: () => { expect(after('HOLD_NOSHARES', 'Quantity')).toMatch(/^All sold/); } },
   'MK-NW-M-032#1': { cls: 'REVIEWER WRONG',
     why: 'No wrong number: options divide by contracts × shares a contract — 2 mini contracts, $100 paid, read "Price paid (average) $5.00" a share; with no share count no average is shown. (The refusal\'s reason words are counted at MK-NW-M-030/031.)',
-    check: () => { expect(after('HOLD_MINI', 'Price paid (average)')).toBe('$5.00'); expect(after('HOLD_NOSHARES', 'Price paid (average)')).not.toMatch(/^\$/); } },
+    check: () => { expect(after('HOLD_MINI', 'Price paid (average)', 2)).toBe('$5.00'); expect(after('HOLD_NOSHARES', 'Price paid (average)', 2)).toBe('Not stated — a purchase has no share count on record.'); } },
   'MK-NW-M-033#3': { cls: 'REVIEWER WRONG',
     why: 'Held: with no share count Total paid refuses ("No purchase price recorded." — the wrong reason, counted at MK-NW-M-030/031); options use the contract size — 2 contracts × 10 × $5 = $100.',
     check: () => { expect(after('HOLD_NOSHARES', 'Total paid')).not.toMatch(/^\$/); expect(after('HOLD_MINI', 'Total paid')).toBe('$100'); } },
   'MK-NW-M-034#3': { cls: 'APP WRONG',
     why: 'Found rendering (the reviewer passed it): a holding no record names reads "Dividends received (12 mo) $0" — its own row says "No records naming this holding — the line does not appear". A Roth IRA with no records at all shows the same $0.',
     fix: 'src/screens/HoldingDetailScreen.tsx: print Dividends received only when a dividend record names the holding; otherwise leave the line out, as the row says. Holding page.',
-    wrong: () => { expect(R('HOLD_ROTH').lines).not.toContain('Dividends received (12 mo)'); } },
+    wrong: () => { expect(R('HOLD_ROTH').lines).not.toContain('Dividends received (trailing twelve months)'); expect(after('FID_HOLD', 'Dividends received (trailing twelve months)')).toBe('$825'); },   // the label since Q35, 2026-10-21
+    fixed: '2026-10-21 (W-HOLDING, the row\'s own refusal, tenet 3): with no dividend record naming the holding the line is not drawn; one record naming it draws it ($825 for the worked household)',
+    was: () => { expect(after('HOLD_ROTH', 'Dividends received (trailing twelve months)')).toBe('$0'); } },
   'MK-NW-M-035#3': { cls: 'REVIEWER WRONG',
     why: 'Held (DEC-4643): bought 10 at $50, sold 15 at $70 → "Realized from sales +$200 all time" and "$200 gain on 10 of 15 shares sold; what you paid for the other 5 is not on record." The unmatched 5 are not counted as $0 profit.',
     check: () => { expect(after('HOLD_PARTSALE', 'Realized from sales')).toBe('+$200 all time'); expect(has('HOLD_PARTSALE', '$200 gain on 10 of 15 shares sold; what you paid for the other 5 is not on record.')).toBe(true); } },
   'MK-NW-M-035#4': { cls: 'APP WRONG', rowWordsOnly: true,
     why: 'Found rendering: the row calls it "Realized gain from your buys and sells"; the screen and his approved drawing say "Realized from sales". One concept, two names.',
     fix: 'MoneyKeel/functions/networth-and-performance/holding.ts MK-NW-M-035 label → "Realized from sales". No figure moves.',
-    wrong: () => { expect(figureSpec('MK-NW-M-035').label).toBe('Realized from sales'); } },
+    wrong: () => { expect(figureSpec('MK-NW-M-035').label).toBe('Realized from sales'); },
+    fixed: '2026-10-21: the row is named as the screen and the drawing name it, Realized from sales (no figure moves)' },
   'MK-NW-M-036#7': { cls: 'APP WRONG',
     why: 'A holding inside a Roth IRA shows the same IF YOU SOLD TODAY split, "Gain — long-term +$8,000 / short-term +$1,000", though no tax is due on a sale inside a Roth. The screen names no tax rate; the row does ("the part taxed at the lower rate"). Whether the split shows — or says "no tax inside a Roth IRA" — in IRAs, 401(k)s and HSAs is his call. Decided by the lead on 2026-10-21 under tenet 7 (DEC-3523), without asking him: inside an account taxed as pre-tax or tax-free the split is not shown (holding-detail v02, READ THIS FIRST 2026-10-21).',
     fix: 'MoneyKeel/functions/networth-and-performance/holding.ts theHolding notCapitalGains (MK-NW-F-012 taxTreatmentOf) + HoldingDetailScreen IF YOU SOLD TODAY: one row, Gain +$9,000, and the line that gains inside this account are not taxed as capital gains.',
@@ -673,7 +705,16 @@ const CLASS: Record<string, Item> = {
   // ── Performance figures ──────────────────────────────────────────────────────────────────────────────────────────
   'MK-PF-M-001#4': { cls: 'NEEDS A RULING',
     why: 'Two approved things, two scopes. Home\'s YOUR INVESTMENTS leaves cash out (his DEC-0457): $35,775. Performance\'s Ending value counts the investment accounts whole (v17): $46,600. Under $35,775 Home prints "▲ up $8,200 (21.35%) this month" — measured on the $46,600. Either Home\'s change line names its scope ("your investment accounts, cash included") or it is measured without the cash.',
-    check: () => { expect(after('PERF_HOME', 'YOUR INVESTMENTS', 2)).toBe('$35,775'); expect(first('PERF_INV', 'MK-PF-M-001')).toBe('$46,600'); expect(has('PERF_HOME', '▲ up $8,200 (21.35%) this month')).toBe(true); } },
+    // DECIDED 2026-10-21 (PF-B, the lead's decision under tenet 2; DEC-0457 and Q-PF-1 both kept): the change line names its
+    // base beneath it where the two differ — Performance's own Ending value, printed under MK-PF-M-001. To reverse: delete
+    // that line in HomeScreen.tsx. The second check holds the base: it is the Performance tab's Ending value, to the dollar.
+    check: () => {
+      expect(after('PERF_HOME', 'YOUR INVESTMENTS', 2)).toBe('$35,775'); expect(first('PERF_INV', 'MK-PF-M-001')).toBe('$46,600'); expect(has('PERF_HOME', '▲ up $8,200 (21.35%) this month')).toBe(true);
+      expect(has('PERF_HOME', "This month's change is on $46,600: your investment accounts with the cash in them.")).toBe(true);
+      expect(printed('PERF_HOME', 'MK-PF-M-001')).toEqual([first('PERF_INV_1M', 'MK-PF-M-001')]);
+      // no cash in the accounts, one base: no line (the Net worth household's Home)
+      expect(R('NW_HOME').lines.some((l) => l.startsWith("This month's change is on"))).toBe(false);
+    } },
   'MK-PF-M-002#1': { cls: 'APP WRONG',
     why: 'His DEC-4439 example: a new account opened with $10,000, worth $10,050 that evening, earned +$50 (+0.50%); worth $9,800, −$200 (−2.00%). The Performance tab reads "Wealth generated $0 · Return +0.00%" for both — the record\'s first evening is taken as the beginning, so the first day is never measured, and Contributions read $0 while the activity list shows the $10,000.',
     fix: 'MoneyKeel/functions/networth-and-performance/performance.ts thePerformance + Calculation Module code/engines/time-weighted-return.ts: an account whose first recorded day carries its opening deposit starts from $0 the evening before (DEC-4439). Since on the Performance tab, the account page and Home: $0 / +0.00% → +$50 / +0.50% (−$200 / −2.00%).',
@@ -682,7 +723,13 @@ const CLASS: Record<string, Item> = {
   'MK-PF-M-003#2': { cls: 'APP WRONG',
     why: 'Each line is rounded on its own, so on unround figures the walk does not add up on screen: $10,001 + $1,001 + $101 + $399 = $11,502 under "Ending market value $11,500"; Wealth generated $499 above Dividends $101 + Change $399 = $500. His tenet 2 and the row\'s own decision ("THE LINES ALWAYS SUM TO THE ENDING") say they must.',
     fix: 'src/screens/PerformanceScreen.tsx and AccountPortfolioScreen.tsx walks: print Change in investment value as the rounded ending − the other rounded lines, and Wealth generated as rounded ending − rounded beginning − rounded flows; the exact figures stay at full precision. Moves a dollar or two on any walk.',
-    wrong: () => { expect(walkSum('UNROUND_INV', 'MK-PF-M-018', 'MK-PF-M-019')).toBe(dollars(first('UNROUND_INV', 'MK-PF-M-001'))); } },
+    wrong: () => {
+      expect(walkSum('UNROUND_INV', 'MK-PF-M-018', 'MK-PF-M-019')).toBe(dollars(first('UNROUND_INV', 'MK-PF-M-001')));
+      // hand-worked: $10,000.50 · +$1,000.50 · $100.50 · change $398.99 · $11,500.49 → $10,001 + $1,000 + $100 + $399 = $11,500
+      expect(printed('UNROUND_INV', 'MK-PF-M-019').slice(0, 5)).toEqual(['$1,000', '$0', '$100', '$0', '$399']);
+      expect(first('UNROUND_INV', 'MK-PF-M-002')).toBe('$499');
+    },
+    fixed: '2026-10-21: the walk prints whole dollars that add up to the ending (walkShown — beginning and ending rounded as every figure is, the lines between make up the difference; tenet 2): $10,001 + $1,000 + $100 + $399 = $11,500' },
   'MK-PF-M-004#4': { cls: 'APP WRONG',
     why: 'The row says an account\'s ending is its holdings at today\'s prices plus its cash; the screen prints the broker\'s total. They differ when the broker\'s total is more than what it lists: $50,000 printed above rows of $40,000 + $5,000 = $45,000. (Same root as MK-NW-M-020 tenet 2.)',
     fix: 'The MK-NW-M-020 fix (the gap is cash, DEC-0095), and the MK-PF-M-004 row: "the broker\'s total; holdings and cash beneath it, the difference shown as cash". Account page and Performance per-account line.',
@@ -693,40 +740,64 @@ const CLASS: Record<string, Item> = {
     why: 'Right for the worked case (Stocks / Funds +12.00%). With share changes inside the window the class blend weights each holding by "value now ÷ (1 + its return)", not what it was worth when the window began: A 10 shares at $100, then 90 more at $105, ending 100 at $110; B 100 at $100 ending at $50 → the table reads −20.00% where the class\'s time-weighted return is −21.60%. (The formula card is MK-NW-F-084, part 1\'s other half.)',
     fix: 'MoneyKeel/functions/networth-and-performance/performance.ts categoryEarnings: weight each holding by its value on the window\'s first day (shares held then × the first close), or chain the class\'s daily values where the record has them (DEC-4439). Performance tab WHAT EACH CATEGORY EARNED.',
     check: () => { expect(after('CAT_INV', 'Stocks / Funds', 2)).toBe('+12.00%'); },
-    wrong: () => {
-      const c = categoryEarnings({ windowStart: '2026-09-01', transactions: [], rows: [
-        { position: { ticker: 'A', asset_class: 'stock_etf', lots: [{ shares: 10, purchase_date: '2026-01-02' }, { shares: 90, purchase_date: '2026-09-02' }] }, periodReturn: 0.10, marketValue: 11000 },
-        { position: { ticker: 'B', asset_class: 'stock_etf' }, periodReturn: -0.50, marketValue: 5000 }] } as any).find((x: any) => x.key === 'stocks_etf')!;
-      expect(c.ret).toBeCloseTo((11050 / 11000) * (16000 / 20500) - 1, 6);
-    } },
+    // (2026-10-22, W-START) the reviewer's two holdings as the app builds their rows — rows written by hand carry no prices, so
+    // they cannot say what B was worth when A bought more; A $100 → $105 the evening before the 90 were bought → $110, B $100
+    // → still $100 then → $50, over the 1M window to Sep 30, 2026, with one $10 dividend so the table is drawn (ledger-only).
+    // The Performance tab and the account page rendered: src/screens/__tests__/shares_added_inside_window_agree.test.tsx
+    wrong: () => { expect(reviewerStocks(true)).toBeCloseTo((11050 / 11000) * (16000 / 20500) - 1, 12); },
+    // the table until 2026-10-22: 16,000 ÷ (11,000 ÷ 1.1 + 5,000 ÷ 0.5) − 1 = −20.00% (the rows weighed without their paths)
+    was: () => { expect(reviewerStocks(true)).toBeCloseTo(reviewerStocks(false) as number, 12); expect(reviewerStocks(false)).toBeCloseTo(-0.2, 12); },
+    fixed: '2026-10-22 (DEC-1669; W-START): the category is split at every day money went into it, each piece measured from each holding\'s own closes — −21.60% where it read −20.00%' },
   'MK-PF-M-007#4': { cls: 'APP WRONG', rowWordsOnly: true,
     why: 'The screen files a $40 interest record with no ticker under "Cash in this account" — interest on the account\'s cash, the sensible reading, decided here. The row says "interest from a bond". The row also names the figure "All categories" while its worked answer ($865) is the Stocks / Funds line; on screen All categories reads $1,370.',
     fix: 'MoneyKeel/functions/networth-and-performance/performance.ts MK-PF-M-007 row: label "each category\'s earned, and All categories"; decision "an interest record with no ticker is the account\'s cash". No figure moves.',
     check: () => { expect(after('UNTICKERED', 'Cash in this account', 2)).toBe('$40'); expect(after('CAT_INV', 'All categories')).toBe('$1,370'); },
-    wrong: () => { expect((figureSpec('MK-PF-M-007').decisions ?? []).join(' ')).not.toMatch(/interest from a bond/); } },
+    wrong: () => { expect((figureSpec('MK-PF-M-007').decisions ?? []).join(' ')).not.toMatch(/interest from a bond/); },
+    fixed: '2026-10-21: the row says what the screen does — interest with no ticker is the account\'s cash, a dividend with no ticker Unclassified (no figure moves)' },
   'MK-PF-M-008#1': { cls: 'APP WRONG',
     why: 'Right for the worked case (Home: market +8.80%), and the gap is worked from unrounded returns, so "ahead by 0.85%" beside +3.69% and +2.83% can be true. Wrong after a share change: a holding that went from 10 to 20 shares is weighted as if it held 20 from the start ($2,420 ÷ 1.21 = $2,000; true $1,000), so the market reads 8.00% where his rule ("weighted by what each holding was worth when the window began") gives 7.00%. (Formula card MK-PF-F-020.)',
     fix: 'src/domain/performance/index.ts portfolioBenchReturn: weight by shares held on the window\'s first day × the first close. Home\'s market line.',
     check: () => { expect(has('BENCH_HOME', /· market \+8\.80% ·/)).toBe(true); },
+    // the reviewer's rows as written carry no window, so they cannot say which shares were held when it began; the check runs
+    // the same share change through Home itself (2026-10-21): 50 VTI held when the 1M window began, 50 more bought inside
+    // it, $10,000 of BND. Hand-worked on 2026-10-21: (10% × 50 × $400 + 4% × $10,000) ÷ ($20,000 + $10,000) = 8.00% (it read
+    // 8.80%, weighing all 100 shares as held from the start).
+    // DECIDED 2026-10-22 (W-START, the lead's decision under DEC-1669 and tenets 1 and 7; MK-PF-M-008): the market beside your
+    // return is split on the same days as your return, each piece weighed by what each holding was worth then — your own
+    // return's weights. These closes hold SPY at $500 and AGG at $100 until after Sep 10, when 100 VTI were held, so: piece 1
+    // (VTI $20,000 + BND $10,000) ×1; piece 2 (VTI 100 × $400 = $40,000 + BND $10,000) (40,000 × 1.10 + 10,000 × 1.04) ÷ 50,000
+    // = 8.80%. The reviewer's point holds — no share counts from the start unless it was held then — and its rows, which carry
+    // no days, are still weighed by their starts: 7.00%.
     wrong: () => {
-      const rows: any = [{ benchReturn: 0.10, marketValue: 2420, periodReturn: 0.21, position: { lots: [{ shares: 10, purchase_date: '2026-08-01' }, { shares: 10, purchase_date: '2026-09-02' }] } },
-        { benchReturn: 0.04, marketValue: 1000, periodReturn: 0 }];
+      expect(has('BENCH_TOPUP_HOME', /· market \+8\.80% ·/)).toBe(true);
+      expect((20000 * 1 + 10000 * 1) / 30000 * ((40000 * 1.1 + 10000 * 1.04) / 50000) - 1).toBeCloseTo(0.088, 12);
+      const rows: any = [{ benchReturn: 0.10, marketValue: 2420, periodReturn: 0.21, startValue: 1000, position: { lots: [{ shares: 10, purchase_date: '2026-08-01' }, { shares: 10, purchase_date: '2026-09-02' }] } },
+        { benchReturn: 0.04, marketValue: 1000, periodReturn: 0, startValue: 1000 }];
       expect(portfolioBenchReturn(rows)).toBeCloseTo(0.07, 10);
-    } },
-  'MK-PF-M-010#7': { cls: 'NEEDS A RULING',
+    },
+    // the app on 2026-10-21, pinned: the market weighed by the starts alone, +8.00% — no longer its answer where money moved
+    was: () => { expect(has('BENCH_TOPUP_HOME', /· market \+8\.00% ·/)).toBe(true); },
+    fixed: '2026-10-21: no share weighs from the start unless it was held then (buildPerformance startValue; DEC-1669, DEC-3035b); 2026-10-22 (DECIDED, W-START): the market is split on the same days as your return, with its weights — here the market moved only after the 50 shares were bought, so Home reads market +8.80% (on 2026-10-21, +8.00%)' },
+  // DECIDED 2026-10-21 (PF-B, the lead's decision; MK-PF-M-010, 011 and 012 alike): his approved Look back drawing v01
+  // (DEC-1069) stands word for word — tenet 6 outranks tenet 7, and the card already says "Real past prices; not a
+  // prediction of what happens next." No line is added. To reverse: add the line under the Difference row, drawing row first.
+  // (PF-A, 2026-10-21: classed REVIEWER WRONG by that decision, as part 1's still-open #36 to #38 already read — the two
+  // measuring agents had them two ways.)
+  'MK-PF-M-010#7': { cls: 'REVIEWER WRONG',
     why: 'The words are his approved Look back drawing (v01, DEC-1069): "WHAT ACTUALLY HAPPENED · Left in BND it became $10,250 (up $250, +2.50%)". The reviewer wants it called a road not taken, before taxes and trading costs. Tenet 6 outranks tenet 7: his call. On screen: one line added, e.g. "Before taxes and trading costs, dividends reinvested."',
     check: () => { expect(has('LB', 'WHAT ACTUALLY HAPPENED')).toBe(true); expect(has('LB', /^Left in BND it became \$10,250/)).toBe(true); } },
-  'MK-PF-M-011#7': { cls: 'NEEDS A RULING',
+  'MK-PF-M-011#7': { cls: 'REVIEWER WRONG',
     why: 'The same approved drawing: "Moved to VTI it would be $11,600 (up $1,600, +16.00%)" and "Real past prices; not a prediction of what happens next." — nothing on taxes or trading costs. His call, as MK-PF-M-010.',
     check: () => { expect(has('LB', /^Moved to VTI it would be \$11,600/)).toBe(true); expect(has('LB', 'Real past prices; not a prediction of what happens next.')).toBe(true); } },
-  'MK-PF-M-012#7': { cls: 'NEEDS A RULING',
+  'MK-PF-M-012#7': { cls: 'REVIEWER WRONG',
     why: 'The same approved drawing: "Difference: $1,350 more if you had moved." — before taxes and costs, unsaid. His call, as MK-PF-M-010.',
     check: () => { expect(has('LB', 'Difference: $1,350 more if you had moved.')).toBe(true); } },
   'MK-PF-M-013#2': { cls: 'APP WRONG', rowWordsOnly: true,
     why: 'The screen labels a worked-back beginning (DEC-3656, DEC-5291): "Your daily record does not reach back to Feb 1, 2024 yet, so the beginning is worked back from today\'s values and each holding\'s price history." The row still says "READ… never back-solved" and "the walk is not drawn at all rather than started from a guess".',
     fix: 'MoneyKeel/functions/networth-and-performance/performance.ts MK-PF-M-013 row: "read from the record; where the record does not reach, worked back from each holding\'s price history and said so (DEC-3656, DEC-5291)". No figure moves.',
     check: () => { expect(has('FID_ACC', /so the beginning is worked back from today's values and each holding's price history\.$/)).toBe(true); },
-    wrong: () => { expect(figureSpec('MK-PF-M-013').answers).not.toMatch(/never back-solved/i); } },
+    wrong: () => { expect(figureSpec('MK-PF-M-013').answers).not.toMatch(/never back-solved/i); expect((figureSpec('MK-PF-M-013').decisions ?? []).join(' ')).not.toMatch(/IT IS READ, NOT BACK-SOLVED/); },
+    fixed: '2026-10-21: the row says the beginning is read from the record, or worked back from price history and said so (DEC-3656, DEC-5291; no figure moves)' },
   'MK-PF-M-014#1': { cls: 'APP WRONG',
     why: 'The account page shows what the Performance tab shows for his DEC-4439 new account: "Wealth generated $0 · Return +0.00%" where his rule gives +$50 and +0.50%.',
     fix: 'The MK-PF-M-002 fix; the account page reads the same door.',
@@ -735,28 +806,43 @@ const CLASS: Record<string, Item> = {
   'MK-PF-M-015#2': { cls: 'APP WRONG',
     why: 'The account page\'s walk has the same rounding gap: $10,001 + $1,001 + $101 + $399 = $11,502 against an ending of $11,500.',
     fix: 'The MK-PF-M-003 fix, on src/screens/AccountPortfolioScreen.tsx.',
-    wrong: () => { expect(walkSum('UNROUND_ACC', 'MK-PF-M-013', 'MK-PF-M-015')).toBe(dollars(first('UNROUND_ACC', 'MK-PF-M-004'))); } },
+    wrong: () => { expect(walkSum('UNROUND_ACC', 'MK-PF-M-013', 'MK-PF-M-015')).toBe(dollars(first('UNROUND_ACC', 'MK-PF-M-004'))); },
+    fixed: '2026-10-21: the account page prints its walk through the same walkShown — $10,001 + $1,000 + $100 + $399 = $11,500 (tenet 2)' },
   'MK-PF-M-016#4': { cls: 'APP WRONG',
     why: 'One window, two readings. 2Y on $100,000 growing 8% a year: the Performance tab says "+16.69% over the two years, which is +8.00%/year — a yearly rate"; the account page prints the same +8.00% with "Return is for the window you picked… — not a yearly rate". His precision order: over a year, a yearly rate with "a year" on it and the window\'s total beside it. (1Y is never made a yearly rate on either screen — a 367-day 1Y reads its total, +8.05%.)',
     fix: 'src/screens/AccountPortfolioScreen.tsx summary note: for a window longer than a year, print the Performance tab\'s sentence from the same door. Account page, 2Y only; no figure moves.',
     check: () => { expect(has('TWO_INV_2Y', '+16.69% over the two years, which is +8.00%/year — a yearly rate, so it sits fairly beside a one-year window.')).toBe(true); expect(first('TWO_INV_1Y', 'MK-PF-M-017')).toBe('+8.05%'); },
-    wrong: () => { expect(R('TWO_ACC_2Y').lines.join(' ')).not.toMatch(/not a yearly rate/); } },
+    wrong: () => {
+      expect(R('TWO_ACC_2Y').lines.join(' ')).not.toMatch(/not a yearly rate/);
+      // the account page says the Performance tab's own sentence, from the same door (yearsWords: one writer for both)
+      expect(R('TWO_ACC_2Y').lines.join(' ')).toMatch(/\+16\.69% over the two years, which is \+8\.00%\/year — a yearly rate, so it sits fairly beside a one-year window/);
+    },
+    was: () => { expect(R('TWO_ACC_2Y').lines.join(' ')).toMatch(/not a yearly rate/); },
+    fixed: '2026-10-21: over a year the account page says the yearly rate and the window\'s own total, in the Performance tab\'s sentence (his precision order, Q49)' },
   'MK-PF-M-017#1': { cls: 'APP WRONG',
     why: 'An account that ends below zero ($1,000 → −$500) reads "Return −100.00%": the day\'s value is clamped to $0 (time-weighted-return.ts, Math.max(0, total)). The honest figure is −150.00% or a refusal; −100.00% is neither. (A real total loss, $1,000 → $0, rightly reads −100.00%.)',
     fix: 'Calculation Module code/engines/time-weighted-return.ts: a day whose value is below zero refuses ("the account\'s value went below zero") instead of clamping. Performance tab and account page Return, that case only.',
-    wrong: () => { expect(first('NEG_INV', 'MK-PF-M-017')).not.toBe('−100.00%'); } },
+    wrong: () => {
+      expect(first('NEG_INV', 'MK-PF-M-017')).not.toBe('−100.00%');
+      // no return, and the reason (the day named; the dollars stand)
+      expect(has('NEG_INV', 'The value recorded on Sep 28, 2026 is below $0, so a return cannot be measured across that day. The dollar figures here are still right.')).toBe(true);
+    },
+    was: () => { expect(first('NEG_INV', 'MK-PF-M-017')).toBe('−100.00%'); },
+    fixed: '2026-10-21: a value below $0 gives no return, and the sentence names the day (the lead\'s decision under tenet 1; VALUE_BELOW_ZERO)' },
   'MK-PF-M-018#2': { cls: 'APP WRONG', rowWordsOnly: true,
     why: 'The screen labels the worked-back beginning: "Your daily record does not reach back to Aug 27, 2026 yet, so the beginning is worked back from today\'s values and each holding\'s price history." The row says "READ, NEVER BACK-SOLVED" and "the walk starts the day the record does".',
     fix: 'MK-PF-M-018 row decisions and refusal in DEC-5291\'s words. No figure moves.',
     check: () => { expect(has('BENCH_INV_1M', /^Your daily record does not reach back to Aug 27, 2026 yet, so the beginning is worked back/)).toBe(true); },
-    wrong: () => { expect((figureSpec('MK-PF-M-018').decisions ?? []).join(' ')).not.toMatch(/NEVER BACK-SOLVED/); } },
+    wrong: () => { expect((figureSpec('MK-PF-M-018').decisions ?? []).join(' ')).not.toMatch(/NEVER BACK-SOLVED/); },
+    fixed: '2026-10-21: the row says the beginning is read from the daily record, or worked back from price history and said so (DEC-3656, DEC-5291; no figure moves)' },
   'MK-PF-M-019#3': { cls: 'REVIEWER WRONG', inFlight: true,
     why: 'The screen makes the distinction: when a broker shares no dividend records the walk keeps its "Dividends $0" line (the approved structure) and the amber line above names the gap — "Schwab Brokerage hasn\'t shared dividend records". A record with no amount refuses the return (MOVEMENT_HAS_NO_AMOUNT). Unknown activity words are being made to refuse now: re-run.',
     check: () => { expect(has('BENCH_INV_1M', "Schwab Brokerage hasn't shared dividend records")).toBe(true); } },
   'MK-PF-M-020#3': { cls: 'APP WRONG',
     why: 'A brokerage whose cash was never entered reads "Available cash: $0", and a buy or withdrawal is then refused as "not enough" (availableCash = cash_balance || 0).',
     fix: 'src/domain/transactions/index.ts availableCash: null when the cash sleeve is not entered; src/screens/PerformanceScreen.tsx prints "Available cash: not entered" and does not refuse on it. Performance tab add-activity sheet.',
-    wrong: () => { expect(availableCash({ asset_id: 'b', label: 'Brokerage', kind: 'brokerage', balance: 50000, positions: [{ ticker: 'VTI', lots: [{ shares: 1 }] }] } as any)).toBeNull(); } },
+    wrong: () => { expect(availableCash({ asset_id: 'b', label: 'Brokerage', kind: 'brokerage', balance: 50000, positions: [{ ticker: 'VTI', lots: [{ shares: 1 }] }] } as any)).toBeNull(); },
+    fixed: '2026-10-21: an investment account whose cash was never entered reads Available cash not entered, and a buy is not refused on it (DEC-3279e, tenet 3)' },
   // ── Home and Net worth headline figures ──────────────────────────────────────────────────────────────────────────
   'MK-XS-M-001#3': { cls: 'APP WRONG',
     why: 'With the brokerage\'s balance not entered, the Net worth tab says "Fidelity Brokerage has no balance" and "Value not entered"; Home prints "Net worth $119,200" with nothing beside it — the known rows summed as if complete.',
@@ -771,11 +857,14 @@ const CLASS: Record<string, Item> = {
     why: 'Home asks the same door as Performance\'s 1M (+21.35% on both) and only shows a month, so the yearly-rate points do not reach it. But its spoken label rounds again: a screen reader hears "up 21.4 percent this month" where the screen prints 21.35%.',
     fix: 'src/screens/HomeScreen.tsx hero accessibilityLabel: say the return through figSaid(\'MK-XS-M-004\', …) — the printed two decimals. Home, spoken words only.',
     check: () => { expect(has('PERF_HOME', '▲ up $8,200 (21.35%) this month')).toBe(true); expect(has('PERF_INV_1M', '+21.35%')).toBe(true); },
-    wrong: () => { expect(R('PERF_HOME').spoken.find((s) => s.startsWith('Your investments'))).toMatch(/21\.35 percent/); } },
+    wrong: () => { expect(R('PERF_HOME').spoken.find((s) => s.startsWith('Your investments'))).toMatch(/21\.35 percent/); },
+    fixed: '2026-10-21: Home says the month\'s return through figSaid(\'MK-XS-M-004\', …) — the two decimals it prints, "up 21.35 percent this month"' },
   'MK-NW-M-061#8': { cls: 'APP WRONG',
     why: 'Found rendering (the reviewer passed it): an option\'s purchase reads "2 sh @ $5.00" while Quantity says "2 contracts" — the purchase line has the wrong unit.',
     fix: 'src/screens/HoldingDetailScreen.tsx WHAT YOU BOUGHT: the line takes its unit from quantityWithUnit ("2 contracts @ $5.00"). Holding page.',
-    wrong: () => { expect(has('HOLD_MINI', '2 sh @ $5.00')).toBe(false); } },
+    wrong: () => { expect(has('HOLD_MINI', '2 sh @ $5.00')).toBe(false); expect(has('HOLD_MINI', '2 contracts @ $5.00')).toBe(true); expect(has('FID_HOLD', '100 sh @ $210.00')).toBe(true); },
+    fixed: '2026-10-21 (W-HOLDING, DEC-0277, tenet 4): the purchase line carries the holding\'s own unit — 2 contracts @ $5.00; shares stay 100 sh @ $210.00 as drawn',
+    was: () => { expect(has('HOLD_MINI', '2 sh @ $5.00')).toBe(true); } },
 };
 /** PASS items whose answer moves with work landing now: checked, and flagged for a re-run */
 const IN_FLIGHT_PASS: Record<string, string> = {
@@ -851,11 +940,13 @@ const FOUND: { id: string; what: string; fix: string; wrong: () => void; fixed?:
   { id: 'F3 Holding page · "0 months"',
     what: 'A holding with three days of prices reads "Prices for this holding go back 0 months, so the 1-year figure covers 0 months — not a year."',
     fix: 'priceHistoryShortSentence: under a month, say the days ("go back 3 days").',
-    wrong: () => { expect(R('HOLD_MINI').lines.join(' ')).not.toMatch(/go back 0 months/); } },
+    wrong: () => { expect(R('HOLD_MINI').lines.join(' ')).not.toMatch(/go back 0 months/); expect(has('HOLD_MINI', 'Prices for this holding go back 3 days, so the 1-year figure covers 3 days — not a year.')).toBe(true); },
+    fixed: '2026-10-21 (W-HOLDING): under a month the line counts days — go back 3 days, so the 1-year figure covers 3 days' },
   { id: 'F4 MK-XS-M-004 is printed under no identifier',
     what: 'The register lists MK-XS-M-004 on /invest and /home, but no screen prints it under that ID: Performance prints its Return as MK-PF-M-017 and Home prints "▲ up $8,200 (21.35%) this month" through no figure at all — so the census cannot trace it (objective 3).',
     fix: 'src/screens/HomeScreen.tsx: print the month\'s return and dollars through fig(\'MK-XS-M-004\', …); or retire MK-XS-M-004 into MK-PF-M-017 on the master.',
-    wrong: () => { expect([...R('PERF_HOME').printed, ...R('QUIET_INV').printed].some((p) => p.id === 'MK-XS-M-004')).toBe(true); } },
+    wrong: () => { expect([...R('PERF_HOME').printed, ...R('QUIET_INV').printed].some((p) => p.id === 'MK-XS-M-004')).toBe(true); },
+    fixed: '2026-10-21: Home prints the month\'s return through fig(\'MK-XS-M-004\', …), so the census traces it — "(21.35%)" unchanged' },
 ];
 describe('found while rendering — outside the 424', () => {
   // a found item made right runs as a passing test with the day and the reason in its name (the CLASS items' own rule)
@@ -880,4 +971,29 @@ afterAll(() => {
     found_while_rendering: FOUND.map(({ id, what, fix, fixed }) => ({ id, what, fix, classification: 'APP WRONG', fixed: fixed ?? null, test: `${id} · what the app gets wrong${fixed ? ` — FIXED ${fixed}` : ' (test.failing)'}` })),
     renders: Object.fromEntries([...CACHE.entries()].map(([k, s]) => [k, { lines: s.lines, printed: s.printed, changed: s.changed }])),
   }, null, 1));
+});
+
+// LB_NOPRICE, SETTLED (2026-10-22). Look back fetches what it compares through the app's one price refresh. With the price
+// source stubbed to bring nothing — here only, so no other render in this file changes — the waiting line shows first; once
+// the refresh settles, the exact failure line names the two tickers, and no figure is printed (MK-PF-M-010, 011, 012 refuse).
+test('LB_NOPRICE, settled: the waiting line, then the failure line naming BND and SPY, and no figure printed', async () => {
+  const source = require('../../services/marketData');
+  const stub = jest.spyOn(source, 'fetchPriceSeries').mockResolvedValue({});
+  try {
+    useStore.getState().resetAll(); useStore.getState().setOnboardingComplete?.(true);
+    useStore.setState({ hideBalances: false, ...H_LB, priceCache: {} } as any);
+    mockParams = { from: 'BND', amount: '10000' };
+    resetFiguresPrinted();
+    const C = SCREENS.lookback();
+    const r = render(<C />);
+    expect(screen.getByText('Getting prices for BND and SPY…')).toBeOnTheScreen();                       // before it settles
+    await waitFor(() => expect(stub).toHaveBeenCalledTimes(1));
+    await waitFor(() => expect(screen.getByText("Couldn't refresh prices for BND or SPY, so there is nothing to compare yet. Look back tries again each time it opens.")).toBeOnTheScreen());
+    expect(screen.queryByText('Getting prices for BND and SPY…')).toBeNull();
+    const lines = readLines();
+    expect(lines.length).toBeGreaterThanOrEqual(15);                                                       // it read the screen
+    expect(lines.filter((l) => /\$\d|\d%/.test(l))).toEqual([]);                                           // no figure in words
+    expect(figuresPrinted().filter((p) => !p.spoken && /^MK-PF-M-01[012]$/.test(p.id))).toEqual([]);       // none through fig()
+    r.unmount();
+  } finally { stub.mockRestore(); mockParams = {}; }
 });

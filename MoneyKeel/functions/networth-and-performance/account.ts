@@ -17,6 +17,8 @@ import type { AssetAccount } from '../../../src/domain/assets';
 import { accountClassBreakdown, ASSET_CLASS_LABEL, uninvestedCashOf, unpricedValueOf } from '../../../src/domain/assets';
 import { itemizedTotal, itemizeRemainder, itemizeMissingCount, type ItemHolding } from '../../../src/domain/assets/itemize';
 import { personalFlowTotals, unnamedActivityOf, moneyIntoAccount, amountNotOnRecord } from '../../../Calculation Module code/engines/ledger';
+import { Dec } from '../../../Calculation Module code/engines/decimal';   // exact money arithmetic for the income sum (incomeSumParts)
+import { totalShares } from '../../../src/domain/performance';   // the one share count (listedShares)
 
 export interface ClassSlice { key: string; label: string; value: number; }
 export interface HoldingIncome { dividends: number; interest: number; words: string; }
@@ -97,22 +99,21 @@ export interface Itemising {
  *
  * Called by ... MK-CF-F-118 cashEffect · MK-NW-F-075 ACC
  *
- * Reaches ..... 59 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-075 ACC · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-118 cashEffect · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-XS-F-188 fixStoredFees · MK-CF-F-041 getDebtState
- *               … and 41 more — the full list is on functions_from_code
+ * Reaches ..... 90 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-NW-F-140 LEFT_OUT · MK-NW-F-082 NW
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-040 assetsFromOnboarding
+ *               MK-NW-F-144 beforeTheRecordSentence · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               … and 72 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-019 · MK-NW-M-020 · MK-NW-M-021 · MK-NW-M-038
- *               MK-NW-M-039 · MK-NW-M-040 · MK-NW-M-062
+ *               MK-NW-M-039 · MK-NW-M-040 · MK-NW-M-062 · MK-NW-M-073
  * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-005 holding price
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-024 logged expenses
@@ -124,7 +125,6 @@ export interface Itemising {
  *
  * Decides .....
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-NW-O-002
@@ -205,8 +205,170 @@ export function theAccount(input: {
     // the same split Net worth's Cash line counts (DEC-0095), so the page's cash row and that line cannot differ
     uninvestedCash: uninvestedCashOf(account),
     unpriced: ((u) => (u ? { value: u.value, cls: u.cls, count: ((account.positions ?? []) as any[]).filter((p) => p.last_price == null
-      && (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0), 0) !== 0).length } : null))(unpricedValueOf(account)),
+      && listedShares(p) !== 0).length } : null))(unpricedValueOf(account)),
   };
+}
+
+// ── WHAT THE ACCOUNT PAGE CALCULATED ITSELF, MOVED HERE (2026-10-22; DEC-0346, screens compute nothing; the decisions check) ──
+// The page added these up and compared them on screen. The numbers are the page's own, to the cent; only where they are
+// calculated moved, so a test can hold them and the page prints what this module says.
+
+/** IS THIS PART OF THE ACCOUNT THE WHOLE ACCOUNT, so its return IS the account's (2026-10-21; DEC-5068, tenet 4): worth the
+ *  account's balance today, to the dollar, and nothing else in it worth anything when the window began — a known $0 is $0.
+ *  Beta $1,200 beside Alpha $1,000 → $0 reads Beta's own +20.00%, never the account's −40.00%. */
+/* ─ MK-NW-F-169 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * isWholeAccountPart
+ *
+ * Answers ..... IS THIS PART OF THE ACCOUNT THE WHOLE ACCOUNT, so its return IS the account's (2026-10-21; DEC-5068, tenet 4): worth the account's balance today, to the dollar, and nothing else in it worth anything when the window began — a known $0 is $0.
+ *
+ * Formula .....
+ *     false   when part value = nothing (or !number.is finite(part value) when missing or zero)
+ *     round(part value) = math.round(account balance (or 0) and !(others at start when missing or zero) (or []).some((v) => (v ?? 0) > 0 when missing))
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · If v is missing it uses 0.
+ *     · If account balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-169
+ * Changed ..... not in git yet (—)
+ */
+export function isWholeAccountPart(partValue: number | null, accountBalance: number | null | undefined, othersAtStart: (number | null | undefined)[]): boolean {
+  if (partValue == null || !Number.isFinite(partValue)) return false;   // a part whose value is not stated is not shown as the whole
+  return Math.round(partValue) === Math.round(accountBalance || 0) && !(othersAtStart ?? []).some((v) => (v ?? 0) > 0);
+}
+
+/** THE PARTS OF THE INCOME SUM UNDER THE ACCOUNT PAGE'S TABLE (the drawing's row 12): each row's dividends + interest, in the
+ *  order the rows run, added exactly in decimals; a row that earned nothing is left out; then the income no holding carries
+ *  (a dividend that names no holding), so the parts always add up to the account's income (MK-NW-M-019). Nothing with no
+ *  income. 1,500 ＋ 100 ＋ 85 ＋ 15 = $1,700. */
+/* ─ MK-NW-F-170 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * incomeSumParts
+ *
+ * Answers ..... THE PARTS OF THE INCOME SUM UNDER THE ACCOUNT PAGE'S TABLE (the drawing's row 12): each row's dividends + interest, in the order the rows run, added exactly in decimals; a row that earned nothing is left out; then the income no holding carries (a dividend that names no holding), so the parts always add up to the account's income (MK-NW-M-019).
+ *
+ * Formula .....
+ *     parts = []
+ *     parts   when account income = nothing (or not (account income > 0) when missing or zero)
+ *     n = dec.of(inc.dividends or 0).add(dec.of(inc.interest or 0)).to string() read as a number
+ *     rest = dec.of(account income).sub(dec.sum(parts.map((n) => dec.of(n))))
+ *     the answer = parts
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · If dividends is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If interest is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-170
+ * Changed ..... not in git yet (—)
+ */
+export function incomeSumParts(rows: { dividends?: number | null; interest?: number | null }[], accountIncome: number | null | undefined): number[] {
+  const parts: number[] = [];
+  if (accountIncome == null || !(accountIncome > 0)) return parts;
+  for (const inc of rows ?? []) {
+    const n = Number(Dec.of(inc?.dividends || 0).add(Dec.of(inc?.interest || 0)).toString());
+    if (n > 0) parts.push(n);
+  }
+  // the income no holding carries, subtracted EXACTLY, so a remainder that is really nothing reads nothing (DEC-0403)
+  const rest = Dec.of(accountIncome).sub(Dec.sum(parts.map((n) => Dec.of(n))));
+  if (!rest.isNeg() && !rest.isZero()) parts.push(Number(rest.toString()));
+  return parts;
+}
+
+/** THE SHARES A HOLDING HOLDS — the count under a holding's name on the account page ("160 shares") and the test of whether a
+ *  holding with no price holds anything. UNKNOWN WHEN ANY PURCHASE HAS NO SHARE COUNT ON RECORD (the lead's ruling of
+ *  2026-10-22, tenet 3: unknown is not zero): the one count the Holding page reads (MK-PF-F-001 totalShares), so the two pages say
+ *  one thing. It added such a purchase as 0, so 10 shares and a purchase with no count read "10 shares" here while the
+ *  Holding page said the count is not on record. To reverse: count the unknown purchase as 0 again. */
+/* ─ MK-NW-F-171 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * listedShares
+ *
+ * Answers ..... THE SHARES A HOLDING HOLDS — the count under a holding's name on the account page ("160 shares") and the test of whether a holding with no price holds anything.
+ *
+ * Formula .....
+ *     total shares(position as any)
+ *
+ * Called by ... MK-NW-O-002 theAccount
+ *
+ * Reaches ..... 90 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-NW-F-140 LEFT_OUT · MK-NW-F-082 NW
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-040 assetsFromOnboarding
+ *               MK-NW-F-144 beforeTheRecordSentence · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               … and 72 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-171
+ * Changed ..... not in git yet (—)
+ */
+export function listedShares(position: { lots?: { shares?: number | null }[] | null }): number | null {
+  return totalShares(position as any);
+}
+
+/** ONE CLASS'S MARKET VALUE ON THE ACCOUNT PAGE: the values of its rows, added up — the figure on the class's band, which
+ *  its rows beneath it add up to (tenet 2). Unknown when a row's value is not stated — a holding whose share count is not on
+ *  record (2026-10-22, tenet 3) — so the band refuses as the row does, never a total that leaves it out. */
+/* ─ MK-NW-F-172 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * classValueOf
+ *
+ * Answers ..... ONE CLASS'S MARKET VALUE ON THE ACCOUNT PAGE: the values of its rows, added up — the figure on the class's band, which its rows beneath it add up to (tenet 2).
+ *
+ * Formula .....
+ *     nothing   when (rows ?? []).some((rw) => rw.count not stated)
+ *     Σ over rows (or none when missing) of (value (or 0 when missing or zero))
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · If value is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-172
+ * Changed ..... not in git yet (—)
+ */
+export function classValueOf(rows: { value?: number | null; countNotStated?: boolean }[]): number | null {
+  if ((rows ?? []).some((rw) => rw?.countNotStated)) return null;
+  return (rows ?? []).reduce((t, rw) => t + (rw?.value || 0), 0);
+}
+
+/** THE REST OF THE ACCOUNT BESIDE ONE CLASS (founder finding 2026-08-11: "this slice PLUS everything else IS the total"):
+ *  the account's balance less that class's value. */
+/* ─ MK-NW-F-173 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * restOfAccountBeside
+ *
+ * Answers ..... THE REST OF THE ACCOUNT BESIDE ONE CLASS (founder finding 2026-08-11: "this slice PLUS everything else IS the total"): the account's balance less that class's value.
+ *
+ * Formula .....
+ *     (account balance or 0) − (class value or 0)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · If account balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If class value is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-173
+ * Changed ..... not in git yet (—)
+ */
+export function restOfAccountBeside(accountBalance: number | null | undefined, classValue: number | null | undefined): number {
+  return (accountBalance || 0) - (classValue || 0);
 }
 
 /** When an account entered as one total is broken into holdings: the total to keep, the value of the holdings listed so far, and the amount still not explained by them. */
@@ -224,14 +386,6 @@ export function theAccount(input: {
  *               MK-NW-F-075 ACC
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
- *               MK-XS-I-003 institution name
- *               MK-XS-I-004 holding quantity (shares)
- *               MK-XS-I-005 holding price
- *               MK-XS-I-007 purchase price and date (per lot)
- *               MK-XS-I-028 assumed return
- *               MK-XS-I-048 the person’s own asset-class answer
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-073
  * Changed ..... not in git yet (—)
@@ -244,6 +398,36 @@ export function itemising(lumpBalance: number, items: ItemHolding[]): Itemising 
     // a listed holding with no value leaves the remainder NOT FINAL — never called unexplained (batch 06)
     remainderFinal: itemizeMissingCount(items) === 0,
   };
+}
+
+/** HOW MUCH OF THE TOTAL THE LISTED HOLDINGS FILL, from 0 to 1 — the Itemize screen's progress bar (2026-10-22; DEC-0346: the
+ *  screen calculated it). Nothing to fill with no total; over-listed reads full. $30,000 listed of $50,000: 0.6. */
+/* ─ MK-NW-F-178 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * itemisedShare
+ *
+ * Answers ..... HOW MUCH OF THE TOTAL THE LISTED HOLDINGS FILL, from 0 to 1 — the Itemize screen's progress bar (2026-10-22; DEC-0346: the screen calculated it).
+ *
+ * Formula .....
+ *     max(0, min(1, itemised ÷ lump balance))   if lump balance > 0
+ *     0   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-003 institution name
+ *               MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-005 holding price
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-028 assumed return
+ *               MK-XS-I-048 the person’s own asset-class answer
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-178
+ * Changed ..... not in git yet (—)
+ */
+export function itemisedShare(itemised: number, lumpBalance: number): number {
+  return lumpBalance > 0 ? Math.max(0, Math.min(1, itemised / lumpBalance)) : 0;
 }
 
 /** THE WORKED EXAMPLE — ONE ACCOUNT, EVERY FIGURE ON THIS DOOR (six steps, step 6, 2026-09-28).
@@ -275,7 +459,7 @@ const GIVEN =
   + '($40,600). Its records: dividends of $420 and $405, a buy of 20 shares at $200, a sell of 20 at $285.';
 
 /** Example only: runs theAccount on the worked example and calculates nothing of its own. */
-/* ─ MK-NW-F-075 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+/* ─ MK-NW-F-075 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * ACC
  *
  * Answers ..... Example only: runs theAccount on the worked example and calculates nothing of its own.
@@ -289,6 +473,7 @@ const GIVEN =
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-051 what an account actually returned over the last twelve months
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
@@ -436,5 +621,21 @@ export const ACCOUNT_FIGURES = declareFigures({
       run: () => ACC().inside?.find((x) => x.key === 'stocks_etf')?.value ?? null,
     },
     note: 'THE LAST NET WORTH FIGURE WITHOUT A WORKED EXAMPLE, given one 2026-09-30. Its two lines add to the account\u2019s own total \u2014 $6,000 of cash plus $40,600 of fund is the $46,600 the header shows \u2014 which is what makes the itemising checkable rather than asserted.',
+  },
+  // ISSUED AND DECLARED 2026-10-21 (Performance audit row 9, rule 11): the account page's HISTORIC 12-MONTH RETURN card printed
+  // the rate you entered by hand (toFixed), with no identifier. It is a value you entered, shown back — as MK-NW-M-065 "What you
+  // paid" is — so it is declared like one. Issued under rule 11 and Q49; `ruled` is the issue date, as MK-NW-M-065 and 066 were.
+  // To reverse: delete this row and print toFixed again.
+  'MK-NW-M-073': {
+    label: 'Historic 12-month return', unit: 'percent-2dp', screens: ['/account-detail'], grain: 'one account',
+    answers: 'What you entered as this account\u2019s return over the last twelve months \u2014 the rate the Retirement cockpit reads for it.',
+    formula: 'the rate you entered on this account, shown back as entered (nothing computes it)',
+    inputs: ['MK-XS-I-051 what an account actually returned over the last twelve months'],
+    decisions: ['TWO DECIMALS, because it is a rate (Q49).',
+      'NOT ENTERED IS NOT 0%: with nothing typed the card reads "Not entered" (DEC-6005\u2019s words).'],
+    refusal: 'Not entered.',
+    ruled: '2026-10-21',
+    worked: { given: 'A brokerage account where you entered 2.1 as its historic 12-month return, in percent.', answer: '2.10%',
+      run: () => ({ ...EXAMPLE_ACCOUNT, actual_ttm: 0.021 }).actual_ttm },
   },
 });

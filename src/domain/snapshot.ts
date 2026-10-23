@@ -178,13 +178,13 @@ export function buildSnapshot(
 
 /**
  * Snapshot from onboarding answers alone — for headless/test callers (and any surface that runs
- * before Net Worth is set up). Derives the accounts/liabilities from `op`, then calls buildSnapshot.
+ * before Net worth is set up). Derives the accounts/liabilities from `op`, then calls buildSnapshot.
  * Live UI surfaces (Home, TopBar) resolve their rows via `resolveNetWorthRows` instead.
  */
 /* ─ MK-XS-F-032 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * snapshotFromOnboarding
  *
- * Answers ..... Snapshot from onboarding answers alone — for headless/test callers (and any surface that runs before Net Worth is set up).
+ * Answers ..... Snapshot from onboarding answers alone — for headless/test callers (and any surface that runs before Net worth is set up).
  *
  * Formula .....
  *     build snapshot(uid, op, econ, assets from onboarding(uid, op).accounts, debts from onboarding(uid, op).debts)
@@ -204,15 +204,15 @@ export interface NetWorthRows { accounts: AssetAccount[]; liabilities: Debt[]; }
 
 /**
  * The single rule for which net-worth rows a live UI surface should use, so Home + TopBar + the Net
- * Worth screen never disagree (B-49). The live store rows are authoritative once the user has any of
- * them OR Net Worth has been seeded — so a user who DELETED everything correctly shows $0 rather than
+ * worth screen never disagree (B-49). The live store rows are authoritative once the user has any of
+ * them OR Net worth has been seeded — so a user who DELETED everything correctly shows $0 rather than
  * resurrecting onboarding (`nwSeeded` stays true after deletions). Only a user who has never set up
- * Net Worth at all (nothing live, never seeded) falls back to the onboarding-derived estimate.
+ * Net worth at all (nothing live, never seeded) falls back to the onboarding-derived estimate.
  */
 /* ─ MK-XS-F-033 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * resolveNetWorthRows
  *
- * Answers ..... The single rule for which net-worth rows a live UI surface should use, so Home + TopBar + the Net Worth screen never disagree (B-49).
+ * Answers ..... The single rule for which net-worth rows a live UI surface should use, so Home + TopBar + the Net worth screen never disagree (B-49).
  *
  * Formula .....
  *     use live = nw seeded (or live accounts.length > 0 (or live liabilities.length > 0 when missing or zero) when missing or zero)

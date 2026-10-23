@@ -1056,14 +1056,14 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       return (<><Header emoji="📊" title={hasRet ? 'Your other investments' : 'Your investments'}
         sub={hasRet ? 'Taxable brokerage, cash & crypto — not the retirement savings above.' : 'Total value for now — add detail in the app later.'} />
         <Card><HeroAmount ctx={ctx} k="investmentHoldings" label={hasRet ? 'Taxable + cash' : 'Total portfolio value'} /></Card>
-        {/* #13: point to the importer (lives on Net Worth) so the CSV path is discoverable from setup too */}
-        <Callout text="📄 Have a brokerage statement? After setup, open Net Worth → “Import holdings from a brokerage file” to add every position automatically." /></>);
+        {/* #13: point to the importer (lives on Net worth) so the CSV path is discoverable from setup too */}
+        <Callout text="📄 Have a brokerage statement? After setup, open Net worth → “Import holdings from a brokerage file” to add every position automatically." /></>);
     }
 
     case 'networthIntro':
-      return (<><Header emoji="🧮" title="Your net worth lives in the Net Worth tab" sub="Everything you own minus what you owe — kept up to date automatically." />
+      return (<><Header emoji="🧮" title="Your net worth lives in the Net worth tab" sub="Everything you own minus what you owe — kept up to date automatically." />
         <Card>
-          <Text style={s.note}>Once you've finished setup, head to the <Text style={{ fontWeight: '800' }}>Net Worth</Text> tab (top-right chip or the ▦ menu) to add your accounts and debts — cash, investments, retirement, home, car, loans, credit cards. As you add them, your net worth total updates everywhere.</Text>
+          <Text style={s.note}>Once you've finished setup, head to the <Text style={{ fontWeight: '800' }}>Net worth</Text> tab (top-right chip or the ▦ menu) to add your accounts and debts — cash, investments, retirement, home, car, loans, credit cards. As you add them, your net worth total updates everywhere.</Text>
           <Text style={[s.hint, { marginTop: 10 }]}>No rush — there's nothing to do here right now. You can add accounts anytime after setup.</Text>
         </Card></>);
 
@@ -1843,7 +1843,7 @@ function RetireOutlook({ ctx }: { ctx: StepCtx }) {
         {otherSavings > 0 ? ` + ${money(otherSavings)} investments` : ''}
         {monthlyContrib > 0 ? ` + ${money(monthlyContrib)}/month you add` : ''}, growing ≈{(realAcc * 100).toFixed(2)}%/year
         after inflation for {plural(years, 'year')}.
-        {otherSavings <= 0 ? " It does NOT include other investments, property, or accounts not captured yet — add them in Net Worth and this updates." : ''}
+        {otherSavings <= 0 ? " It does NOT include other investments, property, or accounts not captured yet — add them in Net worth and this updates." : ''}
       </Text>
     </Card>
     <Card>
@@ -1860,7 +1860,7 @@ function RetireOutlook({ ctx }: { ctx: StepCtx }) {
         Real returns = growth minus {infl.toFixed(2)}% inflation (live CPI): ~7% growth (≈{(realAcc * 100).toFixed(2)}% real) while saving,
         a conservative ~5.5% (≈{(realDraw * 100).toFixed(2)}% real) while retired.
         {bequest <= 0 ? ' Assumes the money is spent down to zero — add a "leave money to family" goal to plan a bequest.' : ''}
-        {otherSavings <= 0 ? ' Counts only retirement savings + your investing plan; add other accounts in Net Worth to complete the picture.' : ''}
+        {otherSavings <= 0 ? ' Counts only retirement savings + your investing plan; add other accounts in Net worth to complete the picture.' : ''}
       </Text>
     </Card>
 
@@ -1884,7 +1884,7 @@ function RetireOutlook({ ctx }: { ctx: StepCtx }) {
 // Savings plan — ONE allocation question on top of the month-by-month free-cash picture:
 // "of your free cash, how much will you invest per year?" ($ or %). The Roth/brokerage/property
 // SPLIT is deliberately NOT asked here (false precision at onboarding) — it lives in-app where it
-// has consequences (Retirement tax-smart moves, Net Worth accounts). Stored as monthly dollars in
+// has consequences (Retirement tax-smart moves, Net worth accounts). Stored as monthly dollars in
 // c_invest (the canonical contribution key all projections read); goals draw from the REMAINDER.
 function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
   const a = ctx.answers;

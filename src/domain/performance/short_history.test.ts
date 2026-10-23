@@ -13,13 +13,17 @@ const iso = (monthsBack: number, daysMore = 0) => { const d = new Date(NOW); d.s
 // from is dated that day — the laws and their numbers are unchanged.
 const series = (pts: [number, number, number?][]) => ({ ticker: 'X', points: pts.map(([m, close, d]) => ({ date: iso(m, d ?? 0), close })) }) as any;
 
-test('THE LAW: with two full years of prices, the 2-year figure is the yearly rate over two years', () => {
-  expect(periodReturn(series([[30, 90], [24, 100, 1], [12, 110], [0, 121]]), '2Y', NOW)).toBeCloseTo(0.1, 9);   // 1.21 over two years
+// ONE RULE FOR A YEARLY RATE ON EVERY SCREEN (2026-10-21; the precision standard's "(1 + the return)^(365 ÷ days) − 1", the
+// account's own reading; outside re-run OpenAI MK-PF-M-016): the years are the window's days ÷ 365 — 3 Oct 2024 (the close
+// before the window) to 4 Oct 2026 is 731 days, so 1.21 is +9.99% a year. It read +10.00% (exactly two years) on a holding
+// while the account read +9.99% for the same move. The laws are unchanged; only the count of years is one rule now.
+test('THE LAW: with two full years of prices, the 2-year figure is the yearly rate over two years (731 days ÷ 365)', () => {
+  expect(periodReturn(series([[30, 90], [24, 100, 1], [12, 110], [0, 121]]), '2Y', NOW)).toBeCloseTo(Math.pow(1.21, 365 / 731) - 1, 9);   // 1.21 over two years
 });
 
 test('THE LAW: with fourteen months of prices, the yearly rate is over fourteen months — not two years', () => {
   const r = periodReturn(series([[14, 100], [6, 110], [0, 121]]), '2Y', NOW) as number;
-  const years = (new Date(iso(0)).getTime() - new Date(iso(14)).getTime()) / (365.25 * 86_400_000);
+  const years = Math.round((new Date(iso(0)).getTime() - new Date(iso(14)).getTime()) / 86_400_000) / 365;   // the days ÷ 365 (one rule, 2026-10-21)
   expect(r).toBeCloseTo(Math.pow(1.21, 1 / years) - 1, 9);
   expect(r).toBeGreaterThan(0.17);                                    // about +17.8% a year, where it used to read +10%
   expect(r).toBeLessThan(0.19);

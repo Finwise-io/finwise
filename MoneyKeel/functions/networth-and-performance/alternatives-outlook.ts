@@ -72,7 +72,7 @@ export interface AlternativeRow {
  * Reaches ..... 1 function. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT
  *
- * Serves ...... MK-NW-M-050 · MK-NW-M-051 · MK-NW-M-052
+ * Serves ...... MK-NW-M-050 · MK-NW-M-051 · MK-NW-M-052 · MK-NW-M-072
  * Reads ....... MK-XS-I-003 institution name
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
@@ -245,5 +245,21 @@ export const ALTERNATIVES_OUTLOOK_FIGURES = declareFigures({
       answer: '$1,218/year',
       run: () => ALT().estimatedGrowthPerYear,
     },
+  },
+  // ISSUED AND DECLARED 2026-10-21 (Performance audit row 9, rule 11): an alternative's own page printed "Typical yearly return
+  // for this type ~8.20% · estimate from history" by hand (toFixed), with no identifier. Issued under rule 11 and Q49; `ruled` is
+  // the issue date, as MK-NW-M-065 and 066 were. To reverse: delete this row and print toFixed again.
+  'MK-NW-M-072': {
+    label: 'Typical yearly return for this type', unit: 'percent-2dp', screens: ['/account-detail'], grain: 'one alternative holding',
+    answers: 'The yearly rate this kind of thing has paid historically \u2014 the rate projections use for it, never a promise about this holding.',
+    formula: 'the historical benchmark for the holding\u2019s kind (MK-NW-F-034 benchmarkReturn, from the kinds list); 6% where the kind has none',
+    inputs: ['MK-XS-I-055 the wrapper an account sits in \u2014 its kind'],
+    decisions: ['An ESTIMATE, and it wears the words "estimate from history".',
+      'TWO DECIMALS, because it is a rate (Q49).',
+      'NOT FOR AN OPTION: a contract has no historical asset-class return, and the page says so instead (B44).'],
+    refusal: 'An option shows the sentence saying no typical yearly return exists for a contract.',
+    ruled: '2026-10-21',
+    // gold and other commodities: 8.2% on the kinds list
+    worked: { given: 'A $9,000 gold holding: the kinds list gives gold and other commodities 8.2% a year.', answer: '8.20%', run: () => benchmarkReturn('commodities') },
   },
 });

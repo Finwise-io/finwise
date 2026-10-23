@@ -87,10 +87,12 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
 import { useStore } from '../../store/useStore';
-import { fireEvent } from '@testing-library/react-native';
+import { fireEvent, waitFor } from '@testing-library/react-native';
 import { norm, drawingLines, builtLines, firstDifference, missingInOrder } from '../../testing/mockMatch';
 
 let mockParams: Record<string, string> = {};
+// Look back fetches what it compares (2026-10-22): the price source answers nothing in this file, so no test reaches the network
+jest.mock('../../services/marketData', () => ({ ...jest.requireActual('../../services/marketData'), fetchPriceSeries: async () => ({}) }));
 jest.mock('expo-router', () => ({
   useRouter: () => ({ back: jest.fn(), push: jest.fn(), replace: jest.fn(), canGoBack: () => true, setParams: jest.fn() }),
   useLocalSearchParams: () => mockParams, router: { push: jest.fn(), back: jest.fn() },
@@ -446,7 +448,11 @@ describe('Holding detail v02', () => {
       .replace('price changes only — dividends not included', 'both include dividends and interest')
       // 16: the drawing's live wording — the price is the last close the app holds, so the band says so with its day
       // (2026-10-21, the lead's decision under tenets 1, 2 and 7; the drawing carries a dated READ THIS FIRST line)
-      .replace('current price live', 'last close <date>');
+      .replace('current price live', 'last close <date>')
+      // 24: the twelve-month window spelled out (Q35, 2026-10-21, the lead's decision; the drawing carries a dated READ THIS
+      // FIRST row). The average's info dot (Q34, the same day) is a glyph, which this reading leaves out, as it does the
+      // benchmark's; holding_cost_not_on_record.test.tsx holds the dot and its words.
+      .replace('dividends received (# mo)', 'dividends received (trailing twelve months)');
     expect(want.split(' ').length).toBeGreaterThan(110);
     expect(firstDifference(want, norm(built))).toBe('');
     // 12: the drawing's own arithmetic, in the standard's precision
@@ -460,8 +466,10 @@ describe('Holding detail v02', () => {
       assetAccounts: [{ asset_id: 'cb', label: 'Coinbase', institution: 'Coinbase', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
         positions: [{ position_id: 'p1', ticker: 'BTC', label: 'Bitcoin', kind: 'crypto', lots: [{ lot_id: 'l1', shares: 0.5, cost_per_share: 56000, purchase_date: '2024-07-02' }] }] }],
       priceCache: {} }, { account: 'cb', position: 'p1' });
-    expect(firstDifference(norm(upTo(P[1], /^Activity$/)), norm(built))).toBe('');
-    expect(built).toEqual(expect.arrayContaining(['$28,000', '0.5 coins', '$56,000.00']));                    // 12
+    // the purchase line carries the holding's own unit — the drawing's "0.5 sh" for a coin reads "0.5 coins", as Quantity does
+    // (DEC-0277, tenet 4; 2026-10-21, the drawing carries a dated READ THIS FIRST row)
+    expect(firstDifference(norm(upTo(P[1], /^Activity$/)).replace('<date> # sh @ $#', '<date> # coins @ $#'), norm(built))).toBe('');
+    expect(built).toEqual(expect.arrayContaining(['$28,000', '0.5 coins', '$56,000.00', '0.5 coins @ $56,000.00']));                    // 12
   });
 
   test('phone 3 · sold, and a window the prices cannot reach — both said, neither papered over', () => {
@@ -601,5 +609,111 @@ describe('Holding detail v02 · the rows of 2026-10-21, on the drawing and on th
     const built = show(HoldingDetailScreen, { ...live, assetAccounts: [acct([btc], { asset_id: 'cb', label: 'Coinbase', institution: 'Coinbase' })], priceCache: {} }, { account: 'cb', position: 'p1' });
     expect(built[built.indexOf('NO LIVE PRICE — SHOWING WHAT YOU PAID') + 1]).toBe('$28,000');
     expect(built[built.indexOf('Total paid') + 1]).toBe('$28,000');
+  });
+});
+
+// 25: THE WHOLE PHONE, TO ITS LAST LINE, AND WHAT ITS TWO DOORS OPEN (2026-10-21, gap 25 of the Performance launch audit). The
+// three phone tests above read each phone through "Activity" and the built screen to its end, so the last two lines were in
+// the word-for-word match — but nothing said so, nothing held how the two buttons look, and nothing pressed them. Here: each
+// phone's last two lines on the drawing and on the screen are the two doors, and nothing follows them (3 of 3 phones); the
+// buttons are drawn as .btnRow / .btn and built to that (a 1-point edge in the line colour, 12 corners, 13/700 in the green);
+// each door opens its sheet (sheet_doors_2026_10_21.test.tsx walks each sheet; the sheets' own drawings hold their words).
+describe('Holding detail v02 · the last line of each phone, the two doors as drawn, and what they open (25)', () => {
+  const P = phones(NW + 'holding-detail_v02.html');
+  const HoldingDetailScreen = require('../HoldingDetailScreen').default;
+  const months = (m: number) => { const n = new Date(); return iso(new Date(n.getFullYear(), n.getMonth() - m, n.getDate())); };
+  const day = (n: number) => iso(new Date(Date.now() - n * 86400e3));
+  const SPY = { ticker: 'SPY', points: [{ date: months(26), close: 400 }, { date: months(12), close: 500 }, { date: day(1), close: 610 }, { date: day(0), close: 612 }] };
+  const live = { pricesFetchedAt: new Date().toISOString() };
+  const acct = (id: string, name: string, positions: any[]) => ({ asset_id: id, label: name, institution: name, kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true, positions });
+  const PHONES: [string, any, Record<string, string>][] = [
+    ['A · a priced holding', { ...live, assetAccounts: [acct('fid', 'Fidelity', [{ position_id: 'p1', ticker: 'AAPL', label: 'Apple Inc.', kind: 'stocks_etf', lots: [
+      { lot_id: 'l1', shares: 100, cost_per_share: 168, purchase_date: '2023-03-14' }, { lot_id: 'l2', shares: 40, cost_per_share: 192.5, purchase_date: '2026-01-09' }] }])],
+    priceCache: { AAPL: { ticker: 'AAPL', points: [{ date: months(26), close: 150 }, { date: months(12), close: 175 }, { date: day(1), close: 239.53 }, { date: day(0), close: 241.84 }] }, SPY } }, { account: 'fid', position: 'p1' }],
+    ['B · no live price', { ...live, assetAccounts: [acct('cb', 'Coinbase', [{ position_id: 'p1', ticker: 'BTC', label: 'Bitcoin', kind: 'crypto', lots: [{ lot_id: 'l1', shares: 0.5, cost_per_share: 56000, purchase_date: '2024-07-02' }] }])], priceCache: {} },
+      { account: 'cb', position: 'p1' }],
+    ['C · sold', { ...live, assetAccounts: [acct('et', 'E*TRADE', [{ position_id: 'p1', ticker: 'LCTX', label: 'Lucid Diagnostics', kind: 'stocks_etf', lots: [] }])],
+      priceCache: { LCTX: { ticker: 'LCTX', points: [{ date: months(14), close: 2.1 }, { date: day(1), close: 1.48 }, { date: day(0), close: 1.42 }] }, SPY } }, { account: 'et', position: 'p1', period: '2Y' }],
+  ];
+  const html = noteOf(NW + 'holding-detail_v02.html').html;
+  const cssOf = (cls: string) => Object.fromEntries((new RegExp(`\\.${cls}\\{([^}]*)\\}`).exec(html)?.[1] ?? '').split(';').map((d) => d.split(':').map((x) => x.trim())).filter((x) => x.length === 2));
+  const tokens = Object.fromEntries([...html.matchAll(/--([a-zA-Z0-9]+):([^;]+);/g)].map((m) => [m[1], m[2].trim()]));
+  const colour = (v: string) => (/^var\(--(\w+)\)$/.test(v) ? tokens[/^var\(--(\w+)\)$/.exec(v)![1]] : v).replace(/\s+/g, '').replace(/\.10\)/, '0.10)').toUpperCase();
+
+  test.each(PHONES.map((p, i) => [p[0], i] as [string, number]))('phone %s · its last two lines are the two doors, on the drawing and on the screen, and nothing follows', (_n, i) => {
+    const drawn = upTo(P[i], /^Activity$/);
+    const built = show(HoldingDetailScreen, PHONES[i][1], PHONES[i][2]);
+    expect(drawn.slice(-2)).toEqual(['Record buy/sell', 'Activity']);
+    expect(built.slice(-2)).toEqual(['Record buy/sell', 'Activity']);
+    expect(built.filter((l) => l === 'Record buy/sell')).toHaveLength(1);
+  });
+
+  test('the two buttons as drawn (.btnRow, .btn) are the buttons as built', () => {
+    const row = cssOf('btnRow'); const btn = cssOf('btn');
+    expect([row.gap, row['margin-top'], btn['border-radius'], btn.padding, btn['font-size'], btn['font-weight']]).toEqual(['8px', '4px', '12px', '12px 0', '13px', '700']);
+    show(HoldingDetailScreen, PHONES[0][1], PHONES[0][2]);
+    for (const label of ['Record a buy or sell for AAPL', "See AAPL's activity"]) {
+      const b = screen.getByLabelText(label);
+      const st = flatStyle(b);
+      const words = require('react-native').StyleSheet.flatten(b.findByType(require('react-native').Text).props.style);
+      expect({ edge: `${st.borderWidth}px solid ${String(st.borderColor).replace(/\s+/g, '').toUpperCase()}`, bg: String(st.backgroundColor).toUpperCase(), r: st.borderRadius, py: st.paddingVertical,
+        size: words.fontSize, weight: words.fontWeight, colour: String(words.color).toUpperCase() })
+        .toEqual({ edge: `1px solid ${colour(btn.border.replace(/^1px solid /, ''))}`, bg: colour(btn.background), r: 12, py: 12, size: 13, weight: '700', colour: colour(btn.color) });
+      let row: any = b.parent; while (row && !(row.props?.style && flatStyle(row).flexDirection === 'row')) row = row.parent;
+      expect(row).toBeTruthy();                                                   // the row the two doors sit in was found
+      expect([flatStyle(row).gap, flatStyle(row).marginTop]).toEqual([8, 4]);
+    }
+  });
+
+  test('each door opens its sheet: Record buy/sell the trade sheet, with AAPL; Activity the holding\'s records', () => {
+    show(HoldingDetailScreen, PHONES[0][1], PHONES[0][2]);
+    fireEvent.press(screen.getByLabelText('Record a buy or sell for AAPL'));
+    expect(screen.getByText('Record activity')).toBeOnTheScreen();
+    expect(screen.getByPlaceholderText('e.g. AAPL').props.value).toBe('AAPL');
+    show(HoldingDetailScreen, PHONES[0][1], PHONES[0][2]);
+    fireEvent.press(screen.getByLabelText("See AAPL's activity"));
+    expect(screen.getByText('Every record of this holding, newest first.')).toBeOnTheScreen();
+  });
+});
+
+// 27: LOOK BACK WITH NOTHING BEHIND IT (2026-10-21, gap 27 of the Performance launch audit). The drawing draws two phones,
+// both with holdings. Its rule for missing data is state B's caption: "Nothing is invented; the screen says what is missing
+// and what to do." Held here on an account with no holdings and no prices at all — a fresh account — and with the amount
+// cleared: the same screen as phone B, word for word, but for what an empty account changes (its own holdings are not among
+// the choices, only the four yardsticks; and the missing prices are named, with what is true for them);
+// no figure is printed, not even $0, and the WHAT ACTUALLY HAPPENED card is not drawn.
+describe('Look back v01 · the empty state: no holdings, no prices (27)', () => {
+  const P = phones('networth-and-performance/moneykeel_pres_mock_look-back_v01.html');
+  const LookBackScreen = require('../LookBackScreen').default;
+  const EMPTY = [{ asset_id: 'v', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, positions: [] }];
+  const YARDSTICKS = ['AGG', 'GLD', 'BTC', 'AOR'];
+  // Look back fetches what it compares (2026-10-22, the drawing's dated row): here the price source brings nothing (this file
+  // replaces it with one that answers nothing), so the line names the two tickers the refresh could not get — it read "prices
+  // for that pairing yet … or pick a shorter window", which brings no price that is missing altogether
+  const NO_PRICES = "Couldn't refresh prices for AGG or SPY, so there is nothing to compare yet. Look back tries again each time it opens.";
+  test('phone B\'s screen, with an empty account\'s choices and the missing prices named — and no figure at all', async () => {
+    show(LookBackScreen, { onboardingProfile: {}, assetAccounts: EMPTY, priceCache: {} });
+    expect(screen.getByText('Getting prices for AGG and SPY…')).toBeOnTheScreen();                             // while the refresh runs
+    await waitFor(() => expect(screen.getByText(NO_PRICES)).toBeOnTheScreen());
+    const built = builtLines(screen.toJSON());
+    const drawn = upTo(P[1], /pick a shorter window\.$/).filter((l) => l !== '20,000');                        // 2: the amount is typed
+    const at = (ls: string[], l: string) => ls.indexOf(l);
+    // what an empty account changes, and only that: the choices, and the missing thing named
+    const want = [...drawn.slice(0, at(drawn, 'From') + 1), ...YARDSTICKS.filter((t) => t !== 'SPY'),
+      'To', 'SPY', ...YARDSTICKS.filter((t) => t !== 'AGG'), ...drawn.slice(at(drawn, 'When'))]
+      .map((l) => (/pick a shorter window\.$/.test(l) ? NO_PRICES : l));
+    expect(drawn).toContain('BND');                                                                           // the drawing's own holdings were there to replace
+    expect(firstDifference(norm(want), norm(built))).toBe('');
+    expect(built[built.length - 1]).toBe(NO_PRICES);
+    expect(built.filter((l) => /\$\d|%/.test(l))).toEqual([]);                                                 // nothing invented: no $0, no 0%
+    expect(built).not.toContain('WHAT ACTUALLY HAPPENED');
+  });
+  test('with the amount cleared: one sentence saying what is missing, and still no figure', () => {
+    show(LookBackScreen, { onboardingProfile: {}, assetAccounts: EMPTY, priceCache: {} });
+    fireEvent.changeText(screen.getByLabelText('Amount to look back on'), '');
+    const built = builtLines(screen.toJSON());
+    expect(built[built.length - 1]).toBe('Enter an amount to look back on.');
+    expect(built.filter((l) => /\$\d|%/.test(l))).toEqual([]);
+    expect(built).not.toContain('WHAT ACTUALLY HAPPENED');
   });
 });

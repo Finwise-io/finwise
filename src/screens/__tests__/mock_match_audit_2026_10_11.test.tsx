@@ -218,9 +218,9 @@ describe('9–10 · Holding detail: a purchase with no price paid, and prices th
     render(<H />);
     return builtLines(screen.toJSON());
   };
-  test('9 · the purchase reads "100 sh @ no purchase price recorded"; the gain says why it is not stated', () => {
+  test('9 · the purchase reads "100 sh @ no price paid on record" (Q34, 2026-10-21); the gain says why it is not stated', () => {
     const lines = show();
-    expect(lines).toContain('100 sh @ no purchase price recorded');
+    expect(lines).toContain('100 sh @ no price paid on record');
     const g = lines.indexOf('Gain — long-term (held over 1 yr)');
     expect(lines[g + 1]).toBe('Not stated — a purchase has no price paid or share count on record.');
     expect(lines.join('\n')).not.toMatch(/section is not drawn|No price today/);

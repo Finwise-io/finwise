@@ -10,12 +10,12 @@
   "Q52": {
    "answered": "2026-09-30",
    "his_words": "Q52 - use option B … v17 approved.",
-   "what_was_built": "TODAY, when money moved in or out in amounts large enough that WHEN it moved would decide the percentage, the Return states nothing and the screen shows the dollar walk alone. That person — someone actively adding money — is the one who most needs a rate and currently never sees one.\nHIS RULING: show the exact rate there instead. Where the walk now says there is no percentage, it will read that counting when you added money, the rate was X% a year.\nWHY THIS IS SAFE, measured: the two methods are not different answers. (more in the decision log) APPROVED in two words. THREE THINGS BUILT. (16) Where the window Return declines to state a percentage, the exact rate per year stands in its place instead of an em-dash, and the note beneath says what the figure IS rather than why there is none — on the Performance tab and on an account’s own page. IT IS THE WINDOW’S RATE, never the whole record’s: the solver is given this window’s beginning as an opening amount and this window’s own money in and out, so the figure answers the period the label names. (more in the decision log)"
+   "what_was_built": "Noted 2026-10-22, what the screen shows now: his DEC-1669 (2026-10-04, every return time-weighted) replaced this — the money-weighted rate described below no longer stands in, and the window Return it was compared with was removed the same day. Where the Return cannot be measured, the Performance tab and the account page show no percent and a sentence saying why, never another method (MK-PF-M-016, MK-PF-M-017). — TODAY, when money moved in or out in amounts large enough that WHEN it moved would decide the percentage, the Return states nothing and the screen shows the dollar walk alone. (more in the decision log) APPROVED in two words. THREE THINGS BUILT. (16) Where the window Return declines to state a percentage, the exact rate per year stands in its place instead of an em-dash, and the note beneath says what the figure IS rather than why there is none — on the Performance tab and on an account’s own page. IT IS THE WINDOW’S RATE, never the whole record’s: the solver is given this window’s beginning as an opening amount and this window’s own money in and out, so the figure answers the period the label names. (more in the decision log)"
   },
   "Q53": {
    "answered": "2026-09-30",
    "his_words": "Q53 - what actually leaves.",
-   "what_was_built": "The line reads “Monthly debt payments” and two amounts could go there: the minimum each debt obliges, or the money that actually goes. On a card with a  minimum paid at , it read  and now reads . HIS WORDS: “what actually leaves.” The words say payments, and what a person pays is what they pay. The minimum stays on the door for debt-to-income."
+   "what_was_built": "The line reads “Monthly debt payments” and two amounts could go there: the minimum each debt obliges, or the money that actually goes. On a card with a $200 minimum paid at $600, it read $200 and now reads $600. HIS WORDS: “what actually leaves.” The words say payments, and what a person pays is what they pay. The minimum stays on the door for debt-to-income."
   },
   "Q17": {
    "answered": "2026-09-30",
@@ -77,6 +77,11 @@
    "his_words": "no words of his — decided by Claude (the lead) under his existing rulings; what was built is below",
    "what_was_built": "NOT A DECISION OF HIS — the lead's decision of 2026-10-20 under his ruling DEC-0281 (the nine facts on a bond), made without asking him, as his order of 2026-09-30 says. A bond's or CD's quantity is its face amount: $10,000 of face is a quantity of 10,000. The face value box is the quantity, so nothing new is asked. One word from him reverses it. NOT A DECISION OF HIS — the lead's decision of 2026-10-20 under his ruling DEC-0281, made without asking him, as his order of 2026-09-30 says. A bond's price is quoted per $100 of its face value, the way brokers quote bonds, and worked out — never a box to fill in: market value ÷ face value × 100. Example: $9,850 ÷ $10,000 × 100 = $98.50. One word from him reverses it."
   },
+  "Q36": {
+   "answered": "2026-10-20",
+   "his_words": "no words of his — decided by Claude (the lead) under his existing rulings; what was built is below",
+   "what_was_built": "NOT A DECISION OF HIS — the lead's decision of 2026-10-20 under his rulings DEC-3523 (tenet 1, a wrong number ends trust), made without asking him, as his order of 2026-09-30 says. A holding is one ticker in one account, so its page counts only the dividends recorded for that ticker in that account. Example: VTI at Vanguard paid $40 and VTI at Fidelity paid $10. Before, both pages read $50; now they read $40 and $10, which add to the $50 received. One word from him reverses it."
+  },
   "Q15": {
    "answered": "2026-10-20",
    "his_words": "no words of his — decided by Claude (the lead) under his existing rulings; what was built is below",
@@ -91,6 +96,21 @@
    "answered": "2026-10-20",
    "his_words": "no words of his — decided by Claude (the lead) under his existing rulings; what was built is below",
    "what_was_built": "NOT A DECISION OF HIS — the lead's decision of 2026-10-20 under his rulings DEC-4643 (count the part on record and say what is not), made without asking him, as his order of 2026-09-30 says. On a holding page, the gains if sold today, the average price paid and Total paid count the purchases whose price paid is on record, and a line says how many shares are left out. A price paid left blank is saved as not on record, never $0. Example: 10 shares at $100 and 10 with no price paid, today $120: Total paid $1,000 and the gain +$200, both on the 10, and 10 shares named as left out. (more in the decision log)"
+  },
+  "Q34": {
+   "answered": "2026-10-21",
+   "his_words": "no words of his — decided by Claude (the lead) under his existing rulings; what was built is below",
+   "what_was_built": "NOT A DECISION OF HIS — the lead's decision of 2026-10-21 under his rulings DEC-4643 and DEC-3523 (tenets 2 and 4), made without asking him, as his order of 2026-09-30 says. An info dot beside Price paid (average) reads: Price paid (average) is what you paid per share, over the purchases with a price paid on record. Shares with no price paid on record are left out of the average, and What you bought says how many. A price of $0 counts as not on record. If a purchase has no share count on record, no average is shown. Every line on the card now says no price paid on record. (more in the decision log)"
+  },
+  "Q35": {
+   "answered": "2026-10-21",
+   "his_words": "no words of his — decided by Claude (the lead) under his existing rulings; what was built is below",
+   "what_was_built": "NOT A DECISION OF HIS — the lead's decision of 2026-10-21 on master question Q35, made without asking him, as his order of 2026-09-30 says, following his comment of 2026-08-26 on this figure (Trailing Twelve Months, not just 12 months). Holding detail reads Dividends received (trailing twelve months); it read Dividends received (12 mo). Income's line for an account's interest and dividends reads paid out over the trailing twelve months; it read over the last year. The figures do not change. One word from him reverses it."
+  },
+  "Q33": {
+   "answered": "2026-10-21",
+   "his_words": "no words of his — decided by Claude (the lead) under his existing rulings; what was built is below",
+   "what_was_built": "NOT A DECISION OF HIS — the lead's decision of 2026-10-21 under his rulings DEC-4645, DEC-6614 and DEC-1624, made without asking him, as his order of 2026-09-30 says. Master question Q33 asked which index each class is compared with, and whether the person can change it. (more in the decision log)"
   }
  }
 }

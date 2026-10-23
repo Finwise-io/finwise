@@ -156,8 +156,7 @@
     "MK-PF-M-005",
     "MK-PF-M-006",
     "MK-PF-M-007",
-    "MK-PF-M-008",
-    "MK-PF-M-009"
+    "MK-PF-M-008"
    ],
    "read_from": "performance_v14 — read 2026-09-26, every static string against the app"
   },

@@ -139,7 +139,9 @@ describe('a day that does not exist is no purchase date in the window readers', 
   test('gainRowBetween reads a purchase date through purchaseDateOnRecord, and a cost through lotCostOnRecord', () => {
     const body = PERF.match(/function gainRowBetween\([\s\S]*?\n}\n/)![0];
     expect(body).toMatch(/const boughtOn = \(l: any\): string \| null => purchaseDateOnRecord\(l\?\.purchase_date\)/);
-    expect(body).toMatch(/if \(inside\.some\(\(l\) => !lotCostOnRecord\(l\)\)\) return unknown;/);
+    // (2026-10-22, W-START: the unknown row also says why — a purchase with no price paid on record — so the left-out line gives
+    // that reason, canon row 24; the cost is still read through lotCostOnRecord)
+    expect(body).toMatch(/if \(inside\.some\(\(l\) => !lotCostOnRecord\(l\)\)\) return \{ \.\.\.unknown, paidInside: null \};/);
     expect(body).not.toMatch(/\/\^\\d\{4\}-\\d\{2\}-\\d\{2\}\/\.test\(String\(l\?\.purchase_date/);
   });
 });

@@ -22,9 +22,9 @@
  *   · the top bar's icons: the drawing draws them as glyphs ("Money"+"Keel", "◉", "⚙"); the app draws the wordmark
  *     image and two icon buttons. Both are read as [wordmark MoneyKeel], [icon Hide balances], [icon Settings].
  *
- *  KNOWN DIFFERENCES (each with its reason) — see KNOWN below. There are none in the words; four are in the
- *  appearance, where the drawing's CSS and one of the app's shared rules disagree (its shared amber box, its one content
- *  padding, its one right edge, its one type scale).
+ *  KNOWN DIFFERENCES (each with its reason) — see KNOWN below. There are none in the words; six are in the
+ *  appearance, where the drawing's CSS and one of the app's shared rules disagree (its shared amber box and that box's
+ *  headline, its one content padding, its one right edge, its one type scale, its one info dot).
  */
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
@@ -302,6 +302,12 @@ const KNOWN = {
   /** the amber box's two doors write 13, every door's size; the drawing's small door (.door.sm) writes 12, which is not on
    *  the app's one type scale (src/components/__tests__/SectionBand.test.tsx fails the build on any size off it). */
   smallDoorText: { app: 13, drawing: 12 },
+  /** the info dot is the app's ONE dot (InfoDot, every screen), a ⓘ at 700; this drawing writes its ⓘ at 400. The approved
+   *  drawings draw the dot three ways (v08: a 9-point italic i in a ring), so the shared dot stands (2026-10-21, gap 26). */
+  infoDotWeight: { app: '700', drawing: '400' },
+  /** the amber box's headline is the shared box's (DataGapsBanner, Net worth and Performance): 800; the drawing writes it
+   *  in a <b>, which a browser draws at 700 (2026-10-21, gap 26; the box is KNOWN above for the same reason). */
+  amberHeadlineWeight: { app: '800', drawing: '700' },
 };
 
 const DRAWN = drawnStates();
@@ -886,5 +892,146 @@ describe('DEC-6412 · a window that opens before the record begins is joined at 
     expect(lines).toContain('Your daily record begins Oct 1, 2025, so the days before it are worked back from each holding\'s price history.');
     expect(lines.some((l) => /Rebuilt from/.test(l))).toBe(false);   // the record does not reach the window's beginning
     expect(lines.some((l) => /has no price history/.test(l))).toBe(false);   // the bonds had no part in those days
+  });
+});
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+// EVERY LINE'S APPEARANCE, STATE BY STATE (2026-10-21, gap 26 of the Performance launch audit). State F (row 47) was held
+// word for word and by nesting, but its look only in two places (its summary note; no Price row). Here EVERY line of every
+// state, F included, is held: the drawing's own CSS is resolved for the element each line sits in (its classes and its
+// ancestors', the more specific and then the later rule winning, size, weight and colour inherited as a browser inherits
+// them) and compared with the size, weight and colour the screen renders for the same line. Then state F's cards and its
+// three dark-green bars. Run across A to E it found two more: the rates card's dot drawn 11 and built 13 (fixed: the dot is
+// the size of its title, founder 2026-08-14), and the amber headline drawn 700 (a <b>) and built 800 (KNOWN, the shared box).
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+describe('APPEARANCE · every line of every state, F included: size, weight and colour against the drawing\'s CSS (gap 26)', () => {
+  const ROOT = Object.fromEntries([...(/:root\{([^}]*)\}/.exec(HTML)![1].matchAll(/--([A-Za-z0-9]+):([^;]+);/g))].map((m) => [m[1], m[2].trim()]));
+  const colourOf = (v?: string) => (v == null ? undefined : (/^var\(--(\w+)\)$/.test(v.trim()) ? ROOT[/^var\(--(\w+)\)$/.exec(v.trim())![1]] : v.trim()).toUpperCase());
+  type Rule = { parts: { tag?: string; cls: string[] }[]; decl: Record<string, string>; spec: number; order: number };
+  const RULES: Rule[] = [];
+  const css = HTML.slice(HTML.indexOf('<style>'), HTML.indexOf('</style>')).replace(/\/\*[\s\S]*?\*\//g, '');
+  let order = 0;
+  for (const m of css.matchAll(/([^{}]+)\{([^}]*)\}/g)) {
+    const decl = Object.fromEntries(m[2].split(';').map((d) => d.split(':')).filter((x) => x.length >= 2).map(([k, ...v]) => [k.trim(), v.join(':').trim()]));
+    for (const sel of m[1].split(',').map((x) => x.trim())) {
+      if (!sel.startsWith('.') && !/^[a-z]+$/.test(sel)) continue;     // :root, @media and the like are not about a line
+      if (sel.includes(':')) continue;                                  // a pseudo-class rule sets no size, weight or colour here
+      const parts = sel.replace(/>/g, ' ').split(/\s+/).filter(Boolean).map((c) => ({ tag: /^[a-z]+/.exec(c)?.[0], cls: [...c.matchAll(/\.([\w-]+)/g)].map((x) => x[1]) }));
+      RULES.push({ parts, decl, spec: parts.reduce((n, p) => n + p.cls.length * 10 + (p.tag ? 1 : 0), 0), order: order++ });
+    }
+  }
+  type El = { tag: string; cls: string[] };
+  const matches = (p: { tag?: string; cls: string[] }, e: El) => (!p.tag || p.tag === e.tag) && p.cls.every((c) => e.cls.includes(c));
+  /** a rule applies to the last element of the chain: its last part is that element, its earlier parts are ancestors, in order */
+  const applies = (r: Rule, chain: El[]) => {
+    if (!matches(r.parts[r.parts.length - 1], chain[chain.length - 1])) return false;
+    let k = r.parts.length - 2;
+    for (let i = chain.length - 2; i >= 0 && k >= 0; i--) if (matches(r.parts[k], chain[i])) k--;
+    return k < 0;
+  };
+  const resolve = (chain: El[]) => {
+    const out: Record<string, string> = { 'font-size': '14px', 'font-weight': '400', color: 'var(--ink)' };   // the page's body
+    for (let i = 0; i < chain.length; i++) {
+      const own = RULES.filter((r) => applies(r, chain.slice(0, i + 1))).sort((a, b) => a.spec - b.spec || a.order - b.order);
+      for (const r of own) for (const p of ['font-size', 'font-weight', 'color']) if (r.decl[p]) out[p] = r.decl[p];
+      if (chain[i].tag === 'b') out['font-weight'] = out['font-weight'] === '400' ? '700' : out['font-weight'];   // <b> is bold unless a rule says
+    }
+    return { size: parseFloat(out['font-size']), weight: out['font-weight'], color: colourOf(out.color) };
+  };
+  /** a state's lines, each with the chain of elements it sits in (the same reading as drawnStates) */
+  const drawnStyled = (key: string) => {
+    const at = HTML.indexOf(`STATE ${key} ·`);
+    const from = HTML.lastIndexOf('<div class="state">', at);
+    const next = HTML.indexOf('<div class="state">', at);
+    const body = HTML.slice(from, next > 0 ? next : HTML.indexOf('<div class="side">'))
+      .replace(/<span class="pn">[^<]*<\/span>/g, '').replace(/<div class="sbar">[\s\S]*?<\/div>/g, '')
+      // a link INSIDE a line is read as part of that line, as drawnStates reads it (its own look is held by state B's test)
+      .replace(/([^>\s])\s*<span class="lnk">([^<]*)<\/span>/g, '$1 $2');
+    const out: { t: string; chain: El[] }[] = [];
+    const stack: El[] = [];
+    let inLabel = false;
+    for (const m of body.matchAll(/<(\/?)([a-z0-9]+)([^>]*)>|([^<]+)/gi)) {
+      if (m[4] != null) {
+        const t = clean(decode(m[4]));
+        if (!t || inLabel) continue;
+        if (stack.some((e) => e.cls.includes('wordmark') || e.cls.includes('tico'))) continue;   // drawn glyphs, not typeset words
+        out.push({ t, chain: [...stack] });
+        continue;
+      }
+      const [, close, tag, attrs] = m;
+      if (tag === 'br' || tag === 'i' && /style=/.test(attrs)) continue;
+      if (close) { const e = stack.pop(); if (e?.cls.includes('state')) inLabel = false; continue; }
+      const cls = (/class="([^"]*)"/.exec(attrs)?.[1] ?? /class=([^\s>]+)/.exec(attrs)?.[1] ?? '').split(/\s+/).filter(Boolean);
+      if (cls.includes('state')) inLabel = true;
+      stack.push({ tag, cls });
+    }
+    return out;
+  };
+  const drawnF = drawnStyled('F');
+  /** the screen's lines with the size, weight and colour each is rendered in (a Text's own style; RN's 14 and 400 unset) */
+  const builtF = () => {
+    const out: { t: string; size: number; weight: string; color?: string }[] = [];
+    const walk = (n: any) => {
+      if (n == null || typeof n === 'string') return;
+      if (Array.isArray(n)) { n.forEach(walk); return; }
+      if (n.type === 'Text') {
+        const t = clean(textOf(n)); const st = flat(n.props.style);
+        if (t && !/^[-]+$/.test(t)) out.push({ t, size: st.fontSize ?? 14, weight: String(st.fontWeight ?? '400'), color: st.color == null ? undefined : String(st.color).toUpperCase() });
+        return;
+      }
+      if (n.type === 'Image' && n.props?.accessibilityLabel === 'MoneyKeel') return;
+      if (n.props?.accessibilityRole === 'button' && ICON_BUTTONS.has(n.props?.accessibilityLabel)) return;
+      (n.children ?? []).forEach(walk);
+    };
+    walk(screen.toJSON());
+    return out;
+  };
+
+  test('the drawing\'s state F, read with its CSS: the same lines as the word-for-word reading (the guard looked)', () => {
+    const words = DRAWN[5].lines.map((l) => norm(l.t)).filter((t) => !t.startsWith('['));
+    expect(drawnF.map((l) => norm(l.t))).toEqual(words);
+    expect(drawnF.length).toBeGreaterThanOrEqual(55);
+    expect(RULES.length).toBeGreaterThanOrEqual(60);
+  });
+
+  /** the KNOWN differences of appearance, each the app's one shared rule (see KNOWN at the top of this file) */
+  const known = (k: string, d: { t: string; chain: El[] }, w: string, g: string) =>
+    (d.t === 'ⓘ' && w.replace(` · ${KNOWN.infoDotWeight.drawing} · `, ` · ${KNOWN.infoDotWeight.app} · `) === g)
+    || (k === 'D' && d.chain.some((e) => e.cls.includes('warnb')) && d.chain[d.chain.length - 1].tag === 'b' && w.replace(` · ${KNOWN.amberHeadlineWeight.drawing} · `, ` · ${KNOWN.amberHeadlineWeight.app} · `) === g)
+    || (k === 'D' && d.chain[d.chain.length - 1].cls.includes('sm') && w.replace(/^12 /, `${KNOWN.smallDoorText.app} `) === g);
+  test.each(['A', 'B', 'C', 'D', 'E', 'F'])('state %s · every line: the size, weight and colour the drawing\'s CSS gives it are the ones the screen renders', (k) => {
+    renderState(STATES['ABCDEF'.indexOf(k)]);
+    const built = builtF(); const drawn = drawnStyled(k);
+    expect(built.map((b) => norm(b.t))).toEqual(drawn.map((d) => norm(d.t)));    // the same lines, so line i is line i
+    const diffs: string[] = []; let knownSeen = 0;
+    drawn.forEach((d, i) => {
+      const want = resolve(d.chain); const got = built[i];
+      const w = `${want.size} · ${want.weight} · ${want.color}`; const g = `${got.size} · ${got.weight} · ${got.color}`;
+      if (w === g) return;
+      if (known(k, d, w, g)) { knownSeen++; return; }
+      diffs.push(`«${d.t}» drawn ${w} (.${d.chain[d.chain.length - 1].cls.join('.') || d.chain[d.chain.length - 1].tag}) · rendered ${g}`);
+    });
+    expect(diffs).toEqual([]);
+    // the guard looked: every line compared, and the known ones are the ones it expects to meet
+    expect(drawn.length).toBeGreaterThanOrEqual({ A: 120, B: 60, C: 75, D: 80, E: 60, F: 55 }[k]!);
+    expect(knownSeen).toBe(drawn.filter((d) => d.t === 'ⓘ').length + (k === 'D' ? 3 : 0));
+  });
+
+  test('state F\'s cards are the page\'s cards, and its three dark-green bars run edge to edge with square corners', () => {
+    renderState(STATES[5]);
+    const cards = nodes().filter(({ n }) => groupKind(n) === 'card');
+    expect(cards.length).toBe((HTML.slice(HTML.indexOf('STATE F ·')).match(/<div class="card">/g) ?? []).length);
+    for (const { n } of cards) expect(flat(n.props.style)).toMatchObject({ backgroundColor: Colors.cardBg, borderRadius: 16, padding: 12, paddingBottom: 10, marginBottom: 8, ...Shadows.card });
+    const bars = nodes().filter(({ n }) => n.type === 'View' && flat(n.props.style).backgroundColor === Colors.primaryDeep && !(flat(n.props.style).minHeight >= 44));
+    expect(bars.length).toBe((HTML.slice(HTML.indexOf('STATE F ·')).match(/<div class="band">/g) ?? []).length);   // THIS ACCOUNT, HOW … BECAME, ACTIVITY
+    expect(bars.length).toBe(3);
+    for (const { n } of bars) {
+      const st = flat(n.props.style);
+      expect([st.borderRadius ?? 0, st.borderTopLeftRadius ?? 0, st.borderTopRightRadius ?? 0]).toEqual([0, 0, 0]);
+      expect(st.marginHorizontal ?? st.marginLeft).toBe(-12);                       // the card's own 12, taken back: edge to edge
+    }
+    // the hand-built buttons and the doors, as in state B and state A
+    expect(parentStyleOf('Update value')).toMatchObject({ borderWidth: 1.5, borderColor: Colors.border, borderRadius: 16, minHeight: 44, paddingHorizontal: 18, backgroundColor: Colors.cardBg });
+    expect(parentStyleOf('Add a buy or sale ›')).toMatchObject({ borderWidth: 1.5, borderColor: Colors.primaryDeep, borderRadius: 12, minHeight: 44 });
   });
 });

@@ -9,7 +9,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, RefreshCon
 import Svg, { Path } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
-import { figWords } from '../components/figure';   // the odds print under their identifier, MK-XS-M-002 (2026-10-20)
+import { figWords, fig, figSaid, walkShown } from '../components/figure';   // the odds print under their identifier, MK-XS-M-002 (2026-10-20)
 import { oddsLine, sampleOddsLine } from '../domain/planning/hub';
 import { Colors, Spacing, Radii, GaugeRamp } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -22,7 +22,7 @@ import { AllocateSavings } from '../components/MoneySheets';
 import { incomeMonthlyGrid, salaryAnnual, currentRetirementIncomeMonthly } from '../domain/income';
 import { assetClassOf } from '../domain/assets';
 import { DesktopInvestTable } from '../../desktop/platform/DesktopInvestTable';
-import { buildPerformance, portfolioBenchReturn, type Position } from '../domain/performance';
+import { buildPerformance, portfolioBenchReturn, marketGap, type Position } from '../domain/performance';
 import { priceFreshness } from '../services/marketData';
 import { connectionFreshness } from '../services/sync';
 import { requiredPayment } from '../domain/debt';   // the due-soon alert names ONE debt, not a total
@@ -43,7 +43,7 @@ import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { SectionBand } from '../components/SectionBand';
 import { DotJoined } from '../components/SepDot';
 import { isoLocalDate } from '../domain/_shared/dates';
-import { DOORS } from '../constants/doors';
+import { DOORS, EMPTY_DOORS } from '../constants/doors';
 // The connect door's words come from the one list of ways in (founder ruling 2026-09-14: "Connect your bank"),
 // so Home can never re-type them differently again — his build-53 note found Home using its own, different words.
 const CONNECT_DOOR = DOORS.find((d) => d.route === '/connect')!;
@@ -220,8 +220,12 @@ export default function HomeScreen() {
   const youReturn = oneMonth.ret;                               // the door's 1M figure, the one Performance prints
   // and the dollars behind it — never re-derived from the %. Shown only beside a return, and a return
   // exists only where the walk does (a window the record reaches, or one worked back — DEC-5068), so the 0 here is never printed.
-  const youDollar = oneMonth.walk?.wealthGenerated ?? 0;
+  // as the Performance tab's 1M walk prints it (walkShown, 2026-10-21): one figure on both screens, in whole dollars that add up
+  const youDollar = oneMonth.walk ? walkShown(oneMonth.walk).wealthGenerated : 0;
   const marketReturn = useMemo(() => portfolioBenchReturn(perfRows), [perfRows]);   // the ONE shared formula (walk row 5)
+  // THE GAP COMES FROM ONE FUNCTION (marketGap, 2026-10-21) — the one each holding's "You are ahead by" reads too; it was
+  // calculated here on the screen (outside re-run OpenAI, cross-card case 7). Full precision; rounded once where it prints.
+  const gap = marketGap(youReturn, marketReturn);
   const freshness = positions.length > 0 ? priceFreshness(store.pricesFetchedAt, Date.now()) : null;
 
   // ── will-it-last strip: the ONE selector's number (same seeded run as the Plan hub) ──
@@ -321,14 +325,60 @@ export default function HomeScreen() {
   });
 
   // ── section blocks — desktop places the SAME blocks in two columns; phone order unchanged ──
+  // WHICH LINES THE HERO CARD PRINTS — named once, so the card's printed lines and its spoken label cannot disagree
+  const heroEmpty = investTotal === 0 && !resolvedRows.accounts.some((a: any) => ['stocks_etf', 'bonds', 'alternatives', 'mixed'].includes(assetClassOf(a)));
+  const heroBase = youReturn != null && oneMonth.ending != null && Math.round(oneMonth.ending) !== Math.round(investTotal);
+  const heroLeftOut = youReturn != null && !!oneMonth.notIncluded;
+  const heroVs = youReturn != null && marketReturn != null && gap != null;
+  const heroStale = (() => {
+    const st = (store.assetAccounts ?? [])
+      .filter((a: any) => a.source === 'connected')
+      .map((a: any) => ({ a, f: connectionFreshness(a.last_synced) }))
+      .filter((x: any) => x.f?.stale)
+      .sort((x: any, y: any) => y.f.daysOld - x.f.daysOld)[0];
+    if (!st) return null;
+    const asOf = st.a.last_synced ? new Date(st.a.last_synced).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+    return { who: st.a.institution ?? st.a.label, asOf, daysOld: st.f.daysOld as number };
+  })();
+  const asOfToday = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  // the "balance not entered" line's door — one route for the touch press and the spoken action
+  const openGaps = () => router.push('/(tabs)/analytics');
+  const heroGapAction = investGaps.length > 0
+    ? { name: HERO_GAP_ACTION, label: `${investGaps[0].title}${investGaps.length > 1 ? `, and ${investGaps.length - 1} more` : ''}. Opens the Net worth tab` }
+    : null;
+  /** THE CARD SAYS WHAT IT PRINTS, IN PRINTED ORDER (2026-10-22, W-A11Y). The card is one button, so a screen reader reads its
+   *  label and nothing inside it: it heard the total, the month and the price date, never the base of the month, the holding
+   *  left out, the market line or a stale connection. Each line is said here from the same figures, through the spoken writers
+   *  (figSaid, spokenMoney, spokenDollars) — "hidden" under hide-balances — and without the marks it prints (▲ ⚠ ⏱ ›). */
+  const heroSaid = [
+    `Your investments: ${spokenMoney(investTotal)}`,
+    ...(investGaps.length > 0 ? [investGaps.map((g) => g.title).join('. ')] : []),
+    ...(heroEmpty ? [`Nothing entered yet. ${EMPTY_DOORS.accounts.label}`] : []),
+    youReturn != null
+      ? `${youReturn >= 0 ? 'up' : 'down'} ${figSaid('MK-PF-M-002', Math.abs(youDollar))}, ${figSaid('MK-XS-M-004', Math.abs(youReturn)).replace(/%$/, ' percent')} this month`
+      : investTotal > 0 ? 'change shows once your holdings have prices' : 'nothing invested yet — connect or add an account to start',
+    ...(heroBase ? [`This month's change is on ${figSaid('MK-PF-M-001', oneMonth.ending)}: your investment accounts with the cash in them`] : []),
+    ...(heroLeftOut ? [spokenDollars(oneMonth.notIncluded as string)] : []),
+    ...(heroVs ? [`you ${(youReturn as number) >= 0 ? 'plus' : 'minus'} ${figSaid('MK-XS-M-004', Math.abs(youReturn as number))} (including dividends and interest), `
+      + `market ${(marketReturn as number) >= 0 ? 'plus' : 'minus'} ${figSaid('MK-PF-M-008', Math.abs(marketReturn as number))}, `
+      + `${(gap as number) >= 0 ? 'ahead' : 'behind'} by ${figSaid('MK-PF-M-027', Math.abs(gap as number))}`] : []),
+    freshness ? `${freshness.stale ? 'prices may be out of date, ' : 'prices '}updated ${freshness.label}` : `as of ${asOfToday}`,
+    ...(heroStale ? [`${heroStale.who} part as of ${heroStale.asOf}, ${heroStale.daysOld} days old, pull to refresh`] : []),
+    'See your growth',
+  ].map((l) => l.replace(/\s*›\s*$/, '').replace(/[.\s]+$/, '')).join('. ') + '.';
   const heroBlock = (<>
         {/* HERO — lens-driven */}
         {lens === 'retired' ? (
           <PaycheckCard />
         ) : (
           <TouchableOpacity accessibilityRole="button" style={styles.heroCard} activeOpacity={0.85} onPress={() => router.push('/(tabs)/invest')}
-           
-            accessibilityLabel={`Your investments: ${spokenMoney(investTotal)}${youReturn != null ? `, ${youReturn >= 0 ? 'up' : 'down'} ${Math.abs(Math.round(youReturn * 1000) / 10)} percent this month` : ''}${freshness ? `, prices updated ${freshness.label}` : ''}`}>
+            accessibilityLabel={heroSaid}
+            /* EVERY DOOR A FINGER CAN REACH, A SCREEN READER CAN TOO (2026-10-22, W-A11Y): the card is one button, so the "balance
+               not entered" line inside it could not be reached on its own. It is offered as the card's action, named with the
+               line's own printed words, opening the same Net worth tab the touch press opens — only while the line shows. The
+               pattern is the sliders' (RetirementCockpit, PlanSlider): accessibilityActions with onAccessibilityAction. */
+            accessibilityActions={heroGapAction ? [heroGapAction] : undefined}
+            onAccessibilityAction={(ev) => { if (ev.nativeEvent.actionName === HERO_GAP_ACTION) openGaps(); }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={styles.heroKicker}>YOUR INVESTMENTS</Text>
               <InfoDot term="investments" />
@@ -337,12 +387,12 @@ export default function HomeScreen() {
             {/* A BALANCE NOT ENTERED, NAMED UNDER THE FIGURE IT IS MISSING FROM (2026-10-21, DEC-3523 tenet 3): the same words as
                 the line under Net worth below and the Net worth tab's amber box; it opens the Net worth tab */}
             {investGaps.length > 0 && (
-              <TouchableOpacity accessibilityRole="button" style={styles.staleLine} onPress={() => router.push('/(tabs)/analytics')}
+              <TouchableOpacity accessibilityRole="button" style={styles.staleLine} onPress={openGaps}
                 accessibilityLabel={`${investGaps.map((g) => g.title).join('. ')}. Opens the Net worth tab.`}>
                 <Text style={styles.staleTxt}>⚠ {investGaps[0].title}{investGaps.length > 1 ? ` · and ${investGaps.length - 1} more` : ''} ›</Text>
               </TouchableOpacity>
             )}
-            {investTotal === 0 && !resolvedRows.accounts.some((a: any) => ['stocks_etf', 'bonds', 'alternatives', 'mixed'].includes(assetClassOf(a))) && <EmptyNote door="accounts" />}   {/* Q48 (MK-XS-M-003) */}
+            {heroEmpty && <EmptyNote door="accounts" />}   {/* Q48 (MK-XS-M-003) */}
             {/* Build-43 feedback #3: the approved mock shows change + date under the hero ALWAYS —
                 hiding them in the empty state made the built screen look nothing like the mock. */}
             {youReturn != null ? (
@@ -351,7 +401,11 @@ export default function HomeScreen() {
                  two can never disagree (accuracy rule: one source per concept). */
               <Text style={styles.heroLine}>
                 <Text style={{ color: youReturn >= 0 ? Colors.gainText : Colors.red, fontWeight: '800' }}>
-                  {youReturn >= 0 ? '▲ up' : '▼ down'} {maskedMoney(Math.abs(youDollar))} ({pctTwoDp(Math.abs(youReturn))})
+                  {/* the month's return is MK-XS-M-004 and prints under it, so the census can trace it (2026-10-21, outside re-run
+                      OpenAI part 1, F4); the screen reader hears the same two decimals (MK-XS-M-004 tenet 4) — it heard one */}
+                  {/* the month's dollars are the Performance tab's 1M Wealth generated, printed under its own identifier (MK-PF-M-002,
+                      2026-10-22): they printed through maskedMoney, with no identifier */}
+                  {youReturn >= 0 ? '▲ up' : '▼ down'} {fig('MK-PF-M-002', Math.abs(youDollar))} ({fig('MK-XS-M-004', Math.abs(youReturn))})
                 </Text>
                 <Text> this month</Text>
               </Text>
@@ -360,9 +414,19 @@ export default function HomeScreen() {
                 {investTotal > 0 ? 'change shows once your holdings have prices' : 'nothing invested yet — connect or add an account to start'}
               </Text>
             )}
+            {/* ONE BASE, NAMED (2026-10-21, the lead's decision on MK-PF-M-001 under DEC-3523 tenet 2, over DEC-0457 and Q-PF-1
+                together): YOUR INVESTMENTS leaves the cash in investment accounts out (DEC-0457), while the month's change is
+                Performance's 1M — the investment accounts whole, their cash included (Q-PF-1, one door). Under $35,775 the line
+                read "up $8,200 (21.35%)" measured on $46,600, and nothing said so. Where the two differ, the base is printed
+                beneath, the Performance tab's own Ending value. To reverse: delete this line. */}
+            {heroBase && (
+              <Text style={styles.freshness}>This month's change is on {fig('MK-PF-M-001', oneMonth.ending)}: your investment accounts with the cash in them.</Text>
+            )}
             {/* the holding left out of the month's figures above, in the words Performance uses (DEC-5068, 2026-10-13) */}
-            {youReturn != null && !!oneMonth.notIncluded && <Text style={styles.freshness}>{oneMonth.notIncluded}</Text>}
-            {youReturn != null && marketReturn != null && (
+            {/* its dollars hidden under hide-balances like every other sentence on Home (maskDollars, spokenDollars) — they showed
+                through: "Return is on the $40,000 …" with the balances hidden (2026-10-22, W-A11Y) */}
+            {heroLeftOut && <Text style={styles.freshness} accessibilityLabel={spokenDollars(oneMonth.notIncluded as string)}>{maskDollars(oneMonth.notIncluded as string)}</Text>}
+            {heroVs && youReturn != null && marketReturn != null && gap != null && (
               <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
                 {/* HIS RULING ON Q51 (2026-09-30): "you +3.69% (including dividend and interest),
                     market +2.83%, ahead by 0.85%". The two sides are NOT measured the same way and
@@ -374,9 +438,11 @@ export default function HomeScreen() {
                     table and the glossary already use for these two.
                     Corrected 2026-10-12: the market figure uses SPY and AGG adjusted closes, which include their dividends and interest. His approved wording above stays word for word (DEC-4645). */}
                 <DotJoined style={styles.heroVs} parts={[
-                  `you ${signedPct(youReturn)} (including dividends and interest)`,
-                  `market ${signedPct(marketReturn)}`,
-                  `${youReturn >= marketReturn ? 'ahead' : 'behind'} by ${pctTwoDp(Math.abs(youReturn - marketReturn))}`,
+                  // EACH PRINTED THROUGH ITS IDENTIFIER (DEC-0402 step 2, 2026-10-22): your month MK-XS-M-004, the market MK-PF-M-008,
+                  // the gap MK-PF-M-027 — they were written by a percent writer of Home's own, so none could be traced to its row
+                  `you ${youReturn >= 0 ? '+' : '−'}${fig('MK-XS-M-004', Math.abs(youReturn))} (including dividends and interest)`,
+                  `market ${marketReturn >= 0 ? '+' : '−'}${fig('MK-PF-M-008', Math.abs(marketReturn))}`,
+                  `${gap >= 0 ? 'ahead' : 'behind'} by ${fig('MK-PF-M-027', Math.abs(gap))}`,
                 ]} />
                 <InfoDot term="benchmark" />
               </View>
@@ -385,22 +451,13 @@ export default function HomeScreen() {
                 prices exist, plain "as of today" for hand-entered balances */}
             {freshness
               ? <Text style={[styles.freshness, freshness.stale && { color: Colors.amber }]}>{freshness.stale ? '⚠ prices may be out of date — ' : 'prices '}updated {freshness.label}</Text>
-              : <Text style={styles.freshness}>as of {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</Text>}
+              : <Text style={styles.freshness}>as of {asOfToday}</Text>}
             {/* Approved 2026-07-31-era mock #4 + founder change (left-justified, in the box): when a
                 connection goes 3+ days quiet, the number it feeds says so right here. */}
-            {(() => {
-              const st = (store.assetAccounts ?? [])
-                .filter((a: any) => a.source === 'connected')
-                .map((a: any) => ({ a, f: connectionFreshness(a.last_synced) }))
-                .filter((x: any) => x.f?.stale)
-                .sort((x: any, y: any) => y.f.daysOld - x.f.daysOld)[0];
-              if (!st) return null;
-              const asOf = st.a.last_synced ? new Date(st.a.last_synced).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
-              return (
-                <DotJoined style={[styles.freshness, { color: Colors.amber }]}
-                  parts={[`⏱ ${st.a.institution ?? st.a.label} part as of ${asOf} — ${st.f.daysOld} days old`, 'pull to refresh']} />
-              );
-            })()}
+            {!!heroStale && (
+              <DotJoined style={[styles.freshness, { color: Colors.amber }]}
+                parts={[`⏱ ${heroStale.who} part as of ${heroStale.asOf} — ${heroStale.daysOld} days old`, 'pull to refresh']} />
+            )}
             <Text style={styles.heroLink}>See your growth ›</Text>
           </TouchableOpacity>
         )}
@@ -661,8 +718,9 @@ function greeting() { const h = new Date().getHours(); return h < 12 ? 'morning'
 // Q49 (founder, 2026-09-09): a percent shows TWO decimals. This printed the hero return to one,
 // so a +0.54% month read as +0.5% on the first screen a person sees — the same defect the founder
 // found on Performance, in the place it is most visible.
-const pctTwoDp = (d: number) => `${(Math.round(d * 10000) / 100).toFixed(2)}%`;
-const signedPct = (d: number) => `${d >= 0 ? '+' : '−'}${pctTwoDp(Math.abs(d))}`;
+/** The hero card's spoken action for its "balance not entered" line (2026-10-22). */
+export const HERO_GAP_ACTION = 'openNetWorthGaps';
+// (Home's own percent writers, pctTwoDp and signedPct, are gone: the glance line prints through fig() — DEC-0402, 2026-10-22)
 
 const styles = StyleSheet.create({
   // desktop two-column (approved shell mock: 1fr/1fr, 16 gap)

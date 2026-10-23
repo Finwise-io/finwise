@@ -628,7 +628,8 @@
    "expected": "2023-08-22",
    "difference": null,
    "formula_gives_match": null,
-   "note": ""
+   "note": "",
+   "recheck_2026_10_21": "BRIEF WRONG since 2026-10-21 (DEC-7216, tenet 3): with an undated purchase the first day is not on record"
   },
   {
    "id": "MK-PF-F-012",
@@ -639,7 +640,8 @@
    "expected": "2022-06-30",
    "difference": null,
    "formula_gives_match": null,
-   "note": ""
+   "note": "",
+   "recheck_2026_10_21": "BRIEF WRONG since 2026-10-21 (DEC-7216, tenet 3): a blank or placeholder date is no date, so the first day is not on record"
   },
   {
    "id": "MK-PF-F-012",

@@ -46,17 +46,17 @@ export { round2 } from '../../../Calculation Module code/engines/money';
  *               MK-XS-F-004 buildDatedGrid · MK-XS-F-030 effectiveAnnualContribution
  *               MK-XS-F-031 buildSnapshot · MK-XS-F-058 parseReceipt
  *
- * Reaches ..... 359 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 399 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 341 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 381 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -93,17 +93,17 @@ export const toNum = (v: any): number => {
  * Called by ... MK-CF-F-067 rentalList · MK-CF-F-219 rentEntryMonthly
  *               MK-NW-F-114 rentAmount · MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 281 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 320 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 263 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 302 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -129,26 +129,27 @@ export const rentFigure = (v: any): number | null => {
  *
  * Called by ... MK-CF-F-146 payFiguresAgree · MK-CF-F-171 earnerPay
  *               MK-CF-F-184 incomeFromAccounts · MK-CF-O-001 basePay
- *               MK-NW-F-041 monthlyContributionsFromOnboarding · MK-NW-F-078 ONE
- *               MK-NW-F-081 LB · MK-NW-F-134 carValueNotEnteredNotes
- *               MK-NW-F-146 undatedGainSentence · MK-NW-F-147 paymentNotEntered
+ *               MK-NW-F-041 monthlyContributionsFromOnboarding · MK-NW-F-081 LB
+ *               MK-NW-F-134 carValueNotEnteredNotes · MK-NW-F-146 undatedGainSentence
+ *               MK-NW-F-147 paymentNotEntered · MK-NW-F-179 balanceWithBondTakenOut
  *               MK-NW-O-008 thePerformance · MK-PF-F-013 benchmarkTicker
  *               MK-PF-F-020 portfolioBenchReturn · MK-PF-F-041 isoDay
  *               MK-PF-F-046 saleShortOfPurchasesSentence · MK-PF-F-058 gainOnPartSentence
- *               MK-PL-F-030 onCourseSentence · MK-ST-F-012 toLedgerRow
- *               MK-ST-F-044 setMoneyFormat · MK-XS-F-004 buildDatedGrid
+ *               MK-PF-F-070 holdingPath · MK-PL-F-030 onCourseSentence
+ *               MK-ST-F-012 toLedgerRow · MK-ST-F-044 setMoneyFormat
+ *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 277 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 315 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-081 LB
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 259 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-081 LB · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               … and 297 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -191,7 +192,7 @@ export const money2 = (n: number): string => formatMoneyCents(n);
  *
  * Called by ... MK-CF-F-109 reviewTransactions · MK-PL-F-050 simulate
  *
- * Reaches ..... 77 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 78 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
  *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
@@ -201,7 +202,7 @@ export const money2 = (n: number): string => formatMoneyCents(n);
  *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
  *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-O-017 futurePaycheck
  *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               … and 59 more — the full list is on functions_from_code
+ *               … and 60 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

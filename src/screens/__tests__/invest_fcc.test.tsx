@@ -114,7 +114,8 @@ describe('the window selector', () => {
     fireEvent.press(screen.getAllByText('2Y')[0]);
     // the segment says which kind of figure it is, and the summary states both
     expect(screen.getByText('2Y is shown per year, so it sits fairly beside 1Y')).toBeOnTheScreen();   // v14 mark 15, under the control
-    expect(screen.getByText(/% over the two years, which is .*%\/year/)).toBeOnTheScreen();
+    // said for every account together and, since 2026-10-22 (DEC-0237 · DEC-0404), for each account too — so at least once
+    expect(screen.getAllByText(/% over the two years, which is .*%\/year/).length).toBeGreaterThanOrEqual(1);
   });
 
   test('a window of a year or less is the window itself, with no yearly wording', () => {

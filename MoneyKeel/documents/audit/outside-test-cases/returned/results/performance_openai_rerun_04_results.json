@@ -111,7 +111,8 @@
    "formula_gives_match": true,
    "why": "Every screen asks with today's clock, and a price can never be from the future: a close dated after today is the latest price written under its UTC day (marketData.ts, `toISOString().slice(0, 10)`), e.g. a coin in a US evening. Dropping it would show an older price. App +17.00%.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-038 periodTotalReturn — five cases › complex · As-of endpoint excludes future point — REVIEWER WRONG (test.failing: holds the reviewer's answer)",
-   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-038 periodTotalReturn — five cases › complex · As-of endpoint excludes future point — what the app answers"
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-038 periodTotalReturn — five cases › complex · As-of endpoint excludes future point — what the app answers",
+   "recheck_2026_10_21": "REVIEWER WRONG — DECIDED 2026-10-21 (DEC-7219)"
   },
   {
    "id": "MK-PF-F-038",
@@ -178,7 +179,8 @@
    "formula_gives": null,
    "formula_gives_match": "n/a",
    "why": "",
-   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-039 periodReturnParts — five cases › easy · Two-year total versus yearly pace — AGREES"
+   "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-039 periodReturnParts — five cases › easy · Two-year total versus yearly pace — AGREES",
+   "recheck_2026_10_21": "REVIEWER WRONG since 2026-10-21 (DEC-7217): one yearly rate, days ÷ 365"
   },
   {
    "id": "MK-PF-F-039",
@@ -240,7 +242,8 @@
    "formula_gives_match": true,
    "why": "Every screen asks with today's clock, and a price can never be from the future: a close dated after today is the latest price written under its UTC day (marketData.ts, `toISOString().slice(0, 10)`), e.g. a coin in a US evening. Dropping it would show an older price. App +17.00%.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-039 periodReturnParts — five cases › complex · As-of endpoint excludes future point — REVIEWER WRONG (test.failing: holds the reviewer's answer)",
-   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-039 periodReturnParts — five cases › complex · As-of endpoint excludes future point — what the app answers"
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-039 periodReturnParts — five cases › complex · As-of endpoint excludes future point — what the app answers",
+   "recheck_2026_10_21": "REVIEWER WRONG — DECIDED 2026-10-21 (DEC-7219)"
   },
   {
    "id": "MK-PF-F-039",
@@ -309,7 +312,8 @@
    "formula_gives_match": true,
    "why": "DEC-4439 (a refinement of DEC-1669, which rules every return): money that moves on a day counts for that whole day. The app ends the old piece at that day's close and adds the purchase after it — the end-of-day rule DEC-4439 retired. App +26.76%; DEC-4439 +15.24%, what the account reads when the $1,100 is deposited that morning (tenet 4).",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-040 returnSincePurchases — five cases › complex · Morning purchase old mark versus new close — APP WRONG (test.failing: holds the reviewer's answer)",
-   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-040 returnSincePurchases — five cases › complex · Morning purchase old mark versus new close — what the app answers"
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-040 returnSincePurchases — five cases › complex · Morning purchase old mark versus new close — what the app answers",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-4439): a purchase counts from the start of its day — +26.76% → +15.24%"
   },
   {
    "id": "MK-PF-F-040",
@@ -344,7 +348,8 @@
    "formula_gives_match": true,
    "why": "Tenet 3: never a default that looks like an answer. A purchase with no date is put on the first dated purchase day (`… : firstDay`), so the app shows +13.60% as if both were bought on Sep 17. A linked broker can send an undated tax lot beside dated ones (snaptrade.ts, `original_purchase_date ?? null`).",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-040 returnSincePurchases — five cases › edge · Undated real purchase cannot be placed by guess — APP WRONG (test.failing: holds the reviewer's answer)",
-   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-040 returnSincePurchases — five cases › edge · Undated real purchase cannot be placed by guess — what the app answers"
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-040 returnSincePurchases — five cases › edge · Undated real purchase cannot be placed by guess — what the app answers",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-7216): no return since purchase, and the reason said (+13.60% before)"
   },
   {
    "id": "MK-PF-F-041",
@@ -732,7 +737,8 @@
    "formula_gives_match": true,
    "why": "The app does what DEC-5068 approved — start = value now ÷ (1 + its own return) — which is right only when no shares were bought inside the window. Home \"market\" (MK-PF-M-008): holding A bought 10 more mid-window reads +7.33%; with its real $1,000 start, +6.00%.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-044 startValues — five cases › complex · Changed shares invent beginning — NEEDS A RULING (test.failing: holds the reviewer's answer)",
-   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-044 startValues — five cases › complex · Changed shares invent beginning — what the app answers"
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-044 startValues — five cases › complex · Changed shares invent beginning — what the app answers",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7221): the start is the shares held when the window began × the close then — $2,000 → $1,000"
   },
   {
    "id": "MK-PF-F-044",
@@ -760,7 +766,8 @@
    "formula_gives_match": true,
    "why": "Tenet 4, and the function's own rule (\"out of the market's average as it is out of the person's\"): a holding that lost everything is in the person's return but left out of the market's. Home \"market\" (MK-PF-M-008): +2.00% shown, +6.00% with its $1,000 start. Rare: it needs a close of exactly $0.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-044 startValues — five cases › edge · Wiped-out holding still had beginning — APP WRONG (test.failing: holds the reviewer's answer)",
-   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-044 startValues — five cases › edge · Wiped-out holding still had beginning — what the app answers"
+   "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-PF-F-044 startValues — five cases › edge · Wiped-out holding still had beginning — what the app answers",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-5068, DEC-6676): a holding worth $0 today counts at the value read when the window began"
   },
   {
    "id": "MK-PF-F-045",
@@ -1057,7 +1064,8 @@
    "why": "No ruling covers an account worth less than nothing (a margin debt). The app floors the value at $0 and shows −100.00%; the true change is −108.32%; OpenAI wants no figure. Tenet 7 rules out −100% (it looks better than it is); he must choose −108.32% or no figure.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-081 timeWeightedReturn — five cases › complex · Negative ending cannot be silently floored — NEEDS A RULING (test.failing: holds the reviewer's answer)",
    "pin_test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts › MK-ST-F-081 timeWeightedReturn — five cases › complex · Negative ending cannot be silently floored — what the app answers",
-   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands.",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7218): a value below $0 gives no return, with the reason (it read −100.00%)"
   },
   {
    "id": "MK-ST-F-081",
@@ -1329,7 +1337,8 @@
       "kind": "INTEREST"
      }
     ]
-   }
+   },
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-6674, tenet 3): interest with no amount is not on record and the return refuses across its day"
   },
   {
    "id": "MK-ST-F-082",
@@ -1387,7 +1396,8 @@
    "proposed_fix": [
     "FIX-1",
     "FIX-2"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21: DEC-4439 (purchase-day timing) and DEC-7216 (an undated purchase)"
   },
   {
    "id": "MK-PF-F-041",
@@ -1422,7 +1432,8 @@
    "why": "Working the start back from the return is DEC-5068's approved formula; it misstates the start when shares were bought inside the window (needs his ruling). Leaving out a holding that lost everything is wrong by tenet 4 (case level).",
    "ruling_needed": [
     "RULING-1"
-   ]
+   ],
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7221): the start each row carries; the total-loss holding FIXED (DEC-6676)"
   },
   {
    "id": "MK-PF-F-045",
@@ -1458,7 +1469,8 @@
    "ruling_needed": [
     "RULING-2"
    ],
-   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands.",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7218): refused, with the reason"
   },
   {
    "id": "MK-ST-F-082",
@@ -1470,7 +1482,8 @@
    "proposed_fix": [
     "FIX-4"
    ],
-   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-6674, DEC-6675): missing interest is not on record; a broker's real 0 is saved as 0"
   }
  ],
  "still_open": [
@@ -1490,7 +1503,8 @@
    "item": "MK-PF-F-040: For morning purchases include the paid amount in that day's base and all resulting shares in the evening value, using prior evening mark. Refuse missing movement dates.",
    "id": "MK-PF-F-040",
    "classification": "APP WRONG",
-   "why": "Not yet so: the morning purchase and the undated purchase (the two failing cases)."
+   "why": "Not yet so: the morning purchase and the undated purchase (the two failing cases).",
+   "recheck_2026_10_21": "FIXED 2026-10-21: DEC-4439 (purchase-day timing) and DEC-7216 (an undated purchase)"
   },
   {
    "item": "MK-PF-F-042: An explicit total including null wins; without one require declared rate basis and known duration. A known within-year total may be used unchanged.",
@@ -1508,21 +1522,24 @@
    "item": "MK-PF-F-044: Use authentic start weights for the shared window and include total-loss holdings; otherwise expose a restricted synthetic calculation and refuse unsupported rows.",
    "id": "MK-PF-F-044",
    "classification": "NEEDS A RULING",
-   "why": "Authentic start weights against DEC-5068's approved formula needs his ruling; including a total-loss holding is a plain fix (APP WRONG at case level)."
+   "why": "Authentic start weights against DEC-5068's approved formula needs his ruling; including a total-loss holding is a plain fix (APP WRONG at case level).",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7221): the start each row carries; the total-loss holding FIXED (DEC-6676)"
   },
   {
    "item": "MK-ST-F-081: Require known consistent membership; refuse unexplained negative net values rather than clamp. Preserve finite positive inputs, or make monetary quantization an explicit settled rule.",
    "id": "MK-ST-F-081",
    "classification": "NEEDS A RULING",
    "why": "Refuse or show a negative account value needs his ruling. Membership is already known and consistent; under half a cent is $0 as shown.",
-   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands.",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7218): refused, with the reason"
   },
   {
    "item": "MK-ST-F-082: Normalize broker sign at the ingest boundary (or refuse ambiguity), enforce positive magnitudes and finite values, preserve invalid/missing-date markers and missing income amounts. Internal transfers net to zero.",
    "id": "MK-ST-F-082",
    "classification": "APP WRONG",
    "why": "Missing interest amounts still read as $0. Already so: sign set at the sync, sizes positive, infinite refused, transfers net to zero; every stored record is dated, so no date marker can go missing.",
-   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands."
+   "in_flight": "The function sits in code the Net worth work is editing today (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). This case hands in no such record, so its answer does not depend on that work; re-run after it lands.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-6674, DEC-6675): missing interest is not on record; a broker's real 0 is saved as 0"
   }
  ],
  "empty_lists_in_the_file": {

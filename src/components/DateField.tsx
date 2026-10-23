@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { Text, TouchableOpacity, Platform, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { Colors, Radii } from '../utils/theme';
+import { withArticle } from '../domain/_shared/plural';   // the one article rule: "Pick an expense date" (2026-10-21)
 
 const fmtISO = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const parseISO = (s: string) => { const [y, m, dd] = (s || '').split('-').map(Number); return y ? new Date(y, (m || 1) - 1, dd || 1) : new Date(); };
@@ -25,7 +26,7 @@ export function DateField({ value, onChange, label, style, initial, minimumDate,
   return (
     <>
       <TouchableOpacity accessibilityRole="button" activeOpacity={0.7} style={[df.box, style]}
-        accessibilityLabel={value ? `${label ?? 'date'}, ${human(value)}. Tap to change.` : `Pick a ${label ?? 'date'}`}
+        accessibilityLabel={value ? `${label ?? 'date'}, ${human(value)}. Tap to change.` : `Pick ${withArticle(label ?? 'date')}`}
         onPress={() => { if (!show && !value) onChange(initial || fmtISO(new Date())); setShow((v) => !v); }}>
         <Text style={{ fontSize: 17, color: value ? Colors.textPrimary : Colors.textTertiary }}>
           {value ? human(value) : 'Tap to pick a date'}

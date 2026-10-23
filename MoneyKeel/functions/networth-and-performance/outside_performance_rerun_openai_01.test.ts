@@ -69,7 +69,7 @@ import {
 import { theLookBack } from './look-back';
 import { theNetWorth } from './net-worth';
 import { FIGURE_REGISTER } from '../figures';
-import { writeFigure } from '../_figure-spec';
+import { writeFigure, walkShown } from '../_figure-spec';
 import { thisMonth } from '../cashflow/this-month';
 import { payrollTaxWithheld } from '../cashflow/base-pay';
 import { timeWeightedReturn } from '../../../Calculation Module code/engines/time-weighted-return';
@@ -77,9 +77,9 @@ import { buildDayFromAccounts, accountValuesOn } from '../../../Calculation Modu
 import { windowBounds } from '../../../Calculation Module code/engines/window-return';
 import {
   contractMultiplier, totalShares, windowTotal, worthWithInterest, buildPerformance, costBasis, capGains, marketValue,
-  quantityWithUnit,
+  quantityWithUnit, portfolioBenchReturn, periodReturn,
 } from '../../../src/domain/performance';
-import { saleShortOfPurchasesSentence } from '../../../src/domain/performance/realized';
+import { saleShortOfPurchasesSentence, realizedFromLedger } from '../../../src/domain/performance/realized';
 import { holdingClassOf, assetClassOf, investmentsTotal, cashTotal, investableAssets, accountClassBreakdown } from '../../../src/domain/assets';
 import { bondInfo, yearlyInterest } from '../../../src/domain/bonds';
 import { theBonds } from './bonds';
@@ -177,6 +177,11 @@ const EX: any = { ym: '2026-09', takeHomeMonthly: 7200, inflowSources: ['income 
     { amount: 186, category: 'Eating out', date: '2026-09-12' }, { amount: 250, category: 'Debt payment', store: 'Car loan', date: '2026-09-12' }] };
 /** the walk of case "Multiaccount cash …", each row rounded alone as the screen writes it, against the ending rounded */
 const roundedRows = () => ({ rowsAdd: [3000.48, 500.11, -200.07, 17.29, 3.41, -50.72].map((v) => Math.round(v)).reduce((t, v) => t + v, 0), ending: Math.round(3270.5) });
+/** the same walk as the screens print it since 2026-10-21 (walkShown, the one writer: whole dollars that add up) */
+const shownRows = () => {
+  const w = walkShown({ beginning: 3000.48, contributions: 500.11, withdrawals: 200.07, dividends: 17.29, interest: 3.41, marketChange: -50.72, ending: 3270.5 });
+  return { rowsAdd: w.beginning + w.contributions - w.withdrawals + w.dividends + w.interest + w.marketChange, ending: w.ending, w };
+};
 /** DEC-4439's new account AS THE APP RECORDS IT: the first recorded day is the deposit's day ($10,000 in, worth `evening`
  *  that night) — no row exists for the evening before, because the account did not exist (the screen check's household). */
 const newAccount = (evening: number) => {
@@ -219,14 +224,16 @@ describe('MK-NW-F-084 categoryEarnings — five cases', () => {
   // growth is 2,200 ÷ (1,000 + 1,000) = +10.00%). The app gives +15.24%: the row's return comes from MK-PF-F-040
   // returnSincePurchases, which values the old shares at that day's close BEFORE adding the purchase (1.10 × 2,200 ÷
   // 2,100). The category return copies the row. Same fault as part 4's MK-PF-F-040 (+26.76% vs +15.24%). Earned agrees.
-  kase('MK-NW-F-084', 'complex', 'Large stock addition invalidates synthetic category return', 'APP WRONG', (c) => {
+  // FIXED 2026-10-21 (DEC-4439; MK-PF-F-040): the piece before a purchase ends at the previous evening's close, so the row —
+  // and the category that copies it — reads 2,200 ÷ (1,000 + 1,000) − 1 = +10.00%. Was APP WRONG.
+  kase('MK-NW-F-084', 'complex', 'Large stock addition invalidates synthetic category return', 'AGREES', (c) => {
     const out = categoryEarnings({ windowStart: '2026-09-02', rows: morningRows() as any,
       transactions: [{ type: 'DIVIDEND', account_id: 'A', ticker: 'Y', date: '2026-09-02', amount: c.inputs.dividend_received }] });
     const s = out.find((b) => b.label === 'Stocks / Funds')!;
     expect(s.earned).toBeCloseTo(c.expected.earned.exact, 6);
     expect(s.ret!).toBeCloseTo(c.expected.category_TWR.exact, 12);
-  });
-  test('complex · Large stock addition — the app\'s answer, pinned: earned $37.19, return +15.24%', () => {
+  }, 'fixed 2026-10-21 by DEC-4439: a purchase counts from the start of its day');
+  test.failing('complex · Large stock addition — the app\'s answer until 2026-10-21, pinned: earned $37.19, return +15.24% — no longer its answer (FIXED 2026-10-21)', () => {
     const out = categoryEarnings({ windowStart: '2026-09-02', rows: morningRows() as any, transactions: [{ type: 'DIVIDEND', account_id: 'A', ticker: 'Y', date: '2026-09-02', amount: 37.19 }] });
     expect(out[0].earned).toBeCloseTo(37.19, 6);
     expect(out[0].ret!).toBeCloseTo(1.1 * (2200 / 2100) - 1, 12);
@@ -294,12 +301,14 @@ const gainCases = (id: 'MK-NW-F-091' | 'MK-NW-F-127', gain: (rows: any[], years:
   // purchase inside the worked-back days "at what was paid"). The holding gained $320: worth $1,000 + $1,100 paid,
   // now $2,420. The app divides today's 20 shares by the price move: 2,420 × (1 − 1 ÷ 1.21) = $420 — a beginning of
   // $2,000 that never existed. The row is the one buildPerformance builds (first purchase before the window: not capped).
-  kase(id, 'complex', 'Holding quantity increased inside window', 'APP WRONG', (c) => {
+  // FIXED 2026-10-22 (DEC-3656; W-START): the row carries what the 10 shares held when the window began were worth ($1,000)
+  // and what was paid for the 10 bought inside it ($1,100), and the gain is $2,420 − $1,000 − $1,100 = $320. Was APP WRONG.
+  kase(id, 'complex', 'Holding quantity increased inside window', 'AGREES', (c) => {
     const row = toppedUpRow();
     expect(row.marketValue).toBeCloseTo(c.inputs.end_value, 6);
     expect(row.periodTotal!).toBeCloseTo(c.inputs.periodTotal, 12);
     expect(gain([row], 1)!).toBeCloseTo(c.expected.exact, 6);
-  });
+  }, 'fixed 2026-10-22 by DEC-3656: the start is the shares held then, and the money paid inside is not a gain');
   // REVIEWER WRONG — the reviewer wrote RULE UNCLEAR because DEC-4644's example "does not add up" (105,000 ÷ 1.0628 =
   // 98,795.63). It does: 6.28% is the DISPLAY of the feed's adjusted return 105 ÷ 98.80 − 1 = 6.2753% (the precision
   // spec writes exactly that, line 139). At full precision the holding gained 105,000 − 98,800 = $6,200 = $5,000 price
@@ -324,8 +333,11 @@ const gainCases = (id: 'MK-NW-F-091' | 'MK-NW-F-127', gain: (rows: any[], years:
 };
 describe('MK-NW-F-091 pricedGainOf — five cases', () => {
   gainCases('MK-NW-F-091', (rows, years) => pricedGainOf(rows, years));
-  test('the app\'s answers, pinned: $420 for the topped-up holding, $6,200 for DEC-4644\'s household, $0 for the total loss', () => {
+  test.failing('complex · Holding quantity increased inside window — the app\'s answer until 2026-10-22, pinned: $420 (today\'s 20 shares ÷ the price move) — no longer its answer (FIXED 2026-10-22)', () => {
     expect(pricedGainOf([toppedUpRow()] as any, 1)!).toBeCloseTo(420, 6);
+  });
+  test('the app\'s answers, pinned: $320 for the topped-up holding (DEC-3656, since 2026-10-22), $6,200 for DEC-4644\'s household, $0 for the total loss', () => {
+    expect(pricedGainOf([toppedUpRow()] as any, 1)!).toBeCloseTo(320, 6);
     expect(pricedGainOf([{ position: { ticker: 'VTI' }, marketValue: 105000, periodReturn: ADJUSTED, periodTotal: ADJUSTED }], 0.25)!).toBeCloseTo(6200, 6);
     // read at the displayed 6.28% instead, the gain is the reviewer's $6,204.37 — the gap is the rounding alone
     expect(pricedGainOf([{ position: { ticker: 'VTI' }, marketValue: 105000, periodReturn: 0.0628, periodTotal: 0.0628 }], 0.25)!).toBeCloseTo(105000 - 105000 / 1.0628, 6);
@@ -449,10 +461,11 @@ describe('MK-NW-F-128 heldValueOf — five cases', () => {
   // APP WRONG (DEC-3523 tenet 4 "one thing, one number" and tenet 1): the row's own value is $0 (its latest close is $0),
   // and heldValueOf replaces it with the broker's older $20 mark × 10 = $200. Where the holding has no window return
   // (a price history of one close), the left-out sentence would print "($200)" beside a row that reads $0. Rare.
-  kase('MK-NW-F-128', 'edge', 'Zero market value with stale broker mark', 'APP WRONG', (c) => {
+  // FIXED 2026-10-21 (tenets 3 and 4): the row's own $0 wins; only a value not on record falls back to the mark.
+  kase('MK-NW-F-128', 'edge', 'Zero market value with stale broker mark', 'AGREES', (c) => {
     expect(heldValueOf({ marketValue: c.inputs.marketValue, position: { ticker: 'X', last_price: c.inputs.last_price, lots: [{ shares: c.inputs.shares }] } })).toBe(c.expected.exact);
-  });
-  test('edge · Zero market value — the app\'s answer, pinned: $200', () => {
+  }, 'fixed 2026-10-21: a known $0 is a value (tenets 3 and 4)');
+  test.failing('edge · Zero market value — the app\'s answer until 2026-10-21, pinned: $200 — no longer its answer (FIXED 2026-10-21)', () => {
     expect(heldValueOf({ marketValue: 0, position: { ticker: 'X', last_price: 20, lots: [{ shares: 10 }] } })).toBe(200);
   });
 });
@@ -635,8 +648,11 @@ describe('formula checks — the reviewer\'s 13 card verdicts', () => {
   // Its second point, "unknown classification defaults to stocks" (DEC-2160, DEC-3035f: "never Stocks / Funds by
   // default"), was wrong at 13:30 ($40 dividend → "Stocks / Funds earned $40") and was fixed in the working tree by the
   // account page work (ACCOUNT, item 5, uncommitted) while this file ran: it now reads "Unclassified". IN-FLIGHT.
-  card('MK-NW-F-084', 'APP WRONG', 'a category\'s return over one window, a purchase that morning counted all day (DEC-4439)', () => {
-    expect(categoryEarnings({ windowStart: '2026-09-02', rows: morningRows() as any, transactions: [] })[0].ret!).toBeCloseTo(0.1, 12);
+  // FIXED 2026-10-21 (DEC-4439; MK-PF-F-040): both points now hold — +10.00%, and Unclassified. Was APP WRONG.
+  card('MK-NW-F-084', 'AGREES', 'a category\'s return over one window, a purchase that morning counted all day (DEC-4439) — fixed 2026-10-21', () => {
+    // (a table is drawn only where something was received — ledger-only — so one $1 dividend is handed in, as #1 and #33 do;
+    // with none the table is empty and this read failed on the missing row, not on the return)
+    expect(categoryEarnings({ windowStart: '2026-09-02', rows: morningRows() as any, transactions: [{ type: 'DIVIDEND', account_id: 'A', ticker: 'Y', date: '2026-09-02', amount: 1 }] })[0].ret!).toBeCloseTo(0.1, 12);
   });
   test('MK-NW-F-084 · an unclassified holding\'s dividend is Unclassified, not Stocks / Funds — fixed in the working tree by the account page work, IN-FLIGHT', () => {
     expect(unclassifiedIncome()).toMatchObject([{ label: 'Unclassified', earned: 40 }]);
@@ -648,7 +664,8 @@ describe('formula checks — the reviewer\'s 13 card verdicts', () => {
       investmentAccountIds: new Set(['A']), accounts: [linked('A', 1000)], wholeRecord: true });
     expect(r.measured).not.toBeNull();
   });
-  card('MK-NW-F-091', 'APP WRONG', 'shares added inside the window: what the holding gained', () => { expect(pricedGainOf([toppedUpRow()] as any, 1)!).toBeCloseTo(320, 6); });
+  // FIXED 2026-10-22 (DEC-3656; W-START): $2,420 − $1,000 − $1,100 = $320 (it read $420). Was APP WRONG.
+  card('MK-NW-F-091', 'AGREES', 'shares added inside the window: what the holding gained — fixed 2026-10-22 (DEC-3656: the start held then, the money paid inside)', () => { expect(pricedGainOf([toppedUpRow()] as any, 1)!).toBeCloseTo(320, 6); });
   // REVIEWER WRONG: DEC-0338 settles Unclassified; an account always has an id (case edge).
   card('MK-NW-F-092', 'REVIEWER WRONG', 'an Unclassified account is left out', () => {
     expect([...investmentAccountIdsOf([{ asset_id: 'U', asset_class: 'mixed', balance: 1 }] as any, assetClassOf)]).toEqual([]);
@@ -663,8 +680,9 @@ describe('formula checks — the reviewer\'s 13 card verdicts', () => {
   card('MK-NW-F-105', 'AGREES', 'measured: no sentence; a loss on day one is measured, not refused', () => {
     expect(whyNoReturn({ rate: -0.02, measuredFrom: '2026-09-02' } as any)).toBe('');
   });
-  card('MK-NW-F-127', 'APP WRONG', 'shares added inside the window: what the holding gained', () => { expect(gainOfRow(toppedUpRow(), 1)!).toBeCloseTo(320, 6); });
-  card('MK-NW-F-128', 'APP WRONG', 'a known $0 wins over an older mark', () => {
+  // FIXED 2026-10-22 (DEC-3656; W-START): the one rule reads the start held then and the money paid inside. Was APP WRONG.
+  card('MK-NW-F-127', 'AGREES', 'shares added inside the window: what the holding gained — fixed 2026-10-22 (DEC-3656: the start held then, the money paid inside)', () => { expect(gainOfRow(toppedUpRow(), 1)!).toBeCloseTo(320, 6); });
+  card('MK-NW-F-128', 'AGREES', 'a known $0 wins over an older mark — fixed 2026-10-21 (tenets 3 and 4)', () => {
     expect(heldValueOf({ marketValue: 0, position: { ticker: 'X', last_price: 20, lots: [{ shares: 10 }] } })).toBe(0);
   });
   card('MK-NW-F-129', 'AGREES', 'own name, else ticker, else "a holding"', () => {
@@ -707,11 +725,11 @@ describe('formula checks — the reviewer\'s 13 card verdicts', () => {
 const OPEN: Record<number, Mark> = {};
 const open = (n: number, mark: Mark, title: string, fn: () => void) => { OPEN[n] = mark; runner(mark)(`#${n} · ${title} [${mark}]`, fn); };
 describe('still open — the reviewer\'s 52 open points', () => {
-  open(1, 'APP WRONG', 'MK-NW-F-084 · category return on a common window (DEC-4439)', () => {
+  open(1, 'AGREES', 'MK-NW-F-084 · category return on a common window (DEC-4439) — fixed 2026-10-21 (a purchase counts from the start of its day)', () => {
     expect(categoryEarnings({ windowStart: '2026-09-02', rows: morningRows() as any, transactions: [{ type: 'DIVIDEND', account_id: 'A', ticker: 'Y', date: '2026-09-02', amount: 1 }] })[0].ret!).toBeCloseTo(0.1, 12);
   });
   open(2, 'REVIEWER WRONG', 'MK-NW-F-090 · validate record days', () => { refuses(windowStartKey('SINCE', ['2026-02-31'], '2026-10-13')); });
-  open(3, 'APP WRONG', 'MK-NW-F-091 · no reconstruction when shares changed', () => { expect(pricedGainOf([toppedUpRow()] as any, 1)!).toBeCloseTo(320, 6); });
+  open(3, 'AGREES', 'MK-NW-F-091 · no reconstruction when shares changed — fixed 2026-10-22 (DEC-3656: $320, the start held then)', () => { expect(pricedGainOf([toppedUpRow()] as any, 1)!).toBeCloseTo(320, 6); });
   open(4, 'REVIEWER WRONG', 'MK-NW-F-092 · Unclassified needs confirmed membership', () => {
     expect([...investmentAccountIdsOf([{ asset_id: 'U', asset_class: 'mixed', balance: 1 }] as any, assetClassOf)]).toEqual([]);   // DEC-0338 keeps it
   });
@@ -722,9 +740,9 @@ describe('still open — the reviewer\'s 52 open points', () => {
     expect(r.ret!).toBeCloseTo(0, 12);
   });
   open(6, 'BLOCKED', 'MK-NW-F-104 · split of one ending total', () => { /* no case; no screen reaches closedWith */ });
-  open(7, 'APP WRONG', 'MK-NW-F-127 · a recorded start, not today\'s shares ÷ the price move', () => { expect(gainOfRow(toppedUpRow(), 1)!).toBeCloseTo(320, 6); });
+  open(7, 'AGREES', 'MK-NW-F-127 · a recorded start, not today\'s shares ÷ the price move — fixed 2026-10-22 (DEC-3656)', () => { expect(gainOfRow(toppedUpRow(), 1)!).toBeCloseTo(320, 6); });
   test('#7 · a total loss, as the app builds the row: −$1,000 (IN-FLIGHT, uncommitted 2026-10-21)', () => { expect(gainOfRow(wipedOutRow(), 1)!).toBeCloseTo(-1000, 6); });
-  open(8, 'APP WRONG', 'MK-NW-F-128 · a known $0 wins', () => { expect(heldValueOf({ marketValue: 0, position: { ticker: 'X', last_price: 20, lots: [{ shares: 10 }] } })).toBe(0); });
+  open(8, 'AGREES', 'MK-NW-F-128 · a known $0 wins — fixed 2026-10-21 (tenets 3 and 4)', () => { expect(heldValueOf({ marketValue: 0, position: { ticker: 'X', last_price: 20, lots: [{ shares: 10 }] } })).toBe(0); });
   open(9, 'AGREES', 'MK-NW-O-008 · bound dates: a deposit dated after today — fixed 2026-10-21, read on today (tenets 1 and 4)', () => { const r = futureDeposit(); expect(r.ret!).toBeCloseTo(r.walk!.wealthGenerated / 2000, 12); });
   // REVIEWER WRONG (settled on screen — the same item as the screen check MK-CF-M-002 T2): the Plan's $300 is not inside
   // the planned surplus; it is its own row beneath it — "Planned surplus +$1,150 · Emergency fund · from your Plan −$300 ·
@@ -826,9 +844,16 @@ describe('still open — the reviewer\'s 52 open points', () => {
     expect(costBasis({ kind: 'options', lots: [{ shares: 2, cost_per_share: 1.5 }] } as any)!).toBeCloseTo(300, 6);
     expect(costBasis({ lots: [{ shares: null, cost_per_share: 1.5 }] } as any)).toBeNull();
   });
-  open(26, 'NEEDS A RULING', 'MK-NW-M-035 · the partial sale is said (DEC-4643); a sale dated after today is not ruled', () => {
+  // DECIDED 2026-10-21 (PF-B, the lead's decision under DEC-3523 tenets 1 and 4, the rule MK-NW-O-008 follows): a sale dated
+  // after today is read ON today — its shares already left the holding — and counts in this year's figure (realized.ts; part
+  // 3, MK-PF-F-028). The trade sheet no longer takes a date after today. To reverse: realizedFromLedger, drop such sales.
+  open(26, 'NEEDS A RULING', 'MK-NW-M-035 · the partial sale is said (DEC-4643); a sale dated after today — DECIDED 2026-10-21: read on today', () => {
     expect(saleShortOfPurchasesSentence({ sold: 15, matched: 10, gain: 200 } as any, { kind: 'stock' } as any, (n) => `$${n}`))
       .toBe('$200 gain on 10 of 15 shares sold; what you paid for the other 5 is not on record.');
+    // a sale recorded for 2027-01-02 on 30 Dec 2026 is this year's (read on today), not next year's
+    const sold = realizedFromLedger([{ id: 'b', type: 'BUY', ticker: 'X', account_id: 'A', date: '2026-01-02', shares: 10, price: 50 } as any,
+      { id: 's', type: 'SELL', ticker: 'X', account_id: 'A', date: '2027-01-02', shares: 10, price: 70 } as any], { ticker: 'X', accountId: 'A', now: new Date(2026, 11, 30, 12) });
+    expect([sold.realizedAllTime, sold.realizedThisYear]).toEqual([200, 200]);
   });
   // APP WRONG (DEC-3523 tenet 3): a purchase with no date is split as short-term today (part 2's MK-PF-F-006). The label
   // "Gain — long-term (held over 1 yr)" claims a holding period, not a tax rate — that part of the point is the reviewer's.
@@ -843,7 +868,11 @@ describe('still open — the reviewer\'s 52 open points', () => {
   // investment, quoted in DEC-4644; v17's "Cash in this account"): its ending counts the cash, pinned here. What is open is
   // Home, which pairs two scopes in one card: YOUR INVESTMENTS $35,775 (no cash, DEC-0457) over "▲ up $8,200 (21.35%)
   // this month", measured on the $46,600 with cash.
-  open(29, 'NEEDS A RULING', 'MK-PF-M-001 · one scope for an investment figure and its change line', () => {
+  // DECIDED 2026-10-21 (PF-B, the lead's decision under tenet 2, keeping DEC-0457 and Q-PF-1 both): the two scopes stay —
+  // YOUR INVESTMENTS without cash (DEC-0457), the month's change from Performance's 1M door (Q-PF-1) — and Home prints the
+  // change's base beneath it where they differ: "This month's change is on $46,600: your investment accounts with the cash
+  // in them." (the screen check MK-PF-M-001 T4 renders it). To reverse: delete that line in HomeScreen.tsx.
+  open(29, 'NEEDS A RULING', 'MK-PF-M-001 · one scope for an investment figure and its change line — DECIDED 2026-10-21: the change line names its base (tenet 2)', () => {
     const r = thePerformance({ windowStart: '2026-09-02', windowLabel: 'w', today: '2026-09-02', transactions: [], snapshotDays: [day('2026-09-01', { A: 1300 })],
       investmentAccountIds: new Set(['A']), accounts: [cashSleeveA()] });
     expect(r.ending).toBeCloseTo(1330.58, 6);   // the cash sleeve's $130.58 is in the Performance ending
@@ -873,8 +902,15 @@ describe('still open — the reviewer\'s 52 open points', () => {
   });
   // APP WRONG (tenet 2: "the rows under a total add up to it"; the row's own decision "THE LINES ALWAYS SUM TO THE
   // ENDING") — the same item as the screen check MK-PF-M-003 T2, which rendered it ($11,502 of rows under $11,500).
-  open(31, 'APP WRONG', 'MK-PF-M-003 · rows rounded one by one add up to the rounded ending', () => { expect(roundedRows().rowsAdd).toBe(roundedRows().ending); });
-  test('#31 · the arithmetic, pinned: $3,269 of rows against an ending of $3,271', () => { expect(roundedRows()).toEqual({ rowsAdd: 3269, ending: 3271 }); });
+  // FIXED 2026-10-21 (tenet 2; the walk's own decision): every screen prints the walk through walkShown — the beginning and
+  // the ending rounded as every figure is, the lines between in whole dollars that make up the difference (each rounded
+  // down, the missing dollars to the largest leftovers). Hand-worked below. Rounding each line on its own is kept, failing.
+  open(31, 'AGREES', 'MK-PF-M-003 · rows as printed add up to the rounded ending — fixed 2026-10-21 (walkShown, tenet 2)', () => { expect(shownRows().rowsAdd).toBe(shownRows().ending); });
+  test('#31 · hand-worked, as printed: $3,000 + $500 − $200 + $18 + $4 − $51 = $3,271; Wealth generated $18 + $4 − $51 = −$29 (= $3,271 − $3,000 − $500 + $200)', () => {
+    expect(shownRows().w).toEqual({ beginning: 3000, contributions: 500, withdrawals: 200, dividends: 18, interest: 4, marketChange: -51, wealthGenerated: -29, ending: 3271 });
+  });
+  test.failing('#31 · each line rounded on its own adds up to the rounded ending — no longer how the screens print it (FIXED 2026-10-21)', () => { expect(roundedRows().rowsAdd).toBe(roundedRows().ending); });
+  test('#31 · the arithmetic, pinned: rounded one by one, $3,269 of rows against an ending of $3,271', () => { expect(roundedRows()).toEqual({ rowsAdd: 3269, ending: 3271 }); });
   // APP WRONG on the parts, not the total — the same item as the screen check MK-PF-M-004 T4. The ending is the broker's
   // total (DEC-0019), pinned below; the parts under it must add up to it, the gap filed as cash (DEC-0095), and the row's
   // words ("holdings at today's prices plus its cash") say otherwise. RE-MEASURED ~13:55 PT: the parts now file the gap as
@@ -884,7 +920,7 @@ describe('still open — the reviewer\'s 52 open points', () => {
     const A = cashSleeveA();
     expect(accountValuesOn(buildDayFromAccounts([A] as any, '2026-09-02', 'x') as any, () => true).get('A')).toBeCloseTo(A.balance, 6);
   });
-  open(33, 'APP WRONG', 'MK-PF-M-006 · the category return of a purchase that morning (DEC-4439)', () => {
+  open(33, 'AGREES', 'MK-PF-M-006 · the category return of a purchase that morning (DEC-4439) — fixed 2026-10-21 (MK-PF-F-040)', () => {
     expect(categoryEarnings({ windowStart: '2026-09-02', rows: morningRows() as any, transactions: [{ type: 'DIVIDEND', account_id: 'A', ticker: 'Y', date: '2026-09-02', amount: 1 }] })[0].ret!).toBeCloseTo(0.1, 12);
   });
   // (DEC-2160, DEC-3035f) — was APP WRONG at 13:30; fixed in the working tree by the account page work (ACCOUNT, item 5,
@@ -894,18 +930,27 @@ describe('still open — the reviewer\'s 52 open points', () => {
   // APP WRONG on the start weights (DEC-6212 / DEC-1669; measured in part 3, MK-PF-F-020 and MK-PF-F-044): a holding's
   // start weight is today's value ÷ (1 + its return) = $2,000 for the topped-up holding that began at $1,000. The 0.85
   // gap AGREES: 3.6851% − 2.8349% = 0.8502 points, shown 0.85 — the app subtracts the unrounded rates.
-  open(35, 'APP WRONG', 'MK-PF-M-008 · market +X% weighted by false starts after shares change', () => {
+  // FIXED 2026-10-21 (DEC-1669, DEC-3035b, tenet 4; MK-PF-F-020): the row carries what the holding was worth when the window
+  // began from the shares held then — 10 × $100 = $1,000 — and the market is weighed by it (portfolioBenchReturn)
+  open(35, 'AGREES', 'MK-PF-M-008 · market +X% weighted by the start held when the window began — fixed 2026-10-21 (startValue from the shares held then)', () => {
     const row = toppedUpRow();
-    expect(row.marketValue! / (1 + row.periodTotal!)).toBeCloseTo(1000, 6);
+    expect(row.startValue!).toBeCloseTo(1000, 6);
+    // beside $1,000 of a holding that did not move against a 4% yardstick: (10% × $1,000 + 4% × $1,000) ÷ $2,000 = 7.00%
+    const flat = { ...row, position: { ...row.position, ticker: 'B' }, marketValue: 1000, periodReturn: 0, periodTotal: 0, benchReturn: 0.04, benchTotal: 0.04, startValue: 1000 };
+    expect(portfolioBenchReturn([{ ...row, benchReturn: 0.1, benchTotal: 0.1 }, flat] as any)).toBeCloseTo(0.07, 12);
   });
-  test('#35 · the app\'s answers, pinned: start weight $2,000; worked 8.80%; the 0.85 gap from unrounded rates', () => {
-    const row = toppedUpRow();
-    expect(row.marketValue! / (1 + row.periodTotal!)).toBeCloseTo(2000, 6);
+  test('#35 · the app\'s answers, pinned: worked 8.80%; the 0.85 gap from unrounded rates', () => {
     expect(workedRun('MK-PF-M-008')).toBe(0.088);
     expect(Math.round((0.036851 - 0.028349) * 10000) / 100).toBe(0.85);
   });
+  test.failing('#35 · the app until 2026-10-21, pinned: start weight $2,000 (today\'s 20 shares ÷ the price move) — no longer its answer (FIXED 2026-10-21)', () => {
+    const row = toppedUpRow();
+    expect(row.startValue!).toBeCloseTo(2000, 6);
+  });
   // REVIEWER WRONG (DEC-1069: the look-back drawing is approved; the amount is one the person types, and the result
-  // carries no "actual" figure)
+  // carries no "actual" figure). DECIDED 2026-10-21 for #36 to #38 alike (the lead's decision under DEC-3523: tenet 6, his
+  // approved drawing, outranks tenet 7): the screen check that marked the same three NEEDS A RULING now reads REVIEWER WRONG
+  // too; no words are added to the look-back. To reverse: add the line 'Before taxes and trading costs, dividends reinvested.'
   open(36, 'REVIEWER WRONG', 'MK-PF-M-010 · the look-back claims what actual money did', () => {
     const r = theLookBack({ amount: 10000, months: 12, now: new Date('2026-09-30T12:00:00'), fromSeries: series('F', [['2025-09-30', 1], ['2026-09-30', 2]]), toSeries: series('T', [['2025-09-30', 1], ['2026-09-30', 2]]) })!;
     expect(Object.keys(r)).toContain('actual');
@@ -926,22 +971,32 @@ describe('still open — the reviewer\'s 52 open points', () => {
     expect(r.walk!.contributions).toBe(10000); expect(r.walk!.wealthGenerated).toBeCloseTo(50, 6);
   });
   // APP WRONG (tenet 2) — the account page's walk; the same item as the screen check MK-PF-M-015 T2
-  open(41, 'APP WRONG', 'MK-PF-M-015 · rounded rows against the rounded ending', () => { expect(roundedRows().rowsAdd).toBe(roundedRows().ending); });
-  open(42, 'NEEDS A RULING', 'MK-PF-M-016 · one yearly-pace rule for 2Y (days ÷ 365 against 2 years)', () => {
+  open(41, 'AGREES', 'MK-PF-M-015 · rows as printed against the rounded ending — fixed 2026-10-21 (walkShown on the account page too, tenet 2)', () => { expect(shownRows().rowsAdd).toBe(shownRows().ending); });
+  // DECIDED 2026-10-21 (the lead's decision under the precision standard and DEC-3523 tenet 4; was NEEDS A RULING): ONE rule
+  // for a yearly rate on every screen — (1 + the return)^(365 ÷ days) − 1, the account's and DEC-6412's — so a holding row over
+  // the same window reads the same yearly rate; and a window of a year or less, counted on the calendar, is never made
+  // yearly on either (DEC-3768b). To reverse: periodReturnParts (src/domain/performance/index.ts) returns years 2 again.
+  open(42, 'AGREES', 'MK-PF-M-016 · one yearly-pace rule for 2Y (days ÷ 365) — decided 2026-10-21: the account and a holding row read the same +9.97% a year', () => {
     const today = '2025-10-13'; const ws = windowStartKey('2Y', [], today)!;
     const r = thePerformance({ windowStart: ws, windowLabel: 'w', today, transactions: [], snapshotDays: [day('2023-10-12', { A: 100000 })],
       investmentAccountIds: new Set(['A']), accounts: [linked('A', 121000)] });
     expect(r.cumulative!).toBeCloseTo(0.21, 12);
     expect(r.perYear!).toBeCloseTo(Math.pow(1.21, 365 / windowBounds(ws, today).days) - 1, 12);
-    expect(r.perYear!).not.toBeCloseTo(0.1, 4);   // a holding row over the same two years says +10.00% (part 2, MK-PF-F-010)
+    // a holding row over the same two years and the same +21%: the same yearly rate (it read +10.00%, exponent ½)
+    expect(periodReturn(series('X', [['2023-10-12', 100], ['2025-10-10', 121]]) as any, '2Y', new Date('2025-10-13T12:00:00'))!).toBeCloseTo(r.perYear!, 12);
   });
   // APP WRONG (tenet 1) — the same item as the screen check MK-PF-M-017 T1. A value below zero is clamped to $0, so
   // $1,000.17 → −$83.19 reads −100.00%; the arithmetic is −108.32%. Either a refusal ("the account's value went below
   // zero") or −108.32% is true; −100.00% is neither. The fix proposed: refuse. (Part 4 marked the same clamp, MK-ST-F-081,
   // as needing a ruling on which true answer; the current answer is wrong whichever is chosen.)
   const belowZero = () => timeWeightedReturn({ days: [day('2026-09-01', { A: 1000.17 }), day('2026-09-02', { A: -83.19 })] as any, accountIds: new Set(['A']), flows: [], start: '2026-09-01', end: '2026-09-02' });
-  open(43, 'APP WRONG', 'MK-PF-M-017 · money ending below zero does not read −100.00%', () => { expect(belowZero().rate).not.toBe(-1); });
-  test('#43 · the app\'s answer, pinned: −100.00%', () => { expect(belowZero().rate).toBe(-1); });
+  // FIXED 2026-10-21 (the lead's decision under tenet 1; decides #43 against part 4's MK-ST-F-081 "needs a ruling"): no
+  // return, and the sentence names the day. Was APP WRONG.
+  open(43, 'AGREES', 'MK-PF-M-017 · money ending below zero does not read −100.00% — fixed 2026-10-21 (no return, with the reason)', () => {
+    expect([belowZero().rate, belowZero().refused, belowZero().day]).toEqual([null, 'VALUE_BELOW_ZERO', '2026-09-02']);
+    expect(whyNoReturn(belowZero())).toBe('The value recorded on Sep 2, 2026 is below $0, so a return cannot be measured across that day. The dollar figures here are still right.');
+  });
+  test.failing('#43 · the app\'s answer until 2026-10-21, pinned: −100.00% — no longer its answer (FIXED 2026-10-21)', () => { expect(belowZero().rate).toBe(-1); });
   // AGREES — the app follows DEC-5291 / DEC-6412 and says when the record begins late; the register's refusal line is
   // stale (file to correct)
   open(44, 'AGREES', 'MK-PF-M-018 · a record that begins late says so', () => {
@@ -958,8 +1013,10 @@ describe('still open — the reviewer\'s 52 open points', () => {
   // availableCash = cash_balance || 0: a brokerage whose cash was never entered reads "Available cash: $0" and a buy is
   // refused as "not enough".
   const neverEnteredCash = () => availableCash({ asset_id: 'B', label: 'B', kind: 'brokerage', asset_class: 'stocks_etf', tax_bucket: 'TAXABLE', source: 'manual', balance: 5000, derive_balance: true, positions: [] } as any);
-  open(46, 'APP WRONG', 'MK-PF-M-020 · cash never entered is not $0', () => { expect(neverEnteredCash()).toBeNull(); });
-  test('#46 · the app\'s answer, pinned: $0', () => { expect(neverEnteredCash()).toBe(0); });
+  // FIXED 2026-10-21 (DEC-3279e, tenet 3): an investment account's cash never entered is unknown — the sheet reads not
+  // entered and does not refuse on it. The app's answer until then is kept, failing.
+  open(46, 'AGREES', 'MK-PF-M-020 · cash never entered is not $0 — fixed 2026-10-21 (DEC-3279e, tenet 3)', () => { expect(neverEnteredCash()).toBeNull(); });
+  test.failing('#46 · the app\'s answer until 2026-10-21, pinned: $0 — no longer its answer (FIXED 2026-10-21)', () => { expect(neverEnteredCash()).toBe(0); });
   // APP WRONG on Home (DEC-3279e) — the same item as the screen check MK-XS-M-001 T3: the function names the missing
   // balance (pinned below) and the Net worth tab says so, but Home prints "Net worth $119,200" with nothing beside it.
   // This test reads Home's source for the gaps reader; the rendered proof is the screen check. RE-MEASURED ~14:10 PT: Home

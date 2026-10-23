@@ -513,7 +513,7 @@ export default function RetirementCockpit() {
             ) : (
               <View style={{ alignItems: 'center', paddingVertical: 12 }}>
                 <Text style={styles.donutAmt}>{money(0)}</Text>
-                <Text style={styles.sub}>Add your accounts in the Net Worth tab to build your nest egg.</Text>
+                <Text style={styles.sub}>Add your accounts in the Net worth tab to build your nest egg.</Text>
               </View>
             )}
           </View>
@@ -663,7 +663,7 @@ export default function RetirementCockpit() {
         ) : (
           <View style={{ alignItems: 'center', paddingVertical: 12 }}>
             <Text style={styles.donutAmt}>{money(0)}</Text>
-            <Text style={styles.sub}>Add your accounts in the Net Worth tab to build your nest egg.</Text>
+            <Text style={styles.sub}>Add your accounts in the Net worth tab to build your nest egg.</Text>
           </View>
         )}
       </View>

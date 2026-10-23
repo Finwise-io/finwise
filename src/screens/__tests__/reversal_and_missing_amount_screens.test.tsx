@@ -102,7 +102,7 @@ describe('1 · a broker\'s −$500 deposit on Oct 5 — a reversal (DEC-3523 ten
     expect(under('Wealth generated')).toBe('$0');
     expect(under('Withdrawals')).toBe('−$500');   // the walk: $500 taken out — it showed $500 put in and $1,000 lost
     expect(under('Contributions')).toBe('$0');
-    expect(screen.getAllByLabelText(/^2026-10-05: .*, minus \$500\. from Robinhood, read-only\.$/)).toHaveLength(1);
+    expect(screen.getAllByLabelText(/^Oct 5, 2026: .*, minus \$500\. from Robinhood, read-only\.$/)).toHaveLength(1);
     expect(lines()).toContain('−$500');
     expect(lines()).not.toContain('+$500');
   });
@@ -133,7 +133,7 @@ describe('2 · interest with no amount on Oct 5 — unknown, not $0 (DEC-3523 te
     render(<AccountPortfolioScreen />);
     expect(under('Return')).toBe('—');
     expect(lines()).toContain(SENTENCE);
-    expect(screen.getAllByLabelText(/^2026-10-05: .*, no amount on record\. from Ally, read-only\.$/)).toHaveLength(1);
+    expect(screen.getAllByLabelText(/^Oct 5, 2026: .*, no amount on record\. from Ally, read-only\.$/)).toHaveLength(1);
     // the ACTIVITY row: its words, its day, and a dash where the amount would be — it read $0 in green before
     const ls = lines();
     const at = ls.indexOf('Oct 5 · from Ally');

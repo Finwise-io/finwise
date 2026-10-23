@@ -29,9 +29,10 @@ import { lookBack, type LookBackResult } from '../../../src/domain/performance/l
  * Reaches ..... 1 function. Change the arithmetic above and these change with it:
  *               MK-NW-F-081 LB
  *
- * Serves ...... MK-PF-M-010 · MK-PF-M-011 · MK-PF-M-012
+ * Serves ...... MK-PF-M-010 · MK-PF-M-011 · MK-PF-M-012 · MK-PF-M-025
+ *               MK-PF-M-026
  * Reads ....... MK-XS-I-005 holding price
- * Ruled by .... DEC-0030 · DEC-0232 · DEC-0233 · DEC-1069
+ * Ruled by .... DEC-0030 · DEC-1069
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
@@ -141,5 +142,31 @@ export const LOOK_BACK_FIGURES = declareFigures({
       answer: '$1,350',
       run: () => LB().difference,
     },
+  },
+  // ISSUED AND DECLARED 2026-10-21 (Performance audit row 9, rule 11): the percent in brackets after each line printed by hand
+  // (toFixed) with no identifier, because the guard that counts unnamed figures read dollars only. Issued under rule 11 and
+  // Q49; `ruled` is the issue date, as MK-NW-M-065 and 066 were. To reverse: delete the two rows and print toFixed again.
+  'MK-PF-M-025': {
+    label: 'Left in <fund> it became $X (up/down $Y, Z%) \u2014 the Z%', unit: 'percent-signed', screens: ['/look-back'],
+    answers: 'How much the fund your money was in grew or fell over the window, in percent.',
+    formula: 'the fund\u2019s price today \u00f7 its price at the start of the window, less 1',
+    inputs: ['MK-NW-I-005 the price feed'],
+    decisions: ['TWO DECIMALS AND ITS SIGN (Q49): +2.50%, \u22122.50%.',
+      'Dividends and distributions are in it: the closes it reads are adjusted for them (DEC-4645).'],
+    refusal: 'No price history over the whole window \u2014 the screen shows nothing rather than a shortened one.',
+    ruled: '2026-10-21',
+    // BND $72.00 \u2192 $73.80: $73.80 \u00f7 $72.00 \u2212 1 = +2.50%
+    worked: { given: GIVEN, answer: '+2.50%', run: () => LB().stayed.pct / 100 },
+  },
+  'MK-PF-M-026': {
+    label: 'Moved to <fund> it would be $X (up/down $Y, Z%) \u2014 the Z%', unit: 'percent-signed', screens: ['/look-back'],
+    answers: 'How much the other fund grew or fell over the same window, in percent.',
+    formula: 'the other fund\u2019s price today \u00f7 its price at the start of the window, less 1',
+    inputs: ['MK-NW-I-005 the price feed'],
+    decisions: ['TWO DECIMALS AND ITS SIGN (Q49).', 'A road not taken, priced from real history \u2014 never a projection forward.'],
+    refusal: 'No price history for the other fund over the whole window.',
+    ruled: '2026-10-21',
+    // VTI $250.00 \u2192 $290.00: $290.00 \u00f7 $250.00 \u2212 1 = +16.00%
+    worked: { given: GIVEN, answer: '+16.00%', run: () => LB().moved.pct / 100 },
   },
 });

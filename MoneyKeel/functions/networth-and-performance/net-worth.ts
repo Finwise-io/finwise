@@ -48,14 +48,14 @@ import { isoLocalDate } from '../../../src/domain/_shared/dates';
  *
  * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-079 EF · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
  *               … and 37 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -144,10 +144,10 @@ export interface TheNetWorth {
  *     input.since   otherwise
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ * Called by ... MK-NW-F-082 NW · MK-NW-F-185 valueChanged
  *
  * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-082 NW · MK-NW-F-185 valueChanged
  *
  * Serves ...... MK-MN-M-016 · MK-NW-M-001 · MK-NW-M-002 · MK-NW-M-004
  *               MK-NW-M-005 · MK-NW-M-006 · MK-NW-M-007 · MK-NW-M-008
@@ -336,14 +336,14 @@ export interface MortgageCheck {
  *
  * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-079 EF · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
  *               … and 38 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -419,14 +419,14 @@ export type PropertyUse = 'home' | 'rental' | 'second';
  *
  * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-079 EF · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
+ *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
+ *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
  *               … and 38 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -505,7 +505,7 @@ export interface LedgerGroup {
  *
  * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-082 NW · MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -633,10 +633,10 @@ const GIVEN =
  * Formula .....
  *     the net worth(EXAMPLE)
  *
- * Called by ... MK-NW-F-101 PLAN
+ * Called by ... MK-NW-F-185 valueChanged
  *
  * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-101 PLAN
+ *               MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -683,7 +683,7 @@ const LEDGER_GIVEN =
  *
  * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-082 NW · MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-048 the person’s own asset-class answer
@@ -709,7 +709,7 @@ const CLASS_LABEL_OF = (a: any) => ({
  *
  * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
+ *               MK-NW-F-082 NW · MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-048 the person’s own asset-class answer
@@ -729,11 +729,11 @@ const CLASS_KEY_OF = (a: any) => String(a.asset_class);
  *     ledger groups(LEDGER_ACCOUNTS, by, CLASS_LABEL_OF, CLASS_KEY_OF)
  *
  * Called by ... MK-NW-F-082 NW · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-101 PLAN
+ *               MK-NW-F-185 valueChanged
  *
  * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN
+ *               MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
@@ -752,10 +752,10 @@ const LEDGER = (by: 'class' | 'institution') => ledgerGroups(LEDGER_ACCOUNTS, by
  * Formula .....
  *     LEDGER('class').find((g) => label = label).total (or nothing when missing)
  *
- * Called by ... MK-NW-F-101 PLAN
+ * Called by ... MK-NW-F-185 valueChanged
  *
  * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-101 PLAN
+ *               MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -783,7 +783,7 @@ const TREND_GIVEN =
  * Called by ... MK-NW-F-100 TREND
  *
  * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-101 PLAN · MK-NW-F-100 TREND
+ *               MK-NW-F-100 TREND · MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -803,10 +803,10 @@ const SNAP = (month: string, net: number) => ({ month, net_worth: net, gross_ass
  * Formula .....
  *     trend points(
  *
- * Called by ... MK-NW-F-101 PLAN
+ * Called by ... MK-NW-F-185 valueChanged
  *
  * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-NW-F-101 PLAN
+ *               MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-018 retirement age
@@ -856,13 +856,10 @@ const PLAN_INPUTS = {
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-003 institution name
- *               MK-XS-I-018 retirement age
- *               MK-XS-I-024 logged expenses
- *               MK-XS-I-048 the person’s own asset-class answer
- *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ * Reads ....... MK-XS-I-018 retirement age
+ *
+ * Decides .....
+ *     · Uses a built-in b a r m i n w of 1.5.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-101
  * Changed ..... not in git yet (—)
@@ -879,6 +876,180 @@ const PLAN = (): string | null => {
   });
 };
 
+
+// ── WHAT THE NET WORTH SCREEN CALCULATED ITSELF, MOVED HERE (2026-10-22; DEC-0346, screens compute nothing; guard D1b) ─────────
+// The numbers are the screen's own, to the digit: only where they are calculated moved, so a test holds them and the screen
+// prints what this door says.
+
+const BAR_MIN_W = 1.5;   // % width floor, so a sliver is still visible as a mark
+/** THE COMPOSITION BAR'S SEGMENTS (founder decision 2026-08-11, Q6: "add both. Bar replaces donut."): each row's share of the
+ *  whole in whole percents that ALWAYS total 100 — the rounding remainder goes to the largest segment — and its drawn width,
+ *  never below a sliver so a small segment still shows. Rows of $0 or less are no part of the whole. */
+/* ─ MK-NW-F-180 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * barSegments
+ *
+ * Answers ..... THE COMPOSITION BAR'S SEGMENTS (founder decision 2026-08-11, Q6: "add both.
+ *
+ * Formula .....
+ *     sum = Σ over rows of (max(0, total))
+ *     [] as (T & { exact: number; pct: number; width: number })[]   when sum ≤ 0
+ *     raw = for each of rows: ...each = ...each
+ *     exact = (math.max(0, total) ÷ sum) × 100
+ *     out = for each of raw: ...each = ...each
+ *     pct = round(exact)
+ *     drift = Σ over 100 − out of (pct)
+ *     biggest = out.reduce((a, b) => (exact > exact ? b : a))
+ *     the answer:
+ *     for each of out: ...each = ...each
+ *     width = max(BAR_MIN_W, exact)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Never lets total fall below 0.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-180
+ * Changed ..... not in git yet (—)
+ */
+export function barSegments<T extends { key: string; label: string; color: string; total: number }>(rows: T[]): (T & { exact: number; pct: number; width: number })[] {
+  const sum = rows.reduce((t, r) => t + Math.max(0, r.total), 0);
+  if (sum <= 0) return [] as (T & { exact: number; pct: number; width: number })[];
+  const raw = rows.map((r) => ({ ...r, exact: (Math.max(0, r.total) / sum) * 100 }));
+  const out = raw.map((r) => ({ ...r, pct: Math.round(r.exact) }));
+  const drift = 100 - out.reduce((t, r) => t + r.pct, 0);
+  if (drift !== 0) {
+    const biggest = out.reduce((a, b) => (b.exact > a.exact ? b : a));
+    biggest.pct += drift;                      // the largest bucket absorbs the rounding remainder
+  }
+  return out.map((r) => ({ ...r, width: Math.max(BAR_MIN_W, r.exact) }));
+}
+
+/** THE BAR AS DRAWN: each segment's width as a share of the bar, re-normalised after the sliver floor so the bar is full. */
+/* ─ MK-NW-F-181 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * barDrawnWidths
+ *
+ * Answers ..... THE BAR AS DRAWN: each segment's width as a share of the bar, re-normalised after the sliver floor so the bar is full.
+ *
+ * Formula .....
+ *     scale = Σ over 100 ÷ segs of (width)
+ *     the answer:
+ *     for each of segs: ...each = ...each
+ *     drawn = width × scale
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-181
+ * Changed ..... not in git yet (—)
+ */
+export function barDrawnWidths<T extends { width: number }>(segs: T[]): (T & { drawn: number })[] {
+  const scale = 100 / segs.reduce((t, s) => t + s.width, 0);
+  return segs.map((s) => ({ ...s, drawn: s.width * scale }));
+}
+
+/** HOW MANY ACCOUNTS SIT INSIDE THE CLASSES A CLOSED GROUP HOLDS — the same member rule the rows use (an account that holds
+ *  several classes counts in each it holds), for the closed group's words: CASH · 2 accounts, PERSONAL PROPERTY · 1 item. */
+/* ─ MK-NW-F-182 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * accountsInClass
+ *
+ * Answers ..... HOW MANY ACCOUNTS SIT INSIDE THE CLASSES A CLOSED GROUP HOLDS — the same member rule the rows use (an account that holds several classes counts in each it holds), for the closed group's words: CASH · 2 accounts, PERSONAL PROPERTY · 1 item.
+ *
+ * Formula .....
+ *     b = account class breakdown(a)
+ *     the answer:
+ *     !!b[cls]   if b
+ *     asset class of(a) = cls   otherwise
+ *
+ * Called by ... MK-NW-F-183 accountsInClasses
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-183 accountsInClasses
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-182
+ * Changed ..... not in git yet (—)
+ */
+export function accountsInClass(accounts: AssetAccount[], cls: AssetClass): number {
+  return (accounts ?? []).filter((a) => {
+    const b = accountClassBreakdown(a);
+    return b ? !!b[cls] : assetClassOf(a) === cls;
+  }).length;
+}
+/** HOW MANY ACCOUNTS SIT INSIDE SEVERAL CLASSES — each class's count (accountsInClass) added up, so an account holding two of
+ *  them counts in both, as the rows show it. */
+/* ─ MK-NW-F-183 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * accountsInClasses
+ *
+ * Answers ..... HOW MANY ACCOUNTS SIT INSIDE SEVERAL CLASSES — each class's count (accountsInClass) added up, so an account holding two of them counts in both, as the rows show it.
+ *
+ * Formula .....
+ *     Σ over classes (or none when missing) of (accounts in class(accounts, each))
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-183
+ * Changed ..... not in git yet (—)
+ */
+export function accountsInClasses(accounts: AssetAccount[], classes: AssetClass[]): number {
+  return (classes ?? []).reduce((t, c) => t + accountsInClass(accounts, c), 0);
+}
+
+/** IS THE AMOUNT SHOWN FOR AN ACCOUNT ONLY PART OF IT — by class, an account in several classes shows only its part (half a
+ *  cent apart counts as the whole). */
+/* ─ MK-NW-F-184 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * isPartOfAccount
+ *
+ * Answers ..... IS THE AMOUNT SHOWN FOR AN ACCOUNT ONLY PART OF IT — by class, an account in several classes shows only its part (half a cent apart counts as the whole).
+ *
+ * Formula .....
+ *     size of(part − (account balance or 0)) > 0.005
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · If account balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-184
+ * Changed ..... not in git yet (—)
+ */
+export function isPartOfAccount(part: number, accountBalance: number | null | undefined): boolean {
+  return Math.abs(part - (accountBalance || 0)) > 0.005;
+}
+
+/** DID AN EDIT CHANGE THE VALUE — a new value is dated today; one that did not change keeps its date (2026-10-20). */
+/* ─ MK-NW-F-185 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * valueChanged
+ *
+ * Answers ..... DID AN EDIT CHANGE THE VALUE — a new value is dated today; one that did not change keeps its date (2026-10-20).
+ *
+ * Formula .....
+ *     after ! = before
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-003 institution name
+ *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-048 the person’s own asset-class answer
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-185
+ * Changed ..... not in git yet (—)
+ */
+export function valueChanged(before: number | null | undefined, after: number | null | undefined): boolean {
+  return after !== before;
+}
 
 /** THE FIGURES THIS DOOR HANDS OUT (rule 11). The master file's rows are printed from here. */
 export const NET_WORTH_FIGURES = declareFigures({

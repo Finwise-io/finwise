@@ -244,7 +244,7 @@ export default function SettingsScreen() {
       'Re-run setup',
       'This clears your setup answers and the figures setup created, then restarts the wizard. ' +
       'Your login, preferences, and anything you added yourself (logged transactions, accounts you ' +
-      'added in Net Worth) are kept.',
+      'added in Net worth) are kept.',
       [
         { text: 'Cancel', style: 'cancel' },
         {

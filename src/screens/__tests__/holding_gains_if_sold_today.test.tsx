@@ -82,9 +82,11 @@ describe('1 · a purchase with no purchase date on record is in neither part', (
     ];
     for (const [given, want] of cases) expect([given, purchaseDateOnRecord(given)]).toEqual([given, want]);
     expect(cases).toHaveLength(11);   // a guard proves it looked
-    // the same reading decides where "since purchase" begins
+    // the same reading decides where "since purchase" begins: 31 February is no date, and since 2026-10-21 (the lead's decision
+    // under DEC-3523 tenet 3, MK-PF-F-012) a purchase with no date beside a dated one leaves the first day not on record — it
+    // may be the first — so the answer is none, never the dated one (before: '2026-03-05')
     expect(earliestPurchaseDate({ position_id: 'p', ticker: 'X', lots: [
-      { lot_id: 'a', shares: 1, cost_per_share: 1, purchase_date: '2026-02-31' }, { lot_id: 'b', shares: 1, cost_per_share: 1, purchase_date: '2026-03-05' }] } as Position)).toBe('2026-03-05');
+      { lot_id: 'a', shares: 1, cost_per_share: 1, purchase_date: '2026-02-31' }, { lot_id: 'b', shares: 1, cost_per_share: 1, purchase_date: '2026-03-05' }] } as Position)).toBeNull();
   });
 
   test('worked example 1: 3.25 mini-option contracts at $2.37, no date, today $4.13 → $57.20 in neither part, on its own line', () => {
@@ -238,7 +240,7 @@ describe('4 · a stored $0 price paid is read one way: with no live price, the l
     open(account([HOLDINGS[3][1]], { asset_id: 'cb', label: 'Coinbase', institution: 'Coinbase' }), {});
     const L = lines();
     expect(L[L.indexOf('NO LIVE PRICE — SHOWING WHAT YOU PAID') + 1]).not.toBe('$0');
-    expect(L[L.indexOf('Total paid') + 1]).toBe('No purchase price recorded.');
+    expect(L[L.indexOf('Total paid') + 1]).toBe('No price paid on record.');   // one wording on the card (Q34, 2026-10-21; canon row 24)
   });
 });
 

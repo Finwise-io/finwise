@@ -403,7 +403,7 @@ test('the activity list is newest-first, so recent income is never pushed off th
   render(<AccountPortfolioScreen />);
   expect(screen.getByText(/^Aug 1(, 2026)? · you entered this$/)).toBeOnTheScreen();   // the 2026 dividend, newest, is visible (written as v17 frame 2 writes a day)
   // 2026-08-11: each row now also says WHOSE fact it is — the broker's or yours
-  expect(screen.getByLabelText(/2026-08-01: Dividend, plus \$250\. You entered this — editable\./)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/Aug 1, 2026: Dividend, plus \$250\. You entered this — editable\./)).toBeOnTheScreen();
 });
 
 // ── THE LEFTOVER IS CASH, NOT MORE OF THE BIGGEST HOLDING ──────────────────────────────────────

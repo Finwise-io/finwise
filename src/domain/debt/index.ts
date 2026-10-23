@@ -48,17 +48,17 @@ export interface Debt {
  *
  * Called by ... MK-CF-F-022 paymentShape
  *
- * Reaches ..... 314 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 354 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 296 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 336 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -85,17 +85,17 @@ export function defaultPaymentType(t: DebtType): NonNullable<Debt['payment_type'
  *               MK-CF-F-159 isRecurringDebt · MK-NW-F-147 paymentNotEntered
  *               MK-NW-O-004 theEmergencyFund · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 313 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 353 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 295 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 335 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -124,17 +124,17 @@ export function paymentShape(d: Debt): NonNullable<Debt['payment_type']> {
  *               MK-NW-F-106 mortgagesByProperty · MK-NW-O-003 theNetWorth
  *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 307 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 347 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 289 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 329 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-016 debt minimum payment
@@ -164,11 +164,11 @@ export function requiredPayment(d: Debt): number {
  *
  * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-041 getDebtState · MK-XS-F-029 monthlySavings
- *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-028 surplusByMonth
- *               MK-CF-O-018 theDebts · MK-NW-O-003 theNetWorth
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
+ *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-CF-O-018 theDebts
+ *               MK-NW-O-003 theNetWorth · MK-NW-F-185 valueChanged
  *
  * Serves ...... MK-NW-M-012
  * Ruled by .... DEC-0641
@@ -199,10 +199,10 @@ export function totalDebtMonthly(debts: Debt[]): number {
  *
  * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-NW-F-082 NW
- *               MK-NW-F-101 PLAN · MK-CF-F-036 buildDebtState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
- *               MK-XS-F-032 snapshotFromOnboarding · MK-CF-O-018 theDebts
- *               MK-NW-O-003 theNetWorth
+ *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-041 getDebtState · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-CF-O-018 theDebts · MK-NW-O-003 theNetWorth
+ *               MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-016 debt minimum payment
@@ -229,11 +229,11 @@ export function minimumDebtService(debts: Debt[]): number {
  * Called by ... MK-CF-F-036 buildDebtState · MK-XS-F-028 surplusByMonth
  *
  * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-041 getDebtState · MK-XS-F-029 monthlySavings
- *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-028 surplusByMonth
- *               MK-NW-O-003 theNetWorth
+ *               MK-NW-F-082 NW · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
+ *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-NW-O-003 theNetWorth
+ *               MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -256,10 +256,10 @@ export function actualDebtPayment(debts: Debt[]): number {
  * Called by ... MK-CF-F-036 buildDebtState
  *
  * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-041 getDebtState · MK-XS-F-032 snapshotFromOnboarding
- *               MK-NW-O-003 theNetWorth
+ *               MK-NW-F-082 NW · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-NW-O-003 theNetWorth
+ *               MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-014 debt balance
@@ -410,15 +410,17 @@ export interface CreditUtil { ratio: number; status: 'good' | 'caution' | 'high'
  *
  * Called by ... MK-CF-O-006 theCreditLine
  *
- * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 20 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-NW-F-082 NW
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-002 alternativesSummary · MK-XS-F-011 buildChangeWalk
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-002 alternativesSummary
+ *               MK-XS-F-011 buildChangeWalk · MK-PF-F-028 realizedFromLedger
  *               MK-NW-O-005 theAlternativesOutlook · MK-CF-O-006 theCreditLine
- *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
+ *               MK-NW-O-006 theHolding · MK-NW-O-003 theNetWorth
+ *               … and 2 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -645,7 +647,7 @@ export interface DebtState {
 }
 
 /** APR above which debt is "toxic" — paying it down beats almost any investment return. The single
- *  source of truth for "high-interest / toxic" debt across the debt module, Net Worth, and Insights. */
+ *  source of truth for "high-interest / toxic" debt across the debt module, Net worth, and Insights. */
 export const TOXIC_APR = 0.07;
 
 /* ─ MK-CF-F-036 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
@@ -662,9 +664,9 @@ export const TOXIC_APR = 0.07;
  *               MK-XS-F-031 buildSnapshot
  *
  * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-041 getDebtState
- *               MK-XS-F-032 snapshotFromOnboarding · MK-NW-O-003 theNetWorth
+ *               MK-NW-F-082 NW · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-041 getDebtState · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-NW-O-003 theNetWorth · MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-014 debt balance
@@ -714,15 +716,15 @@ export function buildDebtState(uid: UserId, debts: Debt[]): DebtState {
  * Called by ... MK-CF-F-038 debtsFromOnboarding
  *
  * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
  *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -760,15 +762,15 @@ export function inferDebtType(label: string | undefined): DebtType {
  *               MK-XS-F-175 uid · MK-XS-F-192 typedValueDatedBack
  *
  * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
  *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.

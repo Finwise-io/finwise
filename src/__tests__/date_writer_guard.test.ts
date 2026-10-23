@@ -12,11 +12,16 @@ import * as path from 'path';
 
 const ROOT = path.resolve(__dirname, '..', '..');
 const DIRS = ['src/screens', 'src/components'];
-const FIELDS = ['maturity', 'maturityDate', 'maturity_date', 'nextMaturity', 'value_as_of', 'valueAsOf', 'history_start', 'history_start_override', 'last_synced'];
+// `date` added 2026-10-22: a record's own day (a buy, a dividend, an income, a saved plan) printed "2026-08-02" on the activity
+// sheet and the edit sheet for a record you entered, and on two more screens, while the guard looked only at the fields above
+const FIELDS = ['maturity', 'maturityDate', 'maturity_date', 'nextMaturity', 'value_as_of', 'valueAsOf', 'history_start', 'history_start_override', 'last_synced', 'date'];
 const FIELD = FIELDS.join('|');
 // a value used as-is: `x`, `a.b`, `a?.b.c` whose last name is one of the date fields
 const BARE = new RegExp(`(\\$?)\\{\\s*((?:[A-Za-z_$][\\w$]*\\??\\.)*(?:${FIELD}))\\s*\\}`, 'g');
 const MENTION = new RegExp(`\\b(?:${FIELD})\\b`, 'g');
+// the same value wrapped only to make it a string — `{String(row.date)}` — is still the stored form
+const WRAPPED = new RegExp(`(\\$?)\\{\\s*String\\(\\s*((?:[A-Za-z_$][\\w$]*\\??\\.)*(?:${FIELD}))\\s*(?:\\?\\?\\s*'')?\\s*\\)(?:\\.slice\\(0,\\s*10\\))?\\s*\\}`, 'g');
+const RECORD_DATE = /\.date\b/g;
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -30,11 +35,13 @@ function walk(dir: string, out: string[] = []): string[] {
 /** Every place in one file's source where a stored date goes into text as-is. */
 function rawDates(src: string): string[] {
   const hits: string[] = [];
-  for (const m of src.matchAll(BARE)) {
+  for (const m of [...src.matchAll(BARE), ...src.matchAll(WRAPPED)]) {
     const before = src.slice(0, m.index).replace(/\s+$/, '');
     const isTemplate = m[1] === '$';
     const isProp = !isTemplate && before.endsWith('=');   // value={maturity} hands it to a control, not to text
-    if (!isProp) hits.push(m[0]);
+    // a template that is a React key (key={`${sale.date}-${i}`}) names a row to React; no one reads it
+    const isKey = isTemplate && src.slice(0, src.lastIndexOf('`', m.index!)).replace(/\s+$/, '').endsWith('key={');
+    if (!isProp && !isKey) hits.push(m[0]);
   }
   return hits;
 }
@@ -48,6 +55,9 @@ test('the guard reads every screen and component file, and sees the date fields 
   const mentions = files.reduce((n, f) => n + (fs.readFileSync(f, 'utf8').match(MENTION)?.length ?? 0), 0);
   // the fields are read and written on these screens; seeing none would mean the pattern no longer matches the code
   expect(mentions).toBeGreaterThanOrEqual(40);
+  // and a record's own day: 54 mentions of `.date` on 2026-10-22, six of them already through dateShown
+  const recordDates = files.reduce((n, f) => n + (fs.readFileSync(f, 'utf8').match(RECORD_DATE)?.length ?? 0), 0);
+  expect(recordDates).toBeGreaterThanOrEqual(50);
 });
 
 test('the guard catches the shapes it is for, and leaves a date writer or a date picker alone', () => {
@@ -58,6 +68,13 @@ test('the guard catches the shapes it is for, and leaves a date writer or a date
   expect(rawDates("`matures ${dateShown(h.maturityDate)}`")).toEqual([]);
   expect(rawDates('<DateField value={maturity} />')).toEqual([]);
   expect(rawDates("{ maturity_date: maturity || undefined }")).toEqual([]);
+  // a record's day (2026-10-22): the two sheet lines as they were, and the shapes left alone
+  expect(rawDates('<Text style={styles.hMeta}>{t.date} · {acctName(t.account_id)}</Text>')).toEqual(['{t.date}']);
+  expect(rawDates('<Text style={sh.note}>{String(row.date)} · correcting it reverses the old amount</Text>')).toEqual(['{String(row.date)}']);
+  expect(rawDates('`Restores the plan saved ${prev.date} (${prev.label}).`')).toEqual(['${prev.date}']);
+  expect(rawDates('<Text>{dateShown(t.date)} · {acctName(t.account_id)}</Text>')).toEqual([]);
+  expect(rawDates('<SaidText key={`${sale.date}-${i}`} style={s.noteLine}>')).toEqual([]);
+  expect(rawDates('<DateField value={date} onChange={setDate} />')).toEqual([]);
 });
 
 test('no screen or component prints a maturity date, value date or history start raw', () => {

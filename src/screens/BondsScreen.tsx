@@ -1,5 +1,5 @@
 // Bonds — individual bond management (Phase B). Bonds are AssetAccounts with bond fields, so they
-// already flow into Net Worth + the nest egg; here we add/edit them and show bond-specific metrics.
+// already flow into Net worth + the nest egg; here we add/edit them and show bond-specific metrics.
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import TopBar from '../components/TopBar';
 import React, { useMemo, useState } from 'react';
@@ -12,7 +12,7 @@ import { fig, figPer, figSpoken, figWords } from '../components/figure';   // ru
 import { InfoDot, EmptyNote } from '../components/UI';
 import { DateField } from '../components/DateField';
 import { type AssetAccount, type TaxBucket, type AddWrapper, HELD_IN_CHOICES, heldInOf, wrapperAccount } from '../domain/assets';
-import { theBonds, MATURITY_NOT_ENTERED, settleBondValue } from '../../MoneyKeel/functions/networth-and-performance/bonds';
+import { theBonds, MATURITY_NOT_ENTERED, settleBondValue, balanceWithBondTakenOut } from '../../MoneyKeel/functions/networth-and-performance/bonds';
 import { CD_BOUGHT_QUESTION, CD_BOUGHT_CHOICES } from '../constants/cdBought';   // the one wording (DEC-3837)
 import { COUPONS_PER_YEAR_QUESTION, COUPONS_PER_YEAR_CHOICES, type CouponsPerYear } from '../constants/couponsPerYear';   // the one wording (DEC-3390)
 import { modalAnimation } from '../hooks/reducedMotion';
@@ -145,7 +145,7 @@ export default function BondsScreen() {
           const dup = inst ? accounts.find((a) => !isABond.has(String(a.asset_id)) && String(a.institution ?? '').trim().toLowerCase() === inst && (a.balance || 0) > 0) : null;
           if (dup) {
             // "Part of it" = nest the bond inside the existing balance (lower that account so the total holds)
-            const addAsPartOf = () => { store.updateAsset(dup.asset_id, { balance: Math.max(0, (dup.balance || 0) - worth) }); addIt(); };
+            const addAsPartOf = () => { store.updateAsset(dup.asset_id, { balance: balanceWithBondTakenOut(dup.balance, worth) }); addIt(); };   // by the door (DEC-0346)
             Alert.alert(
               'Part of an existing account?',
               `${dup.institution}'s “${dup.label}” is worth ${fig('MK-NW-M-054', dup.balance || 0)}. Is this ${fig('MK-NW-M-054', worth)} bond part of that, or additional money?\n\n“Part of it” lowers ${dup.label} by ${fig('MK-NW-M-054', worth)} so nothing is double-counted (total stays ${fig('MK-NW-M-054', dup.balance || 0)}).`,

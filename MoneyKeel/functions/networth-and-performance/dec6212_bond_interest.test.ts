@@ -140,12 +140,13 @@ describe('only one bond or one CD counts its interest — never a fund, never tw
 });
 
 describe('over two years the figure is a yearly rate of the total with its interest', () => {
-  test('a bond held three years, flat, $400 of interest on $10,000 over 2Y → (1.04)^(1/2) − 1 a year', () => {
+  // the yearly rate by the one rule every screen uses (2026-10-21, MK-PF-M-016): 29 Sep 2024 → 30 Sep 2026 is 731 days ÷ 365
+  test('a bond held three years, flat, $400 of interest on $10,000 over 2Y → (1.04)^(365 ÷ 731) − 1 a year', () => {
     const p: Position = { ...UST, position_id: 'two', last_price: 100, lots: [{ lot_id: 't', shares: 100, cost_per_share: 100, purchase_date: '2023-01-02' }] } as any;
     const [r] = buildPerformance([p], () => flat, '2Y', NOW, () => null, undefined,
       { transactions: [rec('y1', '2025-02-15', 'INTEREST', 200, '91282CGM7'), rec('y2', '2026-02-15', 'INTEREST', 200, '91282CGM7')], accounts: [{ ...ACCOUNT, positions: [p] }] });
     expect(r.periodTotal!).toBeCloseTo(0.04, 12);
-    expect(r.periodReturn!).toBeCloseTo(Math.pow(1.04, 1 / 2) - 1, 12);
+    expect(r.periodReturn!).toBeCloseTo(Math.pow(1.04, 365 / 731) - 1, 12);
   });
 });
 

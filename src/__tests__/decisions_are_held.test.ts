@@ -1403,9 +1403,12 @@ describe('the decisions in the log are held by something that executes', () => {
     if (process.env.DEC0231_DEBUG) fs.writeFileSync(process.env.DEC0231_DEBUG + '.drawings.json', JSON.stringify({ drawings, drawsIt, differs, unread, missingLine }, null, 1));
     // COVERAGE (2026-10-21): 20 live drawings; 15 draw the bar's button; 14 draw it at 19 (or Choose a file at 100) and carry
     // the line; the 15th, the brand wordmark of 2026-07-24, draws it at 12 already.
-    expect(drawings.length).toBeGreaterThanOrEqual(20);
-    expect(drawsIt.length).toBeGreaterThanOrEqual(15);
-    expect(differs.length).toBeGreaterThanOrEqual(14);
+    // 2026-10-22: 25 live drawings; 20 draw the button. The five sheets drawn from the code and the Update value sheet's v02
+    // draw it at 12, as the app does (v01, which drew 19 with the line, is in archive/), so 13 draw another corner and carry
+    // the line. The count of drawings still drawn at another corner may only fall.
+    expect(drawings.length).toBeGreaterThanOrEqual(25);
+    expect(drawsIt.length).toBeGreaterThanOrEqual(20);
+    expect(differs.length).toBeGreaterThanOrEqual(13);
     expect(unread).toEqual([]);
     expect(missingLine).toEqual([]);
   });
@@ -1481,7 +1484,18 @@ describe('the decisions in the log are held by something that executes', () => {
   // ── DEC-0346 ───────────────────────────────────────────────────────────────────────────────
   test('DEC-0346 — "screens compute nothing": no Net worth screen reaches past its door into the calculation code', () => {
     const guard = fs.readFileSync(path.join(__dirname, 'guard_d1_nobody_in_the_kitchen.test.ts'), 'utf8');
-    for (const s of NW_SCREENS) expect(`${s}: ${guard.includes(`src/screens/${s}.tsx`)}`).toBe(`${s}: false`);
+    // the import ratchet's own list (D1). Since 2026-10-22 the guard file carries a second list, D1b, of screens that still
+    // work figures out themselves — read below, so that debt is stated and not hidden by reading the file as one text.
+    const d1 = guard.slice(guard.indexOf('const BASELINE'), guard.indexOf('};', guard.indexOf('const BASELINE')));
+    expect(d1.length).toBeGreaterThan(50);
+    for (const s of NW_SCREENS) expect(`${s}: ${d1.includes(`src/screens/${s}.tsx`)}`).toBe(`${s}: false`);
+    // D1b (2026-10-22): no Net worth screen works out a figure itself — none is on D1b's list of debts, and D1b holds each by
+    // name at 0 (NetWorthScreen 7, ItemizeScreen 1 and BondsScreen 1 moved into their doors the same day)
+    const d1b = guard.slice(guard.indexOf('const ARITH_BASELINE'), guard.indexOf('};', guard.indexOf('const ARITH_BASELINE')));
+    expect(d1b.length).toBeGreaterThan(200);
+    for (const s of NW_SCREENS) expect(`${s}: ${d1b.includes(`src/screens/${s}.tsx`)}`).toBe(`${s}: false`);
+    const held = guard.slice(guard.indexOf('const HELD_AT_ZERO'), guard.indexOf('};', guard.indexOf('const HELD_AT_ZERO')));
+    for (const s of NW_SCREENS) expect(`${s}: ${held.includes(`src/screens/${s}.tsx`)}`).toBe(`${s}: true`);
   });
 
   // ── DEC-0370 ───────────────────────────────────────────────────────────────────────────────

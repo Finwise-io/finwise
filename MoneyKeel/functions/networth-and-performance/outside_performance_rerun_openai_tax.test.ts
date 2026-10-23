@@ -47,7 +47,7 @@ import { IRS_LIMITS, annual401kLimit, annualIraLimit, annualHsaLimit } from '../
 import { payrollTaxWithheld, SS_WAGE_BASE, MEDICARE_ADDITIONAL_THRESHOLD } from '../cashflow/base-pay';
 import { thePerformance, windowStartKey, investmentRecordDates, pricedGainOf } from './performance';
 import { timeWeightedReturn } from '../../../Calculation Module code/engines/time-weighted-return';
-import { periodReturn, buildPerformance, capGains } from '../../../src/domain/performance';
+import { periodReturn, buildPerformance, capGains, marketGap } from '../../../src/domain/performance';
 
 // ── the package, read as delivered ────────────────────────────────────────────────────────────────
 const PKG = path.join(__dirname, '../../documents/audit/outside-test-cases/returned/MoneyKeel_Performance_Audit_Package');
@@ -70,8 +70,13 @@ const compile = (file: string, parts: RegExp[], names: string[]) => {
   return new Function(`${js}\nreturn { ${names.join(', ')} };`)();
 };
 const HOME = '../../../src/screens/HomeScreen.tsx';
-const { pctTwoDp, signedPct } = compile(HOME, [/const pctTwoDp = [^\n]*\n/, /const signedPct = [^\n]*\n/], ['pctTwoDp', 'signedPct']) as
-  { pctTwoDp: (d: number) => string; signedPct: (d: number) => string };
+// HOME'S GLANCE LINE IS WRITTEN BY THE FIGURES' OWN WRITER (2026-10-22, DEC-0402 step 2): Home's local pctTwoDp and signedPct
+// are gone; "you", "market" and "ahead by" print through fig() as MK-XS-M-004, MK-PF-M-008 and MK-PF-M-027. This writes the
+// line the way Home now does — the declaration, then writeFigure, the writer fig() calls — so the case below tests the real one.
+const { FIGURE_REGISTER } = require('../figures');
+const { writeFigure } = require('../_figure-spec');
+const pctAs = (id: string, d: number): string => writeFigure(FIGURE_REGISTER[id], d);
+const signedAs = (id: string, d: number): string => `${d >= 0 ? '+' : '−'}${pctAs(id, Math.abs(d))}`;
 const { closedWith } = compile('performance.ts', [/function closedWith\([\s\S]*?\n}\n/], ['closedWith']) as
   { closedWith: (days: any[], ids: Set<string>, today: string, ending: number) => any[] };
 
@@ -225,12 +230,20 @@ describe('source_checks — the published 2026 figures, read from the publicatio
     expect([TAX_TABLES.single.over65Add, TAX_TABLES.hoh.over65Add, TAX_TABLES.married.over65Add, TAX_TABLES.mfs.over65Add]).toEqual([2_050, 2_050, 1_650, 1_650]);
     expect(deductionFor('married', 2, null)).toBe(32_200 + 2 * 1_650);   // two people 65+, income not known: no senior deduction guessed
   });
-  // FINDING (citation, no figure moves): the register names "§2.15" for STANDARD_DEDUCTION and "§§2.15, 4.01" for TAX_TABLES,
-  // and deductionFor's header "§3.18". In Rev. Proc. 2025-32 the 2026 standard deduction is §4.14; §2.15 is the 2025 section of
-  // Rev. Proc. 2024-40, which Rev. Proc. 2025-32 §3.01 removed. OpenAI cites §4.14.
-  test.failing('the register cites the section the 2026 standard deduction is printed in: Rev. Proc. 2025-32 §4.14', () => {
-    expect(reg('STANDARD_DEDUCTION').publication).toMatch(/4\.14/);
-    expect(reg('TAX_TABLES').publication).toMatch(/4\.14/);
+  // FIXED 2026-10-22 (citation, no figure moves; side finding S1): the register named "§2.15" for STANDARD_DEDUCTION and
+  // "§§2.15, 4.01" for TAX_TABLES, and deductionFor's header "§3.18". Read from the IRS text of Rev. Proc. 2025-32 the same day:
+  // ".14 Standard Deduction. (1) In general. For taxable years beginning in 2026 …" $32,200 / $24,150 / $16,100 / $16,100, and
+  // "(3) Aged or blind" $1,650, $2,050 unmarried; its §2.15 is a reporting threshold, and §3.01 removed §2.15(1) of Rev. Proc.
+  // 2024-40, the 2025 section. OpenAI cites §4.14. The register now cites §4.14 for both.
+  // the register until 2026-10-22, kept as it was pinned; it no longer cites it (test.failing: this body now fails)
+  test.failing('the register cites §2.15 for the 2026 standard deduction — no longer its citation (FIXED 2026-10-22)', () => {
+    expect(reg('STANDARD_DEDUCTION').publication).toMatch(/§2\.15/);
+    expect(reg('TAX_TABLES').publication).toMatch(/2\.15/);
+  });
+  test('the register cites the section the 2026 standard deduction is printed in: Rev. Proc. 2025-32 §4.14 — FIXED 2026-10-22 (read from the IRS text, side finding S1)', () => {
+    expect(reg('STANDARD_DEDUCTION').publication).toMatch(/2025-32 §4\.14$/);
+    expect(reg('TAX_TABLES').publication).toMatch(/2025-32 §§4\.01, 4\.14$/);
+    expect(REGISTER.filter((r) => /2025-32/.test(r.publication) && /2\.15|3\.18/.test(r.publication))).toEqual([]);
   });
 
   // 3 · Long-term capital gains 2026 thresholds
@@ -307,7 +320,9 @@ describe('cross_card_acceptance_cases — each through the functions the screens
   });
 
   // 2 · Leap-spanning exact 2Y
-  test('2Y over a leap year: the Holding page\'s reader gives +10.00% a year (exponent ½) — OpenAI\'s first reading', () => {
+  // FIXED 2026-10-21 (one rule for a yearly rate on every screen — the precision standard, MK-PF-M-016): the Holding page's
+  // reader counts the window's days too, so OpenAI's first reading (exponent ½) is no longer the app's. Kept, failing.
+  test.failing('2Y over a leap year: the Holding page\'s reader gives +10.00% a year (exponent ½) — OpenAI\'s first reading — no longer its answer (FIXED 2026-10-21)', () => {
     expect(periodReturn(series('X', [['2023-10-12', 100], ['2025-10-10', 121]]), '2Y', D('2025-10-13'))!).toBeCloseTo(0.1, 12);
   });
   test('2Y over a leap year: the Performance tab\'s door gives +9.97% a year — 732 days from the close before the window (DEC-0315) ÷ 365', () => {
@@ -326,7 +341,7 @@ describe('cross_card_acceptance_cases — each through the functions the screens
   // +9.97% a year on the Performance tab. The precision standard (§ Every return is a time-weighted return) states one rule,
   // "(1 + the return)^(365 ÷ days) − 1", and DEC-6412's approved figure follows it ("+22.95% over 731 days = +10.87% a year";
   // exponent ½ gives +10.88%). periodReturnParts (src/domain/performance/index.ts) uses years = 2 when the prices reach back.
-  test.failing('one rule: the Holding page\'s 2Y yearly rate equals the Performance tab\'s for the same window and total', () => {
+  test('one rule: the Holding page\'s 2Y yearly rate equals the Performance tab\'s for the same window and total — FIXED 2026-10-21 (MK-PF-M-016): both +9.97% over 732 days', () => {
     const holding = periodReturn(series('X', [['2023-10-12', 100], ['2025-10-10', 121]]), '2Y', D('2025-10-13'))!;
     const door = perf({ period: '2Y', today: '2025-10-13', days: [day('2023-10-12', { A: 1000 })], accounts: [linked('A', 1210)] }).perYear!;
     expect(holding).toBeCloseTo(door, 12);
@@ -410,7 +425,11 @@ describe('cross_card_acceptance_cases — each through the functions the screens
 
   // 7 · Home visible percentage gap
   test('Home works the gap at full precision and rounds once (DEC-0264): 3.6851% − 2.8349% → "ahead by 0.85%"; exactly 3.69% − 2.83% → "0.86%"', () => {
-    const line = (you: number, mkt: number) => `you ${signedPct(you)} · market ${signedPct(mkt)} · ${you >= mkt ? 'ahead' : 'behind'} by ${pctTwoDp(Math.abs(you - mkt))}`;
+    const line = (you: number, mkt: number) => `you ${signedAs('MK-XS-M-004', you)} · market ${signedAs('MK-PF-M-008', mkt)} · ${you >= mkt ? 'ahead' : 'behind'} by ${pctAs('MK-PF-M-027', Math.abs(marketGap(you, mkt) as number))}`;
+    // and Home prints each of the three through its identifier, with no percent writer of its own
+    const home = fs.readFileSync(path.join(__dirname, HOME), 'utf8');
+    for (const id of ['MK-XS-M-004', 'MK-PF-M-008', 'MK-PF-M-027']) expect(home).toMatch(new RegExp(`fig\\('${id}'`));
+    expect(home).not.toMatch(/const (pctTwoDp|signedPct) =/);
     expect(line(0.036851, 0.028349)).toBe('you +3.69% · market +2.83% · ahead by 0.85%');
     expect(line(0.0369, 0.0283)).toBe('you +3.69% · market +2.83% · ahead by 0.86%');
   });
@@ -418,8 +437,19 @@ describe('cross_card_acceptance_cases — each through the functions the screens
   // orchestrator rule 5: "Screens compute nothing — a figure derived on screen from two others (a share, a difference, a
   // percentage) is a function with a row". With no function there is no row and no worked example: the full-precision witness
   // OpenAI asks for does not exist. The words and the number stay; only where it is worked out moves.
-  test.failing('the "ahead by" gap comes from a function with a row, not from arithmetic on the Home screen', () => {
-    expect(fs.readFileSync(path.join(__dirname, HOME), 'utf8')).not.toMatch(/Math\.abs\(youReturn - marketReturn\)/);
+  // FIXED 2026-10-21: the gap is marketGap (src/domain/performance/index.ts) — the one function Home's "ahead by" and each
+  // holding's "You are ahead by" (buildPerformance, beatBy) read; full precision, rounded once where it prints. Its row in
+  // the function register is the lead's to write (write-headers.py). Home's old arithmetic is kept below, failing.
+  test('the "ahead by" gap comes from a function with a row, not from arithmetic on the Home screen — FIXED 2026-10-21 (marketGap)', () => {
+    const home = fs.readFileSync(path.join(__dirname, HOME), 'utf8');
+    expect(home).not.toMatch(/Math\.abs\(youReturn - marketReturn\)/);
+    expect(home).toMatch(/marketGap\(youReturn, marketReturn\)/);
+    // the full-precision witness OpenAI asked for: 3.6851% − 2.8349% = 0.8502 points, shown 0.85
+    expect(marketGap(0.036851, 0.028349)!).toBeCloseTo(0.008502, 12);
+    expect(marketGap(0.03, null)).toBeNull();
+  });
+  test.failing('Home works the gap itself (Math.abs(youReturn - marketReturn)) — no longer how it is worked (FIXED 2026-10-21)', () => {
+    expect(fs.readFileSync(path.join(__dirname, HOME), 'utf8')).toMatch(/Math\.abs\(youReturn - marketReturn\)/);
   });
 
   // 8 · Missing wage/rent/debt dependency evidence

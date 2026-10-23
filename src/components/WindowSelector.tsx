@@ -4,7 +4,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Colors, Radii, Shadows } from '../utils/theme';
-import { fig } from './figure';   // rule 11: a figure prints with its identifier
+import { fig, figSaid } from './figure';   // rule 11: a figure prints with its identifier, and is said through the one spoken writer
 
 export function WindowSelector({ windows, chosen, figures, onPick }: {
   windows: { key: string; label: string }[];
@@ -45,7 +45,7 @@ export function WindowSelector({ windows, chosen, figures, onPick }: {
               style={[styles.seg, w.key === 'SINCE' && styles.segWide, on && styles.segOn]}
               disabled={uncovered}
               accessibilityRole="button" accessibilityState={{ selected: on, disabled: uncovered }}
-              accessibilityLabel={`Show ${w.label}${ret == null ? ', no data for that window yet' : `, ${fig('MK-PF-M-017', ret)}${perYear ? ' a year' : ''}`}`}
+              accessibilityLabel={`Show ${w.label}${ret == null ? ', no data for that window yet' : `, ${figSaid('MK-PF-M-017', ret, perYear ? 'year' : undefined)}`}`}
               onPress={() => onPick(w.key)}>
               {/* THE COLOURS v17 DRAWS (drawing check, 2026-10-12): a window at rest names itself in the tertiary grey;
                   one with no figure is greyed lighter still, name and dash (.segNo); the CHOSEN window is green even

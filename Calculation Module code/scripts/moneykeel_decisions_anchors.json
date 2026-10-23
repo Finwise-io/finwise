@@ -444,10 +444,10 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0088": {
-   "governs": "src/domain/glossary.ts · src/screens/PerformanceScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/domain/glossary.ts (yearly, unless, assumptions, limits, draws, brokerage, honest, equity, saved, dates, save, crypto, checking, inflation, actual, costs, private, long-run, assumption, default); src/screens/PerformanceScreen.tsx (yearly, longer, categories, draws, brokerage, honest, equity, owns, dates, save, crypto, checking, input, actual, private, default)",
-   "evidence": "searched every calculation file",
-   "verified_by_reading": "2026-10-01 — read against the screen or door it names during Performance step 1.b; held by decisions_are_held.test.ts"
+   "governs": "GLOSSARY.nestEggMath (src/domain/glossary.ts — WHAT WE ASSUME, the actual numbers: 10.4%, 7.9%, 8% and the rest) · the ⓘ beside the odds on src/components/PlanOutcome.tsx and src/screens/WhatIfScreen.tsx",
+   "why_it_governs_those": "its own words make the odds explanation name every figure it assumes; read 2026-10-22 in GLOSSARY.nestEggMath and the two places that open it. It was matched on shared words to PerformanceScreen.tsx, which does not show it — a Plan decision.",
+   "evidence": "read 2026-10-22",
+   "verified_by_reading": "2026-10-22 — read in src/components/PlanOutcome.tsx"
   },
   "DEC-0089": {
    "governs": "MK-NW-M-008 · MK-NW-M-006",
@@ -758,9 +758,10 @@
    "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; the decisions list stays visible on the Plan tab; Net worth and Performance were matched on shared words"
   },
   "DEC-0148": {
-   "governs": "src/screens/PerformanceScreen.tsx · src/screens/NetWorthScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (visible, dollar, hiding, fills, balances, half, closes, shape, gives, hero, offered, replaced, reading, worse, rulings, dollars); src/screens/NetWorthScreen.tsx (hide, choice, visible, dollar, hiding, fills, balances, half, shape, recommendation, hero, works, offered, replaced, worse)",
-   "evidence": "searched every calculation file"
+   "governs": "src/components/PlanOutcome.tsx (the odds dial under hide-balances: the arc and the percentage stay, only the dollar target is dotted) · src/screens/PlanHubScreen.tsx",
+   "why_it_governs_those": "his words \"hide the number, keep the shape\" are quoted at the dial in PlanOutcome.tsx (read 2026-10-22), shown on the Plan tab. It was matched on shared words to PerformanceScreen.tsx and NetWorthScreen.tsx, which have no dial — a Plan decision.",
+   "evidence": "read 2026-10-22",
+   "verified_by_reading": "2026-10-22 — read in src/components/PlanOutcome.tsx"
   },
   "DEC-0149": {
    "governs": "MK-PF-M-008 · MK-CF-M-037 · MK-NW-M-021 · MK-NW-M-008",
@@ -814,9 +815,10 @@
    "evidence": "searched the figure register"
   },
   "DEC-0159": {
-   "governs": "src/screens/PerformanceScreen.tsx · src/domain/assets/index.ts",
-   "why_it_governs_those": "its own words appear in these files: src/screens/PerformanceScreen.tsx (presented, daily, silent, stopped, coupon, field, path, backwards, filter, moved, weighted, returns, silently, actual, reading, through, market, comparison, fetch); src/domain/assets/index.ts (feed, pays, coupon, field, filter, weighted, returns, silently, yield, actual, including, reading, outside, treasury, through, fetched, long, market)",
-   "evidence": "searched every calculation file"
+   "governs": "src/services/economicData.ts (the ten-year Treasury yield, read from FRED series DGS10; a fallback is flagged, never silent) · src/domain/debt/mortgageVsTreasury.ts (the mortgage-versus-Treasury comparison that depends on it)",
+   "why_it_governs_those": "its own words are about the ten-year Treasury feed that failed silently; read 2026-10-22 in economicData.ts (DGS10, the fallback flag) and mortgageVsTreasury.ts. It was matched on shared words to PerformanceScreen.tsx and assets/index.ts — a Cash flow (Debts) decision.",
+   "evidence": "read 2026-10-22",
+   "verified_by_reading": "2026-10-22 — read in src/services/economicData.ts"
   },
   "DEC-0160": {
    "governs": "MK-XS-M-004",
@@ -1094,14 +1096,16 @@
    "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; held by decisions_are_held.test.ts Read 2026-10-01: the grouping pills and the editor chips are drawn as pills in the approved v08 and v02 mocks — they are chips, not buttons; the rule holds for every button."
   },
   "DEC-0232": {
-   "governs": "MK-PF-M-011",
-   "why_it_governs_those": "its own words appear in these figures: MK-PF-M-011 (priced, start, history)",
-   "evidence": "searched the figure register"
+   "governs": "src/store/useStore.ts (rebuiltFrom — the first day each linked account's history was rebuilt to, from the broker's own records) · src/screens/PerformanceScreen.tsx (the ↺ line, glossary term rebuiltHistory, naming the broker and that first day; Since begins there)",
+   "why_it_governs_those": "its own words say a linked account's first day of history is rebuilt from its own records; read 2026-10-22 in useStore.ts (rebuiltFrom, rebuiltAt) and the ↺ line on the Performance tab. It was matched on the words priced, start and history to MK-PF-M-011, a Look back figure.",
+   "evidence": "read 2026-10-22",
+   "verified_by_reading": "2026-10-22 — read in src/screens/__tests__/perf_decisions_held_1.test.tsx"
   },
   "DEC-0233": {
-   "governs": "MK-PF-M-011",
-   "why_it_governs_those": "its own words appear in these figures: MK-PF-M-011 (become, start)",
-   "evidence": "searched the figure register"
+   "governs": "src/components/WindowSelector.tsx (one bordered control; segDivider, a 1-point hairline between two windows not picked) · the window picker on the Performance tab, the account page and the Holding page",
+   "why_it_governs_those": "its own words ask for the period buttons as one row with dividers; read 2026-10-22 in WindowSelector.tsx (segDivider). It was matched on the words become and start to MK-PF-M-011, a Look back figure.",
+   "evidence": "read 2026-10-22",
+   "verified_by_reading": "2026-10-22 — read in src/screens/__tests__/perf_decisions_held_1.test.tsx"
   },
   "DEC-0234": {
    "governs": "src/domain/assets/index.ts sourceWording · src/screens/PerformanceScreen.tsx · src/screens/AccountPortfolioScreen.tsx",
@@ -1904,9 +1908,10 @@
    "verified_by_reading": "2026-10-01 — read against the screen or door it names during Net worth step 1.b; an ambiguous description in a specification; Net worth and the net-worth door were matched on shared words"
   },
   "DEC-0470": {
-   "governs": "src/domain/glossary.ts · src/domain/assets/index.ts",
-   "why_it_governs_those": "its own words appear in these files: src/domain/glossary.ts (fresh, including, connected); src/domain/assets/index.ts (including, connected, manual)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/AccountPortfolioScreen.tsx (UpdateValueSheet, and its three doors: Update value, the box for a value 6 or more months old, the box for a value with no date) · MK-NW-F-003 valueFreshness · MK-NW-M-018 · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_update-value-sheet_v01.html",
+   "why_it_governs_those": "re-mapped 2026-10-21 by reading: his question asks what the screen for a manual update looks like; that screen is the Update value sheet on the account page, drawn in eight states. It was matched on the words fresh, including, connected and manual to src/domain/glossary.ts and src/domain/assets/index.ts, which do not draw it.",
+   "evidence": "read 2026-10-21",
+   "verified_by_reading": "2026-10-21 — held by src/screens/__tests__/update_value_sheet_drawing.test.tsx"
   },
   "DEC-0471": {
    "governs": "src/screens/NetWorthScreen.tsx · src/screens/PerformanceScreen.tsx",
@@ -1951,9 +1956,11 @@
    "verified_by_reading": "2026-10-01 — read against the screen or door it names during Performance step 1.b; held by decisions_are_held.test.ts"
   },
   "DEC-0479": {
-   "governs": "MK-PF-M-007 · MK-PF-M-008",
-   "why_it_governs_those": "its own words appear in these figures: MK-PF-M-007 (dividend, invest); MK-PF-M-008 (dividend, invest)",
-   "evidence": "searched the figure register"
+   "governs": "MK-PF-M-016 Return · MK-PF-M-019 and MK-PF-M-015 the walk's lines (Dividends, Interest, Change in investment value — src/screens/PerformanceScreen.tsx walkRows, src/screens/AccountPortfolioScreen.tsx) · MK-PF-M-006 and MK-PF-M-007 WHAT EACH CATEGORY EARNED · MK-NW-M-036 and MK-NW-M-037 IF YOU SOLD TODAY · MK-NW-M-035 Realized from sales · MK-NW-M-034 Dividends received (trailing twelve months) (src/screens/HoldingDetailScreen.tsx) · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v17.html · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_account-page_v01.html · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_holding-detail_v02.html",
+   "why_it_governs_those": "re-mapped 2026-10-21 by reading: his question asks whether realized and unrealized gains, dividends and interest are each shown; they are, on the walk's lines (PerformanceScreen.tsx and AccountPortfolioScreen.tsx), WHAT EACH CATEGORY EARNED, and the Holding page's IF YOU SOLD TODAY and DIVIDENDS & REALIZED cards. It was matched on the words dividend and invest to MK-PF-M-007 and MK-PF-M-008; MK-PF-M-008 is the market comparison, which the question does not ask about.",
+   "evidence": "read 2026-10-21",
+   "verified_by_reading": "2026-10-21 — held by src/screens/__tests__/perf_matches_v17.test.tsx",
+   "proof": "src/screens/__tests__/perf_matches_v17.test.tsx — Performance v17 phones 1, 3, 4 and 5 word for word · src/screens/__tests__/account_page_drawing_states.test.tsx — the account page, states A to F word for word · src/screens/__tests__/kept_editors_match.test.tsx — Holding detail v02 phones and Look back v01 phones word for word · run 2026-10-21 21:30, all passing: perf_matches_v17.test.tsx 5 of 5 · account_page_drawing_states.test.tsx 59 of 59 · kept_editors_match.test.tsx 47 of 47 · holding_detail_fcc.test.tsx 15 of 15"
   },
   "DEC-0480": {
    "governs": "src/domain/assets/index.ts · src/screens/NetWorthScreen.tsx",
@@ -1972,9 +1979,11 @@
    "evidence": "searched the figure register"
   },
   "DEC-0483": {
-   "governs": "src/domain/assets/index.ts · src/screens/PerformanceScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/domain/assets/index.ts (separate, received, brokerage, part, fidelity); src/screens/PerformanceScreen.tsx (separate, received, brokerage, part)",
-   "evidence": "searched every calculation file"
+   "governs": "MK-NW-M-034 Dividends received (trailing twelve months) (src/screens/HoldingDetailScreen.tsx, DIVIDENDS & REALIZED) · MK-NW-O-006 theHolding (MoneyKeel/functions/networth-and-performance/holding.ts) · MK-PF-M-007 WHAT EACH CATEGORY EARNED · MK-PF-M-019 the walk's Dividends line (src/screens/PerformanceScreen.tsx) · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_holding-detail_v02.html · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v17.html",
+   "why_it_governs_those": "re-mapped 2026-10-21 by reading: his question asks whether a stock that pays dividends shows the dividends received; the Holding page prints them under MK-NW-M-034 and the Performance tab under MK-PF-M-007 and the walk. It was matched on the words separate, received and brokerage to src/domain/assets/index.ts, which does not show them.",
+   "evidence": "read 2026-10-21",
+   "verified_by_reading": "2026-10-21 — held by src/screens/__tests__/kept_editors_match.test.tsx",
+   "proof": "src/screens/__tests__/perf_matches_v17.test.tsx — Performance v17 phones 1, 3, 4 and 5 word for word · src/screens/__tests__/account_page_drawing_states.test.tsx — the account page, states A to F word for word · src/screens/__tests__/kept_editors_match.test.tsx — Holding detail v02 phones and Look back v01 phones word for word · run 2026-10-21 21:30, all passing: perf_matches_v17.test.tsx 5 of 5 · account_page_drawing_states.test.tsx 59 of 59 · kept_editors_match.test.tsx 47 of 47 · holding_detail_fcc.test.tsx 15 of 15"
   },
   "DEC-0484": {
    "governs": "src/domain/assets/index.ts · src/domain/transactions/index.ts",
@@ -2039,9 +2048,11 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0497": {
-   "governs": "src/domain/insights/index.ts · src/screens/RetirementCockpit.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/domain/insights/index.ts (level, stock, invest, grow, displayed, details); src/screens/RetirementCockpit.tsx (level, track, what-if, grow, details)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/AccountPortfolioScreen.tsx (opened from each account's title, /account-detail) · src/screens/HoldingDetailScreen.tsx (opened from each holding row, /holding-detail) · src/screens/LookBackScreen.tsx (/look-back) · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v17.html · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_account-page_v01.html · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_holding-detail_v02.html · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_look-back_v01.html",
+   "why_it_governs_those": "re-mapped 2026-10-21 by reading: his question asks what level of detail the investments screen shows, and how; the answer is the Performance tab, the account page it opens (PerformanceScreen.tsx router.push /account-detail) and the Holding page that opens (AccountPortfolioScreen.tsx router.push /holding-detail), each built to an approved drawing. It was matched on the words level, stock, grow and details to src/domain/insights/index.ts and src/screens/RetirementCockpit.tsx, which are not the investments screen.",
+   "evidence": "read 2026-10-21",
+   "verified_by_reading": "2026-10-21 — held by src/screens/__tests__/account_page_drawing_states.test.tsx",
+   "proof": "src/screens/__tests__/perf_matches_v17.test.tsx — Performance v17 phones 1, 3, 4 and 5 word for word · src/screens/__tests__/account_page_drawing_states.test.tsx — the account page, states A to F word for word · src/screens/__tests__/kept_editors_match.test.tsx — Holding detail v02 phones and Look back v01 phones word for word · run 2026-10-21 21:30, all passing: perf_matches_v17.test.tsx 5 of 5 · account_page_drawing_states.test.tsx 59 of 59 · kept_editors_match.test.tsx 47 of 47 · holding_detail_fcc.test.tsx 15 of 15"
   },
   "DEC-0498": {
    "governs": "MK-XS-M-004",
@@ -2069,9 +2080,11 @@
    "evidence": "searched every calculation file"
   },
   "DEC-0510": {
-   "governs": "src/screens/InsightsScreen.tsx",
-   "why_it_governs_those": "its own words appear in these files: src/screens/InsightsScreen.tsx (level, invest, detail)",
-   "evidence": "searched every calculation file"
+   "governs": "src/screens/PerformanceScreen.tsx · src/screens/AccountPortfolioScreen.tsx · src/screens/HoldingDetailScreen.tsx · src/screens/LookBackScreen.tsx · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_performance_v17.html · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_account-page_v01.html · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_holding-detail_v02.html · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_look-back_v01.html",
+   "why_it_governs_those": "re-mapped 2026-10-21 by reading: his question (Invest: what level of detail, and how?) is the investments screen's detail, answered by the Performance tab, the account page and the Holding page. It was matched on the words level, invest and detail to src/screens/InsightsScreen.tsx, which is not the investments screen.",
+   "evidence": "read 2026-10-21",
+   "verified_by_reading": "2026-10-21 — held by src/screens/__tests__/perf_matches_v17.test.tsx",
+   "proof": "src/screens/__tests__/perf_matches_v17.test.tsx — Performance v17 phones 1, 3, 4 and 5 word for word · src/screens/__tests__/account_page_drawing_states.test.tsx — the account page, states A to F word for word · src/screens/__tests__/kept_editors_match.test.tsx — Holding detail v02 phones and Look back v01 phones word for word · run 2026-10-21 21:30, all passing: perf_matches_v17.test.tsx 5 of 5 · account_page_drawing_states.test.tsx 59 of 59 · kept_editors_match.test.tsx 47 of 47 · holding_detail_fcc.test.tsx 15 of 15"
   },
   "DEC-0511": {
    "governs": "src/screens/PlanHubScreen.tsx · src/screens/MultiGoalScreen.tsx",
@@ -2263,6 +2276,12 @@
   },
   "DEC-1668": {
    "standard_carrier": "MoneyKeel/documents/standards/moneykeel_calc_spec_mortgage-rent-and-debt_v01.md §5 — rent keeps arriving and the emergency fund counts it"
+  },
+  "DEC-0248": {
+   "governs": "MK-NW-F-084 categoryEarnings (MoneyKeel/functions/networth-and-performance/performance.ts) — the Bonds & CDs yearly rate, each bond's stated rate weighted by what it is worth · MK-PF-M-006 WHAT EACH CATEGORY EARNED",
+   "why_it_governs_those": "its own words make a blended rate value-weighted; read 2026-10-22 in categoryEarnings, where the Bonds & CDs rate is weighted by what each bond is worth. Its record named MK-PF-F-019, removed by DEC-4642.",
+   "evidence": "read 2026-10-22",
+   "verified_by_reading": "2026-10-22 — read in src/screens/__tests__/perf_decisions_held_1.test.tsx"
   }
  }
 }

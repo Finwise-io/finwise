@@ -16,25 +16,28 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney, maskedMoney2, maskedPrice, coinQuantity, spokenMoney } from '../components/useMoney';
-import { theHolding, undatedGainSentence, SECTION_1256_LINE, NOT_CAPITAL_GAINS_LINE } from '../../MoneyKeel/functions/networth-and-performance/holding';
-import { windowStartKey, lastCloseLabel } from '../../MoneyKeel/functions/networth-and-performance/performance';
+import { theHolding, undatedGainSentence, SECTION_1256_LINE, NOT_CAPITAL_GAINS_LINE, yardstickName, gapWords, purchaseQuantityWords, holdingRowsIn, SHARE_COUNT_NOT_STATED } from '../../MoneyKeel/functions/networth-and-performance/holding';
+import { windowStartKey, lastCloseLabel, overTheYearsSentence } from '../../MoneyKeel/functions/networth-and-performance/performance';
 import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
+import { SaidText } from '../components/SaidText';   // a line of figures said through the one spoken writer: "hidden", "a year" (2026-10-22)
 import { InfoDot } from '../components/UI';
 import { priceFreshness } from '../services/marketData';
 import {
-  buildPerformance, benchmarkTicker,
+  benchmarkTicker,
   PERIODS, priceHistoryShortSentence, type Period, type Position, type PerformanceRow,
 } from '../domain/performance';
 import { HoldingEditor, TransactionSheet, HistorySheet } from './PerformanceScreen';
 import type { AssetAccount } from '../domain/assets';
 import { isoLocalDate, dateShown } from '../domain/_shared/dates';
 
-// a return is a percent to TWO decimals (precision standard, Q49) — this printed one, and dropped a trailing zero
-const pctDigits = (v: number) => (Math.abs(v) * 100).toFixed(2);
-const pct = (v: number | null | undefined) => (v == null ? '—' : `${v >= 0 ? '+' : '−'}${pctDigits(v)}%`);
-// THE SPOKEN PERCENT READS THROUGH THE SAME FORMATTER AS THE ONE ON SCREEN (Q49, 2026-10-21): the screen reader said "38
-// percent since purchase" and "38.2 percent" beside +38.19% on screen
-const pctSaid = (v: number) => `${v >= 0 ? 'up' : 'down'} ${pctDigits(v)} percent`;
+// EVERY PERCENT ON THIS PAGE PRINTS BY ITS IDENTIFIER (rule 11; 2026-10-21, Performance launch audit gaps 9 and 10): the
+// change since purchase and the day's move as percents (MK-NW-M-067, 068), your return, the market and the gap between them
+// (MK-PF-M-023 — the account page's holding Return, one figure on both pages — and MK-NW-M-070, 071). They were written here
+// by a formatter of the screen's own, so nothing could check them.
+// THE SPOKEN PERCENT IS THE PRINTED ONE, SAID (Q49, 2026-10-21): the figure's own two decimals, without its sign, then the
+// word — "38.19 percent"; the direction is said in words beside it.
+const percentSaid = (id: string, v: number) => figSaid(id, Math.abs(v)).replace(/^[+−]/, '').replace(/%$/, ' percent');
+const directionSaid = (id: string, v: number) => `${v >= 0 ? 'up' : 'down'} ${percentSaid(id, v)}`;
 const PERIOD_WORDS: Record<string, string> = { '1M': 'month', '3M': '3 months', '6M': '6 months', YTD: 'year so far', '1Y': 'year', '2Y': '2 years' };
 
 /** The hero sparkline — the period's daily closes, nothing smoothed or invented. */
@@ -59,6 +62,15 @@ function PriceGraph({ pts, up }: { pts: { date: string; close: number }[]; up: b
  *  gain is refused here only because a purchase lacks its price paid or share count — and the line says that. It
  *  printed the figure's whole refusal, which begins "No price today", under a live price (mock-match audit v02, 2026-10-11). */
 const GAIN_NOT_STATED = 'Not stated — a purchase has no price paid or share count on record.';
+/** THE AVERAGE AND TOTAL PAID WITH A SHARE COUNT NOT ON RECORD (Q34, 2026-10-21, DEC-7170, the lead's decision under DEC-6627
+ *  and DEC-3523 tenets 2 and 4): the row says the share count is what is missing. It printed the figure's refusal, "No price
+ *  paid on record.", which names the wrong thing when every purchase has its price.
+ *  ONE WORDING FOR ONE CAUSE (2026-10-21; tenets 3 and 4; outside re-run OpenAI part 1, MK-NW-M-030#3 and MK-NW-M-031#3): Current
+ *  value and Quantity say it too. They printed their rows' refusals — "No price — it shows what you paid…" under a price of
+ *  $290.00, and "All sold — …" for shares that were never entered, not sold. */
+// the words live in the door, so the account page says the same (holding.ts SHARE_COUNT_NOT_STATED, 2026-10-22)
+/** No price today and no purchase with a price paid on record: nothing is known to show as what was paid (canon row 24). */
+const NO_PAID_ON_RECORD = 'No price paid on record.';
 
 export default function HoldingDetailScreen() {
   const router = useRouter();
@@ -79,11 +91,11 @@ export default function HoldingDetailScreen() {
   const priceCache = store.priceCache ?? {};
   const priceOf = (t: string) => priceCache[t.trim().toUpperCase()];
 
-  // r24: the SAME row the Invest main list computes for this holding — one helper, one number
+  // r24: the SAME row the account page prints for this holding — ONE FUNCTION, holdingRowsIn (2026-10-22; tenet 4, MK-PF-M-023):
+  // this account's records, its earliest buy standing in for an undated purchase, and the account itself, so a bond's or a
+  // CD's interest is part of its return (DEC-6212). It was built here without the earliest buy, a second way to the same row.
   const row: PerformanceRow | null = useMemo(
-    // the records and its account, so a bond's or a CD's interest is part of its return, as on the account page (DEC-6212)
-    () => (position ? buildPerformance([position], priceOf, period, new Date(), undefined, undefined,
-      { transactions: (store.transactions ?? []) as any[], accounts: account ? [account] : [] })[0] : null),
+    () => (position && account ? holdingRowsIn({ account, positions: [position], priceOf, period, transactions: (store.transactions ?? []) as any[] })[0] ?? null : null),
     [position, priceCache, period, store.transactions, account],
   );
   // THE WINDOW'S FIRST DAY — the one rule every screen asks (MK-NW-F-090 windowStartKey), which refuses a window
@@ -170,14 +182,25 @@ export default function HoldingDetailScreen() {
   // (coinQuantity, the precision standard's formatter for coins); any other quantity as it is held. The purchase rows wrote
   // their quantity raw, so a coin quantity there could run past eight decimals while the Quantity row above was cut to eight.
   const quantityText = (n: number): string => (position.kind === 'crypto' ? coinQuantity(n) : String(n));
-  const lotQuantity = (n: number | null | undefined): string => (n == null || !Number.isFinite(n) ? '' : quantityText(n));
   const quantityWords = quantityWithUnit(position, shares, quantityText);
+  // WHAT THE VALUE ROWS SAY WHEN THE VALUE CANNOT BE KNOWN (2026-10-21; tenet 3): a share count not on record, or — with no
+  // price — no purchase with a price paid on record. Never the row's refusal, which is a sentence about the figure.
+  const valueNotKnown = shares == null ? SHARE_COUNT_NOT_STATED : NO_PAID_ON_RECORD;
 
   // SPOKEN THROUGH THE SAME FORMATTERS AS THE FIGURES ON SCREEN (Q49, 2026-10-21): money rounded once, by the figure's own
   // formatter, and the return to two decimals — it was said as a whole percent ("38 percent" beside +38.19%)
   const headerA11y = closed
     ? `${name}, position closed, all shares sold`
-    : `${name}, worth ${figSaid('MK-NW-M-030', value)}${gain != null ? `, ${gain >= 0 ? 'up' : 'down'} ${figSaid('MK-NW-M-059', Math.abs(gain))}${roi != null ? `, ${pctDigits(roi)} percent since purchase` : ''}` : ''}`;
+    : `${name}, ${value == null ? valueNotKnown : `worth ${figSaid('MK-NW-M-030', value)}`}${gain != null ? `, ${gain >= 0 ? 'up' : 'down'} ${figSaid('MK-NW-M-059', Math.abs(gain))}${roi != null ? `, ${percentSaid('MK-NW-M-067', roi)} since purchase` : ''}` : ''}`;
+
+  // THE MARKET COMPARISON (2026-10-21). The band names the yardstick this holding is measured against — the stock market for a
+  // stock or fund, the bond market for a bond (AGG), gold, bitcoin, a balanced fund — and an Unclassified holding has none
+  // (DEC-2160). It said "the stock market" for every holding, false for a bond (DEC-0458, DEC-1624, DEC-6614; tenets 1, 2).
+  const yardstick = yardstickName(row.benchTicker);
+  // OVER 2Y THE RETURNS ARE YEARLY RATES (DEC-0237, DEC-0404, DEC-0368; the precision order): written /year, with each
+  // window's own total said beside it in the Performance tab's sentence. A year or less is the window's own total.
+  const yearly = row.years != null;
+  const perYear = yearly ? '/year' : '';
 
   // IF YOU SOLD TODAY — which rows the card draws (2026-10-21):
   //   · inside an account taxed as pre-tax or tax-free, one row, the whole gain, and the line saying why (notCapitalGains);
@@ -190,6 +213,15 @@ export default function HoldingDetailScreen() {
 
   const tickerTxns = ((store.transactions ?? []) as any[]).filter((t) => String(t.ticker ?? '').toUpperCase() === ticker.toUpperCase());
   const realized = answer.realised;
+
+  // PRICE PAID (AVERAGE), WITH THE INFO DOT THAT STATES ITS RULE (Q34, 2026-10-21; his comment of 2026-08-26 asked for the
+  // dot): drawn the same way with a live price and without one. A share count not on record says so on the row.
+  const avgRow = () => (
+    <View style={s.tRow}>
+      <View style={s.kickerRow}><Text style={s.tL}>Price paid (average)</Text><InfoDot term="averagePricePaid" size={15} /></View>
+      <Text style={s.tV}>{shares == null ? figWords('MK-NW-M-032', SHARE_COUNT_NOT_STATED) : fig('MK-NW-M-032', rawAvg)}</Text>
+    </View>
+  );
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
@@ -222,7 +254,7 @@ export default function HoldingDetailScreen() {
             <Text style={s.big}>{fig('MK-NW-M-029', row.price as number)}</Text>
             {dayChange != null && (
               <Text style={[s.gainLine, { color: dayChange.d >= 0 ? Colors.gainText : Colors.red }]}>
-                {dayChange.d >= 0 ? '▲ up ' : '▼ down '}{fig('MK-NW-M-060', Math.abs(dayChange.d))} ({(Math.abs(dayChange.p) * 100).toFixed(2)}%) {fresh.stale ? 'last market day' : 'today'}
+                {dayChange.d >= 0 ? '▲ up ' : '▼ down '}{fig('MK-NW-M-060', Math.abs(dayChange.d))} ({fig('MK-NW-M-068', Math.abs(dayChange.p))}) {fresh.stale ? 'last market day' : 'today'}
               </Text>
             )}
             {fresh.stale && <Text style={[s.metaLine, s.warn]}>prices may be out of date ({fresh.label})</Text>}
@@ -246,24 +278,27 @@ export default function HoldingDetailScreen() {
             )}
             {!closed && (
             <View style={s.tblTop}>
-              <View style={s.tRow}><Text style={s.tL}>Current value</Text><Text style={s.tV}>{fig('MK-NW-M-030', value)}</Text></View>
+              <View style={s.tRow}><Text style={s.tL}>Current value</Text><Text style={s.tV}>{value == null ? figWords('MK-NW-M-030', valueNotKnown) : fig('MK-NW-M-030', value)}</Text></View>
               {gain != null && (
                 <View style={s.tRow}><Text style={s.tL}>Change since purchase</Text>
-                  <Text style={[s.tV, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ +' : '▼ −'}{fig('MK-NW-M-059', Math.abs(gain))}{roi != null ? ` (${pct(roi)})` : ''}</Text></View>
+                  <Text style={[s.tV, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ +' : '▼ −'}{fig('MK-NW-M-059', Math.abs(gain))}{roi != null ? ` (${fig('MK-NW-M-067', roi)})` : ''}</Text></View>
               )}
-              <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{quantityWords == null ? fig('MK-NW-M-031', null) : figWords('MK-NW-M-031', quantityWords)}</Text></View>
-              <View style={s.tRow}><Text style={s.tL}>Price paid (average)</Text><Text style={s.tV}>{fig('MK-NW-M-032', rawAvg)}</Text></View>
+              <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{figWords('MK-NW-M-031', quantityWords ?? SHARE_COUNT_NOT_STATED)}</Text></View>
+              {avgRow()}
             </View>
             )}
           </>
         ) : closed ? null : (
           <>
             <Text style={[s.kicker, s.warn]}>NO LIVE PRICE — SHOWING WHAT YOU PAID</Text>
-            <Text style={s.big}>{fig('MK-NW-M-030', value)}</Text>
+            {/* what was paid, or — when that is not known either — the words saying why, at the size of a line, not a figure */}
+            {value == null
+              ? <Text style={s.line}>{figWords('MK-NW-M-030', valueNotKnown)}</Text>
+              : <Text style={s.big}>{fig('MK-NW-M-030', value)}</Text>}
             <Text style={s.metaLine}>⏱ live pricing arrives with the price provider</Text>
             <View style={s.tblTop}>
-              <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{quantityWords == null ? fig('MK-NW-M-031', null) : figWords('MK-NW-M-031', quantityWords)}</Text></View>
-              <View style={s.tRow}><Text style={s.tL}>Price paid (average)</Text><Text style={s.tV}>{fig('MK-NW-M-032', rawAvg)}</Text></View>
+              <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{figWords('MK-NW-M-031', quantityWords ?? SHARE_COUNT_NOT_STATED)}</Text></View>
+              {avgRow()}
             </View>
             <Text style={s.note}>No market compare, dividends or tax estimate without a live price — sections appear when pricing does. Nothing invented.</Text>
           </>
@@ -271,17 +306,26 @@ export default function HoldingDetailScreen() {
       </View>
 
       {/* vs the stock market — SAME DATES (r24); window words match the math (capped at purchase) */}
-      {hasPrice && !closed && (row.periodReturn != null && row.benchReturn != null ? (
+      {hasPrice && !closed && (row.periodReturn != null && row.benchReturn != null && yardstick != null ? (
         <View style={s.card} accessible
-          accessibilityLabel={`Versus the stock market, same dates: your return ${pctSaid(row.periodReturn)}, the market ${pctSaid(row.benchReturn)}${row.beatBy != null ? `, you are ${row.beatBy >= 0 ? 'ahead' : 'behind'} by ${pctDigits(row.beatBy)} points` : ''}`}>
-          <SectionBand title="VS THE STOCK MARKET · SAME DATES" />
-          <View style={s.tRow}><Text style={s.tL}>{row.cappedSince ? 'Your return since purchase' : `Your return, past ${PERIOD_WORDS[period]}`}</Text><Text style={s.tV}>{pct(row.periodReturn)}</Text></View>
-          <View style={s.tRow}><Text style={s.tL}>The market, same dates</Text><Text style={s.tV}>{pct(row.benchReturn)}</Text></View>
+          accessibilityLabel={`Versus ${yardstick}, same dates: your return ${directionSaid('MK-PF-M-023', row.periodReturn)}${yearly ? ' a year' : ''}, the market ${directionSaid('MK-NW-M-070', row.benchReturn)}${yearly ? ' a year' : ''}${row.beatBy != null ? `, you are ${gapWords(row.beatBy)}${yearly ? ' a year' : ''}` : ''}`}>
+          <SectionBand title={`VS ${yardstick.toUpperCase()} · SAME DATES`} />
+          <View style={s.tRow}><Text style={s.tL}>{row.cappedSince ? 'Your return since purchase' : `Your return, past ${PERIOD_WORDS[period]}`}</Text><Text style={s.tV}>{fig('MK-PF-M-023', row.periodReturn)}{perYear}</Text></View>
+          <View style={s.tRow}><Text style={s.tL}>The market, same dates</Text><Text style={s.tV}>{fig('MK-NW-M-070', row.benchReturn)}{perYear}</Text></View>
           {/* THE GAP IS TO TWO DECIMALS, like the two returns it is taken from (precision standard, Q49; 2026-10-21): it printed
               one, so +38.19% beside +22.40% read 15.8 points where 15.79 is the difference. The drawing's line of 2026-10-21 says so. */}
           {row.beatBy != null && (
             <View style={s.tRow}><Text style={s.tL}>You are</Text>
-              <Text style={[s.tV, { color: row.beatBy >= 0 ? Colors.gainText : Colors.red }]}>{row.beatBy >= 0 ? 'ahead' : 'behind'} by {(Math.abs(row.beatBy) * 100).toFixed(2)} points</Text></View>
+              <Text style={[s.tV, { color: row.beatBy >= 0 ? Colors.gainText : Colors.red }]}>{figWords('MK-NW-M-071', gapWords(row.beatBy, yearly) as string)}</Text></View>
+          )}
+          {/* A YEARLY RATE SAYS SO, WITH THE WINDOW'S OWN TOTAL BESIDE IT (his ruling of 2026-09-25, DEC-0237, DEC-0404; the
+              precision order): the Performance tab's sentence, for each of the two returns (2026-10-21, gap 34), from the one writer
+              the Performance tab and the account page ask (overTheYearsSentence, 2026-10-22) — the market's line lost its "same". */}
+          {yearly && row.periodTotal != null && (
+            <Text style={s.noteLine}>{`Your return: ${overTheYearsSentence({ cumulative: row.periodTotal, perYear: row.periodReturn, years: row.years as number }, (v, per) => (per ? `${fig('MK-PF-M-023', v)}/year` : fig('MK-PF-M-023', v)))} — a yearly rate, so it sits fairly beside a one-year window.`}</Text>
+          )}
+          {yearly && row.benchTotal != null && (
+            <Text style={s.noteLine}>{`The market: ${overTheYearsSentence({ cumulative: row.benchTotal ?? null, perYear: row.benchReturn, years: row.years as number }, (v, per) => (per ? `${fig('MK-NW-M-070', v)}/year` : fig('MK-NW-M-070', v)))}.`}</Text>
           )}
           {/* CORRECTED 2026-10-12 (DEC-4645): this read "price changes only — dividends not included", which was false —
               the holding and its market yardstick (SPY or AGG) are both read from dividend-adjusted closes, so both
@@ -291,8 +335,15 @@ export default function HoldingDetailScreen() {
         </View>
       ) : (
         <View style={s.card}>
-          <SectionBand inCard inset={20} title="VS THE STOCK MARKET" />
-          <Text style={s.note}>Not enough price history for a fair comparison — check back as prices fill in.</Text>
+          {/* the band names the yardstick here too; an Unclassified holding has none, and the line says that is why (DEC-2160) */}
+          <SectionBand inCard inset={20} title={`VS ${(yardstick ?? 'the market').toUpperCase()}`} />
+          {/* a purchase with no date beside dated ones: no return since purchase, and the reason is that, not the prices
+              (2026-10-21, MK-PF-F-040, the lead's decision under DEC-3523 tenet 3) */}
+          <Text style={s.note}>{yardstick == null
+            ? 'This holding is Unclassified, so there is no market to compare it with.'
+            : row?.undatedPurchase
+            ? 'A purchase of this holding has no date on record, so its return since purchase cannot be measured.'
+            : 'Not enough price history for a fair comparison — check back as prices fill in.'}</Text>
         </View>
       ))}
 
@@ -308,18 +359,22 @@ export default function HoldingDetailScreen() {
           return (
           <TouchableOpacity accessibilityRole="button" key={l.lot_id} style={s.lotRow} onPress={() => setEditOpen(true)}
             // spoken in the holding's own unit (contracts, coins), as the row is drawn — it said "shares" for every holding
-            accessibilityLabel={`${quantityWithUnit(position, l.shares, quantityText) ?? lotQuantity(l.shares)} at ${lotCostOnRecord(l) ? figSaid('MK-NW-M-061', l.cost_per_share as number) : 'no purchase price recorded'}, ${bought ? `bought ${dateWords}` : 'purchase date not on record'}. Opens the editor.`}>
+            accessibilityLabel={`${quantityWithUnit(position, l.shares, quantityText) ?? 'no share count on record'} at ${lotCostOnRecord(l) ? figSaid('MK-NW-M-061', l.cost_per_share as number) : 'no price paid on record'}, ${bought ? `bought ${dateWords}` : 'purchase date not on record'}. Opens the editor.`}>
             <Text style={s.lotDate}>{dateWords}</Text>
             {/* ONE RULE FOR WHAT WAS PAID (lotCostOnRecord, 2026-10-20) — the same one the average and the gains use, so a
-                purchase this row calls not recorded is the one they leave out */}
-            <Text style={s.lotShares}>{lotQuantity(l.shares)} sh @ {lotCostOnRecord(l) ? fig('MK-NW-M-061', l.cost_per_share as number)
+                purchase this row calls not recorded is the one they leave out.
+                THE HOLDING'S OWN UNIT (2026-10-21; DEC-0277; purchaseQuantityWords): "100 sh" for shares as drawn, "2 contracts"
+                for an option — it read "2 sh" under Quantity "2 contracts" — and a share count not on record says so. */}
+            <Text style={s.lotShares}>{purchaseQuantityWords(position, l.shares, quantityText)} @ {lotCostOnRecord(l) ? fig('MK-NW-M-061', l.cost_per_share as number)
               // a purchase with no price paid says so (READ THIS FIRST 2026-10-11 on holding-detail v02: "each line says
               // what is missing"); it printed the figure's other refusal, "No purchases recorded — the section is not drawn."
-              : figWords('MK-NW-M-061', 'no purchase price recorded')}</Text>
+              // ONE WORDING FOR AN UNKNOWN PRICE PAID ON THIS CARD (Q34, 2026-10-21; tenet 4): the row, the average, Total paid
+              // and the line under them say "no price paid on record", the words of his sale sentence (DEC-4643); canon row 24.
+              : figWords('MK-NW-M-061', 'no price paid on record')}</Text>
           </TouchableOpacity>
           );
         })}
-        <View style={[s.tRow, s.tTotal]}><Text style={[s.tL, { fontWeight: '800', color: Colors.textPrimary }]}>Total paid</Text><Text style={s.tV}>{fig('MK-NW-M-033', basis)}</Text></View>
+        <View style={[s.tRow, s.tTotal]}><Text style={[s.tL, { fontWeight: '800', color: Colors.textPrimary }]}>Total paid</Text><SaidText style={s.tV}>{shares == null ? figWords('MK-NW-M-033', SHARE_COUNT_NOT_STATED) : fig('MK-NW-M-033', basis)}</SaidText></View>
         <Text style={s.note}>These purchases are the cost basis — they explain the average cost above.</Text>
         {/* THE AVERAGE AND THE TOTAL PAID LEAVE OUT A PURCHASE WITH NO PRICE PAID, AND SAY SO HERE, beside the purchase that has
             none (2026-10-20). It counted that purchase as $0: 10 shares at $100 and 10 with no cost read $50.00, and Total paid read
@@ -334,14 +389,20 @@ export default function HoldingDetailScreen() {
       {hasPrice && !closed && (
         <View style={s.card}>
           <SectionBand inCard inset={20} title="DIVIDENDS & REALIZED" />
-          <View style={s.tRow}><Text style={s.tL}>Dividends received (12 mo)</Text><Text style={s.tV}>{fig('MK-NW-M-034', dividends.trailing12)}</Text></View>
+          {/* THE TWELVE-MONTH WINDOW IS SPELLED OUT (Q35, 2026-10-21, DEC-7171; his comment of 2026-08-26: "Screen should say Trailing
+              Twelve Months and not just 12 months"; canon row 23) */}
+          {/* NO RECORD NAMES THIS HOLDING, NO LINE (2026-10-21; the row's own refusal, tenet 3; outside re-run OpenAI part 1,
+              MK-NW-M-034#3): it read $0 for a holding no dividend record names, as if it had paid nothing */}
+          {dividends.records > 0 && (
+            <View style={s.tRow}><Text style={s.tL}>Dividends received (trailing twelve months)</Text><SaidText style={s.tV}>{fig('MK-NW-M-034', dividends.trailing12)}</SaidText></View>
+          )}
           <View style={s.tRow}><Text style={s.tL}>Realized from sales</Text>
-            <Text style={s.tV}>{realized.sellsCounted > 0
+            <SaidText style={s.tV}>{realized.sellsCounted > 0
               ? `${realized.realizedAllTime >= 0 ? '+' : '−'}${fig('MK-NW-M-035', Math.abs(realized.realizedAllTime))} all time`
               : realized.shortOfPurchases.length > 0
               // sold, but no purchase on record behind any of it: not "nothing sold" (DEC-4643, 2026-10-12)
               ? figWords('MK-NW-M-035', 'not on record')
-              : `${fig('MK-NW-M-035', 0)} — nothing sold`}</Text></View>
+              : `${fig('MK-NW-M-035', 0)} — nothing sold`}</SaidText></View>
           {/* his ruling, 2026-10-04: "$0 — nothing sold" stays; the line about how sales are matched is for when there is a sale */}
           {(realized.sellsCounted > 0 || realized.shortOfPurchases.length > 0) && (
             <Text style={s.noteLine}>From your recorded buys and sells (oldest shares sold first).</Text>
@@ -350,9 +411,9 @@ export default function HoldingDetailScreen() {
               says what its matched part made and how many shares have no price paid on record — one line per sale.
               It read "1 sale had no recorded purchase" beside a gain counted on the same sale, as if two sales. */}
           {realized.shortOfPurchases.map((sale, i) => (
-            <Text key={`${sale.date}-${i}`} style={s.noteLine}>
+            <SaidText key={`${sale.date}-${i}`} style={s.noteLine}>
               {saleShortOfPurchasesSentence(sale, position, (n) => fig('MK-NW-M-035', n), quantityText)}
-            </Text>
+            </SaidText>
           ))}
         </View>
       )}
@@ -365,31 +426,31 @@ export default function HoldingDetailScreen() {
             <>
               {/* INSIDE AN ACCOUNT TAXED AS PRE-TAX OR TAX-FREE (2026-10-21): a sale there is not a capital gain, so the
                   split by holding period has no tax meaning — the gain is shown whole, with the reason */}
-              <View style={s.tRow}><Text style={s.tL}>Gain</Text><Text style={s.tV}>{cg.totalGain == null ? figWords('MK-NW-M-059', GAIN_NOT_STATED) : signedGain('MK-NW-M-059', cg.totalGain)}</Text></View>
+              <View style={s.tRow}><Text style={s.tL}>Gain</Text><SaidText style={s.tV}>{cg.totalGain == null ? figWords('MK-NW-M-059', GAIN_NOT_STATED) : signedGain('MK-NW-M-059', cg.totalGain)}</SaidText></View>
               <Text style={s.noteLine}>{NOT_CAPITAL_GAINS_LINE}</Text>
             </>
           ) : (
             <>
               {!cgNoneDated && (
-                <View style={s.tRow}><Text style={s.tL}>{cgIndex ? `Gain — long-term (${SECTION_1256_LONG_TERM_PERCENT}%)` : 'Gain — long-term (held over 1 yr)'}</Text><Text style={s.tV}>{cg.longGain == null ? figWords('MK-NW-M-036', GAIN_NOT_STATED) : signedGain('MK-NW-M-036', cg.longGain)}</Text></View>
+                <View style={s.tRow}><Text style={s.tL}>{cgIndex ? `Gain — long-term (${SECTION_1256_LONG_TERM_PERCENT}%)` : 'Gain — long-term (held over 1 yr)'}</Text><SaidText style={s.tV}>{cg.longGain == null ? figWords('MK-NW-M-036', GAIN_NOT_STATED) : signedGain('MK-NW-M-036', cg.longGain)}</SaidText></View>
               )}
-              {!cgNoneDated && cg.shortGain !== 0 && <View style={s.tRow}><Text style={s.tL}>{cgIndex ? `Gain — short-term (${100 - SECTION_1256_LONG_TERM_PERCENT}%)` : 'Gain — short-term (held 1 yr or less)'}</Text><Text style={s.tV}>{cg.shortGain == null ? figWords('MK-NW-M-037', GAIN_NOT_STATED) : signedGain('MK-NW-M-037', cg.shortGain)}</Text></View>}
+              {!cgNoneDated && cg.shortGain !== 0 && <View style={s.tRow}><Text style={s.tL}>{cgIndex ? `Gain — short-term (${100 - SECTION_1256_LONG_TERM_PERCENT}%)` : 'Gain — short-term (held 1 yr or less)'}</Text><SaidText style={s.tV}>{cg.shortGain == null ? figWords('MK-NW-M-037', GAIN_NOT_STATED) : signedGain('MK-NW-M-037', cg.shortGain)}</SaidText></View>}
               {/* AN OPTION ON A BROAD-BASED INDEX (2026-10-21): 60/40 by law, whatever the holding period — the line names it */}
               {cgIndex && <Text style={s.noteLine}>{SECTION_1256_LINE}</Text>}
               {/* A PURCHASE WITH NO PURCHASE DATE ON RECORD (2026-10-21; tenet 3): in neither part, its gain said here */}
               {cg.undated != null && cg.undated.gain != null && cg.undated.counted > 0 && (
-                <Text style={s.noteLine}>
+                <SaidText style={s.noteLine}>
                   {undatedGainSentence({ gain: cg.undated.gain, counted: cg.undated.counted }, position, (n) => fig('MK-NW-M-059', n), quantityText)}
-                </Text>
+                </SaidText>
               )}
             </>
           )}
           {/* Q20, 2026-10-20 — BY HIS RULE FOR SALES (DEC-4643): count the purchases whose price paid is on record and say
               what is left out, in the same sentence. A purchase with no price paid refused the whole gain. */}
           {cg.countedShares != null && cg.heldShares != null && cg.countedShares < cg.heldShares && (
-            <Text style={s.noteLine}>
+            <SaidText style={s.noteLine}>
               {gainOnPartSentence({ gain: cg.totalGain, counted: cg.countedShares, of: cg.heldShares }, position, (n) => fig('MK-NW-M-036', n), quantityText)}
-            </Text>
+            </SaidText>
           )}
         </View>
       )}
@@ -466,8 +527,10 @@ const s = StyleSheet.create({
   lotDate: { fontSize: 13, color: Colors.textSecondary },
   entryCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg, marginBottom: Spacing.md },
   entryTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
-  btnRow: { flexDirection: 'row', gap: 8, marginTop: 2 },
-  btn: { flex: 1, backgroundColor: Colors.cardBg, borderRadius: Radii.md, paddingVertical: 12, alignItems: 'center', minHeight: 44 },
+  // the two doors at the foot, as holding detail v02 draws them (.btnRow, .btn): 4 below the card, a 1-point edge in the line
+  // colour on a white button (2026-10-21, gap 25: the edge was missing and the row sat 2 below)
+  btnRow: { flexDirection: 'row', gap: 8, marginTop: 4 },
+  btn: { flex: 1, backgroundColor: Colors.cardBg, borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 12, alignItems: 'center', minHeight: 44 },
   btnTxt: { fontSize: 13, fontWeight: '700', color: Colors.primary },
   cta: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center', marginTop: Spacing.lg },
   ctaTxt: { color: Colors.white, fontSize: 15, fontWeight: '800' },

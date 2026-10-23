@@ -44,6 +44,11 @@
  * missing interest, and the −$500 deposit reversal found while checking. Both were test.failing; both now pass, with the
  * ruling in the test's name. Nothing was deleted: the conversion keeps OpenAI's answer as written, and "what the app
  * answers now" holds the new answer, with the old one in a comment beside it.
+ * FIXED OR DECIDED THE SAME DAY BY THE RETURNS-AND-WINDOWS JOB (PF-A, 2026-10-21): MK-PF-F-040 · Morning purchase (DEC-4439:
+ * a purchase counts from the start of its day, +15.24%, was +26.76%) and · Undated real purchase (tenet 3: no return, was
+ * +13.60%); MK-ST-F-081 · Negative ending (decided under tenet 1: no return and the reason, was −100.00%); MK-PF-F-039 ·
+ * Two-year total versus yearly pace (decided, one rule for a yearly rate on every screen, MK-PF-M-016: 731 days ÷ 365, so
+ * years 2.0027 where OpenAI wrote 2 — REVIEWER WRONG by that decision, was AGREES).
  *
  * WORK UNDER WAY ELSEWHERE THE SAME DAY (Net worth launch): time-weighted-return.ts and ingest.ts are being edited
  * (activity the app cannot name refuses the return; a one-sided broker journal keeps its direction). No case here
@@ -58,7 +63,7 @@ import * as ts from 'typescript';
 import { execFileSync } from 'child_process';
 import {
   periodTotalReturn, periodReturn, latestClose, startDateFor, closeOnOrBefore, windowTotal, priceHistoryShortSentence,
-  lotCostOnRecord, purchaseDateOnRecord,
+  lotCostOnRecord, purchaseDateOnRecord, closeDayOnOrBefore, firstClose, calendarDay,
   worthWithInterest, portfolioBenchReturn, buildPerformance, type PriceSeries, type Position,
 } from '../../../src/domain/performance';
 import { saleShortOfPurchasesSentence } from '../../../src/domain/performance/realized';
@@ -82,15 +87,20 @@ const src = (file: string, start: string, end: string) => {
   if (to < 0) throw new Error(`end of ${start} not found in ${file}`);
   return ts.transpileModule(text.slice(at, to + end.length), { compilerOptions: { target: ts.ScriptTarget.ES2019 } }).outputText;
 };
-const parts = new Function('latestClose', 'startDateFor',
-  `${src(PERF, 'function dayBefore(', '\n}\n')}\n${src(PERF, 'function closeAsOf(', '\n}\n')}\n${src(PERF, 'function periodReturnParts(', '\n}\n')}\nreturn { periodReturnParts };`,
-)(latestClose, startDateFor);
+const ISO_DAY_JS = src(PERF, 'function isoDay(', '\n}\n');
+// (2026-10-21) closeAsOf compares days on the person's calendar (closeOnOrBefore, firstClose, calendarDay) and the 2Y yearly
+// rate counts the window's days (isoDay) — each handed over, or compiled from its own text where it is not exported
+const parts = new Function('latestClose', 'startDateFor', 'closeOnOrBefore', 'firstClose', 'calendarDay',
+  `${ISO_DAY_JS}\n${src(PERF, 'function dayBefore(', '\n}\n')}\n${src(PERF, 'function closeAsOf(', '\n}\n')}\n${src(PERF, 'function periodReturnParts(', '\n}\n')}\nreturn { periodReturnParts };`,
+)(latestClose, startDateFor, closeOnOrBefore, firstClose, calendarDay);
 const periodReturnParts: (s: PriceSeries | null, p: string, now: Date) => { total: number; years: number } | null = parts.periodReturnParts;
 const returnSincePurchases: (p: Position, s: PriceSeries | null, price: number | null, firstDay: string) => number | null =
   // its steps live in purchasePieces since 2026-10-21 (so a holding worth $0 keeps the value it is measured from): both compiled
-  // (2026-10-21) purchasePieces reads a cost and a date the one way: lotCostOnRecord, purchaseDateOnRecord — handed over too
-  new Function('closeOnOrBefore', 'lotCostOnRecord', 'purchaseDateOnRecord', `${src(PERF, 'function returnSincePurchases(', '\n}\n')}\n${src(PERF, 'function purchasePieces(', '\n}\n')}\nreturn returnSincePurchases;`)(closeOnOrBefore, lotCostOnRecord, purchaseDateOnRecord);
-const ISO_DAY_JS = src(PERF, 'function isoDay(', '\n}\n');
+  // (2026-10-21) purchasePieces reads a cost and a date the one way: lotCostOnRecord, purchaseDateOnRecord — handed over too;
+  // and (2026-10-21, DEC-4439) the piece ends at the previous evening's close: closeDayOnOrBefore, and dayBeforeDay compiled;
+  // and (2026-10-21, DEC-1669) its purchases by day are read by purchaseDays, which the holding's path shares — compiled too
+  new Function('closeDayOnOrBefore', 'lotCostOnRecord', 'purchaseDateOnRecord', 'calendarDay',
+    `${src(PERF, 'function dayBeforeDay(', '\n}\n')}\n${src(PERF, 'function returnSincePurchases(', '\n}\n')}\n${src(PERF, 'function purchasePieces(', '\n}\n')}\n${src(PERF, 'function purchaseDays(', '\n}\n')}\nreturn returnSincePurchases;`)(closeDayOnOrBefore, lotCostOnRecord, purchaseDateOnRecord, calendarDay);
 const isoDay: (d: Date) => string = new Function(`${ISO_DAY_JS}\nreturn isoDay;`)();
 const windowTotalOfRow: (r: any) => number | null =
   new Function('windowTotal', `${src(PERF, 'const windowTotalOfRow = ', ';\n')}\nreturn windowTotalOfRow;`)(windowTotal);
@@ -183,7 +193,16 @@ const CONV: Record<string, Record<string, Conv>> = {
   },
   'MK-PF-F-039': {
     'One-year price move': { verdict: 'AGREES', act: (i) => parts1Y({ inputs: i }), reviewer: partsCheck },
-    'Two-year total versus yearly pace': { verdict: 'AGREES', act: (i) => parts1Y({ inputs: i }), reviewer: partsCheck },
+    'Two-year total versus yearly pace': {
+      verdict: 'REVIEWER WRONG',
+      why: 'DECIDED 2026-10-21 (the lead\'s decision under the precision standard and DEC-3523 tenet 4; MK-PF-M-016): one rule for a '
+        + 'yearly rate on every screen, (1 + the return)^(365 ÷ days) − 1, as the account\'s figure and DEC-6412\'s approved "+22.95% over '
+        + '731 days = +10.87% a year" have it. 12 Oct 2024 to 13 Oct 2026 is 731 days: years 2.0027, +9.99% a year; OpenAI\'s 2 (+10.00%) '
+        + 'was the card\'s exponent ½, which made the holding and the account two answers. Was AGREES.',
+      act: (i) => parts1Y({ inputs: i }), reviewer: partsCheck,
+      // BEFORE 2026-10-21 the app answered: total 0.21, years 2
+      pin: (a) => { near(a.total, 0.21); near(a.years, 731 / 365); },
+    },
     'Short history of five months': { verdict: 'AGREES', why: FIRST_PRICE, act: (i) => parts1Y({ inputs: i }), reviewer: partsCheck },
     'As-of endpoint excludes future point': {
       verdict: 'REVIEWER WRONG', why: NO_FUTURE_CLOSE, act: (i) => parts1Y({ inputs: i }), reviewer: partsCheck,
@@ -199,8 +218,10 @@ const CONV: Record<string, Record<string, Conv>> = {
       why: 'DEC-4439 (a refinement of DEC-1669, which rules every return): money that moves on a day counts for that whole day. The app ends the '
         + 'old piece at that day\'s close and adds the purchase after it — the end-of-day rule DEC-4439 retired. App +26.76%; DEC-4439 +15.24%, '
         + 'what the account reads when the $1,100 is deposited that morning (tenet 4).',
+      fixed: '2026-10-21 (DEC-4439, tenet 4): a purchase counts from the start of its day — the piece before it ends at the previous evening\'s close',
       ...num1((i) => returnSincePurchases(position(i.lots), S(i.prices), i.today_price, '2026-09-01')),
-      pin: (a) => near(a, 1.21 * 2420 / 2310 - 1),
+      // BEFORE 2026-10-21 the app answered: 1.21 × 2,420 ÷ 2,310 − 1 = +26.76% — the old shares re-priced at 2 Sep's close first
+      pin: (a) => near(a, 2420 / 2100 - 1),
     },
     'Unround purchases on same date': { verdict: 'AGREES', ...num1((i) => returnSincePurchases(position(i.lots), S(i.prices), i.today_price, i.firstDay)) },
     'Undated real purchase cannot be placed by guess': {
@@ -208,8 +229,10 @@ const CONV: Record<string, Record<string, Conv>> = {
       why: 'Tenet 3: never a default that looks like an answer. A purchase with no date is put on the first dated purchase day '
         + '(`… : firstDay`), so the app shows +13.60% as if both were bought on Sep 17. A linked broker can send an undated tax lot '
         + 'beside dated ones (snaptrade.ts, `original_purchase_date ?? null`).',
+      fixed: '2026-10-21 (DEC-3523 tenet 3, the lead\'s decision): a purchase with no date beside dated ones is never put on a guessed day — no return since purchase, and the Holding page says why',
       ...num1((i) => returnSincePurchases(position(i.lots), S(i.prices), i.today_price, i.firstDay)),
-      pin: (a) => near(a, (10.375 * 97.31) / (7.25 * 83.17 + 3.125 * 91.43) - 1),
+      // BEFORE 2026-10-21 the app answered: (10.375 × 97.31) ÷ (7.25 × 83.17 + 3.125 × 91.43) − 1 = +13.60%, both bought Sep 17
+      pin: (a) => expect(a).toBeNull(),
     },
   },
   'MK-PF-F-041': {
@@ -254,8 +277,13 @@ const CONV: Record<string, Record<string, Conv>> = {
       verdict: 'NEEDS A RULING',
       why: 'The app does what DEC-5068 approved — start = value now ÷ (1 + its own return) — which is right only when no shares were bought '
         + 'inside the window. Home "market" (MK-PF-M-008): holding A bought 10 more mid-window reads +7.33%; with its real $1,000 start, +6.00%.',
-      act: (i) => startValues(i.rows.map(row), windowTotalOfRow), reviewer: (a, c) => startsAre(a, c.expected),
-      pin: (a) => { expect(a).toHaveLength(1); near(a[0].start, 2000); near(a[0].ret, 0.21); },
+      fixed: '2026-10-21 (DEC-1669, DEC-3035b, tenet 4; was NEEDS A RULING): the start is the one the row carries — the shares held when the window began × the close it is measured from',
+      // OpenAI's actual_start is the value buildPerformance now writes on every row (startValue: the shares held when the
+      // window began × that close; the topped-up holding of the fact test below reads $1,000); the row hands it in as the
+      // app's own rows do
+      act: (i) => startValues(i.rows.map((x: any) => ({ ...row(x), startValue: x.actual_start })), windowTotalOfRow), reviewer: (a, c) => startsAre(a, c.expected),
+      // BEFORE 2026-10-21 the app answered: start $2,000 — value now ÷ (1 + its return), the 10 shares bought inside counted as held
+      pin: (a) => { expect(a).toHaveLength(1); near(a[0].start, 1000); near(a[0].ret, 0.21); },
     },
     'Wiped-out holding still had beginning': {
       verdict: 'APP WRONG',
@@ -300,8 +328,10 @@ const CONV: Record<string, Record<string, Conv>> = {
       verdict: 'NEEDS A RULING',
       why: 'No ruling covers an account worth less than nothing (a margin debt). The app floors the value at $0 and shows −100.00%; the true '
         + 'change is −108.32%; OpenAI wants no figure. Tenet 7 rules out −100% (it looks better than it is); he must choose −108.32% or no figure.',
+      fixed: '2026-10-21 (DEC-3523 tenet 1, the lead\'s decision; was NEEDS A RULING): a value below $0 is no return, with the reason (VALUE_BELOW_ZERO)',
       act: twrOf, reviewer: (a, c) => twrIs(a, c.expected),
-      pin: (a) => { expect(a.rate).toBe(-1); expect(a.measuredFrom).toBe('2026-09-01'); },
+      // BEFORE 2026-10-21 the app answered: rate −1 (−100.00%), measured from 2026-09-01 — the −$83.19 read as $0
+      pin: (a) => { expect(a.rate).toBeNull(); expect(a.refused).toBe('VALUE_BELOW_ZERO'); expect(a.day).toBe('2026-09-02'); },
     },
     'Positive base below half-cent': {
       verdict: 'REVIEWER WRONG',
@@ -395,11 +425,15 @@ describe('the facts behind the verdicts', () => {
     expect(priceHistoryShortSentence(s!.points, '2025-10-10', '1Y', '2026-10-10'))
       .toBe('Prices for this holding go back 5 months, so the 1-year figure covers 5 months — not a year.');
   });
-  test('MK-PF-F-039: the two-year short-history branch IS reached — 14 months up 21% is made yearly over the 426 days the prices cover', () => {
+  test('MK-PF-F-039: the two-year short-history branch IS reached — 14 months up 21% is made yearly over the 426 days the prices cover (÷ 365 since 2026-10-21, the one rule)', () => {
     const s = S([['2025-08-13', 100], ['2026-10-13', 121]]);
     const p = periodReturnParts(s, '2Y', D('2026-10-13'))!;
-    near(p.total, 0.21); near(p.years, 426 / 365.25);
-    near(periodReturn(s, '2Y', D('2026-10-13')), Math.pow(1.21, 365.25 / 426) - 1);   // +17.80% a year, not +10.00%
+    near(p.total, 0.21); near(p.years, 426 / 365);
+    near(periodReturn(s, '2Y', D('2026-10-13')), Math.pow(1.21, 365 / 426) - 1);   // +17.75% a year, not +10.00%
+  });
+  // the fact until 2026-10-21, kept as it was pinned: 365.25-day years (+17.80% a year) — no longer the code (one rule, MK-PF-M-016)
+  test.failing('MK-PF-F-039, until 2026-10-21: the same 426 days counted as 426 ÷ 365.25 years — no longer its answer', () => {
+    near(periodReturnParts(S([['2025-08-13', 100], ['2026-10-13', 121]]), '2Y', D('2026-10-13'))!.years, 426 / 365.25);
   });
   test('MK-PF-F-042 / F-043: every row buildPerformance writes carries its window total and the market\'s — priced, unpriced, bought inside, short history, 2Y', () => {
     const series: Record<string, PriceSeries | null> = {
@@ -420,11 +454,13 @@ describe('the facts behind the verdicts', () => {
     }
     expect(seen).toBe(16);   // 4 holdings × 4 windows: the guard proves it looked
   });
-  test('MK-PF-F-044: a holding bought again inside the window gets exactly that row — total +21%, value $2,420, start read as $2,000', () => {
+  test('MK-PF-F-044: a holding bought again inside the window gets exactly that row — total +21%, value $2,420, start read as $1,000 (the shares held then; it read $2,000 until 2026-10-21)', () => {
     const p = position([[10, 100, '2025-06-01'], [10, 110, '2026-09-02']], { ticker: 'A' });
     const [r] = buildPerformance([p], () => S([['2025-10-12', 100], ['2026-09-02', 110], ['2026-10-13', 121]]), '1Y', D('2026-10-13'));
-    near(r.periodTotal, 0.21); near(r.marketValue, 2420);
-    near(startValues([r], windowTotalOfRow)[0].start, 2000);   // the shares held when the window began were worth $1,000
+    near(r.periodTotal, 0.21); near(r.marketValue, 2420); near(r.startValue, 1000);
+    near(startValues([r], windowTotalOfRow)[0].start, 1000);   // the shares held when the window began were worth $1,000
+    // a row handed in with no start of its own is still worked back from its value (rows the app builds always carry one)
+    near(startValues([{ ...r, startValue: undefined }], windowTotalOfRow)[0].start, 2000);
   });
   test('MK-PF-F-044 → MK-PF-M-008 Home "market": the two on-screen examples, worked through portfolioBenchReturn', () => {
     // A: 10 held at $100, 10 more bought mid-window, now $2,420 (+21%), yardstick +10%; B: $1,000 flat, yardstick +2%
@@ -439,10 +475,16 @@ describe('the facts behind the verdicts', () => {
     near(portfolioBenchReturn([row({ ticker: 'A', value: 0, total: -1, extra: { benchTotal: 0.10 } }),
       row({ ticker: 'B', value: 1200, total: 0.2, extra: { benchTotal: 0.02 } })] as any), 0.02);
   });
-  test('MK-ST-F-081: the floor at zero — an account worth $1,000.17 then −$83.19 reads −100.00%; unfloored it is −108.32%', () => {
+  test('MK-ST-F-081 (DECIDED 2026-10-21, tenet 1): an account worth $1,000.17 then −$83.19 has no return — the day below $0 is named; unfloored the arithmetic is −108.32%', () => {
     const a = twrOf({ start: '2026-09-01', end: '2026-09-02', measured: ['A'], days: { '2026-09-01': { A: 1000.17 }, '2026-09-02': { A: -83.19 } } });
-    expect(a.rate).toBe(-1);
+    expect([a.rate, a.refused, a.day]).toEqual([null, 'VALUE_BELOW_ZERO', '2026-09-02']);
     near(-83.19 / 1000.17 - 1, -1.0831758601037824);
+    // a real total loss is still a return: $1,000.17 then $0 is −100.00%
+    expect(twrOf({ start: '2026-09-01', end: '2026-09-02', measured: ['A'], days: { '2026-09-01': { A: 1000.17 }, '2026-09-02': { A: 0 } } }).rate).toBe(-1);
+  });
+  // the fact until 2026-10-21, kept as it was pinned: the floor at zero, −100.00% — no longer the engine's answer
+  test.failing('MK-ST-F-081, until 2026-10-21: the floor at zero — $1,000.17 then −$83.19 read −100.00% — no longer its answer', () => {
+    expect(twrOf({ start: '2026-09-01', end: '2026-09-02', measured: ['A'], days: { '2026-09-01': { A: 1000.17 }, '2026-09-02': { A: -83.19 } } }).rate).toBe(-1);
   });
   test('MK-ST-F-081: an account still held is on the last day (built from the live accounts), so only one that is gone reads as leaving', () => {
     const a = twrOf({ start: '2026-09-01', end: '2026-09-03', measured: ['A', 'B'],
@@ -503,25 +545,25 @@ describe('found while checking (not an outside item)', () => {
 const CHECKS: Record<string, { verdict: Verdict; why: string }> = {
   'MK-PF-F-038': { verdict: 'REVIEWER WRONG', why: 'The "refuses short history" claim is false in code: closeAsOf falls back to the first close (DEC-4641), so periodTotalReturn and periodReturn both give +9.93% in the five-month example. The card\'s words for MK-PF-F-039 leave that fallback out: the master file\'s card needs it added (file and code must match).' },
   'MK-PF-F-039': { verdict: 'REVIEWER WRONG', why: 'Same fallback, so the two-year short-history branch is reached: 14 months up 21% reads +17.80% a year (fact test). Card text needs the fallback.' },
-  'MK-PF-F-040': { verdict: 'APP WRONG', why: 'Both claims hold: a later purchase is placed at the end of its day, against DEC-4439 (+26.76% where +15.24% is right), and an undated purchase is put on a guessed day (tenet 3).' },
+  'MK-PF-F-040': { verdict: 'APP WRONG', why: 'Both claims hold: a later purchase is placed at the end of its day, against DEC-4439 (+26.76% where +15.24% is right), and an undated purchase is put on a guessed day (tenet 3). FIXED 2026-10-21 (DEC-4439; tenet 3): the piece before a purchase ends at the previous evening\'s close, and a purchase with no date beside dated ones gives no return since purchase.' },
   'MK-PF-F-041': { verdict: 'AGREES', why: 'Five of five cases agree, both time-zone crossings included.' },
   'MK-PF-F-042': { verdict: 'REVIEWER WRONG', why: 'Years defaulting to 0 never turns a yearly rate into a total in the app: every row carries its total and the one caller reading yearly rates (gainOfRow) passes the years. Making periodTotal required on the row type would close the door; no figure is wrong today.' },
   'MK-PF-F-043': { verdict: 'REVIEWER WRONG', why: 'No row without a window total exists (fact test: 16 of 16 rows carry it), so the 2Y "legacy row" cannot reach it.' },
-  'MK-PF-F-044': { verdict: 'NEEDS A RULING', why: 'Working the start back from the return is DEC-5068\'s approved formula; it misstates the start when shares were bought inside the window (needs his ruling). Leaving out a holding that lost everything was wrong by tenet 4 (case level) — FIXED 2026-10-21: it counts at the start it was read at.' },
+  'MK-PF-F-044': { verdict: 'APP WRONG', why: 'DECIDED by DEC-7221 (2026-10-21, the lead\'s decision under DEC-1669 and DEC-3035b; was NEEDS A RULING): a holding\'s start is what was held when the window began, never today\'s shares worked back — the reviewer was right that the worked-back start misstates it when shares were bought inside the window. FIXED 2026-10-21: the start is the one each row carries, from the shares held then (MK-PF-F-020); a holding that lost everything counts at the start it was read at (tenet 4). 2026-10-22: shares sold inside the window are counted back into that start (DEC-3656), and the market beside your return is split on the same days with the same weights (MK-PF-M-008).' },
   'MK-PF-F-045': { verdict: 'AGREES', why: 'Five of five cases agree, word for word with DEC-4641\'s line.' },
   'MK-PF-F-046': { verdict: 'AGREES', why: 'Five of five cases agree, word for word with DEC-4643\'s line.' },
   'MK-ST-F-080': { verdict: 'AGREES', why: 'Five of five cases agree.' },
-  'MK-ST-F-081': { verdict: 'NEEDS A RULING', why: 'Three claims: the floor at $0 needs his ruling; the half-cent line is right (a value under half a cent shows as $0); a disappearing account is right, since today\'s day is built from the live accounts (thePerformance, buildDayFromAccounts), so only an account that is gone reads as leaving.' },
+  'MK-ST-F-081': { verdict: 'NEEDS A RULING', why: 'Three claims: the floor at $0 needs his ruling; the half-cent line is right (a value under half a cent shows as $0); a disappearing account is right, since today\'s day is built from the live accounts (thePerformance, buildDayFromAccounts), so only an account that is gone reads as leaving. DECIDED 2026-10-21 (the lead\'s decision under tenet 1): a value below $0 gives no return and the sentence names the day (VALUE_BELOW_ZERO).' },
   'MK-ST-F-082': { verdict: 'APP WRONG', why: 'Interest with no amount is read as $0 (tenet 3). The other two claims are wrong: a stored withdrawal carries no minus sign (fact test through the real sync), and an infinite amount is refused (fact test). FIXED 2026-10-21 (DEC-3523 tenet 3): interest, a dividend or a coupon with no amount is listed as not on record and the return refuses across its day.' },
 };
 const OPEN: Record<string, { verdict: Verdict; why: string }> = {
   'MK-PF-F-038': { verdict: 'AGREES', why: 'Already so: both readers start at the first price, the line comes from priceHistoryShortSentence, the total is never made yearly (fact test).' },
   'MK-PF-F-039': { verdict: 'AGREES', why: 'Already so: the first close is used, 2Y years are the span the prices cover, and the line says 5 months — never a full window.' },
-  'MK-PF-F-040': { verdict: 'APP WRONG', why: 'Not yet so: the morning purchase and the undated purchase (the two failing cases).' },
+  'MK-PF-F-040': { verdict: 'APP WRONG', why: 'Not yet so: the morning purchase and the undated purchase (the two failing cases). FIXED 2026-10-21: both now pass (DEC-4439; tenet 3).' },
   'MK-PF-F-042': { verdict: 'REVIEWER WRONG', why: 'An explicit total, an empty one included, already wins; a rate basis is not needed because no row arrives without its total.' },
   'MK-PF-F-043': { verdict: 'REVIEWER WRONG', why: 'No row arrives without its total (fact test), so nothing has to be compounded or refused here.' },
-  'MK-PF-F-044': { verdict: 'NEEDS A RULING', why: 'Authentic start weights against DEC-5068\'s approved formula needs his ruling; including a total-loss holding was a plain fix (APP WRONG at case level) — FIXED 2026-10-21.' },
-  'MK-ST-F-081': { verdict: 'NEEDS A RULING', why: 'Refuse or show a negative account value needs his ruling. Membership is already known and consistent; under half a cent is $0 as shown.' },
+  'MK-PF-F-044': { verdict: 'APP WRONG', why: 'DECIDED by DEC-7221 (2026-10-21; was NEEDS A RULING): authentic start weights, from the shares held when the window began, carried on each row and read here — FIXED 2026-10-21; including a total-loss holding was a plain fix — FIXED 2026-10-21. 2026-10-22: a sale inside the window counted back into the start (DEC-3656).' },
+  'MK-ST-F-081': { verdict: 'NEEDS A RULING', why: 'Refuse or show a negative account value needs his ruling. Membership is already known and consistent; under half a cent is $0 as shown. DECIDED 2026-10-21 (tenet 1): refused, with the reason.' },
   'MK-ST-F-082': { verdict: 'APP WRONG', why: 'Missing interest amounts still read as $0. Already so: sign set at the sync, sizes positive, infinite refused, transfers net to zero; every stored record is dated, so no date marker can go missing. FIXED 2026-10-21 (DEC-3523 tenet 3): missing interest is kept as not on record, and a broker\'s real 0 is saved as 0.' },
 };
 

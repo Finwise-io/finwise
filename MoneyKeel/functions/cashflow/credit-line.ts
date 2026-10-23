@@ -42,15 +42,17 @@ export interface CreditLine {
  *
  * Called by ... MK-CF-F-200 LINE
  *
- * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-NW-F-082 NW
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-101 PLAN · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-002 alternativesSummary · MK-XS-F-011 buildChangeWalk
- *               MK-NW-O-005 theAlternativesOutlook · MK-NW-O-003 theNetWorth
- *               MK-NW-O-008 thePerformance
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-002 alternativesSummary
+ *               MK-XS-F-011 buildChangeWalk · MK-PF-F-028 realizedFromLedger
+ *               MK-NW-O-005 theAlternativesOutlook · MK-NW-O-006 theHolding
+ *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
+ *               … and 1 more — the full list is on functions_from_code
  *
  * Serves ...... MK-MN-M-006
  * Reads ....... MK-XS-I-001 account balance
@@ -87,16 +89,19 @@ const GIVEN = '$3,100 owed on the cards against $12,000 of total limit — 25.8%
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
  * Called by ... MK-NW-F-002 alternativesSummary · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-O-003 theNetWorth · MK-XS-F-011 buildChangeWalk
+ *               MK-NW-F-167 COMPARE · MK-NW-O-003 theNetWorth
+ *               MK-PF-F-028 realizedFromLedger · MK-XS-F-011 buildChangeWalk
  *
- * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-082 NW · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               MK-NW-F-093 QUIET_PERF · MK-NW-F-002 alternativesSummary
- *               MK-XS-F-011 buildChangeWalk · MK-NW-O-005 theAlternativesOutlook
- *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-002 alternativesSummary · MK-XS-F-011 buildChangeWalk
+ *               MK-PF-F-028 realizedFromLedger · MK-NW-O-005 theAlternativesOutlook
+ *               MK-NW-O-006 theHolding · MK-NW-O-003 theNetWorth
+ *               MK-NW-O-008 thePerformance · MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

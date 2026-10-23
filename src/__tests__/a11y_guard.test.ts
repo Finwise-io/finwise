@@ -43,16 +43,35 @@ function unlabeled(src: string): number {
   return openingTags(src, 'TouchableOpacity').filter((t) => !/accessibility(Label|Role)/.test(t)).length;
 }
 
-test('no file exceeds its unlabeled-control baseline (ratchet down only)', () => {
+// A RATCHET CARRIES THE TRUE NUMBER (CLAUDE.md, "a guard must prove it looked"; Performance audit row 31, 2026-10-21).
+// This test only failed when a file went UP, so a file that was paid down kept its old allowance: PerformanceScreen
+// stood at 29 unlabeled controls while it had 0, and 15 other files carried more debt than they had (TopBar 6 for 0,
+// IncomeManager 12 for 0). Each line now has to equal what the file holds — lower it the day it falls, delete it at
+// zero — and the test states how many files and controls it read, so a matcher that stops matching goes red.
+test('every file holds exactly its unlabeled-control number — the ratchet carries the true count', () => {
   const files = [...walk(path.join(root, 'screens')), ...walk(path.join(root, 'components'))]
     .filter((f) => !f.includes('__tests__'));
   const regressions: string[] = [];
+  let controls = 0;
+  const seen = new Set<string>();
   for (const f of files) {
     const rel = path.relative(root, f);
-    const n = unlabeled(fs.readFileSync(f, 'utf8'));
+    const src = fs.readFileSync(f, 'utf8');
+    controls += openingTags(src, 'TouchableOpacity').length;
+    const n = unlabeled(src);
+    seen.add(rel);
     const allowed = baseline[rel] ?? 0;
     if (n > allowed) regressions.push(`${rel}: ${n} unlabeled controls (baseline ${allowed}) — add accessibilityLabel or accessibilityRole`);
+    else if (n < allowed) regressions.push(`${rel}: down to ${n} unlabeled controls from ${allowed} — lower its line in a11y-baseline.json${n === 0 ? ' (delete it at zero)' : ''}`);
   }
+  // a line for a file that no longer exists, or a zero line, is debt nobody can see
+  for (const [rel, n] of Object.entries(baseline)) {
+    if (!seen.has(rel)) regressions.push(`${rel}: on the baseline but not found under src/screens or src/components — delete its line`);
+    else if (n === 0) regressions.push(`${rel}: a zero line — delete it`);
+  }
+  // what it read, so a walk that stops finding files cannot report clean (86 files, 564 controls on 2026-10-21)
+  expect(files.length).toBeGreaterThanOrEqual(80);
+  expect(controls).toBeGreaterThanOrEqual(500);
   expect(regressions).toEqual([]);
 });
 

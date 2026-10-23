@@ -48,14 +48,17 @@ export type FigureUnit =
  *     hundredths = round((pct × 100).to precision(12) read as a number)
  *     the answer = `${rate < 0 and hundredths ! = 0 ? '-' : ''}${(hundredths ÷ 100).to fixed(2)}`
  *
- * Called by ... MK-XS-F-183 writeFigure
+ * Called by ... MK-NW-F-163 yardstickName · MK-NW-F-164 gapWords
+ *               MK-XS-F-183 writeFigure
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
- *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
+ * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-167 COMPARE
+ *               MK-NW-F-140 LEFT_OUT · MK-NW-F-083 PERF
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-144 beforeTheRecordSentence · MK-NW-F-164 gapWords
  *               MK-NW-F-130 notIncludedSentence · MK-NW-O-008 thePerformance
  *               MK-NW-F-105 whyNoReturn · MK-XS-F-183 writeFigure
+ *               MK-NW-F-163 yardstickName
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -131,12 +134,90 @@ export function writeFigure(spec: FigureSpec, value: number | null, opts?: { spo
   return signed;
 }
 
+export interface WalkLines { beginning: number; contributions: number; withdrawals: number; dividends: number; interest: number; marketChange: number; wealthGenerated: number; ending: number }
+/** THE LINES OF A WALK IN WHOLE DOLLARS THAT ADD UP TO ITS ENDING (2026-10-21; DEC-3523 tenet 2, the walk's own decision
+ *  "THE LINES ALWAYS ADD UP TO THE ENDING"; outside re-run OpenAI part 1, MK-PF-M-003 and MK-PF-M-015).
+ *
+ *  Each line was rounded on its own, so on unround figures the walk did not add up on screen: $10,001 + $1,001 + $101 +
+ *  $399 = $11,502 under an ending of $11,500, and Wealth generated $499 above Dividends $101 + Change $399 = $500. The
+ *  figures stay at full precision everywhere else; only what is printed is settled here, once, for every screen that
+ *  prints a walk (the Performance tab, an account's page, Home's dollars for the month).
+ *
+ *  How: the beginning and the ending are rounded as every figure is (the writer's Math.round), so they match the same
+ *  figures elsewhere. The lines between them — contributions, withdrawals, dividends, interest and the change in
+ *  investment value — must add to the rounded ending less the rounded beginning: each is rounded down, and the dollars
+ *  still missing go one each to the lines with the largest part of a dollar left over (the first line wins a tie). So no
+ *  line is more than a dollar from its exact value, and a line that is a whole number of dollars is never moved.
+ *  Wealth generated is dividends + interest + the change, as the walk draws it. Worked by hand: beginning $10,000.50,
+ *  contributions $1,000.50, dividends $100.50, change $398.99, ending $11,500.49. Beginning $10,001 and ending $11,500;
+ *  the lines between must make $1,499. Rounded down they are $1,000 + $100 + $398 = $1,498; the one dollar missing goes
+ *  to the largest leftover, the change's 99¢ → $399. Shown: $10,001 + $1,000 + $100 + $399 = $11,500, and Wealth
+ *  generated $100 + $399 = $499 (exact $499.49). */
+/* ─ MK-XS-F-193 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * walkShown
+ *
+ * Answers ..... THE LINES OF A WALK IN WHOLE DOLLARS THAT ADD UP TO ITS ENDING (2026-10-21; DEC-3523 tenet 2, the walk's own decision "THE LINES ALWAYS ADD UP TO THE ENDING"; outside re-run OpenAI part 1, MK-PF-M-003 and MK-PF-M-015).
+ *
+ * Formula .....
+ *     beginning = round(beginning), ending = math.round(ending)
+ *     parts = for each of [contributions, -math.abs(withdrawals), dividends, interest, market change]: each   if number.is finite(each)
+ *     0   otherwise
+ *     floors = for each of parts: round down(each)
+ *     left = for each of parts: each − floors[i]
+ *     missing = Σ over ending − beginning − floors of (each)
+ *     order = for each of left: { each, i } where r > 1e − 9.sort((a, b) => r − r or i − i)
+ *     shown = floors.slice()
+ *     the answer:
+ *     beginning = beginning
+ *     contributions = contributions
+ *     withdrawals = -out
+ *     dividends = dividends
+ *     interest = interest
+ *     market change = market change
+ *     wealth generated = dividends + interest + market change
+ *     ending = ending
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-193
+ * Changed ..... not in git yet (—)
+ */
+export function walkShown(w: Omit<WalkLines, 'wealthGenerated'> & { wealthGenerated?: number }): WalkLines {
+  const beginning = Math.round(w.beginning), ending = Math.round(w.ending);
+  // the lines between, signed as they add: money taken out counts against the ending
+  const parts = [w.contributions, -Math.abs(w.withdrawals), w.dividends, w.interest, w.marketChange].map((v) => (Number.isFinite(v) ? v : 0));
+  const floors = parts.map((v) => Math.floor(v));
+  const left = parts.map((v, i) => v - floors[i]);
+  let missing = ending - beginning - floors.reduce((t, v) => t + v, 0);
+  const order = left.map((r, i) => ({ r, i })).filter((x) => x.r > 1e-9).sort((a, b) => b.r - a.r || a.i - b.i);
+  const shown = floors.slice();
+  for (const { i } of order) { if (missing <= 0) break; shown[i] += 1; missing -= 1; }
+  // what cannot be placed that way (the exact lines did not add up to the exact ending) is the change in investment
+  // value's, as the walk's own rule has it: the change is what is left
+  shown[4] += missing;
+  const [contributions, out, dividends, interest, marketChange] = shown;
+  return { beginning, contributions, withdrawals: -out, dividends, interest, marketChange, wealthGenerated: dividends + interest + marketChange, ending };
+}
+
+
 export interface FigureSpec {
   /** The words a person reads beside it, exactly as the screen says them. */
   label: string;
   unit: FigureUnit;
   /** Appended after the number: "/month" or "/year". The canon’s form (cluster 14), never an abbreviation. */
   per?: 'month' | 'year' | null;
+  /** THE SPAN IT COVERS, when it is neither a moment ("as of today") nor shown per month or per year, and its own words do
+   *  not say "window" (2026-10-22, Performance audit: the master's Period column read "as of today" for every such figure).
+   *  Printed as written on the master's Period row — "since the previous close", "the trailing twelve months". Write
+   *  'the window picked' for a figure over the screen's window whose words do not say so: the master then lists that
+   *  screen's window choices, read from its code. Not shown on any screen. */
+  period?: string;
   /** The routes it appears on. A figure shown on three screens is ONE figure (rule 1). */
   screens: string[];
   /** What it answers, in a sentence a person could check. */
@@ -201,21 +282,21 @@ export type FigureDeclaration = Record<string, FigureSpec>;
  *               MK-CF-F-212 receivedInMonth · MK-CF-O-013 PAY_LANDS_TYPED
  *               MK-CF-O-015 workedLineAmount · MK-CF-O-017 futurePaycheck
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
- *               MK-NW-F-078 ONE · MK-NW-F-079 EF
- *               MK-NW-F-080 HOLD · MK-NW-F-081 LB
- *               MK-NW-F-088 BENCH · MK-NW-F-101 PLAN
+ *               MK-NW-F-079 EF · MK-NW-F-081 LB
+ *               MK-NW-F-088 BENCH · MK-NW-F-167 COMPARE
+ *               MK-NW-F-179 balanceWithBondTakenOut · MK-NW-F-185 valueChanged
  *
- * Reaches ..... 268 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 307 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-081 LB
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 250 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-081 LB · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-O-014 M
+ *               … and 289 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

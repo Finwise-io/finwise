@@ -51,7 +51,7 @@ export default function Summary({ status, tracks, answers: a, name, onOpen }: Pr
       activeDesc: 'Expenses grouped into fixed, non-monthly & flexible.', unlockDesc: 'Group your expenses and track them by category.' },
     { key: 'savings', icon: '🐷', title: 'Savings', badge: 'READY', active: hasSpend, route: '/savings',
       activeDesc: 'A month-by-month plan from your cash flow.', unlockDesc: 'Turn leftover cash flow into a monthly savings plan.' },
-    { key: 'networth', icon: '💎', title: 'Net Worth', badge: 'ACTIVE', active: netWorthActive, route: '/(tabs)/analytics',
+    { key: 'networth', icon: '💎', title: 'Net worth', badge: 'ACTIVE', active: netWorthActive, route: '/(tabs)/analytics',
       activeDesc: 'Your assets minus liabilities, over time.', unlockDesc: 'Aggregate assets and subtract liabilities to find your baseline wealth.' },
     { key: 'retire', icon: '🏖️', title: 'Retirement Planning', badge: 'ACTIVE', active: retireActive, route: '/(tabs)/retirement',
       activeDesc: 'Projected readiness for your target age.', unlockDesc: 'Stress-test inflation, project decades ahead, and size your nest egg.' },

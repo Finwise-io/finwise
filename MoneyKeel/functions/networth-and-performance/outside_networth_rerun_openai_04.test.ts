@@ -392,8 +392,14 @@ describe('MK-NW-F-128 heldValueOf — five cases', () => {
   test('easy · Shares × last price × option multiplier', () => {
     expect(heldValueOf({ marketValue: undefined, position: { kind: 'options', multiplier: 100, lots: [{ shares: 2 }], last_price: 15 } })).toBe(3000);
   });
-  test('complex · Use hand-built value if no market mark', () => {
+  // SUPERSEDED 2026-10-21 (outside re-run OpenAI Performance part 1, MK-NW-F-128; tenets 3 and 4): a row's own $0 is a known
+  // $0 and wins. The case was written to the rule "above zero"; with no value of its own (null, as the app writes it) the
+  // hand-built $450 holds, below. The case as written is kept, failing.
+  test.failing('complex · Use hand-built value if no market mark — a written $0 is now a known $0 (superseded 2026-10-21)', () => {
     expect(heldValueOf({ marketValue: 0, position: { lots: [{ shares: null }], last_price: undefined, value_now: 450 } })).toBe(450);
+  });
+  test('complex · Use hand-built value if no market mark — with no value of its own (as the app writes it, 2026-10-21): $450', () => {
+    expect(heldValueOf({ marketValue: null, position: { lots: [{ shares: null }], last_price: undefined, value_now: 450 } } as any)).toBe(450);
   });
   test('complex · Known zero shares means zero value', () => {
     expect(heldValueOf({ marketValue: undefined, position: { lots: [{ shares: 0 }] } })).toBe(0);

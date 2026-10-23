@@ -80,9 +80,11 @@ describe('MK-NW-O-008 thePerformance — the beginning worked back (DEC-3656, 20
     const f = thePerformance({
       ...base(), accounts: [{ asset_id: 'a', label: 'Brokerage', balance: 3000, positions: [{}, {}, {}] }],
       holdings: [
-        { position: { ticker: 'AAA', last_price: 10, lots: [{ shares: 100 }] }, marketValue: 0, periodReturn: null },
-        { position: { ticker: 'BBB', last_price: 10, lots: [{ shares: 100 }] }, marketValue: 0, periodReturn: null },
-        { position: { ticker: 'CCC', last_price: 10, lots: [{ shares: 100 }] }, marketValue: 0, periodReturn: null },
+        // no price history: the row has no value of its own (none, as a holding with no price is handed over — a written $0 is a known
+        // $0 since 2026-10-21, MK-NW-F-128), so the broker's mark values it
+        { position: { ticker: 'AAA', last_price: 10, lots: [{ shares: 100 }] }, marketValue: undefined, periodReturn: null },
+        { position: { ticker: 'BBB', last_price: 10, lots: [{ shares: 100 }] }, marketValue: undefined, periodReturn: null },
+        { position: { ticker: 'CCC', last_price: 10, lots: [{ shares: 100 }] }, marketValue: undefined, periodReturn: null },
       ],
     });
     expect(f.walk!.beginning).toBe(3000);
@@ -93,7 +95,7 @@ describe('MK-NW-O-008 thePerformance — the beginning worked back (DEC-3656, 20
   test('(2) a CD held as a POSITION carries no rate → unknown, named — SETTLED 2026-10-13 by DEC-5068', () => {
     const f = thePerformance({
       ...base(), accounts: [{ asset_id: 'a', label: 'Brokerage', balance: 5704, positions: [{}] }],
-      holdings: [{ position: { ticker: 'KEYBANK CD 4.00%', last_price: 1, lots: [{ shares: 5704 }] }, marketValue: 0, periodReturn: null }],
+      holdings: [{ position: { ticker: 'KEYBANK CD 4.00%', last_price: 1, lots: [{ shares: 5704 }] }, marketValue: undefined, periodReturn: null }],   // no value of its own (2026-10-21)
     });
     expect(f.walk!.beginning).toBe(5704);
     expect(f.notIncluded).toBe('KEYBANK CD 4.00% ($5,704) has no price history, so its gains are not included.');

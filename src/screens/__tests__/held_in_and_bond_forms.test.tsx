@@ -123,7 +123,9 @@ describe('Held in is one list (DEC-2441, DEC-2484h)', () => {
     const SnapTradeConnect = require('../SnapTradeConnect').default;
     fresh({ assetAccounts: [{ asset_id: 'st-a1', label: 'Mystery account', balance: 1000, source: 'connected' }], wrapperConfirmQueue: ['st-a1'] });
     r = render(<SnapTradeConnect />);
-    offered['the link\'s wrapper question'] = SIX.filter((w) => screen.queryByLabelText(`Mystery account is a ${w} account`));
+    // each said with the one article rule: "is an HSA account" (2026-10-21, Performance audit row 30)
+    const { withArticle } = require('../../domain/_shared/plural');
+    offered['the link\'s wrapper question'] = SIX.filter((w) => screen.queryByLabelText(`Mystery account is ${withArticle(w)} account`));
     fireEvent.press(screen.getByLabelText('Mystery account is a Roth 401(k) account'));
     expect(st().assetAccounts[0]).toMatchObject({ kind: '401k', tax_bucket: 'ROTH', wrapper_confirmed: true });   // it had no Roth 401(k)
     r.unmount();

@@ -37,8 +37,9 @@ export interface RealizedResult {
  *
  * Called by ... MK-NW-O-006 theHolding
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-080 HOLD · MK-NW-O-006 theHolding
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-NW-O-006 theHolding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -66,16 +67,27 @@ export function realizedFromLedger(
   // share and a count of contracts; the holding says how many shares a contract is.
   const mult = opts.holding ? contractMultiplier(opts.holding) : 1;
   const yr = String(now.getFullYear());
+  // A SALE DATED AFTER TODAY IS READ ON TODAY (2026-10-21, the lead's decision under DEC-3523 tenets 1 and 4, the rule
+  // thePerformance already follows for a record dated after today, MK-NW-O-008): recording the sale took its shares out of
+  // the holding at once, so leaving its gain out until the day came would drop it from both realized and unrealized. The
+  // trade sheet no longer takes a date after today; a record saved before that counts in this year's figure.
+  const p2 = (n: number) => String(n).padStart(2, '0');
+  const today = `${now.getFullYear()}-${p2(now.getMonth() + 1)}-${p2(now.getDate())}`;
+  // A PURCHASE WITH NO PRICE PAID ON RECORD KEEPS ITS PLACE IN LINE (2026-10-21; DEC-4643, tenet 3; outside re-run OpenAI
+  // part 3, MK-PF-F-028): it was filtered out before first-in-first-out matching, so a sale was matched to a LATER purchase
+  // and a gain the app cannot know was counted. The shares a sale takes from it are shares whose cost is not on record —
+  // named on the sale, never counted as $0 profit. A sale needs its own price to be counted at all, as before.
+  const priced = (t: Transaction) => t.price != null && Number.isFinite(t.price);
   const rows = txns
     .filter((t) => (t.type === 'BUY' || t.type === 'OPENING_POSITION' || t.type === 'SELL'))
-    .filter((t) => !!t.ticker && (t.shares ?? 0) > 0 && t.price != null)
+    .filter((t) => !!t.ticker && (t.shares ?? 0) > 0 && (t.type !== 'SELL' || priced(t)))
     .filter((t) => (opts.ticker ? String(t.ticker).toUpperCase() === opts.ticker.toUpperCase() : true))
     .filter((t) => (opts.accountId ? t.account_id === opts.accountId : true))
     .slice()
     .sort((a, b) => a.date.localeCompare(b.date));    // oldest first — FIFO needs time order
 
   // FIFO queues per ticker+account (a Schwab AAPL lot never covers a Robinhood AAPL sale)
-  const queues = new Map<string, { shares: number; price: number; fee: number }[]>();
+  const queues = new Map<string, { shares: number; price: number | null; fee: number }[]>();
   const keyOf = (t: Transaction) => `${t.account_id}|${String(t.ticker).toUpperCase()}`;
   let all = 0, year = 0, counted = 0, uncovered = 0;
   const short: SaleShortOfPurchases[] = [];
@@ -86,7 +98,7 @@ export function realizedFromLedger(
       const q = queues.get(k) ?? [];
       // A PURCHASE'S OWN FEE IS PART OF WHAT WAS PAID (2026-10-21; IRS Publication 550: the basis of shares includes the
       // commissions paid to buy them) — counted only where the price does not already carry it (feeNotInPrice)
-      q.push({ shares: t.shares!, price: t.price!, fee: feeNotInPrice(t) });
+      q.push({ shares: t.shares!, price: priced(t) ? t.price! : null, fee: feeNotInPrice(t) });
       queues.set(k, q);
       continue;
     }
@@ -96,12 +108,11 @@ export function realizedFromLedger(
     while (toSell > 0 && q.length > 0) {
       const lot = q[0];
       const take = Math.min(lot.shares, toSell);
-      basis += take * lot.price;
       // the purchase fee goes with the shares it bought: 10 bought with a $4 fee and 5 of them sold carry $2 of it
       const lotFee = lot.fee * (take / lot.shares);
-      buyFees += lotFee;
       lot.fee -= lotFee;
-      covered += take;
+      // shares from a purchase whose price paid is not on record leave the line uncovered (DEC-4643)
+      if (lot.price != null) { basis += take * lot.price; buyFees += lotFee; covered += take; }
       lot.shares -= take;
       toSell -= take;
       if (lot.shares <= 1e-9) q.shift();
@@ -117,13 +128,13 @@ export function realizedFromLedger(
     const gain = covered > 0 ? (covered * t.price! - basis) * mult - feeOnCovered - buyFees : null;
     if (gain != null) {
       all += gain;
-      if (t.date.startsWith(yr)) year += gain;
+      if ((t.date > today ? today : t.date).startsWith(yr)) year += gain;
       counted++;
     }
     // A SALE IS COUNTED ONCE (his approval, 2026-10-12, DEC-4643). A sale of 15 shares with 10 on record used to
     // count as one sale counted AND one sale without a purchase — the page read as two sales. It is one sale: its
     // gain on the matched part is counted, and the shares with no recorded purchase are named on it, never guessed.
-    if (toSell > 1e-9) {
+    if (t.shares! - covered > 1e-9) {
       short.push({ date: t.date, sold: t.shares!, matched: covered, gain });
       if (covered <= 0) uncovered++;
     }
@@ -152,11 +163,19 @@ export function realizedFromLedger(
  *     fee   if fee in price ! = true and number.is finite(fee) and fee > 0
  *     0   otherwise
  *
- * Called by ... MK-PF-F-028 realizedFromLedger
+ * Called by ... MK-PF-F-028 realizedFromLedger · MK-PF-F-072 tradesAfter
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-080 HOLD · MK-PF-F-028 realizedFromLedger
- *               MK-NW-O-006 theHolding
+ * Reaches ..... 33 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
+ *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
+ *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-065 firstDatedPurchase
+ *               MK-PF-F-070 holdingPath · MK-NW-F-168 holdingRowsIn
+ *               … and 15 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -209,17 +228,17 @@ export function saleShortOfPurchasesSentence(
  *
  * Called by ... MK-PF-F-035 unknownFigure · MK-PF-F-046 saleShortOfPurchasesSentence
  *
- * Reaches ..... 267 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 306 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 249 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 288 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest

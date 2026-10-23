@@ -1,6 +1,7 @@
 /** THE UPDATE VALUE SHEET AGAINST ITS DRAWING, WORD FOR WORD, STATE BY STATE.
  *
- *  The drawing: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_update-value-sheet_v01.html — eight
+ *  The drawing: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_update-value-sheet_v02.html (v02, 2026-10-22: the
+ *  sheet's title names the account as the page does — Ally Savings, where v01 drew Savings; v01 is in archive/) — eight
  *  states, A to H, on one phone (DEC-0470: every state of updating a value by hand is drawn). It draws the sheet that
  *  changes the value of an account built by hand (src/screens/AccountPortfolioScreen.tsx, UpdateValueSheet) over the
  *  account page, and the page around the three buttons that open it. The page's own design is the approved account-page
@@ -103,7 +104,7 @@ afterAll(() => jest.useRealTimers());
 // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 // READING THE DRAWING
 // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-const DRAWING = path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_update-value-sheet_v01.html');
+const DRAWING = path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_update-value-sheet_v02.html');
 const HTML = fs.readFileSync(DRAWING, 'utf8');
 /** One line a person reads: its words, whether it is on the sheet, and the size, weight and colour it is drawn in. */
 type Line = { t: string; sheet: boolean; size?: number; weight?: string; color?: string; opacity?: number; row?: number };

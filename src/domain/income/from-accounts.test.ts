@@ -17,7 +17,7 @@ test('THE LAW: a coupon that was paid is counted ONCE, not twice', () => {
   const r = incomeFromAccounts([BOND] as any, paidCoupon, NOW);
   expect(r.annual).toBeCloseTo(500, 2);          // not 1,000
   expect(r.lines).toHaveLength(1);
-  expect(r.lines[0].why).toBe('paid out over the last year');
+  expect(r.lines[0].why).toBe('paid out over the trailing twelve months');   // canon row 23 (Q35, 2026-10-21)
 });
 
 test('THE LAW: with no record of payment, the rate is projected', () => {

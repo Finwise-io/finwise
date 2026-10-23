@@ -1,5 +1,5 @@
 // Other investments (Phase C) — alternatives (crypto, PE, hedge funds, commodities, annuities, other)
-// held at a manual value as AssetAccounts, so they flow to Net Worth + nest egg. Third management
+// held at a manual value as AssetAccounts, so they flow to Net worth + nest egg. Third management
 // surface alongside Performance (stocks/ETFs) and Bonds.
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import TopBar from '../components/TopBar';

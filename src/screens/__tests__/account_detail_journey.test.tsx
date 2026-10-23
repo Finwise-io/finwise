@@ -43,7 +43,8 @@ test('recording a deposit moves the BALANCE and the LEDGER together (the one fun
   fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Checking'));
   fireEvent.press(screen.getByLabelText('Record a deposit for Checking'));
   fireEvent.changeText(screen.getByLabelText('Amount'), '2000');
-  expect(screen.getByText(/\+\$2,000 into Checking/)).toBeOnTheScreen();   // the effect preview
+  // the effect preview, the account named as the page names it (2026-10-22: the sheet wrote the bare label, "Checking")
+  expect(screen.getByText('+$2,000 into Chase Checking')).toBeOnTheScreen();
   fireEvent.press(screen.getByLabelText('Save this deposit'));
   const s = useStore.getState() as any;
   expect(s.assetAccounts.find((a: any) => a.asset_id === 'chk').balance).toBe(14000);
@@ -58,7 +59,7 @@ test('a transfer needs a destination and moves BOTH sides', () => {
   fireEvent.press(screen.getByLabelText('Record a transfer for Checking'));
   fireEvent.changeText(screen.getByLabelText('Amount'), '500');
   fireEvent.press(screen.getByLabelText('Transfer into Savings'));
-  expect(screen.getByText(/−\$500 from Checking → \+\$500 into Savings/)).toBeOnTheScreen();
+  expect(screen.getByText('−$500 from Chase Checking → +$500 into Chase Savings')).toBeOnTheScreen();   // both named as Net worth names them
   fireEvent.press(screen.getByLabelText('Save this transfer'));
   const s = useStore.getState() as any;
   expect(s.assetAccounts.find((a: any) => a.asset_id === 'chk').balance).toBe(11500);
@@ -69,8 +70,8 @@ test('the activity list shows the ledger newest-first in plain words with signed
   useStore.getState().recordTransaction({ type: 'DEPOSIT', account_id: 'chk' as any, amount: 2000, date: '2026-07-01' } as any);
   useStore.getState().recordTransaction({ type: 'WITHDRAWAL', account_id: 'chk' as any, amount: 300, date: '2026-07-05' } as any);
   render(<AccountPortfolioScreen />);
-  expect(screen.getByLabelText(/2026-07-05: Withdrawal, minus \$300/)).toBeOnTheScreen();
-  expect(screen.getByLabelText(/2026-07-01: Deposit, plus \$2,000/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/Jul 5, 2026: Withdrawal, minus \$300/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/Jul 1, 2026: Deposit, plus \$2,000/)).toBeOnTheScreen();
 });
 
 test('a hand-entered value 6+ months old gets the gentle nudge; "Still right" re-stamps today', () => {
@@ -104,7 +105,7 @@ test('property accounts get no money-movement doors; cash gets deposit/withdraw/
   expect(screen.queryByText('Add a buy or sale ›')).toBeNull();
   fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Checking'));
   expect(screen.getByLabelText('Record a deposit for Checking')).toBeOnTheScreen();
-  expect(screen.getByLabelText('Record a withdraw for Checking')).toBeOnTheScreen();
+  expect(screen.getByLabelText('Record a withdrawal for Checking')).toBeOnTheScreen();   // the record's own name (audit row 30, 2026-10-21)
   expect(screen.getByLabelText('Record a transfer for Checking')).toBeOnTheScreen();
   expect(screen.queryByLabelText(/Record a coupon/)).toBeNull();
   mockParams = { id: 'hme' };
@@ -132,7 +133,7 @@ describe('bond and alternative detail sections', () => {
     render(<AccountPortfolioScreen />);
     expect(screen.getByText('BOND FACTS')).toBeOnTheScreen();
     expect(screen.getByLabelText(/Face value: \$100,000/)).toBeOnTheScreen();
-    expect(screen.getByLabelText(/Interest payments: 4.50%\/year · \$4,500\/year/)).toBeOnTheScreen();
+    expect(screen.getByLabelText(/Interest payments: 4.50% a year · \$4,500 a year/)).toBeOnTheScreen();
     expect(screen.getByLabelText(/Yield if held to maturity: about .*estimate/)).toBeOnTheScreen();
     expect(screen.getByText('IF INTEREST RATES MOVE')).toBeOnTheScreen();
     expect(screen.getAllByText('estimate')[0]).toBeOnTheScreen();

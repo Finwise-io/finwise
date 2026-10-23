@@ -1061,7 +1061,8 @@
    },
    "difference": null,
    "formula_gives_match": null,
-   "note": ""
+   "note": "",
+   "recheck_2026_10_21": "SUPERSEDED 2026-10-21 (PF-B, MK-NW-F-128, tenets 3 and 4): a written $0 is a known $0; the case is kept with no value of its own — 35 × $40 = $1,400"
   },
   {
    "id": "MK-NW-F-128",

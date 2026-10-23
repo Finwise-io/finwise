@@ -140,6 +140,9 @@ describe('MK-PF-F-006 capGains — five cases', () => {
   // editor saved a blank as $0 until that day; it leaves the 2.5 shares out and says so (countedShares 10.375 of 12.875).
   // At HEAD (the card OpenAI read) the $0 lot made its whole long-term part and the total unknown. OpenAI reads $0 as
   // known. costBasis (MK-PF-F-002) still counts $0 as a figure, so the two read one lot two ways (tenet 4).
+  // SETTLED 2026-10-21 by the lead's decision on master question Q34 (canon row 24, "no price paid on record": a price paid
+  // never entered, or entered as $0) — the app's answer below is the rule; OpenAI's known-$0 reading is kept, failing.
+  // costBasis is called by no screen (its only readers are tests); it is listed for the lead to align with lotCostOnRecord.
   C('MK-PF-F-006', 'complex', 'Three lots and known zero adjusted basis', () => {
     const c = capGains(pos([{ date: '2024-03-11', shares: 7.25, cost: 83.17 }, { date: '2026-05-19', shares: 3.125, cost: 91.43 }, { date: '2024-01-09', shares: 2.5, cost: 0 }]), 97.31, NOON('2026-10-13'));
     expect(c.longGain!).toBeCloseTo(345.79, 9);
@@ -238,6 +241,8 @@ describe('MK-PF-F-009 latestClose — five cases', () => {
   // NEEDS A RULING (OpenAI: RULE UNCLEAR, no decision on two closes for one day). The app takes the one listed LATER
   // (latestClose's `>=`), and the feed lists its points in time order (marketData.ts sorts by date, ties keep the
   // feed's order), so today it is the newer quote: $97.31.
+  // DECIDED 2026-10-21 (PF-B, the lead's decision under tenet 1): the close written later is the price — the feed writes
+  // its points in time order, so of two closes for one day the later one is the newer quote. To reverse: latestClose, `>`.
   C('MK-PF-F-009', 'complex', 'Conflicting latest date', () => {
     expect(latestClose(S('X', [['2026-09-19', 87.29], ['2026-09-20', 91.43], ['2026-09-20', 97.31]]))).toBe(97.31);
   });
@@ -248,10 +253,18 @@ describe('MK-PF-F-010 periodReturn — five cases', () => {
   C('MK-PF-F-010', 'easy', 'One-year price move', () => {
     expect(periodReturn(S('X', [['2025-10-12', 100], ['2026-10-13', 110]]), '1Y', NOON('2026-10-13'))!).toBeCloseTo(0.1, 12);
   });
-  // AGREES — the 2Y figure is a yearly rate (DEC-0237); the window's own total, +21%, sits beside it
+  // REVIEWER WRONG by a decision of 2026-10-21 (was AGREES) — the 2Y figure is a yearly rate (DEC-0237) and the window's own
+  // total, +21%, sits beside it; but ONE RULE makes the yearly rate on every screen (the precision standard, "(1 + the
+  // return)^(365 ÷ days) − 1", MK-PF-M-016): 12 Oct 2024 to 13 Oct 2026 is 731 days, so +9.99% a year, as the account reads
+  // it — OpenAI's +10.00% is the exponent ½ the holding rows used, the second answer this decision retires.
   C('MK-PF-F-010', 'easy', 'Two-year total versus yearly pace', () => {
     const s = S('X', [['2024-10-12', 100], ['2026-10-13', 121]]);
     expect(periodReturn(s, '2Y', NOON('2026-10-13'))!).toBeCloseTo(0.1, 12);
+    expect(periodTotalReturn(s, '2Y', NOON('2026-10-13'))!).toBeCloseTo(0.21, 12);
+  }, true);
+  test('· app since 2026-10-21 (one rule, MK-PF-M-016): 1.21^(365 ÷ 731) − 1 = +9.99% a year, the window\'s own total +21.00% beside it', () => {
+    const s = S('X', [['2024-10-12', 100], ['2026-10-13', 121]]);
+    expect(periodReturn(s, '2Y', NOON('2026-10-13'))!).toBeCloseTo(Math.pow(1.21, 365 / 731) - 1, 12);
     expect(periodTotalReturn(s, '2Y', NOON('2026-10-13'))!).toBeCloseTo(0.21, 12);
   });
   // AGREES — DEC-4641: measured from the first price, with the approved sentence beside it
@@ -260,9 +273,11 @@ describe('MK-PF-F-010 periodReturn — five cases', () => {
     expect(periodReturn(s, '1Y', NOON('2026-10-10'))!).toBeCloseTo(0.09931465672718542, 12);
     expect(priceHistoryShortSentence(s.points, '2025-10-10', '1Y', '2026-10-10')).toBe('Prices for this holding go back 5 months, so the 1-year figure covers 5 months — not a year.');
   });
-  // APP WRONG (DEC-0315: a window holds both its boundary days and ends on today; a close dated after today is outside
-  // it). The end is the latest close on record, whatever `now` says — so a close dated tomorrow is used. Reach: only a
-  // device clock behind the feed's dates, or a caller handing an earlier `now`; the feed never sends a future day.
+  // REVIEWER WRONG — DECIDED 2026-10-21 (the lead's decision under DEC-3523 tenet 4; was APP WRONG here and REVIEWER WRONG in
+  // part 4, MK-PF-F-038/039): the end is the latest close on record, the very price the holding's value is worked from. A
+  // close dated after the person's today is the latest price written under its universal-time day (marketData.ts,
+  // `toISOString().slice(0, 10)`: a coin priced on a US evening), never a future price; dropping it would show a return to
+  // an older price than the value beside it. The window's START is the person's own day (closeAsOf, 2026-10-21).
   C('MK-PF-F-010', 'complex', 'As-of endpoint excludes future point', () => {
     expect(periodReturn(S('X', [['2025-10-12', 83.17], ['2026-10-13', 91.43], ['2026-10-14', 97.31]]), '1Y', NOON('2026-10-13'))!).toBeCloseTo(0.09931465672718542, 12);
   }, true);
@@ -284,7 +299,7 @@ describe('MK-PF-F-011 periodReturnSince — five cases', () => {
   C('MK-PF-F-011', 'complex', 'Unsmooth prices and explicit start', () => {
     expect(periodReturnSince(S('X', [['2026-05-15', 83.17], ['2026-05-18', 87.29], ['2026-09-19', 97.31]]), '2026-05-17', NOON('2026-09-19'))!).toBeCloseTo(0.17001322592280865, 12);
   });
-  // APP WRONG (DEC-0315, as MK-PF-F-010 above): `now` is handed in and not read; the 20 Sep close is used
+  // REVIEWER WRONG — DECIDED 2026-10-21, as MK-PF-F-010 above: the end is the latest close on record, the price the value uses
   C('MK-PF-F-011', 'complex', 'Future point must not be used', () => {
     expect(periodReturnSince(S('X', [['2026-05-15', 83.17], ['2026-09-19', 97.31], ['2026-09-20', 101.23]]), '2026-05-17', NOON('2026-09-19'))!).toBeCloseTo(0.17001322592280865, 12);
   }, true);
@@ -294,10 +309,11 @@ describe('MK-PF-F-011 periodReturnSince — five cases', () => {
   // APP WRONG (DEC-3523 tenet 3: a window that has not begun has no move to state; +0.00% reads as "no change"). Reach:
   // the holding editor's purchase date has no latest day (PerformanceScreen.tsx, the lot's DateField has no maximumDate), so a purchase dated after today
   // caps the row there and the market "same dates" reads +0.00% (proof below, MK-PF-F-012).
+  // FIXED 2026-10-21 (DEC-3523 tenet 3): a start after the person's today is no figure
   C('MK-PF-F-011', 'edge', 'Start later than now', () => {
     refuses(periodReturnSince(S('X', [['2026-10-12', 100], ['2026-10-13', 110]]), '2026-11-01', NOON('2026-10-13')));
-  }, true);
-  test('· app today: 0 (+0.00%) — the latest close divided by itself', () => {
+  }, false, 'fixed 2026-10-21: a window that has not begun has no move to state (DEC-3523 tenet 3)');
+  test.failing('· app until 2026-10-21: 0 (+0.00%) — the latest close divided by itself — no longer its answer (FIXED 2026-10-21)', () => {
     expect(periodReturnSince(S('X', [['2026-10-12', 100], ['2026-10-13', 110]]), '2026-11-01', NOON('2026-10-13'))).toBe(0);
   });
 });
@@ -313,19 +329,22 @@ describe('MK-PF-F-012 earliestPurchaseDate — five cases', () => {
   // a holding's purchases — costBasis, capGains, paidOnRecord, returnSincePurchases — passes over a lot of 0 shares).
   // Reach: low — a sale removes an emptied lot (src/domain/transactions/index.ts, removeShares keeps lots above 0) and the editor drops 0-share lots
   // (PerformanceScreen.tsx, the editor saves only lots with shares > 0); an imported value-only line is stored with 0 shares (src/domain/import/holdingsImport.ts, `shares: shares > 0 ? shares : 0`).
+  // FIXED 2026-10-21 (DEC-1669, tenet 4): a lot of 0 shares is no purchase, here as in every other reader of a holding's purchases
   C('MK-PF-F-012', 'complex', 'Zero lot precedes actual purchase', () => {
     expect(earliestPurchaseDate(lotsOf([{ date: '2024-03-11', shares: 0 }, { date: '2026-05-19', shares: 7.25 }, { date: '2026-07-09', shares: 3.125 }]))).toBe('2026-05-19');
-  }, true);
-  test('· app today: 2024-03-11, the lot of 0 shares', () => {
+  }, false, 'fixed 2026-10-21: a lot of 0 shares is no purchase (DEC-1669, tenet 4)');
+  test.failing('· app until 2026-10-21: 2024-03-11, the lot of 0 shares — no longer its answer (FIXED 2026-10-21)', () => {
     expect(earliestPurchaseDate(lotsOf([{ date: '2024-03-11', shares: 0 }, { date: '2026-05-19', shares: 7.25 }, { date: '2026-07-09', shares: 3.125 }]))).toBe('2024-03-11');
   });
-  // NEEDS A RULING: no ruling says when a holding with one undated purchase began. Today the app answers the dated
-  // one, and buildPerformance then puts the undated purchase on that day at its own price paid (the card: "an undated one
-  // on the first day"). Proof of what that does to the row is below.
+  // DECIDED 2026-10-21 (the lead's decision under DEC-3523 tenet 3; was NEEDS A RULING): no ruling says when a holding with
+  // one undated purchase began, and the undated one may be the first — so the day it began is not on record. The window
+  // still counts it as bought inside from its first dated purchase, and its return since purchase refuses (MK-PF-F-040),
+  // with the Holding page's reason. Proof of what that does to the row is below. To reverse: earliestPurchaseDate reads
+  // the dated purchases only, and purchasePieces puts an undated one on the first day again.
   C('MK-PF-F-012', 'edge', 'One missing date before known dates is possible', () => {
     refuses(earliestPurchaseDate(lotsOf([{ date: null, shares: 10 }, { date: '2026-05-19', shares: 7 }])));
-  }, true);
-  test('· app today: 2026-05-19, the one dated purchase', () => {
+  }, false, 'decided 2026-10-21: the day a holding with an undated purchase began is not on record (DEC-3523 tenet 3)');
+  test.failing('· app until 2026-10-21: 2026-05-19, the one dated purchase — no longer its answer (DECIDED 2026-10-21)', () => {
     expect(earliestPurchaseDate(lotsOf([{ date: null, shares: 10 }, { date: '2026-05-19', shares: 7 }]))).toBe('2026-05-19');
   });
 });
@@ -339,10 +358,21 @@ describe('MK-PF-F-013 benchmarkTicker — five cases', () => {
   // the Net worth agents) — and so APP WRONG: the class reader now files this holding under Bonds & CDs, but the
   // yardstick still follows the wrapper kind (401(k) → AOR, a 60/40 mix), because benchmarkTicker lets only a class the
   // PERSON set outrank a kind. One holding, two answers to "what is it" (tenet 4). Re-run after the broker-class work lands.
+  // FIXED 2026-10-21 (DEC-6614 "always the class broker sends", tenet 4): the yardstick reads the broker's class the way the
+  // class reader does — after the person's own class, before the wrapper kind. The app's answer until then is kept, failing.
   C('MK-PF-F-013', 'complex', 'Broker-classified bond in retirement wrapper', () => {
     expect(benchmarkTicker(pos([], { kind: '401k', asset_class: 'bond', broker_type: 'bnd' }))).toBe('AGG');
-  }, true);
-  test('· app today (IN-FLIGHT): class reader says Bonds & CDs, yardstick says AOR', () => {
+  }, false, 'fixed 2026-10-21: the yardstick follows the class the broker sends (DEC-6614, tenet 4)');
+  test('· one holding, one answer (DEC-6614, 2026-10-21): class reader Bonds & CDs, yardstick AGG; a fund the broker sends as an ETF is Stocks / Funds on both; the person\'s own class still wins', () => {
+    const p = pos([], { kind: '401k', asset_class: 'bond', broker_type: 'bnd', ticker: 'BNDX' });
+    expect([holdingClassOf(p), benchmarkTicker(p)]).toEqual(['bonds', 'AGG']);
+    const etf = pos([], { kind: '401k', broker_type: 'et', ticker: 'VTI' });
+    expect([holdingClassOf(etf), benchmarkTicker(etf)]).toEqual(['stocks_etf', 'SPY']);
+    const mine = pos([], { kind: 'stocks_etf', asset_class: 'bond', class_source: 'user', broker_type: 'cs', ticker: 'XYZ' });
+    expect(benchmarkTicker(mine)).toBe('AGG');
+    expect(benchmarkTicker(pos([], { kind: '401k', ticker: 'FUND' }))).toBe('AOR');   // nothing sent by a broker: the kind, as before
+  });
+  test.failing('· app until 2026-10-21 (IN-FLIGHT): class reader says Bonds & CDs, yardstick says AOR — no longer its answer (FIXED 2026-10-21)', () => {
     const p = pos([], { kind: '401k', asset_class: 'bond', broker_type: 'bnd', ticker: 'BNDX' });
     expect(holdingClassOf(p)).toBe('bonds');
     expect(benchmarkTicker(p)).toBe('AOR');
@@ -392,6 +422,7 @@ describe('MK-PF-F-014 buildPerformance — five cases', () => {
   // credited with 2 Sep's rise before the new money arrives: 1.21 × 2,420 ÷ 2,310 − 1 = +26.76%. By DEC-4439 the piece
   // ends at the evening before ($100): 2,420 ÷ (1,000 + 1,100) − 1 = +15.24% — what the account's own daily record says
   // for the same money.
+  // FIXED 2026-10-21 (DEC-4439): the piece before a purchase ends at the previous evening's close — +15.24%
   C('MK-PF-F-014', 'complex', 'Inside-window morning purchase TWR', () => {
     const [r] = buildPerformance([pos([{ shares: 10, cost: 100, date: '2026-09-01' }, { shares: 10, cost: 110, date: '2026-09-02' }], { kind: 'stocks_etf', ticker: 'X' })],
       lookup({ X: S('X', [['2026-09-01', 100], ['2026-09-02', 121], ['2026-09-03', 121]]), SPY: S('SPY', [['2026-09-01', 100], ['2026-09-03', 110]]) }), '1M', NOON('2026-09-03'));
@@ -400,8 +431,8 @@ describe('MK-PF-F-014 buildPerformance — five cases', () => {
     expect(r.periodReturn!).toBeCloseTo(0.15238095238095228, 12);
     expect(r.periodTotal!).toBeCloseTo(0.15238095238095228, 12);
     expect(r.beatBy!).toBeCloseTo(0.05238095238095228, 12);
-  }, true);
-  test('· app today: +26.76% your return, +10.00% the market, ahead by 16.76 points (the dollar facts and the market agree)', () => {
+  }, false, 'fixed 2026-10-21: a purchase counts from the start of its day (DEC-4439, tenet 4)');
+  test.failing('· app until 2026-10-21: +26.76% your return, +10.00% the market, ahead by 16.76 points — no longer its answer (FIXED 2026-10-21)', () => {
     const [r] = buildPerformance([pos([{ shares: 10, cost: 100, date: '2026-09-01' }, { shares: 10, cost: 110, date: '2026-09-02' }], { kind: 'stocks_etf', ticker: 'X' })],
       lookup({ X: S('X', [['2026-09-01', 100], ['2026-09-02', 121], ['2026-09-03', 121]]), SPY: S('SPY', [['2026-09-01', 100], ['2026-09-03', 110]]) }), '1M', NOON('2026-09-03'));
     expect([r.marketValue, r.costBasis, r.gain, r.cappedSince]).toEqual([2420, 2100, 320, '2026-09-01']);
@@ -424,14 +455,18 @@ describe('formula checks — what the code does, measured', () => {
     expect(paidOnRecord(p)).toEqual({ paid: 1000, counted: 10, held: 20 });      // $1,000 for 10 of 20 shares
     expect(unrealizedGain(p, 120)).toBe(200);                                    // the gain on 10 shares, not 20 × 120 − 1,000 = $1,400
   });
-  test('MK-PF-F-010 (NEEDS A RULING): one 2Y move of +21.00%, two yearly rates — holding row +10.00% (exponent 1/2), Performance total +9.99% (days ÷ 365, 731 days)', () => {
+  // DECIDED 2026-10-21 (the lead's decision under the precision standard and tenet 4; was NEEDS A RULING): one rule, days ÷ 365
+  test('MK-PF-F-010 (DECIDED 2026-10-21, one rule): one 2Y move of +21.00%, one yearly rate — holding row and Performance total both +9.99% (731 days ÷ 365)', () => {
     const s = S('X', [['2024-10-12', 100], ['2026-10-13', 121]]);
     const holdingRow = periodReturn(s, '2Y', NOON('2026-10-13'))!;
     const days = windowBounds(windowStartKey('2Y', [], '2026-10-13')!, '2026-10-13').days;   // thePerformance: years = days ÷ 365, perYear
     const orchestrator = Math.pow(1.21, 1 / (days / 365)) - 1;
     expect(days).toBe(731);
-    expect((holdingRow * 100).toFixed(2)).toBe('10.00');
-    expect((orchestrator * 100).toFixed(2)).toBe('9.99');
+    expect(holdingRow).toBeCloseTo(orchestrator, 12);
+    expect((holdingRow * 100).toFixed(2)).toBe('9.99');
+  });
+  test.failing('MK-PF-F-010, until 2026-10-21: the holding row read +10.00% (exponent ½) beside the total\'s +9.99% — no longer its answer', () => {
+    expect((periodReturn(S('X', [['2024-10-12', 100], ['2026-10-13', 121]]), '2Y', NOON('2026-10-13'))! * 100).toFixed(2)).toBe('10.00');
   });
   test('MK-PF-F-011 (NEEDS A RULING): a purchase 18 months back under the 2Y chip is shown as the total, never a yearly rate', () => {
     const [r] = buildPerformance([pos([{ shares: 10, cost: 100, date: '2025-04-13' }], { kind: 'stocks_etf', ticker: 'X' })],
@@ -440,32 +475,53 @@ describe('formula checks — what the code does, measured', () => {
     expect(r.periodReturn!).toBeCloseTo(0.21, 12);   // 18 months' total; no "a year"
     expect(r.periodTotal!).toBeCloseTo(0.21, 12);
   });
-  test('MK-PF-F-011 / F-012 (APP WRONG, reach): a purchase typed with a date after today caps the row there and the market "same dates" reads +0.00%', () => {
+  // FIXED 2026-10-21 for the market (MK-PF-F-011, tenet 3): a window that has not begun has no market figure — no +0.00%.
+  // The purchase date itself can no longer be typed after today (the editor's picker stops at today, DEC-6824's day).
+  test('MK-PF-F-011 / F-012 (FIXED 2026-10-21, reach): a purchase dated after today caps the row there and the market "same dates" has no figure', () => {
     const [r] = buildPerformance([pos([{ shares: 10, cost: 100, date: '2027-01-05' }], { kind: 'stocks_etf', ticker: 'X' })],
       (t) => (t === 'X' ? S('X', [['2025-10-12', 90], ['2026-10-13', 110]]) : S('SPY', [['2025-10-12', 100], ['2026-10-13', 108]])), '1Y', NOON('2026-10-13'));
     expect(r.cappedSince).toBe('2027-01-05');
-    expect(r.benchReturn).toBe(0);
+    expect(r.benchReturn).toBeNull();               // was 0, +0.00%
+    expect(r.beatBy).toBeNull();
     expect(r.periodReturn!).toBeCloseTo(0.1, 12);   // the return on what was paid, under "since purchase"
   });
-  test('MK-PF-F-012 (NEEDS A RULING): one undated purchase is put on the dated purchase\'s day at its own price paid', () => {
+  // DECIDED 2026-10-21 (tenet 3; MK-PF-F-012 and MK-PF-F-040): the undated purchase is never put on a guessed day — the row
+  // is still counted as bought inside the window from 19 May (its dollars stand: value, paid, gain), its return since purchase
+  // is not known, and the row says why (undatedPurchase → the Holding page's sentence)
+  const undatedRow = () => buildPerformance([pos([{ shares: 10, cost: 80, date: null }, { shares: 7, cost: 83.17, date: '2026-05-19' }], { kind: 'stocks_etf', ticker: 'X' })],
+    (t) => (t === 'X' ? S('X', [['2025-10-12', 80], ['2026-05-19', 83.17], ['2026-10-13', 97.31]]) : S('SPY', [['2025-10-12', 100], ['2026-05-19', 104], ['2026-10-13', 110]])), '1Y', NOON('2026-10-13'))[0];
+  test('MK-PF-F-012 (DECIDED 2026-10-21): one undated purchase beside a dated one — no return since purchase, the reason carried on the row, the dollars kept', () => {
     // 10 shares with no date (paid $80) and 7 bought 19 May 2026 at $83.17; price $97.31 today; 1Y window
-    const [r] = buildPerformance([pos([{ shares: 10, cost: 80, date: null }, { shares: 7, cost: 83.17, date: '2026-05-19' }], { kind: 'stocks_etf', ticker: 'X' })],
-      (t) => (t === 'X' ? S('X', [['2025-10-12', 80], ['2026-05-19', 83.17], ['2026-10-13', 97.31]]) : S('SPY', [['2025-10-12', 100], ['2026-05-19', 104], ['2026-10-13', 110]])), '1Y', NOON('2026-10-13'));
+    const r = undatedRow();
     expect(r.cappedSince).toBe('2026-05-19');
-    expect(r.periodReturn!).toBeCloseTo((17 * 97.31) / (800 + 7 * 83.17) - 1, 12);   // +19.69% "since purchase"
-    expect(r.benchReturn!).toBeCloseTo(110 / 104 - 1, 12);                            // the market from 19 May: +5.77%
+    expect([r.periodReturn, r.periodTotal, r.beatBy, r.undatedPurchase]).toEqual([null, null, null, true]);
+    expect(r.marketValue!).toBeCloseTo(17 * 97.31, 9); expect(r.costBasis!).toBeCloseTo(800 + 7 * 83.17, 9);
   });
-  test('MK-PF-F-012 (APP WRONG, the row it moves): a lot of 0 shares dated 2024 keeps a holding bought in May 2026 measured over the whole year', () => {
-    const SER = (t: string) => (t === 'X' ? S('X', [['2025-10-12', 80], ['2026-05-19', 83.17], ['2026-07-09', 91.43], ['2026-10-13', 97.31]]) : S('SPY', [['2025-10-12', 100], ['2026-05-19', 104], ['2026-10-13', 110]]));
-    const real = [{ shares: 7.25, cost: 83.17, date: '2026-05-19' }, { shares: 3.125, cost: 91.43, date: '2026-07-09' }];
-    const [before] = buildPerformance([pos([{ shares: 0, cost: 80, date: '2024-03-11' }, ...real], { kind: 'stocks_etf', ticker: 'X' })], SER, '1Y', NOON('2026-10-13'));
+  test.failing('MK-PF-F-012, until 2026-10-21: the undated purchase was put on the dated purchase\'s day at its own price paid (+19.69%) — no longer its answer', () => {
+    expect(undatedRow().periodReturn!).toBeCloseTo((17 * 97.31) / (800 + 7 * 83.17) - 1, 12);
+  });
+  // FIXED 2026-10-21 (DEC-1669, tenet 4): the lot of 0 shares no longer moves the row — with it and without it, one answer
+  const zeroLotSeries = (t: string) => (t === 'X' ? S('X', [['2025-10-12', 80], ['2026-05-19', 83.17], ['2026-07-08', 91.43], ['2026-07-09', 91.43], ['2026-10-13', 97.31]]) : S('SPY', [['2025-10-12', 100], ['2026-05-19', 104], ['2026-10-13', 110]]));
+  const realLots = [{ shares: 7.25, cost: 83.17, date: '2026-05-19' }, { shares: 3.125, cost: 91.43, date: '2026-07-09' }];
+  test('MK-PF-F-012 (FIXED 2026-10-21, the row it moves): a lot of 0 shares dated 2024 no longer keeps a holding bought in May 2026 measured over the whole year', () => {
+    const [withZero] = buildPerformance([pos([{ shares: 0, cost: 80, date: '2024-03-11' }, ...realLots], { kind: 'stocks_etf', ticker: 'X' })], zeroLotSeries, '1Y', NOON('2026-10-13'));
+    const [without] = buildPerformance([pos(realLots, { kind: 'stocks_etf', ticker: 'X' })], zeroLotSeries, '1Y', NOON('2026-10-13'));
+    for (const r of [withZero, without]) {
+      expect(r.cappedSince).toBe('2026-05-19');
+      // 7.25 bought 19 May at $83.17; the piece ends at the evening before 9 Jul, $91.43 (DEC-4439); 3.125 more at $91.43; $97.31 today
+      expect(r.periodReturn!).toBeCloseTo((7.25 * 91.43) / (7.25 * 83.17) * (10.375 * 97.31) / (7.25 * 91.43 + 3.125 * 91.43) - 1, 12);   // +17.00%
+    }
+  });
+  test.failing('MK-PF-F-012, until 2026-10-21: with the lot of 0 shares the row was not capped — +21.64% over a year the money was not there — no longer its answer', () => {
+    const [before] = buildPerformance([pos([{ shares: 0, cost: 80, date: '2024-03-11' }, ...realLots], { kind: 'stocks_etf', ticker: 'X' })], zeroLotSeries, '1Y', NOON('2026-10-13'));
     expect(before.cappedSince).toBeNull();
-    expect(before.periodReturn!).toBeCloseTo(97.31 / 80 - 1, 12);                  // +21.64% over a year the money was not there
-    const [without] = buildPerformance([pos(real, { kind: 'stocks_etf', ticker: 'X' })], SER, '1Y', NOON('2026-10-13'));
-    expect(without.cappedSince).toBe('2026-05-19');
-    expect(without.periodReturn!).toBeCloseTo(97.31 / 83.17 - 1, 12);              // +17.00% since the first real purchase
+    expect(before.periodReturn!).toBeCloseTo(97.31 / 80 - 1, 12);
   });
-  test('MK-PF-F-013 (NEEDS A RULING, sub-point): a kind that names no yardstick is set beside the stock market', () => {
+  // DECIDED 2026-10-21 (PF-B, the lead's decision under tenet 6): a holding that IS described (a kind or a class) but names
+  // no yardstick of its own is set beside the stock market, as the approved Holding page drawing names its comparison
+  // ("VS THE STOCK MARKET · SAME DATES", holding-detail v02) — said on screen, so not a hidden default. Only a holding
+  // nothing describes has none (DEC-2160). To reverse: benchmarkTicker, return null in place of 'SPY' on its last line.
+  test('MK-PF-F-013 (DECIDED 2026-10-21, tenet 6 — the drawing names the stock market): a kind that names no yardstick is set beside the stock market', () => {
     expect(benchmarkTicker({ kind: 'mystery_kind' })).toBe('SPY');
     expect(benchmarkTicker({ asset_class: 'other' })).toBe('SPY');
   });

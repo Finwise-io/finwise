@@ -1,4 +1,4 @@
-// Net Worth = Assets − Debts. Also the capture surface: every bucket is a section you fill in
+// Net worth = Assets − Debts. Also the capture surface: every bucket is a section you fill in
 // (per-account, with institution), so it works as both first-run setup and ongoing management.
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -30,7 +30,7 @@ import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf,
 import { buildDebtState, debtKind, TOXIC_APR, Debt } from '../domain/debt';
 // ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1 ruled 2026-09-27). This tab and Home each built
 // their own net worth; they read one answer now.
-import { theNetWorth, ledgerGroups } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
+import { theNetWorth, ledgerGroups, barSegments, barDrawnWidths, accountsInClasses, isPartOfAccount, valueChanged } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
 import { plannedMonthlySpend } from '../domain/budget';
 // ONE DOOR (MK-NW-O-004 theEmergencyFund, Q-NW-5). FOUNDER 2026-09-28, settling the number change
 // I had stopped on: "give both numbers" — the screen shows the runway on essentials AND the runway
@@ -115,32 +115,21 @@ const CUSHION_FULL_MONTHS = 6;
 // The percentages ALWAYS total 100: whole-percent rounding leaves a remainder, and the remainder is
 // given to the largest segment rather than left to make the bar over- or under-run. A segment that
 // rounds to 0% still appears in the legend as <1% — never silently dropped.
-const BAR_MIN_W = 1.5;   // % width floor, so a sliver is still visible as a mark
-export function barSegments<T extends { key: string; label: string; color: string; total: number }>(rows: T[]) {
-  const sum = rows.reduce((t, r) => t + Math.max(0, r.total), 0);
-  if (sum <= 0) return [] as (T & { pct: number; width: number })[];
-  const raw = rows.map((r) => ({ ...r, exact: (Math.max(0, r.total) / sum) * 100 }));
-  const out = raw.map((r) => ({ ...r, pct: Math.round(r.exact) }));
-  const drift = 100 - out.reduce((t, r) => t + r.pct, 0);
-  if (drift !== 0) {
-    const biggest = out.reduce((a, b) => (b.exact > a.exact ? b : a));
-    biggest.pct += drift;                      // the largest bucket absorbs the rounding remainder
-  }
-  return out.map((r) => ({ ...r, width: Math.max(BAR_MIN_W, r.exact) }));
-}
+// THE SEGMENTS ARE CALCULATED BY THE DOOR (net-worth.ts barSegments, barDrawnWidths; DEC-0346, 2026-10-22) — this screen
+// calculated them here; the numbers are the same. Re-exported, so what read them from this screen still finds them.
+export { barSegments };
 
 function CompositionBar<T extends { key: string; label: string; color: string; total: number }>(
   { rows, spoken }: { rows: T[]; spoken: string },
 ) {
-  const segs = barSegments(rows);
+  const segs = barDrawnWidths(barSegments(rows));   // re-normalised after the sliver floor, by the door
   if (!segs.length) return null;
-  const scale = 100 / segs.reduce((t, s) => t + s.width, 0);   // re-normalise after the sliver floor
   return (
     <View style={styles.compWrap} accessible
       accessibilityLabel={`${spoken}: ${segs.map((s) => `${s.label} ${s.pct} percent`).join(', ')}.`}>
       <View style={styles.compBar}>
         {segs.map((s) => (
-          <View key={s.key} style={{ width: `${s.width * scale}%`, backgroundColor: s.color }} />
+          <View key={s.key} style={{ width: `${s.drawn}%`, backgroundColor: s.color }} />
         ))}
       </View>
       <View style={styles.compLegend}>
@@ -316,15 +305,11 @@ export default function NetWorthScreen() {
     shortfallAge: shortfallAgeFromBand(nwSim?.band),
     money: maskedMoney,
   });
-  // how many accounts actually sit inside a class (the same member rule the rows use)
-  const membersOf = (cls: AssetClass) => assets.filter((a) => {
-    const b = accountClassBreakdown(a);
-    return b ? !!b[cls] : assetClassOf(a) === cls;
-  }).length;
   // the closed-group count, worded the way the approved mock words it: CASH · 2 accounts,
   // INVESTMENTS · 2 categories, PERSONAL PROPERTY · 1 item. It names what is really behind the bar.
   const collapsedCount = (g: { group: UberGroup; label: string; classes: { key: AssetClass; label: string }[] }) => {
-    const accounts = g.classes.reduce((t, c) => t + membersOf(c.key), 0);
+    // how many accounts sit inside its classes, by the member rule the rows use — counted by the door (DEC-0346, 2026-10-22)
+    const accounts = accountsInClasses(assets, g.classes.map((c) => c.key));
     if (g.group === 'property') return plural(accounts, 'item');
     if (g.classes.length > 1) return `${g.classes.length} categories`;
     return plural(accounts, 'account');
@@ -498,7 +483,7 @@ export default function NetWorthScreen() {
                     : assetClassOf(a) === 'mixed' && !tickersOf(a).length ? (t ? `${t} · tap to set holdings` : 'Tap to set what\'s inside') : t;
                   // by class, an account in several classes shows only its part here, and says which part
                   const part = amountOf[g]?.get(String(a.asset_id)) ?? (a.balance || 0);
-                  const isPart = invGroup === 'type' && Math.abs(part - (a.balance || 0)) > 0.005;
+                  const isPart = invGroup === 'type' && isPartOfAccount(part, a.balance);
                   const key = (Object.keys(ASSET_CLASS_LABEL) as AssetClass[]).find((k) => ASSET_CLASS_LABEL[k] === g);
                   const sub = isPart && key ? classPortionLabel(a, key) : sub0;
                   return assetRow(a, i, displayNames.get(a.asset_id) ?? a.label, sub, isPart ? part : undefined, `${a.asset_id}-${g}`);
@@ -1331,7 +1316,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
       // "Value as of" the old day beside the new value. A save that does not change the value keeps its date; an empty
       // box keeps the balance as it was. Today's date moves no recorded day back (the store's typedValueDatedBack).
       const balance = bal.trim() === '' ? editing.balance : v;
-      const dated = balance !== editing.balance ? { value_as_of: isoLocalDate(new Date()) } : {};
+      const dated = valueChanged(editing.balance, balance) ? { value_as_of: isoLocalDate(new Date()) } : {};
       if (isProperty) {   // the question is not on a property's sheet, so nothing from it is saved (DEC-4529, 2026-10-11)
         store.updateAsset?.(editing.asset_id, { institution: inst.trim(), balance, ...dated });
         onClose(); return;

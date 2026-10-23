@@ -125,7 +125,7 @@
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-084 categoryEarnings — five cases › complex · Large stock addition invalidates synthetic category return [APP WRONG]",
    "test_result": "passed",
    "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer today",
-   "recheck_2026_10_21": "FIXED — an alternative's income is Alternatives' (DEC-6825)"
+   "recheck_2026_10_21": "FIXED 2026-10-21 by DEC-4439 (PF-A, MK-PF-F-040): a purchase counts from the start of its day — the category reads +10.00% where it read +15.24%; test now passes. (This mark read \"Alternatives row\" until 2026-10-22, the wrong fix.)"
   },
   {
    "id": "MK-NW-F-084",
@@ -150,7 +150,8 @@
    "same_as_screen_check": "",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-084 categoryEarnings — five cases › complex · Partial priced coverage and misclassified alternative income [NEEDS A RULING]",
    "test_result": "passed",
-   "marked": "test pinning the app's answer today"
+   "marked": "test pinning the app's answer today",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-6825, tenets 1 and 4): an alternative's income is an Alternatives row, never Stocks / Funds; the rest of the point is REVIEWER WRONG"
   },
   {
    "id": "MK-NW-F-084",
@@ -401,7 +402,8 @@
    "same_as_screen_check": "",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-091 pricedGainOf — five cases › complex · Holding quantity increased inside window [APP WRONG]",
    "test_result": "passed",
-   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer today"
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer today",
+   "recheck_2026_10_21": "FIXED 2026-10-22 (DEC-7323, W-START): with shares bought inside the window the gain is value + interest − the start shares' worth − what was paid — $420 → $320, start $900 → $1,000; and with sales (DEC-7398) the start adds back the shares sold — test now passes"
   },
   {
    "id": "MK-NW-F-091",
@@ -523,7 +525,8 @@
    "same_as_screen_check": "",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-127 gainOfRow — five cases › complex · Holding quantity increased inside window [APP WRONG]",
    "test_result": "passed",
-   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer today"
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer today",
+   "recheck_2026_10_21": "FIXED 2026-10-22 (DEC-7323, W-START): with shares bought inside the window the gain is value + interest − the start shares' worth − what was paid — $420 → $320, start $900 → $1,000; and with sales (DEC-7398) the start adds back the shares sold — test now passes"
   },
   {
    "id": "MK-NW-F-127",
@@ -1014,7 +1017,8 @@
    "same_as_screen_check": "",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › MK-NW-F-128 heldValueOf — five cases › edge · Zero market value with stale broker mark [APP WRONG]",
    "test_result": "passed",
-   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer today"
+   "marked": "test.failing (the reviewer's answer kept) + a test pinning the app's answer today",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (PF-B, tenets 3 and 4): a known $0 is a value — $200 → $0; test now passes"
   },
   {
    "id": "MK-NW-F-129",
@@ -1976,7 +1980,7 @@
    "note": "Still APP WRONG on the DEC-4439 point (fix A). The unknown-class fix is uncommitted: re-run after it lands.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-084 · a category's return over one window, a purchase that morning counted all day (DEC-4439) [APP WRONG]",
    "test_result": "passed",
-   "recheck_2026_10_21": "FIXED — Alternatives row (DEC-6825)"
+   "recheck_2026_10_21": "FIXED 2026-10-21: a purchase counts from the start of its day (DEC-4439, MK-PF-F-040); an alternative's income is an Alternatives row (DEC-6825)"
   },
   {
    "id": "MK-NW-F-090",
@@ -2016,7 +2020,8 @@
    "plain_example": "10 shares held, 10 more bought at $110, now 20 at $121: $420, right $320.",
    "note": "",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-091 · shares added inside the window: what the holding gained [APP WRONG]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED 2026-10-22 (DEC-7323, W-START): with shares bought inside the window the gain is value + interest − the start shares' worth − what was paid — $420 → $320, start $900 → $1,000; and with sales (DEC-7398) the start adds back the shares sold — test now passes"
   },
   {
    "id": "MK-NW-F-092",
@@ -2073,7 +2078,8 @@
    "plain_example": "",
    "note": "Same item as the screen agent's could_not_test MK-NW-F-104 (BLOCKED).",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-104 · how one ending total is split across accounts [BLOCKED]",
-   "test_result": "pending"
+   "test_result": "pending",
+   "recheck_2026_10_21": "SETTLED 2026-10-22 — not a launch item: closedWith runs only when a caller hands thePerformance no accounts, and none of its four callers does (AccountPortfolioScreen, PerformanceScreen ×2, HomeScreen all pass accounts; read 2026-10-22). The reviewer gave no case. It stays skipped in the test until a screen reaches it, and a case is written first then."
   },
   {
    "id": "MK-NW-F-105",
@@ -2112,7 +2118,8 @@
    "plain_example": "Same household as F-091: $420, right $320.",
    "note": "",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-127 · shares added inside the window: what the holding gained [APP WRONG]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED 2026-10-22 (DEC-7323, W-START): with shares bought inside the window the gain is value + interest − the start shares' worth − what was paid — $420 → $320, start $900 → $1,000; and with sales (DEC-7398) the start adds back the shares sold — test now passes"
   },
   {
    "id": "MK-NW-F-128",
@@ -2131,7 +2138,8 @@
    "plain_example": "10 shares, row value $0, broker mark $20: $200, right $0.",
    "note": "",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › formula checks — the reviewer's 13 card verdicts › MK-NW-F-128 · a known $0 wins over an older mark [APP WRONG]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (PF-B): a known $0 wins over an older mark (tenets 3 and 4)"
   },
   {
    "id": "MK-NW-F-129",
@@ -2222,7 +2230,7 @@
    "what_is_left": "Category return over one window by DEC-4439 (+10.00%, not +15.24%): fix A. The unknown-class part was fixed in the working tree by ACCOUNT item 5 during this run (now \"Unclassified\"). Income dates after today: fix E.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #1 · MK-NW-F-084 · category return on a common window (DEC-4439) [APP WRONG]",
    "test_result": "passed",
-   "recheck_2026_10_21": "FIXED — Alternatives row (DEC-6825)"
+   "recheck_2026_10_21": "FIXED 2026-10-21: a purchase counts from the start of its day (DEC-4439, MK-PF-F-040); an alternative's income is an Alternatives row (DEC-6825)"
   },
   {
    "n": 2,
@@ -2244,7 +2252,8 @@
    "same_as": "",
    "what_is_left": "Work the gain from the holding's real start, not today's shares ÷ the price move ($320, not $420).",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #3 · MK-NW-F-091 · no reconstruction when shares changed [APP WRONG]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED 2026-10-22 (DEC-7323, W-START): with shares bought inside the window the gain is value + interest − the start shares' worth − what was paid — $420 → $320, start $900 → $1,000; and with sales (DEC-7398) the start adds back the shares sold — test now passes"
   },
   {
    "n": 4,
@@ -2278,7 +2287,8 @@
    "same_as": "could_not_test MK-NW-F-104 (BLOCKED)",
    "what_is_left": "No contract for splitting one ending total across accounts; no screen reaches it.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #6 · MK-NW-F-104 · split of one ending total [BLOCKED]",
-   "test_result": "pending"
+   "test_result": "pending",
+   "recheck_2026_10_21": "SETTLED 2026-10-22 — not a launch item: closedWith runs only when a caller hands thePerformance no accounts, and none of its four callers does (AccountPortfolioScreen, PerformanceScreen ×2, HomeScreen all pass accounts; read 2026-10-22). The reviewer gave no case. It stays skipped in the test until a screen reaches it, and a case is written first then."
   },
   {
    "n": 7,
@@ -2289,7 +2299,8 @@
    "same_as": "",
    "what_is_left": "Same as #3, on gainOfRow. A total loss now reads −$1,000 in the working tree (uncommitted).",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #7 · MK-NW-F-127 · a recorded start, not today's shares ÷ the price move [APP WRONG]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED 2026-10-22 (DEC-7323, W-START): with shares bought inside the window the gain is value + interest − the start shares' worth − what was paid — $420 → $320, start $900 → $1,000; and with sales (DEC-7398) the start adds back the shares sold — test now passes"
   },
   {
    "n": 8,
@@ -2300,7 +2311,8 @@
    "same_as": "",
    "what_is_left": "A known $0 wins over an older mark ($0, not $200).",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #8 · MK-NW-F-128 · a known $0 wins [APP WRONG]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (PF-B): a known $0 wins over an older mark (tenets 3 and 4)"
   },
   {
    "n": 9,
@@ -2334,7 +2346,8 @@
    "same_as": "screen check MK-CF-M-051 T1 (NEEDS A RULING)",
    "what_is_left": "Two of his decisions disagree (2026-08-28 \"a source counts only once it is recorded\" vs the approved Cash flow drawing, DEC-0440).",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #11 · MK-CF-M-051 · the actual inflow is the planned take-home, with nothing recorded as received [NEEDS A RULING]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Cash flow / Home item, outside Performance; it goes with the Cash flow round (MK-CF-M-051, decided there under the tenets)"
   },
   {
    "n": 12,
@@ -2367,7 +2380,8 @@
    "same_as": "screen check MK-MN-M-003 T3 (NEEDS A RULING)",
    "what_is_left": "What \"has gone in already\" means: a full year of the monthly amount, or the payments made so far.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #14 · MK-MN-M-003 · \"what has gone in already\" is a full year of the monthly amount [NEEDS A RULING]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Menu item (MK-MN-M-003), outside Performance; decided in its own round under the tenets"
   },
   {
    "n": 15,
@@ -2378,7 +2392,8 @@
    "same_as": "screen check MK-NW-M-012 T3 (APP WRONG)",
    "what_is_left": "A debt whose payment was never entered adds $0 with nothing said ($2,650 a month). ACCOUNT item 2.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #15 · MK-NW-M-012 · a debt whose payment was never entered is not $0 [APP WRONG]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 by the lead (DEC-6760): the debt with no payment entered is named beside the figure, and the figure counts the payments on record ($2,650); the screen check MK-NW-M-012 T3 passes. This test still asks for no figure — its label is the test file's to change."
   },
   {
    "n": 16,
@@ -2501,7 +2516,8 @@
    "same_as": "screen check MK-NW-M-035 T3 (REVIEWER WRONG on the partial sale)",
    "what_is_left": "The partial sale is said (DEC-4643, agrees). Fees on a sale and which security a sale belongs to have no ruling; a sale dated after today is fix E's (no date after today), not measured here.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #26 · MK-NW-M-035 · the partial sale is said (DEC-4643); a sale dated after today is not ruled [NEEDS A RULING]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7225): a sale dated after today counts as today's; the partial sale is said (DEC-4643)"
   },
   {
    "n": 27,
@@ -2534,7 +2550,8 @@
    "same_as": "screen check MK-PF-M-001 T4 (NEEDS A RULING)",
    "what_is_left": "Performance's ending counts the cash (his rule, DEC-4644). Home pairs YOUR INVESTMENTS $35,775 (no cash) with \"▲ up $8,200 (21.35%) this month\", measured with cash ($46,600).",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #29 · MK-PF-M-001 · one scope for an investment figure and its change line [NEEDS A RULING]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7222): Home names the base of the month's change where it differs from YOUR INVESTMENTS"
   },
   {
    "n": 30,
@@ -2557,7 +2574,8 @@
    "same_as": "screen check MK-PF-M-003 T2 (APP WRONG)",
    "what_is_left": "Tenet 2: rounded rows must add to the rounded ending ($3,269 of rows under $3,271 here; $11,502 under $11,500 on screen).",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #31 · MK-PF-M-003 · rows rounded one by one add up to the rounded ending [APP WRONG]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (tenet 2): the walk prints whole dollars that add up to its ending (walkShown)"
   },
   {
    "n": 32,
@@ -2579,7 +2597,8 @@
    "same_as": "screen check MK-PF-M-006 T1 (APP WRONG)",
    "what_is_left": "Same fix as #1 (DEC-4439).",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #33 · MK-PF-M-006 · the category return of a purchase that morning (DEC-4439) [APP WRONG]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-4439, MK-PF-F-040): a purchase that morning counts from the start of its day in the category return"
   },
   {
    "n": 34,
@@ -2601,7 +2620,8 @@
    "same_as": "screen check MK-PF-M-008 T1 (APP WRONG)",
    "what_is_left": "Start weight is value now ÷ (1 + return) = $2,000 for a holding that began at $1,000. The 0.85 gap agrees (unrounded rates). ZERO is changing startValues.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #35 · MK-PF-M-008 · market +X% weighted by false starts after shares change [APP WRONG]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED — 2026-10-21 weighed by the start held when the window began (DEC-7221); 2026-10-22 split on the same days and weighed the same way as your return where money moved inside the window (DEC-7399, amending DEC-7221): this household's Home market reads +8.80% (piece 1 ×1, piece 2 ×1.088), where start weights alone gave +8.00%; +8.00% is pinned failing"
   },
   {
    "n": 36,
@@ -2612,7 +2632,8 @@
    "same_as": "screen check MK-PF-M-010 T7 (NEEDS A RULING there)",
    "what_is_left": "His approved look-back drawing (DEC-1069) is the design; tenet 6 outranks tenet 7, so no ruling is needed. The function makes no claim about actual money.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #36 · MK-PF-M-010 · the look-back claims what actual money did [REVIEWER WRONG]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "REVIEWER WRONG — DECIDED 2026-10-21 (DEC-7220): Look back keeps his approved words (tenet 6 over tenet 7)"
   },
   {
    "n": 37,
@@ -2623,7 +2644,8 @@
    "same_as": "screen check MK-PF-M-011 T7 (NEEDS A RULING there)",
    "what_is_left": "As #36.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #37 · MK-PF-M-011 · needs \"hypothetical, before taxes and costs\" words [REVIEWER WRONG]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "REVIEWER WRONG — DECIDED 2026-10-21 (DEC-7220): Look back keeps his approved words (tenet 6 over tenet 7)"
   },
   {
    "n": 38,
@@ -2634,7 +2656,8 @@
    "same_as": "screen check MK-PF-M-012 T7 (NEEDS A RULING there)",
    "what_is_left": "As #36.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #38 · MK-PF-M-012 · the difference claims a saving [REVIEWER WRONG]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "REVIEWER WRONG — DECIDED 2026-10-21 (DEC-7220): Look back keeps his approved words (tenet 6 over tenet 7)"
   },
   {
    "n": 39,
@@ -2668,7 +2691,8 @@
    "same_as": "screen check MK-PF-M-015 T2 (APP WRONG)",
    "what_is_left": "The account page walk, as #31.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #41 · MK-PF-M-015 · rounded rows against the rounded ending [APP WRONG]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (tenet 2): the account page prints its walk through the same walkShown"
   },
   {
    "n": 42,
@@ -2679,7 +2703,8 @@
    "same_as": "screen check MK-PF-M-016 T4 (APP WRONG — a separate fault: the account page calls 2Y \"not a yearly rate\")",
    "what_is_left": "One way to make 2Y a yearly rate. Account: (1.21)^(365 ÷ 731 days) − 1 = +9.99%/year; holding row: (1.21)^(1/2) − 1 = +10.00%. Part 2 (MK-PF-F-010) needs the same ruling.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #42 · MK-PF-M-016 · one yearly-pace rule for 2Y (days ÷ 365 against 2 years) [NEEDS A RULING]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7217): one yearly rate, days ÷ 365, on every screen"
   },
   {
    "n": 43,
@@ -2690,7 +2715,8 @@
    "same_as": "screen check MK-PF-M-017 T1 (APP WRONG); part 4 MK-ST-F-081 (NEEDS A RULING)",
    "what_is_left": "Tenet 1: a value below zero is clamped to $0, so $1,000.17 → −$83.19 reads −100.00%; the arithmetic is −108.32%. Proposed: refuse.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #43 · MK-PF-M-017 · money ending below zero does not read −100.00% [APP WRONG]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-7218): a value below $0 gives no return, and the line names the day"
   },
   {
    "n": 44,
@@ -2723,7 +2749,8 @@
    "same_as": "screen check MK-PF-M-020 T3 (APP WRONG)",
    "what_is_left": "DEC-3279e, tenet 3: cash never entered reads \"Available cash: $0\" and refuses a buy.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #46 · MK-PF-M-020 · cash never entered is not $0 [APP WRONG]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-3279e, tenet 3): cash never entered reads not entered, and a buy is not refused on it"
   },
   {
    "n": 47,
@@ -2767,7 +2794,8 @@
    "same_as": "tax file item \"Federal income tax2026\" (APP WRONG)",
    "what_is_left": "IRS Rev. Proc. 2025-32: head of household 24% ends at $201,750 and 32% at $256,200; the table copies the single filer's $201,775 / $256,225. Fixed there.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #50 · 2026 head-of-household brackets: tax at $300,000 taxable is $71,961 [APP WRONG]",
-   "test_result": "passed"
+   "test_result": "passed",
+   "recheck_2026_10_21": "LEFT 2026-10-21 — the 2026 head-of-household brackets are a Cash flow tax item (the tax file's Federal income tax item); it goes with the Cash flow round"
   },
   {
    "n": 51,
@@ -2789,7 +2817,8 @@
    "same_as": "part 1 rules_held (49 rules, measured in the screen agent's file)",
    "what_is_left": "Owner rules outside this module are the other agent's share; nothing to run here.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #52 · owner rules outside this module cannot be closed from Performance evidence [BLOCKED]",
-   "test_result": "pending"
+   "test_result": "pending",
+   "recheck_2026_10_21": "SETTLED 2026-10-22 — not a Performance item: the owner rules it names belong to other modules' audits (Net worth's were closed in its batch of 2026-10-21; Cash flow's go with that round). Nothing here can close them."
   }
  ],
  "app_wrong_fixes": [

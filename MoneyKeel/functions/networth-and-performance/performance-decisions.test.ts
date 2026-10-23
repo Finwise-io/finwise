@@ -266,6 +266,26 @@ describe('MK-PF-M-021 the value the return is on · MK-PF-M-022 the value left o
   });
 });
 
+// ISSUED 2026-10-21 (W-A11Y, Performance audit row 9): the returns the account page and Look back printed with no identifier.
+describe('MK-PF-M-023 a holding\'s return · MK-PF-M-024 a class\'s return in one account · MK-PF-M-025 and MK-PF-M-026 Look back\'s percents · MK-PF-M-027 Home\'s gap', () => {
+  test('each worked example, run through its own function and written by the one writer, is the answer on its row', () => {
+    const { PERFORMANCE_FIGURES } = require('./performance');
+    const { LOOK_BACK_FIGURES } = require('./look-back');
+    const { writeFigure } = require('../_figure-spec');
+    const all = { ...PERFORMANCE_FIGURES, ...LOOK_BACK_FIGURES };
+    // worked by hand: VOO's year +10.00%; $6,600 at +10% and $3,600 at −10% began at $10,000 and are $10,200, +2.00%;
+    // BND $72.00 → $73.80 is +2.50%; VTI $250.00 → $290.00 is +16.00%; holdings that did not move against a market up 8.80%
+    // are behind by 8.80% (MK-PF-M-027, its size printed without a sign)
+    const want: Record<string, string> = { 'MK-PF-M-023': '+10.00%', 'MK-PF-M-024': '+2.00%', 'MK-PF-M-025': '+2.50%', 'MK-PF-M-026': '+16.00%', 'MK-PF-M-027': '8.80%' };
+    for (const [id, answer] of Object.entries(want)) {
+      const f = all[id];
+      expect(f.unit).toBe(id === 'MK-PF-M-027' ? 'percent-2dp' : 'percent-signed');
+      expect(f.worked.answer).toBe(answer);
+      expect(writeFigure(f, f.worked.run())).toBe(answer);
+    }
+  });
+});
+
 describe('MK-PF-M-015 one line of the walk', () => {
   test('the lines always add up to the ending — a walk that does not is worse than no walk', () => {
     const a = ask({ ending: 46_600, snapshotDays: [recordDay('2026-01-01', 30_000, 'a1')] as any,
@@ -289,7 +309,19 @@ describe('MK-PF-M-008 market +X%', () => {
     expect(blend).toBeCloseTo(0.088, 6);        // 8.80%, not the 7.00% a plain average would give
     expect(blend).not.toBeCloseTo(0.07, 4);
   });
-  test('the benchmark runs over the SAME DATES, so a holding with no usable benchmark is left out', () => {
+  // DECIDED 2026-10-21 (the lead's decision under tenets 1, 3 and 4; outside re-run OpenAI part 3, MK-PF-F-020): a holding in
+  // your return with no market figure of its own makes the market unknown — leaving it out compared the market on $40,000
+  // with your return on $100,000. The answer until then is kept, failing.
+  test('the benchmark runs over the SAME DATES; a holding in your return with no usable benchmark makes the market unknown (2026-10-21)', () => {
+    const blend = portfolioBenchReturn([
+      { benchReturn: 0.10, marketValue: 40_000, periodReturn: 0 },
+      { benchReturn: null, marketValue: 60_000, periodReturn: 0 },    // no benchmark over these dates
+    ] as any);
+    expect(blend).toBeNull();
+    // a holding with no return of its own is out of both sides, as before
+    expect(portfolioBenchReturn([{ benchReturn: 0.10, marketValue: 40_000, periodReturn: 0 }, { benchReturn: null, marketValue: 60_000, periodReturn: null }] as any)!).toBeCloseTo(0.10, 6);
+  });
+  test.failing('the benchmark runs over the SAME DATES, so a holding with no usable benchmark is left out — no longer the answer (DECIDED 2026-10-21)', () => {
     const blend = portfolioBenchReturn([
       { benchReturn: 0.10, marketValue: 40_000, periodReturn: 0 },
       { benchReturn: null, marketValue: 60_000, periodReturn: 0 },    // no benchmark over these dates

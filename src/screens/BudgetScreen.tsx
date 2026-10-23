@@ -58,7 +58,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
     treasuryYield, treasuryIsFallback,   // the ten-year, for the mortgage rate comparison
     monthlySnapshots,                    // the month-ends on record — what the Debts tab's PROGRESS measures from
   } = useStore() as any;
-  // Single source of truth for debt = `liabilities` (Net Worth model). Adapt it to the
+  // Single source of truth for debt = `liabilities` (Net worth model). Adapt it to the
   // DebtEntry shape this screen's UI already renders.
   const TYPE_UP: Record<string, string> = { credit_card: 'CREDIT_CARD', student_loan: 'STUDENT_LOAN', car_loan: 'AUTO', mortgage: 'MORTGAGE', personal_loan: 'PERSONAL', other: 'OTHER' };
   const TYPE_DOWN: Record<string, DebtEntry['type']> = { CREDIT_CARD: 'credit_card', STUDENT_LOAN: 'student_loan', AUTO: 'car_loan', MORTGAGE: 'mortgage', PERSONAL: 'personal_loan', OTHER: 'other' };

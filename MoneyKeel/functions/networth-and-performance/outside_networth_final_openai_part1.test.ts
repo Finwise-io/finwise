@@ -159,8 +159,14 @@ describe('MK-NW-F-004 portfolioActualReturn — five cases', () => {
 describe('MK-NW-F-005 accountAllowsTicker — five cases', () => {
   test('easy · Checking account cannot hold ticker', () => { expect(accountAllowsTicker(acct({ kind: 'checking', positions: [] }))).toBe(false); });
   test('easy · Brokerage with no holdings can add ticker', () => { expect(accountAllowsTicker(acct({ kind: 'brokerage', positions: [] }))).toBe(true); });
-  test('complex · 529 remains disallowed even with holdings', () => {
+  // BRIEF WRONG (2026-10-22): his ruling DEC-2484g — "Any account that already lists holdings can take a recorded buy or sale"
+  // — covers a 529 listing its funds; the card it was written from said otherwise and was corrected. The auditor's answer is kept.
+  test.failing('complex · 529 remains disallowed even with holdings', () => {
     expect(accountAllowsTicker(acct({ kind: 'college_529', positions: [STOCK(1000)], asset_class: 'stocks_etf' }))).toBe(false);
+  });
+  test('pin · a 529 that lists holdings takes a buy or sale (DEC-2484g); one that lists none does not', () => {
+    expect(accountAllowsTicker(acct({ kind: 'college_529', positions: [STOCK(1000)], asset_class: 'stocks_etf' }))).toBe(true);
+    expect(accountAllowsTicker(acct({ kind: 'college_529', positions: [], asset_class: 'stocks_etf' }))).toBe(false);
   });
   test('complex · Hand-entered CD cannot accept ticker', () => {
     expect(accountAllowsTicker(acct({ kind: 'cd', asset_class: 'bonds', positions: [] }))).toBe(false);

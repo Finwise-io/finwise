@@ -33,6 +33,7 @@
 //   · shares were moved in or out and the record does not say what they were worth that day;
 //   · a deposit or withdrawal has no amount on record;
 //   · interest, a dividend or a coupon on a measured account has no amount on record (2026-10-21);
+//   · the measured accounts together are worth less than $0 on a day (2026-10-21, MK-PF-M-017) — never read as $0;
 //   · the previous evening's value + money added − money taken out is zero or less while that
 //     evening's value is not — nothing to grow from: a value that appeared with nothing there the
 //     evening before and no money added, or more taken out than was there (DEC-0316: refuse when the
@@ -97,6 +98,8 @@ export const TIME_WEIGHTED_REFUSALS = [
   'ACTIVITY_NOT_KNOWN',
   // interest, a dividend or a coupon with no amount on record sits inside the window (2026-10-21, DEC-3523 tenet 3)
   'INCOME_HAS_NO_AMOUNT',
+  // the measured accounts together were worth less than $0 on a day (2026-10-21, DEC-3523 tenet 1; MK-PF-M-017, MK-ST-F-081)
+  'VALUE_BELOW_ZERO',
 ] as const;
 export type TimeWeightedRefusal = typeof TIME_WEIGHTED_REFUSALS[number];
 
@@ -140,9 +143,9 @@ export interface IncomeWithoutAmount { date: string; accountId: string; kind: 'I
  * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-082 NW · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               MK-NW-F-093 QUIET_PERF · MK-NW-O-003 theNetWorth
- *               MK-NW-O-008 thePerformance · MK-ST-F-081 timeWeightedReturn
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
+ *               MK-ST-F-081 timeWeightedReturn · MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -185,9 +188,9 @@ const SAME = 0.005;
  * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-082 NW · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               MK-NW-F-093 QUIET_PERF · MK-NW-O-003 theNetWorth
- *               MK-NW-O-008 thePerformance
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-O-003 theNetWorth · MK-NW-O-008 thePerformance
+ *               MK-NW-F-185 valueChanged
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -265,6 +268,12 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
     .sort((x, y) => x.date.localeCompare(y.date))[0];
   if (unnamed) return { ...refuse('ACTIVITY_NOT_KNOWN', unnamed.date), word: unnamed.word, amount: unnamed.amount };
 
+  // A VALUE BELOW ZERO IS NOT A RETURN TO STATE (2026-10-21, the lead's decision under DEC-3523 tenet 1; outside re-run OpenAI,
+  // MK-PF-M-017 and MK-ST-F-081). The measured accounts together worth less than nothing on a day — a margin debt larger than
+  // the holdings — were counted as worth $0: $1,000.17 then −$83.19 read −100.00%, a figure that is neither the arithmetic
+  // (−108.32%) nor true of money that is now owed. No rule says how such a day grows, so there is no return across it, and
+  // the sentence says why. The dollar figures stand. A real $0 is still −100.00%.
+  if (begin.total < -SAME) return refuse('VALUE_BELOW_ZERO', begin.date);
   let prev = begin;
   let growth = 1;
   let measuredFrom: string | null = null;
@@ -272,6 +281,7 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
     if (d.date <= begin.date) continue;
     const now = poolOn(d.date);
     if (!now) continue;                                // rule 2: a day missing an account is not used
+    if (now.total < -SAME) return refuse('VALUE_BELOW_ZERO', now.date);
     let moneyIn = 0;                                   // money added (+) or taken out (−) that day, every kind
     for (const id of new Set([...prev.values.keys(), ...now.values.keys()])) {
       const was = prev.values.get(id), is = now.values.get(id);
@@ -298,7 +308,7 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
     // DEC-4439, the day's link: evening value ÷ (previous evening + money added − money taken out that day) − 1
     const base = prev.total + moneyIn;                 // what the day started with, its money already in
     if (base > SAME) {
-      growth *= Math.max(0, now.total) / base;
+      growth *= Math.max(0, now.total) / base;   // a total under half a cent below $0 is $0 (a day below zero refused above)
       measuredFrom = measuredFrom ?? (prev.total > SAME ? prev.date : now.date);   // started with nothing: the first money's day
     } else if (base < -SAME || Math.abs(now.total) > SAME) {
       // nothing to grow from and yet a value, or more taken out than there was: the record contradicts
@@ -337,13 +347,13 @@ export function timeWeightedReturn(a: TimeWeightedInput): TimeWeightedVerdict {
  * Reaches ..... 62 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-082 NW · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-101 PLAN
- *               MK-NW-F-093 QUIET_PERF · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
+ *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
+ *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
+ *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
+ *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
  *               … and 44 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.

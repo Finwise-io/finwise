@@ -31,17 +31,17 @@ import { fetchPriceSeries } from '../services/marketData';
  *
  * Called by ... MK-ST-F-027 accountId · MK-XS-F-175 uid
  *
- * Reaches ..... 266 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
- *               MK-CF-F-205 COMING · MK-CF-F-211 DEBTS
- *               MK-NW-F-079 EF · MK-NW-F-080 HOLD
- *               MK-CF-F-201 INCOME · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               MK-CF-F-203 MONTH · MK-NW-F-082 NW
- *               … and 248 more — the full list is on functions_from_code
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               MK-CF-O-014 M · MK-CF-F-203 MONTH
+ *               … and 287 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -113,15 +113,15 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
  * Called by ... MK-XS-F-175 uid
  *
  * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
  *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -371,7 +371,7 @@ type AppState = {
   retirementPlan: RetirementPlan | null;
   customCategories: CustomCategory[];
 
-  // Net Worth — per-account assets & liabilities (managed in the Net Worth module)
+  // Net worth — per-account assets & liabilities (managed in the Net worth module)
   assetAccounts: AssetAccount[];
   liabilities: Debt[];
   nwSeeded: boolean;
@@ -491,8 +491,8 @@ type AppState = {
   addPosition: (accountId: string, position: Omit<Position, 'position_id'>) => void;
   updatePosition: (accountId: string, positionId: string, patch: Partial<Position>) => void;
   deletePosition: (accountId: string, positionId: string) => void;
-  refreshPrices: () => Promise<void>;
-  maybeRefreshPrices: () => Promise<void>;   // throttled (10 min) — safe to call on screen open
+  refreshPrices: (extra?: string[]) => Promise<void>;   // extra: tickers a screen compares (Look back), fetched the same way
+  maybeRefreshPrices: (extra?: string[]) => Promise<void>;   // throttled (10 min) — safe to call on screen open
   recordTransaction: (t: Omit<Transaction, 'id' | 'created_at'>) => void;   // append to ledger + apply to accounts + F10 review
   resolveTxnFlag: (flagId: string, resolution: 'was_me' | 'flagged' | 'settled') => void;   // F10 two-button resolution
   deleteTransaction: (id: string) => boolean;   // reverses the row's balance effect; false = blocked (legacy un-invertible row)
@@ -627,15 +627,15 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-XS-F-138 deriveKeyFromSecret · MK-XS-F-139 wrapWithSecret
  *
  * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
+ *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
  *               … and 35 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -824,7 +824,7 @@ export const useStore = create<AppState>()(
       updateIncome:  (id, updates) => set((s) => ({ incomes:  s.incomes.map((i)  => i.id === id ? { ...i, ...updates } : i) })),
       updateExpense: (id, updates) => set((s) => ({ expenses: s.expenses.map((e) => e.id === id ? { ...e, ...updates } : e) })),
 
-      // ── Net Worth: assets & liabilities ──────────────────────────
+      // ── Net worth: assets & liabilities ──────────────────────────
       // a bond's or CD's balance follows the one value rule (DEC-0281, settleBondValue): market value, else paid, else face
       addAsset:       (a) => set((s) => ({ assetAccounts: [settleBondValue({ ...a, asset_id: newEntityId('ast') } as AssetAccount, a), ...s.assetAccounts] })),
       // SnapTrade sync (design v2): holdings are authoritative; activities append as HISTORY ONLY
@@ -976,11 +976,15 @@ export const useStore = create<AppState>()(
       },
       // Fetch live prices for every held ticker (+ its benchmark) and refresh each position-account's
       // balance = Σ(shares × latest price). Balance becomes a cache derived from positions.
-      refreshPrices: async () => {
+      refreshPrices: async (extra) => {
         const accts = get().assetAccounts;
         const tickers: string[] = [];
         // a holding nothing describes has no yardstick, so none is fetched for it (DEC-2160; outside review Claude Performance, 2026-10-11)
         accts.forEach((a) => (a.positions ?? []).forEach((p) => { tickers.push(p.ticker); const b = benchmarkTicker(p); if (b) tickers.push(b); }));
+        // AND WHAT A SCREEN COMPARES (2026-10-22): Look back hands over its pairing, SPY and the four yardsticks he asked for
+        // (DEC-1624), fetched here — the one place prices are fetched, the same source, the same failure flag. It fetched
+        // only holdings and their yardsticks, so Look back opened with nothing held could never answer.
+        if (Array.isArray(extra)) tickers.push(...extra.filter((t) => typeof t === 'string' && t.trim()));
         if (!tickers.length) return;
         const fetched = await fetchPriceSeries(tickers);
         if (!Object.keys(fetched).length) {                  // offline/blocked → keep cache, SAY so (mock approved 2026-07-31)
@@ -990,12 +994,14 @@ export const useStore = create<AppState>()(
         const cache = { ...get().priceCache, ...fetched };
         set({ priceRefreshFailed: false, priceCache: cache, pricesFetchedAt: new Date().toISOString(), assetAccounts: recomputeBalances(get().assetAccounts, cache) });
       },
-      maybeRefreshPrices: async () => {
+      maybeRefreshPrices: async (extra) => {
         const s = get();
-        if (!s.assetAccounts.some((a) => a.positions?.length)) return;
+        const asked = Array.isArray(extra) ? extra.map((t) => String(t).trim().toUpperCase()).filter(Boolean) : [];
+        if (!s.assetAccounts.some((a) => a.positions?.length) && !asked.length) return;
         const last = s.pricesFetchedAt ? Date.parse(s.pricesFetchedAt) : 0;
-        if (Date.now() - last < 10 * 60 * 1000) return;   // fetched within 10 min → skip
-        await s.refreshPrices();
+        // fetched within 10 min → skip, unless a ticker a screen asks for is not in hand at all (2026-10-22)
+        if (Date.now() - last < 10 * 60 * 1000 && asked.every((t) => s.priceCache?.[t])) return;
+        await s.refreshPrices(asked);
       },
       addLiability:   (d) => set((s) => ({ liabilities: [{ ...d, debt_id: newEntityId('debt') }, ...s.liabilities] })),
       updateLiability:(id, u) => set((s) => ({ liabilities: s.liabilities.map((x) => x.debt_id === id ? { ...x, ...u } : x) })),
@@ -1338,7 +1344,7 @@ export const useStore = create<AppState>()(
 
       // Re-run setup as a CLEAN OVERWRITE: wipe the onboarding answers + everything setup derived
       // (so Home doesn't keep showing stale figures), but KEEP prefs, login, gamification, and anything
-      // the user entered themselves (logged transactions; Net Worth accounts they added by hand —
+      // the user entered themselves (logged transactions; Net worth accounts they added by hand —
       // only the onboarding-SEEDED net worth, flagged by nwSeeded, is cleared).
       restartOnboarding: () => set((s) => ({
         onboardingProfile: null, onboardingComplete: false, onboardingPaused: false, onboardingDraft: null,

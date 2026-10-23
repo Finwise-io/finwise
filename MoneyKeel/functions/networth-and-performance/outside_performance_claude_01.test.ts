@@ -582,8 +582,15 @@ describe('MK-NW-F-127 gainOfRow — five cases', () => {
 
 describe('MK-NW-F-128 heldValueOf — five cases', () => {
   test('easy · A market value is there', () => { expect(heldValueOf({ position: { ticker: 'VTI' }, marketValue: 5000 })).toBe(5000); });
-  test("easy · Broker's last mark times shares", () => {
+  // SUPERSEDED 2026-10-21 (outside re-run OpenAI part 1, MK-NW-F-128; tenets 3 and 4): a row's own value of $0 is a known
+  // $0 and wins over an older broker mark. This case was written to the rule "its market value when that is above zero";
+  // a row the app builds for a holding with no price writes no value (null), never $0 — that is the case below, and the
+  // reviewer's $1,400 holds for it. The case as written is kept, failing.
+  test.failing("easy · Broker's last mark times shares — a written $0 is now a known $0 (superseded 2026-10-21)", () => {
     expect(heldValueOf({ marketValue: 0, position: { ticker: 'XYZ', last_price: 40, lots: [{ shares: 20 }, { shares: 15 }] } })).toBe(1400);
+  });
+  test("easy · Broker's last mark times shares — with no value of its own (as the app writes it, 2026-10-21): 35 × $40 = $1,400", () => {
+    expect(heldValueOf({ marketValue: null, position: { ticker: 'XYZ', last_price: 40, lots: [{ shares: 20 }, { shares: 15 }] } } as any)).toBe(1400);
   });
   // FINDING: app gives 6.3, expected 630 — shares × last price leaves out the option's contract multiplier (DEC-0274:
   // "options: value = contracts × 100 × price"). Only whether it is above zero is used today, so no screen figure moves.

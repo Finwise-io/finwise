@@ -25,42 +25,48 @@
    "reviewer": "FAIL",
    "row_words_only": false,
    "what": "Missing income: no surplus at all, only the two set-up steps (held). Missing debt payment: the surplus refuses, but reads \"+No budget set — there is no planned surplus…\" while a $3,400 budget IS set, and the car loan's row prints \"A section with nothing in it keeps its heading and says so.\" — the wrong reason, in a sentence written for the master file.",
-   "fix": "MoneyKeel/functions/cashflow/this-month.ts plannedMonthFlow + src/screens/CashFlowScreen.tsx: a debt with no payment entered reads \"Car loan — payment not entered\", and the planned surplus \"Not worked out — Car loan's payment is not entered\", with no \"+\". Cash flow This month, words only."
+   "fix": "MoneyKeel/functions/cashflow/this-month.ts plannedMonthFlow + src/screens/CashFlowScreen.tsx: a debt with no payment entered reads \"Car loan — payment not entered\", and the planned surplus \"Not worked out — Car loan's payment is not entered\", with no \"+\". Cash flow This month, words only.",
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Cash flow / Home item, outside Performance; it goes with the Cash flow round"
   },
   {
    "id": "MK-CF-M-052 T2",
    "reviewer": "FAIL",
    "row_words_only": true,
    "what": "The screen is right by the approved drawing (DEC-0440: an unpaid debt shows $0 with its due day): outflow so far = $250 car loan paid + $2,998 logged = $3,248, \"Mortgage · NOT PAID YET · $0\". The figure's own row says the opposite — \"Σ of the debt payments due this month… counted in full, logged or not\" — and the reviewer's $5,648 follows those words. File and code disagree.",
-   "fix": "MoneyKeel/functions/cashflow/this-month.ts MK-CF-M-052 row: formula \"expenses logged so far this month + the debt payments made so far; an unpaid debt shows $0 with its due day\". No figure moves."
+   "fix": "MoneyKeel/functions/cashflow/this-month.ts MK-CF-M-052 row: formula \"expenses logged so far this month + the debt payments made so far; an unpaid debt shows $0 with its due day\". No figure moves.",
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Cash flow / Home item, outside Performance; it goes with the Cash flow round"
   },
   {
    "id": "MK-CF-M-052 T4",
    "reviewer": "PASS",
    "row_words_only": false,
    "what": "Found rendering (the reviewer passed it): Home's cash-flow box reads \"Actual expenses so far $2,998 · Left $4,202\" — it leaves out the $250 car loan already paid. Cash flow, one tap away: −$3,248 out, +$3,952 left. Home works the month out on the screen itself (CLAUDE.md: never re-derive a money figure on a screen).",
-   "fix": "src/screens/HomeScreen.tsx cashflowBlock: read thisMonth(…).actual from MoneyKeel/functions/cashflow/this-month.ts — Income = actual inflow, out = expenses + debts paid, Left = actual surplus. Home: $2,998 / $4,202 → $3,248 / $3,952; \"Actual expenses so far\" → \"Outflow (expenses + debt)\". No approved Home drawing is traced (design record); Cash flow v01 is unaffected."
+   "fix": "src/screens/HomeScreen.tsx cashflowBlock: read thisMonth(…).actual from MoneyKeel/functions/cashflow/this-month.ts — Income = actual inflow, out = expenses + debts paid, Left = actual surplus. Home: $2,998 / $4,202 → $3,248 / $3,952; \"Actual expenses so far\" → \"Outflow (expenses + debt)\". No approved Home drawing is traced (design record); Cash flow v01 is unaffected.",
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Cash flow / Home item, outside Performance; it goes with the Cash flow round"
   },
   {
    "id": "MK-CF-M-052 T8",
    "reviewer": "FAIL",
    "row_words_only": true,
    "what": "The screen does not count unpaid debts as gone out (Mortgage NOT PAID YET $0). The row's plain words do: \"the expenses logged, plus the debt payments due in the month\". Same fix as tenet 2.",
-   "fix": "MK-CF-M-052 row \"answers\": \"What has actually gone out so far this month: the expenses logged and the debt payments made.\" No figure moves."
+   "fix": "MK-CF-M-052 row \"answers\": \"What has actually gone out so far this month: the expenses logged and the debt payments made.\" No figure moves.",
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Cash flow / Home item, outside Performance; it goes with the Cash flow round"
   },
   {
    "id": "MK-CF-M-053 T3",
    "reviewer": "PASS",
    "row_words_only": false,
    "what": "Found rendering (the reviewer passed it): with no income entered and nothing spent, Home's cash-flow box shows the red \"Over\" chip above \"Income $0 · Nothing entered yet · Left $0\". \"Over\" is an answer; nothing is known (HomeScreen: over = income ≤ 0).",
-   "fix": "src/screens/HomeScreen.tsx cashflowBlock: no pace chip until income is entered — the EmptyNote door already there carries the line. Home, words only."
+   "fix": "src/screens/HomeScreen.tsx cashflowBlock: no pace chip until income is entered — the EmptyNote door already there carries the line. Home, words only.",
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Cash flow / Home item, outside Performance; it goes with the Cash flow round"
   },
   {
    "id": "MK-CF-M-053 T4",
    "reviewer": "PASS",
    "row_words_only": false,
    "what": "Found rendering (the reviewer passed it): one month reads \"Left $4,202\" on Home and \"= Actual surplus so far +$3,952\" on Cash flow — two numbers for one thing, $250 apart (the car loan paid).",
-   "fix": "The MK-CF-M-052 tenet-4 fix: Home reads the one door. Home \"Left\" $4,202 → $3,952."
+   "fix": "The MK-CF-M-052 tenet-4 fix: Home reads the one door. Home \"Left\" $4,202 → $3,952.",
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Cash flow / Home item, outside Performance; it goes with the Cash flow round"
   },
   {
    "id": "MK-NW-M-012 T3",
@@ -75,7 +81,8 @@
    "reviewer": "FAIL",
    "row_words_only": true,
    "what": "The screen is right: with nothing logged it uses the essentials typed in the plan and says so — \"$18,000 cash ÷ $3,470/month essentials — you entered\" — his DEC-0251: \"the typed plan is the fallback for someone who has logged nothing\". The row leaves the fallback out (\"the average of what has been logged\"), so the reviewer read the worked example as logged history.",
-   "fix": "MK-NW-M-013 row decisions (MoneyKeel/functions/networth-and-performance/emergency-fund.ts): add DEC-0251's fallback in his words. No figure moves."
+   "fix": "MK-NW-M-013 row decisions (MoneyKeel/functions/networth-and-performance/emergency-fund.ts): add DEC-0251's fallback in his words. No figure moves.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (PF-B, row words): the row carries DEC-0251's fallback in his words — nothing logged, the typed plan stands in; no figure moves"
   },
   {
    "id": "MK-NW-M-013 T4",
@@ -106,28 +113,32 @@
    "reviewer": "FAIL",
    "row_words_only": false,
    "what": "A purchase with no share count: under Current value the page prints \"No price — it shows what you paid, labelled as that. Not stated where a purchase has no share count or price paid on record.\" — the master row's sentence about the figure, and it blames a missing price while $290.00 shows above. (Options are right: 2 mini contracts at $8 read $160.)",
-   "fix": "src/screens/HoldingDetailScreen.tsx: when the share count is missing, Current value reads \"Share count not entered — tap Edit to add it\"; the refusal text stays on the master row. Holding page words only."
+   "fix": "src/screens/HoldingDetailScreen.tsx: when the share count is missing, Current value reads \"Share count not entered — tap Edit to add it\"; the refusal text stays on the master row. Holding page words only.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (W-HOLDING; tenet 3, DEC-7170): Current value says the share count is not on record, not a missing price"
   },
   {
    "id": "MK-NW-M-031 T3",
    "reviewer": "FAIL",
    "row_words_only": false,
    "what": "The same holding reads, under Quantity, \"All sold — the screen says the holding is liquidated rather than showing 0 shares. Not stated where…\" — it says all sold when the count was never entered. (The unit is right: options read \"2 contracts\".)",
-   "fix": "src/screens/HoldingDetailScreen.tsx: Quantity reads \"not entered\" when a purchase has no share count; \"Holding liquidated\" only when the records say every share was sold. Holding page words only."
+   "fix": "src/screens/HoldingDetailScreen.tsx: Quantity reads \"not entered\" when a purchase has no share count; \"Holding liquidated\" only when the records say every share was sold. Holding page words only.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (W-HOLDING; tenet 3, DEC-7170): Quantity says the share count is not on record, not \"All sold\""
   },
   {
    "id": "MK-NW-M-034 T3",
    "reviewer": "PASS",
    "row_words_only": false,
    "what": "Found rendering (the reviewer passed it): a holding no record names reads \"Dividends received (12 mo) $0\" — its own row says \"No records naming this holding — the line does not appear\". A Roth IRA with no records at all shows the same $0.",
-   "fix": "src/screens/HoldingDetailScreen.tsx: print Dividends received only when a dividend record names the holding; otherwise leave the line out, as the row says. Holding page."
+   "fix": "src/screens/HoldingDetailScreen.tsx: print Dividends received only when a dividend record names the holding; otherwise leave the line out, as the row says. Holding page.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-7299): with no dividend record naming the holding the line is not drawn"
   },
   {
    "id": "MK-NW-M-035 T4",
    "reviewer": "PASS",
    "row_words_only": true,
    "what": "Found rendering: the row calls it \"Realized gain from your buys and sells\"; the screen and his approved drawing say \"Realized from sales\". One concept, two names.",
-   "fix": "MoneyKeel/functions/networth-and-performance/holding.ts MK-NW-M-035 label → \"Realized from sales\". No figure moves."
+   "fix": "MoneyKeel/functions/networth-and-performance/holding.ts MK-NW-M-035 label → \"Realized from sales\". No figure moves.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (PF-B, row words): the row is named Realized from sales, as the screen and the drawing name it"
   },
   {
    "id": "MK-NW-M-037 T7",
@@ -142,21 +153,24 @@
    "reviewer": "PASS",
    "row_words_only": false,
    "what": "Found rendering (the reviewer passed it): an option's purchase reads \"2 sh @ $5.00\" while Quantity says \"2 contracts\" — the purchase line has the wrong unit.",
-   "fix": "src/screens/HoldingDetailScreen.tsx WHAT YOU BOUGHT: the line takes its unit from quantityWithUnit (\"2 contracts @ $5.00\"). Holding page."
+   "fix": "src/screens/HoldingDetailScreen.tsx WHAT YOU BOUGHT: the line takes its unit from quantityWithUnit (\"2 contracts @ $5.00\"). Holding page.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-7298): an option's purchase reads 2 contracts @ $5.00"
   },
   {
    "id": "MK-PF-M-002 T1",
    "reviewer": "FAIL",
    "row_words_only": false,
    "what": "His DEC-4439 example: a new account opened with $10,000, worth $10,050 that evening, earned +$50 (+0.50%); worth $9,800, −$200 (−2.00%). The Performance tab reads \"Wealth generated $0 · Return +0.00%\" for both — the record's first evening is taken as the beginning, so the first day is never measured, and Contributions read $0 while the activity list shows the $10,000.",
-   "fix": "MoneyKeel/functions/networth-and-performance/performance.ts thePerformance + Calculation Module code/engines/time-weighted-return.ts: an account whose first recorded day carries its opening deposit starts from $0 the evening before (DEC-4439). Since on the Performance tab, the account page and Home: $0 / +0.00% → +$50 / +0.50% (−$200 / −2.00%)."
+   "fix": "MoneyKeel/functions/networth-and-performance/performance.ts thePerformance + Calculation Module code/engines/time-weighted-return.ts: an account whose first recorded day carries its opening deposit starts from $0 the evening before (DEC-4439). Since on the Performance tab, the account page and Home: $0 / +0.00% → +$50 / +0.50% (−$200 / −2.00%).",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-4439): a new account's first deposit is money put in — $0 / +0.00% → +$50 / +0.50%"
   },
   {
    "id": "MK-PF-M-003 T2",
    "reviewer": "FAIL",
    "row_words_only": false,
    "what": "Each line is rounded on its own, so on unround figures the walk does not add up on screen: $10,001 + $1,001 + $101 + $399 = $11,502 under \"Ending market value $11,500\"; Wealth generated $499 above Dividends $101 + Change $399 = $500. His tenet 2 and the row's own decision (\"THE LINES ALWAYS SUM TO THE ENDING\") say they must.",
-   "fix": "src/screens/PerformanceScreen.tsx and AccountPortfolioScreen.tsx walks: print Change in investment value as the rounded ending − the other rounded lines, and Wealth generated as rounded ending − rounded beginning − rounded flows; the exact figures stay at full precision. Moves a dollar or two on any walk."
+   "fix": "src/screens/PerformanceScreen.tsx and AccountPortfolioScreen.tsx walks: print Change in investment value as the rounded ending − the other rounded lines, and Wealth generated as rounded ending − rounded beginning − rounded flows; the exact figures stay at full precision. Moves a dollar or two on any walk.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (tenet 2): the walk prints whole dollars that add up to the ending (walkShown)"
   },
   {
    "id": "MK-PF-M-004 T4",
@@ -171,70 +185,80 @@
    "reviewer": "FAIL",
    "row_words_only": false,
    "what": "Right for the worked case (Stocks / Funds +12.00%). With share changes inside the window the class blend weights each holding by \"value now ÷ (1 + its return)\", not what it was worth when the window began: A 10 shares at $100, then 90 more at $105, ending 100 at $110; B 100 at $100 ending at $50 → the table reads −20.00% where the class's time-weighted return is −21.60%. (The formula card is MK-NW-F-084, part 1's other half.)",
-   "fix": "MoneyKeel/functions/networth-and-performance/performance.ts categoryEarnings: weight each holding by its value on the window's first day (shares held then × the first close), or chain the class's daily values where the record has them (DEC-4439). Performance tab WHAT EACH CATEGORY EARNED."
+   "fix": "MoneyKeel/functions/networth-and-performance/performance.ts categoryEarnings: weight each holding by its value on the window's first day (shares held then × the first close), or chain the class's daily values where the record has them (DEC-4439). Performance tab WHAT EACH CATEGORY EARNED.",
+   "recheck_2026_10_21": "FIXED 2026-10-22 (DEC-7324, W-START): the class return is split at every day money went in — −20.00% → −21.60%"
   },
   {
    "id": "MK-PF-M-007 T4",
    "reviewer": "FAIL",
    "row_words_only": true,
    "what": "The screen files a $40 interest record with no ticker under \"Cash in this account\" — interest on the account's cash, the sensible reading, decided here. The row says \"interest from a bond\". The row also names the figure \"All categories\" while its worked answer ($865) is the Stocks / Funds line; on screen All categories reads $1,370.",
-   "fix": "MoneyKeel/functions/networth-and-performance/performance.ts MK-PF-M-007 row: label \"each category's earned, and All categories\"; decision \"an interest record with no ticker is the account's cash\". No figure moves."
+   "fix": "MoneyKeel/functions/networth-and-performance/performance.ts MK-PF-M-007 row: label \"each category's earned, and All categories\"; decision \"an interest record with no ticker is the account's cash\". No figure moves.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (PF-B, row words): interest with no ticker is the account's cash, a dividend with no ticker Unclassified; no figure moves"
   },
   {
    "id": "MK-PF-M-008 T1",
    "reviewer": "FAIL",
    "row_words_only": false,
    "what": "Right for the worked case (Home: market +8.80%), and the gap is worked from unrounded returns, so \"ahead by 0.85%\" beside +3.69% and +2.83% can be true. Wrong after a share change: a holding that went from 10 to 20 shares is weighted as if it held 20 from the start ($2,420 ÷ 1.21 = $2,000; true $1,000), so the market reads 8.00% where his rule (\"weighted by what each holding was worth when the window began\") gives 7.00%. (Formula card MK-PF-F-020.)",
-   "fix": "src/domain/performance/index.ts portfolioBenchReturn: weight by shares held on the window's first day × the first close. Home's market line."
+   "fix": "src/domain/performance/index.ts portfolioBenchReturn: weight by shares held on the window's first day × the first close. Home's market line.",
+   "recheck_2026_10_21": "FIXED — 2026-10-21 weighed by the start held when the window began (DEC-7221); 2026-10-22 split on the same days and weighed the same way as your return where money moved inside the window (DEC-7399, amending DEC-7221): this household's Home market reads +8.80% (piece 1 ×1, piece 2 ×1.088), where start weights alone gave +8.00%; +8.00% is pinned failing"
   },
   {
    "id": "MK-PF-M-013 T2",
    "reviewer": "FAIL",
    "row_words_only": true,
    "what": "The screen labels a worked-back beginning (DEC-3656, DEC-5291): \"Your daily record does not reach back to Feb 1, 2024 yet, so the beginning is worked back from today's values and each holding's price history.\" The row still says \"READ… never back-solved\" and \"the walk is not drawn at all rather than started from a guess\".",
-   "fix": "MoneyKeel/functions/networth-and-performance/performance.ts MK-PF-M-013 row: \"read from the record; where the record does not reach, worked back from each holding's price history and said so (DEC-3656, DEC-5291)\". No figure moves."
+   "fix": "MoneyKeel/functions/networth-and-performance/performance.ts MK-PF-M-013 row: \"read from the record; where the record does not reach, worked back from each holding's price history and said so (DEC-3656, DEC-5291)\". No figure moves.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (PF-B, row words): the beginning is read from the record, or worked back from price history and said so"
   },
   {
    "id": "MK-PF-M-014 T1",
    "reviewer": "FAIL",
    "row_words_only": false,
    "what": "The account page shows what the Performance tab shows for his DEC-4439 new account: \"Wealth generated $0 · Return +0.00%\" where his rule gives +$50 and +0.50%.",
-   "fix": "The MK-PF-M-002 fix; the account page reads the same door."
+   "fix": "The MK-PF-M-002 fix; the account page reads the same door.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-4439): the account page reads the same door as the Performance tab — +$50"
   },
   {
    "id": "MK-PF-M-015 T2",
    "reviewer": "FAIL",
    "row_words_only": false,
    "what": "The account page's walk has the same rounding gap: $10,001 + $1,001 + $101 + $399 = $11,502 against an ending of $11,500.",
-   "fix": "The MK-PF-M-003 fix, on src/screens/AccountPortfolioScreen.tsx."
+   "fix": "The MK-PF-M-003 fix, on src/screens/AccountPortfolioScreen.tsx.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (tenet 2): the account page's walk adds up — $10,001 + $1,000 + $100 + $399 = $11,500"
   },
   {
    "id": "MK-PF-M-016 T4",
    "reviewer": "FAIL",
    "row_words_only": false,
    "what": "One window, two readings. 2Y on $100,000 growing 8% a year: the Performance tab says \"+16.69% over the two years, which is +8.00%/year — a yearly rate\"; the account page prints the same +8.00% with \"Return is for the window you picked… — not a yearly rate\". His precision order: over a year, a yearly rate with \"a year\" on it and the window's total beside it. (1Y is never made a yearly rate on either screen — a 367-day 1Y reads its total, +8.05%.)",
-   "fix": "src/screens/AccountPortfolioScreen.tsx summary note: for a window longer than a year, print the Performance tab's sentence from the same door. Account page, 2Y only; no figure moves."
+   "fix": "src/screens/AccountPortfolioScreen.tsx summary note: for a window longer than a year, print the Performance tab's sentence from the same door. Account page, 2Y only; no figure moves.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-7217): over a year the account page says the yearly rate and the window's own total"
   },
   {
    "id": "MK-PF-M-017 T1",
    "reviewer": "FAIL",
    "row_words_only": false,
    "what": "An account that ends below zero ($1,000 → −$500) reads \"Return −100.00%\": the day's value is clamped to $0 (time-weighted-return.ts, Math.max(0, total)). The honest figure is −150.00% or a refusal; −100.00% is neither. (A real total loss, $1,000 → $0, rightly reads −100.00%.)",
-   "fix": "Calculation Module code/engines/time-weighted-return.ts: a day whose value is below zero refuses (\"the account's value went below zero\") instead of clamping. Performance tab and account page Return, that case only."
+   "fix": "Calculation Module code/engines/time-weighted-return.ts: a day whose value is below zero refuses (\"the account's value went below zero\") instead of clamping. Performance tab and account page Return, that case only.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-7218): a value below $0 gives no return, and the sentence names the day"
   },
   {
    "id": "MK-PF-M-018 T2",
    "reviewer": "FAIL",
    "row_words_only": true,
    "what": "The screen labels the worked-back beginning: \"Your daily record does not reach back to Aug 27, 2026 yet, so the beginning is worked back from today's values and each holding's price history.\" The row says \"READ, NEVER BACK-SOLVED\" and \"the walk starts the day the record does\".",
-   "fix": "MK-PF-M-018 row decisions and refusal in DEC-5291's words. No figure moves."
+   "fix": "MK-PF-M-018 row decisions and refusal in DEC-5291's words. No figure moves.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (PF-B, row words): the beginning is read from the daily record, or worked back from price history and said so"
   },
   {
    "id": "MK-PF-M-020 T3",
    "reviewer": "FAIL",
    "row_words_only": false,
    "what": "A brokerage whose cash was never entered reads \"Available cash: $0\", and a buy or withdrawal is then refused as \"not enough\" (availableCash = cash_balance || 0).",
-   "fix": "src/domain/transactions/index.ts availableCash: null when the cash sleeve is not entered; src/screens/PerformanceScreen.tsx prints \"Available cash: not entered\" and does not refuse on it. Performance tab add-activity sheet."
+   "fix": "src/domain/transactions/index.ts availableCash: null when the cash sleeve is not entered; src/screens/PerformanceScreen.tsx prints \"Available cash: not entered\" and does not refuse on it. Performance tab add-activity sheet.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-3279e, tenet 3): Available cash not entered, and a buy is not refused on it"
   },
   {
    "id": "MK-XS-M-001 T3",
@@ -249,14 +273,16 @@
    "reviewer": "FAIL",
    "row_words_only": false,
    "what": "Home asks the same door as Performance's 1M (+21.35% on both) and only shows a month, so the yearly-rate points do not reach it. But its spoken label rounds again: a screen reader hears \"up 21.4 percent this month\" where the screen prints 21.35%.",
-   "fix": "src/screens/HomeScreen.tsx hero accessibilityLabel: say the return through figSaid('MK-XS-M-004', …) — the printed two decimals. Home, spoken words only."
+   "fix": "src/screens/HomeScreen.tsx hero accessibilityLabel: say the return through figSaid('MK-XS-M-004', …) — the printed two decimals. Home, spoken words only.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-0264): printed under its ID and spoken to two decimals — \"21.35 percent\""
   },
   {
    "id": "rule #1 owner-1 (2026-10-04): \"All return should",
    "reviewer": "NOT HELD",
    "row_words_only": false,
    "what": "Account returns are time-weighted (the engine gives DEC-4439's Vanguard day +0.50%). A HOLDING bought in two pieces inside the window is not: the purchase-capped return (MK-PF-F-040, inside buildPerformance) gives +26.76% on the reviewer's morning-purchase case where DEC-4439 gives +15.24%.",
-   "fix": "src/domain/performance/index.ts returnSincePurchases: link each day as evening value ÷ (previous evening value + that morning's purchase cost) − 1 (DEC-4439), not the old shares re-priced first. Moves every holding row bought inside the window (account page BY CATEGORY & HOLDING, Holding page window figure, Performance category return)."
+   "fix": "src/domain/performance/index.ts returnSincePurchases: link each day as evening value ÷ (previous evening value + that morning's purchase cost) − 1 (DEC-4439), not the old shares re-priced first. Moves every holding row bought inside the window (account page BY CATEGORY & HOLDING, Holding page window figure, Performance category return).",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-4439, MK-PF-F-040): a holding bought in pieces counts each purchase from the start of its day"
   },
   {
    "id": "rule #7 owner-7 (2026-09-30): \"Refuse the line a",
@@ -270,48 +296,58 @@
    "reviewer": "NOT HELD",
    "row_words_only": false,
    "what": "His two examples hold (a CD at 5%: $10,500 gained $500; a bond with no price history is named and left out — the wording since DEC-5068). The reviewer's share-change case does not: 10 shares at $100, 10 more bought for $1,100 with money paid in, 20 at $121 now — the beginning is worked back as $900 (true $1,000) and wealth generated $420 (true $320), because today's 20 shares are divided by the price move.",
-   "fix": "MoneyKeel/functions/networth-and-performance/performance.ts pricedGainOf (MK-NW-F-091): work a holding's start value from the shares held on the window's first day (its lots dated before it) × the first close; refuse the worked-back beginning, with the DEC-3656 sentence, when a holding's shares changed inside the window and its lots cannot say how. Moves the walk's Beginning and Wealth generated on the Performance tab and the account page for windows the daily record does not reach."
+   "fix": "MoneyKeel/functions/networth-and-performance/performance.ts pricedGainOf (MK-NW-F-091): work a holding's start value from the shares held on the window's first day (its lots dated before it) × the first close; refuse the worked-back beginning, with the DEC-3656 sentence, when a holding's shares changed inside the window and its lots cannot say how. Moves the walk's Beginning and Wealth generated on the Performance tab and the account page for windows the daily record does not reach.",
+   "recheck_2026_10_21": "FIXED 2026-10-22 (DEC-7323, W-START): with shares bought inside the window the gain is value + interest − the start shares' worth − what was paid — $420 → $320, start $900 → $1,000; and with sales (DEC-7398) the start adds back the shares sold — test now passes"
   },
   {
    "id": "rule #40 DEC-4439",
    "reviewer": "NOT HELD",
    "row_words_only": false,
    "what": "The engine holds his Vanguard day (+0.50%). Two places do not: (1) a holding bought in pieces (see owner-1: +26.76% where his rule gives +15.24%); (2) a household's FIRST account, opened with $10,000 and worth $10,050 that evening — his own example — refuses in the engine (no evening before) and the screens show Wealth generated $0 and Return +0.00% (screens file, MK-PF-M-002 T1).",
-   "fix": "Calculation Module code/engines/time-weighted-return.ts timeWeightedReturn and MoneyKeel/functions/networth-and-performance/performance.ts thePerformance: when the record's first day carries a deposit into an account that has no earlier day, the evening before is $0 (his rule) — the Since window begins the evening before the first day. Moves Since on the Performance tab, the account page and Home for every account opened with a deposit: $0 / +0.00% → +$50 / +0.50% in his example."
+   "fix": "Calculation Module code/engines/time-weighted-return.ts timeWeightedReturn and MoneyKeel/functions/networth-and-performance/performance.ts thePerformance: when the record's first day carries a deposit into an account that has no earlier day, the evening before is $0 (his rule) — the Since window begins the evening before the first day. Moves Since on the Performance tab, the account page and Home for every account opened with a deposit: $0 / +0.00% → +$50 / +0.50% in his example.",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-4439): a holding bought in pieces counts each purchase from the start of its day, and Since reads a new account's first deposit as money put in"
   }
  ],
  "needs_a_ruling": [
   {
    "id": "MK-CF-M-051 T1",
-   "what": "Two of his decisions disagree. The row quotes him (2026-08-28): \"nothing is assumed to have arrived; a source counts only once it is recorded\". His approved Cash flow drawing (DEC-0440, 2026-09-28) draws the take-home as \"Actual inflow\" with nothing recorded. On screen, with no paycheck recorded: \"Actual inflow $7,200\", \"Actual surplus so far +$3,952\". Under the 08-28 rule: $0 and −$3,248 until a paycheck is recorded."
+   "what": "Two of his decisions disagree. The row quotes him (2026-08-28): \"nothing is assumed to have arrived; a source counts only once it is recorded\". His approved Cash flow drawing (DEC-0440, 2026-09-28) draws the take-home as \"Actual inflow\" with nothing recorded. On screen, with no paycheck recorded: \"Actual inflow $7,200\", \"Actual surplus so far +$3,952\". Under the 08-28 rule: $0 and −$3,248 until a paycheck is recorded.",
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Cash flow / Home item, outside Performance; it goes with the Cash flow round (decided there under the tenets)"
   },
   {
    "id": "MK-MN-M-003 T3",
-   "what": "No ruling says what \"has gone in\" means. The screen takes a full year at the monthly amount typed: \"$21,350 left · That is about $14,400 of the $35,750 limit — calculated from what you entered you contribute each month, not from your payroll\" (labelled). On 29 Sep, nine $1,200 payments made, the room open today is $24,950; after the year's planned payments it is $21,350. On screen: \"$21,350 left\" (today) or \"$24,950 left\" (paid so far)."
+   "what": "No ruling says what \"has gone in\" means. The screen takes a full year at the monthly amount typed: \"$21,350 left · That is about $14,400 of the $35,750 limit — calculated from what you entered you contribute each month, not from your payroll\" (labelled). On 29 Sep, nine $1,200 payments made, the room open today is $24,950; after the year's planned payments it is $21,350. On screen: \"$21,350 left\" (today) or \"$24,950 left\" (paid so far).",
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Menu item, outside Performance; decided in its own round under the tenets"
   },
   {
    "id": "MK-NW-M-029 T8",
-   "what": "His approved Holding page drawing (v02, DEC-0650) says \"Current price · live\"; the price is the feed's last daily close (\"prices updated 8h ago\" on Home). Tenet 6 (his drawing) outranks tenet 8, so it stays until he rules. On screen: \"CURRENT PRICE · LIVE $290.00\" would read \"LAST CLOSE · SEP 28 $290.00\"."
+   "what": "His approved Holding page drawing (v02, DEC-0650) says \"Current price · live\"; the price is the feed's last daily close (\"prices updated 8h ago\" on Home). Tenet 6 (his drawing) outranks tenet 8, so it stays until he rules. On screen: \"CURRENT PRICE · LIVE $290.00\" would read \"LAST CLOSE · SEP 28 $290.00\".",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-6826): the band reads LAST CLOSE and its day"
   },
   {
    "id": "MK-NW-M-036 T7",
-   "what": "A holding inside a Roth IRA shows the same IF YOU SOLD TODAY split, \"Gain — long-term +$8,000 / short-term +$1,000\", though no tax is due on a sale inside a Roth. The screen names no tax rate; the row does (\"the part taxed at the lower rate\"). Whether the split shows — or says \"no tax inside a Roth IRA\" — in IRAs, 401(k)s and HSAs is his call."
+   "what": "A holding inside a Roth IRA shows the same IF YOU SOLD TODAY split, \"Gain — long-term +$8,000 / short-term +$1,000\", though no tax is due on a sale inside a Roth. The screen names no tax rate; the row does (\"the part taxed at the lower rate\"). Whether the split shows — or says \"no tax inside a Roth IRA\" — in IRAs, 401(k)s and HSAs is his call.",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-6688): inside a Roth IRA the gain is shown whole, with the line saying why"
   },
   {
    "id": "MK-PF-M-001 T4",
-   "what": "Two approved things, two scopes. Home's YOUR INVESTMENTS leaves cash out (his DEC-0457): $35,775. Performance's Ending value counts the investment accounts whole (v17): $46,600. Under $35,775 Home prints \"▲ up $8,200 (21.35%) this month\" — measured on the $46,600. Either Home's change line names its scope (\"your investment accounts, cash included\") or it is measured without the cash."
+   "what": "Two approved things, two scopes. Home's YOUR INVESTMENTS leaves cash out (his DEC-0457): $35,775. Performance's Ending value counts the investment accounts whole (v17): $46,600. Under $35,775 Home prints \"▲ up $8,200 (21.35%) this month\" — measured on the $46,600. Either Home's change line names its scope (\"your investment accounts, cash included\") or it is measured without the cash.",
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7222): Home names the base of the month's change"
   },
   {
    "id": "MK-PF-M-010 T7",
-   "what": "The words are his approved Look back drawing (v01, DEC-1069): \"WHAT ACTUALLY HAPPENED · Left in BND it became $10,250 (up $250, +2.50%)\". The reviewer wants it called a road not taken, before taxes and trading costs. Tenet 6 outranks tenet 7: his call. On screen: one line added, e.g. \"Before taxes and trading costs, dividends reinvested.\""
+   "what": "The words are his approved Look back drawing (v01, DEC-1069): \"WHAT ACTUALLY HAPPENED · Left in BND it became $10,250 (up $250, +2.50%)\". The reviewer wants it called a road not taken, before taxes and trading costs. Tenet 6 outranks tenet 7: his call. On screen: one line added, e.g. \"Before taxes and trading costs, dividends reinvested.\"",
+   "recheck_2026_10_21": "REVIEWER WRONG — DECIDED 2026-10-21 (DEC-7220): Look back keeps his approved words (DEC-1069; tenet 6 over tenet 7)"
   },
   {
    "id": "MK-PF-M-011 T7",
-   "what": "The same approved drawing: \"Moved to VTI it would be $11,600 (up $1,600, +16.00%)\" and \"Real past prices; not a prediction of what happens next.\" — nothing on taxes or trading costs. His call, as MK-PF-M-010."
+   "what": "The same approved drawing: \"Moved to VTI it would be $11,600 (up $1,600, +16.00%)\" and \"Real past prices; not a prediction of what happens next.\" — nothing on taxes or trading costs. His call, as MK-PF-M-010.",
+   "recheck_2026_10_21": "REVIEWER WRONG — DECIDED 2026-10-21 (DEC-7220): Look back keeps his approved words (DEC-1069; tenet 6 over tenet 7)"
   },
   {
    "id": "MK-PF-M-012 T7",
-   "what": "The same approved drawing: \"Difference: $1,350 more if you had moved.\" — before taxes and costs, unsaid. His call, as MK-PF-M-010."
+   "what": "The same approved drawing: \"Difference: $1,350 more if you had moved.\" — before taxes and costs, unsaid. His call, as MK-PF-M-010.",
+   "recheck_2026_10_21": "REVIEWER WRONG — DECIDED 2026-10-21 (DEC-7220): Look back keeps his approved words (DEC-1069; tenet 6 over tenet 7)"
   }
  ],
  "in_flight": [
@@ -385,14 +421,17 @@
    "what": "A holding with three days of prices reads \"Prices for this holding go back 0 months, so the 1-year figure covers 0 months — not a year.\"",
    "fix": "priceHistoryShortSentence: under a month, say the days (\"go back 3 days\").",
    "classification": "APP WRONG",
-   "test": "F3 Holding page · \"0 months\" · what the app gets wrong (test.failing)"
+   "test": "F3 Holding page · \"0 months\" · what the app gets wrong (test.failing)",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-7300): three days of prices go back 3 days; prices that begin today say so",
+   "fixed": "2026-10-21"
   },
   {
    "id": "F4 MK-XS-M-004 is printed under no identifier",
    "what": "The register lists MK-XS-M-004 on /invest and /home, but no screen prints it under that ID: Performance prints its Return as MK-PF-M-017 and Home prints \"▲ up $8,200 (21.35%) this month\" through no figure at all — so the census cannot trace it (objective 3).",
    "fix": "src/screens/HomeScreen.tsx: print the month's return and dollars through fig('MK-XS-M-004', …); or retire MK-XS-M-004 into MK-PF-M-017 on the master.",
    "classification": "APP WRONG",
-   "test": "F4 MK-XS-M-004 is printed under no identifier · what the app gets wrong (test.failing)"
+   "test": "F4 MK-XS-M-004 is printed under no identifier · what the app gets wrong (test.failing)",
+   "recheck_2026_10_21": "FIXED 2026-10-21 (PF-B): Home prints the month's return through fig('MK-XS-M-004', …)"
   }
  ],
  "rules_held": [
@@ -416,7 +455,8 @@
     "src/screens/__tests__/perf_v17_marks.test.tsx"
    ],
    "fix": "src/domain/performance/index.ts returnSincePurchases: link each day as evening value ÷ (previous evening value + that morning's purchase cost) − 1 (DEC-4439), not the old shares re-priced first. Moves every holding row bought inside the window (account page BY CATEGORY & HOLDING, Holding page window figure, Performance category return).",
-   "checked_against_function": true
+   "checked_against_function": true,
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-4439, MK-PF-F-040): a holding bought in pieces counts each purchase from the start of its day"
   },
   {
    "n": 2,
@@ -683,7 +723,8 @@
     "src/screens/__tests__/dec_worked_back_known_holdings.test.tsx"
    ],
    "fix": "MoneyKeel/functions/networth-and-performance/performance.ts pricedGainOf (MK-NW-F-091): work a holding's start value from the shares held on the window's first day (its lots dated before it) × the first close; refuse the worked-back beginning, with the DEC-3656 sentence, when a holding's shares changed inside the window and its lots cannot say how. Moves the walk's Beginning and Wealth generated on the Performance tab and the account page for windows the daily record does not reach.",
-   "checked_against_function": true
+   "checked_against_function": true,
+   "recheck_2026_10_21": "FIXED 2026-10-22 (DEC-7323, W-START): with shares bought inside the window the gain is value + interest − the start shares' worth − what was paid — $420 → $320, start $900 → $1,000; and with sales (DEC-7398) the start adds back the shares sold — test now passes"
   },
   {
    "n": 18,
@@ -1049,7 +1090,8 @@
     "MoneyKeel/functions/networth-and-performance/performance-decisions.test.ts"
    ],
    "fix": "Calculation Module code/engines/time-weighted-return.ts timeWeightedReturn and MoneyKeel/functions/networth-and-performance/performance.ts thePerformance: when the record's first day carries a deposit into an account that has no earlier day, the evening before is $0 (his rule) — the Since window begins the evening before the first day. Moves Since on the Performance tab, the account page and Home for every account opened with a deposit: $0 / +0.00% → +$50 / +0.50% in his example.",
-   "checked_against_function": true
+   "checked_against_function": true,
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-4439): a holding bought in pieces counts each purchase from the start of its day, and Since reads a new account's first deposit as money put in"
   },
   {
    "n": 41,
@@ -1238,7 +1280,8 @@
    "id": "MK-NW-F-104",
    "missing": "Aggregate ending allocation across multiple accounts is unspecified; no numeric allocation cases invented. Supply the allocation contract, not implementation or existing answers.",
    "classification": "BLOCKED",
-   "evidence": "Agreed: no contract says how one ending total is split across accounts, so no case can be written. Read in the code: closedWith (performance.ts) puts the whole ending on the first account and $0 on the rest of the day it adds. Nothing on screen was found reading that day per account; if anything did, the split would be wrong."
+   "evidence": "Agreed: no contract says how one ending total is split across accounts, so no case can be written. Read in the code: closedWith (performance.ts) puts the whole ending on the first account and $0 on the rest of the day it adds. Nothing on screen was found reading that day per account; if anything did, the split would be wrong.",
+   "recheck_2026_10_21": "SETTLED 2026-10-22 — not a launch item: closedWith runs only when a caller hands thePerformance no accounts, and none of its four callers does (AccountPortfolioScreen, PerformanceScreen ×2, HomeScreen all pass accounts; read 2026-10-22). The reviewer gave no case. It stays skipped in the test until a screen reaches it, and a case is written first then."
   },
   {
    "id": "screen register (all 53 supplied figure IDs)",
@@ -1289,7 +1332,8 @@
    "tests": [
     "T3 · reviewer FAIL · APP WRONG · what holds",
     "T3 · reviewer FAIL · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Cash flow / Home item, outside Performance; it goes with the Cash flow round"
   },
   {
    "figure": "MK-CF-M-002",
@@ -1373,7 +1417,8 @@
    "fix": null,
    "tests": [
     "T1 · reviewer FAIL · NEEDS A RULING · what holds"
-   ]
+   ],
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Cash flow / Home item, outside Performance; it goes with the Cash flow round (decided there under the tenets)"
   },
   {
    "figure": "MK-CF-M-051",
@@ -1500,7 +1545,8 @@
    "tests": [
     "T2 · reviewer FAIL · APP WRONG (row words) · what holds",
     "T2 · reviewer FAIL · APP WRONG (row words) · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Cash flow / Home item, outside Performance; it goes with the Cash flow round"
   },
   {
    "figure": "MK-CF-M-052",
@@ -1528,7 +1574,8 @@
    "fix": "src/screens/HomeScreen.tsx cashflowBlock: read thisMonth(…).actual from MoneyKeel/functions/cashflow/this-month.ts — Income = actual inflow, out = expenses + debts paid, Left = actual surplus. Home: $2,998 / $4,202 → $3,248 / $3,952; \"Actual expenses so far\" → \"Outflow (expenses + debt)\". No approved Home drawing is traced (design record); Cash flow v01 is unaffected.",
    "tests": [
     "T4 · reviewer PASS · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Cash flow / Home item, outside Performance; it goes with the Cash flow round"
   },
   {
    "figure": "MK-CF-M-052",
@@ -1585,7 +1632,8 @@
    "tests": [
     "T8 · reviewer FAIL · APP WRONG (row words) · what holds",
     "T8 · reviewer FAIL · APP WRONG (row words) · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Cash flow / Home item, outside Performance; it goes with the Cash flow round"
   },
   {
    "figure": "MK-CF-M-053",
@@ -1627,7 +1675,8 @@
    "fix": "src/screens/HomeScreen.tsx cashflowBlock: no pace chip until income is entered — the EmptyNote door already there carries the line. Home, words only.",
    "tests": [
     "T3 · reviewer PASS · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Cash flow / Home item, outside Performance; it goes with the Cash flow round"
   },
   {
    "figure": "MK-CF-M-053",
@@ -1641,7 +1690,8 @@
    "fix": "The MK-CF-M-052 tenet-4 fix: Home reads the one door. Home \"Left\" $4,202 → $3,952.",
    "tests": [
     "T4 · reviewer PASS · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Cash flow / Home item, outside Performance; it goes with the Cash flow round"
   },
   {
    "figure": "MK-CF-M-053",
@@ -1739,7 +1789,8 @@
    "fix": null,
    "tests": [
     "T3 · reviewer FAIL · NEEDS A RULING · what holds"
-   ]
+   ],
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a Menu item, outside Performance; decided in its own round under the tenets"
   },
   {
    "figure": "MK-MN-M-003",
@@ -1937,7 +1988,8 @@
    "tests": [
     "T1 · reviewer FAIL · APP WRONG (row words) · what holds",
     "T1 · reviewer FAIL · APP WRONG (row words) · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (PF-B, row words): the row carries DEC-0251's fallback in his words — nothing logged, the typed plan stands in; no figure moves"
   },
   {
    "figure": "MK-NW-M-013",
@@ -3384,7 +3436,8 @@
    "fix": null,
    "tests": [
     "T8 · reviewer FAIL · NEEDS A RULING · what holds"
-   ]
+   ],
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-6826): the band reads LAST CLOSE and its day"
   },
   {
    "figure": "MK-NW-M-030",
@@ -3427,7 +3480,8 @@
    "tests": [
     "T3 · reviewer FAIL · APP WRONG · what holds",
     "T3 · reviewer FAIL · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (W-HOLDING; tenet 3, DEC-7170): Current value says the share count is not on record, not a missing price"
   },
   {
    "figure": "MK-NW-M-030",
@@ -3540,7 +3594,8 @@
    "tests": [
     "T3 · reviewer FAIL · APP WRONG · what holds",
     "T3 · reviewer FAIL · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (W-HOLDING; tenet 3, DEC-7170): Quantity says the share count is not on record, not \"All sold\""
   },
   {
    "figure": "MK-NW-M-031",
@@ -3876,7 +3931,8 @@
    "fix": "src/screens/HoldingDetailScreen.tsx: print Dividends received only when a dividend record names the holding; otherwise leave the line out, as the row says. Holding page.",
    "tests": [
     "T3 · reviewer PASS · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-7299): with no dividend record naming the holding the line is not drawn"
   },
   {
    "figure": "MK-NW-M-034",
@@ -4002,7 +4058,8 @@
    "fix": "MoneyKeel/functions/networth-and-performance/holding.ts MK-NW-M-035 label → \"Realized from sales\". No figure moves.",
    "tests": [
     "T4 · reviewer PASS · APP WRONG (row words) · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (PF-B, row words): the row is named Realized from sales, as the screen and the drawing name it"
   },
   {
    "figure": "MK-NW-M-035",
@@ -4156,7 +4213,8 @@
    "fix": null,
    "tests": [
     "T7 · reviewer FAIL · NEEDS A RULING · what holds"
-   ]
+   ],
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-6688): inside a Roth IRA the gain is shown whole, with the line saying why"
   },
   {
    "figure": "MK-NW-M-036",
@@ -4619,7 +4677,8 @@
    "fix": "src/screens/HoldingDetailScreen.tsx WHAT YOU BOUGHT: the line takes its unit from quantityWithUnit (\"2 contracts @ $5.00\"). Holding page.",
    "tests": [
     "T8 · reviewer PASS · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-7298): an option's purchase reads 2 contracts @ $5.00"
   },
   {
    "figure": "MK-NW-M-062",
@@ -4787,7 +4846,8 @@
    "fix": null,
    "tests": [
     "T4 · reviewer FAIL · NEEDS A RULING · what holds"
-   ]
+   ],
+   "recheck_2026_10_21": "DECIDED 2026-10-21 (DEC-7222): Home names the base of the month's change"
   },
   {
    "figure": "MK-PF-M-001",
@@ -4857,7 +4917,8 @@
    "fix": "MoneyKeel/functions/networth-and-performance/performance.ts thePerformance + Calculation Module code/engines/time-weighted-return.ts: an account whose first recorded day carries its opening deposit starts from $0 the evening before (DEC-4439). Since on the Performance tab, the account page and Home: $0 / +0.00% → +$50 / +0.50% (−$200 / −2.00%).",
    "tests": [
     "T1 · reviewer FAIL · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-4439): a new account's first deposit is money put in — $0 / +0.00% → +$50 / +0.50%"
   },
   {
    "figure": "MK-PF-M-002",
@@ -4983,7 +5044,8 @@
    "fix": "src/screens/PerformanceScreen.tsx and AccountPortfolioScreen.tsx walks: print Change in investment value as the rounded ending − the other rounded lines, and Wealth generated as rounded ending − rounded beginning − rounded flows; the exact figures stay at full precision. Moves a dollar or two on any walk.",
    "tests": [
     "T2 · reviewer FAIL · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (tenet 2): the walk prints whole dollars that add up to the ending (walkShown)"
   },
   {
    "figure": "MK-PF-M-003",
@@ -5308,7 +5370,8 @@
    "tests": [
     "T1 · reviewer FAIL · APP WRONG · what holds",
     "T1 · reviewer FAIL · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-22 (DEC-7324, W-START): the class return is split at every day money went in — −20.00% → −21.60%"
   },
   {
    "figure": "MK-PF-M-006",
@@ -5463,7 +5526,8 @@
    "tests": [
     "T4 · reviewer FAIL · APP WRONG (row words) · what holds",
     "T4 · reviewer FAIL · APP WRONG (row words) · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (PF-B, row words): interest with no ticker is the account's cash, a dividend with no ticker Unclassified; no figure moves"
   },
   {
    "figure": "MK-PF-M-007",
@@ -5534,7 +5598,8 @@
    "tests": [
     "T1 · reviewer FAIL · APP WRONG · what holds",
     "T1 · reviewer FAIL · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED — 2026-10-21 weighed by the start held when the window began (DEC-7221); 2026-10-22 split on the same days and weighed the same way as your return where money moved inside the window (DEC-7399, amending DEC-7221): this household's Home market reads +8.80% (piece 1 ×1, piece 2 ×1.088), where start weights alone gave +8.00%; +8.00% is pinned failing"
   },
   {
    "figure": "MK-PF-M-008",
@@ -5730,7 +5795,8 @@
    "fix": null,
    "tests": [
     "T7 · reviewer FAIL · NEEDS A RULING · what holds"
-   ]
+   ],
+   "recheck_2026_10_21": "REVIEWER WRONG — DECIDED 2026-10-21 (DEC-7220): Look back keeps his approved words (DEC-1069; tenet 6 over tenet 7)"
   },
   {
    "figure": "MK-PF-M-010",
@@ -5842,7 +5908,8 @@
    "fix": null,
    "tests": [
     "T7 · reviewer FAIL · NEEDS A RULING · what holds"
-   ]
+   ],
+   "recheck_2026_10_21": "REVIEWER WRONG — DECIDED 2026-10-21 (DEC-7220): Look back keeps his approved words (DEC-1069; tenet 6 over tenet 7)"
   },
   {
    "figure": "MK-PF-M-011",
@@ -5954,7 +6021,8 @@
    "fix": null,
    "tests": [
     "T7 · reviewer FAIL · NEEDS A RULING · what holds"
-   ]
+   ],
+   "recheck_2026_10_21": "REVIEWER WRONG — DECIDED 2026-10-21 (DEC-7220): Look back keeps his approved words (DEC-1069; tenet 6 over tenet 7)"
   },
   {
    "figure": "MK-PF-M-012",
@@ -5997,7 +6065,8 @@
    "tests": [
     "T2 · reviewer FAIL · APP WRONG (row words) · what holds",
     "T2 · reviewer FAIL · APP WRONG (row words) · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (PF-B, row words): the beginning is read from the record, or worked back from price history and said so"
   },
   {
    "figure": "MK-PF-M-013",
@@ -6095,7 +6164,8 @@
    "fix": "The MK-PF-M-002 fix; the account page reads the same door.",
    "tests": [
     "T1 · reviewer FAIL · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-4439): the account page reads the same door as the Performance tab — +$50"
   },
   {
    "figure": "MK-PF-M-014",
@@ -6221,7 +6291,8 @@
    "fix": "The MK-PF-M-003 fix, on src/screens/AccountPortfolioScreen.tsx.",
    "tests": [
     "T2 · reviewer FAIL · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (tenet 2): the account page's walk adds up — $10,001 + $1,000 + $100 + $399 = $11,500"
   },
   {
    "figure": "MK-PF-M-015",
@@ -6362,7 +6433,8 @@
    "tests": [
     "T4 · reviewer FAIL · APP WRONG · what holds",
     "T4 · reviewer FAIL · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-7217): over a year the account page says the yearly rate and the window's own total"
   },
   {
    "figure": "MK-PF-M-016",
@@ -6432,7 +6504,8 @@
    "fix": "Calculation Module code/engines/time-weighted-return.ts: a day whose value is below zero refuses (\"the account's value went below zero\") instead of clamping. Performance tab and account page Return, that case only.",
    "tests": [
     "T1 · reviewer FAIL · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-7218): a value below $0 gives no return, and the sentence names the day"
   },
   {
    "figure": "MK-PF-M-017",
@@ -6559,7 +6632,8 @@
    "tests": [
     "T2 · reviewer FAIL · APP WRONG (row words) · what holds",
     "T2 · reviewer FAIL · APP WRONG (row words) · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (PF-B, row words): the beginning is read from the daily record, or worked back from price history and said so"
   },
   {
    "figure": "MK-PF-M-018",
@@ -6797,7 +6871,8 @@
    "fix": "src/domain/transactions/index.ts availableCash: null when the cash sleeve is not entered; src/screens/PerformanceScreen.tsx prints \"Available cash: not entered\" and does not refuse on it. Performance tab add-activity sheet.",
    "tests": [
     "T3 · reviewer FAIL · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-3279e, tenet 3): Available cash not entered, and a buy is not refused on it"
   },
   {
    "figure": "MK-PF-M-020",
@@ -7150,7 +7225,8 @@
    "tests": [
     "T4 · reviewer FAIL · APP WRONG · what holds",
     "T4 · reviewer FAIL · APP WRONG · what the app gets wrong (test.failing)"
-   ]
+   ],
+   "recheck_2026_10_21": "FIXED 2026-10-21 (DEC-0264): printed under its ID and spoken to two decimals — \"21.35 percent\""
   },
   {
    "figure": "MK-XS-M-004",
