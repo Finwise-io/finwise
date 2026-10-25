@@ -126,12 +126,56 @@ const BEFORE = path.join(__dirname, 'networth_family_inputs.before.json');
 /** NUMBERS MOVED ON PURPOSE SINCE THE RECORD WAS MADE — each by a fix with its reason, at the place it sits on the screen. The
  *  record itself is never re-recorded; every other number must still read as it did. Each entry names what it was, so a
  *  record that no longer holds that number at that place fails rather than passing quietly. */
-const MOVED_ON_PURPOSE: Record<string, { at: number; was: string; now: string; why: string }[]> = {
+/** FIGURES MOVED ON PURPOSE — the same rule for a figure printed with its identifier: the identifier, what it read and what it
+ *  reads. Every place the record holds that figure at that value moves; a record that holds it nowhere fails. */
+const FIGURES_MOVED_ON_PURPOSE: Record<string, { id: string; was: string; now: string; why: string }[]> = {
+  // 2026-10-24 (CF-FIX): the emergency fund's two figures above, worked by hand in MOVED_ON_PURPOSE
+  ...Object.fromEntries(['Net worth · by category', 'Net worth · by institution'].map((s) => [s, [
+    { id: 'MK-NW-M-046', was: '5.5 months', now: '5.2 months', why: 'months at the planned spend' },
+    { id: 'MK-NW-M-048', was: '$7,570/month', now: '$7,870/month', why: 'the planned spend, the April premium counted once in the year' },
+  ]])),
+};
+const MOVED_ON_PURPOSE: Record<string, { at: number; was: string; now: string | null; why: string }[]> = {   // now: null — a number no longer on the screen
   // 2026-10-22 (W-A11Y): the figure did not move — the punctuation after it did. Home's hero card's spoken label said
   // "Your investments: $433,200, prices updated …", and this file's number reader takes a trailing comma with the digits; the
   // label now says each printed line as its own sentence ("Your investments: $433,200. …"), so the same figure reads clean
   Home: [
     { at: 0, was: '$433,200,', now: '$433,200', why: 'the spoken label ends the total with a full stop, not a comma' },
+    // 2026-10-23 (CF-FIX; outside re-run of Performance, gap list item 38, DEC-0345): Home's cash-flow box prints the Cash flow
+    // tab's own month (theMonth on the inputs the tab builds). For this household the tab's Actual inflow is $8,640 — the rent's
+    // $1,800 after running costs taxed at the calculated rate, as the tab's month grid and the income summary have it — where
+    // Home added its own $9,000; out stays $2,720, so left is $5,920 and the share spent 31%. No Net worth figure moves.
+    // 2026-10-24 (Cash flow journey suite E2E-71, MK-XS-F-004 buildDatedGrid): the tab's month now lands the take-home Your base
+    // pay and the Income summary print — after the tax AND the 401(k), and a rate the person typed is a rate on their pay, not on
+    // their rent (approved drawing income-end-to-end_v07, frame 16). By hand: $9,000 gross × (1 − their 20%) − $800 into the
+    // 401(k) = $6,400, plus the rent $2,400 − $600 = $1,800 untaxed = $8,200 (the Income summary's TAKE-HOME EACH MONTH). It
+    // read $8,640: $7,200 of pay with the 401(k) still in it, and the rent at 80%. Out stays $2,720: left $5,480, 33% spent.
+    { at: 23, was: '$9,000,', now: '$8,200,', why: 'the box\'s spoken income: the Cash flow tab\'s Actual inflow, the take-home after tax and the 401(k)' },
+    { at: 25, was: '$6,280', now: '$5,480', why: 'the spoken left: $8,200 − $2,720, the tab\'s actual surplus' },
+    { at: 26, was: '30%', now: '33%', why: '$2,720 of $8,200 spent' },
+    { at: 29, was: '$9,000', now: '$8,200', why: 'Income, the Cash flow tab\'s Actual inflow' },
+    { at: 31, was: '$6,280', now: '$5,480', why: 'Left, the Cash flow tab\'s = Actual surplus so far' },
+    // the "where did last month's surplus go?" sheet no longer opens on this day: September has no frozen record, so the Cash
+    // flow tab shows September as $0 in and $2,750 out (pastMonthFlow, the one producer both read) — no surplus to assign.
+    // Home offered $6,250 ($9,000 − $2,750, calculated on the screen). The sheet's lines leave with it.
+    { at: 32, was: '$6,250', now: null, why: 'the sheet\'s amount left to assign — not offered' },
+    { at: 33, was: '$6,250', now: null, why: 'the sheet\'s amount available — not offered' },
+    { at: 34, was: '401', now: null, why: 'the sheet\'s account line, Fidelity 401(k) — not drawn' },
+    { at: 35, was: '401', now: null, why: 'the same line\'s kind, 401(k) — not drawn' },
+    { at: 36, was: '$0', now: null, why: 'the sheet\'s button, Assign $0 — not drawn' },
+  ],
+  // 2026-10-24 (CF-FIX; DEC-0002, DEC-0447, B-24): a bill with its own month is on top of the typed monthly total, in that
+  // month. This household types $5,200/month; with the home's mortgage in Debts the $2,300 Rent / Mortgage line is not counted
+  // (DEC-1923), so $2,900 goes out every month, and April adds employedPartner's $3,600 Insurance premium. The emergency fund's
+  // planned spend is the Cash flow tab's year ÷ 12: (2,900 × 12 + 3,600) ÷ 12 = $3,200, plus $4,670 of debt minimums = $7,870.
+  // It read $7,570: the $5,200 taken to hold $300/month of the April premium. Months: $31,489 ÷ ($7,870 − $1,800) = 5.2 (was 5.5).
+  'Net worth · by category': [
+    { at: 100, was: '5.5', now: '5.2', why: 'months at the planned spend: $31,489 ÷ ($7,870 − $1,800 rent) = 5.2' },
+    { at: 102, was: '$7,570', now: '$7,870', why: 'the planned spend: (2,900 × 12 + the April premium 3,600) ÷ 12 = 3,200, + $4,670 of debt minimums' },
+  ],
+  'Net worth · by institution': [
+    { at: 108, was: '5.5', now: '5.2', why: 'months at the planned spend: $31,489 ÷ ($7,870 − $1,800 rent) = 5.2' },
+    { at: 110, was: '$7,570', now: '$7,870', why: 'the planned spend: (2,900 × 12 + the April premium 3,600) ÷ 12 = 3,200, + $4,670 of debt minimums' },
   ],
   // 2026-10-21, DEC-0457 (re-run part 1, F1): the one-account card is the largest account's part of Net worth's Investments
   // line — Vanguard without its $838 of cash — out of that line ($433,200), not out of everything but property
@@ -163,10 +207,17 @@ describe('DEC-0345 — every Net worth figure reads the same as before the input
       const before = JSON.parse(fs.readFileSync(BEFORE, 'utf8')).screens[s.name] as Reading;
       // the guard looked: a screen that rendered nothing would match an empty record
       expect(before.numbers.length).toBeGreaterThanOrEqual(3);
-      expect(now.figures).toEqual(before.figures);
+      const wantFigures = before.figures.map((f) => [...f] as [string, string]);
+      for (const m of FIGURES_MOVED_ON_PURPOSE[s.name] ?? []) {
+        const at = wantFigures.filter(([id, text]) => id === m.id && text === m.was);
+        expect([m.id, m.was, at.length > 0]).toEqual([m.id, m.was, true]);
+        for (const f of at) f[1] = m.now;
+      }
+      expect(now.figures).toEqual(wantFigures);
       const expected = [...before.numbers];
-      for (const m of MOVED_ON_PURPOSE[s.name] ?? []) { expect(expected[m.at]).toBe(m.was); expected[m.at] = m.now; }
-      expect(now.numbers).toEqual(expected);
+      const shown: (string | null)[] = [...expected];
+      for (const m of MOVED_ON_PURPOSE[s.name] ?? []) { expect(shown[m.at]).toBe(m.was); shown[m.at] = m.now; }
+      expect(now.numbers).toEqual(shown.filter((x): x is string => x !== null));
     });
   }
   afterAll(() => {
@@ -178,4 +229,20 @@ describe('DEC-0345 — every Net worth figure reads the same as before the input
       day: TODAY, screens: recorded,
     }, null, 1));
   });
+});
+
+/** ONE PLANNED SPEND (2026-10-24, CF-FIX): the emergency fund's planned spend, less the debt minimums, is the Cash flow tab's
+ *  twelve planned months added up and divided by 12 — one producer (MK-CF-F-002 over MK-CF-F-008), the figure moved above. */
+test('the emergency fund reads the planned spend the Cash flow tab plans: $2,900 every month, April + $3,600, ÷ 12 = $3,200', () => {
+  const h = HOUSEHOLD() as any;
+  const { theBudgetCounted } = require('../../../MoneyKeel/functions/cashflow/budget-counted');
+  const { theEmergencyFund } = require('../../../MoneyKeel/functions/networth-and-performance/emergency-fund');
+  const { spendByMonth } = require('../../domain/budget');
+  const counted = theBudgetCounted({ profile: h.onboardingProfile, accounts: h.assetAccounts, debts: h.liabilities }).profile;
+  const months = spendByMonth(counted);
+  expect(months).toEqual([2_900, 2_900, 2_900, 2_900 + 3_600, ...Array(8).fill(2_900)]);
+  const fund = theEmergencyFund({ profile: h.onboardingProfile, accounts: h.assetAccounts, debts: h.liabilities, expenses: h.expenses ?? [] });
+  const minimums = 2_600 + 1_500 + 150 + 420;
+  expect(fund.plannedSpendMonthly - minimums).toBe(months.reduce((t: number, m: number) => t + m, 0) / 12);
+  expect(fund.plannedSpendMonthly).toBe((2_900 * 12 + 3_600) / 12 + 4_670);   // 3,200 + 4,670 = 7,870
 });

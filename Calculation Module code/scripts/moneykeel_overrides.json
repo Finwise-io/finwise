@@ -1228,9 +1228,9 @@
     "key": "STATUTORY TABLE 2026 — federal income tax bands",
     "col": "Detail",
     "mode": "replace",
-    "text": "Top of each band (single · married filing jointly · married filing separately · head of household), marginal rate in that band:\n10%: $12,400 · $24,800 · $12,400 · $17,700\n12%: $50,400 · $100,800 · $50,400 · $67,450\n22%: $105,700 · $211,400 · $105,700 · $105,700\n24%: $201,775 · $403,550 · $201,775 · $201,775\n32%: $256,225 · $512,450 · $256,225 · $256,225\n35%: $640,600 · $768,700 · $384,350 · $640,600\n37%: above the 35% top.\nSource: IRS Rev. Proc. 2025-32 §4.01 (tax year 2026); married filing separately = half the joint figures by statute (IRC §1). Checked 2026-09-08 (second verification G23); in code as TAX_TABLES; typed into statutory_constants.test.ts by hand. Re-check when the year rolls.",
-    "date": "2026-09-08",
-    "why": "added by hand"
+    "text": "Top of each band (single · married filing jointly · married filing separately · head of household), marginal rate in that band:\n10%: $12,400 · $24,800 · $12,400 · $17,700\n12%: $50,400 · $100,800 · $50,400 · $67,450\n22%: $105,700 · $211,400 · $105,700 · $105,700\n24%: $201,775 · $403,550 · $201,775 · $201,750\n32%: $256,225 · $512,450 · $256,225 · $256,200\n35%: $640,600 · $768,700 · $384,350 · $640,600\n37%: above the 35% top.\nSource: IRS Rev. Proc. 2025-32 §4.01 (tax year 2026); married filing separately = half the joint figures by statute (IRC §1). Checked 2026-09-08 (second verification G23) and read again from the IRS text on 2026-10-23: head of household 24% ends at $201,750 and 32% at $256,200 (§4.01 table 2), not the single filer's $201,775 / $256,225 this row and the code carried until then (outside re-run, gap list item 35); in code as TAX_TABLES; all four tables typed into statutory_constants.test.ts by hand. Re-check when the year rolls.",
+    "date": "2026-10-23",
+    "why": "added by hand; 2026-10-23 the head-of-household 24% and 32% tops corrected from the IRS text of Rev. Proc. 2025-32 §4.01 table 2 (outside re-run, gap list item 35)"
   },
   {
     "tab": "Reference",
@@ -1246,9 +1246,9 @@
     "key": "STATUTORY TABLE 2025–2028 — senior deduction",
     "col": "Detail",
     "mode": "replace",
-    "text": "$6,000 per qualifying individual aged 65 or older, on top of the standard deduction and the add-on; reduced by 6% of modified adjusted gross income above $75,000 ($150,000 on a joint return); married persons must file jointly to claim it. Tax years 2025 through 2028 — lapses after. Source: One Big Beautiful Bill Act, P.L. 119-21 §70103 (IRC §151(d)(5)). Added 2026-09-08 on the founder's ruling (second verification G3) — MK-CF-F-187.",
-    "date": "2026-09-08",
-    "why": "added by hand"
+    "text": "$6,000 per qualifying individual aged 65 or older, on top of the standard deduction and the add-on; each person's $6,000 reduced by 6% of modified adjusted gross income above $75,000 ($150,000 on a joint return), never below $0 — so a couple both 65 or over on a joint return at $200,000 gets $3,000 each, $6,000 in all, and nothing at $250,000 (IRC §151(d)(5)(C)(iii)(I): \"the $6,000 amount in clause (i) shall be reduced\"; IRS Schedule 1-A (Form 1040) 2025, Part V lines 35–37, read 2026-10-23; until then the app took the 6% once off $12,000 — outside re-run, gap list item 36); married persons must file jointly to claim it. Tax years 2025 through 2028 — lapses after. Source: One Big Beautiful Bill Act, P.L. 119-21 §70103 (IRC §151(d)(5)). Added 2026-09-08 on the founder's ruling (second verification G3) — MK-CF-F-187.",
+    "date": "2026-10-23",
+    "why": "added by hand; 2026-10-23 the phase-out stated per person, from the statute and Schedule 1-A (outside re-run, gap list item 36)"
   },
   {
     "tab": "Reference",
@@ -1937,27 +1937,9 @@
   {
     "tab": "cashflow",
     "key": "MK-CF-M-001",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Add your income ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "cashflow",
-    "key": "MK-CF-M-001",
     "col": "Where each finding stands",
     "mode": "append",
     "text": "G32 / Q48 — RULED 2026-09-09: $0 stays, with the sentence '$0 — nothing entered yet.' and this row's door ('Add your income ›'). File written; the screen follows the approved empty-state mock (one pattern, one screen), then every screen.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "cashflow",
-    "key": "MK-CF-M-002",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Add your bills ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
     "date": "2026-09-09",
     "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
   },
@@ -1972,30 +1954,12 @@
   },
   {
     "tab": "cashflow",
-    "key": "MK-CF-M-004",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Log your expenses ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "cashflow",
-    "key": "MK-CF-M-004",
+    "key": "MK-CF-M-052",
     "col": "Where each finding stands",
     "mode": "append",
     "text": "G32 / Q48 — RULED 2026-09-09: $0 stays, with the sentence '$0 — nothing entered yet.' and this row's door ('Log your spending ›'). File written; the screen follows the approved empty-state mock (one pattern, one screen), then every screen.",
     "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "cashflow",
-    "key": "MK-CF-M-011",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Add your income ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
+    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door — moved 2026-10-24 from MK-CF-M-004 to MK-CF-M-052, the outflow row it was written for (MK-CF-M-004 was handed to the month's rows on 2026-10-02; the lead's settle of 2026-10-24); its words unchanged"
   },
   {
     "tab": "cashflow",
@@ -2003,15 +1967,6 @@
     "col": "Where each finding stands",
     "mode": "append",
     "text": "G32 / Q48 — RULED 2026-09-09: $0 stays, with the sentence '$0 — nothing entered yet.' and this row's door ('Add your income ›'). File written; the screen follows the approved empty-state mock (one pattern, one screen), then every screen.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "cashflow",
-    "key": "MK-CF-M-013",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Log your expenses ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
     "date": "2026-09-09",
     "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
   },
@@ -2027,15 +1982,6 @@
   {
     "tab": "cashflow",
     "key": "MK-CF-M-014",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Log your expenses ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "cashflow",
-    "key": "MK-CF-M-014",
     "col": "Where each finding stands",
     "mode": "append",
     "text": "G32 / Q48 — RULED 2026-09-09: $0 stays, with the sentence '$0 — nothing entered yet.' and this row's door ('Log your spending ›'). File written; the screen follows the approved empty-state mock (one pattern, one screen), then every screen.",
@@ -2045,27 +1991,9 @@
   {
     "tab": "cashflow",
     "key": "MK-CF-M-015",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Log your expenses ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "cashflow",
-    "key": "MK-CF-M-015",
     "col": "Where each finding stands",
     "mode": "append",
     "text": "G32 / Q48 — RULED 2026-09-09: $0 stays, with the sentence '$0 — nothing entered yet.' and this row's door ('Log your spending ›'). File written; the screen follows the approved empty-state mock (one pattern, one screen), then every screen.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "cashflow",
-    "key": "MK-CF-M-019",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Add your bills ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
     "date": "2026-09-09",
     "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
   },
@@ -2075,15 +2003,6 @@
     "col": "Where each finding stands",
     "mode": "append",
     "text": "G32 / Q48 — RULED 2026-09-09: $0 stays, with the sentence '$0 — nothing entered yet.' and this row's door ('Add your bills ›'). File written; the screen follows the approved empty-state mock (one pattern, one screen), then every screen.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "cashflow",
-    "key": "MK-CF-M-021",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Add a goal ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
     "date": "2026-09-09",
     "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
   },
@@ -2093,15 +2012,6 @@
     "col": "Where each finding stands",
     "mode": "append",
     "text": "G32 / Q48 — RULED 2026-09-09: $0 stays, with the sentence '$0 — nothing entered yet.' and this row's door ('Add a goal ›'). File written; the screen follows the approved empty-state mock (one pattern, one screen), then every screen.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "cashflow",
-    "key": "MK-CF-M-028",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Add your bills ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
     "date": "2026-09-09",
     "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
   },
@@ -2405,27 +2315,9 @@
   {
     "tab": "cashflow",
     "key": "MK-CF-M-006",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Add your income ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "cashflow",
-    "key": "MK-CF-M-006",
     "col": "Where each finding stands",
     "mode": "append",
     "text": "G32 / Q48 — 2026-09-09: the 'division with nothing on the bottom' boilerplate is gone; this cell now states the row's real refusal. Where it says 'built', the screen already does it; the rest follow the empty-state mock.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "cashflow",
-    "key": "MK-CF-M-007",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Add your income ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
     "date": "2026-09-09",
     "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
   },
@@ -2441,15 +2333,6 @@
   {
     "tab": "cashflow",
     "key": "MK-CF-M-008",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Add your income ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "cashflow",
-    "key": "MK-CF-M-008",
     "col": "Where each finding stands",
     "mode": "append",
     "text": "G32 / Q48 — 2026-09-09: the 'division with nothing on the bottom' boilerplate is gone; this cell now states the row's real refusal. Where it says 'built', the screen already does it; the rest follow the empty-state mock.",
@@ -2459,27 +2342,9 @@
   {
     "tab": "cashflow",
     "key": "MK-CF-M-009",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Add your income ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "cashflow",
-    "key": "MK-CF-M-009",
     "col": "Where each finding stands",
     "mode": "append",
     "text": "G32 / Q48 — 2026-09-09: the 'division with nothing on the bottom' boilerplate is gone; this cell now states the row's real refusal. Where it says 'built', the screen already does it; the rest follow the empty-state mock.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "cashflow",
-    "key": "MK-CF-M-027",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Add your income ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
     "date": "2026-09-09",
     "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
   },
@@ -2809,12 +2674,12 @@
   },
   {
     "tab": "cashflow",
-    "key": "MK-CF-M-004",
+    "key": "MK-CF-M-052",
     "col": "Decisions made",
     "mode": "append",
     "text": "[Founder] 2026-08-27 worked example (his cash-flow screen sheet): Planned — In (take-home) 5,000 · mortgage 2,000 · car 250 · expenses 2,000 · HELOC (from the big-ticket radar) 200 · credit-card payment (entered by hand) 200 → surplus 750. Actual — 5,000 · mortgage paid 2,000 · car paid 0 · expenses entered 500 · expenses imported from the card 1,200 · HELOC 200 · card payment 200 → surplus 1,300. A credit-card PAYMENT is not an expense (the card's imported transactions already are); a HELOC payment is counted as an expense; recurring debt is never a radar item, a card or HELOC payment always is (the rule in MK-CF-O-002).",
     "date": "2026-09-10",
-    "why": "his 2026-08-27 sheet, folded into the file 2026-09-10"
+    "why": "his 2026-08-27 sheet, folded into the file 2026-09-10 — moved 2026-10-24 from MK-CF-M-004 to MK-CF-M-052, the outflow row it was written for (MK-CF-M-004 was handed to the month's rows on 2026-10-02; the lead's settle of 2026-10-24); its words unchanged"
   },
   {
     "tab": "cashflow",
@@ -2836,12 +2701,12 @@
   },
   {
     "tab": "cashflow",
-    "key": "MK-CF-M-004",
+    "key": "MK-CF-M-052",
     "col": "Questions for you (numbered)",
     "mode": "append",
     "text": "Q50 — Your 2026-08-27 worked example: planned surplus 750 = 5,000 − 2,000 − 250 − 2,000 and actual 1,300 = 5,000 − 2,000 − 0 − 500 − 1,200 — neither subtracts the HELOC 200 or the card payment 200 that your spending section says are counted as expenses. Which is right for the surplus line: count them (planned 350, actual 900) or not (750, 1,300)?",
     "date": "2026-09-10",
-    "why": "question back on his example"
+    "why": "question back on his example — moved 2026-10-24 from MK-CF-M-004 to MK-CF-M-052, the outflow row it was written for (MK-CF-M-004 was handed to the month's rows on 2026-10-02; the lead's settle of 2026-10-24); its words unchanged"
   },
   {
     "tab": "Reference",
@@ -3375,33 +3240,6 @@
     "why": "G36 (2026-09-12)"
   },
   {
-    "tab": "cashflow",
-    "key": "MK-CF-M-004",
-    "col": "Function ID",
-    "mode": "replace",
-    "text": "MK-CF-F-194",
-    "date": "2026-09-12",
-    "why": "G12 (founder agreed 2026-09-12): the month's outflow — expenses + debt paid — has one producer, monthOutflow; the row named the debt-excluding budgetVsActual."
-  },
-  {
-    "tab": "cashflow",
-    "key": "MK-CF-M-004",
-    "col": "Formula (mathematical)",
-    "mode": "replace",
-    "text": "outflow = expenses this month + debt actually paid this month  (a month with a saved snapshot: its expenses + debt paid; a month without one: the expenses logged so far)",
-    "date": "2026-09-12",
-    "why": "G12 (2026-09-12)"
-  },
-  {
-    "tab": "cashflow",
-    "key": "MK-CF-M-004",
-    "col": "Formula (in words)",
-    "mode": "replace",
-    "text": "This month's outflow: everything logged as an expense plus every debt payment actually made — from one function (MK-CF-F-194 monthOutflow), never added on the screen. The label says what is inside: \"Outflow (expenses + debt)\".",
-    "date": "2026-09-12",
-    "why": "G12 (2026-09-12)"
-  },
-  {
     "tab": "menu",
     "key": "MK-MN-M-005",
     "col": "Function ID",
@@ -3552,5 +3390,149 @@
     "text": "2026-10-22 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. The table is not drawn when nothing was received in the window (day one draws each category at a real $0 with its note), so its refusal is now the declaration's own.",
     "date": "2026-10-22",
     "why": "2026-10-22 PF-TOOLS (workplan \"The $0 empty-state refusal of Q48…\", Performance part): the declaration carries its own refusal, read against the screen"
+  },
+  {
+    "tab": "cashflow",
+    "key": "MK-CF-M-001",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-23 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. The row reads \"— not set\" with a sentence and the door \"Set your budget\"; on Expenses the band reads — with the same door. No $0 is shown. Its refusal is now the declaration's own, written as the screen does it.",
+    "date": "2026-10-23",
+    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries its own refusal, read against the screen; the $0 empty-state line of Q48 printed here over it"
+  },
+  {
+    "tab": "cashflow",
+    "key": "MK-CF-M-002",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-23 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. No planned surplus is shown: the band reads —, and the sentence names why — no budget set, or a debt's payment never entered (2026-10-23). Its refusal is now the declaration's own, written as the screen does it.",
+    "date": "2026-10-23",
+    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries its own refusal, read against the screen; the $0 empty-state line of Q48 printed here over it"
+  },
+  {
+    "tab": "cashflow",
+    "key": "MK-CF-M-004",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-23 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. A row whose amount is not known says so in its place (\"— not set\", \"payment not entered\"); a real $0 shows as $0. Its refusal is now the declaration's own, written as the screen does it.",
+    "date": "2026-10-23",
+    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries its own refusal, read against the screen; the $0 empty-state line of Q48 printed here over it"
+  },
+  {
+    "tab": "cashflow",
+    "key": "MK-CF-M-006",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-23 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. A source not entered has no row; with no source at all the one line \"Nothing entered yet. Add your income ›\" stands in the list. No $0 row is drawn. Its refusal is now the declaration's own, written as the screen does it.",
+    "date": "2026-10-23",
+    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries its own refusal, read against the screen; the $0 empty-state line of Q48 printed here over it"
+  },
+  {
+    "tab": "cashflow",
+    "key": "MK-CF-M-007",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-23 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. Not entered — the row does not appear. No $0 row is drawn. Its refusal is now the declaration's own, written as the screen does it.",
+    "date": "2026-10-23",
+    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries its own refusal, read against the screen; the $0 empty-state line of Q48 printed here over it"
+  },
+  {
+    "tab": "cashflow",
+    "key": "MK-CF-M-008",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-23 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. Not entered — the row does not appear. No $0 row is drawn. Its refusal is now the declaration's own, written as the screen does it.",
+    "date": "2026-10-23",
+    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries its own refusal, read against the screen; the $0 empty-state line of Q48 printed here over it"
+  },
+  {
+    "tab": "cashflow",
+    "key": "MK-CF-M-009",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-23 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. Not entered — the row does not appear. No $0 row is drawn. Its refusal is now the declaration's own, written as the screen does it.",
+    "date": "2026-10-23",
+    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries its own refusal, read against the screen; the $0 empty-state line of Q48 printed here over it"
+  },
+  {
+    "tab": "cashflow",
+    "key": "MK-CF-M-011",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-23 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. Nothing being received — the row does not appear. No $0 row is drawn. Its refusal is now the declaration's own, written as the screen does it.",
+    "date": "2026-10-23",
+    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries its own refusal, read against the screen; the $0 empty-state line of Q48 printed here over it"
+  },
+  {
+    "tab": "cashflow",
+    "key": "MK-CF-M-013",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-23 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. Nothing logged is a real $0 on the ACTUAL EXPENSES band, with its own sentence and the door \"Log an expense\" — not the \"Log your expenses ›\" line this row printed. Its refusal is now the declaration's own, written as the screen does it.",
+    "date": "2026-10-23",
+    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries its own refusal, read against the screen; the $0 empty-state line of Q48 printed here over it"
+  },
+  {
+    "tab": "cashflow",
+    "key": "MK-CF-M-014",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-23 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. Nothing logged — the list is not drawn; the sentence and the door \"Log an expense\" stand in its place. Its refusal is now the declaration's own, written as the screen does it.",
+    "date": "2026-10-23",
+    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries its own refusal, read against the screen; the $0 empty-state line of Q48 printed here over it"
+  },
+  {
+    "tab": "cashflow",
+    "key": "MK-CF-M-015",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-23 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. No budget set — the categories are not drawn; the band reads — with a sentence and the door \"Set your budget\". Its refusal is now the declaration's own, written as the screen does it.",
+    "date": "2026-10-23",
+    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries its own refusal, read against the screen; the $0 empty-state line of Q48 printed here over it"
+  },
+  {
+    "tab": "cashflow",
+    "key": "MK-CF-M-019",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-23 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. This row was retired on 2026-10-02 as the same figure as MK-CF-M-052 (Outflow (expenses + debt)); its refusal is that declaration's. Its refusal is now the declaration's own, written as the screen does it.",
+    "date": "2026-10-23",
+    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries its own refusal, read against the screen; the $0 empty-state line of Q48 printed here over it"
+  },
+  {
+    "tab": "cashflow",
+    "key": "MK-CF-M-021",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-23 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. No goal with a monthly amount — no line. No $0 line is drawn. Its refusal is now the declaration's own, written as the screen does it.",
+    "date": "2026-10-23",
+    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries its own refusal, read against the screen; the $0 empty-state line of Q48 printed here over it"
+  },
+  {
+    "tab": "cashflow",
+    "key": "MK-CF-M-027",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-23 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. Nothing entered — the list is replaced by the one line \"Nothing entered yet. Add your income ›\", which opens Base pay — no $0. Its refusal is now the declaration's own, written as the screen does it.",
+    "date": "2026-10-23",
+    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries its own refusal, read against the screen; the $0 empty-state line of Q48 printed here over it"
+  },
+  {
+    "tab": "cashflow",
+    "key": "MK-CF-M-028",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-23 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. No dated bill ahead — the COMING UP card is not drawn; with nothing behind the table, \"Nothing entered yet. Add your bills ›\" sits under it. Its refusal is now the declaration's own, written as the screen does it.",
+    "date": "2026-10-23",
+    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries its own refusal, read against the screen; the $0 empty-state line of Q48 printed here over it"
+  },
+  {
+    "tab": "cashflow",
+    "key": "MK-CF-M-004",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "2026-10-23 — CLOSED: this row's function and formula columns printed the month's OUTFLOW (MK-CF-F-194 monthOutflow, G12 of 2026-09-12), from when the row was the outflow line. The row is each line of the month now — each row on This month and on Expenses, at its own amount, from MK-CF-O-010 theMonth — and its declaration carries that formula. The outflow G12 ruled on is MK-CF-M-052 (Outflow (expenses + debt)), one producer for the month shown (MK-CF-O-003 thisMonth) and one for a past month (pastMonthFlow, which reads monthOutflow).",
+    "date": "2026-10-23",
+    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries the true formula; the three G12 replacements described another figure"
   }
 ]

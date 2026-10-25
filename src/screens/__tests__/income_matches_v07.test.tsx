@@ -12,6 +12,10 @@
  *     The drawing's frame shows an em-dash and a sentence of its own in each; his empty-state ruling
  *     (Q48, 2026-09-09, built here on 2026-09-12) came a week after that frame was drawn (2026-09-02),
  *     and the newer ruling is the design. What the frame still decides is the SHAPE: both headings stay.
+ *  3. 2026-10-24 (his DEC-0283; a dated READ THIS FIRST row on the drawing): under "= Gross /year" two rows the frame does not
+ *     draw — "Your 401(k)s" with the year's contributions taken off, and "= What it is taxed on", the total the bracket and a
+ *     calculated tax are worked on — and the band beside "What it is taxed on" shows that total. Frame 16's household, $14,400
+ *     into 401(k)s: $167,400 − $14,400 = $153,000.
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
@@ -53,9 +57,16 @@ test('frame 16 · Your income, with data — the take-home, row by row, then wha
     invAnnual: '3000', bonusAnnual: '12000', bonusMonth: 12, taxMode: 'manual', manualTaxRate: '24',
     incomeSources: ['employment', 'rental', 'investment'], rentals: [{ type: 'long', income: '1800', expenses: '600', property_id: 'house' }],   // names its property (DEC-4059d, 2026-10-10)
   });
-  const want = month(norm(phone(16, /^Edit your income$/))), got = BACK(month(norm(built)));
+  const want = month(norm(phone(16, /^Edit your income$/)))
+    .replace(/ = gross \/year \$# federal tax bracket/, ' = gross /year $# your #(k)s $# = what it is taxed on $# federal tax bracket'), got = BACK(month(norm(built)));   // 3
   expect(want.split(' ').length).toBeGreaterThan(90);
   expect(firstDifference(want, got)).toBe('');
+  // 3: the band and the new total are the gross less the 401(k)s — $167,400 − $14,400 — and the gross row stays before deductions
+  const L = built;
+  expect(L[L.indexOf('= Gross /year') + 1]).toBe('$167,400');
+  expect(L[L.indexOf('Your 401(k)s') + 1]).toBe('−$14,400');
+  expect(L[L.indexOf('= What it is taxed on') + 1]).toBe('$153,000');
+  expect(L[L.findIndex((l) => /^what it is taxed on$/i.test(l)) + 1]).toBe('$153,000');   // the band (its words as the reader gives them)
 });
 
 test('frame 17 · Your income, a fresh account — both sections keep their heading', () => {

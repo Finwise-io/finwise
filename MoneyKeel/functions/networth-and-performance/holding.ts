@@ -488,17 +488,17 @@ const HOLD = () => theHolding({ position: EXAMPLE_POSITION, accountId: 'a2', pri
  *               MK-PF-F-056 purchasePieces · MK-PF-F-070 holdingPath
  *               MK-PF-F-077 eventPath · MK-XS-F-192 typedValueDatedBack
  *
- * Reaches ..... 308 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 388 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 290 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 370 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -511,7 +511,12 @@ const HOLD = () => theHolding({ position: EXAMPLE_POSITION, accountId: 'a2', pri
  */
 const series = (ticker: string, pts: [string, number][]): PriceSeries => ({ ticker, points: pts.map(([date, close]) => ({ date, close })) });
 const EXAMPLE_CLOSES: Record<string, PriceSeries> = {
-  VTI: series('VTI', [['2024-09-27', 240], ['2025-09-26', 250], ['2026-09-25', 287.69], ['2026-09-28', 290]]),
+  // (2026-10-23, W-START: and the close the evening before the 40 were bought on Jun 1, 2026 at $265 — the price VTI stood at. A
+  // holding held when the window began that buys inside it is read from its purchases now (MK-PF-F-014), each counted from the
+  // start of its day at what was paid (DEC-4439), so that close is read: (100 × $265 ÷ 100 × $250) × (140 × $290 ÷ (100 × $265
+  // + $10,600)) − 1 = +16.00%. Without it the last close before Jun 1 was Sep 26, 2025's $250, the $15 a share above it read as
+  // lost, and VTI read +14.04%, ahead by 2.04 points.)
+  VTI: series('VTI', [['2024-09-27', 240], ['2025-09-26', 250], ['2026-05-29', 265], ['2026-09-25', 287.69], ['2026-09-28', 290]]),
   SPY: series('SPY', [['2024-09-27', 500], ['2025-09-26', 550], ['2026-09-25', 610], ['2026-09-28', 616]]),
 };
 const EXAMPLE_ACCOUNT = { asset_id: 'a2', label: 'Fidelity Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 40_600, positions: [EXAMPLE_POSITION] } as any;
@@ -544,7 +549,8 @@ const COMPARE = (period: '1Y' | '2Y' = '1Y') =>
 const COMPARE_GIVEN =
   '140 shares of VTI on 28 Sep 2026, first bought in Mar 2023. The past year opens 28 Sep 2025, so it is measured from the close '
   + 'of the day before — 26 Sep 2025, the last trading day on or before 27 Sep: VTI closed at $250 then and $290 today; the stock '
-  + 'market (SPY) at $550 then and $616 today. Closes are dividend-adjusted.';
+  + 'market (SPY) at $550 then and $616 today. 40 of the shares were bought on 1 Jun 2026 at $265, the price VTI closed at the '
+  + 'evening before, so they count in at what was paid and leave the return VTI\u2019s own move. Closes are dividend-adjusted.';
 
 /** THE FIGURES THIS DOOR HANDS OUT (rule 11). The master file's rows are printed from here. */
 export const HOLDING_FIGURES = declareFigures({
@@ -730,7 +736,7 @@ export const HOLDING_FIGURES = declareFigures({
   },
   'MK-NW-M-036': {
     label: 'Gain — long-term (held over 1 yr)', unit: 'money', screens: ['/holding-detail'], grain: 'one holding',
-    answers: 'The gain on shares you have held more than a year — the part taxed at the lower rate.',
+    answers: 'The gain on shares you have held more than a year — the part federal tax charges at its lower long-term rate (federal only: no state tax is in it).',
     formula: 'for each lot bought over a year ago: shares × (today’s price − what you paid); for an option on a broad-based index, 60% of the whole gain',
     inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-005 the price feed'],
     decisions: [
@@ -740,6 +746,11 @@ export const HOLDING_FIGURES = declareFigures({
       + 'period (IRS Publication 550, the 60/40 rule; 2026-10-21). 2 SPX calls bought at $50, now $80: $3,600 of $6,000.',
       'INSIDE AN ACCOUNT TAXED AS PRE-TAX OR TAX-FREE (401(k), IRA, Roth, HSA, 529) there is no split: a sale there is not '
       + 'taxed as a capital gain, so the gain is shown whole (2026-10-21).',
+      // HIS DEC-0321 (2026-08-20), written on this row 2026-10-24: "state tax in the capital-gains figure — one tab said missing,
+      // one said included" — settled here, in one place
+      'FEDERAL ONLY (his DEC-0321, 2026-08-20: \u201cstate tax in the capital-gains figure \u2014 one tab said missing, one said '
+      + 'included\u201d). This is the gain itself, split by the federal holding-period rule; no tax is taken from it, and no state '
+      + 'tax is in it. A state may tax the long-term and the short-term part alike.',
     ],
     refusal: 'No price today — no gain is stated at all. Not stated where a purchase in this part has no price paid or share count on record, or no purchase held has a purchase date on record.',
     ruled: '2026-09-28',
@@ -751,7 +762,7 @@ export const HOLDING_FIGURES = declareFigures({
   },
   'MK-NW-M-037': {
     label: 'Gain — short-term (held 1 yr or less)', unit: 'money', screens: ['/holding-detail'], grain: 'one holding',
-    answers: 'The gain on shares held under a year — the part taxed as ordinary income.',
+    answers: 'The gain on shares held under a year — the part federal tax charges as ordinary income (federal only: no state tax is in it).',
     formula: 'for each lot bought within the year: shares × (today’s price − what you paid); for an option on a broad-based index, the whole gain less its 60% long-term part',
     inputs: ['MK-NW-I-001 your accounts', 'MK-NW-I-005 the price feed'],
     decisions: [
@@ -760,6 +771,11 @@ export const HOLDING_FIGURES = declareFigures({
       'AN OPTION ON A BROAD-BASED INDEX is 40% short-term whatever the holding period (IRS Publication 550; 2026-10-21): '
       + '2 SPX calls bought at $50, now $80: $2,400 of $6,000, not $6,000.',
       'INSIDE AN ACCOUNT TAXED AS PRE-TAX OR TAX-FREE there is no split (2026-10-21).',
+      // HIS DEC-0321 (2026-08-20), written on this row 2026-10-24, as on MK-NW-M-036: "state tax in the capital-gains figure — one tab said missing,
+      // one said included" — settled here, in one place
+      'FEDERAL ONLY (his DEC-0321, 2026-08-20: \u201cstate tax in the capital-gains figure \u2014 one tab said missing, one said '
+      + 'included\u201d). This is the gain itself, split by the federal holding-period rule; no tax is taken from it, and no state '
+      + 'tax is in it. A state may tax the long-term and the short-term part alike.',
     ],
     refusal: 'No price today — no gain is stated at all. Not stated where a purchase in this part has no price paid or share count on record, or no purchase held has a purchase date on record.',
     ruled: '2026-09-28',

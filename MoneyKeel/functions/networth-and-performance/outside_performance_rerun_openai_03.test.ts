@@ -283,7 +283,8 @@ describe('MK-PF-F-020 portfolioBenchReturn — five cases', () => {
   test('witness · the same holding built by buildPerformance (the rows Home hands in) carries the start held when the window began — FIXED 2026-10-21', () => {
     const now = L('2026-10-13');
     const prices: Record<string, PriceSeries> = {
-      A: series([['2025-10-10', 100], ['2026-09-02', 110], ['2026-10-12', 121]], 'A'),
+      // (the close the evening before the purchase (2026-10-23, W-START): the 10 were bought at the market's $110, so the holding stood at $110 that evening — read by the whole-day rule (DEC-4439, DEC-7451) now that a holding held when the window began is measured from its purchases; without it the closes said the eleven months from $100 to $110 all fell on the purchase day, and the figure read 2,420 ÷ 2,100 − 1 = +15.24%)
+      A: series([['2025-10-10', 100], ['2026-09-01', 110], ['2026-09-02', 110], ['2026-10-12', 121]], 'A'),
       SPY: series([['2025-10-10', 600], ['2026-10-12', 660]], 'SPY'),
       B: series([['2025-10-10', 100], ['2026-10-12', 100]], 'B'),
       BTC: series([['2025-10-10', 100], ['2026-10-12', 104]], 'BTC'),
@@ -300,9 +301,10 @@ describe('MK-PF-F-020 portfolioBenchReturn — five cases', () => {
     // DECIDED 2026-10-22 (W-START, the lead's decision under DEC-1669 and tenets 1 and 7; MK-PF-M-008): the market beside your
     // return is split on the same days as your return, each piece weighed by what each holding was worth then. These closes
     // hold SPY and BTC flat until A bought more on Sep 2 and rising after it: piece 1, A $1,000 + B $2,000, flat; piece 2,
-    // A 20 × $100 = $2,000 + B $2,000, SPY ×1.10 and BTC ×1.04 → (2,200 + 2,080) ÷ 4,000 − 1 = +7.00%. Weighed by the
+    // A 10 × $110 the evening before + the $1,100 paid = $2,200 (2026-10-23: a purchase in at what was paid; it read 20 × $100
+    // = $2,000 and +7.00%) + B $2,000, SPY ×1.10 and BTC ×1.04 → (2,420 + 2,080) ÷ 4,200 − 1 = +7.14%. Weighed by the
     // starts alone it was +6.00% — the figure with no money moved, and still what rows without a path give (the case above).
-    near(portfolioBenchReturn(rowsBuilt), (1000 * 600 / 600 + 2000 * 100 / 100) / 3000 * ((2000 * 660 / 600 + 2000 * 104 / 100) / 4000) - 1, 12);
+    near(portfolioBenchReturn(rowsBuilt), (1000 * 600 / 600 + 2000 * 100 / 100) / 3000 * ((2200 * 660 / 600 + 2000 * 104 / 100) / 4200) - 1, 12);
   });
   test.failing('witness · the app on 2026-10-21, pinned: the market weighed by the starts alone, +6.00% — no longer its answer where money moved inside the window (DECIDED 2026-10-22)', () => {
     const now = L('2026-10-13');

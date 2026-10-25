@@ -378,6 +378,14 @@ MK-NW-F-056 bondInfo to MK-NW-F-064 bondRateSensitivity, MK-NW-F-112 yearlyInter
 - **A year's interest, one rule everywhere** (yearlyInterest): face × rate; with no face, today's
   value × rate (a CD typed by its balance); with no rate, nothing (owner A46, 2026-08-26). The Bonds
   screen's total and the interest-income figure use it, so the two cannot disagree.
+  **Since 2026-10-24, a bond with no face value has none** (the lead's decision under DEC-3523 tenet 3,
+  which outranks tenet 6): a bond, or a CD bought through a broker, that has a maturity date pays its
+  coupon on its face, so with the face left blank there is no year's interest — the account page reads
+  "4.50%/year · face value not entered", the Bonds card "coupon — face value not entered" (named under AVG
+  YIELD), and the income sheet $0, said so. It read 4.5% of a $24,200 market value, $1,089, where the
+  bond pays $1,125 on its $25,000 face. Value × rate stands for a CD bought from the bank, typed by its
+  balance, and for a bond fund (no maturity date). The income sheet (incomeFromAccounts) reads this rule
+  since the same day; it had its own arithmetic and kept a matured bond's coupon.
 - **A matured bond pays nothing more — on every figure** (DEC-2748d, DEC-2748c, 2026-10-09): its own
   row, COUPON /year, the average yield and the income figure all count it at $0, through one function
   (MK-NW-F-126 yearlyInterestNow). $600 + $400 + $810 a year with the $600 one matured last month:
@@ -385,7 +393,10 @@ MK-NW-F-056 bondInfo to MK-NW-F-064 bondRateSensitivity, MK-NW-F-112 yearlyInter
 - **Years left are exact, by anniversaries** (batch 06): whole years counted back from the maturity
   date, plus the days to the first anniversary ÷ the days in that year — one year to the day is 1.0.
 - **A bond is priced at exact times**: the yearly coupon falls on each maturity anniversary; a matured
-  bond, or one with no date, has no price. **Yield to maturity is solved exactly** on the full price —
+  bond, or one with no date, has no price. A bond entered as paying twice a year (DEC-6625) pays half
+  the coupon every six months, and its yield is compounded twice a year, as a Treasury quotes it
+  (2026-10-24): the $25,000 4.5% Treasury worth $24,200 on Sep 28, 2026 reads 5.67% twice a year (it
+  read 6.56%, priced on one whole coupon a year) and 5.69% once a year. **Yield to maturity is solved exactly** on the full price —
   the value plus accrued interest. The approximation it replaced read −0.69% for a short 4% note where 5.73% is right.
   A bond with no face value, or a yield at or below −100%, has no price.
 - **A CD: bought from the bank, or through a broker** (his decision DEC-3837, 2026-10-10). Adding a CD asks

@@ -351,3 +351,76 @@ describe('7 · DEC-1669 — a holding bought inside the window that also sold: o
     expect(printed(ACC(), 'MK-PF-M-023')).toContain('+30.00%');
   });
 });
+
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+// 8 · ONE RULE IN EVERY WINDOW (2026-10-23, the lead's decision under DEC-1669, DEC-4439 and DEC-7451; found by the Performance
+// journey suite, E2E-57). A buy at today's close moved 2Y and a category's return but not 1M or 1Y: over 2Y the holding was bought
+// inside the window and measured from its purchases, each from the start of its day; over 1M and 1Y it was held when the window
+// began and kept its bare price move. Now both are measured from the purchases, so the same buy moves every window alike.
+// Schwab Brokerage, built from its holdings: 100 VTI bought Mar 3, 2025 at $80, $2,050 cash (a $50 VTI dividend Sep 20, so the
+// category table is drawn). Today 10 more VTI are bought at $100, today's close; VTI stood at $99 last night. By hand —
+//   before the buy: 1M 100 ÷ 95 − 1 = +5.26% · This year 100 ÷ 90 − 1 = +11.11% · 1Y 100 ÷ 84 − 1 = +19.05% ·
+//                   2Y from the $80 purchase, 100 ÷ 80 = +25.00% over the window's 731 days, 1.25^(365/731) − 1 = +11.79% a year
+//   after it, today's piece is (100 × $99 + $1,000) → 110 × $100: 11,000 ÷ 10,900 where it was 100 ÷ 99 —
+//                   1M (9,900 ÷ 9,500) × (11,000 ÷ 10,900) − 1 = +5.17% · This year (9,900 ÷ 9,000) × … = +11.01% ·
+//                   1Y (9,900 ÷ 8,400) × … = +18.94% · 2Y (9,900 ÷ 8,000) × … = +24.89%, +11.74% a year
+//   the market (SPY $580 / $540 / $520 / $500 at each window's start, $600 today) is the same before and after: a buy moves none of it
+// ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+const H_DAY = (bought: boolean) => ({
+  assetAccounts: [{ asset_id: 'w', label: 'Brokerage', institution: 'Schwab', kind: 'brokerage', tax_bucket: 'TAXABLE', derive_balance: true, source: 'manual',
+    balance: 12_050, cash_balance: bought ? 1_050 : 2_050,
+    positions: [{ position_id: 'pv', ticker: 'VTI', label: 'Vanguard Total Stock Market ETF', kind: 'stocks_etf',
+      lots: [lot('v1', 100, 80, '2025-03-03'), ...(bought ? [lot('v2', 10, 100, TODAY)] : [])] }] }],
+  priceCache: {
+    VTI: closes([['2025-03-03', 80], ['2025-09-29', 84], ['2025-12-31', 90], ['2026-08-28', 95], ['2026-09-29', 99], ['2026-09-30', 100]]),
+    SPY: closes([['2025-03-03', 500], ['2025-09-29', 520], ['2025-12-31', 540], ['2026-08-28', 580], ['2026-09-29', 594], ['2026-09-30', 600]]),
+  },
+  pricesFetchedAt: '2026-09-30T11:00:00Z', snapshotDays: [],
+  transactions: [{ id: 'o1', account_id: 'w', type: 'OPENING_POSITION', ticker: 'VTI', shares: 100, price: 80, date: '2025-03-03', created_at: '2025-03-03T12:00:00Z' },
+    { id: 'd1', account_id: 'w', type: 'DIVIDEND', ticker: 'VTI', amount: 50, date: '2026-09-20', created_at: '2026-09-20T12:00:00Z' },
+    ...(bought ? [{ id: 't1', account_id: 'w', type: 'BUY', ticker: 'VTI', shares: 10, price: 100, date: TODAY, created_at: `${TODAY}T15:00:00Z` }] : [])],
+});
+const DAY_PIECE = 11_000 / 10_900;
+const WINDOWS = [
+  { chip: '1M', period: '1M', before: 100 / 95 - 1, after: 9_900 / 9_500 * DAY_PIECE - 1, market: 600 / 580 - 1, said: ['+5.26%', '+5.17%'] },
+  { chip: 'This year', period: 'YTD', before: 100 / 90 - 1, after: 9_900 / 9_000 * DAY_PIECE - 1, market: 600 / 540 - 1, said: ['+11.11%', '+11.01%'] },
+  { chip: '1Y', period: '1Y', before: 100 / 84 - 1, after: 9_900 / 8_400 * DAY_PIECE - 1, market: 600 / 520 - 1, said: ['+19.05%', '+18.94%'] },
+  { chip: '2Y', period: '2Y', before: 1.25 ** (365 / 731) - 1, after: (9_900 / 8_000 * DAY_PIECE) ** (365 / 731) - 1, market: 600 / 500 - 1, said: ['+11.79%', '+11.74%'] },
+] as const;
+/** what a window reads on each screen: the Performance tab's chip, its Return and its category row; the account page's trio and
+ *  its Stocks / Funds bar; the Holding page's own return */
+const readWindow = (bought: boolean, w: (typeof WINDOWS)[number]) => {
+  const INV = shoot('invest', H_DAY(bought), TODAY, {}, pick(w.chip));
+  const ACC = shoot('account', H_DAY(bought), TODAY, { id: 'w', period: w.period });
+  const HOLD = shoot('holding', H_DAY(bought), TODAY, { account: 'w', position: 'pv', period: w.period });
+  const cat = INV.lines.indexOf('Stocks / Funds', INV.lines.indexOf('RETURN'));
+  return { chip: INV.lines[INV.lines.indexOf(w.chip) + 1], ret: after(INV, 'Return'), category: INV.lines[cat + 2],
+    account: printed(ACC, 'MK-PF-M-016')[0], bar: printed(ACC, 'MK-PF-M-024')[0],
+    holding: HOLD.lines[HOLD.lines.findIndex((l) => /^Your return/.test(l)) + 1], market: after(HOLD, 'The market, same dates') };
+};
+describe('8 · one rule in every window: a buy at today\'s close moves 1M, This year, 1Y, 2Y and the category table alike', () => {
+  test('the hand-worked figures: before +5.26%, +11.11%, +19.05%, +11.79% a year; after +5.17%, +11.01%, +18.94%, +11.74% a year', () => {
+    expect(WINDOWS.map((w) => [pct(w.before), pct(w.after)])).toEqual(WINDOWS.map((w) => w.said));
+  });
+  const seen: string[] = [];
+  for (const w of WINDOWS) {
+    test(`${w.chip}: every screen reads ${w.said[0]} before the buy and ${w.said[1]} after it — the chip, Return, the category row, the account page, its bar and the Holding page`, () => {
+      const was = readWindow(false, w), now = readWindow(true, w);
+      const yearly = w.period === '2Y';
+      // the Holding page over 2Y reads its return since purchase, the window's own total: 1.25 → 1.25 × 0.99 × 11,000 ÷ 10,900
+      const own = (x: number) => (yearly ? pct((1 + x) ** (731 / 365) - 1) : pct(x));
+      expect(was).toEqual({ chip: pct(w.before), ret: pct(w.before), category: `${pct(w.before)}${yearly ? '/year' : ''}`, account: pct(w.before),
+        bar: pct(w.before), holding: own(w.before), market: pct(w.market) });
+      expect(now).toEqual({ chip: pct(w.after), ret: pct(w.after), category: `${pct(w.after)}${yearly ? '/year' : ''}`, account: pct(w.after),
+        bar: pct(w.after), holding: own(w.after), market: pct(w.market) });
+      seen.push(w.chip);
+    });
+  }
+  test('it looked: four windows, each read before and after on three screens', () => {
+    expect(seen).toEqual(['1M', 'This year', '1Y', '2Y']);
+  });
+  test.failing('the app before 2026-10-23, pinned: after the buy 1M still read its price move, +5.26%, while 2Y moved to +11.74% a year', () => {
+    expect(readWindow(true, WINDOWS[0]).chip).toBe('+5.26%');
+  });
+});

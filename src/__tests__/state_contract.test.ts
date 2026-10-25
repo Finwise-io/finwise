@@ -131,7 +131,7 @@ describe('state contract (FCC-state-contract.md)', () => {
 
   test('PRD F9#14/F3#17 — filing status + state rate tune EVERY tax estimate from two answers', () => {
     const { taxOwedFor, ltcgRateFor, marginalBracketFor, TAX_TABLES } = require('../domain/income/tax');
-    const { userCapGainsRates, monthlyTaxRates } = require('../domain/income');
+    const { monthlyTaxRates } = require('../domain/income');
     // the tables behave like the IRS's: married pays less than single on the same gross; HoH between
     expect(TAX_TABLES.married.deduction).toBe(TAX_TABLES.single.deduction * 2);
     expect(taxOwedFor(120000, 'married')).toBeLessThan(taxOwedFor(120000, 'single'));
@@ -146,11 +146,13 @@ describe('state contract (FCC-state-contract.md)', () => {
     expect(ltcgRateFor(120000, 'married')).toBe(0);        // \$120k gross married = taxable \$87.8k ≤ the \$98.9k 0% band
     expect(ltcgRateFor(160000, 'married')).toBe(0.15);      // …and above the band the 15% kicks in
     expect(ltcgRateFor(700000, 'single')).toBe(0.20);
-    // the op-level rates: a married filer with a state rate gets THEIR numbers, not 15/24 flat
+    // the op-level rates: a married filer gets THEIR numbers, not 15/24 flat — federal only (his DEC-0321, 2026-08-20: no state
+    // tax on capital gains). CHANGED 2026-10-24: these read userCapGainsRates (MK-CF-F-091), which added the 5% state rate —
+    // 0% + 5% long-term — and which nothing in the app called; it is retired. $10,000 a month gross = $120,000 a year.
     const op = { status: 'employed', baseSalary: '10000', salaryMode: 'gross', salaryFreq: 'monthly', filingStatus: 'married', stateTaxRate: '5' };
-    const r = userCapGainsRates(op as any);
-    expect(r.lt).toBeCloseTo(0 + 0.05, 5);                  // married at this income: 0% federal LTCG + the state rate
-    expect(r.st).toBeCloseTo(marginalBracketFor(120000, 'married') + 0.05, 5);
+    expect(ltcgRateFor(120000, 'married')).toBe(0);         // married at this income: 0% federal long-term, no state rate added
+    expect(marginalBracketFor(120000, 'married')).toBe(0.12);   // short-term: the federal bracket on $87,800 taxed, no state rate added
+    expect(require('../domain/income').userCapGainsRates).toBeUndefined();   // retired 2026-10-24, never reused
     // and the withholding vector shifts with status (married withholds less per month)
     const single = monthlyTaxRates({ ...op, filingStatus: 'single' } as any);
     const married = monthlyTaxRates(op as any);

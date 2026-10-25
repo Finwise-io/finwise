@@ -1628,6 +1628,10 @@ export function categoryEarnings(input: {
    *  changes" (Performance v17, phones 4 and 5). Any other day, a category that received nothing is
    *  left out. */
   dayOne?: boolean;
+  /** THE WINDOW'S YEARS WHERE ITS RETURN IS MADE YEARLY (the door's `years`, handed in only where its `perYear` is set — a
+   *  window longer than a year): each category's return is then the yearly rate its total makes (classReturnOf, DEC-7217,
+   *  2026-10-23). Absent, each category's return is the window's own total. A bond's stated rate is a yearly rate already. */
+  years?: number | null;
 }): CategoryEarned[] {
   const { windowStart } = input;
   const led = (input.transactions ?? []).filter(
@@ -1675,7 +1679,7 @@ export function categoryEarnings(input: {
     const usable = inClass.map((r) => ({ r, tot: windowTotal(r.periodReturn, r.periodTotal) })).filter((x) => x.tot != null);
     // with each holding's path across the window, so the class is split at every day money went into it (DEC-1669, 2026-10-21)
     return classReturnOf(usable.map((x) => ({ marketValue: x.r.marketValue, interest: x.r.interest, total: x.tot, startValue: x.r.startValue,
-      paidInside: x.r.cappedSince ? undefined : x.r.paidInside, soldInside: x.r.cappedSince ? undefined : x.r.soldInside, path: x.r.path })));
+      paidInside: x.r.cappedSince ? undefined : x.r.paidInside, soldInside: x.r.cappedSince ? undefined : x.r.soldInside, path: x.r.path })), input.years);
   };
 
   // A BOND STATES ITS OWN YEARLY RATE, and where every bond held states one the category shows that
@@ -1796,6 +1800,7 @@ export function walkDirectionWords(beginning: number, ending: number): 'up to' |
  * Answers ..... WHAT ONE CATEGORY GREW BY OVER THE WINDOW, each holding weighed by what it was worth when the window began (outside review MK-NW-F-084, 2026-10-09; DEC-1669): Σ (value today + interest) ÷ Σ start − 1, each start = (value today + interest) ÷ (1 + its window total).
  *
  * Formula .....
+ *     yearly = (t: number | nothing): number | nothing => (t ≠ nothing and years ≠ nothing and years > 1 and t > -1 ? math.pow(1 + t, 1 ÷ years) − 1 : t)
  *     usable = items (or none when missing) where total ≠ nothing and total > -1 and (market value ?? 0) > 0
  *     lost = items (or none when missing) where total ≠ nothing and !usable.includes(each) and (start value ?? 0) > 0
  *     between = items (or none when missing) where total ≠ nothing and !usable.includes(each) and !lost.includes(each) and !!path.marks.some((m) => after > 1e − 9)
@@ -1804,14 +1809,14 @@ export function walkDirectionWords(beginning: number, ending: number): 'up to' |
  *     undefined   otherwise
  *     the answer = r ≠ nothing and total ≠ nothing and size of(r − total) ≤ 1e − 9 × max(1, size of(total))
  *     split = return split at purchases(counted.map((x) => path!))
- *     split   when split ! = undefined
+ *     yearly(split)   when split ! = undefined
  *     nothing   when not (now ≥ 0) or !(start > 0)
  *
  * Called by ... MK-NW-F-084 categoryEarnings · MK-NW-F-088 BENCH
  *               MK-NW-F-091 pricedGainOf · MK-NW-F-138 knownHoldingsReturn
  *               MK-PF-F-078 yardstickOn
  *
- * Reaches ..... 30 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -1819,9 +1824,9 @@ export function walkDirectionWords(beginning: number, ending: number): 'up to' |
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
  *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
- *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-065 firstDatedPurchase
- *               MK-PF-F-070 holdingPath · MK-NW-F-168 holdingRowsIn
- *               … and 12 more — the full list is on functions_from_code
+ *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
+ *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
+ *               … and 14 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -1835,7 +1840,13 @@ export function walkDirectionWords(beginning: number, ending: number): 'up to' |
  * Changed ..... not in git yet (—)
  */
 export function classReturnOf(items: { marketValue?: number | null; interest?: number | null; total: number | null; startValue?: number | null;
-  paidInside?: number | null; soldInside?: number | null; path?: HoldingPath }[]): number | null {
+  paidInside?: number | null; soldInside?: number | null; path?: HoldingPath }[], years?: number | null): number | null {
+  // OVER A WINDOW LONGER THAN A YEAR THE CATEGORY'S FIGURE IS THE YEARLY RATE ITS TOTAL MAKES (2026-10-23, E2E-63; DEC-0237,
+  // DEC-7217 — one rule for a yearly rate on every screen, WHAT EACH CATEGORY EARNED named in it): (1 + total)^(1 ÷ years) − 1,
+  // `years` the window's own days ÷ 365, handed in only where the window's return is made yearly. In the 2Y column the class
+  // read the two years' total beside its holdings' and the account's yearly rates: Stocks / Funds +34.62% over VTI +16.00%,
+  // one holding, one window. Without `years` the window's own total, as before. To reverse: stop handing `years` in.
+  const yearly = (t: number | null): number | null => (t != null && years != null && years > 1 && t > -1 ? Math.pow(1 + t, 1 / years) - 1 : t);
   const usable = (items ?? []).filter((x) => x.total != null && x.total > -1 && (x.marketValue ?? 0) > 0);
   // WORTH $0 TODAY, DOWN 100%, with the start it was read at (2026-10-21; tenet 4): in the class with what it lost — a
   // known $0 is $0. With no start, or worth $0 then too, it is left out as before.
@@ -1857,7 +1868,7 @@ export function classReturnOf(items: { marketValue?: number | null; interest?: n
   };
   if (counted.length && counted.every(ownFigure)) {
     const split = returnSplitAtPurchases(counted.map((x) => x.path!));
-    if (split !== undefined) return split;
+    if (split !== undefined) return yearly(split);
   }
   // OTHERWISE each holding's own return, weighed by what it was worth when the window began: value now ÷ (1 + its return)
   // where no shares were bought inside the window (the same figure), else the start read from the shares held then
@@ -1871,7 +1882,7 @@ export function classReturnOf(items: { marketValue?: number | null; interest?: n
     + lost.reduce((t, x) => t + (x.startValue as number), 0);
   // everything lost is −100.00%, a return; only nothing to start from is no return
   if (!(now >= 0) || !(start > 0)) return null;
-  return now / start - 1;
+  return yearly(now / start - 1);
 }
 
 /** THE WORKED EXAMPLE (six steps, step 6, 2026-09-28).
@@ -2396,7 +2407,7 @@ export const PERFORMANCE_FIGURES = declareFigures({
     inputs: ['MK-XS-I-020 the records of money movements'],
     decisions: [
       'LEDGER ONLY: what was actually RECEIVED, never a rate applied to a balance.',
-      'A RECORD WITH NO TICKER names no holding (row words corrected 2026-10-21, outside re-run OpenAI part 1, to what the screen does): interest with no ticker is interest on the account\u2019s own cash and sits under Cash in this account; a dividend with no ticker sits under Unclassified (DEC-2160), never a guessed class.',
+      'A RECORD WITH NO TICKER names no holding (row words corrected 2026-10-21, outside re-run OpenAI part 1, to what the screen does): interest with no ticker is interest on the account\u2019s own cash and sits under Cash in this account; a dividend with no ticker comes from a fund and sits under Stocks / Funds, as the screen files it (B-116) \u2014 corrected 2026-10-24: these words said Unclassified, which the screen never did ($40 of the worked $865).',
       'A class that received nothing is not shown at all; where nothing was received the table does not appear.',
     ],
     refusal: 'The table does not appear — nothing was received in this window.',

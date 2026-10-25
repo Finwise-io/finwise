@@ -8,6 +8,18 @@
  *  as a jest snapshot under __snapshots__/. Moving a caller behind a door must leave this file
  *  byte-identical; a difference is a number that changed, and a difference has no winner — it stops
  *  the work and goes to the founder. Update the photograph only with `jest -u` and a ruling.
+ *
+ *  UPDATED 2026-10-23 (CF-FIX; outside re-run of Performance, gap list item 38): Home's cash-flow box says its middle figure as
+ *  "expenses and debt paid so far" — it prints the Cash flow tab's Outflow (expenses + debt), the one word for money leaving
+ *  (DEC-0269, canon row 3) — where it said "spent so far". Words only, in the spoken label, for both people: every figure
+ *  recorded here ($7,200 · $0 · $7,200 and $2,361 · $0 · $2,361) is unchanged.
+ *  UPDATED 2026-10-24 (CF-FIX; his DEC-0283): the Income summary shows what it is taxed on being made — under "= Gross /year",
+ *  "Your 401(k)s" and "= What it is taxed on" (a READ THIS FIRST row on income-end-to-end_v07). Neither person has a 401(k),
+ *  so the new rows read $0 and the gross again ($108,000; $28,800); every figure recorded before is unchanged.
+ *  UPDATED 2026-10-24 (CJB, Cash flow journey E2E-78): the Cash flow tab's rows are each one element with a spoken label — "hidden"
+ *  under hide-balances, never the dots — so the worker's photograph gains six "[spoken]" lines that repeat figures already printed
+ *  ($7,200 in, +$2,700 planned, $0 by hand, +$7,200 so far, ~$2,455 from savings). Spoken labels only: no printed figure moved,
+ *  and none was removed.
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';

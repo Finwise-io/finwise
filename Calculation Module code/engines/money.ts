@@ -106,7 +106,7 @@ export function readMoney(
  * Called by ... MK-PF-F-047 isIndividualBondOrCD · MK-ST-F-012 toLedgerRow
  *               MK-ST-F-020 sumSigned
  *
- * Reaches ..... 90 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 92 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -116,7 +116,7 @@ export function readMoney(
  *               MK-PF-F-048 bondInterestInWindow · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               … and 72 more — the full list is on functions_from_code
+ *               … and 74 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -176,7 +176,7 @@ export function sumSigned(items: Money[]): Dec {
  *               MK-ST-F-012 toLedgerRow · MK-XS-F-102 ingestSync
  *               MK-XS-F-189 tradeFeeOnRecord
  *
- * Reaches ..... 93 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 95 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
@@ -186,7 +186,7 @@ export function sumSigned(items: Money[]): Dec {
  *               MK-NW-F-144 beforeTheRecordSentence · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               … and 75 more — the full list is on functions_from_code
+ *               … and 77 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

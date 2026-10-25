@@ -16,8 +16,10 @@
 import type { AssetAccount } from '../assets';
 import { assetClassOf } from '../assets';
 import { money } from '../_shared/num';
-import { isoLocalDate } from '../_shared/dates';
+import { isoLocalDate, dateShown } from '../_shared/dates';
 import { moneyIntoAccount } from '../../../Calculation Module code/engines/ledger';
+// a bond's or CD's year of interest has ONE rule (MK-NW-F-126 yearlyInterestNow, DEC-2748c/d) — read here, never re-derived
+import { bondInfo, yearlyInterestNow, isPastMaturity } from '../bonds';
 
 export interface AccountIncomeLine {
   label: string;        // the account, as the person named it
@@ -119,7 +121,8 @@ function paidOutByAccount(txns: any[] | null | undefined, now: Date): Map<string
  *     balance = (a as any).balance (or 0 when missing or zero)
  *     rate = (a as any).coupon rate (or 0 when missing or zero)
  *     actual = paid.get(string((a as any).asset id ?? ''))
- *     face = (a as any).face value (or 0 when missing or zero)
+ *     b = bond info(a)
+ *     yearly = yearly interest now(b, now)
  *
  * Called by ... MK-CF-F-210 annualOfSource · MK-CF-O-007 theTaxOrganizer
  *
@@ -133,13 +136,13 @@ function paidOutByAccount(txns: any[] | null | undefined, now: Date): Map<string
  *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-011 bond face value
  *               MK-XS-I-012 bond coupon rate
+ *               MK-XS-I-013 bond maturity date
  *               MK-XS-I-024 logged expenses
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Decides .....
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · If coupon rate is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · If face value is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-184
@@ -170,14 +173,26 @@ export function incomeFromAccounts(
     }
 
     if (cls === 'bonds') {
-      const face = (a as any).face_value || 0;
-      if (rate > 0 && face > 0) {
-        lines.push({ label, why: `${asPercent(rate)} coupon on ${money(face)} face`, annual: (rate * face), assumed: false });
-      } else if (rate > 0) {
-        lines.push({ label, why: `${asPercent(rate)} on ${money(balance)}`, annual: (rate * balance), assumed: false });
-      } else {
+      // THE ONE RULE (2026-10-24): this line read face × rate, else rate × balance, by its own arithmetic — a second rule for
+      // the figure the Bonds screen and the account page print. So a bond with its face left blank read 4.5% of its market
+      // value ($1,089 for a $25,000-face Treasury worth $24,200, which pays $1,125), and a bond past its maturity date kept
+      // its year's coupon here while every other figure counted $0 (DEC-2748d). It now reads yearlyInterestNow, and each
+      // line says which of its cases it is.
+      const b = bondInfo(a);
+      const yearly = yearlyInterestNow(b, now);
+      if (b.couponRate == null) {
         // A46 (founder, 2026-08-26): if the coupon rate is not available use 0 — named, never a built-in yield
         lines.push({ label, why: `no coupon rate entered — counted as $0 on ${money(balance)} until one is`, annual: 0, assumed: true });
+      } else if (yearly == null) {
+        // a dated bond with a rate and no face value: its coupon is paid on the face (DEC-3523 tenet 3), so nothing is counted, said so
+        lines.push({ label, why: `${asPercent(b.couponRate)} coupon — face value not entered, so counted as $0 until it is`, annual: 0, assumed: true });
+      } else if (isPastMaturity(b.maturity, now)) {
+        lines.push({ label, why: `matured ${dateShown(b.maturity)} — it pays no more interest`, annual: 0, assumed: false });
+      } else if (b.face != null) {
+        lines.push({ label, why: `${asPercent(b.couponRate)} coupon on ${money(b.face)} face`, annual: yearly, assumed: false });
+      } else {
+        // a CD bought from the bank typed by its balance, or a bond fund: its rate on that balance (DEC-2748c, DEC-3837)
+        lines.push({ label, why: `${asPercent(b.couponRate)} on ${money(balance)}`, annual: yearly, assumed: false });
       }
       continue;
     }

@@ -41,10 +41,33 @@ test('the sentence stays his words (DEC-3390), with the estimate and the days of
     'Added estimated $556 in accrued interest to bond value at 4.5% coupon for 182 days to calculate YTM. If this is not accurate, enter actual accrued interest');
 });
 
-test('the yield to maturity is solved on the value plus that estimate: $24,200 + $556.39 twice a year, $24,200 + $1,118.84 once a year — a smaller full price, a higher yield', () => {
+// FIXED 2026-10-24 (NW-BONDS, under DEC-3390 and DEC-6625; the re-run of MK-NW-M-026): the full price read the half-year
+// schedule while the price it was matched to still paid one whole $1,125 coupon a year — so in two days, on Sep 30, it paid
+// $1,125 where a twice-a-year Treasury pays $562.50, and the yield read 6.56%. The test below held that as "a smaller full
+// price, a higher yield"; it is kept, failing. Now a twice-a-year bond is priced on $562.50 every six months, its yield
+// compounded twice a year (y ÷ 2 a half year), the way a Treasury quotes it.
+test.failing('the app until 2026-10-24, pinned: twice a year read a HIGHER yield than once a year (6.56% against 5.69%) — no longer its answer', () => {
   const once = approxYTM(treasury(), TODAY)!;
   const twice = approxYTM(treasury({ coupons_per_year: 2 }), TODAY)!;
   expect(twice).toBeGreaterThan(once);
+});
+
+test('the yield to maturity is solved on the value plus that estimate: once a year $24,200 + $1,118.84 → 5.69%; twice a year $24,200 + $556.39 → 5.67%, on half coupons of $562.50 every six months', () => {
+  const once = approxYTM(treasury(), TODAY)!;
+  const twice = approxYTM(treasury({ coupons_per_year: 2 }), TODAY)!;
+  expect(once).toBeCloseTo(0.05688, 5);                       // his DEC-3390 Treasury, unchanged
+  // by hand, twice a year: payments of $562.50 at 2/365 of a year from today and every half year after, to Sep 30, 2029
+  // (seven of them), and $25,000 then; the y at which Σ 562.50 ÷ (1 + y/2)^(2t) + 25,000 ÷ (1 + y/2)^(2 × (3 + 2/365))
+  // equals the full price $24,756.39 — solved by halving here too, as the app does, from the arithmetic alone
+  const full = 24_200 + ((25_000 * 0.045) / 2) * 182 / 184;
+  const times = Array.from({ length: 7 }, (_, k) => 2 / 365 + 0.5 * k);
+  const price = (y: number) => times.reduce((t, x) => t + 562.5 / (1 + y / 2) ** (2 * x), 0) + 25_000 / (1 + y / 2) ** (2 * times[6]);
+  let lo = 0, hi = 1;
+  for (let i = 0; i < 200; i++) { const mid = (lo + hi) / 2; if (price(mid) > full) lo = mid; else hi = mid; }
+  expect(twice).toBeCloseTo(lo, 9);
+  expect(+(twice * 100).toFixed(2)).toBe(5.67);
+  // a smaller full price than once a year AND half its coupon two days away: the two nearly agree, as the same bond should
+  expect(Math.abs(twice - once)).toBeLessThan(0.0005);
 });
 
 test('a payment date the month does not have is that month\'s last day: maturing 31 Mar 2030, twice a year, pays 30 Sep — on 1 Oct 2026, 1 day after it', () => {

@@ -36,7 +36,8 @@ import {
   buildPerformance, benchmarkTicker, totalShares, paidOnRecord, latestCloseLookup,
   type Period, type Position, type Lot,
 } from '../domain/performance';
-import { txnLabel, cashEffect, availableCash, type Transaction, type TxnType } from '../domain/transactions';
+import { txnLabel, cashEffect, availableCash, tradeMultiplierOf, type Transaction, type TxnType } from '../domain/transactions';
+import { purchaseQuantityWords } from '../../MoneyKeel/functions/networth-and-performance/holding';   // a quantity in the holding's own unit (DEC-7298)
 import { EmptyNote, InfoDot } from '../components/UI';
 import type { GlossaryTerm } from '../domain/glossary';
 import { ADD_ACCOUNT_DOORS, ADD_ACCOUNT_QUESTION } from '../constants/doors';
@@ -365,7 +366,9 @@ export default function PerformanceScreen() {
           /* DEC-5291 (2026-10-13, "approved."): where the longer windows are worked back from each holding's price
              history, the day-one line says so; on a true day one with no holding history, v17's words stand.
              DEC-5425 (2026-10-14, "approved."): the line is his words, not the proposed ones */
-          <Note term="dayOne">{WINDOWS.some((w) => windowFigures[w.key]?.workedBack)
+          /* only where a longer window HAS a figure from price history (2026-10-23, E2E-65): an account typed as one total holds
+             nothing with a history, every window reads "—", and the line said its figures came from each holding's past prices */
+          <Note term="dayOne">{WINDOWS.some((w) => windowFigures[w.key]?.workedBack && windowFigures[w.key]?.ret != null)
             ? "You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices."
             : "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."}</Note>
         ) : now.recordBegins ? (
@@ -467,18 +470,26 @@ export default function PerformanceScreen() {
           // closed (phone 3); on day one every walk is open and there is nothing to collapse (phone 4)
           const isOpen = dayOneView || (openAcctWalk[id] ?? (i === 0 && list.length > 1));
           const src = sourceWords(acct);
+          /** this account's own page, on the window picked here — the route the name opens, for the "›" and the spoken action */
+          const openPage = () => router.push(`/account-detail?id=${id}&period=${period}` as any);
           const oneReturn = one.ret != null ? fig('MK-PF-M-016', one.ret) : null;
           return (
             <View key={id} style={styles.card}>
               <TouchableOpacity accessibilityRole="button" activeOpacity={0.85} disabled={dayOneView}
                 onPress={() => setOpenAcctWalk((m) => ({ ...m, [id]: !isOpen }))}
-                accessibilityLabel={`${label}, ${figSaid('MK-PF-M-005', acct.balance || 0)}.${dayOneView ? '' : ` ${isOpen ? 'Collapses' : 'Expands'} its walk.`}`}>
+                accessibilityLabel={`${label}, ${figSaid('MK-PF-M-005', acct.balance || 0)}.${dayOneView ? '' : ` ${isOpen ? 'Collapses' : 'Expands'} its walk.`}`}
+                /* THE ACCOUNT'S OWN PAGE, FOR A SCREEN READER TOO (2026-10-23, E2E-68): the bar is one button (it opens and closes
+                   the walk), so the name's door and the "›" inside it could not be reached by VoiceOver — the account's page could
+                   not be opened at all. It is the bar's action, named as the door is, opening the same page on the same window
+                   (the Home hero card's pattern, W-A11Y 2026-10-22). To reverse: remove the two props. */
+                accessibilityActions={[{ name: 'openAccountPage', label: `Open ${label} — this account's own page` }]}
+                onAccessibilityAction={(ev) => { if (ev.nativeEvent.actionName === 'openAccountPage') openPage(); }}>
                 <SectionBand inCard title={`${dayOneView ? '' : isOpen ? '▾ ' : '▸ '}${label}`} value={fig('MK-PF-M-005', acct.balance || 0)}
                   // the page opens on the window picked here (account-page drawing v01, row 18, DEC-6457)
                   onTitlePress={() => router.push(`/account-detail?id=${id}&period=${period}` as any)}
                   /* v17 draws "›" after every account bar: the bar opens that account's page (frame 2). It sits in the
                      right gutter every money row keeps, so the bar total stays on the rows' edge (DEC-0093) */
-                  gutter={GUTTER} onChevronPress={() => router.push(`/account-detail?id=${id}&period=${period}` as any)}
+                  gutter={GUTTER} onChevronPress={openPage}
                   titleHint={`Open ${label} — this account's own page`} />
               </TouchableOpacity>
               {!isOpen ? (
@@ -516,7 +527,8 @@ export default function PerformanceScreen() {
                       {/* below Wealth generated and Return: the holding left out of both (DEC-5068, 2026-10-13) */}
                       {!!one.notIncluded && <Text style={styles.sumNote} accessibilityLabel={spokenDollars(one.notIncluded)}>{maskDollars(one.notIncluded)}</Text>}
                       {/* printed because both taps are real: the arrow collapses, the name opens the account */}
-                      <Text style={styles.sumNote}>Tap ▾ to collapse · tap the name to open this account's portfolio ›</Text>
+                      {/* said in words, without the ▾ and the › a screen reader spells out (2026-10-23, E2E-68) */}
+                      <Text style={styles.sumNote} accessibilityLabel="Tap the arrow to collapse, tap the name to open this account's portfolio">Tap ▾ to collapse · tap the name to open this account's portfolio ›</Text>
                     </>
                   )}
                 </>
@@ -537,6 +549,9 @@ export default function PerformanceScreen() {
           rows: rows as any,
           bonds: bondAccts as any,
           dayOne: dayOneView,
+          // over a window longer than a year each category's return is the yearly rate it makes, as the summary's is (DEC-7217,
+          // 2026-10-23): it printed the two years' own total under "2Y is shown per year" — the window's years, from the door
+          years: now.perYear != null ? now.years : undefined,
         });
         if (!shown.length) return null;
         const total = categoriesEarnedTotal(shown);   // added up by the door, not here (DEC-0346, 2026-10-22)
@@ -550,10 +565,12 @@ export default function PerformanceScreen() {
               <View testID="right-gutter" style={styles.gutter} />
             </View>
             {shown.map((b) => {
-              const ret = b.ret == null ? '—' : `${fig('MK-PF-M-006', b.ret)}${b.yearly ? '/year' : ''}`;
+              // over 2Y the category's figure is a yearly rate and says so, "+16.25%/year" (the lead's ruling of 2026-10-23 under
+              // DEC-0237, DEC-0404); a bond's stated rate carries its own "/year"
+              const ret = b.ret == null ? '—' : `${fig('MK-PF-M-006', b.ret)}${b.yearly || now.perYear != null ? '/year' : ''}`;
               return (
                 <View key={b.key} style={styles.catRow} accessible
-                  accessibilityLabel={`${b.label}, earned ${figSaid('MK-PF-M-007', b.earned)}, return ${b.ret == null ? 'not known' : figSaid('MK-PF-M-006', b.ret, b.yearly ? 'year' : undefined)}`}>
+                  accessibilityLabel={`${b.label}, earned ${figSaid('MK-PF-M-007', b.earned)}, return ${b.ret == null ? 'not known' : figSaid('MK-PF-M-006', b.ret, b.yearly || now.perYear != null ? 'year' : undefined)}`}>
                   <View style={[styles.catDot, { backgroundColor: (ClassMarkColors as any)[b.key] }]} />
                   <View style={styles.catName}>
                     <Text style={styles.catLabel}>{b.label}</Text>
@@ -701,7 +718,10 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
   const valid = ticker.trim().length > 0 && lots.some((l) => l.shares > 0) && (!isOption || perContractN > 0) && allReal;
 
   const save = () => {
-    const clean = lots.filter((l) => l.shares > 0).map((l) => ({ ...l, lot_id: l.lot_id || `lot_${Math.random().toString(36).slice(2, 8)}` }));
+    // A PURCHASE WHOSE SHARE COUNT IS NOT ON RECORD IS KEPT (2026-10-23, E2E-60; tenet 3): a broker's purchase with no share count
+    // shows here as an empty box, and saving dropped it — 50 BND and one with no count read Quantity "Not stated" before a save
+    // and 70 shares, $5,110, after one that only added a purchase. A row with a count of 0, a blank new one, is still left out.
+    const clean = lots.filter((l) => l.shares == null || l.shares > 0).map((l) => ({ ...l, lot_id: l.lot_id || `lot_${Math.random().toString(36).slice(2, 8)}` }));
     const position: Position = {
       position_id: existing?.position.position_id ?? `pos_${Math.random().toString(36).slice(2, 8)}`,
       ticker: ticker.trim().toUpperCase(), label: label.trim() || undefined, kind, lots: clean,
@@ -895,7 +915,7 @@ function NoteLine({ parts }: { parts: { term: GlossaryTerm; text: string }[] }) 
 // THE VALUE LINE now lives in src/components/ValueGraph.tsx, shared with the Account portfolio screen.
 
 // ───────────────────────── The trade sheet: record activity ─────────────────────────
-// Drawn as built, approval pending: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_trade-sheet_v02.html (held by src/screens/__tests__/sheets_drawn_from_code.test.tsx).
+// Drawn as built, approval pending: MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_trade-sheet_v03.html (held by src/screens/__tests__/sheets_drawn_from_code.test.tsx).
 const TXN_TYPES: { k: TxnType; label: string }[] = [
   { k: 'BUY', label: 'Buy' }, { k: 'SELL', label: 'Sell' }, { k: 'DEPOSIT', label: 'Deposit cash' },
   { k: 'WITHDRAWAL', label: 'Withdraw' }, { k: 'TRANSFER', label: 'Transfer' }, { k: 'DIVIDEND', label: 'Dividend' },
@@ -918,7 +938,10 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
   const [amount, setAmount] = useState('');
   const [reinvest, setReinvest] = useState(false);
   const [date, setDate] = useState(isoLocalDate(new Date()));
-  useEffect(() => { if (open) { setType('BUY'); setAccountId(prefill?.accountId ?? (accounts.filter(accountAllowsTicker)[0]?.asset_id) ?? accounts[0]?.asset_id ?? ''); setCounterId(''); setTicker(prefill?.ticker ?? ''); setShares(''); setPrice(''); setAmount(''); setReinvest(false); setDate(isoLocalDate(new Date())); } }, [open]);
+  // THE BROKER'S FEE ON A BUY OR A SALE, TYPED BESIDE THE PRICE (2026-10-23, E2E-58; DEC-6873, DEC-7452): left blank it is not on
+  // record; typed, it is kept apart from the price, so a sale brings in shares × price less it and a buy costs it on top
+  const [fee, setFee] = useState('');
+  useEffect(() => { if (open) { setType('BUY'); setAccountId(prefill?.accountId ?? (accounts.filter(accountAllowsTicker)[0]?.asset_id) ?? accounts[0]?.asset_id ?? ''); setCounterId(''); setTicker(prefill?.ticker ?? ''); setShares(''); setPrice(''); setAmount(''); setFee(''); setReinvest(false); setDate(isoLocalDate(new Date())); } }, [open]);
 
   const isTrade = type === 'BUY' || type === 'SELL';
   const isBuy = type === 'BUY';
@@ -935,21 +958,28 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
   // stale: the Holding page's "Record buy/sell" lost its ticker the moment the sheet set its account (2026-10-21, gap 25)
   useEffect(() => { setTicker((t) => (prefill?.ticker && t === prefill.ticker && accountId === prefill.accountId ? t : '')); }, [accountId, type]);
   // cash guards: can't spend more than the account's available cash
-  const cost = num(shares) * num(price);
-  const enough = avail == null ? true : isBuy ? cost <= avail : (type === 'WITHDRAWAL' || isTransfer) ? num(amount) <= avail : true;
+  const feeTyped = isTrade && fee.trim() !== '';
+  const feeN = feeTyped ? num(fee) : 0;
+  // what the buy takes out of the cash — its shares × price and its fee — asked of the one reader of what a record moves
+  // (cashEffect, MK-CF-F-118), never calculated here (2026-10-23, E2E-58)
+  // an option's contracts at the shares in each, as the record will carry them (tradeMultiplierOf, 2026-10-23; DEC-0274)
+  const perContract = tradeMultiplierOf(accounts, { type: 'BUY', account_id: accountId, ticker: ticker.trim().toUpperCase() });
+  const spend = isBuy ? -cashEffect({ type: 'BUY', shares: num(shares), price: num(price), ...(perContract !== 1 ? { multiplier: perContract } : {}), ...(feeTyped ? { fee: feeN, fee_in_price: false } : {}) } as Transaction) : 0;
+  const enough = avail == null ? true : isBuy ? spend <= avail : (type === 'WITHDRAWAL' || isTransfer) ? num(amount) <= avail : true;
   const tickerOk = isBuy ? !!ticker.trim() : (isSell || isDiv) ? held.includes(ticker) : true;
   const ownedShares = isSell ? totalShares((acct?.positions ?? []).find((p) => p.ticker === ticker) ?? { lots: [] } as any) : 0;
   // a holding whose share count is not on record cannot be checked against, so the sale waits (tenet 3; outside review Claude Performance, 2026-10-11)
   const sellOk = !isSell || (ownedShares != null && num(shares) <= ownedShares);
   const valid = !!accountId && enough && sellOk && (
-    isTrade ? (tickerOk && num(shares) > 0 && num(price) > 0) :
+    isTrade ? (tickerOk && num(shares) > 0 && num(price) > 0 && Number.isFinite(feeN)) :
     isCash ? num(amount) > 0 :
     isTransfer ? (num(amount) > 0 && !!counterId && counterId !== accountId) :
     isDiv ? (tickerOk && (reinvest ? (num(shares) > 0 && num(price) > 0) : num(amount) > 0)) : false
   );
   const save = () => {
     const base = { date, type, account_id: accountId };
-    if (isTrade) onSave({ ...base, ticker: ticker.trim().toUpperCase(), shares: num(shares), price: num(price) });
+    // a fee typed is a figure (a typed 0 is $0), kept apart from the price it was typed beside; blank, it is not on record
+    if (isTrade) onSave({ ...base, ticker: ticker.trim().toUpperCase(), shares: num(shares), price: num(price), ...(feeTyped ? { fee: feeN, fee_in_price: false } : {}) });
     else if (isCash) onSave({ ...base, amount: num(amount) });
     else if (isTransfer) onSave({ ...base, counter_account_id: counterId, amount: num(amount) });
     else onSave({ ...base, ticker: ticker.trim().toUpperCase(), reinvested: reinvest, ...(reinvest ? { shares: num(shares), price: num(price) } : { amount: num(amount) }) });
@@ -1055,6 +1085,12 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
               <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><DateField value={date} onChange={setDate} label="transaction date" style={styles.lotIn} maximumDate={new Date()} /></View>
             </View>
           )}
+          {/* the trade's own fee, optional, in the words and the dash the holding editor gives an optional figure (2026-10-23, E2E-58) */}
+          {isTrade && (
+            <View style={styles.lotRow}>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Fee (opt)</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={fee} onChangeText={setFee} accessibilityLabel="Fee" placeholder="—" placeholderTextColor={Colors.textTertiary} /></View>
+            </View>
+          )}
           {(isCash || isTransfer || (isDiv && !reinvest)) && (
             <View style={[styles.lotRow, { marginTop: 12 }]}>
               <View style={styles.lotCell}><Text style={styles.lotL}>Amount</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={amount} onChangeText={setAmount} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
@@ -1098,7 +1134,9 @@ export function HistorySheet({ open, transactions, accounts, onClose, onDelete }
           {[...transactions].sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? ''))).map((t) => {
             const eff = cashEffect(t);
             // B47 finding 8: a PRICE is cents-precise — $250.10, never $250 (the B44 precision rule, applied here too)
-            const detail = t.ticker ? `${t.ticker}${t.shares ? ` · ${t.shares} sh` : ''}${t.price ? ` @ ${fig('MK-NW-M-061', t.price)}` : ''}` : acctName(t.account_id);
+            // the quantity in the holding's own unit (2026-10-23; DEC-7298, purchaseQuantityWords): "100 sh", "1 contract"
+            const heldAs = (accounts.find((a) => a.asset_id === t.account_id)?.positions ?? []).find((p) => p.ticker === String(t.ticker ?? '').toUpperCase());
+            const detail = t.ticker ? `${t.ticker}${t.shares ? ` · ${heldAs ? purchaseQuantityWords(heldAs, t.shares) : `${t.shares} sh`}` : ''}${t.price ? ` @ ${fig('MK-NW-M-061', t.price)}` : ''}` : acctName(t.account_id);
             return (
               <View key={t.id} style={styles.hRow}>
                 {/* the record said as one thing, its amount through the one spoken writer (audit row 29, 2026-10-22) */}

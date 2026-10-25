@@ -111,7 +111,7 @@ test('Q34 · the info dot beside Price paid (average) states the rule, and the m
   expect(L.slice(at, at + 3)).toEqual(['Price paid (average)', 'ⓘ', '$100.00']);   // a $0 price is left out: 1,000 ÷ 10, not ÷ 20
   expect(L).toContain('10 sh @ no price paid on record');
   expect(L).toContain('The average above and the total paid leave out 10 shares with no price paid on record.');
-  fireEvent.press(screen.getByLabelText('What is Price paid (average)?'));
+  fireEvent.press(screen.getByLabelText('About Price paid (average)'));
   expect(screen.getByText(RULE)).toBeOnTheScreen();
 });
 

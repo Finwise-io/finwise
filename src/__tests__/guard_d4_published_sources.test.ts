@@ -22,6 +22,8 @@ const sources: Source[] = JSON.parse(fs.readFileSync(REGISTER, 'utf8'));
 const STATUTORY: [string, string][] = [
   ['TAX_BRACKETS', 'src/domain/income/tax.ts'], ['TAX_TABLES', 'src/domain/income/tax.ts'],
   ['STANDARD_DEDUCTION', 'src/domain/income/tax.ts'], ['SENIOR_DEDUCTION', 'src/domain/income/tax.ts'], ['TAX_YEAR', 'src/domain/income/tax.ts'],
+  // the long-term capital-gains tops (IRS Rev. Proc. 2025-32 §4.03) — in the code since 2026-08-20, in the register since 2026-10-23
+  ['LTCG', 'src/domain/income/tax.ts'],
   ['IRS_LIMITS', 'src/domain/income/limits.ts'], ['annualHsaLimit', 'src/domain/income/limits.ts'], ['ageAttainedInYear', 'src/domain/income/limits.ts'],
   ['fullRetirementAge', 'src/domain/retirement/ssTiming.ts'], ['ssClaimFactorFor', 'src/domain/retirement/ssTiming.ts'],
   ['UNIFORM_LIFETIME', 'Calculation Module code/engines/rmd.ts'], ['rmdStartAge', 'Calculation Module code/engines/rmd.ts'],

@@ -83,6 +83,12 @@
  *     Bonds, Alternatives, Itemize and Net worth v08, the DEC-4529 way). Bonds and Alternatives draw their chips at
  *     border-radius 100px, Itemize at 20px; the app draws every choice at 12. Held: the drawn radius, the line correcting
  *     it, and the rendered chip at 12 — words cannot see a corner, so the appearance is held on its own.
+ * 23. A MONTH ROW OPENS NOTHING (2026-10-24, Cash flow journey E2E-80; the Bill calendar drawing's READ THIS FIRST row of that
+ *     date). Both phones end their foot line "Tap any row for that month's full detail." — month detail was retired on
+ *     2026-10-02 and no row has a tap, so the sentence is not printed. Held: the foot line without it.
+ * 24. ONE YEAR IN THE SPAN (2026-10-24, the lead's ruling on E2E-80; the same drawing's READ THIS FIRST row). Both phones head the
+ *     table "Oct 2026 – Sep ’27 2027", the year twice — a typo copied from the build. The span is written as the one date writer
+ *     writes a month (monthYearShown): "Oct 2026 – Sep 2027". Held: the drawn line with the year once.
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
@@ -129,6 +135,7 @@ const SIX = ['Taxable', '401(k)', 'Traditional IRA', 'Roth IRA', 'Roth 401(k)', 
 const flatStyle = (node: any) => require('react-native').StyleSheet.flatten(node.props.style);
 
 describe('Bill calendar v02', () => {
+  const yearOnce = (l: string) => l.replace(/ – (\w{3}) [’'](\d\d) (\d{4})/, ' – $1 $3');   // 24
   const P = phones('cashflow/moneykeel_pres_mock_bill-calendar_v02.html');
   const BillCalendarScreen = require('../BillCalendarScreen').default;
   test('the drawing has its two phones', () => { expect(P).toHaveLength(2); });
@@ -138,7 +145,7 @@ describe('Bill calendar v02', () => {
     const built = show(BillCalendarScreen, { onboardingProfile: { status: 'employed', incomeSources: ['employment'], baseSalary: '9000', salaryFreq: 'monthly',
       taxMode: 'manual', manualTaxRate: '20', monthlySpending: '4220',
       spendCats: [{ id: 'everyday', label: 'Everyday', amount: 4220, bucket: 'flexible' }, { id: 'ins', label: 'Home insurance', amount: 3600, bucket: 'nonmonthly', months: [4], dueDay: 10 }] } });
-    const want = norm(upTo(P[0], /^A forward plan, not a promise/));
+    const want = norm(upTo(P[0], /^A forward plan, not a promise/).map(yearOnce)).replace(/ tap any row for that month's full detail\.$/, '');   // 23
     expect(want.split(' ').length).toBeGreaterThan(120);
     expect(firstDifference(want, norm(built))).toBe('');
     expect(built.filter((l) => l === '+$7,200')).toHaveLength(12);         // the same in every month
@@ -149,7 +156,7 @@ describe('Bill calendar v02', () => {
 
   test('phone 2 · the first day, nothing entered', () => {
     const built = show(BillCalendarScreen, { onboardingProfile: {} });
-    const want = norm(upTo(P[1], /^A forward plan, not a promise/));
+    const want = norm(upTo(P[1], /^A forward plan, not a promise/).map(yearOnce)).replace(/ tap any row for that month's full detail\.$/, '');   // 23
     expect(want.split(' ').length).toBeGreaterThan(100);
     expect(firstDifference(want, norm(built))).toBe('');
   });

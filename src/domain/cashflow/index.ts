@@ -9,6 +9,7 @@ import {
   benefitAnnual, benefitActiveMonths, otherIncomeMonth,
 } from '../income';
 import { spendBuckets, spendByMonth } from '../budget';
+import type { DatedGrid } from '../grid';   // a type only: the grid reads equityByMonth from here
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -23,10 +24,12 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
  *
  * Called by ... MK-CF-F-018 equityByMonth · MK-CF-F-020 cashflowYear
  *
- * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-237 LATER
  *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
  *               MK-CF-F-020 cashflowYear · MK-CF-F-018 equityByMonth
  *               MK-CF-O-017 futurePaycheck · MK-CF-F-212 receivedInMonth
+ *               MK-CF-O-008 whatsComing · MK-CF-F-242 workedLineAmount
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -55,10 +58,12 @@ function zero12(): number[] { return new Array(12).fill(0); }
  *
  * Called by ... MK-CF-F-020 cashflowYear · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-237 LATER
  *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
  *               MK-CF-F-020 cashflowYear · MK-CF-O-017 futurePaycheck
- *               MK-CF-F-212 receivedInMonth
+ *               MK-CF-F-212 receivedInMonth · MK-CF-O-008 whatsComing
+ *               MK-CF-F-242 workedLineAmount
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -167,7 +172,11 @@ function nextOccurrence(month1to12: number, day: number, now: Date, year?: numbe
   const d0 = day > 0 ? day : 1;
   if (year && year > 0) return new Date(year, month1to12 - 1, d0);
   let d = new Date(now.getFullYear(), month1to12 - 1, d0);
-  if (d.getTime() < now.getTime()) d = new Date(now.getFullYear() + 1, month1to12 - 1, d0);
+  // THIS MONTH'S BILL IS THIS MONTH'S, even once its day has passed (2026-10-24, found by CJC's E2E-81, placed as the month table
+  // places it — buildDatedGrid counts a yearly bill in the next time its MONTH comes, so September's bill seen on Sep 28 is in
+  // September's Out; this list dated it Sep 15 of next year, a month the table does not have it in). A passed day is not
+  // "coming up": the list leaves it out (daysAway below 0). Only a month already gone rolls to next year.
+  if (month1to12 - 1 < now.getMonth()) d = new Date(now.getFullYear() + 1, month1to12 - 1, d0);
   return d;
 }
 
@@ -178,33 +187,94 @@ export interface UpcomingBill {
   dueDate: string;          // ISO — when the bill is due
   needByDate: string;       // dueDate − buffer (money must be in the account)
   askByDate: string;        // needByDate − lead (when to request the shortfall)
-  availableByNeed: number;  // projected cash on the need-by date (after earlier commitments)
+  availableByNeed: number;  // what is there by the need-by date, read from the month table (balanceByDay)
   shortfall: number;        // how much more you need for this bill
   coverSource: string;      // who/what covers the gap
   daysAway: number;         // days from now until due
 }
 
-/** The dated bills coming due over the next year, each with the day the money must be there, the cash expected by that day and how much short it would be. */
+/** What is there by a day, read from the month table — one way, so the Bill calendar's COMING UP line and its End column cannot
+ *  disagree (2026-10-24, Cash flow journey E2E-81; DEC-3523 tenets 1 and 4, DEC-0269). The table knows a month, not the day pay
+ *  lands, and never invents one. So by a day, the money there is the End of the month before (the starting balance in this
+ *  month), plus what that month brings or takes on a day already passed — aid or a loan on the day it lands, a dated bill on
+ *  its day (the 1st when it has none, as the bill list shows it) — and the month's regular money (pay, everyday expenses,
+ *  monthly debt payments) only when it takes more out than it brings in. That is the lower of the two month-ends either side
+ *  of the day, each counting only what is dated by then. The bill a person is asking about falls after its own need-by day, so
+ *  it is never counted against itself. */
+/* ─ MK-CF-F-232 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * balanceByDay
+ *
+ * Answers ..... What is there by a day, read from the month table — one way, so the Bill calendar's COMING UP line and its End column cannot disagree (2026-10-24, Cash flow journey E2E-81; DEC-3523 tenets 1 and 4, DEC-0269).
+ *
+ * Formula .....
+ *     cells = grid.cells
+ *     0   when count of cells is missing
+ *     start = cells[0].running balance − cells[0].net
+ *     slot = (y × 12 + (m − 1)) − (cells[0].year × 12 + (cells[0].calendar month − 1))
+ *     start   when slot < 0
+ *     cells[11].running balance   when slot > 11
+ *     before = start   if slot = 0
+ *     cells[slot − 1].running balance   otherwise
+ *     cell = cells[slot]
+ *     dated by then = 0, dated all = 0
+ *     regular = cell.net − dated all
+ *     the answer = before + dated by then + min(0, regular)
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-CF-F-019 upcomingBills · MK-CF-F-124 nextOccurrence
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-124 nextOccurrence
+ *               MK-CF-F-212 receivedInMonth · MK-CF-F-019 upcomingBills
+ *               MK-CF-O-008 whatsComing
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · If day is missing it uses 1.
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *     · Caps regular at 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-232
+ * Changed ..... not in git yet (—)
+ */
+export function balanceByDay(grid: DatedGrid, dayIso: string): number {
+  const cells = grid.cells;
+  if (!cells.length) return 0;
+  const start = cells[0].runningBalance - cells[0].net;                 // the starting balance the table chains from
+  const [y, m, d] = String(dayIso).split('-').map(Number);
+  const slot = (y * 12 + (m - 1)) - (cells[0].year * 12 + (cells[0].calendarMonth - 1));
+  if (slot < 0) return start;                                           // before this month: what is there now
+  if (slot > 11) return cells[11].runningBalance;                       // past the table: its last End
+  const before = slot === 0 ? start : cells[slot - 1].runningBalance;
+  const cell = cells[slot];
+  let datedByThen = 0, datedAll = 0;
+  for (const i of cell.incomeItems) if (i.day != null) { datedAll += i.amount; if (i.day <= d) datedByThen += i.amount; }
+  for (const b of cell.billItems) if (!b.regular) { datedAll -= b.amount; if ((b.day ?? 1) <= d) datedByThen -= b.amount; }
+  const regular = cell.net - datedAll;                                  // the month's pay less its everyday and debt payments
+  return before + datedByThen + Math.min(0, regular);
+}
+
+/** The dated bills coming due over the next year, each with the day the money must be there, what the month table has there by that day and how much short it would be. */
 /* ─ MK-CF-F-019 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * upcomingBills
  *
- * Answers ..... The dated bills coming due over the next year, each with the day the money must be there, the cash expected by that day and how much short it would be.
+ * Answers ..... The dated bills coming due over the next year, each with the day the money must be there, what the month table has there by that day and how much short it would be.
  *
  * Formula .....
  *     a = op (or none when missing)
  *     buffer = opts.buffer days (or 2, lead = opts.ask lead days (or 10, horizon = opts.horizon days (or 365 when missing) when missing) when missing)
- *     rate = effective rate(op)
- *     b = spend buckets(op)
- *     uncategorized = max(0, to num(monthly expenses) − monthly total)
- *     steady out monthly = fixed + flexible + uncategorized
- *     steady daily net = (steady in monthly − steady out monthly) × 12 ÷ 365
- *     inflows = []
- *     amt = to num(sc.amount); if (amt ≤ 0) continue
- *     ms = sc.months   if count of array.is array(sc.months) and sc.months
+ *     bills out = []
+ *     amt = to num(amount); if (amt ≤ 0) continue
+ *     yearly = (amt ÷ 100) × grid.total in   if unit = 'pct'
+ *     amt   otherwise
+ *     ms = months   if count of array.is array(months) and months
  *     [1]   otherwise
- *     amt = to num(ln.amount); if (amt ≤ 0) continue
- *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
- *     … the first steps only — the rest of the body needs reading by hand.
+ *     cover source = 'your family'   if (income sources ?? []).includes('support')
+ *     'your savings or a backup'   otherwise
+ *     need by = add days(bill.date, -buffer)
+ *     avail = balance by day(grid, iso local date(need by)) − ahead of it
+ *     shortfall = max(0, bill.amount − avail)
  *
  * Called by ... MK-CF-O-008 whatsComing
  *
@@ -214,7 +284,6 @@ export interface UpcomingBill {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-023 salary and other income
  *               MK-XS-I-032 expenses categories the person set up
  *               MK-XS-I-040 whether a stream is already being received
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
@@ -223,8 +292,6 @@ export interface UpcomingBill {
  *     · If buffer days is missing it uses 2.
  *     · If ask lead days is missing it uses 10.
  *     · If horizon days is missing it uses 365.
- *     · Turns a monthly figure into a year by multiplying by twelve.
- *     · Treats a year as 365 days.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-019
@@ -232,65 +299,43 @@ export interface UpcomingBill {
  */
 export function upcomingBills(
   op: OnboardingProfile | null,
-  startBalance = 0,
+  grid: DatedGrid,
   now: Date = new Date(),
   opts: { bufferDays?: number; askLeadDays?: number; horizonDays?: number } = {},
 ): UpcomingBill[] {
   const a = op ?? {};
   const buffer = opts.bufferDays ?? 2, lead = opts.askLeadDays ?? 10, horizon = opts.horizonDays ?? 365;
-  const rate = effectiveRate(op);
 
-  // steady, recurring monthly net (excludes the dated lumps handled below)
-  const monthlySch = (Array.isArray(a.scholarships) ? a.scholarships : [])
-    .filter((s: any) => s?.freq === 'monthly').reduce((t: number, s: any) => t + toNum(s.amount), 0);
-  const steadyInMonthly =
-    grossSalaryMonthly(op) * (1 - rate) + toNum(a.tipsMonthly) * (1 - rate)
-    + toNum(a.supportMonthly) + benefitAnnual(op) / 12 + monthlySch
-    + currentRetirementIncomeMonthly(op) * (1 - rate) + (rentalNetAnnual(op) / 12) * (1 - rate);
-  const b = spendBuckets(op);
-  const uncategorized = Math.max(0, toNum(a.monthlySpending) - b.monthly_total);
-  const steadyOutMonthly = b.fixed + b.flexible + uncategorized;       // monthly bills only (non-monthly are dated)
-  const steadyDailyNet = (steadyInMonthly - steadyOutMonthly) * 12 / 365;
-
-  // dated cash IN (scholarships/grants & loans on their disbursement dates)
-  const inflows: { date: Date; amt: number }[] = [];
-  for (const sc of (Array.isArray(a.scholarships) ? a.scholarships : [])) {
-    if (sc?.freq === 'monthly') continue;
-    const amt = toNum(sc?.amount); if (amt <= 0) continue;
-    const ms = Array.isArray(sc?.months) && sc.months.length ? sc.months : [1];
-    for (const m of ms) inflows.push({ date: nextOccurrence(m, toNum(sc?.day), now, toNum(sc?.year)), amt: amt / ms.length });
-  }
-  for (const ln of (Array.isArray(a.loans) ? a.loans : [])) {
-    const amt = toNum(ln?.amount); if (amt <= 0) continue;
-    const ms = Array.isArray(ln?.months) && ln.months.length ? ln.months : [1];
-    for (const m of ms) inflows.push({ date: nextOccurrence(m, toNum(ln?.day), now, toNum(ln?.year)), amt });
-  }
-
-  // dated bills OUT (non-monthly categories on their due dates)
+  // dated bills OUT (non-monthly categories on their due dates). WHAT IS THERE BY EACH ONE'S DAY IS READ FROM THE MONTH TABLE
+  // (balanceByDay, 2026-10-24): it was worked a second way here — the take-home before the 401(k) and with no debt payment,
+  // spread evenly over the days from today — so on 28 Sep, with $5,000 take-home, $700 of groceries and $2,650 of debt payments
+  // a month, the line read about $10,744 by 13 Dec where the table's November End reads $4,950. A bill typed as a share of
+  // income is that share of the take-home the table carries over its twelve months, as the table counts it.
   const billsOut: { id: string; label: string; amount: number; date: Date; critical: boolean }[] = [];
-  const netMonthly = (totalGrossAnnual(op) - taxableAnnual(op) * rate) / 12;
   for (const c of (Array.isArray(a.spendCats) ? a.spendCats : [])) {
     if (c?.bucket !== 'nonmonthly') continue;
     const amt = toNum(c?.amount); if (amt <= 0) continue;
-    const yearly = c?.unit === 'pct' ? (amt / 100) * netMonthly * 12 : amt;
+    const yearly = c?.unit === 'pct' ? (amt / 100) * grid.totalIn : amt;
     const ms = Array.isArray(c?.months) && c.months.length ? c.months : [1];
-    for (const m of ms) billsOut.push({ id: `${c.id}-${m}`, label: c.label ?? c.id ?? 'Bill', amount: yearly / ms.length, date: nextOccurrence(m, toNum(c?.dueDay), now), critical: (c.tier ?? 'flex') === 'critical' });
+    // a one-time bill keeps its YEAR, as the table places it — it was dated at its next month, so a bill for March 2028 was listed
+    // as due in March 2027, a month the table does not have it in
+    for (const m of ms) billsOut.push({ id: `${c.id}-${m}`, label: c.label ?? c.id ?? 'Bill', amount: yearly / ms.length, date: nextOccurrence(m, toNum(c?.dueDay), now, toNum((c as any)?.year)), critical: (c.tier ?? 'flex') === 'critical' });
   }
 
-  const balanceOn = (target: Date, excludeId: string): number => {
-    let bal = startBalance + steadyDailyNet * Math.max(0, daysBetweenDates(now, target));
-    for (const f of inflows) if (f.date.getTime() <= target.getTime()) bal += f.amt;
-    for (const o of billsOut) if (o.id !== excludeId && o.date.getTime() <= target.getTime()) bal -= o.amount;
-    return bal;
-  };
-
   const coverSource = (a.incomeSources ?? []).includes('support') ? 'your family' : 'your savings or a backup';
-  return billsOut
+  const listed = billsOut
     .filter((bill) => { const d = daysBetweenDates(now, bill.date); return d >= 0 && d <= horizon; })
-    .sort((x, y) => x.date.getTime() - y.date.getTime())
-    .map((bill) => {
+    .sort((x, y) => x.date.getTime() - y.date.getTime());
+  return listed
+    .map((bill, k) => {
       const needBy = addDays(bill.date, -buffer);
-      const avail = balanceOn(needBy, bill.id);
+      // A BILL LISTED ABOVE THIS ONE, due after this one's need-by day but by its due date, is not in the table's reading of that
+      // day yet, and its money goes first (2026-10-24, E2E-81): two bills due on Dec 15 each read "Covered" by the whole
+      // November End, as if the other were not there
+      const aheadOfIt = listed.slice(0, k)
+        .filter((o) => isoLocalDate(o.date) > isoLocalDate(needBy) && o.date.getTime() <= bill.date.getTime())
+        .reduce((t, o) => t + o.amount, 0);
+      const avail = balanceByDay(grid, isoLocalDate(needBy)) - aheadOfIt;
       const shortfall = Math.max(0, (bill.amount - avail));
       return {
         id: bill.id, label: bill.label, amount: (bill.amount),

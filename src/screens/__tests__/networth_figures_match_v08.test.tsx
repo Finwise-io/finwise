@@ -204,6 +204,7 @@ const collapseAll = () => { for (const g of [/^▾ 💵 Cash/, /^▾ 📈 Invest
 // ── what the READ THIS FIRST table changed, row by row ─────────────────────────────────────────────────────────────
 const R0928 = 'READ THIS FIRST 2026-09-28 (MK-NW-M-046 · MK-NW-M-047): two lines under the emergency fund — the months at the planned level of expenses, and "Both include $X/month of debt payments you cannot stop."';
 const R1923 = 'READ THIS FIRST 2026-10-04 (DEC-1923): every debt\'s minimum payment from Debts, the Rent / Mortgage line not counted — "For the household drawn below the figure reads 2.3 months … $8,838 ÷ ($1,300 + $2,400 mortgage + $150 card)"';
+const R1024 = 'READ THIS FIRST 2026-10-24 (DEC-0002 · DEC-0447 · MK-NW-M-046 · MK-NW-M-048): a bill with its own month is on top of the typed monthly total — "the months of essentials read 2.1 … At the planned spend … 1.8 months"';
 const R4529B = 'READ THIS FIRST 2026-10-11 (DEC-4529 · MK-NW-M-001): DRAWING ERROR, state B — "−0.40%" should read −0.41%';
 const R4529E = 'READ THIS FIRST 2026-10-11 (DEC-4529 · MK-NW-M-001): DRAWING ERROR, state E — "Ending net worth (Aug 4)" and "Aug 3 → Aug 4, 2026" should read Aug 11';
 const R4529F = 'READ THIS FIRST 2026-10-11 (DEC-4529 · MK-NW-F-045): DRAWING ERROR, state F — "in 7 days" should read "in 14 days"';
@@ -212,6 +213,7 @@ const R4529F = 'READ THIS FIRST 2026-10-11 (DEC-4529 · MK-NW-F-045): DRAWING ER
 const FUND: Known[] = ['A', 'A2', 'B'].flatMap((s) => [
   [s, ['2.0', '$8,838', '$4,500'], ['2.3', '$8,838', '$3,850'], R1923],
   [s, ['2.3', '$8,838', '$3,850'], ['2.3', '$8,838', '$3,850', '1.9', '$8,838', '$4,750', '$2,550'], R0928],
+  [s, ['2.3', '$8,838', '$3,850', '1.9', '$8,838', '$4,750', '$2,550'], ['2.1', '$8,838', '$4,150', '1.8', '$8,838', '$5,050', '$2,550'], R1024],
 ] as Known[]);
 const KNOWN: Known[] = [
   ...FUND,
@@ -223,6 +225,10 @@ test('the rows\' own arithmetic: the figures KNOWN puts in place of the drawn on
   expect((8838 / (1300 + 2400 + 150)).toFixed(1)).toBe('2.3');                 // DEC-1923
   expect((8838 / (4500 - 2300 + 2400 + 150)).toFixed(1)).toBe('1.9');           // 2026-09-28: $4,500 planned, less the $2,300 Rent line, plus the debts
   expect(2400 + 150).toBe(2550);
+  // 2026-10-24: the April premium on top of the typed total — essentials 900 food + (2,200 − 900 − 600) = 1,600; planned
+  // (2,200 × 12 + 3,600) ÷ 12 = 2,500
+  expect((8838 / (900 + (4500 - 2300 - 900 - 600) + 2400 + 150)).toFixed(1)).toBe('2.1');
+  expect((8838 / ((4500 - 2300) + 3600 / 12 + 2400 + 150)).toFixed(1)).toBe('1.8');
   expect((((363152 / 364632) - 1) * 100).toFixed(2)).toBe('-0.41');             // B: −0.406%
   expect((Date.UTC(2026, 7, 11) - Date.UTC(2026, 6, 28)) / 86_400_000).toBe(14); // F: Jul 28 → Aug 11
 });

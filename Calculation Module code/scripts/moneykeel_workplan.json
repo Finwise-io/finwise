@@ -457,11 +457,11 @@
    "status": "WAITING ON YOU",
    "ref": "MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx · multiple_screens and screen tabs · column \"Questions for you\" · Q34–Q45, Q50",
    "date": "2026-09-08",
-   "comments": "2026-10-22 ANSWERED: Q34 (DEC-7170) and Q35 (DEC-7171) on 2026-10-21, Q36 by DEC-6618 (2026-10-20) — each the lead's decision under his rulings, printed in YOUR ANSWER; Q37 and Q38 were answered before. Still open on the master: Q39–Q45 and Q50.",
+   "comments": "2026-10-22 ANSWERED: Q34 (DEC-7170) and Q35 (DEC-7171) on 2026-10-21, Q36 by DEC-6618 (2026-10-20) — each the lead's decision under his rulings, printed in YOUR ANSWER; Q37 and Q38 were answered before. Still open on the master: Q39–Q45 and Q50. | 2026-10-24 Q50: his answer on the master is count them; it now sits on MK-CF-M-052, the outflow row Q50 was asked on, and the screens apply it (E2E-75: Planned +$350, Actual +$900). Still open on the master: Q39–Q45. | 2026-10-24 Q50 in the decision log as DEC-8152 (his words count them).",
    "key": "28e3d89013",
    "_written": {
     "status": "WAITING ON YOU",
-    "comments": "2026-10-22 ANSWERED: Q34 (DEC-7170) and Q35 (DEC-7171) on 2026-10-21, Q36 by DEC-6618 (2026-10-20) — each the lead's decision under his rulings, printed in YOUR ANSWER; Q37 and Q38 were answered before. Still open on the master: Q39–Q45 and Q50."
+    "comments": "2026-10-22 ANSWERED: Q34 (DEC-7170) and Q35 (DEC-7171) on 2026-10-21, Q36 by DEC-6618 (2026-10-20) — each the lead's decision under his rulings, printed in YOUR ANSWER; Q37 and Q38 were answered before. Still open on the master: Q39–Q45 and Q50. | 2026-10-24 Q50: his answer on the master is count them; it now sits on MK-CF-M-052, the outflow row Q50 was asked on, and the screens apply it (E2E-75: Planned +$350, Actual +$900). Still open on the master: Q39–Q45. | 2026-10-24 Q50 in the decision log as DEC-8152 (his words count them)."
    }
   },
   {
@@ -3073,10 +3073,10 @@
    "status": "DONE 2026-10-21 — 125 of 125 assessed: 60 agree, 28 app wrong, 27 reviewer wrong, 7 need a ruling, 3 blocked; 30 were in flight (ZERO 12, ACCOUNT 11, GAINS 5, SYNC 2)",
    "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/results/performance_openai_rerun_01_results.json",
    "date": "2026-10-21",
-   "comments": "Still open, each its own job: the Net worth fix batch (D MK-NW-F-103, E and F MK-NW-O-008, H MK-NW-M-024); the Performance queue (MK-PF-F-040, MK-PF-M-003/015, -017, -020, head-of-household brackets); 7 rulings for the lead (MK-NW-F-084, MK-CF-M-051, MK-MN-M-003, MK-NW-M-029, MK-NW-M-035, MK-PF-M-001, MK-PF-M-016); disagreements #36-#38 and #43. | 2026-10-21 NWFIX CLOSED: MK-NW-F-103 (a blank balance is not a recorded day), MK-NW-O-008 ×2 (a record after today read on today, DEC-6824; a new account's first day), MK-NW-F-084 (Alternatives row, DEC-6825), MK-NW-M-029 (LAST CLOSE, DEC-6826), MK-NW-M-035 (a sale's fee, DEC-6827), the amber box (DEC-6828). MK-NW-M-024 kept: his DEC-2748c (face × rate; with no face, value × rate) stands, so test #18 is REVIEWER WRONG. Test: nwfix_performance_rerun_01.test.ts 16 of 17 (one amber-box test red while another agent edits the unpriced row). | 2026-10-22 PF CLOSED (marked in the results file): PF-A and PF-B fixed or decided #26, #29, #31, #33, #35, #41, #42, #43, #46 and the F-084 / F-128 cases; #36–#38 reviewer wrong (DEC-7220); #15 decided by DEC-6760; #6 and #52 settled (not launch items). Left: #3, #7 (MK-NW-F-091/127, second wave), #11, #14, #50 (Cash flow and Menu rounds); screens MK-PF-M-006 T1 (second wave), the Holding page wording (W-HOLDING), six Cash flow / Home checks, and MK-NW-M-024 T3, -026 T1, -028 T1 still in flight. | 2026-10-22 SECOND WAVE (marked in the results files): #3, #7 and rule 17 fixed (DEC-7323); screens MK-PF-M-006 T1 fixed (DEC-7324); MK-NW-M-030 T3, -031 T3, -034 T3, -061 T8 and F3 fixed (W-HOLDING). Left: #11, #14, #50 (Cash flow and Menu rounds), six Cash flow / Home screen checks, MK-NW-M-024 T3, -026 T1, -028 T1 still in flight.",
+   "comments": "Still open, each its own job: the Net worth fix batch (D MK-NW-F-103, E and F MK-NW-O-008, H MK-NW-M-024); the Performance queue (MK-PF-F-040, MK-PF-M-003/015, -017, -020, head-of-household brackets); 7 rulings for the lead (MK-NW-F-084, MK-CF-M-051, MK-MN-M-003, MK-NW-M-029, MK-NW-M-035, MK-PF-M-001, MK-PF-M-016); disagreements #36-#38 and #43. | 2026-10-21 NWFIX CLOSED: MK-NW-F-103 (a blank balance is not a recorded day), MK-NW-O-008 ×2 (a record after today read on today, DEC-6824; a new account's first day), MK-NW-F-084 (Alternatives row, DEC-6825), MK-NW-M-029 (LAST CLOSE, DEC-6826), MK-NW-M-035 (a sale's fee, DEC-6827), the amber box (DEC-6828). MK-NW-M-024 kept: his DEC-2748c (face × rate; with no face, value × rate) stands, so test #18 is REVIEWER WRONG. Test: nwfix_performance_rerun_01.test.ts 16 of 17 (one amber-box test red while another agent edits the unpriced row). | 2026-10-22 PF CLOSED (marked in the results file): PF-A and PF-B fixed or decided #26, #29, #31, #33, #35, #41, #42, #43, #46 and the F-084 / F-128 cases; #36–#38 reviewer wrong (DEC-7220); #15 decided by DEC-6760; #6 and #52 settled (not launch items). Left: #3, #7 (MK-NW-F-091/127, second wave), #11, #14, #50 (Cash flow and Menu rounds); screens MK-PF-M-006 T1 (second wave), the Holding page wording (W-HOLDING), six Cash flow / Home checks, and MK-NW-M-024 T3, -026 T1, -028 T1 still in flight. | 2026-10-22 SECOND WAVE (marked in the results files): #3, #7 and rule 17 fixed (DEC-7323); screens MK-PF-M-006 T1 fixed (DEC-7324); MK-NW-M-030 T3, -031 T3, -034 T3, -061 T8 and F3 fixed (W-HOLDING). Left: #11, #14, #50 (Cash flow and Menu rounds), six Cash flow / Home screen checks, MK-NW-M-024 T3, -026 T1, -028 T1 still in flight. | 2026-10-23 CF-FIX CLOSED (marked in the results files): open point #50 (the head-of-household brackets); screen checks MK-CF-M-002 T3, MK-CF-M-052 T2, T4, T8, MK-CF-M-053 T3, T4 fixed; MK-CF-M-051#1 reclassified NEEDS A RULING → APP WRONG (row words) and fixed (DEC-7607, applying his DEC-0440). Left: MK-NW-M-024#3, its own row.",
    "_written": {
     "status": "DONE 2026-10-21 — 125 of 125 assessed: 60 agree, 28 app wrong, 27 reviewer wrong, 7 need a ruling, 3 blocked; 30 were in flight (ZERO 12, ACCOUNT 11, GAINS 5, SYNC 2)",
-    "comments": "Still open, each its own job: the Net worth fix batch (D MK-NW-F-103, E and F MK-NW-O-008, H MK-NW-M-024); the Performance queue (MK-PF-F-040, MK-PF-M-003/015, -017, -020, head-of-household brackets); 7 rulings for the lead (MK-NW-F-084, MK-CF-M-051, MK-MN-M-003, MK-NW-M-029, MK-NW-M-035, MK-PF-M-001, MK-PF-M-016); disagreements #36-#38 and #43. | 2026-10-21 NWFIX CLOSED: MK-NW-F-103 (a blank balance is not a recorded day), MK-NW-O-008 ×2 (a record after today read on today, DEC-6824; a new account's first day), MK-NW-F-084 (Alternatives row, DEC-6825), MK-NW-M-029 (LAST CLOSE, DEC-6826), MK-NW-M-035 (a sale's fee, DEC-6827), the amber box (DEC-6828). MK-NW-M-024 kept: his DEC-2748c (face × rate; with no face, value × rate) stands, so test #18 is REVIEWER WRONG. Test: nwfix_performance_rerun_01.test.ts 16 of 17 (one amber-box test red while another agent edits the unpriced row). | 2026-10-22 PF CLOSED (marked in the results file): PF-A and PF-B fixed or decided #26, #29, #31, #33, #35, #41, #42, #43, #46 and the F-084 / F-128 cases; #36–#38 reviewer wrong (DEC-7220); #15 decided by DEC-6760; #6 and #52 settled (not launch items). Left: #3, #7 (MK-NW-F-091/127, second wave), #11, #14, #50 (Cash flow and Menu rounds); screens MK-PF-M-006 T1 (second wave), the Holding page wording (W-HOLDING), six Cash flow / Home checks, and MK-NW-M-024 T3, -026 T1, -028 T1 still in flight. | 2026-10-22 SECOND WAVE (marked in the results files): #3, #7 and rule 17 fixed (DEC-7323); screens MK-PF-M-006 T1 fixed (DEC-7324); MK-NW-M-030 T3, -031 T3, -034 T3, -061 T8 and F3 fixed (W-HOLDING). Left: #11, #14, #50 (Cash flow and Menu rounds), six Cash flow / Home screen checks, MK-NW-M-024 T3, -026 T1, -028 T1 still in flight."
+    "comments": "Still open, each its own job: the Net worth fix batch (D MK-NW-F-103, E and F MK-NW-O-008, H MK-NW-M-024); the Performance queue (MK-PF-F-040, MK-PF-M-003/015, -017, -020, head-of-household brackets); 7 rulings for the lead (MK-NW-F-084, MK-CF-M-051, MK-MN-M-003, MK-NW-M-029, MK-NW-M-035, MK-PF-M-001, MK-PF-M-016); disagreements #36-#38 and #43. | 2026-10-21 NWFIX CLOSED: MK-NW-F-103 (a blank balance is not a recorded day), MK-NW-O-008 ×2 (a record after today read on today, DEC-6824; a new account's first day), MK-NW-F-084 (Alternatives row, DEC-6825), MK-NW-M-029 (LAST CLOSE, DEC-6826), MK-NW-M-035 (a sale's fee, DEC-6827), the amber box (DEC-6828). MK-NW-M-024 kept: his DEC-2748c (face × rate; with no face, value × rate) stands, so test #18 is REVIEWER WRONG. Test: nwfix_performance_rerun_01.test.ts 16 of 17 (one amber-box test red while another agent edits the unpriced row). | 2026-10-22 PF CLOSED (marked in the results file): PF-A and PF-B fixed or decided #26, #29, #31, #33, #35, #41, #42, #43, #46 and the F-084 / F-128 cases; #36–#38 reviewer wrong (DEC-7220); #15 decided by DEC-6760; #6 and #52 settled (not launch items). Left: #3, #7 (MK-NW-F-091/127, second wave), #11, #14, #50 (Cash flow and Menu rounds); screens MK-PF-M-006 T1 (second wave), the Holding page wording (W-HOLDING), six Cash flow / Home checks, and MK-NW-M-024 T3, -026 T1, -028 T1 still in flight. | 2026-10-22 SECOND WAVE (marked in the results files): #3, #7 and rule 17 fixed (DEC-7323); screens MK-PF-M-006 T1 fixed (DEC-7324); MK-NW-M-030 T3, -031 T3, -034 T3, -061 T8 and F3 fixed (W-HOLDING). Left: #11, #14, #50 (Cash flow and Menu rounds), six Cash flow / Home screen checks, MK-NW-M-024 T3, -026 T1, -028 T1 still in flight. | 2026-10-23 CF-FIX CLOSED (marked in the results files): open point #50 (the head-of-household brackets); screen checks MK-CF-M-002 T3, MK-CF-M-052 T2, T4, T8, MK-CF-M-053 T3, T4 fixed; MK-CF-M-051#1 reclassified NEEDS A RULING → APP WRONG (row words) and fixed (DEC-7607, applying his DEC-0440). Left: MK-NW-M-024#3, its own row."
    }
   },
   {
@@ -3229,10 +3229,10 @@
    "status": "DONE 2026-10-21 for Performance — 29 of 29 assessed; the three Performance items fixed (2Y over a leap year, a 100% loss kept, Home's gap from one function); the blocked item settled 2026-10-22",
    "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/results/performance_openai_rerun_tax_results.json · MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts",
    "date": "2026-10-21",
-   "comments": "Left, with the Cash flow round: 2026 head-of-household brackets (24% and 32% tops), the senior deduction for a married couple both 65+ (cut once, not per person), and the register citing §2.15 where Rev. Proc. 2025-32 §4.14 is right — that last one needs the register line and its test.failing case changed together. | 2026-10-22 PF-TOOLS: the §2.15 citation is FIXED, read from the IRS text of Rev. Proc. 2025-32 (§4.14 Standard Deduction: $32,200 · $24,150 · $16,100 · $16,100; (3) aged or blind $1,650 / $2,050): register STANDARD_DEDUCTION §4.14 and TAX_TABLES §§4.01, 4.14; the master's Reference rows (§3.18 → §4.14; capital gains §3.03 → §4.03) and deductionFor's line in moneykeel_code_formula.py (§3.18 → §4.14). The test.failing case is now a passing test, the old citation pinned as test.failing. src/domain/income/tax.ts line 253 reprints at the next write-headers.py.",
+   "comments": "Left, with the Cash flow round: 2026 head-of-household brackets (24% and 32% tops), the senior deduction for a married couple both 65+ (cut once, not per person), and the register citing §2.15 where Rev. Proc. 2025-32 §4.14 is right — that last one needs the register line and its test.failing case changed together. | 2026-10-22 PF-TOOLS: the §2.15 citation is FIXED, read from the IRS text of Rev. Proc. 2025-32 (§4.14 Standard Deduction: $32,200 · $24,150 · $16,100 · $16,100; (3) aged or blind $1,650 / $2,050): register STANDARD_DEDUCTION §4.14 and TAX_TABLES §§4.01, 4.14; the master's Reference rows (§3.18 → §4.14; capital gains §3.03 → §4.03) and deductionFor's line in moneykeel_code_formula.py (§3.18 → §4.14). The test.failing case is now a passing test, the old citation pinned as test.failing. src/domain/income/tax.ts line 253 reprints at the next write-headers.py. | 2026-10-23 CF-FIX CLOSED (marked in the results file): the 2026 head-of-household brackets (Rev. Proc. 2025-32 §4.01 table 2; $300,000 taxable $71,958.25 → $71,961.00) and the senior deduction per person (26 U.S.C. §151(d)(5)(C)(iii)(I); joint, both 65+, $200,000: $9,000 → $6,000). The tax file has no Cash flow item left.",
    "_written": {
     "status": "DONE 2026-10-21 for Performance — 29 of 29 assessed; the three Performance items fixed (2Y over a leap year, a 100% loss kept, Home's gap from one function); the blocked item settled 2026-10-22",
-    "comments": "Left, with the Cash flow round: 2026 head-of-household brackets (24% and 32% tops), the senior deduction for a married couple both 65+ (cut once, not per person), and the register citing §2.15 where Rev. Proc. 2025-32 §4.14 is right — that last one needs the register line and its test.failing case changed together. | 2026-10-22 PF-TOOLS: the §2.15 citation is FIXED, read from the IRS text of Rev. Proc. 2025-32 (§4.14 Standard Deduction: $32,200 · $24,150 · $16,100 · $16,100; (3) aged or blind $1,650 / $2,050): register STANDARD_DEDUCTION §4.14 and TAX_TABLES §§4.01, 4.14; the master's Reference rows (§3.18 → §4.14; capital gains §3.03 → §4.03) and deductionFor's line in moneykeel_code_formula.py (§3.18 → §4.14). The test.failing case is now a passing test, the old citation pinned as test.failing. src/domain/income/tax.ts line 253 reprints at the next write-headers.py."
+    "comments": "Left, with the Cash flow round: 2026 head-of-household brackets (24% and 32% tops), the senior deduction for a married couple both 65+ (cut once, not per person), and the register citing §2.15 where Rev. Proc. 2025-32 §4.14 is right — that last one needs the register line and its test.failing case changed together. | 2026-10-22 PF-TOOLS: the §2.15 citation is FIXED, read from the IRS text of Rev. Proc. 2025-32 (§4.14 Standard Deduction: $32,200 · $24,150 · $16,100 · $16,100; (3) aged or blind $1,650 / $2,050): register STANDARD_DEDUCTION §4.14 and TAX_TABLES §§4.01, 4.14; the master's Reference rows (§3.18 → §4.14; capital gains §3.03 → §4.03) and deductionFor's line in moneykeel_code_formula.py (§3.18 → §4.14). The test.failing case is now a passing test, the old citation pinned as test.failing. src/domain/income/tax.ts line 253 reprints at the next write-headers.py. | 2026-10-23 CF-FIX CLOSED (marked in the results file): the 2026 head-of-household brackets (Rev. Proc. 2025-32 §4.01 table 2; $300,000 taxable $71,958.25 → $71,961.00) and the senior deduction per person (26 U.S.C. §151(d)(5)(C)(iii)(I); joint, both 65+, $200,000: $9,000 → $6,000). The tax file has no Cash flow item left."
    }
   },
   {
@@ -3481,10 +3481,10 @@
    "status": "TO DO — with Cash flow, Menu and Plan",
    "ref": "Calculation Module code/scripts/moneykeel_metric_register.json",
    "date": "2026-10-22",
-   "comments": "Found by W-A11Y on 2026-10-22 checking its own IDs; not Performance.",
+   "comments": "Found by W-A11Y on 2026-10-22 checking its own IDs; not Performance. | 2026-10-24 MK-CF-M-001 to 004 settled (DEC-8084); MK-MN-M-011, MK-MN-M-013 and MK-PL-M-023 still open, with Menu and Plan.",
    "_written": {
     "status": "TO DO — with Cash flow, Menu and Plan",
-    "comments": "Found by W-A11Y on 2026-10-22 checking its own IDs; not Performance."
+    "comments": "Found by W-A11Y on 2026-10-22 checking its own IDs; not Performance. | 2026-10-24 MK-CF-M-001 to 004 settled (DEC-8084); MK-MN-M-011, MK-MN-M-013 and MK-PL-M-023 still open, with Menu and Plan."
    }
   },
   {
@@ -3509,6 +3509,534 @@
    "_written": {
     "status": "DONE 2026-10-22 — 3 of 3, and the correction in 2 of 2 places; not committed",
     "comments": "Run 2026-10-22: 56 of 56. 10 held at $100 sold at $110: +10.00%, gained $100 (round 3 first read +8.00%); bought and sold inside the window +30.00% (was +18.18%). No outside case covers these, so no results file is marked. Later, not wrong numbers: a sold-out Unclassified holding leaves Home with no market figure (tenet 3); a holding whose prices start late and is then sold in full is weighed from the window's first day."
+   }
+  },
+  {
+   "task": "Performance journey suite: viewing flows E2E-63 to E2E-68 (JB), and its four follow-ups",
+   "todo": "Write and run six viewing flows on the real screens; fix what they find. Decisions DEC-7586, DEC-7587, DEC-7588, DEC-7589, DEC-7590, DEC-7591, DEC-7592, DEC-7593, DEC-7594.",
+   "status": "DONE 2026-10-23 — 6 of 6 flows, 12 tests; 9 of 9 defects fixed; 4 of 4 follow-ups; account page v01 row 70 AWAITING HIS APPROVAL; not committed",
+   "ref": "src/screens/__tests__/performance_journeys_viewing_2026_10_23.test.tsx · docs/FCC-core-55-70/FCC-e2e-flow-register.md (E2E-63 to E2E-68) · account page v01 rows 69 and 70",
+   "date": "2026-10-23",
+   "comments": "Run 2026-10-24 10:40: 12 of 12. VTI on 2Y opened its page on 1Y, +7.69%; now +16.00%/year on both. Fidelity built from its holdings read Return −25.00% beside +$1,000; now +3.57%.",
+   "_written": {
+    "status": "DONE 2026-10-23 — 6 of 6 flows, 12 tests; 9 of 9 defects fixed; 4 of 4 follow-ups; account page v01 row 70 AWAITING HIS APPROVAL; not committed",
+    "comments": "Run 2026-10-24 10:40: 12 of 12. VTI on 2Y opened its page on 1Y, +7.69%; now +16.00%/year on both. Fidelity built from its holdings read Return −25.00% beside +$1,000; now +3.57%."
+   }
+  },
+  {
+   "task": "Performance journey suite: recording flows E2E-57 to E2E-62 (JA), first round",
+   "todo": "Write and run six recording flows on the real screens; fix what they find. Decisions DEC-7595, DEC-7596, DEC-7597, DEC-7598, DEC-7599, DEC-7600.",
+   "status": "DONE 2026-10-23 — 6 of 6 flows; 10 defects: 6 fixed, 4 sent on (F1 and F2 to W-START, F3 to JA's second round, F4 to JB), all 4 closed the same day; not committed",
+   "ref": "src/screens/__tests__/performance_journeys_recording_2026_10_23.test.tsx · docs/FCC-core-55-70/FCC-e2e-flow-register.md (E2E-57 to E2E-62) · trade-sheet v03",
+   "date": "2026-10-23",
+   "comments": "A typed total of $40,000 read $10,000 after a buy of 10 VTI at $100; now $40,000. 10 sold at $98 with a $5 fee: +$975, counted once.",
+   "_written": {
+    "status": "DONE 2026-10-23 — 6 of 6 flows; 10 defects: 6 fixed, 4 sent on (F1 and F2 to W-START, F3 to JA's second round, F4 to JB), all 4 closed the same day; not committed",
+    "comments": "A typed total of $40,000 read $10,000 after a buy of 10 VTI at $100; now $40,000. 10 sold at $98 with a $5 fee: +$975, counted once."
+   }
+  },
+  {
+   "task": "Performance journey suite: recording second round (JA) — purchase records, option contracts, same-day order, a new holding's class",
+   "todo": "F3 and the option ×100 found in the first round, the drawing link, the trade sheet's class. Decisions DEC-7601, DEC-7602, DEC-7603, DEC-7604, DEC-7605; DEC-7602 applies his DEC-0274 and DEC-4646.",
+   "status": "DONE 2026-10-23 — 4 of 4 and 1 found; 21 of 21 tests; not committed",
+   "ref": "src/screens/__tests__/performance_journeys_recording_2026_10_23.test.tsx (E2E-57 D, E2E-57 E, E2E-58 B) · src/domain/transactions/index.ts (MK-CF-F-222 tradeCash, MK-CF-F-223 tradeMultiplierOf, MK-CF-F-224 openingRecordsOf)",
+   "date": "2026-10-23",
+   "comments": "Run 2026-10-24 10:40: 21 of 21. Import 100 VTI (cost $8,000), sell 10 at $98: realized +$180 (it read \"not on record\"). 1 contract at $2.50 costs $250 (it moved $2.50).",
+   "_written": {
+    "status": "DONE 2026-10-23 — 4 of 4 and 1 found; 21 of 21 tests; not committed",
+    "comments": "Run 2026-10-24 10:40: 21 of 21. Import 100 VTI (cost $8,000), sell 10 at $98: realized +$180 (it read \"not on record\"). 1 contract at $2.50 costs $250 (it moved $2.50)."
+   }
+  },
+  {
+   "task": "Cash flow: three known wrong numbers and the open Cash flow screen checks (CF-FIX)",
+   "todo": "The head-of-household brackets, the senior deduction per person, and Home's month box reading the Cash flow tab's month. Decisions DEC-7606, DEC-7607, DEC-7608, DEC-7609, DEC-7682; DEC-7607 applies his DEC-0440, DEC-7609 his DEC-0269.",
+   "status": "DONE 2026-10-23 — 3 of 3 items, 6 of 6 open screen checks and MK-CF-M-051#1 reclassified, 6 of 6 declaration items; 15 of 15 \"$0\" refusal overrides retired; not committed",
+   "ref": "src/screens/__tests__/cashflow_home_agreement_2026_10_23.test.tsx · src/domain/income/tax.ts (MK-CF-F-101, MK-CF-F-187) · MoneyKeel/functions/cashflow/this-month.ts (MK-CF-F-220 pastMonthFlow) · src/hooks/useCashflowModel.ts",
+   "date": "2026-10-23",
+   "comments": "Run 2026-10-24 10:45: 17 of 17. Head of household, $300,000 taxable: $71,958.25 → $71,961.00. Joint, both 65+, $200,000: senior deduction $9,000 → $6,000, tax $23,634 → $24,294. Home Left $4,202 → $3,952, as Cash flow.",
+   "_written": {
+    "status": "DONE 2026-10-23 — 3 of 3 items, 6 of 6 open screen checks and MK-CF-M-051#1 reclassified, 6 of 6 declaration items; 15 of 15 \"$0\" refusal overrides retired; not committed",
+    "comments": "Run 2026-10-24 10:45: 17 of 17. Head of household, $300,000 taxable: $71,958.25 → $71,961.00. Joint, both 65+, $200,000: senior deduction $9,000 → $6,000, tax $23,634 → $24,294. Home Left $4,202 → $3,952, as Cash flow."
+   }
+  },
+  {
+   "task": "Cash flow: one producer for the month's planned expenses; MK-CF-M-004's formula overrides (CF-FIX follow-up)",
+   "todo": "This month, the Expenses tab and Home's month record read one planned figure; retire MK-CF-M-004's three overrides. Decisions DEC-7610, DEC-7611; DEC-7611 applies his DEC-0002 and DEC-0447.",
+   "status": "DONE 2026-10-23 — 2 of 2; MK-CF-M-004 overrides retired with a CLOSED line; not committed",
+   "ref": "src/screens/__tests__/cashflow_home_agreement_2026_10_23.test.tsx · src/domain/budget/index.ts (MK-CF-F-221 spendByMonthByBucket) · Calculation Module code/scripts/moneykeel_overrides.json (MK-CF-M-004)",
+   "date": "2026-10-23",
+   "comments": "September with $700 of groceries and a $1,200 December bill: This month −$700 and Expenses $700 (it read $800, Once in a while $100); December $1,900 on both.",
+   "_written": {
+    "status": "DONE 2026-10-23 — 2 of 2; MK-CF-M-004 overrides retired with a CLOSED line; not committed",
+    "comments": "September with $700 of groceries and a $1,200 December bill: This month −$700 and Expenses $700 (it read $800, Once in a while $100); December $1,900 on both."
+   }
+  },
+  {
+   "task": "Held-at-start holdings that trade, and one rule in every window (W-START F1 and F2)",
+   "todo": "F1 and F2 from the recording flows, and the five moved figures. Decisions DEC-7612, DEC-7613, DEC-7614, DEC-7615; DEC-7613 applies his DEC-4439 and amends DEC-7451.",
+   "status": "DONE 2026-10-23 — F1 2 of 2, F2 4 of 4 windows and the category table on 3 screens, 5 of 5 moved figures and 1 found; not committed",
+   "ref": "MoneyKeel/functions/networth-and-performance/dec3656_shares_added_inside_window.test.ts · src/screens/__tests__/shares_added_inside_window_agree.test.tsx · src/domain/performance/index.ts (MK-PF-F-079 eventDays)",
+   "date": "2026-10-23",
+   "comments": "Run 2026-10-24 10:45: 44 of 44, 28 of 28. E2E-58: +4.18% → +4.15%; E2E-61: +4.21% → +4.07%. 20 held at $100, 10 sold at $110, $121 today: +27.05% → +21.00%.",
+   "_written": {
+    "status": "DONE 2026-10-23 — F1 2 of 2, F2 4 of 4 windows and the category table on 3 screens, 5 of 5 moved figures and 1 found; not committed",
+    "comments": "Run 2026-10-24 10:45: 44 of 44, 28 of 28. E2E-58: +4.18% → +4.15%; E2E-61: +4.21% → +4.07%. 20 held at $100, 10 sold at $110, $121 today: +27.05% → +21.00%."
+   }
+  },
+  {
+   "task": "Flow register: E2E-57 to E2E-68 and sub-flows 57 D, 57 E, 58 B",
+   "todo": "Add the twelve Performance journey flows to the register in its own table format, each with its test file; header 56 → 68.",
+   "status": "DONE 2026-10-24 — 12 of 12 flows and 3 of 3 sub-flows; header and closing paragraph read 68",
+   "ref": "docs/FCC-core-55-70/FCC-e2e-flow-register.md",
+   "date": "2026-10-23",
+   "comments": "performance_journeys_recording_2026_10_23.test.tsx 21 tests (E2E-57 to E2E-62, 57 D, 57 E, 58 B); performance_journeys_viewing_2026_10_23.test.tsx 12 tests (E2E-63 to E2E-68).",
+   "_written": {
+    "status": "DONE 2026-10-24 — 12 of 12 flows and 3 of 3 sub-flows; header and closing paragraph read 68",
+    "comments": "performance_journeys_recording_2026_10_23.test.tsx 21 tests (E2E-57 to E2E-62, 57 D, 57 E, 58 B); performance_journeys_viewing_2026_10_23.test.tsx 12 tests (E2E-63 to E2E-68)."
+   }
+  },
+  {
+   "task": "Integration check: the approved drawings' figures still hold after W-START's F1/F2 change",
+   "todo": "At the integration run, check that no figure on an approved drawing moved (a drawn figure that moves needs a correction line or is a bug).",
+   "status": "TO DO — at the integration run (build-all, then validate Performance and Cash flow)",
+   "ref": "src/screens/__tests__/account_page_drawing_states.test.tsx · nw_editors_figures_match.test.tsx · holding_gains_if_sold_today.test.tsx · perf_matches_v17.test.tsx",
+   "date": "2026-10-23",
+   "comments": "Run 2026-10-24 10:45 by the records pass, on these files alone: 67 of 67, 30 of 30, 17 of 17, 5 of 5; VOO +7.67% and AAPL +38.19% hold. The integration run repeats it on the full suite.",
+   "_written": {
+    "status": "TO DO — at the integration run (build-all, then validate Performance and Cash flow)",
+    "comments": "Run 2026-10-24 10:45 by the records pass, on these files alone: 67 of 67, 30 of 30, 17 of 17, 5 of 5; VOO +7.67% and AAPL +38.19% hold. The integration run repeats it on the full suite."
+   }
+  },
+  {
+   "task": "Holding editor: changing or removing an existing purchase does not change its purchase record",
+   "todo": "An existing purchase changed or removed in the holding editor should change its record, as an added one writes one.",
+   "status": "TO DO",
+   "ref": "MK-CF-F-224 openingRecordsOf · addAsset, updateAsset, updatePosition (src/store/useStore.ts)",
+   "date": "2026-10-23",
+   "comments": "Found by JA, 2026-10-23 (limit of DEC-7601). Example: 10 VTI at $90.00 added on Jan 5, 2026 writes a record at $90.00; its price changed later in the editor leaves the record at $90.00, and a sale reads its gain from that.",
+   "_written": {
+    "status": "TO DO",
+    "comments": "Found by JA, 2026-10-23 (limit of DEC-7601). Example: 10 VTI at $90.00 added on Jan 5, 2026 writes a record at $90.00; its price changed later in the editor leaves the record at $90.00, and a sale reads its gain from that."
+   }
+  },
+  {
+   "task": "Import holdings: a re-import keeps the first file's purchase records for a holding that already has them",
+   "todo": "A second file for the same holding should be read against the records the first file wrote.",
+   "status": "TO DO",
+   "ref": "MK-CF-F-224 openingRecordsOf · src/domain/import/holdingsImport.ts",
+   "date": "2026-10-23",
+   "comments": "Found by JA, 2026-10-23 (limit of DEC-7601; it writes records only for holdings with none, so a purchase is never counted twice). Example: Import 100 VTI at cost $8,000, then a second file for the same matched account: the realized gain still reads from the first file's $8,000.",
+   "_written": {
+    "status": "TO DO",
+    "comments": "Found by JA, 2026-10-23 (limit of DEC-7601; it writes records only for holdings with none, so a purchase is never counted twice). Example: Import 100 VTI at cost $8,000, then a second file for the same matched account: the realized gain still reads from the first file's $8,000."
+   }
+  },
+  {
+   "task": "Trade sheet: a ticker bought before it is held counts ×1",
+   "todo": "The trade sheet should ask the holding's type, so an option bought before it is held counts its shares per contract.",
+   "status": "TO DO",
+   "ref": "MK-CF-F-223 tradeMultiplierOf · the trade sheet in src/screens/AccountPortfolioScreen.tsx",
+   "date": "2026-10-23",
+   "comments": "Found by JA, 2026-10-23 (limit of DEC-7602). Example: 1 option contract at $2.50 bought on the trade sheet before the option is held moves $2.50, not $250.",
+   "_written": {
+    "status": "TO DO",
+    "comments": "Found by JA, 2026-10-23 (limit of DEC-7602). Example: 1 option contract at $2.50 bought on the trade sheet before the option is held moves $2.50, not $250."
+   }
+  },
+  {
+   "task": "Net worth screen check MK-NW-M-024#3, a bond with no face value",
+   "todo": "Re-run the open screen check after the bond work lands; look at it before the next commit.",
+   "status": "DONE 2026-10-24 — settled by NW-BONDS: APP WRONG, fixed (DEC-7933)",
+   "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/results/performance_openai_rerun_01_screens_results.json (in_flight, MK-NW-M-024 T3) · src/domain/bonds/index.ts yearlyInterestNow",
+   "date": "2026-10-23",
+   "comments": "Left by CF-FIX, 2026-10-23: a Net worth item, not Cash flow. Example: face value missing reads \"4.50%/year · $1,089/year\", the rate on the market value; coupon missing reads \"not entered · $0/year — coupon rate not entered\", as his A46 says. Read it against his DEC-2748c (face × rate; with no face, value × rate) before any change. | 2026-10-24 CLOSED: a dated bond with no face value has no year's interest; DEC-2748c's value × rate kept for a bank CD and a bond fund (DEC-7933).",
+   "_written": {
+    "status": "DONE 2026-10-24 — settled by NW-BONDS: APP WRONG, fixed (DEC-7933)",
+    "comments": "Left by CF-FIX, 2026-10-23: a Net worth item, not Cash flow. Example: face value missing reads \"4.50%/year · $1,089/year\", the rate on the market value; coupon missing reads \"not entered · $0/year — coupon rate not entered\", as his A46 says. Read it against his DEC-2748c (face × rate; with no face, value × rate) before any change. | 2026-10-24 CLOSED: a dated bond with no face value has no year's interest; DEC-2748c's value × rate kept for a bank CD and a bond fund (DEC-7933)."
+   }
+  },
+  {
+   "task": "Performance · account page v01 row 70: an account whose total was typed lists its holdings — awaits his approval",
+   "todo": "His approval of account page v01 row 70; it was built before the row was written, and the row describes what is built.",
+   "status": "WAITING ON YOU",
+   "ref": "moneykeel_pres_mock_account-page_v01.html (READ THIS FIRST row 70) · DEC-7594 · src/screens/AccountPortfolioScreen.tsx",
+   "date": "2026-10-23",
+   "comments": "Built and tested 2026-10-23, not approved: it was built before its row was written, and the row describes what is built. Fidelity Brokerage, $28,000 typed, 100 VTI bought at $280.00: \"VTI 100 shares · $280.00, $28,000 ›\", then \"The total is the one you entered, $28,000. Its holdings are listed at their latest close and need not add up to it.\" Before, it listed nothing and VTI's page could not be reached. To reverse: list holdings only on linked accounts and accounts built from their holdings.",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": "Built and tested 2026-10-23, not approved: it was built before its row was written, and the row describes what is built. Fidelity Brokerage, $28,000 typed, 100 VTI bought at $280.00: \"VTI 100 shares · $280.00, $28,000 ›\", then \"The total is the one you entered, $28,000. Its holdings are listed at their latest close and need not add up to it.\" Before, it listed nothing and VTI's page could not be reached. To reverse: list holdings only on linked accounts and accounts built from their holdings."
+   }
+  },
+  {
+   "task": "Cash flow audit package: the validator's no-record check reads the files Cash flow imports (CF-BRIEF)",
+   "todo": "Widen the no-record check to files with no record that a Cash flow file or screen imports.",
+   "status": "DONE 2026-10-24 — 8 Cash flow functions with no record failed it (all 8 numbered by PF-TOOLS the same day); 34 listed outside the calculation folders; 1 real second calculation found",
+   "ref": "Calculation Module code/scripts/check-outside-audit-package.py · MoneyKeel/documents/audit/outside-test-cases/to-send/MoneyKeel_CashFlow_Audit_Package",
+   "date": "2026-10-24",
+   "comments": "Found: sign-up's own incomeTaxRate (src/onboarding/modules.tsx:361) did not take the 401(k) off before tax. Single, $60,000 of wages, $4,800 401(k): MK-CF-F-181 rateInForce 7.41% ($4,444), sign-up 8.37% ($5,020). Sent to CF-FIX.",
+   "_written": {
+    "status": "DONE 2026-10-24 — 8 Cash flow functions with no record failed it (all 8 numbered by PF-TOOLS the same day); 34 listed outside the calculation folders; 1 real second calculation found",
+    "comments": "Found: sign-up's own incomeTaxRate (src/onboarding/modules.tsx:361) did not take the 401(k) off before tax. Single, $60,000 of wages, $4,800 401(k): MK-CF-F-181 rateInForce 7.41% ($4,444), sign-up 8.37% ($5,020). Sent to CF-FIX."
+   }
+  },
+  {
+   "task": "Sign-up reads Cash flow's functions for its tax rate, take-home, debt months and growth (CF-FIX)",
+   "todo": "Replace sign-up's own incomeTaxRate, debtPayoff and fv with the one functions; an agreement test sign-up ↔ Cash flow. Decision DEC-7795.",
+   "status": "DONE 2026-10-24 — 3 of 3 copies and 1 more found (the Taxes step's rate) replaced; not committed",
+   "ref": "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx · src/onboarding/modules.tsx · MK-CF-F-181 · MK-CF-F-029 · MK-CF-F-229 balanceGrownTo",
+   "date": "2026-10-24",
+   "comments": "Run 2026-10-24 11:22: 16 of 16. Single, $60,000, $4,800 401(k): 8.37% / $5,020 / $50,180 → 7.41% / $4,444 / $50,756 ($4,230 a month, as Cash flow). Debt months and growth unchanged, through one formula each. Nothing stored.",
+   "_written": {
+    "status": "DONE 2026-10-24 — 3 of 3 copies and 1 more found (the Taxes step's rate) replaced; not committed",
+    "comments": "Run 2026-10-24 11:22: 16 of 16. Single, $60,000, $4,800 401(k): 8.37% / $5,020 / $50,180 → 7.41% / $4,444 / $50,756 ($4,230 a month, as Cash flow). Debt months and growth unchanged, through one formula each. Nothing stored."
+   }
+  },
+  {
+   "task": "Sign-up's Taxes step: the income it is taxed on, its rate and its bracket (CF-FIX)",
+   "todo": "Read the Income summary's taxed income, rate and bracket on the Taxes step. Decision DEC-7796.",
+   "status": "DONE 2026-10-24 — 2 of 2; not committed",
+   "ref": "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx · src/onboarding/modules.tsx (the Taxes step) · income-end-to-end v07 READ THIS FIRST row of 2026-10-24 · design record row \"Sign-up's Taxes step\" (no drawing traced)",
+   "date": "2026-10-24",
+   "comments": "On ~$68,400 gross, 22%, about 8% → on the ~$60,000 it is taxed on, 12%, about 7% ($60,000 of wages, $4,800 401(k), $700 a month untaxed).",
+   "_written": {
+    "status": "DONE 2026-10-24 — 2 of 2; not committed",
+    "comments": "On ~$68,400 gross, 22%, about 8% → on the ~$60,000 it is taxed on, 12%, about 7% ($60,000 of wages, $4,800 401(k), $700 a month untaxed)."
+   }
+  },
+  {
+   "task": "The bracket on every income screen after each earner's 401(k) (CF-FIX)",
+   "todo": "5 places read the year's gross where the tax uses income after the 401(k). Decision DEC-7797, applying his DEC-0283.",
+   "status": "DONE 2026-10-24 — 5 of 5 places; MK-CF-F-230 taxedAfterPreTax; not committed",
+   "ref": "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx · src/screens/__tests__/basepay_matches_v07.test.tsx · MoneyKeel/functions/cashflow/base-pay.test.ts · src/domain/income/tax-rate.ts",
+   "date": "2026-10-24",
+   "comments": "Single, $70,000 of wages, $10,000 401(k): 22% → 12%, tax about $5,020 unchanged. A figure on his approved income-end-to-end v07 phone 2 moves, 22% → 12% ($138,000 wages, $14,400 401(k)s, taxed on $91,400); the correction line is on the drawing as his DEC-4529 asks, and the lead tells him. Run 2026-10-24 11:22: 16 of 16, 10 of 10, 23 of 23.",
+   "_written": {
+    "status": "DONE 2026-10-24 — 5 of 5 places; MK-CF-F-230 taxedAfterPreTax; not committed",
+    "comments": "Single, $70,000 of wages, $10,000 401(k): 22% → 12%, tax about $5,020 unchanged. A figure on his approved income-end-to-end v07 phone 2 moves, 22% → 12% ($138,000 wages, $14,400 401(k)s, taxed on $91,400); the correction line is on the drawing as his DEC-4529 asks, and the lead tells him. Run 2026-10-24 11:22: 16 of 16, 10 of 10, 23 of 23."
+   }
+  },
+  {
+   "task": "The Income summary's line under a calculated tax names a state rate entered (CF-FIX)",
+   "todo": "With no rate typed and a state rate entered, the line said the rate knew nothing about the state. Decision DEC-7798.",
+   "status": "DONE 2026-10-24 — 1 of 1; not committed",
+   "ref": "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx · MoneyKeel/functions/cashflow/income-summary.ts (MK-CF-M-044) · income-end-to-end v07 READ THIS FIRST row of 2026-10-24",
+   "date": "2026-10-24",
+   "comments": "5.00% state rate entered: \"Federal income tax, plus the 5.00% state rate you entered — it knows nothing about Social Security or Medicare.\" With none, it reads as built. Figures unchanged.",
+   "_written": {
+    "status": "DONE 2026-10-24 — 1 of 1; not committed",
+    "comments": "5.00% state rate entered: \"Federal income tax, plus the 5.00% state rate you entered — it knows nothing about Social Security or Medicare.\" With none, it reads as built. Figures unchanged."
+   }
+  },
+  {
+   "task": "Function IDs and rules for the functions added 2026-10-23 and 2026-10-24 (PF-TOOLS numbering pass)",
+   "todo": "Number the new functions, write each rule, re-read the changed ones, print the headers.",
+   "status": "DONE 2026-10-24 — 12 of 12 IDs (MK-CF-F-220 to 230, MK-PF-F-079); 11 of 11 rules for the ones that calculate, MK-CF-F-228 recorded as calculating nothing; MK-ST-F-028 and MK-XS-F-174 rules under awaiting_id; not committed",
+   "ref": "Calculation Module code/scripts/moneykeel_function_register.json · moneykeel_function_rules.json · moneykeel_function_categories.json · src/hooks/useCashflowModel.ts (hand headers)",
+   "date": "2026-10-24",
+   "comments": "write-headers --check: all 832 match. build-outside-test-cards --check: 438 of 438 cards, 1,527 figures traced, 0 stops. recordTransaction is a store method and is not numbered (the lead's decision of 2026-10-22).",
+   "_written": {
+    "status": "DONE 2026-10-24 — 12 of 12 IDs (MK-CF-F-220 to 230, MK-PF-F-079); 11 of 11 rules for the ones that calculate, MK-CF-F-228 recorded as calculating nothing; MK-ST-F-028 and MK-XS-F-174 rules under awaiting_id; not committed",
+    "comments": "write-headers --check: all 832 match. build-outside-test-cards --check: 438 of 438 cards, 1,527 figures traced, 0 stops. recordTransaction is a store method and is not numbered (the lead's decision of 2026-10-22)."
+   }
+  },
+  {
+   "task": "Drawing lines that quoted words as his from the founder audit B05 now cite his DEC-0283 (the lead)",
+   "todo": "Two drawing rows of 2026-10-24 quoted a sentence as his words from the founder audit B05; no such words of his are on record. Cite the ruling that is.",
+   "status": "DONE 2026-10-24 — 2 of 2 drawings (income-end-to-end v07, filing-status-question v03); extract-decisions exit 0, 862 rows then",
+   "ref": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v07.html · moneykeel_pres_mock_filing-status-question_v03.html",
+   "date": "2026-10-24",
+   "comments": "Before the fix the sweep minted the quote as a new decision of his on every run (DEC-7704, then DEC-7727, both removed by the records pass). v07 keeps DEC-0185, the finding's own record. The same words are still quoted as his in code comments: src/screens/__tests__/basepay_matches_v07.test.tsx:33, src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx:160, src/domain/income/tax-rate.ts:156 and :176 (not swept; code is not a records file).",
+   "_written": {
+    "status": "DONE 2026-10-24 — 2 of 2 drawings (income-end-to-end v07, filing-status-question v03); extract-decisions exit 0, 862 rows then",
+    "comments": "Before the fix the sweep minted the quote as a new decision of his on every run (DEC-7704, then DEC-7727, both removed by the records pass). v07 keeps DEC-0185, the finding's own record. The same words are still quoted as his in code comments: src/screens/__tests__/basepay_matches_v07.test.tsx:33, src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx:160, src/domain/income/tax-rate.ts:156 and :176 (not swept; code is not a records file)."
+   }
+  },
+  {
+   "task": "Cash flow compliance check: two lead decisions quoted words no screen shows",
+   "todo": "DEC-7607 quoted a formula as if it were screen copy; DEC-7609 quoted the old label. Mark the old wording \"replaced by\" and say the formula in plain words, the key fields untouched.",
+   "status": "DONE 2026-10-24 — 2 of 2 rows reworded; validate-module-complies cashflow: 0 breached, 0 not found (97 decisions)",
+   "ref": "Calculation Module code/scripts/moneykeel_decisions.json · moneykeel_decisions_in_chat.json · moneykeel_validation_cashflow.json",
+   "date": "2026-10-24",
+   "comments": "DEC-7607: the row's formula now says, in plain words, that the inflow is the month's take-home. DEC-7609: Home's box label Actual expenses so far is marked replaced by Outflow (expenses + debt).",
+   "_written": {
+    "status": "DONE 2026-10-24 — 2 of 2 rows reworded; validate-module-complies cashflow: 0 breached, 0 not found (97 decisions)",
+    "comments": "DEC-7607: the row's formula now says, in plain words, that the inflow is the month's take-home. DEC-7609: Home's box label Actual expenses so far is marked replaced by Outflow (expenses + debt)."
+   }
+  },
+  {
+   "task": "DEC-7608: a test for the Income summary's typed state-rate words",
+   "todo": "The words \"federal income tax, plus the 5.00% state rate you entered\" were held by no test.",
+   "status": "DONE 2026-10-24 — the test exists; DEC-7608 TESTED",
+   "ref": "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx",
+   "date": "2026-10-24",
+   "comments": "Run 2026-10-24 11:22: 16 of 16, two of them DEC-7608's (5% typed; none typed).",
+   "_written": {
+    "status": "DONE 2026-10-24 — the test exists; DEC-7608 TESTED",
+    "comments": "Run 2026-10-24 11:22: 16 of 16, two of them DEC-7608's (5% typed; none typed)."
+   }
+  },
+  {
+   "task": "34 functions with no record outside the calculation folders",
+   "todo": "Read each: a function that calculates gets a record and a rule or moves into the calculation folders; one that calculates nothing is listed as such.",
+   "status": "TO DO",
+   "ref": "Calculation Module code/scripts/check-outside-audit-package.py (its list) · src/onboarding/modules.tsx · src/constants/categories.ts · src/utils/persona.ts · src/hooks/reducedMotion.ts",
+   "date": "2026-10-24",
+   "comments": "Listed by CF-BRIEF, 2026-10-24 10:41, not blockers. Example: sign-up's incomeTaxRate gave 8.37% where MK-CF-F-181 gives 7.41% (single, $60,000, $4,800 401(k)) — fixed the same day. The list: investTableRows (desktop/platform/DesktopInvestTable.tsx:17) · categoryBucketFor, budgetCategoryIcon, getCategoryIcon, getCategoryBg, useAllCategories (src/constants/categories.ts) · prefersReducedMotion, modalAnimation (src/hooks/reducedMotion.ts) · useThisMonthInputs (src/hooks/useCashflowModel.ts, since numbered MK-CF-F-228) · num, moneyShort, fmtMonthYear, setOnboardingProgress, onbProgress, estimateAnnualRMD, grossAnnual, incomeTaxRate, monthlyIncome, retirementMonthlyIncome, monthlyContributions, ageOrDefault, fv, debtPayoff, stepValid, renderStep, goalCapacity, monthRanges, rentProperties, rentStepReady, rentIn, rentOut (src/onboarding/modules.tsx) · ageFromProfile, ageTodayFromProfile, personaOf (src/utils/persona.ts). 16 of the 34 do arithmetic; 18 do none.",
+   "_written": {
+    "status": "TO DO",
+    "comments": "Listed by CF-BRIEF, 2026-10-24 10:41, not blockers. Example: sign-up's incomeTaxRate gave 8.37% where MK-CF-F-181 gives 7.41% (single, $60,000, $4,800 401(k)) — fixed the same day. The list: investTableRows (desktop/platform/DesktopInvestTable.tsx:17) · categoryBucketFor, budgetCategoryIcon, getCategoryIcon, getCategoryBg, useAllCategories (src/constants/categories.ts) · prefersReducedMotion, modalAnimation (src/hooks/reducedMotion.ts) · useThisMonthInputs (src/hooks/useCashflowModel.ts, since numbered MK-CF-F-228) · num, moneyShort, fmtMonthYear, setOnboardingProgress, onbProgress, estimateAnnualRMD, grossAnnual, incomeTaxRate, monthlyIncome, retirementMonthlyIncome, monthlyContributions, ageOrDefault, fv, debtPayoff, stepValid, renderStep, goalCapacity, monthRanges, rentProperties, rentStepReady, rentIn, rentOut (src/onboarding/modules.tsx) · ageFromProfile, ageTodayFromProfile, personaOf (src/utils/persona.ts). 16 of the 34 do arithmetic; 18 do none."
+   }
+  },
+  {
+   "task": "Plan: the Retirement cockpit's bracket and the will-it-last tax rate on required withdrawals read gross before the 401(k)",
+   "todo": "Read both after each earner's 401(k), as the Cash flow screens do since 2026-10-24 (his DEC-0283); userCapGainsRates does the same but nothing calls it.",
+   "status": "TO DO — with the Plan module",
+   "ref": "the Retirement cockpit · the will-it-last required-withdrawal tax rate · userCapGainsRates",
+   "date": "2026-10-24",
+   "comments": "Found by CF-FIX, 2026-10-24. Example, on the Cash flow screens' own household: single, $70,000 of wages, $10,000 into a 401(k) — the band of the gross is 22% ($53,900 taxed), the band after the 401(k) 12% ($43,900); the cockpit still reads the band of the gross.",
+   "_written": {
+    "status": "TO DO — with the Plan module",
+    "comments": "Found by CF-FIX, 2026-10-24. Example, on the Cash flow screens' own household: single, $70,000 of wages, $10,000 into a 401(k) — the band of the gross is 22% ($53,900 taxed), the band after the 401(k) 12% ($43,900); the cockpit still reads the band of the gross."
+   }
+  },
+  {
+   "task": "Plan: sign-up's retirement outlook works its own \"needed\" figure and its own growth, not Plan's MK-PL-F-055 projectNestEgg",
+   "todo": "Read the outlook's needed figure and growth from Plan's one projection.",
+   "status": "TO DO — with the Plan module",
+   "ref": "src/onboarding/modules.tsx (RetireOutlook: capitalNeeded, real returns 7% and 5.5% less inflation) · MK-PL-F-055 projectNestEgg",
+   "date": "2026-10-24",
+   "comments": "Found by CF-FIX, 2026-10-24. Example: the outlook's Projected by grows $300,000 and $1,500 a month at 4.6% for 15 years (now through MK-CF-F-229 balanceGrownTo), while its Needed at retirement age comes from its own capitalNeeded call, not from projectNestEgg.",
+   "_written": {
+    "status": "TO DO — with the Plan module",
+    "comments": "Found by CF-FIX, 2026-10-24. Example: the outlook's Projected by grows $300,000 and $1,500 a month at 4.6% for 15 years (now through MK-CF-F-229 balanceGrownTo), while its Needed at retirement age comes from its own capitalNeeded call, not from projectNestEgg."
+   }
+  },
+  {
+   "task": "Add src/hooks to the function sweep (CALC_ROOTS)",
+   "todo": "Add 'src/hooks' to CALC_ROOTS in moneykeel_functions.py and moneykeel_inputs.py so the sweep numbers, categorises and prints headers for hooks like every other folder.",
+   "status": "TO DO — the lead's decision of 2026-10-24: not now",
+   "ref": "Calculation Module code/scripts/moneykeel_functions.py · moneykeel_inputs.py",
+   "date": "2026-10-24",
+   "comments": "PF-TOOLS proposal, 2026-10-24. Example: today MK-CF-F-225 to 228 (useCashflowModel, datedGridOf, thisMonthInputs, useThisMonthInputs) are numbered by hand with hand-written headers; the sweep would also number useNetWorthInputs, prefersReducedMotion and modalAnimation, each needing a rule or a calculates-nothing record.",
+   "_written": {
+    "status": "TO DO — the lead's decision of 2026-10-24: not now",
+    "comments": "PF-TOOLS proposal, 2026-10-24. Example: today MK-CF-F-225 to 228 (useCashflowModel, datedGridOf, thisMonthInputs, useThisMonthInputs) are numbered by hand with hand-written headers; the sweep would also number useNetWorthInputs, prefersReducedMotion and modalAnimation, each needing a rule or a calculates-nothing record."
+   }
+  },
+  {
+   "task": "The Income summary shows What it is taxed on being made: the gross, less your 401(k)s (CF-FIX)",
+   "todo": "Print the gross, the year's 401(k)s and what it is taxed on as rows; correct MK-CF-M-044's worked example; sign-up names the same income. Decision DEC-7887, under his DEC-0283; it amends DEC-7796 and corrects DEC-7797.",
+   "status": "DONE 2026-10-24 — 2 new figures (MK-CF-M-076, MK-CF-M-077) declared and in the figure register (179 → 181); not committed",
+   "ref": "src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx · src/screens/__tests__/income_matches_v07.test.tsx · MoneyKeel/functions/cashflow/income-summary.ts · Calculation Module code/scripts/moneykeel_figures.json",
+   "date": "2026-10-24",
+   "comments": "Run 2026-10-24 11:42: 20 of 20, 3 of 3, 4 of 4. A couple, $169,200 of wages, $19,200 into 401(k)s: Gross a year $169,200 · Your 401(k)s −$19,200 · What it is taxed on $150,000. MK-CF-M-044 worked example $15,340 (it showed $37,224, the typed 22% case). Sign-up: about $55,200 (it said about $60,000). The master prints the two new rows at its next build.",
+   "_written": {
+    "status": "DONE 2026-10-24 — 2 new figures (MK-CF-M-076, MK-CF-M-077) declared and in the figure register (179 → 181); not committed",
+    "comments": "Run 2026-10-24 11:42: 20 of 20, 3 of 3, 4 of 4. A couple, $169,200 of wages, $19,200 into 401(k)s: Gross a year $169,200 · Your 401(k)s −$19,200 · What it is taxed on $150,000. MK-CF-M-044 worked example $15,340 (it showed $37,224, the typed 22% case). Sign-up: about $55,200 (it said about $60,000). The master prints the two new rows at its next build."
+   }
+  },
+  {
+   "task": "DEC-0321: the capital-gains figure must say federal only",
+   "todo": "His ruling (Brief E1, 2026-08-20): the app applies no state tax to capital gains, so the file must say federal only on MK-NW-M-036 and MK-NW-M-037. Neither declaration nor the Holding page says so.",
+   "status": "DONE 2026-10-24 — both declarations say federal only; DEC-0321 TESTED (DEC-7935)",
+   "ref": "MoneyKeel/functions/networth-and-performance/holding.ts (MK-NW-M-036, MK-NW-M-037 declarations) · src/screens/HoldingDetailScreen.tsx",
+   "date": "2026-10-24",
+   "comments": "Found 2026-10-24 by the Net worth compliance check (1 not found). It passed at HEAD only because the Income summary's sentence about its calculated tax, Federal only — it knows nothing about your state, sat in a screen the Net worth check reads; that sentence is about income tax, not capital gains, and moved to income-summary.ts the same day. Example: Gain — long-term (MK-NW-M-036) carries no words about state tax. | 2026-10-24 CLOSED by NW-BONDS: dec0321_gains_federal_only.test.tsx 3 of 3; Net worth check 0 not found.",
+   "_written": {
+    "status": "DONE 2026-10-24 — both declarations say federal only; DEC-0321 TESTED (DEC-7935)",
+    "comments": "Found 2026-10-24 by the Net worth compliance check (1 not found). It passed at HEAD only because the Income summary's sentence about its calculated tax, Federal only — it knows nothing about your state, sat in a screen the Net worth check reads; that sentence is about income tax, not capital gains, and moved to income-summary.ts the same day. Example: Gain — long-term (MK-NW-M-036) carries no words about state tax. | 2026-10-24 CLOSED by NW-BONDS: dec0321_gains_federal_only.test.tsx 3 of 3; Net worth check 0 not found."
+   }
+  },
+  {
+   "task": "Net worth: the outside re-run's in-flight checks settled, and the bond figures (NW-BONDS)",
+   "todo": "Re-run the 7 screen checks and 2 rules left in flight; fix what they find. Decisions DEC-7933, DEC-7934.",
+   "status": "DONE 2026-10-24 — 7 of 7 screen checks and 2 of 2 rules settled; screens file 469 of 469, 0 in flight; not committed",
+   "ref": "src/screens/__tests__/outside_performance_rerun_openai_01_screens.test.tsx · src/screens/__tests__/bond_interest_one_number_2026_10_24.test.tsx · MoneyKeel/documents/audit/outside-test-cases/returned/results/performance_openai_rerun_01_screens_results.json",
+   "date": "2026-10-24",
+   "comments": "A $25,000 4.5% Treasury worth $24,200, face blank: $1,089/year → face value not entered. Twice a year: about 6.56% → 5.67%. The four bonds add to $1,630 on three screens (run 2026-10-24 17:38: 6 of 6).",
+   "_written": {
+    "status": "DONE 2026-10-24 — 7 of 7 screen checks and 2 of 2 rules settled; screens file 469 of 469, 0 in flight; not committed",
+    "comments": "A $25,000 4.5% Treasury worth $24,200, face blank: $1,089/year → face value not entered. Twice a year: about 6.56% → 5.67%. The four bonds add to $1,630 on three screens (run 2026-10-24 17:38: 6 of 6)."
+   }
+  },
+  {
+   "task": "DEC-0321 applied: the capital-gains figures say federal only, and userCapGainsRates (MK-CF-F-091) is retired (NW-BONDS)",
+   "todo": "Write federal only on MK-NW-M-036 and MK-NW-M-037; retire the function that added the state rate. Decision DEC-7935; DEC-0321 RULED → TESTED.",
+   "status": "DONE 2026-10-24 — 2 of 2 declarations; MK-CF-F-091 retired, its number on the retired list; Net worth check 0 not found",
+   "ref": "src/screens/__tests__/dec0321_gains_federal_only.test.tsx · MoneyKeel/functions/networth-and-performance/holding.ts",
+   "date": "2026-10-24",
+   "comments": "Run 2026-10-24 17:38: 3 of 3. The Holding page prints the two gains and no tax figure: $8,000 long-term, $1,000 short-term.",
+   "_written": {
+    "status": "DONE 2026-10-24 — 2 of 2 declarations; MK-CF-F-091 retired, its number on the retired list; Net worth check 0 not found",
+    "comments": "Run 2026-10-24 17:38: 3 of 3. The Holding page prints the two gains and no tax figure: $8,000 long-term, $1,000 short-term."
+   }
+  },
+  {
+   "task": "Bill calendar: COMING UP reads the month table (CJC)",
+   "todo": "The Covered line left out debts and spread the wage by day. Decision DEC-7936.",
+   "status": "DONE 2026-10-24 — 1 of 1 flow (E2E-81), 3 of 3 defects fixed, the line equals the table in 5 of 5 households; not committed",
+   "ref": "src/screens/__tests__/bill_calendar_coming_up_agrees_2026_10_24.test.tsx · src/domain/cashflow/index.ts (MK-CF-F-232 balanceByDay) · MoneyKeel/functions/cashflow/whats-coming.ts",
+   "date": "2026-10-24",
+   "comments": "Sep 28, $0 on hand, $5,000 take-home, $700 groceries, $2,650 debts, $1,200 due Dec 15: about $10,744 → about $4,950 (November's End). Property tax $4,800 due Dec 1: Covered → Short $1,500. Run 2026-10-24 17:38: 8 of 8.",
+   "_written": {
+    "status": "DONE 2026-10-24 — 1 of 1 flow (E2E-81), 3 of 3 defects fixed, the line equals the table in 5 of 5 households; not committed",
+    "comments": "Sep 28, $0 on hand, $5,000 take-home, $700 groceries, $2,650 debts, $1,200 due Dec 15: about $10,744 → about $4,950 (November's End). Property tax $4,800 due Dec 1: Covered → Short $1,500. Run 2026-10-24 17:38: 8 of 8."
+   }
+  },
+  {
+   "task": "Cash flow journey suite: entering flows E2E-69 to E2E-74 (CJA), and its follow-up",
+   "todo": "Write and run six entering flows on the real screens; fix what they find. Decisions DEC-7937, DEC-7938, DEC-7939, DEC-7940, DEC-7941, DEC-7942, DEC-7943; DEC-7939 amends DEC-7610.",
+   "status": "DONE 2026-10-24 — 6 of 6 flows, 14 tests; 11 of 11 defects fixed, and 2 of 2 follow-ups; not committed",
+   "ref": "src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx · docs/FCC-core-55-70/FCC-e2e-flow-register.md (E2E-69 to E2E-74)",
+   "date": "2026-10-24",
+   "comments": "Run 2026-10-24 17:38: 14 of 14. $9,000 with $1,000 into a 401(k): the months read $7,976 → $6,976, as Your base pay. A $6.50 coffee: +$894 → +$893. E2E-69 logs the coffee from Cash flow: Home has no + Expense (his DEC-0039). The drawing row naming v07's rule 9 was unquoted by the records pass, which had swept it as words of his (DEC-7932, removed).",
+   "_written": {
+    "status": "DONE 2026-10-24 — 6 of 6 flows, 14 tests; 11 of 11 defects fixed, and 2 of 2 follow-ups; not committed",
+    "comments": "Run 2026-10-24 17:38: 14 of 14. $9,000 with $1,000 into a 401(k): the months read $7,976 → $6,976, as Your base pay. A $6.50 coffee: +$894 → +$893. E2E-69 logs the coffee from Cash flow: Home has no + Expense (his DEC-0039). The drawing row naming v07's rule 9 was unquoted by the records pass, which had swept it as words of his (DEC-7932, removed)."
+   }
+  },
+  {
+   "task": "Cash flow journey suite: viewing flows E2E-75 to E2E-80 (CJB), and its five follow-ups",
+   "todo": "Write and run six viewing flows on the real screens; fix what they find. Decisions DEC-7944, DEC-7945, DEC-7946, DEC-7947, DEC-7948, DEC-7949, DEC-7950; DEC-7945 overrules the first cut's $328 to the printed difference, $327.",
+   "status": "DONE 2026-10-24 — 6 of 6 flows, 15 tests; 8 of 8 defects fixed (1 by CJA), and 5 of 5 follow-ups; not committed",
+   "ref": "src/screens/__tests__/cashflow_journeys_viewing_2026_10_24.test.tsx · docs/FCC-core-55-70/FCC-e2e-flow-register.md (E2E-75 to E2E-80)",
+   "date": "2026-10-24",
+   "comments": "Run 2026-10-24 17:38: 15 of 15. Single → jointly: take-home $6,196 → $6,523, $327/month more; jointly → separately, $327/month less. The bill calendar reads Oct 2026 – Sep 2027.",
+   "_written": {
+    "status": "DONE 2026-10-24 — 6 of 6 flows, 15 tests; 8 of 8 defects fixed (1 by CJA), and 5 of 5 follow-ups; not committed",
+    "comments": "Run 2026-10-24 17:38: 15 of 15. Single → jointly: take-home $6,196 → $6,523, $327/month more; jointly → separately, $327/month less. The bill calendar reads Oct 2026 – Sep 2027."
+   }
+  },
+  {
+   "task": "A dated bill on top of the typed budget, in its own month (CF-FIX)",
+   "todo": "Adding a $1,200 December bill cut everyday expenses from $2,000 to $1,900 every month. Decision DEC-7951, applying his DEC-0002 and DEC-0447.",
+   "status": "DONE 2026-10-24 — 4 of 4 red tests green; 173 of 173 test files; not committed",
+   "ref": "src/domain/budget/index.ts · MoneyKeel/functions/networth-and-performance/emergency-fund.ts · src/screens/__tests__/networth_family_inputs.test.tsx · src/screens/__tests__/networth_figures_match_v08.test.tsx",
+   "date": "2026-10-24",
+   "comments": "His $2,000 + $1,200 December: $2,000 × 11 months, December $3,200. MK-CF-F-002 $2,000 → $2,100; MK-CF-F-009 $1,900 → $2,000; emergency fund planned spend $7,570 → $7,870, 5.5 → 5.2 months. Figures on his approved Net worth v08 move: 2.3 → 2.1 and 1.9 → 1.8 months; the correction line is on the drawing (his DEC-4529), and the lead tells him.",
+   "_written": {
+    "status": "DONE 2026-10-24 — 4 of 4 red tests green; 173 of 173 test files; not committed",
+    "comments": "His $2,000 + $1,200 December: $2,000 × 11 months, December $3,200. MK-CF-F-002 $2,000 → $2,100; MK-CF-F-009 $1,900 → $2,000; emergency fund planned spend $7,570 → $7,870, 5.5 → 5.2 months. Figures on his approved Net worth v08 move: 2.3 → 2.1 and 1.9 → 1.8 months; the correction line is on the drawing (his DEC-4529), and the lead tells him."
+   }
+  },
+  {
+   "task": "Flow register: E2E-69 to E2E-81",
+   "todo": "Add the thirteen Cash flow journey flows to the register in its own table format, each with its test file; header 68 → 81.",
+   "status": "DONE 2026-10-24 — 13 of 13 flows; header and closing paragraph read 81",
+   "ref": "docs/FCC-core-55-70/FCC-e2e-flow-register.md",
+   "date": "2026-10-24",
+   "comments": "cashflow_journeys_entering_2026_10_24.test.tsx 14 tests (E2E-69 to E2E-74); cashflow_journeys_viewing_2026_10_24.test.tsx 15 tests (E2E-75 to E2E-80); bill_calendar_coming_up_agrees_2026_10_24.test.tsx 8 tests (E2E-81).",
+   "_written": {
+    "status": "DONE 2026-10-24 — 13 of 13 flows; header and closing paragraph read 81",
+    "comments": "cashflow_journeys_entering_2026_10_24.test.tsx 14 tests (E2E-69 to E2E-74); cashflow_journeys_viewing_2026_10_24.test.tsx 15 tests (E2E-75 to E2E-80); bill_calendar_coming_up_agrees_2026_10_24.test.tsx 8 tests (E2E-81)."
+   }
+  },
+  {
+   "task": "A phone check of the two info dots moved beside their sentence",
+   "todo": "Check on a phone the layout of the two dots CJB moved out of their sentence.",
+   "status": "TO DO — on the next device build",
+   "ref": "the Debts tab mortgage comparison (src/screens/BudgetScreen.tsx) · src/screens/RequiredWithdrawalsScreen.tsx",
+   "date": "2026-10-24",
+   "comments": "Found by CJB, 2026-10-24 (DEC-7948). Example: the mortgage comparison on the Debts tab ended its last sentence with the dot; the dot now sits beside the sentence and is said About How we calculate your odds — the layout moves a little, and no test can see it.",
+   "_written": {
+    "status": "TO DO — on the next device build",
+    "comments": "Found by CJB, 2026-10-24 (DEC-7948). Example: the mortgage comparison on the Debts tab ended its last sentence with the dot; the dot now sits beside the sentence and is said About How we calculate your odds — the layout moves a little, and no test can see it."
+   }
+  },
+  {
+   "task": "The info dot component (ⓘ) has no record of its own",
+   "todo": "Give the one component every info dot is drawn by a record, so its words and placement are checked like any other.",
+   "status": "TO DO",
+   "ref": "src/components/UI.tsx (the info dot)",
+   "date": "2026-10-24",
+   "comments": "Found by CJB, 2026-10-24 (DEC-7948). Example: its spoken label changed today from the glyph to About and its subject on every screen, and only a guard in one test file reads the 36 dots; the component itself is in no register.",
+   "_written": {
+    "status": "TO DO",
+    "comments": "Found by CJB, 2026-10-24 (DEC-7948). Example: its spoken label changed today from the glyph to About and its subject on every screen, and only a guard in one test file reads the 36 dots; the component itself is in no register."
+   }
+  },
+  {
+   "task": "Sign-up's \"average monthly expenses\" question can count a yearly bill twice",
+   "todo": "The question's words would say whether a yearly bill belongs in the average; a change of words goes through a drawing first, which is his to approve.",
+   "status": "TO DO — mock-first, his call",
+   "ref": "src/onboarding/modules.tsx (What are your average monthly expenses?) · MK-CF-F-002",
+   "date": "2026-10-24",
+   "comments": "Found by CF-FIX, 2026-10-24 (DEC-7951). Example: someone who averages a $1,200 yearly bill into the answer and also dates that bill counts it twice, $100 a month.",
+   "_written": {
+    "status": "TO DO — mock-first, his call",
+    "comments": "Found by CF-FIX, 2026-10-24 (DEC-7951). Example: someone who averages a $1,200 yearly bill into the answer and also dates that bill counts it twice, $100 a month."
+   }
+  },
+  {
+   "task": "Metric register: MK-CF-M-001 to MK-CF-M-004 each named two figures since 2026-10-02 (PF-TOOLS)",
+   "todo": "Give each number one key; retire the four original keys into the figures that carry them now; re-point the old anchors. Decision DEC-8084.",
+   "status": "DONE 2026-10-24 — 4 of 4 numbers one key each; 3 of 3 anchors re-pointed (G12 / DEC-0333, DEC-0292, DEC-0260), DEC-0002 kept; not committed",
+   "ref": "Calculation Module code/scripts/moneykeel_metric_register.json · moneykeel_rulings.json · moneykeel_decisions_anchors.json · backups in the scratchpad backup-1024b/",
+   "date": "2026-10-24",
+   "comments": "Expected in → MK-CF-M-047 · Planned out → MK-CF-M-048 · = Planned surplus (the grid month) → MK-CF-M-049 · Out (spent + debt) → MK-CF-M-052. MK-CF-M-002 and MK-CF-M-049 stay two figures (a $250 car loan whose first payment is next month). This closes the duplicate IDs MK-CF-M-001 to 004 named on the 2026-10-22 metric-register row.",
+   "_written": {
+    "status": "DONE 2026-10-24 — 4 of 4 numbers one key each; 3 of 3 anchors re-pointed (G12 / DEC-0333, DEC-0292, DEC-0260), DEC-0002 kept; not committed",
+    "comments": "Expected in → MK-CF-M-047 · Planned out → MK-CF-M-048 · = Planned surplus (the grid month) → MK-CF-M-049 · Out (spent + debt) → MK-CF-M-052. MK-CF-M-002 and MK-CF-M-049 stay two figures (a $250 car loan whose first payment is next month). This closes the duplicate IDs MK-CF-M-001 to 004 named on the 2026-10-22 metric-register row."
+   }
+  },
+  {
+   "task": "DEC-0333 breached in the code: this month's outflow was summed outside MK-CF-F-194 monthOutflow (PF-TOOLS)",
+   "todo": "Route this month's outflow through monthOutflow in actualMonthFlow and Home's box, the dollars unchanged. Decision DEC-8085; DEC-0333 stays TESTED.",
+   "status": "DONE 2026-10-24 — 2 of 2 places; 8 new checks in the agreement test; not committed",
+   "ref": "src/screens/__tests__/cashflow_home_agreement_2026_10_23.test.tsx · MoneyKeel/functions/cashflow/this-month.ts · src/screens/HomeScreen.tsx",
+   "date": "2026-10-24",
+   "comments": "Run 2026-10-24 18:29: 25 of 25. A $3,248 · C $9,248 · D $3,548 · E $3,398; a past month $2,998 + $250 = $3,248. B3 reads 2 FAIL until build-all re-prints the log and the master (then 0).",
+   "_written": {
+    "status": "DONE 2026-10-24 — 2 of 2 places; 8 new checks in the agreement test; not committed",
+    "comments": "Run 2026-10-24 18:29: 25 of 25. A $3,248 · C $9,248 · D $3,548 · E $3,398; a past month $2,998 + $250 = $3,248. B3 reads 2 FAIL until build-all re-prints the log and the master (then 0)."
+   }
+  },
+  {
+   "task": "Q50, his answer and two outflow notes moved from MK-CF-M-004 to MK-CF-M-052",
+   "todo": "Q50 and his answer, count them, answer the old outflow row; move them, and the two notes written for it, to MK-CF-M-052. Their words do not change.",
+   "status": "DONE 2026-10-24 — 3 of 3 overrides moved (only key and the why note changed; texts identical); his answer moved on the master, 2 of 2 cells changed and no other",
+   "ref": "Calculation Module code/scripts/moneykeel_overrides.json (Where each finding stands 2026-09-09; Decisions made 2026-09-10; Questions for you, Q50, 2026-09-10) · MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx (cashflow, YOUR ANSWER)",
+   "date": "2026-10-24",
+   "comments": "His answer count them is applied in the screens: the founder's household in the Cash flow journey E2E-75 reads Planned +$350 and Actual +$900, the figures Q50 gave for counting the HELOC and card payments. His answer has no row of its own in the decision log; it sits only in the master's YOUR ANSWER cell. Backups: rec4/p10_overrides_before.json and rec4/p10_master_before.xlsx in the scratchpad.",
+   "_written": {
+    "status": "DONE 2026-10-24 — 3 of 3 overrides moved (only key and the why note changed; texts identical); his answer moved on the master, 2 of 2 cells changed and no other",
+    "comments": "His answer count them is applied in the screens: the founder's household in the Cash flow journey E2E-75 reads Planned +$350 and Actual +$900, the figures Q50 gave for counting the HELOC and card payments. His answer has no row of its own in the decision log; it sits only in the master's YOUR ANSWER cell. Backups: rec4/p10_overrides_before.json and rec4/p10_master_before.xlsx in the scratchpad."
+   }
+  },
+  {
+   "task": "Q50: his answer, count them, written into the decision log as its own row",
+   "todo": "The decision log is the one home for every answer of his (DEC-0011). His answer sat only in the master's YOUR ANSWER cell. Row DEC-8152; it amends his worked example DEC-0292.",
+   "status": "DONE 2026-10-24 — 1 of 1 answer logged, his words as he typed them; the master prints it as Q50's answer on MK-CF-M-052 at its next build",
+   "ref": "Calculation Module code/scripts/moneykeel_decisions_in_chat.json · moneykeel_question_answers.json · src/screens/__tests__/cashflow_journeys_viewing_2026_10_24.test.tsx (E2E-75)",
+   "date": "2026-10-24",
+   "comments": "On record in the master from 2026-09-14 (commit f0e1d6d7). His household: planned 5,000 − 2,000 − 250 − 2,000 − 200 − 200 = +$350, actual 5,000 − 4,100 = +$900 (run 2026-10-24 19:32: 15 of 15).",
+   "_written": {
+    "status": "DONE 2026-10-24 — 1 of 1 answer logged, his words as he typed them; the master prints it as Q50's answer on MK-CF-M-052 at its next build",
+    "comments": "On record in the master from 2026-09-14 (commit f0e1d6d7). His household: planned 5,000 − 2,000 − 250 − 2,000 − 200 − 200 = +$350, actual 5,000 − 4,100 = +$900 (run 2026-10-24 19:32: 15 of 15)."
+   }
+  },
+  {
+   "task": "This month counts a debt only in a month a payment falls in (CF-FIX)",
+   "todo": "This month took off a loan not yet started and left out a balance due in full. Decision DEC-8153.",
+   "status": "DONE 2026-10-24 — 3 of 3 items; 216 test files, 4,802 tests pass; not committed",
+   "ref": "src/domain/debt/index.ts (MK-CF-F-235 paysInMonth, MK-CF-F-236 paymentInMonth) · MoneyKeel/functions/cashflow/this-month.ts · src/screens/__tests__/cashflow_home_agreement_2026_10_23.test.tsx",
+   "date": "2026-10-24",
+   "comments": "September planned surplus +$850 → +$400, the grid's September; October's card $1,150; MONTHLY RECURRING EXPENSES $2,650 → $2,400; the tax bill on the radar at $1,000; Home's due-soon reminder no longer fires for a loan not yet started. MK-CF-M-047/048/049 words say where they print; MK-CF-M-078 new. Run 2026-10-24 19:32: 29 of 29.",
+   "_written": {
+    "status": "DONE 2026-10-24 — 3 of 3 items; 216 test files, 4,802 tests pass; not committed",
+    "comments": "September planned surplus +$850 → +$400, the grid's September; October's card $1,150; MONTHLY RECURRING EXPENSES $2,650 → $2,400; the tax bill on the radar at $1,000; Home's due-soon reminder no longer fires for a loan not yet started. MK-CF-M-047/048/049 words say where they print; MK-CF-M-078 new. Run 2026-10-24 19:32: 29 of 29."
+   }
+  },
+  {
+   "task": "cf_function_trace: MK-CF-F-091's row replaced by a retirement comment (the lead)",
+   "todo": "MK-CF-F-091 userCapGainsRates was retired 2026-10-24 under his DEC-0321; the trace test still listed it.",
+   "status": "DONE 2026-10-24 — 1 of 1 row; the guard is equal to the code only after PF-TOOLS adds the missing Cash flow functions",
+   "ref": "src/__tests__/cf_function_trace.test.ts",
+   "date": "2026-10-24",
+   "comments": "Run 2026-10-24 19:32: 2 of 3 pass; the count check reads 200 functions against its floor of 201 until PF-TOOLS's pass, now in flight, adds the 19 missing Cash flow functions and makes the guard equal the code.",
+   "_written": {
+    "status": "DONE 2026-10-24 — 1 of 1 row; the guard is equal to the code only after PF-TOOLS adds the missing Cash flow functions",
+    "comments": "Run 2026-10-24 19:32: 2 of 3 pass; the count check reads 200 functions against its floor of 201 until PF-TOOLS's pass, now in flight, adds the 19 missing Cash flow functions and makes the guard equal the code."
    }
   }
  ]

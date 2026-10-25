@@ -105,3 +105,5 @@ export const figLabel = (id: string): string => figureSpec(id).label;
 /** The lines of a walk as printed, in whole dollars that add up to its ending — written by the one writer
  *  (MoneyKeel/functions/_figure-spec.ts walkShown, 2026-10-21), re-exported here beside fig for the screens. */
 export { walkShown, type WalkLines } from '../../MoneyKeel/functions/_figure-spec';
+// rows in whole dollars that add up to their printed total — a month, its three figures, a list (2026-10-24, tenet 2)
+export { partsShown, monthShown, flowShown, chainShown } from '../../MoneyKeel/functions/_figure-spec';

@@ -260,6 +260,16 @@ const RENDERS: Record<string, () => Shot> = {
   B1_NOCOUPON: () => shoot('account', { ...H_BONDS, assetAccounts: [{ ...BONDS[0], coupon_rate: undefined }] }, '2026-09-28', { id: 'b1' }),
   B1_NOFACE: () => shoot('account', { ...H_BONDS, assetAccounts: [{ ...BONDS[0], face_value: undefined }] }, '2026-09-28', { id: 'b1' }),
   B1_NOMAT: () => shoot('account', { ...H_BONDS, assetAccounts: [{ ...BONDS[0], maturity_date: undefined }] }, '2026-09-28', { id: 'b1' }),
+  // (2026-10-24, the IN-FLIGHT re-runs) the same Treasury entered as paying twice a year (DEC-6625), and the Ally CD with no
+  // face value, bought from the bank — the case his ruling DEC-2748c's value × rate was made for
+  B1_TWICE: () => shoot('account', { ...H_BONDS, assetAccounts: [{ ...BONDS[0], coupons_per_year: 2 }] }, '2026-09-28', { id: 'b1' }),
+  B2_NOFACE: () => shoot('account', { ...H_BONDS, assetAccounts: [{ ...BONDS[1], face_value: undefined, cd_bought: 'bank' }] }, '2026-09-28', { id: 'b2' }),
+  // (2026-10-24) a second account holding VTI with its own $40 dividend: the Fidelity page still counts only Fidelity's (DEC-6618)
+  FID_TWO_ACCOUNTS: () => shoot('account', { ...H_FID, assetAccounts: [FID_ACCOUNT, { ...FID_ACCOUNT, asset_id: 'a3', label: 'Vanguard Brokerage', institution: 'Vanguard' }],
+    transactions: [...FID_LEDGER, txn('v1', 'a3', 'DIVIDEND', 40, '2026-07-01', { ticker: 'VTI' })] }, '2026-09-28', { id: 'a2' }),
+  // (2026-10-24, MK-PF-M-019 tenet 3) a dividend the broker sent with no amount, and a record in a word the app does not know
+  PERF_NOAMOUNT: () => shoot('invest', { ...H_PERF, transactions: [...H_PERF.transactions, txn('dz', 'a2', 'DIVIDEND', null as any, '2026-07-20', { ticker: 'VTI' })] }, '2026-09-28', {}, pickWindow('This year')),
+  PERF_UNNAMED: () => shoot('invest', { ...H_PERF, transactions: [...H_PERF.transactions, txn('jz', 'a2', 'ADJUSTMENT', 500, '2026-07-20', { unclassified_word: 'JNL' })] }, '2026-09-28', {}, pickWindow('This year')),
   LB: () => shoot('lookback', H_LB, '2026-09-28', { from: 'BND', amount: '10000' }, (s) => fireEvent.press(s.getByLabelText('To VTI'))),
   LB_NOPRICE: () => shoot('lookback', { ...H_LB, priceCache: {} }, '2026-09-28', { from: 'BND', amount: '10000' }),
   NW_HOME: () => shoot('home', H_NW, '2026-09-28'),
@@ -578,35 +588,57 @@ const CLASS: Record<string, Item> = {
     why: 'Missing income: no surplus at all, only the two set-up steps (held). Missing debt payment: the surplus refuses, but reads "+No budget set — there is no planned surplus…" while a $3,400 budget IS set, and the car loan\'s row prints "A section with nothing in it keeps its heading and says so." — the wrong reason, in a sentence written for the master file.',
     fix: 'MoneyKeel/functions/cashflow/this-month.ts plannedMonthFlow + src/screens/CashFlowScreen.tsx: a debt with no payment entered reads "Car loan — payment not entered", and the planned surplus "Not worked out — Car loan\'s payment is not entered", with no "+". Cash flow This month, words only.',
     check: () => { expect(R('CF_NOINCOME').lines).toContain('SET UP YOUR MONTH — 2 STEPS'); expect(printed('CF_NOINCOME', 'MK-CF-M-002')).toEqual([]); },
-    wrong: () => { const L = R('CF_NOPAY').lines; expect(L.some((l) => /No budget set/.test(l))).toBe(false); expect(L).not.toContain('A section with nothing in it keeps its heading and says so.'); } },
-  'MK-CF-M-051#1': { cls: 'NEEDS A RULING',
-    why: 'Two of his decisions disagree. The row quotes him (2026-08-28): "nothing is assumed to have arrived; a source counts only once it is recorded". His approved Cash flow drawing (DEC-0440, 2026-09-28) draws the take-home as "Actual inflow" with nothing recorded. On screen, with no paycheck recorded: "Actual inflow $7,200", "Actual surplus so far +$3,952". Under the 08-28 rule: $0 and −$3,248 until a paycheck is recorded.',
-    check: () => { expect(after('CF_CF', 'Actual inflow (income (take-home))')).toBe('$7,200'); expect(H_CF.incomes).toBeUndefined(); } },
+    wrong: () => { const L = R('CF_NOPAY').lines; expect(L.some((l) => /No budget set/.test(l))).toBe(false); expect(L).not.toContain('A section with nothing in it keeps its heading and says so.'); },
+    fixed: '2026-10-23: a debt whose payment was never entered reads "payment not entered", and the planned surplus is not given — the band reads —, and "Car loan’s payment is not entered, so there is no planned surplus — we won’t guess one." (tenet 3; MK-NW-F-147, the one test Net worth uses)',
+    was: () => { const L = R('CF_NOPAY').lines; expect(L.some((l) => /No budget set/.test(l))).toBe(true); expect(L).toContain('A section with nothing in it keeps its heading and says so.'); } },
+  // SETTLED 2026-10-23 (CF-FIX, without asking him — his rules DEC-3523 tenet 6 and "the newest approval wins", 2026-09-27): the
+  // approved drawing (DEC-0440, 2026-09-28) is newer than the 2026-08-28 words, so the screen stands and the row's words were
+  // wrong. Was NEEDS A RULING; it is the row's words that break the tenet, as MK-CF-M-052 tenet 2. To reverse: count only
+  // recorded payments in theMonth's actual inflow, and Cash flow and Home move together.
+  'MK-CF-M-051#1': { cls: 'APP WRONG', rowWordsOnly: true,
+    why: 'Two of his decisions seemed to disagree. The row quoted him (2026-08-28): "nothing is assumed to have arrived; a source counts only once it is recorded". His approved Cash flow drawing (DEC-0440, 2026-09-28), newer, draws the take-home as "Actual inflow" with nothing recorded. On screen, with no paycheck recorded: "Actual inflow $7,200", "Actual surplus so far +$3,952". The screen follows the newer approval; the row\'s words did not.',
+    fix: 'MoneyKeel/functions/cashflow/this-month.ts MK-CF-M-051 row: formula "inflow = the month\'s take-home …; a payment recorded as received is listed under RECEIVED on the Income tab and is not added to it", and the decision names the drawing. No figure moves.',
+    check: () => { expect(after('CF_CF', 'Actual inflow (income (take-home))')).toBe('$7,200'); expect(H_CF.incomes).toBeUndefined(); },
+    wrong: () => { expect(figureSpec('MK-CF-M-051').formula).not.toMatch(/Σ of the income recorded as received/); },
+    fixed: '2026-10-23: the row\'s formula reads "inflow = the month\'s take-home", as the approved drawing (DEC-0440) and the screen have it; no figure moves',
+    was: () => { expect(figureSpec('MK-CF-M-051').formula).toMatch(/Σ of the income recorded as received/); } },
   'MK-CF-M-052#2': { cls: 'APP WRONG', rowWordsOnly: true,
     why: 'The screen is right by the approved drawing (DEC-0440: an unpaid debt shows $0 with its due day): outflow so far = $250 car loan paid + $2,998 logged = $3,248, "Mortgage · NOT PAID YET · $0". The figure\'s own row says the opposite — "Σ of the debt payments due this month… counted in full, logged or not" — and the reviewer\'s $5,648 follows those words. File and code disagree.',
     fix: 'MoneyKeel/functions/cashflow/this-month.ts MK-CF-M-052 row: formula "expenses logged so far this month + the debt payments made so far; an unpaid debt shows $0 with its due day". No figure moves.',
     check: () => { expect(after('CF_CF', 'Mortgage', 1, 'ACTUAL · SO FAR')).toBe('NOT PAID YET'); expect(after('CF_CF', 'Mortgage', 2, 'ACTUAL · SO FAR')).toBe('$0'); },
-    wrong: () => { expect(figureSpec('MK-CF-M-052').formula).not.toMatch(/due this month/); } },
+    wrong: () => { expect(figureSpec('MK-CF-M-052').formula).not.toMatch(/due this month/); },
+    fixed: '2026-10-23: the row\'s formula reads "expenses logged so far this month + the debt payments made so far; an unpaid debt shows $0 with its due day" — the drawing (DEC-0440); no figure moves',
+    was: () => { expect(figureSpec('MK-CF-M-052').formula).toMatch(/due this month/); } },
   'MK-CF-M-052#4': { cls: 'APP WRONG',
     why: 'Found rendering (the reviewer passed it): Home\'s cash-flow box reads "Actual expenses so far $2,998 · Left $4,202" — it leaves out the $250 car loan already paid. Cash flow, one tap away: −$3,248 out, +$3,952 left. Home works the month out on the screen itself (CLAUDE.md: never re-derive a money figure on a screen).',
     fix: 'src/screens/HomeScreen.tsx cashflowBlock: read thisMonth(…).actual from MoneyKeel/functions/cashflow/this-month.ts — Income = actual inflow, out = expenses + debts paid, Left = actual surplus. Home: $2,998 / $4,202 → $3,248 / $3,952; "Actual expenses so far" → "Outflow (expenses + debt)". No approved Home drawing is traced (design record); Cash flow v01 is unaffected.',
-    wrong: () => { expect(after('CF_HOME', 'Actual expenses so far')).toBe('$3,248'); } },
+    // the fix renames Home's middle figure as it says ("Actual expenses so far" → "Outflow (expenses + debt)", DEC-0269): the right
+    // answer is read under its new words, the old words and the old $2,998 are kept as the app was
+    wrong: () => { expect(after('CF_HOME', 'Outflow (expenses + debt)')).toBe('$3,248'); expect(R('CF_HOME').lines).not.toContain('Actual expenses so far'); },
+    fixed: '2026-10-23: Home\'s box prints theMonth\'s own actual figures, from the inputs the Cash flow tab builds (useThisMonthInputs, DEC-0345) — Outflow (expenses + debt) $3,248, the $250 car loan paid included',
+    was: () => { expect(after('CF_HOME', 'Actual expenses so far')).toBe('$2,998'); } },
   'MK-CF-M-052#8': { cls: 'APP WRONG', rowWordsOnly: true,
     why: 'The screen does not count unpaid debts as gone out (Mortgage NOT PAID YET $0). The row\'s plain words do: "the expenses logged, plus the debt payments due in the month". Same fix as tenet 2.',
     fix: 'MK-CF-M-052 row "answers": "What has actually gone out so far this month: the expenses logged and the debt payments made." No figure moves.',
     check: () => { expect(after('CF_CF', 'Mortgage', 2, 'ACTUAL · SO FAR')).toBe('$0'); },
-    wrong: () => { expect(figureSpec('MK-CF-M-052').answers).not.toMatch(/due in the month/); } },
+    wrong: () => { expect(figureSpec('MK-CF-M-052').answers).not.toMatch(/due in the month/); },
+    fixed: '2026-10-23: the row\'s words read "What has actually gone out so far this month: the expenses logged and the debt payments made." — no figure moves',
+    was: () => { expect(figureSpec('MK-CF-M-052').answers).toMatch(/due in the month/); } },
   'MK-CF-M-053#1': { cls: 'REVIEWER WRONG',
     why: 'The screen\'s +$3,952 (7,200 − 250 − 2,998) follows the approved drawing, where an unpaid debt shows $0 until paid. The reviewer\'s $1,552 rests on MK-CF-M-052\'s out-of-date words (counted there).',
     check: () => { expect(after('CF_CF', '= Actual surplus so far')).toBe('+$3,952'); } },
   'MK-CF-M-053#3': { cls: 'APP WRONG',
     why: 'Found rendering (the reviewer passed it): with no income entered and nothing spent, Home\'s cash-flow box shows the red "Over" chip above "Income $0 · Nothing entered yet · Left $0". "Over" is an answer; nothing is known (HomeScreen: over = income ≤ 0).',
     fix: 'src/screens/HomeScreen.tsx cashflowBlock: no pace chip until income is entered — the EmptyNote door already there carries the line. Home, words only.',
-    wrong: () => { expect(R('NW_HOME').lines).not.toContain('Over'); } },
+    wrong: () => { expect(R('NW_HOME').lines).not.toContain('Over'); },
+    fixed: '2026-10-23: no pace word, no share spent and no Left figure until income is entered — Income $0 · Nothing entered yet. Add your income › · Outflow (expenses + debt) $0 · Left — (Cash flow draws no surplus then; tenet 3)',
+    was: () => { expect(R('NW_HOME').lines).toContain('Over'); } },
   'MK-CF-M-053#4': { cls: 'APP WRONG',
     why: 'Found rendering (the reviewer passed it): one month reads "Left $4,202" on Home and "= Actual surplus so far +$3,952" on Cash flow — two numbers for one thing, $250 apart (the car loan paid).',
     fix: 'The MK-CF-M-052 tenet-4 fix: Home reads the one door. Home "Left" $4,202 → $3,952.',
-    wrong: () => { expect(after('CF_HOME', 'Left')).toBe((after('CF_CF', '= Actual surplus so far') ?? '').replace('+', '')); } },
+    wrong: () => { expect(after('CF_HOME', 'Left')).toBe((after('CF_CF', '= Actual surplus so far') ?? '').replace('+', '')); },
+    fixed: '2026-10-23: Home\'s Left is theMonth\'s actual surplus on the Cash flow tab\'s own inputs — $3,952 on both (held by src/screens/__tests__/cashflow_home_agreement_2026_10_23.test.tsx)',
+    was: () => { expect(after('CF_HOME', 'Left')).toBe('$4,202'); } },
   'MK-MN-M-003#3': { cls: 'NEEDS A RULING',
     why: 'No ruling says what "has gone in" means. The screen takes a full year at the monthly amount typed: "$21,350 left · That is about $14,400 of the $35,750 limit — calculated from what you entered you contribute each month, not from your payroll" (labelled). On 29 Sep, nine $1,200 payments made, the room open today is $24,950; after the year\'s planned payments it is $21,350. On screen: "$21,350 left" (today) or "$24,950 left" (paid so far).',
     check: () => { expect(has('CR_ROOM', '$21,350 left')).toBe(true); expect(has('CR_ROOM', /not from your payroll/)).toBe(true); } },
@@ -630,23 +662,48 @@ const CLASS: Record<string, Item> = {
   'MK-NW-M-013#8': { cls: 'REVIEWER WRONG',
     why: 'The screens carry the rent exception: rent that keeps arriving comes off the month (owner 2026-10-04), and with a property\'s rent unknown the line "6.8 months, rent not included. Enter rent to include." sits with the months (DEC-3769; DEC-3836 on Stress test, Job safety, Insights and Home — emergency_fund_rent_dec3836).',
     check: () => { expect(has('NW_NW', '6.8 months, rent not included. Enter rent to include.')).toBe(true); } },
+  // SETTLED 2026-10-24: the two 'dividends per account' PASS items (IN_FLIGHT_PASS until today), re-run after DEC-6618 landed
+  'MK-NW-M-019#1': { cls: 'AGREES',
+    why: 'The reviewer passed it. Re-run 2026-10-24 after the dividends-per-account work landed (DEC-6618: a holding is one ticker in one account, so its page counts only that account\'s records): the Fidelity page reads $825 of dividends — $420 on Jun 20 + $405 on Mar 20 — and still reads $825 when a second account holds VTI and was paid its own $40.',
+    check: () => { expect(printed('FID_ACC', 'MK-NW-M-019')).toContain('$825'); expect(420 + 405).toBe(825);
+      expect(printed('FID_TWO_ACCOUNTS', 'MK-NW-M-019')).toContain('$825'); expect(printed('FID_TWO_ACCOUNTS', 'MK-NW-M-019')).not.toContain('$865'); } },
+  'MK-NW-M-021#1': { cls: 'AGREES',
+    why: 'The reviewer passed it. Re-run 2026-10-24 after DEC-6618 landed: the VTI row on the Fidelity page reads "Income: $825 dividends" ($420 + $405), and Vanguard\'s $40 on its own VTI does not reach it.',
+    check: () => { expect(has('FID_ACC', 'Income: $825 dividends')).toBe(true); expect(has('FID_TWO_ACCOUNTS', 'Income: $825 dividends')).toBe(true); expect(has('FID_TWO_ACCOUNTS', 'Income: $865 dividends')).toBe(false); } },
   'MK-NW-M-020#2': { cls: 'APP WRONG',
     why: 'In the worked household the rows add up (Stocks $40,600 + Cash $6,000 = Total $46,600). When the broker\'s total is more than the holdings plus the cash it reports — $50,000 against $40,000 + $5,000 — the rows read $45,000 under "Total $50,000" and the $5,000 is in no row. DEC-0095 says that gap is cash.',
     fix: 'src/domain/assets/index.ts accountClassBreakdown: Cash = broker total − priced holdings when that exceeds the cash reported (DEC-0095), so the rows add up. Account page BY CATEGORY & HOLDING: Cash $5,000 → $10,000 in that case.',
     check: () => { expect(printed('FID_ACC', 'MK-NW-M-020').map(dollars).reduce((a, b) => a + b, 0)).toBe(46600); },
     wrong: () => { expect(printed('GAP_ACC', 'MK-NW-M-020').map(dollars).reduce((a, b) => a + b, 0)).toBe(50000); },
     fixed: '2026-10-21: the part of the broker\'s total no listed holding accounts for is cash (DEC-0095), on the account page\'s cash row and Net worth\'s Cash line alike — Cash $5,000 → $10,000, rows $50,000' },
-  'MK-NW-M-024#3': { cls: 'IN-FLIGHT', inFlight: true,
-    why: 'Coupon missing: the screen does what his A46 says — "not entered · $0/year — coupon rate not entered", no yields (the reviewer is wrong there). Face missing: "4.50%/year · $1,089/year" — the rate on the market value, a guess (the reviewer is right there). The bond value rule is being changed now (market value, else paid, else face): re-run after it lands.',
-    fix: 'If it still reads so after the bond work lands: src/domain/bonds/index.ts yearlyInterestNow — no face, no yearly interest ("face value not entered"). Account page BOND FACTS: $1,089/year → "face value not entered".',
-    check: () => { expect(after('B1_NOCOUPON', 'Interest payments')).toBe('not entered · $0/year — coupon rate not entered'); expect(printed('B1_NOCOUPON', 'MK-NW-M-026')).toEqual([]); },
-    wrong: () => { expect(after('B1_NOFACE', 'Interest payments')).not.toMatch(/\$1,089/); } },
-  'MK-NW-M-026#1': { cls: 'IN-FLIGHT', inFlight: true,
-    why: 'The reviewer read the package\'s row ("the standard approximation"); the code solves the yield from the full price — the value plus accrued interest — and the row in the working tree now says so (changed by the Net worth work landing now, with "payments a year … once a year when how often it pays was not entered"). The screen\'s 5.69% still estimates "$1,119 … for 363 days", one coupon a year, for a Treasury whose frequency is not entered. Re-run after the frequency work lands.',
-    check: () => { expect(has('B1', 'about 5.69% · estimate')).toBe(true); expect(has('B1', /^Added estimated \$1,119 in accrued interest/)).toBe(true); expect(figureSpec('MK-NW-M-026').formula).toMatch(/payments a year/); } },
-  'MK-NW-M-028#1': { cls: 'IN-FLIGHT', inFlight: true,
-    why: 'The reviewer passed it and the screen gives the register\'s band ($23,300–$23,800), but the band is priced from the yield to maturity, which moves when the payment-frequency work lands. Re-run.',
-    check: () => { expect(printed('B1', 'MK-NW-M-028').slice(0, 2)).toEqual(['$23,300', '$23,800']); } },
+  // SETTLED 2026-10-24 (NW-BONDS, re-run after the bond value rule and the payment-frequency work landed). Was IN-FLIGHT.
+  'MK-NW-M-024#3': { cls: 'APP WRONG',
+    why: 'Coupon missing: the screen does what his A46 says — "not entered · $0/year — coupon rate not entered", no yields (the reviewer is wrong there). Face missing: "4.50%/year · $1,089/year" — the rate on the market value, a guess (the reviewer is right there: a bond pays its coupon on its face — 25,000 × 4.5% = $1,125, not 24,200 × 4.5% = $1,089 — as the coupon\'s own row says, "IT IS PAID ON FACE, NOT ON VALUE"). Re-run 2026-10-24 after the bond value rule landed: it still read $1,089, and "Yield on today\'s value 4.50%" — the rate read back as a yield.',
+    fix: 'src/domain/bonds/index.ts yearlyInterest, the rule yearlyInterestNow returns: a bond (or a broker CD) with a maturity date and no face value has no year\'s interest. Account page BOND FACTS: "4.50%/year · $1,089/year" → "4.50%/year · face value not entered", and no "Yield on today\'s value". The same figure on the Bonds screen ("coupon — face value not entered", named under AVG YIELD) and the income sheet ($0, said so): src/screens/__tests__/bond_interest_one_number_2026_10_24.test.tsx.',
+    check: () => { expect(after('B1_NOCOUPON', 'Interest payments')).toBe('not entered · $0/year — coupon rate not entered'); expect(printed('B1_NOCOUPON', 'MK-NW-M-026')).toEqual([]);
+      // the case his ruling DEC-2748c was made for keeps its answer: a CD bought from the bank, no face, $10,000 × 5.05% = $505
+      expect(after('B2_NOFACE', 'Interest payments')).toBe('5.05%/year · $505/year'); },
+    wrong: () => { expect(after('B1_NOFACE', 'Interest payments')).toBe('4.50%/year · face value not entered'); expect(printed('B1_NOFACE', 'MK-NW-M-056')).toEqual([]);
+      expect(R('B1_NOFACE').lines).not.toContain("Yield on today's value"); expect(R('B1_NOFACE').lines.join(' ')).not.toMatch(/\$1,089/); },
+    fixed: '2026-10-24 (the lead\'s decision under DEC-3523 tenet 3, which outranks tenet 6, over the no-face half of DEC-2748c for a dated bond): no face value, no year\'s interest — 4.50%/year · face value not entered; a bank CD by its balance keeps value × rate',
+    was: () => { expect(after('B1_NOFACE', 'Interest payments')).toBe('4.50%/year · $1,089/year'); } },
+  'MK-NW-M-026#1': { cls: 'APP WRONG',
+    why: 'The reviewer read the package\'s row ("the standard approximation", no accrued interest, no bank/broker CD split) and got 5.654%. On the number the screen is right: his DEC-3390 Treasury, $1,118.84 of accrued interest estimated for 363 days and added to $24,200, a full price of $25,318.84 → 5.69% ("about 5.69% · estimate"). On the row the reviewer is right: it named neither the accrued interest (fixed 2026-10-20) nor DEC-3837\'s split. Re-run after the frequency work landed (DEC-6625) found a wrong number: the same Treasury entered as paying twice a year read "about 6.56%" — priced on one whole $1,125 coupon a year against the half-year accrued estimate — where 5.67% is right.',
+    fix: 'src/domain/bonds/index.ts priceAtYield: twice a year, half the coupon every six months, the yield compounded twice a year (as a Treasury quotes it). MK-NW-M-026 and MK-NW-M-058 rows: the twice-a-year pricing; MK-NW-M-026 gains DEC-3837\'s bank/broker split. Account page and Bonds screen, twice a year only: about 6.56% → about 5.67%; once a year or not entered, unchanged.',
+    check: () => { expect(has('B1', 'about 5.69% · estimate')).toBe(true); expect(has('B1', /^Added estimated \$1,119 in accrued interest to bond value at 4\.5% coupon for 363 days/)).toBe(true);
+      expect(figureSpec('MK-NW-M-026').formula).toMatch(/interest built up since the last coupon/); },
+    wrong: () => {
+      expect(has('B1_TWICE', 'about 5.67% · estimate')).toBe(true);
+      expect(has('B1_TWICE', /^Added estimated \$556 in accrued interest to bond value at 4\.5% coupon for 182 days/)).toBe(true);   // 25,000 × 4.5% ÷ 2 × 182 ÷ 184
+      expect(figureSpec('MK-NW-M-026').formula).toMatch(/twice a year pays half its yearly coupon every six months/);
+      expect((figureSpec('MK-NW-M-026').decisions ?? []).join(' ')).toMatch(/DEC-3837/);
+    },
+    fixed: '2026-10-24 (under DEC-3390 and DEC-6625): a bond paying twice a year is priced on half coupons every six months — about 6.56% → about 5.67%; the row names the accrued interest and the bank/broker CD split; once a year 5.69% holds',
+    was: () => { expect(has('B1_TWICE', 'about 6.56% · estimate')).toBe(true); } },
+  'MK-NW-M-028#1': { cls: 'AGREES',
+    why: 'The reviewer passed it and the screen gives the register\'s band. Re-run 2026-10-24 after the payment-frequency work landed: the worked Treasury, how often it pays not entered (read as once a year, DEC-6625), still reads "Rates rise 1% → value roughly $23,300–$23,800 (down about $600)" and "Rates fall 1% → value roughly $24,600–$25,100". Entered as twice a year it is priced from the corrected 5.67% (MK-NW-M-026): $23,300–$23,800 (down about $700), $24,600–$25,100.',
+    check: () => { expect(printed('B1', 'MK-NW-M-028')).toEqual(['$23,300', '$23,800', '$600', '$24,600', '$25,100']);
+      expect(printed('B1_TWICE', 'MK-NW-M-028')).toEqual(['$23,300', '$23,800', '$700', '$24,600', '$25,100']); } },
   'MK-NW-M-028#3': { cls: 'APP WRONG',
     why: 'A CD whose "bank or broker?" question was never answered is treated as a bank CD and its page says "this one is marked as bought from the bank" — nobody marked it. DEC-3837 asks once; no ruling of his says an unanswered CD is a bank CD (the register line saying so is mine).',
     fix: 'MoneyKeel/functions/networth-and-performance/bonds.ts theBonds ratesMoveRefusal: with cd_bought missing, "Where this CD was bought is not entered — bought from the bank, or through a broker?" with the two answers. Account page IF INTEREST RATES MOVE card, words only.',
@@ -748,12 +805,18 @@ const CLASS: Record<string, Item> = {
     // the table until 2026-10-22: 16,000 ÷ (11,000 ÷ 1.1 + 5,000 ÷ 0.5) − 1 = −20.00% (the rows weighed without their paths)
     was: () => { expect(reviewerStocks(true)).toBeCloseTo(reviewerStocks(false) as number, 12); expect(reviewerStocks(false)).toBeCloseTo(-0.2, 12); },
     fixed: '2026-10-22 (DEC-1669; W-START): the category is split at every day money went into it, each piece measured from each holding\'s own closes — −21.60% where it read −20.00%' },
+  // SETTLED 2026-10-24: the 'dividends per account' PASS item (IN_FLIGHT_PASS until today)
+  'MK-PF-M-007#1': { cls: 'AGREES',
+    why: 'The reviewer passed it: the register\'s worked answer is Stocks / Funds $865. Re-run 2026-10-24: the screen reads Stocks / Funds $865 = $420 + $405 on VTI + the $40 dividend with no ticker ($900 of Nov 2025 is outside the window); Bonds & CDs $505; All categories $1,370. The re-run found the row\'s words disagreeing with the code: since 2026-10-21 they said a dividend with no ticker sits under Unclassified, while the screen — and the worked answer the reviewer passed — files it under Stocks / Funds. The words were meant to say what the screen does (MK-PF-M-007 tenet 4, "no figure moves"), so the words are corrected; no figure moves.',
+    check: () => { expect(after('CAT_INV', 'Stocks / Funds')).toBe('$865'); expect(420 + 405 + 40).toBe(865); expect(after('CAT_INV', 'All categories')).toBe('$1,370');
+      expect(R('CAT_INV').lines).not.toContain('Unclassified');
+      expect((figureSpec('MK-PF-M-007').decisions ?? []).join(' ')).toMatch(/a dividend with no ticker comes from a fund and sits under Stocks \/ Funds/); } },
   'MK-PF-M-007#4': { cls: 'APP WRONG', rowWordsOnly: true,
     why: 'The screen files a $40 interest record with no ticker under "Cash in this account" — interest on the account\'s cash, the sensible reading, decided here. The row says "interest from a bond". The row also names the figure "All categories" while its worked answer ($865) is the Stocks / Funds line; on screen All categories reads $1,370.',
     fix: 'MoneyKeel/functions/networth-and-performance/performance.ts MK-PF-M-007 row: label "each category\'s earned, and All categories"; decision "an interest record with no ticker is the account\'s cash". No figure moves.',
     check: () => { expect(after('UNTICKERED', 'Cash in this account', 2)).toBe('$40'); expect(after('CAT_INV', 'All categories')).toBe('$1,370'); },
     wrong: () => { expect((figureSpec('MK-PF-M-007').decisions ?? []).join(' ')).not.toMatch(/interest from a bond/); },
-    fixed: '2026-10-21: the row says what the screen does — interest with no ticker is the account\'s cash, a dividend with no ticker Unclassified (no figure moves)' },
+    fixed: '2026-10-21: the row says what the screen does — interest with no ticker is the account\'s cash (no figure moves); its dividend half, written Unclassified, corrected 2026-10-24 to what the screen does: Stocks / Funds' },
   'MK-PF-M-008#1': { cls: 'APP WRONG',
     why: 'Right for the worked case (Home: market +8.80%), and the gap is worked from unrounded returns, so "ahead by 0.85%" beside +3.69% and +2.83% can be true. Wrong after a share change: a holding that went from 10 to 20 shares is weighted as if it held 20 from the start ($2,420 ÷ 1.21 = $2,000; true $1,000), so the market reads 8.00% where his rule ("weighted by what each holding was worth when the window began") gives 7.00%. (Formula card MK-PF-F-020.)',
     fix: 'src/domain/performance/index.ts portfolioBenchReturn: weight by shares held on the window\'s first day × the first close. Home\'s market line.',
@@ -835,9 +898,18 @@ const CLASS: Record<string, Item> = {
     check: () => { expect(has('BENCH_INV_1M', /^Your daily record does not reach back to Aug 27, 2026 yet, so the beginning is worked back/)).toBe(true); },
     wrong: () => { expect((figureSpec('MK-PF-M-018').decisions ?? []).join(' ')).not.toMatch(/NEVER BACK-SOLVED/); },
     fixed: '2026-10-21: the row says the beginning is read from the daily record, or worked back from price history and said so (DEC-3656, DEC-5291; no figure moves)' },
-  'MK-PF-M-019#3': { cls: 'REVIEWER WRONG', inFlight: true,
-    why: 'The screen makes the distinction: when a broker shares no dividend records the walk keeps its "Dividends $0" line (the approved structure) and the amber line above names the gap — "Schwab Brokerage hasn\'t shared dividend records". A record with no amount refuses the return (MOVEMENT_HAS_NO_AMOUNT). Unknown activity words are being made to refuse now: re-run.',
-    check: () => { expect(has('BENCH_INV_1M', "Schwab Brokerage hasn't shared dividend records")).toBe(true); } },
+  // SETTLED 2026-10-24 (re-run after the Net worth work landed: INCOME_HAS_NO_AMOUNT and ACTIVITY_NOT_KNOWN, 2026-10-20/21). Was IN-FLIGHT.
+  'MK-PF-M-019#3': { cls: 'REVIEWER WRONG',
+    why: 'The screen makes the distinction: when a broker shares no dividend records the walk keeps its "Dividends $0" line (the approved structure) and the amber line above names the gap — "Schwab Brokerage hasn\'t shared dividend records". Re-run 2026-10-24: a dividend with no amount is unknown, not $0 — the return refuses and says why, and the Dividends line keeps the $825 it can count; a record in a word the app does not know refuses the same way and names the word.',
+    check: () => {
+      expect(has('BENCH_INV_1M', "Schwab Brokerage hasn't shared dividend records")).toBe(true);
+      // a $825 dividend counted, one with no amount on Jul 20: no return across that day, and the line counts only the $825
+      expect(after('PERF_NOAMOUNT', 'Return')).toBe('—');
+      expect(has('PERF_NOAMOUNT', 'A dividend on Jul 20, 2026 has no amount in your records, so a return cannot be measured across that day. The Dividends line does not count it.')).toBe(true);
+      expect(after('PERF_NOAMOUNT', 'Dividends')).toBe('$825');
+      expect(after('PERF_UNNAMED', 'Return')).toBe('—');
+      expect(has('PERF_UNNAMED', 'Your broker recorded $500 on Jul 20, 2026 as "JNL", a kind of activity the app does not know, so a return cannot be measured across that day. It is not counted as money put in or taken out.')).toBe(true);
+    } },
   'MK-PF-M-020#3': { cls: 'APP WRONG',
     why: 'A brokerage whose cash was never entered reads "Available cash: $0", and a buy or withdrawal is then refused as "not enough" (availableCash = cash_balance || 0).',
     fix: 'src/domain/transactions/index.ts availableCash: null when the cash sleeve is not entered; src/screens/PerformanceScreen.tsx prints "Available cash: not entered" and does not refuse on it. Performance tab add-activity sheet.',
@@ -866,10 +938,10 @@ const CLASS: Record<string, Item> = {
     fixed: '2026-10-21 (W-HOLDING, DEC-0277, tenet 4): the purchase line carries the holding\'s own unit — 2 contracts @ $5.00; shares stay 100 sh @ $210.00 as drawn',
     was: () => { expect(has('HOLD_MINI', '2 sh @ $5.00')).toBe(true); } },
 };
-/** PASS items whose answer moves with work landing now: checked, and flagged for a re-run */
-const IN_FLIGHT_PASS: Record<string, string> = {
-  'MK-NW-M-019': 'dividends per account', 'MK-NW-M-021': 'dividends per account', 'MK-PF-M-007': 'dividends per account',
-};
+/** PASS items whose answer moves with work landing now: checked, and flagged for a re-run. SETTLED 2026-10-24: the three
+ *  flagged here ('dividends per account' — MK-NW-M-019, MK-NW-M-021 and MK-PF-M-007, tenet 1) were re-run after DEC-6618
+ *  (a holding's dividends are its own account's) landed, and each is classified by hand in CLASS above, AGREES. */
+const IN_FLIGHT_PASS: Record<string, string> = {};
 
 // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 type Row = { figure: string; tenet: number; verdict: 'PASS' | 'FAIL'; why: string };

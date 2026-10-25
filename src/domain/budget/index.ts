@@ -70,7 +70,7 @@ export function buildBudgetState(uid: UserId, netMonthlyIncome: number, doc: Bud
  * Answers ..... The single canonical "planned monthly spend": the itemized buckets OR the stated total, whichever is larger (the stated total can include an uncategorized remainder the buckets don't capture).
  *
  * Formula .....
- *     max(spend buckets(op).monthly total, op.monthly expenses read as a number (0 when it is not one))
+ *     Σ over spend by month(op) of (each)÷ 12
  *
  * Called by ... MK-CF-F-009 monthlyEssentials · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-O-004 theEmergencyFund
@@ -93,7 +93,11 @@ export function buildBudgetState(uid: UserId, netMonthlyIncome: number, doc: Bud
  * Changed ..... 2026-06-24 (fa35cf4)
  */
 export function plannedMonthlySpend(op: OnboardingProfile | null): number {
-  return Math.max(spendBuckets(op).monthly_total, toNum(op?.monthlySpending));
+  // THE YEAR'S PLANNED EXPENSES ÷ 12 — the twelve months the Cash flow tab plans, added up (2026-10-24, CF-FIX; B-24: the
+  // budget and the month grid read one figure). A bill with its own month is on top of the typed monthly total, in that
+  // month (DEC-0002, DEC-0447), so $2,000/month typed and a $1,200 bill in December is 2,000 + 1,200 ÷ 12 = $2,100. It read
+  // the larger of the categories and the typed total, $2,000: the bill taken to be inside the typed total.
+  return spendByMonth(op).reduce((t, m) => t + m, 0) / 12;
 }
 
 // A-1: the %-of-income base = true take-home (after tax AND 401k) — the SAME base the expenses-plan
@@ -109,20 +113,20 @@ export function plannedMonthlySpend(op: OnboardingProfile | null): number {
  *     grid = income monthly grid(op, 'available')
  *     the answer = Σ over grid of (amount)÷ 12
  *
- * Called by ... MK-CF-F-003 categoryMonthly · MK-CF-F-008 spendByMonth
- *               MK-CF-F-009 monthlyEssentials
+ * Called by ... MK-CF-F-003 categoryMonthly · MK-CF-F-009 monthlyEssentials
+ *               MK-CF-F-221 spendByMonthByBucket
  *
- * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 287 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -151,19 +155,19 @@ function pctBaseMonthly(op: OnboardingProfile | null): number {
  *     (amt ÷ 100) × base   if pct
  *     amt   otherwise
  *
- * Called by ... MK-CF-F-004 spendBuckets
+ * Called by ... MK-CF-F-004 spendBuckets · MK-CF-F-009 monthlyEssentials
  *
- * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 287 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
@@ -203,21 +207,20 @@ export function categoryMonthly(c: { amount?: any; unit?: string; bucket?: strin
  *     fixed = 0, flex = 0, non mo = 0
  *     m = category monthly(c, op); if (m ≤ 0) continue
  *
- * Called by ... MK-CF-F-002 plannedMonthlySpend · MK-CF-F-008 spendByMonth
- *               MK-CF-F-009 monthlyEssentials · MK-CF-F-013 budgetFromOnboarding
- *               MK-CF-F-014 budgetVsActual · MK-CF-F-019 upcomingBills
+ * Called by ... MK-CF-F-009 monthlyEssentials · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-CF-F-221 spendByMonthByBucket
  *
- * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 287 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-032 expenses categories the person set up
@@ -312,69 +315,133 @@ export function nonMonthlyBasis(op: OnboardingProfile | null): { allPct: boolean
  * Answers ..... Expenses placed in the calendar months it's actually due (Jan→Dec) — NOT averaged.
  *
  * Formula .....
- *     a = op (or none when missing)
- *     out = 12 slots, each 0
- *     cats = spend cats   if array.is array(spend cats)
- *     nothing   otherwise
- *     net monthly = pct base monthly(op)
- *     amt = to num(amount); if (amt ≤ 0) continue
- *     pct = unit = 'pct'
- *     flat = spend buckets(op).monthly total
- *     uncategorized = max(0, to num(monthly expenses) − spend buckets(op).monthly total)
- *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *     for each of spend by month by bucket(op): fixed + nonmonthly + flexible
  *
- * Called by ... MK-CF-F-011 savingsByMonth · MK-CF-F-012 annualCashflow
- *               MK-CF-F-020 cashflowYear · MK-XS-F-004 buildDatedGrid
+ * Called by ... MK-CF-F-002 plannedMonthlySpend · MK-CF-F-011 savingsByMonth
+ *               MK-CF-F-012 annualCashflow · MK-CF-F-020 cashflowYear
+ *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 287 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-008
+ * Changed ..... 2026-06-24 (fa35cf4)
+ */
+export function spendByMonth(op: OnboardingProfile | null): number[] {
+  // ONE PRODUCER (2026-10-23): the month's planned expenses are the three groups of spendByMonthByBucket added up, so the
+  // This month row and the Expenses tab's rows can never give two answers for one month
+  return spendByMonthByBucket(op).map((b) => b.fixed + b.nonmonthly + b.flexible);
+}
+
+/** THE MONTH'S PLANNED EXPENSES, BY THE BUDGET'S OWN THREE GROUPS — each calendar month, January first (2026-10-23).
+ *  Bills & fixed and everyday expenses come every month; a once-a-year (or once-in-a-while) bill counts in the months it
+ *  falls in, never spread — his rules DEC-0002 (big bills that come once get their own list) and DEC-0447 (money that arrives
+ *  once lands in its own month, not spread across twelve), and MK-CF-M-048's "a bill that falls once a year is shown in its
+ *  own month, never spread". A once-in-a-while bill with no months set is the one exception: it has no month to land in, so
+ *  it is a twelfth a month, as it always was. What the plan's total holds beyond its categories counts with everyday
+ *  expenses. Until 2026-10-23 the Expenses tab's rows read the budget's monthly average (budgetVsActual), so a September with a
+ *  $1,200 December bill read Expenses −$700 on This month and PLANNED EXPENSES $800 on the Expenses tab.
+ *  ID awaiting the builder. */
+/* ─ MK-CF-F-221 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * spendByMonthByBucket
+ *
+ * Answers ..... THE MONTH'S PLANNED EXPENSES, BY THE BUDGET'S OWN THREE GROUPS — each calendar month, January first (2026-10-23).
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     out = array.from({ length: 12 }, () => ({ fixed: 0, nonmonthly: 0, flexible: 0 }))
+ *     cats = spend cats   if array.is array(spend cats)
+ *     nothing   otherwise
+ *     net monthly = pct base monthly(op)
+ *     every month = 0
+ *     any monthly category = false
+ *     amt = to num(amount); if (amt ≤ 0) continue
+ *     pct = unit = 'pct'
+ *     typed fixed = to num(b fixed), typed flexible = to num(b flexible)
+ *     flat = spend buckets(op)
+ *     uncategorized = max(0, to num(monthly expenses) − every month)
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-CF-F-008 spendByMonth · MK-CF-F-204 line
+ *
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-032 expenses categories the person set up
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Decides .....
+ *     · Uses a built-in every month of 0.
  *     · Treats a year as twelve equal months.
  *     · Turns a monthly figure into a year by multiplying by twelve.
  *
- * Formula also on the master file · functions_from_code · MK-CF-F-008
- * Changed ..... 2026-06-24 (fa35cf4)
+ * Formula also on the master file · functions_from_code · MK-CF-F-221
+ * Changed ..... not in git yet (—)
  */
-export function spendByMonth(op: OnboardingProfile | null): number[] {
+export function spendByMonthByBucket(op: OnboardingProfile | null): { fixed: number; nonmonthly: number; flexible: number }[] {
   const a = op ?? {};
-  const out = new Array(12).fill(0);
+  const out = Array.from({ length: 12 }, () => ({ fixed: 0, nonmonthly: 0, flexible: 0 }));
   const cats = Array.isArray(a.spendCats) ? a.spendCats : null;
   const netMonthly = pctBaseMonthly(op);
+  // WHAT THE PLAN PUTS IN EVERY MONTH — the yardstick the typed monthly total is measured against. A bill with its own months
+  // is not in it: it is added in the months it falls, never taken out of everyday expenses as a twelfth (DEC-0002, DEC-0447;
+  // 2026-10-24, CF-FIX). Until then the typed $2,000 was read as already holding a twelfth of a $1,200 bill added on the Bill
+  // calendar — everyday expenses fell to $1,900 in every month — and the typed $1,100 / $900 split was dropped once any
+  // category existed.
+  let everyMonth = 0;
   if (cats) {
+    let anyMonthlyCategory = false;
     for (const c of cats) {
       const amt = toNum(c?.amount); if (amt <= 0) continue;
       const pct = c?.unit === 'pct';
       if (c?.bucket === 'nonmonthly') {
         const yearly = pct ? (amt / 100) * netMonthly * 12 : amt;
         const months = Array.isArray(c?.months) && c.months.length ? c.months : null;
-        if (months) for (const m of months) out[Math.min(11, Math.max(0, m - 1))] += yearly / months.length;
-        else for (let i = 0; i < 12; i++) out[i] += yearly / 12;
+        if (months) for (const m of months) out[Math.min(11, Math.max(0, m - 1))].nonmonthly += yearly / months.length;
+        else { for (let i = 0; i < 12; i++) out[i].nonmonthly += yearly / 12; everyMonth += yearly / 12; }
       } else {
         const m = pct ? (amt / 100) * netMonthly : amt;
-        for (let i = 0; i < 12; i++) out[i] += m;
+        const group = c?.bucket === 'fixed' ? 'fixed' : 'flexible';
+        for (let i = 0; i < 12; i++) out[i][group] += m;
+        everyMonth += m; anyMonthlyCategory = true;
       }
     }
+    // the typed bills & fixed / everyday split stands while no category of either kind replaces it
+    if (!anyMonthlyCategory) {
+      const typedFixed = toNum(a.b_fixed), typedFlexible = toNum(a.b_flexible);
+      for (let i = 0; i < 12; i++) { out[i].fixed += typedFixed; out[i].flexible += typedFlexible; }
+      everyMonth += typedFixed + typedFlexible;
+    }
   } else {
-    const flat = spendBuckets(op).monthly_total;
-    for (let i = 0; i < 12; i++) out[i] += flat;
+    const flat = spendBuckets(op);
+    for (let i = 0; i < 12; i++) { out[i].fixed += flat.fixed; out[i].nonmonthly += flat.non_monthly; out[i].flexible += flat.flexible; }
+    everyMonth = flat.monthly_total;
   }
-  const uncategorized = Math.max(0, toNum(a.monthlySpending) - spendBuckets(op).monthly_total);
-  if (uncategorized > 0) for (let i = 0; i < 12; i++) out[i] += uncategorized;
-  return out.map(((x: number) => x));
+  const uncategorized = Math.max(0, toNum(a.monthlySpending) - everyMonth);
+  if (uncategorized > 0) for (let i = 0; i < 12; i++) out[i].flexible += uncategorized;
+  return out;
 }
 
 /** Monthly money you MUST keep paying — the recurring (non-monthly excluded) Critical + Important
@@ -392,8 +459,9 @@ export function spendByMonth(op: OnboardingProfile | null): number[] {
  *     net monthly = pct base monthly(op)
  *     ess = 0
  *     amt = to num(amount); if (amt ≤ 0) continue
- *     uncategorized = max(0, to num(monthly expenses) − spend buckets(op).monthly total)
- *     the answer = ess + uncategorized
+ *     dated twelfths = 0
+ *     uncategorized = max(0, to num(monthly expenses) − (spend buckets(op).monthly total − dated twelfths))
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-CF-F-010 emergencyTest · MK-NW-O-004 theEmergencyFund
  *
@@ -416,6 +484,7 @@ export function spendByMonth(op: OnboardingProfile | null): number[] {
  *
  * Decides .....
  *     · Uses a built-in ess of 0.
+ *     · Uses a built-in dated twelfths of 0.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-009
  * Changed ..... 2026-06-24 (fa35cf4)
@@ -435,7 +504,11 @@ export function monthlyEssentials(op: OnboardingProfile | null): number {
     const amt = toNum(c?.amount); if (amt <= 0) continue;
     ess += c?.unit === 'pct' ? (amt / 100) * netMonthly : amt;
   }
-  const uncategorized = Math.max(0, toNum(a.monthlySpending) - spendBuckets(op).monthly_total);
+  // the typed total is measured against what the plan puts in every month: a bill with its own months is not in it (DEC-0002,
+  // DEC-0447; 2026-10-24, CF-FIX — it was, so $2,000 typed beside a $1,200 dated bill read $1,900 of must-pay)
+  let datedTwelfths = 0;
+  for (const c of cats) if (c?.bucket === 'nonmonthly' && Array.isArray(c?.months) && c.months.length) datedTwelfths += categoryMonthly(c, op);
+  const uncategorized = Math.max(0, toNum(a.monthlySpending) - (spendBuckets(op).monthly_total - datedTwelfths));
   return (ess + uncategorized);
 }
 
@@ -525,17 +598,17 @@ export function emergencyTest(op: OnboardingProfile | null, cash: number, shock:
  * Called by ... MK-XS-F-027 takeHomeMonthly · MK-XS-F-028 surplusByMonth
  *               MK-XS-F-030 effectiveAnnualContribution
  *
- * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 287 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -653,7 +726,19 @@ export interface BudgetVsActual {
  *     remaining = planned.monthly total − spent total
  *     buckets = buckets
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-F-008 spendByMonth
+ *
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... MK-XS-M-005
  * Reads ....... MK-XS-I-024 logged expenses

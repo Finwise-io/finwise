@@ -1,6 +1,7 @@
 // Real-world scenarios per persona — each encodes a question a real user would ask and checks the
 // app's domain gives a sensible answer. Doubles as documentation of what works (and a couple of gaps).
 import { cashflowYear, upcomingBills } from './cashflow';
+import { buildDatedGrid } from './grid';   // what is there by a bill's day is read from the month table (2026-10-24)
 import { incomeMonthlyGrid, totalGrossAnnual, tipsAnnual, salaryAnnual } from './income';
 import { savingsByMonth } from './budget';
 import { loanPayment, debtToIncome, creditUtilization, type Debt } from './debt';
@@ -26,7 +27,7 @@ describe('Student scenarios', () => {
   };
 
   test('1. "How much do I ask my parents for tuition, and by when?"', () => {
-    const [t] = upcomingBills(student, 500, JUN);
+    const [t] = upcomingBills(student, buildDatedGrid(student, { startBalance: 500, now: JUN }), JUN);
     expect(t.shortfall).toBeGreaterThan(10000);   // aid lands Sep 20, tuition due Sep 15 → real crunch
     expect(t.askByDate).toBe('2026-09-03');
     expect(t.coverSource).toBe('your family');

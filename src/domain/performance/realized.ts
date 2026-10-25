@@ -84,7 +84,10 @@ export function realizedFromLedger(
     .filter((t) => (opts.ticker ? String(t.ticker).toUpperCase() === opts.ticker.toUpperCase() : true))
     .filter((t) => (opts.accountId ? t.account_id === opts.accountId : true))
     .slice()
-    .sort((a, b) => a.date.localeCompare(b.date));    // oldest first — FIFO needs time order
+    // oldest first — FIFO needs time order. ON ONE DAY A PURCHASE COMES BEFORE A SALE (2026-10-23, F3 of the Performance journey
+    // suite): the ledger keeps records newest first, so 10 bought and 10 sold today were matched sale-first and the sale read
+    // "not on record"; a sale can only take shares already bought, and older purchases are still matched before today's
+    .sort((a, b) => a.date.localeCompare(b.date) || (a.type === 'SELL' ? 1 : 0) - (b.type === 'SELL' ? 1 : 0));
 
   // FIFO queues per ticker+account (a Schwab AAPL lot never covers a Robinhood AAPL sale)
   const queues = new Map<string, { shares: number; price: number | null; fee: number }[]>();
@@ -163,19 +166,20 @@ export function realizedFromLedger(
  *     fee   if fee in price ! = true and number.is finite(fee) and fee > 0
  *     0   otherwise
  *
- * Called by ... MK-PF-F-028 realizedFromLedger · MK-PF-F-072 tradesAfter
+ * Called by ... MK-CF-F-111 applyTransaction · MK-CF-F-118 cashEffect
+ *               MK-PF-F-028 realizedFromLedger · MK-PF-F-072 tradesAfter
  *
- * Reaches ..... 33 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
- *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
- *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
+ * Reaches ..... 95 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
+ *               MK-NW-F-140 LEFT_OUT · MK-NW-F-082 NW
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
- *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
- *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
- *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
- *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-065 firstDatedPurchase
- *               MK-PF-F-070 holdingPath · MK-NW-F-168 holdingRowsIn
- *               … and 15 more — the full list is on functions_from_code
+ *               MK-NW-F-093 QUIET_PERF · MK-CF-F-111 applyTransaction
+ *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               … and 77 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -228,17 +232,17 @@ export function saleShortOfPurchasesSentence(
  *
  * Called by ... MK-PF-F-035 unknownFigure · MK-PF-F-046 saleShortOfPurchasesSentence
  *
- * Reaches ..... 306 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 288 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest

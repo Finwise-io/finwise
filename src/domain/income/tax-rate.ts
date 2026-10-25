@@ -53,17 +53,17 @@ export interface RateInForce {
  *
  * Called by ... MK-CF-F-181 rateInForce
  *
- * Reaches ..... 308 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 290 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -101,22 +101,23 @@ export function enteredLandsAnnual(op: OnboardingProfile | null): number | null 
  *     out = max(0, gross − k401 − lands)
  *     rate = min(max(out ÷ gross, 0), 1)
  *     taxed = taxable annual(op)
- *     k401 = Σ over household k401 by month(op) of (each)
+ *     state = state rate of(op)
  *
  * Called by ... MK-CF-F-090 effectiveRate · MK-CF-F-092 incomeMonthlyGrid
  *               MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
+ *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 307 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 289 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -125,6 +126,7 @@ export function enteredLandsAnnual(op: OnboardingProfile | null): number | null 
  * Decides .....
  *     · Turns a monthly figure into a year by multiplying by twelve.
  *     · Rounds the answer to a whole number.
+ *     · Shows 2 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-181
  * Changed ..... not in git yet (—)
@@ -152,17 +154,59 @@ export function rateInForce(op: OnboardingProfile | null): RateInForce {
              covers: 'everything that comes out, calculated from the take-home you entered' };
   }
 
-  // B05 (founder audit 2026-08-26): a 401(k) comes off BEFORE tax. The calculated rate was tax on the
+  // Audit finding B05 (DEC-0185, 2026-08-26), and his DEC-0283: a 401(k) comes off before tax. The calculated rate was tax on the
   // whole of what the household earns ÷ what it earns — so the base-pay card charged tax on money
   // that had gone into the 401(k) ($185/month too much on the approved drawing's own household),
   // while the month grid took it off first. One sum now: the year's tax on what is left after the
   // 401(k)s, as a share of everything taxable — so gross − tax − 401(k)s still adds up on the card.
   const taxed = taxableAnnual(op);
-  const k401 = householdK401ByMonth(op).reduce((t, m) => t + m, 0);   // only the months each earner is paid
   const rate = taxed > 0
-    ? taxOwedFor(Math.max(0, taxed - k401), filingStatusOf(op), stateRateOf(op), over65CountOf(op)) / taxed
+    ? taxOwedFor(taxedAfterPreTax(op), filingStatusOf(op), stateRateOf(op), over65CountOf(op)) / taxed
     : 0;
+  // THE STATE RATE THE PERSON TYPED IS INSIDE THE RATE, so the words say so (2026-10-23, CF-FIX): taxOwedFor adds it to taxable
+  // income (E10), and the words read "federal income tax only" whatever was typed on the Tax organizer
+  const state = stateRateOf(op);
   return { rate, source: 'estimated', mine: false,
            label: `calculated, ${Math.round(rate * 100)}%`,
-           covers: 'federal income tax only, assuming the standard deduction' };
+           covers: state > 0
+             ? `federal income tax, plus the ${(state * 100).toFixed(2)}% state rate you entered, assuming the standard deduction`
+             : 'federal income tax only, assuming the standard deduction' };
+}
+
+/** WHAT THE YEAR IS TAXED ON ONCE THE 401(k)s ARE OUT — everything taxable (taxableAnnual) less each earner's own 401(k) for
+ *  the months they are paid, never below $0. Audit finding B05 (DEC-0185) and his DEC-0283: a 401(k) comes off before tax. The one
+ *  income the rate in force, the bracket and every tax figure on the income screens read (2026-10-24, CF-FIX): the Income
+ *  summary named the bracket of the whole year's gross while the tax was worked on this — single, $70,000 of wages and a
+ *  $10,000 401(k) read the 22% bracket ($70,000 − $16,100 = $53,900) while the tax sat in the 12% one ($43,900). */
+/* ─ MK-CF-F-230 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * taxedAfterPreTax
+ *
+ * Answers ..... WHAT THE YEAR IS TAXED ON ONCE THE 401(k)s ARE OUT — everything taxable (taxableAnnual) less each earner's own 401(k) for the months they are paid, never below $0.
+ *
+ * Formula .....
+ *     k401 = Σ over household k401 by month(op) of (each)
+ *     the answer = max(0, taxable annual(op) − k401)
+ *
+ * Called by ... MK-CF-F-181 rateInForce · MK-CF-O-004 incomeSummary
+ *
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-230
+ * Changed ..... not in git yet (—)
+ */
+export function taxedAfterPreTax(op: OnboardingProfile | null): number {
+  const k401 = householdK401ByMonth(op).reduce((t, m) => t + m, 0);   // only the months each earner is paid
+  return Math.max(0, taxableAnnual(op) - k401);
 }

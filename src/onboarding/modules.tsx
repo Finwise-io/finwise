@@ -7,14 +7,18 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { Status, Track, StepId, incomeSourceOptionsFor } from './steps';
 import Mascot from './Mascot';
 import { useRouter } from 'expo-router';
-import { effectiveRateOnGrossFor, marginalBracketFor, filingStatusOf, stateRateOf, over65CountOf, TAX_YEAR, grossSalaryMonthly, annualizedEnteredSalary, rsuAnnual, equityRowValue, equityCashFlow, rentalNetAnnual, incomeMonthlyGrid, totalGrossAnnual, taxableAnnual, extraIncome, salaryAnnual, salaryActiveMonths, benefitAnnual } from '../domain/income';
-import { loanPayment } from '../domain/debt';
+import { stateRateOf, TAX_YEAR, grossSalaryMonthly, annualizedEnteredSalary, rsuAnnual, equityRowValue, equityCashFlow, rentalNetAnnual, incomeMonthlyGrid, totalGrossAnnual, taxableAnnual, extraIncome, salaryAnnual, salaryActiveMonths, benefitAnnual } from '../domain/income';
+import { loanPayment, monthsToClear } from '../domain/debt';   // monthsToClear: the one months-to-clear (MK-CF-F-029, 2026-10-24)
+// ONE RATE, ONE GROWTH (2026-10-24, CF-FIX): sign-up's tax rate is the rate in force Cash flow uses (MK-CF-F-181, through
+// MK-CF-O-004 incomeSummary), and its growth is the one formula (MK-CF-F-126, through balanceGrownTo)
+import { incomeSummary } from '../../MoneyKeel/functions/cashflow/income-summary';
+import { balanceGrownTo } from '../domain/debt/mortgageVsTreasury';
 import { currentAge as domainCurrentAge, ageToday } from '../domain/profile/calc';
 import { colFactor } from '../domain/retirement/col';
 import { capitalNeeded } from '../domain/retirement';
 import { createInvite, resendVerification, refreshEmailVerified } from '../services/firebase';
 import { useStore } from '../store/useStore';
-import { savingsByMonth, spendBuckets, annualCashflow } from '../domain/budget';
+import { savingsByMonth, spendBuckets, annualCashflow, plannedMonthlySpend } from '../domain/budget';
 // ONE take-home in the whole app. This screen used to calculate it for itself — tax on the full
 // gross, then the 401(k) off afterwards — while every other screen read the income grid, where
 // the 401(k) comes off BEFORE tax as a traditional contribution does. $160/month apart on the
@@ -357,10 +361,12 @@ function Bar({ aPct, color }: { aPct: number; color: string }) {
 export function grossAnnual(a: Record<string, any>): number {
   return totalGrossAnnual(a);
 }
-// Effective tax rate in use: the user's own (manual) rate, else the IRS-schedule estimate on TAXABLE income.
+// THE RATE IN FORCE — the one rate Cash flow shows (MK-CF-F-181 rateInForce, read through MK-CF-O-004 incomeSummary):
+// the person's own rate, else the rate their typed take-home implies, else the calculated rate with the 401(k) taken off
+// BEFORE tax. Until 2026-10-24 sign-up calculated its own: the schedule on the whole taxable income, the 401(k) still in it —
+// a single filer on $60,000 with $4,800 into a 401(k) read 8.37% ($5,020) here and 7.41% ($4,444) on Cash flow (tenet 4).
 export function incomeTaxRate(a: Record<string, any>): number {
-  return a.taxMode === 'manual' ? num(a.manualTaxRate) / 100
-    : effectiveRateOnGrossFor(taxableAnnual(a), filingStatusOf(a as any), stateRateOf(a as any), over65CountOf(a as any));
+  return incomeSummary(a).taxed.rate;
 }
 export function monthlyIncome(a: Record<string, any>): number {
   const total = totalGrossAnnual(a);
@@ -394,20 +400,19 @@ export function monthlyContributions(a: Record<string, any>): number {
 export function ageOrDefault(a: Record<string, any>, fallback = 35): number {
   return ageToday(num(a.birthYear) || null, num(a.birthMonth) || null) ?? fallback;   // G9: no stand-in June — the year-attained age when the month is missing
 }
+/** What a pot grows to in `years` — the one growth formula (balanceGrownTo, MK-CF-F-126 for the contributions; 2026-10-24). */
 export function fv(principal: number, monthly: number, years: number, rate = 0.07): number {
-  const m = years * 12, r = rate / 12;
-  return principal * Math.pow(1 + r, m) + monthly * ((Math.pow(1 + r, m) - 1) / r);
+  return balanceGrownTo(principal, monthly, rate, years * 12);
 }
 
 // Debt payoff snapshot from the debts answers — shared by the debts screen + its recap.
 export function debtPayoff(a: Record<string, any>): { bal: number; pay: number; rate: number; months: number; interestOnly: boolean } {
   const bal = num(a.debtBalance), pay = num(a.debtPayment), rate = num(a.debtRate) / 100;
-  const mRate = rate / 12, interestOnly = pay > 0 && pay <= bal * mRate;
-  let months = 0;
-  if (bal > 0 && pay > 0 && !interestOnly) {
-    months = mRate > 0 ? Math.ceil(Math.log(pay / (pay - bal * mRate)) / Math.log(1 + mRate)) : Math.ceil(bal / pay);
-  }
-  return { bal, pay, rate, months, interestOnly };
+  // the one months-to-clear (MK-CF-F-029 monthsToClear, 2026-10-24) — it says "never" (null) when the payment does not cover
+  // the interest, which is what interestOnly means here; sign-up carried its own copy of the same formula
+  const clears = bal > 0 && pay > 0 ? monthsToClear(bal, rate, pay) : 0;
+  const interestOnly = clears === null;
+  return { bal, pay, rate, months: clears ?? 0, interestOnly };
 }
 
 // ── must-have validation ────────────────────────────────────────────────────
@@ -756,7 +761,10 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
               <View style={s.monthGrid}>
                 {MONTHS3.map((lbl, idx) => {
                   const m = idx + 1, on = otherMo === m;
-                  return <TouchableOpacity key={m} style={[s.monthChip, on && s.monthChipOn]} onPress={() => ctx.setAnswer('otherMonth', m)}><Text style={[s.monthTxt, on && s.monthTxtOn]}>{lbl}</Text></TouchableOpacity>;
+                  // ONE TIME MEANS ONE YEAR (2026-10-24, Cash flow journey E2E-70; DEC-0447): the month is kept with its year — the
+                  // next time that month comes — so the money lands once. With the month alone it came back every year.
+                  const year = idx >= new Date().getMonth() ? new Date().getFullYear() : new Date().getFullYear() + 1;
+                  return <TouchableOpacity key={m} style={[s.monthChip, on && s.monthChipOn]} onPress={() => { ctx.setAnswer('otherMonth', m); ctx.setAnswer('otherIncomeYear', year); }}><Text style={[s.monthTxt, on && s.monthTxtOn]}>{lbl}</Text></TouchableOpacity>;
                 })}
               </View>
             </>
@@ -858,9 +866,15 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       );
 
     case 'income_tax': {
-      const gross = grossAnnual(a);
-      const estPct = Math.round(effectiveRateOnGrossFor(gross, filingStatusOf(a as any), stateRateOf(a as any), over65CountOf(a as any)) * 100);
-      const brkPct = Math.round(marginalBracketFor(gross, filingStatusOf(a as any), over65CountOf(a as any)) * 100);
+      // THE INCOME, THE RATE AND THE BRACKET CASH FLOW USES (2026-10-24, CF-FIX; MK-CF-O-004 incomeSummary, which reads the
+      // rate in force, MK-CF-F-181): what the year is taxed on — Cash flow's "What it is taxed on" — the calculated rate (the
+      // rate in force with no rate typed), and the bracket on that same income. Until 2026-10-24 this step read the total of
+      // every source, the untaxed ones too, called it "gross", and took the rate and the bracket on it.
+      const taxed = incomeSummary({ ...a, taxMode: undefined, manualTaxRate: undefined }).taxed;
+      const gross = taxed.taxedOn;   // what it is taxed on: the gross less the 401(k)s (MK-CF-M-041, DEC-0283)
+      const estPct = Math.round(taxed.rate * 100);
+      const brkPct = Math.round(taxed.bracket * 100);
+      const state = stateRateOf(a as any);
       return (<>
         <Header emoji="🧾" title="Taxes" sub="What comes out of your pay?" />
         {/* THE SAME QUESTION AS THE BASE-PAY SCREEN, IN THE SAME WORDS. It used to ask for an
@@ -869,7 +883,10 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             reads about 12 points higher once Social Security, Medicare and a state are in it. A
             person could type 18 against our 9.2 and both be right. Founder ruling 2026-08-28. */}
         {gross > 0 && <Callout text={`~${estPct}% federal income tax · ${brkPct}% bracket (${TAX_YEAR})`}
-          sub={`On ~${money(gross)} gross, from the IRS schedule after the standard deduction. It does NOT include Social Security and Medicare — about another 7.7% of a wage — or any state tax.`} />}
+          sub={`On the ~${money(gross)} it is taxed on — your gross less your 401(k) — from the IRS schedule after the standard deduction. `
+            + (state > 0
+              ? `It includes the ${(state * 100).toFixed(2)}% state rate you entered, and does NOT include Social Security and Medicare — about another 7.7% of a wage.`
+              : 'It does NOT include Social Security and Medicare — about another 7.7% of a wage — or any state tax.')} />}
         <Card>
           <Choice ctx={ctx} k="taxMode" options={[
             { value: 'system', title: `Use the calculated rate (~${estPct}%)`, sub: 'Federal income tax only' },
@@ -1556,7 +1573,7 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
   if (retired || grossYrGate <= 0) {
     // take-home via the canonical takeHomeMonthly (after tax AND 401k) — same helper every screen uses
     const incMo = domainTakeHomeMonthly(a) || retirementMonthlyIncome(a);   // labeled "Take-Home" → use the canonical helper
-    const spendMo = Math.max(spendBuckets(a).monthly_total, num(a.monthlySpending));
+    const spendMo = plannedMonthlySpend(a);   // the one planned monthly figure, MK-CF-F-002 (2026-10-24: it was a copy of its old formula)
     const left = incMo - spendMo;
     return (<>
       <Header emoji="📊" title="Your cash flow" sub="Take-home income vs expenses each month." />

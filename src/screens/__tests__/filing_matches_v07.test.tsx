@@ -63,7 +63,12 @@ test('phone 14 · they have a spouse — jointly, named, and who is 65 or older'
 });
 
 test('phone 15 · what it changes — shown once, right after the answer', () => {
-  show({ hasPartner: 'yes', partnerName: 'Sam', baseSalary: '7000', salaryFreq: 'monthly' });
+  // THE HOUSEHOLD THE PHONE'S WORDS ARE TRUE OF (2026-10-24, E2E-79): "Taxed as single … what we were assuming" holds where the
+  // app was taxing them as single — one person, who now files jointly. A spouse entered with no status on record is already
+  // taxed jointly (filingStatusOf), so for them nothing moves and this phone is not shown (filing-status-question_v03, READ THIS
+  // FIRST 2026-10-24). It was drawn, and held here, on that couple.
+  show({ hasPartner: 'no', baseSalary: '7000', salaryFreq: 'monthly' });
+  fireEvent.press(screen.getByLabelText('Married filing jointly'));
   fireEvent.press(screen.getByLabelText('Continue'));
   const want = norm(phone(15, /^Got it$/));
   expect(want.split(' ').length).toBeGreaterThan(50);
@@ -72,11 +77,15 @@ test('phone 15 · what it changes — shown once, right after the answer', () =>
   expect(lines).toContain('On the $84,000 you entered');
   expect(lines).toContain('$9,650/year — what we were assuming');        // single, on $84,000
   expect(lines).toContain('$5,720/year');                                // married filing jointly
-  expect(lines).toContain('$328/month more');                            // ($9,650 − $5,720) ÷ 12
+  // the take-homes as printed, $6,196 → $6,523: $327 (the lead's ruling, 2026-10-24, DEC-3523 tenet 2 — it read $328, the
+  // cent-exact ($9,650 − $5,720) ÷ 12 = $327.50 rounded; filing-status-question_v03 and v07, READ THIS FIRST 2026-10-24)
+  expect(lines).toContain('$327/month more');
 });
 
 test('the bracket line is said only while one wage is entered — with two it would be untrue', () => {
-  show({ hasPartner: 'yes', partnerName: 'Sam', baseSalary: '7000', salaryFreq: 'monthly', whoEarns: 'both', partnerWage: { baseSalary: '4500', salaryFreq: 'monthly' } });
+  // two earners who had answered Single, now filing jointly (with no answer on record they are already taxed jointly — E2E-79)
+  show({ hasPartner: 'yes', partnerName: 'Sam', filingStatus: 'single', baseSalary: '7000', salaryFreq: 'monthly', whoEarns: 'both', partnerWage: { baseSalary: '4500', salaryFreq: 'monthly' } });
+  fireEvent.press(screen.getByLabelText('Married filing jointly'));
   fireEvent.press(screen.getByLabelText('Continue'));
   expect(screen.getByText('That changes your take-home')).toBeOnTheScreen();
   expect(screen.queryByText('Your tax bracket is calculated from your income only.')).toBeNull();

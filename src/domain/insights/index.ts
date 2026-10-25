@@ -53,8 +53,8 @@ export interface InsightInput {
  * Reaches ..... 70 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-F-238 PAY · MK-CF-F-239 PAY_ESTIMATED
+ *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
  *               MK-CF-F-210 annualOfSource · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
@@ -84,8 +84,8 @@ const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
  * Reaches ..... 69 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-F-238 PAY · MK-CF-F-239 PAY_ESTIMATED
+ *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
  *               MK-CF-F-210 annualOfSource · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState

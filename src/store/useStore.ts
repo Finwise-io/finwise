@@ -7,7 +7,7 @@ import { secureStorage } from './secureStorage';
 import { assetsFromOnboarding, isRealAsset, type AssetAccount } from '../domain/assets';
 import { settleBondValue } from '../../MoneyKeel/functions/networth-and-performance/bonds';   // the one value rule, through the bonds door (DEC-0281)
 import { benchmarkTicker, marketValue, latestCloseLookup, closeOnOrBefore, paidOnRecord, type Position, type PriceSeries } from '../domain/performance';
-import { applyTransaction, makeTransaction, undoSnapshot, restoreUndo, inverseOf, type Transaction } from '../domain/transactions';
+import { applyTransaction, makeTransaction, undoSnapshot, restoreUndo, inverseOf, openingRecordsOf, tradeMultiplierOf, type Transaction } from '../domain/transactions';
 import { reviewTransactions, type TxnFlag } from '../domain/transactions/flags';
 import { fetchPriceSeries } from '../services/marketData';
 
@@ -20,7 +20,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *
  * Formula .....
  *     a   when source = 'connected'
- *     ledger managed = derive balance = true (or cash balance ≠ nothing when missing or zero)
+ *     ledger managed = derive balance = true
  *     a   when ledger managed is missing
  *     positions = for each of positions (or none when missing): const px = latest close lookup(cache)(ticker); return { ...each, value now: (px == null ? paid on record(each).paid : market value(each, px)) ?? value now ?? 0 }; = const px = latest close lookup(cache)(ticker); return { ...each, value now: (px == null ? paid on record(each).paid : market value(each, px)) ?? value now ?? 0 };
  *     mv = Σ over positions of (value now)
@@ -29,19 +29,20 @@ import { fetchPriceSeries } from '../services/marketData';
  *     positions = positions
  *     balance = (cash balance or 0) + mv
  *
- * Called by ... MK-ST-F-027 accountId · MK-XS-F-175 uid
+ * Called by ... MK-CF-F-136 bumpCash · MK-ST-F-027 accountId
+ *               MK-ST-F-028 buildDayFromAccounts · MK-XS-F-175 uid
  *
- * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 287 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -63,7 +64,12 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
     // it includes options and money-market value our positions list deliberately doesn't carry.
     // Recomputing from sleeve+positions would overwrite it and drop that value. Never touch it.
     if (a.source === 'connected') return a;
-    const ledgerManaged = a.derive_balance === true || a.cash_balance != null;
+    // BUILT FROM ITS HOLDINGS ONLY WHEN THE ACCOUNT SAYS SO (2026-10-23, E2E-57; tenet 1; the account's own contract, assets.ts:
+    // "derived from positions ONLY when derive_balance is true"). A cash figure of its own no longer makes an account rebuilt:
+    // the first buy recorded in a $40,000 typed account opened a cash figure, and this rebuild then read cash plus the $10,000
+    // of holdings listed in it — $10,000 on every screen. A typed total with a cash figure moves by the money recorded
+    // (bumpCash, tradeCash). To reverse: put "|| a.cash_balance != null" back.
+    const ledgerManaged = a.derive_balance === true;
     if (!ledgerManaged) return a;
     // B-19: a held position with no cached price falls back to its cost basis (what you paid),
     // not $0 — counting it as $0 silently understated net worth.
@@ -643,10 +649,10 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-006 price fetched at
- *               MK-XS-I-007 purchase price and date (per lot)
  *               MK-XS-I-009 transaction date
  *               MK-XS-I-010 transaction words (the institution's own wording)
  *               MK-XS-I-018 retirement age
+ *               MK-XS-I-020 Social Security monthly amount
  *
  * Decides .....
  *     · If length is missing it uses 0.
@@ -826,7 +832,13 @@ export const useStore = create<AppState>()(
 
       // ── Net worth: assets & liabilities ──────────────────────────
       // a bond's or CD's balance follows the one value rule (DEC-0281, settleBondValue): market value, else paid, else face
-      addAsset:       (a) => set((s) => ({ assetAccounts: [settleBondValue({ ...a, asset_id: newEntityId('ast') } as AssetAccount, a), ...s.assetAccounts] })),
+      addAsset:       (a) => set((s) => {
+        const acct = settleBondValue({ ...a, asset_id: newEntityId('ast') } as AssetAccount, a);
+        // HOLDINGS HANDED IN WITH THE ACCOUNT (Import holdings) ARE PURCHASES YOU ALREADY OWN: each gets its record, as addPosition
+        // writes one (2026-10-23, F3) — a linked account's purchases are the broker's, and come with its sync
+        const txns = acct.source === 'connected' ? [] : (acct.positions ?? []).flatMap((p) => openingRecordsOf(acct.asset_id, p));
+        return { assetAccounts: [acct, ...s.assetAccounts], ...(txns.length ? { transactions: [...txns, ...s.transactions] } : {}) };
+      }),
       // SnapTrade sync (design v2): holdings are authoritative; activities append as HISTORY ONLY
       // (never applied to balances — the no-double-count rule pinned in ingest.test.ts).
       // AUDIT FIX 2026-07-18 (P1 race): ingest runs INSIDE set() against the state as it is at
@@ -872,7 +884,14 @@ export const useStore = create<AppState>()(
       updateAsset:    (id, u) => set((s) => {
         // a bond's or CD's balance follows the one value rule (DEC-0281, settleBondValue): market value, else paid, else face
         const assetAccounts = s.assetAccounts.map((x) => x.asset_id === id ? settleBondValue({ ...x, ...u }, u, x) : x);
-        return { assetAccounts, ...typedValueDatedBack(s, u, assetAccounts.find((x) => x.asset_id === id)) };
+        // HOLDINGS HANDED IN AGAIN (Import holdings into an account it matched, 2026-10-23, F3): a holding the account has no
+        // purchase record of gets its records; one it already has keeps them, so a file imported twice never counts its
+        // purchases twice
+        const after = assetAccounts.find((x) => x.asset_id === id);
+        const recorded = new Set(s.transactions.filter((t) => t.account_id === id && (t.type === 'BUY' || t.type === 'OPENING_POSITION')).map((t) => String(t.ticker ?? '').trim().toUpperCase()));
+        const txns = u.positions && after && after.source !== 'connected'
+          ? u.positions.filter((p) => !recorded.has(String(p.ticker ?? '').trim().toUpperCase())).flatMap((p) => openingRecordsOf(id, p)) : [];
+        return { assetAccounts, ...typedValueDatedBack(s, u, after), ...(txns.length ? { transactions: [...txns, ...s.transactions] } : {}) };
       }),
       deleteAsset:    (id) => set((s) => ({ assetAccounts: s.assetAccounts.filter((x) => x.asset_id !== id) })),
       addPosition: (accountId, position) => set((s) => {
@@ -881,8 +900,9 @@ export const useStore = create<AppState>()(
         const linked = s.assetAccounts.find((a) => a.asset_id === accountId)?.source === 'connected';
         const pos = { ...position, position_id: newEntityId('pos'), ...(linked ? { added_by: 'user' as const, cost_source: 'user' as const } : {}) };
         const accounts = s.assetAccounts.map((a) => a.asset_id === accountId ? { ...a, positions: [...(a.positions ?? []), pos] } : a);
-        // log an OPENING_POSITION transaction per lot (first-time capture of holdings you already own)
-        const txns = (pos.lots ?? []).map((l) => makeTransaction({ date: l.purchase_date, type: 'OPENING_POSITION', account_id: accountId, position_id: pos.position_id, ticker: pos.ticker, kind: pos.kind, shares: l.shares, price: l.cost_per_share ?? undefined }));   // a cost not on record gives the row no price
+        // log an OPENING_POSITION transaction per lot (first-time capture of holdings you already own) — the one rule for it
+        // (openingRecordsOf, 2026-10-23); a cost not on record gives the row no price
+        const txns = openingRecordsOf(accountId, pos as Position);
         return { assetAccounts: recomputeBalances(accounts, s.priceCache), transactions: [...txns, ...s.transactions] };
       }),
       updatePosition: (accountId, positionId, patch) => set((s) => {
@@ -896,7 +916,13 @@ export const useStore = create<AppState>()(
         const stamped = linked && patch.lots != null ? { ...classed, cost_source: 'user' as const } : classed;
         const accounts = s.assetAccounts.map((a) => a.asset_id === accountId
           ? { ...a, positions: (a.positions ?? []).map((p) => p.position_id === positionId ? { ...p, ...stamped } : p) } : a);
-        return { assetAccounts: recomputeBalances(accounts, s.priceCache) };
+        // A PURCHASE ADDED IN THE HOLDING EDITOR IS RECORDED (2026-10-23, F3): a lot the holding did not have gets its record, as
+        // addPosition writes one, so a later sale finds what was paid for it
+        const before = (s.assetAccounts.find((a) => a.asset_id === accountId)?.positions ?? []).find((p) => p.position_id === positionId);
+        const had = new Set((before?.lots ?? []).map((l) => l.lot_id));
+        const added = before && patch.lots ? patch.lots.filter((l) => !had.has(l.lot_id)) : [];
+        const txns = added.length ? openingRecordsOf(accountId, { ...before!, ...stamped } as Position, added) : [];
+        return { assetAccounts: recomputeBalances(accounts, s.priceCache), ...(txns.length ? { transactions: [...txns, ...s.transactions] } : {}) };
       }),
       deletePosition: (accountId, positionId) => set((s) => {
         const accounts = s.assetAccounts.map((a) => a.asset_id === accountId
@@ -905,6 +931,9 @@ export const useStore = create<AppState>()(
       }),
       recordTransaction: (partial) => set((s) => {
         const t = makeTransaction(partial);
+        // an option's buy or sale carries the shares in one contract, as its holding states them (2026-10-23; DEC-0274, DEC-4646)
+        const perContract = tradeMultiplierOf(s.assetAccounts, t);
+        if (perContract !== 1 && t.multiplier == null) t.multiplier = perContract;
         t.undo_prev = undoSnapshot(s.assetAccounts, t);   // pre-apply copies -> deletes can reverse exactly
         const accounts = applyTransaction(s.assetAccounts, t);
         // F10: review connected-account money-out against this account's history (manual rows pass silently)

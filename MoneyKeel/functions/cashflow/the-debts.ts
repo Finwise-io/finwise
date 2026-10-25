@@ -121,6 +121,7 @@ export const DEBT_FIGURES = declareFigures({
   },
   'MK-CF-M-058': {
     label: 'debt-free', unit: 'count', screens: ['/cashflow'],
+    period: 'from today until the last debt is paid off',
     answers: 'How many months until the last debt is cleared, paying the minimums plus anything extra, highest rate first.',
     formula: 'the payoff plan: each month pay every minimum, put the extra on the costliest debt, roll a cleared debt’s payment onto the next',
     inputs: ['MK-XS-I-014 debt balance', 'MK-XS-I-015 debt interest rate', 'MK-XS-I-016 debt minimum payment'],
@@ -130,6 +131,7 @@ export const DEBT_FIGURES = declareFigures({
   },
   'MK-CF-M-059': {
     label: 'total interest', unit: 'money', screens: ['/cashflow'],
+    period: 'from today until the last debt is paid off',
     answers: 'All the interest paid over the plan until the last debt is gone.',
     formula: 'the interest paid month by month over the payoff plan, added up',
     inputs: ['MK-XS-I-014 debt balance', 'MK-XS-I-015 debt interest rate', 'MK-XS-I-016 debt minimum payment'],
@@ -157,6 +159,7 @@ export const DEBT_FIGURES = declareFigures({
   },
   'MK-CF-M-074': {
     label: 'paid down since <month>', unit: 'money', screens: ['/cashflow'],
+    period: 'since the first month-end on record this year, to today',
     answers: 'How much less you owe than at the first month-end we recorded this year.',
     formula: 'what every debt together stood at then − what they stand at now',
     inputs: ['MK-XS-I-014 debt balance'],
@@ -168,6 +171,7 @@ export const DEBT_FIGURES = declareFigures({
   },
   'MK-CF-M-075': {
     label: '% of where you started', unit: 'percent', screens: ['/cashflow'],
+    period: 'since the first month-end on record this year, to today',
     answers: 'That paid-down amount as a share of what you owed at the start.',
     formula: 'paid down (MK-CF-M-074) ÷ what every debt together stood at then',
     inputs: ['MK-XS-I-014 debt balance'],

@@ -114,7 +114,8 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-CF-F-088', 'src/domain/income/onboarding.ts', 'Calculation Module code/probes/income-tax.probe.test.ts'],
   ['MK-CF-F-089', 'src/domain/income/onboarding.ts', 'Calculation Module code/probes/income-tax.probe.test.ts'],
   ['MK-CF-F-090', 'src/domain/income/onboarding.ts', 'Calculation Module code/probes/income-tax.probe.test.ts'],
-  ['MK-CF-F-091', 'src/domain/income/onboarding.ts', 'Calculation Module code/probes/income-tax.probe.test.ts'],
+  // MK-CF-F-091 userCapGainsRates: retired 2026-10-24 under his DEC-0321 (it added state tax to capital gains; nothing called it).
+  // Its number stays on the register's retired list and is never reused; a test now checks it is gone.
   ['MK-CF-F-092', 'src/domain/income/onboarding.ts', 'Calculation Module code/probes/income-tax.probe.test.ts'],
   ['MK-CF-F-097', 'src/domain/income/tax.ts', 'Calculation Module code/probes/income-tax.probe.test.ts'],
   ['MK-CF-F-098', 'src/domain/income/tax.ts', 'Calculation Module code/probes/income-tax.probe.test.ts'],
@@ -226,12 +227,66 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-CF-F-210', 'MoneyKeel/functions/cashflow/income-summary.ts', 'MoneyKeel/functions/cashflow/income-summary.test.ts'],
   ['MK-CF-F-211', 'MoneyKeel/functions/cashflow/the-debts.ts', 'MoneyKeel/functions/cashflow/the-debts.test.ts'],
   ['MK-CF-F-212', 'MoneyKeel/functions/cashflow/whats-coming.ts', 'MoneyKeel/functions/cashflow/whats-coming.test.ts'],
+  ['MK-CF-F-216', 'src/domain/income/old-rent-migration.ts', 'src/screens/__tests__/old_rent_figure_moved.test.tsx'],   // no test names it: run through hasOldRentFigure and moveOldRentFigure, which read it, in this test
+  ['MK-CF-F-217', 'src/domain/income/old-rent-migration.ts', 'src/screens/__tests__/old_rent_figure_moved.test.tsx'],
+  ['MK-CF-F-218', 'src/domain/income/old-rent-migration.ts', 'src/screens/__tests__/old_rent_figure_moved.test.tsx'],
+  ['MK-CF-F-219', 'src/domain/income/onboarding.ts', 'src/__tests__/cf_functions_direct_2026_10_24.test.ts'],
+  ['MK-CF-F-220', 'MoneyKeel/functions/cashflow/this-month.ts', 'src/screens/__tests__/cashflow_home_agreement_2026_10_23.test.tsx'],
+  ['MK-CF-F-221', 'src/domain/budget/index.ts', 'src/screens/__tests__/cashflow_home_agreement_2026_10_23.test.tsx'],
+  ['MK-CF-F-222', 'src/domain/transactions/index.ts', 'src/screens/__tests__/performance_journeys_recording_2026_10_23.test.tsx'],   // not exported, so no test calls it: every buy and sale this flow records goes through it (E2E-57, E2E-58)
+  ['MK-CF-F-223', 'src/domain/transactions/index.ts', 'src/__tests__/cf_functions_direct_2026_10_24.test.ts'],
+  ['MK-CF-F-224', 'src/domain/transactions/index.ts', 'src/__tests__/cf_functions_direct_2026_10_24.test.ts'],
+  ['MK-CF-F-225', 'src/hooks/useCashflowModel.ts', 'src/__tests__/paycheck_row_names.test.tsx'],
+  ['MK-CF-F-226', 'src/hooks/useCashflowModel.ts', 'src/screens/__tests__/bill_calendar_coming_up_agrees_2026_10_24.test.tsx'],
+  ['MK-CF-F-227', 'src/hooks/useCashflowModel.ts', 'src/screens/__tests__/cashflow_home_agreement_2026_10_23.test.tsx'],   // no test calls it alone: the Cash flow tab rendered here hands its month through it to theMonth
+  ['MK-CF-F-228', 'src/hooks/useCashflowModel.ts', 'src/screens/__tests__/cashflow_home_agreement_2026_10_23.test.tsx'],   // no test calls it alone: Home rendered here reads the month through it; it calculates nothing of its own
+  ['MK-CF-F-229', 'src/domain/debt/mortgageVsTreasury.ts', 'src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx'],
+  ['MK-CF-F-230', 'src/domain/income/tax-rate.ts', 'src/onboarding/signup_cashflow_rate_agreement_2026_10_24.test.tsx'],
+  ['MK-CF-F-231', 'MoneyKeel/functions/cashflow/this-month.ts', 'src/__tests__/cf_functions_direct_2026_10_24.test.ts'],
+  ['MK-CF-F-232', 'src/domain/cashflow/index.ts', 'src/screens/__tests__/bill_calendar_coming_up_agrees_2026_10_24.test.tsx'],
+  ['MK-CF-F-233', 'src/domain/income/onboarding.ts', 'src/__tests__/cf_functions_direct_2026_10_24.test.ts'],
+  ['MK-CF-F-234', 'src/domain/income/onboarding.ts', 'src/__tests__/cf_functions_direct_2026_10_24.test.ts'],
+  ['MK-CF-F-235', 'src/domain/debt/index.ts', 'src/screens/__tests__/cashflow_home_agreement_2026_10_23.test.tsx'],
+  ['MK-CF-F-236', 'src/domain/debt/index.ts', 'src/screens/__tests__/cashflow_home_agreement_2026_10_23.test.tsx'],
+  ['MK-CF-F-237', 'MoneyKeel/functions/cashflow/this-month.ts', 'src/__tests__/worked_examples.test.ts'],   // an example helper: it is the run of the later-month card's worked examples, which this test re-runs
+  ['MK-CF-F-238', 'MoneyKeel/functions/cashflow/base-pay.ts', 'src/__tests__/worked_examples.test.ts'],   // an example helper (MK-CF-O-011 until 2026-10-24): it is the run of Your base pay's worked examples, which this test re-runs
+  ['MK-CF-F-239', 'MoneyKeel/functions/cashflow/base-pay.ts', 'src/__tests__/worked_examples.test.ts'],   // an example helper (MK-CF-O-012 until 2026-10-24): it is the run of the calculated-rate worked examples, which this test re-runs
+  ['MK-CF-F-240', 'MoneyKeel/functions/cashflow/base-pay.ts', 'src/__tests__/worked_examples.test.ts'],   // an example helper (MK-CF-O-013 until 2026-10-24): it is the run of the typed take-home worked examples, which this test re-runs
+  ['MK-CF-F-241', 'MoneyKeel/functions/cashflow/this-month.ts', 'src/__tests__/worked_examples.test.ts'],   // an example helper (MK-CF-O-014 until 2026-10-24): it is the run of This month's worked examples, which this test re-runs
+  ['MK-CF-F-242', 'MoneyKeel/functions/cashflow/this-month.ts', 'src/__tests__/worked_examples.test.ts'],   // an example helper (MK-CF-O-015 until 2026-10-24): it reads one row of This month's worked example, which this test re-runs
 ];
 
+/** Every MK-CF-F record in the code, read from the code: the header rule the header writer prints directly above each function
+ *  (the one the card builder and guard_function_descriptions read), with the file that declares it. */
+function headersInCode(): Map<string, string> {
+  const out = new Map<string, string>();
+  const walk = (dir: string) => {
+    for (const f of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (f.name === 'node_modules') continue;
+      const p = path.join(dir, f.name);
+      if (f.isDirectory()) { walk(p); continue; }
+      if (!/\.tsx?$/.test(f.name) || /\.test\./.test(f.name)) continue;
+      for (const m of fs.readFileSync(p, 'utf8').matchAll(/\/\* ─ (MK-CF-F-\d{3}) ─/g)) if (!out.has(m[1])) out.set(m[1], path.relative(ROOT, p));
+    }
+  };
+  for (const c of ['src', 'MoneyKeel/functions', 'Calculation Module code/engines']) walk(path.join(ROOT, c));
+  return out;
+}
+
 describe('every Cash flow function traces to its proof in one hop (step 3.c)', () => {
+  // THE GUARD PROVES IT LOOKED (2026-10-24). It checked a typed floor of 201 and nothing else, so 22 functions numbered after the
+  // table was printed (MK-CF-F-216 to 237) were missing and the test still passed until one row was removed. It now reads every
+  // MK-CF-F record in the code — the header rule printed above each function — and the table must be exactly that set.
   it('the table covers every Cash flow function in the code — and says how many', () => {
-    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(201);
+    const code = headersInCode();
+    console.log(`cf_function_trace: ${code.size} MK-CF-F records in the code, ${FUNCTIONS.length} rows in the table`);
+    expect(code.size).toBeGreaterThanOrEqual(227);        // 222 on 2026-10-24, 227 the same day once five example helpers left O for F — a floor that only ever rises
+    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(227);
     expect(new Set(FUNCTIONS.map((r) => r[0])).size).toBe(FUNCTIONS.length);
+    const table = new Set(FUNCTIONS.map((r) => r[0]));
+    expect([...code.keys()].filter((id) => !table.has(id)).sort()).toEqual([]);   // in the code, missing from the table
+    expect([...table].filter((id) => !code.has(id)).sort()).toEqual([]);          // in the table, gone from the code
+    expect(FUNCTIONS.filter(([id, src]) => code.get(id) !== src).map(([id, src]) => `${id}: the table says ${src}, the code declares it in ${code.get(id)}`)).toEqual([]);
   });
 
   it('each identifier really is in the file this table names', () => {

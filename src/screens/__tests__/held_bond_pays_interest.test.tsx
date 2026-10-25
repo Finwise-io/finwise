@@ -140,7 +140,13 @@ describe('the answer is read by the line under the bond on its account page (hol
     const facts = (perYear?: 1 | 2) => holdingBondFacts({ ...BOND, ...(perYear ? { coupons_per_year: perYear } : {}) } as any, 9_850, new Date(`${TODAY}T12:00:00`));
     const once = facts(1).yieldToMaturity!, twice = facts(2).yieldToMaturity!;
     expect(facts(undefined).yieldToMaturity).toBe(once);
-    expect(Math.abs(twice - once)).toBeGreaterThan(0.0001);                   // the choice moves the yield
+    // FIXED 2026-10-24 (NW-BONDS, the re-run of MK-NW-M-026, under DEC-3390 and DEC-6625): twice a year is priced on $200
+    // every six months, its yield compounded twice a year — by hand, the y at which Σ 200 ÷ (1 + y/2)^(2t) at t = 3.3973,
+    // 2.8973, … 0.3973 years, + 10,000 ÷ (1 + y/2)^(2 × 3.3973), equals $9,850 + $39.78 = $9,889.78: 4.4840%. Once a year,
+    // $400 at 3.3973, 2.3973, 1.3973, 0.3973 on $9,850 + $241.10: 4.4790%. The same bond, nearly the same yield; twice a year
+    // it read 5.1456%, priced on one whole $400 coupon a year against the half-year estimate (kept below, failing).
+    expect(once).toBeCloseTo(0.04478968, 7);
+    expect(twice).toBeCloseTo(0.04484002, 7);
     // the line before the choice: the once-a-year assumption
     mockParams = { id: 'brk' };
     let r = render(<AccountPortfolioScreen />);
@@ -161,6 +167,12 @@ describe('the answer is read by the line under the bond on its account page (hol
     render(<AccountPortfolioScreen />);
     const after = lineOf();
     expect(after).toEqual([`$10,000 face · 4.00% · YTM ${fig('MK-NW-M-026', twice)} · matures Mar 15, 2030`]);
-    expect(after).not.toEqual(before);
+    // both print 4.48% to two decimals (precision standard): the choice is saved and read, and the line agrees with itself
+    expect(after).toEqual(['$10,000 face · 4.00% · YTM 4.48% · matures Mar 15, 2030']);
+    expect(before).toEqual(after);
+  });
+  test.failing('the app until 2026-10-24, pinned: twice a year moved the yield to 5.15% (one whole coupon a year against the half-year estimate) — no longer its answer', () => {
+    const facts = (perYear?: 1 | 2) => holdingBondFacts({ ...BOND, ...(perYear ? { coupons_per_year: perYear } : {}) } as any, 9_850, new Date(`${TODAY}T12:00:00`));
+    expect(facts(2).yieldToMaturity!).toBeCloseTo(0.05145552, 6);
   });
 });

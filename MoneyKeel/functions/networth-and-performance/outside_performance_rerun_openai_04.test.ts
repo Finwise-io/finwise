@@ -456,7 +456,8 @@ describe('the facts behind the verdicts', () => {
   });
   test('MK-PF-F-044: a holding bought again inside the window gets exactly that row — total +21%, value $2,420, start read as $1,000 (the shares held then; it read $2,000 until 2026-10-21)', () => {
     const p = position([[10, 100, '2025-06-01'], [10, 110, '2026-09-02']], { ticker: 'A' });
-    const [r] = buildPerformance([p], () => S([['2025-10-12', 100], ['2026-09-02', 110], ['2026-10-13', 121]]), '1Y', D('2026-10-13'));
+    // (the close the evening before the purchase (2026-10-23, W-START): the 10 were bought at the market's $110, so the holding stood at $110 that evening — read by the whole-day rule (DEC-4439, DEC-7451) now that a holding held when the window began is measured from its purchases; without it the closes said the eleven months from $100 to $110 all fell on the purchase day, and the figure read 2,420 ÷ 2,100 − 1 = +15.24%)
+    const [r] = buildPerformance([p], () => S([['2025-10-12', 100], ['2026-09-01', 110], ['2026-09-02', 110], ['2026-10-13', 121]]), '1Y', D('2026-10-13'));
     near(r.periodTotal, 0.21); near(r.marketValue, 2420); near(r.startValue, 1000);
     near(startValues([r], windowTotalOfRow)[0].start, 1000);   // the shares held when the window began were worth $1,000
     // a row handed in with no start of its own is still worked back from its value (rows the app builds always carry one)

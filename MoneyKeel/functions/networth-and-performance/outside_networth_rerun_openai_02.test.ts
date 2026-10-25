@@ -581,9 +581,17 @@ describe('MK-NW-F-061 bondSummary — five cases', () => {
     const s = bondSummary([{ face: null, couponRate: 0.04, value: 9800, maturity: '2027-10-13' }], now);
     expect(s).toEqual({ count: 1, totalValue: 9800, totalFace: 0, annualCoupon: 0, avgYield: 0.04081632653061224, nextMaturity: '2027-10-13', faceNotEntered: 1 });
   });
-  test('easy · Missing face separately identified — the app\'s answer, hand-checked', () => {
+  // CHANGED 2026-10-24 (NW-BONDS, the lead's decision under DEC-3523 tenet 3 over DEC-2748c's no-face half, for a bond with a
+  // maturity date): its coupon is paid on the face, so with none entered it has no year's interest — $0 in the total and left
+  // out of the average, which theBonds names (leftOutNoFace: "Average yield leaves out … — face value not entered."). The
+  // reviewer's $0 coupon now agrees; its 4.08% average still rests on a $10,000 face that was not entered. The old answer is
+  // kept below, failing.
+  test('easy · Missing face separately identified — the app\'s answer, hand-checked (since 2026-10-24: no face on a dated bond, no interest)', () => {
     const s = bondSummary([{ face: null, couponRate: 0.04, value: 9800, maturity: '2027-10-13' }], now);
-    expect({ ...s, annualCoupon: 0, avgYield: 0 }).toEqual({ count: 1, totalValue: 9800, totalFace: 0, annualCoupon: 0, avgYield: 0, nextMaturity: '2027-10-13' });
+    expect(s).toEqual({ count: 1, totalValue: 9800, totalFace: 0, annualCoupon: 0, avgYield: null, nextMaturity: '2027-10-13' });
+  });
+  test.failing('easy · Missing face separately identified — the app until 2026-10-24, pinned: $9,800 × 4% = $392, 4.00% — no longer its answer', () => {
+    const s = bondSummary([{ face: null, couponRate: 0.04, value: 9800, maturity: '2027-10-13' }], now);
     expect(s.annualCoupon).toBeCloseTo(392, 6); expect(s.avgYield!).toBeCloseTo(0.04, 12);
   });
   test('complex · Matured bond contributes zero interest and is not next maturity', () => {

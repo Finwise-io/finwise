@@ -1,4 +1,4 @@
-# E2E flow register — 56 distinct end-to-end user flows, all automated and green
+# E2E flow register — 81 distinct end-to-end user flows, all automated and green
 
 **Founder ask 2026-07-15: "test at least 50 end-to-end user flows."** This register names each
 distinct flow and the automated test that drives it — real screens, real taps and typing, and
@@ -85,8 +85,56 @@ bonds-only, brand-new with nothing).
 | 55 | From connect's consent screen, Add-by-hand is one tap away (never a dead end) |
 | 56 | A logged grocery run appears inside its month's detail |
 
-## Beyond the 56 — deeper feature journeys (also automated, also green)
+## Performance, recording — `src/screens/__tests__/performance_journeys_recording_2026_10_23.test.tsx` (added 2026-10-23, 21 tests)
+| # | Flow |
+|---|---|
+| 57 | Record a buy from the account page: the sheet reads the trade-sheet drawing, the activity lists the buy, and the account page, the Performance tab, Net worth and Home agree — the drawing's household, a typed total that stays $40,000, and v17 phone 1 |
+| 57 D | An option contract bought and sold by hand: 1 contract at $2.50 costs $250, 1 at $3.00 brings in $300, the activity says contracts, realized +$100 |
+| 57 E | A VTI bought on the trade sheet lists under Stocks / Funds on the account page and in the Performance tab's category table |
+| 58 | A sale with a $5 fee from the Holding page: the fee comes off what the sale brought in once, on every screen ($975; the account +4.15%, VTI +5.21%) |
+| 58 B | A sale's realized gain reads what was paid, for a holding brought in by Import holdings (+$180), added in the holding editor (+$2,050) or bought the same day (+$50) |
+| 59 | Sell a holding in full from its page: the page closes, the beginning still counts what it was worth, and the account page, the Performance tab and Home agree ($15,100 → $15,450, +3.71%) |
+| 60 | A purchase with no price paid and one with no share count, kept through an editor save: both pages say what is missing, and every figure built from it refuses alike |
+| 61 | Correct a buy's price on its ✎ ($100.00 → $98.00), then delete it: every screen moves to the new numbers; a delete the app refuses shows its alert |
+| 62 | Update the value of an account built by hand: Net worth, the Performance tab and the account page agree on $8,400, stamped today |
+
+## Performance, viewing — `src/screens/__tests__/performance_journeys_viewing_2026_10_23.test.tsx` (added 2026-10-23, 12 tests)
+| # | Flow |
+|---|---|
+| 63 | The window journey in the founder's household (v17 phone 1): Since → 1M → This year → 1Y → 2Y on the Performance tab, then the account page and the Holding page open on the window picked |
+| 64 | Hide balances from the eye on the Performance tab: every dollar hidden on four screens, percents stay, VoiceOver hears "hidden" |
+| 65 | A brand-new person: the empty tab → "Add your accounts ›" → Add by hand → phone 4's first day → a holding bought shows |
+| 66 | Look back from an alternative's page with nothing held: the fetch works ($2,700 more if you had moved) or fails (the failure line, no figure) |
+| 67 | Old prices, a failed refresh, then a pull to refresh that works: the tab, the account page, the Holding page and Home agree |
+| 68 | A screen-reader user: Home's card → Net worth; the Performance tab → the account page → the Holding page, each door reached by its spoken action |
+
+## Cash flow, entering — `src/screens/__tests__/cashflow_journeys_entering_2026_10_24.test.tsx` (added 2026-10-24, 14 tests)
+| # | Flow |
+|---|---|
+| 69 | A $6.50 coffee logged from ＋ Expense on Cash flow (Home has no ＋ Expense, his DEC-0039) moves This month, the Expenses tab and Home together, and the rows add up to the totals printed (+$893) |
+| 70 | A one-time $2,000 bonus lands in September only, at the rate in force: $7,195 on the Income tab, This month and Home; October $5,396; never again |
+| 71 | Base pay, the 401(k) and filing status move all four take-homes together: $6,976 single, $7,403 jointly, $6,963 with $1,500 into the 401(k); a take-home typed the old way shows its gross worked back |
+| 72 | A $1,200 December bill: in December only, on the calendar's Dec 15, and in Home's December record; every calendar row adds up as printed |
+| 73 | Setting the budget, then changing one category, moves the editor's card, This month, Expenses and Home's record together (not set → +$1,550 → +$1,400) |
+| 74 | A $250 car-loan payment agrees across Debts, This month, Home and Net worth ($333,000 → $332,750); a $386.42 payment is offered to the cent |
+
+## Cash flow, viewing — `src/screens/__tests__/cashflow_journeys_viewing_2026_10_24.test.tsx` (added 2026-10-24, 15 tests)
+| # | Flow |
+|---|---|
+| 75 | The tab tour in the founder's household: This month → Income → Expenses → Debts → Home, each as drawn, every total one of This month's own lines |
+| 76 | Last month and the month before equal Home's saved records and its month-end sheet ($6,000 · $1,510 · $4,490; $6,000 · $1,030 · $4,970); a late entry is named |
+| 77 | A brand-new person enters base pay ($6,000 gross, $500 401(k)); This month and Home fill with Your base pay's ≈$5,022 |
+| 78 | Hide balances and a screen reader on the four tabs, the past month and Home: every row heard as hidden, every door reached, every info dot said in words |
+| 79 | Filing status single → jointly: $9,650 → $5,720 a year, 22% → 12%, take-home $6,196 → $6,523 on every screen, $327/month more; a fall is said too |
+| 80 | A bill edited on the calendar moves only its own month: Car insurance $1,200 → $1,500, December +$300, October and November unchanged |
+
+## Cash flow, the bill check — `src/screens/__tests__/bill_calendar_coming_up_agrees_2026_10_24.test.tsx` (added 2026-10-24, 8 tests)
+| # | Flow |
+|---|---|
+| 81 | Menu → Bill calendar: COMING UP reads the month table at the need-by day; a $100 card added on the Debts tab takes $300 off both the line and November's End |
+
+## Beyond the 81 — deeper feature journeys (also automated, also green)
 The connect flow (9), the Plan tab (16), draw-order steering (11), the bill calendar (7),
 multi-goal (6), scenario compare (3), holding detail (12), Invest fidelity (10), plus the
-agreement/mask/persona/edge suites — **1,117 tests total**. The 56 above are the distinct
+agreement/mask/persona/edge suites — **1,117 tests total**. The 81 above are the distinct
 END-TO-END USER FLOWS; the rest pin the numbers those flows stand on.

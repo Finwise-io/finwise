@@ -28,23 +28,26 @@ export interface EssentialsMonthly { monthly: number; basis: 'logged' | 'entered
  *     the answer = 'YYYY-MM' from the date's year and month
  *
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-014 budgetVsActual
- *               MK-CF-F-148 inMonth · MK-CF-F-150 debtPaymentsCountedAsExpenses
- *               MK-CF-F-151 actualSpending · MK-CF-F-153 radar
+ *               MK-CF-F-148 inMonth · MK-CF-F-149 recurringDebtPayments
+ *               MK-CF-F-150 debtPaymentsCountedAsExpenses · MK-CF-F-151 actualSpending
+ *               MK-CF-F-153 radar · MK-CF-F-156 plannedMonthFlow
  *               MK-CF-F-157 debtPaymentsByDebt · MK-CF-F-189 essentialsFromLoggedSpending
- *               MK-CF-F-212 receivedInMonth · MK-XS-F-008 normalizeSnapshot
+ *               MK-CF-F-212 receivedInMonth · MK-CF-F-220 pastMonthFlow
+ *               MK-CF-F-231 addedAfterRecord · MK-CF-F-235 paysInMonth
+ *               MK-CF-F-236 paymentInMonth · MK-XS-F-008 normalizeSnapshot
  *               MK-XS-F-009 readHistory · MK-XS-F-175 uid
  *
- * Reaches ..... 355 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 393 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 337 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 375 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

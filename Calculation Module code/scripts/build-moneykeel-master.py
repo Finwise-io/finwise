@@ -1689,18 +1689,21 @@ print(_keepmod.report(_placed, _lost))
 # overwrote the new answer and Q33's, decided by DEC-7229, could never reach the file — check-questions-answered.py
 # stopped the build. Each answer in the decision log whose number is not yet in the cell is added under the kept text,
 # which stays word for word at the top (the guard below holds that). The count is printed so it cannot go quiet.
-_late = []
-for _t in ['multiple_screens', 'home', 'networth', 'performance', 'plan', 'cashflow', 'menu']:
-    _sh = wb[_t]; _hd = [c.value for c in _sh[1]]
-    _iV, _iA = _hd.index('Questions for you (numbered)') + 1, _hd.index('YOUR ANSWER — use the same number') + 1
-    for _r in range(2, _sh.max_row + 1):
-        if not _sh.cell(_r, 1).value: continue
-        _qtext = str(_sh.cell(_r, _iV).value or ''); _have = str(_sh.cell(_r, _iA).value or '')
-        _add = [canon(f"{_qn} — ANSWERED {_a['answered']}: {_a['his_words']}\n\nBUILT: {_a['what_was_built']}")
-                for _qn, _a in _QANS.items() if re.search(r'\b' + _qn + r'\b', _qtext) and not re.search(r'\b' + _qn + r'\b', _have)]
-        if _add:
-            _sh.cell(_r, _iA).value = (_have.rstrip() + '\n\n' if _have.strip() else '') + '\n\n'.join(_add)
-            _late.append('%s · %s' % (_t, _sh.cell(_r, 1).value))
+def _answers_under_kept_text():
+    _late = []
+    for _t in ['multiple_screens', 'home', 'networth', 'performance', 'plan', 'cashflow', 'menu']:
+        _sh = wb[_t]; _hd = [c.value for c in _sh[1]]
+        _iV, _iA = _hd.index('Questions for you (numbered)') + 1, _hd.index('YOUR ANSWER — use the same number') + 1
+        for _r in range(2, _sh.max_row + 1):
+            if not _sh.cell(_r, 1).value: continue
+            _qtext = str(_sh.cell(_r, _iV).value or ''); _have = str(_sh.cell(_r, _iA).value or '')
+            _add = [canon(f"{_qn} — ANSWERED {_a['answered']}: {_a['his_words']}\n\nBUILT: {_a['what_was_built']}")
+                    for _qn, _a in _QANS.items() if re.search(r'\b' + _qn + r'\b', _qtext) and not re.search(r'\b' + _qn + r'\b', _have)]
+            if _add:
+                _sh.cell(_r, _iA).value = (_have.rstrip() + '\n\n' if _have.strip() else '') + '\n\n'.join(_add)
+                _late.append('%s · %s' % (_t, _sh.cell(_r, 1).value))
+    return _late
+_late = _answers_under_kept_text()
 print('answers from the decision log added under kept text: %d%s' % (len(_late), (' — ' + ', '.join(_late)) if _late else ''))
 
 # ---- OVERRIDES: cells read by hand against the code, keyed by identifier (2026-09-08).
@@ -1740,6 +1743,12 @@ for _o in _OV:
     _ov_placed += 1
 print('overrides read by hand: %d placed, %d could not be placed' % (_ov_placed, len(_ov_lost)))
 for _o in _ov_lost[:20]: print('   LOST  %s · %s · %s' % (_o['tab'], _o['key'], _o['col']))
+# A QUESTION THAT ARRIVES BY AN OVERRIDE GETS ITS ANSWER TOO (2026-10-24). Q50 is a hand-typed override on its row, placed
+# only here, after the answers above were written — so his recorded answer (DEC-8152) never reached the row beside it and
+# check-questions-answered.py stopped the build. The same pass runs again now that every question is in place; his
+# kept text stays word for word at the top of the cell (the guard below holds that).
+_late_ov = _answers_under_kept_text()
+print('answers added beside questions placed by an override: %d%s' % (len(_late_ov), (' — ' + ', '.join(_late_ov)) if _late_ov else ''))
 
 # ---- COLOUR CODING for the founder (2026-09-09): every cell that waits on HIM is coloured, on every
 #      build, from what the cells hold — never by hand.

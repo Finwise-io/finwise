@@ -28,7 +28,7 @@ test('#2 · the investments info dot exists and the glossary says the difference
   freshWorker();
   useStore.setState({ assetAccounts: [{ asset_id: 'a1', label: 'Checking', kind: 'cash', tax_bucket: 'TAXABLE', balance: 1500, target_return: 0 }] } as any);
   render(<HomeScreen />);
-  expect(screen.getByLabelText('What is Investments?')).toBeOnTheScreen();
+  expect(screen.getByLabelText('About Investments')).toBeOnTheScreen();
   expect(GLOSSARY.investments.body).toMatch(/net worth/i);
   expect(GLOSSARY.investments.body).toMatch(/\$0 in investments/);
 });
@@ -174,7 +174,7 @@ describe('R6 · What-if (lookahead-v3 FINAL): inline sliders, canonical saves, i
       assetAccounts: [{ asset_id: 'b1', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 200000, target_return: 0.08 }],
     } as any);
     render(<WhatIfScreen />);
-    expect(screen.getAllByLabelText('What is How we calculate your odds?').length).toBe(2);
+    expect(screen.getAllByLabelText('About How we calculate your odds').length).toBe(2);
     // founder's approved wording (2026-07-19), near-verbatim
     // REWRITTEN 2026-08-11 (founder ask): the whole method, for someone who does not follow finance —
     // what we run, what Monte Carlo means, every assumption, and where to change them.

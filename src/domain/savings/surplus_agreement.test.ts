@@ -69,7 +69,10 @@ test('Home labels the actual cash-flow residual "Surplus" (not "Surplus")', () =
 
 test('Budget plan total = canonical take-home − spend − debt, labeled "Planned surplus"', () => {
   const s = screen('BudgetScreen.tsx');
-  expect(s).toMatch(/takeHomeMonthly\(op\)/);
+  // since 2026-10-24 (Cash flow journey E2E-73) the budget card is THIS MONTH's plan, read from the door This month reads —
+  // the take-home after tax and the 401(k), less this month's expenses and debts — so the two "Planned surplus" are one figure
+  expect(s).toMatch(/useThisMonthInputs\(\)/);
+  expect(s).toMatch(/theMonth\(monthIn\)\.planned/);
   expect(s).toMatch(/Planned surplus/);
   expect(s).not.toMatch(/Surplus to save/);
 });

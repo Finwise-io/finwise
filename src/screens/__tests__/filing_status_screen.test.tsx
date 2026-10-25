@@ -50,7 +50,9 @@ test('THE FIX: a couple can be TWO people over 65 — it could only ever be one'
 });
 
 test('4c — answering shows what it is worth, once', () => {
-  set(COUPLE);
+  // one person taxed as single who now files jointly (2026-10-24, E2E-79): a couple with no answer on record is already taxed
+  // jointly, so for them nothing moves and 4c is not shown — the case below
+  set(SOLO);
   render(<FilingStatusScreen />);
   fireEvent.press(screen.getByLabelText('Married filing jointly'));
   fireEvent.press(screen.getByLabelText('Save'));
@@ -58,6 +60,15 @@ test('4c — answering shows what it is worth, once', () => {
   expect(screen.getByText('Taxed as single')).toBeOnTheScreen();
   expect(screen.getByText(/\/month more/)).toBeOnTheScreen();          // canon row 14: a figure carries /month
   expect(screen.getByLabelText('Got it')).toBeOnTheScreen();
+});
+
+test('4c is not shown where nothing moves: a couple already taxed jointly who confirm it goes straight back (E2E-79)', () => {
+  set(COUPLE);
+  render(<FilingStatusScreen />);
+  fireEvent.press(screen.getByLabelText('Just me'));
+  fireEvent.press(screen.getByLabelText('Save'));
+  expect(screen.queryByText('That changes your take-home')).toBeNull();
+  expect((useStore.getState() as any).onboardingProfile).toMatchObject({ filingStatus: 'married', over65Who: 'me' });
 });
 
 test('the answer is stored, so five surfaces stop assuming single', () => {

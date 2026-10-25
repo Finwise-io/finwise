@@ -147,8 +147,12 @@ export const TAX_TABLES: Record<FilingStatus, { brackets: [number, number][]; de
     brackets: [[12_400, 0.10], [50_400, 0.12], [105_700, 0.22], [201_775, 0.24], [256_225, 0.32], [384_350, 0.35], [Infinity, 0.37]],
     deduction: 16_100, over65Add: 1_650,
   },
+  // HEAD OF HOUSEHOLD — IRS Rev. Proc. 2025-32 §4.01 TABLE 2, read from the IRS text on 2026-10-23: "Over $105,700 but
+  // not over $201,750 … Over $201,750 but not over $256,200 … $39,207 plus 32% of the excess over $201,750". Its 24% and 32%
+  // bands end $25 below the single filer's. Until 2026-10-23 this table copied the single filer's $201,775 and $256,225
+  // (outside re-run of Performance, OpenAI, gap list item 35; DEC-0378: every figure set by law is typed from its source).
   hoh: {
-    brackets: [[17_700, 0.10], [67_450, 0.12], [105_700, 0.22], [201_775, 0.24], [256_225, 0.32], [640_600, 0.35], [Infinity, 0.37]],
+    brackets: [[17_700, 0.10], [67_450, 0.12], [105_700, 0.22], [201_750, 0.24], [256_200, 0.32], [640_600, 0.35], [Infinity, 0.37]],
     deduction: 24_150, over65Add: 2_050,
   },
 };
@@ -162,6 +166,13 @@ export const TAX_TABLES: Record<FilingStatus, { brackets: [number, number][]; de
 // the 65+ add-on; reduced by 6% of modified adjusted gross income above $75,000 ($150,000 on a joint
 // return); a married person must file JOINTLY to claim it (not available when filing separately).
 // Source checked 2026-09-08; re-check when the tax year rolls, and it lapses after 2028.
+// THE 6% COMES OFF EACH PERSON'S $6,000, NOT OFF THE COUPLE'S $12,000 (read 2026-10-23). 26 U.S.C. §151(d)(5)(C)(iii)(I):
+// "the $6,000 amount in clause (i) shall be reduced (but not below zero) by 6 percent of so much of the taxpayer's modified
+// adjusted gross income as exceeds $75,000 ($150,000 in the case of a joint return)" — clause (i) is "$6,000 for each
+// qualified individual". IRS Schedule 1-A (Form 1040) 2025, Part V: line 35 "Subtract line 34 from $6,000. If zero or less,
+// enter -0-", entered once for you (36a) and once for your spouse (36b), and line 37 adds them. A joint return at $200,000
+// with both 65 or over: each keeps $6,000 − 6% × $50,000 = $3,000, $6,000 in all, and nothing is left at $250,000. Until
+// 2026-10-23 the 6% came off $12,000 once: $9,000 at $200,000, gone only at $350,000 (outside re-run, gap list item 36).
 export const SENIOR_DEDUCTION = {
   amount: 6_000,
   phaseOutStart: { single: 75_000, married: 150_000, mfs: 0, hoh: 75_000 } as Record<FilingStatus, number>,
@@ -185,24 +196,24 @@ export const SENIOR_DEDUCTION = {
  *
  * Called by ... MK-CF-F-099 deductionFor · MK-PL-F-082 taxableIncomeSteps
  *
- * Reaches ..... 327 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 403 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 309 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 385 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
  *
  * Decides .....
  *     · Never lets over65 fall below 0.
- *     · Uses the published figures: $6,000 per person 65+, phased out at 6% above $75,000 ($150,000 joint), 2025–2028 (P.L. 119-21 §70103; checked 2026-09-08; lapses after 2028 — the statutory test fails when the tax year rolls past it).
+ *     · Uses the published figures: $6,000 per person 65+, each person's $6,000 phased out at 6% above $75,000 ($150,000 joint), 2025–2028 (P.L. 119-21 §70103, IRC §151(d)(5)(C)(iii)(I); IRS Schedule 1-A (2025) Part V lines 35–37; checked 2026-10-23; lapses after 2028 — the statutory test fails when the tax year rolls past it).
  *     · Takes the income handed to it as modified adjusted gross income — the untaxed part of Social Security and other adjustments are not modelled.
  *     · Income not known → 0, never a guessed deduction.
  *
@@ -215,9 +226,9 @@ export function seniorDeductionFor(status: FilingStatus = 'single', over65 = 0, 
   if (!S.eligible[status] || magi == null) return 0;
   const people = Math.min(2, Math.max(0, over65));
   if (people === 0) return 0;
-  const full = people * S.amount;
   const excess = Math.max(0, magi - S.phaseOutStart[status]);
-  return Math.max(0, full - S.phaseOutRate * excess);
+  const each = Math.max(0, S.amount - S.phaseOutRate * excess);   // each person's $6,000, reduced (IRC §151(d)(5)(C)(iii)(I))
+  return people * each;
 }
 
 
@@ -233,17 +244,17 @@ export function seniorDeductionFor(status: FilingStatus = 'single', over65 = 0, 
  *
  * Called by ... MK-CF-F-100 taxableIncomeFor · MK-PL-F-082 taxableIncomeSteps
  *
- * Reaches ..... 326 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 402 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 308 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 384 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -251,7 +262,7 @@ export function seniorDeductionFor(status: FilingStatus = 'single', over65 = 0, 
  * Decides .....
  *     · Never lets over65 fall below 0.
  *     · 2026 standard deduction $16,100 single · $32,200 married · $16,100 filing separately · $24,150 head of household; 65+ add-on $2,050 single / head of household · $1,650 per person married (IRS Rev. Proc. 2025-32 §4.14).
- *     · Plus the senior deduction of MK-CF-F-187 — $6,000 per person 65+, phased out 6% above $75,000 / $150,000, tax years 2025–2028 (P.L. 119-21 §70103).
+ *     · Plus the senior deduction of MK-CF-F-187 — $6,000 per person 65+, each person's $6,000 phased out 6% above $75,000 / $150,000, tax years 2025–2028 (P.L. 119-21 §70103).
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-099
  * Changed ..... 2026-08-20 (764ca16)
@@ -272,17 +283,17 @@ export function deductionFor(status: FilingStatus = 'single', over65 = 0, magi: 
  * Called by ... MK-CF-F-098 progressiveMonthlyTax · MK-CF-F-101 taxOwedFor
  *               MK-CF-F-103 marginalBracketFor · MK-CF-F-104 ltcgRateFor
  *
- * Reaches ..... 324 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 400 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 306 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 382 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -312,19 +323,20 @@ export function taxableIncomeFor(gross: number, status: FilingStatus = 'single',
  *
  * Called by ... MK-CF-F-097 grossFromNet · MK-CF-F-098 progressiveMonthlyTax
  *               MK-CF-F-102 effectiveRateOnGrossFor · MK-CF-F-144 takeHomeAsEntered
- *               MK-CF-F-181 rateInForce · MK-PL-F-032 rothConversionCost
+ *               MK-CF-F-181 rateInForce · MK-CF-F-240 PAY_LANDS_TYPED
+ *               MK-PL-F-032 rothConversionCost
  *
- * Reaches ..... 320 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 397 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 302 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 379 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -352,7 +364,7 @@ export function taxOwedFor(gross: number, status: FilingStatus = 'single', state
   return tax + ti * Math.min(0.15, Math.max(0, stateRate));
 }
 
-/* ─ MK-CF-F-102 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-CF-F-102 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * effectiveRateOnGrossFor
  *
  * Answers ..... What share of my income actually goes in tax?
@@ -394,20 +406,19 @@ export function effectiveRateOnGrossFor(gross: number, status: FilingStatus = 's
  *     ti = taxable income for(gross, status, over65)
  *     the answer = the rate of the FIRST band whose top is ≥ ti, read in order from the table for the filing status (10% · 12% · 22% · 24% · 32% · 35% · 37%)
  *
- * Called by ... MK-CF-F-091 userCapGainsRates · MK-CF-O-001 basePay
- *               MK-CF-O-004 incomeSummary
+ * Called by ... MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 70 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 69 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-CF-O-011 PAY · MK-CF-O-012 PAY_ESTIMATED
- *               MK-CF-O-013 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
+ *               MK-CF-F-238 PAY · MK-CF-F-239 PAY_ESTIMATED
+ *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
  *               MK-CF-F-210 annualOfSource · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
  *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               … and 52 more — the full list is on functions_from_code
+ *               … and 51 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -425,6 +436,9 @@ export function marginalBracketFor(gross: number, status: FilingStatus = 'single
 }
 
 // Long-term capital-gains brackets (0/15/20) by filing status, 2026 (taxable-income thresholds).
+// SOURCE: IRS Rev. Proc. 2025-32 §4.03 (§1(h), §1(j)(5)), read from the IRS text 2026-10-23 — the maximum zero-rate and 15%-rate
+// amounts: joint $98,900 / $613,700 · separate $49,450 / $306,850 · head of household $66,200 / $579,600 · all other
+// individuals $49,450 / $545,500. Registered as LTCG in Calculation Module code/scripts/moneykeel_published_sources.json.
 const LTCG: Record<FilingStatus, [number, number]> = {
   single: [49_450, 545_500],
   married: [98_900, 613_700],
@@ -445,13 +459,13 @@ const LTCG: Record<FilingStatus, [number, number]> = {
  *     0.15   if ti ≤ fifteen top
  *     0.20   otherwise   otherwise
  *
- * Called by ... MK-CF-F-091 userCapGainsRates
- *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-091 userCapGainsRates
+ * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
+ *
+ * Decides .....
+ *     · The 2026 0% and 15% tops of taxable income are the published ones — IRS Rev. Proc. 2025-32 §4.03: $49,450 / $545,500 single · $98,900 / $613,700 married filing jointly · $49,450 / $306,850 married filing separately · $66,200 / $579,600 head of household; 20% above (register: LTCG, read 2026-10-23).
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-104
  * Changed ..... 2026-08-20 (764ca16)

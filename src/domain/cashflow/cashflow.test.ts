@@ -1,4 +1,5 @@
 import { cashflowYear, upcomingBills } from './index';
+import { buildDatedGrid } from '../grid';   // what is there by a bill's day is read from the month table (2026-10-24)
 import type { OnboardingProfile } from '../onboardingProfile';
 
 const NO_TAX: OnboardingProfile = { taxMode: 'manual', manualTaxRate: '0' };
@@ -88,7 +89,7 @@ describe('day-level bill planner — "how much to ask, by when"', () => {
 
   test('aid that arrives AFTER the due date does not help — big shortfall', () => {
     const op: OnboardingProfile = { ...base, scholarships: [{ amount: '7000', freq: 'annual', months: [9], day: 20, year: '2026' }], loans: [{ amount: '5000', months: [9], day: 20, year: '2026' }] };
-    const [t] = upcomingBills(op, 500, JUN);
+    const [t] = upcomingBills(op, buildDatedGrid(op, { startBalance: 500, now: JUN }), JUN);
     expect(t.dueDate).toBe('2026-09-15');
     expect(t.needByDate).toBe('2026-09-13');     // 2-day buffer
     expect(t.askByDate).toBe('2026-09-03');      // 10-day lead
@@ -98,7 +99,7 @@ describe('day-level bill planner — "how much to ask, by when"', () => {
 
   test('same aid arriving BEFORE the need-by date slashes the shortfall', () => {
     const op: OnboardingProfile = { ...base, scholarships: [{ amount: '7000', freq: 'annual', months: [9], day: 5, year: '2026' }], loans: [{ amount: '5000', months: [9], day: 5, year: '2026' }] };
-    const [t] = upcomingBills(op, 500, JUN);
+    const [t] = upcomingBills(op, buildDatedGrid(op, { startBalance: 500, now: JUN }), JUN);
     expect(t.shortfall).toBeLessThan(2500);      // aid (Sep 5) is available by Sep 13
   });
 });

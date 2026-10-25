@@ -137,14 +137,20 @@ test('EDGE: the bill calendar renders sanely for a user with NO cash accounts (s
 
 // ═══ ROUND 2 (the PRD queue's cross-feature seams) ═══
 
-test('SEAM filing-status→everything: switching to married on the Tax organizer moves take-home, Roth tax, AND the sell-tax card in one motion', () => {
+// CHANGED 2026-10-24: the sell-tax half read userCapGainsRates (MK-CF-F-091), which added the state rate to the capital-gains
+// rate against his DEC-0321 (no state tax on capital gains) and which nothing in the app called — the sell-tax card was cut on
+// 2026-08-20. The function is retired; the same seam is held on the federal rates the app keeps, which move with status alone.
+test('SEAM filing-status→everything: switching to married on the Tax organizer moves take-home, Roth tax, AND the federal capital-gains rates in one motion', () => {
   const op = { ...WORKER, taxMode: undefined, manualTaxRate: undefined, filingStatus: 'single' } as any;
-  const { monthlyTaxRates, userCapGainsRates } = require('../domain/income');
+  const { monthlyTaxRates, totalGrossAnnual } = require('../domain/income');
+  const { marginalBracketFor, ltcgRateFor } = require('../domain/income/tax');
   const singleRates = monthlyTaxRates(op);
-  const singleCg = userCapGainsRates(op);
   const married = { ...op, filingStatus: 'married' };
   expect(monthlyTaxRates(married)[5]).toBeLessThan(singleRates[5]);        // take-home up
-  expect(userCapGainsRates(married).st).toBeLessThanOrEqual(singleCg.st);  // sell-tax down or equal
+  const gross = totalGrossAnnual(op);
+  expect(gross).toBeGreaterThan(0);                                        // the guard looked: a real income
+  expect(marginalBracketFor(gross, 'married')).toBeLessThanOrEqual(marginalBracketFor(gross, 'single'));   // short-term, federal: down or equal
+  expect(ltcgRateFor(gross, 'married')).toBeLessThanOrEqual(ltcgRateFor(gross, 'single'));                 // long-term, federal: down or equal
 });
 
 test('SEAM horizon-adoption→Home: Use-as-my-plan at 94 changes the will-it-last sentence everywhere', () => {

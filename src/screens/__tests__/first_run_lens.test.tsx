@@ -133,6 +133,10 @@ test("the cash-flow snapshot card: income/spent/left from the month's own figure
   render(<HomeScreen />);
   expect(screen.getByText("THIS MONTH'S CASH FLOW")).toBeOnTheScreen();
   // the pace now leads with a WORD (approved mock 2026-07-16) — never color alone
-  expect(screen.getByLabelText(/This month's cash flow, On pace: income \$6,000, spent so far \$1,200, \$4,800 left, bills may still be coming/)).toBeOnTheScreen();
+  // MOVED ON PURPOSE 2026-10-23 (CF-FIX; outside re-run of Performance, gap list item 38): the box prints the Cash flow tab's own
+  // three figures, and its middle one is the expenses AND the debt paid — "Outflow (expenses + debt)" — so it is said that way.
+  // No figure moves for this household (no debt paid): $6,000 in, $1,200 out, $4,800 left. It read "spent so far $1,200".
+  expect(screen.getByLabelText(/This month's cash flow, On pace: income \$6,000, expenses and debt paid so far \$1,200, \$4,800 left, bills may still be coming/)).toBeOnTheScreen();
+  expect(screen.getByText('Outflow (expenses + debt)')).toBeOnTheScreen();
   expect(screen.getByText('✓ On pace')).toBeOnTheScreen();
 });

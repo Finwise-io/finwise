@@ -719,7 +719,7 @@ test('the info dot scrolls — a definition longer than the card is no longer un
   const { GLOSSARY } = require('../domain/glossary');
   const flat = (n: any) => Object.assign({}, ...[n.props.style].flat(Infinity).filter(Boolean));
   render(<InfoDot term="nestEggMath" />);
-  fireEvent.press(screen.getByLabelText('What is How we calculate your odds?'));
+  fireEvent.press(screen.getByLabelText('About How we calculate your odds'));
   // the body sits in a scroller that is capped, so the Got-it button can never be pushed off-screen
   const scrollers = screen.UNSAFE_getAllByType(require('react-native').ScrollView);
   expect(scrollers.length).toBeGreaterThan(0);

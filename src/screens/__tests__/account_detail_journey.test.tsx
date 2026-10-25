@@ -40,8 +40,8 @@ test('recording a deposit moves the BALANCE and the LEDGER together (the one fun
   render(<AccountPortfolioScreen />);
   // mock v14: the five buttons became three doors — money in/out lives behind the first one, and the
   // kind is chosen inside the sheet it opens. Same recorder, one door instead of three buttons.
-  fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Checking'));
-  fireEvent.press(screen.getByLabelText('Record a deposit for Checking'));
+  fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Chase Checking'));
+  fireEvent.press(screen.getByLabelText('Record a deposit for Chase Checking'));
   fireEvent.changeText(screen.getByLabelText('Amount'), '2000');
   // the effect preview, the account named as the page names it (2026-10-22: the sheet wrote the bare label, "Checking")
   expect(screen.getByText('+$2,000 into Chase Checking')).toBeOnTheScreen();
@@ -55,8 +55,8 @@ test('recording a deposit moves the BALANCE and the LEDGER together (the one fun
 
 test('a transfer needs a destination and moves BOTH sides', () => {
   render(<AccountPortfolioScreen />);
-  fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Checking'));
-  fireEvent.press(screen.getByLabelText('Record a transfer for Checking'));
+  fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Chase Checking'));
+  fireEvent.press(screen.getByLabelText('Record a transfer for Chase Checking'));
   fireEvent.changeText(screen.getByLabelText('Amount'), '500');
   fireEvent.press(screen.getByLabelText('Transfer into Savings'));
   expect(screen.getByText('−$500 from Chase Checking → +$500 into Chase Savings')).toBeOnTheScreen();   // both named as Net worth names them
@@ -103,10 +103,10 @@ test('property accounts get no money-movement doors; cash gets deposit/withdraw/
   expect(screen.getByText('Add a contribution or withdrawal ›')).toBeOnTheScreen();
   expect(screen.getByText('Add a dividend or interest ›')).toBeOnTheScreen();
   expect(screen.queryByText('Add a buy or sale ›')).toBeNull();
-  fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Checking'));
-  expect(screen.getByLabelText('Record a deposit for Checking')).toBeOnTheScreen();
-  expect(screen.getByLabelText('Record a withdrawal for Checking')).toBeOnTheScreen();   // the record's own name (audit row 30, 2026-10-21)
-  expect(screen.getByLabelText('Record a transfer for Checking')).toBeOnTheScreen();
+  fireEvent.press(screen.getByLabelText('Add a contribution or withdrawal for Chase Checking'));
+  expect(screen.getByLabelText('Record a deposit for Chase Checking')).toBeOnTheScreen();
+  expect(screen.getByLabelText('Record a withdrawal for Chase Checking')).toBeOnTheScreen();   // the record's own name (audit row 30, 2026-10-21)
+  expect(screen.getByLabelText('Record a transfer for Chase Checking')).toBeOnTheScreen();
   expect(screen.queryByLabelText(/Record a coupon/)).toBeNull();
   mockParams = { id: 'hme' };
   render(<AccountPortfolioScreen />);

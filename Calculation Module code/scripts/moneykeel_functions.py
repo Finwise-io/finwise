@@ -434,6 +434,11 @@ def _is_orchestrator(path, line):
         text = open(path).read().split('\n')
     except OSError:
         return False
+    # A HELPER WRITTEN AS `const X = () =>` IS AN ORCHESTRATOR ONLY WHEN THE MARKER SITS ON IT (2026-10-24). The scan below stops
+    # at a `function` line only, so a worked-example helper written as a const arrow between an orchestrator's marker and its
+    # function inherited that marker: MK-CF-O-011 to 015 and MK-CF-O-021 were issued to "Example only" helpers that way, the
+    # mistake MK-NW-O-009 recorded on 2026-10-04. For such a helper only its own comment block is read.
+    arrow = not re.match(r'(?:export )?(?:async )?function [A-Za-z0-9_]+', (text[line - 1] if 0 < line <= len(text) else ''))
     mark = None
     for i in range(line - 2, -1, -1):
         if 'ORCHESTRATOR' in text[i]:
@@ -441,6 +446,8 @@ def _is_orchestrator(path, line):
             break
         if re.match(r'(?:export )?(?:async )?function [A-Za-z0-9_]+', text[i]):
             return False
+        if arrow and not text[i].strip().startswith(('*', '/**', '/*', '*/', '//')):
+            return False      # a code line between: the marker is not this helper's own
     return mark is not None
 
 

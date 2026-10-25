@@ -44,19 +44,20 @@ import { isoLocalDate } from '../../../src/domain/_shared/dates';
  *     entered = (v: unknown) => v ≠ nothing and string(v).trim() ! = '' and number.is finite(number(v))
  *     the answer = !entered(minimum monthly payment) and !entered(monthly payment)
  *
- * Called by ... MK-NW-O-003 theNetWorth · MK-NW-O-004 theEmergencyFund
+ * Called by ... MK-CF-F-156 plannedMonthFlow · MK-NW-O-003 theNetWorth
+ *               MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-079 EF · MK-NW-F-082 NW
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 37 more — the full list is on functions_from_code
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

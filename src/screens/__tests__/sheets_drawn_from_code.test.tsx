@@ -2,7 +2,7 @@
  *
  *  Five sheets had no drawing (DEC-0470: every state is drawn). Each is now drawn from the code, approval pending, in
  *  MoneyKeel/documents/networth-and-performance/:
- *    moneykeel_pres_mock_trade-sheet_v02.html ............ the trade sheet, 12 states (Record activity)
+ *    moneykeel_pres_mock_trade-sheet_v03.html ............ the trade sheet, 12 states (Record activity; v03 2026-10-23, its fee)
  *    moneykeel_pres_mock_holding-editor_v02.html ......... the holding editor, 9 states (Edit holding)
  *    moneykeel_pres_mock_activity-sheet_v01.html ......... the activity sheet, 2 states
  *    moneykeel_pres_mock_record-activity-sheet_v01.html .. the account page's recorder, 9 states

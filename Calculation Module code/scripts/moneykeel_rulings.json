@@ -909,7 +909,7 @@
   "date": "2026-08-27",
   "source": "cashflow-thismonth+spending-screen-jj.xlsx",
   "ruling": "This-month screen, Planned: In (take-home) 5,000 · mortgage 2,000 · car 250 · expenses 2,000 · HELOC from the big-ticket radar 200 · credit-card payment entered by hand 200 · surplus 750. Actual: 5,000 · mortgage paid 2,000 · car paid 0 · expenses entered 500 · expenses imported from the card 1,200 · HELOC 200 · card payment 200 · surplus 1,300. Spending: recurring (mortgage 2,000, car 250), planned expenses (gas 200, grocery 900, utilities 200, other 700 = 2,000), radar: card payment 1,200 NOT counted as an expense, HELOC 200 counted, card payment entered by hand 200 counted.",
-  "rows": "MK-CF-M-002 · MK-CF-M-004 · MK-CF-M-015 · MK-CF-M-019 · MK-CF-O-003 thisMonth · MK-CF-O-002 spending",
+  "rows": "MK-CF-M-048 · MK-CF-M-052 · MK-CF-M-015 · MK-CF-M-019 · MK-CF-O-003 thisMonth · MK-CF-O-002 spending",
   "status": "CODED",
   "code": "the This-month + Spending mock v06 (2026-08-27) and the radar rule in MoneyKeel/functions/cashflow/spending.ts ('a credit-card or HELOC payment is always a radar item; recurring debt never') were built from it; the master's rows carried none of it until 2026-09-10",
   "proof": "src/screens/__tests__/cashflow_fcc.test.tsx (the This-month arithmetic)",
@@ -1490,28 +1490,46 @@
   "date": "2026-09-12",
   "source": "his -jj copy of the second-verification assessment (column I), 2026-09-12",
   "ruling": "agree; ensure compliance with the synonym ruling",
-  "rows": "MK-CF-M-004 · MK-CF-M-019 · MK-XS-M-007",
+  "rows": "MK-CF-M-052 · MK-CF-M-019 · MK-XS-M-007",
   "status": "TESTED",
-  "code": "the month's outflow (expenses + debt paid) now comes from ONE function, MK-CF-F-194 monthOutflow (MoneyKeel/functions/cashflow/this-month.ts), not from the screen; the labels read 'Outflow (expenses + debt)' and 'Outflow (expenses)' per cluster #3",
-  "proof": "MoneyKeel/functions/cashflow/month-outflow.test.ts · cashflow_fcc.test.tsx",
+  "code": "the month's outflow (expenses + debt paid) comes from ONE function, MK-CF-F-194 monthOutflow (MoneyKeel/functions/cashflow/this-month.ts), not from the screen — a past month's through pastMonthFlow, and since 2026-10-24 this month's too, through actualMonthFlow, which Home prints; the labels read 'Outflow (expenses + debt)' and 'Outflow (expenses)' per cluster #3",
+  "proof": "MoneyKeel/functions/cashflow/month-outflow.test.ts · cashflow_fcc.test.tsx · src/screens/__tests__/cashflow_home_agreement_2026_10_23.test.tsx (DEC-0333: the outflow Cash flow and Home print is monthOutflow's)",
   "coded": "2026-09-12",
   "verified": "",
-  "notes": "MK-CF-M-004 names MK-CF-F-194 from 2026-09-12.",
+  "notes": "MK-CF-M-052 names MK-CF-F-194 as its producer (re-pointed 2026-10-24 from MK-CF-M-004: that number was handed to the month's rows on 2026-10-02, and the outflow it named lives on as MK-CF-M-052 — the metric register's retired key 'CF|M|Out (spent + debt)|out').",
   "expect": [
    {
     "tab": "cashflow",
-    "key": "MK-CF-M-004",
-    "col": "Function ID",
+    "key": "MK-CF-M-052",
+    "col": "Formula (in words)",
+    "contains": [
+     "MK-CF-F-194",
+     "monthOutflow",
+     "Outflow (expenses + debt)"
+    ]
+   },
+   {
+    "tab": "cashflow",
+    "key": "MK-CF-M-052",
+    "col": "Formula (mathematical)",
     "contains": [
      "MK-CF-F-194"
     ]
    },
    {
     "tab": "cashflow",
-    "key": "MK-CF-M-004",
-    "col": "Formula (in words)",
+    "key": "MK-CF-M-052",
+    "col": "Name on Screen",
     "contains": [
      "Outflow (expenses + debt)"
+    ]
+   },
+   {
+    "tab": "cashflow",
+    "key": "MK-CF-M-052",
+    "col": "Function ID",
+    "contains": [
+     "MK-CF-O-003"
     ]
    }
   ]

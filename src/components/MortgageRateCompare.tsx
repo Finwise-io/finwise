@@ -80,11 +80,15 @@ export function MortgageRateCompare({ balance, annualRate, monthlyPayment, extra
 
       {/* SHARES ARE A DIFFERENT QUESTION, and saying so is what stops this reading as advice.
           Paying a mortgage down is a guaranteed return; shares are not. */}
-      <Text style={s.caveat}>
-        Shares might earn more than either — or less. Paying the mortgage is the only one that is certain.
-        Tax usually widens this gap rather than closing it, but that depends on your own return.
+      {/* THE DOT SITS BESIDE THE SENTENCE, NOT INSIDE IT (2026-10-24, Cash flow journey E2E-78): inside a sentence a screen reader
+          reads the sentence with the ⓘ in it and the dot itself as "ⓘ" — beside it, the dot says "What is …?" like every other */}
+      <View style={s.caveatRow}>
+        <Text style={[s.caveat, { flex: 1, marginTop: 0 }]}>
+          Shares might earn more than either — or less. Paying the mortgage is the only one that is certain.
+          Tax usually widens this gap rather than closing it, but that depends on your own return.
+        </Text>
         <InfoDot term="nestEggMath" size={11} />
-      </Text>
+      </View>
 
       {isFallback && (
         // never let a stale rate pass as live on the one screen where it changes the answer
@@ -100,6 +104,7 @@ const s = StyleSheet.create({
   body: { fontSize: 13, lineHeight: 20, color: Colors.textPrimary },
   b: { fontWeight: '800' },
   caveat: { fontSize: 11, lineHeight: 17, color: Colors.textSecondary, marginTop: Spacing.sm },
+  caveatRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 4, marginTop: Spacing.sm },
   stale: { fontSize: 11, lineHeight: 17, color: Colors.amber, marginTop: 6, fontWeight: '600' },
 });
 

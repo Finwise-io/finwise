@@ -5,8 +5,8 @@
   "what": "Federal income-tax bands, single filer",
   "publication": "IRS Rev. Proc. 2025-32 §4.01",
   "valid_through": 2026,
-  "checked": "2026-09-01",
-  "note": "statutory_constants.test.ts types the published figures in by hand and compares"
+  "checked": "2026-10-23",
+  "note": "statutory_constants.test.ts types the published figures in by hand and compares; read again 2026-10-23 from the IRS text of Rev. Proc. 2025-32 §4.01 table 3 — agrees"
  },
  {
   "symbol": "TAX_TABLES",
@@ -14,8 +14,8 @@
   "what": "Federal bands, standard deduction and 65+ add-on per filing status",
   "publication": "IRS Rev. Proc. 2025-32 §§4.01, 4.14",
   "valid_through": 2026,
-  "checked": "2026-10-22",
-  "note": "married filing separately derived as half the joint figures (IRC §1); section read from the IRS text of Rev. Proc. 2025-32 on 2026-10-22: §4.14(1) the four amounts, §4.14(3) the 65+ add-on; §2.15 was the 2025 section of Rev. Proc. 2024-40, removed by Rev. Proc. 2025-32 §3.01 (outside re-run, side finding S1)"
+  "checked": "2026-10-23",
+  "note": "married filing separately derived as half the joint figures (IRC §1); section read from the IRS text of Rev. Proc. 2025-32 on 2026-10-22: §4.14(1) the four amounts, §4.14(3) the 65+ add-on; §2.15 was the 2025 section of Rev. Proc. 2024-40, removed by Rev. Proc. 2025-32 §3.01 (outside re-run, side finding S1); 2026-10-23 every band of the four tables read again from the IRS text of Rev. Proc. 2025-32 §4.01 (tables 1 to 4): head of household 24% ends at $201,750 and 32% at $256,200 (table 2: \"Over $201,750 but not over $256,200 … $39,207 plus 32% of the excess over $201,750\"), not the single filer's $201,775 / $256,225 the table carried until then (outside re-run of Performance, gap list item 35); the single, joint and separate bands, the standard deductions (§4.14(1)), the 65+ add-on (§4.14(3)) and the capital-gains thresholds (§4.03) agree; statutory_constants.test.ts now types all four tables"
  },
  {
   "symbol": "STANDARD_DEDUCTION",
@@ -29,11 +29,20 @@
  {
   "symbol": "SENIOR_DEDUCTION",
   "file": "src/domain/income/tax.ts",
-  "what": "$6,000 per person 65+, phased out 6% above $75,000 / $150,000",
-  "publication": "P.L. 119-21 §70103 (IRC §151(d)(5))",
+  "what": "$6,000 per person 65+, each person's $6,000 phased out 6% above $75,000 / $150,000",
+  "publication": "P.L. 119-21 §70103 (IRC §151(d)(5)(C)); IRS Schedule 1-A (Form 1040) 2025, Part V lines 31–37",
   "valid_through": 2028,
-  "checked": "2026-09-08",
-  "note": "lapses after tax year 2028"
+  "checked": "2026-10-23",
+  "note": "lapses after tax year 2028; the 6% comes off EACH person's $6,000 — IRC §151(d)(5)(C)(iii)(I) \"the $6,000 amount in clause (i) shall be reduced (but not below zero) by 6 percent of so much of the taxpayer's modified adjusted gross income as exceeds $75,000 ($150,000 in the case of a joint return)\", clause (i) being \"$6,000 for each qualified individual\"; Schedule 1-A line 35 \"Subtract line 34 from $6,000\", entered for you (36a) and your spouse (36b), added on line 37. Read 2026-10-23 from law.cornell.edu/uscode/text/26/151 and irs.gov/pub/irs-pdf/f1040s1a.pdf. A joint return at $200,000, both 65 or over: $6,000 in all, $0 at $250,000; until 2026-10-23 the app took 6% once off $12,000 ($9,000, gone only at $350,000; outside re-run gap list item 36)"
+ },
+ {
+  "symbol": "LTCG",
+  "file": "src/domain/income/tax.ts",
+  "what": "Long-term capital-gains rate tops, per filing status: taxable income taxed at 0% up to the first, 15% up to the second, 20% above",
+  "publication": "IRS Rev. Proc. 2025-32 §4.03",
+  "valid_through": 2026,
+  "checked": "2026-10-23",
+  "note": "read from the IRS text of Rev. Proc. 2025-32 on 2026-10-23, §4.03 \"Maximum Capital Gains Rate (§1(h), §1(j)(5))\" — maximum zero-rate amount / maximum 15% rate amount: married individuals filing joint returns and surviving spouses $98,900 / $613,700; married individuals filing separate returns $49,450 / $306,850; heads of household $66,200 / $579,600; all other individuals $49,450 / $545,500 (estates and trusts $3,300 / $16,250, not used by the app). The code's table agrees on all four statuses; statutory test: outside_performance_rerun_openai_tax.test.ts (long-term capital gains) and statutory_constants.test.ts"
  },
  {
   "symbol": "TAX_YEAR",

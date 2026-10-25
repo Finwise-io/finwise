@@ -99,7 +99,7 @@ export interface Itemising {
  *
  * Called by ... MK-CF-F-118 cashEffect · MK-NW-F-075 ACC
  *
- * Reaches ..... 90 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 92 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
@@ -109,7 +109,7 @@ export interface Itemising {
  *               MK-NW-F-144 beforeTheRecordSentence · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               … and 72 more — the full list is on functions_from_code
+ *               … and 74 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-019 · MK-NW-M-020 · MK-NW-M-021 · MK-NW-M-038
  *               MK-NW-M-039 · MK-NW-M-040 · MK-NW-M-062 · MK-NW-M-073
@@ -297,7 +297,7 @@ export function incomeSumParts(rows: { dividends?: number | null; interest?: num
  *
  * Called by ... MK-NW-O-002 theAccount
  *
- * Reaches ..... 90 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 92 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
@@ -307,7 +307,7 @@ export function incomeSumParts(rows: { dividends?: number | null; interest?: num
  *               MK-NW-F-144 beforeTheRecordSentence · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               … and 72 more — the full list is on functions_from_code
+ *               … and 74 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

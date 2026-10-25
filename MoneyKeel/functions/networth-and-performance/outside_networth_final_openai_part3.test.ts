@@ -260,9 +260,22 @@ describe('MK-NW-F-063 interestIncomeAnnual — five cases', () => {
   test('easy · Non-rate cash account contributes nothing', () => {
     expect(interestIncomeAnnual([acct({ kind: 'checking', asset_class: 'cash', balance: 2000, coupon_rate: null })], TODAY)).toBe(0);
   });
-  test('complex · Bonds, CD, and savings interest', () => {
+  // BRIEF WRONG since 2026-10-24 (the lead's decision under DEC-3523 tenet 3, over the no-face half of his ruling DEC-2748c
+  // for a dated bond): the auditor's "cd" is handed to the function as the case wrote it — named "Bond", kind fixed_income —
+  // so the app reads a dated bond with no face value, which has no year's interest: $450 + $0 + $200 = $650. Their $850 is
+  // kept, failing. A pin · beside it holds the case as the auditor meant it, a CD named as one and bought from the bank:
+  // its rate on its balance, $5,000 × 4% = $200, so $450 + $200 + $200 = $850 (DEC-2748c, DEC-3837).
+  test.failing('complex · Bonds, CD, and savings interest', () => {
     expect(interestIncomeAnnual([bondAcct({ id: 'b', face: 10000, value: 9800, rate: 0.045, maturity: '2030-10-09' }),
       bondAcct({ id: 'cd', face: null, value: 5000, rate: 0.04, maturity: '2027-10-09' }),
+      acct({ id: 's', kind: 'savings', asset_class: 'cash', balance: 8000, coupon_rate: 0.025 })], D('2026-10-09'))).toBeCloseTo(850, 12);
+  });
+  test('pin · Bonds, CD, and savings interest — as written $650 (a dated bond with no face pays nothing known); a bank CD named so, $850', () => {
+    expect(interestIncomeAnnual([bondAcct({ id: 'b', face: 10000, value: 9800, rate: 0.045, maturity: '2030-10-09' }),
+      bondAcct({ id: 'cd', face: null, value: 5000, rate: 0.04, maturity: '2027-10-09' }),
+      acct({ id: 's', kind: 'savings', asset_class: 'cash', balance: 8000, coupon_rate: 0.025 })], D('2026-10-09'))).toBeCloseTo(650, 12);
+    expect(interestIncomeAnnual([bondAcct({ id: 'b', face: 10000, value: 9800, rate: 0.045, maturity: '2030-10-09' }),
+      { ...bondAcct({ id: 'cd', label: 'Ally CD', face: null, value: 5000, rate: 0.04, maturity: '2027-10-09' }), cd_bought: 'bank' },
       acct({ id: 's', kind: 'savings', asset_class: 'cash', balance: 8000, coupon_rate: 0.025 })], D('2026-10-09'))).toBeCloseTo(850, 12);
   });
   test('complex · Expired bond excluded but cash included', () => {

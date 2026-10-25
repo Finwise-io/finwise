@@ -2795,7 +2795,8 @@
    "what_is_left": "IRS Rev. Proc. 2025-32: head of household 24% ends at $201,750 and 32% at $256,200; the table copies the single filer's $201,775 / $256,225. Fixed there.",
    "test": "MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts › still open — the reviewer's 52 open points › #50 · 2026 head-of-household brackets: tax at $300,000 taxable is $71,961 [APP WRONG]",
    "test_result": "passed",
-   "recheck_2026_10_21": "LEFT 2026-10-21 — the 2026 head-of-household brackets are a Cash flow tax item (the tax file's Federal income tax item); it goes with the Cash flow round"
+   "recheck_2026_10_21": "LEFT 2026-10-21 — the 2026 head-of-household brackets are a Cash flow tax item (the tax file's Federal income tax item); it goes with the Cash flow round",
+   "recheck_2026_10_23": "FIXED 2026-10-23 (CF-FIX, with the tax file's item \"Federal income tax2026\"): tax at $300,000 taxable is $71,961 under the head-of-household bands of Rev. Proc. 2025-32 §4.01 table 2; #50 now reads AGREES and the app's old $71,958.25 is pinned as no longer its answer. Held by MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts, run 2026-10-24 10:40: 168 of 171 passed, 3 skipped."
   },
   {
    "n": 51,

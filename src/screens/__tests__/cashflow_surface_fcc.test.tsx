@@ -70,7 +70,8 @@ test('Expenses tab: a logged expense lands under "Entered by hand", and the budg
   fireEvent.press(screen.getByLabelText(/^Show all 6 — /));
   expect(screen.getByText('All transactions')).toBeOnTheScreen();
   // the planned rows are the door to the budget; the statement import keeps its one link
-  expect(screen.getByLabelText('Planned expenses, by category. Opens your budget.')).toBeOnTheScreen();
+  // the door says its rows (2026-10-24, E2E-78): it said only "by category", so no planned amount was ever heard
+  expect(screen.getByLabelText(/^Planned expenses: .*; total, \$[\d,]+\. Opens your budget\.$/)).toBeOnTheScreen();
   expect(screen.getByLabelText('Import a statement — a CSV from your bank')).toBeOnTheScreen();
 });
 

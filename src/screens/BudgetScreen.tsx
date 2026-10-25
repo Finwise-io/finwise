@@ -5,7 +5,8 @@ import {
   Modal, TextInput, KeyboardAvoidingView, Platform, Switch,
 } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
-import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
+import { fig, figSaid, figWords, saidSentence } from '../components/figure';   // rule 11: a figure prints with its identifier
+import { SaidText } from '../components/SaidText';   // a line that prints figures, said through the one spoken writer (E2E-78)
 import { readFileString } from '../services/fileRead';   // T19: supported read path
 import { useRouter } from 'expo-router';
 import { useStore, useMonthlyStats, useCategorySpend, DebtEntry } from '../store/useStore';
@@ -20,6 +21,9 @@ import { willItLastInputs } from '../domain/retirement/willItLast';
 import { FALLBACK_TREASURY } from '../services/economicData';
 import { totalDebtMonthly, minimumDebtService, payoffPlan, requiredPayment, debtKind, type PayoffMethod, type Debt } from '../domain/debt';
 import { theDebts } from '../../MoneyKeel/functions/cashflow/the-debts';
+import { theMonth } from '../../MoneyKeel/functions/cashflow/the-month';   // the budget card is this month's plan (2026-10-24)
+import { useThisMonthInputs } from '../hooks/useCashflowModel';
+import { monthShown } from '../components/figure';
 import { SectionBand } from '../components/SectionBand';
 import { DebtEditorSheet } from '../components/DebtEditorSheet';   // B47 finding 11: THE one debt editor (same sheet as Net worth)
 import { money, money2 } from '../domain/_shared/num';
@@ -44,6 +48,20 @@ const DEBT_TYPES: { value: DebtEntry['type']; label: string; icon: string }[] = 
 // plan editor). `embedded` hides this screen's own tab selector; a provided `monthOffset` makes the
 // surface's ONE month switcher steer the Activity body (its own arrows hide). Standalone rendering
 // still works (the /budget route redirects, but tests and deep links keep functioning).
+/** Days until a debt's next payment is due, from its due day — none when no day is recorded. */
+const dueInDays = (d: { due_day?: number | null }): number | null => {
+  const dd = d.due_day; if (!dd) return null;
+  const now = new Date(); const t = now.getDate();
+  const dim = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  let n = dd - t; if (n < 0) n += dim;                 // days to the next occurrence
+  return n;
+};
+/** The words a debt row prints when its payment is due within ten days, and says to a screen reader — one wording for both. */
+const dueWords = (d: { due_day?: number | null }): string | null => {
+  const n = dueInDays(d);
+  if (n == null || n > 10) return null;               // only surface when it's soon
+  return n === 0 ? 'payment due today' : `payment due in ${plural(n, 'day')}`;
+};
 export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp, onMonthOffset }: { embedded?: boolean; initialTab?: 'Activity' | 'Budget' | 'Debts' | 'Import'; monthOffset?: number; onMonthOffset?: (n: number) => void } = {}) {
   const router = useRouter();
   const {
@@ -231,11 +249,21 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   // This is the PLANNED monthly surplus (typical month) — take-home (after tax AND 401k) − planned spend
   // − debt — the SAME canonical monthlySavings the savings rate and Cash-Flow screen use, so the plan
   // total agrees everywhere (2026-06-23 surplus decision). Home shows the "Actual" (this-month) version.
-  const planIncome = Math.round(takeHomeMonthly(op));            // take-home = after tax + 401(k)
+  // THE CARD IS THIS MONTH'S PLAN, FROM THE DOOR THIS MONTH READS (2026-10-24; Cash flow journey E2E-73; DEC-3523 tenets 3
+  // and 4; DEC-0002, DEC-0447, DEC-1923): the inputs assembled once (useThisMonthInputs, DEC-0345), MK-CF-O-010 theMonth's
+  // planned block, its rows as printed (monthShown). It worked a typical month of its own from the budget as typed: with
+  // nothing set it printed "− Expenses (plan) $0 · = Planned surplus $2,350" beside This month's "— not set" and no planned
+  // surplus; with a $1,200 December bill it read $100 more expenses in September than This month; a Rent / Mortgage line
+  // beside the home's mortgage was counted twice. "= Planned surplus" is MK-CF-M-002, one figure on both.
+  const monthIn = useThisMonthInputs();
+  const planMonth = useMemo(() => theMonth(monthIn).planned, [monthIn]);
+  const planRows = monthShown(planMonth.lines, !!planMonth.refusal);
+  const budgetSet = planMonth.planSet;
+  const planIncome = planRows.inflow;                                                       // the take-home, after tax and the 401(k)s
+  const planExpenses = budgetSet ? (planRows.byKind.spend ?? 0) : 0;                       // the Expenses row, as printed
+  const planDebt = planRows.byKind.debt ?? 0;                                               // the debt rows, as printed
+  const planLeftOver = budgetSet && !planMonth.refusal ? planRows.surplus : NaN;            // no budget, no planned surplus
   const bva = budgetVsActual(expenses, op, new Date());
-  const planExpenses = Math.round(plannedMonthlySpend(op));      // canonical planned spend
-  const planDebt = Math.round(totalDebtMonthly(liabilities ?? []));
-  const planLeftOver = planIncome - planExpenses - planDebt;     // ≈ monthlySavings(op, liabilities)
   const spentTotal = Math.round(bva.spent_total);
   const spentPct = planExpenses > 0 ? Math.min(1, spentTotal / planExpenses) : 0;
   const spentOver = spentTotal > planExpenses && planExpenses > 0;
@@ -347,7 +375,9 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   const debtProgressSince = yearKeys.length
     ? ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'][Number(yearKeys[0].slice(5, 7)) - 1] : '';
 
-  function openPay(d: any) { setPayDebt(d); setPayAmt(String(Math.round(requiredPayment(d)))); }
+  // THE PAYMENT AS IT IS, TO THE CENT (2026-10-24, Cash flow journey E2E-74): a $386.42 car payment was offered as "386", and
+  // tapping Log recorded $386 — 42¢ less paid, and the balance 42¢ too high. A payment is written to two decimals (Q49).
+  function openPay(d: any) { const due = requiredPayment(d); setPayDebt(d); setPayAmt(String(Number.isInteger(due) ? due : due.toFixed(2))); }
   function logPayment() {
     const d = payDebt; const amt = num(payAmt);
     if (!d || amt <= 0) return;
@@ -503,16 +533,17 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
           <Card>
             <Text style={styles.budgetCardTitle}>Your budget</Text>
             <View style={styles.planRow}><Text style={styles.planLabel}>Income (take-home)</Text><Text style={styles.planVal}>{fig('MK-CF-M-031', planIncome)}</Text></View>
-            <View style={styles.planRow}><Text style={styles.planLabel}>−  Expenses (plan)</Text><Text style={styles.planVal}>{fig('MK-CF-M-001', planExpenses)}</Text></View>
+            {/* nothing set reads as This month reads it: "— not set", and no planned surplus (tenet 3) */}
+            <View style={styles.planRow}><Text style={styles.planLabel}>−  Expenses (plan)</Text><Text style={styles.planVal}>{budgetSet ? fig('MK-CF-M-001', planExpenses) : '— not set'}</Text></View>
             {planDebt > 0 && <View style={styles.planRow}><Text style={styles.planLabel}>−  Debt payments</Text><Text style={styles.planVal}>{fig('MK-NW-M-012', planDebt)}</Text></View>}
             <View style={[styles.planRow, styles.planTotalRow]}>
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 <Text style={styles.planTotalLabel}>=  Planned surplus</Text>
                 <InfoDot term="surplus" />
               </View>
-              <Text style={[styles.planTotalVal, { color: planLeftOver >= 0 ? Colors.primary : Colors.red }]}>{fig('MK-CF-M-002', planLeftOver)}</Text>
+              <Text style={[styles.planTotalVal, { color: !(planLeftOver < 0) ? Colors.primary : Colors.red }]}>{Number.isFinite(planLeftOver) ? fig('MK-CF-M-002', planLeftOver) : '—'}</Text>
             </View>
-            {planIncome > 0 && <Text style={styles.planNote}>Your expense budget is {budgetPctOfIncome}% of take-home pay.</Text>}
+            {budgetSet && planIncome > 0 && <Text style={styles.planNote}>Your expense budget is {budgetPctOfIncome}% of take-home pay.</Text>}
             <View style={{ marginTop: Spacing.md }}>
               <ProgressBar pct={Math.round(spentPct * 100)} color={spentOver ? Colors.red : Colors.primary} height={8} />
               <View style={styles.budgetFooterRow}>
@@ -529,7 +560,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
             <Text style={styles.sectionTitle}>Expenses by bucket</Text>
             <TouchableOpacity onPress={openLimitsModal}><Text style={styles.sectionLink}>Set your budget →</Text></TouchableOpacity>
           </View>
-          {planExpenses === 0 && spentTotal === 0 ? (
+          {!budgetSet && spentTotal === 0 ? (
             <Card>
               <View style={styles.empty}>
                 <Text style={{ fontSize: 38, marginBottom: Spacing.sm }}>📊</Text>
@@ -681,9 +712,9 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
             <SectionBand inCard inset={Spacing.base} title="YOUR DEBT" />
             <Text style={[styles.debtHero, { color: totalDebt > 0 ? Colors.red : Colors.primary }]} accessible
               accessibilityLabel={`You owe ${figSaid('MK-NW-M-009', Math.round(totalDebt))}`}>{fig('MK-NW-M-009', Math.round(totalDebt))}</Text>
-            <Text style={styles.budgetCardSub}>
+            <SaidText style={styles.budgetCardSub}>
               across {plural(activeDebts.length, 'debt')} · {fig('MK-CF-M-071', totalMinMonthly)}/month in payments · ~{fig('MK-CF-M-057', totalInterestMonthly)}/month interest
-            </Text>
+            </SaidText>
           </Card>
 
           {/* PAYOFF PLAN */}
@@ -699,16 +730,18 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               </View>
               <Text style={styles.planNote}>{payoffMethod === 'avalanche' ? 'Highest interest rate first — saves the most interest.' : 'Smallest balance first — quick wins for momentum.'}</Text>
               <View style={[styles.limitRow, { marginTop: Spacing.sm }]}>
-                <Text style={styles.limitLabel}>Extra / month</Text>
+                <Text style={styles.limitLabel} accessibilityLabel="Extra a month">Extra / month</Text>
                 <View style={styles.limitInputWrap}>
-                  <Text style={styles.limitDollar}>$</Text>
-                  <TextInput style={styles.limitInput} value={extraPay} onChangeText={setExtraPay} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} returnKeyType="done" />
+                  <Text style={styles.limitDollar} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">$</Text>
+                  <TextInput style={styles.limitInput} value={extraPay} onChangeText={setExtraPay} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} returnKeyType="done"
+                    accessibilityLabel="Extra payment a month, in dollars" />
                 </View>
               </View>
               <View style={styles.payoffSummary}>
-                <View style={styles.payoffStat}><Text style={[styles.payoffStatV, plan.neverPaysOff && { color: Colors.red }]}>{figWords('MK-CF-M-058', debtFreeLabel)}</Text><Text style={styles.payoffStatL}>debt-free</Text></View>
-                <View style={styles.payoffStat}><Text style={styles.payoffStatV}>{fig('MK-CF-M-072', totalMinMonthly + Math.round(num(extraPay)))}</Text><Text style={styles.payoffStatL}>/month total</Text></View>
-                <View style={styles.payoffStat}><Text style={[styles.payoffStatV, { color: Colors.red }]}>{plan.neverPaysOff ? '—' : fig('MK-CF-M-059', Math.round(plan.totalInterest))}</Text><Text style={styles.payoffStatL}>total interest</Text></View>
+                {/* each figure and its words are one element, said through the one spoken writer (E2E-78): "hidden", "a month" */}
+                <View style={styles.payoffStat} accessible accessibilityLabel={`Debt-free ${debtFreeLabel}`}><Text style={[styles.payoffStatV, plan.neverPaysOff && { color: Colors.red }]}>{figWords('MK-CF-M-058', debtFreeLabel)}</Text><Text style={styles.payoffStatL}>debt-free</Text></View>
+                <View style={styles.payoffStat} accessible accessibilityLabel={saidSentence(`${fig('MK-CF-M-072', totalMinMonthly + Math.round(num(extraPay)))}/month total`)}><Text style={styles.payoffStatV}>{fig('MK-CF-M-072', totalMinMonthly + Math.round(num(extraPay)))}</Text><Text style={styles.payoffStatL}>/month total</Text></View>
+                <View style={styles.payoffStat} accessible accessibilityLabel={saidSentence(`${plan.neverPaysOff ? 'no figure' : fig('MK-CF-M-059', Math.round(plan.totalInterest))} total interest`)}><Text style={[styles.payoffStatV, { color: Colors.red }]}>{plan.neverPaysOff ? '—' : fig('MK-CF-M-059', Math.round(plan.totalInterest))}</Text><Text style={styles.payoffStatL}>total interest</Text></View>
               </View>
               {plan.neverPaysOff && (
                 <Text style={[styles.planNote, { color: Colors.red, marginTop: 8 }]}>⚠️ At this payment your balance grows faster than you pay it down. Add an extra payment to start getting ahead.</Text>
@@ -746,9 +779,14 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               const dk = debtKind(d.debt_type);
               const monthlyInterest = (d.remaining_balance || 0) * (d.interest_rate_apr || 0) / 12;
               const pm = payoffMonthFor(d.debt_id);
+              const rate = `${((d.interest_rate_apr || 0) * 100).toFixed(2)}%`;   // printed on the row and said in its label — written once
               return (
                 <Card key={d.debt_id} style={styles.catCard}>
-                  <TouchableOpacity onPress={() => setDebtSheet({ open: true, edit: d })} onLongPress={() => handleDeleteDebt(d.debt_id)} activeOpacity={0.8}>
+                  <TouchableOpacity onPress={() => setDebtSheet({ open: true, edit: d })} onLongPress={() => handleDeleteDebt(d.debt_id)} activeOpacity={0.8}
+                    // ONE ELEMENT THAT SAYS ITS ROW IN WORDS (2026-10-24, Cash flow journey E2E-78): it was heard as its printed run —
+                    // the icon, "/month", "~", "›" and, under hide-balances, the dots
+                    accessibilityRole="button"
+                    accessibilityLabel={saidSentence(`${d.label}${idx === 0 && activeDebts.length > 1 ? ', pay first' : ''}, ${rate}${costliest === d.debt_id ? ' — the costliest' : ''}${pm ? `, ${timeLeft(pm)}` : ''}, ${fig('MK-CF-M-073', Math.round(requiredPayment(d)))}/month minimum, ~${fig('MK-CF-M-073', Math.round(monthlyInterest))}/month interest${dueWords(d) ? `, ${dueWords(d)}` : ''}, ${fig('MK-NW-M-010', Math.round(d.remaining_balance || 0))} owed. Opens it to edit; hold to delete.`)}>
                     <View style={styles.catRow}>
                       <View style={[styles.catIcon, { backgroundColor: Colors.redLight }]}><Text style={{ fontSize: 17 }}>{dk?.icon || '📄'}</Text></View>
                       <View style={{ flex: 1, marginLeft: Spacing.sm }}>
@@ -757,15 +795,11 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                           {idx === 0 && activeDebts.length > 1 && <Text style={styles.payFirstTag}>pay first</Text>}
                         </View>
                         <Text style={styles.catLimit}>
-                          {((d.interest_rate_apr || 0) * 100).toFixed(2)}%{costliest === d.debt_id ? ' — the costliest' : ''}{pm ? ` · ${timeLeft(pm)}` : ''} · {fig('MK-CF-M-073', Math.round(requiredPayment(d)))}/month min · ~{fig('MK-CF-M-073', Math.round(monthlyInterest))}/month interest
+                          {rate}{costliest === d.debt_id ? ' — the costliest' : ''}{pm ? ` · ${timeLeft(pm)}` : ''} ·{fig('MK-CF-M-073', Math.round(requiredPayment(d)))}/month min · ~{fig('MK-CF-M-073', Math.round(monthlyInterest))}/month interest
                         </Text>
                         {(() => {
-                          const dd = d.due_day; if (!dd) return null;
-                          const now = new Date(); const t = now.getDate();
-                          const dim = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-                          let n = dd - t; if (n < 0) n += dim;                 // days to the next occurrence
-                          if (n > 10) return null;                            // only surface when it's soon
-                          return <Text style={[styles.dueNote, { color: n <= 2 ? Colors.red : Colors.amber }]}>🔔 {n === 0 ? 'payment due today' : `payment due in ${plural(n, 'day')}`}</Text>;
+                          const w = dueWords(d); if (!w) return null;
+                          return <Text style={[styles.dueNote, { color: dueInDays(d)! <= 2 ? Colors.red : Colors.amber }]}>🔔 {w}</Text>;
                         })()}
                       </View>
                       <Text style={[styles.catAmt, { color: Colors.red, marginLeft: 8 }]}>−{fig('MK-NW-M-010', Math.round(d.remaining_balance || 0))} ›</Text>
@@ -790,14 +824,15 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
           {debtProgress && (
             <Card>
               <SectionBand inCard inset={Spacing.base} title="PROGRESS" />
-              <Text style={styles.progressLine}>{fig('MK-CF-M-074', Math.round(debtProgress.paidDown))} paid down since {debtProgressSince} — {fig('MK-CF-M-075', debtProgress.share)} of where you started</Text>
+              <SaidText style={styles.progressLine}>{fig('MK-CF-M-074', Math.round(debtProgress.paidDown))} paid down since {debtProgressSince} — {fig('MK-CF-M-075', debtProgress.share)} of where you started</SaidText>
             </Card>
           )}
 
-          <TouchableOpacity style={styles.setLimitsBtn} onPress={() => setDebtSheet({ open: true })} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.setLimitsBtn} onPress={() => setDebtSheet({ open: true })} activeOpacity={0.8}
+            accessibilityRole="button" accessibilityLabel="Add debt account">
             <Text style={styles.setLimitsBtnText}>+ Add debt account</Text>
           </TouchableOpacity>
-          <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary, textAlign: 'center' }}>
+          <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary, textAlign: 'center' }} accessibilityLabel="Tap a debt to edit, hold to delete">
             Tap a debt to edit • Hold to delete
           </Text>
         </ScrollView>
@@ -917,6 +952,8 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                         placeholder={(draftUnits[label] ?? 'dollar') === 'pct' ? '% of take-home' : 'No limit'}
                         placeholderTextColor={Colors.textTertiary}
                         returnKeyType="done"
+                        // a screen reader names the box by its category (2026-10-24, E2E-73): it read only "No limit", fifteen times
+                        accessibilityLabel={`${label}, monthly limit`}
                       />
                     </View>
                   </View>

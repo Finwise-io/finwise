@@ -17,7 +17,8 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { taxOwedFor, type FilingStatus } from '../domain/income/tax';
-import { taxableAnnual, stateRateOf } from '../domain/income';
+import { taxableAnnual, stateRateOf, filingStatusOf, over65CountOf } from '../domain/income';
+import { taxedAfterPreTax } from '../domain/income/tax-rate';   // the income every tax figure reads, the 401(k)s out (B05)
 import { incomeSummary } from '../../MoneyKeel/functions/cashflow/income-summary';
 import { money } from '../domain/_shared/num';
 
@@ -44,16 +45,37 @@ export default function FilingStatusScreen({ frame = 'screen', onDone }: {
   const [shown, setShown] = useState(false);
 
   const gross = useMemo(() => taxableAnnual(op), [op]);
+  // THE TAX ON WHAT IS TAXED ONCE THE 401(k)s ARE OUT (2026-10-24, CF-FIX; B05): the take-home this compares against is worked
+  // that way, so the difference it shows is the one the take-home really moves by. It taxed the whole of what was entered.
+  const taxed = useMemo(() => taxedAfterPreTax(op), [op]);
   const state = stateRateOf(op);
-  const asSingle = taxOwedFor(gross, 'single', state, 0);
-  const asChosen = taxOwedFor(gross, status, state, 0);
-  const asChosenBoth65 = taxOwedFor(gross, status, state, 2);
+  // WHAT THE APP WAS SHOWING, AGAINST WHAT IT WILL SHOW (2026-10-24, Cash flow journey E2E-79; tenet 1). "What we were assuming"
+  // is the status in force when this screen opened — the answer on record, or the one the app assumed from what they said
+  // (filingStatusOf: a spouse entered is taxed jointly) — and each side counts who is 65 or older as the take-home does
+  // (over65CountOf). It compared single, with no one over 65, against the status chosen with no one over 65: a 67-year-old with
+  // a spouse, already shown ≈$6,600/month filing jointly, read "Taxed as single $9,650/year — what we were assuming … $328/month
+  // more" and the take-home did not move.
+  const [before] = useState(() => ({ status: filingStatusOf(op), over65: over65CountOf(op), profile: op }));
+  const beforeWord = (OPTIONS.find((o) => o.v === before.status)?.label ?? 'Single').toLowerCase();
+  const asBefore = taxOwedFor(taxed, before.status, state, before.over65);
+  const asChosen = taxOwedFor(taxed, status, state, over65CountOf({ ...op, filingStatus: status, over65Who: over65 ?? undefined }));
+  const asChosenBoth65 = taxOwedFor(taxed, status, state, 2);
+  // THE MONTH'S DIFFERENCE IS THE DIFFERENCE OF THE TWO TAKE-HOMES AS PRINTED (2026-10-24, the lead's ruling on E2E-79; DEC-3523
+  // tenet 2: he must be able to see how): Your base pay prints $6,196 and then $6,523, so this says $327 — it said $328, the
+  // cent-exact $327.50 rounded. Each take-home is the one the Income summary prints (MK-CF-O-004 incomeSummary), for the profile
+  // as it was when this screen opened and as answered. A fall is said too, in the same words with "less" (tenet 1).
+  const takeHomeShown = (p: any) => Math.round(incomeSummary(p).lands.usualMonth);
+  const shownBefore = takeHomeShown(before.profile);
+  const change = takeHomeShown({ ...before.profile, filingStatus: status, over65Who: over65 ?? undefined }) - shownBefore;
+  const changeBoth65 = takeHomeShown({ ...before.profile, filingStatus: status, over65Who: 'both' }) - shownBefore;
+  const moreLess = (n: number) => (n > 0 ? 'more' : 'less');
 
   const iAmOver65 = op.birthYear ? new Date().getFullYear() - Number(op.birthYear) >= 65 : false;
 
   const save = () => {
     store.setOnboardingProfile?.({ ...op, filingStatus: status, over65Who: over65 ?? undefined });
-    if (gross > 0 && status !== 'single' && !shown) { setShown(true); return; }   // 4c, once
+    // 4c, once — whenever the answer changes the status and the take-home with it, up or down
+    if (gross > 0 && status !== before.status && change !== 0 && !shown) { setShown(true); return; }
     if (onDone) onDone(); else router.back();
   };
 
@@ -75,17 +97,20 @@ export default function FilingStatusScreen({ frame = 'screen', onDone }: {
         /* 4c — shown once, right after the answer, so the question feels worth having answered. */
         <>
           <Text style={s.h1}>That changes your take-home</Text>
-          <Text style={s.sub}>On the {money(gross)} you entered</Text>
+          <Text style={s.sub}>On the {money(gross)} you entered{taxed < gross ? ', less your 401(k)' : ''}</Text>
           <View style={s.card}>
-            <Row label="Taxed as single" value={`${money(asSingle)}/year — what we were assuming`} />
+            <Row label={`Taxed as ${beforeWord}`} value={`${money(asBefore)}/year — what we were assuming`} />
             <Row label={OPTIONS.find((o) => o.v === status)?.label ?? ''} value={`${money(asChosen)}/year`} />
             {status === 'married' && (
               <Row label="…and both of you over 65" value={`${money(asChosenBoth65)}/year`} />
             )}
-            <Text style={s.big}>{money((asSingle - asChosen) / 12)}/month more</Text>
+            <Text style={s.big}>{money(Math.abs(change))}/month {moreLess(change)}</Text>
+            {/* "if you are both over 65" goes with its row, which only a joint return has; it says "more" or "less" itself only
+                where its direction is not the line's above */}
             <Text style={s.note}>
-              take-home than we were showing you — {money((asSingle - asChosenBoth65) / 12)} if you are
-              both over 65.
+              take-home than we were showing you{status === 'married'
+                ? ` — ${money(Math.abs(changeBoth65))}${moreLess(changeBoth65) === moreLess(change) ? '' : ` ${moreLess(changeBoth65)}`} if you are both over 65`
+                : ''}.
             </Text>
           </View>
           {/* SAY WHOSE INCOME THE BRACKET CAME FROM (founder, 2026-08-27) — true only while one wage is entered */}

@@ -142,7 +142,9 @@
     "figures_move": "Head-of-household filers above $201,750 taxable: MK-CF-M-033 / MK-CF-M-044 Calculated federal tax up by at most $2.75 a year; MK-CF-M-031 / MK-CF-M-037 take-home (calculated) down by at most $0.23 a month; MK-CF-M-032 / MK-CF-M-043 Federal tax bracket reads 32% (not 24%) for taxable $201,750–$201,775 and 35% (not 32%) for $256,200–$256,225.",
     "drawings": "none"
    },
-   "recheck_2026_10_21": "LEFT 2026-10-21 — the 2026 head-of-household brackets use the single filer's 24% and 32% tops; a Cash flow tax item, with that round"
+   "recheck_2026_10_21": "LEFT 2026-10-21 — the 2026 head-of-household brackets use the single filer's 24% and 32% tops; a Cash flow tax item, with that round",
+   "recheck_2026_10_23": "FIXED 2026-10-23 (CF-FIX): MK-CF-F-101 taxOwedFor reads the head-of-household bands of Rev. Proc. 2025-32 §4.01 table 2 — 24% ends $201,750, 32% ends $256,200: $201,775 → $39,215.00, $256,225 → $56,639.75, $300,000 → $71,961.00 (it gave $39,213.00, $56,637.00 and $71,958.25). 4 of 4 filing tables checked against the IRS text; single, joint and separate were right. Held by MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts, run 2026-10-24 10:40: 59 of 60 passed, 1 skipped.",
+   "fixed": "2026-10-23"
   },
   {
    "section": "source_checks",
@@ -280,7 +282,9 @@
     "figures_move": "Joint returns with both spouses 65+ and income $150,000–$350,000 only. Example $200,000: deduction $9,000 → $6,000; MK-CF-M-033 / MK-CF-M-044 Calculated federal tax $23,634 → $24,294 (+$660 a year); MK-CF-M-031 / MK-CF-M-037 take-home (calculated) about $55 a month lower; MK-MN-M-028 Standard deduction line on the tax organizer $44,500 → $41,500; Plan's retirement tax (MK-PL-F-082 taxableIncomeSteps) and the Will my money last odds that read it.",
     "drawings": "none known"
    },
-   "recheck_2026_10_21": "LEFT 2026-10-21 — a married couple both 65+ gets the deduction once, not per person ($9,000 where $6,000…); a Cash flow tax item, with that round"
+   "recheck_2026_10_21": "LEFT 2026-10-21 — a married couple both 65+ gets the deduction once, not per person ($9,000 where $6,000…); a Cash flow tax item, with that round",
+   "recheck_2026_10_23": "FIXED 2026-10-23 (CF-FIX): MK-CF-F-187 seniorDeductionFor reduces each person's $6,000 by 6% of income above $150,000 on a joint return (26 U.S.C. §151(d)(5)(C)(iii)(I); Schedule 1-A lines 35–37): both 65+, $200,000 → $6,000, $250,000 → $0, $260,000 → $0; at $200,000 taxable $158,500 and federal tax $24,294 (it gave $9,000, $6,000 and $5,400, and $23,634 of tax). Held by MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts, run 2026-10-24 10:40: 59 of 60 passed, 1 skipped.",
+   "fixed": "2026-10-23"
   },
   {
    "section": "source_checks",

@@ -76,7 +76,9 @@ export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   // the yearly rate of Bonds & CDs (DEC-5847, 2026-10-19): the bonds' and CDs' OWN stated rates, averaged by what each
   // is worth — said plainly as not measured over the dates shown. One entry, read by the Performance tab's category
   // table and the account page's Bonds & CDs bar.
-  yearlyPace: { title: 'Yearly pace', body: 'A figure marked /year is a yearly interest rate. For Bonds & CDs it is the interest rate each bond and CD states for a year, averaged by what each one is worth. It is not measured over the dates shown. A figure without /year is the gain for the dates shown.' },
+  // a measured return over a window longer than a year is marked /year too (2026-10-23, the lead's ruling under DEC-0237), so the
+  // words say both: they said every /year figure was a stated interest rate, not measured over the dates shown
+  yearlyPace: { title: 'Yearly pace', body: 'A figure marked /year is a yearly rate. For Bonds & CDs it is the interest rate each bond and CD states for a year, averaged by what each one is worth. It is not measured over the dates shown. Over a window longer than a year, any other figure marked /year is its gain over the dates shown, made a yearly rate. A figure without /year is the gain for the dates shown.' },
   estimate: { title: 'Estimate', body: 'A figure computed from your numbers and stated assumptions — not a promise or a prediction. Change the inputs and it changes. You decide what to do with it.' },
   // THE AVERAGE-PRICE RULE, IN THE WORDS THE MASTER'S ROW CARRIES (MK-NW-M-032, Q34, 2026-10-21, DEC-7170 — the lead's decision under
   // DEC-6627, DEC-4643 and DEC-3523): the purchases counted, the ones left out and where the page names them, a $0 price,

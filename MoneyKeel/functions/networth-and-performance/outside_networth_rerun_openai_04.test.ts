@@ -354,8 +354,17 @@ describe('MK-NW-F-126 yearlyInterestNow — five cases', () => {
   test('easy · Face times rate for live bond', () => {
     expect(yearlyInterestNow(bond({ face: 10000, value: 9500, couponRate: 0.04, maturity: '2030-01-01' }), NOW)!).toBeCloseTo(400, 6);
   });
-  test('easy · Missing face falls back to value times rate', () => {
+  // SPECIFICATION_CONFLICT (2026-10-24): the card carried his ruling DEC-2748c, "with no face, value × rate" ($8,000 × 3% =
+  // $240). The lead's decision of 2026-10-24 under DEC-3523 tenet 3, which outranks tenet 6, governs now: a bond with a
+  // maturity date pays its coupon on its face, so with none entered there is no year's interest — nothing, never a guess on
+  // the market value. Value × rate stands for a CD bought from the bank and a bond fund (no maturity date). The case's $240
+  // is kept, failing; the app's answer is pinned beside it.
+  test.failing('easy · Missing face falls back to value times rate', () => {
     expect(yearlyInterestNow(bond({ face: null, value: 8000, couponRate: 0.03, maturity: '2030-01-01' }), NOW)!).toBeCloseTo(240, 6);
+  });
+  test('easy · Missing face on a dated bond — the app\'s answer since 2026-10-24: nothing (tenet 3); a bank CD by its balance still pays its rate', () => {
+    expect(yearlyInterestNow(bond({ face: null, value: 8000, couponRate: 0.03, maturity: '2030-01-01' }), NOW)).toBeNull();
+    expect(yearlyInterestNow({ ...bond({ face: null, value: 8000, couponRate: 0.03, maturity: '2030-01-01' }), isCd: true, cdBought: 'bank' }, NOW)!).toBeCloseTo(240, 6);
   });
   test('complex · Past maturity returns numeric zero', () => {
     expect(yearlyInterestNow(bond({ face: 10000, couponRate: 0.05, maturity: '2026-10-12' }), NOW)).toBe(0);

@@ -30,7 +30,8 @@ const near = (a: number | null | undefined, b: number, digits = 10) => { expect(
 // 10 more bought at $110 on Apr 1, close $121 today (Oct 13, 2026) ──────────────────────────────────────────────────────
 const TODAY = '2026-10-13';
 const X = pos('p1', 'X', [lot(10, 90, '2025-01-02'), lot(10, 110, '2026-04-01')]);
-const X_PRICES = S([['2025-01-02', 90], ['2025-10-12', 100], ['2026-04-01', 110], ['2026-10-13', 121]]);
+// (the close the evening before the purchase (2026-10-23, W-START): the 10 were bought at the market's $110, so the holding stood at $110 that evening — read by the whole-day rule (DEC-4439, DEC-7451) now that a holding held when the window began is measured from its purchases; without it the closes said the six months from $100 to $110 all fell on the purchase day, and the figure read 2,420 ÷ 2,100 − 1 = +15.24%)
+const X_PRICES = S([['2025-01-02', 90], ['2025-10-12', 100], ['2026-03-31', 110], ['2026-04-01', 110], ['2026-10-13', 121]]);
 const toppedUp = () => buildPerformance([X], () => X_PRICES, '1Y', new Date(`${TODAY}T12:00:00`))[0];
 
 describe('1 · DEC-3656 — a holding that bought more inside the window: its start, what it paid, what it gained', () => {
@@ -191,7 +192,9 @@ describe('5 · DEC-3656 — a holding that sold shares inside the window starts 
   test('the row: start 20 × $100 = $2,000 (it read 10 × $100 = $1,000), sales brought in 10 × $110 = $1,100, value 10 × $121 = $1,210, its own figure +21.00%', () => {
     const r = soldRow();
     near(r.startValue, 20 * 100); near(r.soldInside, 10 * 110); near(r.marketValue, 10 * 121); near(r.periodTotal, 0.21, 12);
-    near(returnSplitAtPurchases([r.path!]), 0.21, 12);   // 2,000 → 2,000 the evening before the sale, then 1,000 → 1,210
+    // 2,000 → 2,200 at the close of the sale's own day (10 kept × $110 + the $1,100 it brought in), then 1,100 → 1,210 (2026-10-23:
+    // a sale counts at the end of its day; counted from its start, the 10 kept carried that day's rise at full weight)
+    near(returnSplitAtPurchases([r.path!]), 0.21, 12);
   });
   test('what it gained: $1,210 − $2,000 + $1,100 = $310 (from today\'s 10 shares it read $210)', () => {
     near(pricedGainOf([soldRow()] as any, 1), 1210 - 2000 + 1100, 6);
@@ -337,5 +340,77 @@ describe('9 · what a sale brought in is counted after its fee, once — never t
   });
   test('no fee on record: brought in 10 × $110 = $1,100, as before', () => {
     near(rowWith(SALE).soldInside, 1100, 6);
+  });
+});
+
+// ── 10 · A HOLDING HELD WHEN THE WINDOW BEGAN THAT TRADES INSIDE IT (2026-10-23, the lead's decision: one rule in every window;
+// found by the Performance journey suite, E2E-57, E2E-58, E2E-61). It kept its bare price move, so a sale's fee or a price paid
+// away from the close never reached its return, and a purchase moved 2Y (where the holding was bought inside the window) but
+// not 1M or 1Y. It is measured now from every purchase and sale in the window, as a holding bought inside it already was: a
+// purchase in at what was paid from the start of its day, a sale out at what it brought in after its fee at the end of its
+// own day (DEC-1669, DEC-4439, DEC-7451, DEC-7452). Today Sep 30, 2026; the 1M window begins at the Aug 29 close. VTI $95 on
+// Aug 29, $98 on Sep 14 and 15, $99 on Sep 29, $100 today; SPY $600 → $606 → $612. ──────────────────────────────────────────
+const T10 = new Date('2026-09-30T12:00:00');
+const PX10: Record<string, PriceSeries> = {
+  VTI: S([['2024-09-29', 60], ['2025-03-03', 80], ['2026-08-29', 95], ['2026-09-14', 98], ['2026-09-15', 98], ['2026-09-29', 99], ['2026-09-30', 100]]),
+  SPY: S([['2024-09-29', 400], ['2025-03-03', 500], ['2026-08-29', 600], ['2026-09-14', 606], ['2026-09-15', 606], ['2026-09-30', 612]]),
+};
+const held10 = (lots: any[], txns: any[], period: any = '1M') => buildPerformance([pos('v', 'VTI', lots)], (t) => PX10[t] ?? null, period, T10, undefined, undefined,
+  { transactions: txns, accounts: ACCT([pos('v', 'VTI', lots)], 0) })[0];
+const SELL10 = { txn_id: 's10', account_id: 'k', type: 'SELL', ticker: 'VTI', shares: 10, price: 98, amount: 980, fee: 5, fee_in_price: false, date: '2026-09-15' };
+const BUY10 = { txn_id: 'b10', account_id: 'k', type: 'BUY', ticker: 'VTI', shares: 10, price: 100, amount: 1000, date: '2026-09-15' };
+describe('10 · a holding held when the window began that sells or buys inside it reads its figure from its trades, in every window', () => {
+  test('100 held at $95, 10 sold Sep 15 at $98 with a $5 fee: (8,820 + 975) ÷ 9,500 × 9,000 ÷ 8,820 − 1 = +5.21% — the fee reaches the return; the market on the same days 612 ÷ 600 − 1 = +2.00%', () => {
+    // ACCT's own holding is read for its account: the row is built from the 90 held today
+    const r = held10([lot(90, 80, '2025-03-03')], [SELL10]);
+    near(r.periodTotal, (8_820 + 975) / 9_500 * 9_000 / 8_820 - 1, 12);
+    expect(`${((r.periodReturn as number) * 100).toFixed(2)}%`).toBe('5.21%');
+    near(r.startValue, 100 * 95); near(r.soldInside, 10 * 98 - 5);
+    near(r.benchReturn, 612 / 600 - 1, 12);
+    near(pricedGainOf([r] as any, 1), 9_000 + 975 - 9_500, 6);   // $475: the fee once
+  });
+  test.failing('the app before 2026-10-23, pinned: the same holding read its bare price move, 100 ÷ 95 − 1 = +5.26%, the fee nowhere in it', () => {
+    near(held10([lot(90, 80, '2025-03-03')], [SELL10]).periodTotal, 100 / 95 - 1, 12);
+  });
+  test('100 held at $95, 10 more bought Sep 15 at $100 on a day that closed at $98: (9,800 ÷ 9,500) × (11,000 ÷ 10,800) − 1 = +5.07% — the $20 paid above the close reaches the return', () => {
+    const r = held10([lot(100, 80, '2025-03-03'), lot(10, 100, '2026-09-15')], [BUY10]);
+    near(r.periodTotal, 9_800 / 9_500 * 11_000 / 10_800 - 1, 12);
+    near(r.paidInside, 1_000); near(r.startValue, 9_500);
+  });
+  test.failing('the app before 2026-10-23, pinned: the same holding read +5.26%, as if bought at the $98 close', () => {
+    near(held10([lot(100, 80, '2025-03-03'), lot(10, 100, '2026-09-15')], [BUY10]).periodTotal, 100 / 95 - 1, 12);
+  });
+  test('over 2Y it is still a yearly rate, and so is its market: held since $60 (Sep 29, 2024), the sale above, $100 today — 9,795 ÷ 6,000 × 9,000 ÷ 8,820 = +66.58% over 731 days, +29.02% a year', () => {
+    const r = held10([lot(90, 50, '2024-01-02')], [SELL10], '2Y');
+    const total = 9_795 / 6_000 * 9_000 / 8_820 - 1;
+    near(r.periodTotal, total, 12);
+    near(r.periodReturn, Math.pow(1 + total, 365 / 731) - 1, 12);
+    expect(`${((r.periodReturn as number) * 100).toFixed(2)}%`).toBe('29.02%');
+    near(r.years, 731 / 365, 12);
+    // its market over the same days: SPY $400 → $612, the sold tenth leaving at the Sep 15 close with the rest — 612 ÷ 400
+    near(r.benchTotal, 612 / 400 - 1, 12);
+    near(r.benchReturn, Math.pow(612 / 400, 365 / 731) - 1, 12);
+  });
+  // section 5's closes as first written: none between Oct 12 ($100) and Apr 1 ($110), so the sale's own day carries the rise
+  const X_SPARSE = S([['2025-01-02', 90], ['2025-10-12', 100], ['2026-04-01', 110], ['2026-10-13', 121]]);
+  const soldOnARise = () => buildPerformance([XS], () => X_SPARSE, '1Y', new Date(`${TODAY}T12:00:00`), undefined, undefined,
+    { transactions: [SALE], accounts: ACCT([XS], 1210 + 1100) })[0];
+  test('a sale counts at the end of its own day: 20 held at $100, 10 sold Apr 1 at $110 the day it rose from $100 to $110, $121 today — (1,100 + 1,100) ÷ 2,000 × 1,210 ÷ 1,100 − 1 = +21.00%, its price move', () => {
+    near(soldOnARise().periodTotal, (1_100 + 1_100) / 2_000 * 1_210 / 1_100 - 1, 12);
+    near(soldOnARise().periodTotal, 0.21, 12);
+  });
+  test.failing('counted from the start of the sale\'s day (its first form, 2026-10-22), pinned: the 10 kept carried that day\'s rise at full weight — 2,100 ÷ 2,000 × 1,210 ÷ 1,000 − 1 = +27.05%', () => {
+    near(soldOnARise().periodTotal, 2_100 / 2_000 * 1_210 / 1_000 - 1, 12);
+  });
+  test('a sale made today at today\'s close counts at the end of today: 100 held at $95, 10 sold today at $100, no fee — (9,000 + 1,000) ÷ 9,500 − 1 = +5.26%, its price move; its market 612 ÷ 600 − 1', () => {
+    const r = held10([lot(90, 80, '2025-03-03')], [{ ...SELL10, price: 100, amount: 1000, fee: undefined, date: '2026-09-30' }]);
+    near(r.periodTotal, (9_000 + 1_000) / 9_500 - 1, 12);
+    near(r.benchTotal, 612 / 600 - 1, 12);
+    near(returnSplitAtPurchases([r.path!]), r.periodTotal as number, 12);   // its path, carried on the shared days, gives it back
+  });
+  test('a purchase whose price paid is not on record leaves it its price move, its gain left out (canon row 24): +5.26%, paid not known', () => {
+    const r = held10([lot(100, 80, '2025-03-03'), lot(10, null, '2026-09-15')], []);
+    near(r.periodTotal, 100 / 95 - 1, 12);
+    expect(r.paidInside).toBeNull();
   });
 });

@@ -92,6 +92,11 @@ export default function BondsScreen() {
             {summary.leftOutNoRate.length > 0 && (
               <Text style={styles.sumLab}>Average yield leaves out {summary.leftOutNoRate.join(', ')} — no rate entered.</Text>
             )}
+            {/* a bond with a rate and no face value has no year's interest (2026-10-24, tenet 3), so the average leaves it out,
+                named the way a bond with no rate is */}
+            {summary.leftOutNoFace.length > 0 && (
+              <Text style={styles.sumLab}>Average yield leaves out {summary.leftOutNoFace.join(', ')} — face value not entered.</Text>
+            )}
             {summary.faceNotEntered.length > 0 && summary.faceNotEntered.length < summary.count && (
               <Text style={styles.sumLab}>Face value leaves out {summary.faceNotEntered.join(', ')} — not entered.</Text>
             )}
@@ -119,7 +124,8 @@ export default function BondsScreen() {
                 {!!r.valueNote && <Text style={styles.bondSub}>{r.valueNote}</Text>}
                 <DotJoined style={styles.bondSub} numberOfLines={2} parts={[r.face != null ? `face ${fig('MK-NW-M-055', r.face)}` : figWords('MK-NW-M-055', 'face value not entered'), figWords('MK-NW-M-045', r.couponRate != null ? `${(r.couponRate * 100).toFixed(2)}% coupon` : 'coupon rate not entered'), r.maturity ? `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y` : ''}` : MATURITY_NOT_ENTERED]} />
                 <View style={styles.bondMetrics}>
-                  <Text style={styles.metric}>{r.couponPerYear != null ? `${figPer('MK-NW-M-056', r.couponPerYear)} coupon` : figWords('MK-NW-M-056', 'coupon not entered')}</Text>
+                  {/* no rate: coupon not entered; a rate and no face value on a bond (2026-10-24, tenet 3): the reason, never the rate on the value */}
+                  <Text style={styles.metric}>{r.couponPerYear != null ? `${figPer('MK-NW-M-056', r.couponPerYear)} coupon` : figWords('MK-NW-M-056', r.couponRate == null ? 'coupon not entered' : 'coupon — face value not entered')}</Text>
                   <Text style={styles.metric}>yield {fig('MK-NW-M-057', r.currentYield)}</Text>
                   <Text style={styles.metric}>Yield to maturity: {fig('MK-NW-M-058', r.yieldToMaturity)}{r.accruedCaveat ? ' *' : ''}</Text>
                 </View>

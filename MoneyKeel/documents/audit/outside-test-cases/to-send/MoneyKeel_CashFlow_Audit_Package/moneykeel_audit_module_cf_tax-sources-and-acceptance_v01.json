@@ -1,0 +1,631 @@
+{
+ "what_this_is": "The published amounts the Cash flow functions use, read from the app on 2026-10-24, each with the publication the app cites and what makes it pass; then the checks that span several cards. Fill each `reply` from your own reading of the published source. The amounts are the app's, not answers: check every one.",
+ "tax_year": 2026,
+ "filing_status_names": {
+  "single": "Single",
+  "married": "Married filing jointly",
+  "mfs": "Married filing separately",
+  "hoh": "Head of household"
+ },
+ "source_checks": [
+  {
+   "topic": "Federal income tax 2026 — bands by filing status",
+   "the_app_uses": {
+    "single": {
+     "bands": [
+      {
+       "up_to": 12400.0,
+       "rate": 0.1
+      },
+      {
+       "up_to": 50400.0,
+       "rate": 0.12
+      },
+      {
+       "up_to": 105700.0,
+       "rate": 0.22
+      },
+      {
+       "up_to": 201775.0,
+       "rate": 0.24
+      },
+      {
+       "up_to": 256225.0,
+       "rate": 0.32
+      },
+      {
+       "up_to": 640600.0,
+       "rate": 0.35
+      },
+      {
+       "up_to": null,
+       "rate": 0.37
+      }
+     ],
+     "standard_deduction": 16100.0,
+     "added_for_each_person_65_or_over": 2050.0
+    },
+    "married": {
+     "bands": [
+      {
+       "up_to": 24800.0,
+       "rate": 0.1
+      },
+      {
+       "up_to": 100800.0,
+       "rate": 0.12
+      },
+      {
+       "up_to": 211400.0,
+       "rate": 0.22
+      },
+      {
+       "up_to": 403550.0,
+       "rate": 0.24
+      },
+      {
+       "up_to": 512450.0,
+       "rate": 0.32
+      },
+      {
+       "up_to": 768700.0,
+       "rate": 0.35
+      },
+      {
+       "up_to": null,
+       "rate": 0.37
+      }
+     ],
+     "standard_deduction": 32200.0,
+     "added_for_each_person_65_or_over": 1650.0
+    },
+    "mfs": {
+     "bands": [
+      {
+       "up_to": 12400.0,
+       "rate": 0.1
+      },
+      {
+       "up_to": 50400.0,
+       "rate": 0.12
+      },
+      {
+       "up_to": 105700.0,
+       "rate": 0.22
+      },
+      {
+       "up_to": 201775.0,
+       "rate": 0.24
+      },
+      {
+       "up_to": 256225.0,
+       "rate": 0.32
+      },
+      {
+       "up_to": 384350.0,
+       "rate": 0.35
+      },
+      {
+       "up_to": null,
+       "rate": 0.37
+      }
+     ],
+     "standard_deduction": 16100.0,
+     "added_for_each_person_65_or_over": 1650.0
+    },
+    "hoh": {
+     "bands": [
+      {
+       "up_to": 17700.0,
+       "rate": 0.1
+      },
+      {
+       "up_to": 67450.0,
+       "rate": 0.12
+      },
+      {
+       "up_to": 105700.0,
+       "rate": 0.22
+      },
+      {
+       "up_to": 201750.0,
+       "rate": 0.24
+      },
+      {
+       "up_to": 256200.0,
+       "rate": 0.32
+      },
+      {
+       "up_to": 640600.0,
+       "rate": 0.35
+      },
+      {
+       "up_to": null,
+       "rate": 0.37
+      }
+     ],
+     "standard_deduction": 24150.0,
+     "added_for_each_person_65_or_over": 2050.0
+    }
+   },
+   "cards": [
+    "MK-CF-F-098",
+    "MK-CF-F-101",
+    "MK-CF-F-103",
+    "MK-CF-F-097"
+   ],
+   "cites": [
+    {
+     "what": "Federal bands, standard deduction and 65+ add-on per filing status",
+     "publication_the_app_cites": "IRS Rev. Proc. 2025-32 §§4.01, 4.14",
+     "the_app_last_checked_it": "2026-10-23",
+     "valid_through_tax_year": 2026
+    },
+    {
+     "what": "Federal income-tax bands, single filer",
+     "publication_the_app_cites": "IRS Rev. Proc. 2025-32 §4.01",
+     "the_app_last_checked_it": "2026-10-23",
+     "valid_through_tax_year": 2026
+    },
+    {
+     "what": "The tax year the tables above apply to",
+     "publication_the_app_cites": "IRS Rev. Proc. 2025-32",
+     "the_app_last_checked_it": "2026-09-01",
+     "valid_through_tax_year": 2026
+    }
+   ],
+   "acceptance": [
+    "Every band top and every rate equals the published figure for the tax year, to the dollar.",
+    "Witnesses: the tax at every band top the app uses, and one dollar above it, for every filing status, worked band by band.",
+    "Where a top is wrong, give the tax the right table gives and the tax the app's table gives (formula_gives) at that top."
+   ],
+   "reply": {
+    "verdict": "RIGHT | WRONG | INCOMPLETE | CANNOT TELL",
+    "why": "",
+    "source": {
+     "source": "",
+     "url": "",
+     "section": ""
+    },
+    "witnesses": [
+     {
+      "input": {},
+      "expected": {
+       "exact": 0,
+       "shown": ""
+      },
+      "formula_gives": {
+       "exact": 0,
+       "shown": ""
+      },
+      "working": []
+     }
+    ]
+   }
+  },
+  {
+   "topic": "Standard deduction and the amount added at 65, 2026",
+   "the_app_uses": {
+    "single": {
+     "standard_deduction": 16100.0,
+     "added_for_each_person_65_or_over": 2050.0
+    },
+    "married": {
+     "standard_deduction": 32200.0,
+     "added_for_each_person_65_or_over": 1650.0
+    },
+    "mfs": {
+     "standard_deduction": 16100.0,
+     "added_for_each_person_65_or_over": 1650.0
+    },
+    "hoh": {
+     "standard_deduction": 24150.0,
+     "added_for_each_person_65_or_over": 2050.0
+    }
+   },
+   "cards": [
+    "MK-CF-F-099",
+    "MK-CF-F-100",
+    "MK-CF-F-089"
+   ],
+   "cites": [
+    {
+     "what": "Federal bands, standard deduction and 65+ add-on per filing status",
+     "publication_the_app_cites": "IRS Rev. Proc. 2025-32 §§4.01, 4.14",
+     "the_app_last_checked_it": "2026-10-23",
+     "valid_through_tax_year": 2026
+    },
+    {
+     "what": "Standard deduction, single",
+     "publication_the_app_cites": "IRS Rev. Proc. 2025-32 §4.14",
+     "the_app_last_checked_it": "2026-10-22",
+     "valid_through_tax_year": 2026
+    }
+   ],
+   "acceptance": [
+    "Each amount equals the published figure for its filing status.",
+    "Say who counts as 65 or over in the tax year, and how a married couple with one person 65 or over is counted."
+   ],
+   "reply": {
+    "verdict": "RIGHT | WRONG | INCOMPLETE | CANNOT TELL",
+    "why": "",
+    "source": {
+     "source": "",
+     "url": "",
+     "section": ""
+    },
+    "witnesses": [
+     {
+      "input": {},
+      "expected": {
+       "exact": 0,
+       "shown": ""
+      },
+      "formula_gives": {
+       "exact": 0,
+       "shown": ""
+      },
+      "working": []
+     }
+    ]
+   }
+  },
+  {
+   "topic": "Senior deduction, tax years 2025 to 2028",
+   "the_app_uses": {
+    "amount_per_person_65_or_over": 6000.0,
+    "phase_out_rate": 0.06,
+    "phase_out_starts_above": {
+     "single": 75000.0,
+     "married": 150000.0,
+     "mfs": 0.0,
+     "hoh": 75000.0
+    },
+    "given_when_filing": {
+     "single": true,
+     "married": true,
+     "mfs": false,
+     "hoh": true
+    },
+    "first_tax_year": 2025,
+    "last_tax_year": 2028
+   },
+   "cards": [
+    "MK-CF-F-187",
+    "MK-CF-F-099"
+   ],
+   "cites": [
+    {
+     "what": "$6,000 per person 65+, each person's $6,000 phased out 6% above $75,000 / $150,000",
+     "publication_the_app_cites": "P.L. 119-21 §70103 (IRC §151(d)(5)(C)); IRS Schedule 1-A (Form 1040) 2025, Part V lines 31–37",
+     "the_app_last_checked_it": "2026-10-23",
+     "valid_through_tax_year": 2028
+    }
+   ],
+   "acceptance": [
+    "The amount, the phase-out rate and the income it phases out above equal the law for each filing status.",
+    "Say whether the phase-out reduces each eligible person's amount, or the total of a couple's, and on what measure of income.",
+    "Witnesses: a married couple filing jointly, both 65 or over, at the income the phase-out starts at, and above it until nothing is left; a single filer the same; filing separately."
+   ],
+   "reply": {
+    "verdict": "RIGHT | WRONG | INCOMPLETE | CANNOT TELL",
+    "why": "",
+    "source": {
+     "source": "",
+     "url": "",
+     "section": ""
+    },
+    "witnesses": [
+     {
+      "input": {},
+      "expected": {
+       "exact": 0,
+       "shown": ""
+      },
+      "formula_gives": {
+       "exact": 0,
+       "shown": ""
+      },
+      "working": []
+     }
+    ]
+   }
+  },
+  {
+   "topic": "Long-term capital gains, 2026 — the 0% and 15% tops",
+   "the_app_uses": {
+    "single": {
+     "zero_up_to": 49450.0,
+     "fifteen_up_to": 545500.0
+    },
+    "married": {
+     "zero_up_to": 98900.0,
+     "fifteen_up_to": 613700.0
+    },
+    "mfs": {
+     "zero_up_to": 49450.0,
+     "fifteen_up_to": 306850.0
+    },
+    "hoh": {
+     "zero_up_to": 66200.0,
+     "fifteen_up_to": 579600.0
+    }
+   },
+   "cards": [
+    "MK-CF-F-104"
+   ],
+   "cites": [
+    {
+     "what": "Long-term capital-gains rate tops, per filing status: taxable income taxed at 0% up to the first, 15% up to the second, 20% above",
+     "publication_the_app_cites": "IRS Rev. Proc. 2025-32 §4.03",
+     "the_app_last_checked_it": "2026-10-23",
+     "valid_through_tax_year": 2026
+    }
+   ],
+   "acceptance": [
+    "Each top equals the published figure for its filing status.",
+    "Say how a gain stacks on ordinary taxable income, and whether the card does that."
+   ],
+   "reply": {
+    "verdict": "RIGHT | WRONG | INCOMPLETE | CANNOT TELL",
+    "why": "",
+    "source": {
+     "source": "",
+     "url": "",
+     "section": ""
+    },
+    "witnesses": [
+     {
+      "input": {},
+      "expected": {
+       "exact": 0,
+       "shown": ""
+      },
+      "formula_gives": {
+       "exact": 0,
+       "shown": ""
+      },
+      "working": []
+     }
+    ]
+   }
+  },
+  {
+   "topic": "Contribution limits, 2026 — 401(k), IRA, HSA and catch-ups",
+   "the_app_uses": {
+    "year": 2026.0,
+    "elective_deferral_401k": 24500.0,
+    "catch_up_50": 8000.0,
+    "ira": 7500.0,
+    "ira_catch_up_50": 1100.0,
+    "super_catch_up_60_63": 11250.0,
+    "hsa_self": 4400.0,
+    "hsa_family": 8750.0,
+    "hsa_catch_up_55": 1000.0
+   },
+   "cards": [
+    "MK-CF-F-053",
+    "MK-CF-F-054",
+    "MK-CF-F-055",
+    "MK-CF-F-056",
+    "MK-CF-F-197",
+    "MK-CF-O-005"
+   ],
+   "cites": [
+    {
+     "what": "401(k), IRA and catch-up contribution limits, including the 60–63 super catch-up",
+     "publication_the_app_cites": "IRS Notice 2025-67 (2026 cost-of-living adjustments); SECURE 2.0 Act §109",
+     "the_app_last_checked_it": "2026-09-01",
+     "valid_through_tax_year": 2026
+    },
+    {
+     "what": "HSA limits and the Medicare rule (no contribution once enrolled)",
+     "publication_the_app_cites": "IRS Rev. Proc. 2025-19 (2026 HSA limits); IRC §223(b)(7)",
+     "the_app_last_checked_it": "2026-09-08",
+     "valid_through_tax_year": 2026
+    },
+    {
+     "what": "The age a contribution limit tests — attained at any time in the calendar year",
+     "publication_the_app_cites": "IRC §414(v)(1) (401(k) catch-up), §219(b)(5)(B) (IRA), §223(b)(3) (HSA)",
+     "the_app_last_checked_it": "2026-09-12",
+     "valid_through_tax_year": 2099
+    }
+   ],
+   "acceptance": [
+    "Each limit equals the published figure for the year.",
+    "Witnesses at the ages where a limit changes: the year a person turns 50, 55, 60, 63 and 64.",
+    "Say what age is tested — the age reached during the year, or the age today."
+   ],
+   "reply": {
+    "verdict": "RIGHT | WRONG | INCOMPLETE | CANNOT TELL",
+    "why": "",
+    "source": {
+     "source": "",
+     "url": "",
+     "section": ""
+    },
+    "witnesses": [
+     {
+      "input": {},
+      "expected": {
+       "exact": 0,
+       "shown": ""
+      },
+      "formula_gives": {
+       "exact": 0,
+       "shown": ""
+      },
+      "working": []
+     }
+    ]
+   }
+  },
+  {
+   "topic": "Social Security and Medicare withheld from a paycheck, 2026",
+   "the_app_uses": {
+    "social_security_rate": 0.062,
+    "social_security_wage_base": 184500.0,
+    "medicare_rate": 0.0145,
+    "additional_medicare_rate": 0.009,
+    "additional_medicare_withholding_above": 200000.0
+   },
+   "cards": [
+    "MK-CF-F-198",
+    "MK-CF-O-001"
+   ],
+   "cites": [
+    {
+     "what": "Social Security wage base — 6.2% is withheld up to it",
+     "publication_the_app_cites": "Social Security Administration, 2026 contribution and benefit base (announced October 2025)",
+     "the_app_last_checked_it": "2026-09-12",
+     "valid_through_tax_year": 2026
+    },
+    {
+     "what": "Wages above which an employer withholds 0.9% more Medicare tax",
+     "publication_the_app_cites": "IRC §3101(b)(2); IRS Topic 560",
+     "the_app_last_checked_it": "2026-09-12",
+     "valid_through_tax_year": 2099
+    }
+   ],
+   "acceptance": [
+    "The wage base and the threshold equal the published figures.",
+    "Keep two things apart: what one employer withholds, and what a household owes when it files. Say which the card describes, and give a witness for a couple whose two wages are each under the withholding threshold but together over the filing threshold."
+   ],
+   "reply": {
+    "verdict": "RIGHT | WRONG | INCOMPLETE | CANNOT TELL",
+    "why": "",
+    "source": {
+     "source": "",
+     "url": "",
+     "section": ""
+    },
+    "witnesses": [
+     {
+      "input": {},
+      "expected": {
+       "exact": 0,
+       "shown": ""
+      },
+      "formula_gives": {
+       "exact": 0,
+       "shown": ""
+      },
+      "working": []
+     }
+    ]
+   }
+  }
+ ],
+ "cross_card_acceptance_cases": [
+  {
+   "id": "X1",
+   "check": "Home's box for this month and the Cash flow tab's This month give the same take-home, the same spent so far and the same left, for one household.",
+   "figures": [
+    "MK-CF-M-002",
+    "MK-CF-M-051",
+    "MK-CF-M-052",
+    "MK-CF-M-053"
+   ],
+   "tenet": 4,
+   "reply": {
+    "verdict": "HOLDS | DOES NOT HOLD | CANNOT TELL",
+    "case": {},
+    "why": ""
+   }
+  },
+  {
+   "id": "X2",
+   "check": "The rows of This month add up to its surplus, in the planned block and in the actual block, each on its own.",
+   "figures": [
+    "MK-CF-M-004",
+    "MK-CF-M-002",
+    "MK-CF-M-003",
+    "MK-CF-M-049",
+    "MK-CF-M-053"
+   ],
+   "tenet": 2,
+   "reply": {
+    "verdict": "HOLDS | DOES NOT HOLD | CANNOT TELL",
+    "case": {},
+    "why": ""
+   }
+  },
+  {
+   "id": "X3",
+   "check": "For a household whose only income is wages, the take-home on Base pay equals the take-home each month on the Income summary.",
+   "figures": [
+    "MK-CF-M-031",
+    "MK-CF-M-037"
+   ],
+   "tenet": 4,
+   "reply": {
+    "verdict": "HOLDS | DOES NOT HOLD | CANNOT TELL",
+    "case": {},
+    "why": ""
+   }
+  },
+  {
+   "id": "X4",
+   "check": "A car loan payment logged under Debt payment is counted once: with the debts, not again with the expenses.",
+   "figures": [
+    "MK-CF-M-013",
+    "MK-CF-M-003",
+    "MK-CF-M-052"
+   ],
+   "tenet": 1,
+   "reply": {
+    "verdict": "HOLDS | DOES NOT HOLD | CANNOT TELL",
+    "case": {},
+    "why": ""
+   }
+  },
+  {
+   "id": "X5",
+   "check": "The 401(k) of each earner comes off the take-home and off the income that is taxed, and the household total is the earners' figures added.",
+   "figures": [
+    "MK-CF-M-034",
+    "MK-CF-M-037",
+    "MK-CF-M-041"
+   ],
+   "tenet": 4,
+   "reply": {
+    "verdict": "HOLDS | DOES NOT HOLD | CANNOT TELL",
+    "case": {},
+    "why": ""
+   }
+  },
+  {
+   "id": "X6",
+   "check": "For a household whose only income is wages, the federal band on Base pay and on the Income summary is the same band.",
+   "figures": [
+    "MK-CF-M-032",
+    "MK-CF-M-043"
+   ],
+   "tenet": 4,
+   "reply": {
+    "verdict": "HOLDS | DOES NOT HOLD | CANNOT TELL",
+    "case": {},
+    "why": ""
+   }
+  },
+  {
+   "id": "X7",
+   "check": "A bill that falls once a year is in its own month on the bill calendar and in that month's planned outflow, and in no other month.",
+   "figures": [
+    "MK-CF-M-016",
+    "MK-CF-M-028",
+    "MK-CF-M-048"
+   ],
+   "tenet": 4,
+   "reply": {
+    "verdict": "HOLDS | DOES NOT HOLD | CANNOT TELL",
+    "case": {},
+    "why": ""
+   }
+  }
+ ],
+ "scope_limits": [
+  "Federal amounts only, unless a card names a state rate.",
+  "You are not shown the code, the tests or any answer the app gives. A verdict is about the amounts and the words, not about a run of the app."
+ ]
+}

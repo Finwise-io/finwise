@@ -48,17 +48,17 @@ export interface Debt {
  *
  * Called by ... MK-CF-F-022 paymentShape
  *
- * Reaches ..... 354 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 393 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 336 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 375 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -79,23 +79,25 @@ export function defaultPaymentType(t: DebtType): NonNullable<Debt['payment_type'
  * Formula .....
  *     payment type (or default payment type(debt type) when missing)
  *
- * Called by ... MK-CF-F-023 requiredPayment · MK-CF-F-025 minimumDebtService
- *               MK-CF-F-034 payoffPlan · MK-CF-F-149 recurringDebtPayments
- *               MK-CF-F-150 debtPaymentsCountedAsExpenses · MK-CF-F-152 isRadarItem
- *               MK-CF-F-159 isRecurringDebt · MK-NW-F-147 paymentNotEntered
+ * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-023 requiredPayment
+ *               MK-CF-F-025 minimumDebtService · MK-CF-F-034 payoffPlan
+ *               MK-CF-F-149 recurringDebtPayments · MK-CF-F-150 debtPaymentsCountedAsExpenses
+ *               MK-CF-F-152 isRadarItem · MK-CF-F-156 plannedMonthFlow
+ *               MK-CF-F-159 isRecurringDebt · MK-CF-F-235 paysInMonth
+ *               MK-CF-F-236 paymentInMonth · MK-NW-F-147 paymentNotEntered
  *               MK-NW-O-004 theEmergencyFund · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 353 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 392 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 335 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 374 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -118,23 +120,22 @@ export function paymentShape(d: Debt): NonNullable<Debt['payment_type']> {
  *     0   when payment shape(d) = 'due_in_full'
  *     max(minimum monthly payment, monthly payment (or 0 when missing)) (or minimum monthly payment when missing or zero)
  *
- * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-024 totalDebtMonthly
- *               MK-CF-F-149 recurringDebtPayments · MK-CF-F-153 radar
- *               MK-CF-F-156 plannedMonthFlow · MK-CF-F-211 DEBTS
+ * Called by ... MK-CF-F-024 totalDebtMonthly · MK-CF-F-211 DEBTS
+ *               MK-CF-F-235 paysInMonth · MK-CF-F-236 paymentInMonth
  *               MK-NW-F-106 mortgagesByProperty · MK-NW-O-003 theNetWorth
  *               MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 347 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 329 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-016 debt minimum payment
@@ -150,6 +151,100 @@ export function paymentShape(d: Debt): NonNullable<Debt['payment_type']> {
 export function requiredPayment(d: Debt): number {
   if (paymentShape(d) === 'due_in_full') return 0;
   return Math.max(d.minimum_monthly_payment, d.monthly_payment ?? 0) || d.minimum_monthly_payment;
+}
+
+/** WHETHER A PAYMENT ON A DEBT FALLS IN ONE CALENDAR MONTH ('YYYY-MM') (2026-10-24, CF-FIX; PF-TOOLS, settling MK-CF-M-001 to
+ *  004): a debt counts in a month only if a payment falls in that month. A debt due in full: only the month it is due, while
+ *  a balance is owed. Any other debt: from the month of its first payment to the month it is paid off — a date not given sets
+ *  no bound. This month's plan (MK-CF-F-156), the dated grid (MK-XS-F-004) and the Expenses tab read it, so This month and
+ *  the same month on the calendar count the same debts. */
+/* ─ MK-CF-F-235 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * paysInMonth
+ *
+ * Answers ..... WHETHER A PAYMENT ON A DEBT FALLS IN ONE CALENDAR MONTH ('YYYY-MM') (2026-10-24, CF-FIX; PF-TOOLS, settling MK-CF-M-001 to 004): a debt counts in a month only if a payment falls in that month.
+ *
+ * Formula .....
+ *     month of = (iso?: string) => { const m = string(iso ?? '').match( ÷ ^(\d{4}) − (\d{2}) ÷ ); return m ? +m[1] × 12 + (+m[2] − 1) : nothing; }
+ *     at = month of(ym)
+ *     false   when at = nothing
+ *     remaining balance > 0 and month of(payoff date) = at   when payment shape(d) = 'due_in_full'
+ *     first = month of(first payment date), last = month of(payoff date)
+ *     the answer = not (first ≠ nothing and at < first) and !(last ≠ nothing and at > last)
+ *
+ * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-156 plannedMonthFlow
+ *               MK-CF-F-236 paymentInMonth
+ *
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-014 debt balance
+ *               MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
+ *               MK-XS-I-053 the month a debt is first paid
+ *               MK-XS-I-054 the date a debt is due to be paid off in full
+ *
+ * Decides .....
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-235
+ * Changed ..... not in git yet (—)
+ */
+export function paysInMonth(d: Debt, ym: string): boolean {
+  const monthOf = (iso?: string) => { const m = String(iso ?? '').match(/^(\d{4})-(\d{2})/); return m ? +m[1] * 12 + (+m[2] - 1) : null; };
+  const at = monthOf(ym);
+  if (at == null) return false;
+  if (paymentShape(d) === 'due_in_full') return d.remaining_balance > 0 && monthOf(d.payoff_date) === at;
+  const first = monthOf(d.first_payment_date), last = monthOf(d.payoff_date);
+  return !(first != null && at < first) && !(last != null && at > last);
+}
+
+/** WHAT A DEBT ASKS FOR IN ONE CALENDAR MONTH: nothing in a month no payment falls in (paysInMonth); in one that does, the
+ *  whole balance for a debt due in full, and its payment (requiredPayment) for any other. */
+/* ─ MK-CF-F-236 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * paymentInMonth
+ *
+ * Answers ..... WHAT A DEBT ASKS FOR IN ONE CALENDAR MONTH: nothing in a month no payment falls in (paysInMonth); in one that does, the whole balance for a debt due in full, and its payment (requiredPayment) for any other.
+ *
+ * Formula .....
+ *     0   when !pays in month(d, ym)
+ *     remaining balance   if payment shape(d) = 'due_in_full'
+ *     required payment(d)   otherwise
+ *
+ * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-149 recurringDebtPayments
+ *               MK-CF-F-153 radar · MK-CF-F-156 plannedMonthFlow
+ *               MK-XS-F-004 buildDatedGrid
+ *
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-014 debt balance
+ *               MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-236
+ * Changed ..... not in git yet (—)
+ */
+export function paymentInMonth(d: Debt, ym: string): number {
+  if (!paysInMonth(d, ym)) return 0;
+  return paymentShape(d) === 'due_in_full' ? d.remaining_balance : requiredPayment(d);
 }
 /** Total monthly debt obligation across all debts (override-aware). */
 /* ─ MK-CF-F-024 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED

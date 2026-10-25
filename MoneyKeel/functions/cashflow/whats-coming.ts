@@ -11,7 +11,7 @@
 //     usual, so nothing is flagged — a first month's expenses are not unusual, it is all there is.
 import { declareFigures } from '../_figure-spec';
 import { upcomingBills, type UpcomingBill } from '../../../src/domain/cashflow';
-import { buildDatedGrid } from '../../../src/domain/grid';
+import { buildDatedGrid, type DatedGrid } from '../../../src/domain/grid';
 import { buildPaycheckYear } from '../../../src/domain/paycheck';
 
 export interface WhatsComing {
@@ -32,6 +32,8 @@ export interface WhatsComing {
  * Answers ..... Which bills and paychecks are coming over the next twelve months, and which look out of the ordinary?
  *
  * Formula .....
+ *     now = input.now (or new date() when missing)
+ *     the answer:
  *     bills = bills
  *     next = the first of bills   if count of bills
  *     nothing   otherwise
@@ -60,11 +62,19 @@ export function whatsComing(input: {
   startBalance?: number;
   now?: Date;
   horizonDays?: number;
+  /** every debt: its payments come out of the table's months, so out of what is there by a bill's day too (DEC-0269) */
+  debts?: any[];
+  /** the month table the screen draws. Handed in, the bills read it, so the COMING UP line and the End column cannot disagree
+   *  (2026-10-24, E2E-81); without one, it is built here by the same function from the budget, the debts and the balance. */
+  grid?: DatedGrid;
 }): WhatsComing {
+  const now = input.now ?? new Date();
+  const grid = input.grid
+    ?? buildDatedGrid(input.profile ?? null, { liabilities: input.debts ?? [], startBalance: input.startBalance ?? 0, now });
   const bills = upcomingBills(
     input.profile ?? null,
-    input.startBalance ?? 0,
-    input.now ?? new Date(),
+    grid,
+    now,
     input.horizonDays != null ? { horizonDays: input.horizonDays } : {},
   );
   return { bills, next: bills.length ? bills[0] : null };
@@ -133,6 +143,7 @@ const COMING = () => whatsComing(EXAMPLE);
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-024 logged expenses
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-212
@@ -152,6 +163,7 @@ const RECEIVED = [
 export const WHATS_COMING_FIGURES = declareFigures({
   'MK-CF-M-012': {
     label: 'RECEIVED · <month> — each payment', unit: 'money-cents', screens: ['/cashflow', '/income-manager'], grain: 'one payment',
+    period: 'the month shown — this month unless another is picked with ‹ ›',
     answers: 'Each payment that has actually arrived this month, and when.',
     formula: 'the income records dated inside the month',
     inputs: ['MK-NW-I-004 the activity records'],
@@ -161,6 +173,7 @@ export const WHATS_COMING_FIGURES = declareFigures({
   },
   'MK-CF-M-016': {
     label: 'BIG-TICKET RADAR — <bill> · due <month>', unit: 'money', screens: ['/cashflow', '/bill-calendar'], grain: 'one bill',
+    period: 'the months ahead — each bill in the month it falls',
     answers: 'A bill big enough to plan for, and the month it falls in.',
     formula: 'the dated bills above the everyday size, in date order',
     inputs: ['MK-CF-I-002 your bills'],
@@ -179,7 +192,7 @@ export const WHATS_COMING_FIGURES = declareFigures({
     formula: 'each dated bill in the window, in date order, with the running balance after it',
     inputs: ['MK-CF-I-002 your bills', 'MK-NW-I-001 your accounts'],
     decisions: ['A bill with NO date is not on the calendar — a date nobody gave would be read as one they did. It is still counted in the month’s total.'],
-    refusal: 'No dated bills ahead.',
+    refusal: 'No dated bill ahead — the COMING UP card is not drawn; with nothing behind the table at all, the one line "Nothing entered yet. Add your bills ›" sits under it (Q48).',
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,
@@ -201,6 +214,7 @@ export const WHATS_COMING_FIGURES = declareFigures({
   //    with no identifier. Each has its row now, read from the same dated grid the Cash flow tab draws.
   'MK-CF-M-060': {
     label: 'Lowest point', unit: 'money', screens: ['/bill-calendar'],
+    period: 'the twelve months ahead, from this month, month by month',
     answers: 'The lowest the balance falls to in the twelve months ahead, and which month.',
     formula: 'the smallest running balance across the twelve month-ends, starting from the balance you gave',
     inputs: ['MK-NW-I-001 your accounts', 'MK-CF-I-002 your bills', 'MK-XS-I-023 salary and other income'],
@@ -210,6 +224,7 @@ export const WHATS_COMING_FIGURES = declareFigures({
   },
   'MK-CF-M-061': {
     label: 'END — where the month leaves you', unit: 'money', screens: ['/bill-calendar'], grain: 'one month',
+    period: 'the twelve months ahead, from this month, month by month',
     answers: 'The balance at the end of each month: the month before’s end, plus what came in, less what went out.',
     formula: 'running balance = last month’s end + inflow − outflow, month by month from the starting balance',
     inputs: ['MK-NW-I-001 your accounts', 'MK-CF-I-002 your bills', 'MK-XS-I-023 salary and other income'],
@@ -220,8 +235,8 @@ export const WHATS_COMING_FIGURES = declareFigures({
   'MK-CF-M-062': {
     label: 'Short — set it aside by <date>', unit: 'money', screens: ['/bill-calendar'], grain: 'one bill',
     answers: 'How much more is needed for a bill by the day the money has to be there.',
-    formula: 'the bill − what is projected to be in the account on its need-by date, when that is less',
-    inputs: ['MK-NW-I-001 your accounts', 'MK-CF-I-002 your bills'],
+    formula: 'the bill − what is there by its need-by date (MK-CF-M-063, read from the month table), when that is less',
+    inputs: ['MK-NW-I-001 your accounts', 'MK-CF-I-002 your bills', 'MK-XS-I-023 salary and other income', 'MK-NW-I-002 your debts'],
     refusal: 'Nothing short — the line reads Covered instead.',
     ruled: '2026-10-02',
     worked: { given: GIVEN, answer: '$0', run: () => COMING().bills[0]?.shortfall ?? null },
@@ -229,8 +244,19 @@ export const WHATS_COMING_FIGURES = declareFigures({
   'MK-CF-M-063': {
     label: 'Covered — about $X there by <date>', unit: 'money', screens: ['/bill-calendar'], grain: 'one bill',
     answers: 'What is projected to be in the account on the day a bill’s money has to be there.',
-    formula: 'the starting balance, less every earlier dated bill, on the need-by date',
-    inputs: ['MK-NW-I-001 your accounts', 'MK-CF-I-002 your bills'],
+    // ONE WAY, THE TABLE'S (2026-10-24, Cash flow journey E2E-81): it was the starting balance plus the take-home before the
+    // 401(k) less the budget, spread over the days from today, with no debt payment — about $10,744 by 13 Dec beside a November
+    // End of $4,950 on the same screen (DEC-3523 tenets 1 and 4, DEC-0269 outflow = expenses + debt)
+    formula: 'the month table’s End for the month before the need-by date (the starting balance when that day is in this month), '
+      + 'plus what that month brings or takes on a day already passed — aid or a loan on the day it lands, a dated bill on its day '
+      + '(the 1st when it has none) — less the month’s regular money (pay, everyday expenses, debt payments) only when it takes out '
+      + 'more than it brings in: the lower of the two month-ends either side of the day; less any bill listed above it that falls '
+      + 'due after that day and by this bill’s due date',
+    inputs: ['MK-NW-I-001 your accounts', 'MK-CF-I-002 your bills', 'MK-XS-I-023 salary and other income', 'MK-NW-I-002 your debts'],
+    decisions: [
+      'Read from the month table on the same screen, so this line and the End column cannot disagree.',
+      'Pay is never counted before its month ends: the table does not know the day it lands, and no day is invented.',
+    ],
     refusal: 'No balance to start from — nothing is projected.',
     ruled: '2026-10-02',
     worked: { given: GIVEN, answer: '$8,000', run: () => COMING().bills[0]?.availableByNeed ?? null },

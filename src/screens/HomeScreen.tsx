@@ -9,23 +9,28 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, RefreshCon
 import Svg, { Path } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
-import { figWords, fig, figSaid, walkShown } from '../components/figure';   // the odds print under their identifier, MK-XS-M-002 (2026-10-20)
+import { figWords, fig, figSaid, walkShown, flowShown } from '../components/figure';   // the odds print under their identifier, MK-XS-M-002 (2026-10-20)
 import { oddsLine, sampleOddsLine } from '../domain/planning/hub';
 import { Colors, Spacing, Radii, GaugeRamp } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { buildSnapshot } from '../domain/snapshot';
 import { useNetWorthInputs } from '../hooks/useNetWorthInputs';   // the Net worth family's inputs, built once (MK-NW-F-145, DEC-0345)
 import { budgetVsActual } from '../domain/budget';
+// THIS MONTH IS THE CASH FLOW TAB'S (2026-10-23, DEC-0345; outside re-run of Performance, gap list item 38): the same inputs,
+// assembled once, handed to the same door — so Home's "Left" is the tab's "= Actual surplus so far", to the dollar
+import { useThisMonthInputs } from '../hooks/useCashflowModel';
+import { theMonth } from '../../MoneyKeel/functions/cashflow/the-month';
+import { pastMonthFlow } from '../../MoneyKeel/functions/cashflow/this-month';
 import { PaycheckCard } from '../components/PaycheckCard';
 import { Disclaimer } from '../components/Disclaimer';
 import { AllocateSavings } from '../components/MoneySheets';
-import { incomeMonthlyGrid, salaryAnnual, currentRetirementIncomeMonthly } from '../domain/income';
+import { salaryAnnual, currentRetirementIncomeMonthly } from '../domain/income';
 import { assetClassOf } from '../domain/assets';
 import { DesktopInvestTable } from '../../desktop/platform/DesktopInvestTable';
 import { buildPerformance, portfolioBenchReturn, marketGap, type Position } from '../domain/performance';
 import { priceFreshness } from '../services/marketData';
 import { connectionFreshness } from '../services/sync';
-import { requiredPayment } from '../domain/debt';   // the due-soon alert names ONE debt, not a total
+import { requiredPayment, paysInMonth } from '../domain/debt';   // the due-soon alert names ONE debt, not a total
 // ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1 ruled 2026-09-27: "Yes - for home, NW tab, and
 // insights"). Home built its own net worth from its own assets state while the Net worth tab
 // built another — two assemblies of one question, on the two screens a person compares first.
@@ -104,14 +109,12 @@ export default function HomeScreen() {
 
   // ── month metrics used by the frozen-history effect + the month-end surplus prompt ──
   const bva = useMemo(() => budgetVsActual(expenses, op, now), [expenses, op, ym]);
-  const baseNet = useMemo(() => {
-    const g = op ? incomeMonthlyGrid(op, 'net') : [];
-    return g[now.getMonth()]?.amount ?? 0;
-  }, [op, ym]);
-  const extraIncome = (store.incomes ?? []).filter((i: any) => String(i?.date ?? '').startsWith(ym))
-    .reduce((t: number, i: any) => t + (Number(i.amount) || 0), 0);
-  const thisMonthNet = baseNet + extraIncome;
-  const debtPaid = expenses.filter((e: any) => e.category === 'Debt payment' && String(e.date).startsWith(ym)).reduce((t: number, e: any) => t + (Number(e.amount) || 0), 0);
+  // THIS MONTH, AS THE CASH FLOW TAB SHOWS IT: what came in, what went out (expenses + the debt paid) and what is left, from
+  // MK-CF-O-010 theMonth on the inputs the tab builds (useThisMonthInputs). Until 2026-10-23 Home calculated it here — the
+  // take-home plus any income recorded as received, less the expenses logged, without the debt payments made: one month read
+  // "Left $4,202" here and "+$3,952" on Cash flow, the $250 car loan paid.
+  const monthIn = useThisMonthInputs();
+  const cf = useMemo(() => theMonth(monthIn).actual, [monthIn]);
 
   // month-end nudge: after a month with savings, ask where it went (once, if not skipped)
   const priorDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
@@ -121,11 +124,11 @@ export default function HomeScreen() {
     || incomesArr.some((i: any) => String(i?.date ?? '').startsWith(priorYm));
   useEffect(() => {
     if (!priorHasActivity) return;
-    const pSpent = budgetVsActual(expenses, op, priorDate).spent_total;
-    const g = op ? incomeMonthlyGrid(op, 'net') : [];
-    const pBase = g[priorDate.getMonth()]?.amount ?? 0;
-    const pExtra = incomesArr.filter((i: any) => String(i?.date ?? '').startsWith(priorYm)).reduce((t: number, i: any) => t + (Number(i.amount) || 0), 0);
-    const saved = pBase + pExtra - pSpent;
+    // last month's surplus as the Cash flow tab shows it for that month — the same producer (pastMonthFlow, 2026-10-23); it
+    // was calculated here without the debt paid, so the sheet offered more than Cash flow said was left
+    // as the past-month card prints it: its inflow less its outflow, each in whole dollars (flowShown, 2026-10-24)
+    const prior = pastMonthFlow((store.monthlySnapshots ?? {})[priorYm], incomesArr, expenses, priorYm);
+    const saved = flowShown(prior.inflow, prior.outflow).surplus;
     if (saved <= 0) return;
     if ((store.assetAccounts ?? []).length === 0) return;
     const done = store.allocatedByMonth?.[priorYm] ?? 0;
@@ -136,7 +139,9 @@ export default function HomeScreen() {
   // debt due-soon reminder (current month, from due_day − 1)
   useEffect(() => {
     const paidThisMonth = (d: any) => (store.expenses ?? []).some((e: any) => e.category === 'Debt payment' && e.store === d.label && String(e.date).startsWith(ym));
-    const due = (store.liabilities ?? []).filter((d: any) => d.due_day && now.getDate() >= d.due_day - 1 && !paidThisMonth(d));
+    // only a debt with a payment in this month (paysInMonth, the Cash flow tab's rule; 2026-10-24, CF-FIX): a loan whose first
+    // payment is next month said "due day 28" this month
+    const due = (store.liabilities ?? []).filter((d: any) => d.due_day && paysInMonth(d, ym) && now.getDate() >= d.due_day - 1 && !paidThisMonth(d));
     if (due.length) Alert.alert('Debt due soon', due.map((d: any) => `${d.label} — ${maskedMoney(requiredPayment(d))} due day ${d.due_day}`).join('\n'), [{ text: 'OK' }]);
   }, []);
 
@@ -159,9 +164,12 @@ export default function HomeScreen() {
       month: ym,
       gross_assets: nwv.gross_assets, gross_debt: nwv.gross_debt,
       // the month's record keeps every figure exact (DEC-0403); these three were rounded when saved until 2026-10-20
-      income_net: thisMonthNet, spending: eSpent, debt_paid: dPaid,
-      savings: thisMonthNet - eSpent - dPaid, allocated: store.allocatedByMonth?.[ym] ?? 0,
-      planned_budget: bva.planned_total, savings_rate: thisMonthNet > 0 ? ((thisMonthNet - eSpent - dPaid) / thisMonthNet) * 100 : 0,
+      // what came in and the surplus are the month's own, as Cash flow shows them (2026-10-23): the record keeps what was shown
+      income_net: cf.inflow, spending: eSpent, debt_paid: dPaid,
+      savings: cf.surplus, allocated: store.allocatedByMonth?.[ym] ?? 0,
+      // the month's planned expenses as This month and the Expenses tab show them — a once-a-year bill only in its month
+      // (2026-10-23); it was the budget's monthly average
+      planned_budget: monthIn.plannedExpenses, savings_rate: cf.inflow > 0 ? (cf.surplus / cf.inflow) * 100 : 0,
       by_category: byCategory,
       assets: assetsSnap,
       debts: debtsSnap,
@@ -172,7 +180,7 @@ export default function HomeScreen() {
     // founder rule 2026-08-04: also capture cash+investments — the change-% denominator
     store.captureDailyNw?.(isoLocalDate(new Date()), nwv.net_worth, worth.investable);
     store.runReclassifyOnce?.();   // founder gaps 1 & 2: fix accounts stored under the OLD rule
-  }, [ym, thisMonthNet, bva, expenses, store.assetAccounts, store.liabilities, store.allocatedByMonth, store.nwSeeded]);
+  }, [ym, cf, monthIn, bva, expenses, store.assetAccounts, store.liabilities, store.allocatedByMonth, store.nwSeeded]);
 
   // ── working-lens hero numbers (canonical helpers named by the design) ──
   const hasIncomeEntered = salaryAnnual(op) > 0 || (store.incomes ?? []).length > 0 || currentRetirementIncomeMonthly(op) > 0;   // Q48: a real $0 income is not "nothing entered"
@@ -588,39 +596,57 @@ export default function HomeScreen() {
         </TouchableOpacity>
   </>);
   const cashflowBlock = (<>
-        {/* THIS MONTH'S CASH FLOW — the dashboard readout (founder 2026-07-15): income vs expenses
-            at a glance, the SAME two figures the month math above uses (thisMonthNet / bva) */}
+        {/* THIS MONTH'S CASH FLOW — the dashboard readout (founder 2026-07-15): what came in against what went out, at a
+            glance. The three figures are the Cash flow tab's own (theMonth's actual block, 2026-10-23) — Home calculates none */}
         {(() => {
           // the approved mock (2026-07-16): pace carries a WORD (never color alone) + the three
-          // money figures at money size — Income / Actual expenses so far / Left in 17pt lining figures
-          const over = thisMonthNet <= 0 || bva.spent_total > thisMonthNet;
-          const fast = !over && bva.spent_total > 0.7 * thisMonthNet;
-          const pace = over ? { word: 'Over', bg: Colors.redLight, fg: Colors.red }
+          // money figures at money size — Income / Outflow (expenses + debt) / Left in 17pt lining figures
+          // NO PACE WORD BEFORE INCOME IS ENTERED (2026-10-23, tenet 3: unknown is not zero). With no income and nothing spent
+          // the box showed the red "Over" above "Income $0 · Nothing entered yet · Left $0" — an answer where nothing is known
+          // (outside re-run of Performance, MK-CF-M-053 tenet 3). Cash flow draws no surplus then (its two set-up steps), so
+          // Home shows none either: Left reads — and the line under Income says why.
+          const incomeKnown = cf.inflow > 0 || hasIncomeEntered;
+          const over = cf.outflow > cf.inflow;
+          const fast = !over && cf.outflow > 0.7 * cf.inflow;
+          const pace = !incomeKnown || (cf.inflow <= 0 && cf.outflow <= 0) ? null
+            : over ? { word: 'Over', bg: Colors.redLight, fg: Colors.red }
             : fast ? { word: 'Expenses running fast', bg: Colors.amberLight, fg: Colors.amber }
             : { word: '✓ On pace', bg: Colors.primaryLight, fg: Colors.primaryDark };
-          const pctSpent = thisMonthNet > 0 ? Math.min(999, Math.round((bva.spent_total / thisMonthNet) * 100)) : null;
+          const pctSpent = pace && cf.inflow > 0 ? Math.min(999, Math.round((cf.outflow / cf.inflow) * 100)) : null;
           const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-          const left = thisMonthNet - bva.spent_total;
+          // THE THREE AS THE CASH FLOW TAB PRINTS THEM (2026-10-24 — tenet 2; Cash flow journey E2E-69): Income less Outflow is
+          // Left on the screen. A $6.50 coffee read Income $5,000 · Outflow $4,107 · Left $894, each rounded alone. The outflow is
+          // the door's own, made by MK-CF-F-194 monthOutflow (his DEC-0333): printed whole through flowShown, never re-added
+          // from the rows here (it was monthShown of the rows until 2026-10-24 — the same dollars, from a second sum)
+          const shown = flowShown(cf.inflow, cf.outflow);
+          const left = shown.surplus;
           return (
             <TouchableOpacity accessibilityRole="button" style={styles.box} activeOpacity={0.85} onPress={() => router.push('/(tabs)/cashflow')}
-              accessibilityLabel={`This month's cash flow, ${pace.word.replace('✓ ', '')}: income ${spokenMoney(Math.round(thisMonthNet))}, spent so far ${spokenMoney(Math.round(bva.spent_total))}, ${left >= 0 ? `${spokenMoney(Math.round(left))} left, bills may still be coming` : `${spokenMoney(Math.round(-left))} over`}. Opens the Cash flow tab.`}>
+              accessibilityLabel={`This month's cash flow${pace ? `, ${pace.word.replace('✓ ', '')}` : ''}: income ${incomeKnown ? spokenMoney(shown.inflow) : 'not entered'}, expenses and debt paid so far ${spokenMoney(shown.outflow)}, ${!incomeKnown ? 'nothing left is shown until your income is entered' : left >= 0 ? `${spokenMoney(left)} left, bills may still be coming` : `${spokenMoney(-left)} over`}. Opens the Cash flow tab.`}
+              // THE DOOR INSIDE THE BOX, AS THE BOX'S ACTION (2026-10-24, Cash flow journey E2E-78): "Add your income ›" sits inside
+              // this one element, so a screen reader could not reach it; it is offered as the box's action, in its own words
+              accessibilityActions={!incomeKnown ? [{ name: 'addIncome', label: EMPTY_DOORS.income.label.replace(' ›', '') }] : undefined}
+              onAccessibilityAction={(e) => { if (e.nativeEvent.actionName === 'addIncome') router.push(EMPTY_DOORS.income.route as any); }}>
               <SectionBand inCard title={"THIS MONTH'S CASH FLOW"} />
               <View style={styles.paceRow}>
-                <Text style={[styles.paceChip, { backgroundColor: pace.bg, color: pace.fg }]}>{pace.word}</Text>
+                {pace && <Text style={[styles.paceChip, { backgroundColor: pace.bg, color: pace.fg }]}>{pace.word}</Text>}
                 <Text style={styles.paceNote}>{pctSpent != null ? `${pctSpent}% spent · ` : ''}day {now.getDate()} of {daysInMonth}</Text>
               </View>
               <View style={styles.cfBarTrack}>
                 <View style={[styles.cfBarFill, {
-                  width: `${Math.min(100, thisMonthNet > 0 ? (bva.spent_total / thisMonthNet) * 100 : (bva.spent_total > 0 ? 100 : 0))}%`,
+                  width: `${pace ? Math.min(100, cf.inflow > 0 ? (cf.outflow / cf.inflow) * 100 : (cf.outflow > 0 ? 100 : 0)) : 0}%`,
                   backgroundColor: over ? Colors.red : fast ? Colors.amber : Colors.primary,
                 }]} />
               </View>
               <View style={styles.cfRow}>
-                <View style={styles.cfCell}><Text style={styles.cfLabel}>Income</Text><Text style={styles.cfNum}>{maskedMoney(Math.round(thisMonthNet))}</Text>{thisMonthNet === 0 && !hasIncomeEntered && <EmptyNote door="income" />}</View>
-                <View style={styles.cfCell}><Text style={styles.cfLabel}>Actual expenses so far</Text><Text style={styles.cfNum}>{maskedMoney(Math.round(bva.spent_total))}</Text></View>
+                <View style={styles.cfCell}><Text style={styles.cfLabel}>Income</Text><Text style={styles.cfNum}>{fig('MK-CF-M-051', shown.inflow)}</Text>{!incomeKnown && <EmptyNote door="income" />}</View>
+                {/* the expenses AND the debt paid — Cash flow's "Outflow (expenses + debt)" (DEC-0269). It read "Actual expenses so
+                    far" and left the debt paid out (2026-10-23) */}
+                <View style={styles.cfCell}><Text style={styles.cfLabel}>Outflow (expenses + debt)</Text><Text style={styles.cfNum}>{fig('MK-CF-M-052', shown.outflow)}</Text></View>
                 <View style={styles.cfCell}>
-                  <Text style={styles.cfLabel}>{left >= 0 ? 'Left' : 'Over'}</Text>
-                  <Text style={[styles.cfNum, { color: left >= 0 ? Colors.primaryDark : Colors.red }]}>{maskedMoney(Math.abs(Math.round(left)))}</Text>
+                  <Text style={styles.cfLabel}>{!incomeKnown || left >= 0 ? 'Left' : 'Over'}</Text>
+                  {/* the size rounded, then the word — as Cash flow writes its signed surplus, so the two read the same dollar */}
+                  <Text style={[styles.cfNum, { color: !incomeKnown ? Colors.textSecondary : left >= 0 ? Colors.primaryDark : Colors.red }]}>{incomeKnown ? fig('MK-CF-M-053', Math.abs(left)) : '—'}</Text>
                 </View>
               </View>
             </TouchableOpacity>

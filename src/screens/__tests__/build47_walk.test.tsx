@@ -318,7 +318,7 @@ test('path-ahead row carries the how ⓘ (your approved nest-egg explanation)', 
   // 2026-08-11: the card speaks for every computable plan (running short included) and shows the
   // labelled sample + the missing answers when it cannot compute one — never a bare "See your plan"
   expect(screen.getByText(/retire at \d+ with|on course to last past|running short|Sample: 84%/)).toBeOnTheScreen();
-  expect(screen.getByLabelText('What is How we calculate your odds?')).toBeOnTheScreen();
+  expect(screen.getByLabelText('About How we calculate your odds')).toBeOnTheScreen();
 });
 
 test('matured bond: the dated banner with the three outcomes; paid-out writes the ledger row', () => {
@@ -657,7 +657,7 @@ test('finding 14 (re-pinned after By-type was removed): every cash-bucket accoun
   expect(screen.queryByText('HYSA')).toBeNull();
 });
 
-test('A3: Cash flow sources list shows the bonus WITH its landing month; the chooser offers Bonus / one-time', () => {
+test('A3: Cash flow sources list shows the bonus WITH its landing month; the chooser offers Bonus, and One-time income apart from it (2026-10-24, E2E-70)', () => {
   useStore.setState({
     onboardingProfile: { status: 'employed', incomeSources: ['employment'], baseSalary: '8000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'flat', flatRate: '25', monthlySpending: '4000', bonusAnnual: '12000', bonusMonth: 3 },
   } as any);
@@ -665,7 +665,8 @@ test('A3: Cash flow sources list shows the bonus WITH its landing month; the cho
   render(<CashFlowScreen />);
   const fs = require('fs'); const path = require('path');
   const src = fs.readFileSync(path.join(__dirname, '..', 'CashFlowScreen.tsx'), 'utf8');
-  expect(src).toMatch(/Bonus \/ one-time/);                       // the chooser entry exists
+  expect(src).toMatch(/\{ text: 'Bonus', onPress: manage\('bonus'\) \}/);                 // the chooser entry exists
+  expect(src).toMatch(/\{ text: 'One-time income', onPress: manage\('onetime'\) \}/);    // and one-time money has its own
   expect(src).toMatch(/income-manager\?open=\$\{what\}/); expect(src).toMatch(/manage\('bonus'\)/);              // and deep-links to the editor
 });
 

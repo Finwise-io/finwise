@@ -4,7 +4,7 @@
  *  open it — read by the match test (src/screens/__tests__/sheets_drawn_from_code.test.tsx) and by the run that drew each
  *  drawing, so a drawing and its test can never be of two different states. The day is Sep 30, 2026 in every state.
  *
- *    the trade sheet ("Record activity") .............. moneykeel_pres_mock_trade-sheet_v02.html
+ *    the trade sheet ("Record activity") .............. moneykeel_pres_mock_trade-sheet_v03.html (v03 2026-10-23: the fee)
  *    the holding editor ("Edit holding") .............. moneykeel_pres_mock_holding-editor_v02.html
  *    the activity sheet ("Activity") .................. moneykeel_pres_mock_activity-sheet_v01.html
  *    the account page's recorder (its three doors) .... moneykeel_pres_mock_record-activity-sheet_v01.html
@@ -65,9 +65,10 @@ const holding = (acct: any, extra: Record<string, any> = {}) => ({
   page: 'holding' as const, params: { account: 'fid', position: 'p1' }, store: { assetAccounts: [acct], transactions: [], priceCache: PRICES, pricesFetchedAt: `${SHEET_DAY}T11:00:00Z`, ...extra } });
 
 // ═══ THE TRADE SHEET ═══════════════════════════════════════════════════════════════════════════════════════════════
-const openTrade = () => press('Add a buy or sale for Brokerage');
+// each door names its account as the page does (accountDisplayNames, 2026-10-23): Vanguard Brokerage; the fresh one, Schwab Brokerage
+const openTrade = (name = 'Vanguard Brokerage') => press(`Add a buy or sale for ${name}`);
 export const TRADE_SHEET: Sheet = {
-  id: 'trade', file: 'moneykeel_pres_mock_trade-sheet_v02.html', title: 'Record activity',
+  id: 'trade', file: 'moneykeel_pres_mock_trade-sheet_v03.html', title: 'Record activity',
   states: [
     { key: 'A', label: 'Opened from the account page: Buy, Vanguard chosen, nothing typed yet', ...account('van', HOUSEHOLD), steps: openTrade },
     { key: 'B', label: 'Buy 10 VTI at $100.00: $1,000 of the $5,000 cash', ...account('van', HOUSEHOLD),
@@ -86,9 +87,9 @@ export const TRADE_SHEET: Sheet = {
       steps: () => { openTrade(); press('Transaction type: Dividend'); press('Holding: VTI'); typeIn('0', '120'); } },
     { key: 'I', label: 'Dividend from VTI, reinvested: 1.2 shares at $100.00', ...account('van', HOUSEHOLD),
       steps: () => { openTrade(); press('Transaction type: Dividend'); press('Holding: VTI'); press('Dividend reinvested'); typeIn('0', '1.2', 0); typeIn('0', '100', 1); } },
-    { key: 'J', label: 'A fresh account (nothing held, no cash entered): Buy', ...account('new', [FRESH]), steps: openTrade },
+    { key: 'J', label: 'A fresh account (nothing held, no cash entered): Buy', ...account('new', [FRESH]), steps: () => openTrade('Schwab Brokerage') },
     { key: 'K', label: 'A fresh account: Sell — nothing to sell', ...account('new', [FRESH]),
-      steps: () => { openTrade(); press('Transaction type: Sell'); } },
+      steps: () => { openTrade('Schwab Brokerage'); press('Transaction type: Sell'); } },
     { key: 'L', label: 'Opened from the Holding page: AAPL in the ticker box, Fidelity chosen', ...holding(fidelity(AAPL)),
       steps: () => press('Record a buy or sell for AAPL') },
   ],
@@ -133,11 +134,11 @@ export const ACTIVITY_SHEET: Sheet = {
 };
 
 // ═══ THE ACCOUNT PAGE'S RECORDER (its three doors) ════════════════════════════════════════════════════════════════
-const moneyDoor = () => press('Add a contribution or withdrawal for Brokerage');
+const moneyDoor = (name = 'Vanguard Brokerage') => press(`Add a contribution or withdrawal for ${name}`);
 export const RECORD_ACTIVITY_SHEET: Sheet = {
   id: 'record-activity', file: 'moneykeel_pres_mock_record-activity-sheet_v01.html', title: 'Deposit — Brokerage',
   states: [
-    { key: 'A', label: 'The money door: Deposit first, nothing typed yet', ...account('van', HOUSEHOLD), steps: moneyDoor },
+    { key: 'A', label: 'The money door: Deposit first, nothing typed yet', ...account('van', HOUSEHOLD), steps: () => moneyDoor() },
     { key: 'B', label: 'A deposit of $500: the line saying what saving records', ...account('van', HOUSEHOLD),
       steps: () => { moneyDoor(); typeLabel('Amount', '500'); } },
     { key: 'C', label: 'Withdraw $200, dated yesterday', ...account('van', HOUSEHOLD),
@@ -145,14 +146,14 @@ export const RECORD_ACTIVITY_SHEET: Sheet = {
     { key: 'D', label: 'Transfer $1,000 into Ally Savings', ...account('van', HOUSEHOLD),
       steps: () => { moneyDoor(); pressText('Transfer'); press('Transfer into Savings'); typeLabel('Amount', '1000'); } },
     { key: 'E', label: 'A fresh account and no other: Transfer has nothing to move it into', ...account('new', [FRESH]),
-      steps: () => { moneyDoor(); pressText('Transfer'); } },
-    { key: 'F', label: 'A fresh account: Deposit, no line about holdings', ...account('new', [FRESH]), steps: moneyDoor },
+      steps: () => { moneyDoor('Schwab Brokerage'); pressText('Transfer'); } },
+    { key: 'F', label: 'A fresh account: Deposit, no line about holdings', ...account('new', [FRESH]), steps: () => moneyDoor('Schwab Brokerage') },
     { key: 'G', label: 'The income door on a stock account: Dividend first, $120', ...account('van', HOUSEHOLD),
-      steps: () => { press('Add a dividend or interest for Brokerage'); typeLabel('Amount', '120'); } },
+      steps: () => { press('Add a dividend or interest for Vanguard Brokerage'); typeLabel('Amount', '120'); } },
     { key: 'H', label: 'The income door on a bond: interest and a coupon received', ...account('tsy30', HOUSEHOLD),
       steps: () => press('Add a dividend or interest for US Treasury 4.00% 2030') },
     { key: 'I', label: 'A savings account: interest only, so no choice to make', ...account('sav', HOUSEHOLD),
-      steps: () => press('Add a dividend or interest for Savings') },
+      steps: () => press('Add a dividend or interest for Ally Savings') },
   ],
 };
 

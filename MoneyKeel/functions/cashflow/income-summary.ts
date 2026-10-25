@@ -12,11 +12,11 @@ import { toNum } from '../../../src/domain/_shared/num';
 import { salaryAnnual, taxableAnnual, rentalNetAnnual, extraIncome, filingStatusOf,
          over65CountOf, incomeMonthlyGrid } from '../../../src/domain/income';
 // the two sources the YOUR SOURCES list needs, from the one place each is calculated
-import { rsuAnnual, retirementIncomeMonthly, currentRetirementIncomeMonthly, benefitActiveMonths, salaryGrossByMonth, rentalList } from '../../../src/domain/income/onboarding';
+import { rsuAnnual, retirementIncomeMonthly, currentRetirementIncomeMonthly, benefitActiveMonths, salaryGrossByMonth, rentalList, stateRateOf } from '../../../src/domain/income/onboarding';
 import { guaranteedOutsideStreams, totalGrossAnnual } from '../../../src/domain/income';
 import { incomeFromAccounts } from '../../../src/domain/income/from-accounts';
 import { earnerWages } from '../../../src/domain/income/earners';
-import { rateInForce } from '../../../src/domain/income/tax-rate';
+import { rateInForce, taxedAfterPreTax } from '../../../src/domain/income/tax-rate';
 import { marginalBracketFor } from '../../../src/domain/income/tax';
 import { basePay, entryFromWage } from './base-pay';
 import { inflowLabel } from './this-month';
@@ -41,6 +41,17 @@ export interface IncomeSummary {
     grossAnnual: number;
     bracket: number;          // the FEDERAL TAX BRACKET, named
     tax: number;              // the year's tax, at whichever rate is in force
+    /** THE RATE IN FORCE (MK-CF-F-181 rateInForce), as a share of the year's taxed income — the one rate sign-up's income
+     *  recap and every Cash flow screen use (2026-10-24: sign-up calculated its own, before the 401(k) came off). */
+    rate: number;
+    /** WHAT THE YEAR IS TAXED ON (MK-CF-M-041, 2026-10-24): the gross (grossAnnual, MK-CF-M-076) less the year's 401(k)s
+     *  (k401Annual, MK-CF-M-077) — his DEC-0283: income before tax is gross less the 401(k). The bracket and a calculated
+     *  tax are worked on this. */
+    taxedOn: number;
+    k401Annual: number;
+    /** THE LINE UNDER A CALCULATED TAX — what the calculated rate holds (2026-10-24): federal only, or federal plus the state
+     *  rate the person entered, which the rate in force adds (DEC-7608). */
+    calculatedNote: string;
     whose: string;            // 'your rate, 24%' · 'calculated, 9%'
     estimated: boolean;
     /** How the household files, in the words the filing question uses — "Married filing jointly". */
@@ -231,8 +242,11 @@ export const FIGURES = declareFigures({
   },
   'MK-CF-M-039': {
     label: 'its own month, never spread', unit: 'money', screens: ['/income-summary', '/income-manager'],
-    answers: 'A source that arrives in one month of the year, shown in that month rather than divided by twelve.',
-    formula: 'the standout month = the source whose whole year lands in a single month, with that amount and that month',
+    // THE ROW'S WORDS NOW SAY WHAT THE SCREEN PRINTS (2026-10-23, CF-FIX; the Cash flow package's check of the declarations):
+    // the words said the source and its amount; the figure, and the worked answer $40,316, is the whole of that month's
+    // take-home — the usual month plus the $12,000 bonus after tax — which is what "March will look different" shows. No figure moves.
+    answers: 'What the month a once-a-year source lands in brings in, all of it — the usual take-home plus that source after tax — shown in its own month rather than divided by twelve.',
+    formula: 'the standout month = of the twelve months’ take-home, the largest, when it is more than the usual month by over $1: its amount is that whole month’s take-home (the usual month plus the lump, after tax), its label the month’s name',
     inputs: ['MK-CF-I-009 bonus', 'MK-CF-I-010 equity vesting'],
     decisions: ['A lump that lands once is never averaged across the year (founder, 2026-08-28).'],
     ruled: '2026-09-14',
@@ -252,15 +266,44 @@ export const FIGURES = declareFigures({
   },
   'MK-CF-M-041': {
     label: 'What it is taxed on', unit: 'money', per: 'year', screens: ['/income-summary'],
-    answers: 'The whole year of income the tax is calculated on — a different number from the take-home, and said to be one.',
-    formula: 'gross a year = Σ of every taxable source over the year, wages included at gross',
-    inputs: ['MK-CF-M-030 gross a year', 'MK-CF-I-006 other income', 'MK-CF-I-007 rental income', 'MK-CF-I-011 interest and dividends'],
+    // (2026-10-24, CF-FIX; his DEC-0283) the income the tax is worked on is the gross less the 401(k)s: this printed the gross,
+    // $169,200, while the bracket and a calculated tax were worked on $150,000. The gross is MK-CF-M-076 now.
+    answers: 'The whole year of income the tax is calculated on — the gross less the 401(k)s — a different number from the take-home, and said to be one.',
+    formula: 'what it is taxed on = gross a year (MK-CF-M-076) − the year\'s 401(k)s (MK-CF-M-077), never below $0 — his DEC-0283: income before tax is gross less the 401(k)',
+    inputs: ['MK-CF-M-076 gross a year', 'MK-CF-M-077 401(k)s a year'],
+    decisions: ['Income before tax is gross less the 401(k) and any other deduction; gross is before any deductions (DEC-0283, 2026-09-10).'],
     ruled: '2026-09-14',
     refusal: 'Shows $0 on a fresh account, with the door to enter income.',
     worked: {
       given: GIVEN,
+      answer: '$150,000/year',
+      run: () => INCOME().taxed.taxedOn,
+    },
+  },
+  'MK-CF-M-076': {
+    label: '= Gross /year', unit: 'money', per: 'year', screens: ['/income-summary'],
+    answers: 'The whole year of income before any deductions — every taxable source, wages at gross.',
+    formula: 'gross a year = Σ of every taxable source over the year, wages included at gross, before any deductions',
+    inputs: ['MK-CF-M-030 gross a year', 'MK-CF-I-006 other income', 'MK-CF-I-007 rental income', 'MK-CF-I-011 interest and dividends'],
+    decisions: ['Gross is before any deductions (DEC-0283, 2026-09-10). It was printed as MK-CF-M-041 until 2026-10-24, when that became the income after the 401(k)s.'],
+    refusal: 'Not shown on a fresh account — the door to enter income stands in the list.',
+    worked: {
+      given: GIVEN,
       answer: '$169,200/year',
       run: () => INCOME().taxed.grossAnnual,
+    },
+  },
+  'MK-CF-M-077': {
+    label: 'Your 401(k)s', unit: 'money', per: 'year', screens: ['/income-summary'],
+    answers: 'What every earner puts into their own 401(k) over the year — taken off the gross before tax.',
+    formula: '401(k)s a year = each earner\'s own contribution for the months they are paid, added up (the employer\'s match excluded) — as many dollars as the gross is above what it is taxed on',
+    inputs: ['MK-CF-I-004 401(k) contribution'],
+    decisions: ['A 401(k) comes off the gross before tax (DEC-0283, 2026-09-10; founder audit B05).'],
+    refusal: 'A real $0 when no 401(k) is entered; not shown on a fresh account.',
+    worked: {
+      given: GIVEN,
+      answer: '$19,200/year',
+      run: () => INCOME().taxed.k401Annual,
     },
   },
   'MK-CF-M-042': {
@@ -279,7 +322,9 @@ export const FIGURES = declareFigures({
   'MK-CF-M-043': {
     label: 'Federal tax bracket', unit: 'percent', screens: ['/income-summary'],
     answers: 'What the next dollar costs in federal income tax, with every source counted, not wages alone.',
-    formula: 'the published bracket that the whole year’s gross falls in, for their filing status',
+    // (2026-10-24, CF-FIX) the bracket of the income the tax is worked on — the 401(k)s are out first (B05) — not of the
+    // whole year's gross: single, $70,000 of wages and a $10,000 401(k) is 12%, where the gross alone reads 22%
+    formula: 'the published bracket that what the year is taxed on falls in once the 401(k)s are out — every source counted, less each earner’s own 401(k), less the standard deduction — for their filing status',
     inputs: ['MK-CF-M-041 gross a year', 'MK-XS-I-024 filing status'],
     ruled: '2026-09-14',
     refusal: 'The row is not shown until income is entered.',
@@ -293,15 +338,19 @@ export const FIGURES = declareFigures({
   'MK-CF-M-044': {
     label: 'Calculated federal tax', unit: 'money', per: 'year', screens: ['/income-summary'],
     answers: 'The federal income tax for the year, at whichever rate is in force — theirs if they entered one, ours if not.',
-    formula: 'tax a year = the rate in force × the year’s gross; when it is ours, federal tax on gross less the standard deduction at the published bands',
-    inputs: ['MK-CF-M-041 gross a year', 'MK-CF-I-005 tax rate as entered', 'MK-XS-I-024 filing status'],
-    decisions: ['When it is ours it assumes the standard deduction and is federal only (MK-CF-D-002).'],
+    // (2026-10-24, CF-FIX; the fault fixed on MK-CF-M-033) the worked example ran the household with a typed 22% — the row the
+    // screen prints as "Tax", not "Calculated federal tax" — and the words taxed the gross, the 401(k) still in it
+    formula: 'tax a year = a rate typed by the person × the year\'s gross (MK-CF-M-076); when it is ours, federal tax on what it is taxed on (MK-CF-M-041: the gross less the 401(k)s) less the standard deduction, at the published bands — plus a state rate the person entered',
+    inputs: ['MK-CF-M-041 what it is taxed on', 'MK-CF-M-076 gross a year', 'MK-CF-I-005 tax rate as entered', 'MK-XS-I-024 filing status'],
+    decisions: ['When it is ours it assumes the standard deduction and is federal only, plus a state rate entered (MK-CF-D-002, DEC-7608).',
+      'The 401(k) comes off before tax (DEC-0283).'],
     ruled: '2026-09-14',
     refusal: 'The row is not shown until income is entered.',
     worked: {
-      given: GIVEN,
-      answer: '$37,224/year',
-      run: () => INCOME().taxed.tax,
+      given: 'The same two earners filing jointly, $169,200 of wages and $19,200 into their 401(k)s, with no tax rate typed. Taxed on '
+        + '$150,000; less the $32,200 standard deduction, $117,800 → $2,480 + $9,120 + 22% × $17,000 = $15,340.',
+      answer: '$15,340/year',
+      run: () => incomeSummary({ ...EXAMPLE, taxMode: undefined, manualTaxRate: undefined }).taxed.tax,
     },
   },
   // ── YOUR SOURCES (2026-10-02): six hand-typed rows of the master became declarations — same identifiers,
@@ -375,11 +424,12 @@ export const FIGURES = declareFigures({
     worked: { given: SOURCES_GIVEN, answer: '$2,100/month', run: () => retirementIncomeMonthly(SOURCES_EXAMPLE as any) },
   },
   'MK-CF-M-027': {
-    label: 'each income source and its amount', unit: 'money', screens: ['/income-manager'], grain: 'one source',
+    // (2026-10-24, Cash flow journey E2E-70) also the Income tab's row for other income — one-time money among it — which had none
+    label: 'each income source and its amount', unit: 'money', screens: ['/income-manager', '/cashflow'], grain: 'one source',
     answers: 'Every source of income that has been entered, one line each, in the period it is counted in — a month or a year, said beside it.',
     formula: 'each source as it was entered: rent after its running costs, in a month; interest and dividends, a bonus, scholarships and loans, in a year; the rest in a month',
     inputs: ['MK-XS-I-023 salary and other income', 'MK-CF-I-009 bonus', 'MK-CF-I-010 equity vesting', 'MK-CF-I-007 rental income'],
-    refusal: 'Nothing entered — the list is replaced by the door to enter income.', ruled: '2026-10-02',
+    refusal: 'Nothing entered — the list is replaced by the one line "Nothing entered yet. Add your income ›" (Q48), which opens Base pay.', ruled: '2026-10-02',
     worked: { given: SOURCES_GIVEN + ' The line shown is the rental’s: what it brings in a month after its costs.', answer: '$1,200',
               run: () => theIncomeManager(SOURCES_EXAMPLE as any).entered.find((x) => x.key === 'rental')?.amount ?? null },
   },
@@ -543,6 +593,9 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *     a = op (or none when missing)
  *     wages = earner wages(op as any)
  *     inf = rate in force(op as any)
+ *     typed state = state rate of(op as any)
+ *     calculated covers = 'federal income tax, plus the ' + (typed state × 100).to fixed(2) + '% state rate you entered'   if typed state > 0
+ *     'federal income tax only'   otherwise
  *     r = inf.rate, theirs = inf.mine
  *     after tax = (x: number) => x × (1 − r)
  *     steady pay = salary gross by month(op as any).every((m) => m > 0)
@@ -551,10 +604,6 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *     self employed = to num(se amount) ÷ 12   if se freq = 'annual'
  *     se amount read as a number (0 when it is not one)   otherwise
  *     rent = rental net annual(op as any) ÷ 12
- *     rent arriving = rent   if theirs
- *     after tax(rent)   otherwise   if rent > 0
- *     0   otherwise
- *     inv monthly = to num(inv annual) ÷ 12
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-F-201 INCOME · MK-CF-F-210 annualOfSource
@@ -576,8 +625,8 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *               MK-CF-M-010 · MK-CF-M-011 · MK-CF-M-024 · MK-CF-M-027
  *               MK-CF-M-037 · MK-CF-M-038 · MK-CF-M-039 · MK-CF-M-040
  *               MK-CF-M-041 · MK-CF-M-042 · MK-CF-M-043 · MK-CF-M-044
- *               MK-CF-M-066 · MK-CF-M-069 · MK-MN-M-011 · MK-MN-M-012
- *               MK-MN-M-013
+ *               MK-CF-M-066 · MK-CF-M-069 · MK-CF-M-076 · MK-CF-M-077
+ *               MK-MN-M-011 · MK-MN-M-012 · MK-MN-M-013
  * Reads ....... MK-XS-I-022 pension monthly amount
  *               MK-XS-I-023 salary and other income
  *               MK-XS-I-030 tax filing status and age
@@ -592,6 +641,7 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *
  * Decides .....
  *     · Rounds the answer to a whole number.
+ *     · Shows 2 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-CF-O-004
  * Changed ..... not in git yet (—)
@@ -613,6 +663,9 @@ export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
   // (approved drawing v07, frame 16); a CALCULATED rate is the year's tax over everything taxable, so
   // it is taken from everything taxable — including the tax on dividends that never reach the bank.
   const inf = rateInForce(op as any);
+  // what the calculated rate covers, in words: federal income tax, and the state rate when one was typed (2026-10-23)
+  const typedState = stateRateOf(op as any);
+  const calculatedCovers = typedState > 0 ? 'federal income tax, plus the ' + (typedState * 100).toFixed(2) + '% state rate you entered' : 'federal income tax only';
   const r = inf.rate, theirs = inf.mine;
   const afterTax = (x: number) => x * (1 - r);
   const landsLines: Line[] = pay.earners
@@ -681,6 +734,7 @@ export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
   if (bonus > 0) taxedLines.push({ label: 'Bonus', amount: bonus });
 
   const grossAnnual = (taxableAnnual(op as any));
+  const taxedOn = taxedAfterPreTax(op as any);   // the gross less the year's 401(k)s (DEC-0283; 2026-10-24)
 
   return {
     lands: { lines: landsLines, usualMonth: usual, standoutMonth: standout,
@@ -690,13 +744,22 @@ export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
     taxed: {
       lines: taxedLines,
       grossAnnual,
-      bracket: marginalBracketFor(grossAnnual, filingStatusOf(op as any), over65CountOf(op as any)),
+      // the bracket on the income the tax is worked on — after the 401(k)s (taxedAfterPreTax, B05; 2026-10-24). It was the
+      // bracket of the whole year's gross, a band the tax was not worked in near an edge
+      bracket: marginalBracketFor(taxedOn, filingStatusOf(op as any), over65CountOf(op as any)),
       tax: (grossAnnual * inf.rate),
+      rate: inf.rate,
+      taxedOn,
+      k401Annual: grossAnnual - taxedOn,   // the rows add up: = Gross /year − Your 401(k)s = What it is taxed on
+      calculatedNote: typedState > 0
+        ? 'Federal income tax, plus the ' + (typedState * 100).toFixed(2) + '% state rate you entered — it knows nothing about Social Security or Medicare.'
+        : 'Federal only — it knows nothing about your state, and nothing about Social Security or Medicare.',
       whose: inf.label,
       estimated: inf.source === 'estimated',
       filing,
       closing: `${filing}, every source counted. Your ${Math.round(inf.rate * 100)}%, used on every figure built from your take-home. `
-        + 'Without it we show the calculated rate — federal income tax only, assuming the standard deduction.',
+        // a state rate typed on the Tax organizer is inside the calculated rate, so the sentence says so (2026-10-23, CF-FIX)
+        + 'Without it we show the calculated rate — ' + calculatedCovers + ', assuming the standard deduction.',
     },
     // Taxed, and never landed. The screen says this rather than leaving a gap between two totals
     // that a person would otherwise have to work out for themselves.

@@ -35,7 +35,9 @@ beforeEach(() => {
 test('the window title states the dated span; End chains EXACTLY (prev End + In − Out) from cash on hand', () => {
   render(<BillCalendarScreen />);
   const grid = buildDatedGrid(RETIREE as any, { startBalance: 18400 });
-  expect(screen.getByText(new RegExp(`${grid.cells[0].label} .*– ${grid.cells[11].label}`))).toBeOnTheScreen();
+  // each end of the span is a month as the one date writer writes it, the year once (2026-10-24, E2E-80: it read "Sep ’27 2027")
+  const end = (c: any) => `${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][c.calendarMonth - 1]} ${c.year}`;
+  expect(screen.getByText(new RegExp(`^${end(grid.cells[0])} – ${end(grid.cells[11])} · when money lands`))).toBeOnTheScreen();
   // chaining identity on the same function the screen reads
   let bal = 18400;
   for (const c of grid.cells) {

@@ -88,7 +88,7 @@ test('DEC-0022 — a holding with no price: the headline says it shows what was 
 // "info dot retirement has more information than what can fit on one screen but no scrolling feature." The card scrolls.
 test('DEC-0105 — the explanation card an ⓘ opens holds its words in a scrolling view (the market comparison Performance\'s Holding page opens)', () => {
   render(<InfoDot term="benchmark" />);
-  fireEvent.press(screen.getByLabelText(`What is ${GLOSSARY.benchmark.title}?`));
+  fireEvent.press(screen.getByLabelText(`About ${GLOSSARY.benchmark.title}`));
   const body = screen.getByText(GLOSSARY.benchmark.body);
   let p: any = body.parent, inScroll = false;
   while (p) { if (p.type === 'RCTScrollView' || p.type?.displayName === 'ScrollView' || p.type?.name === 'ScrollView') { inScroll = true; break; } p = p.parent; }
@@ -113,7 +113,7 @@ test('DEC-0458 — a stock is set beside the stock market, and its ⓘ names the
   const all = lines();
   expect(all).toContain('VS THE STOCK MARKET · SAME DATES');
   expect(all[all.indexOf('The market, same dates') + 1]).toBe('+10.00%');   // SPY 100 → 110 over the same year
-  expect(screen.getAllByLabelText(`What is ${GLOSSARY.benchmark.title}?`).length).toBeGreaterThan(0);
+  expect(screen.getAllByLabelText(`About ${GLOSSARY.benchmark.title}`).length).toBeGreaterThan(0);
   expect(GLOSSARY.benchmark.body).toMatch(/the S&P 500/);
 });
 // The audit's row 4 (2026-10-21) found this band calling AGG "the stock market"; on 2026-10-22 the Holding page names the
@@ -153,7 +153,7 @@ test('DEC-0001 — with an account and no plan filled in, What if shows its answ
   expect(all).toContain('Retire at');
   expect(all.filter((l) => /^AT \d+ \(ESTIMATES\)$/.test(l))).toHaveLength(1);   // the answer, without a plan first
   expect(all).toContain('Projected nest egg');
-  expect(screen.getAllByLabelText(`What is ${GLOSSARY.nestEggMath.title}?`)).toHaveLength(2);
+  expect(screen.getAllByLabelText(`About ${GLOSSARY.nestEggMath.title}`)).toHaveLength(2);
 });
 test('DEC-0001 — a fresh account: What if asks only for an account, never for the plan first', () => {
   useStore.getState().resetAll();

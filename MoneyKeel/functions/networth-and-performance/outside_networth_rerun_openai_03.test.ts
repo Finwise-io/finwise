@@ -122,8 +122,15 @@ describe('MK-NW-F-063 interestIncomeAnnual — five cases', () => {
     expect(interestIncomeAnnual([bondAcct({ asset_id: 'b', face_value: 20000, coupon_rate: 0.05, maturity_date: '2030-01-01' }),
       cashAcct({ asset_id: 'c', balance: 5000, coupon_rate: 0.02 })], NOW)).toBeCloseTo(1100, 6);
   });
-  test('complex · Missing face falls back to balance', () => {
+  // SPECIFICATION_CONFLICT (2026-10-24): the card carried his ruling DEC-2748c, "with no face, value × rate", and this case
+  // agreed with it ($8,000 × 3% = $240). The lead's decision of 2026-10-24 under DEC-3523 tenet 3, which outranks tenet 6,
+  // governs now: a bond with a maturity date pays its coupon on its face, so with no face entered it has no year's interest
+  // and counts $0 here, named on the Bonds screen. The case's $240 is kept, failing; the app's answer is pinned beside it.
+  test.failing('complex · Missing face falls back to balance', () => {
     expect(interestIncomeAnnual([bondAcct({ face_value: null, balance: 8000, coupon_rate: 0.03, maturity_date: '2030-01-01' })], NOW)).toBeCloseTo(240, 6);
+  });
+  test('complex · Missing face on a dated bond — the app\'s answer since 2026-10-24: $0, no year\'s interest without a face (tenet 3)', () => {
+    expect(interestIncomeAnnual([bondAcct({ face_value: null, balance: 8000, coupon_rate: 0.03, maturity_date: '2030-01-01' })], NOW)).toBe(0);
   });
   test('complex · Matured bond excluded; no date is not matured', () => {
     expect(interestIncomeAnnual([bondAcct({ asset_id: 'x', face_value: 10000, coupon_rate: 0.05, maturity_date: '2026-01-01' }),

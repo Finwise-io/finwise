@@ -180,7 +180,6 @@ export interface WalkLines { beginning: number; contributions: number; withdrawa
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Decides .....
  *     · Rounds the answer to a whole number.
@@ -203,6 +202,185 @@ export function walkShown(w: Omit<WalkLines, 'wealthGenerated'> & { wealthGenera
   shown[4] += missing;
   const [contributions, out, dividends, interest, marketChange] = shown;
   return { beginning, contributions, withdrawals: -out, dividends, interest, marketChange, wealthGenerated: dividends + interest + marketChange, ending };
+}
+
+/** What it is for: ROWS IN WHOLE DOLLARS THAT ADD UP TO THEIR PRINTED TOTAL (2026-10-24; DEC-3523 tenet 2, walkShown's method).
+ *  The total is rounded as every figure is; each row is rounded down and the dollars still missing go one each to the rows
+ *  with the largest part of a dollar left over (the first row wins a tie) — so no row is more than a dollar from its exact
+ *  value and a row that is a whole number of dollars never moves. Every part is a size, 0 or more. Worked by hand: $2,000 +
+ *  $506.50 + $1,200 + $400 = $4,106.50 → total $4,107; rounded down $4,106; the one dollar goes to the 50¢ → $2,000 + $507 +
+ *  $1,200 + $400 = $4,107. */
+/* ─ MK-XS-F-194 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * partsShown
+ *
+ * Answers ..... What it is for: ROWS IN WHOLE DOLLARS THAT ADD UP TO THEIR PRINTED TOTAL (2026-10-24; DEC-3523 tenet 2, walkShown's method).
+ *
+ * Formula .....
+ *     exact = for each of parts: each   if number.is finite(each)
+ *     0   otherwise
+ *     total = round(Σ over exact of (each))
+ *     floors = for each of exact: round down(each)
+ *     missing = Σ over total − floors of (each)
+ *     order = for each of exact: r = each − floors[i]
+ *     i = i where r > 1e − 9.sort((a, b) => r − r or i − i)
+ *     shown = floors.slice()
+ *     the answer:
+ *     parts = shown
+ *     total = total
+ *
+ * Called by ... MK-XS-F-195 monthShown
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-195 monthShown
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-194
+ * Changed ..... not in git yet (—)
+ */
+export function partsShown(parts: number[]): { parts: number[]; total: number } {
+  const exact = parts.map((v) => (Number.isFinite(v) ? v : 0));
+  const total = Math.round(exact.reduce((t, v) => t + v, 0));
+  const floors = exact.map((v) => Math.floor(v));
+  let missing = total - floors.reduce((t, v) => t + v, 0);
+  const order = exact.map((v, i) => ({ r: v - floors[i], i })).filter((x) => x.r > 1e-9).sort((a, b) => b.r - a.r || a.i - b.i);
+  const shown = floors.slice();
+  for (const { i } of order) { if (missing <= 0) break; shown[i] += 1; missing -= 1; }
+  return { parts: shown, total };
+}
+
+/** What it is for: A MONTH'S ROWS AS PRINTED — what came in, what went out, and the surplus — so the rows add up to the
+ *  surplus on the screen (2026-10-24; DEC-3523 tenet 2; found by the Cash flow journey suite, E2E-69). Each row was rounded on
+ *  its own and so was the surplus: a $6.50 coffee made This month read $5,000 − $2,000 − $0 − $507 − $1,200 − $200 − $200 above
+ *  "= Actual surplus so far +$894" (the rows make $893), and Home read Income $5,000 · Outflow $4,107 · Left $894. Now what
+ *  came in and what went out are rounded as every figure is, the rows on each side share that side's total (partsShown), and
+ *  the surplus printed is the one less the other: +$893, Left $893. A block with no surplus (a refusal) keeps none. */
+/* ─ MK-XS-F-195 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * monthShown
+ *
+ * Answers ..... What it is for: A MONTH'S ROWS AS PRINTED — what came in, what went out, and the surplus — so the rows add up to the surplus on the screen (2026-10-24; DEC-3523 tenet 2; found by the Cash flow journey suite, E2E-69).
+ *
+ * Formula .....
+ *     is in = for each of lines: kind = 'in'
+ *     ins = parts shown(lines.filter((_, i) => is in[i]).map((l) => amount))
+ *     outs = parts shown(lines.filter((_, i) => !is in[i]).map((l) => -amount))
+ *     a = 0, b = 0
+ *     amounts = for each of lines: ins.parts[a++]   if is in[i]
+ *     0   if outs.parts[b++] = 0
+ *     -outs.parts[b − 1]   otherwise   otherwise
+ *     by kind = {}
+ *     the answer:
+ *     amounts = amounts
+ *     inflow = ins.total
+ *     outflow = na n   if refused
+ *     outs.total   otherwise
+ *     surplus = na n   if refused
+ *     ins.total − outs.total   otherwise
+ *     by kind = by kind
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · If kind] is missing it uses 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-195
+ * Changed ..... not in git yet (—)
+ */
+export function monthShown(lines: { amount: number; kind: string }[], refused = false): { amounts: number[]; inflow: number; outflow: number; surplus: number; byKind: Record<string, number> } {
+  const isIn = lines.map((l) => l.kind === 'in');
+  const ins = partsShown(lines.filter((_, i) => isIn[i]).map((l) => l.amount));
+  const outs = partsShown(lines.filter((_, i) => !isIn[i]).map((l) => -l.amount));
+  let a = 0, b = 0;
+  const amounts = lines.map((_, i) => (isIn[i] ? ins.parts[a++] : (outs.parts[b++] === 0 ? 0 : -outs.parts[b - 1])));
+  // the rows of each kind as printed, added up as sizes — "− Debt payments" on the budget card is the debt rows here
+  const byKind: Record<string, number> = {};
+  lines.forEach((l, i) => { byKind[l.kind] = (byKind[l.kind] ?? 0) + Math.abs(amounts[i]); });
+  return { amounts, inflow: ins.total, outflow: refused ? NaN : outs.total, surplus: refused ? NaN : ins.total - outs.total, byKind };
+}
+
+/** What it is for: A MONTH IN THREE FIGURES AS PRINTED — what came in, what went out, and the surplus, which is the first
+ *  printed less the second, so the three add up on the screen (2026-10-24, tenet 2). $7,200 in and $3,248.50 out print
+ *  $7,200 · $3,249 · $3,951 (it read $3,952: each rounded on its own). */
+/* ─ MK-XS-F-196 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * flowShown
+ *
+ * Answers ..... What it is for: A MONTH IN THREE FIGURES AS PRINTED — what came in, what went out, and the surplus, which is the first printed less the second, so the three add up on the screen (2026-10-24, tenet 2).
+ *
+ * Formula .....
+ *     i = round(inflow), o = math.round(outflow)
+ *     the answer:
+ *     inflow = i
+ *     outflow = o
+ *     surplus = i − o
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-196
+ * Changed ..... not in git yet (—)
+ */
+export function flowShown(inflow: number, outflow: number): { inflow: number; outflow: number; surplus: number } {
+  const i = Math.round(inflow), o = Math.round(outflow);
+  return { inflow: i, outflow: o, surplus: i - o };
+}
+
+/** What it is for: A RUNNING BALANCE AS PRINTED, month by month — In, Out and End — so each End printed is the End before it plus
+ *  that month's In less its Out, as printed (2026-10-24; DEC-3523 tenet 2; the Bill calendar's table, the class E2E-69 found).
+ *  Each End is the balance rounded to the dollar as every balance is, so it is the same figure as the lowest point beside the
+ *  table. The month's In is rounded as every figure is, and its Out is what the two Ends and the In leave; where that would put
+ *  the Out a dollar or more from its exact value, the In is rounded the other way instead — so neither is a dollar or more out
+ *  and a whole-dollar figure never moves. Worked by hand: from $3,000, In $5,415.83 and Out $1,098.77 end at $7,317.06 → $7,317,
+ *  a change of $4,317; In $5,416, Out $5,416 − $4,317 = $1,099. Each rounded alone, the row could miss its End by a dollar. */
+/* ─ MK-XS-F-197 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * chainShown
+ *
+ * Answers ..... What it is for: A RUNNING BALANCE AS PRINTED, month by month — In, Out and End — so each End printed is the End before it plus that month's In less its Out, as printed (2026-10-24; DEC-3523 tenet 2; the Bill calendar's table, the class E2E-69 found).
+ *
+ * Formula .....
+ *     first = round(start)
+ *     exact = start, prev = first
+ *     end = round(exact)
+ *     net = end − prev
+ *     inflow = round(inflow)
+ *     the answer:
+ *     inflow = inflow
+ *     outflow = inflow − net
+ *     end = end
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-197
+ * Changed ..... not in git yet (—)
+ */
+export function chainShown(start: number, months: { inflow: number; outflow: number }[]): { start: number; rows: { inflow: number; outflow: number; end: number }[] } {
+  const first = Math.round(start);
+  let exact = start, prev = first;
+  const rows = months.map((m) => {
+    exact += m.inflow - m.outflow;
+    const end = Math.round(exact);
+    const net = end - prev;                                         // the change the two printed Ends make
+    let inflow = Math.round(m.inflow);
+    if (Math.abs(inflow - net - m.outflow) >= 1) inflow = inflow > m.inflow ? Math.floor(m.inflow) : Math.ceil(m.inflow);
+    prev = end;
+    return { inflow, outflow: inflow - net, end };
+  });
+  return { start: first, rows };
 }
 
 
@@ -279,24 +457,24 @@ export type FigureDeclaration = Record<string, FigureSpec>;
  * Called by ... MK-CF-F-199 ROOM · MK-CF-F-200 LINE
  *               MK-CF-F-202 TAX · MK-CF-F-204 line
  *               MK-CF-F-210 annualOfSource · MK-CF-F-211 DEBTS
- *               MK-CF-F-212 receivedInMonth · MK-CF-O-013 PAY_LANDS_TYPED
- *               MK-CF-O-015 workedLineAmount · MK-CF-O-017 futurePaycheck
+ *               MK-CF-F-212 receivedInMonth · MK-CF-F-240 PAY_LANDS_TYPED
+ *               MK-CF-F-242 workedLineAmount · MK-CF-O-017 futurePaycheck
  *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
  *               MK-NW-F-079 EF · MK-NW-F-081 LB
  *               MK-NW-F-088 BENCH · MK-NW-F-167 COMPARE
  *               MK-NW-F-179 balanceWithBondTakenOut · MK-NW-F-185 valueChanged
  *
- * Reaches ..... 307 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 389 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-081 LB · MK-NW-F-097 LEDGER
- *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
- *               MK-CF-F-200 LINE · MK-CF-O-014 M
- *               … and 289 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-081 LB
+ *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
+ *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
+ *               … and 371 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

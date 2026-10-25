@@ -30,6 +30,12 @@
  *  9. Phone 8 (onboarding) does not draw the employer's-match question; the drawing's own rule 2b says
  *     the questions are identical in both frames, and the build asks it in both. The title and
  *     Continue belong to the onboarding shell around this screen.
+ *  10. 2026-10-24 (CF-FIX; audit finding B05 (DEC-0185) and his DEC-0283 — a 401(k) comes off before tax — and tenet 1; a dated READ THIS FIRST row
+ *     on the drawing): the bracket is the band of what is taxed once each earner's 401(k) is out. Phone 2's household —
+ *     $138,000 of wages, $14,400 into 401(k)s — is taxed on $138,000 − $14,400 − $32,200 = $91,400, the 12% band; the drawing
+ *     prints 22%, the band of the gross. One wage alone ($84,000 − $9,600 − $32,200 = $42,200) is 12% too, so the note
+ *     "Filing jointly, the band comes from what you earn together. On your pay alone we would have read 12% …" has nothing to
+ *     say for this household and is not printed.
  */
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
@@ -79,9 +85,10 @@ test('the drawing still has its seventeen phones — the guard proves it looked'
 test('phone 2 · both sections closed, both take-homes entered — the whole screen', () => {
   show({ ...YOU, ...COUPLE, filingStatus: 'married', partnerWage: SAM_FORTNIGHTLY });
   closeYours();
-  const want = norm(phone(2, /^‹ Income$/, /^Save$/)).replace(/^‹ income /, '');                          // 1
+  const want = norm(phone(2, /^‹ Income$/, /^Save$/)).replace(/^‹ income /, '')                           // 1
+    .replace(/ filing jointly, the band comes from what you earn together\. on your pay alone we would have read #% and shown about \$#\/month more than your real take-home\./, '');   // 10
   const got = built().replace(/^‹ back /, '');
-  expect(want.split(' ').length).toBeGreaterThan(110);
+  expect(want.split(' ').length).toBeGreaterThan(90);   // 110 until 2026-10-24: the band note's 28 words are out of the comparison (10)
   expect(firstDifference(want, got)).toBe('');
 });
 
@@ -152,5 +159,5 @@ test('the figures the drawing’s own arithmetic supports are the figures the sc
   expect(lines).toContain('Monthly · the same each month · take-home $5,000');
   expect(lines).toContain('Fortnightly · varies · take-home $3,300/month');            // typed as a month, shown as that month
   expect(lines.filter((l) => l === '$8,300/month')).toHaveLength(2);                   // the band and the = Take-home row
-  expect(lines).toContain('22%');
+  expect(lines).toContain('12%');                                                       // 10: $91,400 taxed, the 12% band (drawn 22%)
 });

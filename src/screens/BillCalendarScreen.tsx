@@ -7,17 +7,19 @@ import TopBar from '../components/TopBar';
 import { EmptyNote } from '../components/UI';
 import { SectionBand } from '../components/SectionBand';
 import React, { useMemo, useState } from 'react';
-import { fig, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
+import { fig, figSaid, figWords, chainShown } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Switch } from 'react-native';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
-import { buildDatedGrid } from '../domain/grid';
+import { datedGridOf } from '../hooks/useCashflowModel';   // the Cash flow tab's one grid (2026-10-24)
+import { theBudgetCounted } from '../../MoneyKeel/functions/cashflow/budget-counted';
 // ONE DOOR (MK-CF-O-008 whatsComing, Q-CF-3 ruled 2026-09-27: "yes") — this screen, the Cash flow
 // tab, Your paycheck month by month and Worth a look answer one question about what is coming.
 import { whatsComing } from '../../MoneyKeel/functions/cashflow/whats-coming';
+import { monthYearShown } from '../domain/_shared/dates';   // a month as the one date writer writes it: "Sep 2027" (E2E-80)
 import { cashTotal } from '../domain/assets';   // canonical cash — equals Net worth's figure for the same accounts
 import { requiredPayment, paymentShape } from '../domain/debt';
 
@@ -38,17 +40,18 @@ export default function BillCalendarScreen() {
   const [startStr, setStartStr] = useState(cashOnHand > 0 ? String(Math.round(cashOnHand)) : '');
   const start = num(startStr);
 
-  // the ONE dated grid — same construction as the Cash flow tab (Roth tax lands here too),
-  // plus this screen's starting balance so End chains from real cash (r39)
-  const grid = useMemo(() => {
-    const rothTax = Number(A.rothConversionTax) || 0;
-    const oneOffs = rothTax > 0
-      ? [{ label: 'Roth conversion tax (from your Plan)', amount: rothTax, month: 4, year: new Date().getFullYear() + 1 }]
-      : undefined;
-    return buildDatedGrid(op, { liabilities, oneOffs, startBalance: start });
-  }, [op, liabilities, A.rothConversionTax, start]);
+  // the ONE dated grid — the Cash flow tab's own (datedGridOf: the budget as counted, the Roth tax), plus this screen's
+  // starting balance so End chains from real cash (r39). It was built here from the budget as typed, so with the home's
+  // mortgage in Debts the Rent / Mortgage line was counted beside it — $2,300/month the Cash flow tab stands down (DEC-1923;
+  // found 2026-10-24 by the Cash flow journey suite, E2E-72)
+  const counted = useMemo(() => theBudgetCounted({ profile: op, accounts, debts: liabilities }).profile, [op, accounts, liabilities]);
+  const grid = useMemo(() => datedGridOf(counted, liabilities, A.rothConversionTax, start), [counted, liabilities, A.rothConversionTax, start]);
+  const shownRows = useMemo(() => chainShown(start, grid.cells).rows, [grid, start]);
 
-  const bills = useMemo(() => whatsComing({ profile: op, startBalance: start }).bills.filter((b) => b.daysAway <= 150).slice(0, 3), [op, start]);
+  // the budget as counted, as the table above it (2026-10-24, E2E-72); what is there by each bill's day is READ FROM THAT TABLE —
+  // the debts in, the wage after tax and the 401(k) — so the COMING UP line and the End column cannot disagree (E2E-81: it read
+  // about $10,744 by Dec 13 beside a November End of $4,950)
+  const bills = useMemo(() => whatsComing({ profile: counted, startBalance: start, debts: liabilities, grid }).bills.filter((b) => b.daysAway <= 150).slice(0, 3), [counted, start, liabilities, grid]);
   const deferredDebts = useMemo(() => liabilities.filter((d: any) => {
     if (!d.first_payment_date) return false;
     const m = String(d.first_payment_date).match(/^(\d{4})-(\d{2})/);
@@ -118,7 +121,7 @@ export default function BillCalendarScreen() {
     <TopBar back />
     <KeyboardAwareScreen style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.h1}>Bill calendar</Text>
-      <Text style={styles.sub}>{grid.cells[0]?.label} {grid.cells[0]?.year} – {grid.cells[11]?.label} {grid.cells[11]?.year} · when money lands, when bills are due, and the surplus.</Text>
+      <Text style={styles.sub}>{monthYearShown(grid.cells[0]?.year, grid.cells[0]?.calendarMonth)} – {monthYearShown(grid.cells[11]?.year, grid.cells[11]?.calendarMonth)} · when money lands, when bills are due, and the surplus.</Text>
 
       <View style={styles.card}>
         <Text style={styles.fieldL}>Cash on hand now</Text>
@@ -150,13 +153,17 @@ export default function BillCalendarScreen() {
         </View>
         {grid.cells.map((c, slot) => {
           const neg = c.runningBalance < 0;
+          // EACH END IS THE END BEFORE IT, PLUS IN, LESS OUT, AS PRINTED (chainShown, 2026-10-24 — tenet 2): each was rounded alone
+          const p = shownRows[slot];
           return (
             <View key={`${c.label}${c.year}`} style={styles.mRow} accessible
-              accessibilityLabel={`${c.label} ${c.year}: in ${figSaid('MK-CF-M-051', Math.round(c.inflow))}, out ${figSaid('MK-CF-M-052', Math.round(c.outflow))}, ending balance ${figSaid('MK-CF-M-061', Math.round(c.runningBalance))}${neg ? ' — short' : ''}. Opens the month's detail.`}>
+              accessibilityLabel={`${monthYearShown(c.year, c.calendarMonth)}: in ${figSaid('MK-CF-M-051', p.inflow)}, out ${figSaid('MK-CF-M-052', p.outflow)}, ending balance ${figSaid('MK-CF-M-061', p.end)}${neg ? ' — short' : ''}.`}>
+              {/* A MONTH ROW OPENS NOTHING (2026-10-24, Cash flow journey E2E-80): month detail was retired on 2026-10-02 and this
+                  row has no tap, so it no longer says "Opens the month's detail" — nor the foot line, "Tap any row …" */}
               <Text style={[styles.mLabel, { flex: 1 }]}>{c.label}{neg ? ' !' : ''}</Text>
-              <Text style={[styles.mNum, styles.numCell, { color: Colors.primary }]}>{c.inflow > 0 ? '+' + fig('MK-CF-M-051', Math.round(c.inflow)) : '—'}</Text>
-              <Text style={[styles.mNum, styles.numCell]}>{c.outflow > 0 ? '−' + fig('MK-CF-M-052', Math.round(c.outflow)) : '—'}</Text>
-              <Text style={[styles.mNum, styles.numCell, { fontWeight: '800', color: neg ? Colors.red : Colors.textPrimary }]}>{fig('MK-CF-M-061', Math.round(c.runningBalance))}{neg ? ' short' : ''}</Text>
+              <Text style={[styles.mNum, styles.numCell, { color: Colors.primary }]}>{c.inflow > 0 ? '+' + fig('MK-CF-M-051', p.inflow) : '—'}</Text>
+              <Text style={[styles.mNum, styles.numCell]}>{c.outflow > 0 ? '−' + fig('MK-CF-M-052', p.outflow) : '—'}</Text>
+              <Text style={[styles.mNum, styles.numCell, { fontWeight: '800', color: neg ? Colors.red : Colors.textPrimary }]}>{fig('MK-CF-M-061', p.end)}{neg ? ' short' : ''}</Text>
             </View>
           );
         })}
@@ -275,7 +282,7 @@ export default function BillCalendarScreen() {
         </View>
       )}
 
-      <Text style={styles.foot}>A forward plan, not a promise: expenses use your planned amounts, income is after estimated tax, and non-monthly bills land in the months you chose. Tap any row for that month's full detail.</Text>
+      <Text style={styles.foot}>A forward plan, not a promise: expenses use your planned amounts, income is after estimated tax, and non-monthly bills land in the months you chose.</Text>
       <View style={{ height: 40 }} />
     </KeyboardAwareScreen>
     </View>

@@ -1,6 +1,6 @@
 {
  "highest": {
-  "CF-M": 75,
+  "CF-M": 78,
   "HM-M": 4,
   "MN-M": 30,
   "NW-M": 73,
@@ -17,13 +17,9 @@
   "CF|M|/paycheck-months|the months a paycheck lands|payYear": "MK-CF-M-026",
   "CF|M|<MONTH> · $X SPENT|spent": "MK-CF-M-013",
   "CF|M|<goal> · from your Plan|c.monthlyAmount": "MK-CF-M-021",
-  "CF|M|= Planned surplus|cell.net": "MK-CF-M-003",
   "CF|M|= Surplus|inn - out": "MK-CF-M-005",
   "CF|M|BIG-TICKET RADAR — <bill> · due <month>|b.amount": "MK-CF-M-016",
   "CF|M|BY CATEGORY VS PLAN — $X of $Y|b.spent / b.planned": "MK-CF-M-015",
-  "CF|M|Expected in|cell.inflow": "MK-CF-M-001",
-  "CF|M|Out (spent + debt)|out": "MK-CF-M-004",
-  "CF|M|Planned out · incl. <big bill>|cell.outflow": "MK-CF-M-002",
   "CF|M|RECEIVED · <month> — each payment|i.amount": "MK-CF-M-012",
   "CF|M|THIS MONTH — In (take-home)|inflow": "MK-CF-M-018",
   "CF|M|THIS MONTH — Out (bills + debt)|outflow": "MK-CF-M-019",
@@ -317,7 +313,10 @@
   "NW|M|declared|Your return, past <window> (one holding, on its own page)": "MK-NW-M-069",
   "NW|M|declared|The market, same dates (one holding)": "MK-NW-M-070",
   "NW|M|declared|You are ahead by / behind by … points (one holding)": "MK-NW-M-071",
-  "PF|M|declared|ahead by / behind by — your return less the market’s (every investment together, Home)": "MK-PF-M-027"
+  "PF|M|declared|ahead by / behind by — your return less the market’s (every investment together, Home)": "MK-PF-M-027",
+  "CF|M|declared|/income-summary|= Gross /year": "MK-CF-M-076",
+  "CF|M|declared|/income-summary|Your 401(k)s": "MK-CF-M-077",
+  "CF|M|declared|/cashflow|SURPLUS — <MONTH> (retired)": "MK-CF-M-078"
  },
  "note": "A metric identifier is issued once against its key and never re-pointed. A number here is never handed to a different figure, even if the figure it was issued to is deleted — the retired block keeps it with the reason. | 2026-09-14: identifiers whose key begins \"declared\" are DECLARED IN THE CODE (founder rule 11) — the door owns them; they are listed here only so no other row is issued the same number.",
  "retired": {
@@ -337,6 +336,10 @@
   "note 2026-10-02 — MK-CF-M-001 to 004": "Issued on 2026-08-28 to the hand-typed rows \"Expected in\", \"Planned out\", \"= Planned surplus\" and \"Out (spent + debt)\", then given to theMonth's declared rows (Expenses, = Planned surplus, = Actual surplus so far, each row of the month) on 2026-09-27 before the never-re-point rule was written down. They stay with the declared rows; the old hand-typed keys remain here so the history reads true.",
   "MK-CF-M-065": "\"total income / year (gross)\" on the Income manager — retired 2026-10-04 when the manager was rebuilt to its approved drawing (income-end-to-end v07, frame 3d), which shows how many sources are entered and one line each, and no yearly total. What the year is taxed on is MK-CF-M-041 on the Income summary. The number is never reused.",
   "MK-NW-M-003": "\"the trend line\" (how many points the Net worth line is drawn from) — retired 2026-10-14: the line is no longer on the Net worth screen, and its door MK-NW-O-003 theNetWorth stopped taking the monthly and daily history it was drawn from, which none of its eight callers passed (inputs-and-use audit, 2026-10-11, Net worth). The change on the screen is MK-NW-M-001, read from the record by MK-XS-F-005 trendPoints. The number is never reused.",
-  "MK-NW-M-069": "\"Your return, past <window>\" on the Holding page — retired 2026-10-22, the day after it was issued: it is the account page's holding Return, MK-PF-M-023 (one holding, one window, one figure; tenet 4). Both pages now print that older identifier from one function, holdingRowsIn (holding.ts). The number is never reused."
+  "MK-NW-M-069": "\"Your return, past <window>\" on the Holding page — retired 2026-10-22, the day after it was issued: it is the account page's holding Return, MK-PF-M-023 (one holding, one window, one figure; tenet 4). Both pages now print that older identifier from one function, holdingRowsIn (holding.ts). The number is never reused.",
+  "CF|M|Expected in|cell.inflow": "\"Expected in\" (the month's money in), a hand-typed row, was issued MK-CF-M-001 first. On 2026-10-02, when the hand-typed rows became declarations, MK-CF-M-001 was handed to \"Expenses\" — against this register's own rule. Settled 2026-10-24 (the lead's decision): MK-CF-M-001 stays with \"Expenses\", which the code, the screens, the drawings and his decisions since 2026-10-02 use; this key is retired and never issued again; its figure lives on as MK-CF-M-047 \"Expected inflow\".",
+  "CF|M|Planned out · incl. <big bill>|cell.outflow": "\"Planned out · incl. <big bill>\" (the month's planned money out), a hand-typed row, was issued MK-CF-M-002 first. On 2026-10-02, when the hand-typed rows became declarations, MK-CF-M-002 was handed to \"= Planned surplus\" — against this register's own rule. Settled 2026-10-24 (the lead's decision): MK-CF-M-002 stays with \"= Planned surplus\", which the code, the screens, the drawings and his decisions since 2026-10-02 use; this key is retired and never issued again; its figure lives on as MK-CF-M-048 \"Planned outflow (expenses + debt)\".",
+  "CF|M|= Planned surplus|cell.net": "\"= Planned surplus\" (the month's planned in less out), a hand-typed row, was issued MK-CF-M-003 first. On 2026-10-02, when the hand-typed rows became declarations, MK-CF-M-003 was handed to \"= Actual surplus so far\" — against this register's own rule. Settled 2026-10-24 (the lead's decision): MK-CF-M-003 stays with \"= Actual surplus so far\", which the code, the screens, the drawings and his decisions since 2026-10-02 use; this key is retired and never issued again; its figure lives on as MK-CF-M-049 \"= Planned surplus (this month)\".",
+  "CF|M|Out (spent + debt)|out": "\"Out (spent + debt)\" (the month's outflow), a hand-typed row, was issued MK-CF-M-004 first. On 2026-10-02, when the hand-typed rows became declarations, MK-CF-M-004 was handed to \"each row of the month\" — against this register's own rule. Settled 2026-10-24 (the lead's decision): MK-CF-M-004 stays with \"each row of the month\", which the code, the screens, the drawings and his decisions since 2026-10-02 use; this key is retired and never issued again; its figure lives on as MK-CF-M-052 \"Outflow (expenses + debt)\"."
  }
 }

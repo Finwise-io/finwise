@@ -145,7 +145,8 @@ const morningRows = () => buildPerformance([{ position_id: 'p2', ticker: 'Y', ki
  *  $110 on Apr 1, close $121 today — the row the app builds (not capped: the first purchase is before the window). */
 const toppedUpRow = () => buildPerformance([{ position_id: 'p1', ticker: 'X', kind: 'stock', asset_class: 'stock_etf',
   lots: [lot(10, 90, '2025-01-02'), lot(10, 110, '2026-04-01')] } as any],
-() => series('X', [['2025-01-02', 90], ['2025-10-12', 100], ['2026-04-01', 110], ['2026-10-13', 121]]) as any, '1Y', new Date('2026-10-13T12:00:00'))[0];
+// (the close the evening before the purchase (2026-10-23, W-START): the 10 were bought at the market's $110, so the holding stood at $110 that evening — read by the whole-day rule (DEC-4439, DEC-7451) now that a holding held when the window began is measured from its purchases; without it the closes said the six months from $100 to $110 all fell on the purchase day, and the figure read 2,420 ÷ 2,100 − 1 = +15.24%)
+() => series('X', [['2025-01-02', 90], ['2025-10-12', 100], ['2026-03-31', 110], ['2026-04-01', 110], ['2026-10-13', 121]]) as any, '1Y', new Date('2026-10-13T12:00:00'))[0];
 /** DEC-4644's household: 1,000 shares $100 → $105 paying $1.20 a share, the feed's adjusted start $100 × (1 − 1.20 ÷ 100) */
 const ADJUSTED = 105 / (100 * (1 - 1.2 / 100)) - 1;   // 6.2753%, shown 6.28% (precision spec line 139: "105 ÷ 98.80 − 1 = 6.28%")
 const wipedOut = { position: { ticker: 'X', last_price: 0, lots: [{ shares: 10 }] }, marketValue: 0, periodReturn: -1, periodTotal: -1 };
@@ -800,10 +801,19 @@ describe('still open — the reviewer\'s 52 open points', () => {
   // rule everywhere: face × rate; with no face, value × rate; with no rate, $0 and said so." It governs MK-NW-F-112
   // yearlyInterest by name; four earlier outside reviews agreed with it. Checked 2026-10-21 (NWFIX): the reviewer's point
   // (DEC-2748b, tenet 3) conflicts with that ruling, so the ruling stands and the conflict goes to the record. Was APP WRONG.
-  open(18, 'REVIEWER WRONG', 'MK-NW-M-024 · no face → no yearly interest figure (his ruling DEC-2748c: with no face, value × rate)', () => { expect(yearlyInterest(facelessBond())).toBeNull(); });
-  test('#18 · the app\'s answers, pinned (DEC-2748c): the worked bond $1,125/year; no rate → none; no face → $1,089 on the market value', () => {
+  // FIXED 2026-10-24 (NW-BONDS, the lead's decision under DEC-3523 tenet 3, which outranks tenet 6 — the record the conflict
+  // went to): a bond with a maturity date and no face value has no year's interest, and the screens say "face value not
+  // entered". DEC-2748c's value × rate stands where there is no face to enter — a CD bought from the bank, typed by its
+  // balance (DEC-3837), and a bond fund, with no maturity date. Was REVIEWER WRONG. The app's answer until then is kept, failing.
+  open(18, 'AGREES', 'MK-NW-M-024 · no face → no yearly interest figure — fixed 2026-10-24 (tenet 3: a dated bond with no face value has none)', () => { expect(yearlyInterest(facelessBond())).toBeNull(); });
+  test('#18 · the app\'s answers since 2026-10-24: the worked bond $1,125/year; no rate → none; a dated bond with no face → none; a bank CD with no face → its rate on its balance', () => {
     expect(shown('MK-NW-M-024')).toBe('$1,125/year — 4.50% of $25,000 face');
     expect(yearlyInterest({ ...facelessBond(), face: 25000, couponRate: null })).toBeNull();
+    expect(yearlyInterest(facelessBond())).toBeNull();
+    // $10,000 × 5.05% = $505: the bank CD typed by its balance that DEC-2748c was ruled for
+    expect(yearlyInterest({ ...facelessBond(), isCd: true, cdBought: 'bank', value: 10000, couponRate: 0.0505 })!).toBeCloseTo(505, 6);
+  });
+  test.failing('#18 · the app\'s answer until 2026-10-24, pinned: no face → $1,089 on the market value (DEC-2748c\'s no-face half) — no longer its answer (FIXED 2026-10-24)', () => {
     expect(yearlyInterest(facelessBond())!).toBeCloseTo(1089, 6);
   });
   // REVIEWER WRONG on the number (DEC-3390: accrued interest is added before the yield is worked; 5.688% with it,
@@ -1040,8 +1050,10 @@ describe('still open — the reviewer\'s 52 open points', () => {
   });
   // APP WRONG (IRS Rev. Proc. 2025-32 §4.01 — the source the table itself cites): head of household 24% ends at $201,750
   // and 32% at $256,200; the table copies the single filer's $201,775 / $256,225 (src/domain/income/tax.ts:148)
-  open(50, 'APP WRONG', '2026 head-of-household brackets: tax at $300,000 taxable is $71,961', () => { expect(taxOwedFor(300000 + 24150, 'hoh')).toBeCloseTo(71961, 6); });
-  test('#50 · the app\'s answer, pinned: $71,958.25', () => { expect(taxOwedFor(300000 + 24150, 'hoh')).toBeCloseTo(71958.25, 6); });
+  // FIXED 2026-10-23 (DEC-0378; Rev. Proc. 2025-32 §4.01 table 2, read again from the IRS text that day): the head-of-household
+  // table carries its own 24% and 32% tops. Was APP WRONG. The app's answer until then is kept, failing.
+  open(50, 'AGREES', '2026 head-of-household brackets: tax at $300,000 taxable is $71,961 — fixed 2026-10-23 (Rev. Proc. 2025-32 §4.01 table 2)', () => { expect(taxOwedFor(300000 + 24150, 'hoh')).toBeCloseTo(71961, 6); });
+  test.failing('#50 · the app\'s answer until 2026-10-23, pinned: $71,958.25 — no longer its answer (FIXED 2026-10-23)', () => { expect(taxOwedFor(300000 + 24150, 'hoh')).toBeCloseTo(71958.25, 6); });
   // AGREES (G4, founder agreed 2026-09-12): the $200,000 line is what one paycheck withholds, per earner, never deducted
   // from the take-home; a household's own liability is not computed anywhere
   open(51, 'AGREES', 'Additional Medicare: per-earner withholding, kept apart from a household\'s liability', () => {

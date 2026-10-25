@@ -27,47 +27,13 @@ MoneyKeel · calculation audit · built by `Calculation Module code/scripts/buil
 | `moneykeel_audit_cards_performance_02-of-04.md` | performance 02 | 15 | 75 | MK-NW-F-084 categoryEarnings … MK-PF-F-020 portfolioBenchReturn |
 | `moneykeel_audit_cards_performance_03-of-04.md` | performance 03 | 15 | 75 | MK-PF-F-033 quantityWithUnit … MK-PF-F-022 factorOverMonths |
 | `moneykeel_audit_cards_performance_04-of-04.md` | performance 04 | 6 | 30 | MK-PF-F-023 lookBack … MK-PF-F-034 closeOnOrBefore |
-| `moneykeel_audit_cards_cashflow_01-of-16.md` | cashflow 01 | 6 | 30 | MK-CF-O-001 basePay … MK-CF-O-006 theCreditLine |
-| `moneykeel_audit_cards_cashflow_02-of-16.md` | cashflow 02 | 6 | 30 | MK-CF-O-007 theTaxOrganizer … MK-CF-O-018 theDebts |
-| `moneykeel_audit_cards_cashflow_03-of-16.md` | cashflow 03 | 1 | 5 | MK-CF-O-019 theIncomeManager … MK-CF-O-019 theIncomeManager |
-| `moneykeel_audit_cards_cashflow_04-of-16.md` | cashflow 04 | 15 | 75 | MK-CF-F-002 plannedMonthlySpend … MK-CF-F-027 totalDebtBalance |
-| `moneykeel_audit_cards_cashflow_05-of-16.md` | cashflow 05 | 15 | 75 | MK-CF-F-028 loanPayment … MK-CF-F-057 rothVsTraditional |
-| `moneykeel_audit_cards_cashflow_06-of-16.md` | cashflow 06 | 15 | 75 | MK-CF-F-058 rothConversionWindow … MK-CF-F-085 filingStatusOf |
-| `moneykeel_audit_cards_cashflow_07-of-16.md` | cashflow 07 | 15 | 75 | MK-CF-F-086 stateRateOf … MK-CF-F-173 earnerWages |
-| `moneykeel_audit_cards_cashflow_08-of-16.md` | cashflow 08 | 15 | 75 | MK-CF-F-179 entryFromWage … MK-CF-F-031 creditUtilization |
-| `moneykeel_audit_cards_cashflow_09-of-16.md` | cashflow 09 | 15 | 75 | MK-CF-F-037 inferDebtType … MK-CF-F-065 equityVestWeights |
-| `moneykeel_audit_cards_cashflow_10-of-16.md` | cashflow 10 | 15 | 75 | MK-CF-F-067 rentalList … MK-CF-F-100 taxableIncomeFor |
-| `moneykeel_audit_cards_cashflow_11-of-16.md` | cashflow 11 | 15 | 75 | MK-CF-F-105 guaranteedRows … MK-CF-F-121 zero12 |
-| `moneykeel_audit_cards_cashflow_12-of-16.md` | cashflow 12 | 15 | 75 | MK-CF-F-124 nextOccurrence … MK-CF-F-149 recurringDebtPayments |
-| `moneykeel_audit_cards_cashflow_13-of-16.md` | cashflow 13 | 15 | 75 | MK-CF-F-150 debtPaymentsCountedAsExpenses … MK-CF-F-175 sumOverEarners |
-| `moneykeel_audit_cards_cashflow_14-of-16.md` | cashflow 14 | 15 | 75 | MK-CF-F-176 sumMonthsOverEarners … MK-CF-F-195 monthsLeftInYear |
-| `moneykeel_audit_cards_cashflow_15-of-16.md` | cashflow 15 | 15 | 75 | MK-CF-F-196 perMonthToFill … MK-CF-F-148 inMonth |
-| `moneykeel_audit_cards_cashflow_16-of-16.md` | cashflow 16 | 6 | 30 | MK-CF-F-155 cash … MK-CF-F-191 ym |
+| `to-send/MoneyKeel_CashFlow_Audit_Package/` (and its .zip) | cashflow module v01 — replaces the Cash flow batches | 219 | 1,095 | 19 parts — see "The Cash flow package" below |
 
 ## Left out of the pack
 
 | Function | Why no cases are asked for |
 |---|---|
-| MK-CF-F-015 loadBudget | storage only — it reads or saves and does no arithmetic |
-| MK-CF-F-016 saveBudget | storage only — it reads or saves and does no arithmetic |
-| MK-CF-F-039 loadDebt | storage only — it reads or saves and does no arithmetic |
-| MK-CF-F-040 saveDebt | storage only — it reads or saves and does no arithmetic |
-| MK-CF-F-050 loadIncome | storage only — it reads or saves and does no arithmetic |
-| MK-CF-F-051 saveIncome | storage only — it reads or saves and does no arithmetic |
-| MK-CF-F-199 ROOM | an example helper — it runs another function on a worked example |
-| MK-CF-F-200 LINE | an example helper — it runs another function on a worked example |
-| MK-CF-F-201 INCOME | an example helper — it runs another function on a worked example |
-| MK-CF-F-202 TAX | an example helper — it runs another function on a worked example |
-| MK-CF-F-203 MONTH | an example helper — it runs another function on a worked example |
-| MK-CF-F-204 line | an example helper — it runs another function on a worked example |
-| MK-CF-F-205 COMING | an example helper — it runs another function on a worked example |
-| MK-CF-F-207 SOURCE | an example helper — it runs another function on a worked example |
-| MK-CF-F-211 DEBTS | an example helper — it runs another function on a worked example |
-| MK-CF-O-011 PAY | an example helper — it runs another function on a worked example |
-| MK-CF-O-012 PAY_ESTIMATED | an example helper — it runs another function on a worked example |
-| MK-CF-O-013 PAY_LANDS_TYPED | an example helper — it runs another function on a worked example |
-| MK-CF-O-014 M | an example helper — it runs another function on a worked example |
-| MK-CF-O-015 workedLineAmount | an example helper — it runs another function on a worked example |
+| Cash flow | listed with the reason in the package brief `moneykeel_audit_module_cf_for-openai_v01.md`, section "Not on a card" (22 on 2026-10-24) |
 | MK-NW-F-042 loadAssets | storage only — it reads or saves and does no arithmetic |
 | MK-NW-F-043 saveAssets | storage only — it reads or saves and does no arithmetic |
 | MK-NW-F-075 ACC | an example helper — it runs another function on a worked example |
@@ -91,3 +57,38 @@ MoneyKeel · calculation audit · built by `Calculation Module code/scripts/buil
 | MK-NW-F-099 SNAP | an example helper — it runs another function on a worked example |
 | MK-NW-F-100 TREND | an example helper — it runs another function on a worked example |
 | MK-NW-F-101 PLAN | an example helper — it runs another function on a worked example |
+
+<!-- THE CASH FLOW PACKAGE — this section and the two Cash flow rows above are written by moneykeel_audit_package.py on each build of the package -->
+
+## The Cash flow package — what to send for Cash flow
+
+Built 2026-10-24 by `build-outside-test-cards.py --audit-package CF`, checked by `check-outside-audit-package.py`, which zips it only when every check passes. It replaces the Cash flow batch files above: the fifteen of 2026-10-04 that were on disk are in `to-send/archive/` under that date.
+
+- Folder: `to-send/MoneyKeel_CashFlow_Audit_Package/`, and `to-send/MoneyKeel_CashFlow_Audit_Package.zip`.
+- 227 functions and 14 orchestrators: 219 on cards (1,095 cases asked for), 22 listed with the reason; 67 figures; 175 decisions of his that govern it.
+- How to send: one new chat for each part. Paste the brief `moneykeel_audit_module_cf_for-openai_v01.md` and the part. For parts 13, 15, 16, 17 add `moneykeel_audit_module_cf_tax-sources-and-acceptance_v01.json`. Save each reply, unchanged, in `returned/`.
+- Once sent, the folder and the zip move to `to-send/archive/` under the date they were sent.
+
+| Part | File | What it covers | Cards | Cases |
+|---|---|---|---|---|
+| 1 | `moneykeel_audit_module_cf_for-openai_v01_part-01-of-19.md` | Wages — what is paid, in which months, and the year it makes | 15 | 75 |
+| 2 | `moneykeel_audit_module_cf_for-openai_v01_part-02-of-19.md` | Earners, and a salary that varies month to month | 14 | 70 |
+| 3 | `moneykeel_audit_module_cf_for-openai_v01_part-03-of-19.md` | Stock that vests, and rent from a property | 11 | 55 |
+| 4 | `moneykeel_audit_module_cf_for-openai_v01_part-04-of-19.md` | Benefits, retirement income and other income | 10 | 50 |
+| 5 | `moneykeel_audit_module_cf_for-openai_v01_part-05-of-19.md` | The income summary, the income manager, and income paid by accounts | 15 | 75 |
+| 6 | `moneykeel_audit_module_cf_for-openai_v01_part-06-of-19.md` | The budget, and the Expenses tab | 14 | 70 |
+| 7 | `moneykeel_audit_module_cf_for-openai_v01_part-07-of-19.md` | Essentials, savings by month, and the budget against what was spent | 12 | 60 |
+| 8 | `moneykeel_audit_module_cf_for-openai_v01_part-08-of-19.md` | Bills ahead, what is coming, and the credit line | 11 | 55 |
+| 9 | `moneykeel_audit_module_cf_for-openai_v01_part-09-of-19.md` | Debts — payments, balances and paying them off | 15 | 75 |
+| 10 | `moneykeel_audit_module_cf_for-openai_v01_part-10-of-19.md` | Debts — credit, kinds of debt, and a mortgage against a Treasury | 13 | 65 |
+| 11 | `moneykeel_audit_module_cf_for-openai_v01_part-11-of-19.md` | Recording a transaction — cash, holdings and undo | 14 | 70 |
+| 12 | `moneykeel_audit_module_cf_for-openai_v01_part-12-of-19.md` | Transactions — undo, labels, cash effect, income from holdings, and review flags | 11 | 55 |
+| 13 | `moneykeel_audit_module_cf_for-openai_v01_part-13-of-19.md` | Contribution limits, room left this year, and the future paycheck | 14 | 70 |
+| 14 | `moneykeel_audit_module_cf_for-openai_v01_part-14-of-19.md` | This month — the plan and what has happened | 15 | 75 |
+| 15 | `moneykeel_audit_module_cf_for-openai_v01_part-15-of-19.md` | Base pay — gross, take-home, and the rate of tax in force | 14 | 70 |
+| 16 | `moneykeel_audit_module_cf_for-openai_v01_part-16-of-19.md` | Federal tax — the 2026 tables, the deductions and the bands | 11 | 55 |
+| 17 | `moneykeel_audit_module_cf_for-openai_v01_part-17-of-19.md` | Tax on the household — what is taxed, the filing status, the rates, and the tax organizer | 10 | 50 |
+| 18 | `moneykeel_audit_module_cf_for-openai_v01_part-18-of-19.md` | The screens — the Cash flow tab, its four tabs, and Home's box for this month | — | 41 figures against the tenets |
+| 19 | `moneykeel_audit_module_cf_for-openai_v01_part-19-of-19.md` | The screens — Base pay, Income summary, the income manager, the bill calendar and guaranteed income | — | 26 figures against the tenets |
+
+<!-- end of the Cash flow package section -->

@@ -43,7 +43,7 @@ describe('the Bonds & CDs bar carries an info dot beside its yearly rate (DEC-58
     const walk = (n: any) => { if (typeof n === 'string') texts.push(n); else (n?.children ?? []).forEach(walk); };
     walk(band);
     expect(texts.join('|')).toMatch(/ⓘ\|4\.11%\/year$/);
-    fireEvent.press(screen.getByLabelText('What is Yearly pace?'));
+    fireEvent.press(screen.getByLabelText('About Yearly pace'));
     expect(screen.getByText(GLOSSARY.yearlyPace.body)).toBeOnTheScreen();
   });
 
@@ -56,7 +56,7 @@ describe('the Bonds & CDs bar carries an info dot beside its yearly rate (DEC-58
   test('a bar with no stated rate carries no dot', () => {
     seed({ ...BOND_ACCOUNT, coupon_rate: undefined });
     render(<AccountPortfolioScreen />);
-    expect(screen.queryByLabelText('What is Yearly pace?')).toBeNull();
+    expect(screen.queryByLabelText('About Yearly pace')).toBeNull();
   });
 });
 
@@ -95,7 +95,7 @@ describe('the Itemize into holdings door is the amber action box, not green (DEC
     const { Colors } = require('../../utils/theme');
     seed({ asset_id: 'k', label: 'Account', institution: 'Bank', source: 'manual', balance: 10_000, positions: [], kind: 'brokerage', tax_bucket: 'TAXABLE' });
     render(<AccountPortfolioScreen />);
-    const door = screen.getByLabelText('Itemize Account into holdings');
+    const door = screen.getByLabelText('Itemize Bank Brokerage into holdings');
     const box = Object.assign({}, ...[door.props.style].flat(5).filter(Boolean));
     expect([box.backgroundColor, box.borderColor, box.borderWidth]).toEqual([Colors.amberLight, Colors.amber, 1]);
     const title = screen.getByText(/Itemize into holdings/);

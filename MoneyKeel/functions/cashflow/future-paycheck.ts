@@ -48,15 +48,15 @@ export interface FuturePaycheck {
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
- * Serves ...... MK-CF-M-055 · MK-CF-M-070
+ * Serves ...... MK-CF-M-055 · MK-CF-M-070 · MK-CF-M-078
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-017 birth year
  *               MK-XS-I-018 retirement age
  *               MK-XS-I-022 pension monthly amount
+ *               MK-XS-I-024 logged expenses
  *               MK-XS-I-026 big costs (amount and year)
  *               MK-XS-I-028 assumed return
- *               MK-XS-I-029 inflation rate
  *
  * Decides .....
  *     · Rounds the answer to a whole number.
@@ -93,6 +93,10 @@ const SAVER = {
   accounts: [{ asset_id: 'k', label: '401(k)', tax_bucket: 'PRE_TAX', balance: 200_000, target_return: 0.06, retirement_pct: 100 }],
   assumptions: { expectedReturn: 0.06 },
 };
+/** A retired household on 15 Oct 2026: $2,400/month of Social Security, no savings to draw on, $1,200 of car insurance in October. */
+const RETIRED = { status: 'retired', birthYear: '1956', incomeSources: ['retirement_income'], ri_ss: '2400', ri_ss_freq: 'monthly', monthlySpending: '1500',
+  spendCats: [{ id: 'ins', label: 'Car insurance', amount: 1_200, bucket: 'nonmonthly', months: [10], tier: 'critical', custom: true }] };
+const GIVEN_RETIRED = 'Retired, on 15 Oct 2026: $2,400/month of Social Security, no savings to draw on, and $1,200 of car insurance due in October.';
 const GIVEN = 'Born in 1981, retiring at 67, with $200,000 in a 401(k) earning 6% and $2,000/month of Social Security from 67.';
 
 export const FUTURE_PAYCHECK_FIGURES = declareFigures({
@@ -128,6 +132,21 @@ export const FUTURE_PAYCHECK_FIGURES = declareFigures({
     refusal: 'No pot — no draw; the paycheck is the guaranteed income alone.',
     ruled: '2026-10-02',
     worked: { given: GIVEN, answer: '$2,345/month', run: () => futurePaycheck(SAVER as any)?.draw ?? null },
+  },
+  // ITS OWN NUMBER (2026-10-24, CF-FIX; PF-TOOLS, settling MK-CF-M-001 to 004): the retired view's surplus this month — the
+  // paycheck card's "SURPLUS — <MONTH>" and the pace line's "Spent $X of $Y surplus this month" — was printed under
+  // MK-CF-M-049, the later-month card's planned surplus, a third figure under one number. The register issued MK-CF-M-078.
+  'MK-CF-M-078': {
+    label: 'SURPLUS — <MONTH> (retired)', unit: 'money', per: 'month', screens: ['/cashflow'],
+    answers: 'What a retired person can spend this month: the guaranteed income that lands this month, plus the level draw from savings, less the big dated bills that fall in it.',
+    formula: 'this month’s surplus = guaranteed income landing this month + the level draw the savings can support − the big dated bills in this month (everyday expenses and monthly debt payments are what it is for, so they are not taken off)',
+    inputs: ['MK-XS-I-020 Social Security monthly amount', 'MK-XS-I-022 pension monthly amount', 'MK-NW-I-001 your accounts', 'MK-CF-I-014 big bill'],
+    decisions: ['A short month shows the minus with the word “short” and the bill named — never smoothed, never clipped to zero.'],
+    grain: 'one figure per household per month',
+    refusal: 'No guaranteed income entered: the card asks for Social Security and pension; with nothing to spend, the pace line is not drawn.',
+    note: 'Printed in the retired view of This month: the paycheck card’s hero, and the $Y of the pace line (drawn only when it is above $0).',
+    worked: { given: GIVEN_RETIRED, answer: '$1,200/month', run: () => buildPaycheckYear(RETIRED as any, { nestEgg: 0, now: new Date(2026, 9, 15),
+      sim: { current_age: 70, horizon_age: 95, mean_return: 0.05, vol_return: 0.1, inflation: 0.024, seed: 42, paths: 100 } } as any).thisMonth.netSafeToSpend },
   },
   'MK-CF-M-070': {
     label: 'each step of the withdrawal order', unit: 'money', screens: ['/cashflow'], grain: 'one step',

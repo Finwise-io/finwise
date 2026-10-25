@@ -283,10 +283,15 @@ function EarnerSection({ name, wage, onChange, pay, open, onToggle, frame }: {
             ))}
           </View>
 
+          {/* A GROSS NOBODY TYPED SAYS SO (2026-10-24; tenet 3; drawing v07 rule 9, "every estimate is prefixed ≈ and says what
+              it cannot see"): a take-home entered before 2026-08-28 had its gross worked back once, and this box showed it as if
+              typed — "5475.378787878787". It is written to the cent, says where it came from, and goes once a gross is typed. */}
           <Field label={freq === 'monthly' ? 'Gross pay each month' : `Gross ${PERIOD_WORD[freq]}`}
-            hint={varies ? 'A typical one. Every month below starts from this.'
+            hint={wage.grossWorkedBack ? '≈ Worked back from the take-home you entered. Type the gross from a payslip to replace it.'
+              : varies ? 'A typical one. Every month below starts from this.'
               : onboarding ? 'Before anything comes out. The only one we need.' : 'Before anything comes out.'}
-            value={wage.baseSalary} onChangeText={(v) => set('baseSalary', v)} />
+            value={wage.grossWorkedBack && Number(wage.baseSalary) > 0 ? Number(wage.baseSalary).toFixed(2) : wage.baseSalary}
+            onChangeText={(v) => onChange({ ...wage, baseSalary: v, grossWorkedBack: undefined })} />
 
           {varies && (
             <View style={s.grid}>

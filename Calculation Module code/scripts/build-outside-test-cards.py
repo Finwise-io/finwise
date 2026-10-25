@@ -442,9 +442,9 @@ def published_tables():
     g = lambda k: num(re.search(k + r':\s*([\d_.]+)', sd).group(1))
     starts = dict((k, num(v)) for k, v in re.findall(r'(\w+):\s*([\d_]+)', re.search(r'phaseOutStart:\s*\{([^}]*)\}', sd).group(1)))
     out += ['',
-            f"**Senior deduction, tax years {g('firstYear'):.0f} to {g('lastYear'):.0f}:** {money(g('amount'))} for each person 65 or over, less "
-            f"{g('phaseOutRate') * 100:g}% of income above {money(starts['single'])} (single, head of household) or {money(starts['married'])} "
-            '(married filing jointly). Not given when married filing separately.', '',
+            f"**Senior deduction, tax years {g('firstYear'):.0f} to {g('lastYear'):.0f}:** {money(g('amount'))} for each person 65 or over, each person's "
+            f"{money(g('amount'))} less {g('phaseOutRate') * 100:g}% of income above {money(starts['single'])} (single, head of household) or {money(starts['married'])} "
+            '(married filing jointly), never below $0. Not given when married filing separately.', '',
             f'**Long-term capital gains, {year}** — 0% up to the first amount of taxable income, 15% up to the second, 20% above: '
             + ' · '.join(f'{names[k]} {money(ltcg[k][0])} and {money(ltcg[k][1])}' for k in names) + '.', '',
             f"**Contribution limits, {L['year']:.0f}:** 401(k) {money(L['elective_deferral_401k'])}, plus {money(L['catch_up_50'])} at 50 or over, "
@@ -767,7 +767,7 @@ def main():
             card['approved_drawing'] = {'drawing': d['drawing'], 'household': d['household'], 'drawn': d['drawn']}
         body = body_of(h['lines'], h['decl_at'])
         cards.append({'card': card, 'module': module, 'category': h['category'], 'types': types, 'path': h['path'],
-                      'body': body, 'file_text': '\n'.join(h['lines']),
+                      'body': body, 'file_text': '\n'.join(h['lines']), 'ruled': ruled,   # every DEC its record names, any kind (2026-10-23)
                       'skip': 'an example helper — it runs another function on a worked example' if example_only
                       else 'storage only — it reads or saves and does no arithmetic' if storage_only else ''})
 
@@ -880,6 +880,17 @@ def main():
               + ', '.join(f"{c['card']['id']} {c['card']['name']}" for c in moved))
     else:
         print('changed since the pack was sent: none')
+    if '--audit-package' in sys.argv:
+        # THE WHOLE-MODULE PACKAGE FOR AN OUTSIDE MODEL, IN PARTS (2026-10-23, Cash flow first) — written by
+        # moneykeel_audit_package.py from the cards checked above; validated by check-outside-audit-package.py.
+        import moneykeel_audit_package as pkg
+        assert sys.argv[sys.argv.index('--audit-package') + 1] == 'CF', 'only the Cash flow package is built this way so far'
+        pkg.build({'ROOT': ROOT, 'OUT': OUT, 'HERE': HERE, 'cards': cards, 'testable': testable, 'appendix': appendix,
+                   'figures': figures, 'decision_rows': list(decisions.values()), 'tables': tables,
+                   'brief': brief, 'rulings': rules_file.get('final_audit_rulings') or [],
+                   'tenets': open(os.path.join(ROOT, 'MoneyKeel', 'documents', 'standards', 'moneykeel_spec_tenets_v01.md'), encoding='utf8').read().split('\n', 4)[-1].strip(),
+                   'rewrite': '--rewrite-the-package' in sys.argv})
+        return
     if '--module-audit' in sys.argv:
         # THE LAST LOOK AT A WHOLE MODULE (founder, 2026-10-09: "write one last brief for Open AI to run one
         # last set of test across entire NW module to ensure all fixes are in, and all screens, and
@@ -1089,16 +1100,22 @@ def main():
                                 capture_output=True, text=True).stdout.split('\n')
         pack = [f for f in listed if f.strip()]
         assert len(pack) >= 25, f'only {len(pack)} pack files found at {sent_commit} — the check has gone blind'
-        changed = []
+        changed, archived = [], 0
         for rel in pack:
             was = subprocess.run(['git', '-C', root, 'show', f'{sent_commit}:{rel}'], capture_output=True).stdout
             now_path = os.path.join(root, rel)
+            # a superseded file gains its date and moves to archive/ (file-and-folder standard) — unchanged, it is
+            # still the file as it went out (2026-10-23: the Cash flow cards of 2026-10-04, replaced by the package)
+            dated = os.path.join(os.path.dirname(now_path), 'archive', f"{rules_file['pack_sent'].get('date')}_{os.path.basename(rel)}")
+            if not os.path.exists(now_path) and os.path.exists(dated):
+                now_path, archived = dated, archived + 1
             if not os.path.exists(now_path) or open(now_path, 'rb').read() != was:
                 changed.append(os.path.basename(rel))
         if changed:
             sys.exit(f'STOPPED: {len(changed)} of the {len(pack)} files of the pack as sent ({sent_commit}) have been rewritten or removed: '
                      f'{changed[:6]}. Restore them with: git checkout {sent_commit} -- "{os.path.relpath(send_dir, root)}"')
-        print(f'the pack as sent ({sent_commit}): all {len(pack)} files are as they went out')
+        print(f'the pack as sent ({sent_commit}): all {len(pack)} files are as they went out'
+              + (f', {archived} of them in to-send/archive/ under their date' if archived else ''))
     if '--check' in sys.argv or '--reread' in sys.argv:
         print(f'checked, the pack not written: {len(testable)} of {len(testable)} cards carry a formula read from the function as it stands · '
               f'{figures_stated} figures stated, each traced to the code or worked by hand')

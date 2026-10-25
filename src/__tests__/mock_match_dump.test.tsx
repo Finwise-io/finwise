@@ -303,8 +303,9 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     walk(screen.toJSON());
     expect(fills.length).toBeGreaterThan(0);                       // 2.0 of 6 months → an amber part-bar
     // 2.3 months of the 6-month guide: since 2026-10-04 the mortgage's own $2,400 is counted from Debts and
-    // the $2,300 budget line is not (DEC-1923), so the drawn household reads 2.3 where the drawing says 2.4
-    expect(parseFloat(fills[fills.length - 1].width)).toBeCloseTo((2.3 / 6) * 100, 6);
+    // the $2,300 budget line is not (DEC-1923), so the drawn household reads 2.3 where the drawing says 2.4; since 2026-10-24
+    // the April premium is on top of the typed total, not inside it (CF-FIX; DEC-0002, DEC-0447): 8,838 ÷ (1,600 + 2,550) = 2.1
+    expect(parseFloat(fills[fills.length - 1].width)).toBeCloseTo((2.1 / 6) * 100, 6);
     expect(screen.getByText('Tight ⚠')).toBeOnTheScreen();         // the word carries it too
   });
 
@@ -350,6 +351,9 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     // as one string and the unit can no longer drift from the figure it belongs to.
     // HIS RULE OF 2026-10-04 (DEC-1923) MOVED IT TO 2.3: every debt is taken from Debts, so the mortgage's own
     // $2,400 is counted and the $2,300 Rent / Mortgage line is not — 8,838 ÷ (1,300 + 2,400 + 150) = 2.3.
-    expect(strings).toContain('2.3 months');
+    // 2026-10-24 (CF-FIX; DEC-0002, DEC-0447) MOVED IT TO 2.1: the April $3,600 premium is on top of the typed $4,500, not
+    // inside it, so the essentials are $900 of food + the $700 of the $2,200 no category names = $1,600 (it was $1,300) —
+    // 8,838 ÷ (1,600 + 2,400 + 150) = 2.1.
+    expect(strings).toContain('2.1 months');
   });
 });

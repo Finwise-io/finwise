@@ -96,10 +96,32 @@ describe('MK-NW-O-008 · Since counts the day a new account opened (DEC-4439)', 
   });
 });
 
-describe('MK-NW-M-024 · a bond with no face value: his ruling DEC-2748c stands (checked 2026-10-21, not changed)', () => {
+// CHANGED 2026-10-24 (NW-BONDS): checked 2026-10-21 and kept by his ruling DEC-2748c; the lead then decided under DEC-3523
+// tenet 3 (which outranks tenet 6) that a bond with a maturity date and no face value has no year's interest — its coupon
+// is paid on the face. Value × rate stands for a CD bought from the bank typed by its balance and for a bond fund (no
+// maturity date). The 2026-10-21 answer is kept below, failing.
+describe('MK-NW-M-024 · a bond with no face value: no year\'s interest since 2026-10-24 (tenet 3); his ruling DEC-2748c kept for a bank CD by its balance', () => {
   const bond = { asset_id: 'b1', label: 'US Treasury 2031', kind: 'bond', asset_class: 'bonds', tax_bucket: 'TAXABLE', source: 'manual',
     balance: 24200, market_value: 24200, face_value: null, coupon_rate: 0.045, maturity_date: '2031-05-15' };
-  test('4.50% and a $24,200 market value, no face: value × rate, $1,089 a year — the Bonds screen, the account page and the income figure agree', () => {
+  const cd = { asset_id: 'c1', label: 'Ally 12-month CD', kind: 'cd', asset_class: 'bonds', tax_bucket: 'TAXABLE', source: 'manual',
+    balance: 10000, face_value: null, coupon_rate: 0.0505, maturity_date: '2027-03-15', cd_bought: 'bank' };
+  test('4.50% and a $24,200 market value, no face: no year\'s interest on any door; the Bonds screen names it; the income figure counts $0 and says why', () => {
+    const now = new Date(2026, 9, 21);
+    expect(yearlyInterest(bondInfo(bond as any))).toBeNull();
+    expect(theBonds({ accounts: [bond] as any, today: now } as any).rows[0].couponPerYear).toBeNull();
+    expect(theBonds({ accounts: [bond] as any, accountId: 'b1', today: now } as any).one!.couponPerYear).toBeNull();
+    expect(theBonds({ accounts: [bond] as any, today: now } as any).leftOutNoFace).toEqual(['US Treasury 2031']);
+    expect(couponIncomeAnnual([bond] as any, now)).toBe(0);
+    expect(interestIncomeAnnual([bond] as any, now)).toBe(0);
+  });
+  test('a CD bought from the bank with no face, $10,000 at 5.05%: its rate on its balance, $505, on every door (DEC-2748c, DEC-3837)', () => {
+    const now = new Date(2026, 9, 21);
+    expect(yearlyInterest(bondInfo(cd as any))!).toBeCloseTo(505, 6);
+    expect(theBonds({ accounts: [cd] as any, accountId: 'c1', today: now } as any).one!.couponPerYear!).toBeCloseTo(505, 6);
+    expect(couponIncomeAnnual([cd] as any, now)).toBeCloseTo(505, 6);
+    expect(interestIncomeAnnual([cd] as any, now)).toBeCloseTo(505, 6);
+  });
+  test.failing('the app until 2026-10-24, pinned: 4.50% and a $24,200 market value, no face: value × rate, $1,089/year — no longer its answer', () => {
     const now = new Date(2026, 9, 21);
     expect(yearlyInterest(bondInfo(bond as any))!).toBeCloseTo(1089, 6);
     expect(theBonds({ accounts: [bond] as any, today: now } as any).rows[0].couponPerYear!).toBeCloseTo(1089, 6);

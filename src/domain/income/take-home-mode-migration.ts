@@ -65,7 +65,8 @@ export function needsTakeHomeConversion(op: OnboardingProfile | null): boolean {
  *     periods = PERIODS[string(op.salary freq ?? 'monthly')] (or 12 when missing)
  *     net per period = op.base salary read as a number (0 when it is not one)
  *     net annual = net per period × periods
- *     gross annual = gross from net(net annual, filing status of(op as any), over65 count of(op as any))
+ *     typed rate = to num((op as any).manual tax rate) ÷ 100   if (op as any).tax mode = 'manual'
+ *     na n   otherwise
  *
  * Called by ... MK-XS-F-175 uid
  *
@@ -83,10 +84,12 @@ export function needsTakeHomeConversion(op: OnboardingProfile | null): boolean {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-039 how often each income arrives
+ *               MK-XS-I-043 their own retirement contribution
  *               MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly
  *
  * Decides .....
  *     · Treats a year as twelve equal months.
+ *     · Turns a monthly figure into a year by multiplying by twelve.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-186
  * Changed ..... not in git yet (—)
@@ -96,11 +99,19 @@ export function convertTakeHomeMode<T extends Record<string, any>>(op: T): T {
   const periods = PERIODS[String(op.salaryFreq ?? 'monthly')] ?? 12;
   const netPerPeriod = toNum(op.baseSalary);
   const netAnnual = netPerPeriod * periods;
-  const grossAnnual = grossFromNet(netAnnual, filingStatusOf(op as any), over65CountOf(op as any));
+  // THEIR OWN RATE, WHEN THEY GAVE ONE (2026-10-24, Cash flow journey E2E-72; tenet 5): the gross is worked back so their typed
+  // rate and their typed take-home both hold — take-home = gross × (1 − rate) − the 401(k). It was worked back from the federal
+  // schedule whatever they typed, so a typed 0% read "Everything else taken out $475/month · 0%" on $5,000.
+  const typedRate = (op as any).taxMode === 'manual' ? toNum((op as any).manualTaxRate) / 100 : NaN;
+  const grossAnnual = typedRate >= 0 && typedRate < 1
+    ? (netAnnual + toNum((op as any).c_401k) * 12) / (1 - typedRate)
+    : grossFromNet(netAnnual, filingStatusOf(op as any), over65CountOf(op as any));
   return {
     ...op,
     baseSalary: String((grossAnnual / periods)),   // gross, as every other screen assumes
     landsTypical: String(netAnnual / 12),                // what they told us, as the month every screen now asks for
     salaryMode: 'gross',
+    // NOT TYPED, AND SAID SO (tenet 3): Your base pay prints this gross as worked back from their take-home until they type one
+    grossWorkedBack: true,
   };
 }

@@ -447,7 +447,8 @@ function AskedBefore({ source, onDone }: { source: ManagedSource['key']; onDone:
   const store = useStore() as any;
   const op = store.onboardingProfile ?? {};
   const ctx: StepCtx = { status: (op.status ?? null) as any, tracks: [] as any, answers: op,
-    setAnswer: (k, v) => store.setOnboardingProfile?.({ ...(store.onboardingProfile ?? {}), [k]: v }) };
+    // the profile as it is NOW, so two answers given by one tap both keep (2026-10-24, E2E-70: a month and its year)
+    setAnswer: (k, v) => store.setOnboardingProfile?.({ ...((useStore.getState() as any).onboardingProfile ?? {}), [k]: v }) };
   const [add, setAdd] = useState(false);
   const incomes = store.incomes ?? [];
   return (

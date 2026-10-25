@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-23",
+ "generated": "2026-10-25",
  "states": [
   "worker",
   "rich",
@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -52,7 +52,7 @@
     },
     {
      "k": "a",
-     "s": "Your investments: $165,000. change shows once your holdings have prices. as of Oct 23. See your growth."
+     "s": "Your investments: $165,000. change shows once your holdings have prices. as of Oct 24. See your growth."
     },
     {
      "k": "t",
@@ -60,7 +60,7 @@
     },
     {
      "k": "a",
-     "s": "What is Investments?"
+     "s": "About Investments"
     },
     {
      "k": "t",
@@ -80,7 +80,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 23"
+     "s": "Oct 24"
     },
     {
      "k": "t",
@@ -96,7 +96,7 @@
     },
     {
      "k": "a",
-     "s": "What is Net worth?"
+     "s": "About Net worth"
     },
     {
      "k": "t",
@@ -212,7 +212,7 @@
     },
     {
      "k": "a",
-     "s": "This month's cash flow, On pace: income $7,200, spent so far $0, $7,200 left, bills may still be coming. Opens the Cash flow tab."
+     "s": "This month's cash flow, On pace: income $6,400, expenses and debt paid so far $0, $6,400 left, bills may still be coming. Opens the Cash flow tab."
     },
     {
      "k": "t",
@@ -232,7 +232,7 @@
     },
     {
      "k": "t",
-     "s": "23"
+     "s": "24"
     },
     {
      "k": "t",
@@ -248,11 +248,11 @@
     },
     {
      "k": "t",
-     "s": "$7,200"
+     "s": "$6,400"
     },
     {
      "k": "t",
-     "s": "Actual expenses so far"
+     "s": "Outflow (expenses + debt)"
     },
     {
      "k": "t",
@@ -264,7 +264,7 @@
     },
     {
      "k": "t",
-     "s": "$7,200"
+     "s": "$6,400"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -298,7 +298,7 @@
     },
     {
      "k": "a",
-     "s": "Your investments: $709,800. change shows once your holdings have prices. prices may be out of date, updated not updated yet. Vanguard part as of Sep 12, 41 days old, pull to refresh. See your growth."
+     "s": "Your investments: $709,800. change shows once your holdings have prices. prices may be out of date, updated not updated yet. Vanguard part as of Sep 12, 42 days old, pull to refresh. See your growth."
     },
     {
      "k": "t",
@@ -306,7 +306,7 @@
     },
     {
      "k": "a",
-     "s": "What is Investments?"
+     "s": "About Investments"
     },
     {
      "k": "t",
@@ -334,7 +334,7 @@
     },
     {
      "k": "t",
-     "s": "⏱ Vanguard part as of Sep 12 — 41 days old"
+     "s": "⏱ Vanguard part as of Sep 12 — 42 days old"
     },
     {
      "k": "t",
@@ -358,7 +358,7 @@
     },
     {
      "k": "a",
-     "s": "What is Net worth?"
+     "s": "About Net worth"
     },
     {
      "k": "t",
@@ -474,7 +474,7 @@
     },
     {
      "k": "a",
-     "s": "This month's cash flow, On pace: income $7,200, spent so far $0, $7,200 left, bills may still be coming. Opens the Cash flow tab."
+     "s": "This month's cash flow, On pace: income $6,400, expenses and debt paid so far $0, $6,400 left, bills may still be coming. Opens the Cash flow tab."
     },
     {
      "k": "t",
@@ -494,7 +494,7 @@
     },
     {
      "k": "t",
-     "s": "23"
+     "s": "24"
     },
     {
      "k": "t",
@@ -510,11 +510,11 @@
     },
     {
      "k": "t",
-     "s": "$7,200"
+     "s": "$6,400"
     },
     {
      "k": "t",
-     "s": "Actual expenses so far"
+     "s": "Outflow (expenses + debt)"
     },
     {
      "k": "t",
@@ -526,7 +526,7 @@
     },
     {
      "k": "t",
-     "s": "$7,200"
+     "s": "$6,400"
     },
     {
      "k": "t",
@@ -540,7 +540,7 @@
     },
     {
      "k": "t",
-     "s": "morning"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -604,7 +604,7 @@
     },
     {
      "k": "a",
-     "s": "What is Guaranteed income?"
+     "s": "About Guaranteed income"
     },
     {
      "k": "t",
@@ -620,7 +620,7 @@
     },
     {
      "k": "a",
-     "s": "What is Draw from savings?"
+     "s": "About Draw from savings"
     },
     {
      "k": "t",
@@ -668,7 +668,7 @@
     },
     {
      "k": "a",
-     "s": "What is Net worth?"
+     "s": "About Net worth"
     },
     {
      "k": "t",
@@ -776,7 +776,7 @@
     },
     {
      "k": "a",
-     "s": "What is Estimate?"
+     "s": "About Estimate"
     },
     {
      "k": "t",
@@ -788,7 +788,7 @@
     },
     {
      "k": "a",
-     "s": "This month's cash flow, On pace: income $3,500, spent so far $0, $3,500 left, bills may still be coming. Opens the Cash flow tab."
+     "s": "This month's cash flow, On pace: income $3,500, expenses and debt paid so far $0, $3,500 left, bills may still be coming. Opens the Cash flow tab."
     },
     {
      "k": "t",
@@ -808,7 +808,7 @@
     },
     {
      "k": "t",
-     "s": "23"
+     "s": "24"
     },
     {
      "k": "t",
@@ -828,7 +828,7 @@
     },
     {
      "k": "t",
-     "s": "Actual expenses so far"
+     "s": "Outflow (expenses + debt)"
     },
     {
      "k": "t",
@@ -927,11 +927,11 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 23, 2026"
+     "s": "YOUR NET WORTH · OCT 24, 2026"
     },
     {
      "k": "a",
-     "s": "What is How your change and return are calculated?"
+     "s": "About How your change and return are calculated"
     },
     {
      "k": "t",
@@ -987,7 +987,7 @@
     },
     {
      "k": "a",
-     "s": "What is How we calculate your odds?"
+     "s": "About How we calculate your odds"
     },
     {
      "k": "t",
@@ -1115,7 +1115,7 @@
     },
     {
      "k": "a",
-     "s": "What is Debt?"
+     "s": "About Debt"
     },
     {
      "k": "t",
@@ -1265,11 +1265,11 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 23, 2026"
+     "s": "YOUR NET WORTH · OCT 24, 2026"
     },
     {
      "k": "a",
-     "s": "What is How your change and return are calculated?"
+     "s": "About How your change and return are calculated"
     },
     {
      "k": "t",
@@ -1325,7 +1325,7 @@
     },
     {
      "k": "a",
-     "s": "What is How we calculate your odds?"
+     "s": "About How we calculate your odds"
     },
     {
      "k": "t",
@@ -1437,7 +1437,7 @@
     },
     {
      "k": "a",
-     "s": "What is Debt?"
+     "s": "About Debt"
     },
     {
      "k": "t",
@@ -1587,11 +1587,11 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 23, 2026"
+     "s": "YOUR NET WORTH · OCT 24, 2026"
     },
     {
      "k": "a",
-     "s": "What is How your change and return are calculated?"
+     "s": "About How your change and return are calculated"
     },
     {
      "k": "t",
@@ -1679,7 +1679,7 @@
     },
     {
      "k": "a",
-     "s": "What is How we calculate your odds?"
+     "s": "About How we calculate your odds"
     },
     {
      "k": "t",
@@ -1863,7 +1863,7 @@
     },
     {
      "k": "a",
-     "s": "What is Debt?"
+     "s": "About Debt"
     },
     {
      "k": "t",
@@ -2061,11 +2061,11 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 23, 2026"
+     "s": "YOUR NET WORTH · OCT 24, 2026"
     },
     {
      "k": "a",
-     "s": "What is How your change and return are calculated?"
+     "s": "About How your change and return are calculated"
     },
     {
      "k": "t",
@@ -2153,7 +2153,7 @@
     },
     {
      "k": "a",
-     "s": "What is How we calculate your odds?"
+     "s": "About How we calculate your odds"
     },
     {
      "k": "t",
@@ -2297,7 +2297,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 41 days old"
+     "s": "Linked · 42 days old"
     },
     {
      "k": "t",
@@ -2385,7 +2385,7 @@
     },
     {
      "k": "a",
-     "s": "What is Debt?"
+     "s": "About Debt"
     },
     {
      "k": "t",
@@ -2583,11 +2583,11 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 23, 2026"
+     "s": "YOUR NET WORTH · OCT 24, 2026"
     },
     {
      "k": "a",
-     "s": "What is How your change and return are calculated?"
+     "s": "About How your change and return are calculated"
     },
     {
      "k": "t",
@@ -2643,7 +2643,7 @@
     },
     {
      "k": "a",
-     "s": "What is How we calculate your odds?"
+     "s": "About How we calculate your odds"
     },
     {
      "k": "t",
@@ -2779,7 +2779,7 @@
     },
     {
      "k": "a",
-     "s": "What is Debt?"
+     "s": "About Debt"
     },
     {
      "k": "t",
@@ -2827,7 +2827,7 @@
     },
     {
      "k": "t",
-     "s": "$3,100/month"
+     "s": "$3,300/month"
     },
     {
      "k": "t",
@@ -2859,7 +2859,7 @@
     },
     {
      "k": "t",
-     "s": "$3,800/month"
+     "s": "$4,000/month"
     },
     {
      "k": "t",
@@ -2889,11 +2889,11 @@
     },
     {
      "k": "t",
-     "s": "YOUR NET WORTH · OCT 23, 2026"
+     "s": "YOUR NET WORTH · OCT 24, 2026"
     },
     {
      "k": "a",
-     "s": "What is How your change and return are calculated?"
+     "s": "About How your change and return are calculated"
     },
     {
      "k": "t",
@@ -2949,7 +2949,7 @@
     },
     {
      "k": "a",
-     "s": "What is How we calculate your odds?"
+     "s": "About How we calculate your odds"
     },
     {
      "k": "t",
@@ -3037,7 +3037,7 @@
     },
     {
      "k": "a",
-     "s": "What is Debt?"
+     "s": "About Debt"
     },
     {
      "k": "t",
@@ -3085,7 +3085,7 @@
     },
     {
      "k": "t",
-     "s": "$3,100/month"
+     "s": "$3,300/month"
     },
     {
      "k": "t",
@@ -3117,7 +3117,7 @@
     },
     {
      "k": "t",
-     "s": "$3,800/month"
+     "s": "$4,000/month"
     },
     {
      "k": "t",
@@ -3147,7 +3147,7 @@
     },
     {
      "k": "a",
-     "s": "What is Net worth?"
+     "s": "About Net worth"
     },
     {
      "k": "t",
@@ -3311,7 +3311,7 @@
     },
     {
      "k": "a",
-     "s": "What is Debt?"
+     "s": "About Debt"
     },
     {
      "k": "t",
@@ -3357,7 +3357,7 @@
     },
     {
      "k": "a",
-     "s": "What is Net worth?"
+     "s": "About Net worth"
     },
     {
      "k": "t",
@@ -3501,7 +3501,7 @@
     },
     {
      "k": "a",
-     "s": "What is Debt?"
+     "s": "About Debt"
     },
     {
      "k": "t",
@@ -3550,7 +3550,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 23, 2026"
+     "s": "Oct 24, 2026"
     },
     {
      "k": "a",
@@ -3618,7 +3618,7 @@
     },
     {
      "k": "a",
-     "s": "What is Summary?"
+     "s": "About Summary"
     },
     {
      "k": "t",
@@ -3662,11 +3662,11 @@
     },
     {
      "k": "t",
-     "s": "You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices."
+     "s": "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."
     },
     {
      "k": "a",
-     "s": "What is Day one?"
+     "s": "About Day one"
     },
     {
      "k": "t",
@@ -3686,11 +3686,11 @@
     },
     {
      "k": "t",
-     "s": "Oct 23"
+     "s": "Oct 24"
     },
     {
      "k": "t",
-     "s": "Oct 23"
+     "s": "Oct 24"
     },
     {
      "k": "a",
@@ -4174,7 +4174,7 @@
     },
     {
      "k": "a",
-     "s": "What is Earned?"
+     "s": "About Earned"
     },
     {
      "k": "t",
@@ -4188,7 +4188,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 23, 2026"
+     "s": "Oct 24, 2026"
     },
     {
      "k": "t",
@@ -4268,7 +4268,7 @@
     },
     {
      "k": "a",
-     "s": "What is Summary?"
+     "s": "About Summary"
     },
     {
      "k": "t",
@@ -4312,11 +4312,11 @@
     },
     {
      "k": "t",
-     "s": "You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices."
+     "s": "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."
     },
     {
      "k": "a",
-     "s": "What is Day one?"
+     "s": "About Day one"
     },
     {
      "k": "t",
@@ -4336,11 +4336,11 @@
     },
     {
      "k": "t",
-     "s": "Oct 23"
+     "s": "Oct 24"
     },
     {
      "k": "t",
-     "s": "Oct 23"
+     "s": "Oct 24"
     },
     {
      "k": "a",
@@ -4520,7 +4520,7 @@
     },
     {
      "k": "t",
-     "s": "Linked · 41 days old"
+     "s": "Linked · 42 days old"
     },
     {
      "k": "a",
@@ -4996,7 +4996,7 @@
     },
     {
      "k": "a",
-     "s": "What is Earned?"
+     "s": "About Earned"
     },
     {
      "k": "t",
@@ -5010,7 +5010,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 23, 2026"
+     "s": "Oct 24, 2026"
     },
     {
      "k": "a",
@@ -5078,7 +5078,7 @@
     },
     {
      "k": "a",
-     "s": "What is Summary?"
+     "s": "About Summary"
     },
     {
      "k": "t",
@@ -5122,11 +5122,11 @@
     },
     {
      "k": "t",
-     "s": "You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices."
+     "s": "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."
     },
     {
      "k": "a",
-     "s": "What is Day one?"
+     "s": "About Day one"
     },
     {
      "k": "t",
@@ -5146,11 +5146,11 @@
     },
     {
      "k": "t",
-     "s": "Oct 23"
+     "s": "Oct 24"
     },
     {
      "k": "t",
-     "s": "Oct 23"
+     "s": "Oct 24"
     },
     {
      "k": "a",
@@ -5494,7 +5494,7 @@
     },
     {
      "k": "a",
-     "s": "What is Earned?"
+     "s": "About Earned"
     },
     {
      "k": "t",
@@ -5508,7 +5508,7 @@
     },
     {
      "k": "t",
-     "s": "Oct 23, 2026"
+     "s": "Oct 24, 2026"
     },
     {
      "k": "a",
@@ -5576,7 +5576,7 @@
     },
     {
      "k": "a",
-     "s": "What is Summary?"
+     "s": "About Summary"
     },
     {
      "k": "t",
@@ -5644,11 +5644,11 @@
     },
     {
      "k": "t",
-     "s": "Oct 23"
+     "s": "Oct 24"
     },
     {
      "k": "t",
-     "s": "Oct 23"
+     "s": "Oct 24"
     },
     {
      "k": "a",
@@ -5852,7 +5852,7 @@
     },
     {
      "k": "a",
-     "s": "What is Earned?"
+     "s": "About Earned"
     },
     {
      "k": "t",
@@ -6881,7 +6881,7 @@
     },
     {
      "k": "a",
-     "s": "What is How we calculate your odds?"
+     "s": "About How we calculate your odds"
     },
     {
      "k": "t",
@@ -7197,7 +7197,7 @@
     },
     {
      "k": "a",
-     "s": "What is Draw from savings?"
+     "s": "About Draw from savings"
     },
     {
      "k": "t",
@@ -7856,7 +7856,11 @@
     },
     {
      "k": "t",
-     "s": "+$2,980"
+     "s": "+$2,180"
+    },
+    {
+     "k": "a",
+     "s": "Inflow (income (take-home)), after tax and 401(k), $6,400"
     },
     {
      "k": "t",
@@ -7868,7 +7872,11 @@
     },
     {
      "k": "t",
-     "s": "$7,200"
+     "s": "$6,400"
+    },
+    {
+     "k": "a",
+     "s": "Car loan, debt, −$420"
     },
     {
      "k": "t",
@@ -7899,12 +7907,16 @@
      "s": "−$3,800"
     },
     {
+     "k": "a",
+     "s": "Planned surplus, +$2,180"
+    },
+    {
      "k": "t",
      "s": "= Planned surplus"
     },
     {
      "k": "t",
-     "s": "+$2,980"
+     "s": "+$2,180"
     },
     {
      "k": "t",
@@ -7912,7 +7924,11 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
+    },
+    {
+     "k": "a",
+     "s": "Actual inflow (income (take-home)), $6,400"
     },
     {
      "k": "t",
@@ -7920,7 +7936,11 @@
     },
     {
      "k": "t",
-     "s": "$7,200"
+     "s": "$6,400"
+    },
+    {
+     "k": "a",
+     "s": "Car loan, not paid yet, $0"
     },
     {
      "k": "t",
@@ -7935,6 +7955,10 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Expenses entered by hand, $0"
+    },
+    {
      "k": "t",
      "s": "Expenses entered by hand"
     },
@@ -7943,12 +7967,16 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Actual surplus so far, +$6,400"
+    },
+    {
      "k": "t",
      "s": "= Actual surplus so far"
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -7985,6 +8013,10 @@
     {
      "k": "t",
      "s": "/month"
+    },
+    {
+     "k": "a",
+     "s": "Draw from savings, about $20,125"
     },
     {
      "k": "t",
@@ -8070,7 +8102,11 @@
     },
     {
      "k": "t",
-     "s": "+$2,980"
+     "s": "+$2,180"
+    },
+    {
+     "k": "a",
+     "s": "Inflow (income (take-home)), after tax and 401(k), $6,400"
     },
     {
      "k": "t",
@@ -8082,7 +8118,11 @@
     },
     {
      "k": "t",
-     "s": "$7,200"
+     "s": "$6,400"
+    },
+    {
+     "k": "a",
+     "s": "Car loan, debt, −$420"
     },
     {
      "k": "t",
@@ -8113,12 +8153,16 @@
      "s": "−$3,800"
     },
     {
+     "k": "a",
+     "s": "Planned surplus, +$2,180"
+    },
+    {
      "k": "t",
      "s": "= Planned surplus"
     },
     {
      "k": "t",
-     "s": "+$2,980"
+     "s": "+$2,180"
     },
     {
      "k": "t",
@@ -8126,7 +8170,11 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
+    },
+    {
+     "k": "a",
+     "s": "Actual inflow (income (take-home)), $6,400"
     },
     {
      "k": "t",
@@ -8134,7 +8182,11 @@
     },
     {
      "k": "t",
-     "s": "$7,200"
+     "s": "$6,400"
+    },
+    {
+     "k": "a",
+     "s": "Car loan, not paid yet, $0"
     },
     {
      "k": "t",
@@ -8149,6 +8201,10 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Expenses entered by hand, $0"
+    },
+    {
      "k": "t",
      "s": "Expenses entered by hand"
     },
@@ -8157,12 +8213,16 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Actual surplus so far, +$6,400"
+    },
+    {
      "k": "t",
      "s": "= Actual surplus so far"
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -8199,6 +8259,10 @@
     {
      "k": "t",
      "s": "/month"
+    },
+    {
+     "k": "a",
+     "s": "Draw from savings, about $20,125"
     },
     {
      "k": "t",
@@ -8284,11 +8348,11 @@
     },
     {
      "k": "a",
-     "s": "$7,200 a month, expected take-home"
+     "s": "$6,400 a month, expected take-home"
     },
     {
      "k": "t",
-     "s": "$7,200"
+     "s": "$6,400"
     },
     {
      "k": "t",
@@ -8300,7 +8364,7 @@
     },
     {
      "k": "a",
-     "s": "Salary — steady, before tax, monthly, ≈ $6,400/month take-home, $9,000. Opens it to change."
+     "s": "Salary — steady, before tax, monthly, about $6,400 a month take-home, $9,000. Opens it to change."
     },
     {
      "k": "t",
@@ -8445,6 +8509,10 @@
      "s": "$420"
     },
     {
+     "k": "a",
+     "s": "Car loan, same every month, $420"
+    },
+    {
      "k": "t",
      "s": "Car loan"
     },
@@ -8462,11 +8530,11 @@
     },
     {
      "k": "t",
-     "s": "$4,100"
+     "s": "$3,800"
     },
     {
      "k": "a",
-     "s": "Planned expenses, by category. Opens your budget."
+     "s": "Planned expenses: Bills & fixed, $3,200; Everyday expenses, $600; total, $3,800. Opens your budget."
     },
     {
      "k": "t",
@@ -8475,14 +8543,6 @@
     {
      "k": "t",
      "s": "$3,200"
-    },
-    {
-     "k": "t",
-     "s": "Once in a while"
-    },
-    {
-     "k": "t",
-     "s": "$300"
     },
     {
      "k": "t",
@@ -8498,7 +8558,7 @@
     },
     {
      "k": "t",
-     "s": "$4,100"
+     "s": "$3,800"
     },
     {
      "k": "t",
@@ -8619,6 +8679,10 @@
      "s": "$14,000"
     },
     {
+     "k": "a",
+     "s": "across 1 debt · $420 a month in payments · about $64 a month interest"
+    },
+    {
      "k": "t",
      "s": "across"
     },
@@ -8671,12 +8735,24 @@
      "s": "Highest interest rate first — saves the most interest."
     },
     {
+     "k": "a",
+     "s": "Extra a month"
+    },
+    {
      "k": "t",
      "s": "Extra / month"
     },
     {
      "k": "t",
      "s": "$"
+    },
+    {
+     "k": "a",
+     "s": "Extra payment a month, in dollars"
+    },
+    {
+     "k": "a",
+     "s": "Debt-free Nov 2029"
     },
     {
      "k": "t",
@@ -8687,12 +8763,20 @@
      "s": "debt-free"
     },
     {
+     "k": "a",
+     "s": "$420 a month total"
+    },
+    {
      "k": "t",
      "s": "$420"
     },
     {
      "k": "t",
      "s": "/month total"
+    },
+    {
+     "k": "a",
+     "s": "$1,228 total interest"
     },
     {
      "k": "t",
@@ -8707,6 +8791,10 @@
      "s": "YOUR DEBTS"
     },
     {
+     "k": "a",
+     "s": "Car loan, 5.50%, 3 years left, $420 a month minimum, about $64 a month interest, $14,000 owed. Opens it to edit; hold to delete."
+    },
+    {
      "k": "t",
      "s": "🚗"
     },
@@ -8716,11 +8804,7 @@
     },
     {
      "k": "t",
-     "s": "5.50"
-    },
-    {
-     "k": "t",
-     "s": "%"
+     "s": "5.50%"
     },
     {
      "k": "t",
@@ -8767,8 +8851,16 @@
      "s": "Log a payment ›"
     },
     {
+     "k": "a",
+     "s": "Add debt account"
+    },
+    {
      "k": "t",
      "s": "+ Add debt account"
+    },
+    {
+     "k": "a",
+     "s": "Tap a debt to edit, hold to delete"
     },
     {
      "k": "t",
@@ -8850,7 +8942,11 @@
     },
     {
      "k": "t",
-     "s": "+$1,200"
+     "s": "+$400"
+    },
+    {
+     "k": "a",
+     "s": "Inflow (income (take-home)), after tax and 401(k), $6,400"
     },
     {
      "k": "t",
@@ -8862,7 +8958,11 @@
     },
     {
      "k": "t",
-     "s": "$7,200"
+     "s": "$6,400"
+    },
+    {
+     "k": "a",
+     "s": "Chase Sapphire, debt, −$300"
     },
     {
      "k": "t",
@@ -8875,6 +8975,10 @@
     {
      "k": "t",
      "s": "−$300"
+    },
+    {
+     "k": "a",
+     "s": "Mortgage, debt, −$1,900"
     },
     {
      "k": "t",
@@ -8905,12 +9009,16 @@
      "s": "−$3,800"
     },
     {
+     "k": "a",
+     "s": "Planned surplus, +$400"
+    },
+    {
      "k": "t",
      "s": "= Planned surplus"
     },
     {
      "k": "t",
-     "s": "+$1,200"
+     "s": "+$400"
     },
     {
      "k": "t",
@@ -8918,7 +9026,11 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
+    },
+    {
+     "k": "a",
+     "s": "Actual inflow (income (take-home)), $6,400"
     },
     {
      "k": "t",
@@ -8926,7 +9038,11 @@
     },
     {
      "k": "t",
-     "s": "$7,200"
+     "s": "$6,400"
+    },
+    {
+     "k": "a",
+     "s": "Chase Sapphire, due 15th, $0"
     },
     {
      "k": "t",
@@ -8941,6 +9057,10 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Mortgage, due 1st, $0"
+    },
+    {
      "k": "t",
      "s": "Mortgage"
     },
@@ -8953,6 +9073,10 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Expenses entered by hand, $0"
+    },
+    {
      "k": "t",
      "s": "Expenses entered by hand"
     },
@@ -8961,12 +9085,16 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Actual surplus so far, +$6,400"
+    },
+    {
      "k": "t",
      "s": "= Actual surplus so far"
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -9003,6 +9131,10 @@
     {
      "k": "t",
      "s": "/month"
+    },
+    {
+     "k": "a",
+     "s": "Draw from savings, about $35,095"
     },
     {
      "k": "t",
@@ -9088,7 +9220,11 @@
     },
     {
      "k": "t",
-     "s": "+$1,200"
+     "s": "+$400"
+    },
+    {
+     "k": "a",
+     "s": "Inflow (income (take-home)), after tax and 401(k), $6,400"
     },
     {
      "k": "t",
@@ -9100,7 +9236,11 @@
     },
     {
      "k": "t",
-     "s": "$7,200"
+     "s": "$6,400"
+    },
+    {
+     "k": "a",
+     "s": "Chase Sapphire, debt, −$300"
     },
     {
      "k": "t",
@@ -9113,6 +9253,10 @@
     {
      "k": "t",
      "s": "−$300"
+    },
+    {
+     "k": "a",
+     "s": "Mortgage, debt, −$1,900"
     },
     {
      "k": "t",
@@ -9143,12 +9287,16 @@
      "s": "−$3,800"
     },
     {
+     "k": "a",
+     "s": "Planned surplus, +$400"
+    },
+    {
      "k": "t",
      "s": "= Planned surplus"
     },
     {
      "k": "t",
-     "s": "+$1,200"
+     "s": "+$400"
     },
     {
      "k": "t",
@@ -9156,7 +9304,11 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
+    },
+    {
+     "k": "a",
+     "s": "Actual inflow (income (take-home)), $6,400"
     },
     {
      "k": "t",
@@ -9164,7 +9316,11 @@
     },
     {
      "k": "t",
-     "s": "$7,200"
+     "s": "$6,400"
+    },
+    {
+     "k": "a",
+     "s": "Chase Sapphire, due 15th, $0"
     },
     {
      "k": "t",
@@ -9179,6 +9335,10 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Mortgage, due 1st, $0"
+    },
+    {
      "k": "t",
      "s": "Mortgage"
     },
@@ -9191,6 +9351,10 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Expenses entered by hand, $0"
+    },
+    {
      "k": "t",
      "s": "Expenses entered by hand"
     },
@@ -9199,12 +9363,16 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "Actual surplus so far, +$6,400"
+    },
+    {
      "k": "t",
      "s": "= Actual surplus so far"
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -9241,6 +9409,10 @@
     {
      "k": "t",
      "s": "/month"
+    },
+    {
+     "k": "a",
+     "s": "Draw from savings, about $35,095"
     },
     {
      "k": "t",
@@ -9326,11 +9498,11 @@
     },
     {
      "k": "a",
-     "s": "$7,200 a month, expected take-home"
+     "s": "$6,400 a month, expected take-home"
     },
     {
      "k": "t",
-     "s": "$7,200"
+     "s": "$6,400"
     },
     {
      "k": "t",
@@ -9342,7 +9514,7 @@
     },
     {
      "k": "a",
-     "s": "Salary — steady, before tax, monthly, ≈ $6,400/month take-home, $9,000. Opens it to change."
+     "s": "Salary — steady, before tax, monthly, about $6,400 a month take-home, $9,000. Opens it to change."
     },
     {
      "k": "t",
@@ -9487,6 +9659,10 @@
      "s": "$2,200"
     },
     {
+     "k": "a",
+     "s": "Chase Sapphire, same every month, $300"
+    },
+    {
      "k": "t",
      "s": "Chase Sapphire"
     },
@@ -9497,6 +9673,10 @@
     {
      "k": "t",
      "s": "$300"
+    },
+    {
+     "k": "a",
+     "s": "Mortgage, same every month, $1,900"
     },
     {
      "k": "t",
@@ -9516,11 +9696,11 @@
     },
     {
      "k": "t",
-     "s": "$4,100"
+     "s": "$3,800"
     },
     {
      "k": "a",
-     "s": "Planned expenses, by category. Opens your budget."
+     "s": "Planned expenses: Bills & fixed, $3,200; Everyday expenses, $600; total, $3,800. Opens your budget."
     },
     {
      "k": "t",
@@ -9529,14 +9709,6 @@
     {
      "k": "t",
      "s": "$3,200"
-    },
-    {
-     "k": "t",
-     "s": "Once in a while"
-    },
-    {
-     "k": "t",
-     "s": "$300"
     },
     {
      "k": "t",
@@ -9552,7 +9724,7 @@
     },
     {
      "k": "t",
-     "s": "$4,100"
+     "s": "$3,800"
     },
     {
      "k": "t",
@@ -9673,6 +9845,10 @@
      "s": "$284,200"
     },
     {
+     "k": "a",
+     "s": "across 2 debts · $2,020 a month in payments · about $1,542 a month interest"
+    },
+    {
      "k": "t",
      "s": "across"
     },
@@ -9725,12 +9901,24 @@
      "s": "Highest interest rate first — saves the most interest."
     },
     {
+     "k": "a",
+     "s": "Extra a month"
+    },
+    {
      "k": "t",
      "s": "Extra / month"
     },
     {
      "k": "t",
      "s": "$"
+    },
+    {
+     "k": "a",
+     "s": "Extra payment a month, in dollars"
+    },
+    {
+     "k": "a",
+     "s": "Debt-free Apr 2048"
     },
     {
      "k": "t",
@@ -9741,12 +9929,20 @@
      "s": "debt-free"
     },
     {
+     "k": "a",
+     "s": "$2,020 a month total"
+    },
+    {
      "k": "t",
      "s": "$2,020"
     },
     {
      "k": "t",
      "s": "/month total"
+    },
+    {
+     "k": "a",
+     "s": "$236,683 total interest"
     },
     {
      "k": "t",
@@ -9798,7 +9994,7 @@
     },
     {
      "k": "a",
-     "s": "What is How we calculate your odds?"
+     "s": "About How we calculate your odds"
     },
     {
      "k": "t",
@@ -9807,6 +10003,10 @@
     {
      "k": "t",
      "s": "YOUR DEBTS"
+    },
+    {
+     "k": "a",
+     "s": "Chase Sapphire, pay first, 24.00% — the costliest, 5 years left, $300 a month minimum, about $84 a month interest, $4,200 owed. Opens it to edit; hold to delete."
     },
     {
      "k": "t",
@@ -9822,11 +10022,7 @@
     },
     {
      "k": "t",
-     "s": "24.00"
-    },
-    {
-     "k": "t",
-     "s": "%"
+     "s": "24.00%"
     },
     {
      "k": "t",
@@ -9869,6 +10065,10 @@
      "s": "›"
     },
     {
+     "k": "a",
+     "s": "Mortgage, 6.25%, 22 years left, $1,900 a month minimum, about $1,458 a month interest, payment due in 8 days, $280,000 owed. Opens it to edit; hold to delete."
+    },
+    {
      "k": "t",
      "s": "📄"
     },
@@ -9878,11 +10078,7 @@
     },
     {
      "k": "t",
-     "s": "6.25"
-    },
-    {
-     "k": "t",
-     "s": "%"
+     "s": "6.25%"
     },
     {
      "k": "t",
@@ -9914,7 +10110,7 @@
     },
     {
      "k": "t",
-     "s": "payment due in 9 days"
+     "s": "payment due in 8 days"
     },
     {
      "k": "t",
@@ -9937,8 +10133,16 @@
      "s": "Log a payment ›"
     },
     {
+     "k": "a",
+     "s": "Add debt account"
+    },
+    {
      "k": "t",
      "s": "+ Add debt account"
+    },
+    {
+     "k": "a",
+     "s": "Tap a debt to edit, hold to delete"
     },
     {
      "k": "t",
@@ -10060,7 +10264,7 @@
     },
     {
      "k": "a",
-     "s": "What is Guaranteed income?"
+     "s": "About Guaranteed income"
     },
     {
      "k": "t",
@@ -10076,7 +10280,7 @@
     },
     {
      "k": "a",
-     "s": "What is Draw from savings?"
+     "s": "About Draw from savings"
     },
     {
      "k": "t",
@@ -10116,7 +10320,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 74 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 77 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -10148,7 +10352,7 @@
     },
     {
      "k": "t",
-     "s": "74"
+     "s": "77"
     },
     {
      "k": "t",
@@ -10446,7 +10650,7 @@
     },
     {
      "k": "a",
-     "s": "What is Guaranteed income?"
+     "s": "About Guaranteed income"
     },
     {
      "k": "t",
@@ -10462,7 +10666,7 @@
     },
     {
      "k": "a",
-     "s": "What is Draw from savings?"
+     "s": "About Draw from savings"
     },
     {
      "k": "t",
@@ -10502,7 +10706,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 74 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 77 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -10534,7 +10738,7 @@
     },
     {
      "k": "t",
-     "s": "74"
+     "s": "77"
     },
     {
      "k": "t",
@@ -10808,7 +11012,7 @@
     },
     {
      "k": "a",
-     "s": "Social Security · pension, guaranteed income, $3,500/month. Opens it to change."
+     "s": "Social Security · pension, guaranteed income, $3,500 a month. Opens it to change."
     },
     {
      "k": "t",
@@ -10942,11 +11146,11 @@
     },
     {
      "k": "t",
-     "s": "$3,200"
+     "s": "$3,800"
     },
     {
      "k": "a",
-     "s": "Planned expenses, by category. Opens your budget."
+     "s": "Planned expenses: Bills & fixed, $2,500; Everyday expenses, $1,300; total, $3,800. Opens your budget."
     },
     {
      "k": "t",
@@ -10958,19 +11162,11 @@
     },
     {
      "k": "t",
-     "s": "Once in a while"
-    },
-    {
-     "k": "t",
-     "s": "$200"
-    },
-    {
-     "k": "t",
      "s": "Everyday expenses"
     },
     {
      "k": "t",
-     "s": "$500"
+     "s": "$1,300"
     },
     {
      "k": "t",
@@ -10978,7 +11174,7 @@
     },
     {
      "k": "t",
-     "s": "$3,200"
+     "s": "$3,800"
     },
     {
      "k": "t",
@@ -11099,6 +11295,10 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "across 0 debts · $0 a month in payments · about $0 a month interest"
+    },
+    {
      "k": "t",
      "s": "across"
     },
@@ -11143,8 +11343,16 @@
      "s": "Add any loans or credit cards to plan your payoff."
     },
     {
+     "k": "a",
+     "s": "Add debt account"
+    },
+    {
      "k": "t",
      "s": "+ Add debt account"
+    },
+    {
+     "k": "a",
+     "s": "Tap a debt to edit, hold to delete"
     },
     {
      "k": "t",
@@ -11721,6 +11929,10 @@
      "s": "$0"
     },
     {
+     "k": "a",
+     "s": "across 0 debts · $0 a month in payments · about $0 a month interest"
+    },
+    {
      "k": "t",
      "s": "across"
     },
@@ -11765,8 +11977,16 @@
      "s": "Add any loans or credit cards to plan your payoff."
     },
     {
+     "k": "a",
+     "s": "Add debt account"
+    },
+    {
      "k": "t",
      "s": "+ Add debt account"
+    },
+    {
+     "k": "a",
+     "s": "Tap a debt to edit, hold to delete"
     },
     {
      "k": "t",
@@ -13494,7 +13714,7 @@
     },
     {
      "k": "a",
-     "s": "What is Required withdrawals (RMD)?"
+     "s": "About Required withdrawals (RMD)"
     },
     {
      "k": "t",
@@ -13562,7 +13782,7 @@
     },
     {
      "k": "a",
-     "s": "What is Guaranteed income?"
+     "s": "About Guaranteed income"
     },
     {
      "k": "t",
@@ -14064,7 +14284,7 @@
     },
     {
      "k": "a",
-     "s": "What is Required withdrawals (RMD)?"
+     "s": "About Required withdrawals (RMD)"
     },
     {
      "k": "t",
@@ -14132,7 +14352,7 @@
     },
     {
      "k": "a",
-     "s": "What is Guaranteed income?"
+     "s": "About Guaranteed income"
     },
     {
      "k": "t",
@@ -14426,7 +14646,7 @@
     },
     {
      "k": "a",
-     "s": "What is Guaranteed income?"
+     "s": "About Guaranteed income"
     },
     {
      "k": "t",
@@ -14644,7 +14864,7 @@
     },
     {
      "k": "a",
-     "s": "What is Required withdrawals (RMD)?"
+     "s": "About Required withdrawals (RMD)"
     },
     {
      "k": "t",
@@ -14712,7 +14932,7 @@
     },
     {
      "k": "a",
-     "s": "What is Guaranteed income?"
+     "s": "About Guaranteed income"
     },
     {
      "k": "t",
@@ -17670,7 +17890,7 @@
     },
     {
      "k": "a",
-     "s": "What is Where this number came from?"
+     "s": "About Where this number came from"
     },
     {
      "k": "t",
@@ -17874,7 +18094,7 @@
     },
     {
      "k": "a",
-     "s": "Ending market value today, $120,000"
+     "s": "Ending market value (today), $120,000"
     },
     {
      "k": "t",
@@ -18024,11 +18244,11 @@
     },
     {
      "k": "t",
-     "s": "Linked · 41 days old"
+     "s": "Linked · 42 days old"
     },
     {
      "k": "a",
-     "s": "What is Where this number came from?"
+     "s": "About Where this number came from"
     },
     {
      "k": "t",
@@ -18232,7 +18452,7 @@
     },
     {
      "k": "a",
-     "s": "Ending market value today, $300,000"
+     "s": "Ending market value (today), $300,000"
     },
     {
      "k": "t",
@@ -18416,7 +18636,7 @@
     },
     {
      "k": "a",
-     "s": "What is Price returns?"
+     "s": "About Price returns"
     },
     {
      "k": "t",
@@ -18432,7 +18652,7 @@
     },
     {
      "k": "a",
-     "s": "Add a contribution or withdrawal for Brokerage"
+     "s": "Add a contribution or withdrawal for Vanguard Brokerage"
     },
     {
      "k": "t",
@@ -18440,7 +18660,7 @@
     },
     {
      "k": "a",
-     "s": "Add a dividend or interest for Brokerage"
+     "s": "Add a dividend or interest for Vanguard Brokerage"
     },
     {
      "k": "t",
@@ -18448,7 +18668,7 @@
     },
     {
      "k": "a",
-     "s": "Add a buy or sale for Brokerage"
+     "s": "Add a buy or sale for Vanguard Brokerage"
     },
     {
      "k": "t",
@@ -18494,11 +18714,11 @@
     },
     {
      "k": "t",
-     "s": "Linked · 41 days old"
+     "s": "Linked · 42 days old"
     },
     {
      "k": "a",
-     "s": "What is Where this number came from?"
+     "s": "About Where this number came from"
     },
     {
      "k": "t",
@@ -18702,7 +18922,7 @@
     },
     {
      "k": "a",
-     "s": "Ending market value today, $300,000"
+     "s": "Ending market value (today), $300,000"
     },
     {
      "k": "t",
@@ -18886,7 +19106,7 @@
     },
     {
      "k": "a",
-     "s": "What is Price returns?"
+     "s": "About Price returns"
     },
     {
      "k": "t",
@@ -18902,7 +19122,7 @@
     },
     {
      "k": "a",
-     "s": "Add a contribution or withdrawal for Brokerage"
+     "s": "Add a contribution or withdrawal for Vanguard Brokerage"
     },
     {
      "k": "t",
@@ -18910,7 +19130,7 @@
     },
     {
      "k": "a",
-     "s": "Add a dividend or interest for Brokerage"
+     "s": "Add a dividend or interest for Vanguard Brokerage"
     },
     {
      "k": "t",
@@ -18918,7 +19138,7 @@
     },
     {
      "k": "a",
-     "s": "Add a buy or sale for Brokerage"
+     "s": "Add a buy or sale for Vanguard Brokerage"
     },
     {
      "k": "t",
@@ -18968,7 +19188,7 @@
     },
     {
      "k": "a",
-     "s": "What is Where this number came from?"
+     "s": "About Where this number came from"
     },
     {
      "k": "t",
@@ -19172,7 +19392,7 @@
     },
     {
      "k": "a",
-     "s": "Ending market value today, $20,000"
+     "s": "Ending market value (today), $20,000"
     },
     {
      "k": "t",
@@ -19298,7 +19518,7 @@
     },
     {
      "k": "a",
-     "s": "What is Where this number came from?"
+     "s": "About Where this number came from"
     },
     {
      "k": "t",
@@ -19502,7 +19722,7 @@
     },
     {
      "k": "a",
-     "s": "Ending market value today, $400,000"
+     "s": "Ending market value (today), $400,000"
     },
     {
      "k": "t",
@@ -19526,7 +19746,7 @@
     },
     {
      "k": "a",
-     "s": "Itemize Traditional IRA into holdings"
+     "s": "Itemize Fidelity Traditional IRA into holdings"
     },
     {
      "k": "t",
@@ -19566,7 +19786,7 @@
     },
     {
      "k": "a",
-     "s": "Edit Traditional IRA"
+     "s": "Edit Fidelity Traditional IRA"
     },
     {
      "k": "t",
@@ -19590,7 +19810,7 @@
     },
     {
      "k": "a",
-     "s": "Add a contribution or withdrawal for Traditional IRA"
+     "s": "Add a contribution or withdrawal for Fidelity Traditional IRA"
     },
     {
      "k": "t",
@@ -19598,7 +19818,7 @@
     },
     {
      "k": "a",
-     "s": "Add a dividend or interest for Traditional IRA"
+     "s": "Add a dividend or interest for Fidelity Traditional IRA"
     },
     {
      "k": "t",
@@ -19606,7 +19826,7 @@
     },
     {
      "k": "a",
-     "s": "Add a buy or sale for Traditional IRA"
+     "s": "Add a buy or sale for Fidelity Traditional IRA"
     },
     {
      "k": "t",
@@ -19656,7 +19876,7 @@
     },
     {
      "k": "a",
-     "s": "What is Where this number came from?"
+     "s": "About Where this number came from"
     },
     {
      "k": "t",
@@ -19860,7 +20080,7 @@
     },
     {
      "k": "a",
-     "s": "Ending market value today, $9,800"
+     "s": "Ending market value (today), $9,800"
     },
     {
      "k": "t",
@@ -19904,7 +20124,7 @@
     },
     {
      "k": "a",
-     "s": "Edit Treasury note"
+     "s": "Edit TreasuryDirect Treasury note"
     },
     {
      "k": "t",
@@ -19996,7 +20216,7 @@
     },
     {
      "k": "t",
-     "s": "Added estimated $176 in accrued interest to bond value at 4% coupon for 161 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+     "s": "Added estimated $178 in accrued interest to bond value at 4% coupon for 162 days to calculate YTM. If this is not accurate, enter actual accrued interest"
     },
     {
      "k": "a",
@@ -20008,7 +20228,7 @@
     },
     {
      "k": "a",
-     "s": "What is Rate sensitivity?"
+     "s": "About Rate sensitivity"
     },
     {
      "k": "t",
@@ -20084,7 +20304,7 @@
     },
     {
      "k": "a",
-     "s": "Add a contribution or withdrawal for Treasury note"
+     "s": "Add a contribution or withdrawal for TreasuryDirect Treasury note"
     },
     {
      "k": "t",
@@ -20092,7 +20312,7 @@
     },
     {
      "k": "a",
-     "s": "Add a dividend or interest for Treasury note"
+     "s": "Add a dividend or interest for TreasuryDirect Treasury note"
     },
     {
      "k": "t",
@@ -20100,7 +20320,7 @@
     },
     {
      "k": "a",
-     "s": "Add a buy or sale for Treasury note"
+     "s": "Add a buy or sale for TreasuryDirect Treasury note"
     },
     {
      "k": "t",
@@ -20150,7 +20370,7 @@
     },
     {
      "k": "a",
-     "s": "What is Where this number came from?"
+     "s": "About Where this number came from"
     },
     {
      "k": "t",
@@ -20366,7 +20586,7 @@
     },
     {
      "k": "a",
-     "s": "Ending market value today, $250,000"
+     "s": "Ending market value (today), $250,000"
     },
     {
      "k": "t",
@@ -20782,11 +21002,7 @@
     },
     {
      "k": "t",
-     "s": "Oct"
-    },
-    {
-     "k": "t",
-     "s": "2026"
+     "s": "Oct 2026"
     },
     {
      "k": "t",
@@ -20794,11 +21010,7 @@
     },
     {
      "k": "t",
-     "s": "Sep ’27"
-    },
-    {
-     "k": "t",
-     "s": "2027"
+     "s": "Sep 2027"
     },
     {
      "k": "t",
@@ -20826,7 +21038,7 @@
     },
     {
      "k": "a",
-     "s": "OK — you stay above zero in all 12 months. Lowest point $2,980 in Oct."
+     "s": "OK — you stay above zero in all 12 months. Lowest point $2,180 in Oct."
     },
     {
      "k": "t",
@@ -20834,7 +21046,7 @@
     },
     {
      "k": "t",
-     "s": "Lowest point $2,980 — Oct."
+     "s": "Lowest point $2,180 — Oct."
     },
     {
      "k": "t",
@@ -20854,7 +21066,7 @@
     },
     {
      "k": "a",
-     "s": "Oct 2026: in $7,200 a month, out $4,220 a month, ending balance $2,980. Opens the month's detail."
+     "s": "Oct 2026: in $6,400 a month, out $4,220 a month, ending balance $2,180."
     },
     {
      "k": "t",
@@ -20862,7 +21074,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -20870,11 +21082,11 @@
     },
     {
      "k": "t",
-     "s": "$2,980"
+     "s": "$2,180"
     },
     {
      "k": "a",
-     "s": "Nov 2026: in $7,200 a month, out $4,220 a month, ending balance $5,960. Opens the month's detail."
+     "s": "Nov 2026: in $6,400 a month, out $4,220 a month, ending balance $4,360."
     },
     {
      "k": "t",
@@ -20882,7 +21094,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -20890,11 +21102,11 @@
     },
     {
      "k": "t",
-     "s": "$5,960"
+     "s": "$4,360"
     },
     {
      "k": "a",
-     "s": "Dec 2026: in $7,200 a month, out $4,220 a month, ending balance $8,940. Opens the month's detail."
+     "s": "Dec 2026: in $6,400 a month, out $4,220 a month, ending balance $6,540."
     },
     {
      "k": "t",
@@ -20902,7 +21114,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -20910,11 +21122,11 @@
     },
     {
      "k": "t",
-     "s": "$8,940"
+     "s": "$6,540"
     },
     {
      "k": "a",
-     "s": "Jan ’27 2027: in $7,200 a month, out $4,220 a month, ending balance $11,920. Opens the month's detail."
+     "s": "Jan 2027: in $6,400 a month, out $4,220 a month, ending balance $8,720."
     },
     {
      "k": "t",
@@ -20922,7 +21134,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -20930,11 +21142,11 @@
     },
     {
      "k": "t",
-     "s": "$11,920"
+     "s": "$8,720"
     },
     {
      "k": "a",
-     "s": "Feb ’27 2027: in $7,200 a month, out $4,220 a month, ending balance $14,900. Opens the month's detail."
+     "s": "Feb 2027: in $6,400 a month, out $4,220 a month, ending balance $10,900."
     },
     {
      "k": "t",
@@ -20942,7 +21154,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -20950,11 +21162,11 @@
     },
     {
      "k": "t",
-     "s": "$14,900"
+     "s": "$10,900"
     },
     {
      "k": "a",
-     "s": "Mar ’27 2027: in $7,200 a month, out $4,220 a month, ending balance $17,880. Opens the month's detail."
+     "s": "Mar 2027: in $6,400 a month, out $4,220 a month, ending balance $13,080."
     },
     {
      "k": "t",
@@ -20962,7 +21174,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -20970,11 +21182,11 @@
     },
     {
      "k": "t",
-     "s": "$17,880"
+     "s": "$13,080"
     },
     {
      "k": "a",
-     "s": "Apr ’27 2027: in $7,200 a month, out $7,820 a month, ending balance $17,260. Opens the month's detail."
+     "s": "Apr 2027: in $6,400 a month, out $7,820 a month, ending balance $11,660."
     },
     {
      "k": "t",
@@ -20982,7 +21194,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -20990,11 +21202,11 @@
     },
     {
      "k": "t",
-     "s": "$17,260"
+     "s": "$11,660"
     },
     {
      "k": "a",
-     "s": "May ’27 2027: in $7,200 a month, out $4,220 a month, ending balance $20,240. Opens the month's detail."
+     "s": "May 2027: in $6,400 a month, out $4,220 a month, ending balance $13,840."
     },
     {
      "k": "t",
@@ -21002,7 +21214,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -21010,11 +21222,11 @@
     },
     {
      "k": "t",
-     "s": "$20,240"
+     "s": "$13,840"
     },
     {
      "k": "a",
-     "s": "Jun ’27 2027: in $7,200 a month, out $4,220 a month, ending balance $23,220. Opens the month's detail."
+     "s": "Jun 2027: in $6,400 a month, out $4,220 a month, ending balance $16,020."
     },
     {
      "k": "t",
@@ -21022,7 +21234,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -21030,11 +21242,11 @@
     },
     {
      "k": "t",
-     "s": "$23,220"
+     "s": "$16,020"
     },
     {
      "k": "a",
-     "s": "Jul ’27 2027: in $7,200 a month, out $4,220 a month, ending balance $26,200. Opens the month's detail."
+     "s": "Jul 2027: in $6,400 a month, out $4,220 a month, ending balance $18,200."
     },
     {
      "k": "t",
@@ -21042,7 +21254,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -21050,11 +21262,11 @@
     },
     {
      "k": "t",
-     "s": "$26,200"
+     "s": "$18,200"
     },
     {
      "k": "a",
-     "s": "Aug ’27 2027: in $7,200 a month, out $4,220 a month, ending balance $29,180. Opens the month's detail."
+     "s": "Aug 2027: in $6,400 a month, out $4,220 a month, ending balance $20,380."
     },
     {
      "k": "t",
@@ -21062,7 +21274,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -21070,11 +21282,11 @@
     },
     {
      "k": "t",
-     "s": "$29,180"
+     "s": "$20,380"
     },
     {
      "k": "a",
-     "s": "Sep ’27 2027: in $7,200 a month, out $4,220 a month, ending balance $32,160. Opens the month's detail."
+     "s": "Sep 2027: in $6,400 a month, out $4,220 a month, ending balance $22,560."
     },
     {
      "k": "t",
@@ -21082,7 +21294,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -21090,7 +21302,7 @@
     },
     {
      "k": "t",
-     "s": "$32,160"
+     "s": "$22,560"
     },
     {
      "k": "a",
@@ -21102,7 +21314,7 @@
     },
     {
      "k": "t",
-     "s": "A forward plan, not a promise: expenses use your planned amounts, income is after estimated tax, and non-monthly bills land in the months you chose. Tap any row for that month's full detail."
+     "s": "A forward plan, not a promise: expenses use your planned amounts, income is after estimated tax, and non-monthly bills land in the months you chose."
     }
    ],
    "rich": [
@@ -21140,11 +21352,7 @@
     },
     {
      "k": "t",
-     "s": "Oct"
-    },
-    {
-     "k": "t",
-     "s": "2026"
+     "s": "Oct 2026"
     },
     {
      "k": "t",
@@ -21152,11 +21360,7 @@
     },
     {
      "k": "t",
-     "s": "Sep ’27"
-    },
-    {
-     "k": "t",
-     "s": "2027"
+     "s": "Sep 2027"
     },
     {
      "k": "t",
@@ -21184,7 +21388,7 @@
     },
     {
      "k": "a",
-     "s": "OK — you stay above zero in all 12 months. Lowest point $21,200 in Oct."
+     "s": "OK — you stay above zero in all 12 months. Lowest point $19,200 in Apr ’27."
     },
     {
      "k": "t",
@@ -21192,7 +21396,7 @@
     },
     {
      "k": "t",
-     "s": "Lowest point $21,200 — Oct."
+     "s": "Lowest point $19,200 — Apr ’27."
     },
     {
      "k": "t",
@@ -21212,7 +21416,7 @@
     },
     {
      "k": "a",
-     "s": "Oct 2026: in $7,200 a month, out $6,000 a month, ending balance $21,200. Opens the month's detail."
+     "s": "Oct 2026: in $6,400 a month, out $6,000 a month, ending balance $20,400."
     },
     {
      "k": "t",
@@ -21220,7 +21424,47 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
+    },
+    {
+     "k": "t",
+     "s": "−$6,000"
+    },
+    {
+     "k": "t",
+     "s": "$20,400"
+    },
+    {
+     "k": "a",
+     "s": "Nov 2026: in $6,400 a month, out $6,000 a month, ending balance $20,800."
+    },
+    {
+     "k": "t",
+     "s": "Nov"
+    },
+    {
+     "k": "t",
+     "s": "+$6,400"
+    },
+    {
+     "k": "t",
+     "s": "−$6,000"
+    },
+    {
+     "k": "t",
+     "s": "$20,800"
+    },
+    {
+     "k": "a",
+     "s": "Dec 2026: in $6,400 a month, out $6,000 a month, ending balance $21,200."
+    },
+    {
+     "k": "t",
+     "s": "Dec"
+    },
+    {
+     "k": "t",
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -21232,15 +21476,55 @@
     },
     {
      "k": "a",
-     "s": "Nov 2026: in $7,200 a month, out $6,000 a month, ending balance $22,400. Opens the month's detail."
+     "s": "Jan 2027: in $6,400 a month, out $6,000 a month, ending balance $21,600."
     },
     {
      "k": "t",
-     "s": "Nov"
+     "s": "Jan ’27"
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
+    },
+    {
+     "k": "t",
+     "s": "−$6,000"
+    },
+    {
+     "k": "t",
+     "s": "$21,600"
+    },
+    {
+     "k": "a",
+     "s": "Feb 2027: in $6,400 a month, out $6,000 a month, ending balance $22,000."
+    },
+    {
+     "k": "t",
+     "s": "Feb ’27"
+    },
+    {
+     "k": "t",
+     "s": "+$6,400"
+    },
+    {
+     "k": "t",
+     "s": "−$6,000"
+    },
+    {
+     "k": "t",
+     "s": "$22,000"
+    },
+    {
+     "k": "a",
+     "s": "Mar 2027: in $6,400 a month, out $6,000 a month, ending balance $22,400."
+    },
+    {
+     "k": "t",
+     "s": "Mar ’27"
+    },
+    {
+     "k": "t",
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -21252,87 +21536,7 @@
     },
     {
      "k": "a",
-     "s": "Dec 2026: in $7,200 a month, out $6,000 a month, ending balance $23,600. Opens the month's detail."
-    },
-    {
-     "k": "t",
-     "s": "Dec"
-    },
-    {
-     "k": "t",
-     "s": "+$7,200"
-    },
-    {
-     "k": "t",
-     "s": "−$6,000"
-    },
-    {
-     "k": "t",
-     "s": "$23,600"
-    },
-    {
-     "k": "a",
-     "s": "Jan ’27 2027: in $7,200 a month, out $6,000 a month, ending balance $24,800. Opens the month's detail."
-    },
-    {
-     "k": "t",
-     "s": "Jan ’27"
-    },
-    {
-     "k": "t",
-     "s": "+$7,200"
-    },
-    {
-     "k": "t",
-     "s": "−$6,000"
-    },
-    {
-     "k": "t",
-     "s": "$24,800"
-    },
-    {
-     "k": "a",
-     "s": "Feb ’27 2027: in $7,200 a month, out $6,000 a month, ending balance $26,000. Opens the month's detail."
-    },
-    {
-     "k": "t",
-     "s": "Feb ’27"
-    },
-    {
-     "k": "t",
-     "s": "+$7,200"
-    },
-    {
-     "k": "t",
-     "s": "−$6,000"
-    },
-    {
-     "k": "t",
-     "s": "$26,000"
-    },
-    {
-     "k": "a",
-     "s": "Mar ’27 2027: in $7,200 a month, out $6,000 a month, ending balance $27,200. Opens the month's detail."
-    },
-    {
-     "k": "t",
-     "s": "Mar ’27"
-    },
-    {
-     "k": "t",
-     "s": "+$7,200"
-    },
-    {
-     "k": "t",
-     "s": "−$6,000"
-    },
-    {
-     "k": "t",
-     "s": "$27,200"
-    },
-    {
-     "k": "a",
-     "s": "Apr ’27 2027: in $7,200 a month, out $9,600 a month, ending balance $24,800. Opens the month's detail."
+     "s": "Apr 2027: in $6,400 a month, out $9,600 a month, ending balance $19,200."
     },
     {
      "k": "t",
@@ -21340,7 +21544,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -21348,11 +21552,11 @@
     },
     {
      "k": "t",
-     "s": "$24,800"
+     "s": "$19,200"
     },
     {
      "k": "a",
-     "s": "May ’27 2027: in $7,200 a month, out $6,000 a month, ending balance $26,000. Opens the month's detail."
+     "s": "May 2027: in $6,400 a month, out $6,000 a month, ending balance $19,600."
     },
     {
      "k": "t",
@@ -21360,7 +21564,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -21368,11 +21572,11 @@
     },
     {
      "k": "t",
-     "s": "$26,000"
+     "s": "$19,600"
     },
     {
      "k": "a",
-     "s": "Jun ’27 2027: in $7,200 a month, out $6,000 a month, ending balance $27,200. Opens the month's detail."
+     "s": "Jun 2027: in $6,400 a month, out $6,000 a month, ending balance $20,000."
     },
     {
      "k": "t",
@@ -21380,7 +21584,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -21388,11 +21592,11 @@
     },
     {
      "k": "t",
-     "s": "$27,200"
+     "s": "$20,000"
     },
     {
      "k": "a",
-     "s": "Jul ’27 2027: in $7,200 a month, out $6,000 a month, ending balance $28,400. Opens the month's detail."
+     "s": "Jul 2027: in $6,400 a month, out $6,000 a month, ending balance $20,400."
     },
     {
      "k": "t",
@@ -21400,7 +21604,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -21408,11 +21612,11 @@
     },
     {
      "k": "t",
-     "s": "$28,400"
+     "s": "$20,400"
     },
     {
      "k": "a",
-     "s": "Aug ’27 2027: in $7,200 a month, out $6,000 a month, ending balance $29,600. Opens the month's detail."
+     "s": "Aug 2027: in $6,400 a month, out $6,000 a month, ending balance $20,800."
     },
     {
      "k": "t",
@@ -21420,7 +21624,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -21428,11 +21632,11 @@
     },
     {
      "k": "t",
-     "s": "$29,600"
+     "s": "$20,800"
     },
     {
      "k": "a",
-     "s": "Sep ’27 2027: in $7,200 a month, out $6,000 a month, ending balance $30,800. Opens the month's detail."
+     "s": "Sep 2027: in $6,400 a month, out $6,000 a month, ending balance $21,200."
     },
     {
      "k": "t",
@@ -21440,7 +21644,7 @@
     },
     {
      "k": "t",
-     "s": "+$7,200"
+     "s": "+$6,400"
     },
     {
      "k": "t",
@@ -21448,7 +21652,7 @@
     },
     {
      "k": "t",
-     "s": "$30,800"
+     "s": "$21,200"
     },
     {
      "k": "a",
@@ -21460,7 +21664,7 @@
     },
     {
      "k": "t",
-     "s": "A forward plan, not a promise: expenses use your planned amounts, income is after estimated tax, and non-monthly bills land in the months you chose. Tap any row for that month's full detail."
+     "s": "A forward plan, not a promise: expenses use your planned amounts, income is after estimated tax, and non-monthly bills land in the months you chose."
     }
    ],
    "retiree": [
@@ -21498,11 +21702,7 @@
     },
     {
      "k": "t",
-     "s": "Oct"
-    },
-    {
-     "k": "t",
-     "s": "2026"
+     "s": "Oct 2026"
     },
     {
      "k": "t",
@@ -21510,11 +21710,7 @@
     },
     {
      "k": "t",
-     "s": "Sep ’27"
-    },
-    {
-     "k": "t",
-     "s": "2027"
+     "s": "Sep 2027"
     },
     {
      "k": "t",
@@ -21542,7 +21738,7 @@
     },
     {
      "k": "a",
-     "s": "Careful — short in Oct and Nov and Dec and Jan ’27 and Feb ’27 and Mar ’27 and Apr ’27 and May ’27 and Jun ’27 and Jul ’27 and Aug ’27 and Sep ’27. The biggest cause: Everyday expenses ($3,600) in Oct."
+     "s": "Careful — short in Oct and Nov and Dec and Jan ’27 and Feb ’27 and Mar ’27 and Apr ’27 and May ’27 and Jun ’27 and Jul ’27 and Aug ’27 and Sep ’27. The biggest cause: Everyday expenses ($3,800) in Oct."
     },
     {
      "k": "t",
@@ -21550,7 +21746,7 @@
     },
     {
      "k": "t",
-     "s": "Lowest point −$3,600 (Sep ’27). The biggest cause: Everyday expenses ($3,600) in Oct."
+     "s": "Lowest point −$6,000 (Sep ’27). The biggest cause: Everyday expenses ($3,800) in Oct."
     },
     {
      "k": "t",
@@ -21570,7 +21766,7 @@
     },
     {
      "k": "a",
-     "s": "Oct 2026: in $3,500 a month, out $3,600 a month, ending balance −$100 — short. Opens the month's detail."
+     "s": "Oct 2026: in $3,500 a month, out $3,800 a month, ending balance −$300 — short."
     },
     {
      "k": "t",
@@ -21586,11 +21782,11 @@
     },
     {
      "k": "t",
-     "s": "−$3,600"
+     "s": "−$3,800"
     },
     {
      "k": "t",
-     "s": "−$100"
+     "s": "−$300"
     },
     {
      "k": "t",
@@ -21598,7 +21794,7 @@
     },
     {
      "k": "a",
-     "s": "Nov 2026: in $3,500 a month, out $3,600 a month, ending balance −$200 — short. Opens the month's detail."
+     "s": "Nov 2026: in $3,500 a month, out $3,800 a month, ending balance −$600 — short."
     },
     {
      "k": "t",
@@ -21614,11 +21810,11 @@
     },
     {
      "k": "t",
-     "s": "−$3,600"
+     "s": "−$3,800"
     },
     {
      "k": "t",
-     "s": "−$200"
+     "s": "−$600"
     },
     {
      "k": "t",
@@ -21626,7 +21822,7 @@
     },
     {
      "k": "a",
-     "s": "Dec 2026: in $3,500 a month, out $3,600 a month, ending balance −$300 — short. Opens the month's detail."
+     "s": "Dec 2026: in $3,500 a month, out $3,800 a month, ending balance −$900 — short."
     },
     {
      "k": "t",
@@ -21642,11 +21838,11 @@
     },
     {
      "k": "t",
-     "s": "−$3,600"
+     "s": "−$3,800"
     },
     {
      "k": "t",
-     "s": "−$300"
+     "s": "−$900"
     },
     {
      "k": "t",
@@ -21654,7 +21850,7 @@
     },
     {
      "k": "a",
-     "s": "Jan ’27 2027: in $3,500 a month, out $3,600 a month, ending balance −$400 — short. Opens the month's detail."
+     "s": "Jan 2027: in $3,500 a month, out $3,800 a month, ending balance −$1,200 — short."
     },
     {
      "k": "t",
@@ -21670,11 +21866,11 @@
     },
     {
      "k": "t",
-     "s": "−$3,600"
+     "s": "−$3,800"
     },
     {
      "k": "t",
-     "s": "−$400"
+     "s": "−$1,200"
     },
     {
      "k": "t",
@@ -21682,7 +21878,7 @@
     },
     {
      "k": "a",
-     "s": "Feb ’27 2027: in $3,500 a month, out $3,600 a month, ending balance −$500 — short. Opens the month's detail."
+     "s": "Feb 2027: in $3,500 a month, out $3,800 a month, ending balance −$1,500 — short."
     },
     {
      "k": "t",
@@ -21698,11 +21894,11 @@
     },
     {
      "k": "t",
-     "s": "−$3,600"
+     "s": "−$3,800"
     },
     {
      "k": "t",
-     "s": "−$500"
+     "s": "−$1,500"
     },
     {
      "k": "t",
@@ -21710,7 +21906,7 @@
     },
     {
      "k": "a",
-     "s": "Mar ’27 2027: in $3,500 a month, out $3,600 a month, ending balance −$600 — short. Opens the month's detail."
+     "s": "Mar 2027: in $3,500 a month, out $3,800 a month, ending balance −$1,800 — short."
     },
     {
      "k": "t",
@@ -21726,11 +21922,11 @@
     },
     {
      "k": "t",
-     "s": "−$3,600"
+     "s": "−$3,800"
     },
     {
      "k": "t",
-     "s": "−$600"
+     "s": "−$1,800"
     },
     {
      "k": "t",
@@ -21738,7 +21934,7 @@
     },
     {
      "k": "a",
-     "s": "Apr ’27 2027: in $3,500 a month, out $3,600 a month, ending balance −$700 — short. Opens the month's detail."
+     "s": "Apr 2027: in $3,500 a month, out $3,800 a month, ending balance −$2,100 — short."
     },
     {
      "k": "t",
@@ -21754,11 +21950,11 @@
     },
     {
      "k": "t",
-     "s": "−$3,600"
+     "s": "−$3,800"
     },
     {
      "k": "t",
-     "s": "−$700"
+     "s": "−$2,100"
     },
     {
      "k": "t",
@@ -21766,7 +21962,7 @@
     },
     {
      "k": "a",
-     "s": "May ’27 2027: in $3,500 a month, out $3,600 a month, ending balance −$800 — short. Opens the month's detail."
+     "s": "May 2027: in $3,500 a month, out $3,800 a month, ending balance −$2,400 — short."
     },
     {
      "k": "t",
@@ -21782,11 +21978,11 @@
     },
     {
      "k": "t",
-     "s": "−$3,600"
+     "s": "−$3,800"
     },
     {
      "k": "t",
-     "s": "−$800"
+     "s": "−$2,400"
     },
     {
      "k": "t",
@@ -21794,7 +21990,7 @@
     },
     {
      "k": "a",
-     "s": "Jun ’27 2027: in $3,500 a month, out $6,000 a month, ending balance −$3,300 — short. Opens the month's detail."
+     "s": "Jun 2027: in $3,500 a month, out $6,200 a month, ending balance −$5,100 — short."
     },
     {
      "k": "t",
@@ -21810,11 +22006,11 @@
     },
     {
      "k": "t",
-     "s": "−$6,000"
+     "s": "−$6,200"
     },
     {
      "k": "t",
-     "s": "−$3,300"
+     "s": "−$5,100"
     },
     {
      "k": "t",
@@ -21822,7 +22018,7 @@
     },
     {
      "k": "a",
-     "s": "Jul ’27 2027: in $3,500 a month, out $3,600 a month, ending balance −$3,400 — short. Opens the month's detail."
+     "s": "Jul 2027: in $3,500 a month, out $3,800 a month, ending balance −$5,400 — short."
     },
     {
      "k": "t",
@@ -21838,11 +22034,11 @@
     },
     {
      "k": "t",
-     "s": "−$3,600"
+     "s": "−$3,800"
     },
     {
      "k": "t",
-     "s": "−$3,400"
+     "s": "−$5,400"
     },
     {
      "k": "t",
@@ -21850,7 +22046,7 @@
     },
     {
      "k": "a",
-     "s": "Aug ’27 2027: in $3,500 a month, out $3,600 a month, ending balance −$3,500 — short. Opens the month's detail."
+     "s": "Aug 2027: in $3,500 a month, out $3,800 a month, ending balance −$5,700 — short."
     },
     {
      "k": "t",
@@ -21866,11 +22062,11 @@
     },
     {
      "k": "t",
-     "s": "−$3,600"
+     "s": "−$3,800"
     },
     {
      "k": "t",
-     "s": "−$3,500"
+     "s": "−$5,700"
     },
     {
      "k": "t",
@@ -21878,7 +22074,7 @@
     },
     {
      "k": "a",
-     "s": "Sep ’27 2027: in $3,500 a month, out $3,600 a month, ending balance −$3,600 — short. Opens the month's detail."
+     "s": "Sep 2027: in $3,500 a month, out $3,800 a month, ending balance −$6,000 — short."
     },
     {
      "k": "t",
@@ -21894,11 +22090,11 @@
     },
     {
      "k": "t",
-     "s": "−$3,600"
+     "s": "−$3,800"
     },
     {
      "k": "t",
-     "s": "−$3,600"
+     "s": "−$6,000"
     },
     {
      "k": "t",
@@ -21934,7 +22130,7 @@
     },
     {
      "k": "t",
-     "s": "A forward plan, not a promise: expenses use your planned amounts, income is after estimated tax, and non-monthly bills land in the months you chose. Tap any row for that month's full detail."
+     "s": "A forward plan, not a promise: expenses use your planned amounts, income is after estimated tax, and non-monthly bills land in the months you chose."
     }
    ],
    "new": [
@@ -22001,7 +22197,7 @@
     },
     {
      "k": "a",
-     "s": "What is Bonds & CDs?"
+     "s": "About Bonds & CDs"
     },
     {
      "k": "t",
@@ -22079,7 +22275,7 @@
     },
     {
      "k": "a",
-     "s": "What is Bonds & CDs?"
+     "s": "About Bonds & CDs"
     },
     {
      "k": "t",
@@ -22187,7 +22383,7 @@
     },
     {
      "k": "t",
-     "s": "Added estimated $176 in accrued interest to bond value at 4% coupon for 161 days to calculate YTM. If this is not accurate, enter actual accrued interest"
+     "s": "Added estimated $178 in accrued interest to bond value at 4% coupon for 162 days to calculate YTM. If this is not accurate, enter actual accrued interest"
     },
     {
      "k": "a",
@@ -22241,7 +22437,7 @@
     },
     {
      "k": "a",
-     "s": "What is Bonds & CDs?"
+     "s": "About Bonds & CDs"
     },
     {
      "k": "t",
@@ -22319,7 +22515,7 @@
     },
     {
      "k": "a",
-     "s": "What is Bonds & CDs?"
+     "s": "About Bonds & CDs"
     },
     {
      "k": "t",
@@ -22372,7 +22568,7 @@
     },
     {
      "k": "a",
-     "s": "What is Contribution room?"
+     "s": "About Contribution room"
     },
     {
      "k": "t",
@@ -22502,7 +22698,7 @@
     },
     {
      "k": "a",
-     "s": "What is Contribution room?"
+     "s": "About Contribution room"
     },
     {
      "k": "t",
@@ -22632,7 +22828,7 @@
     },
     {
      "k": "a",
-     "s": "What is Contribution room?"
+     "s": "About Contribution room"
     },
     {
      "k": "t",
@@ -22802,7 +22998,7 @@
     },
     {
      "k": "a",
-     "s": "What is Contribution room?"
+     "s": "About Contribution room"
     },
     {
      "k": "t",
@@ -24906,7 +25102,7 @@
     },
     {
      "k": "a",
-     "s": "VTI, worth $270,000"
+     "s": "No live price — showing what you paid: $270,000. Live pricing arrives with the price provider"
     },
     {
      "k": "t",
@@ -24934,11 +25130,15 @@
     },
     {
      "k": "a",
-     "s": "What is Price paid (average)?"
+     "s": "About Price paid (average)"
     },
     {
      "k": "t",
      "s": "ⓘ"
+    },
+    {
+     "k": "a",
+     "s": "$90.00"
     },
     {
      "k": "t",
@@ -28648,7 +28848,7 @@
     },
     {
      "k": "t",
-     "s": "$18,600"
+     "s": "$19,800"
     },
     {
      "k": "t",
@@ -28660,7 +28860,7 @@
     },
     {
      "k": "t",
-     "s": "$18,600"
+     "s": "$19,800"
     },
     {
      "k": "t",
@@ -28668,7 +28868,7 @@
     },
     {
      "k": "t",
-     "s": "$3,100"
+     "s": "$3,300"
     },
     {
      "k": "t",
@@ -28700,7 +28900,7 @@
     },
     {
      "k": "t",
-     "s": "$3,100"
+     "s": "$3,300"
     },
     {
      "k": "t",
@@ -28812,7 +29012,7 @@
     },
     {
      "k": "t",
-     "s": "62"
+     "s": "66"
     },
     {
      "k": "t",
@@ -29806,7 +30006,7 @@
     },
     {
      "k": "a",
-     "s": "What is Guaranteed income?"
+     "s": "About Guaranteed income"
     },
     {
      "k": "t",
@@ -29984,7 +30184,7 @@
     },
     {
      "k": "a",
-     "s": "What is Guaranteed income?"
+     "s": "About Guaranteed income"
     },
     {
      "k": "t",
@@ -30162,7 +30362,7 @@
     },
     {
      "k": "a",
-     "s": "What is Guaranteed income?"
+     "s": "About Guaranteed income"
     },
     {
      "k": "t",
@@ -30340,7 +30540,7 @@
     },
     {
      "k": "a",
-     "s": "What is Guaranteed income?"
+     "s": "About Guaranteed income"
     },
     {
      "k": "t",
@@ -30852,7 +31052,7 @@
     },
     {
      "k": "a",
-     "s": "What is Alternatives?"
+     "s": "About Alternatives"
     },
     {
      "k": "t",
@@ -30926,7 +31126,7 @@
     },
     {
      "k": "a",
-     "s": "What is Alternatives?"
+     "s": "About Alternatives"
     },
     {
      "k": "t",
@@ -31000,7 +31200,7 @@
     },
     {
      "k": "a",
-     "s": "What is Alternatives?"
+     "s": "About Alternatives"
     },
     {
      "k": "t",
@@ -31074,7 +31274,7 @@
     },
     {
      "k": "a",
-     "s": "What is Alternatives?"
+     "s": "About Alternatives"
     },
     {
      "k": "t",
@@ -31139,7 +31339,7 @@
     },
     {
      "k": "a",
-     "s": "What is Required withdrawals (RMD)?"
+     "s": "About Required withdrawals (RMD)"
     },
     {
      "k": "t",
@@ -31509,7 +31709,7 @@
     },
     {
      "k": "a",
-     "s": "What is Required withdrawals (RMD)?"
+     "s": "About Required withdrawals (RMD)"
     },
     {
      "k": "t",
@@ -31887,7 +32087,7 @@
     },
     {
      "k": "a",
-     "s": "What is Required withdrawals (RMD)?"
+     "s": "About Required withdrawals (RMD)"
     },
     {
      "k": "t",
@@ -31941,7 +32141,7 @@
     },
     {
      "k": "a",
-     "s": "What is Required withdrawals (RMD)?"
+     "s": "About Required withdrawals (RMD)"
     },
     {
      "k": "t",
@@ -31987,7 +32187,7 @@
     },
     {
      "k": "a",
-     "s": "What is Required withdrawals (RMD)?"
+     "s": "About Required withdrawals (RMD)"
     },
     {
      "k": "t",
@@ -32033,7 +32233,7 @@
     },
     {
      "k": "a",
-     "s": "What is Required withdrawals (RMD)?"
+     "s": "About Required withdrawals (RMD)"
     },
     {
      "k": "t",
@@ -34011,7 +34211,7 @@
     },
     {
      "k": "t",
-     "s": "$3,100"
+     "s": "$3,300"
     },
     {
      "k": "t",
@@ -34043,7 +34243,7 @@
     },
     {
      "k": "t",
-     "s": "$9,300"
+     "s": "$9,900"
     },
     {
      "k": "t",
@@ -34051,7 +34251,7 @@
     },
     {
      "k": "t",
-     "s": "$9,300"
+     "s": "$9,900"
     },
     {
      "k": "t",
@@ -35021,7 +35221,7 @@
     },
     {
      "k": "a",
-     "s": "What is How we calculate your odds?"
+     "s": "About How we calculate your odds"
     },
     {
      "k": "t",
@@ -35045,7 +35245,7 @@
     },
     {
      "k": "a",
-     "s": "What is How we calculate your odds?"
+     "s": "About How we calculate your odds"
     },
     {
      "k": "t",
@@ -35175,7 +35375,7 @@
     },
     {
      "k": "a",
-     "s": "What is How we calculate your odds?"
+     "s": "About How we calculate your odds"
     },
     {
      "k": "t",
@@ -35199,7 +35399,7 @@
     },
     {
      "k": "a",
-     "s": "What is How we calculate your odds?"
+     "s": "About How we calculate your odds"
     },
     {
      "k": "t",
@@ -35337,7 +35537,7 @@
     },
     {
      "k": "a",
-     "s": "What is How we calculate your odds?"
+     "s": "About How we calculate your odds"
     },
     {
      "k": "t",
@@ -35361,7 +35561,7 @@
     },
     {
      "k": "a",
-     "s": "What is How we calculate your odds?"
+     "s": "About How we calculate your odds"
     },
     {
      "k": "t",
@@ -35766,7 +35966,7 @@
     },
     {
      "k": "t",
-     "s": "$108,000"
+     "s": "$98,400"
     },
     {
      "k": "t",
@@ -35783,6 +35983,22 @@
     {
      "k": "t",
      "s": "$108,000"
+    },
+    {
+     "k": "t",
+     "s": "Your 401(k)s"
+    },
+    {
+     "k": "t",
+     "s": "−$9,600"
+    },
+    {
+     "k": "t",
+     "s": "= What it is taxed on"
+    },
+    {
+     "k": "t",
+     "s": "$98,400"
     },
     {
      "k": "t",
@@ -35892,7 +36108,7 @@
     },
     {
      "k": "t",
-     "s": "$108,000"
+     "s": "$98,400"
     },
     {
      "k": "t",
@@ -35909,6 +36125,22 @@
     {
      "k": "t",
      "s": "$108,000"
+    },
+    {
+     "k": "t",
+     "s": "Your 401(k)s"
+    },
+    {
+     "k": "t",
+     "s": "−$9,600"
+    },
+    {
+     "k": "t",
+     "s": "= What it is taxed on"
+    },
+    {
+     "k": "t",
+     "s": "$98,400"
     },
     {
      "k": "t",
@@ -36023,6 +36255,22 @@
     {
      "k": "t",
      "s": "= Gross /year"
+    },
+    {
+     "k": "t",
+     "s": "$42,000"
+    },
+    {
+     "k": "t",
+     "s": "Your 401(k)s"
+    },
+    {
+     "k": "t",
+     "s": "$0"
+    },
+    {
+     "k": "t",
+     "s": "= What it is taxed on"
     },
     {
      "k": "t",
@@ -37547,10 +37795,22 @@
  "declared": {
   "/home": {
    "worker": [
+    "MK-CF-M-051",
+    "MK-CF-M-052",
+    "MK-CF-M-053",
     "MK-NW-M-047",
     "MK-NW-M-048"
    ],
+   "rich": [
+    "MK-CF-M-051",
+    "MK-CF-M-052",
+    "MK-CF-M-053"
+   ],
    "retiree": [
+    "MK-CF-M-051",
+    "MK-CF-M-052",
+    "MK-CF-M-053",
+    "MK-CF-M-078",
     "MK-NW-M-047",
     "MK-NW-M-048",
     "MK-XS-M-002"
@@ -37678,8 +37938,8 @@
    "retiree": [
     "MK-CF-M-013",
     "MK-CF-M-016",
-    "MK-CF-M-049",
-    "MK-CF-M-070"
+    "MK-CF-M-070",
+    "MK-CF-M-078"
    ]
   },
   "/account-detail": {
@@ -37829,7 +38089,9 @@
     "MK-CF-M-041",
     "MK-CF-M-042",
     "MK-CF-M-043",
-    "MK-CF-M-044"
+    "MK-CF-M-044",
+    "MK-CF-M-076",
+    "MK-CF-M-077"
    ],
    "rich": [
     "MK-CF-M-037",
@@ -37837,14 +38099,18 @@
     "MK-CF-M-041",
     "MK-CF-M-042",
     "MK-CF-M-043",
-    "MK-CF-M-044"
+    "MK-CF-M-044",
+    "MK-CF-M-076",
+    "MK-CF-M-077"
    ],
    "retiree": [
     "MK-CF-M-037",
     "MK-CF-M-038",
     "MK-CF-M-041",
     "MK-CF-M-043",
-    "MK-CF-M-044"
+    "MK-CF-M-044",
+    "MK-CF-M-076",
+    "MK-CF-M-077"
    ],
    "new": [
     "MK-CF-M-037",
@@ -37976,13 +38242,13 @@
     "$420",
     "$600",
     "$165,000",
+    "$6,400",
+    "$0",
     "$151,000",
     "$14,000",
-    "$120,000",
-    "$45,000",
-    "$0"
+    "$120,000"
    ],
-   "renders": 1408
+   "renders": 1509
   },
   {
    "site": "MoneyKeel/functions/_figure-spec.ts:122",
@@ -38001,10 +38267,10 @@
     "$98.00",
     "$90.00"
    ],
-   "renders": 6
+   "renders": 7
   },
   {
-   "site": "MoneyKeel/functions/cashflow/base-pay.ts:962",
+   "site": "MoneyKeel/functions/cashflow/base-pay.ts:980",
    "routes": [
     "/analytics",
     "/base-pay",
@@ -38047,7 +38313,7 @@
    "renders": 100
   },
   {
-   "site": "src/components/DrawSteerSheet.tsx:137",
+   "site": "src/components/DrawSteerSheet.tsx:138",
    "routes": [
     "/cashflow"
    ],
@@ -38062,7 +38328,7 @@
    "renders": 5
   },
   {
-   "site": "src/components/DrawSteerSheet.tsx:143",
+   "site": "src/components/DrawSteerSheet.tsx:144",
    "routes": [
     "/cashflow"
    ],
@@ -38141,41 +38407,7 @@
    "renders": 2
   },
   {
-   "site": "src/components/PaycheckCard.tsx:26",
-   "routes": [
-    "/cashflow",
-    "/home"
-   ],
-   "states": [
-    "/cashflow|retiree",
-    "/home|retiree"
-   ],
-   "inside": "PaycheckCard",
-   "line": ": `Surplus in ${m.label}: an estimate. ${maskedMoney(m.netSafeToSpend)}`}>",
-   "values": [
-    "$4,795"
-   ],
-   "renders": 7
-  },
-  {
-   "site": "src/components/PaycheckCard.tsx:37",
-   "routes": [
-    "/cashflow",
-    "/home"
-   ],
-   "states": [
-    "/cashflow|retiree",
-    "/home|retiree"
-   ],
-   "inside": "PaycheckCard",
-   "line": "<HeroAmount style={styles.hero}>{maskedMoney(m.netSafeToSpend)} <Text style={styles.unit}>this month</Text></HeroAmount>",
-   "values": [
-    "$4,795"
-   ],
-   "renders": 7
-  },
-  {
-   "site": "src/components/PaycheckCard.tsx:49",
+   "site": "src/components/PaycheckCard.tsx:50",
    "routes": [
     "/cashflow",
     "/home"
@@ -38193,7 +38425,7 @@
    "renders": 14
   },
   {
-   "site": "src/components/PaycheckCard.tsx:54",
+   "site": "src/components/PaycheckCard.tsx:55",
    "routes": [
     "/cashflow",
     "/home"
@@ -38210,7 +38442,7 @@
    "renders": 7
   },
   {
-   "site": "src/components/PaycheckCard.tsx:59",
+   "site": "src/components/PaycheckCard.tsx:60",
    "routes": [
     "/cashflow",
     "/home"
@@ -38227,7 +38459,7 @@
    "renders": 7
   },
   {
-   "site": "src/components/PaycheckCard.tsx:65",
+   "site": "src/components/PaycheckCard.tsx:66",
    "routes": [
     "/cashflow",
     "/home"
@@ -38454,7 +38686,7 @@
    "renders": 12
   },
   {
-   "site": "src/domain/income/from-accounts.ts:175",
+   "site": "src/domain/income/from-accounts.ts:192",
    "routes": [
     "/income-detail",
     "/tax-organizer"
@@ -38464,7 +38696,7 @@
     "/tax-organizer|rich"
    ],
    "inside": "incomeFromAccounts",
-   "line": "lines.push({ label, why: `${asPercent(rate)} coupon on ${money(face)} face`, annual: (rate * face), assumed: false });",
+   "line": "lines.push({ label, why: `${asPercent(b.couponRate)} coupon on ${money(b.face)} face`, annual: yearly, assumed: false });",
    "values": [
     "$10,000"
    ],
@@ -38925,7 +39157,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/HomeScreen.tsx:140",
+   "site": "src/screens/HomeScreen.tsx:145",
    "routes": [
     "/home"
    ],
@@ -38941,7 +39173,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/HomeScreen.tsx:354",
+   "site": "src/screens/HomeScreen.tsx:362",
    "routes": [
     "/home"
    ],
@@ -38960,7 +39192,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:386",
+   "site": "src/screens/HomeScreen.tsx:394",
    "routes": [
     "/home"
    ],
@@ -38977,7 +39209,7 @@
    "renders": 5
   },
   {
-   "site": "src/screens/HomeScreen.tsx:513",
+   "site": "src/screens/HomeScreen.tsx:521",
    "routes": [
     "/home"
    ],
@@ -38996,7 +39228,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:516",
+   "site": "src/screens/HomeScreen.tsx:524",
    "routes": [
     "/home"
    ],
@@ -39015,7 +39247,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/HomeScreen.tsx:606",
+   "site": "src/screens/HomeScreen.tsx:625",
    "routes": [
     "/home"
    ],
@@ -39025,66 +39257,13 @@
     "/home|worker"
    ],
    "inside": "HomeScreen",
-   "line": "accessibilityLabel={`This month's cash flow, ${pace.word.replace('✓ ', '')}: income ${spokenMoney(Math.round(thisMonthNet))}, spent so far ${spokenMoney(Math.round(bva.spent_total))}, ${left >= 0 ? `$",
+   "line": "accessibilityLabel={`This month's cash flow${pace ? `, ${pace.word.replace('✓ ', '')}` : ''}: income ${incomeKnown ? spokenMoney(shown.inflow) : 'not entered'}, expenses and debt paid so far ${spokenM",
    "values": [
-    "$7,200",
+    "$6,400",
     "$0",
     "$3,500"
    ],
    "renders": 21
-  },
-  {
-   "site": "src/screens/HomeScreen.tsx:619",
-   "routes": [
-    "/home"
-   ],
-   "states": [
-    "/home|retiree",
-    "/home|rich",
-    "/home|worker"
-   ],
-   "inside": "HomeScreen",
-   "line": "<View style={styles.cfCell}><Text style={styles.cfLabel}>Income</Text><Text style={styles.cfNum}>{maskedMoney(Math.round(thisMonthNet))}</Text>{thisMonthNet === 0 && !hasIncomeEntered && <EmptyNote do",
-   "values": [
-    "$7,200",
-    "$3,500"
-   ],
-   "renders": 7
-  },
-  {
-   "site": "src/screens/HomeScreen.tsx:620",
-   "routes": [
-    "/home"
-   ],
-   "states": [
-    "/home|retiree",
-    "/home|rich",
-    "/home|worker"
-   ],
-   "inside": "HomeScreen",
-   "line": "<View style={styles.cfCell}><Text style={styles.cfLabel}>Actual expenses so far</Text><Text style={styles.cfNum}>{maskedMoney(Math.round(bva.spent_total))}</Text></View>",
-   "values": [
-    "$0"
-   ],
-   "renders": 7
-  },
-  {
-   "site": "src/screens/HomeScreen.tsx:623",
-   "routes": [
-    "/home"
-   ],
-   "states": [
-    "/home|retiree",
-    "/home|rich",
-    "/home|worker"
-   ],
-   "inside": "HomeScreen",
-   "line": "<Text style={[styles.cfNum, { color: left >= 0 ? Colors.primaryDark : Colors.red }]}>{maskedMoney(Math.abs(Math.round(left)))}</Text>",
-   "values": [
-    "$7,200",
-    "$3,500"
-   ],
-   "renders": 7
   },
   {
    "site": "src/screens/IncomeDetailScreen.tsx:68",
@@ -39236,7 +39415,7 @@
    "line": "{ label: `Expenses/month (${essentialsLabel})`, value: money(ef.plannedSpendMonthly) },",
    "values": [
     "$4,520",
-    "$3,800"
+    "$4,000"
    ],
    "renders": 7
   },
@@ -39443,7 +39622,7 @@
    "values": [
     "$3,600",
     "$11,320",
-    "$18,600"
+    "$19,800"
    ],
    "renders": 3
   },
@@ -39466,8 +39645,8 @@
     "$31,320",
     "$5,220",
     "$20,000",
-    "$18,600",
-    "$3,100"
+    "$19,800",
+    "$3,300"
    ],
    "renders": 9
   },
@@ -39486,7 +39665,7 @@
    "values": [
     "$600",
     "$5,220",
-    "$3,100"
+    "$3,300"
    ],
    "renders": 3
   },
@@ -39758,7 +39937,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RequiredWithdrawalsScreen.tsx:102",
+   "site": "src/screens/RequiredWithdrawalsScreen.tsx:106",
    "routes": [
     "/required-withdrawals"
    ],
@@ -39775,7 +39954,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RequiredWithdrawalsScreen.tsx:189",
+   "site": "src/screens/RequiredWithdrawalsScreen.tsx:193",
    "routes": [
     "/required-withdrawals"
    ],
@@ -39798,7 +39977,7 @@
    "renders": 16
   },
   {
-   "site": "src/screens/RequiredWithdrawalsScreen.tsx:191",
+   "site": "src/screens/RequiredWithdrawalsScreen.tsx:195",
    "routes": [
     "/required-withdrawals"
    ],
@@ -39821,7 +40000,7 @@
    "renders": 16
   },
   {
-   "site": "src/screens/RequiredWithdrawalsScreen.tsx:205",
+   "site": "src/screens/RequiredWithdrawalsScreen.tsx:209",
    "routes": [
     "/required-withdrawals"
    ],
@@ -39838,7 +40017,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/RequiredWithdrawalsScreen.tsx:207",
+   "site": "src/screens/RequiredWithdrawalsScreen.tsx:211",
    "routes": [
     "/required-withdrawals"
    ],
@@ -40362,7 +40541,7 @@
    "values": [
     "$600",
     "$5,220",
-    "$3,100"
+    "$3,300"
    ],
    "renders": 3
   },
@@ -40394,7 +40573,7 @@
    "line": "<Text style={styles.fundTxt}>3 months of essentials{rent > 0 ? ', less the rent that keeps arriving,' : ''} is <Text style={styles.bold}>{money(r.recommendedFund)}</Text>. You're <Text style={[styles.",
    "values": [
     "$1,800",
-    "$9,300"
+    "$9,900"
    ],
    "renders": 4
   },

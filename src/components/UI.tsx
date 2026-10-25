@@ -222,8 +222,12 @@ export function InfoDot({ term, color, size = 13 }: {
           DEVICE CHECK STILL OWED: a negative margin can be clipped by a parent that hides overflow,
           and Android does not always deliver touches beyond a parent's bounds. Tap one on a band,
           one beside a hero, and one inside a card that is itself tappable. */}
+      {/* SAID IN WORDS THAT NAME WHAT IT EXPLAINS (2026-10-24, the lead's ruling on the Cash flow journey E2E-78): "About How we
+          calculate your odds" — "What is How we calculate your odds?" did not read. And it is never put INSIDE a sentence's Text:
+          there iOS reads the sentence with the ⓘ in it and the dot itself as "ⓘ", whatever its label (React Native's paragraph
+          accessibility provider). Every dot sits beside its Text; cashflow_journeys_viewing_2026_10_24 holds that across src. */}
       <Text onPress={() => setOpen(true)} suppressHighlighting
-        accessibilityRole="button" accessibilityLabel={`What is ${def.title}?`}
+        accessibilityRole="button" accessibilityLabel={`About ${def.title}`}
         style={{
           fontSize: size, color: color || Colors.textTertiary, fontWeight: '700',
           paddingVertical: pad, marginVertical: -pad,

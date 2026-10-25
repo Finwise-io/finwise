@@ -60,7 +60,7 @@ describe('gap 7 · "Add a buy or sale ›" on the account page opens the trade s
   test('the journey: tap the door → the sheet, Vanguard chosen → a buy of 10 VTI at $100.00 → ACTIVITY lists it', () => {
     openAccount(VANGUARD, [SCHWAB]);
     expect(screen.queryByText('Record activity')).toBeNull();                    // closed until the door is tapped
-    fireEvent.press(screen.getByLabelText('Add a buy or sale for Brokerage'));
+    fireEvent.press(screen.getByLabelText('Add a buy or sale for Vanguard Brokerage'));   // named as the page names it (2026-10-23)
     expect(mockPushes).toEqual([]);                                                  // no trip to the Performance tab
     expect(screen.getByText('Record activity')).toBeOnTheScreen();
     expect(chosen(nameOf('van'))).toBe(true);                                        // this account, chosen
@@ -84,7 +84,7 @@ describe('gap 7 · "Add a buy or sale ›" on the account page opens the trade s
   test('a linked account with several kinds of holding (Mixed holdings): the same sheet, that account chosen', () => {
     openAccount(FIDELITY, [VANGUARD]);
     expect(screen.getByText(/^Mixed holdings · /)).toBeOnTheScreen();
-    fireEvent.press(screen.getByLabelText('Add a buy or sale for Brokerage'));
+    fireEvent.press(screen.getByLabelText('Add a buy or sale for Fidelity Brokerage'));
     expect(screen.getByText('Record activity')).toBeOnTheScreen();
     expect(chosen(nameOf('fid'))).toBe(true);
     expect(chosen(nameOf('van'))).toBe(false);

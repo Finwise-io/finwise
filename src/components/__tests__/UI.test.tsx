@@ -73,7 +73,7 @@ describe('UI primitives', () => {
 
   test('InfoDot opens its glossary definition on press', () => {
     render(<InfoDot term="nestEgg" />);
-    fireEvent.press(screen.getByLabelText(/What is Retirement nest egg/));
+    fireEvent.press(screen.getByLabelText(/About Retirement nest egg/));
     expect(screen.getByText(/invested money your retirement draws on/i)).toBeOnTheScreen();
   });
 });

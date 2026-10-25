@@ -11,7 +11,7 @@
 // always is. The split is one the data already makes: paymentShape gives installment, revolving
 // or due_in_full, so nothing new has to be captured.
 import { toNum } from '../../../src/domain/_shared/num';
-import { requiredPayment, paymentShape, type Debt } from '../../../src/domain/debt';
+import { paymentShape, paymentInMonth, type Debt } from '../../../src/domain/debt';
 
 import { inMonth, DEBT_CATEGORY, type LoggedExpense } from './logged-expenses';
 
@@ -39,17 +39,17 @@ export const BIG_BILL_FLOOR = 500;
  *
  * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 346 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 328 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -60,7 +60,8 @@ export const BIG_BILL_FLOOR = 500;
 export function recurringDebtPayments(s: ExpensesInput): { label: string; monthly: number }[] {
   return (s.debts ?? [])
     .filter((d) => paymentShape(d) === 'installment')
-    .map((d) => ({ label: d.label, monthly: (requiredPayment(d)) }))
+    // this month's payment only if one falls in it (paymentInMonth, the plan's and the grid's rule; 2026-10-24, CF-FIX)
+    .map((d) => ({ label: d.label, monthly: paymentInMonth(d, s.ym) }))
     .filter((r) => r.monthly > 0);
 }
 
@@ -81,17 +82,17 @@ export function recurringDebtPayments(s: ExpensesInput): { label: string; monthl
  *
  * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 346 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 328 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -139,17 +140,17 @@ export const SHOW_FIRST = 5;
  *
  * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 346 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 328 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -196,17 +197,17 @@ export interface RadarItem { label: string; amount: number; reason: RadarReason;
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-153 radar
  *               MK-CF-F-156 plannedMonthFlow
  *
- * Reaches ..... 346 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 328 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -230,7 +231,7 @@ export function isRadarItem(d: Debt): RadarReason | null {
  *     out = []
  *     reason = is radar item(d)
  *     amount = paid   if paid > 0
- *     required payment(d)   otherwise
+ *     payment in month(d, ym)   otherwise
  *     counted = !purchases captured.has(string(debt id))
  *     name = label   if ÷ payment$ ÷ test(string(label).trim())
  *     `${label} payment`   otherwise
@@ -238,17 +239,17 @@ export function isRadarItem(d: Debt): RadarReason | null {
  *
  * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 346 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 328 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -265,7 +266,7 @@ export function radar(s: ExpensesInput, purchasesCaptured: Set<string> = new Set
       .filter((e) => e.category === DEBT_CATEGORY && inMonth(e, s.ym)
                      && String(e.store ?? '').trim().toLowerCase() === String(d.label).trim().toLowerCase())
       .reduce((t, e) => t + toNum(e.amount), 0);
-    const amount = (paid > 0 ? paid : requiredPayment(d));
+    const amount = (paid > 0 ? paid : paymentInMonth(d, s.ym));   // a lump due this month at its balance; nothing before a first payment
     if (amount <= 0) continue;
     const counted = !purchasesCaptured.has(String(d.debt_id));
     // EACH ITEM SAYS WHETHER IT IS COUNTED, in the drawing's words (cash-flow_v01, frame C) — "so nobody
@@ -316,8 +317,10 @@ export interface Expenses {
  *
  * Called by ... MK-CF-F-044 annualNet · MK-CF-F-067 rentalList
  *               MK-CF-F-068 rentalNetAnnual · MK-CF-F-079 incomeFromOnboarding
- *               MK-CF-F-153 radar · MK-CF-F-190 essentialsMonthly
- *               MK-CF-F-219 rentEntryMonthly · MK-CF-O-010 theMonth
+ *               MK-CF-F-124 nextOccurrence · MK-CF-F-153 radar
+ *               MK-CF-F-190 essentialsMonthly · MK-CF-F-204 line
+ *               MK-CF-F-212 receivedInMonth · MK-CF-F-219 rentEntryMonthly
+ *               MK-CF-F-242 workedLineAmount · MK-CF-O-010 theMonth
  *               MK-NW-F-115 liveRent · MK-NW-F-185 valueChanged
  *               MK-PL-F-040 targetAtRetirement · MK-PL-F-049 retirementSpendMonthly
  *               MK-PL-F-050 simulate · MK-PL-F-065 volOf
@@ -325,17 +328,17 @@ export interface Expenses {
  *               MK-XS-F-057 analyzeExpenses · MK-XS-F-176 useMonthlyStats
  *               MK-XS-F-177 useCategorySpend
  *
- * Reaches ..... 346 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 328 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses

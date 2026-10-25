@@ -98,8 +98,13 @@ const VAN_DAYS = [
   linkedDay('van', '2026-08-29', 100_000),
 ];
 // VOO's dividend-adjusted closes: +7.67% over the year to today
+// (2026-10-23, W-START: and its close the evening before the 10 bought on Apr 2 at $600 — the price it stood at, as the drawing
+// has it, "VOO's own dividend-adjusted price over the window". A holding held when the window began that buys inside it is
+// read from its purchases now (MK-PF-F-014), each counted from the start of its day at what was paid (DEC-4439), so that
+// evening's close is read: (150 × $600 ÷ 150 × $522.43) × (160 × $562.50 ÷ (150 × $600 + $6,000)) − 1 = +7.67%. Without it the
+// last close on record before Apr 2 was Mar 31's $590, the $6,000 was diluted by Apr 2's rise from $590, and VOO read +7.56%.)
 const VOO = series([['2024-09-29', 460], ['2025-09-29', 562.5 / 1.0767], ['2025-12-31', 545], ['2026-03-31', 590],
-  ['2026-04-02', 600], ['2026-08-29', 556], ['2026-09-30', 562.5]]);
+  ['2026-04-01', 600], ['2026-04-02', 600], ['2026-08-29', 556], ['2026-09-30', 562.5]]);
 
 // ── STATE B · Muni 2029, a bond built by hand Jun 2, 2026 at $10,000, updated Sep 1 to $10,150, no rate ────────
 const MUNI = {

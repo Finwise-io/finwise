@@ -9,6 +9,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { useCashflowModel } from '../hooks/useCashflowModel';
 import { EstimateTag, InfoDot } from './UI';
 import { maskedMoney } from './useMoney';   // every balance masks under hide-balances (the walk test enforces it)
+import { fig } from './figure';   // the surplus prints with its number, MK-CF-M-078 (2026-10-24) — fig masks under hide-balances too
 import { HeroAmount } from './HeroAmount';
 import { rateBandWords } from '../domain/decumulation';   // his one wording for the band (DEC-0036 · DEC-0215)
 
@@ -22,19 +23,19 @@ export function PaycheckCard() {
 
   return (
     <View style={styles.card} accessibilityLabel={m.netSafeToSpend < 0
-      ? `${maskedMoney(Math.abs(m.netSafeToSpend))} short this month — ${m.bills[0]?.label ?? 'a big bill'} lands in ${m.label}. An estimate.`
-      : `Surplus in ${m.label}: an estimate. ${maskedMoney(m.netSafeToSpend)}`}>
+      ? `${fig('MK-CF-M-078', Math.abs(m.netSafeToSpend))} short this month — ${m.bills[0]?.label ?? 'a big bill'} lands in ${m.label}. An estimate.`
+      : `Surplus in ${m.label}: an estimate. ${fig('MK-CF-M-078', m.netSafeToSpend)}`}>
       <Text style={styles.kicker}>SURPLUS — {monthName}</Text>
       {/* c5: a big-bill month that exceeds income shows the real minus WITH the word 'short' and
           the bill named — never smoothed, never clipped to zero (edge-case audit E4) */}
       {m.netSafeToSpend < 0 ? (
         <>
-          <HeroAmount style={styles.hero}>− {maskedMoney(Math.abs(m.netSafeToSpend))} <Text style={styles.unit}>short this month</Text></HeroAmount>
+          <HeroAmount style={styles.hero}>− {fig('MK-CF-M-078', Math.abs(m.netSafeToSpend))} <Text style={styles.unit}>short this month</Text></HeroAmount>
           <Text style={styles.est}>estimate · {m.bills[0]?.label ?? 'a big bill'} lands this month</Text>
         </>
       ) : (
         <>
-          <HeroAmount style={styles.hero}>{maskedMoney(m.netSafeToSpend)} <Text style={styles.unit}>this month</Text></HeroAmount>
+          <HeroAmount style={styles.hero}>{fig('MK-CF-M-078', m.netSafeToSpend)} <Text style={styles.unit}>this month</Text></HeroAmount>
           <EstimateTag />
         </>
       )}

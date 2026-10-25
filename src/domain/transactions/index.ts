@@ -3,9 +3,11 @@
 // also appends an immutable Transaction (here) for audit/history. applyTransaction is pure + tested.
 import type { EntityId, UserId } from '../_shared/ids';
 import { newEntityId } from '../_shared/ids';
-import { assetClassOf, type AssetAccount } from '../assets';
-import { totalShares, purchaseDateOnRecord, type Position } from '../performance';
+import { assetClassOf, holdingTagFor, type AssetAccount } from '../assets';
+import { assetClassForSymbol } from '../import/holdingsImport';   // the one road a ticker takes to its class (MK-XS-F-172, 2026-10-23)
+import { totalShares, purchaseDateOnRecord, contractMultiplier, type Position } from '../performance';
 import { moneyIntoAccount } from '../../../Calculation Module code/engines/ledger';
+import { feeNotInPrice } from '../performance/realized';   // the one reading of a trade's fee its price does not carry (2026-10-23)
 
 export type TxnType =
   | 'OPENING_POSITION'   // first-time capture of a holding you already own (no cash counterparty)
@@ -39,6 +41,11 @@ export interface Transaction {
   /** True when the stored price already carries that fee — the broker's cash figure was net of it, so shares × price is
    *  what was really paid or received and the fee must not be counted again. Set at sync beside fee (2026-10-21). */
   fee_in_price?: boolean;
+  /** THE SHARES IN ONE CONTRACT OF THE OPTION A BUY OR A SALE TRADED, as the holding stated it when the trade was recorded
+   *  (2026-10-23; DEC-0274: an option is contracts × 100 × price unless the broker or the person states otherwise; DEC-4646:
+   *  the holding's "Shares per contract"). Absent = 1: a share is a share. Stamped by recordTransaction (tradeMultiplierOf)
+   *  and read by the cash the trade moved (applyTransaction, cashEffect), so 1 contract at $2.50 moves $250, never $2.50. */
+  multiplier?: number;
   reinvested?: boolean;      // dividend/interest reinvested into the position vs taken as cash
   direction?: 'IN' | 'OUT';  // TRANSFER_IN_KIND from a broker: which way the shares went. The type
                              // alone does not say, and without it a return cannot be measured
@@ -82,9 +89,12 @@ export interface Transaction {
  *               MK-CF-F-114 undoSnapshot · MK-CF-F-115 restoreUndo
  *               MK-CF-F-138 addLot · MK-CF-F-139 removeShares
  *               MK-CF-F-142 monthsOf · MK-CF-F-146 payFiguresAgree
- *               MK-CF-F-149 recurringDebtPayments · MK-CF-F-157 debtPaymentsByDebt
- *               MK-CF-F-168 salaryWindow · MK-CF-F-176 sumMonthsOverEarners
- *               MK-CF-F-177 wageGrossByMonth · MK-CF-F-206 householdK401ByMonth
+ *               MK-CF-F-149 recurringDebtPayments · MK-CF-F-156 plannedMonthFlow
+ *               MK-CF-F-157 debtPaymentsByDebt · MK-CF-F-168 salaryWindow
+ *               MK-CF-F-176 sumMonthsOverEarners · MK-CF-F-177 wageGrossByMonth
+ *               MK-CF-F-206 householdK401ByMonth · MK-CF-F-224 openingRecordsOf
+ *               MK-CF-F-231 addedAfterRecord · MK-CF-F-232 balanceByDay
+ *               MK-CF-F-233 earnerWageShares · MK-CF-F-234 wagesLandingByMonth
  *               MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
  *               MK-CF-O-019 theIncomeManager · MK-CF-O-020 theBudgetCounted
  *               MK-HM-F-001 buildInsights · MK-NW-F-002 alternativesSummary
@@ -108,46 +118,47 @@ export interface Transaction {
  *               MK-PF-F-006 capGains · MK-PF-F-012 earliestPurchaseDate
  *               MK-PF-F-014 buildPerformance · MK-PF-F-020 portfolioBenchReturn
  *               MK-PF-F-045 priceHistoryShortSentence · MK-PF-F-065 firstDatedPurchase
- *               MK-PF-F-067 purchaseDays · MK-PF-F-070 holdingPath
- *               MK-PF-F-071 returnSplitAtPurchases · MK-PF-F-074 marketSplitAtPurchases
- *               MK-PF-F-075 soldOutPositions · MK-PF-F-076 firstEvent
- *               MK-PL-F-004 withdrawalOrder · MK-PL-F-009 rmdTakenThisYear
- *               MK-PL-F-011 buildGoalsState · MK-PL-F-013 goalsFromOnboarding
- *               MK-PL-F-016 availableToSaveSummary · MK-PL-F-018 monthsUntil
- *               MK-PL-F-031 taxOrganizer · MK-PL-F-037 trimHints
- *               MK-PL-F-046 leverDeltas · MK-PL-F-050 simulate
- *               MK-PL-F-055 projectNestEgg · MK-PL-F-067 willItLastInputs
- *               MK-ST-F-002 monthWords · MK-ST-F-003 dayWords
- *               MK-ST-F-010 nameEvidence · MK-ST-F-016 totalOf
- *               MK-ST-F-020 sumSigned · MK-ST-F-022 reconcileAccountTotal
- *               MK-ST-F-029 prune · MK-ST-F-061 isMonthEnd
- *               MK-ST-F-073 rebuildDays · MK-ST-F-078 dateShown
- *               MK-ST-F-084 fillBetweenObservations · MK-ST-F-093 typedValueOnItsDate
- *               MK-XS-F-002 dataGaps · MK-XS-F-004 buildDatedGrid
- *               MK-XS-F-005 trendPoints · MK-XS-F-009 readHistory
- *               MK-XS-F-015 importHoldings · MK-XS-F-028 surplusByMonth
- *               MK-XS-F-031 buildSnapshot · MK-XS-F-058 parseReceipt
- *               MK-XS-F-083 fetchPriceSeries · MK-XS-F-094 parseReceiptText
- *               MK-XS-F-102 ingestSync · MK-XS-F-103 confirmWrapper
- *               MK-XS-F-105 mapPosition · MK-XS-F-111 mergeHistoryFrom
- *               MK-XS-F-116 runSnapTradeSync · MK-XS-F-129 findHeaderRow
- *               MK-XS-F-146 prettyExpiry · MK-XS-F-174 recomputeBalances
- *               MK-XS-F-175 uid · MK-XS-F-177 useCategorySpend
- *               MK-XS-F-181 merge · MK-XS-F-187 fixStoredMoney
- *               MK-XS-F-188 fixStoredFees · MK-XS-F-190 bondQuoteBasis
- *               MK-XS-F-193 walkShown
+ *               MK-PF-F-067 purchaseDays · MK-PF-F-071 returnSplitAtPurchases
+ *               MK-PF-F-074 marketSplitAtPurchases · MK-PF-F-075 soldOutPositions
+ *               MK-PF-F-076 firstEvent · MK-PL-F-004 withdrawalOrder
+ *               MK-PL-F-009 rmdTakenThisYear · MK-PL-F-011 buildGoalsState
+ *               MK-PL-F-013 goalsFromOnboarding · MK-PL-F-016 availableToSaveSummary
+ *               MK-PL-F-018 monthsUntil · MK-PL-F-031 taxOrganizer
+ *               MK-PL-F-037 trimHints · MK-PL-F-046 leverDeltas
+ *               MK-PL-F-050 simulate · MK-PL-F-055 projectNestEgg
+ *               MK-PL-F-067 willItLastInputs · MK-ST-F-002 monthWords
+ *               MK-ST-F-003 dayWords · MK-ST-F-010 nameEvidence
+ *               MK-ST-F-016 totalOf · MK-ST-F-020 sumSigned
+ *               MK-ST-F-022 reconcileAccountTotal · MK-ST-F-029 prune
+ *               MK-ST-F-061 isMonthEnd · MK-ST-F-073 rebuildDays
+ *               MK-ST-F-078 dateShown · MK-ST-F-084 fillBetweenObservations
+ *               MK-ST-F-093 typedValueOnItsDate · MK-XS-F-002 dataGaps
+ *               MK-XS-F-004 buildDatedGrid · MK-XS-F-005 trendPoints
+ *               MK-XS-F-009 readHistory · MK-XS-F-015 importHoldings
+ *               MK-XS-F-028 surplusByMonth · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-058 parseReceipt · MK-XS-F-083 fetchPriceSeries
+ *               MK-XS-F-094 parseReceiptText · MK-XS-F-102 ingestSync
+ *               MK-XS-F-103 confirmWrapper · MK-XS-F-105 mapPosition
+ *               MK-XS-F-111 mergeHistoryFrom · MK-XS-F-116 runSnapTradeSync
+ *               MK-XS-F-129 findHeaderRow · MK-XS-F-146 prettyExpiry
+ *               MK-XS-F-174 recomputeBalances · MK-XS-F-175 uid
+ *               MK-XS-F-177 useCategorySpend · MK-XS-F-181 merge
+ *               MK-XS-F-187 fixStoredMoney · MK-XS-F-188 fixStoredFees
+ *               MK-XS-F-190 bondQuoteBasis · MK-XS-F-193 walkShown
+ *               MK-XS-F-194 partsShown · MK-XS-F-195 monthShown
+ *               MK-XS-F-197 chainShown
  *
- * Reaches ..... 423 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 457 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 405 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 439 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -204,19 +215,19 @@ const cashOf = (a: AssetAccount) => a.cash_balance || 0;
  * Formula .....
  *     tax bucket ! = 'CASH' and tax bucket ! = 'PROPERTY'
  *
- * Called by ... MK-CF-F-136 bumpCash
+ * Called by ... MK-CF-F-136 bumpCash · MK-CF-F-222 tradeCash
  *
- * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-CF-F-111 applyTransaction
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-136 bumpCash
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               … and 37 more — the full list is on functions_from_code
+ * Reaches ..... 388 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 370 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -269,26 +280,27 @@ const availableCash = (a: AssetAccount): number | null => {
  * Answers ..... Adds cash to an account, or takes it out, in the right place: the uninvested cash of an investment account, or the balance of a bank account.
  *
  * Formula .....
- *     ...a = ...a
- *     cash balance = (cash balance or 0) + delta   when uses sleeve(a)
- *     itemised = (positions.length ?? 0) > 0 and tax bucket ! = 'CASH' and tax bucket ! = 'PROPERTY'
+ *     cash = ...a = ...a
+ *     cash balance = (cash balance or 0) + delta
  *     the answer:
- *     ...a = ...a
- *     balance = (balance or 0) + delta
+ *     cash   if derive balance = true (or source = 'connected' when missing or zero)
+ *     ...cash = ...cash
+ *     balance = (balance or 0) + delta   otherwise
+ *     itemised = (positions.length ?? 0) > 0 and tax bucket ! = 'CASH' and tax bucket ! = 'PROPERTY'
  *
- * Called by ... MK-CF-F-111 applyTransaction
+ * Called by ... MK-CF-F-111 applyTransaction · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-CF-F-111 applyTransaction
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 36 more — the full list is on functions_from_code
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -303,7 +315,14 @@ const availableCash = (a: AssetAccount): number | null => {
  * Changed ..... not in git yet (—)
  */
 function bumpCash(a: AssetAccount, delta: number): AssetAccount {
-  if (usesSleeve(a)) return { ...a, cash_balance: ((a.cash_balance || 0) + delta) };
+  // A TOTAL THE PERSON TYPED MOVES BY THE MONEY, ITS CASH WITH IT (2026-10-23, E2E-57; tenet 1). Only an account built from its
+  // holdings (derive_balance) has its balance rebuilt from cash and holdings; a typed total with a cash figure of its own is
+  // never rebuilt (recomputeBalances), so the money that comes in or goes out moves the total here. A linked account's total is
+  // the broker's, and stays as it was.
+  if (usesSleeve(a)) {
+    const cash = { ...a, cash_balance: ((a.cash_balance || 0) + delta) };
+    return a.derive_balance === true || a.source === 'connected' ? cash : { ...cash, balance: ((a.balance || 0) + delta) };
+  }
   // FOUNDER FINDING 2026-08-11 ("$500 is what I added manually as a deposit — it never asked if it
   // was cash or something else"): an account that ITEMISES its holdings but whose broker never sent
   // a cash figure had no sleeve, so a deposit only inflated the total. The holdings could then no
@@ -324,6 +343,150 @@ function bumpCash(a: AssetAccount, delta: number): AssetAccount {
   return { ...a, balance: ((a.balance || 0) + delta) };
 }
 
+// WHAT A BUY OR A SALE DOES TO AN ACCOUNT'S CASH AND ITS TOTAL (2026-10-23, E2E-57 and E2E-58; tenets 1 and 3). A trade moves money
+//  between the cash and a holding INSIDE the account, so it never changes a total the person typed; only its fee leaves the
+//  account. `gross` is what the shares cost (−) or brought in (+) at the price; `fee` is the fee the price does not carry.
+//    · an account that keeps its own cash: the cash moves by gross − fee; a typed total moves by −fee; one built from its
+//      holdings is rebuilt from them (recomputeBalances); a linked account's total stays the broker's;
+//    · an account whose cash was never entered: the cash stays not entered — it is not opened at minus the cost (that made
+//      the account look built from its holdings and rebuilt a $40,000 typed total to the $10,000 of holdings listed in it);
+//      a typed total moves by −fee, a linked one not at all.
+//  Before: a buy went through bumpCash, which opened a cash figure of −$1,000 on a typed $40,000 account, and the next rebuild
+//  read cash plus holdings — $10,000. Example: 10 VTI bought at $100 with a $5 fee in a $40,000 typed account holding 100 VTI
+//  and no cash entered: the total reads $39,995 and 110 VTI.
+/** Moves the money of a buy or a sale between an account's cash and the holding it bought or sold, inside the account, and takes the trade's own fee out of it. */
+/* ─ MK-CF-F-222 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * tradeCash
+ *
+ * Answers ..... WHAT A BUY OR A SALE DOES TO AN ACCOUNT'S CASH AND ITS TOTAL (2026-10-23, E2E-57 and E2E-58; tenets 1 and 3).
+ *
+ * Formula .....
+ *     typed = derive balance ! = true and source ! = 'connected'
+ *     out = ...a = ...a
+ *     cash balance = (cash balance or 0) + gross − fee
+ *     the answer:
+ *     ...out = ...out
+ *     balance = (balance or 0) − fee   if typed
+ *     out   otherwise
+ *
+ * Called by ... MK-CF-F-111 applyTransaction · MK-XS-F-174 recomputeBalances
+ *
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *
+ * Decides .....
+ *     · If cash balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-222
+ * Changed ..... not in git yet (—)
+ */
+function tradeCash(a: AssetAccount, gross: number, fee: number): AssetAccount {
+  const typed = a.derive_balance !== true && a.source !== 'connected';
+  if (usesSleeve(a)) {
+    const out = { ...a, cash_balance: ((a.cash_balance || 0) + gross - fee) };
+    return typed ? { ...out, balance: ((a.balance || 0) - fee) } : out;
+  }
+  return typed && fee > 0 ? { ...a, balance: ((a.balance || 0) - fee) } : a;
+}
+
+// THE SHARES PER CONTRACT A BUY OR A SALE TRADES (2026-10-23; DEC-0274, DEC-4646): the holding it trades, found as applyTransaction
+// finds it, read through the one multiplier (contractMultiplier) — 100 for an option unless its "Shares per contract" says
+// otherwise, 1 for anything else and for a ticker the account does not hold yet. recordTransaction stamps it on the record.
+/** Says how many shares one unit of a buy or a sale stands for: an option contract's shares, else 1. */
+/* ─ MK-CF-F-223 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * tradeMultiplierOf
+ *
+ * Answers ..... THE SHARES PER CONTRACT A BUY OR A SALE TRADES (2026-10-23; DEC-0274, DEC-4646): the holding it trades, found as applyTransaction finds it, read through the one multiplier (contractMultiplier) — 100 for an option unless its "Shares per contract" says otherwise, 1 for anything else and for a ticker the account does not hold yet.
+ *
+ * Formula .....
+ *     1   when type ! = 'BUY' and type ! = 'SELL'
+ *     a = accounts.find((x) => asset id = account id)
+ *     pos = find pos(a, t as transaction)   if a
+ *     undefined   otherwise
+ *     the answer:
+ *     contract multiplier(pos)   if pos
+ *     1   otherwise
+ *
+ * Called by ... MK-XS-F-175 uid
+ *
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
+ *               … and 35 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-223
+ * Changed ..... not in git yet (—)
+ */
+export function tradeMultiplierOf(accounts: AssetAccount[], t: Pick<Transaction, 'type' | 'account_id' | 'ticker' | 'position_id'>): number {
+  if (t.type !== 'BUY' && t.type !== 'SELL') return 1;
+  const a = accounts.find((x) => x.asset_id === t.account_id);
+  const pos = a ? findPos(a, t as Transaction) : undefined;
+  return pos ? contractMultiplier(pos) : 1;
+}
+
+// THE PURCHASE RECORDS OF HOLDINGS YOU ALREADY OWN (2026-10-23, F3 of the Performance journey suite): one "Opening holding" per
+// purchase — its date, its shares and its price paid where on record (a cost not on record gives the row no price, read as
+// "no price paid on record"). addPosition wrote these; Import holdings and a purchase added in the holding editor wrote none,
+// so a sale recorded later read "Realized from sales: not on record" beside purchases listed with their price.
+/** Writes the record of each purchase of a holding you already own, as the activity list and the realized gain read them. */
+/* ─ MK-CF-F-224 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * openingRecordsOf
+ *
+ * Answers ..... THE PURCHASE RECORDS OF HOLDINGS YOU ALREADY OWN (2026-10-23, F3 of the Performance journey suite): one "Opening holding" per purchase — its date, its shares and its price paid where on record (a cost not on record gives the row no price, read as "no price paid on record").
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-XS-F-175 uid
+ *
+ * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
+ *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
+ *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
+ *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
+ *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
+ *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
+ *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
+ *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
+ *               … and 35 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-224
+ * Changed ..... not in git yet (—)
+ */
+export function openingRecordsOf(accountId: EntityId, position: Position, lots: Position['lots'] = position.lots ?? []): Transaction[] {
+  return lots.map((l) => makeTransaction({ date: l.purchase_date, type: 'OPENING_POSITION', account_id: accountId, position_id: position.position_id,
+    ticker: position.ticker, kind: position.kind, shares: l.shares, price: l.cost_per_share ?? undefined }));
+}
+
 /** Finds the holding a transaction refers to, by the holding's own identifier or by its ticker. */
 /* ─ MK-CF-F-137 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * findPos
@@ -334,9 +497,9 @@ function bumpCash(a: AssetAccount, delta: number): AssetAccount {
  *     the answer = the first holding in the account whose position id matches, or whose ticker matches (case-insensitive)
  *
  * Called by ... MK-CF-F-111 applyTransaction · MK-CF-F-138 addLot
- *               MK-CF-F-139 removeShares
+ *               MK-CF-F-139 removeShares · MK-CF-F-223 tradeMultiplierOf
  *
- * Reaches ..... 87 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 90 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -346,7 +509,7 @@ function bumpCash(a: AssetAccount, delta: number): AssetAccount {
  *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-144 beforeTheRecordSentence
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               … and 69 more — the full list is on functions_from_code
+ *               … and 72 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -373,10 +536,10 @@ const findPos = (a: AssetAccount, t: Transaction) =>
  *     positions = for each of positions (or none when missing): ...each = ...each
  *     lots = [...lots, lot]   if each = existing
  *     each   otherwise
- *     pos = position id = new entity id('pos')
  *     ticker = (ticker ?? '').to upper case()
- *     kind = kind
- *     lots = [lot]
+ *     tag = nothing   if kind
+ *     holding tag for(asset class for symbol(ticker))   otherwise
+ *     pos = { position id: new entity id('pos'), ticker, kind: kind, ...(tag ? { asset class: tag } : {}), lots: [lot] } as position
  *
  * Called by ... MK-CF-F-111 applyTransaction
  *
@@ -396,6 +559,7 @@ const findPos = (a: AssetAccount, t: Transaction) =>
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-007 purchase price and date (per lot)
  *               MK-XS-I-009 transaction date
+ *               MK-XS-I-048 the person’s own asset-class answer
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-138
@@ -407,7 +571,13 @@ function addLot(a: AssetAccount, t: Transaction, shares: number, costPerShare: n
   if (existing) {
     return { ...a, positions: (a.positions ?? []).map((p) => p === existing ? { ...p, lots: [...p.lots, lot] } : p) };
   }
-  const pos: Position = { position_id: newEntityId('pos'), ticker: (t.ticker ?? '').toUpperCase(), kind: t.kind, lots: [lot] };
+  // A HOLDING A TRADE OPENS IS CLASSED THE WAY AN IMPORTED ONE IS (2026-10-23, found by the viewing flows): its ticker goes through
+  // the one classifier (assetClassForSymbol → classifyHoldingClass, as Import holdings asks it) and the class is stored under its
+  // tag (holdingTagFor), so 10 VTI bought on the trade sheet list under Stocks / Funds — they sat under Unclassified. A kind
+  // the record names wins. To reverse: drop asset_class here.
+  const ticker = (t.ticker ?? '').toUpperCase();
+  const tag = t.kind ? null : holdingTagFor(assetClassForSymbol(ticker));
+  const pos: Position = { position_id: newEntityId('pos'), ticker, kind: t.kind, ...(tag ? { asset_class: tag } : {}), lots: [lot] } as Position;
   return { ...a, positions: [...(a.positions ?? []), pos] };
 }
 
@@ -429,7 +599,7 @@ function addLot(a: AssetAccount, t: Transaction, shares: number, costPerShare: n
  *
  * Called by ... MK-CF-F-111 applyTransaction · MK-PF-F-072 tradesAfter
  *
- * Reaches ..... 85 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 87 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -439,7 +609,7 @@ function addLot(a: AssetAccount, t: Transaction, shares: number, costPerShare: n
  *               MK-NW-F-144 beforeTheRecordSentence · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               … and 67 more — the full list is on functions_from_code
+ *               … and 69 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -507,8 +677,10 @@ function removeShares(a: AssetAccount, t: Transaction, shares: number): AssetAcc
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-008 transaction amount
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *
  * Decides .....
+ *     · If multiplier is missing it uses 1.
  *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · If price is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
@@ -531,8 +703,10 @@ export function applyTransaction(accounts: AssetAccount[], t: Transaction): Asse
     case 'WITHDRAWAL':
     case 'FEE':
       return map(accounts, t.account_id, (a) => bumpCash(a, moneyIntoAccount(t) ?? 0));
+    // a buy or a sale moves money inside the account, and its own fee out of it (tradeCash, 2026-10-23): a typed total keeps
+    // its figure, and a fee typed beside the price (feeNotInPrice) is paid once
     case 'BUY':
-      return map(accounts, t.account_id, (a) => addLot(bumpCash(a, -((t.shares || 0) * (t.price || 0))), t, t.shares || 0, t.price || 0));
+      return map(accounts, t.account_id, (a) => addLot(tradeCash(a, -((t.shares || 0) * (t.price || 0) * (t.multiplier ?? 1)), feeNotInPrice(t)), t, t.shares || 0, t.price || 0));
     case 'SELL':
       // Walk row 4 (audit Home·NW #20): a VALUE sale — no shares, just an amount — is how bonds and
       // alternatives sell. The ledger is the one writer: the account's value drops by the sale
@@ -545,7 +719,7 @@ export function applyTransaction(accounts: AssetAccount[], t: Transaction): Asse
         // a holding whose share count is not on record cannot clamp the sale: it stands as recorded (outside review Claude Performance, 2026-10-11)
         const held = pos ? totalShares(pos) : 0;
         const sell = held == null ? (t.shares || 0) : Math.min(t.shares || 0, held);
-        return removeShares(bumpCash(a, sell * (t.price || 0)), t, sell);
+        return removeShares(tradeCash(a, sell * (t.price || 0) * (t.multiplier ?? 1), feeNotInPrice(t)), t, sell);
       });
     case 'TRANSFER': {
       const moved = moneyIntoAccount(t) ?? 0;   // the one rule (2026-10-21): leaves the first account unless it says IN
@@ -587,9 +761,9 @@ export { availableCash };
  *     id = new entity id('txn')
  *     created at = the date ).to isostring(
  *
- * Called by ... MK-XS-F-175 uid
+ * Called by ... MK-CF-F-224 openingRecordsOf · MK-XS-F-175 uid
  *
- * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
@@ -599,7 +773,7 @@ export { availableCash };
  *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
  *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
  *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
- *               … and 35 more — the full list is on functions_from_code
+ *               … and 36 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -827,7 +1001,7 @@ export function txnLabel(t: TxnType): string { return TYPE_LABEL[t] ?? t; }
  * Called by ... MK-NW-O-002 theAccount · MK-PF-F-072 tradesAfter
  *               MK-ST-F-012 toLedgerRow
  *
- * Reaches ..... 90 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 92 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-NW-F-167 COMPARE · MK-NW-F-080 HOLD
@@ -837,13 +1011,15 @@ export function txnLabel(t: TxnType): string { return TYPE_LABEL[t] ?? t; }
  *               MK-NW-F-144 beforeTheRecordSentence · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
  *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               … and 72 more — the full list is on functions_from_code
+ *               … and 74 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-008 transaction amount
+ *               MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
  *
  * Decides .....
+ *     · If multiplier is missing it uses 1.
  *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · If price is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
@@ -857,9 +1033,13 @@ export function cashEffect(t: Transaction): number {
     // own way — a broker's −$500 deposit, a reversal, is −$500 here, and a journal into this account is plus. No amount
     // on record is no effect here; the activity list shows a dash for it (theAccount, noAmount).
     case 'DEPOSIT': case 'WITHDRAWAL': case 'FEE': case 'TRANSFER': return moneyIntoAccount(t) ?? 0;
-    case 'SELL': return (t.shares || 0) * (t.price || 0) || (t.amount || 0);
+    // A TRADE'S OWN FEE, ONCE (2026-10-23, E2E-58; DEC-6873, DEC-7452): a fee its price does not carry (feeNotInPrice) comes off
+    // what a sale brought in and is added to what a buy cost — 10 sold at $120 with a $5 fee read +$1,200 here while the walk
+    // counted $1,195. A sale with no price keeps the amount on record, the reading tradesAfter takes its fee off.
+    case 'SELL': { const gross = (t.shares || 0) * (t.price || 0) * (t.multiplier ?? 1); return gross ? gross - feeNotInPrice(t) : (t.amount || 0); }
     case 'DIVIDEND': case 'INTEREST': case 'COUPON': return t.reinvested ? 0 : (moneyIntoAccount(t) ?? 0);
-    case 'BUY': return -((t.shares || 0) * (t.price || 0));
+    // an option's contracts count by the shares in each (the record's multiplier, 2026-10-23): 1 contract at $2.50 is $250
+    case 'BUY': return -((t.shares || 0) * (t.price || 0) * (t.multiplier ?? 1) + feeNotInPrice(t));
     default: return 0;
   }
 }

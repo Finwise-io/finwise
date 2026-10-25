@@ -92,10 +92,10 @@ function amortise(balance: number, annualRate: number, payment: number): { month
  *     i = rate ÷ 12
  *     the answer = monthly × (((1 + i) ×  × months − 1) ÷ i)
  *
- * Called by ... MK-CF-F-043 compareMortgageToTreasury
+ * Called by ... MK-CF-F-043 compareMortgageToTreasury · MK-CF-F-229 balanceGrownTo
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-043 compareMortgageToTreasury
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-229 balanceGrownTo · MK-CF-F-043 compareMortgageToTreasury
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -106,6 +106,28 @@ function futureValue(monthly: number, rate: number, months: number): number {
   if (months <= 0 || monthly <= 0) return 0;
   const i = rate / 12;
   return monthly * (((1 + i) ** months - 1) / i);
+}
+
+/** WHAT A POT GROWS TO: a starting balance compounding monthly, plus a monthly contribution added at the end of each month
+ *  (MK-CF-F-126 futureValue, the one formula for the contributions). Sign-up's retirement outlook reads this (2026-10-24);
+ *  it carried its own copy of the same formula. ID awaiting the builder. */
+/* ─ MK-CF-F-229 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * balanceGrownTo
+ *
+ * Answers ..... WHAT A POT GROWS TO: a starting balance compounding monthly, plus a monthly contribution added at the end of each month (MK-CF-F-126 futureValue, the one formula for the contributions).
+ *
+ * Formula .....
+ *     start × (1 + rate ÷ 12) ×  × months + future value(monthly, rate, months)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-229
+ * Changed ..... not in git yet (—)
+ */
+export function balanceGrownTo(start: number, monthly: number, rate: number, months: number): number {
+  return start * (1 + rate / 12) ** months + futureValue(monthly, rate, months);
 }
 
 /**

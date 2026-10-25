@@ -3,7 +3,7 @@
 // two screens can show the user two different "truths" for the same dollar.
 import { snapshotFromOnboarding, effectiveAnnualContribution } from './snapshot';
 import { buildGoalsState, waterfall } from './goals';
-import { spendBuckets, spendByMonth, savingsByMonth, budgetVsActual } from './budget';
+import { spendBuckets, spendByMonth, savingsByMonth, budgetVsActual, categoryMonthly, plannedMonthlySpend } from './budget';
 import { currentRetirementIncomeMonthly, retirementIncomeMonthly } from './income';
 import { earmarkDefault, earmarkedAmount, retirementEarmarkedValue, type AssetAccount } from './assets';
 import { toNum, round2 } from './_shared/num';
@@ -218,24 +218,38 @@ describe('Budget integrity invariants', () => {
     months.forEach((m, i) => { if (i !== 3) expect(m).toBeCloseTo(fixedAndFlex, 2); });
   });
 
-  test('months reconcile to the annual plan: Σ spendByMonth = 12 × (buckets + uncategorized remainder)', () => {
+  // 2026-10-24 (CF-FIX; DEC-0002, DEC-0447): a bill with its own months is on top of the typed monthly total, in those months —
+  // never taken to be inside it. The year is twelve every-month figures plus each dated bill once. It read 12 × (buckets +
+  // uncategorized remainder), the typed total taken to hold a twelfth of each dated bill: retiree75 $45,600, now $48,000.
+  test('months reconcile to the annual plan: Σ spendByMonth = 12 × (every-month part + uncategorized remainder) + the dated bills, = 12 × the budget', () => {
+    let looked = 0;
     for (const { op } of ALL_PERSONAS) {
       const annual = spendByMonth(op).reduce((t, m) => t + m, 0);
-      const buckets = spendBuckets(op);
-      const uncategorized = Math.max(0, toNum(op.monthlySpending) - buckets.monthly_total);
-      expect(annual).toBeCloseTo((buckets.monthly_total + uncategorized) * 12, 1);
+      const cats = Array.isArray(op.spendCats) ? op.spendCats : [];
+      const datedYearly = cats.filter((c: any) => c?.bucket === 'nonmonthly' && Array.isArray(c?.months) && c.months.length)
+        .reduce((t: number, c: any) => t + categoryMonthly(c, op) * 12, 0);
+      const everyMonth = spendBuckets(op).monthly_total - datedYearly / 12;
+      const uncategorized = Math.max(0, toNum(op.monthlySpending) - everyMonth);
+      expect(annual).toBeCloseTo((everyMonth + uncategorized) * 12 + datedYearly, 1);
+      expect(annual).toBeCloseTo(plannedMonthlySpend(op) * 12, 1);
+      looked++;
     }
+    expect(looked).toBe(ALL_PERSONAS.length);
+    expect(spendByMonth(retiree75).reduce((t, m) => t + m, 0)).toBeCloseTo(3800 * 12 + 2400, 2);   // 45,600 + 2,400 = 48,000
   });
 
   // BUG-LEDGER: B-24 (fixed) — when the user states a total spend AND itemizes only part of it, the
   // budget now counts the FULL stated total (itemized buckets + uncategorized remainder), matching
   // the month grid, so the two free-cash measures agree.
   test('stated-total vs itemized spending: budget matches the month grid (B-24 fixed)', () => {
-    // retiree75 states $3,800/month but itemizes $3,200 → $600/month uncategorized
+    // retiree75 states $3,800/month and itemizes $3,000 a month + a $2,400 premium in June → $800/month uncategorized, the
+    // premium on top in June (2026-10-24, CF-FIX: it read $600 uncategorized, the $3,800 taken to hold $200 a month of the
+    // premium, and the budget $3,800). The budget is the year ÷ 12: (3,800 × 12 + 2,400) ÷ 12 = $4,000.
     const s = snap(retiree75);
-    expect(s.budget.monthly_spending).toBeCloseTo(3800, 2);             // full stated total, not just $3,200
+    expect(s.budget.monthly_spending).toBeCloseTo(4000, 2);             // full stated total and the June premium, not just $3,200
     const juneSpend = spendByMonth(retiree75)[0];
-    expect(juneSpend).toBeCloseTo(3000 + 600, 2);                       // grid: fixed+flex+uncategorized
+    expect(juneSpend).toBeCloseTo(3000 + 800, 2);                       // grid: fixed+flex+uncategorized (January, no premium)
+    expect(spendByMonth(retiree75)[5]).toBeCloseTo(3800 + 2400, 2);    // June carries the premium on top
     // both free-cash measures now agree (no uncategorized gap):
     const gridAnnualSavings = savingsByMonth(retiree75).reduce((t, m) => t + m.amount, 0);
     const smoothedAnnualSavings = s.budget.projected_to_save * 12;

@@ -165,9 +165,15 @@ describe('the orchestrator', () => {
     expect(p.earners).toHaveLength(2);
     expect(p.grossAnnual).toBeCloseTo(84_000 + 54_000, 2);
     expect(p.landsInBank).toBeCloseTo(5000 + 3300, 2);
-    // 84,000 alone sits in a lower married band than 138,000 does — that gap is the whole point
-    expect(p.bandOnEveryWage).toBeGreaterThan(p.bandOnOneWage);
-    expect(p.bandNote).toContain('what you earn together');
+    // the band of what is TAXED, each earner's 401(k) out first (B05; 2026-10-24, CF-FIX): $138,000 − $14,400 (Sam's $4,800 and
+    // the default entry's) − $32,200 = $91,400 is 12%, and $84,000 − its 401(k) alone is 12% too, so no band note is due here.
+    // Until 2026-10-24 the bands were read off gross — 22% together against 12% alone — and the note fired.
+    expect(p.bandOnEveryWage).toBe(p.bandOnOneWage);
+    expect(p.bandNote ?? '').not.toContain('what you earn together');   // no band sentence; the own-figures sentence may stand
+    // with no 401(k)s the gap is still the whole point: $138,000 − $32,200 = $105,800 is 22%, $84,000 − $32,200 is 12%
+    const noK = basePay({ filingStatus: 'married', earners: [{ name: 'You', entry: steady({ monthly401k: 0 }) }, { name: 'Sam', entry: steady({ grossTypical: 4500, monthly401k: 0, landsTypical: 3300 }) }] });
+    expect(noK.bandOnEveryWage).toBeGreaterThan(noK.bandOnOneWage);
+    expect(noK.bandNote).toContain('what you earn together');
   });
 
   it('THE LAW: the household total is exactly the sum of its earners, never a re-derivation', () => {
@@ -206,8 +212,9 @@ describe('the card adds up, and every figure says whose it is (mock v6, rule 8e)
   it("THE LAW: 'Both of us' is never banded as single — jointly is assumed and SAID", () => {
     const p = basePay({ earners: [{ name: 'You', entry: YOU }, { name: 'Sam', entry: SAM }],
                         filingStatus: 'married', profile: { whoEarns: 'both' } });
-    // on $138,000 the single band is 24%+ territory read wrong; jointly it is 22%
-    expect(Math.round(p.bandOnEveryWage * 100)).toBe(22);
+    // jointly, on what is taxed once the 401(k)s are out ($138,000 − the two 401(k)s − $32,200), it is 12% — read as single it
+    // would be 22% or more. It read 22% (the gross band) until 2026-10-24 (B05, CF-FIX)
+    expect(Math.round(p.bandOnEveryWage * 100)).toBe(12);
     expect(p.tax.statusAssumed).toBe(true);                 // no filing answer yet → said, not silent
   });
 

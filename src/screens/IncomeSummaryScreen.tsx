@@ -63,7 +63,7 @@ export default function IncomeSummaryScreen() {
 
       <View style={s.bandRow}>
         <Text style={s.band}>What it is taxed on</Text>
-        <Text style={s.bandNum}>{fig('MK-CF-M-041', sum.ready ? sum.taxed.grossAnnual : 0)}</Text>   {/* Q48: $0, never a dash */}
+        <Text style={s.bandNum}>{fig('MK-CF-M-041', sum.ready ? sum.taxed.taxedOn : 0)}</Text>   {/* Q48: $0, never a dash · the gross less the 401(k)s (DEC-0283, 2026-10-24) */}
       </View>
       <View style={s.card}>
         {!sum.ready ? (
@@ -71,7 +71,12 @@ export default function IncomeSummaryScreen() {
         ) : (
           <>
             {sum.taxed.lines.map((l) => <Row key={l.label} label={l.label} value={fig('MK-CF-M-042', l.amount)} />)}
-            <Row label="= Gross /year" value={fig('MK-CF-M-041', sum.taxed.grossAnnual)} strong />
+            <Row label="= Gross /year" value={fig('MK-CF-M-076', sum.taxed.grossAnnual)} strong />
+            {/* WHAT IT IS TAXED ON, SHOWN BEING MADE (2026-10-24, DEC-0283): the 401(k)s come off the gross before tax, and the total
+                is the figure the bracket and a calculated tax are worked on */}
+            {/* a real $0 has no sign — never "−$0" */}
+            <Row label="Your 401(k)s" value={`${sum.taxed.k401Annual > 0 ? '−' : ''}${fig('MK-CF-M-077', sum.taxed.k401Annual)}`} />
+            <Row label="= What it is taxed on" value={fig('MK-CF-M-041', sum.taxed.taxedOn)} strong />
             <Row label="Federal tax bracket" note={`${sum.taxed.filing.replace(/^Married /, '').toLowerCase()}, every source counted`}
                  value={fig('MK-CF-M-043', sum.taxed.bracket)} />
             <Row label={sum.taxed.estimated ? 'Calculated federal tax' : 'Tax'}
@@ -80,9 +85,8 @@ export default function IncomeSummaryScreen() {
                    : `${sum.taxed.whose} (edit on Your base pay screen)`}
                  value={`${sum.taxed.estimated ? '≈' : ''}${figPer('MK-CF-M-044', sum.taxed.tax)}`} />
             <Text style={s.note}>
-              {sum.taxed.estimated
-                ? 'Federal only — it knows nothing about your state, and nothing about Social Security or Medicare.'
-                : sum.taxed.closing}
+              {/* the calculated rate holds a state rate the person entered, so the line says so (2026-10-24, DEC-7608's class) */}
+              {sum.taxed.estimated ? sum.taxed.calculatedNote : sum.taxed.closing}
             </Text>
           </>
         )}

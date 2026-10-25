@@ -92,7 +92,11 @@ export default function RequiredWithdrawalsScreen() {
   const explainer = (
     <View style={s.card}>
       <SectionBand inCard inset={20} title="WHAT THIS IS" />
-      <Text style={s.line}>From age {rmdStartAgeFor(age)}, the law requires a yearly withdrawal from pre-tax retirement accounts (401(k), traditional IRA). <InfoDot term="rmd" /></Text>
+      {/* the dot beside the sentence, not inside it, so a screen reader says "What is …?" rather than "ⓘ" (2026-10-24, E2E-78) */}
+      <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 4 }}>
+        <Text style={[s.line, { flex: 1 }]}>From age {rmdStartAgeFor(age)}, the law requires a yearly withdrawal from pre-tax retirement accounts (401(k), traditional IRA).</Text>
+        <InfoDot term="rmd" />
+      </View>
       {preTax > 0 && age != null && !applies && (
         <>
           {/* ONE number for the first year (founder 2026-08-12). The header used to divide TODAY's

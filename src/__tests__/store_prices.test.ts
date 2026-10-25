@@ -33,9 +33,11 @@ const series = (ticker: string, closes: number[]) => ({
   points: closes.map((close, i) => ({ date: `2026-06-${String(i + 1).padStart(2, '0')}`, close })),
 });
 
+// an account BUILT FROM ITS HOLDINGS (derive_balance), as Import holdings makes one: its balance is its cash plus its holdings.
+// Until 2026-10-23 a cash figure alone made an account rebuilt, so this fixture carried none (E2E-57: that rebuilt a typed total).
 const brokerage = (over: Record<string, any> = {}) => ({
   label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE' as const, balance: 0, target_return: 0.07,
-  cash_balance: 1000,
+  cash_balance: 1000, derive_balance: true,
   positions: [{ position_id: 'p1', ticker: 'VOO', kind: 'stocks_etf', lots: [{ lot_id: 'l1', shares: 10, cost_per_share: 300, purchase_date: '2025-01-02' }] }],
   ...over,
 });
@@ -133,7 +135,8 @@ describe('refreshPrices', () => {
 // BUG-LEDGER: B-60 — adding ONE holding to track its performance inside a manual-balance account
 // (e.g. a $2.2M Fidelity total) must NOT collapse the account to the sum of that one holding.
 // Positions are a SUBSET for performance tracking; only an explicitly position-derived account
-// (derive_balance) or one with a cash sleeve is rebuilt from its holdings.
+// (derive_balance) is rebuilt from its holdings. (Until 2026-10-23 "or one with a cash sleeve" — a typed total with a cash
+// figure of its own was rebuilt to cash + holdings; E2E-57 found a $40,000 account read $10,000 after one recorded buy.)
 describe('manual-balance account with a partially-tracked holding (B-60)', () => {
   test('addPosition to a manual-balance account preserves the entered total', () => {
     useStore.getState().addAsset({ label: 'Fidelity', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 2_200_000, target_return: 0.07 });
@@ -162,6 +165,18 @@ describe('manual-balance account with a partially-tracked holding (B-60)', () =>
     fetchMock.mockResolvedValue({ VOO: series('VOO', [410]) });
     await useStore.getState().refreshPrices();
     expect(useStore.getState().assetAccounts.find((a) => a.label === 'Tracked')!.balance).toBe(10 * 410);
+  });
+
+  test('a typed total with a cash figure of its own keeps its total on a refresh (2026-10-23, E2E-57): $50,000 stays $50,000', async () => {
+    // typed $50,000 on Sep 1, $5,000 of it cash, 10 VOO listed inside it — the holdings and the cash are a part of the total
+    useStore.getState().addAsset({
+      label: 'Typed', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 50_000, cash_balance: 5_000, target_return: 0.07,
+      positions: [{ position_id: 'p1', ticker: 'VOO', kind: 'stocks_etf', lots: [{ lot_id: 'l1', shares: 10, cost_per_share: 300, purchase_date: '2025-01-02' }] }],
+    });
+    fetchMock.mockResolvedValue({ VOO: series('VOO', [410]) });
+    await useStore.getState().refreshPrices();
+    // before 2026-10-23: 5,000 + 10 × 410 = $9,100
+    expect(useStore.getState().assetAccounts.find((a) => a.label === 'Typed')!.balance).toBe(50_000);
   });
 });
 

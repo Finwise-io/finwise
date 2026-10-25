@@ -389,6 +389,7 @@ describe('Holding detail v02 — every figure and date (Oct 1, 2026)', () => {
   const series = (ticker: string, pts: [string, number][]) => ({ ticker, points: pts.map(([date, close]) => ({ date, close })) });
   // the past year opens Oct 1, 2025, measured from the close the day before: AAPL $175 → $241.84 = +38.19%, SPY $500 →
   // $612 = +22.40%, 15.79 points apart; today AAPL $239.53 → $241.84, up $2.31
+  // (2026-10-23, W-START: and AAPL's close the evening before the 40 were bought on Jan 9 at $192.50 — the price it stood at, as the drawing has it: the past year is AAPL's own move, $175.00 → $241.84. A holding held when the window began that buys inside it is read from its purchases now (MK-PF-F-014), each counted from the start of its day at what was paid (DEC-4439), so that evening's close is read: (100 × $192.50 ÷ 100 × $175) × (140 × $241.84 ÷ (100 × $192.50 + $7,700)) − 1 = +38.19%. Without it the last close on record before Jan 9 was Oct 1's $175, the $17.50 a share above it read as lost, and AAPL read +34.36%.)
   const SPY = series('SPY', [['2024-08-01', 400], ['2025-09-30', 500], ['2025-10-01', 500], ['2026-04-01', 560], ['2026-09-30', 610], ['2026-10-01', 612]]);
   const live = { pricesFetchedAt: '2026-10-01T11:00:00Z' };
   beforeEach(() => at('2026-10-01'));
@@ -398,7 +399,7 @@ describe('Holding detail v02 — every figure and date (Oct 1, 2026)', () => {
       assetAccounts: [{ asset_id: 'fid', label: 'Fidelity', institution: 'Fidelity', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
         positions: [{ position_id: 'p1', ticker: 'AAPL', label: 'Apple Inc.', kind: 'stocks_etf', lots: [
           { lot_id: 'l1', shares: 100, cost_per_share: 168, purchase_date: '2023-03-14' }, { lot_id: 'l2', shares: 40, cost_per_share: 192.5, purchase_date: '2026-01-09' }] }] }],
-      priceCache: { AAPL: series('AAPL', [['2024-08-01', 150], ['2025-09-30', 175], ['2025-10-01', 175], ['2026-04-01', 210], ['2026-09-30', 239.53], ['2026-10-01', 241.84]]), SPY },
+      priceCache: { AAPL: series('AAPL', [['2024-08-01', 150], ['2025-09-30', 175], ['2025-10-01', 175], ['2026-01-08', 192.5], ['2026-04-01', 210], ['2026-09-30', 239.53], ['2026-10-01', 241.84]]), SPY },
       transactions: [{ id: 'd1', account_id: 'fid', type: 'DIVIDEND', ticker: 'AAPL', amount: 134.4, date: '2026-08-02' }],
     }, { account: 'fid', position: 'p1' });
     compare('holding 1', upTo(P[0], /^Activity$/), upTo(shown, /^Activity$/), 30, KNOWN);
@@ -428,7 +429,7 @@ describe('Holding detail v02 · the worked examples of 2026-10-21, figure for fi
   const HoldingDetailScreen = require('../HoldingDetailScreen').default;
   const series = (ticker: string, pts: [string, number][]) => ({ ticker, points: pts.map(([date, close]) => ({ date, close })) });
   const SPY = series('SPY', [['2024-08-01', 400], ['2025-09-30', 500], ['2025-10-01', 500], ['2026-04-01', 560], ['2026-09-30', 610], ['2026-10-01', 612]]);
-  const AAPL = series('AAPL', [['2024-08-01', 150], ['2025-09-30', 175], ['2025-10-01', 175], ['2026-04-01', 210], ['2026-09-30', 239.53], ['2026-10-01', 241.84]]);
+  const AAPL = series('AAPL', [['2024-08-01', 150], ['2025-09-30', 175], ['2025-10-01', 175], ['2026-01-08', 192.5], ['2026-04-01', 210], ['2026-09-30', 239.53], ['2026-10-01', 241.84]]);
   const acct = (positions: any[], extra: any = {}) => ({ asset_id: 'fid', label: 'Fidelity', institution: 'Fidelity', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true, positions, ...extra });
   const aapl = (second: string) => ({ position_id: 'p1', ticker: 'AAPL', label: 'Apple Inc.', kind: 'stocks_etf', lots: [
     { lot_id: 'l1', shares: 100, cost_per_share: 168, purchase_date: '2023-03-14' }, { lot_id: 'l2', shares: 40, cost_per_share: 192.5, purchase_date: second }] });

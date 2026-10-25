@@ -147,20 +147,23 @@ export default function HoldingDetailScreen() {
 
   // finding 6 (approved mock v2): the price series drives the hero graph and the change line.
   const series = hasPrice ? priceOf(ticker) : null;
-  const graphPts = useMemo(() => {
+  // NO HOOK BELOW THE PAGE'S EARLY RETURNS (2026-10-23, E2E-59): these two were useMemo after "leaving" and "isn't here any
+  // more" return early, so the render after a sale of every share — or after Delete holding — ran fewer hooks than the one
+  // before, and React stopped the page ("Rendered fewer hooks than expected"). Both are plain reads of what is above them now.
+  const graphPts = (() => {
     const pts = (series?.points ?? []).filter((x: any) => x.close > 0);
     const inWindow = windowStart == null ? [] : pts.filter((x: any) => String(x.date) >= windowStart);
     return inWindow.length >= 2 ? inWindow : pts.slice(-2);      // thin history: show what exists
-  }, [series, period, windowStart]);
+  })();
   // THE DAY'S CHANGE COMES FROM THE DOOR (2026-10-01). It was calculated here, from the price series
   // — a money figure derived inline on a screen, which is the one thing the one-door rule forbids.
   // MK-NW-O-006 theHolding computes it from the same closes; the screen only hands it the closes,
   // which it cannot do in the call above because the series depends on that call's own answer.
-  const withCloses = useMemo(() => theHolding({
+  const withCloses = theHolding({
     position, accountId: String(account.asset_id), price: row?.price ?? null,
     transactions: (store.transactions ?? []) as any[],
     recentCloses: (series?.points ?? []).map((pt: any) => pt.close),
-  }), [position, account.asset_id, row?.price, store.transactions, series]);
+  });
   const dayChange = withCloses.dayChange
     ? { d: withCloses.dayChange.amount, p: withCloses.dayChange.share } : null;
 
@@ -219,7 +222,8 @@ export default function HoldingDetailScreen() {
   const avgRow = () => (
     <View style={s.tRow}>
       <View style={s.kickerRow}><Text style={s.tL}>Price paid (average)</Text><InfoDot term="averagePricePaid" size={15} /></View>
-      <Text style={s.tV}>{shares == null ? figWords('MK-NW-M-032', SHARE_COUNT_NOT_STATED) : fig('MK-NW-M-032', rawAvg)}</Text>
+      {/* a hidden balance is said "hidden", never the dots (2026-10-23, E2E-68) */}
+      <Text style={s.tV} accessibilityLabel={shares == null ? undefined : figSaid('MK-NW-M-032', rawAvg)}>{shares == null ? figWords('MK-NW-M-032', SHARE_COUNT_NOT_STATED) : fig('MK-NW-M-032', rawAvg)}</Text>
     </View>
   );
 
@@ -237,27 +241,36 @@ export default function HoldingDetailScreen() {
       <Text style={s.sub}>in {account.institution?.trim() || account.label}</Text>
 
       {/* finding 6 (approved mock v2): price hero → graph → the position as a table */}
-      <View style={s.card} accessible accessibilityLabel={headerA11y}>
+      {/* THE CARD IS HEARD IN ITS PARTS, IN PRINTED ORDER (2026-10-23, E2E-68): it was one accessible element, so VoiceOver read
+          one sentence for it and never reached the window chips inside it — a screen reader could not change the window — nor
+          heard the price, the day's move or the price paid. Each part now says what it prints; the summary that named the value
+          and the change since purchase is said on those two rows. Nothing on screen moves. To reverse: put "accessible
+          accessibilityLabel={headerA11y}" back on the card and drop the three groups. */}
+      <View style={s.card}>
         {closed ? (
-          <>
+          <View accessible accessibilityLabel={headerA11y}>
             <Text style={s.big}>{fig('MK-NW-M-030', 0)}</Text>
             {/* Q48 does not apply here: a holding page exists only once a holding was entered, so $0 means sold */}
             <Text style={s.gainLine}>Holding liquidated — all shares sold. Its history is kept below.</Text>
-          </>
+          </View>
         ) : null}
         {/* A SOLD HOLDING STILL HAS A PRICE AND A HISTORY (approved drawing holding-detail v02, phone 3):
             the price, the day's change, the graph and its window stay; the position table goes. */}
         {hasPrice ? (
           <>
             {/* the price is the latest close the app holds, never a live quote: the band says so, with its day (2026-10-21, MK-NW-M-029) */}
-            <SectionBand inCard inset={20} title={lastCloseLabel(position ? priceOf(position.ticker) : null)} />
-            <Text style={s.big}>{fig('MK-NW-M-029', row.price as number)}</Text>
-            {dayChange != null && (
-              <Text style={[s.gainLine, { color: dayChange.d >= 0 ? Colors.gainText : Colors.red }]}>
-                {dayChange.d >= 0 ? '▲ up ' : '▼ down '}{fig('MK-NW-M-060', Math.abs(dayChange.d))} ({fig('MK-NW-M-068', Math.abs(dayChange.p))}) {fresh.stale ? 'last market day' : 'today'}
-              </Text>
-            )}
-            {fresh.stale && <Text style={[s.metaLine, s.warn]}>prices may be out of date ({fresh.label})</Text>}
+            {/* said as printed, its figures through the one spoken writer and the ▲ said as "up" (2026-10-23, E2E-68) */}
+            <View accessible accessibilityLabel={`${lastCloseLabel(position ? priceOf(position.ticker) : null)}: ${figSaid('MK-NW-M-029', row.price as number)}${dayChange != null
+              ? `, ${dayChange.d >= 0 ? 'up' : 'down'} ${figSaid('MK-NW-M-060', Math.abs(dayChange.d))}, ${percentSaid('MK-NW-M-068', dayChange.p)} ${fresh.stale ? 'last market day' : 'today'}` : ''}${fresh.stale ? `, prices may be out of date (${fresh.label})` : ''}`}>
+              <SectionBand inCard inset={20} title={lastCloseLabel(position ? priceOf(position.ticker) : null)} />
+              <Text style={s.big}>{fig('MK-NW-M-029', row.price as number)}</Text>
+              {dayChange != null && (
+                <Text style={[s.gainLine, { color: dayChange.d >= 0 ? Colors.gainText : Colors.red }]}>
+                  {dayChange.d >= 0 ? '▲ up ' : '▼ down '}{fig('MK-NW-M-060', Math.abs(dayChange.d))} ({fig('MK-NW-M-068', Math.abs(dayChange.p))}) {fresh.stale ? 'last market day' : 'today'}
+                </Text>
+              )}
+              {fresh.stale && <Text style={[s.metaLine, s.warn]}>prices may be out of date ({fresh.label})</Text>}
+            </View>
             {graphPts.length >= 2 && (
               <>
                 <PriceGraph pts={graphPts} up={graphPts[graphPts.length - 1].close >= graphPts[0].close} />
@@ -278,11 +291,14 @@ export default function HoldingDetailScreen() {
             )}
             {!closed && (
             <View style={s.tblTop}>
-              <View style={s.tRow}><Text style={s.tL}>Current value</Text><Text style={s.tV}>{value == null ? figWords('MK-NW-M-030', valueNotKnown) : fig('MK-NW-M-030', value)}</Text></View>
-              {gain != null && (
-                <View style={s.tRow}><Text style={s.tL}>Change since purchase</Text>
-                  <Text style={[s.tV, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ +' : '▼ −'}{fig('MK-NW-M-059', Math.abs(gain))}{roi != null ? ` (${fig('MK-NW-M-067', roi)})` : ''}</Text></View>
-              )}
+              {/* the value and the change since purchase, said as one: the summary the card used to say (2026-10-23, E2E-68) */}
+              <View accessible accessibilityLabel={headerA11y}>
+                <View style={s.tRow}><Text style={s.tL}>Current value</Text><Text style={s.tV}>{value == null ? figWords('MK-NW-M-030', valueNotKnown) : fig('MK-NW-M-030', value)}</Text></View>
+                {gain != null && (
+                  <View style={s.tRow}><Text style={s.tL}>Change since purchase</Text>
+                    <Text style={[s.tV, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ +' : '▼ −'}{fig('MK-NW-M-059', Math.abs(gain))}{roi != null ? ` (${fig('MK-NW-M-067', roi)})` : ''}</Text></View>
+                )}
+              </View>
               <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{figWords('MK-NW-M-031', quantityWords ?? SHARE_COUNT_NOT_STATED)}</Text></View>
               {avgRow()}
             </View>
@@ -290,12 +306,15 @@ export default function HoldingDetailScreen() {
           </>
         ) : closed ? null : (
           <>
-            <Text style={[s.kicker, s.warn]}>NO LIVE PRICE — SHOWING WHAT YOU PAID</Text>
-            {/* what was paid, or — when that is not known either — the words saying why, at the size of a line, not a figure */}
-            {value == null
-              ? <Text style={s.line}>{figWords('MK-NW-M-030', valueNotKnown)}</Text>
-              : <Text style={s.big}>{fig('MK-NW-M-030', value)}</Text>}
-            <Text style={s.metaLine}>⏱ live pricing arrives with the price provider</Text>
+            {/* said as printed, the figure through the one spoken writer and without the ⏱ (2026-10-23, E2E-68) */}
+            <View accessible accessibilityLabel={`No live price — showing what you paid: ${value == null ? valueNotKnown : figSaid('MK-NW-M-030', value)}. Live pricing arrives with the price provider`}>
+              <Text style={[s.kicker, s.warn]}>NO LIVE PRICE — SHOWING WHAT YOU PAID</Text>
+              {/* what was paid, or — when that is not known either — the words saying why, at the size of a line, not a figure */}
+              {value == null
+                ? <Text style={s.line}>{figWords('MK-NW-M-030', valueNotKnown)}</Text>
+                : <Text style={s.big}>{fig('MK-NW-M-030', value)}</Text>}
+              <Text style={s.metaLine}>⏱ live pricing arrives with the price provider</Text>
+            </View>
             <View style={s.tblTop}>
               <View style={s.tRow}><Text style={s.tL}>Quantity</Text><Text style={s.tV}>{figWords('MK-NW-M-031', quantityWords ?? SHARE_COUNT_NOT_STATED)}</Text></View>
               {avgRow()}
@@ -482,7 +501,14 @@ export default function HoldingDetailScreen() {
       />
       <TransactionSheet open={txnOpen} accounts={accounts} prefill={{ accountId: account.asset_id, ticker }}
         onClose={() => setTxnOpen(false)}
-        onSave={(t: any) => { store.recordTransaction(t); setTxnOpen(false); }} />
+        onSave={(t: any) => {
+          store.recordTransaction(t); setTxnOpen(false);
+          // A SALE OF EVERY SHARE TAKES THE HOLDING OUT OF ITS ACCOUNT (removeShares), so its page closes, as Delete holding
+          // closes it (2026-10-23, E2E-59): the person is back where they came from, where the sale is listed and its row is
+          // built from it (DEC-7450). It crashed here. To reverse: drop the two lines below.
+          const kept = (useStore.getState().assetAccounts ?? []).find((a) => a.asset_id === account.asset_id)?.positions?.some((p) => p.position_id === position.position_id);
+          if (!kept) { setLeaving(true); router.back(); }
+        }} />
       <HistorySheet open={historyOpen} transactions={tickerTxns} accounts={accounts}
         onClose={() => setHistoryOpen(false)} onDelete={(id: string) => store.deleteTransaction(id)} />
       <View style={{ height: 40 }} />

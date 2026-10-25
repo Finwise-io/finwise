@@ -10,7 +10,7 @@ export {
   buildIncomeState, grossAnnualBaseline, annualNet,
   effectiveTaxRate, employerMatchAnnual,
 } from './calc';
-export { incomeFromOnboarding, employerMatchMonthly, grossSalaryMonthly, annualizedEnteredSalary, rsuAnnual, equityRowValue, equityCashFlow, equityVestWeights, rowVestYear, rentalList, rentalNetAnnual, totalGrossAnnual, taxableAnnual, extraIncome, retirementIncomeMonthly, guaranteedOutsideStreams, over65CountOf, currentRetirementIncomeMonthly, scholarshipByCalendarMonth, tipsAnnual, salaryAnnual, salaryActiveMonths, salaryGrossByMonth, wageGrossByMonth, wageMatchMonthly, jobActiveMonth, effectiveRate, monthlyTaxRates, taxableByCalendarMonth, filingStatusOf, stateRateOf, userCapGainsRates, incomeMonthlyGrid, SALARY_PERIODS, benefitAnnual, benefitActiveMonths, otherIncomeMonth } from './onboarding';
+export { incomeFromOnboarding, employerMatchMonthly, grossSalaryMonthly, annualizedEnteredSalary, rsuAnnual, equityRowValue, equityCashFlow, equityVestWeights, rowVestYear, rentalList, rentalNetAnnual, totalGrossAnnual, taxableAnnual, extraIncome, retirementIncomeMonthly, guaranteedOutsideStreams, over65CountOf, currentRetirementIncomeMonthly, scholarshipByCalendarMonth, tipsAnnual, salaryAnnual, salaryActiveMonths, salaryGrossByMonth, wageGrossByMonth, wageMatchMonthly, jobActiveMonth, effectiveRate, monthlyTaxRates, taxableByCalendarMonth, filingStatusOf, stateRateOf, incomeMonthlyGrid, SALARY_PERIODS, benefitAnnual, benefitActiveMonths, otherIncomeMonth } from './onboarding';
 export { taxOwedFor, effectiveRateOnGrossFor, grossFromNet, marginalBracketFor, TAX_YEAR, TAX_BRACKETS } from './tax';
 
 const COLLECTION = 'incomes';

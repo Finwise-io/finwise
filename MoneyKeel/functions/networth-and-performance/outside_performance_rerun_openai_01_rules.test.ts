@@ -75,8 +75,9 @@ export const RULES: RuleRow[] = [
   { n: 9, key: 'owner-9', cls: 'AGREES', proof: ['src/__tests__/networth_decisions_held_logic.test.ts'], why: 'Held: the same rule, first made 2026-08-04 (DEC-0045) — private equity and hedge funds are not offered; proven by networth_decisions_held_logic.' },
   { n: 10, key: 'owner-10', cls: 'AGREES', proof: ['src/domain/bonds/income.test.ts', 'src/screens/__tests__/outside_networth_final_openai_bonds.test.tsx'],
     why: 'Held, rendered: a Treasury with no rate reads "Interest payments — not entered · $0/year — coupon rate not entered" and shows no yield (screens file, MK-NW-M-024 T3).' },
-  { n: 11, key: 'owner-11', cls: 'AGREES', inFlight: true, proof: ['src/domain/bonds/a46_a47_coupon_and_accrued.test.ts', 'src/domain/bonds/coupons_per_year.test.ts'],
-    why: 'Held in words, rendered: "Added estimated $1,119 in accrued interest to bond value at 4.5% coupon for 363 days to calculate YTM. If this is not accurate, enter actual accrued interest". The 363 days assume one coupon a year; a bond\'s payment frequency is being changed now (coupons_per_year.test.ts is new) — re-run after it lands.' },
+  // SETTLED 2026-10-24 (NW-BONDS, re-run after the payment-frequency work landed, DEC-6625). Was IN-FLIGHT.
+  { n: 11, key: 'owner-11', cls: 'AGREES', proof: ['src/domain/bonds/a46_a47_coupon_and_accrued.test.ts', 'src/domain/bonds/coupons_per_year.test.ts', 'src/screens/__tests__/bond_interest_one_number_2026_10_24.test.tsx'],
+    why: 'Held in words, rendered: "Added estimated $1,119 in accrued interest to bond value at 4.5% coupon for 363 days to calculate YTM. If this is not accurate, enter actual accrued interest". Re-run 2026-10-24: how often it pays not entered keeps once a year and his words; entered as twice a year the note reads $556 for 182 days, and since 2026-10-24 the yield is priced on the same half-year payments (about 5.67%, where it read 6.56%).' },
   { n: 12, key: 'owner-12', cls: 'AGREES', proof: ['src/domain/bonds/dec3837_cd_bought.test.ts', 'src/screens/__tests__/networth_add_cd_asks_where_bought.test.tsx'],
     why: 'Held, rendered: a bank CD reads "Nothing happens to this CD. It is not traded…" and no rates-move figure; a broker CD gets one (DEC-3837 test).' },
   { n: 13, key: 'owner-13', cls: 'AGREES', proof: ['src/__tests__/founder_2026_08_11.test.tsx', 'src/screens/__tests__/import_holdings_journey.test.tsx'],
@@ -223,8 +224,9 @@ export const RULES: RuleRow[] = [
   { n: 48, key: 'DEC-4646', cls: 'AGREES', proof: ['src/screens/__tests__/performance_decisions_2026_10_12.test.tsx', 'src/services/sync/snaptrade.test.ts', 'src/services/sync/ingest.test.ts'],
     why: 'Held, rendered: 2 mini contracts at $8 read Current value $160 and Total paid $100 (10 shares a contract); an option with no multiplier stored counts 100.',
     check: () => { expect(contractMultiplier({ kind: 'options', multiplier: 10 } as any)).toBe(10); expect(contractMultiplier({ kind: 'options' } as any)).toBe(100); } },
-  { n: 49, key: 'DEC-2748b', cls: 'AGREES', inFlight: true, proof: ['src/screens/__tests__/zero_rate_is_entered.test.ts', 'src/screens/__tests__/nw_editors_figures_match.test.tsx'],
-    why: 'Held: a typed 0% is a rate (yield on today\'s value 0%), a rate never typed has no yield. bonds.ts is being changed now — re-run after it lands.',
+  // SETTLED 2026-10-24 (NW-BONDS, re-run after the bonds.ts work landed). Was IN-FLIGHT.
+  { n: 49, key: 'DEC-2748b', cls: 'AGREES', proof: ['src/screens/__tests__/zero_rate_is_entered.test.ts', 'src/screens/__tests__/nw_editors_figures_match.test.tsx'],
+    why: 'Held: a typed 0% is a rate (yield on today\'s value 0%), a rate never typed has no yield. Re-run 2026-10-24 after bonds.ts landed: both still hold; a face value never entered on a dated bond now gives no year\'s interest either (MK-NW-M-024, tenet 3).',
     check: () => {
       const one = (rate: any) => theBonds({ accounts: [{ asset_id: 'b', label: 'Note', kind: 'bond', balance: 10000, face_value: 10000, maturity_date: '2028-09-30', ...(rate === undefined ? {} : { coupon_rate: rate }) }] as any,
         accountId: 'b', today: new Date('2026-09-28T12:00:00') }).one as any;

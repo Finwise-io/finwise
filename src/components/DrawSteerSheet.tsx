@@ -18,8 +18,9 @@ import {
   DEFAULT_DRAW_ORDER, rmdStartAgeFor, type DrawBucket,
 } from '../domain/decumulation';
 import { plannedMonthlySpend } from '../domain/budget';
-import { currentRetirementIncomeMonthly, taxableAnnual, filingStatusOf, over65CountOf } from '../domain/income';
+import { currentRetirementIncomeMonthly, filingStatusOf, over65CountOf } from '../domain/income';
 import { marginalBracketFor, ltcgRateFor } from '../domain/income/tax';
+import { taxedAfterPreTax } from '../domain/income/tax-rate';   // the 401(k)s out before tax (B05, 2026-10-24)
 import { latestClose } from '../domain/performance';
 import { ageFromProfile } from '../utils/persona';
 import { modalAnimation } from '../hooks/reducedMotion';
@@ -65,7 +66,7 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
     // Income base = everything they told us is taxable this year plus the guaranteed income they
     // receive now (Social Security counted in full — its untaxed share is not modelled, so the band
     // can read one step high). Gain share = the unrealised gain in their taxable holdings.
-    const incomeBase = taxableAnnual(op) + guaranteedAnnual;
+    const incomeBase = taxedAfterPreTax(op) + guaranteedAnnual;   // 2026-10-24: a 401(k) still paid into comes off first (B05)
     const status = filingStatusOf(op), over65 = over65CountOf(op);
     const ordinaryRate = marginalBracketFor(incomeBase, status, over65);
     const capGainsRate = ltcgRateFor(incomeBase, status, over65);

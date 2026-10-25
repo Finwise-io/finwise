@@ -122,6 +122,11 @@ export interface Bonds {
   /** The bonds the average yield and the year's interest leave out because no rate was entered — named
    *  the same way (outside review, 2026-10-07: they had counted as paying 0%). */
   leftOutNoRate: string[];
+  /** (2026-10-24, DEC-3523 tenet 3) The bonds the average yield and the year's interest leave out because no face value was
+   *  entered: a bond, or a CD bought through a broker, with a maturity date, a rate and a value today but no face — its coupon
+   *  is paid on the face, so a year's interest has nothing to go on (a CD bought from the bank, or a bond fund, pays its rate
+   *  on its balance and is not here). */
+  leftOutNoFace: string[];
   /** The bonds the total face value leaves out because none was entered — named, never counted as $0. */
   faceNotEntered: string[];
   /** (DEC-0281, DEC-3657) The bonds the total value leaves out because no value of any kind was entered — no market
@@ -153,17 +158,17 @@ export interface BondsInput {
  * Called by ... MK-NW-F-141 holdingBondFacts · MK-NW-O-001 theBonds
  *               MK-ST-F-093 typedValueOnItsDate
  *
- * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 287 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
@@ -184,8 +189,9 @@ export const rowOf = (a: AssetAccount, now: Date): BondRow => {
     institution: (a as any).institution?.trim() || a.label,
     face: b.face,
     couponRate: b.couponRate,
-    // face × rate; a CD by its balance, balance × rate; nothing without a rate; $0 once matured, so the rows add up
-    // to COUPON /year (outside review OpenAI final, 2026-10-09, DEC-2748d, tenet 2)
+    // face × rate; a bank CD or a bond fund by its balance, balance × rate; nothing without a rate, and nothing for a dated
+    // bond with no face value (2026-10-24, tenet 3); $0 once matured, so the rows add up to COUPON /year (outside review OpenAI final,
+    // 2026-10-09, DEC-2748d, tenet 2)
     couponPerYear: yearlyInterestNow(b, now),
     maturity: b.maturity,
     yearsLeft: yearsToMaturity(b.maturity, now),
@@ -290,17 +296,17 @@ export function holdingBondFacts(p: { position_id?: string | number; ticker?: st
  *
  * Called by ... MK-NW-F-077 ALL · MK-NW-F-078 ONE
  *
- * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 287 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... MK-NW-M-023 · MK-NW-M-024 · MK-NW-M-025 · MK-NW-M-026
  *               MK-NW-M-027 · MK-NW-M-041 · MK-NW-M-042 · MK-NW-M-043
@@ -393,7 +399,10 @@ export function theBonds(input: BondsInput): Bonds {
       }
       return out;
     })(),
-    leftOutNoRate: held.filter((a) => { const b = bondInfo(a); return b.value > 0 && yearlyInterest(b) == null; }).map((a) => a.label),
+    // by WHY the year's interest is not known (2026-10-24): no rate entered, or a rate and no face value on a bond — two
+    // reasons, two lines; each bond the average leaves out for its interest is in exactly one
+    leftOutNoRate: held.filter((a) => { const b = bondInfo(a); return b.value > 0 && b.couponRate == null; }).map((a) => a.label),
+    leftOutNoFace: held.filter((a) => { const b = bondInfo(a); return b.value > 0 && b.couponRate != null && yearlyInterest(b) == null; }).map((a) => a.label),
     faceNotEntered: held.filter((a) => bondInfo(a).face == null).map((a) => a.label),
     valueNotEntered: rows.filter((r) => r.value == null).map((r) => r.label),
     nextMaturity: (sum as any).nextMaturity ?? null,
@@ -453,21 +462,22 @@ const ALL = () => theBonds({ accounts: EXAMPLE, today: TODAY });
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
- * Called by ... MK-CF-F-005 actualMonthFlow · MK-NW-F-127 gainOfRow
+ * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-019 upcomingBills
+ *               MK-CF-F-186 convertTakeHomeMode · MK-NW-F-127 gainOfRow
  *               MK-NW-F-179 balanceWithBondTakenOut · MK-NW-O-003 theNetWorth
  *               MK-PF-F-044 startValues
  *
- * Reaches ..... 305 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
  *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
  *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
- *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
- *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               MK-CF-O-014 M · MK-CF-F-203 MONTH
- *               … and 287 more — the full list is on functions_from_code
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -559,13 +569,17 @@ export const BOND_FIGURES = declareFigures({
   'MK-NW-M-056': {
     label: 'coupon', unit: 'money', per: 'year', screens: ['/bonds'], grain: 'one bond',
     answers: 'What this one bond pays in a year, in cash.',
-    formula: 'its face value \u00d7 its coupon rate',
-    inputs: ['MK-XS-I-001 account balance'],
+    formula: 'its face value \u00d7 its coupon rate; a CD bought from the bank or a bond fund (no maturity date) with no face value entered, its value \u00d7 its coupon rate; a bond with a maturity date and no face value entered, nothing',
+    inputs: ['MK-XS-I-001 account balance', 'MK-XS-I-011 bond face value', 'MK-XS-I-012 bond coupon rate'],
     decisions: [
       'IT IS PAID ON FACE, NOT ON VALUE. A $25,000 bond worth $24,200 still pays 4.5% of $25,000 \u2014 '
       + 'computing it on the market value understates the income.',
+      // 2026-10-24 (the lead, under DEC-3523 tenet 3): the no-face half of DEC-2748c is kept for a bank CD only
+      'NO FACE VALUE ON A BOND, NO FIGURE (2026-10-24, tenet 3). A bond, or a CD bought through a broker, with its face left '
+      + 'blank reads \u201cface value not entered\u201d: its $25,000-face Treasury at 4.5% worth $24,200 read $1,089 (4.5% of the '
+      + 'value) where it pays $1,125. A CD bought from the bank, or a bond fund, with no face pays its rate on its balance (DEC-2748c, DEC-3837).',
     ],
-    refusal: 'No coupon rate entered \u2014 the figure is left out rather than shown as $0.',
+    refusal: 'No coupon rate entered \u2014 \u201ccoupon not entered\u201d; no face value on a bond \u2014 \u201cface value not entered\u201d. Neither is shown as $0.',
     ruled: '2026-10-01',
     worked: { given: GIVEN, answer: '$505/year', run: () => ALL().rows.find((r) => r.label === 'Ally 12-month CD')!.couponPerYear },
   },
@@ -578,7 +592,7 @@ export const BOND_FIGURES = declareFigures({
       'WHERE ACCRUED INTEREST WAS NOT ENTERED the row says so beneath the figures rather than quietly '
       + 'leaving it in the price (his ruling, DEC-0280).',
     ],
-    refusal: '\u2014 when there is no coupon rate or no value to divide by.',
+    refusal: '\u2014 when there is no coupon rate, no face value on a bond, or no value to divide by.',
     ruled: '2026-10-01',
     worked: { given: GIVEN, answer: '5.05%', run: () => ALL().rows.find((r) => r.label === 'Ally 12-month CD')!.currentYield },
   },
@@ -588,7 +602,7 @@ export const BOND_FIGURES = declareFigures({
       + 'what it is worth now and what it pays back.',
     // the solved yield since 2026-10-07; how often the bond pays since 2026-10-20 (DEC-3390). The words read the old
     // approximation until 2026-10-20, a disagreement between this row and the code.
-    formula: 'the yield at which the coupons still to come and the face value, discounted, equal the full price: the value today plus the interest built up since the last coupon — as entered, else estimated as face × rate ÷ payments a year × days since the last payment ÷ days between payments, the payments stepping back from the maturity date (once a year when how often it pays was not entered)',
+    formula: 'the yield at which the coupons still to come and the face value, discounted, equal the full price: the value today plus the interest built up since the last coupon — as entered, else estimated as face × rate ÷ payments a year × days since the last payment ÷ days between payments, the payments stepping back from the maturity date (once a year when how often it pays was not entered); a bond paying twice a year pays half its yearly coupon every six months and its yield is compounded twice a year, as a Treasury quotes it',
     inputs: ['MK-XS-I-001 account balance', 'MK-XS-I-011 bond face value', 'MK-XS-I-012 bond coupon rate', 'MK-XS-I-013 bond maturity date',
       'MK-XS-I-065 accrued interest', 'MK-XS-I-069 how many times a year it pays'],
     decisions: ['AN ESTIMATE, and the foot of the screen says so in those words.',
@@ -597,7 +611,7 @@ export const BOND_FIGURES = declareFigures({
       'DEC-3837, 2026-10-10: a CD bought from the bank yields its interest rate; a CD bought through a broker '
       + 'is priced like a bond, its yield solved from its face value, rate, value and maturity date. '
       + 'A CD whose answer was never given is read as bought from the bank.'],
-    refusal: '\u2014 with no maturity date there are no years to spread the difference over.',
+    refusal: '\u2014 not shown without a maturity date, a face value and a rate (a CD bought from the bank needs only its rate).',
     ruled: '2026-10-01',
     worked: { given: GIVEN, answer: '5.05%', run: () => ALL().rows.find((r) => r.label === 'Ally 12-month CD')!.yieldToMaturity },
   },
@@ -632,7 +646,7 @@ export const BOND_FIGURES = declareFigures({
     label: 'COUPON', unit: 'money', per: 'year', screens: ['/bonds'],
     answers: 'The interest all your bonds pay in a year, in money.',
     // a bond past its maturity date pays no more interest (outside review OpenAI final, 2026-10-09, DEC-2748d)
-    formula: 'for each bond: face value × coupon rate, and $0 once past its maturity date; then added up',
+    formula: 'for each bond: face value × coupon rate (a CD bought from the bank or a bond fund with no face value: its value × coupon rate; a bond with a maturity date and no face value: nothing, and the average yield names it), and $0 once past its maturity date; then added up',
     inputs: ['MK-NW-I-001 your accounts'],
     refusal: 'Nothing entered yet.',
     ruled: '2026-09-27',
@@ -684,9 +698,16 @@ export const BOND_FIGURES = declareFigures({
   'MK-NW-M-024': {
     label: 'Interest payments', unit: 'words', screens: ['/account-detail'], grain: 'one bond',
     answers: 'The rate it pays, and what that comes to in a year.',
-    formula: 'coupon rate, and face value × coupon rate',
+    formula: 'coupon rate, and face value × coupon rate; a CD bought from the bank or a bond fund with no face value, its value × coupon rate; a bond with a maturity date and no face value, none',
     inputs: ['MK-NW-I-001 your accounts'],
-    refusal: 'No coupon rate entered.',
+    decisions: [
+      'A46 (owner, 2026-08-26): no coupon rate \u2014 \u201cnot entered · $0/year \u2014 coupon rate not entered\u201d, and no yields.',
+      'NO FACE VALUE ON A BOND (2026-10-24, the lead under DEC-3523 tenet 3, which outranks tenet 6): the rate, and \u201cface '
+      + 'value not entered\u201d where the year\u2019s interest stands \u2014 a bond pays its coupon on its face, so the rate on the '
+      + 'market value is a guess ($1,089 for a $25,000-face 4.5% Treasury worth $24,200, which pays $1,125). A CD bought from '
+      + 'the bank, or a bond fund, with no face value pays its rate on its balance (DEC-2748c, DEC-3837).',
+    ],
+    refusal: 'No coupon rate entered: not entered · $0/year \u2014 coupon rate not entered. No face value on a bond: the rate · face value not entered.',
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,
@@ -711,11 +732,16 @@ export const BOND_FIGURES = declareFigures({
     label: 'Yield if held to maturity', unit: 'percent-2dp', screens: ['/account-detail'], grain: 'one bond',
     answers: 'What it earns a year if you hold it to the end, counting the gap between its price and its face value.',
     // the solved yield since 2026-10-07; the words read the old approximation until 2026-10-20 (row and code disagreed)
-    formula: 'the yield at which the coupons still to come and the face value, discounted, equal the full price: the value today plus the interest built up since the last coupon — as entered, else estimated as face × rate ÷ payments a year × days since the last payment ÷ days between payments, the payments stepping back from the maturity date (once a year when how often it pays was not entered)',
+    formula: 'the yield at which the coupons still to come and the face value, discounted, equal the full price: the value today plus the interest built up since the last coupon — as entered, else estimated as face × rate ÷ payments a year × days since the last payment ÷ days between payments, the payments stepping back from the maturity date (once a year when how often it pays was not entered); a bond paying twice a year pays half its yearly coupon every six months and its yield is compounded twice a year, as a Treasury quotes it',
     inputs: ['MK-NW-I-001 your accounts', 'MK-XS-I-065 accrued interest', 'MK-XS-I-069 how many times a year it pays'],
     decisions: ['An estimate, and labelled an estimate on screen.',
       'DEC-3390, 2026-10-09: the interest built up since the last coupon is added to the value. Since 2026-10-20 the '
-      + 'estimate counts from the last payment by how often the bond pays; not entered, once a year.'],
+      + 'estimate counts from the last payment by how often the bond pays; not entered, once a year.',
+      'DEC-3837, 2026-10-10: a CD bought from the bank yields its interest rate; a CD bought through a broker is priced like '
+      + 'a bond, its yield solved from its face value, rate, value and maturity date.',
+      'TWICE A YEAR (2026-10-24, under DEC-3390 and DEC-6625): a bond entered as paying twice a year is priced on a half '
+      + 'coupon every six months, its yield compounded twice a year. It was priced on one whole coupon a year, so the '
+      + '$25,000 4.5% Treasury worth $24,200 read 6.56% twice a year where 5.67% is right; once a year it reads 5.69%.'],
     refusal: 'Matured, or no maturity date — it refuses rather than divide by nothing.',
     ruled: '2026-09-27',
     worked: {

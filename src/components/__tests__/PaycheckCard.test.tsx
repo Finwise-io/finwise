@@ -39,7 +39,7 @@ describe('PaycheckCard', () => {
 
   it('draw explainer is the ONE glossary InfoDot (pre-48 audit U4 — no bespoke modal)', () => {
     render(<PaycheckCard />);
-    fireEvent.press(screen.getByLabelText('What is Draw from savings?'));
+    fireEvent.press(screen.getByLabelText('About Draw from savings'));
     expect(screen.getByText(/steady monthly amount the math says your savings can support/)).toBeOnTheScreen();
   });
 

@@ -207,17 +207,21 @@ describe('source_checks — the published 2026 figures, read from the publicatio
   // table 2 prints "Over $105,700 but not over $201,750 … Over $201,750 but not over $256,200 … $39,207 plus 32% of the excess
   // over $201,750". DEC-0378: every figure set by law is typed in from the published source. statutory_constants.test.ts
   // types the single and joint bands only, so nothing checked these two.
-  test.failing('head of household: the bands are $17,700 · $67,450 · $105,700 · $201,750 · $256,200 · $640,600', () => {
+  // FIXED 2026-10-23 (DEC-0378, read again from the IRS text of Rev. Proc. 2025-32 §4.01 table 2 the same day): the
+  // head-of-household table ends 24% at $201,750 and 32% at $256,200; statutory_constants.test.ts now types all four tables.
+  // The app's answer until then is kept, failing.
+  test('head of household: the bands are $17,700 · $67,450 · $105,700 · $201,750 · $256,200 · $640,600 — FIXED 2026-10-23 (Rev. Proc. 2025-32 §4.01 table 2)', () => {
     expect(tops('hoh')).toEqual([17_700, 67_450, 105_700, 201_750, 256_200, 640_600]);
   });
-  test.failing('head of household witnesses: $201,775 → $39,215.00 · $256,225 → $56,639.75 · $300,000 → $71,961.00', () => {
+  test('head of household witnesses: $201,775 → $39,215.00 · $256,225 → $56,639.75 · $300,000 → $71,961.00 — FIXED 2026-10-23 (Rev. Proc. 2025-32 §4.01 table 2)', () => {
     expect([taxOnTaxable(201_775, 'hoh'), taxOnTaxable(256_225, 'hoh'), taxOnTaxable(300_000, 'hoh')].map((x) => Math.round(x * 100) / 100))
       .toEqual([39_215, 56_639.75, 71_961]);
   });
-  test.failing('head of household: taxable $201,760 sits in the 32% band', () => {
+  test('head of household: taxable $201,760 sits in the 32% band — FIXED 2026-10-23 (Rev. Proc. 2025-32 §4.01 table 2)', () => {
     expect(marginalBracketFor(201_760 + TAX_TABLES.hoh.deduction, 'hoh')).toBe(0.32);
   });
-  test('head of household: OpenAI\'s "formula_gives" is what the app gives today — $39,213.00 · $56,637.00 · $71,958.25', () => {
+  // the app until 2026-10-23, kept as it was pinned; it no longer gives it (test.failing: this body now fails)
+  test.failing('head of household: OpenAI\'s "formula_gives" was what the app gave — $39,213.00 · $56,637.00 · $71,958.25 — no longer its answer (FIXED 2026-10-23)', () => {
     expect(taxOnTaxable(201_775, 'hoh')).toBeCloseTo(39_213, 6);
     expect(taxOnTaxable(256_225, 'hoh')).toBeCloseTo(56_637, 6);
     expect(taxOnTaxable(300_000, 'hoh')).toBeCloseTo(71_958.25, 6);
@@ -268,13 +272,20 @@ describe('source_checks — the published 2026 figures, read from the publicatio
   // return" — clause (i) is $6,000 FOR EACH qualified individual, so each person's $6,000 is reduced: at $200,000 each keeps
   // $3,000, $6,000 in all, and the deduction is gone at $250,000. The app takes 6% once off the couple's $12,000:
   // $9,000 at $200,000, gone only at $350,000. DEC-0240 (add the senior deduction) and DEC-0378 (typed from the published source).
-  test.failing('married filing jointly, both 65+: $200,000 → $6,000 · $250,000 → $0 · $260,000 → $0', () => {
+  // FIXED 2026-10-23 (DEC-0240, DEC-0378): each person's $6,000 is reduced. Source read the same day: the statute above
+  // (law.cornell.edu/uscode/text/26/151) and IRS Schedule 1-A (Form 1040) 2025, Part V — line 35 "Subtract line 34 from
+  // $6,000. If zero or less, enter -0-", entered for you (36a) and your spouse (36b), line 37 adds them
+  // (irs.gov/pub/irs-pdf/f1040s1a.pdf). The register (SENIOR_DEDUCTION) and the code cite both. The app's answer until then
+  // is kept, failing.
+  test('married filing jointly, both 65+: $200,000 → $6,000 · $250,000 → $0 · $260,000 → $0 — FIXED 2026-10-23 (IRC §151(d)(5)(C)(iii)(I); Schedule 1-A lines 35–37)', () => {
     expect([seniorDeductionFor('married', 2, 200_000), seniorDeductionFor('married', 2, 250_000), seniorDeductionFor('married', 2, 260_000)]).toEqual([6_000, 0, 0]);
   });
-  test.failing('what it does to the tax: $200,000 joint, both 65+ — taxable $158,500, federal tax $24,294 (the app: $155,500, $23,634)', () => {
+  test('what it does to the tax: $200,000 joint, both 65+ — taxable $158,500, federal tax $24,294 — FIXED 2026-10-23 (IRC §151(d)(5)(C)(iii)(I); Schedule 1-A lines 35–37)', () => {
     expect(taxOwedFor(200_000, 'married', 0, 2)).toBeCloseTo(24_294, 6);
+    expect(reg('SENIOR_DEDUCTION').publication).toMatch(/151\(d\)\(5\)\(C\).*Schedule 1-A/);
   });
-  test('the app today, pinned: $9,000 · $6,000 · $5,400, and $23,634 of tax', () => {
+  // the app until 2026-10-23, kept as it was pinned; it no longer gives it (test.failing: this body now fails)
+  test.failing('the app until 2026-10-23, pinned: $9,000 · $6,000 · $5,400, and $23,634 of tax — no longer its answer (FIXED 2026-10-23)', () => {
     expect([seniorDeductionFor('married', 2, 200_000), seniorDeductionFor('married', 2, 250_000), seniorDeductionFor('married', 2, 260_000)]).toEqual([9_000, 6_000, 5_400]);
     expect(taxOwedFor(200_000, 'married', 0, 2)).toBeCloseTo(23_634, 6);
   });
