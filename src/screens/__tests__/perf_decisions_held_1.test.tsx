@@ -61,9 +61,16 @@ const pos = (id: string, ticker: string, shares: number, price: number, cost: nu
 
 const PHONE: Record<number, () => void> = {
   // phone 1 — two linked accounts, a record that begins eleven months ago, $15,000 added
+  // ONE HOUSEHOLD THAT AGREES WITH ITSELF (2026-10-25, the D17 class). The $15,000 paid in went into VTI's value with no share
+  // bought, and the prices ($260 → $330 on 300 VTI, +$21,000) said what the record's own values ($78,000 → $84,000) did not. The
+  // record's accounts are what v17 phone 1 draws, so they are the true ones: Vanguard $80,000 → $101,000 with $15,000 paid in,
+  // dividends $1,500, interest $200, change in investment value $4,300; E*TRADE $20,000 → $22,000. Every flow now moves the cash
+  // (+$15,000 ten months ago, +$1,700 and +$500 of dividends and interest three months ago) and each holding moves only by its
+  // price: VTI 200 × $390.00 = $78,000 → 200 × $411.50 = $82,300; VOO 40 × $427.50 = $17,100 → 40 × $465.00 = $18,600, the
+  // figure-exact household's own shares and prices (perf_mock_match_2026_10_12, phone 1). Stocks / Funds +6.10%, as drawn.
   1: () => useStore.setState({
-    assetAccounts: [acct('van', 'Vanguard', 'BROKERAGE', 101_000, 'connected', [pos('p1', 'VTI', 300, 330, 260, monthsAgo(11))], 2_000),
-                    acct('etr', 'E*TRADE', 'ACCOUNT 1', 22_000, 'connected', [pos('p2', 'VOO', 40, 550, 500, monthsAgo(11))], 0)],
+    assetAccounts: [acct('van', 'Vanguard', 'BROKERAGE', 101_000, 'connected', [pos('p1', 'VTI', 200, 411.5, 390, monthsAgo(11))], 18_700),
+                    acct('etr', 'E*TRADE', 'ACCOUNT 1', 22_000, 'connected', [pos('p2', 'VOO', 40, 465, 427.5, monthsAgo(11))], 3_400)],
     transactions: [
       { id: 'd1', date: monthsAgo(10), type: 'DEPOSIT', account_id: 'van', amount: 15_000, created_at: 'x', source: 'connected' },
       { id: 'v1', date: monthsAgo(3), type: 'DIVIDEND', account_id: 'van', ticker: 'VTI', amount: 1_500, created_at: 'x', source: 'connected' },
@@ -71,25 +78,51 @@ const PHONE: Record<number, () => void> = {
       { id: 'v2', date: monthsAgo(3), type: 'DIVIDEND', account_id: 'etr', ticker: 'VOO', amount: 300, created_at: 'x', source: 'connected' },
       { id: 'i2', date: monthsAgo(3), type: 'INTEREST', account_id: 'etr', amount: 200, created_at: 'x', source: 'connected' },
     ],
-    snapshotDays: paidIn(daily(monthsAgo(11), [['van', 'VTI', 300, 78_000, 84_000], ['van', 'CASH', 1, 2_000, 2_000], ['etr', 'VOO', 40, 20_000, 22_000]]), 'van', 'VTI', monthsAgo(10), 15_000),
+    snapshotDays: paidIn(paidIn(paidIn(daily(monthsAgo(11), [['van', 'VTI', 200, 78_000, 82_300], ['van', 'CASH', 1, 2_000, 2_000], ['etr', 'VOO', 40, 17_100, 18_600], ['etr', 'CASH', 1, 2_900, 2_900]]),
+      'van', 'CASH', monthsAgo(10), 15_000), 'van', 'CASH', monthsAgo(3), 1_500 + 200), 'etr', 'CASH', monthsAgo(3), 300 + 200),
     invDaily: { [monthsAgo(11)]: 100_000, [TODAY]: 123_000 },
-    priceCache: { VTI: series('VTI', 260, 330, monthsAgo(11)), VOO: series('VOO', 500, 550, monthsAgo(11)) }, pricesFetchedAt: new Date().toISOString(),
+    priceCache: { VTI: series('VTI', 390, 411.5, monthsAgo(11)), VOO: series('VOO', 427.5, 465, monthsAgo(11)) }, pricesFetchedAt: new Date().toISOString(),
   } as any),
   // phone 3 — one linked account, 26 months of rebuilt record: every window answers
-  3: () => useStore.setState({
-    assetAccounts: [acct('etr', 'E*TRADE', 'ACCOUNT 1', 52_704, 'connected', [pos('p1', 'VTI', 100, 400, 260, monthsAgo(26)), pos('p2', 'US TREASURY 4.25%', 7000, 1, 1, monthsAgo(26), 'bond')], 5_704)],
+  3: () => {
+    // ONE HOUSEHOLD THAT AGREES WITH ITSELF (2026-10-25, the D17 class). It paid in $900 and took out $120 where phone 3 draws
+    // $9,000 and $1,200; its cash drifted $5,000 → $4,924 for no reason; and its $1,180 of dividends and $520 of interest landed
+    // nowhere. The record phone 3 draws is the true one: $38,000 → $52,704, $9,000 paid in, $1,200 taken out, dividends $1,180,
+    // interest $300 + $220, change in investment value $5,204, Stocks / Funds +14.20%. So every flow moves the cash, VTI moves
+    // only by its price, the Treasury is $3,000 with no price history, and the prices agree with the record on every day both
+    // hold one (the record's first day, the day of the purchase, today). Worked by hand:
+    //   VTI $366.48 a share until the purchase, then in a straight line to $418.52 (418.52 ÷ 366.48 − 1 = +14.20%); 80 held,
+    //   20 bought with the $9,000 the day it came in, at $366.48 ($7,329.60), so 100 today;
+    //   the cash: $5,681.60 + $9,000 − $7,329.60 − $1,200 + $1,180 + $300 + $220 = $7,852;
+    //   the beginning 80 × 366.48 + 3,000 + 5,681.60 = $38,000; today 100 × 418.52 + 3,000 + 7,852 = $52,704;
+    //   change in investment value 41,852 − 29,318.40 − 7,329.60 = $5,204 (the Treasury does not move).
+    const S = monthsAgo(26), D = monthsAgo(20), P0 = 366.48, PT = 418.52, Q = 20 * P0;
+    const a = new Date(`${D}T12:00:00`).getTime(), b = new Date(`${TODAY}T12:00:00`).getTime();
+    const price = (d: string) => (d <= D ? P0 : P0 + (PT - P0) * ((new Date(`${d}T12:00:00`).getTime() - a) / (b - a)));
+    const cash = (d: string) => 5_681.6 + (d >= D ? 9_000 - Q : 0) - (d >= monthsAgo(14) ? 1_200 : 0) + (d >= monthsAgo(10) ? 1_180 : 0)
+      + (d >= monthsAgo(8) ? 300 : 0) + (d >= monthsAgo(6) ? 220 : 0);
+    const days: any[] = [];
+    for (let t = new Date(`${S}T12:00:00`).getTime(); t <= b + 1; t += 86_400_000) {
+      const date = isoLocalDate(new Date(t)); const units = date >= D ? 100 : 80;
+      days.push(day(date, [['etr', 'VTI', units, units * price(date)], ['etr', 'US TREASURY 4.25%', 3000, 3_000], ['etr', 'CASH', 1, cash(date)]]));
+    }
+    const vti = { position_id: 'p1', ticker: 'VTI', asset_class: 'stock_etf', last_price: PT,
+      lots: [{ lot_id: 'p1a', shares: 80, cost_per_share: 260, purchase_date: S }, { lot_id: 'p1b', shares: 20, cost_per_share: P0, purchase_date: D }] };
+    return useStore.setState({
+    assetAccounts: [acct('etr', 'E*TRADE', 'ACCOUNT 1', 52_704, 'connected', [vti, pos('p2', 'US TREASURY 4.25%', 3000, 1, 1, S, 'bond')], cash(TODAY))],
     transactions: [
-      { id: 'd1', date: monthsAgo(20), type: 'DEPOSIT', account_id: 'etr', amount: 900, created_at: 'x', source: 'connected' },
-      { id: 'w1', date: monthsAgo(14), type: 'WITHDRAWAL', account_id: 'etr', amount: 120, created_at: 'x', source: 'connected' },
+      { id: 'd1', date: D, type: 'DEPOSIT', account_id: 'etr', amount: 9_000, created_at: 'x', source: 'connected' },
+      { id: 't1', date: D, type: 'BUY', account_id: 'etr', ticker: 'VTI', shares: 20, price: P0, amount: Q, created_at: 'x', source: 'connected' },
+      { id: 'w1', date: monthsAgo(14), type: 'WITHDRAWAL', account_id: 'etr', amount: 1_200, created_at: 'x', source: 'connected' },
       { id: 'v1', date: monthsAgo(10), type: 'DIVIDEND', account_id: 'etr', ticker: 'VTI', amount: 1_180, created_at: 'x', source: 'connected' },
       { id: 'b1', date: monthsAgo(8), type: 'INTEREST', account_id: 'etr', ticker: 'US TREASURY 4.25%', amount: 300, created_at: 'x', source: 'connected' },
       { id: 'i1', date: monthsAgo(6), type: 'INTEREST', account_id: 'etr', amount: 220, created_at: 'x', source: 'connected' },
     ],
-    snapshotDays: paidIn(paidIn(daily(monthsAgo(26), [['etr', 'VTI', 100, 26_000, 40_000], ['etr', 'US TREASURY 4.25%', 7000, 7_000, 7_000], ['etr', 'CASH', 1, 5_000, 4_924]]),
-      'etr', 'CASH', monthsAgo(20), 900), 'etr', 'CASH', monthsAgo(14), -120),
-    invDaily: { [monthsAgo(26)]: 38_000, [TODAY]: 52_704 }, rebuiltFrom: { etr: monthsAgo(26) },
-    priceCache: { VTI: series('VTI', 260, 400, monthsAgo(26)) }, pricesFetchedAt: new Date().toISOString(),
-  } as any),
+    snapshotDays: days,
+    invDaily: { [S]: 38_000, [TODAY]: 52_704 }, rebuiltFrom: { etr: S },
+    priceCache: { VTI: { ticker: 'VTI', points: [{ date: S, close: P0 }, { date: D, close: P0 }, { date: TODAY, close: PT }] } }, pricesFetchedAt: new Date().toISOString(),
+  } as any);
+  },
   // phone 4 — day one, two accounts entered by hand, nothing recorded before today
   4: () => {
     const accounts = [acct('van', 'Vanguard', 'BROKERAGE', 301_610, undefined, [pos('p1', 'VTI', 900, 330, 300, TODAY), pos('p3', 'KEYBANK CD 4.00%', 4610, 1, 1, TODAY, 'bond')], 0),
@@ -163,7 +196,15 @@ test('DEC-0013 — with balances hidden, no dollar amount is readable anywhere o
   expect(all.length).toBeGreaterThan(60);
   expect(all.filter((l) => /\$\d/.test(l))).toEqual([]);
   expect(all.filter((l) => l.includes('••••')).length).toBeGreaterThanOrEqual(20);
-  expect(all).toContain('+7.05%');                                 // the Return is a percent, not a balance
+  // the Return is a percent, not a balance — worked by hand from the household's own days (it read +7.05% while the $15,000
+  // sat in VTI's value): every account together grows in a straight line, $100,000 → $123,000 less the money paid in, so the
+  // evening before the $15,000 it stood at 100,000 + 5,800 × f (f = that day's share of the record), and the time-weighted
+  // return is (100,000 + 5,800 f) ÷ 100,000 × 123,000 ÷ (100,000 + 5,800 f + 15,000) − 1 (the dividends and interest are
+  // inside the accounts, not money paid in)
+  const dayNo = (d: string) => Math.round((new Date(`${d}T12:00:00`).getTime() - new Date(`${monthsAgo(11)}T12:00:00`).getTime()) / 86_400_000);
+  const f = (dayNo(monthsAgo(10)) - 1) / dayNo(TODAY), v = 100_000 + 5_800 * f;
+  const twr = (v / 100_000) * (123_000 / (v + 15_000)) - 1;
+  expect(all).toContain(`+${(twr * 100).toFixed(2)}%`);
 });
 
 // ── DEC-0014 ─────────────────────────────────────────────────────────────────────────────────────────
@@ -195,7 +236,7 @@ test('DEC-0057 — a broker that shared 3 months: 1Y names the shortfall in one 
     invDaily: {}, priceCache: { VTI: series('VTI', 300, 400, monthsAgo(14)) }, pricesFetchedAt: new Date().toISOString(),
   } as any);
   open(5, setUp);
-  const SAID = /^E\*TRADE shared 3 months of history \(from [A-Z][a-z]{2} \d{1,2}, \d{4}\) — figures before that aren't counted\.$/;
+  const SAID = /^E\*TRADE shared 3 months of history \(from [A-Z][a-z]{2} \d{1,2}, \d{4}\) — figures before that aren’t counted\.$/;
   pick('1M');
   expect(lines().filter((l) => SAID.test(l))).toEqual([]);
   pick('1Y');
@@ -238,12 +279,21 @@ test('DEC-0064 — a fresh account (phone 5): every window is a dash, never 0.00
   expect(bar().map((x) => x[1])).toEqual(['—', '—', '—', '—', '—']);
   expect(lines().filter((l) => /^[+−-]?0\.00%$/.test(l))).toEqual([]);
 });
-test('DEC-0064 — after day one, a window in which nothing was received draws no category table (phone 1 with no dividend or interest records)', () => {
+// DEC-0064's third part — the table "does not appear at all when nothing was received" — is the lead's build note of 2026-08-04,
+// recorded under his words "income below individual asset", which say nothing of it. REPLACED 2026-10-25 (MM-PF D3, the lead's
+// ruling): Performance v17, approved in full (DEC-0647) and newer, draws the table on every phone, at $0 where nothing came in,
+// under "the structure never changes"; his EMPTY-STATE RULE of 2026-08-04 keeps the full layout with $0 values. The decision
+// log's row is listed for the lead to mark. To reverse: filter categoryEarnings on earned only, and draw nothing when it is empty.
+test('DEC-0064 (third part replaced, 2026-10-25) — after day one, a window in which nothing was received still draws the category table, each category held at $0 (phone 1 with no dividend or interest records)', () => {
   open(1, () => useStore.setState({ transactions: (useStore.getState() as any).transactions.filter((t: any) => t.type === 'DEPOSIT') } as any));
   const all = lines();
   expect(all).toContain('Ending value');                           // the screen rendered
-  expect(all).not.toContain('WHAT EACH CATEGORY EARNED');
-  // (on day one Performance v17 draws the table at $0 in every row — phones 4 and 5, approved in full, DEC-0647)
+  const at = all.indexOf('WHAT EACH CATEGORY EARNED');
+  expect(at).toBeGreaterThan(0);
+  // the two categories phone 1's accounts hold — VTI and VOO, and the cash in Vanguard — at $0 received, then the total
+  const body = all.slice(at, all.indexOf('All categories') + 2);
+  expect(body.filter((l) => l === 'Stocks / Funds' || l.startsWith('Cash in this account'))).toHaveLength(2);
+  expect(body.slice(-2)).toEqual(['All categories', '$0']);
 });
 
 // ── DEC-0082 ─────────────────────────────────────────────────────────────────────────────────────────
@@ -251,7 +301,7 @@ test('DEC-0064 — after day one, a window in which nothing was received draws n
 test('DEC-0082 — an account the last sync could not reach is named on the Performance tab as unreachable (phone 1)', () => {
   open(1, () => useStore.setState({ syncFailures: [{ accountId: 'etr', at: new Date().toISOString(), reason: 'login expired' }] } as any));
   const all = lines();
-  expect(all.filter((l) => /^We couldn't reach E\*TRADE/.test(l))).toHaveLength(1);
+  expect(all.filter((l) => /^We couldn’t reach E\*TRADE/.test(l))).toHaveLength(1);
 });
 
 // ── DEC-0216 ─────────────────────────────────────────────────────────────────────────────────────────
@@ -392,7 +442,9 @@ test('DEC-0237 · DEC-0404 — 2Y worked back from price history (phone 1): the 
 test('DEC-0237 · DEC-0404 — 2Y on an account row (phone 1): the account\'s yearly rate says so, with its own total (was BREACHED; fixed 2026-10-22)', () => {
   open(1);
   pick('2Y');
-  const rows = lines().filter((l) => l.startsWith('🔗 Linked · wealth generated'));
+  // the closed line is the source label, then what the account made and its return (2026-10-25, MM-PF D4: the label as on an open account)
+  const all = lines();
+  const rows = all.filter((l, i) => l.startsWith('· wealth generated') && all[i - 1] === '🔗 Linked');
   expect(rows.length).toBeGreaterThanOrEqual(1);   // a guard that proves it looked: the closed account rows
   for (const row of rows) expect(row).toMatch(/ · return [+−-]\d+\.\d{2}% over the two years, which is [+−-]\d+\.\d{2}%\/year$/);
 });
@@ -419,9 +471,9 @@ test('DEC-0323 — no window, in his shape or a fresh account, shows the words "
 test('DEC-0421 — tapping an account\'s name on the Performance tab opens that account\'s own page, on the window picked (phone 1)', () => {
   open(1);
   pick('1Y');
-  fireEvent.press(screen.getAllByLabelText('Open E*TRADE Brokerage — this account\'s own page')[0]);
+  fireEvent.press(screen.getAllByLabelText('Open E*TRADE Brokerage — this account’s own page')[0]);
   expect(mockPush).toHaveBeenCalledWith('/account-detail?id=etr&period=1Y');
-  expect(lines()).toContain('Tap ▾ to collapse · tap the name to open this account\'s portfolio ›');
+  expect(lines()).toContain('Tap ▾ to collapse · tap the name to open this account’s portfolio ›');
 });
 
 // ── DEC-0465 ─────────────────────────────────────────────────────────────────────────────────────────

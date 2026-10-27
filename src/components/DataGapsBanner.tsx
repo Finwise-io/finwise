@@ -28,9 +28,9 @@ async function syncNow(): Promise<string> {
     const n = await runSnapTradeSync({ force: true });
     return n > 0
       ? `Updated ${plural(n, 'account')}. Anything still listed below needs linking again — use Link again.`
-      : "Nothing could be refreshed — your broker didn't answer. That usually means the link has expired: use Link again below.";
+      : "Nothing could be refreshed — your broker didn’t answer. That usually means the link has expired: use Link again below.";
   } catch {
-    return "We couldn't reach it just now — use Link again below to sign in again.";
+    return "We couldn’t reach it just now — use Link again below to sign in again.";
   }
 }
 
@@ -163,8 +163,11 @@ export function DataGapsBanner({ gaps, onPage }: { gaps: DataGap[]; onPage?: OnP
 }
 
 const s = StyleSheet.create({
-  banner: { backgroundColor: Colors.amberLight, borderWidth: 1, borderColor: Colors.amber, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
-  head: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary },
+  // THE ONE AMBER BOX, AS THE NEWEST APPROVED DRAWING DRAWS IT (account page v01 .warnb, approved 2026-10-19, DEC-6457; the READ THIS
+  // FIRST rows of 2026-10-25 on that drawing and on Net worth v08): 12-point corners, 10 inside above and below and 12 at the sides,
+  // the headline at 700 (a <b>). It was 16 round, 12 inside and 800 — Net worth v08's, the older approval (DEC-0644; DEC-0808).
+  banner: { backgroundColor: Colors.amberLight, borderWidth: 1, borderColor: Colors.amber, borderRadius: Radii.md, paddingVertical: 10, paddingHorizontal: Spacing.md, marginBottom: Spacing.sm },
+  head: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
   line: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   lineRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 6 },
   lineText: { flex: 1 },
@@ -176,7 +179,8 @@ const s = StyleSheet.create({
   pageDoor: { minHeight: 36, borderRadius: Radii.md, paddingHorizontal: 14, justifyContent: 'center' },
   pageDoorFill: { backgroundColor: Colors.primaryDeep },
   pageDoorLine: { backgroundColor: Colors.white, borderWidth: 1.5, borderColor: Colors.primaryDeep },
-  // 13, every door's size: the drawing's small door writes 12, which is not on the app's one type scale (SectionBand.test)
+  // 13, every door's size: the drawing's small door writes 12, which is not on the app's one type scale (SectionBand.test; the screen
+  // standard's 11 · 13 · 15 · 17 · 20 · 24 · 30 · 38) — the account page drawing's row of 2026-10-25 says so
   pageDoorTxt: { fontSize: 13, fontWeight: '800' },
   pageDoorTxtFill: { color: Colors.white },
   pageDoorTxtLine: { color: Colors.primaryDeep },

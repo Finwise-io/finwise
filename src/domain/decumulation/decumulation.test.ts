@@ -70,7 +70,8 @@ describe('rmdSchedule grows by the shared step (walk row 9)', () => {
   test('year-over-year balances follow growOneYear exactly (no schedule-only clamp)', () => {
     const rows = rmdSchedule(500000, 75, 0.15, 3);   // 15% would have hit the old 12% clamp
     const afterY1 = growOneYear(500000 - rmdAtAge(500000, 75), 0.15);
-    expect(rows[1].projectedPreTax).toBe(Math.round(afterY1));
+    // the balance kept whole since 2026-10-26 (Q49; it was rounded to the dollar inside rmdSchedule): the growth step itself
+    expect(rows[1].projectedPreTax).toBeCloseTo(afterY1, 9);
   });
   test('the closed-form compounding used by projections = the step iterated', () => {
     let bal = 1000;

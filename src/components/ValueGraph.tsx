@@ -91,12 +91,17 @@ export function ValueGraph({ points, dayOneNote, dayOneValue, today, description
 /** Four round-number gridlines that bracket the line — never a tick at $23,417.
  *  THEY MUST REACH THE TOP OF THE LINE (drawing check, 2026-10-12). Rounding the bottom down could leave the top
  *  gridline under the highest value: $38,000 to $52,704 gave $35,000 … $50,000, and the line ran off the top of its
- *  own chart. The step now grows until the four lines hold the whole line: $30,000 … $60,000. */
+ *  own chart. The step grows until the four lines hold the whole line.
+ *  THE SMALLEST ROUND STEP THAT HOLDS IT (2026-10-25, MM-PF D6): the steps are 1, 2, 2.5, 3, 4, 5, 6 and 8 of a power of
+ *  ten, so phone 3's $38,000 to $52,704 draws $54,000 · $48,000 · $42,000 · $36,000, as Performance v17 phone 3 draws it
+ *  (it drew $60,000 … $30,000, a step of $10,000 where $6,000 holds the line). Phone 1's $100,000 to $123,000 still draws
+ *  $130,000 … $100,000: v17 phone 1 draws $125,000 · $115,000 · $105,000, a bottom line above the $100,000 its own line
+ *  starts at (DEC-0229 (11): the line starts at the window's beginning) — its dated line says so. To reverse: drop 3, 4, 6, 8. */
 export function niceTicks(lo: number, hi: number, count: number): number[] {
   if (!(hi > lo)) { const v = Math.round(hi); return [v + 1, v, v - 1].slice(0, count); }
   const rawStep = (hi - lo) / (count - 1);
   const mag = Math.pow(10, Math.floor(Math.log10(rawStep)));
-  const steps = [1, 2, 2.5, 5, 10, 20, 25, 50, 100].map((m) => m * mag).filter((c) => c >= rawStep);
+  const steps = [1, 2, 2.5, 3, 4, 5, 6, 8, 10, 20, 25, 30, 40, 50, 60, 80, 100].map((m) => m * mag).filter((c) => c >= rawStep);
   const step = steps.find((c) => Math.floor(lo / c) * c + (count - 1) * c >= hi) ?? steps[steps.length - 1];
   const bottom = Math.floor(lo / step) * step;
   const out: number[] = [];

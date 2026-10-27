@@ -231,11 +231,15 @@ describe('what each category earned', () => {
     expect(screen.getByText('Cash in this account')).toBeOnTheScreen();
   });
 
-  test('with no income records the table is absent entirely (no zero rows)', () => {
+  // REPLACED 2026-10-25 (MM-PF D3, the lead's ruling under Performance v17, DEC-0647): the table is drawn in every window, every
+  // category held at $0 where nothing came in — it was absent here, a has-data condition hiding an approved section
+  test('with no income records the table is still drawn, the categories held at $0', () => {
     useStore.setState({ transactions: [] } as any);
     withRecord(30);
     render(<PerformanceScreen />);
-    expect(screen.queryByText('WHAT EACH CATEGORY EARNED')).toBeNull();
+    expect(screen.getByText('WHAT EACH CATEGORY EARNED')).toBeOnTheScreen();
+    expect(screen.getByText('All categories')).toBeOnTheScreen();
+    expect(screen.queryByText('$420')).toBeNull();                          // nothing received is never a figure from elsewhere
   });
 
   test('DAY ONE shows every category at $0 — the structure never changes (v17, phones 4 and 5)', () => {

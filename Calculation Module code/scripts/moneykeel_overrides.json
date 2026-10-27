@@ -1999,12 +1999,12 @@
   },
   {
     "tab": "cashflow",
-    "key": "MK-CF-M-019",
+    "key": "MK-CF-M-052",
     "col": "Where each finding stands",
     "mode": "append",
-    "text": "G32 / Q48 — RULED 2026-09-09: $0 stays, with the sentence '$0 — nothing entered yet.' and this row's door ('Add your bills ›'). File written; the screen follows the approved empty-state mock (one pattern, one screen), then every screen.",
+    "text": "Carried 2026-10-27 from MK-CF-M-019 (retired 2026-10-02, the same figure as this row), where it sat in Where each finding stands, written 2026-09-09: G32 / Q48 — RULED 2026-09-09: $0 stays, with the sentence '$0 — nothing entered yet.' and this row's door ('Add your bills ›'). File written; the screen follows the approved empty-state mock (one pattern, one screen), then every screen.",
     "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
+    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door — carried 2026-10-27 from MK-CF-M-019 (MK-CF-M-019 retired 2026-10-02, the same figure as MK-CF-M-052); the words are unchanged, under a dated note naming the old ID"
   },
   {
     "tab": "cashflow",
@@ -2097,40 +2097,40 @@
     "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
   },
   {
-    "tab": "menu",
-    "key": "MK-MN-M-022",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Add an investment ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "menu",
-    "key": "MK-MN-M-022",
+    "tab": "networth",
+    "key": "MK-NW-M-049",
     "col": "Where each finding stands",
     "mode": "append",
-    "text": "G32 / Q48 — RULED 2026-09-09: $0 stays, with the sentence '$0 — nothing entered yet.' and this row's door ('Add an investment ›'). File written; the screen follows the approved empty-state mock (one pattern, one screen), then every screen.",
+    "text": "Carried 2026-10-27 from MK-MN-M-022 (retired 2026-10-01 and re-issued as this row), where it sat in What it says when it cannot be computed, written 2026-09-09: $0, and under it the one line \"Nothing entered yet. Add an investment ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
     "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
+    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door — carried 2026-10-27 from MK-MN-M-022 (MK-MN-M-022 retired 2026-10-01 and re-issued as MK-NW-M-049); the words are unchanged, under a dated note naming the old ID"
   },
   {
-    "tab": "menu",
-    "key": "MK-MN-M-023",
-    "col": "What it says when it cannot be computed",
-    "mode": "replace",
-    "text": "$0, and under it the one line \"Nothing entered yet. Add an investment ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
-    "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
-  },
-  {
-    "tab": "menu",
-    "key": "MK-MN-M-023",
+    "tab": "networth",
+    "key": "MK-NW-M-049",
     "col": "Where each finding stands",
     "mode": "append",
-    "text": "G32 / Q48 — RULED 2026-09-09: $0 stays, with the sentence '$0 — nothing entered yet.' and this row's door ('Add an investment ›'). File written; the screen follows the approved empty-state mock (one pattern, one screen), then every screen.",
+    "text": "Carried 2026-10-27 from MK-MN-M-022 (retired 2026-10-01 and re-issued as this row), where it sat in Where each finding stands, written 2026-09-09: G32 / Q48 — RULED 2026-09-09: $0 stays, with the sentence '$0 — nothing entered yet.' and this row's door ('Add an investment ›'). File written; the screen follows the approved empty-state mock (one pattern, one screen), then every screen.",
     "date": "2026-09-09",
-    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door"
+    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door — carried 2026-10-27 from MK-MN-M-022 (MK-MN-M-022 retired 2026-10-01 and re-issued as MK-NW-M-049); the words are unchanged, under a dated note naming the old ID"
+  },
+  {
+    "tab": "networth",
+    "key": "MK-NW-M-050",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "Carried 2026-10-27 from MK-MN-M-023 (retired 2026-10-01 and re-issued as this row), where it sat in What it says when it cannot be computed, written 2026-09-09: $0, and under it the one line \"Nothing entered yet. Add an investment ›\" (mock approved 2026-09-12). A real zero that was entered shows a plain $0 with no line.",
+    "date": "2026-09-09",
+    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door — carried 2026-10-27 from MK-MN-M-023 (MK-MN-M-023 retired 2026-10-01 and re-issued as MK-NW-M-050); the words are unchanged, under a dated note naming the old ID"
+  },
+  {
+    "tab": "networth",
+    "key": "MK-NW-M-050",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "Carried 2026-10-27 from MK-MN-M-023 (retired 2026-10-01 and re-issued as this row), where it sat in Where each finding stands, written 2026-09-09: G32 / Q48 — RULED 2026-09-09: $0 stays, with the sentence '$0 — nothing entered yet.' and this row's door ('Add an investment ›'). File written; the screen follows the approved empty-state mock (one pattern, one screen), then every screen.",
+    "date": "2026-09-09",
+    "why": "founder ruling Q48, 2026-09-09: $0 shown, with the sentence and the door — carried 2026-10-27 from MK-MN-M-023 (MK-MN-M-023 retired 2026-10-01 and re-issued as MK-NW-M-050); the words are unchanged, under a dated note naming the old ID"
   },
   {
     "tab": "menu",
@@ -2637,13 +2637,13 @@
     "why": "G28 batch 1 — proposed verdict for the founder's ruling"
   },
   {
-    "tab": "networth",
-    "key": "MK-NW-M-003",
-    "col": "Where each finding stands",
-    "mode": "append",
-    "text": "G28 batch 1 (2026-09-09) — Same as MK-NW-M-001 (the same producer, MK-XS-F-005).",
+    "tab": "Reference",
+    "key": "RETIRED FIGURE — MK-NW-M-003 (the trend line)",
+    "col": "Detail",
+    "mode": "replace",
+    "text": "Retired 2026-10-14 with no figure in its place: the line is no longer on the Net worth screen, and its door MK-NW-O-003 theNetWorth stopped taking the monthly and daily history it was drawn from (the metric register's retired record). The change on the screen is MK-NW-M-001, read from the record by MK-XS-F-005 trendPoints. Carried 2026-10-27 from MK-NW-M-003, where it sat in Where each finding stands, written 2026-09-09: G28 batch 1 (2026-09-09) — Same as MK-NW-M-001 (the same producer, MK-XS-F-005).",
     "date": "2026-09-09",
-    "why": "G28 batch 1 — proposed verdict for the founder's ruling"
+    "why": "G28 batch 1 — proposed verdict for the founder's ruling — carried 2026-10-27 from MK-NW-M-003, retired 2026-10-14 with no successor, to the Reference tab's retired-figure record so it is still printed"
   },
   {
     "tab": "networth",
@@ -2692,12 +2692,12 @@
   },
   {
     "tab": "cashflow",
-    "key": "MK-CF-M-019",
+    "key": "MK-CF-M-052",
     "col": "Decisions made",
     "mode": "append",
     "text": "[Founder] 2026-08-27 worked example (his cash-flow screen sheet): Planned — In (take-home) 5,000 · mortgage 2,000 · car 250 · expenses 2,000 · HELOC (from the big-ticket radar) 200 · credit-card payment (entered by hand) 200 → surplus 750. Actual — 5,000 · mortgage paid 2,000 · car paid 0 · expenses entered 500 · expenses imported from the card 1,200 · HELOC 200 · card payment 200 → surplus 1,300. A credit-card PAYMENT is not an expense (the card's imported transactions already are); a HELOC payment is counted as an expense; recurring debt is never a radar item, a card or HELOC payment always is (the rule in MK-CF-O-002).",
     "date": "2026-09-10",
-    "why": "his 2026-08-27 sheet, folded into the file 2026-09-10"
+    "why": "his 2026-08-27 sheet, folded into the file 2026-09-10 — carried 2026-10-27 from MK-CF-M-019 (retired 2026-10-02, the same figure as MK-CF-M-052); his words are unchanged and already reach MK-CF-M-052 (carried there from MK-CF-M-004 on 2026-10-24), so they print once"
   },
   {
     "tab": "cashflow",
@@ -2755,12 +2755,12 @@
   },
   {
     "tab": "cashflow",
-    "key": "MK-CF-M-018",
-    "col": "Formula (mathematical)",
-    "mode": "replace",
-    "text": "money in month m = salary(m) + tips(m) + self-employment(m) + rental after costs(m) + investment income(m) + other income(m) + bonus(m) + signing bonus(m) + equity vesting(m) + benefits(m) + family support(m) − withholding(m) − pre-tax contributions(m)",
+    "key": "MK-CF-M-051",
+    "col": "Where each finding stands",
+    "mode": "append",
+    "text": "Carried 2026-10-27 from MK-CF-M-018 (retired 2026-10-02, the same figure as this row (Inflow)), where it sat in Formula (mathematical), written 2026-09-12: money in month m = salary(m) + tips(m) + self-employment(m) + rental after costs(m) + investment income(m) + other income(m) + bonus(m) + signing bonus(m) + equity vesting(m) + benefits(m) + family support(m) − withholding(m) − pre-tax contributions(m)",
     "date": "2026-09-12",
-    "why": "B25 re-verified 2026-09-12: incomeMonthlyGrid (MK-CF-F-092) also lands the signing bonus, self-employment, investment income, other income, benefits and family support — the old formula listed five of eleven sources."
+    "why": "B25 re-verified 2026-09-12: incomeMonthlyGrid (MK-CF-F-092) also lands the signing bonus, self-employment, investment income, other income, benefits and family support — the old formula listed five of eleven sources. — carried 2026-10-27 from MK-CF-M-018 (MK-CF-M-018 retired 2026-10-02, the same figure as MK-CF-M-051 (Inflow)); the words are unchanged, under a dated note naming the old ID"
   },
   {
     "tab": "networth",
@@ -3492,12 +3492,12 @@
   },
   {
     "tab": "cashflow",
-    "key": "MK-CF-M-019",
+    "key": "MK-CF-M-052",
     "col": "Where each finding stands",
     "mode": "append",
-    "text": "2026-10-23 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. This row was retired on 2026-10-02 as the same figure as MK-CF-M-052 (Outflow (expenses + debt)); its refusal is that declaration's. Its refusal is now the declaration's own, written as the screen does it.",
+    "text": "Carried 2026-10-27 from MK-CF-M-019 (retired 2026-10-02, the same figure as this row), where it sat in Where each finding stands, written 2026-10-23: 2026-10-23 — CLOSED: the refusal printed here was the $0 empty-state line of Q48. This row was retired on 2026-10-02 as the same figure as MK-CF-M-052 (Outflow (expenses + debt)); its refusal is that declaration's. Its refusal is now the declaration's own, written as the screen does it.",
     "date": "2026-10-23",
-    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries its own refusal, read against the screen; the $0 empty-state line of Q48 printed here over it"
+    "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries its own refusal, read against the screen; the $0 empty-state line of Q48 printed here over it — carried 2026-10-27 from MK-CF-M-019 (MK-CF-M-019 retired 2026-10-02, the same figure as MK-CF-M-052); the words are unchanged, under a dated note naming the old ID"
   },
   {
     "tab": "cashflow",
@@ -3534,5 +3534,14 @@
     "text": "2026-10-23 — CLOSED: this row's function and formula columns printed the month's OUTFLOW (MK-CF-F-194 monthOutflow, G12 of 2026-09-12), from when the row was the outflow line. The row is each line of the month now — each row on This month and on Expenses, at its own amount, from MK-CF-O-010 theMonth — and its declaration carries that formula. The outflow G12 ruled on is MK-CF-M-052 (Outflow (expenses + debt)), one producer for the month shown (MK-CF-O-003 thisMonth) and one for a past month (pastMonthFlow, which reads monthOutflow).",
     "date": "2026-10-23",
     "why": "2026-10-23 CF-FIX (Cash flow before the outside run): the declaration carries the true formula; the three G12 replacements described another figure"
+  },
+  {
+    "tab": "cashflow",
+    "key": "MK-CF-M-052",
+    "col": "Decisions made",
+    "mode": "append",
+    "text": "(Carried 2026-10-27: the founder's 2026-08-27 worked example above also sat on MK-CF-M-019, retired 2026-10-02 as the same figure as this row; it prints here once.)",
+    "date": "2026-10-27",
+    "why": "the dated note naming the old ID for his worked example, carried from MK-CF-M-019 (PF-RECORDS, the lead’s instruction of 2026-10-26)"
   }
 ]

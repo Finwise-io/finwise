@@ -591,11 +591,21 @@ describe('the decisions in the log are held by something that executes', () => {
     expect(renter.rentLineInDebts).toBeNull();
     expect(renter.essentialsMonthly).toBeCloseTo(3000, 2);
 
-    // A MORTGAGE ON NO PROPERTY cannot be told from another property's, so nothing is stood down:
-    // both are counted, the months read short, and Net worth names the mortgage for the person to fix
+    // A MORTGAGE ON NO PROPERTY, beside a Rent / Mortgage line, is counted ONCE (2026-10-25, the lead's ruling on DEC-1923 /
+    // DEC-2440; FIX-MONTH): the line is taken as that mortgage and stands down — essentials $700 + $2,400 — and the sentence asks
+    // the person to place it on their home. It was counted twice: $2,300 + $700 + $2,400
     const unplaced = theEmergencyFund(household(2300, 2400, false));
-    expect(unplaced.rentLineInDebts).toBeNull();
-    expect(unplaced.essentialsMonthly).toBeCloseTo(2300 + 700 + 2400, 2);
+    expect(unplaced.rentLineInDebts).toEqual({ budgeted: 2300, mortgage: 'Mortgage' });
+    expect(unplaced.essentialsMonthly).toBeCloseTo(700 + 2400, 2);
+    expect(unplaced.budgetSentence).toBe('Your Rent / Mortgage budget line is not counted here: your mortgage, Mortgage, is in Debts and is counted from there. Place it on your home in Net worth, so we know they are the same.');
+  });
+  test.failing('DEC-1923 — the answer before 2026-10-25, kept: a mortgage on no property and the Rent / Mortgage line both counted ($5,400)', () => {
+    const { theEmergencyFund } = require('../../MoneyKeel/functions/networth-and-performance/emergency-fund');
+    const e = theEmergencyFund({ accounts: [{ asset_id: 'a1', label: 'Checking', kind: 'checking', tax_bucket: 'TAXABLE', balance: 18000, target_return: 0, asset_class: 'cash' }],
+      expenses: [], profile: { monthlySpending: 0, spendCats: [{ id: 'rent', label: 'Rent / Mortgage', amount: 2300, bucket: 'fixed', tier: 'need' },
+        { id: 'groceries', label: 'Groceries', amount: 700, bucket: 'flexible', tier: 'need' }] },
+      debts: [{ debt_id: 'd1', label: 'Mortgage', debt_type: 'MORTGAGE', remaining_balance: 320000, interest_rate_apr: 0.0625, minimum_monthly_payment: 2400 }] });
+    expect(e.essentialsMonthly).toBeCloseTo(2300 + 700 + 2400, 2);
   });
 
   // ══ NET WORTH, the decisions the compliance run of 2026-10-01 found unconfirmed ══════════════

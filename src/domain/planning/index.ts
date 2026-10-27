@@ -2,14 +2,23 @@
 import type { OnboardingProfile } from '../onboardingProfile';
 // Pure functions — no I/O — so they're easy to test and reuse across screens.
 import { toNum } from '../_shared/num';
+import { plural } from '../_shared/plural';
 
-import { salaryAnnual, tipsAnnual, rsuAnnual, rentalNetAnnual, currentRetirementIncomeMonthly, effectiveRate, benefitAnnual, filingStatusOf, over65CountOf, householdPreTaxContributionsAnnual } from '../income';
+import { salaryAnnual, tipsAnnual, rsuAnnual, rentalNetAnnual, currentRetirementIncomeMonthly, effectiveRate, benefitAnnual, filingStatusOf, over65CountOf, householdPreTaxContributionsAnnual, stateRateOf } from '../income';
 import { deductionFor, seniorDeductionFor, TAX_TABLES } from '../income/tax';
+import { rateInForce } from '../income/tax-rate';
+import type { InterestAndDividendsForYear } from '../income/from-accounts';
 
 // ───────────────────────── Tax organizer (the "give this to your CPA" summary) ─────────────────────────
 // A year-end summary + a tailored document checklist. NOT a tax return — an organizer. Pure: the
 // screen passes live accounts/liabilities and actual passive income.
-export interface TaxLine { label: string; amount: number; taxable: boolean }
+export interface TaxLine {
+  label: string; amount: number; taxable: boolean;
+  /** printed with ≈ — a figure calculated from the accounts' rates, not recorded or entered (2026-10-25) */
+  approx?: boolean;
+  /** where the figure came from, beside it — the interest line's basis and working (2026-10-25) */
+  note?: string;
+}
 /** The four lines a return shows, in order (founder ruling brief Q-46 (2026-08-20), 2026-09-08). */
 export interface TaxableIncomeSteps {
   grossIncome: number;             // every income line of a taxable type, added up
@@ -17,14 +26,28 @@ export interface TaxableIncomeSteps {
   standardDeduction: number;       // for the filing status, age count and income (MK-CF-F-099)
   deductionIncludes: string[];     // what sits inside that deduction beyond the base figure
   taxableIncome: number;           // gross − contributions − deduction, never below zero
+  /** a joint return whose spouse's 65-or-older answer was never given: the spouse is counted as under 65 (the person only),
+   *  and the screen says so with a door to the question (the lead's ruling of 2026-10-25 on CFR-4's needs-ruling 4) */
+  spouseAgeNotEntered: boolean;
 }
 export interface TaxOrganizer {
   year: number;
   income: TaxLine[];
-  steps: TaxableIncomeSteps;
-  taxableTotal: number;            // = steps.taxableIncome (kept for callers that read the one figure)
+  /** null when nothing is entered: no income line at all, so there is nothing to subtract from and no taxable income to
+   *  show — tenet 3 (DEC-3523) and his DEC-0296, the figure's own refusal (MK-MN-M-028), never $0 and a deduction */
+  steps: TaxableIncomeSteps | null;
+  /** the refusal's words when steps is null */
+  refusal: string | null;
+  /** payouts in the year whose amount is not on record, said under the income lines — never counted as $0 (tenet 3) */
+  notCounted: string | null;
+  taxableTotal: number | null;     // = steps.taxableIncome (kept for callers that read the one figure)
   nonTaxableTotal: number;
-  estTaxRate: number;
+  estTaxRate: number | null;
+  /** the rate's own words, as Base pay and the Income summary say it (canon row 25; 2026-10-25): calculated — federal only,
+   *  or holding the state rate entered — or the person's own ("your rate, 24%", "your figures, 28%"). Null with nothing entered. */
+  rate: { estimated: boolean; stateWords: string | null; whose: string } | null;
+  /** every income line of a taxable type, added up — $0 with nothing entered (Q48), the figure the empty screen prints */
+  grossIncome: number;
   contributions: TaxLine[];
   accounts: { label: string; kind: string; balance: number }[];
   documents: string[];
@@ -43,9 +66,17 @@ export interface TaxOrganizer {
  *
  * Called by ... MK-PL-F-031 taxOrganizer
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-202 TAX · MK-PL-F-031 taxOrganizer
- *               MK-CF-O-007 theTaxOrganizer
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... MK-MN-M-027 · MK-MN-M-028
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -72,7 +103,59 @@ export function taxableIncomeSteps(op: OnboardingProfile | null, grossIncome: nu
   if (people > 0) deductionIncludes.push(`the 65+ add-on (${people === 2 ? 'both of you' : 'one person'})`);
   if (seniorDeductionFor(status, over65, magi) > 0) deductionIncludes.push('the senior deduction (2025–2028)');
   void TAX_TABLES;
-  return { grossIncome: (grossIncome), preTaxContributions, standardDeduction, deductionIncludes, taxableIncome: (Math.max(0, grossIncome - preTaxContributions - standardDeduction)) };
+  // the spouse's age: on a joint return the 65-or-older question is the spouse's answer too (over65Who); not given, the spouse
+  // is counted as under 65 and the person by their birth year (MK-CF-F-089) — said on the screen, never silent. Read as the
+  // count reads it: the answer counts only on a filing status answered jointly, so a joint status assumed from a spouse
+  // entered has the spouse counted as under 65 too
+  const a: any = op ?? {};
+  const spouseAgeNotEntered = status === 'married' && !(a.filingStatus === 'married' && a.over65Who);
+  return { grossIncome: (grossIncome), preTaxContributions, standardDeduction, deductionIncludes, taxableIncome: (Math.max(0, grossIncome - preTaxContributions - standardDeduction)), spouseAgeNotEntered };
+}
+
+/** What it is for: the Tax organizer's rate in the words Base pay and the Income summary use for the same rate (canon row 25,
+ *  2026-10-25): the rate in force (MK-CF-F-181) calculated — "Calculated federal tax" while it is federal only, "Calculated
+ *  tax" once it holds the state rate entered — or the person's own, "your rate, 24%" typed or "your figures, 28%" from the
+ *  take-home entered. It read "Est. effective federal rate" whatever the rate held. */
+/* ─ MK-PL-F-090 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * rateWordsOf
+ *
+ * Answers ..... What it is for: the Tax organizer's rate in the words Base pay and the Income summary use for the same rate (canon row 25, 2026-10-25): the rate in force (MK-CF-F-181) calculated — "Calculated federal tax" while it is federal only, "Calculated tax" once it holds the state rate entered — or the person's own, "your rate, 24%" typed or "your figures, 28%" from the take-home entered.
+ *
+ * Formula .....
+ *     r = rate in force(op)
+ *     state = state rate of(op)
+ *     the answer:
+ *     estimated = source = 'estimated'
+ *     state words = `the ${(state × 100).to fixed(2)}% state rate you entered`   if source = 'estimated' and state > 0
+ *     nothing   otherwise
+ *     whose = label
+ *
+ * Called by ... MK-PL-F-031 taxOrganizer
+ *
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Shows 2 decimal places.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-090
+ * Changed ..... not in git yet (—)
+ */
+function rateWordsOf(op: OnboardingProfile | null): { estimated: boolean; stateWords: string | null; whose: string } {
+  const r = rateInForce(op);
+  const state = stateRateOf(op);   // the one reader of the state rate entered (MK-CF-F-086)
+  return { estimated: r.source === 'estimated', stateWords: r.source === 'estimated' && state > 0 ? `the ${(state * 100).toFixed(2)}% state rate you entered` : null, whose: r.label };
 }
 
 /** The year-end summary for the accountant: income lines, the four taxable-income steps, contributions, accounts, documents to gather. */
@@ -89,61 +172,84 @@ export function taxableIncomeSteps(op: OnboardingProfile | null, grossIncome: nu
  *     other annual = other amount read as a number (0 when it is not one)   if other freq = 'annual'
  *     other amount read as a number (0 when it is not one)   if other freq = 'onetime'
  *     to num(other amount) × 12   otherwise   otherwise
- *     inv div = opts.actual passive   if opts.actual passive and opts.actual passive > 0
- *     inv annual read as a number (0 when it is not one)   otherwise
+ *     i = opts.interest
+ *     inv div = I.amount (or 0 when missing)   if I
+ *     opts.actual passive   if opts.actual passive ≠ nothing
+ *     inv annual read as a number (0 when it is not one)   otherwise   otherwise
+ *     not on record = I.not on record   if I
+ *     opts.not on record (or 0 when missing)   otherwise
  *     ret inc = current retirement income monthly(op) × 12
+ *     rsu = rsu annual(op, opts.year)
  *     gross income = Σ over income where taxable of (amount)
- *     steps = taxable income steps(op, gross income)
- *     taxable total = steps.taxable income
- *     non taxable total = Σ over income where taxable is missing of (amount)
- *     acct = for each of accounts: label = institution.trim() (or label (or kind (or 'Account' when missing or zero) when missing or zero) when missing or zero)
- *     kind = kind (or tax bucket (or 'account' when missing) when missing)
- *     balance = balance (or 0 when missing or zero)
+ *     nothing entered = income.length = 0
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-O-007 theTaxOrganizer
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-202 TAX · MK-CF-O-007 theTaxOrganizer
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... MK-MN-M-027 · MK-MN-M-028
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-003 institution name
+ *               MK-XS-I-004 holding quantity (shares)
  *               MK-XS-I-022 pension monthly amount
  *               MK-XS-I-023 salary and other income
  *               MK-XS-I-039 how often each income arrives
  *               MK-XS-I-043 their own retirement contribution
- *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  * Ruled by .... DEC-0184
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
+ *     · If amount is missing it uses 0.
+ *     · If not on record is missing it uses 0.
+ *     · If rsu is missing it uses 0.
  *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Turns a monthly figure into a year by multiplying by twelve.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-031
  * Changed ..... 2026-06-13 (41698dd)
  */
-export function taxOrganizer(op: OnboardingProfile | null, opts: { accounts?: any[]; liabilities?: any[]; actualPassive?: number; year: number }): TaxOrganizer {
+export function taxOrganizer(op: OnboardingProfile | null, opts: { accounts?: any[]; liabilities?: any[]; actualPassive?: number; notOnRecord?: number; interest?: InterestAndDividendsForYear; year: number }): TaxOrganizer {
   const a = op ?? {};
   const accounts = opts.accounts ?? [], liabilities = opts.liabilities ?? [];
   const seAnnual = a.seFreq === 'annual' ? toNum(a.seAmount) : toNum(a.seAmount) * 12;
   const otherAnnual = a.otherFreq === 'annual' ? toNum(a.otherAmount) : a.otherFreq === 'onetime' ? toNum(a.otherAmount) : toNum(a.otherAmount) * 12;
-  const invDiv = opts.actualPassive && opts.actualPassive > 0 ? opts.actualPassive : toNum(a.invAnnual);
+  // THE RECORDS OF THE YEAR WIN WHERE THERE ARE ANY (2026-10-25): actualPassive is the year's recorded interest and dividends
+  // (interestAndDividendsForYear's records step) — null when the year has no record, and then the figure the person entered stands. A record
+  // total of $0 (a payout and its reversal) is a real $0, not a reason to fall back.
+  // THE ONE FIGURE FOR THE YEAR (2026-10-25, the lead's ruling): the door hands in interestAndDividendsForYear — records →
+  // entered → calculated ≈ → not entered — and its basis is said beside the line. A caller with no `interest` keeps the old
+  // reading (records handed in as actualPassive, else the figure entered).
+  const I = opts.interest;
+  const invDiv = I ? (I.amount ?? 0) : opts.actualPassive != null ? opts.actualPassive : toNum(a.invAnnual);
+  const notOnRecord = I ? I.notOnRecord : (opts.notOnRecord ?? 0);
   // B-35: only tax retirement income the user actually RECEIVES this year (gated) — a working
   // 40-year-old's future Social Security must not land in today's taxable income.
   const retInc = currentRetirementIncomeMonthly(op) * 12;
+  // the shares that vest IN THE TAX YEAR NAMED (FIX-INCOME-B's rsuAnnual, 2026-10-25): null when a grant has no vest date —
+  // then nothing is counted and the line under the income says so (tenet 3), never a silent $0
+  const rsu = rsuAnnual(op, opts.year);
 
   const income: TaxLine[] = [
     { label: 'Wages (W-2)', amount: (salaryAnnual(op)), taxable: true },
     { label: 'Tips', amount: (tipsAnnual(op)), taxable: true },
     { label: 'Bonus', amount: toNum(a.bonusAnnual), taxable: true },
     { label: 'Signing bonus', amount: toNum(a.signingOnetime), taxable: true },
-    { label: 'Equity / RSUs vested', amount: (rsuAnnual(op)), taxable: true },
+    { label: 'Equity / RSUs vested', amount: (rsu ?? 0), taxable: true },
     { label: 'Self-employment', amount: (seAnnual), taxable: true },
-    { label: 'Interest & dividends', amount: (invDiv), taxable: true },
+    { label: 'Interest & dividends', amount: (invDiv), taxable: true, ...(I ? { approx: I.approx, note: I.said } : {}) },
     { label: 'Rental (net)', amount: (rentalNetAnnual(op)), taxable: true },
     { label: 'Retirement income (SS / pension / withdrawals)', amount: (retInc), taxable: true },
     { label: 'Other income', amount: (otherAnnual), taxable: (a.otherTaxable !== 'no') },
@@ -156,11 +262,15 @@ export function taxOrganizer(op: OnboardingProfile | null, opts: { accounts?: an
   // standard deduction → taxable income. Before this the screen printed the first figure under the
   // last figure's name ($120,000 shown as taxable income where a return says $83,900).
   const grossIncome = (income.filter((l) => l.taxable).reduce((t, l) => t + l.amount, 0));
-  const steps = taxableIncomeSteps(op, grossIncome);
-  const taxableTotal = steps.taxableIncome;
+  // NOTHING ENTERED → NO WALK (2026-10-25, outside audit part 17, MK-CF-O-007-C02; tenet 3, DEC-0296): with no income line at
+  // all the screen printed Gross income $0, Standard deduction −$16,100, Taxable income $0 and a ~0% rate — a tax answer for
+  // nobody. Now the walk and the rate are not given, and the screen shows its one empty line and the door (Q48).
+  const nothingEntered = income.length === 0;
+  const steps = nothingEntered ? null : taxableIncomeSteps(op, grossIncome);
+  const taxableTotal = steps ? steps.taxableIncome : null;
   const nonTaxableTotal = (income.filter((l) => !l.taxable).reduce((t, l) => t + l.amount, 0));
   const contributions: TaxLine[] = [
-    { label: '401(k) — pre-tax', amount: steps.preTaxContributions, taxable: false },   // the ONE producer (MK-CF-F-188), every earner
+    { label: '401(k) — pre-tax', amount: householdPreTaxContributionsAnnual(op), taxable: false },   // the ONE producer (MK-CF-F-188), every earner
     { label: 'Roth IRA', amount: toNum(a.c_roth) * 12, taxable: false },
   ].filter((l) => l.amount > 0);
 
@@ -179,8 +289,14 @@ export function taxOrganizer(op: OnboardingProfile | null, opts: { accounts?: an
   if (toNum(a.c_401k) > 0) docs.push('401(k) contributions (shown on your W-2, box 12)');
 
   return {
-    year: opts.year, income, steps, taxableTotal, nonTaxableTotal,
-    estTaxRate: (effectiveRate(op)),
+    year: opts.year, income, steps, refusal: nothingEntered ? 'Nothing entered yet.' : null,   // Q48's words (DEC-0431)
+    // the words Interest & dividends uses for the same records (MK-CF-F-184)
+    notCounted: [notOnRecord > 0 ? `Not counted: ${plural(notOnRecord, 'payment')} — amount not on record.` : '',
+                 rsu == null ? 'Not counted: shares that vest — vest date not entered.' : ''].filter(Boolean).join(' ') || null,
+    taxableTotal, nonTaxableTotal,
+    estTaxRate: nothingEntered ? null : (effectiveRate(op)),
+    rate: nothingEntered ? null : rateWordsOf(op),
+    grossIncome,
     contributions, accounts: acct, documents: docs,
   };
 }

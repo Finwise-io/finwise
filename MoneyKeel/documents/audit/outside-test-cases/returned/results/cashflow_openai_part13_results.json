@@ -1,0 +1,2439 @@
+{
+ "batch": "cf module — part 13 (contribution limits, room left this year, the future paycheck)",
+ "reviewer": "OpenAI independent specification reviewer, Cash flow package of 2026-10-24",
+ "run_by": "Claude Code, CFR-4 measurer, part 13",
+ "run_on": "2026-10-25",
+ "test_file": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts",
+ "source": "returned/MoneyKeel_CashFlow_Independent_Audit_Package/MoneyKeel_CashFlow_Independent_Audit/audit_results/MoneyKeel_CashFlow_Audit_Part_13.json",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts → 83 passed, 2 skipped (the 2 BLOCKED cases), 0 failed, 85 total: 70 cases + 1 witness + 10 source-check tests + 3 zero-return tests + 1 coverage guard. Each APP WRONG case is test.failing on the reviewer's answer. npx tsc --noEmit: no error in this file (2 errors in another agent's outside_cashflow_openai_part06.test.ts).",
+ "measured_only": "No app code, record, drawing or existing test was changed. Only this results file and the test file were written.",
+ "assumed_plan_for_the_safe_draw": "The reviewer gives no return, volatility or inflation for MK-CF-F-106: current age 67, mean return 6%, volatility 12%, inflation 2.5%, 1,000 paths, seed 42 (DEC-0247).",
+ "ready_to_close": false,
+ "cases": [
+  {
+   "id": "MK-CF-O-005",
+   "case_id": "MK-CF-O-005-C01",
+   "name": "theContributionRoom",
+   "kind": "easy",
+   "title": "January no contributions yet",
+   "classification": "NEEDS RULING",
+   "status": "OPEN",
+   "mapped": "theContributionRoom({ profile: { birthYear, c_401k = the monthly 401(k) plan, c_roth, medicareEnrolled }, today = as_of }), clock pinned to as_of (contributed_ytd_401k 0 has no input; c_401k = 1000)",
+   "expected": {
+    "age": {
+     "exact": "50",
+     "shown": "50"
+    },
+    "k_limit": {
+     "exact": "32500",
+     "shown": "$32,500"
+    },
+    "k_used": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "k_room": {
+     "exact": "32500",
+     "shown": "$32,500"
+    },
+    "ira_limit": {
+     "exact": "8600",
+     "shown": "$8,600"
+    },
+    "months_left": {
+     "exact": "12",
+     "shown": "12"
+    }
+   },
+   "actual": {
+    "age": 50,
+    "k_limit": 32500,
+    "k_used": 12000,
+    "k_room": 20500,
+    "ira_limit": 8600,
+    "months_left": 12
+   },
+   "difference": "$12,000 used / $20,500 left (reviewer: $0 / $32,500)",
+   "rests_on": "none of his rulings says what \"used\" means here",
+   "note": "The app has no input for money already put in this year; it reads the year at the monthly plan ($1,000 × 12 = $12,000 of $32,500, so $20,500 left) and the screen says so (\"calculated from what you entered you contribute each month\"). The reviewer reads money already in: $0 on 1 January, $32,500 left. Age 50, the $32,500 limit, the $8,600 IRA limit and 12 months left agree.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-O-005 theContributionRoom — five cases › MK-CF-O-005-C01 · easy · January no contributions yet [NEEDS RULING] — what \"used\" means: the reviewer reads money already in ($0 on Jan 1); the app reads the year at the monthly plan",
+   "test_result": "passed",
+   "fixed_2026_10_25": "DECIDED 2026-10-25 (the lead's ruling on CFR-4's first question, the DEC-0013 pattern): the year at the monthly plan stays — $12,000 used, $20,500 room — and is said as a plan: \"At $1,000/month you will put in $12,000 this year — room for $20,500 more.\""
+  },
+  {
+   "id": "MK-CF-O-005",
+   "case_id": "MK-CF-O-005-C02",
+   "name": "theContributionRoom",
+   "kind": "easy",
+   "title": "December known YTD",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "theContributionRoom({ profile: { birthYear, c_401k = the monthly 401(k) plan, c_roth, medicareEnrolled }, today = as_of }), clock pinned to as_of (c_401k = 2500; contributed_ytd 30000 has no input — 2,500 × 12 = 30,000 coincides)",
+   "expected": {
+    "age": {
+     "exact": "60",
+     "shown": "60"
+    },
+    "k_limit": {
+     "exact": "35750",
+     "shown": "$35,750"
+    },
+    "k_used": {
+     "exact": "30000",
+     "shown": "$30,000"
+    },
+    "k_room": {
+     "exact": "5750",
+     "shown": "$5,750"
+    },
+    "months_left": {
+     "exact": "1",
+     "shown": "1"
+    },
+    "per_month_display": {
+     "exact": "5800",
+     "shown": "$5,800"
+    }
+   },
+   "actual": {
+    "age": 60,
+    "k_limit": 35750,
+    "k_used": 30000,
+    "k_room": 5750,
+    "months_left": 1,
+    "per_month_display": 5800
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "Every figure agrees. The app reached $30,000 from the $2,500 monthly plan × 12, not from the year-to-date input it does not have; the two coincide here.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-O-005 theContributionRoom — five cases › MK-CF-O-005-C02 · easy · December known YTD [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-O-005",
+   "case_id": "MK-CF-O-005-C03",
+   "name": "theContributionRoom",
+   "kind": "complex",
+   "title": "Mixed IRA and family HSA",
+   "classification": "BLOCKED",
+   "status": "NOT RUN",
+   "mapped": "theContributionRoom({ profile: { birthYear, c_401k = the monthly 401(k) plan, c_roth, medicareEnrolled }, today = as_of }), clock pinned to as_of — needs three inputs the app does not have",
+   "expected": {
+    "age": {
+     "exact": "55",
+     "shown": "55"
+    },
+    "k_limit": {
+     "exact": "32500",
+     "shown": "$32,500"
+    },
+    "k_room": {
+     "exact": "15188.83",
+     "shown": "$15,189"
+    },
+    "ira_limit": {
+     "exact": "8600",
+     "shown": "$8,600"
+    },
+    "ira_used": {
+     "exact": "5422.56",
+     "shown": "$5,423"
+    },
+    "ira_room": {
+     "exact": "3177.44",
+     "shown": "$3,177"
+    },
+    "hsa_limit": {
+     "exact": "9750",
+     "shown": "$9,750"
+    },
+    "hsa_room": {
+     "exact": "6638.87",
+     "shown": "$6,639"
+    }
+   },
+   "actual": {
+    "age": 55,
+    "k_limit": 32500,
+    "ira_limit": 8600,
+    "hsa_limit_self_only": 5400,
+    "k_used_from_plan": 20777.16,
+    "k_room_from_plan": 11722.84
+   },
+   "difference": "not run",
+   "rests_on": "",
+   "note": "Needs three inputs the app does not have: 401(k) money already in this year, a Traditional IRA contribution (the profile holds c_roth only), and HSA cover (the door always uses self-only). What the app can answer agrees: age 55, 401(k) limit $32,500, IRA limit $8,600. Its HSA limit is the self-only $5,400 (screen: \"self-only limit; family plans cap higher\"); the reviewer's family limit is $9,750.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-O-005 theContributionRoom — five cases › MK-CF-O-005-C03 · complex · Mixed IRA and family HSA [BLOCKED] — no input for year-to-date 401(k), a Traditional IRA, or family HSA cover",
+   "test_result": "pending (test.skip)"
+  },
+  {
+   "id": "MK-CF-O-005",
+   "case_id": "MK-CF-O-005-C04",
+   "name": "theContributionRoom",
+   "kind": "complex",
+   "title": "Overcontribution remains visible",
+   "classification": "APP WRONG",
+   "status": "FAIL",
+   "mapped": "theContributionRoom({ profile: { birthYear, c_401k = the monthly 401(k) plan, c_roth, medicareEnrolled }, today = as_of }), clock pinned to as_of (c_401k = 3333.33…; 3,333.33 × 12 = 40,000 — the k_ytd 40,000 has no input but coincides)",
+   "expected": {
+    "k_limit": {
+     "exact": "35750",
+     "shown": "$35,750"
+    },
+    "k_used": {
+     "exact": "40000",
+     "shown": "$40,000"
+    },
+    "k_room": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "excess": {
+     "exact": "4250",
+     "shown": "$4,250"
+    }
+   },
+   "actual": {
+    "k_limit": 35750,
+    "k_used": 35750,
+    "k_room": 0,
+    "excess": "no excess figure"
+   },
+   "difference": "used $35,750 (right $40,000); excess none (right $4,250)",
+   "rests_on": "tenets 1, 5 and 7 (DEC-3523); IRC §402(g) excess deferrals",
+   "note": "$3,333.33 a month at 60 is $40,000 against a $35,750 limit. The app says $35,750 used and $0 left, and has no excess figure, so the $4,250 over the limit disappears. Its own sign-up 401(k) step says \"over the 2026 limit by $4,250\" (src/onboarding/modules.tsx:803). The cap is a note on the figure (MK-MN-M-004), not a ruling of his.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-O-005 theContributionRoom — five cases › MK-CF-O-005-C04 · complex · Overcontribution remains visible [APP WRONG] — tenets 1 and 7: the $4,250 over the limit is hidden — \"used\" is capped at $35,750 (MK-CF-F-056)",
+   "test_result": "passed (test.failing on the reviewer's answer: it fails today, so the test passes; it turns red when the fix lands)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-ROOM; tenets 1, 5, 7; IRC §402(g)): k401Headroom no longer cuts what goes in to the limit and hands back the excess; the door carries it. $40,000 used, $0 room, $4,250 over (was $35,750 used, no excess). The screen reads \"$4,250 over\" (drawing contribution-room v01, state B)."
+  },
+  {
+   "id": "MK-CF-O-005",
+   "case_id": "MK-CF-O-005-C05",
+   "name": "theContributionRoom",
+   "kind": "edge",
+   "title": "Birth year absent",
+   "classification": "APP WRONG",
+   "status": "FAIL",
+   "mapped": "theContributionRoom({ profile: { birthYear, c_401k = the monthly 401(k) plan, c_roth, medicareEnrolled }, today = as_of }), clock pinned to as_of (no birthYear)",
+   "expected": null,
+   "actual": {
+    "age": null,
+    "k_limit": 24500,
+    "k_room": 12500,
+    "ira_limit": 7500,
+    "hsa_limit": 4400,
+    "any_flag_saying_base": false
+   },
+   "difference": "a $24,500 limit, unmarked (right: no number, or the base limit said to be one)",
+   "rests_on": "tenet 3 (DEC-3523); the figure's own refusal line MK-MN-M-003 (\"the limit says it is the base one\")",
+   "note": "With no birth year the door returns the base $24,500 limit ($12,500 left at $1,000 a month) and nothing that says it is the base one; the screen prints it as the person's limit. Either refusing (the reviewer) or saying \"base limit — birth year not entered\" meets tenet 3; today neither happens. If the fix labels rather than refuses, the test must be re-pointed at the label.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-O-005 theContributionRoom — five cases › MK-CF-O-005-C05 · edge · Birth year absent [APP WRONG] — tenet 3 and the figure's own refusal line (MK-MN-M-003: \"the limit says it is the base one\"): a $24,500 base limit comes back unmarked",
+   "test_result": "passed (test.failing on the reviewer's answer: it fails today, so the test passes; it turns red when the fix lands)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (tenet 3; MK-MN-M-003's refusal line): no birth year → the base limits, marked baseLimitOnly; the screen says \"Your birth year is not entered, so each limit below is the one before any catch-up.\" beside a box for the year (state C). Labelled, not refused — the brief allows either."
+  },
+  {
+   "id": "MK-CF-F-197",
+   "case_id": "MK-CF-F-197-C01",
+   "name": "ageAttainedInYear",
+   "kind": "easy",
+   "title": "Turns50",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "ageAttainedInYear(birth_year, a day in the case's year)",
+   "expected": {
+    "exact": "50",
+    "shown": "50"
+   },
+   "actual": 50,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-197 ageAttainedInYear — five cases › MK-CF-F-197-C01 · easy · Turns50 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-197",
+   "case_id": "MK-CF-F-197-C02",
+   "name": "ageAttainedInYear",
+   "kind": "easy",
+   "title": "Turns55",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "ageAttainedInYear(birth_year, a day in the case's year)",
+   "expected": {
+    "exact": "55",
+    "shown": "55"
+   },
+   "actual": 55,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-197 ageAttainedInYear — five cases › MK-CF-F-197-C02 · easy · Turns55 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-197",
+   "case_id": "MK-CF-F-197-C03",
+   "name": "ageAttainedInYear",
+   "kind": "complex",
+   "title": "Turns60",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "ageAttainedInYear(birth_year, a day in the case's year)",
+   "expected": {
+    "exact": "60",
+    "shown": "60"
+   },
+   "actual": 60,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-197 ageAttainedInYear — five cases › MK-CF-F-197-C03 · complex · Turns60 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-197",
+   "case_id": "MK-CF-F-197-C04",
+   "name": "ageAttainedInYear",
+   "kind": "complex",
+   "title": "Turns64",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "ageAttainedInYear(birth_year, a day in the case's year)",
+   "expected": {
+    "exact": "64",
+    "shown": "64"
+   },
+   "actual": 64,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-197 ageAttainedInYear — five cases › MK-CF-F-197-C04 · complex · Turns64 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-197",
+   "case_id": "MK-CF-F-197-C05",
+   "name": "ageAttainedInYear",
+   "kind": "edge",
+   "title": "Missing",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "ageAttainedInYear(null, 2026)",
+   "expected": null,
+   "actual": null,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-197 ageAttainedInYear — five cases › MK-CF-F-197-C05 · edge · Missing [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-195",
+   "case_id": "MK-CF-F-195-C01",
+   "name": "monthsLeftInYear",
+   "kind": "easy",
+   "title": "January",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "monthsLeftInYear(local date at noon)",
+   "expected": {
+    "exact": "12",
+    "shown": "12"
+   },
+   "actual": 12,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-195 monthsLeftInYear — five cases › MK-CF-F-195-C01 · easy · January [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-195",
+   "case_id": "MK-CF-F-195-C02",
+   "name": "monthsLeftInYear",
+   "kind": "easy",
+   "title": "December",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "monthsLeftInYear(local date at noon)",
+   "expected": {
+    "exact": "1",
+    "shown": "1"
+   },
+   "actual": 1,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-195 monthsLeftInYear — five cases › MK-CF-F-195-C02 · easy · December [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-195",
+   "case_id": "MK-CF-F-195-C03",
+   "name": "monthsLeftInYear",
+   "kind": "complex",
+   "title": "October late",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "monthsLeftInYear(local date at noon)",
+   "expected": {
+    "exact": "3",
+    "shown": "3"
+   },
+   "actual": 3,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-195 monthsLeftInYear — five cases › MK-CF-F-195-C03 · complex · October late [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-195",
+   "case_id": "MK-CF-F-195-C04",
+   "name": "monthsLeftInYear",
+   "kind": "complex",
+   "title": "February leap",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "monthsLeftInYear(local date at noon)",
+   "expected": {
+    "exact": "11",
+    "shown": "11"
+   },
+   "actual": 11,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-195 monthsLeftInYear — five cases › MK-CF-F-195-C04 · complex · February leap [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-195",
+   "case_id": "MK-CF-F-195-C05",
+   "name": "monthsLeftInYear",
+   "kind": "edge",
+   "title": "Last September day",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "monthsLeftInYear(local date at noon)",
+   "expected": {
+    "exact": "4",
+    "shown": "4"
+   },
+   "actual": 4,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-195 monthsLeftInYear — five cases › MK-CF-F-195-C05 · edge · Last September day [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-196",
+   "case_id": "MK-CF-F-196-C01",
+   "name": "perMonthToFill",
+   "kind": "easy",
+   "title": "January",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "perMonthToFill(room, date); the unrounded figure is room ÷ monthsLeftInYear(date), the two pieces the function divides",
+   "expected": {
+    "unrounded": {
+     "exact": "1000",
+     "shown": "$1,000"
+    },
+    "shown_nearest_100": {
+     "exact": "1000",
+     "shown": "$1,000"
+    }
+   },
+   "actual": {
+    "unrounded": 1000,
+    "shown_nearest_100": 1000
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-196 perMonthToFill — five cases › MK-CF-F-196-C01 · easy · January [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-196",
+   "case_id": "MK-CF-F-196-C02",
+   "name": "perMonthToFill",
+   "kind": "easy",
+   "title": "December",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "perMonthToFill(room, date); the unrounded figure is room ÷ monthsLeftInYear(date), the two pieces the function divides",
+   "expected": {
+    "unrounded": {
+     "exact": "5000",
+     "shown": "$5,000"
+    },
+    "shown_nearest_100": {
+     "exact": "5000",
+     "shown": "$5,000"
+    }
+   },
+   "actual": {
+    "unrounded": 5000,
+    "shown_nearest_100": 5000
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-196 perMonthToFill — five cases › MK-CF-F-196-C02 · easy · December [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-196",
+   "case_id": "MK-CF-F-196-C03",
+   "name": "perMonthToFill",
+   "kind": "complex",
+   "title": "October unround",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "perMonthToFill(room, date); the unrounded figure is room ÷ monthsLeftInYear(date), the two pieces the function divides",
+   "expected": {
+    "unrounded": {
+     "exact": "5770.39",
+     "shown": "$5,770"
+    },
+    "shown_nearest_100": {
+     "exact": "5800",
+     "shown": "$5,800"
+    }
+   },
+   "actual": {
+    "unrounded": 5770.389999999999,
+    "shown_nearest_100": 5800
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-196 perMonthToFill — five cases › MK-CF-F-196-C03 · complex · October unround [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-196",
+   "case_id": "MK-CF-F-196-C04",
+   "name": "perMonthToFill",
+   "kind": "complex",
+   "title": "September unround",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "perMonthToFill(room, date); the unrounded figure is room ÷ monthsLeftInYear(date), the two pieces the function divides",
+   "expected": {
+    "unrounded": {
+     "exact": "2077.8575",
+     "shown": "$2,078"
+    },
+    "shown_nearest_100": {
+     "exact": "2100",
+     "shown": "$2,100"
+    }
+   },
+   "actual": {
+    "unrounded": 2077.8575,
+    "shown_nearest_100": 2100
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-196 perMonthToFill — five cases › MK-CF-F-196-C04 · complex · September unround [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-196",
+   "case_id": "MK-CF-F-196-C05",
+   "name": "perMonthToFill",
+   "kind": "edge",
+   "title": "No room",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "perMonthToFill(room, date); the unrounded figure is room ÷ monthsLeftInYear(date), the two pieces the function divides",
+   "expected": {
+    "unrounded": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "shown_nearest_100": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "unrounded": 0,
+    "shown_nearest_100": 0
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-196 perMonthToFill — five cases › MK-CF-F-196-C05 · edge · No room [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-053",
+   "case_id": "MK-CF-F-053-C01",
+   "name": "annual401kLimit",
+   "kind": "easy",
+   "title": "Below catch-up",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the limit function called with the case's age (and family / Medicare where given)",
+   "expected": {
+    "exact": "24500",
+    "shown": "$24,500"
+   },
+   "actual": 24500,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-053 annual401kLimit — five cases › MK-CF-F-053-C01 · easy · Below catch-up [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-053",
+   "case_id": "MK-CF-F-053-C02",
+   "name": "annual401kLimit",
+   "kind": "easy",
+   "title": "At catch-up",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the limit function called with the case's age (and family / Medicare where given)",
+   "expected": {
+    "exact": "32500",
+    "shown": "$32,500"
+   },
+   "actual": 32500,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-053 annual401kLimit — five cases › MK-CF-F-053-C02 · easy · At catch-up [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-053",
+   "case_id": "MK-CF-F-053-C03",
+   "name": "annual401kLimit",
+   "kind": "complex",
+   "title": "Higher age/coverage",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the limit function called with the case's age (and family / Medicare where given)",
+   "expected": {
+    "exact": "35750",
+    "shown": "$35,750"
+   },
+   "actual": 35750,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-053 annual401kLimit — five cases › MK-CF-F-053-C03 · complex · Higher age/coverage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-053",
+   "case_id": "MK-CF-F-053-C04",
+   "name": "annual401kLimit",
+   "kind": "complex",
+   "title": "Upper boundary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the limit function called with the case's age (and family / Medicare where given)",
+   "expected": {
+    "exact": "35750",
+    "shown": "$35,750"
+   },
+   "actual": 35750,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-053 annual401kLimit — five cases › MK-CF-F-053-C04 · complex · Upper boundary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-053",
+   "case_id": "MK-CF-F-053-C05",
+   "name": "annual401kLimit",
+   "kind": "edge",
+   "title": "Other boundary or missing",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the limit function called with the case's age (and family / Medicare where given)",
+   "expected": {
+    "exact": "32500",
+    "shown": "$32,500"
+   },
+   "actual": 32500,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-053 annual401kLimit — five cases › MK-CF-F-053-C05 · edge · Other boundary or missing [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-054",
+   "case_id": "MK-CF-F-054-C01",
+   "name": "annualIraLimit",
+   "kind": "easy",
+   "title": "Below catch-up",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the limit function called with the case's age (and family / Medicare where given)",
+   "expected": {
+    "exact": "7500",
+    "shown": "$7,500"
+   },
+   "actual": 7500,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-054 annualIraLimit — five cases › MK-CF-F-054-C01 · easy · Below catch-up [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-054",
+   "case_id": "MK-CF-F-054-C02",
+   "name": "annualIraLimit",
+   "kind": "easy",
+   "title": "At catch-up",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the limit function called with the case's age (and family / Medicare where given)",
+   "expected": {
+    "exact": "8600",
+    "shown": "$8,600"
+   },
+   "actual": 8600,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-054 annualIraLimit — five cases › MK-CF-F-054-C02 · easy · At catch-up [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-054",
+   "case_id": "MK-CF-F-054-C03",
+   "name": "annualIraLimit",
+   "kind": "complex",
+   "title": "Higher age/coverage",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the limit function called with the case's age (and family / Medicare where given)",
+   "expected": {
+    "exact": "8600",
+    "shown": "$8,600"
+   },
+   "actual": 8600,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-054 annualIraLimit — five cases › MK-CF-F-054-C03 · complex · Higher age/coverage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-054",
+   "case_id": "MK-CF-F-054-C04",
+   "name": "annualIraLimit",
+   "kind": "complex",
+   "title": "Upper boundary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the limit function called with the case's age (and family / Medicare where given)",
+   "expected": {
+    "exact": "8600",
+    "shown": "$8,600"
+   },
+   "actual": 8600,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-054 annualIraLimit — five cases › MK-CF-F-054-C04 · complex · Upper boundary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-054",
+   "case_id": "MK-CF-F-054-C05",
+   "name": "annualIraLimit",
+   "kind": "edge",
+   "title": "Other boundary or missing",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the limit function called with the case's age (and family / Medicare where given)",
+   "expected": {
+    "exact": "7500",
+    "shown": "$7,500"
+   },
+   "actual": 7500,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-054 annualIraLimit — five cases › MK-CF-F-054-C05 · edge · Other boundary or missing [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-055",
+   "case_id": "MK-CF-F-055-C01",
+   "name": "annualHsaLimit",
+   "kind": "easy",
+   "title": "Below catch-up",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the limit function called with the case's age (and family / Medicare where given) (a full eligible year)",
+   "expected": {
+    "exact": "4400",
+    "shown": "$4,400"
+   },
+   "actual": 4400,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-055 annualHsaLimit — five cases › MK-CF-F-055-C01 · easy · Below catch-up [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-055",
+   "case_id": "MK-CF-F-055-C02",
+   "name": "annualHsaLimit",
+   "kind": "easy",
+   "title": "At catch-up",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the limit function called with the case's age (and family / Medicare where given) (a full eligible year)",
+   "expected": {
+    "exact": "5400",
+    "shown": "$5,400"
+   },
+   "actual": 5400,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-055 annualHsaLimit — five cases › MK-CF-F-055-C02 · easy · At catch-up [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-055",
+   "case_id": "MK-CF-F-055-C03",
+   "name": "annualHsaLimit",
+   "kind": "complex",
+   "title": "Higher age/coverage",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the limit function called with the case's age (and family / Medicare where given) (a full eligible year)",
+   "expected": {
+    "exact": "9750",
+    "shown": "$9,750"
+   },
+   "actual": 9750,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-055 annualHsaLimit — five cases › MK-CF-F-055-C03 · complex · Higher age/coverage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-055",
+   "case_id": "MK-CF-F-055-C04",
+   "name": "annualHsaLimit",
+   "kind": "complex",
+   "title": "Upper boundary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the limit function called with the case's age (and family / Medicare where given) (a full eligible year)",
+   "expected": {
+    "exact": "5400",
+    "shown": "$5,400"
+   },
+   "actual": 5400,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-055 annualHsaLimit — five cases › MK-CF-F-055-C04 · complex · Upper boundary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-055",
+   "case_id": "MK-CF-F-055-C05",
+   "name": "annualHsaLimit",
+   "kind": "edge",
+   "title": "Other boundary or missing",
+   "classification": "APP WRONG",
+   "status": "FAIL",
+   "mapped": "annualHsaLimit(65, self-only, enrolled in Medicare) — the start date 2026-07-01 / 6 eligible months has no argument",
+   "expected": {
+    "exact": "2700",
+    "shown": "$2,700"
+   },
+   "actual": 0,
+   "difference": "$0 (right $2,700)",
+   "rests_on": "IRS Publication 969 (contributions stop from the first month of Medicare; the year's limit is prorated by eligible months); IRS Rev. Proc. 2025-19; DEC-0378",
+   "note": "Enrolled in Medicare from 1 July at 65, self-only: January to June are eligible, (4,400 + 1,000) × 6 ÷ 12 = $2,700. The app gives $0 for the whole year, and the screen says \"no HSA contribution is allowed this year\". His ruling DEC-0243 governs only how the limit is shown at 65+. The fix needs the month Medicare started; today the question is yes / no (MK-XS-I-062).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-055 annualHsaLimit — five cases › MK-CF-F-055-C05 · edge · Other boundary or missing [APP WRONG] — IRS Publication 969 and DEC-0378: enrolled from July 1 still leaves six eligible months, (4,400 + 1,000) × 6 ÷ 12 = $2,700; the app says $0",
+   "test_result": "passed (test.failing on the reviewer's answer: it fails today, so the test passes; it turns red when the fix lands)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (IRS Publication 969, Rev. Proc. 2025-19, DEC-0378): annualHsaLimit takes Medicare's first month this year; the months before it count — (4,400 + 1,000) × 6 ÷ 12 = $2,700 (was $0). The screen asks \"When did your Medicare start?\" (state D). No month given → $0 (his G10)."
+  },
+  {
+   "id": "MK-CF-F-056",
+   "case_id": "MK-CF-F-056-C01",
+   "name": "k401Headroom",
+   "kind": "easy",
+   "title": "Below50",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "k401Headroom(age, contributed as the year's amount); the app returns no excess figure, so excess = none shown",
+   "expected": {
+    "limit": {
+     "exact": "24500",
+     "shown": "$24,500"
+    },
+    "actual_used": {
+     "exact": "10000",
+     "shown": "$10,000"
+    },
+    "room": {
+     "exact": "14500",
+     "shown": "$14,500"
+    },
+    "excess": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "limit": 24500,
+    "actual_used": 10000,
+    "room": 14500,
+    "excess": "no excess figure"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "Limit, used and room agree; the app has no excess figure, and none exists here.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-056 k401Headroom — five cases › MK-CF-F-056-C01 · easy · Below50 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-056",
+   "case_id": "MK-CF-F-056-C02",
+   "name": "k401Headroom",
+   "kind": "easy",
+   "title": "Age50 catch-up",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "k401Headroom(age, contributed as the year's amount); the app returns no excess figure, so excess = none shown",
+   "expected": {
+    "limit": {
+     "exact": "32500",
+     "shown": "$32,500"
+    },
+    "actual_used": {
+     "exact": "10000",
+     "shown": "$10,000"
+    },
+    "room": {
+     "exact": "22500",
+     "shown": "$22,500"
+    },
+    "excess": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "limit": 32500,
+    "actual_used": 10000,
+    "room": 22500,
+    "excess": "no excess figure"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "Limit, used and room agree; the app has no excess figure, and none exists here.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-056 k401Headroom — five cases › MK-CF-F-056-C02 · easy · Age50 catch-up [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-056",
+   "case_id": "MK-CF-F-056-C03",
+   "name": "k401Headroom",
+   "kind": "complex",
+   "title": "Age60 unround",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "k401Headroom(age, contributed as the year's amount); the app returns no excess figure, so excess = none shown",
+   "expected": {
+    "limit": {
+     "exact": "35750",
+     "shown": "$35,750"
+    },
+    "actual_used": {
+     "exact": "17311.17",
+     "shown": "$17,311"
+    },
+    "room": {
+     "exact": "18438.83",
+     "shown": "$18,439"
+    },
+    "excess": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "limit": 35750,
+    "actual_used": 17311.17,
+    "room": 18438.83,
+    "excess": "no excess figure"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "Limit, used and room agree; the app has no excess figure, and none exists here.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-056 k401Headroom — five cases › MK-CF-F-056-C03 · complex · Age60 unround [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-056",
+   "case_id": "MK-CF-F-056-C04",
+   "name": "k401Headroom",
+   "kind": "complex",
+   "title": "Age64 unround",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "k401Headroom(age, contributed as the year's amount); the app returns no excess figure, so excess = none shown",
+   "expected": {
+    "limit": {
+     "exact": "32500",
+     "shown": "$32,500"
+    },
+    "actual_used": {
+     "exact": "31131.43",
+     "shown": "$31,131"
+    },
+    "room": {
+     "exact": "1368.57",
+     "shown": "$1,369"
+    },
+    "excess": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "limit": 32500,
+    "actual_used": 31131.43,
+    "room": 1368.5699999999997,
+    "excess": "no excess figure"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "Limit, used and room agree (room $1,368.57 to the float, 1e-6); no excess exists here.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-056 k401Headroom — five cases › MK-CF-F-056-C04 · complex · Age64 unround [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-056",
+   "case_id": "MK-CF-F-056-C05",
+   "name": "k401Headroom",
+   "kind": "edge",
+   "title": "Overcontribution",
+   "classification": "APP WRONG",
+   "status": "FAIL",
+   "mapped": "k401Headroom(60, 40000)",
+   "expected": {
+    "limit": {
+     "exact": "35750",
+     "shown": "$35,750"
+    },
+    "actual_used": {
+     "exact": "40000",
+     "shown": "$40,000"
+    },
+    "room": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "excess": {
+     "exact": "4250",
+     "shown": "$4,250"
+    }
+   },
+   "actual": {
+    "limit": 35750,
+    "actual_used": 35750,
+    "room": 0,
+    "excess": "no excess figure"
+   },
+   "difference": "used $35,750 (right $40,000); excess none (right $4,250)",
+   "rests_on": "tenets 1, 5 and 7 (DEC-3523)",
+   "note": "$40,000 put in at 60 comes back as \"used $35,750\" — capped at the limit — and the $4,250 excess has no figure. Room $0 is right.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-056 k401Headroom — five cases › MK-CF-F-056-C05 · edge · Overcontribution [APP WRONG] — tenets 1, 5, 7: $40,000 put in is reported as $35,750 and the $4,250 excess vanishes",
+   "test_result": "passed (test.failing on the reviewer's answer: it fails today, so the test passes; it turns red when the fix lands)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (tenets 1, 5, 7; IRC §402(g)): used $40,000 (was $35,750), excess $4,250 (was none), room $0."
+  },
+  {
+   "id": "MK-CF-F-057",
+   "case_id": "MK-CF-F-057-C01",
+   "name": "rothVsTraditional",
+   "kind": "easy",
+   "title": "Low current",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "rothVsTraditional(current, retirement); the lean is a code value (roth / traditional / either), compared without case",
+   "expected": "Roth",
+   "actual": "roth",
+   "difference": "none",
+   "rests_on": "",
+   "note": "The lean is the code value \"roth\"; the reviewer wrote \"Roth\".",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-057 rothVsTraditional — five cases › MK-CF-F-057-C01 · easy · Low current [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-057",
+   "case_id": "MK-CF-F-057-C02",
+   "name": "rothVsTraditional",
+   "kind": "easy",
+   "title": "High now lower later",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "rothVsTraditional(current, retirement); the lean is a code value (roth / traditional / either), compared without case",
+   "expected": "Traditional",
+   "actual": "traditional",
+   "difference": "none",
+   "rests_on": "",
+   "note": "The lean is the code value \"traditional\".",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-057 rothVsTraditional — five cases › MK-CF-F-057-C02 · easy · High now lower later [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-057",
+   "case_id": "MK-CF-F-057-C03",
+   "name": "rothVsTraditional",
+   "kind": "complex",
+   "title": "High both rising",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "rothVsTraditional(current, retirement); the lean is a code value (roth / traditional / either), compared without case",
+   "expected": "either",
+   "actual": "either",
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-057 rothVsTraditional — five cases › MK-CF-F-057-C03 · complex · High both rising [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-057",
+   "case_id": "MK-CF-F-057-C04",
+   "name": "rothVsTraditional",
+   "kind": "complex",
+   "title": "Middle current",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "rothVsTraditional(current, retirement); the lean is a code value (roth / traditional / either), compared without case",
+   "expected": "either",
+   "actual": "either",
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-057 rothVsTraditional — five cases › MK-CF-F-057-C04 · complex · Middle current [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-057",
+   "case_id": "MK-CF-F-057-C05",
+   "name": "rothVsTraditional",
+   "kind": "edge",
+   "title": "Exactly same24",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "rothVsTraditional(current, retirement); the lean is a code value (roth / traditional / either), compared without case",
+   "expected": "either",
+   "actual": "either",
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-057 rothVsTraditional — five cases › MK-CF-F-057-C05 · edge · Exactly same24 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-058",
+   "case_id": "MK-CF-F-058-C01",
+   "name": "rothConversionWindow",
+   "kind": "easy",
+   "title": "Before retirement",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "rothConversionWindow(age, retirement_age, claim_age ?? 0)",
+   "expected": false,
+   "actual": false,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-058 rothConversionWindow — five cases › MK-CF-F-058-C01 · easy · Before retirement [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-058",
+   "case_id": "MK-CF-F-058-C02",
+   "name": "rothConversionWindow",
+   "kind": "easy",
+   "title": "Retired before claiming",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "rothConversionWindow(age, retirement_age, claim_age ?? 0)",
+   "expected": true,
+   "actual": true,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-058 rothConversionWindow — five cases › MK-CF-F-058-C02 · easy · Retired before claiming [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-058",
+   "case_id": "MK-CF-F-058-C03",
+   "name": "rothConversionWindow",
+   "kind": "complex",
+   "title": "Missing claim age heuristic",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "rothConversionWindow(age, retirement_age, claim_age ?? 0)",
+   "expected": true,
+   "actual": true,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-058 rothConversionWindow — five cases › MK-CF-F-058-C03 · complex · Missing claim age heuristic [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-058",
+   "case_id": "MK-CF-F-058-C04",
+   "name": "rothConversionWindow",
+   "kind": "complex",
+   "title": "Already claiming low benefit",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "rothConversionWindow(68, 65, 67) — the benefit and other income have no argument",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Heuristic flag versus actual conversion opportunity",
+    "readings": {
+     "heuristic": false,
+     "opportunity": "may remain; determine taxable marginal capacity"
+    }
+   },
+   "actual": false,
+   "difference": "none",
+   "rests_on": "the reviewer wrote RULE UNCLEAR and offered the heuristic reading; the app follows its stated heuristic",
+   "note": "The app gives the heuristic answer, false (68 is past the claim age of 67). Its one caller, the Retirement cockpit (RetirementCockpit.tsx:631), says the window is \"before required withdrawals/Social Security\" and that income \"may be low\" — it names its premise. Whether a small benefit still leaves conversion room is advice the function does not claim to give; the record should call it a heuristic (records fix).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-058 rothConversionWindow — five cases › MK-CF-F-058-C04 · complex · Already claiming low benefit [AGREE] — the reviewer left it RULE UNCLEAR; the app gives its heuristic reading, false, and its one sentence (Retirement cockpit) names that premise",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-058",
+   "case_id": "MK-CF-F-058-C05",
+   "name": "rothConversionWindow",
+   "kind": "edge",
+   "title": "At fixed cutoff",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "rothConversionWindow(age, retirement_age, claim_age ?? 0)",
+   "expected": false,
+   "actual": false,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-058 rothConversionWindow — five cases › MK-CF-F-058-C05 · edge · At fixed cutoff [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-O-017",
+   "case_id": "MK-CF-O-017-C01",
+   "name": "futurePaycheck",
+   "kind": "easy",
+   "title": "Age absent",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "futurePaycheck({ op: no birth year, accounts: [one $100,000 401(k)], assumptions: {} })",
+   "expected": null,
+   "actual": null,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-O-017 futurePaycheck — five cases › MK-CF-O-017-C01 · easy · Age absent [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-O-017",
+   "case_id": "MK-CF-O-017-C02",
+   "name": "futurePaycheck",
+   "kind": "easy",
+   "title": "Already retired",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "futurePaycheck({ op: { birthYear = clock year − 67, targetRetirementAge 67 }, a $100,000 401(k) })",
+   "expected": null,
+   "actual": null,
+   "difference": "none",
+   "rests_on": "",
+   "note": "Age 67 at a retirement age of 67: no card (null). The age was set by birth year 1959 with the clock pinned to 2026-10-24.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-O-017 futurePaycheck — five cases › MK-CF-O-017-C02 · easy · Already retired [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-O-017",
+   "case_id": "MK-CF-O-017-C03",
+   "name": "futurePaycheck",
+   "kind": "complex",
+   "title": "No savings",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "futurePaycheck({ op: { birthYear 1966, targetRetirementAge 67 }, accounts: [] })",
+   "expected": null,
+   "actual": null,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-O-017 futurePaycheck — five cases › MK-CF-O-017-C03 · complex · No savings [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-O-017",
+   "case_id": "MK-CF-O-017-C04",
+   "name": "futurePaycheck",
+   "kind": "complex",
+   "title": "Composition with external witnesses",
+   "classification": "APP WRONG",
+   "status": "FAIL",
+   "mapped": "futurePaycheck compiled from its own source; age 61.5, guaranteed $2,731.17, projected pot $497,311.43 and draw $1,730 handed in as the reviewer's witnesses",
+   "expected": {
+    "unrounded_total": {
+     "exact": "4461.17",
+     "shown": "$4,461"
+    },
+    "guaranteed_shown": {
+     "exact": "2731",
+     "shown": "$2,731"
+    },
+    "draw_shown": {
+     "exact": "1730",
+     "shown": "$1,730"
+    },
+    "total_shown": {
+     "exact": "4461",
+     "shown": "$4,461"
+    }
+   },
+   "actual": {
+    "retireAge": 67,
+    "monthly": 4461,
+    "guaranteed": 2731,
+    "draw": 1730
+   },
+   "difference": "monthly 4461 (right 4461.17 until display)",
+   "rests_on": "PRECISION standing order, master question Q49 (2026-09-09): nothing rounds inside a function",
+   "note": "Run on the app's own text with the reviewer's witnesses ($2,731.17 guaranteed, $1,730 draw): every shown figure agrees ($2,731, $1,730, $4,461), but the door rounds before the screen and returns $4,461, not $4,461.17. Low stakes: rounded once, from unrounded parts.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-O-017 futurePaycheck — five cases › MK-CF-O-017-C04 · complex · Composition with external witnesses [APP WRONG] — PRECISION order (Q49, 2026-09-09): the door returns $4,461, not $4,461.17 — every shown figure agrees",
+   "test_result": "passed (test.failing on the reviewer's answer: it fails today, so the test passes; it turns red when the fix lands)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (PRECISION, Q49): futurePaycheck returns $4,461.17 / $2,731.17 at full precision (was 4,461 / 2,731); the card rounds once through fig()."
+  },
+  {
+   "id": "MK-CF-O-017",
+   "case_id": "MK-CF-O-017-C05",
+   "name": "futurePaycheck",
+   "kind": "edge",
+   "title": "Projection unavailable",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "futurePaycheck compiled from its own source; the projection handed in as none",
+   "expected": null,
+   "actual": null,
+   "difference": "none",
+   "rests_on": "",
+   "note": "Run on the app's own text with no projection handed back: null.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-O-017 futurePaycheck — five cases › MK-CF-O-017-C05 · edge · Projection unavailable [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-105",
+   "case_id": "MK-CF-F-105-C01",
+   "name": "guaranteedRows",
+   "kind": "easy",
+   "title": "Monthly Social Security",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "guaranteedRows(profile with ri_<key>, ri_<key>_freq, ri_<key>_month; incomeSources [retirement_income]), now = as_of",
+   "expected": [
+    {
+     "month": "2026-10",
+     "amount": {
+      "exact": "2000",
+      "shown": "$2,000.00"
+     }
+    },
+    {
+     "month": "2026-11",
+     "amount": {
+      "exact": "2000",
+      "shown": "$2,000.00"
+     }
+    },
+    {
+     "month": "2026-12",
+     "amount": {
+      "exact": "2000",
+      "shown": "$2,000.00"
+     }
+    },
+    {
+     "month": "2027-01",
+     "amount": {
+      "exact": "2000",
+      "shown": "$2,000.00"
+     }
+    },
+    {
+     "month": "2027-02",
+     "amount": {
+      "exact": "2000",
+      "shown": "$2,000.00"
+     }
+    },
+    {
+     "month": "2027-03",
+     "amount": {
+      "exact": "2000",
+      "shown": "$2,000.00"
+     }
+    },
+    {
+     "month": "2027-04",
+     "amount": {
+      "exact": "2000",
+      "shown": "$2,000.00"
+     }
+    },
+    {
+     "month": "2027-05",
+     "amount": {
+      "exact": "2000",
+      "shown": "$2,000.00"
+     }
+    },
+    {
+     "month": "2027-06",
+     "amount": {
+      "exact": "2000",
+      "shown": "$2,000.00"
+     }
+    },
+    {
+     "month": "2027-07",
+     "amount": {
+      "exact": "2000",
+      "shown": "$2,000.00"
+     }
+    },
+    {
+     "month": "2027-08",
+     "amount": {
+      "exact": "2000",
+      "shown": "$2,000.00"
+     }
+    },
+    {
+     "month": "2027-09",
+     "amount": {
+      "exact": "2000",
+      "shown": "$2,000.00"
+     }
+    }
+   ],
+   "actual": [
+    {
+     "month": "2026-10",
+     "amount": 2000
+    },
+    {
+     "month": "2026-11",
+     "amount": 2000
+    },
+    {
+     "month": "2026-12",
+     "amount": 2000
+    },
+    {
+     "month": "2027-01",
+     "amount": 2000
+    },
+    {
+     "month": "2027-02",
+     "amount": 2000
+    },
+    {
+     "month": "2027-03",
+     "amount": 2000
+    },
+    {
+     "month": "2027-04",
+     "amount": 2000
+    },
+    {
+     "month": "2027-05",
+     "amount": 2000
+    },
+    {
+     "month": "2027-06",
+     "amount": 2000
+    },
+    {
+     "month": "2027-07",
+     "amount": 2000
+    },
+    {
+     "month": "2027-08",
+     "amount": 2000
+    },
+    {
+     "month": "2027-09",
+     "amount": 2000
+    }
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-105 guaranteedRows — five cases › MK-CF-F-105-C01 · easy · Monthly Social Security [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-105",
+   "case_id": "MK-CF-F-105-C02",
+   "name": "guaranteedRows",
+   "kind": "easy",
+   "title": "Quarterly pension",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "guaranteedRows(profile with ri_<key>, ri_<key>_freq, ri_<key>_month; incomeSources [retirement_income]), now = as_of",
+   "expected": [
+    {
+     "month": "2026-11",
+     "amount": {
+      "exact": "3000",
+      "shown": "$3,000.00"
+     }
+    },
+    {
+     "month": "2027-02",
+     "amount": {
+      "exact": "3000",
+      "shown": "$3,000.00"
+     }
+    },
+    {
+     "month": "2027-05",
+     "amount": {
+      "exact": "3000",
+      "shown": "$3,000.00"
+     }
+    },
+    {
+     "month": "2027-08",
+     "amount": {
+      "exact": "3000",
+      "shown": "$3,000.00"
+     }
+    }
+   ],
+   "actual": [
+    {
+     "month": "2026-11",
+     "amount": 3000
+    },
+    {
+     "month": "2027-02",
+     "amount": 3000
+    },
+    {
+     "month": "2027-05",
+     "amount": 3000
+    },
+    {
+     "month": "2027-08",
+     "amount": 3000
+    }
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-105 guaranteedRows — five cases › MK-CF-F-105-C02 · easy · Quarterly pension [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-105",
+   "case_id": "MK-CF-F-105-C03",
+   "name": "guaranteedRows",
+   "kind": "complex",
+   "title": "Annual annuity",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "guaranteedRows(profile with ri_<key>, ri_<key>_freq, ri_<key>_month; incomeSources [retirement_income]), now = as_of",
+   "expected": [
+    {
+     "month": "2027-03",
+     "amount": {
+      "exact": "11311.17",
+      "shown": "$11,311.17"
+     }
+    }
+   ],
+   "actual": [
+    {
+     "month": "2027-03",
+     "amount": 11311.17
+    }
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "\"yearly\" mapped to the app's stored word \"annual\"; one March 2027 payment of $11,311.17.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-105 guaranteedRows — five cases › MK-CF-F-105-C03 · complex · Annual annuity [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-105",
+   "case_id": "MK-CF-F-105-C04",
+   "name": "guaranteedRows",
+   "kind": "complex",
+   "title": "Multiple streams one date",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "guaranteedRows(profile with ri_<key>, ri_<key>_freq, ri_<key>_month; incomeSources [retirement_income]), now = as_of (two streams)",
+   "expected": {
+    "october_total": {
+     "exact": "4942.60",
+     "shown": "$4,943"
+    },
+    "annual_total": {
+     "exact": "34419.76",
+     "shown": "$34,420"
+    }
+   },
+   "actual": {
+    "october_total": 4942.6,
+    "annual_total": 34419.759999999995
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-105 guaranteedRows — five cases › MK-CF-F-105-C04 · complex · Multiple streams one date [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-105",
+   "case_id": "MK-CF-F-105-C05",
+   "name": "guaranteedRows",
+   "kind": "edge",
+   "title": "Inflation-linked crosses year",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "guaranteedRows(profile with ri_<key>, ri_<key>_freq, ri_<key>_month; incomeSources [retirement_income]), now = as_of (ri_ss_inflates true; next year's increase has no input)",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Nominal payment adjustment contract missing",
+    "readings": {
+     "fixed_input": {
+      "exact": "2000",
+      "shown": "$2,000"
+     },
+     "inflation_adjusted_january": {
+      "exact": "2050",
+      "shown": "$2,050"
+     }
+    }
+   },
+   "actual": {
+    "january_2027": 2000
+   },
+   "difference": "none",
+   "rests_on": "SETTLED BY DEC-2164 (the paycheck draw is in today's dollars) with DEC-0303 (Social Security rises with inflation)",
+   "note": "The reviewer wrote RULE UNCLEAR with two readings. The app shows $2,000 in January 2027 — the fixed reading. In today's dollars, the unit DEC-2164 sets for the draw beside it, a check that rises with inflation stays $2,000. The record should say the 12 months are in today's dollars (records fix).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-105 guaranteedRows — five cases › MK-CF-F-105-C05 · edge · Inflation-linked crosses year [AGREE] — SETTLED BY DEC-2164 with DEC-0303: the paycheck is in today's dollars, where a check that rises with inflation stays $2,000",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-106",
+   "case_id": "MK-CF-F-106-C01",
+   "name": "solveSafeDraw",
+   "kind": "easy",
+   "title": "Zero pot",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "solveSafeDraw(pot, guaranteed, assumed plan 30 years)",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-106 solveSafeDraw — five cases › MK-CF-F-106-C01 · easy · Zero pot [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-106",
+   "case_id": "MK-CF-F-106-C02",
+   "name": "solveSafeDraw",
+   "kind": "easy",
+   "title": "Negative pot",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "solveSafeDraw(pot, guaranteed, assumed plan 30 years)",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-106 solveSafeDraw — five cases › MK-CF-F-106-C02 · easy · Negative pot [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-106",
+   "case_id": "MK-CF-F-106-C03",
+   "name": "solveSafeDraw",
+   "kind": "complex",
+   "title": "Feasible bracket contract",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "solveSafeDraw($311,731.17, $2,731.43, 30 years, floor 80) on the ASSUMED plan (67, 6%, 12% volatility, 2.5% inflation)",
+   "expected": {
+    "assertions": [
+     "returned draw is a multiple of5",
+     "tested chance≥80 at returned draw",
+     "same seed/path set for all candidates",
+     "retained feasible lower bracket"
+    ]
+   },
+   "actual": {
+    "draw": 955,
+    "chance_at_draw": 80.3
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "On the assumed plan (67, 6% return, 12% volatility, 2.5% inflation, 1,000 paths, seed 42): $955 a month, a multiple of $5, chance 80.3 (≥ 80); $960 tests at 79.6. One seed and one path count for every candidate (read in solveSafeDraw).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-106 solveSafeDraw — five cases › MK-CF-F-106-C03 · complex · Feasible bracket contract [AGREE] — the four properties hold on this plan: $955 a month, a multiple of $5, chance 80.3; the same seed and paths for every candidate (read in the code)",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-106",
+   "case_id": "MK-CF-F-106-C04",
+   "name": "solveSafeDraw",
+   "kind": "complex",
+   "title": "All-feasible starting bracket",
+   "classification": "APP WRONG",
+   "status": "FAIL",
+   "mapped": "solveSafeDraw compiled from its own source with the reviewer's oracle (chance 100 up to the starting top, 95 up to twice it, 0 beyond)",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Need a genuinely infeasible upper bound",
+    "readings": {
+     "proper": "expand bracket",
+     "written": "returns within initial upper"
+    }
+   },
+   "actual": {
+    "draw": 961.7288333333335,
+    "starting_top": 961.7288333333335
+   },
+   "difference": "$961.73 (right: a multiple of $5 at or near twice the top)",
+   "rests_on": "tenet 1 (DEC-3523); the function's own words: \"largest level monthly draw\" and \"round DOWN to $5\"",
+   "note": "With the reviewer's oracle (chance 100 up to the starting top, 95 up to twice it) the app returns the starting top itself, $961.73 — not rounded to $5 and not the largest draw that holds 80 (that is $1,920: twice the top, $1,923.46, rounded down to $5). The same happens inside the app's own domain: a 10% plan return (the cockpit slider runs 2–14%) on a 6%-volatility pot gives chance 94.9 at the top, and the app returns $961.73 (witness test).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-106 solveSafeDraw — five cases › MK-CF-F-106-C04 · complex · All-feasible starting bracket [APP WRONG] — tenet 1 and the function's own words (\"largest\", \"round DOWN to $5\"): when the starting top is already safe it returns that top, $961.73, unrounded",
+   "test_result": "passed (test.failing on the reviewer's answer: it fails today, so the test passes; it turns red when the fix lands)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (tenet 1): the top is doubled until a draw fails, then the search narrows: $1,920 a month on the reviewer's oracle (was the starting top, $961.73, unrounded)."
+  },
+  {
+   "id": "MK-CF-F-106",
+   "case_id": "MK-CF-F-106-C05",
+   "name": "solveSafeDraw",
+   "kind": "edge",
+   "title": "Different requested floor",
+   "classification": "APP WRONG",
+   "status": "FAIL",
+   "mapped": "solveSafeDraw($231,731.17, $1,311.43, 27 years, floor 95) on the ASSUMED plan; chance re-tested at the draw returned",
+   "expected": {
+    "assertion": "returned draw satisfies requested95 percent, not fixed80"
+   },
+   "actual": {
+    "draw": 580,
+    "chance_at_draw": 94.7
+   },
+   "difference": "$580 at a chance of 94.7 (right: a draw that tests at 95 or more)",
+   "rests_on": "tenet 1 (DEC-3523); the reviewer's assertion that the returned draw meets the requested floor",
+   "note": "The requested 95 is used in the search, but the draw is then rounded down to $5 and never re-tested. The seeded chance does not fall steadily as the draw rises ($570: 94.7, $575: 95.4, $580: 94.7), so the $580 returned tests at 94.7, below 95. Assumed plan as C03, 27 years.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-106 solveSafeDraw — five cases › MK-CF-F-106-C05 · edge · Different requested floor [APP WRONG] — the requested 95 is used in the search, but the $5 round-down is never re-tested: $580 a month has a chance of 94.7, below 95",
+   "test_result": "passed (test.failing on the reviewer's answer: it fails today, so the test passes; it turns red when the fix lands)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (tenet 1): the $5 round-down is re-tested, stepping down $5 until it holds: $575 at 95.4 (was $580 at 94.7)."
+  },
+  {
+   "id": "MK-CF-F-107",
+   "case_id": "MK-CF-F-107-C01",
+   "name": "buildPaycheckYear",
+   "kind": "easy",
+   "title": "No pot",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "buildPaycheckYear(Social Security $2,000 a month, { nestEgg: 0, now: as_of })",
+   "expected": {
+    "draw": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "monthly_total": {
+     "exact": "2000",
+     "shown": "$2,000"
+    }
+   },
+   "actual": {
+    "draw": 0,
+    "monthly_total": 2000
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-107 buildPaycheckYear — five cases › MK-CF-F-107-C01 · easy · No pot [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-107",
+   "case_id": "MK-CF-F-107-C02",
+   "name": "buildPaycheckYear",
+   "kind": "easy",
+   "title": "No bills",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "buildPaycheckYear, the real module, the simulation answering with the reviewer's $1,000 draw; Social Security $2,000 a month, no bills",
+   "expected": {
+    "monthly_total": {
+     "exact": "3000",
+     "shown": "$3,000"
+    },
+    "twelve_month_total": {
+     "exact": "36000",
+     "shown": "$36,000"
+    }
+   },
+   "actual": {
+    "monthly_total": 3000,
+    "twelve_month_total": 36000
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "buildPaycheckYear compiled from its own text with the reviewer's $1,000 draw: $3,000 a month, $36,000 over 12 months (summed month by month, not × 12).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-107 buildPaycheckYear — five cases › MK-CF-F-107-C02 · easy · No bills [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-107",
+   "case_id": "MK-CF-F-107-C03",
+   "name": "buildPaycheckYear",
+   "kind": "complex",
+   "title": "Dated bills",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "run as C02 with the $1,730 draw; a $1,831.43 bill due Dec 15 as a non-monthly spendCats row",
+   "expected": {
+    "regular_month": {
+     "exact": "4461.17",
+     "shown": "$4,461"
+    },
+    "bill_month": {
+     "exact": "2629.74",
+     "shown": "$2,630"
+    },
+    "twelve_month_total": {
+     "exact": "51702.61",
+     "shown": "$51,703"
+    }
+   },
+   "actual": {
+    "regular_month": 4461.17,
+    "bill_month": 2629.74,
+    "twelve_month_total": 51702.609999999986
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The $1,831.43 bill lands in December only: $4,461.17 a regular month, $2,629.74 in December, $51,702.61 over the year (float, 1e-6).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-107 buildPaycheckYear — five cases › MK-CF-F-107-C03 · complex · Dated bills [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-107",
+   "case_id": "MK-CF-F-107-C04",
+   "name": "buildPaycheckYear",
+   "kind": "complex",
+   "title": "Withdrawal excluded",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "run as C02 with the $1,730 draw; ri_withdrawals $511.43 a month on the profile",
+   "expected": {
+    "monthly_total": {
+     "exact": "4461.17",
+     "shown": "$4,461"
+    }
+   },
+   "actual": {
+    "monthly_total": 4461.17
+   },
+   "difference": "none",
+   "rests_on": "DEC-0244, DEC-0307",
+   "note": "The $511.43 own-savings withdrawal is not counted as guaranteed income: $4,461.17.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-107 buildPaycheckYear — five cases › MK-CF-F-107-C04 · complex · Withdrawal excluded [AGREE] — DEC-0244 / DEC-0307: the own-savings withdrawal is not counted again",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-107",
+   "case_id": "MK-CF-F-107-C05",
+   "name": "buildPaycheckYear",
+   "kind": "edge",
+   "title": "Unknown simulation",
+   "classification": "BLOCKED",
+   "status": "NOT RUN",
+   "mapped": "buildPaycheckYear($100,000 pot, $2,000 guaranteed) — the reviewer has no simulation contract to give an answer",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Cannot independently calculate positive-pot supported draw"
+   },
+   "actual": {
+    "draw_on_assumed_plan": 305,
+    "monthly_total": 2305
+   },
+   "difference": "not run",
+   "rests_on": "",
+   "note": "No expected number exists: the reviewer has no simulation contract (could_not_test MK-CF-O-017), and the simulation is MK-PL-F-050, not in this part. Recorded: on the assumed plan the app draws $305 a month, $2,305 with the $2,000 check. The word \"safe\" appears in no screen text (DEC-0295 held); it survives only in code names and the record's header.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › MK-CF-F-107 buildPaycheckYear — five cases › MK-CF-F-107-C05 · edge · Unknown simulation [BLOCKED] — no expected number exists; the app's answer on the assumed plan is recorded",
+   "test_result": "pending (test.skip)"
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-CF-O-005",
+   "name": "theContributionRoom",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Calls monthly contribution ×12 money used so far, hides overcontributions by capping used at the limit, counts only Roth IRA amounts for combined IRA room, and assumes self-only HSA cover.",
+   "reviewer_should_be": "Use confirmed year-to-date contributions per person across relevant accounts, show excesses, use coverage/eligibility months, and distinguish planned annual contributions from used.",
+   "classification": "APP WRONG (in part)",
+   "what_the_code_actually_does": "His rulings G1 (DEC-0339), G10 (DEC-0243) and G36 (DEC-0336) are kept. Five points, each measured: (1) \"used\" capped at the limit hides an excess — APP WRONG (O-005-C04; the fix is in MK-CF-F-056 plus an excess figure on the door). (2) Monthly × 12 called \"used\" — NEEDS RULING: the app has no input for money already in this year and says on screen that it works from the monthly amount (O-005-C01). (3) Only the Roth IRA is counted — BLOCKED: the profile has no Traditional IRA contribution (c_roth only), though the card is titled \"IRA (Traditional + Roth)\". (4) Self-only HSA — BLOCKED: no cover input; the screen says \"self-only limit; family plans cap higher\". (5) Found while measuring: no birth year gives an unmarked base limit — APP WRONG under tenet 3 (O-005-C05). Minor, no wrong number today: the door's `today` does not reach the age (ageAttainedInYear reads the clock); production passes no `today`. The door also computes hsa.used / remaining that the room screen never shows (it prints HSA \"up to\" with used 0, per DEC-0013).",
+   "governing_decisions": [
+    "DEC-0339",
+    "DEC-0243",
+    "DEC-0336",
+    "DEC-0013",
+    "DEC-3523"
+   ],
+   "items": "O-005-C04 · O-005-C05 · O-005-C01 · O-005-C03",
+   "fixed_2026_10_25": "FIXED 2026-10-25: points 1 (excess) and 5 (no birth year) fixed; point 2 DECIDED (plan arithmetic, said in words); points 3–4 stay BLOCKED (no Traditional IRA or HSA cover input). `today` now reaches the age too."
+  },
+  {
+   "id": "MK-CF-F-197",
+   "name": "ageAttainedInYear",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_why": "Uses the calendar-year age required for catch-up thresholds and refuses an absent/unusable birth year; future birth years should be rejected at input.",
+   "classification": "AGREE",
+   "what_the_code_actually_does": "Its 5 cases all agree.",
+   "governing_decisions": [],
+   "items": [
+    "MK-CF-F-197-C01",
+    "MK-CF-F-197-C02",
+    "MK-CF-F-197-C03",
+    "MK-CF-F-197-C04",
+    "MK-CF-F-197-C05"
+   ]
+  },
+  {
+   "id": "MK-CF-F-195",
+   "name": "monthsLeftInYear",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_why": "Includes the current month explicitly: January12, December1.",
+   "classification": "AGREE",
+   "what_the_code_actually_does": "Its 5 cases all agree.",
+   "governing_decisions": [],
+   "items": [
+    "MK-CF-F-195-C01",
+    "MK-CF-F-195-C02",
+    "MK-CF-F-195-C03",
+    "MK-CF-F-195-C04",
+    "MK-CF-F-195-C05"
+   ]
+  },
+  {
+   "id": "MK-CF-F-196",
+   "name": "perMonthToFill",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_why": "Divides known room by explicitly inclusive remaining months and rounds only the displayed planning amount to $100; this rounded amount may leave residual room.",
+   "classification": "AGREE",
+   "what_the_code_actually_does": "Its 5 cases all agree.",
+   "governing_decisions": [],
+   "items": [
+    "MK-CF-F-196-C01",
+    "MK-CF-F-196-C02",
+    "MK-CF-F-196-C03",
+    "MK-CF-F-196-C04",
+    "MK-CF-F-196-C05"
+   ]
+  },
+  {
+   "id": "MK-CF-F-053",
+   "name": "annual401kLimit",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_why": "The supplied 2026 base and catch-up constants match IRS Notice 2025-67. Returns a statutory ceiling, not a determination of compensation/plan eligibility.",
+   "classification": "AGREE",
+   "what_the_code_actually_does": "Its 5 cases all agree.",
+   "governing_decisions": [],
+   "items": [
+    "MK-CF-F-053-C01",
+    "MK-CF-F-053-C02",
+    "MK-CF-F-053-C03",
+    "MK-CF-F-053-C04",
+    "MK-CF-F-053-C05"
+   ]
+  },
+  {
+   "id": "MK-CF-F-054",
+   "name": "annualIraLimit",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_why": "The 2026 base and catch-up constants match IRS Notice 2025-67; this is the combined statutory IRA ceiling, subject to compensation/eligibility rules.",
+   "classification": "AGREE",
+   "what_the_code_actually_does": "Its 5 cases all agree.",
+   "governing_decisions": [],
+   "items": [
+    "MK-CF-F-054-C01",
+    "MK-CF-F-054-C02",
+    "MK-CF-F-054-C03",
+    "MK-CF-F-054-C04",
+    "MK-CF-F-054-C05"
+   ]
+  },
+  {
+   "id": "MK-CF-F-055",
+   "name": "annualHsaLimit",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Base/catch-up constants are correct for a full eligible year, but current Medicare status alone cannot determine this year’s limit: eligible pre-enrollment months may still allow contributions.",
+   "reviewer_should_be": "Declare full-year eligibility as a precondition, or use month-by-month eligibility and permitted last-month-rule treatment.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "The 2026 constants are right ($4,400 / $8,750 + $1,000 at 55). Enrolled in Medicare zeroes the WHOLE year; IRS Publication 969 zeroes only the months from the first month of Medicare. Midyear enrolment (July, self-only, 65): $0 where the law gives $2,700. His DEC-0243 governs the display at 65+, not the arithmetic. The fix needs a Medicare start month (MK-XS-I-062 is yes / no).",
+   "governing_decisions": [
+    "DEC-0243",
+    "DEC-0378"
+   ],
+   "items": "F-055-C05 · source witness 9",
+   "fixed_2026_10_25": "FIXED 2026-10-25: prorated by the months before Medicare's first month this year."
+  },
+  {
+   "id": "MK-CF-F-056",
+   "name": "k401Headroom",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Caps reported used at the statutory limit, hiding an actual excess even though remaining room is correctly floored at zero.",
+   "reviewer_should_be": "Show actual contributed, limit, excess and remaining room separately; never erase an entered overcontribution.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "Room floors at $0 correctly, but \"used\" is capped at the limit, so $40,000 shows as $35,750 and the $4,250 excess has no figure. Same function feeds InsightsScreen.tsx:147/179, PlanHubScreen.tsx:114 and RetirementCockpit.tsx:220 directly, so the one fix reaches them.",
+   "governing_decisions": [
+    "DEC-3523"
+   ],
+   "items": "F-056-C05 · O-005-C04",
+   "fixed_2026_10_25": "FIXED 2026-10-25: used never cut to the limit; excess returned."
+  },
+  {
+   "id": "MK-CF-F-057",
+   "name": "rothVsTraditional",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_why": "Implements a clearly conditional heuristic comparing current and expected future marginal bands; it is not an individualized optimal strategy.",
+   "classification": "AGREE",
+   "what_the_code_actually_does": "Its 5 cases all agree.",
+   "governing_decisions": [],
+   "items": [
+    "MK-CF-F-057-C01",
+    "MK-CF-F-057-C02",
+    "MK-CF-F-057-C03",
+    "MK-CF-F-057-C04",
+    "MK-CF-F-057-C05"
+   ]
+  },
+  {
+   "id": "MK-CF-F-058",
+   "name": "rothConversionWindow",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "Age73 and Social Security claiming age are heuristic cutoff points, not a complete conversion-opportunity test. It can return false for a low-income retiree already claiming a small benefit.",
+   "reviewer_should_be": "Label a heuristic signal; use cohort-specific required-distribution rules and actual marginal tax capacity for advice.",
+   "classification": "AGREE (records fix, not an app fix)",
+   "what_the_code_actually_does": "The code is right for what it says: a heuristic, retired and before the claim age (or 73). Its only caller (RetirementCockpit.tsx:224, sentence at :631) hedges (\"may be low\"). The 73 never binds there because the claim age is A.ssClaimAge ?? 67, never above 70 — so the cohort RMD age (75 for people born 1960 or later) is dormant; it is still a second copy of the one start-age table (rmdStartAgeFor) and should read it. Records: call it a heuristic; the header's \"Called by nothing\" is wrong (the cockpit calls it; the same for MK-CF-F-057).",
+   "governing_decisions": [],
+   "items": "F-058-C04"
+  },
+  {
+   "id": "MK-CF-O-017",
+   "name": "futurePaycheck",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_severity": "high",
+   "reviewer_why": "Positive savings projections and simulation-supported draws cannot be independently computed without the projection’s public equations and timing conventions.",
+   "reviewer_should_be": "Supply mathematical simulation/projection contract; meantime test refusals, composition and labeled assumptions.",
+   "classification": "APP WRONG (precision, low) — the rest AGREE or BLOCKED",
+   "what_the_code_actually_does": "Refusals (no age, already retired, no savings, no projection) agree: C01, C02, C03, C05. Composition agrees as shown (C04) but the door rounds guaranteed, draw and total before the screen (Math.round in future-paycheck.ts), against the PRECISION order. Positive projections and draws are not certified: no outside contract for MK-PL-F-050 simulate (BLOCKED).",
+   "governing_decisions": [
+    "DEC-0247",
+    "DEC-2164",
+    "Q49 PRECISION"
+   ],
+   "items": "O-017-C01..C05",
+   "fixed_2026_10_25": "FIXED 2026-10-25: full precision returned; rounded once at the screen."
+  },
+  {
+   "id": "MK-CF-F-105",
+   "name": "guaranteedRows",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "Dated payment placement is correct, but the inflation flags captured by guaranteedOutsideStreams are not reflected in next-year payments in the described rolling grid.",
+   "reviewer_should_be": "State whether the 12-month grid holds nominal flat amounts or adjusts inflation-linked payments, with source-year assumptions.",
+   "classification": "AGREE (records fix, not an app fix)",
+   "what_the_code_actually_does": "Dated placement agrees (C01–C04). On next year's inflation-linked payments the app holds the entered amount — today's dollars, the unit DEC-2164 sets for the draw beside it, where a check that rises with inflation (DEC-0303) stays the same. The record should say the 12 months are in today's dollars.",
+   "governing_decisions": [
+    "DEC-2164",
+    "DEC-0303"
+   ],
+   "items": "F-105-C05"
+  },
+  {
+   "id": "MK-CF-F-106",
+   "name": "solveSafeDraw",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Twelve bisections inside an unverified initial upper bound do not establish the largest feasible draw. An all-feasible bracket can cap the answer too low; a chanceFloor argument is not reflected in the fixed80 wording.",
+   "reviewer_should_be": "Expand until an infeasible upper bound is proven, keep feasible/infeasible invariants, use the requested floor, declare tolerance and validate the downward-rounded draw.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "Two defects measured. (1) When the starting top already holds the floor, it returns that top, unrounded, and never looks higher — \"largest\" is not established (C04, and in domain: a 10% plan return on a 6%-volatility pot, $961.73). (2) The $5 round-down is never re-tested, and the seeded chance is not steady as the draw rises, so a draw below the floor comes back ($580 at 94.7 against a requested 95, C05). The requested floor IS used in the search (the card's fixed-80 wording is a records point). Seed 42 and 1,000 paths for every candidate hold (DEC-0247).",
+   "governing_decisions": [
+    "DEC-0247",
+    "DEC-3523"
+   ],
+   "items": "F-106-C04 · F-106-C05 · witness",
+   "fixed_2026_10_25": "FIXED 2026-10-25: top raised until infeasible; rounded draw re-tested."
+  },
+  {
+   "id": "MK-CF-F-107",
+   "name": "buildPaycheckYear",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Combines guaranteed receipts and a draw coherently, but safe-to-spend wording is forbidden, simulation assumptions are incomplete, and guaranteed monthly average can hide timing risk.",
+   "reviewer_should_be": "Use approved affordability wording, disclose projection assumptions and retain bill/guaranteed timing; never include withdrawals as outside income.",
+   "classification": "AGREE (records fix, not an app fix)",
+   "what_the_code_actually_does": "Guaranteed checks keep their own months and a dated bill lands in its own month (C02, C03); withdrawals are not counted as guaranteed (C04, DEC-0244, DEC-0307). DEC-0295 holds in what a person reads: no \"safe\" in src/screens or src/components text; the word survives only in code names (netSafeToSpend, safeDrawMonthly) and the record's header (\"the safe-to-spend paycheck function\") — records fix. The guaranteed average is used only inside the draw search, where income and spending both carry it, so it hides no timing. Simulation assumptions: BLOCKED (C05).",
+   "governing_decisions": [
+    "DEC-0295",
+    "DEC-0244",
+    "DEC-0307"
+   ],
+   "items": "F-107-C01..C05"
+  }
+ ],
+ "rules_held": [
+  {
+   "rule": "DEC-0243",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED (reviewer could not tell)",
+   "what_the_app_does": "Held in the text: at 65+ the HSA card says \"If you are not enrolled in Medicare\" and offers I'm enrolled / I'm not enrolled (ContributionRoomScreen.tsx:85–100). Separate arithmetic defect: \"enrolled\" zeroes the whole year (MK-CF-F-055-C05)."
+  },
+  {
+   "rule": "DEC-0244",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The outside-guaranteed reader excludes withdrawals andRMDs. Taxable treatment remains a separate defect.",
+   "classification": "RECORDED (reviewer could not tell)",
+   "what_the_app_does": "Held: guaranteedRows reads only Social Security, pension, annuity and other (GUARANTEED_KEYS, src/domain/paycheck/index.ts); futurePaycheck reads guaranteedOutsideStreams; MK-CF-F-107-C04 agrees."
+  },
+  {
+   "rule": "DEC-0245",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED (reviewer could not tell)",
+   "what_the_app_does": "A records-only decision (the master row names MK-CF-F-107 · MK-CF-F-076 · MK-PL-F-050); nothing in code to measure."
+  },
+  {
+   "rule": "DEC-0247",
+   "cards": [
+    "MK-CF-F-106"
+   ],
+   "reviewer_verdict": "HELD",
+   "reviewer_why": "Specified paycheck simulation convention explicitly states1000paths with fixedseed42;no actual projection was run.",
+   "classification": "AGREE (held)",
+   "what_the_app_does": "Confirmed: futurePaycheck passes paths 1000 and seed 42; solveSafeDraw defaults to 1000 and 42."
+  },
+  {
+   "rule": "DEC-0263",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED (reviewer could not tell)",
+   "what_the_app_does": "A records-only decision (four formulas written by hand). MK-CF-F-057's five cases agree with its hand-written formula."
+  },
+  {
+   "rule": "DEC-0336",
+   "cards": [
+    "MK-CF-F-195",
+    "MK-CF-F-196"
+   ],
+   "reviewer_verdict": "HELD",
+   "reviewer_why": "Currentmonth counts in remainingmonths;division is in perMonthToFill.",
+   "classification": "AGREE (held)",
+   "what_the_app_does": "Confirmed: MK-CF-F-195 and MK-CF-F-196 cases agree; the screen reads answer.monthsLeft and perMonthToFill401k from the door."
+  },
+  {
+   "rule": "DEC-0339",
+   "cards": [
+    "MK-CF-F-197"
+   ],
+   "reviewer_verdict": "HELD",
+   "reviewer_why": "AgeAttainedInYear uses year−birthyear for contributioncatchup thresholds. Tax-age65 January1 convention is a different statutoryquestion.",
+   "classification": "AGREE (held)",
+   "what_the_app_does": "Confirmed: MK-CF-F-197 cases agree; the door and the sign-up 401(k) step use ageAttainedInYear."
+  },
+  {
+   "rule": "DEC-0378",
+   "cards": [
+    "MK-CF-F-053",
+    "MK-CF-F-054",
+    "MK-CF-F-055"
+   ],
+   "reviewer_verdict": "HELD",
+   "reviewer_why": "All printed statutoryconstants were independentlychecked againstIRS/SSA publications;eligibility/application defects do not change thoseconstants.",
+   "classification": "AGREE (held)",
+   "what_the_app_does": "Confirmed for the constants: 8 of 9 source witnesses agree. The ninth (Medicare from July, $2,700) is how the constant is applied, not the constant."
+  },
+  {
+   "rule": "DEC-0495",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED (reviewer could not tell)",
+   "what_the_app_does": "A tab name rejected — no calculation in this part to measure."
+  },
+  {
+   "rule": "DEC-2164",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED (reviewer could not tell)",
+   "what_the_app_does": "Held in code: solveSafeDraw spends guaranteed + draw as today's monthly spending, which simulate grows with inflation every year (src/domain/retirement/index.ts:379). Also settles MK-CF-F-105-C05."
+  },
+  {
+   "rule": "DEC-8153",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. New per-month debt readersrespect inclusive start/payoff bounds and a balloon’s due-month balance.",
+   "classification": "RECORDED (reviewer could not tell)",
+   "what_the_app_does": "Not a function of this part. buildPaycheckYear reads debts through the dated grid, whose debt loop asks MK-CF-F-236 paymentInMonth (src/domain/grid/index.ts); measured in part 14, not here."
+  }
+ ],
+ "could_not_test": [
+  {
+   "id": "MK-CF-O-017",
+   "missing": "Positive savings projections and simulation-supported draws cannot be independently computed without the projection’s public equations and timing conventions.",
+   "scope": "Some refusals/properties/wrappercomposition are tested;full literal/numeric output remains untestable. Five witness cases are retained rather than invented outputs.",
+   "measured_here": "Refusals C01, C02, C03, C05 agree; composition C04 agrees as shown (precision note); positive outputs not certified. MK-CF-F-107-C05 recorded: $305 draw, $2,305 a month on the assumed plan."
+  }
+ ],
+ "source_checks": [
+  {
+   "topic": "Contribution limits2026",
+   "reviewer_verdict": "RIGHT",
+   "witnesses": 9,
+   "classification": "8 AGREE, 1 APP WRONG",
+   "result": "Ages 49, 50, 54, 55, 59, 60, 63, 64: 401(k), IRA, HSA self-only and HSA family limits all agree with annual401kLimit / annualIraLimit / annualHsaLimit. Witness 9 (65, Medicare from 2026-07-01, six eligible months, $2,700): the app gives $0 — the same defect as MK-CF-F-055-C05.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › the source check of part 13 — contribution limits 2026, nine witnesses"
+  }
+ ],
+ "app_wrong_fixes": [
+  {
+   "fix": "A · MK-CF-F-056 k401Headroom + MK-CF-O-005 theContributionRoom: show what went in, and the excess, never capped",
+   "function_file": "src/domain/income/limits.ts (k401Headroom); MoneyKeel/functions/cashflow/contribution-room.ts (the door adds an excess figure)",
+   "example": "Born 1966 (60 in 2026), $3,333.33 a month = $40,000 a year; 2026 limit $35,750",
+   "app_gives": "\"$35,750 of the $35,750 limit\", $0 left, no excess",
+   "right": "$40,000 put in, $0 left, $4,250 over the limit",
+   "source": "tenets 1, 5, 7 (DEC-3523); IRC §402(g) — an excess deferral must be taken out by 15 April or it is taxed twice. Sign-up already says \"over the 2026 limit by $4,250\" (modules.tsx:803).",
+   "also_reaches": "InsightsScreen.tsx:147/179, PlanHubScreen.tsx:114, RetirementCockpit.tsx:220 call k401Headroom directly.",
+   "items": [
+    "MK-CF-O-005-C04",
+    "MK-CF-F-056-C05",
+    "formula MK-CF-F-056",
+    "formula MK-CF-O-005 point 1"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 by FIX-ROOM — see each case's fixed_2026_10_25 line"
+  },
+  {
+   "fix": "B · MK-CF-O-005 theContributionRoom: no birth year → say the limit is the base one (or refuse)",
+   "function_file": "MoneyKeel/functions/cashflow/contribution-room.ts (and the room screen that prints it)",
+   "example": "No birth year, $1,000 a month into a 401(k)",
+   "app_gives": "$24,500 limit, $12,500 left — nothing says it is the base limit",
+   "right": "No number, or \"$24,500 — the limit before any catch-up; add your birth year (at 50 or over it is $32,500, at 60–63 $35,750)\"",
+   "source": "tenet 3 (DEC-3523); the figure's own refusal line MK-MN-M-003",
+   "items": [
+    "MK-CF-O-005-C05"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 by FIX-ROOM — see each case's fixed_2026_10_25 line"
+  },
+  {
+   "fix": "C · MK-CF-F-055 annualHsaLimit: Medicare stops HSA money from its first month, not for the whole year",
+   "function_file": "src/domain/income/limits.ts (annualHsaLimit); the Medicare question on src/screens/ContributionRoomScreen.tsx (MK-XS-I-062 needs a start month)",
+   "example": "65, self-only, enrolled in Medicare from 1 July 2026",
+   "app_gives": "$0, and \"no HSA contribution is allowed this year\"",
+   "right": "(4,400 + 1,000) × 6 ÷ 12 = $2,700 for January to June",
+   "source": "IRS Publication 969 (prorated by eligible months; zero from the first month of Medicare); IRS Rev. Proc. 2025-19; DEC-0378",
+   "items": [
+    "MK-CF-F-055-C05",
+    "source witness 9",
+    "formula MK-CF-F-055"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 by FIX-ROOM — see each case's fixed_2026_10_25 line"
+  },
+  {
+   "fix": "D · MK-CF-F-106 solveSafeDraw: find the largest draw that really holds the floor, after rounding",
+   "function_file": "src/domain/paycheck/index.ts (solveSafeDraw)",
+   "example": "(1) $173,111.19 pot, $7,311.43 guaranteed, 30 years, a 10% plan return on a 6%-volatility pot. (2) $231,731.17 pot, $1,311.43 guaranteed, 27 years, floor 95, plan 6% / 12% / 2.5%",
+   "app_gives": "(1) $961.73 — the starting top, unrounded, never tested higher. (2) $580, which tests at 94.7",
+   "right": "(1) raise the top until a draw fails, keep the last that passed, a multiple of $5. (2) re-test after the $5 round-down and step down until it holds 95",
+   "source": "tenet 1 (DEC-3523); the function's own words (\"largest\", \"round DOWN to $5\"). Cause of (2): the seeded chance is not steady as the draw rises ($570: 94.7, $575: 95.4, $580: 94.7) — that is MK-PL-F-050 simulate, another part.",
+   "items": [
+    "MK-CF-F-106-C04",
+    "MK-CF-F-106-C05",
+    "witness test",
+    "formula MK-CF-F-106"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 by FIX-ROOM — see each case's fixed_2026_10_25 line"
+  },
+  {
+   "fix": "E · MK-CF-O-017 futurePaycheck: return full precision; round once at the screen",
+   "function_file": "MoneyKeel/functions/cashflow/future-paycheck.ts",
+   "example": "$2,731.17 guaranteed + $1,730 draw",
+   "app_gives": "monthly 4,461, guaranteed 2,731 (rounded inside the door)",
+   "right": "4,461.17 and 2,731.17 until display; shown $4,461 / $2,731 / $1,730 either way (low stakes)",
+   "source": "PRECISION standing order, master question Q49 (2026-09-09)",
+   "items": [
+    "MK-CF-O-017-C04",
+    "formula MK-CF-O-017"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 by FIX-ROOM — see each case's fixed_2026_10_25 line"
+  }
+ ],
+ "needs_a_ruling": [
+  {
+   "item": "What \"used\" means on Contribution room (MK-CF-O-005 · MK-MN-M-004 · MK-MN-M-003)",
+   "ids": [
+    "MK-CF-O-005-C01",
+    "formula MK-CF-O-005 point 2"
+   ],
+   "reading_a": "Money already put in this year (the reviewer). 1 January, $0 in, $1,000 a month planned, age 50: \"$0 used, $32,500 left\". Needs a new input — contributions so far this year — which no screen asks for.",
+   "reading_b": "The year at the monthly plan (the app today). Same person: \"about $12,000 of the $32,500 limit … $20,500 left\", and the sentence says it is worked from the monthly amount entered.",
+   "recommendation": "Keep B's arithmetic — it is the right answer to \"how much more than my plan can I add\" — but stop calling it used / left: \"At $1,000 a month you will put in $12,000 this year — room for $20,500 more.\" That is the wording rule DEC-0013 already applied to the HSA card (\"up to $X\" when contributions are not tracked). No new input now.",
+   "fixed_2026_10_25": "DECIDED 2026-10-25 by the lead (recommendation taken): plan arithmetic kept, said in words; built on Contribution room (drawing contribution-room v01)."
+  }
+ ],
+ "blocked": [
+  {
+   "item": "MK-CF-O-005-C03 · Mixed IRA and family HSA",
+   "missing": "Three inputs: 401(k) money already in this year; a Traditional IRA contribution (only c_roth exists, so the \"IRA (Traditional + Roth)\" card counts Roth only); HSA cover, self or family (the door always uses self-only).",
+   "app_partial": "Age 55, 401(k) limit $32,500, IRA limit $8,600 agree; HSA $5,400 self-only against the reviewer's family $9,750."
+  },
+  {
+   "item": "MK-CF-F-107-C05 · Unknown simulation",
+   "missing": "An expected number: the reviewer had no simulation contract (could_not_test MK-CF-O-017; simulate is MK-PL-F-050, another part).",
+   "app_partial": "Recorded on the assumed plan: $305 a month draw, $2,305 with the $2,000 check."
+  }
+ ],
+ "priority_findings": [
+  {
+   "finding": "MK-CF-O-005 / MK-CF-F-056 / MK-CF-F-055 — room from confirmed contributions, combined IRA, actual excess, midyear Medicare",
+   "real": "PARTLY",
+   "plainly": [
+    "Room from money already in: the app has no such input anywhere; it uses the monthly plan × 12 and says so on screen. 1 January, $0 in, $1,000 a month, age 50: the app shows $20,500 left; the reviewer $32,500. The $32,500 limit itself agrees. NEEDS RULING (what \"used\" means), not an arithmetic error.",
+    "Combined Traditional + Roth IRA: a real gap, BLOCKED — only the Roth amount exists as an input.",
+    "Actual excess: REAL, APP WRONG. At 60, $40,000 shows as \"$35,750 of $35,750\", no $4,250 excess.",
+    "Midyear Medicare HSA: REAL, APP WRONG. Enrolled from July at 65: the app says $0; the law gives (4,400 + 1,000) × 6 ÷ 12 = $2,700."
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25: actual excess and midyear Medicare fixed; \"room from money already in\" DECIDED as the plan, said in words; the combined IRA stays BLOCKED."
+  },
+  {
+   "finding": "MK-CF-F-126 futureValue / MK-CF-F-229 balanceGrownTo — the zero-return branch (cards in part 10)",
+   "real": "IN THE CODE, NOT REACHABLE TODAY",
+   "plainly": [
+    "$500 a month for 12 months at 0% gives NaN, not $6,000; with $10,000 opening, NaN, not $16,000. No caller can send 0%: sign-up floors its rate at 1% (src/onboarding/modules.tsx:1838) and the mortgage comparison uses the live ten-year Treasury yield or its fallback (BudgetScreen.tsx:759). OUTSIDE DOMAIN; a one-line 0% branch (monthly × months) is cheap insurance for the next caller."
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25: the 0% branch is in."
+  }
+ ],
+ "lead_priority_check_part_10": {
+  "cards": [
+   "MK-CF-F-126 futureValue",
+   "MK-CF-F-229 balanceGrownTo"
+  ],
+  "classification": "OUTSIDE DOMAIN",
+  "app_gives": {
+   "500 a month, 12 months, 0%": "NaN (right 6000)",
+   "with 10,000 opening": "NaN (right 16000)",
+   "at 0.0001% a year": "6000.00 / 16000.01"
+  },
+  "callers": [
+   "src/onboarding/modules.tsx:1849 fv → balanceGrownTo at realAcc = max(0.01, 0.07 − inflation) (line 1838) — never 0",
+   "MK-CF-F-043 compareMortgageToTreasury ← MortgageRateCompare ← BudgetScreen.tsx:759, treasuryYield = the live ten-year yield or FALLBACK_TREASURY — never typed"
+  ],
+  "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts › lead's priority check — card in part 10",
+  "owner_of_the_cases": "the part 10 measurer",
+  "fixed_2026_10_25": "FIXED 2026-10-25: futureValue has a 0% branch — $6,000 and $16,000 (was NaN)."
+ },
+ "other_points_found": [
+  "MK-CF-F-057 and MK-CF-F-058 headers say \"Called by nothing\"; RetirementCockpit.tsx:223–224 calls both (records).",
+  "k401Headroom is called directly by three screens besides the room door (InsightsScreen, PlanHubScreen, RetirementCockpit) — the room is worked out in four places (tenet 4); fix A reaches all of them.",
+  "MK-PL-F-050 simulate: with one seed, the chance does not fall steadily as spending rises ($570: 94.7, $575: 95.4) — cause of fix D (2); another part owns it.",
+  "tsc: 2 errors in another agent's file, MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts; none in this part's file."
+ ],
+ "counts": {
+  "cases": {
+   "AGREE": 60,
+   "APP WRONG": 7,
+   "REVIEWER WRONG": 0,
+   "NEEDS RULING": 1,
+   "BLOCKED": 2,
+   "OUTSIDE DOMAIN": 0,
+   "total": 70
+  },
+  "formula_checks": {
+   "classified_non_right": 8,
+   "right_confirmed_by_cases": 6,
+   "total": 14
+  },
+  "rules_held": {
+   "HELD (confirmed)": 4,
+   "CANNOT TELL (recorded with what the app does)": 7,
+   "NOT HELD": 0,
+   "total": 11
+  },
+  "source_witnesses": {
+   "AGREE": 8,
+   "APP WRONG": 1,
+   "total": 9
+  }
+ },
+ "coverage": "Part 13: 70 of 70 cases — 60 agree, 7 app wrong, 0 reviewer wrong, 1 needs ruling, 2 blocked, 0 outside domain; 8 of 8 formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) classified, 6 of 6 RIGHT confirmed by their cases; 11 of 11 rule verdicts recorded (0 NOT HELD, 4 HELD confirmed, 7 CANNOT TELL each given what the app does); 1 of 1 could-not-test recorded; 1 of 1 source check, 9 of 9 witnesses run (8 agree, 1 app wrong). Distinct fixes behind the APP WRONG items: 5; rulings needed: 1.",
+ "witnesses_fixed_2026_10_25": [
+  "witness beyond the 70 (10% plan, 6% volatility, $173,111.19): FIXED — a multiple of $5 above the starting top that holds 80 (was $961.73).",
+  "source witness 9 (65, Medicare from 2026-07-01): FIXED — $2,700 (was $0)."
+ ]
+}

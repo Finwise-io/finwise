@@ -22,13 +22,31 @@ export interface MortgageComparison {
   mortgagePct: number;
   /** today's ten-year Treasury yield, as a percentage for display */
   treasuryPct: number;
-  /** mortgage rate minus the yield, in percentage points; positive = paying down wins */
+  /** WHICH TREASURY RATE THE COMPARISON RUNS ON (2026-10-25, FIX-ROOM; the lead's ruling on MK-CF-F-043 under tenet 7 and
+   *  DEC-0160's "net saving or cost"): after federal tax when the person's federal bracket is known, else before tax — and
+   *  the card says which. Treasury interest is taxed federally and never by a state. */
+  basis: 'after-tax' | 'before-tax';
+  /** the Treasury yield after the person's federal bracket, as a percentage, full precision (4.30% at 24% → 3.268);
+   *  null before tax */
+  treasuryAfterTaxPct: number | null;
+  /** the federal bracket used, as a percentage (24); null before tax */
+  federalRatePct: number | null;
+  /** mortgage rate minus the yield the comparison runs on, in percentage points; positive = paying down wins */
   gapPoints: number;
   /** what that gap is worth in a year at today's balance — the number a person can feel */
   annualDifference: number;
   /** over the life of the loan, how much better (positive) or worse (negative) off paying the
    *  extra leaves them versus putting the same money into Treasuries */
   lifetimeDifference: number;
+  /** why there is no lifetime figure, when there is none: no extra a month, or a payment that never clears the loan
+   *  (2026-10-25, FIX-ROOM, MK-CF-F-125: the card says the second in words instead of dropping the line silently) */
+  noLifetimeBecause: 'no-extra' | 'never-clears' | null;
+  /** the extra a month the comparison ran on, as handed in — the card names it (2026-10-26, PF-TOOLS) */
+  extraMonthly: number;
+  /** WHAT EACH ROUTE COMES TO at the later payoff date, both paying out payment + extra every month (2026-10-26, PF-TOOLS): the
+   *  lifetime difference is the first less the second. The Plan brief's table prints both; the brief guard recomputes them from
+   *  here (BRIEFS ARE CODE). Nothing when there is no lifetime figure. */
+  routes: { payingDown: number; treasuries: number } | null;
   /** true when the two rates are close enough that neither choice is clearly better */
   tooCloseToCall: boolean;
   /** which way it points — the copy branches on this, never on the sign of a number */
@@ -47,11 +65,15 @@ export const TOO_CLOSE_POINTS = 0.25;
  *
  * Formula .....
  *     i = annual rate ÷ 12
- *     b = balance, months = 0, interest = 0
+ *     b = balance, months = 0, interest = 0, last payment = 0
  *     months = infinity
- *     interest = infinity   when payment ≤ b × i
+ *     interest = infinity
+ *     last payment = infinity   when payment ≤ b × i
  *     charge = b × i
- *     the answer = { months, interest }
+ *     months = infinity
+ *     interest = infinity
+ *     last payment = infinity   when b > 0
+ *     the answer = { months, interest, last payment }
  *
  * Called by ... MK-CF-F-043 compareMortgageToTreasury
  *
@@ -67,18 +89,27 @@ export const TOO_CLOSE_POINTS = 0.25;
  * Formula also on the master file · functions_from_code · MK-CF-F-125
  * Changed ..... not in git yet (—)
  */
-function amortise(balance: number, annualRate: number, payment: number): { months: number; interest: number } {
+function amortise(balance: number, annualRate: number, payment: number): { months: number; interest: number; lastPayment: number } {
   const i = annualRate / 12;
-  let b = balance, months = 0, interest = 0;
+  let b = balance, months = 0, interest = 0, lastPayment = 0;
   // a payment that does not cover the interest never clears the loan; stop rather than loop forever
-  if (payment <= b * i) return { months: Infinity, interest: Infinity };
-  while (b > 0 && months < 1200) {
+  if (payment <= b * i) return { months: Infinity, interest: Infinity, lastPayment: Infinity };
+  // RUN UNTIL THE LOAN CLEARS (2026-10-25, FIX-ROOM; tenets 1-2): a payment above the first month's interest always clears
+  // it, because each month's interest is then smaller than the last. It stopped at 1,200 months and called the loan
+  // cleared: $100,000 at 6% with $501/month read 1,200 months with about $20,700 still owed, where it clears in 1,247.
+  // The 12,000-month stop (a thousand years) only guards the loop; a loan still owing there is reported as never clearing.
+  while (b > 0 && months < 12000) {
     const charge = b * i;
     interest += charge;
+    // THE LAST PAYMENT IS WHAT IS LEFT, PLUS THAT MONTH'S INTEREST (2026-10-25, FIX-ROOM; tenet 1): $10,000 at 6% with $501/month
+    // clears in 22 payments, the 22nd $40.31 ($40.11 left × 1.005), and the interest is $561.31 = 21 × $501 + $40.31 − $10,000.
+    // The lifetime line counted that last payment as a full $501.
+    lastPayment = Math.min(payment, b + charge);
     b = b + charge - payment;
     months++;
   }
-  return { months, interest };
+  if (b > 0) return { months: Infinity, interest: Infinity, lastPayment: Infinity };
+  return { months, interest, lastPayment };
 }
 
 /** Future value of a monthly contribution earning `rate`, contributed at the end of each month. */
@@ -90,6 +121,7 @@ function amortise(balance: number, annualRate: number, payment: number): { month
  * Formula .....
  *     0   when months ≤ 0 (or monthly ≤ 0 when missing or zero)
  *     i = rate ÷ 12
+ *     monthly × months   when i = 0
  *     the answer = monthly × (((1 + i) ×  × months − 1) ÷ i)
  *
  * Called by ... MK-CF-F-043 compareMortgageToTreasury · MK-CF-F-229 balanceGrownTo
@@ -105,12 +137,15 @@ function amortise(balance: number, annualRate: number, payment: number): { month
 function futureValue(monthly: number, rate: number, months: number): number {
   if (months <= 0 || monthly <= 0) return 0;
   const i = rate / 12;
+  // AT 0% THE DEPOSITS THEMSELVES (2026-10-25, FIX-ROOM): the formula is 0 ÷ 0 there — $500/month for 12 months read NaN,
+  // where it is $6,000. No caller sends 0% today; the next one will not have to know that.
+  if (i === 0) return monthly * months;
   return monthly * (((1 + i) ** months - 1) / i);
 }
 
 /** WHAT A POT GROWS TO: a starting balance compounding monthly, plus a monthly contribution added at the end of each month
  *  (MK-CF-F-126 futureValue, the one formula for the contributions). Sign-up's retirement outlook reads this (2026-10-24);
- *  it carried its own copy of the same formula. ID awaiting the builder. */
+ *  it carried its own copy of the same formula. */
 /* ─ MK-CF-F-229 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * balanceGrownTo
  *
@@ -145,14 +180,18 @@ export function balanceGrownTo(start: number, monthly: number, rate: number, mon
  *
  * Formula .....
  *     nothing   when not (balance > 0) or !(annual rate > 0) or !(monthly payment > 0)
- *     gap points = +((annual rate − treasury yield) × 100).to fixed(2)
+ *     fr = args.federal rate
+ *     after tax = fr ≠ nothing and number.is finite(fr) and fr ≥ 0 and fr < 1
+ *     yield used = treasury yield × (1 − fr!)   if after tax
+ *     treasury yield   otherwise
+ *     gap points = +((annual rate − yield used) × 100).to fixed(2)
  *     too close = size of(gap points) < TOO_CLOSE_POINTS
  *     base = amortise(balance, annual rate, monthly payment)
  *     fast = amortise(balance, annual rate, monthly payment + extra monthly)
  *     lifetime = 0
- *     freed months = base.months − fast.months
- *     paying down = future value(monthly payment + extra monthly, treasury yield, freed months)
- *     treasuries = future value(extra monthly, treasury yield, base.months)
+ *     routes = nothing
+ *     clears = is finite(base.months) and is finite(fast.months)
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -173,29 +212,53 @@ export function compareMortgageToTreasury(args: {
   monthlyPayment: number;
   extraMonthly: number;
   treasuryYield: number;       // decimal, e.g. 0.0463
+  /** the person's federal tax bracket, decimal (0.24); absent or null when it is not known — then the comparison runs before tax */
+  federalRate?: number | null;
 }): MortgageComparison | null {
   const { balance, annualRate, monthlyPayment, extraMonthly, treasuryYield } = args;
   if (!(balance > 0) || !(annualRate > 0) || !(monthlyPayment > 0)) return null;
 
-  const gapPoints = +((annualRate - treasuryYield) * 100).toFixed(2);
+  // AFTER FEDERAL TAX WHEN THE BRACKET IS KNOWN (2026-10-25, FIX-ROOM; the lead's ruling under tenet 7 and DEC-0160): a
+  // Treasury's interest is taxed federally, so at a 24% bracket a 4.30% Treasury keeps 4.30 × (1 − 0.24) = 3.268%. A 4.10%
+  // mortgage then wins by 0.83 points — about $1,440/year on $173,111 — where before tax the two read "too close to call".
+  // The mortgage stays at its own rate: its interest is deductible only for those who itemise, and the card says so.
+  const fr = args.federalRate;
+  const afterTax = fr != null && Number.isFinite(fr) && fr >= 0 && fr < 1;
+  const yieldUsed = afterTax ? treasuryYield * (1 - fr!) : treasuryYield;
+
+  const gapPoints = +((annualRate - yieldUsed) * 100).toFixed(2);
   const tooClose = Math.abs(gapPoints) < TOO_CLOSE_POINTS;
 
   const base = amortise(balance, annualRate, monthlyPayment);
   const fast = amortise(balance, annualRate, monthlyPayment + extraMonthly);
   let lifetime = 0;
-  if (isFinite(base.months) && isFinite(fast.months) && extraMonthly > 0) {
+  let routes: { payingDown: number; treasuries: number } | null = null;
+  const clears = isFinite(base.months) && isFinite(fast.months);
+  if (clears && extraMonthly > 0) {
     const freedMonths = base.months - fast.months;
-    const payingDown = futureValue(monthlyPayment + extraMonthly, treasuryYield, freedMonths);
-    const treasuries = futureValue(extraMonthly, treasuryYield, base.months);
+    // EACH ROUTE'S LAST PAYMENT IS ONLY WHAT IS LEFT (2026-10-25, FIX-ROOM): both routes spend payment + extra every month to
+    // the same end date. Paying down: the month the loan clears frees what its last payment did not need, which grows to the
+    // end; then the whole payment + extra each month after. Treasuries: the extra each month, and in the loan's last month what
+    // that payment did not need. At a 0% yield the difference is exactly the interest saved.
+    const payingDown = (monthlyPayment + extraMonthly - fast.lastPayment) * (1 + yieldUsed / 12) ** freedMonths
+      + futureValue(monthlyPayment + extraMonthly, yieldUsed, freedMonths);
+    const treasuries = futureValue(extraMonthly, yieldUsed, base.months) + (monthlyPayment - base.lastPayment);
     lifetime = payingDown - treasuries;   // Q49
+    routes = { payingDown, treasuries };
   }
 
   return {
     mortgagePct: +(annualRate * 100).toFixed(2),
     treasuryPct: +(treasuryYield * 100).toFixed(2),
+    basis: afterTax ? 'after-tax' : 'before-tax',
+    treasuryAfterTaxPct: afterTax ? yieldUsed * 100 : null,
+    federalRatePct: afterTax ? fr! * 100 : null,
     gapPoints,
-    annualDifference: (annualRate - treasuryYield) * balance,   // Q49
+    annualDifference: (annualRate - yieldUsed) * balance,   // Q49
     lifetimeDifference: lifetime,
+    noLifetimeBecause: !(extraMonthly > 0) ? 'no-extra' : !clears ? 'never-clears' : null,
+    extraMonthly,
+    routes,
     tooCloseToCall: tooClose,
     direction: tooClose ? 'too-close' : gapPoints > 0 ? 'paying-down-wins' : 'treasuries-win',
   };

@@ -67,6 +67,7 @@ describe('gap 7 · "Add a buy or sale ›" on the account page opens the trade s
     expect(chosen(nameOf('sch'))).toBe(false);
     expect(flat(screen.getByLabelText('Transaction type: Buy')).backgroundColor).toBe(Colors.primaryLight);   // a buy, ready
     fireEvent.changeText(screen.getByPlaceholderText('e.g. AAPL'), 'VTI');
+    fireEvent.press(screen.getByLabelText('Type: Stocks / Funds'));   // not held here yet: its type is asked (2026-10-25, trade-sheet v03 row 16)
     const [shares, price] = screen.getAllByPlaceholderText('0');
     fireEvent.changeText(shares, '10');
     fireEvent.changeText(price, '100');
@@ -195,7 +196,7 @@ describe('gap 8 · the Performance tab mounts no sheet it cannot open, and each 
 
     test('Activity → the Activity sheet, this holding\'s records; a delete the ledger refuses says so', () => {
       show();
-      fireEvent.press(screen.getByLabelText("See AAPL's activity"));
+      fireEvent.press(screen.getByLabelText("See AAPL’s activity"));
       expect(screen.getAllByText('Activity')).toHaveLength(2);                        // the door, and the sheet's title
     expect(screen.getByText('Every record of this holding, newest first.')).toBeOnTheScreen();
       expect(screen.getByText(/^Dividend AAPL$/)).toBeOnTheScreen();

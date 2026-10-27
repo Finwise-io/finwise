@@ -33,7 +33,8 @@ import React from 'react';
 import { Alert, StyleSheet } from 'react-native';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { useStore } from '../../store/useStore';
-import { norm, drawingLines, builtLines, firstDifference } from '../../testing/mockMatch';
+import { normExact, builtLines, firstDifference } from '../../testing/mockMatch';
+import { AS_BUILT, asBuilt, type DrawnEdit } from '../../testing/cashflowDrawing';
 import { monthShown, partsShown, flowShown } from '../../components/figure';
 import { rateInForce } from '../../domain/income/tax-rate';
 import { buildDatedGrid } from '../../domain/grid';
@@ -157,21 +158,16 @@ function start(state: any) {
 }
 const profile = () => (useStore.getState() as any).onboardingProfile;
 
-// ═══ THE APPROVED DRAWING, WORD FOR WORD (the method of cashflow_matches_v01, with its named differences) ════════════════
-const LINES = drawingLines('MoneyKeel/documents/cashflow/moneykeel_pres_mock_cash-flow_v01.html');
-const STARTS = LINES.map((l, i) => (l === '9:41' ? i : -1)).filter((i) => i >= 0);
-const CHROME = new Set(['9:41', '▮▮▮ ⌁', '▦ Menu', 'Money', 'Keel', '◉', '⚙']);
-const phone = (n: number): string[] => {
-  const seg = LINES.slice(STARTS[n - 1], STARTS[n] ?? LINES.length);
-  const end = seg.findIndex((l, k) => (l === '⌂' || l === 'Home') && k > 8);
-  return seg.slice(0, end).filter((l) => !CHROME.has(l));
-};
-const monthWord = (s: string) => s.replace(/\b(january|february|march|april|may|june|july|august|september|october|november|december)\b/g, '<month>');
-const KNOWN = (s: string) => s.replace(/inflow \(income \(take-home\)\) after tax and #\(k\) \$#/g, 'inflow (income (take-home)) $#').replace(/ expense$/, '');
-const asDrawn = (n: number) => {
-  expect(STARTS).toHaveLength(6);                                                   // the guard looked: six phones
-  const want = KNOWN(monthWord(norm(phone(n)))), got = KNOWN(monthWord(norm(builtLines(screen.toJSON()))));
-  expect(want.split(' ').length).toBeGreaterThan(40);
+// ═══ THE APPROVED DRAWING, WORD FOR WORD AND FIGURE FOR FIGURE (2026-10-25: the drawing as built, AS_BUILT in src/testing/cashflowDrawing.ts) ═══
+// These flows run on Sep 28, not on the drawing's August day, so the month's name is the one thing taken from today — applied by name
+// here. Every figure is compared as printed (until 2026-10-25 each was a "$#" token, so a wrong number passed).
+const onThisDay: DrawnEdit[] = [
+  { why: 'the flow’s own day, Sep 28', replaceEvery: ['August 2026', 'September 2026'] },
+  { why: 'the flow’s own day, Sep 28', replace: ['Planned · August', 'Planned · September'] },
+];
+const asDrawn = (n: 1 | 2, more: DrawnEdit[] = []) => {
+  const want = normExact(asBuilt(asBuilt(n === 1 ? AS_BUILT.A() : AS_BUILT.B(), onThisDay), more)), got = normExact(builtLines(screen.toJSON()));
+  expect(want.split(' ').length).toBeGreaterThan(40);                               // the guard looked: the frame has its words
   expect(firstDifference(want, got)).toBe('');
 };
 
@@ -210,7 +206,9 @@ describe('E2E-69 · a $6.50 coffee logged from ＋ Expense moves This month, the
     const rows = block(L, 'ACTUAL · SO FAR', '= Actual surplus so far', 0).slice(2).filter((l) => /^[−+]?\$[\d,]+$/.test(l)).map(dollars);
     expect(rows.reduce((t, v) => t + v, 0)).toBe(893);                              // every row shown is a row deducted, and they add up
     expect(after(L, '= Planned surplus')).toBe('+$350');                            // a coffee is not a plan: Planned does not move
-    asDrawn(1);                                                                     // the words are still frame A's, word for word
+    // still frame A, word for word — with the coffee's own figures: by hand 500 + 6.50 = 506.50 → $507, and 5,000 − 2,000 − 0 − 506.50 −
+    // 1,200 − 200 − 200 = 893.50, printed as the rows make it, +$893 (the 2026-10-24 row)
+    asDrawn(1, [{ why: 'the $6.50 coffee', replace: ['−$500', '−$507'] }, { why: 'the $6.50 coffee', replaceEvery: ['+$900', '+$893'] }]);
 
     // the Expenses tab: the coffee is the newest row, with its category; by hand $6.50 + $300.00 + $200.00 = $506.50 → $507,
     // and the three sources $506.50 + $1,200 + $400 = $2,106.50 → $2,107 = $507 + $1,200 + $400
@@ -260,7 +258,7 @@ describe('E2E-70 · a one-time $2,000 bonus lands in its own month, taxed at the
     // BEFORE. By hand: $72,000 − the $16,100 standard deduction = $55,900 → 10% × $12,400 + 12% × $38,000 + 22% × $5,500 =
     // $1,240 + $4,560 + $1,210 = $7,010 a year, 9.74% of $72,000 → $6,000 × (1 − 0.09736) = $5,415.83 a month
     open('/(tabs)/cashflow'); tab('Income');
-    expect(after(readLines(), 'THIS MONTH')).toBe('$5,416');
+    expect(after(readLines(), 'THIS MONTH')).toBe('≈$5,416');   // the app's calculation wears ≈ (2026-10-25, CF-24)
     const chooser = chooseInAlert('One-time income');
     press('Add your income');
     expect(chooser[0]).toEqual({ title: 'Add your income', buttons: ['Salary / take-home', 'Stock vesting (equity)', 'Rental property', 'Self-employment', 'Bonus', 'One-time income', 'Cancel'] });
@@ -275,6 +273,11 @@ describe('E2E-70 · a one-time $2,000 bonus lands in its own month, taxed at the
     fireEvent.changeText(screen.getByPlaceholderText('$0'), '2000');
     expect(readLines()).toContain('Which month does it land?');
     fireEvent.press(screen.getByText('Sep'));
+    // the year is asked too, and nothing is picked for him (2026-10-25, FIX-INCOME-B; the lead; DEC-0447): until both are given it
+    // is not counted
+    expect(readLines()).toContain('Year not entered — it is not counted until you pick it.');
+    fireEvent.press(screen.getByText('2026'));
+    expect(readLines()).toContain('Counted once, in Sep 2026.');
     expect(readLines()).toContain('Taxable');
     press('Done — your changes save as you type');
     screen.unmount();
@@ -295,20 +298,20 @@ describe('E2E-70 · a one-time $2,000 bonus lands in its own month, taxed at the
     // the Income tab: the month's take-home first, then every source with what it is
     open('/(tabs)/cashflow'); tab('Income');
     let L = readLines();
-    expect(block(L, 'THIS MONTH', 'Add your income ›', 0)).toEqual(['THIS MONTH', '$7,195', 'expected take-home', 'YOUR SOURCES',
-      'Salary — steady', 'before tax · monthly · ≈ $5,396/month take-home', '$6,000 ›', 'Bonus', 'one-time · lands in September', '$2,000 ›', 'Add your income ›']);
+    expect(block(L, 'THIS MONTH', 'Add your income ›', 0)).toEqual(['THIS MONTH', '≈$7,195', 'expected take-home', 'YOUR SOURCES',
+      'Salary — steady', 'before tax · monthly · ≈$5,396/month take-home', '$6,000 ›', 'Bonus', 'one-time · lands in September', '$2,000 ›', 'Add your income ›']);
     // This month: the inflow names the bonus, and Planned and Actual read the one take-home
     tab('This month');
     L = readLines();
-    expect([after(L, 'Inflow (income (take-home) + bonus)', 2), after(L, 'Actual inflow (income (take-home) + bonus)')]).toEqual(['$7,195', '$7,195']);
+    expect([after(L, 'Inflow (income (take-home) + bonus)', 2), after(L, 'Actual inflow (income (take-home) + bonus)')]).toEqual(['≈$7,195', '≈$7,195']);
     // October: the plan, without it — not spread
     nextMonth(1);
     L = readLines();
-    expect(after(L, 'Planned inflow')).toBe('$5,396');
+    expect(after(L, 'Planned inflow')).toBe('≈$5,396');
     tab('Income');
-    expect(after(readLines(), 'OCTOBER 2026')).toBe('$5,396');
+    expect(after(readLines(), 'OCTOBER 2026')).toBe('≈$5,396');
     screen.unmount();
-    expect(after(homeBox(look('/(tabs)/home')), 'Income')).toBe('$7,195');
+    expect(after(homeBox(look('/(tabs)/home')), 'Income')).toBe('≈$7,195');
 
     // and it never comes back: on Oct 15 the twelve months ahead (October to next September) carry no bonus, and nothing is
     // left "beyond the window" for a payment that has already landed
@@ -319,12 +322,12 @@ describe('E2E-70 · a one-time $2,000 bonus lands in its own month, taxed at the
     open('/(tabs)/cashflow'); nextMonth(11);
     expect(readLines()).toContain('September 2027 — planned');
     // the salary alone — at 2026's one rate, which still holds the bonus's tax (one rate in every month, his ruling G46)
-    expect(after(readLines(), 'Planned inflow')).toBe('$5,396');
+    expect(after(readLines(), 'Planned inflow')).toBe('≈$5,396');
     screen.unmount();
     // in 2027 the bonus is no part of the year's income: $72,000 is taxed again, $5,416 a month (it stayed in every year)
     onDay('2027-01-15');
     expect(rateInForce(profile()).rate).toBeCloseTo(7010 / 72000, 10);
-    expect(after(look('/(tabs)/cashflow'), 'Inflow (income (take-home))', 2)).toBe('$5,416');
+    expect(after(look('/(tabs)/cashflow'), 'Inflow (income (take-home))', 2)).toBe('≈$5,416');
   });
 });
 
@@ -337,7 +340,7 @@ describe('E2E-71 · base pay: the take-home on Your base pay, the Income summary
       onboardingProfile: { status: 'employed', incomeSources: ['employment'], birthYear: '1981' } });
     const takeHomes = () => {
       const bp = look('/base-pay'), sum = look('/income-summary'), cf = look('/(tabs)/cashflow'), home = homeBox(look('/(tabs)/home'));
-      return { bp: after(bp, '= Take-home'), sum: after(sum, 'TAKE-HOME EACH MONTH'), cf: after(cf, 'Inflow (income (take-home))', 2),
+      return { bp: after(bp, '= Take-home'), sum: after(sum, 'TAKE-HOME EACH MONTH'), cf: after(cf, 'Inflow (income (take-home))', 1),   // no budget: no line under the inflow (2026-10-25, CF-11)
         actual: after(cf, 'Actual inflow (income (take-home))'), home: after(home, 'Income'), bpLines: bp, sumLines: sum };
     };
     // the first-open door on This month opens Your base pay
@@ -360,7 +363,7 @@ describe('E2E-71 · base pay: the take-home on Your base pay, the Income summary
     screen.unmount();
     let t = takeHomes();
     // This month and Home read $7,976 here before the fix: the 401(k) was left in the month's take-home
-    expect([t.bp, t.sum, t.cf, t.actual, t.home]).toEqual(['≈$6,976/month', '$6,976', '$6,976', '$6,976', '$6,976']);
+    expect([t.bp, t.sum, t.cf, t.actual, t.home]).toEqual(['≈$6,976/month', '≈$6,976', '≈$6,976', '≈$6,976', '≈$6,976']);   // one figure, one form: ≈ wherever it is the app's calculation (CF-24; the Income summary's by CF-MMFIX-B)
     expect([after(t.sumLines, '= What it is taxed on'), after(t.sumLines, 'Federal tax bracket', 2), after(t.sumLines, 'Calculated federal tax', 2)])
       .toEqual(['$96,000', '22%', '≈$12,290/year']);
 
@@ -378,7 +381,7 @@ describe('E2E-71 · base pay: the take-home on Your base pay, the Income summary
     press('Got it');
     screen.unmount();
     t = takeHomes();
-    expect([t.bp, t.sum, t.cf, t.actual, t.home]).toEqual(['≈$7,403/month', '$7,403', '$7,403', '$7,403', '$7,403']);
+    expect([t.bp, t.sum, t.cf, t.actual, t.home]).toEqual(['≈$7,403/month', '≈$7,403', '≈$7,403', '≈$7,403', '≈$7,403']);
     expect([after(t.bpLines, 'Federal tax bracket', 2), after(t.bpLines, 'Calculated federal tax', 2)]).toEqual(['12%', '≈$597/month']);
     expect([after(t.sumLines, 'Federal tax bracket'), after(t.sumLines, 'Federal tax bracket', 2), after(t.sumLines, 'Calculated federal tax', 2)])
       .toEqual(['filing jointly, every source counted', '12%', '≈$7,160/year']);
@@ -390,7 +393,7 @@ describe('E2E-71 · base pay: the take-home on Your base pay, the Income summary
     press('Save your base pay');
     screen.unmount();
     t = takeHomes();
-    expect([t.bp, t.sum, t.cf, t.actual, t.home]).toEqual(['≈$6,963/month', '$6,963', '$6,963', '$6,963', '$6,963']);
+    expect([t.bp, t.sum, t.cf, t.actual, t.home]).toEqual(['≈$6,963/month', '≈$6,963', '≈$6,963', '≈$6,963', '≈$6,963']);
     expect([after(t.sumLines, '= What it is taxed on'), after(t.sumLines, 'Calculated federal tax', 2)]).toEqual(['$90,000', '≈$6,440/year']);
   });
 
@@ -408,9 +411,9 @@ describe('E2E-71 · base pay: the take-home on Your base pay, the Income summary
     expect([Number(profile().baseSalary), profile().landsTypical, profile().grossWorkedBack]).toEqual([5000, '5000', true]);
     open('/base-pay');
     let L = readLines();
-    expect(screen.getByLabelText('Gross pay each month').props.value).toBe('5000.00');
+    expect(screen.getByLabelText('Gross pay each month').props.value).toBe('$5,000.00');   // a money box shows its separator (CF-MMFIX-B, IN-06)
     expect(after(L, 'Gross pay each month')).toBe('≈ Worked back from the take-home you entered. Type the gross from a payslip to replace it.');
-    expect([after(L, 'Everything else taken out', 2, 'YOUR HOUSEHOLD'), after(L, '= Take-home')]).toEqual(['$0/month · 0%', '$5,000/month']);
+    expect([after(L, 'Everything else taken out', 2, 'YOUR HOUSEHOLD'), after(L, '= Take-home')]).toEqual(['$0/month · 0.00%', '$5,000/month']);   // their own 0%, to two decimals since 2026-10-26 (MK-CF-M-081)
     expect(L).toContain('The take-home is what you entered; the gross was worked back from it.');
     expect(L).not.toContain('This is what you entered — nothing here is calculated.');
     // typed from a payslip, the gross is theirs: the words go back to the drawing's
@@ -497,11 +500,12 @@ describe('E2E-72 · a $1,200 December bill: September reads without it, December
     expect(after(L, 'Expenses', 2, 'PLANNED · SEPTEMBER')).toBe('−$800');
     expect(after(L, '= Planned surplus')).toBe('+$3,950');                         // $5,000 − $250 − $800
     tab('Expenses');
-    expect(planned(readLines())).toEqual(['PLANNED EXPENSES', '$800', 'Bills & fixed', '$100', 'Everyday expenses', '$700', '= Total', '$800']);
+    // the budget as entered, by category, in the order entered (2026-10-25, CF-09 — it read Bills & fixed $100 · Everyday expenses $700)
+    expect(planned(readLines())).toEqual(['PLANNED EXPENSES', '$800', 'Groceries', '$700', 'Phone / Internet', '$100', '= Total', '$800']);
     // DECEMBER, with it — three taps ahead on the one month switcher
     nextMonth(3);
     expect(readLines()).toContain('December 2026 — planned');
-    expect(planned(readLines())).toEqual(['PLANNED EXPENSES', '$2,000', 'Bills & fixed', '$100', 'Once in a while', '$1,200', 'Everyday expenses', '$700', '= Total', '$2,000']);
+    expect(planned(readLines())).toEqual(['PLANNED EXPENSES', '$2,000', 'Groceries', '$700', 'Phone / Internet', '$100', 'Car insurance', '$1,200', '= Total', '$2,000']);
     tab('This month');
     L = readLines();
     expect(block(L, 'DECEMBER 2026 — THE PLAN (AN ESTIMATE)', '= Planned surplus')).toEqual(['DECEMBER 2026 — THE PLAN (AN ESTIMATE)',
@@ -597,13 +601,14 @@ describe('E2E-73 · set the budget, change one category: the editor, This month,
     fireEvent.changeText(screen.getByLabelText('Utilities, monthly limit'), '200');
     fireEvent.press(screen.getByText('Save'));
     // SET: $700 + $300 + $200 = $1,200; planned surplus $5,000 − $2,000 − $250 − $1,200 = $1,550
-    expect(editorCard(readLines())).toEqual(['Income (take-home)', '$5,000', '− Expenses (plan)', '$1,200', '− Debt payments', '$2,250', '= Planned surplus', '$1,550']);
+    expect(editorCard(readLines())).toEqual(['Income (take-home)', '$5,000', '− Expenses (plan)', '$1,200', '− Debt payments', '$2,250', '= Planned surplus', '+$1,550']);   // with its sign, as This month prints it (CF-22)
     press('Done editing your budget');
     let L = readLines();
     expect(block(L, 'PLANNED · SEPTEMBER', '= Planned surplus')).toEqual(['PLANNED · SEPTEMBER', '+$1,550', 'Inflow (income (take-home))', 'after tax and 401(k)', '$5,000',
       'Mortgage', 'DEBT', '−$2,000', 'Car loan', 'DEBT', '−$250', 'Expenses', 'your budget', '−$1,200', '= Planned surplus', '+$1,550']);
     tab('Expenses');
-    expect(block(readLines(), 'PLANNED EXPENSES', '= Total')).toEqual(['PLANNED EXPENSES', '$1,200', 'Bills & fixed', '$200', 'Everyday expenses', '$1,000', '= Total', '$1,200']);
+    // by category, in the budget's own order (2026-10-25, CF-09 — it read Bills & fixed $200 · Everyday expenses $1,000): 200 + 700 + 300
+    expect(block(readLines(), 'PLANNED EXPENSES', '= Total')).toEqual(['PLANNED EXPENSES', '$1,200', 'Utilities', '$200', 'Groceries', '$700', 'Dining out', '$300', '= Total', '$1,200']);
 
     // CHANGE ONE: Dining out $300 → $450, from the Expenses tab's planned rows. $700 + $450 + $200 = $1,350; surplus $1,400
     fireEvent.press(screen.getByLabelText(/^Planned expenses: .*Opens your budget\.$/));
@@ -611,9 +616,9 @@ describe('E2E-73 · set the budget, change one category: the editor, This month,
     expect(screen.getByLabelText('Dining out, monthly limit').props.value).toBe('300');
     fireEvent.changeText(screen.getByLabelText('Dining out, monthly limit'), '450');
     fireEvent.press(screen.getByText('Save'));
-    expect(editorCard(readLines())).toEqual(['Income (take-home)', '$5,000', '− Expenses (plan)', '$1,350', '− Debt payments', '$2,250', '= Planned surplus', '$1,400']);
+    expect(editorCard(readLines())).toEqual(['Income (take-home)', '$5,000', '− Expenses (plan)', '$1,350', '− Debt payments', '$2,250', '= Planned surplus', '+$1,400']);
     press('Done editing your budget');
-    expect(block(readLines(), 'PLANNED EXPENSES', '= Total')).toEqual(['PLANNED EXPENSES', '$1,350', 'Bills & fixed', '$200', 'Everyday expenses', '$1,150', '= Total', '$1,350']);
+    expect(block(readLines(), 'PLANNED EXPENSES', '= Total')).toEqual(['PLANNED EXPENSES', '$1,350', 'Utilities', '$200', 'Groceries', '$700', 'Dining out', '$450', '= Total', '$1,350']);
     tab('This month');
     L = readLines();
     expect([after(L, 'Expenses', 2, 'PLANNED · SEPTEMBER'), after(L, '= Planned surplus')]).toEqual(['−$1,350', '+$1,400']);
@@ -642,7 +647,7 @@ describe('E2E-73 · set the budget, change one category: the editor, This month,
     expect(L.join(' ')).not.toMatch(/haven’t set your budget/);
     expect(screen.queryByText('Set your budget')).toBeNull();                       // the door is gone: a budget is set
     press('Expenses, your budget, $0. Opens your budget.');                         // the Expenses row opens the editor
-    expect(editorCard(readLines())).toEqual(['Income (take-home)', '$5,000', '− Expenses (plan)', '$0', '− Debt payments', '$2,250', '= Planned surplus', '$2,750']);
+    expect(editorCard(readLines())).toEqual(['Income (take-home)', '$5,000', '− Expenses (plan)', '$0', '− Debt payments', '$2,250', '= Planned surplus', '+$2,750']);
     press('Done editing your budget');
     tab('Expenses');
     expect(block(readLines(), 'PLANNED EXPENSES', '= Total')).toEqual(['PLANNED EXPENSES', '$0', '= Total', '$0']);

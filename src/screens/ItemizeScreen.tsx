@@ -99,7 +99,7 @@ export default function ItemizeScreen() {
       <View style={styles.head}>
         <Text style={styles.h1}>Itemize {inst}</Text>
       </View>
-      <Text style={styles.sub}>Add what's actually inside. We keep the total at {fig('MK-NW-M-038', lump.balance)} — any leftover stays as cash in {inst}.</Text>
+      <Text style={styles.sub}>Add what’s actually inside. We keep the total at {fig('MK-NW-M-038', lump.balance)} — any leftover stays as cash in {inst}.</Text>
 
       {/* the meter — counts down as you allocate */}
       <View style={styles.meter}>
@@ -151,7 +151,7 @@ export default function ItemizeScreen() {
       <TouchableOpacity style={[styles.addBtn, !canAdd && { opacity: 0.4 }]} disabled={!canAdd} accessibilityRole="button" accessibilityLabel="Add this holding" onPress={addHolding}><Text style={styles.addBtnT}>＋ Add holding</Text></TouchableOpacity>
 
       <View style={styles.footerNote}>
-        {remainder > 0 && items.length > 0 && <Text style={styles.note}>{fig('MK-NW-M-039', remainder)} still unallocated — it'll be kept as cash in {inst}, so your total stays {fig('MK-NW-M-038', lump.balance)}.</Text>}
+        {remainder > 0 && items.length > 0 && <Text style={styles.note}>{fig('MK-NW-M-039', remainder)} still unallocated — it’ll be kept as cash in {inst}, so your total stays {fig('MK-NW-M-038', lump.balance)}.</Text>}
         {remainder < 0 && <Text style={[styles.note, { color: Colors.red }]}>These holdings are {fig('MK-NW-M-039', overBy)} more than the {fig('MK-NW-M-038', lump.balance)} you entered — the account total will update to {fig('MK-NW-M-038', resultTotal)}.</Text>}
       </View>
       <TouchableOpacity style={[styles.done, items.length === 0 && { opacity: 0.4 }]} disabled={items.length === 0} accessibilityRole="button" accessibilityLabel="Done — replace the account with these holdings" onPress={done}>

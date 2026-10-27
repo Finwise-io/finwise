@@ -1,0 +1,3941 @@
+{
+ "batch": "cf module — part 5",
+ "reviewer": "OpenAI independent specification reviewer (CashFlow package of 2026-10-24)",
+ "run_by": "Claude Code — CFR-2 measurer (parts 5–8)",
+ "run_on": "2026-10-25",
+ "test_file": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts",
+ "source": "returned/MoneyKeel_CashFlow_Independent_Audit_Package/MoneyKeel_CashFlow_Independent_Audit/audit_results/MoneyKeel_CashFlow_Audit_Part_05.json",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts → 122 passed, 2 skipped (the 2 OUTSIDE DOMAIN cases, each with a passing probe beside it), 0 failed, 124 total. Every APP WRONG item is test.failing on the reviewer's answer with a twin \"app today\" test; CFR_FLIP=1 runs them as plain tests and each fails on its own check with the wrong number (none on a crash). npx tsc --noEmit: clean (whole repo, 0 errors).",
+ "working_tree": "Measured at b1c659e8 plus other agents' uncommitted work of 2026-10-25 (CF-12 / CF-21 edits to CashFlowScreen, this-month.ts, expenses.ts, essentials.ts, whats-coming.ts); none touches a part 5 function. Nothing changed but this test file and this results file.",
+ "mapping": [
+  "(the app's fields, never the answers):",
+  "An earner's gross_annual → baseSalary with salaryFreq 'annually'; take_home_monthly → landsTypical (the take-home typed",
+  "each month, base-pay.ts entryFromWage); k_monthly → c_401k; a second earner → whoEarns 'both' + partnerWage {same fields}.",
+  "A \"job\" in a sources list given only its take-home gets a gross of twelve take-homes, because the income manager and",
+  "incomeSources list a job only once it has a wage (only the kinds and the rent are compared there). O-004-C04 is run as",
+  "given — a take-home and no gross; its agreement probe adds a $7,000/month gross so both month grids hold a wage.",
+  "rent / cost (or rent_monthly / rent_cost) → rentals [{ type 'long', income, expenses, property_id }] (a rent entry must",
+  "name its property, DEC-4059d). dividends_annual → invAnnual; dividends_to_bank false → invPaidToBank unset (reinvested).",
+  "bonus {amount, date} → bonusAnnual + bonusMonth (the date's month). support_monthly → supportMonthly. benefits monthly →",
+  "benefitMonthly (all twelve months). interest yearly → invAnnual. stock_vest {amount, date} → rsuGrants [{ shares 25,",
+  "price 400, date }] ($10,000), no wage when current_job is false.",
+  "rate_mode 'typed' + rate → taxMode 'manual' + manualTaxRate (percent). For MK-CF-F-049 a \"household_rate\" with rate_mode",
+  "'calculated' cannot be dictated to a calculated rate, so it is handed in as that same rate typed — both paths then hold",
+  "the reviewer's rate and the difference isolates the arithmetic; C03 (married, 5% state) is run in calculated mode.",
+  "other_taxable_monthly → otherAmount, otherFreq 'monthly'. planned_spend / debt_due have no input on buildIncomeState",
+  "(it carries no outflow) and are not handed in.",
+  "Reviewer kinds → the app's: job ↔ salary (incomeSources) / employment (manager); rent ↔ rental; stock ↔ equity; interest",
+  "↔ investment_income; benefits ↔ benefits; support ↔ support. Kind lists are compared as sets (the manager orders by the",
+  "picker, which its card states).",
+  "payout records {date, signed_cash, account, reinvested} → transactions { type 'DIVIDEND', amount signed_cash, account_id,",
+  "reinvested, date }, read by the app's own ledger rule (moneyIntoAccount). now = 2026-10-24 12:00 local (the as_of).",
+  "accounts for incomeFromAccounts → AssetAccount rows: cash → kind 'savings' asset_class 'cash' coupon_rate; bond →",
+  "kind 'bond' asset_class 'bonds' face_value / coupon_rate / maturity_date / balance; bank_cd → kind 'cd' cd_bought 'bank'",
+  "asset_class 'bonds'. recorded_ttm {A: 400} → one INTEREST record of $400 dated 2026-06-01.",
+  "annualNet / grossAnnualBaseline / employerMatchAnnual {amount, rent_cost, periods} → IncomeSource { income_type",
+  "LONG_TERM_RENTAL when rent_cost > 0 else W2_JOB, gross_amount, operating_expenses, frequency by periods (12 MONTHLY, 1",
+  "ANNUAL, 4 QUARTERLY, 26 BIWEEKLY) }; employerMatchAnnual reads each amount as employer_match_amount (the package note).",
+  "monthlyGrossOfSource {amount, cost, kind, frequency, month, weights} → IncomeSource { frequency, landing_month,",
+  "landing_months [{month, share}] }. isRental source_kind → rental_long 'LONG_TERM_RENTAL', rental_short",
+  "'SHORT_TERM_RENTAL', salary 'W2_JOB', interest 'INVESTMENT'.",
+  "getIncomeState supplied_result → the stored income document (the storage read is replaced by a mock in this file only);",
+  "total → total_gross_annual, rate → effective_tax_rate; the domain result must come back unchanged.",
+  "asPercent, paidOutByAccount, isRental, monthlyGrossOfSource and round4 are not exported: each is compiled from its own",
+  "source text with the functions it imports handed in under their own names — the app's text, nothing retyped."
+ ],
+ "cases": [
+  {
+   "case_id": "MK-CF-O-004-C01",
+   "id": "MK-CF-O-004",
+   "name": "incomeSummary",
+   "kind": "easy",
+   "title": "Wage only entered",
+   "classification": "AGREE",
+   "expected": {
+    "take_home_rows": [
+     {
+      "exact": "4000",
+      "shown": "$4,000",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     }
+    ],
+    "usual_month": {
+     "exact": "4000",
+     "shown": "$4,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "gross": {
+     "exact": "60000",
+     "shown": "$60,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "k": {
+     "exact": "6000",
+     "shown": "$6,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "before_standard_deduction": {
+     "exact": "54000",
+     "shown": "$54,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "take_home_rows": [
+     {
+      "exact": "4000",
+      "shown": "$4,000",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     }
+    ],
+    "usual_month": {
+     "exact": "4000",
+     "shown": "$4,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "gross": {
+     "exact": "60000",
+     "shown": "$60,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "k": {
+     "exact": "6000",
+     "shown": "$6,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "before_standard_deduction": {
+     "exact": "54000",
+     "shown": "$54,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "difference": "none",
+   "rests_on": "DEC-0283; DEC-7887",
+   "note": "Rows [4000], usual month 4000, gross 60000, 401(k)s 6000, what it is taxed on 54000 — the entered take-home is used as typed.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-004 incomeSummary — five cases › MK-CF-O-004-C01 · easy · Wage only entered [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-O-004-C02",
+   "id": "MK-CF-O-004",
+   "name": "incomeSummary",
+   "kind": "easy",
+   "title": "Rent only known",
+   "classification": "AGREE",
+   "expected": {
+    "rows": [
+     {
+      "exact": "1200",
+      "shown": "$1,200",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     }
+    ],
+    "usual_month": {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "gross_annual": {
+     "exact": "14400",
+     "shown": "$14,400",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "rows": [
+     {
+      "exact": "1200",
+      "shown": "$1,200",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     }
+    ],
+    "usual_month": {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "gross_annual": {
+     "exact": "14400",
+     "shown": "$14,400",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "difference": "none",
+   "rests_on": "drawing income-end-to-end v07 frame 16",
+   "note": "Rent 1800 − 600 = 1200 whole under the typed rate (a typed rate is not laid on rent, drawing v07 frame 16); gross 14400.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-004 incomeSummary — five cases › MK-CF-O-004-C02 · easy · Rent only known [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-O-004-C03",
+   "id": "MK-CF-O-004",
+   "name": "incomeSummary",
+   "kind": "complex",
+   "title": "Approved income drawing frame16",
+   "classification": "AGREE",
+   "expected": {
+    "take_home_rows": [
+     {
+      "exact": "5000",
+      "shown": "$5,000",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "3300",
+      "shown": "$3,300",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "1200",
+      "shown": "$1,200",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     }
+    ],
+    "usual_month": {
+     "exact": "9500",
+     "shown": "$9,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "taxed_gross_before_k": {
+     "exact": "167400",
+     "shown": "$167,400",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "taxed_after_k": {
+     "state": "RULE UNCLEAR",
+     "reason": "Drawing omits contribution amounts",
+     "readings": {
+      "no_k": {
+       "exact": "167400",
+       "shown": "$167,400",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      },
+      "if_k_14400": {
+       "exact": "153000",
+       "shown": "$153,000",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      }
+     }
+    }
+   },
+   "actual": {
+    "take_home_rows": [
+     {
+      "exact": "5000",
+      "shown": "$5,000",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "3300",
+      "shown": "$3,300",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "1200",
+      "shown": "$1,200",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     }
+    ],
+    "usual_month": {
+     "exact": "9500",
+     "shown": "$9,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "taxed_gross_before_k": {
+     "exact": "167400",
+     "shown": "$167,400",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "taxed_after_k": {
+     "state": "RULE UNCLEAR",
+     "reason": "Drawing omits contribution amounts",
+     "readings": {
+      "no_k": {
+       "exact": "167400",
+       "shown": "$167,400",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      },
+      "if_k_14400": {
+       "exact": "153000",
+       "shown": "$153,000",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      }
+     }
+    }
+   },
+   "difference": "none",
+   "rests_on": "DEC-7887; DEC-0283; drawing v07 frame 16 READ THIS FIRST row of 2026-10-24",
+   "note": "The approved drawing household: rows 5000, 3300, 1200; usual month 9500; gross 167400. The reviewer's RULE UNCLEAR on what it is taxed on is settled by the drawing's dated READ THIS FIRST row (DEC-7887 under DEC-0283): with no 401(k), as the card describes the household, 167400; with the row's $800 + $400 a month, 401(k)s 14400 and 153000. Both readings run and agree.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-004 incomeSummary — five cases › MK-CF-O-004-C03 · complex · Approved income drawing frame16 [AGREE] — RULE UNCLEAR settled by the drawing's READ THIS FIRST row, DEC-7887 under DEC-0283"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-O-004-C04",
+   "id": "MK-CF-O-004",
+   "name": "incomeSummary",
+   "kind": "complex",
+   "title": "Rental loss retained in sources",
+   "classification": "APP WRONG",
+   "expected": {
+    "rows": [
+     {
+      "exact": "5111.17",
+      "shown": "$5,111",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "-319.76",
+      "shown": "−$320",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     }
+    ],
+    "usual_month": {
+     "exact": "4791.41",
+     "shown": "$4,791",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "rows": [
+     5111.17
+    ],
+    "usual_month": 5111.17,
+    "rent_row": "left out (`if (rent > 0)`)"
+   },
+   "difference": "usual month 5111.17 vs 4791.41 (−319.76 a month of rental loss dropped)",
+   "rests_on": "Tenet 1, tenet 4, DEC-0376",
+   "note": "A rental losing $319.76 a month is dropped from the take-home rows. The app holds two answers for the same month: incomeMonthlyGrid (sign-up income recap, Budget, Goals, percent-of-income budget) counts the loss, 4791.41; this door and the Cash flow tab's dated grid (MK-XS-F-004 buildDatedGrid, `if (rentalM > 0)`) drop it, 5111.17. The running costs leave the household's bank, so the loss is real money out. The taxed total also holds the loss (−3837.12 a year) while no taxed row prints it.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-004 incomeSummary — five cases › MK-CF-O-004-C04 · complex · Rental loss retained in sources [APP WRONG] — a rental loss is dropped here; incomeMonthlyGrid counts it (tenets 1, 4; DEC-0376)",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-004 incomeSummary — five cases › MK-CF-O-004-C04 · app today — rows [5111.17], usual month 5111.17, rent row left out"
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): a rental loss is a take-home row: [5,111.17, −319.76], usual month $4,791.41 — the same on incomeMonthlyGrid and the Cash flow months (it dropped the loss, $5,111.17)."
+  },
+  {
+   "case_id": "MK-CF-O-004-C05",
+   "id": "MK-CF-O-004",
+   "name": "incomeSummary",
+   "kind": "edge",
+   "title": "Support-only readiness",
+   "classification": "APP WRONG",
+   "expected": {
+    "ready": true,
+    "take_home_rows": [
+     {
+      "exact": "1000",
+      "shown": "$1,000",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     }
+    ],
+    "usual_month": {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "taxable_annual": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "ready": false,
+    "take_home_rows": [
+     1000
+    ],
+    "usual_month": 1000,
+    "taxable_annual": 0
+   },
+   "difference": "ready false vs true",
+   "rests_on": "Tenets 1 and 3",
+   "note": "Support only: the rows hold $1,000, but `ready` asks only for a salary or taxed income, so the Income summary prints \"$0\" and \"Nothing entered yet.\" (IncomeSummaryScreen.tsx `sum.ready ? … : 0`) for a household that told us $1,000 arrives each month.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-004 incomeSummary — five cases › MK-CF-O-004-C05 · edge · Support-only readiness [APP WRONG] — support-only household reads not ready, so the screen prints $0 (tenets 1, 3)",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-004 incomeSummary — five cases › MK-CF-O-004-C05 · app today — ready false; rows [1000], usual 1000, taxable 0"
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): support only reads ready: the screen prints the $1,000 (it printed $0 and \"Nothing entered yet.\")."
+  },
+  {
+   "case_id": "MK-CF-O-016-C01",
+   "id": "MK-CF-O-016",
+   "name": "incomeSources",
+   "kind": "easy",
+   "title": "Entered wage",
+   "classification": "AGREE",
+   "expected": {
+    "entered_kinds": [
+     "job"
+    ]
+   },
+   "actual": {
+    "entered_kinds": [
+     "job"
+    ]
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "One salary row (job ↔ salary).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-016 incomeSources — five cases (no production caller: CashFlowScreen builds its own list) › MK-CF-O-016-C01 · easy · Entered wage [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-O-016-C02",
+   "id": "MK-CF-O-016",
+   "name": "incomeSources",
+   "kind": "easy",
+   "title": "No recorded sources",
+   "classification": "AGREE",
+   "expected": {
+    "entered_kinds": []
+   },
+   "actual": {
+    "entered_kinds": []
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "No rows.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-016 incomeSources — five cases (no production caller: CashFlowScreen builds its own list) › MK-CF-O-016-C02 · easy · No recorded sources [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-O-016-C03",
+   "id": "MK-CF-O-016",
+   "name": "incomeSources",
+   "kind": "complex",
+   "title": "Several nonwage sources",
+   "classification": "APP WRONG",
+   "expected": {
+    "entered_kinds": [
+     "benefits",
+     "support",
+     "interest"
+    ],
+    "period_values": [
+     {
+      "monthly": {
+       "exact": "731.17",
+       "shown": "$731",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      }
+     },
+     {
+      "monthly": {
+       "exact": "511.43",
+       "shown": "$511",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      }
+     },
+     {
+      "yearly": {
+       "exact": "1831.19",
+       "shown": "$1,831",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      }
+     }
+    ]
+   },
+   "actual": {
+    "entered_kinds": []
+   },
+   "difference": "benefits, support and interest: no rows",
+   "rests_on": "Tenets 2, 4; DEC-0181 (no two functions doing the same thing)",
+   "note": "incomeSources lists only six kinds, so $731.17 benefits, $511.43 support and $1,831.19 interest get no row. LATENT: incomeSources has no production caller — the Cash flow tab builds its own YOUR SOURCES list inline (CashFlowScreen.tsx) and the income manager uses theIncomeManager. Fix: retire it or make it the one inventory.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-016 incomeSources — five cases (no production caller: CashFlowScreen builds its own list) › MK-CF-O-016-C03 · complex · Several nonwage sources [APP WRONG] — benefits, support and interest have no row — latent: no caller",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-016 incomeSources — five cases (no production caller: CashFlowScreen builds its own list) › MK-CF-O-016-C03 · app today — no rows at all for $731.17 benefits, $511.43 support, $1,831.19 interest"
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): benefits $731.17/month, support $511.43/month and interest $1,831.19/year each have a row (incomeSources lists every entered source)."
+  },
+  {
+   "case_id": "MK-CF-O-016-C04",
+   "id": "MK-CF-O-016",
+   "name": "incomeSources",
+   "kind": "complex",
+   "title": "Rental loss is entered",
+   "classification": "APP WRONG",
+   "expected": {
+    "entered_kinds": [
+     "rent",
+     "job"
+    ],
+    "rent_monthly_net": {
+     "exact": "-300.26",
+     "shown": "−$300",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "entered_kinds": [
+     "job"
+    ]
+   },
+   "difference": "rental row missing (net −300.26)",
+   "rests_on": "Tenet 3",
+   "note": "A rental losing $300.26 a month gets no row (`if (rent > 0)`). LATENT: no production caller. (The Cash flow tab's own list now shows a rental at any amount, CF-12 2026-10-25.)",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-016 incomeSources — five cases (no production caller: CashFlowScreen builds its own list) › MK-CF-O-016-C04 · complex · Rental loss is entered [APP WRONG] — a rental losing money gets no row (`if (rent > 0)`) — latent: no caller",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-016 incomeSources — five cases (no production caller: CashFlowScreen builds its own list) › MK-CF-O-016-C04 · app today — only the salary row; the rental is left out"
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): a rental the household has is a row whatever it nets: −$300.26/month."
+  },
+  {
+   "case_id": "MK-CF-O-016-C05",
+   "id": "MK-CF-O-016",
+   "name": "incomeSources",
+   "kind": "edge",
+   "title": "Stock after job ends",
+   "classification": "AGREE",
+   "expected": {
+    "entered_kinds": [
+     "stock"
+    ],
+    "vest_annual": {
+     "exact": "10000",
+     "shown": "$10,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "entered_kinds": [
+     "stock"
+    ],
+    "vest_annual": {
+     "exact": "10000",
+     "shown": "$10,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "Stock vesting $10,000 is listed with no job (equity ↔ stock).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-016 incomeSources — five cases (no production caller: CashFlowScreen builds its own list) › MK-CF-O-016-C05 · edge · Stock after job ends [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-O-019-C01",
+   "id": "MK-CF-O-019",
+   "name": "theIncomeManager",
+   "kind": "easy",
+   "title": "Entered wage",
+   "classification": "AGREE",
+   "expected": {
+    "entered_kinds": [
+     "job"
+    ]
+   },
+   "actual": {
+    "entered_kinds": [
+     "job"
+    ]
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "A job, take-home $4,000.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-019 theIncomeManager — five cases (live: /income-manager) › MK-CF-O-019-C01 · easy · Entered wage [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-O-019-C02",
+   "id": "MK-CF-O-019",
+   "name": "theIncomeManager",
+   "kind": "easy",
+   "title": "No recorded sources",
+   "classification": "AGREE",
+   "expected": {
+    "entered_kinds": []
+   },
+   "actual": {
+    "entered_kinds": []
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "Nothing entered.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-019 theIncomeManager — five cases (live: /income-manager) › MK-CF-O-019-C02 · easy · No recorded sources [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-O-019-C03",
+   "id": "MK-CF-O-019",
+   "name": "theIncomeManager",
+   "kind": "complex",
+   "title": "Several nonwage sources",
+   "classification": "AGREE",
+   "expected": {
+    "entered_kinds": [
+     "benefits",
+     "support",
+     "interest"
+    ],
+    "period_values": [
+     {
+      "monthly": {
+       "exact": "731.17",
+       "shown": "$731",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      }
+     },
+     {
+      "monthly": {
+       "exact": "511.43",
+       "shown": "$511",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      }
+     },
+     {
+      "yearly": {
+       "exact": "1831.19",
+       "shown": "$1,831",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      }
+     }
+    ]
+   },
+   "actual": {
+    "entered_kinds": [
+     "benefits",
+     "support",
+     "interest"
+    ],
+    "period_values": [
+     {
+      "monthly": {
+       "exact": "731.17",
+       "shown": "$731",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      }
+     },
+     {
+      "monthly": {
+       "exact": "511.43",
+       "shown": "$511",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      }
+     },
+     {
+      "yearly": {
+       "exact": "1831.19",
+       "shown": "$1,831",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      }
+     }
+    ]
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "Benefits $731.17/month, support $511.43/month, interest & dividends $1,831.19/year, each in its own period. Compared as a set: the manager lists them in the picker's order, as its card states.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-019 theIncomeManager — five cases (live: /income-manager) › MK-CF-O-019-C03 · complex · Several nonwage sources [AGREE] — kinds compared as a set: the manager lists them in the picker's order, as its card says"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-O-019-C04",
+   "id": "MK-CF-O-019",
+   "name": "theIncomeManager",
+   "kind": "complex",
+   "title": "Rental loss is entered",
+   "classification": "APP WRONG",
+   "expected": {
+    "entered_kinds": [
+     "rent",
+     "job"
+    ],
+    "rent_monthly_net": {
+     "exact": "-300.26",
+     "shown": "−$300",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "entered": [
+     "employment"
+    ],
+    "rental": {
+     "amount": -300.26,
+     "entered": false,
+     "title": "Rent from a property"
+    }
+   },
+   "difference": "rental marked not entered",
+   "rests_on": "Tenets 3 and 5",
+   "note": "Live on /income-manager: `entered: amount > 0`, so a property whose rent and costs were typed sits under \"Anything else? · Rent from a property\" as if nothing was entered; the row computes −300.26 but never shows it.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-019 theIncomeManager — five cases (live: /income-manager) › MK-CF-O-019-C04 · complex · Rental loss is entered [APP WRONG] — a rental with a loss sits under \"Anything else?\" (tenets 3, 5)",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-019 theIncomeManager — five cases (live: /income-manager) › MK-CF-O-019-C04 · app today — the rental row carries −300.26 but is marked not entered"
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): entered means recorded: the rental is entered, \"Rent\", −$300.26/month (it sat under \"Anything else?\")."
+  },
+  {
+   "case_id": "MK-CF-O-019-C05",
+   "id": "MK-CF-O-019",
+   "name": "theIncomeManager",
+   "kind": "edge",
+   "title": "Stock after job ends",
+   "classification": "APP WRONG",
+   "expected": {
+    "entered_kinds": [
+     "stock"
+    ],
+    "vest_annual": {
+     "exact": "10000",
+     "shown": "$10,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "entered": [],
+    "bonusAndStock": null
+   },
+   "difference": "$10,000 vesting shown nowhere",
+   "rests_on": "Tenets 2, 3 and 4",
+   "note": "Live: with no job, bonusAndStock is null and no row carries equity — \"You entered about 0 sources\" — while the Cash flow tab's YOUR SOURCES lists \"Equity comp · $10,000/year\" (CashFlowScreen.tsx rsuTotal).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-019 theIncomeManager — five cases (live: /income-manager) › MK-CF-O-019-C05 · edge · Stock after job ends [APP WRONG] — $10,000 of vesting with no job appears nowhere on the manager (tenets 2, 3, 4)",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-O-019 theIncomeManager — five cases (live: /income-manager) › MK-CF-O-019-C05 · app today — nothing entered, bonusAndStock null"
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): stock with no job is shown: bonusAndStock $10,000, its own row on the manager."
+  },
+  {
+   "case_id": "MK-CF-F-210-C01",
+   "id": "MK-CF-F-210",
+   "name": "annualOfSource",
+   "kind": "easy",
+   "title": "Monthly rent row",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "14400",
+    "shown": "$14,400"
+   },
+   "actual": {
+    "exact": "14400",
+    "shown": "$14,400"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "1200 × 12 = 14400.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-210 annualOfSource — five cases (no production caller) › MK-CF-F-210-C01 · easy · Monthly rent row [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): MK-CF-F-210 annualOfSource RETIRED (no caller, and YOUR SOURCES never converts a row's period); each earner's own year is a row of taxedSourcesAnnual — the cases are read from it."
+  },
+  {
+   "case_id": "MK-CF-F-210-C02",
+   "id": "MK-CF-F-210",
+   "name": "annualOfSource",
+   "kind": "easy",
+   "title": "Yearly bonus row",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "12000",
+    "shown": "$12,000"
+   },
+   "actual": {
+    "exact": "12000",
+    "shown": "$12,000"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "12000 as it is.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-210 annualOfSource — five cases (no production caller) › MK-CF-F-210-C02 · easy · Yearly bonus row [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): MK-CF-F-210 annualOfSource RETIRED (no caller, and YOUR SOURCES never converts a row's period); each earner's own year is a row of taxedSourcesAnnual — the cases are read from it."
+  },
+  {
+   "case_id": "MK-CF-F-210-C03",
+   "id": "MK-CF-F-210",
+   "name": "annualOfSource",
+   "kind": "complex",
+   "title": "First earner of two",
+   "classification": "APP WRONG",
+   "expected": {
+    "exact": "84111.17",
+    "shown": "$84,111"
+   },
+   "actual": 138432.6,
+   "difference": "138432.60 vs 84111.17",
+   "rests_on": "DEC-0188 (each earner's own block); DEC-0176",
+   "note": "Each salary row returns the household's salaryAnnual. LATENT: annualOfSource has no production caller (part 1's runner found the same).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-210 annualOfSource — five cases (no production caller) › MK-CF-F-210-C03 · complex · First earner of two [APP WRONG] — each salary row returns the household's salary — latent: no caller",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-210 annualOfSource — five cases (no production caller) › MK-CF-F-210-C03 · app today — 138,432.60 on the first earner's row"
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): MK-CF-F-210 annualOfSource RETIRED (no caller, and YOUR SOURCES never converts a row's period); each earner's own year is a row of taxedSourcesAnnual — the cases are read from it."
+  },
+  {
+   "case_id": "MK-CF-F-210-C04",
+   "id": "MK-CF-F-210",
+   "name": "annualOfSource",
+   "kind": "complex",
+   "title": "Second earner of two",
+   "classification": "APP WRONG",
+   "expected": {
+    "exact": "54321.43",
+    "shown": "$54,321"
+   },
+   "actual": 138432.6,
+   "difference": "138432.60 vs 54321.43",
+   "rests_on": "DEC-0188; DEC-0176",
+   "note": "As C03, on the second earner's row. LATENT: no caller.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-210 annualOfSource — five cases (no production caller) › MK-CF-F-210-C04 · complex · Second earner of two [APP WRONG] — each salary row returns the household's salary — latent: no caller",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-210 annualOfSource — five cases (no production caller) › MK-CF-F-210-C04 · app today — 138,432.60 on the second earner's row"
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): MK-CF-F-210 annualOfSource RETIRED (no caller, and YOUR SOURCES never converts a row's period); each earner's own year is a row of taxedSourcesAnnual — the cases are read from it."
+  },
+  {
+   "case_id": "MK-CF-F-210-C05",
+   "id": "MK-CF-F-210",
+   "name": "annualOfSource",
+   "kind": "edge",
+   "title": "Known zero source",
+   "classification": "APP WRONG",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 60000,
+   "difference": "60000 vs 0",
+   "rests_on": "DEC-0188; tenet 3",
+   "note": "A $0 salary row (an earner with an empty by-month table, which incomeSources does list) returns the spouse's $60,000. LATENT: no caller.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-210 annualOfSource — five cases (no production caller) › MK-CF-F-210-C05 · edge · Known zero source [APP WRONG] — the other earner's salary fills a $0 row — latent: no caller",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-210 annualOfSource — five cases (no production caller) › MK-CF-F-210-C05 · app today — 60,000 on the $0 row"
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): MK-CF-F-210 annualOfSource RETIRED (no caller, and YOUR SOURCES never converts a row's period); each earner's own year is a row of taxedSourcesAnnual — the cases are read from it."
+  },
+  {
+   "case_id": "MK-CF-F-182-C01",
+   "id": "MK-CF-F-182",
+   "name": "asPercent",
+   "kind": "easy",
+   "title": "Whole percent",
+   "classification": "AGREE",
+   "expected": "24%",
+   "actual": "24%",
+   "difference": "none",
+   "rests_on": "",
+   "note": "Formats once, two decimals at most: 24%, 3.8%, 17.35%, 0.01%, 0% (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-182 asPercent — five cases (its own text) › MK-CF-F-182-C01 · easy · Whole percent [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-182-C02",
+   "id": "MK-CF-F-182",
+   "name": "asPercent",
+   "kind": "easy",
+   "title": "Fractional percent",
+   "classification": "AGREE",
+   "expected": "3.8%",
+   "actual": "3.8%",
+   "difference": "none",
+   "rests_on": "",
+   "note": "Formats once, two decimals at most: 24%, 3.8%, 17.35%, 0.01%, 0% (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-182 asPercent — five cases (its own text) › MK-CF-F-182-C02 · easy · Fractional percent [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-182-C03",
+   "id": "MK-CF-F-182",
+   "name": "asPercent",
+   "kind": "complex",
+   "title": "Unround rate",
+   "classification": "AGREE",
+   "expected": "17.35%",
+   "actual": "17.35%",
+   "difference": "none",
+   "rests_on": "",
+   "note": "Formats once, two decimals at most: 24%, 3.8%, 17.35%, 0.01%, 0% (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-182 asPercent — five cases (its own text) › MK-CF-F-182-C03 · complex · Unround rate [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-182-C04",
+   "id": "MK-CF-F-182",
+   "name": "asPercent",
+   "kind": "complex",
+   "title": "Small rate",
+   "classification": "AGREE",
+   "expected": "0.01%",
+   "actual": "0.01%",
+   "difference": "none",
+   "rests_on": "",
+   "note": "Formats once, two decimals at most: 24%, 3.8%, 17.35%, 0.01%, 0% (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-182 asPercent — five cases (its own text) › MK-CF-F-182-C04 · complex · Small rate [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-182-C05",
+   "id": "MK-CF-F-182",
+   "name": "asPercent",
+   "kind": "edge",
+   "title": "Explicit zero",
+   "classification": "AGREE",
+   "expected": "0%",
+   "actual": "0%",
+   "difference": "none",
+   "rests_on": "",
+   "note": "Formats once, two decimals at most: 24%, 3.8%, 17.35%, 0.01%, 0% (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-182 asPercent — five cases (its own text) › MK-CF-F-182-C05 · edge · Explicit zero [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-183-C01",
+   "id": "MK-CF-F-183",
+   "name": "paidOutByAccount",
+   "kind": "easy",
+   "title": "One cash payment",
+   "classification": "AGREE",
+   "expected": {
+    "A": {
+     "exact": "100",
+     "shown": "$100",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "A": {
+     "exact": "100",
+     "shown": "$100",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "{A: 100}.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-183 paidOutByAccount — five cases (its own text, the ledger rule handed in) › MK-CF-F-183-C01 · easy · One cash payment [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-183-C02",
+   "id": "MK-CF-F-183",
+   "name": "paidOutByAccount",
+   "kind": "easy",
+   "title": "Reinvested omitted",
+   "classification": "AGREE",
+   "expected": {},
+   "actual": {},
+   "difference": "none",
+   "rests_on": "",
+   "note": "Reinvested excluded: {}.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-183 paidOutByAccount — five cases (its own text, the ledger rule handed in) › MK-CF-F-183-C02 · easy · Reinvested omitted [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ],
+   "fixed": "RECLASSIFIED 2026-10-25 (FIX-TAX) — REVIEWER WRONG by his DEC-0179 clause 2 and DEC-0198 (the lead's instruction on MK-CF-M-066): a reinvested payout counts: {A: 100}."
+  },
+  {
+   "case_id": "MK-CF-F-183-C03",
+   "id": "MK-CF-F-183",
+   "name": "paidOutByAccount",
+   "kind": "complex",
+   "title": "Signed mixed accounts",
+   "classification": "AGREE",
+   "expected": {
+    "A": {
+     "exact": "261.74",
+     "shown": "$262",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "B": {
+     "exact": "211.19",
+     "shown": "$211",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "A": {
+     "exact": "261.74",
+     "shown": "$262",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "B": {
+     "exact": "211.19",
+     "shown": "$211",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "difference": "none",
+   "rests_on": "DEC-6796",
+   "note": "Signed reversal kept: {A: 261.74, B: 211.19} (DEC-6796).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-183 paidOutByAccount — five cases (its own text, the ledger rule handed in) › MK-CF-F-183-C03 · complex · Signed mixed accounts [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-183-C04",
+   "id": "MK-CF-F-183",
+   "name": "paidOutByAccount",
+   "kind": "complex",
+   "title": "One day outside trailing window",
+   "classification": "AGREE",
+   "expected": {
+    "A": {
+     "exact": "313.19",
+     "shown": "$313",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "B": {
+     "exact": "111.43",
+     "shown": "$111",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "A": {
+     "exact": "313.19",
+     "shown": "$313",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "B": {
+     "exact": "111.43",
+     "shown": "$111",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "On or after 2025-10-24 counted, 2025-10-23 not: {A: 313.19, B: 111.43}.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-183 paidOutByAccount — five cases (its own text, the ledger rule handed in) › MK-CF-F-183-C04 · complex · One day outside trailing window [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-183-C05",
+   "id": "MK-CF-F-183",
+   "name": "paidOutByAccount",
+   "kind": "edge",
+   "title": "Future payout",
+   "classification": "APP WRONG",
+   "expected": {},
+   "actual": {
+    "A": 1000
+   },
+   "difference": "{A: 1000} vs {}",
+   "rests_on": "Tenets 1 and 3; DEC-7171 (the window is \"the twelve months ending today\")",
+   "note": "The window has a start and no end: a payout dated 2026-10-25, the day after as_of, is counted as paid. Live through incomeFromAccounts (Interest & dividends, sign-up, the Tax organizer).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-183 paidOutByAccount — five cases (its own text, the ledger rule handed in) › MK-CF-F-183-C05 · edge · Future payout [APP WRONG] — a payout dated after today is counted (tenets 1, 3; DEC-7171 names the window \"the twelve months ending today\")",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-183 paidOutByAccount — five cases (its own text, the ledger rule handed in) › MK-CF-F-183-C05 · app today — {A: 1000} for a payout dated 2026-10-25"
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — paidOutByAccount's window ends today: {} (was {A: 1000})."
+  },
+  {
+   "case_id": "MK-CF-F-184-C01",
+   "id": "MK-CF-F-184",
+   "name": "incomeFromAccounts",
+   "kind": "easy",
+   "title": "Recorded payout wins",
+   "classification": "AGREE",
+   "expected": {
+    "rows": [
+     {
+      "id": "A",
+      "amount": {
+       "exact": "400",
+       "shown": "$400.00",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      },
+      "basis": "recorded trailing payouts"
+     }
+    ],
+    "total": {
+     "exact": "400",
+     "shown": "$400",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "rows": [
+     {
+      "id": "A",
+      "amount": {
+       "exact": "400",
+       "shown": "$400.00",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      },
+      "basis": "recorded trailing payouts"
+     }
+    ],
+    "total": {
+     "exact": "400",
+     "shown": "$400",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The $400 recorded replaces the $500 the rate would give: one line \"paid out over the trailing twelve months\", total 400.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-184 incomeFromAccounts — five cases (live: Interest & dividends, the Tax organizer) › MK-CF-F-184-C01 · easy · Recorded payout wins [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-184-C02",
+   "id": "MK-CF-F-184",
+   "name": "incomeFromAccounts",
+   "kind": "easy",
+   "title": "No rate owner exception",
+   "classification": "AGREE",
+   "expected": {
+    "rows": [
+     {
+      "id": "A",
+      "amount": {
+       "exact": "0",
+       "shown": "$0.00",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      },
+      "basis": "rate not entered; assumed"
+     }
+    ],
+    "total": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "rows": [
+     {
+      "id": "A",
+      "amount": {
+       "exact": "0",
+       "shown": "$0.00",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      },
+      "basis": "rate not entered; assumed"
+     }
+    ],
+    "total": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "difference": "none",
+   "rests_on": "DEC-0279",
+   "note": "No rate: $0, marked assumed, \"no coupon rate entered — counted as $0\" (DEC-0279).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-184 incomeFromAccounts — five cases (live: Interest & dividends, the Tax organizer) › MK-CF-F-184-C02 · easy · No rate owner exception [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-184-C03",
+   "id": "MK-CF-F-184",
+   "name": "incomeFromAccounts",
+   "kind": "complex",
+   "title": "Face versus bank CD balance",
+   "classification": "AGREE",
+   "expected": {
+    "rows": [
+     {
+      "id": "A",
+      "amount": {
+       "exact": "1125",
+       "shown": "$1,125.00",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      }
+     },
+     {
+      "id": "B",
+      "amount": {
+       "exact": "571.227215",
+       "shown": "$571.23",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      }
+     }
+    ],
+    "total": {
+     "exact": "1696.227215",
+     "shown": "$1,696",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "rows": [
+     {
+      "id": "A",
+      "amount": {
+       "exact": "1125",
+       "shown": "$1,125.00",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      }
+     },
+     {
+      "id": "B",
+      "amount": {
+       "exact": "571.227215",
+       "shown": "$571.23",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      }
+     }
+    ],
+    "total": {
+     "exact": "1696.227215",
+     "shown": "$1,696",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "difference": "none",
+   "rests_on": "DEC-7933; DEC-2748c",
+   "note": "25000 × 0.045 = 1125 on face; bank CD 11311.43 × 0.0505 = 571.227215; total 1696.227215.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-184 incomeFromAccounts — five cases (live: Interest & dividends, the Tax organizer) › MK-CF-F-184-C03 · complex · Face versus bank CD balance [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-184-C04",
+   "id": "MK-CF-F-184",
+   "name": "incomeFromAccounts",
+   "kind": "complex",
+   "title": "Matured and missing face",
+   "classification": "AGREE",
+   "expected": {
+    "rows": [
+     {
+      "id": "A",
+      "amount": {
+       "exact": "0",
+       "shown": "$0.00",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      },
+      "reason": "matured"
+     },
+     {
+      "id": "B",
+      "amount": {
+       "exact": "0",
+       "shown": "$0.00",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      },
+      "reason": "face not entered;excluded"
+     }
+    ],
+    "known_income_subtotal": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "complete": false
+   },
+   "actual": {
+    "rows": [
+     {
+      "id": "A",
+      "amount": {
+       "exact": "0",
+       "shown": "$0.00",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      },
+      "reason": "matured"
+     },
+     {
+      "id": "B",
+      "amount": {
+       "exact": "0",
+       "shown": "$0.00",
+       "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      },
+      "reason": "face not entered;excluded"
+     }
+    ],
+    "known_income_subtotal": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "complete": false
+   },
+   "difference": "none",
+   "rests_on": "DEC-7933",
+   "note": "Matured $0 \"matured Jun 30, 2026\"; no face $0 \"face value not entered\" marked assumed; total 0. The reviewer's complete:false is read as a line marked assumed with its reason on the line; the total-level `missing` sentence stays null (it names only accounts with no line).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-184 incomeFromAccounts — five cases (live: Interest & dividends, the Tax organizer) › MK-CF-F-184-C04 · complex · Matured and missing face [AGREE] — complete:false read as a line marked assumed, its reason on the line (DEC-7933)"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-184-C05",
+   "id": "MK-CF-F-184",
+   "name": "incomeFromAccounts",
+   "kind": "edge",
+   "title": "Future payout ignored",
+   "classification": "APP WRONG",
+   "expected": {
+    "recorded_ttm": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "forward_estimate": {
+     "exact": "500",
+     "shown": "$500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "basis": "estimate, not recorded payout"
+   },
+   "actual": {
+    "annual": 1000,
+    "why": "paid out over the trailing twelve months"
+   },
+   "difference": "1000 \"paid\" vs 0 recorded + 500 estimate",
+   "rests_on": "Tenets 1 and 3; DEC-7171",
+   "note": "The future $1,000 (inherited from MK-CF-F-183) is read as paid, so the $500 the 5% rate gives is never shown and the line says \"paid out over the trailing twelve months\".",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-184 incomeFromAccounts — five cases (live: Interest & dividends, the Tax organizer) › MK-CF-F-184-C05 · edge · Future payout ignored [APP WRONG] — a payout dated tomorrow is shown as paid and the estimate is dropped (inherits MK-CF-F-183)",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-184 incomeFromAccounts — five cases (live: Interest & dividends, the Tax organizer) › MK-CF-F-184-C05 · app today — $1,000 \"paid out over the trailing twelve months\""
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — with F-183: the payout dated tomorrow is not paid; the $500 estimate shows, \"5% on $10,000\" (was $1,000 \"paid out\")."
+  },
+  {
+   "case_id": "MK-CF-F-127-C01",
+   "id": "MK-CF-F-127",
+   "name": "isRental",
+   "kind": "easy",
+   "title": "Long let",
+   "classification": "AGREE",
+   "expected": true,
+   "actual": true,
+   "difference": "none",
+   "rests_on": "",
+   "note": "True only for LONG_TERM_RENTAL and SHORT_TERM_RENTAL (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-127 isRental — five cases (its own text) › MK-CF-F-127-C01 · easy · Long let [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-127-C02",
+   "id": "MK-CF-F-127",
+   "name": "isRental",
+   "kind": "easy",
+   "title": "Short let",
+   "classification": "AGREE",
+   "expected": true,
+   "actual": true,
+   "difference": "none",
+   "rests_on": "",
+   "note": "True only for LONG_TERM_RENTAL and SHORT_TERM_RENTAL (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-127 isRental — five cases (its own text) › MK-CF-F-127-C02 · easy · Short let [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-127-C03",
+   "id": "MK-CF-F-127",
+   "name": "isRental",
+   "kind": "complex",
+   "title": "Wage is not rent",
+   "classification": "AGREE",
+   "expected": false,
+   "actual": false,
+   "difference": "none",
+   "rests_on": "",
+   "note": "True only for LONG_TERM_RENTAL and SHORT_TERM_RENTAL (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-127 isRental — five cases (its own text) › MK-CF-F-127-C03 · complex · Wage is not rent [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-127-C04",
+   "id": "MK-CF-F-127",
+   "name": "isRental",
+   "kind": "complex",
+   "title": "Interest is not rent",
+   "classification": "AGREE",
+   "expected": false,
+   "actual": false,
+   "difference": "none",
+   "rests_on": "",
+   "note": "True only for LONG_TERM_RENTAL and SHORT_TERM_RENTAL (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-127 isRental — five cases (its own text) › MK-CF-F-127-C04 · complex · Interest is not rent [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-127-C05",
+   "id": "MK-CF-F-127",
+   "name": "isRental",
+   "kind": "edge",
+   "title": "No kind",
+   "classification": "AGREE",
+   "expected": false,
+   "actual": false,
+   "difference": "none",
+   "rests_on": "",
+   "note": "True only for LONG_TERM_RENTAL and SHORT_TERM_RENTAL (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-127 isRental — five cases (its own text) › MK-CF-F-127-C05 · edge · No kind [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-044-C01",
+   "id": "MK-CF-F-044",
+   "name": "annualNet",
+   "kind": "easy",
+   "title": "One monthly source",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "12000",
+    "shown": "$12,000"
+   },
+   "actual": {
+    "exact": "12000",
+    "shown": "$12,000"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "annualNet: independent source calls plus the asserted subtotal: 12000, 12000, 80751.72 (match 91711.20), 53135.18, 0.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-044 annualNet, MK-CF-F-045 grossAnnualBaseline, MK-CF-F-046 employerMatchAnnual — fifteen cases › MK-CF-F-044-C01 · easy · One monthly source [AGREE] — independent source calls plus the asserted subtotal, as the package note says"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-044-C02",
+   "id": "MK-CF-F-044",
+   "name": "annualNet",
+   "kind": "easy",
+   "title": "One annual source",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "12000",
+    "shown": "$12,000"
+   },
+   "actual": {
+    "exact": "12000",
+    "shown": "$12,000"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "annualNet: independent source calls plus the asserted subtotal: 12000, 12000, 80751.72 (match 91711.20), 53135.18, 0.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-044 annualNet, MK-CF-F-045 grossAnnualBaseline, MK-CF-F-046 employerMatchAnnual — fifteen cases › MK-CF-F-044-C02 · easy · One annual source [AGREE] — independent source calls plus the asserted subtotal, as the package note says"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-044-C03",
+   "id": "MK-CF-F-044",
+   "name": "annualNet",
+   "kind": "complex",
+   "title": "Rent and wage",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "80751.72",
+    "shown": "$80,752"
+   },
+   "actual": {
+    "exact": "80751.72",
+    "shown": "$80,752"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "annualNet: independent source calls plus the asserted subtotal: 12000, 12000, 80751.72 (match 91711.20), 53135.18, 0.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-044 annualNet, MK-CF-F-045 grossAnnualBaseline, MK-CF-F-046 employerMatchAnnual — fifteen cases › MK-CF-F-044-C03 · complex · Rent and wage [AGREE] — independent source calls plus the asserted subtotal, as the package note says"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-044-C04",
+   "id": "MK-CF-F-044",
+   "name": "annualNet",
+   "kind": "complex",
+   "title": "Quarterly and fortnightly",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "53135.18",
+    "shown": "$53,135"
+   },
+   "actual": {
+    "exact": "53135.18",
+    "shown": "$53,135"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "annualNet: independent source calls plus the asserted subtotal: 12000, 12000, 80751.72 (match 91711.20), 53135.18, 0.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-044 annualNet, MK-CF-F-045 grossAnnualBaseline, MK-CF-F-046 employerMatchAnnual — fifteen cases › MK-CF-F-044-C04 · complex · Quarterly and fortnightly [AGREE] — independent source calls plus the asserted subtotal, as the package note says"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-044-C05",
+   "id": "MK-CF-F-044",
+   "name": "annualNet",
+   "kind": "edge",
+   "title": "Explicit zero",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "annualNet: independent source calls plus the asserted subtotal: 12000, 12000, 80751.72 (match 91711.20), 53135.18, 0.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-044 annualNet, MK-CF-F-045 grossAnnualBaseline, MK-CF-F-046 employerMatchAnnual — fifteen cases › MK-CF-F-044-C05 · edge · Explicit zero [AGREE] — independent source calls plus the asserted subtotal, as the package note says"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-045-C01",
+   "id": "MK-CF-F-045",
+   "name": "grossAnnualBaseline",
+   "kind": "easy",
+   "title": "One monthly source",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "12000",
+    "shown": "$12,000"
+   },
+   "actual": {
+    "exact": "12000",
+    "shown": "$12,000"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "grossAnnualBaseline: 12000, 12000, 80751.72 (match 91711.20), 53135.18, 0.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-044 annualNet, MK-CF-F-045 grossAnnualBaseline, MK-CF-F-046 employerMatchAnnual — fifteen cases › MK-CF-F-045-C01 · easy · One monthly source [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-045-C02",
+   "id": "MK-CF-F-045",
+   "name": "grossAnnualBaseline",
+   "kind": "easy",
+   "title": "One annual source",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "12000",
+    "shown": "$12,000"
+   },
+   "actual": {
+    "exact": "12000",
+    "shown": "$12,000"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "grossAnnualBaseline: 12000, 12000, 80751.72 (match 91711.20), 53135.18, 0.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-044 annualNet, MK-CF-F-045 grossAnnualBaseline, MK-CF-F-046 employerMatchAnnual — fifteen cases › MK-CF-F-045-C02 · easy · One annual source [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-045-C03",
+   "id": "MK-CF-F-045",
+   "name": "grossAnnualBaseline",
+   "kind": "complex",
+   "title": "Rent and wage",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "80751.72",
+    "shown": "$80,752"
+   },
+   "actual": {
+    "exact": "80751.72",
+    "shown": "$80,752"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "grossAnnualBaseline: 12000, 12000, 80751.72 (match 91711.20), 53135.18, 0.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-044 annualNet, MK-CF-F-045 grossAnnualBaseline, MK-CF-F-046 employerMatchAnnual — fifteen cases › MK-CF-F-045-C03 · complex · Rent and wage [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-045-C04",
+   "id": "MK-CF-F-045",
+   "name": "grossAnnualBaseline",
+   "kind": "complex",
+   "title": "Quarterly and fortnightly",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "53135.18",
+    "shown": "$53,135"
+   },
+   "actual": {
+    "exact": "53135.18",
+    "shown": "$53,135"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "grossAnnualBaseline: 12000, 12000, 80751.72 (match 91711.20), 53135.18, 0.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-044 annualNet, MK-CF-F-045 grossAnnualBaseline, MK-CF-F-046 employerMatchAnnual — fifteen cases › MK-CF-F-045-C04 · complex · Quarterly and fortnightly [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-045-C05",
+   "id": "MK-CF-F-045",
+   "name": "grossAnnualBaseline",
+   "kind": "edge",
+   "title": "Explicit zero",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "grossAnnualBaseline: 12000, 12000, 80751.72 (match 91711.20), 53135.18, 0.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-044 annualNet, MK-CF-F-045 grossAnnualBaseline, MK-CF-F-046 employerMatchAnnual — fifteen cases › MK-CF-F-045-C05 · edge · Explicit zero [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-046-C01",
+   "id": "MK-CF-F-046",
+   "name": "employerMatchAnnual",
+   "kind": "easy",
+   "title": "One monthly source",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "12000",
+    "shown": "$12,000"
+   },
+   "actual": {
+    "exact": "12000",
+    "shown": "$12,000"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "employerMatchAnnual (each amount read as the match): 12000, 12000, 80751.72 (match 91711.20), 53135.18, 0.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-044 annualNet, MK-CF-F-045 grossAnnualBaseline, MK-CF-F-046 employerMatchAnnual — fifteen cases › MK-CF-F-046-C01 · easy · One monthly source [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-046-C02",
+   "id": "MK-CF-F-046",
+   "name": "employerMatchAnnual",
+   "kind": "easy",
+   "title": "One annual source",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "12000",
+    "shown": "$12,000"
+   },
+   "actual": {
+    "exact": "12000",
+    "shown": "$12,000"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "employerMatchAnnual (each amount read as the match): 12000, 12000, 80751.72 (match 91711.20), 53135.18, 0.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-044 annualNet, MK-CF-F-045 grossAnnualBaseline, MK-CF-F-046 employerMatchAnnual — fifteen cases › MK-CF-F-046-C02 · easy · One annual source [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-046-C03",
+   "id": "MK-CF-F-046",
+   "name": "employerMatchAnnual",
+   "kind": "complex",
+   "title": "Rent and wage",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "91711.20",
+    "shown": "$91,711"
+   },
+   "actual": {
+    "exact": "91711.20",
+    "shown": "$91,711"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "employerMatchAnnual (each amount read as the match): 12000, 12000, 80751.72 (match 91711.20), 53135.18, 0.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-044 annualNet, MK-CF-F-045 grossAnnualBaseline, MK-CF-F-046 employerMatchAnnual — fifteen cases › MK-CF-F-046-C03 · complex · Rent and wage [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-046-C04",
+   "id": "MK-CF-F-046",
+   "name": "employerMatchAnnual",
+   "kind": "complex",
+   "title": "Quarterly and fortnightly",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "53135.18",
+    "shown": "$53,135"
+   },
+   "actual": {
+    "exact": "53135.18",
+    "shown": "$53,135"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "employerMatchAnnual (each amount read as the match): 12000, 12000, 80751.72 (match 91711.20), 53135.18, 0.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-044 annualNet, MK-CF-F-045 grossAnnualBaseline, MK-CF-F-046 employerMatchAnnual — fifteen cases › MK-CF-F-046-C04 · complex · Quarterly and fortnightly [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-046-C05",
+   "id": "MK-CF-F-046",
+   "name": "employerMatchAnnual",
+   "kind": "edge",
+   "title": "Explicit zero",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "employerMatchAnnual (each amount read as the match): 12000, 12000, 80751.72 (match 91711.20), 53135.18, 0.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-044 annualNet, MK-CF-F-045 grossAnnualBaseline, MK-CF-F-046 employerMatchAnnual — fifteen cases › MK-CF-F-046-C05 · edge · Explicit zero [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-161-C01",
+   "id": "MK-CF-F-161",
+   "name": "monthlyGrossOfSource",
+   "kind": "easy",
+   "title": "Monthly rent net",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1200",
+     "shown": "$1,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "Monthly, dated yearly, quarterly, weighted and one-off placements as the reviewer wrote them (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-161 monthlyGrossOfSource — five cases (its own text) › MK-CF-F-161-C01 · easy · Monthly rent net [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-161-C02",
+   "id": "MK-CF-F-161",
+   "name": "monthlyGrossOfSource",
+   "kind": "easy",
+   "title": "Annual September",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "12000",
+     "shown": "$12,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "12000",
+     "shown": "$12,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "Monthly, dated yearly, quarterly, weighted and one-off placements as the reviewer wrote them (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-161 monthlyGrossOfSource — five cases (its own text) › MK-CF-F-161-C02 · easy · Annual September [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-161-C03",
+   "id": "MK-CF-F-161",
+   "name": "monthlyGrossOfSource",
+   "kind": "complex",
+   "title": "Quarterly unround",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1831.17",
+     "shown": "$1,831",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1831.17",
+     "shown": "$1,831",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1831.17",
+     "shown": "$1,831",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1831.17",
+     "shown": "$1,831",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1831.17",
+     "shown": "$1,831",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1831.17",
+     "shown": "$1,831",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1831.17",
+     "shown": "$1,831",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1831.17",
+     "shown": "$1,831",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "Monthly, dated yearly, quarterly, weighted and one-off placements as the reviewer wrote them (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-161 monthlyGrossOfSource — five cases (its own text) › MK-CF-F-161-C03 · complex · Quarterly unround [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-161-C04",
+   "id": "MK-CF-F-161",
+   "name": "monthlyGrossOfSource",
+   "kind": "complex",
+   "title": "Weighted annual grant",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3329.3575",
+     "shown": "$3,329",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "9988.0725",
+     "shown": "$9,988",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3329.3575",
+     "shown": "$3,329",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "9988.0725",
+     "shown": "$9,988",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "Monthly, dated yearly, quarterly, weighted and one-off placements as the reviewer wrote them (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-161 monthlyGrossOfSource — five cases (its own text) › MK-CF-F-161-C04 · complex · Weighted annual grant [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-161-C05",
+   "id": "MK-CF-F-161",
+   "name": "monthlyGrossOfSource",
+   "kind": "edge",
+   "title": "One-off January default",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "Monthly, dated yearly, quarterly, weighted and one-off placements as the reviewer wrote them (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-161 monthlyGrossOfSource — five cases (its own text) › MK-CF-F-161-C05 · edge · One-off January default [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-049-C01",
+   "id": "MK-CF-F-049",
+   "name": "buildIncomeState",
+   "kind": "easy",
+   "title": "Known one-wage month",
+   "classification": "APP WRONG",
+   "expected": {
+    "gross": {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "tax": {
+     "exact": "500.0",
+     "shown": "$500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "k": {
+     "exact": "500",
+     "shown": "$500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "take_home": {
+     "exact": "4000.0",
+     "shown": "$4,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "gross": 5000,
+    "tax": 500,
+    "take_home": 4500
+   },
+   "difference": "take-home 4500 vs 4000 — the 401(k) is never taken off",
+   "rests_on": "CLAUDE.md money convention (take-home = after tax AND 401(k)); DEC-0283; DEC-0181; tenet 4",
+   "note": "Production path profile → incomeFromOnboarding → buildIncomeState (snapshot.ts:134-135). Gross and tax agree; take-home = gross × (1 − rate). On the same profile the household path (MK-XS-F-004 buildDatedGrid) gives the reviewer's 4000. The household rate was handed in typed so both paths hold the reviewer's rate. LEGACY: no screen a person can open shows it (Home reads only net worth from buildSnapshot; /income-detail has no way in).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-049 buildIncomeState — five cases (production path: profile → incomeFromOnboarding → buildIncomeState) › MK-CF-F-049-C01 · easy · Known one-wage month [APP WRONG] — take-home is gross × (1 − rate): the 401(k) is never taken off (CLAUDE.md money convention; DEC-0283; tenet 4)",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-049 buildIncomeState — five cases (production path: profile → incomeFromOnboarding → buildIncomeState) › MK-CF-F-049-C01 · app today — gross and tax agree; take-home = gross × (1 − rate); the month grid gives the reviewer's take-home"
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — buildIncomeState is handed the profile and reads the month grid and rateInForce: take-home $4,000 (was $4,500). The cell's net is the month's take-home (after the 401(k))."
+  },
+  {
+   "case_id": "MK-CF-F-049-C02",
+   "id": "MK-CF-F-049",
+   "name": "buildIncomeState",
+   "kind": "easy",
+   "title": "Typed take-home with rent",
+   "classification": "APP WRONG",
+   "expected": {
+    "gross": {
+     "exact": "6411.17",
+     "shown": "$6,411",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "tax": {
+     "exact": "1282.234",
+     "shown": "$1,282",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "k": {
+     "exact": "611.43",
+     "shown": "$611",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "take_home": {
+     "exact": "4517.506",
+     "shown": "$4,518",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "gross": 6411.17,
+    "tax": 1282.234,
+    "take_home": 5128.936
+   },
+   "difference": "take-home 5128.936 vs 4517.506 — the 401(k) is never taken off",
+   "rests_on": "CLAUDE.md money convention (take-home = after tax AND 401(k)); DEC-0283; DEC-0181; tenet 4",
+   "note": "Production path profile → incomeFromOnboarding → buildIncomeState (snapshot.ts:134-135). Gross and tax agree; take-home = gross × (1 − rate). On the same profile the household path (MK-XS-F-004 buildDatedGrid) gives the reviewer's 4517.506. The household rate was handed in typed so both paths hold the reviewer's rate. LEGACY: no screen a person can open shows it (Home reads only net worth from buildSnapshot; /income-detail has no way in).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-049 buildIncomeState — five cases (production path: profile → incomeFromOnboarding → buildIncomeState) › MK-CF-F-049-C02 · easy · Typed take-home with rent [APP WRONG] — take-home is gross × (1 − rate): the 401(k) is never taken off (CLAUDE.md money convention; DEC-0283; tenet 4)",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-049 buildIncomeState — five cases (production path: profile → incomeFromOnboarding → buildIncomeState) › MK-CF-F-049-C02 · app today — gross and tax agree; take-home = gross × (1 − rate); the month grid gives the reviewer's take-home"
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — as C01: $4,517.51 (was $5,128.94)."
+  },
+  {
+   "case_id": "MK-CF-F-049-C03",
+   "id": "MK-CF-F-049",
+   "name": "buildIncomeState",
+   "kind": "complex",
+   "title": "Joint filing plus entered state rate",
+   "classification": "APP WRONG",
+   "expected": {
+    "tax_annual": {
+     "exact": "18106.8020",
+     "shown": "$18,107",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "take_home_annual": {
+     "exact": "120325.7980",
+     "shown": "$120,326",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "monthly_tax_sum": {
+     "exact": "18106.8020",
+     "shown": "$18,107",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "tax_annual": 21957.824,
+    "take_home_annual": 116474.776,
+    "monthly_tax_sum": 21957.824
+   },
+   "difference": "tax 21957.82 vs 18106.80",
+   "rests_on": "DEC-0184; DEC-7798; DEC-0327; DEC-0196; tenet 4",
+   "note": "incomeFromOnboarding hands buildIncomeState DEFAULT_TAX — no filing status, no state — so the year and the months are single, federal only: 21957.824. incomeSummary on the same profile (rateInForce, married, 5% state on taxable income) gives the reviewer's 18106.802. Called directly with filing_status married, the year reads joint 12795.172 while the months stay single 21957.824 — the card's exact point. LEGACY, no visible figure.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-049 buildIncomeState — five cases (production path: profile → incomeFromOnboarding → buildIncomeState) › MK-CF-F-049-C03 · complex · Joint filing plus entered state rate [APP WRONG] — single, federal only, in the year and the months (DEC-0184, DEC-7798, DEC-0327)",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-049 buildIncomeState — five cases (production path: profile → incomeFromOnboarding → buildIncomeState) › MK-CF-F-049-C03 · app today — tax 21,957.824 a year and in the months; incomeSummary on the same profile gives the reviewer's 18,106.802"
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — as C01: joint, 5% state on taxable income: $18,106.80 a year and in the months (was $21,957.82)."
+  },
+  {
+   "case_id": "MK-CF-F-049-C04",
+   "id": "MK-CF-F-049",
+   "name": "buildIncomeState",
+   "kind": "complex",
+   "title": "Uneven real household",
+   "classification": "APP WRONG",
+   "expected": {
+    "gross": {
+     "exact": "12222.36",
+     "shown": "$12,222",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "tax": {
+     "exact": "2896.69932",
+     "shown": "$2,897",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "k": {
+     "exact": "1731.43",
+     "shown": "$1,731",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "take_home": {
+     "exact": "7594.23068",
+     "shown": "$7,594",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "gross": 12222.36,
+    "tax": 2896.69932,
+    "take_home": 9325.66068
+   },
+   "difference": "take-home 9325.66068 vs 7594.23068 — the 401(k) is never taken off",
+   "rests_on": "CLAUDE.md money convention (take-home = after tax AND 401(k)); DEC-0283; DEC-0181; tenet 4",
+   "note": "Production path profile → incomeFromOnboarding → buildIncomeState (snapshot.ts:134-135). Gross and tax agree; take-home = gross × (1 − rate). On the same profile the household path (MK-XS-F-004 buildDatedGrid) gives the reviewer's 7594.23068. The household rate was handed in typed so both paths hold the reviewer's rate. LEGACY: no screen a person can open shows it (Home reads only net worth from buildSnapshot; /income-detail has no way in).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-049 buildIncomeState — five cases (production path: profile → incomeFromOnboarding → buildIncomeState) › MK-CF-F-049-C04 · complex · Uneven real household [APP WRONG] — take-home is gross × (1 − rate): the 401(k) is never taken off (CLAUDE.md money convention; DEC-0283; tenet 4)",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-049 buildIncomeState — five cases (production path: profile → incomeFromOnboarding → buildIncomeState) › MK-CF-F-049-C04 · app today — gross and tax agree; take-home = gross × (1 − rate); the month grid gives the reviewer's take-home"
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — as C01: $7,594.23 (was $9,325.66)."
+  },
+  {
+   "case_id": "MK-CF-F-049-C05",
+   "id": "MK-CF-F-049",
+   "name": "buildIncomeState",
+   "kind": "edge",
+   "title": "Explicit zero income",
+   "classification": "AGREE",
+   "expected": {
+    "gross": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "tax": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "k": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "take_home": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "gross": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "tax": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "k": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "take_home": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "All zero. IncomeState carries no 401(k) field; with $0 nothing differs.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-049 buildIncomeState — five cases (production path: profile → incomeFromOnboarding → buildIncomeState) › MK-CF-F-049-C05 · edge · Explicit zero income [AGREE] — IncomeState has no 401(k) field; with $0 nothing differs"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-129-C01",
+   "id": "MK-CF-F-129",
+   "name": "round4",
+   "kind": "easy",
+   "title": "Integer",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "100",
+    "shown": "$100",
+    "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+   },
+   "actual": {
+    "exact": "100",
+    "shown": "$100",
+    "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "Returns the number unchanged (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-129 round4 — five cases (its own text) › MK-CF-F-129-C01 · easy · Integer [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-129-C02",
+   "id": "MK-CF-F-129",
+   "name": "round4",
+   "kind": "easy",
+   "title": "Fractional",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "12.3456789",
+    "shown": "$12",
+    "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+   },
+   "actual": {
+    "exact": "12.3456789",
+    "shown": "$12",
+    "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "Returns the number unchanged (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-129 round4 — five cases (its own text) › MK-CF-F-129-C02 · easy · Fractional [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-129-C03",
+   "id": "MK-CF-F-129",
+   "name": "round4",
+   "kind": "complex",
+   "title": "Small amount",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0.00001234567",
+    "shown": "$0",
+    "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+   },
+   "actual": {
+    "exact": "0.00001234567",
+    "shown": "$0",
+    "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "Returns the number unchanged (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-129 round4 — five cases (its own text) › MK-CF-F-129-C03 · complex · Small amount [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-129-C04",
+   "id": "MK-CF-F-129",
+   "name": "round4",
+   "kind": "complex",
+   "title": "Negative",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "-911.173219",
+    "shown": "−$911",
+    "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+   },
+   "actual": {
+    "exact": "-911.173219",
+    "shown": "−$911",
+    "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "Returns the number unchanged (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-129 round4 — five cases (its own text) › MK-CF-F-129-C04 · complex · Negative [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-129-C05",
+   "id": "MK-CF-F-129",
+   "name": "round4",
+   "kind": "edge",
+   "title": "Zero",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0",
+    "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+   },
+   "actual": {
+    "exact": "0",
+    "shown": "$0",
+    "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "Returns the number unchanged (compiled from its own text).",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-129 round4 — five cases (its own text) › MK-CF-F-129-C05 · edge · Zero [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-052-C01",
+   "id": "MK-CF-F-052",
+   "name": "getIncomeState",
+   "kind": "easy",
+   "title": "Known result",
+   "classification": "AGREE",
+   "expected": {
+    "total": {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "total": {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "Storage mocked: the stored document comes back as buildIncomeState of it, unchanged; total 1000. No production caller.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-052 getIncomeState — five cases (no production caller; the storage read is mocked here) › MK-CF-F-052-C01 · easy · Known result [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-052-C02",
+   "id": "MK-CF-F-052",
+   "name": "getIncomeState",
+   "kind": "easy",
+   "title": "No stored result",
+   "classification": "AGREE",
+   "expected": null,
+   "actual": null,
+   "difference": "none",
+   "rests_on": "",
+   "note": "Nothing stored → null, not a zero object.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-052 getIncomeState — five cases (no production caller; the storage read is mocked here) › MK-CF-F-052-C02 · easy · No stored result [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-052-C03",
+   "id": "MK-CF-F-052",
+   "name": "getIncomeState",
+   "kind": "complex",
+   "title": "Unround payload",
+   "classification": "AGREE",
+   "expected": {
+    "total": {
+     "exact": "8311.17391",
+     "shown": "$8,311",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "rate": {
+     "exact": "0.173491",
+     "shown": "17.35%",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "total": {
+     "exact": "8311.17391",
+     "shown": "$8,311",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "rate": {
+     "exact": "0.173491",
+     "shown": "17.35%",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "Every digit kept: total 8311.17391, rate 0.173491.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-052 getIncomeState — five cases (no production caller; the storage read is mocked here) › MK-CF-F-052-C03 · complex · Unround payload [AGREE]"
+   ],
+   "test_result": [
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-052-C04",
+   "id": "MK-CF-F-052",
+   "name": "getIncomeState",
+   "kind": "complex",
+   "title": "Signed payload",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "total": {
+     "exact": "-731.1917",
+     "shown": "−$731",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "known": true
+   },
+   "actual": {
+    "total_gross_annual": -731.1917
+   },
+   "difference": "the \"known\" flag cannot exist on an IncomeState",
+   "rests_on": "caller: none — saveIncome and getIncomeState have no caller; incomeFromOnboarding adds only sources above $0",
+   "note": "No writer stores a negative income source or a \"known\" flag. A probe beside it shows a stored negative total comes back unchanged.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-052 getIncomeState — five cases (no production caller; the storage read is mocked here) › MK-CF-F-052-C04 · complex · Signed payload [OUTSIDE DOMAIN] — no writer stores a negative income source or a \"known\" flag: saveIncome has no caller, incomeFromOnboarding adds only sources above $0",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-052 getIncomeState — five cases (no production caller; the storage read is mocked here) › MK-CF-F-052-C04 · probe — a stored negative total comes back unchanged (the \"known\" flag is not a field of IncomeState)"
+   ],
+   "test_result": [
+    "pending",
+    "passed"
+   ]
+  },
+  {
+   "case_id": "MK-CF-F-052-C05",
+   "id": "MK-CF-F-052",
+   "name": "getIncomeState",
+   "kind": "edge",
+   "title": "Explicit zero result",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": "a stored $0-income document → total 0 (not null)",
+   "difference": "storage holds a document or nothing, never the number 0",
+   "rests_on": "caller: none — getUserDoc returns a document or null",
+   "note": "Recorded, not dropped: a probe shows a stored document with $0 income is a zero-valued result, not \"nothing\" — the reviewer's point holds.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-052 getIncomeState — five cases (no production caller; the storage read is mocked here) › MK-CF-F-052-C05 · edge · Explicit zero result [OUTSIDE DOMAIN] — storage holds a document or nothing — never the number 0 (getUserDoc returns a document or null)",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › MK-CF-F-052 getIncomeState — five cases (no production caller; the storage read is mocked here) › MK-CF-F-052-C05 · probe — a stored document with $0 of income is a zero-valued result, not \"nothing\""
+   ],
+   "test_result": [
+    "pending",
+    "passed"
+   ]
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-CF-O-004",
+   "name": "incomeSummary",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Positive-only taxed rows omit legitimate losses and several taxable sources despite a broader total; rent losses also disappear from usual-month take-home. The total cannot be traced to the printed rows in these cases.",
+   "reviewer_should_be": "Include all relevant signed sources or a named reconciliation row; preserve a known negative rental net; share calendar-year and tax bases with the month grid.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix",
+   "what_the_code_actually_does": "(1) The taxed rows print each earner's gross, rent if above $0, interest & dividends and the bonus, while \"= Gross /year\" is taxableAnnual, which also holds self-employment, Social Security and pensions, tips, stock vesting, a signing bonus, other taxable income and a rental loss — so the rows do not add up to the total. (2) A rental loss is dropped from the take-home rows, while incomeMonthlyGrid counts it. (3) `ready` ignores support, benefits and scholarships.",
+   "governing_decisions": [
+    "DEC-0376",
+    "DEC-0207",
+    "DEC-0387",
+    "DEC-0283",
+    "DEC-7887",
+    "tenets 1-4"
+   ],
+   "plain_example": "Wage $7,000/month, self-employment $1,000/month, Social Security $2,000/month, other income $500/month: rows $84,000, \"= Gross /year\" $126,000. A rental losing $319.76/month: $5,111.17 here, $4,791.41 in incomeMonthlyGrid.",
+   "production_callers": "IncomeSummaryScreen, IncomeManagerScreen, CashFlowScreen (pay rows), FilingStatusScreen, onboarding modules.tsx",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › MK-CF-O-004 · taxed rows add up to \"= Gross /year\" (DEC-0376, tenet 2) — and a rental loss stays in the take-home (tenet 4) [APP WRONG]",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › MK-CF-O-004 · app today — rows $84,000 under a $126,000 gross; a rental loss: $5,111.17 here and on the Cash flow tab's grid, $4,791.41 in incomeMonthlyGrid"
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): the taxed rows are taxedSourcesAnnual's — every source, signed, adding to \"= Gross /year\" ($84,000 → $122,400 of rows under $122,400 once Social Security is taxed per IRS Publication 915); a rental loss is in the take-home."
+  },
+  {
+   "id": "MK-CF-O-016",
+   "name": "incomeSources",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "The described source inventory omits interest/dividends, benefits, support and other entered sources; retirement total is labeled Social Security/pension but includes withdrawals.",
+   "reviewer_should_be": "Use the full source inventory, with precise labels and loss/zero/missing presence flags.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix (or retire)",
+   "what_the_code_actually_does": "Lists only salary, self-employment, bonus, equity, rental above $0 and Social Security/pension. Benefits, support, interest & dividends and a rental loss get no row. Its label \"Social Security · pension\" also covers withdrawals and annuities (retirementIncomeMonthly).",
+   "governing_decisions": [
+    "DEC-0181",
+    "tenets 2, 4, 8"
+   ],
+   "plain_example": "$731.17 benefits + $511.43 support + $1,831.19 interest → no rows.",
+   "production_callers": "none — the Cash flow tab builds its own YOUR SOURCES list inline (CashFlowScreen.tsx)",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › MK-CF-O-016 · every entered source is listed, a loss included (latent: no production caller) [APP WRONG]"
+   ],
+   "test_result": [
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): every entered source listed in its own period, a loss included, in the Income tab's drawn words and order — and the Income tab's YOUR SOURCES now prints these rows (through incomeSummary(op).sources, the orchestrator; guard D1): benefits, support and interest and dividends have their rows there."
+  },
+  {
+   "id": "MK-CF-O-019",
+   "name": "theIncomeManager",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Classifies entered status by a positive net amount: a named rental losing money is presented as not entered, and outstanding stock vesting is hidden when no current job remains.",
+   "reviewer_should_be": "Determine entered status from recorded source data; show signed net values and dated vested awards independently of current employment.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix",
+   "what_the_code_actually_does": "`entered: amount > 0` hides a rental that loses money; bonus and stock are reachable only from a job row, so stock with no job is shown nowhere.",
+   "governing_decisions": [
+    "tenets 2, 3, 5"
+   ],
+   "plain_example": "A rental of $1,131.17 against $1,431.43 of costs → \"Anything else? · Rent from a property\"; $10,000 of vesting with no job → 0 sources.",
+   "production_callers": "IncomeManagerScreen (/income-manager)",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › MK-CF-O-019 · entered means recorded, not \"above $0\"; stock with no job is shown [APP WRONG]"
+   ],
+   "test_result": [
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): entered = recorded; stock with no job shown."
+  },
+  {
+   "id": "MK-CF-F-210",
+   "name": "annualOfSource",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "For every salary row it substitutes the household’s total salary, duplicating household pay when there are two salary rows.",
+   "reviewer_should_be": "Read that source’s own dated annual salary, not salaryAnnual of the entire household.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix (or retire)",
+   "what_the_code_actually_does": "A salary row returns the household's salaryAnnual, so two earners each read $138,432.60 and a $0 row reads the spouse's $60,000.",
+   "governing_decisions": [
+    "DEC-0188",
+    "DEC-0176"
+   ],
+   "plain_example": "$84,111.17 + $54,321.43 earners: each row 138,432.60.",
+   "production_callers": "none",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › MK-CF-F-210 · a salary row returns its own earner's year (latent: no production caller; part 1 found the same) [APP WRONG]"
+   ],
+   "test_result": [
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): MK-CF-F-210 annualOfSource RETIRED (no caller, and YOUR SOURCES never converts a row's period); each earner's own year is a row of taxedSourcesAnnual — the cases are read from it."
+  },
+  {
+   "id": "MK-CF-F-182",
+   "name": "asPercent",
+   "reviewer_verdict": "RIGHT",
+   "classification": "RECORDED — reviewer RIGHT; its cases agree (F-052: 3 agree, 2 outside domain)"
+  },
+  {
+   "id": "MK-CF-F-183",
+   "name": "paidOutByAccount",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "The trailing window has a lower bound but no stated upper bound at as_of, allowing future-dated payouts. Missing amounts silently disappear from a purported total.",
+   "reviewer_should_be": "Use lower_bound ≤ date ≤ as_of, preserve signed reversals, and expose missing-amount coverage.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix",
+   "what_the_code_actually_does": "The window is \"on or after the same date last year\" with no end, so a payout dated after today counts; a record whose amount is not on record adds $0 and nothing on the line says one payout is unknown.",
+   "governing_decisions": [
+    "DEC-7171",
+    "DEC-6796",
+    "tenet 3"
+   ],
+   "plain_example": "A $1,000 payout dated 2026-10-25 read on 2026-10-24 → {A: 1000}. A $100 dividend plus one with no amount → \"$100 paid out over the trailing twelve months\", missing null.",
+   "production_callers": "through MK-CF-F-184 incomeFromAccounts: IncomeManagerScreen, IncomeDetailScreen, onboarding modules.tsx, MK-CF-O-007 theTaxOrganizer",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › MK-CF-F-183 · the window ends today, and a payout whose amount is not on record is said, never counted as $0 [APP WRONG]",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › MK-CF-F-183 · app today — a dividend dated next month counts; a dividend with no amount adds $0 and the line reads \"paid out\" $100"
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — window ends today; reinvested counted (DEC-0179); an amount not on record counted by account and named."
+  },
+  {
+   "id": "MK-CF-F-184",
+   "name": "incomeFromAccounts",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "The precedence avoids double counting estimates and receipts, but complete trailing income depends on the incomplete payout reader; estimates and unknown-principal zero rows need coverage.",
+   "reviewer_should_be": "Separate realized trailing receipts, forward estimates, matured zero and unknown excluded rows; never call their mixed sum actual receipts.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix (inherited from F-183) + records fix",
+   "what_the_code_actually_does": "The future-dated payout is read as paid and replaces the estimate (app). Each line already names its basis (paid / coupon on face / rate on balance / matured / face not entered) and the screen prints the sum as \"= We calculate\" — but the figure record MK-CF-M-066 says \"what your holdings and bonds paid out over the last twelve months, from the records … never an estimate\" while the total adds estimates: a records fix to MK-CF-M-066's words.",
+   "governing_decisions": [
+    "DEC-7171",
+    "DEC-0199",
+    "DEC-0279",
+    "DEC-7933"
+   ],
+   "plain_example": "Cash $10,000 at 5% with a $1,000 interest record dated tomorrow → $1,000 \"paid\" (right: $0 paid, $500 estimated). $300 paid + $400 estimated → one $700 total.",
+   "production_callers": "IncomeManagerScreen (Interest & dividends), IncomeDetailScreen, onboarding modules.tsx, MK-CF-O-007 theTaxOrganizer",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › MK-CF-F-184 · paid and estimated kept apart: a future payout is not \"paid\"; each line already names its basis [APP WRONG]",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › MK-CF-F-184 · app today — each line says its basis (paid / coupon on face / rate on balance / matured / not entered); the screen prints the sum as \"= We calculate\""
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — reads the fixed F-183; pre-tax and Roth accounts left out; \"Not counted: N payment(s) from X — amount not on record.\""
+  },
+  {
+   "id": "MK-CF-F-127",
+   "name": "isRental",
+   "reviewer_verdict": "RIGHT",
+   "classification": "RECORDED — reviewer RIGHT; its cases agree (F-052: 3 agree, 2 outside domain)"
+  },
+  {
+   "id": "MK-CF-F-044",
+   "name": "annualNet",
+   "reviewer_verdict": "RIGHT",
+   "classification": "RECORDED — reviewer RIGHT; its cases agree (F-052: 3 agree, 2 outside domain)"
+  },
+  {
+   "id": "MK-CF-F-045",
+   "name": "grossAnnualBaseline",
+   "reviewer_verdict": "RIGHT",
+   "classification": "RECORDED — reviewer RIGHT; its cases agree (F-052: 3 agree, 2 outside domain)"
+  },
+  {
+   "id": "MK-CF-F-046",
+   "name": "employerMatchAnnual",
+   "reviewer_verdict": "RIGHT",
+   "classification": "RECORDED — reviewer RIGHT; its cases agree (F-052: 3 agree, 2 outside domain)"
+  },
+  {
+   "id": "MK-CF-F-161",
+   "name": "monthlyGrossOfSource",
+   "reviewer_verdict": "RIGHT",
+   "classification": "RECORDED — reviewer RIGHT; its cases agree (F-052: 3 agree, 2 outside domain)"
+  },
+  {
+   "id": "MK-CF-F-049",
+   "name": "buildIncomeState",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Calculated monthly tax is always single/federal-only while yearly tax can use household filing status; monthly and annual take-home can disagree.",
+   "reviewer_should_be": "Use one filing status, state-rate convention and tax producer for both yearly and monthly totals; distinguish the owner’s flat-rate budget allocation from progressive illustrations.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix (or retire)",
+   "what_the_code_actually_does": "Take-home = gross × (1 − rate): the 401(k) is never taken off; untaxed benefits, support and scholarships and reinvested dividends are in its gross; the calculated rate is always single (incomeFromOnboarding hands DEFAULT_TAX), never adds the state rate, and its months run progressiveMonthlyTax as a single filer even when a filing status is handed in.",
+   "governing_decisions": [
+    "DEC-0181",
+    "DEC-0184",
+    "DEC-0196",
+    "DEC-7798",
+    "DEC-7797",
+    "DEC-0327",
+    "DEC-0283"
+   ],
+   "plain_example": "$5,000/month, $500 401(k), 10%: $4,500 (right $4,000). Married $138,432.60, 5% state: $21,957.82 tax (rate in force $18,106.80).",
+   "production_callers": "buildSnapshot ← HomeScreen (reads only snap.networth); IncomeDetailScreen (/income-detail, no way in). Live code, no visible figure.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › MK-CF-F-049 · one take-home: the legacy reader agrees with the household path (401(k) off, filing status, state rate) [APP WRONG]",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › MK-CF-F-049 · app today — $4,500 against $4,000; married + 5% state: $21,957.82 against the rate in force's $18,106.80"
+   ],
+   "test_result": [
+    "passed",
+    "passed"
+   ],
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — with the profile: the month grid and rateInForce (one take-home, one rate); MK-CF-F-048 and MK-CF-F-098 retired."
+  },
+  {
+   "id": "MK-CF-F-129",
+   "name": "round4",
+   "reviewer_verdict": "RIGHT",
+   "classification": "RECORDED — reviewer RIGHT; its cases agree (F-052: 3 agree, 2 outside domain)"
+  },
+  {
+   "id": "MK-CF-F-052",
+   "name": "getIncomeState",
+   "reviewer_verdict": "RIGHT",
+   "classification": "RECORDED — reviewer RIGHT; its cases agree (F-052: 3 agree, 2 outside domain)"
+  }
+ ],
+ "rules_held": [
+  {
+   "rule": "DEC-0078",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0108",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0149",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0152",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0165",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0166",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0178",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. basePay’s band uses wages while incomeSummary uses alltaxable sources;nonwage income can change the band.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0179",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Current monthgrid removes reinvested cash,but legacy cashflowYear includes it and taxOrganizer’s cash-payout basis can omit taxable reinvestments.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0181",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "The legacy stored-income path still calculates monthlytax as single without state and differs from rateInForce.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "MK-CF-F-049 buildIncomeState is a second take-home and a second tax path beside rateInForce/buildDatedGrid; the married + 5% state household reads $21,957.82 tax there and $18,106.80 on the Income summary. (Also: the Cash flow tab builds its own YOUR SOURCES list beside incomeSources and theIncomeManager.)",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › DEC-0181 · no two functions doing the same thing — buildIncomeState is a second take-home that disagrees [APP WRONG]"
+   ],
+   "test_result": [
+    "passed"
+   ],
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — held by the fixed buildIncomeState (MK-CF-F-049)."
+  },
+  {
+   "rule": "DEC-0182",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0184",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "The legacy stored-income path still calculates monthlytax as single without state and differs from rateInForce.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "buildIncomeState keeps its own monthly engine: progressiveMonthlyTax(monthlyGross) with status and state never handed in, and effectiveTaxRate with stateRate 0. Same household: months $21,957.82 single, year $12,795.17 joint when called with filing_status married.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › DEC-0184 · one tax engine — buildIncomeState keeps its own single-filer monthly path (progressiveMonthlyTax, status and state never handed in) [APP WRONG]"
+   ],
+   "test_result": [
+    "passed"
+   ],
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — held by the fixed buildIncomeState (MK-CF-F-049)."
+  },
+  {
+   "rule": "DEC-0187",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Year-month preservation is present in canonical wage tables,but annualized/converted paths and yearless vest/one-time defaults lose the same dated meaning.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0188",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Two-earner readers exist,but annualOfSource substitutes household salary on each earnerrow and partial-year contributions diverge.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "MK-CF-F-210 annualOfSource returns the household salary on each earner row (latent: no caller). The partial-year 401(k) point the reviewer adds is MK-CF-F-188, part 2.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › DEC-0188 · two earners: each row its own wage — annualOfSource gives the household on each (latent: no caller) [APP WRONG]"
+   ],
+   "test_result": [
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): MK-CF-F-210 annualOfSource RETIRED (no caller, and YOUR SOURCES never converts a row's period); each earner's own year is a row of taxedSourcesAnnual — the cases are read from it."
+  },
+  {
+   "rule": "DEC-0189",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0191",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. basePay’s band uses wages while incomeSummary uses alltaxable sources;nonwage income can change the band.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0194",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0195",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0196",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "The legacy stored-income path still calculates monthlytax as single without state and differs from rateInForce.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "The legacy rate is not the rate in force: 15.86% (single, no state) against 13.08% for the married + 5% household. Reaches no visible figure.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › DEC-0196 · one rate everywhere take-home matters — the legacy rate is not the rate in force [APP WRONG]"
+   ],
+   "test_result": [
+    "passed"
+   ],
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — held by the fixed buildIncomeState (MK-CF-F-049)."
+  },
+  {
+   "rule": "DEC-0197",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Typed→implied→calculated precedence is expressly stated;correctness of the implied/calculated inputs remains separately open.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0198",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Current monthgrid removes reinvested cash,but legacy cashflowYear includes it and taxOrganizer’s cash-payout basis can omit taxable reinvestments.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0207",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Complete approved rows reconcile,but partial-year wage shares and tax/subtotal scope yield counterexamples outside that drawing.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "On the Income summary: a rental loss is in the taxed total and in no row ($84,000 printed under $80,162.88); support-only reads not ready. The pay card counterexamples the reviewer cites (F-233, O-001) are parts 1 and 15.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › DEC-0207 · the card's rows add up — part 5's cases O-004-C04 (a rental loss) and O-004-C05 (support only) [APP WRONG]"
+   ],
+   "test_result": [
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): the card's rows add up — the rental loss and support-only cases."
+  },
+  {
+   "rule": "DEC-0208",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Declared per-earner entered/calculated status and mixedmode preserve the provenance of each payrow;exactscreen rendering was not inspected.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0209",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0279",
+   "reviewer_verdict": "HELD",
+   "reviewer_why": "Owner’s no-coupon-rate interest0 exception is explicitly reasoned and marked assumed;do not turn it into0%yield.",
+   "classification": "RECORDED — reviewer HELD; the cases it governs agree (MK-CF-F-184-C02, C03, C04; MK-CF-F-183-C03)"
+  },
+  {
+   "rule": "DEC-0375",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0376",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Complete approved rows reconcile,but partial-year wage shares and tax/subtotal scope yield counterexamples outside that drawing.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "Taxed rows $84,000 under \"= Gross /year\" $126,000 for a wage plus self-employment, Social Security and other income.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › DEC-0376 · a total agrees with the lines printed above it — the taxed rows of a wage, self-employment, Social Security and other income [APP WRONG]"
+   ],
+   "test_result": [
+    "passed"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): the taxed rows add to the total (taxedSourcesAnnual)."
+  },
+  {
+   "rule": "DEC-0387",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0389",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-0431",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-1668",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "The continuingrent emergency-funddoor is outside the219cards;incomeSummary supplies rent,but the completeburnrate subtraction is not supplied here.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-1859",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Runningscosts and mortgages are kept conceptually separate in the public rental/debt formulas;editorcopy itself is unobserved.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-1924",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-6796",
+   "reviewer_verdict": "HELD",
+   "reviewer_why": "Signed reversals/refunds are expressly preserved by normalized cash readers;legacy inverse withoutdirection remains open.",
+   "classification": "RECORDED — reviewer HELD; the cases it governs agree (MK-CF-F-184-C02, C03, C04; MK-CF-F-183-C03)"
+  },
+  {
+   "rule": "DEC-7171",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-7795",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Sharedgrowth F-229still depends on zero-rate-incomplete F-126;one-producer use is not sufficientwithout a valid0%branch.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-7796",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  },
+  {
+   "rule": "DEC-7797",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Subtraction walk is declared,but annual401(k)times12 disagrees with paid-month contributions and oldgross paths can bypass it.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "The legacy reader works on the gross: $5,000/month with a $500 401(k) taxes the 401(k) ($5,020 a year single, the Income summary $4,300) and lands $4,500. The paid-months point (401(k) × 12) is MK-CF-F-188 / MK-CF-F-230, parts 2 and 17.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › DEC-7797 · every place reads income after the 401(k) — the legacy reader works on the gross [APP WRONG]"
+   ],
+   "test_result": [
+    "passed"
+   ],
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — held by the fixed buildIncomeState (MK-CF-F-049)."
+  },
+  {
+   "rule": "DEC-7798",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Current rate producer describes enteredstate,but legacyeffectiveTaxRateandbuildIncomeState omit it.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "effectiveTaxRate (calc.ts) hands stateRate 0: married $138,432.60 with 5% entered → $12,795.17, where the rate in force gives $18,106.80.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › DEC-7798 · the calculated rate holds the state rate entered — effectiveTaxRate (calc.ts) hands stateRate 0 [APP WRONG]"
+   ],
+   "test_result": [
+    "passed"
+   ],
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — held by the fixed buildIncomeState (MK-CF-F-049)."
+  },
+  {
+   "rule": "DEC-7887",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Subtraction walk is declared,but annual401(k)times12 disagrees with paid-month contributions and oldgross paths can bypass it.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "Held on the Income summary ($60,000 − $6,000 = $54,000 taxed on); bypassed by the legacy reader, whose tax is worked on the whole $60,000.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts › formula verdicts (WRONG / INCOMPLETE / CANNOT TELL) and rules NOT HELD — what the code really does › DEC-7887 · gross − 401(k)s = what it is taxed on — held on the Income summary, bypassed by the legacy reader [APP WRONG]"
+   ],
+   "test_result": [
+    "passed"
+   ],
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — held by the fixed buildIncomeState (MK-CF-F-049)."
+  },
+  {
+   "rule": "DEC-7933",
+   "reviewer_verdict": "HELD",
+   "reviewer_why": "Datedbondwithoutface is explicitlynotcounted,with reason;bankCD/fund balanceexception and matured0are named.",
+   "classification": "RECORDED — reviewer HELD; the cases it governs agree (MK-CF-F-184-C02, C03, C04; MK-CF-F-183-C03)"
+  },
+  {
+   "rule": "DEC-7940",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Explicit one-time-year handling is present for dated otherincome,but missingyear still recurs and legacy onboarding fixes signingbonus toJanuary.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence in this part)"
+  }
+ ],
+ "app_wrong_fixes": [
+  {
+   "function_id": "MK-CF-O-004",
+   "function": "incomeSummary",
+   "owner_file": "MoneyKeel/functions/cashflow/income-summary.ts",
+   "example": "Wage $7,000/month + self-employment $1,000 + Social Security $2,000 + other income $500 a month",
+   "app_gives": "Taxed rows $84,000 under \"= Gross /year\" $126,000",
+   "right": "A row for every source in the total (rows add to $126,000)",
+   "ruling_or_source": "DEC-0376, DEC-0207, tenet 2",
+   "items": [
+    "formula MK-CF-O-004",
+    "rule DEC-0376",
+    "rule DEC-0207"
+   ]
+  },
+  {
+   "function_id": "MK-CF-O-004",
+   "function": "incomeSummary (take-home rows) — and the same `if (rentalM > 0)` in MK-XS-F-004 buildDatedGrid, src/domain/grid/index.ts",
+   "owner_file": "MoneyKeel/functions/cashflow/income-summary.ts; src/domain/grid/index.ts",
+   "example": "Take-home $5,111.17 typed, rent $1,111.43 against $1,431.19 of costs, typed 24%",
+   "app_gives": "Usual month $5,111.17 (Income summary and the Cash flow tab's month grid); $4,791.41 in incomeMonthlyGrid (sign-up recap, Budget, Goals)",
+   "right": "$4,791.41 everywhere, with a \"Rent −$320\" row",
+   "ruling_or_source": "Tenets 1, 4; DEC-0376",
+   "items": [
+    "MK-CF-O-004-C04",
+    "formula MK-CF-O-004"
+   ]
+  },
+  {
+   "function_id": "MK-CF-O-004",
+   "function": "incomeSummary (ready)",
+   "owner_file": "MoneyKeel/functions/cashflow/income-summary.ts",
+   "example": "Only $1,000/month child support entered",
+   "app_gives": "ready false → the screen prints $0 and \"Nothing entered yet.\"",
+   "right": "ready true, $1,000 a month",
+   "ruling_or_source": "Tenets 1, 3",
+   "items": [
+    "MK-CF-O-004-C05",
+    "rule DEC-0207"
+   ]
+  },
+  {
+   "function_id": "MK-CF-O-019",
+   "function": "theIncomeManager",
+   "owner_file": "MoneyKeel/functions/cashflow/income-summary.ts",
+   "example": "(a) a rental $1,131.17 against $1,431.43 of costs; (b) $10,000 of stock vesting, no job",
+   "app_gives": "(a) listed under \"Anything else?\" as not entered; (b) 0 sources, bonusAndStock null",
+   "right": "(a) entered, \"Rent · −$300/month net\"; (b) the $10,000 shown",
+   "ruling_or_source": "Tenets 2, 3, 5",
+   "items": [
+    "MK-CF-O-019-C04",
+    "MK-CF-O-019-C05",
+    "formula MK-CF-O-019"
+   ]
+  },
+  {
+   "function_id": "MK-CF-F-183",
+   "function": "paidOutByAccount (and through it MK-CF-F-184 incomeFromAccounts)",
+   "owner_file": "src/domain/income/from-accounts.ts",
+   "example": "Cash $10,000 at 5%; a $1,000 interest record dated 2026-10-25, read on 2026-10-24",
+   "app_gives": "$1,000 \"paid out over the trailing twelve months\"",
+   "right": "$0 paid; $500 estimated, said as an estimate",
+   "ruling_or_source": "DEC-7171 (the twelve months ending today); tenets 1, 3",
+   "items": [
+    "MK-CF-F-183-C05",
+    "MK-CF-F-184-C05",
+    "formula MK-CF-F-183",
+    "formula MK-CF-F-184"
+   ]
+  },
+  {
+   "function_id": "MK-CF-F-183",
+   "function": "paidOutByAccount (an amount not on record)",
+   "owner_file": "src/domain/income/from-accounts.ts",
+   "example": "$100 dividend plus a dividend whose amount is not on record",
+   "app_gives": "\"$100 paid out\", nothing said",
+   "right": "$100 and a line saying one payout's amount is not on record",
+   "ruling_or_source": "Tenet 3 (moneyIntoAccount returns null for exactly this)",
+   "items": [
+    "formula MK-CF-F-183"
+   ]
+  },
+  {
+   "function_id": "MK-CF-F-049",
+   "function": "buildIncomeState, with MK-CF-F-048 effectiveTaxRate and incomeFromOnboarding's tax profile",
+   "owner_file": "src/domain/income/calc.ts; src/domain/income/onboarding.ts",
+   "example": "(a) $5,000/month, $500 401(k), 10%; (b) married $138,432.60, 5% state, rate calculated",
+   "app_gives": "(a) $4,500 take-home; (b) $21,957.82 tax, single, no state",
+   "right": "(a) $4,000; (b) $18,106.80 — or retire the reader, since no visible figure uses it",
+   "ruling_or_source": "DEC-0181, DEC-0184, DEC-0196, DEC-7798, DEC-0283, DEC-0327",
+   "items": [
+    "MK-CF-F-049-C01",
+    "MK-CF-F-049-C02",
+    "MK-CF-F-049-C03",
+    "MK-CF-F-049-C04",
+    "formula MK-CF-F-049",
+    "rules DEC-0181, DEC-0184, DEC-0196, DEC-7797, DEC-7798, DEC-7887"
+   ]
+  },
+  {
+   "function_id": "MK-CF-O-016",
+   "function": "incomeSources (no caller)",
+   "owner_file": "MoneyKeel/functions/cashflow/income-summary.ts",
+   "example": "$731.17 benefits, $511.43 support, $1,831.19 interest; a rental losing $300.26",
+   "app_gives": "No rows",
+   "right": "Retire it, or make it the one inventory the Cash flow tab reads",
+   "ruling_or_source": "DEC-0181; tenets 2, 4",
+   "items": [
+    "MK-CF-O-016-C03",
+    "MK-CF-O-016-C04",
+    "formula MK-CF-O-016"
+   ]
+  },
+  {
+   "function_id": "MK-CF-F-210",
+   "function": "annualOfSource (no caller)",
+   "owner_file": "MoneyKeel/functions/cashflow/income-summary.ts",
+   "example": "Earners $84,111.17 and $54,321.43",
+   "app_gives": "$138,432.60 on each row; a $0 row reads the spouse's $60,000",
+   "right": "Each row its own earner's year — or retire it",
+   "ruling_or_source": "DEC-0188",
+   "items": [
+    "MK-CF-F-210-C03",
+    "MK-CF-F-210-C04",
+    "MK-CF-F-210-C05",
+    "formula MK-CF-F-210",
+    "rule DEC-0188"
+   ]
+  }
+ ],
+ "needs_a_ruling": [],
+ "blocked": [],
+ "outside_domain": [
+  {
+   "ids": [
+    "MK-CF-F-052-C04"
+   ],
+   "why": "no writer stores a negative income source or a \"known\" flag",
+   "caller": "none — getIncomeState and saveIncome have no caller; incomeFromOnboarding adds only sources above $0"
+  },
+  {
+   "ids": [
+    "MK-CF-F-052-C05"
+   ],
+   "why": "storage returns a document or nothing, never the number 0",
+   "caller": "none (getUserDoc)"
+  }
+ ],
+ "priority_findings": [
+  {
+   "id": "MK-CF-F-049",
+   "finding": "Legacy buildIncomeState: single-filer monthly tax, no state rate, no 401(k) off",
+   "verdict": "REAL — but only in a legacy reader; live code with no visible figure, not guarded",
+   "evidence": "$4,500 vs $4,000 (C01); $21,957.82 vs $18,106.80 (C03). Callers read from the disk: buildSnapshot ← HomeScreen (Home reads only snap.networth) and IncomeDetailScreen (/income-detail: no way in). Nothing stops a screen reading snap.income or snap.budget."
+  },
+  {
+   "id": "MK-CF-F-048",
+   "finding": "effectiveTaxRate ignores the entered state rate",
+   "verdict": "REAL — but only in the same legacy reader (reached only through buildIncomeState)",
+   "evidence": "effectiveTaxRate(138,432.60, married) × gross = $12,795.17, no state; the rate in force gives $18,106.80. Part 17's runner reached the same verdict."
+  },
+  {
+   "id": "MK-CF-F-020",
+   "finding": "cashflowYear: one rate on all taxed income, reinvested dividends as cash, debt left out",
+   "verdict": "REAL — but only in a legacy reader with no production caller (measured in part 8)",
+   "evidence": "Part 8: $5,128.94 / $2,000 vs $4,517.51 / $2,250 (C02); only 5 test files import it; the live month grid gives the reviewer's numbers."
+  },
+  {
+   "id": "MK-CF-F-014",
+   "finding": "The dated plan for a selected month",
+   "verdict": "REAL — live (part 7)",
+   "evidence": "budgetVsActual plans $2,100 in September and in December on the handoff household (right $2,000 / $3,200); printed in the budget editor's \"Expenses by bucket\" header."
+  },
+  {
+   "id": "MK-CF-F-013",
+   "finding": "A stored annual-average total adding the annual bill twice",
+   "verdict": "NOT REAL as a double count (part 7) — nothing re-reads the stored budget",
+   "evidence": "saveBudget/loadBudget have no callers. Two latent defects remain: no plan stored as $0, and parts $0/$100/$0 under a $2,100 total."
+  },
+  {
+   "id": "MK-CF-F-008",
+   "finding": "spendByMonth on the dated plan",
+   "verdict": "NOT REAL — the app is right (part 6)",
+   "evidence": "$2,000 September, $3,200 December, $25,200 a year, $2,100 average."
+  },
+  {
+   "id": "MK-CF-F-019",
+   "finding": "Undated annual bill timing / counted twice",
+   "verdict": "REAL — live (part 8): dated bills are right; an UNDATED bill is invented as due 1 January and the month grid counts it twice",
+   "evidence": "A $1,200 bill with no month: the bill list shows \"$1,200 due Jan 1 2027\"; MK-XS-F-004 buildDatedGrid counts $1,200 in January plus $100 in each other month = $2,300 a year (the budget says $1,200)."
+  },
+  {
+   "id": "MK-CF-F-183",
+   "finding": "Future payouts kept out of trailing income",
+   "verdict": "REAL — live",
+   "evidence": "A $1,000 payout dated tomorrow counts as paid ({A: 1000}); on Interest & dividends it replaces the $500 estimate."
+  },
+  {
+   "id": "MK-CF-F-119",
+   "finding": "investmentIncomeAnnual: future payouts in trailing income",
+   "verdict": "REAL in the code, reached by nothing (part 12)",
+   "evidence": "Imported by TaxOrganizerScreen and IncomeDetailScreen but never called; part 12 marked it OUTSIDE DOMAIN for that reason."
+  },
+  {
+   "id": "MK-CF-F-150",
+   "finding": "Two debts called \"Loan\" each given the same $250 (Expenses tab)",
+   "verdict": "REAL — live (part 6)",
+   "evidence": "Expenses tab actual $500 for one $250 payment; the radar lists both. Production stores only the debt's name on a payment.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-MONTH): one matcher, debtPaymentsMatched — by the id \"Log a payment\" now writes, else the one debt with the payee's name; a name two debts share is given to neither, counted once and said so (This month, the Expenses tab and the radar agree)."
+  },
+  {
+   "id": "MK-CF-F-157",
+   "finding": "debtPaymentsByDebt by name (This month)",
+   "verdict": "REAL, but not as the handoff states",
+   "evidence": "Probe here and part 14: the $250 is counted once and credited to the second \"Loan\" only; the first reads unpaid. The two tabs disagree about the same month.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-MONTH): one matcher, debtPaymentsMatched — by the id \"Log a payment\" now writes, else the one debt with the payee's name; a name two debts share is given to neither, counted once and said so (This month, the Expenses tab and the radar agree)."
+  },
+  {
+   "id": "MK-CF-F-084",
+   "finding": "Retirement cash received counted as taxable income",
+   "verdict": "REAL — live (part 17); probed here on the Income summary",
+   "evidence": "Single 67-year-old, $3,000/month Social Security + $4,000/month pension: \"What it is taxed on\" $84,000; IRS Pub 915 gives $78,600 ($30,600 of the $36,000 Social Security). No ruling of his covers the taxable share."
+  },
+  {
+   "id": "MK-CF-O-007",
+   "finding": "Tax organizer: rounds account income, no tax year",
+   "verdict": "REAL — live (part 17)",
+   "evidence": "tax-organizer.ts: `Math.round(incomeFromAccounts(...).annual)` inside the function, and incomeFromAccounts is called with no date, so \"Tax organizer · 2026\" reads the trailing twelve months."
+  }
+ ],
+ "counts": {
+  "cases": {
+   "AGREE": 58,
+   "APP WRONG": 15,
+   "REVIEWER WRONG": 0,
+   "NEEDS RULING": 0,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 2,
+   "total": 75
+  },
+  "formula_checks": {
+   "AGREE": 0,
+   "APP WRONG": 7,
+   "REVIEWER WRONG": 0,
+   "NEEDS RULING": 0,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 0,
+   "total": 7
+  },
+  "rules_not_held": {
+   "AGREE": 0,
+   "APP WRONG": 9,
+   "REVIEWER WRONG": 0,
+   "NEEDS RULING": 0,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 0,
+   "total": 9
+  },
+  "rules_held_recorded": {
+   "NOT HELD": 9,
+   "HELD": 3,
+   "CANNOT TELL": 29,
+   "total": 41
+  }
+ },
+ "coverage": "Part 5: 75 of 75 cases — 58 agree, 15 app wrong, 0 reviewer wrong, 0 needs ruling, 0 blocked, 2 outside domain; 7 of 7 formula verdicts classified (7 app wrong; MK-CF-F-184 also needs a records fix to MK-CF-M-066's words); 9 of 9 rule verdicts (NOT HELD) classified (9 app wrong); 41 rules_held recorded (9 NOT HELD, 3 HELD, 29 CANNOT TELL)"
+}

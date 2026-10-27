@@ -1,0 +1,4073 @@
+{
+ "batch": "cf module — part 15 (cases, formula checks, rules held, the part’s source checks)",
+ "reviewer": "OpenAI independent specification reviewer, Cash flow package of 2026-10-24",
+ "run_by": "Claude Code, CFR-4 measurer, part 15",
+ "run_on": "2026-10-25",
+ "test_file": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts",
+ "source": "returned/MoneyKeel_CashFlow_Independent_Audit_Package/MoneyKeel_CashFlow_Independent_Audit/audit_results/MoneyKeel_CashFlow_Audit_Part_15.json",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts → 91 passed, 0 failed, 0 skipped, 91 total (70 package cases — 17 of them test.failing on the reviewer's answer — 10 witness tests behind the formula and rule verdicts, 8 + 2 source-check tests, 1 coverage guard). npx tsc --noEmit: 0 errors.",
+ "working_tree": "Measured first on b1c659e8 (2026-10-24, the 2026-10-23/24 fixes in: head-of-household bands, per-person senior deduction, bracket and \"What it is taxed on\" after the 401(k), month take-home after the 401(k)), then re-measured on 2026-10-25 after CF-MMFIX-B changed base-pay.ts in the working tree (uncommitted): annualisedGross now reads the calendar year with the typical for months not typed (IN-05), the ≈ on a typed-rate take-home (IN-03), earners with nothing entered (IN-08). Three items moved and are flagged in_flight (F-143-C03 APP WRONG → AGREE; F-143-C04 REVIEWER WRONG → NEEDS RULING; O-001-C04 note wording). No app code, record or drawing changed by this run; only this test file and this results file written.",
+ "ready_to_close": false,
+ "cases": [
+  {
+   "id": "MK-CF-O-001",
+   "case_id": "MK-CF-O-001-C01",
+   "name": "basePay",
+   "kind": "easy",
+   "title": "Entered single earner",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "one earner as BasePayScreen builds it: $5,000 a month, c_401k 500, landsTypical 4000",
+   "expected": {
+    "gross_monthly": {
+     "exact": "5000",
+     "shown": "$5,000"
+    },
+    "k_monthly": {
+     "exact": "500",
+     "shown": "$500"
+    },
+    "take_home": {
+     "exact": "4000",
+     "shown": "$4,000"
+    },
+    "other_deductions": {
+     "exact": "500",
+     "shown": "$500"
+    },
+    "mode": "entered"
+   },
+   "actual": {
+    "grossAnnual": 60000,
+    "landsInBank": 4000,
+    "monthly401k": 500,
+    "otherTakenMonthly": 500,
+    "bandOnOneWage": 0.12,
+    "bandOnEveryWage": 0.12,
+    "tax": {
+     "bracket": 0.12,
+     "monthly": 500,
+     "rate": 0.1,
+     "mode": "entered",
+     "whose": "your figures, 10%"
+    },
+    "earners_take_home": [
+     4000
+    ],
+    "landsNote": "This is what you entered — nothing here is calculated."
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-O-001 basePay — five cases › MK-CF-O-001-C01 · easy · Entered single earner [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-O-001",
+   "case_id": "MK-CF-O-001-C02",
+   "name": "basePay",
+   "kind": "easy",
+   "title": "Calculated single wage",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "one earner, $5,000 a month, c_401k 400, filingStatus single, no rate typed; the reviewer’s \"calculated\" = the app’s mode \"estimated\"",
+   "expected": {
+    "tax_annual": {
+     "exact": "4444.0000",
+     "shown": "$4,444"
+    },
+    "take_home_monthly": {
+     "exact": "4229.666666666666666666666667",
+     "shown": "$4,230"
+    },
+    "mode": "calculated"
+   },
+   "actual": {
+    "grossAnnual": 60000,
+    "landsInBank": 4229.666666666667,
+    "monthly401k": 400,
+    "otherTakenMonthly": null,
+    "bandOnOneWage": 0.12,
+    "bandOnEveryWage": 0.12,
+    "tax": {
+     "bracket": 0.12,
+     "monthly": 370.3333333333333,
+     "rate": 0.07406666666666667,
+     "mode": "estimated",
+     "whose": "calculated, 7%"
+    },
+    "earners_take_home": [
+     4229.666666666667
+    ],
+    "landsNote": "$5,000 gross − $370 tax − $400 of 401(k)s = $4,230."
+   },
+   "difference": "none",
+   "rests_on": "DEC-0283 (taxed after the 401(k))",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-O-001 basePay — five cases › MK-CF-O-001-C02 · easy · Calculated single wage [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-O-001",
+   "case_id": "MK-CF-O-001-C03",
+   "name": "basePay",
+   "kind": "complex",
+   "title": "Approved Base pay frame3",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "the approved drawing’s household: $7,000 + $4,500 a month, $800 + $400 of 401(k)s, filing jointly, nothing typed",
+   "expected": {
+    "gross_monthly": {
+     "exact": "11500",
+     "shown": "$11,500"
+    },
+    "k_monthly": {
+     "exact": "1200",
+     "shown": "$1,200"
+    },
+    "drawing_reconciliation_take_home": {
+     "exact": "9242",
+     "shown": "$9,242"
+    },
+    "current_table_tax_annual": {
+     "exact": "10472.0000",
+     "shown": "$10,472"
+    },
+    "current_table_tax_monthly": {
+     "exact": "872.6666666666666666666666667",
+     "shown": "$873"
+    },
+    "current_table_take_home_monthly": {
+     "exact": "9427.333333333333333333333333",
+     "shown": "$9,427"
+    },
+    "approved_exact_tax_basis": "not supplied"
+   },
+   "actual": {
+    "grossAnnual": 138000,
+    "landsInBank": 9427.333333333334,
+    "monthly401k": 1200,
+    "otherTakenMonthly": null,
+    "bandOnOneWage": 0.12,
+    "bandOnEveryWage": 0.12,
+    "tax": {
+     "bracket": 0.12,
+     "monthly": 872.6666666666666,
+     "rate": 0.0758840579710145,
+     "mode": "estimated",
+     "whose": "calculated, 8%"
+    },
+    "earners_take_home": [
+     5668.811594202899,
+     3758.5217391304345
+    ],
+    "landsNote": "$11,500 gross − $873 tax − $1,200 of 401(k)s = $9,427."
+   },
+   "difference": "none — the app gives the current-table $872.67 tax and $9,427.33 take-home; the drawn $1,058 / $9,242 is the drawing’s own sum, corrected by DEC-1625",
+   "rests_on": "DEC-1625",
+   "note": "landsNote reads \"$11,500 gross − $873 tax − $1,200 of 401(k)s = $9,427.\"",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-O-001 basePay — five cases › MK-CF-O-001-C03 · complex · Approved Base pay frame3 [AGREE] — the drawn $1,058 is the drawing’s; DEC-1625 names $873 / $9,427",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-O-001",
+   "case_id": "MK-CF-O-001-C04",
+   "name": "basePay",
+   "kind": "complex",
+   "title": "Mixed entered and calculated",
+   "classification": "AGREE",
+   "in_flight": true,
+   "in_flight_agent": "CF-MMFIX-B (base-pay.ts, uncommitted, 2026-10-25)",
+   "status": "PASS",
+   "mapped": "earner 1 $84,111.17/yr, c_401k 711.43, take-home 5000.19 typed; earner 2 $54,311.43/yr, c_401k 511.17, none typed; a typed household rate of 15%",
+   "expected": {
+    "take_home_rows": [
+     {
+      "exact": "5000.19",
+      "shown": "$5,000"
+     },
+     {
+      "exact": "3335.889625",
+      "shown": "$3,336"
+     }
+    ],
+    "household_take_home": {
+     "exact": "8336.079625",
+     "shown": "$8,336"
+    },
+    "mode": "mixed",
+    "tax_label": "household modeled tax differs from all other deductions inferred from entered take-home"
+   },
+   "actual": {
+    "grossAnnual": 138422.6,
+    "landsInBank": 8336.079625,
+    "monthly401k": 1222.6,
+    "otherTakenMonthly": null,
+    "bandOnOneWage": 0.12,
+    "bandOnEveryWage": 0.12,
+    "tax": {
+     "bracket": 0.12,
+     "monthly": 1730.2825,
+     "rate": 0.15,
+     "mode": "mixed",
+     "whose": "your rate, 15%"
+    },
+    "earners_take_home": [
+     5000.19,
+     3335.8896250000003
+    ],
+    "landsNote": "Your take-home: $5,000 (you entered)\nSam’s take-home: $3,336 (calculated at your 15% rate, less 401(k))"
+   },
+   "difference": "none on the numbers; the \"tax_label\" point is settled by DEC-0207 (frame 2a-iii): a mixed household shows NO household tax row, each person’s take-home is named instead",
+   "rests_on": "DEC-0207, DEC-0208, DEC-0381",
+   "note": "the ≈ before Sam’s typed-rate figure is being removed in the working tree by CF-MMFIX-B (IN-03); not asserted",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-O-001 basePay — five cases › MK-CF-O-001-C04 · complex · Mixed entered and calculated [AGREE] — mixed: no household tax row (DEC-0207 frame 2a-iii)",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-O-001",
+   "case_id": "MK-CF-O-001-C05",
+   "name": "basePay",
+   "kind": "edge",
+   "title": "Nonwage source changes household band",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "FAIL",
+   "mapped": "one earner $5,000 a month, single, a rent entry naming its property at $50,000 ÷ 12 a month (DEC-4059d)",
+   "expected": {
+    "authoritative_all_income_bracket": {
+     "exact": "0.22",
+     "shown": "22.00%"
+    },
+    "wage_only_bracket": {
+     "exact": "0.12",
+     "shown": "12.00%"
+    }
+   },
+   "actual": {
+    "grossAnnual": 60000,
+    "landsInBank": 4301.363636363637,
+    "monthly401k": 0,
+    "otherTakenMonthly": null,
+    "bandOnOneWage": 0.12,
+    "bandOnEveryWage": 0.12,
+    "tax": {
+     "bracket": 0.12,
+     "monthly": 698.6363636363636,
+     "rate": 0.13972727272727273,
+     "mode": "estimated",
+     "whose": "calculated, 14%"
+    },
+    "earners_take_home": [
+     4301.363636363637
+    ],
+    "landsNote": "$5,000 gross − $699 tax = $4,301."
+   },
+   "difference": "the card’s \"Federal tax bracket\" reads 12% (wages less 401(k) only); everything taxed together ($110,000 − $16,100 = $93,900) is in the 22% band — and the card’s own tax is worked at the all-income rate (13.97%)",
+   "rests_on": "DEC-0178",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-O-001 basePay — five cases › MK-CF-O-001-C05 · edge · Nonwage source changes household band [APP WRONG] — DEC-0178",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer’s answer, from the package)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): the band is read on everything taxed (DEC-0178) — 22%, the Income summary's; the wage-only band stays 12%."
+  },
+  {
+   "id": "MK-CF-F-140",
+   "case_id": "MK-CF-F-140-C01",
+   "name": "periodsAYear",
+   "kind": "easy",
+   "title": "Weekly",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "periodsAYear({ freq }) compiled from base-pay.ts",
+   "expected": {
+    "exact": "52",
+    "shown": "52"
+   },
+   "actual": 52,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-140 periodsAYear — five cases › MK-CF-F-140-C01 · easy · Weekly [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-140",
+   "case_id": "MK-CF-F-140-C02",
+   "name": "periodsAYear",
+   "kind": "easy",
+   "title": "Fortnightly",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "periodsAYear({ freq }) compiled from base-pay.ts",
+   "expected": {
+    "exact": "26",
+    "shown": "26"
+   },
+   "actual": 26,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-140 periodsAYear — five cases › MK-CF-F-140-C02 · easy · Fortnightly [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-140",
+   "case_id": "MK-CF-F-140-C03",
+   "name": "periodsAYear",
+   "kind": "complex",
+   "title": "Hourly standard",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "periodsAYear({ freq }) compiled from base-pay.ts",
+   "expected": {
+    "exact": "2080",
+    "shown": "2080"
+   },
+   "actual": 2080,
+   "difference": "none",
+   "rests_on": "",
+   "note": "2,080 is the 40-hour week the app assumes for every hourly wage — see F-141-C05",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-140 periodsAYear — five cases › MK-CF-F-140-C03 · complex · Hourly standard [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-140",
+   "case_id": "MK-CF-F-140-C04",
+   "name": "periodsAYear",
+   "kind": "complex",
+   "title": "Yearly",
+   "classification": "OUTSIDE DOMAIN",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "\"yearly\" → PAY_PERIODS’ own word \"annually\"",
+   "expected": {
+    "exact": "1",
+    "shown": "1"
+   },
+   "actual": 1,
+   "difference": "none — the table answers 1",
+   "rests_on": "caller: BasePayScreen FREQS offers hourly · weekly · biweekly · monthly only; OnboardingProfile.salaryFreq has no yearly value",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-140 periodsAYear — five cases › MK-CF-F-140-C04 · complex · Yearly [OUTSIDE DOMAIN] — no screen offers a yearly rhythm (BasePayScreen FREQS: hourly · weekly · biweekly · monthly); the table’s own \"annually\" answers 1",
+   "test_result": "passed",
+   "marked": "test (what the app does for an input no caller sends; the caller cited)"
+  },
+  {
+   "id": "MK-CF-F-140",
+   "case_id": "MK-CF-F-140-C05",
+   "name": "periodsAYear",
+   "kind": "edge",
+   "title": "No rhythm",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "periodsAYear({ freq }) compiled from base-pay.ts",
+   "expected": {
+    "exact": "12",
+    "shown": "12"
+   },
+   "actual": 12,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-140 periodsAYear — five cases › MK-CF-F-140-C05 · edge · No rhythm [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-141",
+   "case_id": "MK-CF-F-141-C01",
+   "name": "perMonth",
+   "kind": "easy",
+   "title": "Monthly salary",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "perMonth(amount, { freq }) compiled from base-pay.ts",
+   "expected": {
+    "exact": "5000/1",
+    "shown": "$5,000"
+   },
+   "actual": 5000,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-141 perMonth — five cases › MK-CF-F-141-C01 · easy · Monthly salary [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-141",
+   "case_id": "MK-CF-F-141-C02",
+   "name": "perMonth",
+   "kind": "easy",
+   "title": "Every two weeks",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "perMonth(amount, { freq }) compiled from base-pay.ts",
+   "expected": {
+    "exact": "13000/3",
+    "shown": "$4,333"
+   },
+   "actual": 4333.333333333333,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-141 perMonth — five cases › MK-CF-F-141-C02 · easy · Every two weeks [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-141",
+   "case_id": "MK-CF-F-141-C03",
+   "name": "perMonth",
+   "kind": "complex",
+   "title": "Part-time hourly",
+   "classification": "OUTSIDE DOMAIN",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "perMonth(27.35, { freq: hourly, hoursPerWeek: 31.5 })",
+   "expected": {
+    "exact": "149331/40",
+    "shown": "$3,733"
+   },
+   "actual": 3733.275,
+   "difference": "none — $3,733.275 when the hours are given",
+   "rests_on": "caller: no screen asks hours per week (BasePayScreen has no hours field; hoursPerWeek is written nowhere in src/ or app/)",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-141 perMonth — five cases › MK-CF-F-141-C03 · complex · Part-time hourly [OUTSIDE DOMAIN] — no screen asks hours per week (BasePayScreen has no hours field) — the arithmetic agrees when hours are given",
+   "test_result": "passed",
+   "marked": "test (what the app does for an input no caller sends; the caller cited)"
+  },
+  {
+   "id": "MK-CF-F-141",
+   "case_id": "MK-CF-F-141-C04",
+   "name": "perMonth",
+   "kind": "complex",
+   "title": "Unround weekly",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "perMonth(amount, { freq }) compiled from base-pay.ts",
+   "expected": {
+    "exact": "679419/100",
+    "shown": "$6,794"
+   },
+   "actual": 6794.19,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-141 perMonth — five cases › MK-CF-F-141-C04 · complex · Unround weekly [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-141",
+   "case_id": "MK-CF-F-141-C05",
+   "name": "perMonth",
+   "kind": "edge",
+   "title": "Hourly hours not entered",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "FAIL",
+   "mapped": "perMonth(25, { freq: hourly, hoursPerWeek: null })",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Hours per week not entered; 40 requires a disclosed assumption"
+   },
+   "actual": 4333.333333333333,
+   "difference": "app gives $4,333.33 a month on a 40-hour week it never asked about and never states; right: no number and a reason, or the hours asked",
+   "rests_on": "DEC-0296 (an unknown input gives no number and a reason — never a default), tenet 3",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-141 perMonth — five cases › MK-CF-F-141-C05 · edge · Hourly hours not entered [APP WRONG] — DEC-0296",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer’s answer, from the package)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): no hours a week, no number (DEC-0296); Your base pay asks \"Hours a week\" and says \"Hours a week not entered\"."
+  },
+  {
+   "id": "MK-CF-F-142",
+   "case_id": "MK-CF-F-142-C01",
+   "name": "monthsOf",
+   "kind": "easy",
+   "title": "Steady gross",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "monthsOf(table) compiled from base-pay.ts, the table as typed",
+   "expected": [],
+   "actual": [],
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-142 monthsOf — five cases › MK-CF-F-142-C01 · easy · Steady gross [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-142",
+   "case_id": "MK-CF-F-142-C02",
+   "name": "monthsOf",
+   "kind": "easy",
+   "title": "Complete annual table",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "monthsOf(table) compiled from base-pay.ts, the table as typed",
+   "expected": [
+    [
+     "2026-01",
+     {
+      "exact": "5000",
+      "shown": "$5,000"
+     }
+    ],
+    [
+     "2026-02",
+     {
+      "exact": "5000",
+      "shown": "$5,000"
+     }
+    ],
+    [
+     "2026-03",
+     {
+      "exact": "5000",
+      "shown": "$5,000"
+     }
+    ],
+    [
+     "2026-04",
+     {
+      "exact": "5000",
+      "shown": "$5,000"
+     }
+    ],
+    [
+     "2026-05",
+     {
+      "exact": "5000",
+      "shown": "$5,000"
+     }
+    ],
+    [
+     "2026-06",
+     {
+      "exact": "5000",
+      "shown": "$5,000"
+     }
+    ],
+    [
+     "2026-07",
+     {
+      "exact": "5000",
+      "shown": "$5,000"
+     }
+    ],
+    [
+     "2026-08",
+     {
+      "exact": "5000",
+      "shown": "$5,000"
+     }
+    ],
+    [
+     "2026-09",
+     {
+      "exact": "5000",
+      "shown": "$5,000"
+     }
+    ],
+    [
+     "2026-10",
+     {
+      "exact": "5000",
+      "shown": "$5,000"
+     }
+    ],
+    [
+     "2026-11",
+     {
+      "exact": "5000",
+      "shown": "$5,000"
+     }
+    ],
+    [
+     "2026-12",
+     {
+      "exact": "5000",
+      "shown": "$5,000"
+     }
+    ]
+   ],
+   "actual": [
+    [
+     "2026-01",
+     5000
+    ],
+    [
+     "2026-02",
+     5000
+    ],
+    [
+     "2026-03",
+     5000
+    ],
+    [
+     "2026-04",
+     5000
+    ],
+    [
+     "2026-05",
+     5000
+    ],
+    [
+     "2026-06",
+     5000
+    ],
+    [
+     "2026-07",
+     5000
+    ],
+    [
+     "2026-08",
+     5000
+    ],
+    [
+     "2026-09",
+     5000
+    ],
+    [
+     "2026-10",
+     5000
+    ],
+    [
+     "2026-11",
+     5000
+    ],
+    [
+     "2026-12",
+     5000
+    ]
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-142 monthsOf — five cases › MK-CF-F-142-C02 · easy · Complete annual table [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-142",
+   "case_id": "MK-CF-F-142-C03",
+   "name": "monthsOf",
+   "kind": "complex",
+   "title": "Partial dated year",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "monthsOf(table) compiled from base-pay.ts, the table as typed",
+   "expected": [
+    [
+     "2026-07",
+     {
+      "exact": "5111.17",
+      "shown": "$5,111"
+     }
+    ],
+    [
+     "2026-08",
+     {
+      "exact": "6111.43",
+      "shown": "$6,111"
+     }
+    ],
+    [
+     "2026-09",
+     {
+      "exact": "7111.19",
+      "shown": "$7,111"
+     }
+    ]
+   ],
+   "actual": [
+    [
+     "2026-07",
+     5111.17
+    ],
+    [
+     "2026-08",
+     6111.43
+    ],
+    [
+     "2026-09",
+     7111.19
+    ]
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-142 monthsOf — five cases › MK-CF-F-142-C03 · complex · Partial dated year [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-142",
+   "case_id": "MK-CF-F-142-C04",
+   "name": "monthsOf",
+   "kind": "complex",
+   "title": "Cross-year14 cells",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "monthsOf(table) compiled from base-pay.ts, the table as typed",
+   "expected": [
+    [
+     "2026-09",
+     {
+      "exact": "3111.17",
+      "shown": "$3,111"
+     }
+    ],
+    [
+     "2026-10",
+     {
+      "exact": "3222.60",
+      "shown": "$3,223"
+     }
+    ],
+    [
+     "2026-11",
+     {
+      "exact": "3334.03",
+      "shown": "$3,334"
+     }
+    ],
+    [
+     "2026-12",
+     {
+      "exact": "3445.46",
+      "shown": "$3,445"
+     }
+    ],
+    [
+     "2027-01",
+     {
+      "exact": "3556.89",
+      "shown": "$3,557"
+     }
+    ],
+    [
+     "2027-02",
+     {
+      "exact": "3668.32",
+      "shown": "$3,668"
+     }
+    ],
+    [
+     "2027-03",
+     {
+      "exact": "3779.75",
+      "shown": "$3,780"
+     }
+    ],
+    [
+     "2027-04",
+     {
+      "exact": "3891.18",
+      "shown": "$3,891"
+     }
+    ],
+    [
+     "2027-05",
+     {
+      "exact": "4002.61",
+      "shown": "$4,003"
+     }
+    ],
+    [
+     "2027-06",
+     {
+      "exact": "4114.04",
+      "shown": "$4,114"
+     }
+    ],
+    [
+     "2027-07",
+     {
+      "exact": "4225.47",
+      "shown": "$4,225"
+     }
+    ],
+    [
+     "2027-08",
+     {
+      "exact": "4336.90",
+      "shown": "$4,337"
+     }
+    ],
+    [
+     "2027-09",
+     {
+      "exact": "4448.33",
+      "shown": "$4,448"
+     }
+    ],
+    [
+     "2027-10",
+     {
+      "exact": "4559.76",
+      "shown": "$4,560"
+     }
+    ]
+   ],
+   "actual": [
+    [
+     "2026-09",
+     3111.17
+    ],
+    [
+     "2026-10",
+     3222.6
+    ],
+    [
+     "2026-11",
+     3334.03
+    ],
+    [
+     "2026-12",
+     3445.46
+    ],
+    [
+     "2027-01",
+     3556.89
+    ],
+    [
+     "2027-02",
+     3668.32
+    ],
+    [
+     "2027-03",
+     3779.75
+    ],
+    [
+     "2027-04",
+     3891.18
+    ],
+    [
+     "2027-05",
+     4002.61
+    ],
+    [
+     "2027-06",
+     4114.04
+    ],
+    [
+     "2027-07",
+     4225.47
+    ],
+    [
+     "2027-08",
+     4336.9
+    ],
+    [
+     "2027-09",
+     4448.33
+    ],
+    [
+     "2027-10",
+     4559.76
+    ]
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-142 monthsOf — five cases › MK-CF-F-142-C04 · complex · Cross-year14 cells [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-142",
+   "case_id": "MK-CF-F-142-C05",
+   "name": "monthsOf",
+   "kind": "edge",
+   "title": "Blank differs from zero",
+   "classification": "OUTSIDE DOMAIN",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "monthsOf({ \"2026-10\": \"\", \"2026-11\": 0 })",
+   "expected": [
+    [
+     "2026-10",
+     null
+    ],
+    [
+     "2026-11",
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ]
+   ],
+   "actual": [
+    [
+     "2026-10",
+     0
+    ],
+    [
+     "2026-11",
+     0
+    ]
+   ],
+   "difference": "app gives [[\"2026-10\", 0], [\"2026-11\", 0]]",
+   "rests_on": "caller: MK-CF-F-179 entryFromWage hands monthsOf a table already read by MK-CF-F-165 salaryMonths (numbers only) — the cleared cell is measured at F-179-C05",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-142 monthsOf — five cases › MK-CF-F-142-C05 · edge · Blank differs from zero [OUTSIDE DOMAIN] — caller MK-CF-F-179 entryFromWage → MK-CF-F-165 salaryMonths hands numbers only; see F-179-C05",
+   "test_result": "passed",
+   "marked": "test (what the app does for an input no caller sends; the caller cited)"
+  },
+  {
+   "id": "MK-CF-F-128",
+   "case_id": "MK-CF-F-128-C01",
+   "name": "grossByMonth",
+   "kind": "easy",
+   "title": "Steady gross",
+   "classification": "REVIEWER WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "the wage as stored (salaryFreq, baseSalary = gross, salaryMonthMode, salaryByMonth = table as typed) read through MK-CF-F-179 entryFromWage → MK-CF-F-165 salaryMonths",
+   "expected": {
+    "calendar_rows": [
+     [
+      "2026-01",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-02",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-03",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-04",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-05",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-06",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-07",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-08",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-09",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-10",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-11",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-12",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ]
+    ]
+   },
+   "actual": [
+    [
+     "typical",
+     5000
+    ]
+   ],
+   "difference": "app returns one row [[\"typical\", 5000]] standing for every month; the reviewer expects twelve dated rows",
+   "rests_on": "code fact: every caller reads the one row as every month (annualisedGross → $60,000; payFiguresAgree checks it once; nothing sums it). Records fix: the card’s Answers line says \"twelve identical months\"",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-128 grossByMonth — five cases › MK-CF-F-128-C01 · easy · Steady gross [REVIEWER WRONG] — code fact: one typical row, read as every month by every caller; records fix to the Answers line",
+   "test_result": "passed",
+   "marked": "test (the app’s hand-checked answer, the ruling or code fact in its name)"
+  },
+  {
+   "id": "MK-CF-F-128",
+   "case_id": "MK-CF-F-128-C02",
+   "name": "grossByMonth",
+   "kind": "easy",
+   "title": "Complete annual table",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "the wage as stored (salaryFreq, baseSalary = gross, salaryMonthMode, salaryByMonth = table as typed) read through MK-CF-F-179 entryFromWage → MK-CF-F-165 salaryMonths",
+   "expected": {
+    "dated_rows": [
+     [
+      "2026-01",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-02",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-03",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-04",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-05",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-06",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-07",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-08",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-09",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-10",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-11",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ],
+     [
+      "2026-12",
+      {
+       "exact": "5000",
+       "shown": "$5,000"
+      }
+     ]
+    ]
+   },
+   "actual": [
+    [
+     "2026-01",
+     5000
+    ],
+    [
+     "2026-02",
+     5000
+    ],
+    [
+     "2026-03",
+     5000
+    ],
+    [
+     "2026-04",
+     5000
+    ],
+    [
+     "2026-05",
+     5000
+    ],
+    [
+     "2026-06",
+     5000
+    ],
+    [
+     "2026-07",
+     5000
+    ],
+    [
+     "2026-08",
+     5000
+    ],
+    [
+     "2026-09",
+     5000
+    ],
+    [
+     "2026-10",
+     5000
+    ],
+    [
+     "2026-11",
+     5000
+    ],
+    [
+     "2026-12",
+     5000
+    ]
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-128 grossByMonth — five cases › MK-CF-F-128-C02 · easy · Complete annual table [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-128",
+   "case_id": "MK-CF-F-128-C03",
+   "name": "grossByMonth",
+   "kind": "complex",
+   "title": "Partial dated year",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "the wage as stored (salaryFreq, baseSalary = gross, salaryMonthMode, salaryByMonth = table as typed) read through MK-CF-F-179 entryFromWage → MK-CF-F-165 salaryMonths",
+   "expected": {
+    "dated_rows": [
+     [
+      "2026-07",
+      {
+       "exact": "5111.17",
+       "shown": "$5,111"
+      }
+     ],
+     [
+      "2026-08",
+      {
+       "exact": "6111.43",
+       "shown": "$6,111"
+      }
+     ],
+     [
+      "2026-09",
+      {
+       "exact": "7111.19",
+       "shown": "$7,111"
+      }
+     ]
+    ]
+   },
+   "actual": [
+    [
+     "2026-07",
+     5111.17
+    ],
+    [
+     "2026-08",
+     6111.43
+    ],
+    [
+     "2026-09",
+     7111.19
+    ]
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-128 grossByMonth — five cases › MK-CF-F-128-C03 · complex · Partial dated year [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-128",
+   "case_id": "MK-CF-F-128-C04",
+   "name": "grossByMonth",
+   "kind": "complex",
+   "title": "Cross-year14 cells",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "the wage as stored (salaryFreq, baseSalary = gross, salaryMonthMode, salaryByMonth = table as typed) read through MK-CF-F-179 entryFromWage → MK-CF-F-165 salaryMonths",
+   "expected": {
+    "dated_rows": [
+     [
+      "2026-09",
+      {
+       "exact": "3111.17",
+       "shown": "$3,111"
+      }
+     ],
+     [
+      "2026-10",
+      {
+       "exact": "3222.60",
+       "shown": "$3,223"
+      }
+     ],
+     [
+      "2026-11",
+      {
+       "exact": "3334.03",
+       "shown": "$3,334"
+      }
+     ],
+     [
+      "2026-12",
+      {
+       "exact": "3445.46",
+       "shown": "$3,445"
+      }
+     ],
+     [
+      "2027-01",
+      {
+       "exact": "3556.89",
+       "shown": "$3,557"
+      }
+     ],
+     [
+      "2027-02",
+      {
+       "exact": "3668.32",
+       "shown": "$3,668"
+      }
+     ],
+     [
+      "2027-03",
+      {
+       "exact": "3779.75",
+       "shown": "$3,780"
+      }
+     ],
+     [
+      "2027-04",
+      {
+       "exact": "3891.18",
+       "shown": "$3,891"
+      }
+     ],
+     [
+      "2027-05",
+      {
+       "exact": "4002.61",
+       "shown": "$4,003"
+      }
+     ],
+     [
+      "2027-06",
+      {
+       "exact": "4114.04",
+       "shown": "$4,114"
+      }
+     ],
+     [
+      "2027-07",
+      {
+       "exact": "4225.47",
+       "shown": "$4,225"
+      }
+     ],
+     [
+      "2027-08",
+      {
+       "exact": "4336.90",
+       "shown": "$4,337"
+      }
+     ],
+     [
+      "2027-09",
+      {
+       "exact": "4448.33",
+       "shown": "$4,448"
+      }
+     ],
+     [
+      "2027-10",
+      {
+       "exact": "4559.76",
+       "shown": "$4,560"
+      }
+     ]
+    ]
+   },
+   "actual": [
+    [
+     "2026-09",
+     3111.17
+    ],
+    [
+     "2026-10",
+     3222.6
+    ],
+    [
+     "2026-11",
+     3334.03
+    ],
+    [
+     "2026-12",
+     3445.46
+    ],
+    [
+     "2027-01",
+     3556.89
+    ],
+    [
+     "2027-02",
+     3668.32
+    ],
+    [
+     "2027-03",
+     3779.75
+    ],
+    [
+     "2027-04",
+     3891.18
+    ],
+    [
+     "2027-05",
+     4002.61
+    ],
+    [
+     "2027-06",
+     4114.04
+    ],
+    [
+     "2027-07",
+     4225.47
+    ],
+    [
+     "2027-08",
+     4336.9
+    ],
+    [
+     "2027-09",
+     4448.33
+    ],
+    [
+     "2027-10",
+     4559.76
+    ]
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-128 grossByMonth — five cases › MK-CF-F-128-C04 · complex · Cross-year14 cells [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-128",
+   "case_id": "MK-CF-F-128-C05",
+   "name": "grossByMonth",
+   "kind": "edge",
+   "title": "Blank differs from zero",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "FAIL",
+   "mapped": "the wage as stored (salaryFreq, baseSalary = gross, salaryMonthMode, salaryByMonth = table as typed) read through MK-CF-F-179 entryFromWage → MK-CF-F-165 salaryMonths",
+   "expected": {
+    "dated_rows": [
+     [
+      "2026-10",
+      ""
+     ],
+     [
+      "2026-11",
+      {
+       "exact": "0",
+       "shown": "$0"
+      }
+     ]
+    ]
+   },
+   "actual": [
+    [
+     "2026-10",
+     0
+    ],
+    [
+     "2026-11",
+     0
+    ]
+   ],
+   "difference": "the cleared October cell (stored \"\" by BasePayScreen) comes back as a typed $0 month; right: not a $0 month (blank differs from zero)",
+   "rests_on": "tenet 3; DEC-0187 (a month the table does not give reads as the typical month, never $0)",
+   "note": "fixed in MK-CF-F-165 salaryMonths, not in grossByMonth",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-128 grossByMonth — five cases › MK-CF-F-128-C05 · edge · Blank differs from zero [APP WRONG] — tenet 3, DEC-0187 — fixed in MK-CF-F-165 salaryMonths",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer’s answer, from the package)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (CF-MMFIX-B in MK-CF-F-165; re-measured by FIX-INCOME-A 2026-10-26): a cleared cell is not a typed $0."
+  },
+  {
+   "id": "MK-CF-F-143",
+   "case_id": "MK-CF-F-143-C01",
+   "name": "annualisedGross",
+   "kind": "easy",
+   "title": "Steady gross",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "the wage as stored (salaryFreq, baseSalary = gross, salaryMonthMode, salaryByMonth = table as typed) read through MK-CF-F-179 entryFromWage → MK-CF-F-165 salaryMonths",
+   "expected": {
+    "exact": "60000",
+    "shown": "$60,000"
+   },
+   "actual": 60000,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-143 annualisedGross — five cases › MK-CF-F-143-C01 · easy · Steady gross [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-143",
+   "case_id": "MK-CF-F-143-C02",
+   "name": "annualisedGross",
+   "kind": "easy",
+   "title": "Complete annual table",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "the wage as stored (salaryFreq, baseSalary = gross, salaryMonthMode, salaryByMonth = table as typed) read through MK-CF-F-179 entryFromWage → MK-CF-F-165 salaryMonths",
+   "expected": {
+    "exact": "60000",
+    "shown": "$60,000"
+   },
+   "actual": 60000,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-143 annualisedGross — five cases › MK-CF-F-143-C02 · easy · Complete annual table [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-143",
+   "case_id": "MK-CF-F-143-C03",
+   "name": "annualisedGross",
+   "kind": "complex",
+   "title": "Partial dated year",
+   "classification": "AGREE",
+   "in_flight": true,
+   "in_flight_agent": "CF-MMFIX-B (base-pay.ts, uncommitted, 2026-10-25)",
+   "status": "PASS",
+   "mapped": "the wage as stored (salaryFreq, baseSalary = gross, salaryMonthMode, salaryByMonth = table as typed) read through MK-CF-F-179 entryFromWage → MK-CF-F-165 salaryMonths; \"unlisted months confirmed zero\" with gross 0 = nothing more typed (DEC-0187 reads them as the typical $0)",
+   "expected": {
+    "exact": "18333.79",
+    "shown": "$18,334"
+   },
+   "actual": 18333.79,
+   "difference": "none in the working tree. IN-FLIGHT: APP WRONG at b1c659e8 — $73,335.16 (the three typed cells averaged × 12, as if every other month were their average) where the tax path MK-CF-F-082 salaryAnnual reads $18,333.79; fixed in the working tree on 2026-10-25 by CF-MMFIX-B (drawing check IN-05), uncommitted",
+   "rests_on": "DEC-0187; tenet 4 (one wage, one year)",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-143 annualisedGross — five cases › MK-CF-F-143-C03 · complex · Partial dated year [AGREE] — IN-FLIGHT (CF-MMFIX-B): APP WRONG at b1c659e8 ($73,335.16); DEC-0187, tenet 4",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-143",
+   "case_id": "MK-CF-F-143-C04",
+   "name": "annualisedGross",
+   "kind": "complex",
+   "title": "Cross-year14 cells",
+   "classification": "NEEDS RULING",
+   "in_flight": true,
+   "in_flight_agent": "CF-MMFIX-B (base-pay.ts, uncommitted, 2026-10-25)",
+   "status": "PASS",
+   "mapped": "the wage as stored (salaryFreq, baseSalary = gross, salaryMonthMode, salaryByMonth = table as typed) read through MK-CF-F-179 entryFromWage → MK-CF-F-165 salaryMonths",
+   "expected": {
+    "exact": "13113.26",
+    "shown": "$13,113"
+   },
+   "actual": 13113.260000000002,
+   "difference": "at b1c659e8 the app gave $46,025.58 (14 cells ÷ 14 × 12, drawing v07 rule 6 — REVIEWER WRONG there); in the working tree (CF-MMFIX-B, IN-05, uncommitted) it gives $13,113.26, the reviewer’s answer and the tax path’s",
+   "rests_on": "drawing v07 rule 6 ([Founder 2026-08-27]: \"average month × 12, never the total of a fourteen-month window\") against tenets 1 and 4 (one wage, one year, the year that is taxed)",
+   "note": "see needs_a_ruling #1; the test pins the app’s answer today",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-143 annualisedGross — five cases › MK-CF-F-143-C04 · complex · Cross-year14 cells [NEEDS RULING] — rule 6 (average month × 12) or the tax year’s months — IN-FLIGHT: b1c659e8 gave (a), the working tree gives (b)",
+   "test_result": "passed",
+   "marked": "test (the app’s answer today, both readings computed)",
+   "settled_2026_10_25": "SETTLED 2026-10-25 by CF-MMFIX-B's decision \"varying pay is read as this calendar year, through the same helper every Cash flow month uses\" (re-marked by FIX-INCOME-A, 2026-10-26): reading (b), the reviewer's $13,113.26 — what the tax path (MK-CF-F-082 salaryAnnual) reads; the b1c659e8 reading (a), $46,025.58, is pinned as test.failing. Rule 6 still holds: this year's twelve months are the average month × 12."
+  },
+  {
+   "id": "MK-CF-F-143",
+   "case_id": "MK-CF-F-143-C05",
+   "name": "annualisedGross",
+   "kind": "edge",
+   "title": "Blank differs from zero",
+   "classification": "REVIEWER WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "the wage as stored (salaryFreq, baseSalary = gross, salaryMonthMode, salaryByMonth = table as typed) read through MK-CF-F-179 entryFromWage → MK-CF-F-165 salaryMonths",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Blank wage amount not entered"
+   },
+   "actual": 0,
+   "difference": "app gives $0 a year; the reviewer expects a refusal",
+   "rests_on": "DEC-0187 (a month not given reads as the typical month, here the typed $0) and tenet 5 (a typed $0 is an answer): the months given are $0, so the year is $0",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-143 annualisedGross — five cases › MK-CF-F-143-C05 · edge · Blank differs from zero [REVIEWER WRONG] — DEC-0187, tenet 5: the months given are $0, so the year is $0",
+   "test_result": "passed",
+   "marked": "test (the app’s hand-checked answer, the ruling or code fact in its name)"
+  },
+  {
+   "id": "MK-CF-F-144",
+   "case_id": "MK-CF-F-144-C01",
+   "name": "takeHomeAsEntered",
+   "kind": "easy",
+   "title": "Full-year entered",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "a steady monthly wage of yearly_gross ÷ 12, c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate",
+   "expected": {
+    "take_home_per_paid_month": {
+     "exact": "4000",
+     "shown": "$4,000"
+    },
+    "calculated": false
+   },
+   "actual": {
+    "monthly": 4000,
+    "estimated": false,
+    "why": "the take-home you entered"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-144 takeHomeAsEntered — five cases › MK-CF-F-144-C01 · easy · Full-year entered [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-144",
+   "case_id": "MK-CF-F-144-C02",
+   "name": "takeHomeAsEntered",
+   "kind": "easy",
+   "title": "Second full-year earner",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "a steady monthly wage of yearly_gross ÷ 12, c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate",
+   "expected": {
+    "take_home_per_paid_month": {
+     "exact": "5000",
+     "shown": "$5,000"
+    },
+    "calculated": false
+   },
+   "actual": {
+    "monthly": 5000,
+    "estimated": false,
+    "why": "the take-home you entered"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-144 takeHomeAsEntered — five cases › MK-CF-F-144-C02 · easy · Second full-year earner [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-144",
+   "case_id": "MK-CF-F-144-C03",
+   "name": "takeHomeAsEntered",
+   "kind": "complex",
+   "title": "Part-year unround",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "yearly_gross ÷ paid_months in each dated paid month and a typed 0 in each unpaid 2026 month (salaryByMonth, salaryMonthMode \"months\"), c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate",
+   "expected": {
+    "take_home_per_paid_month": {
+     "exact": "3799.17",
+     "shown": "$3,799"
+    },
+    "calculated": false
+   },
+   "actual": {
+    "monthly": 3799.17,
+    "estimated": false,
+    "why": "the take-home you entered"
+   },
+   "difference": "none — the typed take-home is used as typed",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-144 takeHomeAsEntered — five cases › MK-CF-F-144-C03 · complex · Part-year unround [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-144",
+   "case_id": "MK-CF-F-144-C04",
+   "name": "takeHomeAsEntered",
+   "kind": "complex",
+   "title": "Four paid months",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "yearly_gross ÷ paid_months in each dated paid month and a typed 0 in each unpaid 2026 month (salaryByMonth, salaryMonthMode \"months\"), c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate",
+   "expected": {
+    "take_home_per_paid_month": {
+     "exact": "8311.19",
+     "shown": "$8,311"
+    },
+    "calculated": false
+   },
+   "actual": {
+    "monthly": 8311.19,
+    "estimated": false,
+    "why": "the take-home you entered"
+   },
+   "difference": "none — the typed take-home is used as typed",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-144 takeHomeAsEntered — five cases › MK-CF-F-144-C04 · complex · Four paid months [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-144",
+   "case_id": "MK-CF-F-144-C05",
+   "name": "takeHomeAsEntered",
+   "kind": "edge",
+   "title": "Known zero entered",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "FAIL",
+   "mapped": "a steady monthly wage of yearly_gross ÷ 12, c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate; landsTypical 0",
+   "expected": {
+    "take_home_per_paid_month": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "calculated": false
+   },
+   "actual": {
+    "monthly": 3500,
+    "estimated": true,
+    "why": "calculated at the household rate of 20% — this take-home is higher than it will really be until the real figure is entered"
+   },
+   "difference": "the typed $0 is treated as not entered and replaced by a calculated ≈$3,500 a month; right: $0, entered",
+   "rests_on": "tenet 5 (the person’s word outranks the app’s guess); the same file’s rate rule already says \"0% is a real answer\" (rateInForce)",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-144 takeHomeAsEntered — five cases › MK-CF-F-144-C05 · edge · Known zero entered [APP WRONG] — tenet 5: a typed $0 is the person’s word",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer’s answer, from the package)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): a typed $0 take-home is the person's word — $0, not calculated (tenet 5)."
+  },
+  {
+   "id": "MK-CF-F-145",
+   "case_id": "MK-CF-F-145-C01",
+   "name": "deductionsFromPay",
+   "kind": "easy",
+   "title": "Full-year entered",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "a steady monthly wage of yearly_gross ÷ 12, c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate",
+   "expected": {
+    "exact": "6000",
+    "shown": "$6,000"
+   },
+   "actual": 6000,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-145 deductionsFromPay — five cases › MK-CF-F-145-C01 · easy · Full-year entered [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-145",
+   "case_id": "MK-CF-F-145-C02",
+   "name": "deductionsFromPay",
+   "kind": "easy",
+   "title": "Second full-year earner",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "a steady monthly wage of yearly_gross ÷ 12, c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate",
+   "expected": {
+    "exact": "12000",
+    "shown": "$12,000"
+   },
+   "actual": 12000,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-145 deductionsFromPay — five cases › MK-CF-F-145-C02 · easy · Second full-year earner [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-145",
+   "case_id": "MK-CF-F-145-C03",
+   "name": "deductionsFromPay",
+   "kind": "complex",
+   "title": "Part-year unround",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "FAIL",
+   "mapped": "yearly_gross ÷ paid_months in each dated paid month and a typed 0 in each unpaid 2026 month (salaryByMonth, salaryMonthMode \"months\"), c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate",
+   "expected": {
+    "exact": "34198.50",
+    "shown": "$34,199"
+   },
+   "actual": 8396.700000000012,
+   "difference": "app gives $8,396.70 (60,000.30 − 12 × 501.13 − 12 × 3,799.17); right $34,198.50 (the six months paid)",
+   "rests_on": "DEC-0376 (a 401(k) counts only in the months that earner is paid — MK-CF-F-206, already used by the Income summary); tenet 1",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-145 deductionsFromPay — five cases › MK-CF-F-145-C03 · complex · Part-year unround [APP WRONG] — DEC-0376 (a 401(k) only in the months paid, MK-CF-F-206) and tenet 1: twelve months of take-home and 401(k) against six / four paid",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer’s answer, from the package)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): a take-home and a 401(k) are each a PAID month's, so the year of either is that month × the months paid — $34,198.50 (it read $8,396.70)."
+  },
+  {
+   "id": "MK-CF-F-145",
+   "case_id": "MK-CF-F-145-C04",
+   "name": "deductionsFromPay",
+   "kind": "complex",
+   "title": "Four paid months",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "FAIL",
+   "mapped": "yearly_gross ÷ paid_months in each dated paid month and a typed 0 in each unpaid 2026 month (salaryByMonth, salaryMonthMode \"months\"), c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate",
+   "expected": {
+    "exact": "8020.69",
+    "shown": "$8,021"
+   },
+   "actual": -64160.270000000004,
+   "difference": "app gives −$64,160.27 — a negative \"everything else taken out\"; right $8,020.69 (the four months paid)",
+   "rests_on": "DEC-0376; tenet 1",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-145 deductionsFromPay — five cases › MK-CF-F-145-C04 · complex · Four paid months [APP WRONG] — DEC-0376 (a 401(k) only in the months paid, MK-CF-F-206) and tenet 1: twelve months of take-home and 401(k) against six / four paid",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer’s answer, from the package)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): four paid months — $8,020.69."
+  },
+  {
+   "id": "MK-CF-F-145",
+   "case_id": "MK-CF-F-145-C05",
+   "name": "deductionsFromPay",
+   "kind": "edge",
+   "title": "Known zero entered",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "FAIL",
+   "mapped": "a steady monthly wage of yearly_gross ÷ 12, c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate; landsTypical 0",
+   "expected": {
+    "exact": "54000",
+    "shown": "$54,000"
+   },
+   "actual": null,
+   "difference": "app gives nothing (null: the take-home is treated as not entered); right $54,000",
+   "rests_on": "tenet 5",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-145 deductionsFromPay — five cases › MK-CF-F-145-C05 · edge · Known zero entered [APP WRONG] — tenet 5: a typed $0 take-home",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer’s answer, from the package)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): a typed $0 take-home — $54,000 (it read nothing)."
+  },
+  {
+   "id": "MK-CF-F-146",
+   "case_id": "MK-CF-F-146-C01",
+   "name": "payFiguresAgree",
+   "kind": "easy",
+   "title": "Plausible pay",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "a steady entry: grossTypical, monthly401k, landsTypical from the one month",
+   "expected": {
+    "passes": true,
+    "warning": false
+   },
+   "actual": {
+    "ok": true,
+    "warn": false,
+    "say": ""
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-146 payFiguresAgree — five cases › MK-CF-F-146-C01 · easy · Plausible pay [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-146",
+   "case_id": "MK-CF-F-146-C02",
+   "name": "payFiguresAgree",
+   "kind": "easy",
+   "title": "Calculated skips consistency check",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "a steady $5,000 entry with no take-home typed (calculated)",
+   "expected": {
+    "passes": true,
+    "check": "not applicable"
+   },
+   "actual": {
+    "ok": true,
+    "warn": false,
+    "say": ""
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-146 payFiguresAgree — five cases › MK-CF-F-146-C02 · easy · Calculated skips consistency check [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-146",
+   "case_id": "MK-CF-F-146-C03",
+   "name": "payFiguresAgree",
+   "kind": "complex",
+   "title": "Early warning cannot hide later failure",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "FAIL",
+   "mapped": "grossByMonth and landsByMonth per month; the entry carries ONE monthly401k — February’s own $500.13, so February is exactly the case’s −$300.15 and January leaves 75% (still a warning)",
+   "expected": {
+    "passes": false,
+    "failure_month": "2026-02",
+    "short_by": {
+     "exact": "300.15",
+     "shown": "$300"
+    }
+   },
+   "actual": {
+    "ok": true,
+    "warn": true,
+    "say": "That leaves 75% of your pay in 2026-01 going somewhere other than your bank, which is higher than most. Worth a look in case a figure went in for the wrong period — but if that is really your payslip, carry on."
+   },
+   "difference": "app returns ok: true, warn: true (\"That leaves 75% of your pay in 2026-01 …\") — January’s warning returns before February is read; right: fails in 2026-02, $300.15 short",
+   "rests_on": "tenet 1",
+   "note": "the production shape (one take-home $2,800.19, one 401(k) $500.13) shows the same: January 67% warns, February −$300.15 never read — witness test",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-146 payFiguresAgree — five cases › MK-CF-F-146-C03 · complex · Early warning cannot hide later failure [APP WRONG] — tenet 1: a later impossible month must fail the check",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer’s answer, from the package)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): every month is read before the verdict; February's −$300.15 fails the check and is named \"in February 2026\" (the case's \"2026-02\" in words, CF-MMFIX-B's F6)."
+  },
+  {
+   "id": "MK-CF-F-146",
+   "case_id": "MK-CF-F-146-C04",
+   "name": "payFiguresAgree",
+   "kind": "complex",
+   "title": "Unround boundary tolerance",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "per-month gross and take-home; ONE monthly401k — March’s $611.43, so March sits exactly on −$5.00 (April $499.63)",
+   "expected": {
+    "passes": true
+   },
+   "actual": {
+    "ok": true,
+    "warn": false,
+    "say": ""
+   },
+   "difference": "none — March passes at exactly −$5.00 in floating point",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-146 payFiguresAgree — five cases › MK-CF-F-146-C04 · complex · Unround boundary tolerance [AGREE] — March’s 401(k) on both months: March exactly −$5.00, April still $499.63",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-146",
+   "case_id": "MK-CF-F-146-C05",
+   "name": "payFiguresAgree",
+   "kind": "edge",
+   "title": "Exactly60 percent no warning",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "a steady entry: grossTypical, monthly401k, landsTypical from the one month",
+   "expected": {
+    "passes": true,
+    "warning": false
+   },
+   "actual": {
+    "ok": true,
+    "warn": false,
+    "say": ""
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-146 payFiguresAgree — five cases › MK-CF-F-146-C05 · edge · Exactly60 percent no warning [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-171",
+   "case_id": "MK-CF-F-171-C01",
+   "name": "earnerPay",
+   "kind": "easy",
+   "title": "Full-year entered",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "a steady monthly wage of yearly_gross ÷ 12, c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate; actual_k_annual and take_home_annual read as the year deductionsFromPay subtracts (earnerPay returns them a month)",
+   "expected": {
+    "gross_annual": {
+     "exact": "60000",
+     "shown": "$60,000"
+    },
+    "gross_calendar_month_average": {
+     "exact": "5000",
+     "shown": "$5,000"
+    },
+    "actual_k_annual": {
+     "exact": "6000",
+     "shown": "$6,000"
+    },
+    "take_home_per_paid_month": {
+     "exact": "4000",
+     "shown": "$4,000"
+    },
+    "take_home_annual": {
+     "exact": "48000",
+     "shown": "$48,000"
+    },
+    "other_deductions_annual": {
+     "exact": "6000",
+     "shown": "$6,000"
+    }
+   },
+   "actual": {
+    "grossMonthly": 5000,
+    "grossAnnualised": 60000,
+    "monthly401k": 500,
+    "landsInBank": 4000,
+    "landsIsEstimated": false,
+    "landsWhy": "the take-home you entered",
+    "everythingElse": 6000,
+    "everythingElseMonthly": 500,
+    "verdict": {
+     "ok": true,
+     "warn": false,
+     "say": ""
+    },
+    "typicalMonth": 5000
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-171 earnerPay — five cases › MK-CF-F-171-C01 · easy · Full-year entered [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-171",
+   "case_id": "MK-CF-F-171-C02",
+   "name": "earnerPay",
+   "kind": "easy",
+   "title": "Second full-year earner",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "a steady monthly wage of yearly_gross ÷ 12, c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate; actual_k_annual and take_home_annual read as the year deductionsFromPay subtracts (earnerPay returns them a month)",
+   "expected": {
+    "gross_annual": {
+     "exact": "84000",
+     "shown": "$84,000"
+    },
+    "gross_calendar_month_average": {
+     "exact": "7000",
+     "shown": "$7,000"
+    },
+    "actual_k_annual": {
+     "exact": "12000",
+     "shown": "$12,000"
+    },
+    "take_home_per_paid_month": {
+     "exact": "5000",
+     "shown": "$5,000"
+    },
+    "take_home_annual": {
+     "exact": "60000",
+     "shown": "$60,000"
+    },
+    "other_deductions_annual": {
+     "exact": "12000",
+     "shown": "$12,000"
+    }
+   },
+   "actual": {
+    "grossMonthly": 7000,
+    "grossAnnualised": 84000,
+    "monthly401k": 1000,
+    "landsInBank": 5000,
+    "landsIsEstimated": false,
+    "landsWhy": "the take-home you entered",
+    "everythingElse": 12000,
+    "everythingElseMonthly": 1000,
+    "verdict": {
+     "ok": true,
+     "warn": false,
+     "say": ""
+    },
+    "typicalMonth": 7000
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-171 earnerPay — five cases › MK-CF-F-171-C02 · easy · Second full-year earner [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-171",
+   "case_id": "MK-CF-F-171-C03",
+   "name": "earnerPay",
+   "kind": "complex",
+   "title": "Part-year unround",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "FAIL",
+   "mapped": "yearly_gross ÷ paid_months in each dated paid month and a typed 0 in each unpaid 2026 month (salaryByMonth, salaryMonthMode \"months\"), c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate",
+   "expected": {
+    "gross_annual": {
+     "exact": "60000.30",
+     "shown": "$60,000"
+    },
+    "gross_calendar_month_average": {
+     "exact": "5000.025",
+     "shown": "$5,000"
+    },
+    "actual_k_annual": {
+     "exact": "3006.78",
+     "shown": "$3,007"
+    },
+    "take_home_per_paid_month": {
+     "exact": "3799.17",
+     "shown": "$3,799"
+    },
+    "take_home_annual": {
+     "exact": "22795.02",
+     "shown": "$22,795"
+    },
+    "other_deductions_annual": {
+     "exact": "34198.50",
+     "shown": "$34,199"
+    }
+   },
+   "actual": {
+    "grossMonthly": 5000.025000000001,
+    "grossAnnualised": 60000.30000000001,
+    "monthly401k": 501.13,
+    "landsInBank": 3799.17,
+    "landsIsEstimated": false,
+    "landsWhy": "the take-home you entered",
+    "everythingElse": 8396.700000000012,
+    "everythingElseMonthly": 699.7250000000009,
+    "verdict": {
+     "ok": false,
+     "warn": false,
+     "say": "These three cannot all be right in 2026-01. $0 gross, less $501 into your 401(k), leaves -$501 — but you entered a take-home of $3,799. That is $4,300 more than there is. Most likely the gross figure is per fortnight rather than per month, or the 401(k) is a yearly amount."
+    },
+    "typicalMonth": 10000.050000000001
+   },
+   "difference": "gross $60,000.30 and $5,000.03 a month agree; the year of 401(k) is $6,013.56 (right $3,006.78), of take-home $45,590.04 (right $22,795.02), everything else $8,396.70 (right $34,198.50); the verdict fails January (\"$4,300 more than there is\")",
+   "rests_on": "DEC-0376; tenet 1",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-171 earnerPay — five cases › MK-CF-F-171-C03 · complex · Part-year unround [APP WRONG] — DEC-0376, tenet 1: the year of 401(k) and take-home counts the unpaid months",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer’s answer, from the package)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): the year of 401(k) ($3,006.78) and take-home ($22,795.02) count the paid months; earnerPay gives the months paid (paidMonths)."
+  },
+  {
+   "id": "MK-CF-F-171",
+   "case_id": "MK-CF-F-171-C04",
+   "name": "earnerPay",
+   "kind": "complex",
+   "title": "Four paid months",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "FAIL",
+   "mapped": "yearly_gross ÷ paid_months in each dated paid month and a typed 0 in each unpaid 2026 month (salaryByMonth, salaryMonthMode \"months\"), c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate",
+   "expected": {
+    "gross_annual": {
+     "exact": "44111.17",
+     "shown": "$44,111"
+    },
+    "gross_calendar_month_average": {
+     "exact": "3675.930833333333333333333333",
+     "shown": "$3,676"
+    },
+    "actual_k_annual": {
+     "exact": "2845.72",
+     "shown": "$2,846"
+    },
+    "take_home_per_paid_month": {
+     "exact": "8311.19",
+     "shown": "$8,311"
+    },
+    "take_home_annual": {
+     "exact": "33244.76",
+     "shown": "$33,245"
+    },
+    "other_deductions_annual": {
+     "exact": "8020.69",
+     "shown": "$8,021"
+    }
+   },
+   "actual": {
+    "grossMonthly": 3675.9308333333333,
+    "grossAnnualised": 44111.17,
+    "monthly401k": 711.43,
+    "landsInBank": 8311.19,
+    "landsIsEstimated": false,
+    "landsWhy": "the take-home you entered",
+    "everythingElse": -64160.270000000004,
+    "everythingElseMonthly": -5346.689166666667,
+    "verdict": {
+     "ok": false,
+     "warn": false,
+     "say": "These three cannot all be right in 2026-01. $0 gross, less $711 into your 401(k), leaves -$711 — but you entered a take-home of $8,311. That is $9,023 more than there is. Most likely the gross figure is per fortnight rather than per month, or the 401(k) is a yearly amount."
+    },
+    "typicalMonth": 11027.792500000001
+   },
+   "difference": "everything else −$64,160.27 (right $8,020.69); 401(k) year $8,537.16 (right $2,845.72); take-home year $99,734.28 (right $33,244.76)",
+   "rests_on": "DEC-0376; tenet 1",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-171 earnerPay — five cases › MK-CF-F-171-C04 · complex · Four paid months [APP WRONG] — DEC-0376, tenet 1: everything else taken out reads −$64,160.27",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer’s answer, from the package)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): everything else taken out $8,020.69 (it read −$64,160.27)."
+  },
+  {
+   "id": "MK-CF-F-171",
+   "case_id": "MK-CF-F-171-C05",
+   "name": "earnerPay",
+   "kind": "edge",
+   "title": "Known zero entered",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "FAIL",
+   "mapped": "a steady monthly wage of yearly_gross ÷ 12, c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate; landsTypical 0",
+   "expected": {
+    "gross_annual": {
+     "exact": "60000",
+     "shown": "$60,000"
+    },
+    "gross_calendar_month_average": {
+     "exact": "5000",
+     "shown": "$5,000"
+    },
+    "actual_k_annual": {
+     "exact": "6000",
+     "shown": "$6,000"
+    },
+    "take_home_per_paid_month": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "take_home_annual": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "other_deductions_annual": {
+     "exact": "54000",
+     "shown": "$54,000"
+    }
+   },
+   "actual": {
+    "grossMonthly": 5000,
+    "grossAnnualised": 60000,
+    "monthly401k": 500,
+    "landsInBank": 3500,
+    "landsIsEstimated": true,
+    "landsWhy": "calculated at the household rate of 20% — this take-home is higher than it will really be until the real figure is entered",
+    "everythingElse": null,
+    "everythingElseMonthly": null,
+    "verdict": {
+     "ok": true,
+     "warn": false,
+     "say": ""
+    },
+    "typicalMonth": 5000
+   },
+   "difference": "take-home ≈$3,500 calculated in place of the typed $0; everything else null (right $54,000)",
+   "rests_on": "tenet 5",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-171 earnerPay — five cases › MK-CF-F-171-C05 · edge · Known zero entered [APP WRONG] — tenet 5: a typed $0 take-home",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer’s answer, from the package)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): a typed $0 take-home."
+  },
+  {
+   "id": "MK-CF-F-198",
+   "case_id": "MK-CF-F-198-C01",
+   "name": "payrollTaxWithheld",
+   "kind": "easy",
+   "title": "Ordinary wages",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "payrollTaxWithheld(wage); the three parts checked as the formula’s three terms (the function returns the total)",
+   "expected": {
+    "social_security": {
+     "exact": "3720.000",
+     "shown": "$3,720"
+    },
+    "medicare": {
+     "exact": "870.0000",
+     "shown": "$870"
+    },
+    "additional_medicare_withheld": {
+     "exact": "0.000",
+     "shown": "$0"
+    },
+    "total": {
+     "exact": "4590.0000",
+     "shown": "$4,590"
+    }
+   },
+   "actual": 4590,
+   "difference": "none",
+   "rests_on": "DEC-0340, DEC-0205",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-198 payrollTaxWithheld — five cases › MK-CF-F-198-C01 · easy · Ordinary wages [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-198",
+   "case_id": "MK-CF-F-198-C02",
+   "name": "payrollTaxWithheld",
+   "kind": "easy",
+   "title": "At wage base",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "payrollTaxWithheld(wage); the three parts checked as the formula’s three terms (the function returns the total)",
+   "expected": {
+    "social_security": {
+     "exact": "11439.000",
+     "shown": "$11,439"
+    },
+    "medicare": {
+     "exact": "2675.2500",
+     "shown": "$2,675"
+    },
+    "additional_medicare_withheld": {
+     "exact": "0.000",
+     "shown": "$0"
+    },
+    "total": {
+     "exact": "14114.2500",
+     "shown": "$14,114"
+    }
+   },
+   "actual": 14114.25,
+   "difference": "none",
+   "rests_on": "DEC-0340, DEC-0205",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-198 payrollTaxWithheld — five cases › MK-CF-F-198-C02 · easy · At wage base [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-198",
+   "case_id": "MK-CF-F-198-C03",
+   "name": "payrollTaxWithheld",
+   "kind": "complex",
+   "title": "Above extra threshold",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "payrollTaxWithheld(wage); the three parts checked as the formula’s three terms (the function returns the total)",
+   "expected": {
+    "social_security": {
+     "exact": "11439.000",
+     "shown": "$11,439"
+    },
+    "medicare": {
+     "exact": "3360.101965",
+     "shown": "$3,360"
+    },
+    "additional_medicare_withheld": {
+     "exact": "285.58053",
+     "shown": "$286"
+    },
+    "total": {
+     "exact": "15084.682495",
+     "shown": "$15,085"
+    }
+   },
+   "actual": 15084.682495,
+   "difference": "none",
+   "rests_on": "DEC-0340, DEC-0205",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-198 payrollTaxWithheld — five cases › MK-CF-F-198-C03 · complex · Above extra threshold [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-198",
+   "case_id": "MK-CF-F-198-C04",
+   "name": "payrollTaxWithheld",
+   "kind": "complex",
+   "title": "Unround below threshold",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "payrollTaxWithheld(wage); the three parts checked as the formula’s three terms (the function returns the total)",
+   "expected": {
+    "social_security": {
+     "exact": "10732.90866",
+     "shown": "$10,733"
+    },
+    "medicare": {
+     "exact": "2510.115735",
+     "shown": "$2,510"
+    },
+    "additional_medicare_withheld": {
+     "exact": "0.000",
+     "shown": "$0"
+    },
+    "total": {
+     "exact": "13243.024395",
+     "shown": "$13,243"
+    }
+   },
+   "actual": 13243.024394999999,
+   "difference": "none",
+   "rests_on": "DEC-0340, DEC-0205",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-198 payrollTaxWithheld — five cases › MK-CF-F-198-C04 · complex · Unround below threshold [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-198",
+   "case_id": "MK-CF-F-198-C05",
+   "name": "payrollTaxWithheld",
+   "kind": "edge",
+   "title": "Exactly additional threshold",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "payrollTaxWithheld(wage); the three parts checked as the formula’s three terms (the function returns the total)",
+   "expected": {
+    "social_security": {
+     "exact": "11439.000",
+     "shown": "$11,439"
+    },
+    "medicare": {
+     "exact": "2900.0000",
+     "shown": "$2,900"
+    },
+    "additional_medicare_withheld": {
+     "exact": "0.000",
+     "shown": "$0"
+    },
+    "total": {
+     "exact": "14339.0000",
+     "shown": "$14,339"
+    }
+   },
+   "actual": 14339,
+   "difference": "none",
+   "rests_on": "DEC-0340, DEC-0205",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-198 payrollTaxWithheld — five cases › MK-CF-F-198-C05 · edge · Exactly additional threshold [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-179",
+   "case_id": "MK-CF-F-179-C01",
+   "name": "entryFromWage",
+   "kind": "easy",
+   "title": "Steady gross",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "entryFromWage(the wage as stored)",
+   "expected": {
+    "frequency": "monthly",
+    "varies": false,
+    "gross": {
+     "exact": "5000",
+     "shown": "$5,000"
+    },
+    "table": {},
+    "all_other_supplied_fields_preserved": true
+   },
+   "actual": {
+    "freq": "monthly",
+    "varies": false,
+    "grossTypical": 5000
+   },
+   "difference": "none (a steady wage carries no month table: grossByMonth undefined = the reviewer’s {})",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-179 entryFromWage — five cases › MK-CF-F-179-C01 · easy · Steady gross [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-179",
+   "case_id": "MK-CF-F-179-C02",
+   "name": "entryFromWage",
+   "kind": "easy",
+   "title": "Complete annual table",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "entryFromWage(the wage as stored)",
+   "expected": {
+    "frequency": "monthly",
+    "varies": true,
+    "gross": {
+     "exact": "5000",
+     "shown": "$5,000"
+    },
+    "table": {
+     "2026-01": {
+      "exact": "5000",
+      "shown": "$5,000"
+     },
+     "2026-02": {
+      "exact": "5000",
+      "shown": "$5,000"
+     },
+     "2026-03": {
+      "exact": "5000",
+      "shown": "$5,000"
+     },
+     "2026-04": {
+      "exact": "5000",
+      "shown": "$5,000"
+     },
+     "2026-05": {
+      "exact": "5000",
+      "shown": "$5,000"
+     },
+     "2026-06": {
+      "exact": "5000",
+      "shown": "$5,000"
+     },
+     "2026-07": {
+      "exact": "5000",
+      "shown": "$5,000"
+     },
+     "2026-08": {
+      "exact": "5000",
+      "shown": "$5,000"
+     },
+     "2026-09": {
+      "exact": "5000",
+      "shown": "$5,000"
+     },
+     "2026-10": {
+      "exact": "5000",
+      "shown": "$5,000"
+     },
+     "2026-11": {
+      "exact": "5000",
+      "shown": "$5,000"
+     },
+     "2026-12": {
+      "exact": "5000",
+      "shown": "$5,000"
+     }
+    },
+    "all_other_supplied_fields_preserved": true
+   },
+   "actual": {
+    "freq": "monthly",
+    "varies": true,
+    "grossTypical": 5000,
+    "grossByMonth": {
+     "2026-01": 5000,
+     "2026-02": 5000,
+     "2026-03": 5000,
+     "2026-04": 5000,
+     "2026-05": 5000,
+     "2026-06": 5000,
+     "2026-07": 5000,
+     "2026-08": 5000,
+     "2026-09": 5000,
+     "2026-10": 5000,
+     "2026-11": 5000,
+     "2026-12": 5000
+    }
+   },
+   "difference": "none (a steady wage carries no month table: grossByMonth undefined = the reviewer’s {})",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-179 entryFromWage — five cases › MK-CF-F-179-C02 · easy · Complete annual table [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-179",
+   "case_id": "MK-CF-F-179-C03",
+   "name": "entryFromWage",
+   "kind": "complex",
+   "title": "Partial dated year",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "entryFromWage(the wage as stored)",
+   "expected": {
+    "frequency": "monthly",
+    "varies": true,
+    "gross": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "table": {
+     "2026-07": {
+      "exact": "5111.17",
+      "shown": "$5,111"
+     },
+     "2026-08": {
+      "exact": "6111.43",
+      "shown": "$6,111"
+     },
+     "2026-09": {
+      "exact": "7111.19",
+      "shown": "$7,111"
+     }
+    },
+    "all_other_supplied_fields_preserved": true
+   },
+   "actual": {
+    "freq": "monthly",
+    "varies": true,
+    "grossTypical": 0,
+    "grossByMonth": {
+     "2026-07": 5111.17,
+     "2026-08": 6111.43,
+     "2026-09": 7111.19
+    }
+   },
+   "difference": "none (a steady wage carries no month table: grossByMonth undefined = the reviewer’s {})",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-179 entryFromWage — five cases › MK-CF-F-179-C03 · complex · Partial dated year [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-179",
+   "case_id": "MK-CF-F-179-C04",
+   "name": "entryFromWage",
+   "kind": "complex",
+   "title": "Cross-year14 cells",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "entryFromWage(the wage as stored)",
+   "expected": {
+    "frequency": "monthly",
+    "varies": true,
+    "gross": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "table": {
+     "2026-09": {
+      "exact": "3111.17",
+      "shown": "$3,111"
+     },
+     "2026-10": {
+      "exact": "3222.60",
+      "shown": "$3,223"
+     },
+     "2026-11": {
+      "exact": "3334.03",
+      "shown": "$3,334"
+     },
+     "2026-12": {
+      "exact": "3445.46",
+      "shown": "$3,445"
+     },
+     "2027-01": {
+      "exact": "3556.89",
+      "shown": "$3,557"
+     },
+     "2027-02": {
+      "exact": "3668.32",
+      "shown": "$3,668"
+     },
+     "2027-03": {
+      "exact": "3779.75",
+      "shown": "$3,780"
+     },
+     "2027-04": {
+      "exact": "3891.18",
+      "shown": "$3,891"
+     },
+     "2027-05": {
+      "exact": "4002.61",
+      "shown": "$4,003"
+     },
+     "2027-06": {
+      "exact": "4114.04",
+      "shown": "$4,114"
+     },
+     "2027-07": {
+      "exact": "4225.47",
+      "shown": "$4,225"
+     },
+     "2027-08": {
+      "exact": "4336.90",
+      "shown": "$4,337"
+     },
+     "2027-09": {
+      "exact": "4448.33",
+      "shown": "$4,448"
+     },
+     "2027-10": {
+      "exact": "4559.76",
+      "shown": "$4,560"
+     }
+    },
+    "all_other_supplied_fields_preserved": true
+   },
+   "actual": {
+    "freq": "monthly",
+    "varies": true,
+    "grossTypical": 0,
+    "grossByMonth": {
+     "2026-09": 3111.17,
+     "2026-10": 3222.6,
+     "2026-11": 3334.03,
+     "2026-12": 3445.46,
+     "2027-01": 3556.89,
+     "2027-02": 3668.32,
+     "2027-03": 3779.75,
+     "2027-04": 3891.18,
+     "2027-05": 4002.61,
+     "2027-06": 4114.04,
+     "2027-07": 4225.47,
+     "2027-08": 4336.9,
+     "2027-09": 4448.33,
+     "2027-10": 4559.76
+    }
+   },
+   "difference": "none (a steady wage carries no month table: grossByMonth undefined = the reviewer’s {})",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-179 entryFromWage — five cases › MK-CF-F-179-C04 · complex · Cross-year14 cells [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-179",
+   "case_id": "MK-CF-F-179-C05",
+   "name": "entryFromWage",
+   "kind": "edge",
+   "title": "Blank differs from zero",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "FAIL",
+   "mapped": "entryFromWage({ salaryByMonth: { \"2026-10\": \"\", \"2026-11\": 0 } })",
+   "expected": {
+    "frequency": "monthly",
+    "varies": true,
+    "gross": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "table": {
+     "2026-10": "",
+     "2026-11": {
+      "exact": "0",
+      "shown": "$0"
+     }
+    },
+    "all_other_supplied_fields_preserved": true
+   },
+   "actual": {
+    "freq": "monthly",
+    "varies": true,
+    "grossTypical": 0,
+    "grossByMonth": {
+     "2026-10": 0,
+     "2026-11": 0
+    }
+   },
+   "difference": "app gives { \"2026-10\": 0, \"2026-11\": 0 } — the cleared cell becomes a typed $0 month; right: blank kept apart from $0 (with a $5,000 typical, October cleared and November $5,000, Base pay reads $30,000 a year instead of $60,000)",
+   "rests_on": "tenet 3; DEC-0187",
+   "note": "fix in MK-CF-F-165 salaryMonths (src/domain/income/salary-months.ts)",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-179 entryFromWage — five cases › MK-CF-F-179-C05 · edge · Blank differs from zero [APP WRONG] — tenet 3, DEC-0187: the cleared cell becomes a typed $0 month in MK-CF-F-165 salaryMonths",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer’s answer, from the package)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (CF-MMFIX-B in MK-CF-F-165; re-measured by FIX-INCOME-A 2026-10-26): the cleared cell is left out of the table."
+  },
+  {
+   "id": "MK-CF-F-180",
+   "case_id": "MK-CF-F-180-C01",
+   "name": "enteredLandsAnnual",
+   "kind": "easy",
+   "title": "Full-year entered",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "a one-earner profile: a steady monthly wage of yearly_gross ÷ 12, c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate",
+   "expected": {
+    "exact": "48000",
+    "shown": "$48,000"
+   },
+   "actual": 48000,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-180 enteredLandsAnnual — five cases › MK-CF-F-180-C01 · easy · Full-year entered [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-180",
+   "case_id": "MK-CF-F-180-C02",
+   "name": "enteredLandsAnnual",
+   "kind": "easy",
+   "title": "Second full-year earner",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "a one-earner profile: a steady monthly wage of yearly_gross ÷ 12, c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate",
+   "expected": {
+    "exact": "60000",
+    "shown": "$60,000"
+   },
+   "actual": 60000,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-180 enteredLandsAnnual — five cases › MK-CF-F-180-C02 · easy · Second full-year earner [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-180",
+   "case_id": "MK-CF-F-180-C03",
+   "name": "enteredLandsAnnual",
+   "kind": "complex",
+   "title": "Part-year unround",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "FAIL",
+   "mapped": "a one-earner profile: yearly_gross ÷ paid_months in each dated paid month and a typed 0 in each unpaid 2026 month (salaryByMonth, salaryMonthMode \"months\"), c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate",
+   "expected": {
+    "exact": "22795.02",
+    "shown": "$22,795"
+   },
+   "actual": 45590.04,
+   "difference": "app gives $45,590.04 (12 × 3,799.17); right $22,795.02 (six paid months)",
+   "rests_on": "tenet 1; DEC-0376 (the months that earner is paid)",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-180 enteredLandsAnnual — five cases › MK-CF-F-180-C03 · complex · Part-year unround [APP WRONG] — tenet 1: take-home × 12 counts the months not paid",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer’s answer, from the package)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): the take-home × the months paid — $22,795.02 (it read $45,590.04)."
+  },
+  {
+   "id": "MK-CF-F-180",
+   "case_id": "MK-CF-F-180-C04",
+   "name": "enteredLandsAnnual",
+   "kind": "complex",
+   "title": "Four paid months",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "FAIL",
+   "mapped": "a one-earner profile: yearly_gross ÷ paid_months in each dated paid month and a typed 0 in each unpaid 2026 month (salaryByMonth, salaryMonthMode \"months\"), c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate",
+   "expected": {
+    "exact": "33244.76",
+    "shown": "$33,245"
+   },
+   "actual": 99734.28,
+   "difference": "app gives $99,734.28 (12 × 8,311.19 — more than twice the year’s $44,111.17 gross); right $33,244.76",
+   "rests_on": "tenet 1; DEC-0376",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-180 enteredLandsAnnual — five cases › MK-CF-F-180-C04 · complex · Four paid months [APP WRONG] — tenet 1: take-home × 12 counts the months not paid",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer’s answer, from the package)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): $33,244.76."
+  },
+  {
+   "id": "MK-CF-F-180",
+   "case_id": "MK-CF-F-180-C05",
+   "name": "enteredLandsAnnual",
+   "kind": "edge",
+   "title": "Known zero entered",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "FAIL",
+   "mapped": "a one-earner profile, landsTypical 0",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": null,
+   "difference": "app gives nothing (null — \"one silence\"); right $0",
+   "rests_on": "tenet 5",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-180 enteredLandsAnnual — five cases › MK-CF-F-180-C05 · edge · Known zero entered [APP WRONG] — tenet 5: a typed $0 take-home is not silence",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer’s answer, from the package)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): a typed $0 take-home is $0, not silence."
+  },
+  {
+   "id": "MK-CF-F-181",
+   "case_id": "MK-CF-F-181-C01",
+   "name": "rateInForce",
+   "kind": "easy",
+   "title": "Typed rate wins",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "taxMode manual + manualTaxRate",
+   "expected": {
+    "exact": "0.24",
+    "shown": "24.00%"
+   },
+   "actual": {
+    "rate": 0.24,
+    "source": "typed",
+    "mine": true,
+    "label": "your rate, 24%",
+    "covers": "everything that comes out of your pay, as you entered"
+   },
+   "difference": "none",
+   "rests_on": "DEC-0197 (typed first, 0% included)",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-181 rateInForce — five cases › MK-CF-F-181-C01 · easy · Typed rate wins [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-181",
+   "case_id": "MK-CF-F-181-C02",
+   "name": "rateInForce",
+   "kind": "easy",
+   "title": "Calculated federal",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "a steady $5,000 a month, c_401k 400, single, nothing typed",
+   "expected": {
+    "exact": "0.07406666666666666666666666667",
+    "shown": "7.41%"
+   },
+   "actual": {
+    "rate": 0.07406666666666667,
+    "source": "estimated",
+    "mine": false,
+    "label": "calculated, 7%",
+    "covers": "federal income tax only, assuming the standard deduction"
+   },
+   "difference": "none — $4,444 ÷ $60,000",
+   "rests_on": "DEC-0197, DEC-0283",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-181 rateInForce — five cases › MK-CF-F-181-C02 · easy · Calculated federal [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-181",
+   "case_id": "MK-CF-F-181-C03",
+   "name": "rateInForce",
+   "kind": "complex",
+   "title": "Calculated with state",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "a steady $11,536.05 a month, c_401k $1,192.62, married, stateTaxRate 5",
+   "expected": {
+    "exact": "0.1092993911838685396358950132",
+    "shown": "10.93%"
+   },
+   "actual": {
+    "rate": 0.10929939118386854,
+    "source": "estimated",
+    "mine": false,
+    "label": "calculated, 11%",
+    "covers": "federal income tax, plus the 5.00% state rate you entered, assuming the standard deduction"
+   },
+   "difference": "none — ($10,534.54 federal + 5% × $91,921.17) ÷ $138,432.60",
+   "rests_on": "DEC-0327 (state on taxable income), DEC-7608 / DEC-7798 (the words name the state rate)",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-181 rateInForce — five cases › MK-CF-F-181-C03 · complex · Calculated with state [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-181",
+   "case_id": "MK-CF-F-181-C04",
+   "name": "rateInForce",
+   "kind": "complex",
+   "title": "Part-year implied take-home",
+   "classification": "APP WRONG",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "FAIL",
+   "mapped": "a one-earner profile, single: yearly_gross ÷ paid_months in each dated paid month and a typed 0 in each unpaid 2026 month (salaryByMonth, salaryMonthMode \"months\"), c_401k = k_per_paid_month, landsTypical = take-home per paid month; entryFromWage, estRate = the fallback rate",
+   "expected": {
+    "exact": "0.5699721501392493037534812326",
+    "shown": "57.00%"
+   },
+   "actual": {
+    "rate": 0.13994430027849877,
+    "source": "implied",
+    "mine": true,
+    "label": "your figures, 14%",
+    "covers": "everything that comes out, calculated from the take-home you entered"
+   },
+   "difference": "app gives 13.99% (\"your figures, 14%\": 60,000.30 − 12 × 501.13 − 12 × 3,799.17); right 57.00%",
+   "rests_on": "tenet 1; DEC-0376; DEC-0197 holds (the implied rate is chosen) — its inputs are wrong",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-181 rateInForce — five cases › MK-CF-F-181-C04 · complex · Part-year implied take-home [APP WRONG] — tenet 1: the implied rate counts twelve months of take-home and 401(k) against six paid",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer’s answer, from the package)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): the implied rate counts the six paid months — 57.00% (it read 13.99%)."
+  },
+  {
+   "id": "MK-CF-F-181",
+   "case_id": "MK-CF-F-181-C05",
+   "name": "rateInForce",
+   "kind": "edge",
+   "title": "Known explicit0 rate",
+   "classification": "AGREE",
+   "in_flight": false,
+   "in_flight_agent": "",
+   "status": "PASS",
+   "mapped": "taxMode manual + manualTaxRate",
+   "expected": {
+    "exact": "0",
+    "shown": "0.00%"
+   },
+   "actual": {
+    "rate": 0,
+    "source": "typed",
+    "mine": true,
+    "label": "your rate, 0%",
+    "covers": "everything that comes out of your pay, as you entered"
+   },
+   "difference": "none",
+   "rests_on": "DEC-0197 (typed first, 0% included)",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part15.test.ts › MK-CF-F-181 rateInForce — five cases › MK-CF-F-181-C05 · edge · Known explicit0 rate [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer’s answer, from the package)"
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-CF-O-001",
+   "name": "basePay",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "The household tax row uses gross×household rate even in mixed entered/calculated take-home mode, while actual implied deductions can differ by earner. Its bracket is wages-only despite the owner’s all-income band rule.",
+   "reviewer_should_be": "Expose each entered/calculated component distinctly, reconcile gross−deductions−401(k)=take-home, and use one all-taxable-income band producer.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "Two points. (1) The band: basePay reads the band of the wages less the 401(k)s (marginalBracketFor on wages), while DEC-0178 says the band is worked out ONCE from everything taxed together. $60,000 of wages and $50,000 of rent, single: the card says 12%; the household’s band is 22%, and the card’s own tax is worked at the all-income rate (13.97%). APP WRONG. (2) The mixed-mode tax row: basePay still returns tax.monthly = gross × rate, but the screen draws NO household tax row in a mixed household (BasePayScreen shows the tax row only in mode \"estimated\"; DEC-0207 frame 2a-iii) — REVIEWER WRONG on that point.",
+   "governing": [
+    "DEC-0178",
+    "DEC-0207"
+   ],
+   "evidence": "O-001-C05",
+   "needs_classifying": true,
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): the band on everything taxed (DEC-0178); each \"/month\" a paid month's; an hourly wage with no hours shows no total."
+  },
+  {
+   "id": "MK-CF-F-140",
+   "name": "periodsAYear",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Documented run-rate conversion: 52 weekly/26 fortnightly/12 monthly/1 yearly. Hourly2080 means the explicitly assumed40×52 and is not variable-hours gross.",
+   "reviewer_should_be": "",
+   "classification": "RIGHT — AGREE",
+   "what_the_code_actually_does": "RIGHT, and measured so: 52 · 26 · 2,080 · 12. A yearly rhythm is offered by no screen (OUTSIDE DOMAIN, the table still answers 1). The 2,080 is the 40-hour week of F-141.",
+   "governing": [],
+   "evidence": "F-140-C01..C05",
+   "needs_classifying": false
+  },
+  {
+   "id": "MK-CF-F-141",
+   "name": "perMonth",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "The arithmetic converts a known pay rhythm correctly. Missing hours or pay rhythm silently become 40 hours or monthly pay without an assumption flag.",
+   "reviewer_should_be": "Keep the conversion for known inputs; identify the assumed hours/frequency or refuse an unqualified figure.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "The arithmetic is right when the hours are given (27.35 × 31.5 × 52 ÷ 12 = $3,733.275). But no screen asks the hours (BasePayScreen has no hours field; hoursPerWeek is written nowhere), so every hourly wage is read as a 40-hour week and nothing says so: $25 an hour → $4,333.33 a month.",
+   "governing": [
+    "DEC-0296",
+    "tenet 3"
+   ],
+   "evidence": "F-141-C05",
+   "needs_classifying": true,
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): no hours a week, no number."
+  },
+  {
+   "id": "MK-CF-F-142",
+   "name": "monthsOf",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "Blank amounts become0, making an unentered cell indistinguishable from confirmed unpaid time.",
+   "reviewer_should_be": "Keep blank as missing with an entered flag; preserve explicit zero.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "monthsOf itself is right on what it is handed — it is only ever handed numbers, because MK-CF-F-165 salaryMonths has already read every stored cell. The blank-to-$0 the reviewer describes happens there: BasePayScreen stores a cleared cell as \"\" and salaryMonths reads it as a typed $0 month. APP WRONG in MK-CF-F-165 (salary-months.ts); no change to monthsOf — the records fix is to say where the reading happens.",
+   "governing": [
+    "DEC-0187",
+    "tenet 3"
+   ],
+   "evidence": "F-142-C05 (outside domain), F-128-C05, F-179-C05",
+   "needs_classifying": true,
+   "fixed_2026_10_25": "SETTLED 2026-10-25/26 (CF-MMFIX-B, FIX-INCOME-A): the reading is fixed where it happens, in MK-CF-F-165 salaryMonths — a cleared or blank cell is the typical month, a typed 0 is $0; monthsOf is unchanged, as this check says. — marked by PF-RECORDS 2026-10-26 from that agent’s report; the mark was missing."
+  },
+  {
+   "id": "MK-CF-F-128",
+   "name": "grossByMonth",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "Purpose promises twelve identical months for steady pay, but formula returns one typical row; consumers that sum versus annualize can disagree.",
+   "reviewer_should_be": "Specify a typical-row domain versus a dated-calendar domain, or always return a complete dated year.",
+   "classification": "REVIEWER WRONG",
+   "what_the_code_actually_does": "Code fact: steady pay is one row, [\"typical\", amount], standing for every month, and every caller reads it so (annualisedGross averages it; payFiguresAgree checks it once; no caller sums it). The money agrees ($60,000 a year). Records fix: the card’s Answers line promises \"twelve identical months\" — it should say \"one typical month\".",
+   "governing": [],
+   "evidence": "F-128-C01",
+   "needs_classifying": true
+  },
+  {
+   "id": "MK-CF-F-143",
+   "name": "annualisedGross",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Average of a partial or14-month table ×12 is a run-rate, not the actual tax-year wages; it can disagree with salaryAnnual on known dated cells.",
+   "reviewer_should_be": "For tax brackets sum the actual tax-year months; label any separate rolling/partial run-rate and its coverage.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "At b1c659e8 the reviewer’s point was real: annualisedGross averaged only the cells TYPED, so a month left as the typical dropped out instead of reading as the typical month (DEC-0187; the drawing: \"Every month below starts from this\"). Typical $5,000 with one month typed $8,000: Base pay $96,000 a year, the tax path (MK-CF-F-082 salaryAnnual) $63,000; F-143-C03 $73,335.16 against $18,333.79. IN-FLIGHT: fixed in the working tree on 2026-10-25 by CF-MMFIX-B (IN-05, uncommitted) — both now read $63,000 / $18,333.79. That fix also moves a table that crosses a year from drawing v07 rule 6’s average × 12 ($46,025.58) to the tax year’s months ($13,113.26): needs_a_ruling #1. A cleared month still counts as a typed $0 (fix C).",
+   "governing": [
+    "DEC-0187",
+    "drawing v07 rule 6",
+    "tenet 4"
+   ],
+   "evidence": "F-143-C03, F-143-C04, two witnesses",
+   "needs_classifying": true,
+   "fixed_2026_10_25": "FIXED 2026-10-25 (CF-MMFIX-B, IN-05: this calendar year, a month not typed read as the typical); one reading for steady and varying pay since 2026-10-26 (FIX-INCOME-A, grossCalendarYear). C04 settled the same way (reading b, this calendar year)."
+  },
+  {
+   "id": "MK-CF-F-144",
+   "name": "takeHomeAsEntered",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Preserves positive typed monthly take-home, but rejects a confirmed0 and can use full-year contributions/averages for partial-year pay.",
+   "reviewer_should_be": "Treat entered0 as known; use matching wage/contribution dates and distinguish typical from annual average.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "Two real points. (1) A typed $0 take-home is treated as not entered and replaced by a calculated one ($60,000, $500 401(k), typed $0 → ≈$3,500) — tenet 5. (2) For a part-year wage with no take-home typed, the calculated take-home subtracts twelve months of 401(k): (60,000.30 × 0.8 − 12 × 501.13) ÷ 12 = $3,499.21, where the six months paid give $3,749.79 — DEC-0376. The entered branch is right (F-144-C03/C04 agree).",
+   "governing": [
+    "tenet 5",
+    "DEC-0376"
+   ],
+   "evidence": "F-144-C05, witness",
+   "needs_classifying": true,
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): a typed 0 is an answer; the calculated take-home is a paid month's, after that month's 401(k)."
+  },
+  {
+   "id": "MK-CF-F-145",
+   "name": "deductionsFromPay",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Yearly gross−12×monthly401(k)−12×typical take-home is wrong for employment gaps; a partially covered year is not a full-year observation.",
+   "reviewer_should_be": "Use the actual annual totals for the same paid months, leaving unknown take-home periods incomplete.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "gross − 12 × 401(k) − 12 × take-home is wrong for a part-year wage: six paid months give $8,396.70 (right $34,198.50); four give −$64,160.27 (right $8,020.69). And a typed $0 take-home gives nothing (right $54,000).",
+   "governing": [
+    "DEC-0376",
+    "tenet 1",
+    "tenet 5"
+   ],
+   "evidence": "F-145-C03, C04, C05",
+   "needs_classifying": true,
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): the paid months' take-home and 401(k)."
+  },
+  {
+   "id": "MK-CF-F-146",
+   "name": "payFiguresAgree",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Returns at the first warning and can skip a later actual failure; also subtracts typical take-home and401(k) in unpaid months without a matching table.",
+   "reviewer_should_be": "Inspect all months for failure before issuing any warning, and align take-home/contributions with the months paid.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "Both points real. (1) It returns at the first warning: January leaves 75% (warn), February is −$300.15, and the verdict is ok:true. (2) In an unpaid $0 month it still subtracts the typical take-home and the 401(k), so a part-year wage fails: \"These three cannot all be right in 2026-01 … $4,300 more than there is\".",
+   "governing": [
+    "tenet 1",
+    "DEC-0376"
+   ],
+   "evidence": "F-146-C03, two witnesses",
+   "needs_classifying": true,
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): a warning no longer stops the reading; the first month that cannot be right fails the check."
+  },
+  {
+   "id": "MK-CF-F-171",
+   "name": "earnerPay",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Combines correctly scoped primitives on a full-year complete record, but inherits run-rate and part-year deduction problems.",
+   "reviewer_should_be": "Use common calendar-year coverage and preserve entered/calculated status per earner.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "Right on a full year (C01, C02). Inherits F-145 (part-year), F-146 (the January failure) and F-144 (typed $0).",
+   "governing": [
+    "DEC-0376",
+    "tenet 1",
+    "tenet 5"
+   ],
+   "evidence": "F-171-C03, C04, C05",
+   "needs_classifying": true,
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): everything else a paid month's; the months paid given."
+  },
+  {
+   "id": "MK-CF-F-198",
+   "name": "payrollTaxWithheld",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Correct employee withholding at one employer using known Social-Security/Medicare wages. It is not household final Additional Medicare liability; pretax benefit wage-base differences are outside the one-number input.",
+   "reviewer_should_be": "",
+   "classification": "RIGHT — AGREE",
+   "what_the_code_actually_does": "RIGHT, and measured so: 5 of 5 cases and 7 of 7 withholding witnesses. Per employee, $200,000 threshold.",
+   "governing": [
+    "DEC-0340",
+    "DEC-0205"
+   ],
+   "evidence": "F-198-C01..C05",
+   "needs_classifying": false
+  },
+  {
+   "id": "MK-CF-F-179",
+   "name": "entryFromWage",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Preserves each wage’s input fields and canonical month table in one pay entry; it should not create a separate tax calculation.",
+   "reviewer_should_be": "",
+   "classification": "RIGHT — AGREE",
+   "what_the_code_actually_does": "RIGHT on its own fields (C01–C04). The one disagreement (C05, the cleared cell) is in MK-CF-F-165 salaryMonths, which it calls.",
+   "governing": [],
+   "evidence": "F-179-C05",
+   "needs_classifying": false
+  },
+  {
+   "id": "MK-CF-F-180",
+   "name": "enteredLandsAnnual",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Multiplies typical take-home by12 and treats entered0 as absent, despite paid-month gaps and year-specific records.",
+   "reviewer_should_be": "Sum dated take-home amounts for the year, or use typical take-home only in paid months.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "Take-home × 12 whatever the months paid: six paid months → $45,590.04 (right $22,795.02); four → $99,734.28, more than twice the $44,111.17 gross. A typed $0 reads as silence (null).",
+   "governing": [
+    "tenet 1",
+    "DEC-0376",
+    "tenet 5"
+   ],
+   "evidence": "F-180-C03, C04, C05",
+   "needs_classifying": true,
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): × the months paid; a typed 0 counts."
+  },
+  {
+   "id": "MK-CF-F-181",
+   "name": "rateInForce",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Precedence is correct for complete full-year wages. Implied rates inherit12-month contribution/take-home errors; a rate of0 for no known taxable income needs an explicit absence state.",
+   "reviewer_should_be": "Correct annual sources and contributions, preserve known0 versus absent input and propagate coverage; keep typed rate precedence.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "The precedence is right (DEC-0197; C01, C02, C03, C05 agree, the state rate on taxable income too). The implied branch is wrong for part-year pay: it takes c_401k × 12 and take-home × 12 — 13.99% where the six months paid give 57.00% — while the calculated branch of the same function already counts the 401(k) only in the months paid (taxedAfterPreTax → householdK401ByMonth). The reviewer’s third point — a 0% rate when there is no taxable income — is REVIEWER WRONG: 0% of $0 is $0, no figure is wrong.",
+   "governing": [
+    "DEC-0197",
+    "DEC-0376",
+    "tenet 1"
+   ],
+   "evidence": "F-181-C04",
+   "needs_classifying": true,
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): the implied rate reads the paid months' 401(k)s (MK-CF-F-206) and take-home (MK-CF-F-180)."
+  }
+ ],
+ "rules_held": [
+  {
+   "rule": "DEC-0176",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Two earners measured on Base pay (O-001-C03, C04: each earner’s own wage and take-home). F-210 (annualOfSource) is another part’s card.",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Two-earner readers exist,but annualOfSource substitutes household salary on each earnerrow and partial-year contributions diverge.",
+   "evidence_case_refs": [
+    "MK-CF-F-210-C03",
+    "MK-CF-F-210-C04",
+    "MK-CF-F-210-C05",
+    "MK-CF-F-188-C03",
+    "MK-CF-F-188-C04",
+    "MK-CF-F-188-C05"
+   ]
+  },
+  {
+   "rule": "DEC-0178",
+   "cards": [
+    "MK-CF-O-001"
+   ],
+   "reviewer_verdict": "NOT HELD",
+   "classification": "APP WRONG",
+   "what_we_found": "Real. $60,000 of wages + $50,000 of rent, single: the Base pay card’s bracket reads 12% (wages only); everything taxed together is in the 22% band. O-001-C05.",
+   "reviewer_why": "basePay’s band uses wages while incomeSummary uses alltaxable sources;nonwage income can change the band.",
+   "evidence_case_refs": [
+    "MK-CF-O-001-C04",
+    "MK-CF-O-001-C05"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): Base pay reads the band on everything taxed — the Income summary's bracket (agreement test part_year_one_rule_2026_10_26, six households)."
+  },
+  {
+   "rule": "DEC-0184",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "The legacy engines (MK-CF-F-048, F-049) are other parts’ cards (part 17 has F-048); not measured here.",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The legacy stored-income path still calculates monthlytax as single without state and differs from rateInForce.",
+   "evidence_case_refs": [
+    "MK-CF-F-049-C03",
+    "MK-CF-F-048-C03"
+   ]
+  },
+  {
+   "rule": "DEC-0188",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "As DEC-0176: two earners each keep their own block on Base pay (O-001-C03, C04).",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Two-earner readers exist,but annualOfSource substitutes household salary on each earnerrow and partial-year contributions diverge.",
+   "evidence_case_refs": [
+    "MK-CF-F-210-C03",
+    "MK-CF-F-210-C04",
+    "MK-CF-F-210-C05",
+    "MK-CF-F-188-C03",
+    "MK-CF-F-188-C04",
+    "MK-CF-F-188-C05"
+   ]
+  },
+  {
+   "rule": "DEC-0194",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Code fact: the rate is typed on the Base pay card itself (\"The tax rate you want us to use\", BasePayScreen, estimated mode).",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0195",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Code fact: the card names the bracket, shows \"Calculated federal tax ≈$…/month\" in money, and says \"assumes you take the standard deduction\".",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0196",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Code fact: the screen’s sentence \"We’ll use 24% everywhere your take-home matters …\" is printed under a typed rate.",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The legacy stored-income path still calculates monthlytax as single without state and differs from rateInForce.",
+   "evidence_case_refs": [
+    "MK-CF-F-049-C03",
+    "MK-CF-F-048-C03"
+   ]
+  },
+  {
+   "rule": "DEC-0197",
+   "cards": [
+    "MK-CF-F-181"
+   ],
+   "reviewer_verdict": "HELD",
+   "classification": "HELD (recorded)",
+   "what_we_found": "Measured: typed → implied → calculated, 0% typed kept (F-181-C01, C02, C05).",
+   "reviewer_why": "Typed→implied→calculated precedence is expressly stated;correctness of the implied/calculated inputs remains separately open.",
+   "evidence_case_refs": [
+    "MK-CF-F-181-C04"
+   ]
+  },
+  {
+   "rule": "DEC-0203",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "The 401(k) question sits inside each wage’s section on Base pay; other income screens not measured here.",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0205",
+   "cards": [
+    "MK-CF-F-198"
+   ],
+   "reviewer_verdict": "HELD",
+   "classification": "HELD (recorded)",
+   "what_we_found": "Measured: payroll constants (F-198, 7 witnesses), bands and deductions equal the published tables.",
+   "reviewer_why": "All printed statutoryconstants were independentlychecked againstIRS/SSA publications;eligibility/application defects do not change thoseconstants.",
+   "evidence_case_refs": [
+    "MK-CF-F-055-C05"
+   ]
+  },
+  {
+   "rule": "DEC-0207",
+   "cards": [
+    "MK-CF-O-001"
+   ],
+   "reviewer_verdict": "NOT HELD",
+   "classification": "REVIEWER WRONG",
+   "what_we_found": "The card adds up in every mode, measured: calculated (two earners, jointly) $11,500 − $872.67 − $1,200 = $9,427.33; entered $5,000 − $500 − $500 = $4,000; mixed draws no tax row (frame 2a-iii) and names each person’s take-home. The reviewer’s counterexamples are another part’s card (F-233, O-004), O-001-C04 (where its own answer agrees with the app) and O-001-C05 (the band, DEC-0178). The part-year basis is a separate defect (F-145, F-171), and the card still adds up on it.",
+   "reviewer_why": "Complete approved rows reconcile,but partial-year wage shares and tax/subtotal scope yield counterexamples outside that drawing.",
+   "evidence_case_refs": [
+    "MK-CF-F-233-C03",
+    "MK-CF-F-233-C04",
+    "MK-CF-F-233-C05",
+    "MK-CF-O-001-C04",
+    "MK-CF-O-001-C05",
+    "MK-CF-O-004-C04",
+    "MK-CF-O-004-C05"
+   ]
+  },
+  {
+   "rule": "DEC-0208",
+   "cards": [
+    "MK-CF-O-001",
+    "MK-CF-F-171"
+   ],
+   "reviewer_verdict": "HELD",
+   "classification": "HELD (recorded)",
+   "what_we_found": "Measured: per-person note in the mixed household (O-001-C04).",
+   "reviewer_why": "Declared per-earner entered/calculated status and mixedmode preserve the provenance of each payrow;exactscreen rendering was not inspected.",
+   "evidence_case_refs": [
+    "MK-CF-O-001-C04",
+    "MK-CF-O-001-C05",
+    "MK-CF-F-171-C03",
+    "MK-CF-F-171-C04",
+    "MK-CF-F-171-C05"
+   ]
+  },
+  {
+   "rule": "DEC-0209",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Words — held by src/__tests__/one_term_per_concept.test.ts, not measured here.",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0270",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Words — \"(you entered)\" is printed per person in the mixed note (O-001-C04).",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0283",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Measured: tax on gross less the 401(k) — $60,000 − $4,800 → $4,444 (F-181-C02, O-001-C02).",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Subtraction walk is declared,but annual401(k)times12 disagrees with paid-month contributions and oldgross paths can bypass it.",
+   "evidence_case_refs": [
+    "MK-CF-F-188-C03",
+    "MK-CF-F-188-C04",
+    "MK-CF-F-188-C05",
+    "MK-CF-F-230-C04",
+    "MK-CF-O-004-C04",
+    "MK-CF-O-004-C05"
+   ]
+  },
+  {
+   "rule": "DEC-0291",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Words — the screen says \"spouse\"; held by the one-term guard, not measured here.",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0326",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "The joint table is its own (tax.ts TAX_TABLES married) and equals the published table — checked in this file’s bands source check.",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. 2026 joint tables are explicit and correctly differ from doubledsingletops at highincome.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0327",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Measured: state tax on taxable income — 5% × $91,921.17 inside F-181-C03 (10.93%).",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. New tax primitive uses taxable income for state tax,but legacy buildIncomeState drops state from monthly grid and effectiveTaxRate uses a separate rate.",
+   "evidence_case_refs": [
+    "MK-CF-F-049-C03",
+    "MK-CF-F-048-C03"
+   ]
+  },
+  {
+   "rule": "DEC-0340",
+   "cards": [
+    "MK-CF-F-198"
+   ],
+   "reviewer_verdict": "HELD",
+   "classification": "HELD (recorded)",
+   "what_we_found": "Measured: 6.2% to $184,500, 1.45%, 0.9% above $200,000 (F-198).",
+   "reviewer_why": "Payrollwithholding rate/base primitive uses6.2%,1.45%,.9%and2026base;visiblewarning must distinguish withholdingfromhouseholdliability.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0352",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Code fact: base-pay.ts declares its figures (FIGURES, MK-CF-M-030..036, 045, 046); not measured further.",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0375",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Code fact: the Income summary calls basePay (income-summary.ts line 652), so base pay is one part of it.",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0376",
+   "cards": [
+    "MK-CF-O-001"
+   ],
+   "reviewer_verdict": "NOT HELD",
+   "classification": "APP WRONG",
+   "what_we_found": "Real, in the part DEC-0376’s own fix names: a 401(k) counts only in the months that earner is paid (MK-CF-F-206). One part-year household, two 401(k) years: the Income summary $3,006.78 (six months), Base pay $6,013.56 (12 × $501.13), and Base pay’s calculated take-home subtracts the twelve-month figure. Totals still equal their lines.",
+   "reviewer_why": "Complete approved rows reconcile,but partial-year wage shares and tax/subtotal scope yield counterexamples outside that drawing.",
+   "evidence_case_refs": [
+    "MK-CF-F-233-C03",
+    "MK-CF-F-233-C04",
+    "MK-CF-F-233-C05",
+    "MK-CF-O-001-C04",
+    "MK-CF-O-001-C05",
+    "MK-CF-O-004-C04",
+    "MK-CF-O-004-C05"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): Base pay counts the six paid months' 401(k) ($3,006.78), as the Income summary does."
+  },
+  {
+   "rule": "DEC-0380",
+   "cards": [
+    "MK-CF-O-001"
+   ],
+   "reviewer_verdict": "NOT HELD",
+   "classification": "REVIEWER WRONG",
+   "what_we_found": "As DEC-0207: gross − tax − 401(k)s = take-home holds on every frame, measured to 1e-9 (witness test). The counterexamples cited are outside this card or are the DEC-0178 band.",
+   "reviewer_why": "Complete approved rows reconcile,but partial-year wage shares and tax/subtotal scope yield counterexamples outside that drawing.",
+   "evidence_case_refs": [
+    "MK-CF-F-233-C03",
+    "MK-CF-F-233-C04",
+    "MK-CF-F-233-C05",
+    "MK-CF-O-001-C04",
+    "MK-CF-O-001-C05",
+    "MK-CF-O-004-C04",
+    "MK-CF-O-004-C05"
+   ]
+  },
+  {
+   "rule": "DEC-0381",
+   "cards": [
+    "MK-CF-O-001",
+    "MK-CF-F-171"
+   ],
+   "reviewer_verdict": "HELD",
+   "classification": "HELD (recorded)",
+   "what_we_found": "Measured: \"Your take-home: $5,000 (you entered) · Sam’s take-home: ≈$3,336 (calculated …)\" (O-001-C04).",
+   "reviewer_why": "Declared per-earner entered/calculated status and mixedmode preserve the provenance of each payrow;exactscreen rendering was not inspected.",
+   "evidence_case_refs": [
+    "MK-CF-O-001-C04",
+    "MK-CF-O-001-C05",
+    "MK-CF-F-171-C03",
+    "MK-CF-F-171-C04",
+    "MK-CF-F-171-C05"
+   ]
+  },
+  {
+   "rule": "DEC-0384",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Measured: no payroll tax is added to the calculated tax; payrollTaxWithheld has one caller, the sentence about the paycheck (witness test).",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0389",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Words — \"calculated\" is the word on the card (\"Calculated federal tax\", \"(calculated …)\"); held by the one-term guard.",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0396",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Words — \"/month\" and \"/year\" on the card; held by the one-term guard, not measured here.",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0503",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Capture frequency — not a base-pay calculation; not measured here.",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-1625",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Measured and held: the card says \"$11,500 gross − $873 tax − $1,200 of 401(k)s = $9,427.\" and stops (O-001-C03).",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-7608",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Measured: the rate’s words name the typed state rate — \"federal income tax, plus the 5.00% state rate you entered …\" (F-181-C03).",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Current rate producer describes enteredstate,but legacyeffectiveTaxRateandbuildIncomeState omit it.",
+   "evidence_case_refs": [
+    "MK-CF-F-048-C03",
+    "MK-CF-F-049-C03"
+   ]
+  },
+  {
+   "rule": "DEC-7795",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "MK-CF-F-126 / F-229 (the zero-return branch) are part 10’s cards; the lead measures them.",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Sharedgrowth F-229still depends on zero-rate-incomplete F-126;one-producer use is not sufficientwithout a valid0%branch.",
+   "evidence_case_refs": [
+    "MK-CF-F-126-C05",
+    "MK-CF-F-229-C05"
+   ]
+  },
+  {
+   "rule": "DEC-7797",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "Measured: the calculated rate is worked after the 401(k) (F-181-C02). Inside the same function the implied branch still takes c_401k × 12 for a part-year wage (F-181-C04, APP WRONG).",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Subtraction walk is declared,but annual401(k)times12 disagrees with paid-month contributions and oldgross paths can bypass it.",
+   "evidence_case_refs": [
+    "MK-CF-F-188-C03",
+    "MK-CF-F-188-C04",
+    "MK-CF-F-188-C05",
+    "MK-CF-F-230-C04",
+    "MK-CF-O-004-C04",
+    "MK-CF-O-004-C05"
+   ]
+  },
+  {
+   "rule": "DEC-7798",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "As DEC-7608 (F-181-C03).",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Current rate producer describes enteredstate,but legacyeffectiveTaxRateandbuildIncomeState omit it.",
+   "evidence_case_refs": [
+    "MK-CF-F-048-C03",
+    "MK-CF-F-049-C03"
+   ]
+  },
+  {
+   "rule": "DEC-7942",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "MK-CF-F-186 convertTakeHomeMode is part 16’s card (the lead’s).",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. One-time migration is stated,but its calculated branch omits401(k)from the inverse equation and may not preserve entered landing after deductions.",
+   "evidence_case_refs": [
+    "MK-CF-F-186-C04"
+   ]
+  },
+  {
+   "rule": "DEC-7944",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "The filing-status comparison is not a part-15 card; not measured here.",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-7945",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "classification": "CANNOT TELL (recorded)",
+   "what_we_found": "As DEC-7944.",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "evidence_case_refs": []
+  }
+ ],
+ "source_checks": [
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "reviewer_verdict": "RIGHT",
+   "classification": "AGREE",
+   "what_we_found": "TAX_TABLES (src/domain/income/tax.ts) equal amounts_checked for all four statuses, head of household’s $201,750 / $256,200 included (fixed 2026-10-23). The 48 band-top witnesses are run by the lead’s Source_Checks file."
+  },
+  {
+   "topic": "Standard deduction and age65 additions2026",
+   "reviewer_verdict": "RIGHT",
+   "classification": "AGREE",
+   "what_we_found": "9 of 9 witnesses equal deductionFor(status, people 65+, no income given)."
+  },
+  {
+   "topic": "Social Security and Medicare2026withholding",
+   "reviewer_verdict": "RIGHT",
+   "classification": "AGREE (withholding) · OUTSIDE DOMAIN (household liability)",
+   "what_we_found": "6 of 6 wage witnesses equal payrollTaxWithheld to the cent; the joint witness: $0 extra withheld on each $150,000 wage (agrees). The $450 a joint return owes at filing is worked out by no app function — the calculated tax is federal income tax only (DEC-0384) — so nothing replaces the withholding rule with the household rule."
+  }
+ ],
+ "app_wrong_fixes": [
+  {
+   "fix": "A",
+   "function_id": "MK-CF-O-001",
+   "name": "basePay",
+   "owner_file": "MoneyKeel/functions/cashflow/base-pay.ts",
+   "example": "Single, $60,000 of wages, $50,000 of rent (a rent entry naming its property)",
+   "app_gives": "\"Federal tax bracket 12%\" (bandOnEveryWage = band of the wages less 401(k)s)",
+   "right": "22% — the band of everything taxed together ($110,000 − $16,100 = $93,900); the card’s own tax already uses the all-income rate (13.97%)",
+   "ruling": "DEC-0178",
+   "items": [
+    "MK-CF-O-001-C05",
+    "formula MK-CF-O-001",
+    "rule DEC-0178"
+   ]
+  },
+  {
+   "fix": "B",
+   "function_id": "MK-CF-F-141",
+   "name": "perMonth",
+   "owner_file": "MoneyKeel/functions/cashflow/base-pay.ts (and the same 40-hour default in src/domain/income/onboarding.ts DEFAULT_HOURS_PER_WEEK; the hours question belongs on src/screens/BasePayScreen.tsx — a screen change, mock first)",
+   "example": "$25 an hour, hours a week never asked",
+   "app_gives": "$4,333.33 a month on a 40-hour week, nothing said",
+   "right": "no number and a reason (\"hours a week not entered\"), or ask the hours",
+   "ruling": "DEC-0296; tenet 3",
+   "items": [
+    "MK-CF-F-141-C05",
+    "formula MK-CF-F-141"
+   ]
+  },
+  {
+   "fix": "C",
+   "function_id": "MK-CF-F-165",
+   "name": "salaryMonths",
+   "owner_file": "src/domain/income/salary-months.ts",
+   "example": "Typical $5,000, pay varies, October cell cleared (stored \"\"), November $5,000",
+   "app_gives": "October a typed $0 month → Base pay $30,000 a year at b1c659e8, $55,000 in the working tree (the tax path $55,000 too)",
+   "right": "October not entered → reads as the typical month → $60,000",
+   "ruling": "DEC-0187; tenet 3",
+   "items": [
+    "MK-CF-F-128-C05",
+    "MK-CF-F-179-C05",
+    "formula MK-CF-F-142"
+   ]
+  },
+  {
+   "fix": "D",
+   "function_id": "MK-CF-F-143",
+   "name": "annualisedGross",
+   "owner_file": "MoneyKeel/functions/cashflow/base-pay.ts",
+   "example": "Typical $5,000, pay varies, only November typed ($8,000)",
+   "app_gives": "$96,000 a year (the one typed cell × 12); F-143-C03: $73,335.16",
+   "right": "$63,000 — every month not typed reads as the typical (what MK-CF-F-082 salaryAnnual already gives); F-143-C03: $18,333.79",
+   "ruling": "DEC-0187; drawing v07 (\"Every month below starts from this\"); tenet 4",
+   "items": [
+    "MK-CF-F-143-C03",
+    "formula MK-CF-F-143"
+   ],
+   "in_flight": "FIXED IN THE WORKING TREE by CF-MMFIX-B on 2026-10-25 (drawing check IN-05), uncommitted — both examples now read $63,000 / $18,333.79; re-run this file when it is committed"
+  },
+  {
+   "fix": "E",
+   "function_id": "MK-CF-F-145",
+   "name": "deductionsFromPay",
+   "owner_file": "MoneyKeel/functions/cashflow/base-pay.ts",
+   "example": "$60,000.30 paid Jul–Dec ($10,000.05 a month), $501.13 401(k) and $3,799.17 take-home a paid month",
+   "app_gives": "everything else $8,396.70 a year; four paid months ($44,111.17, $711.43, $8,311.19): −$64,160.27",
+   "right": "$34,198.50; four months $8,020.69 — take-home and 401(k) only in the months paid",
+   "ruling": "DEC-0376 (MK-CF-F-206 householdK401ByMonth); tenet 1",
+   "items": [
+    "MK-CF-F-145-C03",
+    "MK-CF-F-145-C04",
+    "MK-CF-F-171-C03",
+    "MK-CF-F-171-C04",
+    "rule DEC-0376"
+   ]
+  },
+  {
+   "fix": "E",
+   "function_id": "MK-CF-F-171",
+   "name": "earnerPay",
+   "owner_file": "MoneyKeel/functions/cashflow/base-pay.ts",
+   "example": "the same part-year wage",
+   "app_gives": "everythingElse $8,396.70; its verdict fails January (\"$4,300 more than there is\")",
+   "right": "$34,198.50, no failure in an unpaid month",
+   "ruling": "DEC-0376; tenet 1",
+   "items": [
+    "MK-CF-F-171-C03",
+    "MK-CF-F-171-C04"
+   ]
+  },
+  {
+   "fix": "E",
+   "function_id": "MK-CF-F-144",
+   "name": "takeHomeAsEntered (calculated branch)",
+   "owner_file": "MoneyKeel/functions/cashflow/base-pay.ts",
+   "example": "the same part-year wage, no take-home typed, household rate 20%",
+   "app_gives": "≈$3,499.21 a month (12 × $501.13 of 401(k) subtracted)",
+   "right": "$3,749.79 (six months of 401(k))",
+   "ruling": "DEC-0376",
+   "items": [
+    "witness: MK-CF-F-144 part-year calculated",
+    "formula MK-CF-F-144"
+   ]
+  },
+  {
+   "fix": "E",
+   "function_id": "MK-CF-F-146",
+   "name": "payFiguresAgree (unpaid months)",
+   "owner_file": "MoneyKeel/functions/cashflow/base-pay.ts",
+   "example": "the same part-year wage",
+   "app_gives": "fails: \"These three cannot all be right in 2026-01. $0 gross, less $501 …\"",
+   "right": "an unpaid $0 month is not charged a take-home or a 401(k); the six paid months pass",
+   "ruling": "DEC-0376; tenet 1",
+   "items": [
+    "witness: MK-CF-F-146 part-year",
+    "formula MK-CF-F-146"
+   ]
+  },
+  {
+   "fix": "E",
+   "function_id": "MK-CF-F-180",
+   "name": "enteredLandsAnnual",
+   "owner_file": "src/domain/income/tax-rate.ts",
+   "example": "the same part-year wage; and four paid months at $8,311.19",
+   "app_gives": "$45,590.04; $99,734.28 (more than twice the $44,111.17 gross)",
+   "right": "$22,795.02; $33,244.76 — take-home in the months paid",
+   "ruling": "tenet 1; DEC-0376",
+   "items": [
+    "MK-CF-F-180-C03",
+    "MK-CF-F-180-C04"
+   ]
+  },
+  {
+   "fix": "E",
+   "function_id": "MK-CF-F-181",
+   "name": "rateInForce (implied branch)",
+   "owner_file": "src/domain/income/tax-rate.ts",
+   "example": "the same part-year wage, every take-home typed",
+   "app_gives": "13.99% (\"your figures, 14%\"), from c_401k × 12 and take-home × 12",
+   "right": "57.00% (34,198.50 ÷ 60,000.30); the calculated branch of the same function already counts the 401(k) only in the months paid",
+   "ruling": "tenet 1; DEC-0376; DEC-0197 (the implied rate is the right choice, its inputs are wrong)",
+   "items": [
+    "MK-CF-F-181-C04",
+    "formula MK-CF-F-181"
+   ]
+  },
+  {
+   "fix": "F",
+   "function_id": "MK-CF-F-144",
+   "name": "takeHomeAsEntered (a typed $0)",
+   "owner_file": "MoneyKeel/functions/cashflow/base-pay.ts",
+   "example": "$60,000 gross, $500 401(k), take-home typed $0",
+   "app_gives": "≈$3,500 calculated; everything else hidden",
+   "right": "$0, entered; everything else $54,000 a year (and the over-60% warning)",
+   "ruling": "tenet 5 (the person’s word outranks the app’s guess)",
+   "items": [
+    "MK-CF-F-144-C05",
+    "MK-CF-F-145-C05",
+    "MK-CF-F-171-C05"
+   ]
+  },
+  {
+   "fix": "F",
+   "function_id": "MK-CF-F-180",
+   "name": "enteredLandsAnnual (a typed $0)",
+   "owner_file": "src/domain/income/tax-rate.ts",
+   "example": "the same household",
+   "app_gives": "null — \"one silence\", so the rate falls back to calculated",
+   "right": "$0 a year, entered",
+   "ruling": "tenet 5",
+   "items": [
+    "MK-CF-F-180-C05"
+   ]
+  },
+  {
+   "fix": "G",
+   "function_id": "MK-CF-F-146",
+   "name": "payFiguresAgree (a warning before a failure)",
+   "owner_file": "MoneyKeel/functions/cashflow/base-pay.ts",
+   "example": "January $10,000.17 gross, take-home $2,000.19; February $3,000.17, take-home $2,800.19; $500.13 401(k)",
+   "app_gives": "ok: true, warn: true — \"That leaves 75% of your pay in 2026-01 …\"; February never read",
+   "right": "fails in 2026-02, $300.15 more than there is — read every month for a failure before any warning",
+   "ruling": "tenet 1",
+   "items": [
+    "MK-CF-F-146-C03",
+    "witness: production shape",
+    "formula MK-CF-F-146"
+   ]
+  }
+ ],
+ "needs_a_ruling": [
+  {
+   "n": 1,
+   "item": "Which year a pay table that crosses a New Year is annualised over",
+   "ids": [
+    "MK-CF-F-143 annualisedGross",
+    "MK-CF-F-082 salaryAnnual",
+    "MK-CF-F-143-C04"
+   ],
+   "in_flight": "CF-MMFIX-B’s uncommitted change (2026-10-25, IN-05) already applies reading (b) in base-pay.ts",
+   "readings": {
+    "a": "Average month × 12 over the cells in the table — approved drawing v07 rule 6 ([Founder 2026-08-27]: \"average month × 12, never the total of a fourteen-month window\"). 14 cells $3,111.17 … $4,559.76 from Sep 2026: $46,025.58. Base pay at b1c659e8.",
+    "b": "This tax year’s twelve months, a month not typed read as the typical (DEC-0187). The same 14 cells, typical $0: $13,113.26 — the reviewer’s answer, the tax path (salaryAnnual → taxableAnnual → the Income summary) and Base pay in the working tree."
+   },
+   "recommendation": "Reading (b): it is the year that is actually taxed (tenet 1), it is the one number every Cash flow month already reads (tenet 4, which ranks above tenet 6), and it keeps rule 6’s purpose — never taxing fourteen months as twelve. Record it as a dated READ THIS FIRST correction on drawing v07 rule 6 rather than redrawing. Reverse in one word: reading (a), applied to the tax path too, so the two still agree."
+  }
+ ],
+ "blocked": [],
+ "priority_findings": [
+  {
+   "finding": "MK-CF-F-146 payFiguresAgree — a warning in an early month hides a later impossible month",
+   "real": true,
+   "measured": "January $10,000.17 − $500.13 − $2,000.19 leaves 75% → warning, returned at once; February $3,000.17 − $500.13 − $2,800.19 = −$300.15 is never read; the verdict is ok: true. Production shape (one take-home $2,800.19): same. Also real: an unpaid $0 month is charged the take-home and the 401(k) — a Jul–Dec wage fails with \"These three cannot all be right in 2026-01 … $4,300 more than there is\"."
+  },
+  {
+   "finding": "Additional Medicare withholding kept apart from household liability (MK-CF-F-198)",
+   "real": false,
+   "measured": "The withholding half is right: per employee at $200,000 — each $150,000 wage has $0 extra withheld; 7 of 7 withholding witnesses agree. No app function works out the household’s Additional Medicare tax (the $450 a joint return owes on $300,000), and none uses the withholding figure as a liability: payrollTaxWithheld has one caller, the Base pay sentence about the paycheck (DEC-0340), and the calculated tax is federal income tax only, said on screen (DEC-0384). Nothing to fix; the $450 is not modelled, by his decision."
+  },
+  {
+   "finding": "Part-year pay: six paid months become twelve months of take-home and 401(k) (F-145, F-180 in this part; also F-171, F-181, F-144, F-146)",
+   "real": true,
+   "measured": "$60,000.30 over Jul–Dec, $501.13 and $3,799.17 a paid month: everything else $8,396.70 (right $34,198.50); entered take-home a year $45,590.04 (right $22,795.02); implied rate 13.99% (right 57.00%); the 401(k) year $6,013.56 on Base pay against $3,006.78 on the Income summary for the same household. Four paid months: everything else −$64,160.27. F-233, F-234, F-188 and F-230 are other parts’ cards."
+  },
+  {
+   "finding": "MK-CF-F-210 a salary source returns that earner’s salary",
+   "real": null,
+   "measured": "No part-15 case carries F-210; rules DEC-0176 and DEC-0188 cite another part’s F-210 cases. Not measured here."
+  }
+ ],
+ "counts": {
+  "cases": {
+   "AGREE": 48,
+   "APP WRONG": 16,
+   "OUTSIDE DOMAIN": 3,
+   "REVIEWER WRONG": 2,
+   "NEEDS RULING": 1,
+   "total": 70
+  },
+  "formula_checks_classified": {
+   "APP WRONG": 10,
+   "REVIEWER WRONG": 1,
+   "total": 11
+  },
+  "rules_not_held": {
+   "APP WRONG": 2,
+   "REVIEWER WRONG": 2,
+   "total": 4
+  },
+  "rules_recorded": {
+   "HELD": 5,
+   "CANNOT TELL": 27,
+   "NOT HELD": 4,
+   "total": 36
+  }
+ },
+ "coverage": "Part 15: 70 of 70 cases — 48 agree, 16 app wrong, 2 reviewer wrong, 1 needs ruling, 0 blocked, 3 outside domain (3 in-flight: MK-CF-O-001-C04, MK-CF-F-143-C03, MK-CF-F-143-C04); 11 of 11 formula verdicts classified (10 app wrong, 1 reviewer wrong); 4 of 4 NOT HELD rules classified (2 app wrong, 2 reviewer wrong), 5 HELD and 27 CANNOT TELL recorded; 3 of 3 source checks (16 witnesses run here — 7 payroll, 9 deductions — and the 4 band tables compared; the 48 band witnesses are the lead’s). Distinct fixes behind the APP WRONG items: 7 (A–G; D already fixed in the working tree, uncommitted); rulings needed: 1.",
+ "in_flight_rerun": [
+  "MK-CF-O-001-C04",
+  "MK-CF-F-143-C03",
+  "MK-CF-F-143-C04",
+  "witness: MK-CF-F-143 months left as the typical",
+  "witness: MK-CF-F-143 two readings",
+  "witness: MK-CF-F-165 cleared month"
+ ]
+}

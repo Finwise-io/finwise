@@ -1,0 +1,2056 @@
+{
+  "batch": "cf module — part 12",
+  "written_by": "OpenAI independent specification reviewer",
+  "ready_to_close": false,
+  "still_open": [
+    "MK-CF-F-116: Direction flipping plus kind switching is clear for explicit in/out records, but legacy signed-negative records without direction can be reversed twice depending on whether amount or kind owns its sign.",
+    "MK-CF-F-117: The literal transaction-kind-to-label mapping is absent.",
+    "MK-CF-F-118: A missing amount returns 0 for a financial display even when its cash effect is unknown. Sale amount fallback also lacks a fee contract.",
+    "MK-CF-F-119: The trailing window has a lower bound but no stated upper bound at as_of, allowing future-dated payouts. Missing amounts silently disappear from a purported total.",
+    "MK-CF-F-109: Flags possible issues appropriately, but earlier-history direction, same-timestamp duplicates, negative reversal magnitudes, median convention, and duplicate normalized payees need explicit definitions.",
+    "MK-CF-F-110: Threshold says at least $1000 while its fallback prose says over $1000; exactly $1000 is described inaccurately.",
+    "DEC-0317: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0461: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0484: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-7595: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Typedtotal fee-only rule is declared,but tradeCash still initializesunknowncashfrom0.",
+    "DEC-7601: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Openingrecords retain eachlot’s date,sharesandknownbasis;missingcostremainsunknown. Full editing/re-import persistence is unobserved.",
+    "DEC-7602: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Knownholdingmultiplier works,but firstoptionbuy with no existingholdinguses1;recorded limitation cannot support a general optionscash claim."
+  ],
+  "scope": "Written formulas,owner decisions and primary publications only. No repository code,existingtests or liveapp outputs were inspected for this review. Attached screen-register worked/app-result fields were excluded from expected-answer derivation.",
+  "formula_checks": [
+    {
+      "id": "MK-CF-F-114",
+      "name": "undoSnapshot",
+      "verdict": "RIGHT",
+      "why": "Deep copies only affected accounts before mutation, allowing exact restoration rather than an approximate opposite trade.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-115",
+      "name": "restoreUndo",
+      "verdict": "RIGHT",
+      "why": "Replaces affected accounts with authoritative pre-transaction copies; unrelated accounts remain unchanged.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-116",
+      "name": "inverseOf",
+      "verdict": "INCOMPLETE",
+      "why": "Direction flipping plus kind switching is clear for explicit in/out records, but legacy signed-negative records without direction can be reversed twice depending on whether amount or kind owns its sign.",
+      "should_be": "Normalize to explicit signed cash once, then generate the opposite; preserve exact snapshots when available.",
+      "rests_on": "DEC-6993; DEC-6796",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-117",
+      "name": "txnLabel",
+      "verdict": "CANNOT TELL",
+      "why": "The literal transaction-kind-to-label mapping is absent.",
+      "should_be": "Supply approved label mapping, keeping unknown-kind fallback explicit.",
+      "rests_on": "Missing display contract",
+      "severity": "low"
+    },
+    {
+      "id": "MK-CF-F-118",
+      "name": "cashEffect",
+      "verdict": "INCOMPLETE",
+      "why": "A missing amount returns 0 for a financial display even when its cash effect is unknown. Sale amount fallback also lacks a fee contract.",
+      "should_be": "Return unknown effect for unentered amounts; keep confirmed zero distinct and define amount-only fee treatment.",
+      "rests_on": "Tenets 1–3; DEC-7596",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-119",
+      "name": "investmentIncomeAnnual",
+      "verdict": "INCOMPLETE",
+      "why": "The trailing window has a lower bound but no stated upper bound at as_of, allowing future-dated payouts. Missing amounts silently disappear from a purported total.",
+      "should_be": "Use lower_bound ≤ date ≤ as_of, preserve signed reversals, and expose missing-amount coverage.",
+      "rests_on": "DEC-6796; DEC-7171; tenet 3",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-108",
+      "name": "isMoneyOut",
+      "verdict": "RIGHT",
+      "why": "Kind-based unknown classification is explicitly only a flag, not a guessed amount; signed refunds/reversals are excluded correctly.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-131",
+      "name": "normPayee",
+      "verdict": "RIGHT",
+      "why": "Trims outer whitespace and folds case; does not merge distinct payee identities or internal whitespace.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-162",
+      "name": "daysApart",
+      "verdict": "RIGHT",
+      "why": "Absolute difference of date-only records is correct; timestamps require the declared calendar/elapsed convention.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-109",
+      "name": "reviewTransactions",
+      "verdict": "INCOMPLETE",
+      "why": "Flags possible issues appropriately, but earlier-history direction, same-timestamp duplicates, negative reversal magnitudes, median convention, and duplicate normalized payees need explicit definitions.",
+      "should_be": "Use prior dated normalized money-outs only; state even-sample median and inclusive boundaries; preserve both possible duplicates for user choice.",
+      "rests_on": "DEC-0317; DEC-6796; tenets 1,5",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-CF-F-110",
+      "name": "flagComparisonText",
+      "verdict": "INCOMPLETE",
+      "why": "Threshold says at least $1000 while its fallback prose says over $1000; exactly $1000 is described inaccurately.",
+      "should_be": "Say $1000 or more and retain human-reviewed templates and amounts.",
+      "rests_on": "Tenet 8; MK-CF-F-109",
+      "severity": "low"
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-CF-F-114",
+      "case_id": "MK-CF-F-114-C01",
+      "name": "undoSnapshot",
+      "kind": "easy",
+      "title": "One account",
+      "as_of": "2026-10-24",
+      "given": "One account",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "A",
+            "balance": "1111.17"
+          },
+          {
+            "id": "B",
+            "balance": "2731.43"
+          },
+          {
+            "id": "C",
+            "balance": "931.19"
+          }
+        ],
+        "primary": "A",
+        "counter": null
+      },
+      "expected": {
+        "affected_ids": [
+          "A"
+        ],
+        "assertions": [
+          "deep snapshot before mutation",
+          "nested lot data independent from original"
+        ]
+      },
+      "working": [
+        "Use the set of affected ids; preserve exact stored records and nested objects."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Relational snapshot/restore invariant; expected identities and exact restoration are testable without predicting generated metadata.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-114",
+      "case_id": "MK-CF-F-114-C02",
+      "name": "undoSnapshot",
+      "kind": "easy",
+      "title": "Transfer",
+      "as_of": "2026-10-24",
+      "given": "Transfer",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "A",
+            "balance": "1111.17"
+          },
+          {
+            "id": "B",
+            "balance": "2731.43"
+          },
+          {
+            "id": "C",
+            "balance": "931.19"
+          }
+        ],
+        "primary": "A",
+        "counter": "B"
+      },
+      "expected": {
+        "affected_ids": [
+          "A",
+          "B"
+        ],
+        "assertions": [
+          "deep snapshot before mutation",
+          "nested lot data independent from original"
+        ]
+      },
+      "working": [
+        "Use the set of affected ids; preserve exact stored records and nested objects."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Relational snapshot/restore invariant; expected identities and exact restoration are testable without predicting generated metadata.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-114",
+      "case_id": "MK-CF-F-114-C03",
+      "name": "undoSnapshot",
+      "kind": "complex",
+      "title": "Three-account context",
+      "as_of": "2026-10-24",
+      "given": "Three-account context",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "A",
+            "balance": "1111.17"
+          },
+          {
+            "id": "B",
+            "balance": "2731.43"
+          },
+          {
+            "id": "C",
+            "balance": "931.19"
+          }
+        ],
+        "primary": "B",
+        "counter": "C"
+      },
+      "expected": {
+        "affected_ids": [
+          "B",
+          "C"
+        ],
+        "assertions": [
+          "deep snapshot before mutation",
+          "nested lot data independent from original"
+        ]
+      },
+      "working": [
+        "Use the set of affected ids; preserve exact stored records and nested objects."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Relational snapshot/restore invariant; expected identities and exact restoration are testable without predicting generated metadata.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-114",
+      "case_id": "MK-CF-F-114-C04",
+      "name": "undoSnapshot",
+      "kind": "complex",
+      "title": "Self-transfer identity",
+      "as_of": "2026-10-24",
+      "given": "Self-transfer identity",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "A",
+            "balance": "1111.17"
+          },
+          {
+            "id": "B",
+            "balance": "2731.43"
+          },
+          {
+            "id": "C",
+            "balance": "931.19"
+          }
+        ],
+        "primary": "A",
+        "counter": "A"
+      },
+      "expected": {
+        "affected_ids": [
+          "A"
+        ],
+        "assertions": [
+          "deep snapshot before mutation",
+          "nested lot data independent from original"
+        ]
+      },
+      "working": [
+        "Use the set of affected ids; preserve exact stored records and nested objects."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Relational snapshot/restore invariant; expected identities and exact restoration are testable without predicting generated metadata.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-114",
+      "case_id": "MK-CF-F-114-C05",
+      "name": "undoSnapshot",
+      "kind": "edge",
+      "title": "No counter account",
+      "as_of": "2026-10-24",
+      "given": "No counter account",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "A",
+            "balance": "1111.17"
+          },
+          {
+            "id": "B",
+            "balance": "2731.43"
+          },
+          {
+            "id": "C",
+            "balance": "931.19"
+          }
+        ],
+        "primary": "C",
+        "counter": null
+      },
+      "expected": {
+        "affected_ids": [
+          "C"
+        ],
+        "assertions": [
+          "deep snapshot before mutation",
+          "nested lot data independent from original"
+        ]
+      },
+      "working": [
+        "Use the set of affected ids; preserve exact stored records and nested objects."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Relational snapshot/restore invariant; expected identities and exact restoration are testable without predicting generated metadata.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-115",
+      "case_id": "MK-CF-F-115-C01",
+      "name": "restoreUndo",
+      "kind": "easy",
+      "title": "One account",
+      "as_of": "2026-10-24",
+      "given": "One account",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "A",
+            "balance": "1111.17"
+          },
+          {
+            "id": "B",
+            "balance": "2731.43"
+          },
+          {
+            "id": "C",
+            "balance": "931.19"
+          }
+        ],
+        "primary": "A",
+        "counter": null
+      },
+      "expected": {
+        "affected_ids": [
+          "A"
+        ],
+        "assertions": [
+          "exact saved affected records restored",
+          "unaffected accounts retained"
+        ]
+      },
+      "working": [
+        "Use the set of affected ids; preserve exact stored records and nested objects."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Relational snapshot/restore invariant; expected identities and exact restoration are testable without predicting generated metadata.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-115",
+      "case_id": "MK-CF-F-115-C02",
+      "name": "restoreUndo",
+      "kind": "easy",
+      "title": "Transfer",
+      "as_of": "2026-10-24",
+      "given": "Transfer",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "A",
+            "balance": "1111.17"
+          },
+          {
+            "id": "B",
+            "balance": "2731.43"
+          },
+          {
+            "id": "C",
+            "balance": "931.19"
+          }
+        ],
+        "primary": "A",
+        "counter": "B"
+      },
+      "expected": {
+        "affected_ids": [
+          "A",
+          "B"
+        ],
+        "assertions": [
+          "exact saved affected records restored",
+          "unaffected accounts retained"
+        ]
+      },
+      "working": [
+        "Use the set of affected ids; preserve exact stored records and nested objects."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Relational snapshot/restore invariant; expected identities and exact restoration are testable without predicting generated metadata.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-115",
+      "case_id": "MK-CF-F-115-C03",
+      "name": "restoreUndo",
+      "kind": "complex",
+      "title": "Three-account context",
+      "as_of": "2026-10-24",
+      "given": "Three-account context",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "A",
+            "balance": "1111.17"
+          },
+          {
+            "id": "B",
+            "balance": "2731.43"
+          },
+          {
+            "id": "C",
+            "balance": "931.19"
+          }
+        ],
+        "primary": "B",
+        "counter": "C"
+      },
+      "expected": {
+        "affected_ids": [
+          "B",
+          "C"
+        ],
+        "assertions": [
+          "exact saved affected records restored",
+          "unaffected accounts retained"
+        ]
+      },
+      "working": [
+        "Use the set of affected ids; preserve exact stored records and nested objects."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Relational snapshot/restore invariant; expected identities and exact restoration are testable without predicting generated metadata.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-115",
+      "case_id": "MK-CF-F-115-C04",
+      "name": "restoreUndo",
+      "kind": "complex",
+      "title": "Self-transfer identity",
+      "as_of": "2026-10-24",
+      "given": "Self-transfer identity",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "A",
+            "balance": "1111.17"
+          },
+          {
+            "id": "B",
+            "balance": "2731.43"
+          },
+          {
+            "id": "C",
+            "balance": "931.19"
+          }
+        ],
+        "primary": "A",
+        "counter": "A"
+      },
+      "expected": {
+        "affected_ids": [
+          "A"
+        ],
+        "assertions": [
+          "exact saved affected records restored",
+          "unaffected accounts retained"
+        ]
+      },
+      "working": [
+        "Use the set of affected ids; preserve exact stored records and nested objects."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Relational snapshot/restore invariant; expected identities and exact restoration are testable without predicting generated metadata.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-115",
+      "case_id": "MK-CF-F-115-C05",
+      "name": "restoreUndo",
+      "kind": "edge",
+      "title": "No counter account",
+      "as_of": "2026-10-24",
+      "given": "No counter account",
+      "inputs": {
+        "accounts": [
+          {
+            "id": "A",
+            "balance": "1111.17"
+          },
+          {
+            "id": "B",
+            "balance": "2731.43"
+          },
+          {
+            "id": "C",
+            "balance": "931.19"
+          }
+        ],
+        "primary": "C",
+        "counter": null
+      },
+      "expected": {
+        "affected_ids": [
+          "C"
+        ],
+        "assertions": [
+          "exact saved affected records restored",
+          "unaffected accounts retained"
+        ]
+      },
+      "working": [
+        "Use the set of affected ids; preserve exact stored records and nested objects."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Relational snapshot/restore invariant; expected identities and exact restoration are testable without predicting generated metadata.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-116",
+      "case_id": "MK-CF-F-116-C01",
+      "name": "inverseOf",
+      "kind": "easy",
+      "title": "Deposit reversal",
+      "as_of": "2026-10-24",
+      "given": "Deposit reversal",
+      "inputs": {
+        "kind": "deposit",
+        "amount": 500,
+        "direction": "in"
+      },
+      "expected": {
+        "kind": "withdrawal",
+        "amount": {
+          "exact": "500",
+          "shown": "$500.00",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "direction": "out"
+      },
+      "working": [
+        "Opposite signed cash is −500."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-116",
+      "case_id": "MK-CF-F-116-C02",
+      "name": "inverseOf",
+      "kind": "easy",
+      "title": "Transfer reversal",
+      "as_of": "2026-10-24",
+      "given": "Transfer reversal",
+      "inputs": {
+        "kind": "transfer",
+        "primary": "A",
+        "counter": "B",
+        "amount": 500,
+        "direction": "out"
+      },
+      "expected": {
+        "kind": "transfer",
+        "primary": "B",
+        "counter": "A",
+        "amount": {
+          "exact": "500",
+          "shown": "$500.00",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "direction": "out"
+      },
+      "working": [
+        "Swap endpoints only; net change on each account negates original."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-116",
+      "case_id": "MK-CF-F-116-C03",
+      "name": "inverseOf",
+      "kind": "complex",
+      "title": "Fee refund reversal",
+      "as_of": "2026-10-24",
+      "given": "Fee refund reversal",
+      "inputs": {
+        "kind": "fee",
+        "amount": "7.31",
+        "direction": "in"
+      },
+      "expected": {
+        "signed_cash_effect": {
+          "exact": "-7.31",
+          "shown": "−$7",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Refund +7.31 must reverse as −7.31 regardless kind label."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-116",
+      "case_id": "MK-CF-F-116-C04",
+      "name": "inverseOf",
+      "kind": "complex",
+      "title": "Legacy signed negative dividend",
+      "as_of": "2026-10-24",
+      "given": "Legacy signed negative dividend",
+      "inputs": {
+        "kind": "dividend",
+        "amount": "-51.43",
+        "direction": null
+      },
+      "expected": {
+        "signed_cash_effect": {
+          "exact": "51.43",
+          "shown": "$51",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Original −51.43 requires +51.43 undo."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "state": "RULE UNCLEAR",
+        "reason": "Sign normalization on inverse omitted",
+        "readings": {
+          "kind_plus_negative_amount": "may move −51.43 again",
+          "normalized": "moves +51.43"
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-116",
+      "case_id": "MK-CF-F-116-C05",
+      "name": "inverseOf",
+      "kind": "edge",
+      "title": "Buy needs snapshot",
+      "as_of": "2026-10-24",
+      "given": "Buy needs snapshot",
+      "inputs": {
+        "kind": "buy",
+        "shares": 10,
+        "price": 100,
+        "fee": 5
+      },
+      "expected": null,
+      "working": [
+        "No synthetic inverse; exact snapshot required."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-117",
+      "case_id": "MK-CF-F-117-C01",
+      "name": "txnLabel",
+      "kind": "easy",
+      "title": "Deposit",
+      "as_of": "2026-10-24",
+      "given": "Deposit",
+      "inputs": {
+        "transaction_kind": "deposit"
+      },
+      "expected": {
+        "state": "RULE UNCLEAR",
+        "reason": "Approved literal label missing",
+        "readings": {
+          "registered": "requires mapping",
+          "fallback": "deposit"
+        }
+      },
+      "working": [
+        "Do not invent approved display strings."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "medium",
+      "outside_domain": false,
+      "notes": "Contract witness; literal label checks remain pending registry text. Literal mapping unavailable;this is a missing-contract witness rather than a ready-to-run literal assertion.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-117",
+      "case_id": "MK-CF-F-117-C02",
+      "name": "txnLabel",
+      "kind": "easy",
+      "title": "Transfer",
+      "as_of": "2026-10-24",
+      "given": "Transfer",
+      "inputs": {
+        "transaction_kind": "transfer"
+      },
+      "expected": {
+        "state": "RULE UNCLEAR",
+        "reason": "Approved literal label missing",
+        "readings": {
+          "registered": "requires mapping",
+          "fallback": "transfer"
+        }
+      },
+      "working": [
+        "Do not invent approved display strings."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "medium",
+      "outside_domain": false,
+      "notes": "Contract witness; literal label checks remain pending registry text. Literal mapping unavailable;this is a missing-contract witness rather than a ready-to-run literal assertion.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-117",
+      "case_id": "MK-CF-F-117-C03",
+      "name": "txnLabel",
+      "kind": "complex",
+      "title": "Interest",
+      "as_of": "2026-10-24",
+      "given": "Interest",
+      "inputs": {
+        "transaction_kind": "interest"
+      },
+      "expected": {
+        "state": "RULE UNCLEAR",
+        "reason": "Approved literal label missing",
+        "readings": {
+          "registered": "requires mapping",
+          "fallback": "interest"
+        }
+      },
+      "working": [
+        "Do not invent approved display strings."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "medium",
+      "outside_domain": false,
+      "notes": "Contract witness; literal label checks remain pending registry text. Literal mapping unavailable;this is a missing-contract witness rather than a ready-to-run literal assertion.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-117",
+      "case_id": "MK-CF-F-117-C04",
+      "name": "txnLabel",
+      "kind": "complex",
+      "title": "Opening holding",
+      "as_of": "2026-10-24",
+      "given": "Opening holding",
+      "inputs": {
+        "transaction_kind": "opening_position"
+      },
+      "expected": {
+        "state": "RULE UNCLEAR",
+        "reason": "Approved literal label missing",
+        "readings": {
+          "registered": "requires mapping",
+          "fallback": "opening_position"
+        }
+      },
+      "working": [
+        "Do not invent approved display strings."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "medium",
+      "outside_domain": false,
+      "notes": "Contract witness; literal label checks remain pending registry text. Literal mapping unavailable;this is a missing-contract witness rather than a ready-to-run literal assertion.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-117",
+      "case_id": "MK-CF-F-117-C05",
+      "name": "txnLabel",
+      "kind": "edge",
+      "title": "Unknown",
+      "as_of": "2026-10-24",
+      "given": "Unknown",
+      "inputs": {
+        "transaction_kind": "mystery_kind"
+      },
+      "expected": {
+        "state": "RULE UNCLEAR",
+        "reason": "Approved literal label missing",
+        "readings": {
+          "registered": "requires mapping",
+          "fallback": "mystery_kind"
+        }
+      },
+      "working": [
+        "Do not invent approved display strings."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "medium",
+      "outside_domain": false,
+      "notes": "Contract witness; literal label checks remain pending registry text. Literal mapping unavailable;this is a missing-contract witness rather than a ready-to-run literal assertion.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-118",
+      "case_id": "MK-CF-F-118-C01",
+      "name": "cashEffect",
+      "kind": "easy",
+      "title": "Cash deposit",
+      "as_of": "2026-10-24",
+      "given": "Cash deposit",
+      "inputs": {
+        "account": {
+          "cash": "5000.17",
+          "balance": "20000.43",
+          "typed_total": true
+        },
+        "transaction": {
+          "kind": "deposit",
+          "amount": 1000,
+          "shares": 0,
+          "price": 0,
+          "multiplier": 1,
+          "fee_not_in_price": 0,
+          "date": "2026-10-17",
+          "direction": null
+        }
+      },
+      "expected": {
+        "exact": "1000",
+        "shown": "$1,000"
+      },
+      "working": [
+        "Trade: shares×price×multiplier; fee once. Cash movement: normalize direction/sign once; a missing amount creates no known cash effect."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-118",
+      "case_id": "MK-CF-F-118-C02",
+      "name": "cashEffect",
+      "kind": "easy",
+      "title": "Signed dividend reversal",
+      "as_of": "2026-10-24",
+      "given": "Signed dividend reversal",
+      "inputs": {
+        "account": {
+          "cash": "5000.17",
+          "balance": "20000.43",
+          "typed_total": true
+        },
+        "transaction": {
+          "kind": "dividend",
+          "amount": -50,
+          "shares": 0,
+          "price": 0,
+          "multiplier": 1,
+          "fee_not_in_price": 0,
+          "date": "2026-10-17",
+          "direction": null
+        }
+      },
+      "expected": {
+        "exact": "-50",
+        "shown": "−$50"
+      },
+      "working": [
+        "Trade: shares×price×multiplier; fee once. Cash movement: normalize direction/sign once; a missing amount creates no known cash effect."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-118",
+      "case_id": "MK-CF-F-118-C03",
+      "name": "cashEffect",
+      "kind": "complex",
+      "title": "Mini option buy with fee",
+      "as_of": "2026-10-24",
+      "given": "Mini option buy with fee",
+      "inputs": {
+        "account": {
+          "cash": "5000.17",
+          "balance": "20000.43",
+          "typed_total": true
+        },
+        "transaction": {
+          "kind": "buy",
+          "amount": null,
+          "shares": "3.17",
+          "price": "2.43",
+          "multiplier": 10,
+          "fee_not_in_price": "1.19",
+          "date": "2026-10-17",
+          "direction": null
+        }
+      },
+      "expected": {
+        "exact": "-78.2210",
+        "shown": "−$78"
+      },
+      "working": [
+        "Trade: shares×price×multiplier; fee once. Cash movement: normalize direction/sign once; a missing amount creates no known cash effect."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-118",
+      "case_id": "MK-CF-F-118-C04",
+      "name": "cashEffect",
+      "kind": "complex",
+      "title": "Stock sale with fee",
+      "as_of": "2026-10-24",
+      "given": "Stock sale with fee",
+      "inputs": {
+        "account": {
+          "cash": "5000.17",
+          "balance": "20000.43",
+          "typed_total": true
+        },
+        "transaction": {
+          "kind": "sale",
+          "amount": null,
+          "shares": "7.31",
+          "price": "98.17",
+          "multiplier": 1,
+          "fee_not_in_price": "3.43",
+          "date": "2026-10-17",
+          "direction": null
+        }
+      },
+      "expected": {
+        "exact": "714.1927",
+        "shown": "$714"
+      },
+      "working": [
+        "Trade: shares×price×multiplier; fee once. Cash movement: normalize direction/sign once; a missing amount creates no known cash effect."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-118",
+      "case_id": "MK-CF-F-118-C05",
+      "name": "cashEffect",
+      "kind": "edge",
+      "title": "Cash amount missing",
+      "as_of": "2026-10-24",
+      "given": "Cash amount missing",
+      "inputs": {
+        "account": {
+          "cash": "5000.17",
+          "balance": "20000.43",
+          "typed_total": true
+        },
+        "transaction": {
+          "kind": "deposit",
+          "amount": null,
+          "shares": 0,
+          "price": 0,
+          "multiplier": 1,
+          "fee_not_in_price": 0,
+          "date": "2026-10-17",
+          "direction": null
+        }
+      },
+      "expected": {
+        "state": "REFUSES",
+        "reason": "Amount not entered"
+      },
+      "working": [
+        "Trade: shares×price×multiplier; fee once. Cash movement: normalize direction/sign once; a missing amount creates no known cash effect."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-119",
+      "case_id": "MK-CF-F-119-C01",
+      "name": "investmentIncomeAnnual",
+      "kind": "easy",
+      "title": "One cash payment",
+      "as_of": "2026-10-24",
+      "given": "One cash payment",
+      "inputs": {
+        "records": [
+          {
+            "date": "2026-10-01",
+            "signed_cash": 100,
+            "account": "A",
+            "reinvested": false
+          }
+        ]
+      },
+      "expected": {
+        "exact": "100",
+        "shown": "$100"
+      },
+      "working": [
+        "Include cash payouts dated from 2025-10-24 through 2026-10-24; add signed amounts by account."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-119",
+      "case_id": "MK-CF-F-119-C02",
+      "name": "investmentIncomeAnnual",
+      "kind": "easy",
+      "title": "Reinvested omitted",
+      "as_of": "2026-10-24",
+      "given": "Reinvested omitted",
+      "inputs": {
+        "records": [
+          {
+            "date": "2026-10-01",
+            "signed_cash": 100,
+            "account": "A",
+            "reinvested": true
+          }
+        ]
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "Include cash payouts dated from 2025-10-24 through 2026-10-24; add signed amounts by account."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-119",
+      "case_id": "MK-CF-F-119-C03",
+      "name": "investmentIncomeAnnual",
+      "kind": "complex",
+      "title": "Signed mixed accounts",
+      "as_of": "2026-10-24",
+      "given": "Signed mixed accounts",
+      "inputs": {
+        "records": [
+          {
+            "date": "2026-01-13",
+            "signed_cash": "313.17",
+            "account": "A",
+            "reinvested": false
+          },
+          {
+            "date": "2026-09-12",
+            "signed_cash": "-51.43",
+            "account": "A",
+            "reinvested": false
+          },
+          {
+            "date": "2026-04-17",
+            "signed_cash": "211.19",
+            "account": "B",
+            "reinvested": false
+          }
+        ]
+      },
+      "expected": {
+        "exact": "472.93",
+        "shown": "$473"
+      },
+      "working": [
+        "Include cash payouts dated from 2025-10-24 through 2026-10-24; add signed amounts by account."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-119",
+      "case_id": "MK-CF-F-119-C04",
+      "name": "investmentIncomeAnnual",
+      "kind": "complex",
+      "title": "One day outside trailing window",
+      "as_of": "2026-10-24",
+      "given": "One day outside trailing window",
+      "inputs": {
+        "records": [
+          {
+            "date": "2025-10-23",
+            "signed_cash": "731.17",
+            "account": "A",
+            "reinvested": false
+          },
+          {
+            "date": "2025-10-24",
+            "signed_cash": "313.19",
+            "account": "A",
+            "reinvested": false
+          },
+          {
+            "date": "2026-10-24",
+            "signed_cash": "111.43",
+            "account": "B",
+            "reinvested": false
+          }
+        ]
+      },
+      "expected": {
+        "exact": "424.62",
+        "shown": "$425"
+      },
+      "working": [
+        "Include cash payouts dated from 2025-10-24 through 2026-10-24; add signed amounts by account."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-119",
+      "case_id": "MK-CF-F-119-C05",
+      "name": "investmentIncomeAnnual",
+      "kind": "edge",
+      "title": "Future payout",
+      "as_of": "2026-10-24",
+      "given": "Future payout",
+      "inputs": {
+        "records": [
+          {
+            "date": "2026-10-25",
+            "signed_cash": 1000,
+            "account": "A",
+            "reinvested": false
+          }
+        ]
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "Include cash payouts dated from 2025-10-24 through 2026-10-24; add signed amounts by account."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "exact": "1000",
+        "shown": "$1,000"
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-108",
+      "case_id": "MK-CF-F-108-C01",
+      "name": "isMoneyOut",
+      "kind": "easy",
+      "title": "Withdrawal",
+      "as_of": "2026-10-24",
+      "given": "Withdrawal",
+      "inputs": {
+        "kind": "withdrawal",
+        "amount": 100,
+        "direction": "out",
+        "counter_account": null
+      },
+      "expected": true,
+      "working": [
+        "Classify normalized signed cash; unknown amount uses kind only as a flag."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-108",
+      "case_id": "MK-CF-F-108-C02",
+      "name": "isMoneyOut",
+      "kind": "easy",
+      "title": "Fee refund",
+      "as_of": "2026-10-24",
+      "given": "Fee refund",
+      "inputs": {
+        "kind": "fee",
+        "amount": "7.31",
+        "direction": "in",
+        "counter_account": null
+      },
+      "expected": false,
+      "working": [
+        "Classify normalized signed cash; unknown amount uses kind only as a flag."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-108",
+      "case_id": "MK-CF-F-108-C03",
+      "name": "isMoneyOut",
+      "kind": "complex",
+      "title": "Transfer within accounts",
+      "as_of": "2026-10-24",
+      "given": "Transfer within accounts",
+      "inputs": {
+        "kind": "transfer",
+        "amount": "731.17",
+        "direction": "out",
+        "counter_account": "B"
+      },
+      "expected": false,
+      "working": [
+        "Classify normalized signed cash; unknown amount uses kind only as a flag."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-108",
+      "case_id": "MK-CF-F-108-C04",
+      "name": "isMoneyOut",
+      "kind": "complex",
+      "title": "Signed withdrawal reversal",
+      "as_of": "2026-10-24",
+      "given": "Signed withdrawal reversal",
+      "inputs": {
+        "kind": "withdrawal",
+        "amount": "-51.43",
+        "direction": null,
+        "counter_account": null
+      },
+      "expected": false,
+      "working": [
+        "Classify normalized signed cash; unknown amount uses kind only as a flag."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-108",
+      "case_id": "MK-CF-F-108-C05",
+      "name": "isMoneyOut",
+      "kind": "edge",
+      "title": "Withdrawal amount unknown",
+      "as_of": "2026-10-24",
+      "given": "Withdrawal amount unknown",
+      "inputs": {
+        "kind": "withdrawal",
+        "amount": null,
+        "direction": null,
+        "counter_account": null
+      },
+      "expected": true,
+      "working": [
+        "Classify normalized signed cash; unknown amount uses kind only as a flag."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-131",
+      "case_id": "MK-CF-F-131-C01",
+      "name": "normPayee",
+      "kind": "easy",
+      "title": "Simple",
+      "as_of": "2026-10-24",
+      "given": "Simple",
+      "inputs": {
+        "payee": "VISA"
+      },
+      "expected": "visa",
+      "working": [
+        "Trim outer whitespace; lowercase the remaining text; missing becomes empty."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-131",
+      "case_id": "MK-CF-F-131-C02",
+      "name": "normPayee",
+      "kind": "easy",
+      "title": "Outer spaces",
+      "as_of": "2026-10-24",
+      "given": "Outer spaces",
+      "inputs": {
+        "payee": "  Visa  "
+      },
+      "expected": "visa",
+      "working": [
+        "Trim outer whitespace; lowercase the remaining text; missing becomes empty."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-131",
+      "case_id": "MK-CF-F-131-C03",
+      "name": "normPayee",
+      "kind": "complex",
+      "title": "Internal spacing",
+      "as_of": "2026-10-24",
+      "given": "Internal spacing",
+      "inputs": {
+        "payee": "  Main  Street LLC  "
+      },
+      "expected": "main  street llc",
+      "working": [
+        "Trim outer whitespace; lowercase the remaining text; missing becomes empty."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-131",
+      "case_id": "MK-CF-F-131-C04",
+      "name": "normPayee",
+      "kind": "complex",
+      "title": "Mixed punctuation",
+      "as_of": "2026-10-24",
+      "given": "Mixed punctuation",
+      "inputs": {
+        "payee": "  Café #17 — RENT  "
+      },
+      "expected": "café #17 — rent",
+      "working": [
+        "Trim outer whitespace; lowercase the remaining text; missing becomes empty."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-131",
+      "case_id": "MK-CF-F-131-C05",
+      "name": "normPayee",
+      "kind": "edge",
+      "title": "No payee",
+      "as_of": "2026-10-24",
+      "given": "No payee",
+      "inputs": {
+        "payee": null
+      },
+      "expected": "",
+      "working": [
+        "Trim outer whitespace; lowercase the remaining text; missing becomes empty."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-162",
+      "case_id": "MK-CF-F-162-C01",
+      "name": "daysApart",
+      "kind": "easy",
+      "title": "One day",
+      "as_of": "2026-10-24",
+      "given": "One day",
+      "inputs": {
+        "from": "2026-10-24",
+        "to": "2026-10-25"
+      },
+      "expected": {
+        "exact": "1",
+        "shown": "1"
+      },
+      "working": [
+        "2026-10-24 to 2026-10-25 spans 1 signed calendar days; use absolute value."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-162",
+      "case_id": "MK-CF-F-162-C02",
+      "name": "daysApart",
+      "kind": "easy",
+      "title": "Reverse dates",
+      "as_of": "2026-10-24",
+      "given": "Reverse dates",
+      "inputs": {
+        "from": "2026-10-25",
+        "to": "2026-10-24"
+      },
+      "expected": {
+        "exact": "1",
+        "shown": "1"
+      },
+      "working": [
+        "2026-10-25 to 2026-10-24 spans -1 signed calendar days; use absolute value."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-162",
+      "case_id": "MK-CF-F-162-C03",
+      "name": "daysApart",
+      "kind": "complex",
+      "title": "Leap boundary",
+      "as_of": "2026-10-24",
+      "given": "Leap boundary",
+      "inputs": {
+        "from": "2028-02-28",
+        "to": "2028-03-01"
+      },
+      "expected": {
+        "exact": "2",
+        "shown": "2"
+      },
+      "working": [
+        "2028-02-28 to 2028-03-01 spans 2 signed calendar days; use absolute value."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-162",
+      "case_id": "MK-CF-F-162-C04",
+      "name": "daysApart",
+      "kind": "complex",
+      "title": "Year boundary",
+      "as_of": "2026-10-24",
+      "given": "Year boundary",
+      "inputs": {
+        "from": "2026-12-29",
+        "to": "2027-01-03"
+      },
+      "expected": {
+        "exact": "5",
+        "shown": "5"
+      },
+      "working": [
+        "2026-12-29 to 2027-01-03 spans 5 signed calendar days; use absolute value."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-162",
+      "case_id": "MK-CF-F-162-C05",
+      "name": "daysApart",
+      "kind": "edge",
+      "title": "Same day",
+      "as_of": "2026-10-24",
+      "given": "Same day",
+      "inputs": {
+        "from": "2026-10-24",
+        "to": "2026-10-24"
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "0"
+      },
+      "working": [
+        "2026-10-24 to 2026-10-24 spans 0 signed calendar days; use absolute value."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-109",
+      "case_id": "MK-CF-F-109-C01",
+      "name": "reviewTransactions",
+      "kind": "easy",
+      "title": "Possible duplicate",
+      "as_of": "2026-10-24",
+      "given": "Possible duplicate",
+      "inputs": {
+        "new": {
+          "account": "A",
+          "date": "2026-10-17",
+          "amount": 100,
+          "payee": "Store"
+        },
+        "history": [
+          {
+            "account": "A",
+            "date": "2026-10-16",
+            "amount": 100,
+            "payee": " store "
+          }
+        ]
+      },
+      "expected": {
+        "flag": "possible_duplicate"
+      },
+      "working": [
+        "Same normalized payee/account/amount within2 days."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-109",
+      "case_id": "MK-CF-F-109-C02",
+      "name": "reviewTransactions",
+      "kind": "easy",
+      "title": "Large linked without history",
+      "as_of": "2026-10-24",
+      "given": "Large linked without history",
+      "inputs": {
+        "new": {
+          "account": "A",
+          "date": "2026-10-17",
+          "amount": 1200,
+          "payee": "Store"
+        },
+        "linked": true,
+        "history": []
+      },
+      "expected": {
+        "flag": "unusually_large"
+      },
+      "working": [
+        "1200≥1000; linked; no five-item baseline."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-109",
+      "case_id": "MK-CF-F-109-C03",
+      "name": "reviewTransactions",
+      "kind": "complex",
+      "title": "Median baseline before new date",
+      "as_of": "2026-10-24",
+      "given": "Median baseline before new date",
+      "inputs": {
+        "new": {
+          "account": "A",
+          "date": "2026-10-17",
+          "amount": "831.17",
+          "payee": "Known"
+        },
+        "linked": true,
+        "prior_money_outs": [
+          "111.19",
+          "131.17",
+          "151.43",
+          "171.13",
+          "191.17"
+        ],
+        "known_payees": [
+          "known"
+        ]
+      },
+      "expected": {
+        "flag": "unusually_large",
+        "median": {
+          "exact": "151.43",
+          "shown": "$151",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Median151.43;3×151.43=454.29;831.17≥500 and≥454.29."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "All baseline items dated 2026-10-01 through 2026-10-05 on A.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-109",
+      "case_id": "MK-CF-F-109-C04",
+      "name": "reviewTransactions",
+      "kind": "complex",
+      "title": "New payee after refund exclusion",
+      "as_of": "2026-10-24",
+      "given": "New payee after refund exclusion",
+      "inputs": {
+        "new": {
+          "account": "A",
+          "date": "2026-10-17",
+          "amount": "311.17",
+          "payee": "New"
+        },
+        "linked": false,
+        "history": [
+          {
+            "date": "2026-10-01",
+            "payee": "Old",
+            "amount": "91.43"
+          },
+          {
+            "date": "2026-10-02",
+            "payee": "Other",
+            "amount": "131.19"
+          }
+        ]
+      },
+      "expected": {
+        "flag": "first_time_payee"
+      },
+      "working": [
+        "311.17≥250; new payee; no earlier higher-priority flag."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-109",
+      "case_id": "MK-CF-F-109-C05",
+      "name": "reviewTransactions",
+      "kind": "edge",
+      "title": "Even baseline median ambiguity",
+      "as_of": "2026-10-24",
+      "given": "Even baseline median ambiguity",
+      "inputs": {
+        "new": {
+          "date": "2026-10-17",
+          "amount": 600,
+          "payee": "Known"
+        },
+        "linked": true,
+        "prior_money_outs": [
+          100,
+          150,
+          200,
+          300,
+          400,
+          500
+        ]
+      },
+      "expected": {
+        "state": "RULE UNCLEAR",
+        "reason": "Even median convention not stated",
+        "readings": {
+          "mean_middle_250": "no large flag:600<750",
+          "lower_middle_200": "large flag:600≥600"
+        }
+      },
+      "working": [
+        "Sorted middle pair200,300; ordinary median250."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "state": "RULE UNCLEAR",
+        "reason": "Middle value unspecified",
+        "readings": {
+          "lower": {
+            "exact": "200",
+            "shown": "$200",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "mean": {
+            "exact": "250",
+            "shown": "$250",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-110",
+      "case_id": "MK-CF-F-110-C01",
+      "name": "flagComparisonText",
+      "kind": "easy",
+      "title": "Duplicate text",
+      "as_of": "2026-10-24",
+      "given": "Duplicate text",
+      "inputs": {
+        "flag": "possible_duplicate"
+      },
+      "expected": {
+        "assertion": "uses fixed approved duplicate template"
+      },
+      "working": [
+        "No arithmetic required."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Exact approved template absent; adapter must compare semantic contract only.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-110",
+      "case_id": "MK-CF-F-110-C02",
+      "name": "flagComparisonText",
+      "kind": "easy",
+      "title": "First-time text",
+      "as_of": "2026-10-24",
+      "given": "First-time text",
+      "inputs": {
+        "flag": "first_time_payee"
+      },
+      "expected": {
+        "assertion": "uses fixed approved first-payee template"
+      },
+      "working": [
+        "No arithmetic required."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Exact approved template absent.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-110",
+      "case_id": "MK-CF-F-110-C03",
+      "name": "flagComparisonText",
+      "kind": "complex",
+      "title": "Unround magnitude",
+      "as_of": "2026-10-24",
+      "given": "Unround magnitude",
+      "inputs": {
+        "flag": "unusually_large",
+        "typical": "173.17",
+        "amount": "831.43"
+      },
+      "expected": {
+        "typical_shown": "$173",
+        "times_shown": {
+          "exact": "5",
+          "shown": "5",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "831.43÷173.17≈4.801;round once to5."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-110",
+      "case_id": "MK-CF-F-110-C04",
+      "name": "flagComparisonText",
+      "kind": "complex",
+      "title": "Several same day",
+      "as_of": "2026-10-24",
+      "given": "Several same day",
+      "inputs": {
+        "flag": "odd_pattern",
+        "count": 3,
+        "total": "1731.43"
+      },
+      "expected": {
+        "count_shown": {
+          "exact": "3",
+          "shown": "$3",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "total_shown": "$1,731"
+      },
+      "working": [
+        "State3 records;1731.43 rounds to1731."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-110",
+      "case_id": "MK-CF-F-110-C05",
+      "name": "flagComparisonText",
+      "kind": "edge",
+      "title": "Exactly threshold",
+      "as_of": "2026-10-24",
+      "given": "Exactly threshold",
+      "inputs": {
+        "flag": "unusually_large",
+        "typical": null,
+        "amount": 1000
+      },
+      "expected": {
+        "text_must_say": "$1,000 or more"
+      },
+      "working": [
+        "Rule includes exactly1000."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "text_says": "over $1,000"
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    }
+  ],
+  "could_not_test": [
+    {
+      "id": "MK-CF-F-117",
+      "missing": "The literal transaction-kind-to-label mapping is absent.",
+      "scope": "Some refusals/properties/wrappercomposition are tested;full literal/numeric output remains untestable. Five witness cases are retained rather than invented outputs."
+    }
+  ],
+  "rules_held": [
+    {
+      "rule": "DEC-0317",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“the Plaid overlap — both versions side by side, the person chooses per transaction; stable pair identity; unmatched rows kept and flagged.” Where an imported transaction and one you entered look like the same thing, BOTH are shown and you choose. Nothing is merged for you, and nothing is silently dropped.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0461",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "HIS QUESTION: “How are responses formulated? Are we using LLM or are these pre-crafted responses where the app just replaces the figures?” A fair thing to ask of anything that reads like advice.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0484",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "HIS QUESTION: “If an account is connected but someone adds a transaction manually — is that allowed, and how will the reconciliation between captured information work?” The question behind the later rule: both versions are shown side by side and the person chooses; nothing is merged for them.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-6796",
+      "cards": [
+        "MK-CF-F-119",
+        "MK-CF-F-108"
+      ],
+      "verdict": "HELD",
+      "why": "Signed reversals/refunds are expressly preserved by normalized cash readers;legacy inverse withoutdirection remains open.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-21 under his rulings DEC-3523 (tenet 1, a wrong number ends trust) and DEC-6623, made without asking him, as his order of 2026-09-30 says. A −$50 dividend reversal and a +$5 fee refund on a $10,000 brokerage: ACTIVITY −$50 and +$5, dividends −$50, Return −0.45% on the account page, Performance and Net worth alike (before: +$50 and −$5, dividends $50, the income +$50). To reverse: restore the three-kind check in ingest.ts. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-183-C05",
+        "MK-CF-F-119-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-6993",
+      "cards": [
+        "MK-CF-F-116"
+      ],
+      "verdict": "HELD",
+      "why": "Explicit two-account transfer inverse swapsendpoints and keepsdirection,avoiding double reversal.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-21 under his rulings DEC-3523 (tenet 1, a wrong number ends trust), made without asking him, as his order of 2026-09-30 says. Undoing a $500 transfer swapped the accounts and also flipped the direction, so the two cancelled and the $500 moved a second time. Now a transfer's undo swaps the accounts and keeps the direction; every other kind flips its direction. All 17 kinds, applied then undone, give the starting balances to the cent. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-116-C04"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-7595",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Typedtotal fee-only rule is declared,but tradeCash still initializesunknowncashfrom0.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-3523 (tenets 1 and 5), made without asking him, as his order of 2026-09-30 says. $40,000 typed, 100 VTI inside it, 10 more bought at $100: the account read $10,000 on every screen; it reads $40,000 before and after, and the window reads Beginning $39,500, Wealth generated $500. A trade's fee leaves the account as money out. The holding editor's own promise is that a trade won't change the total typed. To reverse: put || a.cash_balance != null back in recomputeBalances and send buys and sales through bumpCash. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-222-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7596",
+      "cards": [
+        "MK-CF-F-118"
+      ],
+      "verdict": "HELD",
+      "why": "Known-quantity trade fixtures charge feesonce,and preserve the fee-in-price distinction;amount-onlysales remain unresolved.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-6873 and DEC-6874, made without asking him, as his order of 2026-09-30 says. 10 VTI sold at $98 with a $5 fee: the sale brings in $975, counted once on the account page, the Performance tab, the Holding page and Home (no fee could be recorded). The cash a buy needs counts its fee: 50 VTI at $100.00 is the whole $5,000, so a $5 fee makes $5,005 — refused, and said so. The record keeps fee 5 beside the price (fee in price: no). To reverse: remove the row. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-111-C05",
+        "MK-CF-F-118-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-7601",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Openingrecords retain eachlot’s date,sharesandknownbasis;missingcostremainsunknown. Full editing/re-import persistence is unobserved.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-3523 (tenets 1 and 3), made without asking him, as his order of 2026-09-30 says. Import 100 VTI (cost $8,000), then sell 10 at $98.00: realized +$180 all time (it read \"not on record\"). A purchase added in the editor, 10 VTI at $90.00 on Jan 5, 2026, then 105 sold at $100.00: +$2,050 (it read +$2,000, and 5 shares with no price paid). Each record carries its date, shares and price where on record; a missing price reads \"no price paid on record\". A re-import into a matched account writes records only for holdings that have none yet, so a purchase is never counted twice. Limits: changing or removing an existing purchase in the editor does not change its record; a re-import keeps the first file's records. To reverse: drop openingRecordsOf from addAsset, updateAsset and updatePosition. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7602",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Knownholdingmultiplier works,but firstoptionbuy with no existingholdinguses1;recorded limitation cannot support a general optionscash claim.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-0274 and DEC-4646, made without asking him, as his order of 2026-09-30 says. 1 contract bought at $2.50 costs $250 (cash moved $2.50 and the activity said \"1 share\"); 1 sold at $3.00 brings in $300, realized +$100, matched first in line to the Aug 3 contract bought at $2.00. The cash, the activity amount and the sheet's cash check all count contracts × the holding's shares per contract × price. Records made before 2026-10-23 stay at ×1, as they were applied. Limit: a ticker bought before it is held counts ×1, because the trade sheet does not ask the holding's type. To reverse: drop the stamp in recordTransaction. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-223-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    }
+  ]
+}

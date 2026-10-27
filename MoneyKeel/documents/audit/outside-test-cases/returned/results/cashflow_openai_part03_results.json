@@ -1,0 +1,2389 @@
+{
+ "batch": "cf module — part 3: Stock that vests, and rent from a property",
+ "reviewer": "OpenAI independent specification reviewer, package of 2026-10-24",
+ "run_by": "Claude Code (CFR-1, outside-audit measurer, Cash flow parts 1–4)",
+ "run_on": "2026-10-25",
+ "test_file": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts",
+ "source": "returned/MoneyKeel_CashFlow_Independent_Audit_Package/MoneyKeel_CashFlow_Independent_Audit/audit_results/MoneyKeel_CashFlow_Audit_Part_03.json",
+ "share": "Parts 1–4 in full: cases, formula_checks, rules_held (NOT HELD classified; HELD and CANNOT TELL recorded), still_open (each the same item as a formula or rule line).",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts → 68 passed, 0 failed, 0 skipped, 68 total. Each APP WRONG case is test.failing on the reviewer's answer with a twin test pinning the app's answer today; CFR_STRICT=1 runs the failing ones as plain tests, and every one fails on its own assertion (read 2026-10-25). npx tsc --noEmit: clean for these files (src/screens/CashFlowScreen.tsx carries another agent's uncommitted errors).",
+ "working_tree": "Measured on the working tree of 2026-10-25 at b1c659e8 plus other agents' uncommitted edits (Net worth / Performance screens, MM-CF on Cash flow screens). No app code, record or drawing was changed by this run.",
+ "ready_to_close": false,
+ "cases": [
+  {
+   "id": "MK-CF-F-062",
+   "case_id": "MK-CF-F-062-C01",
+   "name": "equityRowValue",
+   "kind": "easy",
+   "title": "RSU",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "1000",
+    "shown": "$1,000"
+   },
+   "actual": 1000,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-062-C01 · easy · RSU [AGREES] — shares × price, or × the spread floored at $0",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-062",
+   "case_id": "MK-CF-F-062-C02",
+   "name": "equityRowValue",
+   "kind": "easy",
+   "title": "In-money option",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "200",
+    "shown": "$200"
+   },
+   "actual": 200,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-062-C02 · easy · In-money option [AGREES] — shares × price, or × the spread floored at $0",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-062",
+   "case_id": "MK-CF-F-062-C03",
+   "name": "equityRowValue",
+   "kind": "complex",
+   "title": "Unround RSU",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "9772.475",
+    "shown": "$9,772"
+   },
+   "actual": 9772.475,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-062-C03 · complex · Unround RSU [AGREES] — shares × price, or × the spread floored at $0",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-062",
+   "case_id": "MK-CF-F-062-C04",
+   "name": "equityRowValue",
+   "kind": "complex",
+   "title": "Unround option",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "8815.0500",
+    "shown": "$8,815"
+   },
+   "actual": 8815.050000000001,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-062-C04 · complex · Unround option [AGREES] — shares × price, or × the spread floored at $0",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-062",
+   "case_id": "MK-CF-F-062-C05",
+   "name": "equityRowValue",
+   "kind": "edge",
+   "title": "At strike",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-062-C05 · edge · At strike [AGREES] — shares × price, or × the spread floored at $0",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-063",
+   "case_id": "MK-CF-F-063-C01",
+   "name": "rowVestYear",
+   "kind": "easy",
+   "title": "This year",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "2026",
+    "shown": "2026"
+   },
+   "actual": 2026,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-063-C01 · easy · This year [AGREES] — the date's own year",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-063",
+   "case_id": "MK-CF-F-063-C02",
+   "name": "rowVestYear",
+   "kind": "easy",
+   "title": "Next year",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "2027",
+    "shown": "2027"
+   },
+   "actual": 2027,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-063-C02 · easy · Next year [AGREES] — the date's own year",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-063",
+   "case_id": "MK-CF-F-063-C03",
+   "name": "rowVestYear",
+   "kind": "complex",
+   "title": "Leap date",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "2028",
+    "shown": "2028"
+   },
+   "actual": 2028,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-063-C03 · complex · Leap date [AGREES] — the date's own year",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-063",
+   "case_id": "MK-CF-F-063-C04",
+   "name": "rowVestYear",
+   "kind": "complex",
+   "title": "Far future",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "2031",
+    "shown": "2031"
+   },
+   "actual": 2031,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-063-C04 · complex · Far future [AGREES] — the date's own year",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-063",
+   "case_id": "MK-CF-F-063-C05",
+   "name": "rowVestYear",
+   "kind": "edge",
+   "title": "Date missing",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Vesting date not entered"
+   },
+   "actual": 2026,
+   "note": "A vest with no date is given this year, 2026. Reachable: the vesting schedule saves a row's shares and price with its Vest date cell left empty.",
+   "rests_on": [
+    "DEC-0296",
+    "DEC-0003",
+    "tenet 3"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-063-C05 · edge · Date missing [APP WRONG] — no date read as this year (DEC-0296, DEC-0003)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-063-C05 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): each vest counts in the year its date names, read through the one reader of the vests (equityVests, yearMonthOf): rsuAnnual, equityCashFlow, equityVestWeights and taxableByCalendarMonth agree with equityByMonth; 2026 is $8,317.43 in March only; no date is \"vest date not entered\", in no year and no month."
+  },
+  {
+   "id": "MK-CF-F-064",
+   "case_id": "MK-CF-F-064-C01",
+   "name": "equityCashFlow",
+   "kind": "easy",
+   "title": "One vest",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "2026": {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "2026": 1000
+   },
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-064-C01 · easy · One vest [AGREES] — known vests grouped by their own year",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-064",
+   "case_id": "MK-CF-F-064-C02",
+   "name": "equityCashFlow",
+   "kind": "easy",
+   "title": "Two quarters",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "2026": {
+     "exact": "4000",
+     "shown": "$4,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "2026": 4000
+   },
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-064-C02 · easy · Two quarters [AGREES] — known vests grouped by their own year",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-064",
+   "case_id": "MK-CF-F-064-C03",
+   "name": "equityCashFlow",
+   "kind": "complex",
+   "title": "Different years",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "2026": {
+     "exact": "8317.43",
+     "shown": "$8,317",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "2027": {
+     "exact": "5532.36",
+     "shown": "$5,532",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "2026": 8317.43,
+    "2027": 5532.360000000001
+   },
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-064-C03 · complex · Different years [AGREES] — known vests grouped by their own year",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-064",
+   "case_id": "MK-CF-F-064-C04",
+   "name": "equityCashFlow",
+   "kind": "complex",
+   "title": "Gap years",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "2026": {
+     "exact": "7113.17",
+     "shown": "$7,113",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "2030": {
+     "exact": "5110.62",
+     "shown": "$5,111",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "2026": 7113.17,
+    "2030": 5110.62
+   },
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-064-C04 · complex · Gap years [AGREES] — known vests grouped by their own year",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-064",
+   "case_id": "MK-CF-F-064-C05",
+   "name": "equityCashFlow",
+   "kind": "edge",
+   "title": "Undated vest",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Vesting year missing"
+   },
+   "actual": {
+    "2026": 1000
+   },
+   "note": "The undated $1,000 is filed under 2026.",
+   "rests_on": [
+    "DEC-0296",
+    "DEC-0003",
+    "tenet 3"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-064-C05 · edge · Undated vest [APP WRONG] — an undated vest filed under this year (DEC-0296)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-064-C05 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): each vest counts in the year its date names, read through the one reader of the vests (equityVests, yearMonthOf): rsuAnnual, equityCashFlow, equityVestWeights and taxableByCalendarMonth agree with equityByMonth; 2026 is $8,317.43 in March only; no date is \"vest date not entered\", in no year and no month."
+  },
+  {
+   "id": "MK-CF-F-065",
+   "case_id": "MK-CF-F-065-C01",
+   "name": "equityVestWeights",
+   "kind": "easy",
+   "title": "One vest",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1",
+     "shown": "$1",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    0,
+    0,
+    1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-065-C01 · easy · One vest [AGREES] — all of it in March",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-065",
+   "case_id": "MK-CF-F-065-C02",
+   "name": "equityVestWeights",
+   "kind": "easy",
+   "title": "Two quarters",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.25",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.75",
+     "shown": "$1",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    0,
+    0,
+    0.25,
+    0,
+    0,
+    0.75,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-065-C02 · easy · Two quarters [AGREES] — a quarter in March, three quarters in June",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-065",
+   "case_id": "MK-CF-F-065-C03",
+   "name": "equityVestWeights",
+   "kind": "complex",
+   "title": "Different years",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "actual_2026_values": [
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "8317.43",
+      "shown": "$8,317",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     }
+    ],
+    "illustrative_run_rate_contract": "must be explicitly labeled"
+   },
+   "actual": [
+    0,
+    0,
+    4158.715,
+    0,
+    0,
+    660.595,
+    0,
+    0,
+    0,
+    0,
+    0,
+    2105.585
+   ],
+   "note": "The months ignore the year: 2026 gets each vest at half its value (the two-year run-rate), March $4,158.72, June $660.60 and December $2,105.59, where 2026 vests $8,317.43 in March and nothing else.",
+   "rests_on": [
+    "DEC-0012",
+    "DEC-0003",
+    "tenet 1"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-065-C03 · complex · Different years [APP WRONG] — 2027 vests land in 2026's months, at the run-rate (DEC-0012)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-065-C03 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): each vest counts in the year its date names, read through the one reader of the vests (equityVests, yearMonthOf): rsuAnnual, equityCashFlow, equityVestWeights and taxableByCalendarMonth agree with equityByMonth; 2026 is $8,317.43 in March only; no date is \"vest date not entered\", in no year and no month."
+  },
+  {
+   "id": "MK-CF-F-065",
+   "case_id": "MK-CF-F-065-C04",
+   "name": "equityVestWeights",
+   "kind": "complex",
+   "title": "Gap years",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "actual_2026_values": [
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "7113.17",
+      "shown": "$7,113",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "0",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     }
+    ],
+    "illustrative_run_rate_contract": "must be explicitly labeled"
+   },
+   "actual": [
+    1649.715,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    4462.18,
+    0,
+    0,
+    0
+   ],
+   "note": "2026 gets the 2030 vests at half their value: January $1,649.72 and September $4,462.18, where 2026 vests $7,113.17 in September only.",
+   "rests_on": [
+    "DEC-0012",
+    "DEC-0003",
+    "tenet 1"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-065-C04 · complex · Gap years [APP WRONG] — 2030 vests land in 2026's months, at the run-rate (DEC-0012)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-065-C04 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): each vest counts in the year its date names, read through the one reader of the vests (equityVests, yearMonthOf): rsuAnnual, equityCashFlow, equityVestWeights and taxableByCalendarMonth agree with equityByMonth; 2026 is $8,317.43 in March only; no date is \"vest date not entered\", in no year and no month."
+  },
+  {
+   "id": "MK-CF-F-065",
+   "case_id": "MK-CF-F-065-C05",
+   "name": "equityVestWeights",
+   "kind": "edge",
+   "title": "Undated vest",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Vesting month/year missing"
+   },
+   "actual": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1
+   ],
+   "note": "A vest with no date is filed in December.",
+   "rests_on": [
+    "DEC-0296",
+    "DEC-0012",
+    "tenet 3"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-065-C05 · edge · Undated vest [APP WRONG] — no date filed in December (DEC-0296)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-065-C05 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): each vest counts in the year its date names, read through the one reader of the vests (equityVests, yearMonthOf): rsuAnnual, equityCashFlow, equityVestWeights and taxableByCalendarMonth agree with equityByMonth; 2026 is $8,317.43 in March only; no date is \"vest date not entered\", in no year and no month."
+  },
+  {
+   "id": "MK-CF-F-066",
+   "case_id": "MK-CF-F-066-C01",
+   "name": "rsuAnnual",
+   "kind": "easy",
+   "title": "One vest",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "documented_run_rate": {
+     "exact": "1000",
+     "shown": "100000.00%",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "actual_2026_vesting": {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "runRate": 1000,
+    "counted2026": 1000
+   },
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-066-C01 · easy · One vest [AGREES] — one year: the run-rate is the year",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-066",
+   "case_id": "MK-CF-F-066-C02",
+   "name": "rsuAnnual",
+   "kind": "easy",
+   "title": "Two quarters",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "documented_run_rate": {
+     "exact": "4000",
+     "shown": "400000.00%",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "actual_2026_vesting": {
+     "exact": "4000",
+     "shown": "$4,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "runRate": 4000,
+    "counted2026": 4000
+   },
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-066-C02 · easy · Two quarters [AGREES] — one year: the run-rate is the year",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-066",
+   "case_id": "MK-CF-F-066-C03",
+   "name": "rsuAnnual",
+   "kind": "complex",
+   "title": "Different years",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "documented_run_rate": {
+     "exact": "6924.895",
+     "shown": "692489.50%",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "actual_2026_vesting": {
+     "exact": "8317.43",
+     "shown": "$8,317",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "runRate": 6924.895,
+    "counted2026": 6924.895
+   },
+   "note": "The run-rate, $6,924.90, is right as a run-rate, but it is the only figure: the tax and the months count it as 2026's income where 2026 vests $8,317.43.",
+   "rests_on": [
+    "DEC-0012",
+    "tenet 1",
+    "tenet 2"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-066-C03 · complex · Different years [APP WRONG] — the run-rate counted as this year's vesting (DEC-0012, tenet 1)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-066-C03 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): each vest counts in the year its date names, read through the one reader of the vests (equityVests, yearMonthOf): rsuAnnual, equityCashFlow, equityVestWeights and taxableByCalendarMonth agree with equityByMonth; 2026 is $8,317.43 in March only; no date is \"vest date not entered\", in no year and no month. rsuAnnual is the year's vests — the reviewer's \"documented run-rate\" is no longer a figure; both checks read $8,317.43."
+  },
+  {
+   "id": "MK-CF-F-066",
+   "case_id": "MK-CF-F-066-C04",
+   "name": "rsuAnnual",
+   "kind": "complex",
+   "title": "Gap years",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "documented_run_rate": {
+     "exact": "6111.895",
+     "shown": "611189.50%",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "actual_2026_vesting": {
+     "exact": "7113.17",
+     "shown": "$7,113",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "runRate": 6111.895,
+    "counted2026": 6111.895
+   },
+   "note": "The run-rate $6,111.90 is counted as 2026's income where 2026 vests $7,113.17.",
+   "rests_on": [
+    "DEC-0012",
+    "tenet 1",
+    "tenet 2"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-066-C04 · complex · Gap years [APP WRONG] — the run-rate counted as this year's vesting (DEC-0012, tenet 1)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-066-C04 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): each vest counts in the year its date names, read through the one reader of the vests (equityVests, yearMonthOf): rsuAnnual, equityCashFlow, equityVestWeights and taxableByCalendarMonth agree with equityByMonth; 2026 is $8,317.43 in March only; no date is \"vest date not entered\", in no year and no month. 2026 reads $7,113.17."
+  },
+  {
+   "id": "MK-CF-F-066",
+   "case_id": "MK-CF-F-066-C05",
+   "name": "rsuAnnual",
+   "kind": "edge",
+   "title": "Undated vest",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Vesting year missing"
+   },
+   "actual": 1000,
+   "note": "An undated $1,000 vest is counted as this year's income.",
+   "rests_on": [
+    "DEC-0296",
+    "tenet 3"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-066-C05 · edge · Undated vest [APP WRONG] — an undated vest counted as this year's income (DEC-0296)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-066-C05 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): each vest counts in the year its date names, read through the one reader of the vests (equityVests, yearMonthOf): rsuAnnual, equityCashFlow, equityVestWeights and taxableByCalendarMonth agree with equityByMonth; 2026 is $8,317.43 in March only; no date is \"vest date not entered\", in no year and no month."
+  },
+  {
+   "id": "MK-CF-F-219",
+   "case_id": "MK-CF-F-219-C01",
+   "name": "rentEntryMonthly",
+   "kind": "easy",
+   "title": "Known rent and cost",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "rent": {
+     "exact": "1800",
+     "shown": "$1,800.00",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "cost": {
+     "exact": "600",
+     "shown": "$600.00",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "net": {
+     "exact": "1200",
+     "shown": "$1,200.00",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "income": 1800,
+    "expenses": 600,
+    "net": 1200
+   },
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-219-C01 · easy · Known rent and cost [AGREES] — rent − running costs, as typed",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-219",
+   "case_id": "MK-CF-F-219-C02",
+   "name": "rentEntryMonthly",
+   "kind": "easy",
+   "title": "Known rental loss",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "rent": {
+     "exact": "1000",
+     "shown": "$1,000.00",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "cost": {
+     "exact": "1200",
+     "shown": "$1,200.00",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "net": {
+     "exact": "-200",
+     "shown": "−$200.00",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "income": 1000,
+    "expenses": 1200,
+    "net": -200
+   },
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-219-C02 · easy · Known rental loss [AGREES] — rent − running costs, as typed",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-219",
+   "case_id": "MK-CF-F-219-C03",
+   "name": "rentEntryMonthly",
+   "kind": "complex",
+   "title": "Formatted numbers",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "rent": {
+     "exact": "2731.49",
+     "shown": "$2,731.49",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "cost": {
+     "exact": "1113.27",
+     "shown": "$1,113.27",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "net": {
+     "exact": "1618.22",
+     "shown": "$1,618.22",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "income": 2731.49,
+    "expenses": 1113.27,
+    "net": 1618.2199999999998
+   },
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-219-C03 · complex · Formatted numbers [AGREES] — rent − running costs, as typed",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-219",
+   "case_id": "MK-CF-F-219-C04",
+   "name": "rentEntryMonthly",
+   "kind": "complex",
+   "title": "Explicit zero cost",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "rent": {
+     "exact": "1891.17",
+     "shown": "$1,891.17",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "cost": {
+     "exact": "0",
+     "shown": "$0.00",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "net": {
+     "exact": "1891.17",
+     "shown": "$1,891.17",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "income": 1891.17,
+    "expenses": 0,
+    "net": 1891.17
+   },
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-219-C04 · complex · Explicit zero cost [AGREES] — rent − running costs, as typed",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-219",
+   "case_id": "MK-CF-F-219-C05",
+   "name": "rentEntryMonthly",
+   "kind": "edge",
+   "title": "Words are not numbers",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Rent not entered as a number"
+   },
+   "actual": {
+    "income": 0,
+    "expenses": 600,
+    "net": -600
+   },
+   "note": "\"about 2k\" is rightly not read, but the net is then worked with the rent as $0: minus $600 a month, and rentalList counts a $7,200-a-year rental loss in income and tax. A blank rent beside a typed cost does the same.",
+   "rests_on": [
+    "tenet 3",
+    "DEC-3768c",
+    "DEC-0296"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-219-C05 · edge · Words are not numbers [APP WRONG] — rent not entered, net worked as $0 − $600 (tenet 3, DEC-3768c)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-219-C05 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): a rent not entered (\"about 2k\", or blank) gives no net and the entry counts nowhere (it read −$600/month, a $7,200 rental loss); a typed 0 is $0 rent."
+  },
+  {
+   "id": "MK-CF-F-067",
+   "case_id": "MK-CF-F-067-C01",
+   "name": "rentalList",
+   "kind": "easy",
+   "title": "Named rental",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    {
+     "property": "A",
+     "rent": {
+      "exact": "1800",
+      "shown": "$1,800",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     "cost": {
+      "exact": "600",
+      "shown": "$600",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     "kind": "long"
+    }
+   ],
+   "actual": [
+    {
+     "type": "long",
+     "income": 1800,
+     "expenses": 600
+    }
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-067-C01 · easy · Named rental [AGREES] — a named rental",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-067",
+   "case_id": "MK-CF-F-067-C02",
+   "name": "rentalList",
+   "kind": "easy",
+   "title": "Unnamed rental excluded",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [],
+   "actual": [],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-067-C02 · easy · Unnamed rental excluded [AGREES] — no property, not counted (DEC-4059d)",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-067",
+   "case_id": "MK-CF-F-067-C03",
+   "name": "rentalList",
+   "kind": "complex",
+   "title": "Two properties and loss",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    "A",
+    "B"
+   ],
+   "actual": [
+    {
+     "type": "long",
+     "income": 1831.17,
+     "expenses": 911.43
+    },
+    {
+     "type": "short",
+     "income": 821.19,
+     "expenses": 999.31
+    }
+   ],
+   "note": "The app's rows carry kind, rent and costs, not the property's name; held to count, order, kinds and the kept loss.",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-067-C03 · complex · Two properties and loss [AGREES] — two properties, a loss kept",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-067",
+   "case_id": "MK-CF-F-067-C04",
+   "name": "rentalList",
+   "kind": "complex",
+   "title": "Empty property plus zero row",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    "C"
+   ],
+   "actual": [
+    {
+     "type": "long",
+     "income": 1101.13,
+     "expenses": 387.19
+    }
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-067-C04 · complex · Empty property plus zero row [AGREES] — unnamed and all-zero rows left out",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-067",
+   "case_id": "MK-CF-F-067-C05",
+   "name": "rentalList",
+   "kind": "edge",
+   "title": "No list legacy ignored",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [],
+   "actual": [],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-067-C05 · edge · No list legacy ignored [AGREES] — the old unnamed figure is not a rental",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-068",
+   "case_id": "MK-CF-F-068-C01",
+   "name": "rentalNetAnnual",
+   "kind": "easy",
+   "title": "One rental",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "14400",
+    "shown": "$14,400"
+   },
+   "actual": 14400,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-068-C01 · easy · One rental [AGREES] — (rent − costs) × 12, losses kept",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-068",
+   "case_id": "MK-CF-F-068-C02",
+   "name": "rentalNetAnnual",
+   "kind": "easy",
+   "title": "Loss retained",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "-2400",
+    "shown": "−$2,400"
+   },
+   "actual": -2400,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-068-C02 · easy · Loss retained [AGREES] — (rent − costs) × 12, losses kept",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-068",
+   "case_id": "MK-CF-F-068-C03",
+   "name": "rentalNetAnnual",
+   "kind": "complex",
+   "title": "Mixed properties",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "19081.68",
+    "shown": "$19,082"
+   },
+   "actual": 19081.68,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-068-C03 · complex · Mixed properties [AGREES] — (rent − costs) × 12, losses kept",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-068",
+   "case_id": "MK-CF-F-068-C04",
+   "name": "rentalNetAnnual",
+   "kind": "complex",
+   "title": "Three properties",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "48646.80",
+    "shown": "$48,647"
+   },
+   "actual": 48646.8,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-068-C04 · complex · Three properties [AGREES] — (rent − costs) × 12, losses kept",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-068",
+   "case_id": "MK-CF-F-068-C05",
+   "name": "rentalNetAnnual",
+   "kind": "edge",
+   "title": "Confirmed no rentals",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-068-C05 · edge · Confirmed no rentals [AGREES] — (rent − costs) × 12, losses kept",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-216",
+   "case_id": "MK-CF-F-216-C01",
+   "name": "typed",
+   "kind": "easy",
+   "title": "Present",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": true,
+   "actual": true,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-216-C01 · easy · Present [AGREES] — present and not blank; zero is present",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-216",
+   "case_id": "MK-CF-F-216-C02",
+   "name": "typed",
+   "kind": "easy",
+   "title": "Missing",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": false,
+   "actual": false,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-216-C02 · easy · Missing [AGREES] — present and not blank; zero is present",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-216",
+   "case_id": "MK-CF-F-216-C03",
+   "name": "typed",
+   "kind": "complex",
+   "title": "Explicit zero",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": true,
+   "actual": true,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-216-C03 · complex · Explicit zero [AGREES] — present and not blank; zero is present",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-216",
+   "case_id": "MK-CF-F-216-C04",
+   "name": "typed",
+   "kind": "complex",
+   "title": "Spaces with stored kind",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": false,
+   "actual": false,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-216-C04 · complex · Spaces with stored kind [AGREES] — present and not blank; zero is present",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-216",
+   "case_id": "MK-CF-F-216-C05",
+   "name": "typed",
+   "kind": "edge",
+   "title": "Null profile",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": false,
+   "actual": false,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-216-C05 · edge · Null profile [AGREES] — present and not blank; zero is present",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-217",
+   "case_id": "MK-CF-F-217-C01",
+   "name": "hasOldRentFigure",
+   "kind": "easy",
+   "title": "Present",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": true,
+   "actual": true,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-217-C01 · easy · Present [AGREES] — any old rent field, even its kind",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-217",
+   "case_id": "MK-CF-F-217-C02",
+   "name": "hasOldRentFigure",
+   "kind": "easy",
+   "title": "Missing",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": false,
+   "actual": false,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-217-C02 · easy · Missing [AGREES] — any old rent field, even its kind",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-217",
+   "case_id": "MK-CF-F-217-C03",
+   "name": "hasOldRentFigure",
+   "kind": "complex",
+   "title": "Explicit zero",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": true,
+   "actual": true,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-217-C03 · complex · Explicit zero [AGREES] — any old rent field, even its kind",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-217",
+   "case_id": "MK-CF-F-217-C04",
+   "name": "hasOldRentFigure",
+   "kind": "complex",
+   "title": "Spaces with stored kind",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": true,
+   "actual": true,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-217-C04 · complex · Spaces with stored kind [AGREES] — any old rent field, even its kind",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-217",
+   "case_id": "MK-CF-F-217-C05",
+   "name": "hasOldRentFigure",
+   "kind": "edge",
+   "title": "Null profile",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": false,
+   "actual": false,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-217-C05 · edge · Null profile [AGREES] — any old rent field, even its kind",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-218",
+   "case_id": "MK-CF-F-218-C01",
+   "name": "moveOldRentFigure",
+   "kind": "easy",
+   "title": "Migrate raw entry",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "list": [
+     {
+      "property": "",
+      "rent": "1800",
+      "cost": "600",
+      "kind": "long"
+     }
+    ],
+    "old_removed": true
+   },
+   "actual": {
+    "before": {
+     "rentalIncome": "1800",
+     "rentalExpenses": "600"
+    },
+    "after": {
+     "rentals": [
+      {
+       "type": "long",
+       "income": "1800",
+       "expenses": "600"
+      }
+     ]
+    }
+   },
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-218-C01 · easy · Migrate raw entry [AGREES] — moved once, as typed, with no property",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-218",
+   "case_id": "MK-CF-F-218-C02",
+   "name": "moveOldRentFigure",
+   "kind": "easy",
+   "title": "Already migrated",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "list": [
+     {
+      "property": "A",
+      "rent": "1800"
+     }
+    ]
+   },
+   "actual": {
+    "before": {
+     "rentals": [
+      {
+       "property_id": "A",
+       "income": "1800"
+      }
+     ]
+    },
+    "after": {
+     "rentals": [
+      {
+       "property_id": "A",
+       "income": "1800"
+      }
+     ]
+    }
+   },
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-218-C02 · easy · Already migrated [AGREES] — nothing to move",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-218",
+   "case_id": "MK-CF-F-218-C03",
+   "name": "moveOldRentFigure",
+   "kind": "complex",
+   "title": "Existing named list wins",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "list": [
+     {
+      "property": "A",
+      "rent": "1889.13",
+      "cost": "711.19"
+     }
+    ],
+    "old_removed": true
+   },
+   "actual": {
+    "before": {
+     "rentalIncome": "2731.17",
+     "rentalExpenses": "911.43",
+     "rentals": [
+      {
+       "property_id": "A",
+       "income": "1889.13",
+       "expenses": "711.19"
+      }
+     ]
+    },
+    "after": {
+     "rentals": [
+      {
+       "property_id": "A",
+       "income": "1889.13",
+       "expenses": "711.19"
+      }
+     ]
+    }
+   },
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-218-C03 · complex · Existing named list wins [AGREES] — an existing named list wins",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-218",
+   "case_id": "MK-CF-F-218-C04",
+   "name": "moveOldRentFigure",
+   "kind": "complex",
+   "title": "Raw text retained",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "list": [
+     {
+      "property": "",
+      "rent": "about 2k",
+      "cost": "0",
+      "kind": "short"
+     }
+    ],
+    "old_removed": true
+   },
+   "actual": {
+    "before": {
+     "rentalIncome": "about 2k",
+     "rentalExpenses": "0",
+     "rentalType": "short"
+    },
+    "after": {
+     "rentals": [
+      {
+       "type": "short",
+       "income": "about 2k",
+       "expenses": "0"
+      }
+     ]
+    }
+   },
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-218-C04 · complex · Raw text retained [AGREES] — the words kept, not parsed",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-218",
+   "case_id": "MK-CF-F-218-C05",
+   "name": "moveOldRentFigure",
+   "kind": "edge",
+   "title": "Unreadable list",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "unchanged": true
+   },
+   "actual": {
+    "before": {
+     "rentalIncome": "1800",
+     "rentals": "unreadable"
+    },
+    "after": {
+     "rentalIncome": "1800",
+     "rentals": "unreadable"
+    }
+   },
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part03.test.ts › MK-CF-F-218-C05 · edge · Unreadable list [AGREES] — an unreadable list leaves everything alone",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-CF-F-062",
+   "name": "equityRowValue",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Correct intrinsic option value, floored at zero, and share value for other grants; vesting value is not necessarily spendable cash.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "fix_kind": "none",
+   "rests_on": [],
+   "what_the_code_actually_does": "The reviewer found it right; its five cases agree with the app.",
+   "plain_example": ""
+  },
+  {
+   "id": "MK-CF-F-063",
+   "name": "rowVestYear",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Assigns this year to an undated vest rather than identifying the missing date.",
+   "reviewer_should_be": "Keep vest year unknown until confirmed; an estimate must be labeled.",
+   "classification": "APP WRONG",
+   "fix_kind": "app",
+   "rests_on": [
+    "DEC-0296",
+    "DEC-0003",
+    "tenet 3"
+   ],
+   "what_the_code_actually_does": "The first four digits of the date, or this year when there is none.",
+   "plain_example": "No vest date: 2026.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): each vest counts in the year its date names, read through the one reader of the vests (equityVests, yearMonthOf): rsuAnnual, equityCashFlow, equityVestWeights and taxableByCalendarMonth agree with equityByMonth; 2026 is $8,317.43 in March only; no date is \"vest date not entered\", in no year and no month."
+  },
+  {
+   "id": "MK-CF-F-064",
+   "name": "equityCashFlow",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Grouping known vest values by actual year is correct, but an undated positive vest inherits rowVestYear’s invented current year. Vesting is not cash unless a sale/settlement pays it.",
+   "reviewer_should_be": "Keep unknown-year vest values out of dated totals with an explicit incomplete flag; label vesting value separately from bank cash.",
+   "classification": "APP WRONG",
+   "fix_kind": "app + ruling",
+   "rests_on": [
+    "DEC-0296",
+    "DEC-0003"
+   ],
+   "what_the_code_actually_does": "Groups by each row's year (right for dated rows), with an undated row under this year (wrong). Its second point, that vesting is not money in the bank until shares are sold, is a NEEDS A RULING item (see needs_a_ruling).",
+   "plain_example": "An undated $1,000: filed under 2026.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): each vest counts in the year its date names, read through the one reader of the vests (equityVests, yearMonthOf): rsuAnnual, equityCashFlow, equityVestWeights and taxableByCalendarMonth agree with equityByMonth; 2026 is $8,317.43 in March only; no date is \"vest date not entered\", in no year and no month. Its second point (vesting is not cash unless sold) RULED by the lead: kept as shares, taxed, in no month's money; sold at vest, it lands (vestsAreCash)."
+  },
+  {
+   "id": "MK-CF-F-065",
+   "name": "equityVestWeights",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Month weights ignore the vesting year and place undated vesting in December. A run-rate allocation is not an actual calendar-year payment schedule.",
+   "reviewer_should_be": "Specify run-rate versus actual-year scope and refuse unknown dates; use only that year’s dated events for actual cash.",
+   "classification": "APP WRONG",
+   "fix_kind": "app",
+   "rests_on": [
+    "DEC-0012",
+    "DEC-0003",
+    "DEC-0296"
+   ],
+   "what_the_code_actually_does": "Month weights over every row whatever its year, an undated row in December; the months, the tax and the grid lay the run-rate over these weights.",
+   "plain_example": "2026 vests $8,317.43 in March, 2027 $5,532.36: 2026's months read March $4,158.72, June $660.60, December $2,105.59.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): each vest counts in the year its date names, read through the one reader of the vests (equityVests, yearMonthOf): rsuAnnual, equityCashFlow, equityVestWeights and taxableByCalendarMonth agree with equityByMonth; 2026 is $8,317.43 in March only; no date is \"vest date not entered\", in no year and no month."
+  },
+  {
+   "id": "MK-CF-F-066",
+   "name": "rsuAnnual",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "Distinct nonempty vest years define a run-rate, but the label annual equity/stock vesting can be read as this year’s actual value; gaps and unknown dates need a contract.",
+   "reviewer_should_be": "Expose run-rate and actual dated annual vesting separately, with unknown-date coverage.",
+   "classification": "APP WRONG",
+   "fix_kind": "app",
+   "rests_on": [
+    "DEC-0012",
+    "tenet 1",
+    "tenet 2"
+   ],
+   "what_the_code_actually_does": "A run-rate (total ÷ distinct vest years), correctly named in its own header; its callers (MK-CF-F-083, -084, -088, -092, MK-PL-F-031) use it as this year's income. Undated rows count as one year of it.",
+   "plain_example": "$8,317.43 in 2026 and $5,532.36 in 2027: 2026 taxed on $6,924.90; right $8,317.43.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): each vest counts in the year its date names, read through the one reader of the vests (equityVests, yearMonthOf): rsuAnnual, equityCashFlow, equityVestWeights and taxableByCalendarMonth agree with equityByMonth; 2026 is $8,317.43 in March only; no date is \"vest date not entered\", in no year and no month."
+  },
+  {
+   "id": "MK-CF-F-219",
+   "name": "rentEntryMonthly",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "The owner explicitly treats nonnumeric rent as not entered, but returning the other number minus zero can present a complete net despite a missing component.",
+   "reviewer_should_be": "Retain parsed values and per-field entered flags; refuse an unqualified net when a required component is unentered. Preserve the owner’s strict parser.",
+   "classification": "APP WRONG",
+   "fix_kind": "app",
+   "rests_on": [
+    "tenet 3",
+    "DEC-3768c",
+    "DEC-0296"
+   ],
+   "what_the_code_actually_does": "Each figure through the strict reader, a figure not read becoming 0, net = rent − costs.",
+   "plain_example": "Rent \"about 2k\", costs $600: net −$600 a month, counted as a $7,200-a-year loss.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): rent not entered → no net, not counted."
+  },
+  {
+   "id": "MK-CF-F-067",
+   "name": "rentalList",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Counts only named properties, preserves a rental loss and uses the owner’s strict parser; unentered component metadata must be supplied by the parser/consumer.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "fix_kind": "none",
+   "rests_on": [],
+   "what_the_code_actually_does": "The reviewer found it right; its five cases agree with the app.",
+   "plain_example": ""
+  },
+  {
+   "id": "MK-CF-F-068",
+   "name": "rentalNetAnnual",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Adds net rent including losses and annualizes known monthly amounts; mortgages are outside running costs under the owner ruling.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "fix_kind": "none",
+   "rests_on": [],
+   "what_the_code_actually_does": "The reviewer found it right; its five cases agree with the app.",
+   "plain_example": ""
+  },
+  {
+   "id": "MK-CF-F-216",
+   "name": "typed",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Checks presence without losing an explicit zero; does not establish the figure’s numeric validity.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "fix_kind": "none",
+   "rests_on": [],
+   "what_the_code_actually_does": "The reviewer found it right; its five cases agree with the app.",
+   "plain_example": ""
+  },
+  {
+   "id": "MK-CF-F-217",
+   "name": "hasOldRentFigure",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Checks presence without losing an explicit zero; does not establish the figure’s numeric validity.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "fix_kind": "none",
+   "rests_on": [],
+   "what_the_code_actually_does": "The reviewer found it right; its five cases agree with the app.",
+   "plain_example": ""
+  },
+  {
+   "id": "MK-CF-F-218",
+   "name": "moveOldRentFigure",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Idempotent migration preserves existing lists and raw text, removes old fields, and never invents a property identity.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "fix_kind": "none",
+   "rests_on": [],
+   "what_the_code_actually_does": "The reviewer found it right; its five cases agree with the app.",
+   "plain_example": ""
+  }
+ ],
+ "rules_held": [
+  {
+   "rule": "DEC-0003",
+   "cards": [
+    "MK-CF-F-063"
+   ],
+   "authority": "his",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Year-month preservation is present in canonical wage tables,but annualized/converted paths and yearless vest/one-time defaults lose the same dated meaning.",
+   "classification": "APP WRONG",
+   "note": "Vest months ignore their year, and an undated vest is given this year (MK-CF-F-063-C05, MK-CF-F-065-C03).",
+   "evidence_case_refs": [
+    "MK-CF-F-143-C03",
+    "MK-CF-F-143-C04",
+    "MK-CF-F-143-C05",
+    "MK-CF-F-063-C05",
+    "MK-CF-F-071-C05",
+    "MK-CF-F-079-C03",
+    "MK-CF-F-079-C04",
+    "MK-CF-F-079-C05"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): each vest counts in the year its date names, read through the one reader of the vests (equityVests, yearMonthOf): rsuAnnual, equityCashFlow, equityVestWeights and taxableByCalendarMonth agree with equityByMonth; 2026 is $8,317.43 in March only; no date is \"vest date not entered\", in no year and no month."
+  },
+  {
+   "rule": "DEC-0151",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0176",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Two-earner readers exist,but annualOfSource substitutes household salary on each earnerrow and partial-year contributions diverge.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": [
+    "MK-CF-F-210-C03",
+    "MK-CF-F-210-C04",
+    "MK-CF-F-210-C05",
+    "MK-CF-F-188-C03",
+    "MK-CF-F-188-C04",
+    "MK-CF-F-188-C05"
+   ]
+  },
+  {
+   "rule": "DEC-0198",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Current monthgrid removes reinvested cash,but legacy cashflowYear includes it and taxOrganizer’s cash-payout basis can omit taxable reinvestments.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": [
+    "MK-CF-F-020-C01",
+    "MK-CF-F-020-C02",
+    "MK-CF-F-020-C03",
+    "MK-CF-F-020-C04",
+    "MK-CF-O-007-C03",
+    "MK-CF-O-007-C04",
+    "MK-CF-O-007-C05"
+   ]
+  },
+  {
+   "rule": "DEC-0200",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. One-time migration is stated,but its calculated branch omits401(k)from the inverse equation and may not preserve entered landing after deductions.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": [
+    "MK-CF-F-186-C04"
+   ]
+  },
+  {
+   "rule": "DEC-0291",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0296",
+   "cards": [
+    "MK-CF-F-063"
+   ],
+   "authority": "his",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Unknown vestdate,age,amounts and budgets are filled with currentyear,68 or0in severalfinancialpaths.",
+   "classification": "APP WRONG",
+   "note": "An undated vest gets this year, December, and a year of run-rate, never \"date not entered\" (MK-CF-F-063..066 C05).",
+   "evidence_case_refs": [
+    "MK-CF-F-063-C05",
+    "MK-CF-F-225-C05",
+    "MK-CF-F-222-C05",
+    "MK-CF-F-001-C05"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): each vest counts in the year its date names, read through the one reader of the vests (equityVests, yearMonthOf): rsuAnnual, equityCashFlow, equityVestWeights and taxableByCalendarMonth agree with equityByMonth; 2026 is $8,317.43 in March only; no date is \"vest date not entered\", in no year and no month."
+  },
+  {
+   "rule": "DEC-0303",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The outside-stream reader retains inflation flags,but the delegated future projection and next-year update policy are not fully supplied.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": [
+    "MK-CF-F-105-C05"
+   ]
+  },
+  {
+   "rule": "DEC-0307",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The outside-guaranteed reader excludes withdrawals andRMDs. Taxable treatment remains a separate defect.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0327",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. New tax primitive uses taxable income for state tax,but legacy buildIncomeState drops state from monthly grid and effectiveTaxRate uses a separate rate.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": [
+    "MK-CF-F-049-C03",
+    "MK-CF-F-048-C03"
+   ]
+  },
+  {
+   "rule": "DEC-0364",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0447",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Explicit one-time-year handling is present for dated otherincome,but missingyear still recurs and legacy onboarding fixes signingbonus toJanuary.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": [
+    "MK-CF-F-071-C05",
+    "MK-CF-F-079-C03",
+    "MK-CF-F-079-C04",
+    "MK-CF-F-079-C05"
+   ]
+  },
+  {
+   "rule": "DEC-0487",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0491",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-3768",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-3768c",
+   "cards": [
+    "MK-CF-F-219",
+    "MK-CF-F-067"
+   ],
+   "authority": "his",
+   "reviewer_verdict": "HELD",
+   "reviewer_why": "Strict numeric rent parsing honors the owner’s treatment of wordsasnotentered;unknownnetcoverage remains open.",
+   "classification": "AGREES",
+   "note": "The reviewer found it held; nothing measured here says otherwise.",
+   "evidence_case_refs": [
+    "MK-CF-F-219-C05"
+   ]
+  },
+  {
+   "rule": "DEC-7935",
+   "cards": [],
+   "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Capitalgain lookup is federalonly in its writtencontract;finitegainstacking remains a separate missing capability.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": [
+    "MK-CF-F-104-C03",
+    "MK-CF-F-104-C04"
+   ]
+  },
+  {
+   "rule": "DEC-7938",
+   "cards": [],
+   "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Part-yeartake-home rate multiplies twelve months,so paidmonths do not preserve the enteredtake-home.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": [
+    "MK-CF-F-233-C03",
+    "MK-CF-F-233-C04",
+    "MK-CF-F-233-C05",
+    "MK-CF-F-234-C04"
+   ]
+  }
+ ],
+ "still_open": [
+  {
+   "n": 1,
+   "text": "MK-CF-F-063: Assigns this year to an undated vest rather than identifying the missing date.",
+   "same_as": "formula MK-CF-F-063",
+   "classification": "APP WRONG",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B) — as formula MK-CF-F-063 above. Confirmed 2026-10-26 (CLEANUP-TESTS) by its own test run: 1 of 1 tests pass (each on the answer its file holds right) (MK-CF-F-063-C05) — outside_cashflow_openai_part03.test.ts."
+  },
+  {
+   "n": 2,
+   "text": "MK-CF-F-064: Grouping known vest values by actual year is correct, but an undated positive vest inherits rowVestYear’s invented current year. Vesting is not cash unless a sale/settlement pays it.",
+   "same_as": "formula MK-CF-F-064",
+   "classification": "APP WRONG",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B) — as formula MK-CF-F-064 above. Confirmed 2026-10-26 (CLEANUP-TESTS) by its own test run: 2 of 2 tests pass (each on the answer its file holds right) (MK-CF-F-064-C05) — outside_cashflow_openai_part03.test.ts."
+  },
+  {
+   "n": 3,
+   "text": "MK-CF-F-065: Month weights ignore the vesting year and place undated vesting in December. A run-rate allocation is not an actual calendar-year payment schedule.",
+   "same_as": "formula MK-CF-F-065",
+   "classification": "APP WRONG",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B) — as formula MK-CF-F-065 above. Confirmed 2026-10-26 (CLEANUP-TESTS) by its own test run: 4 of 4 tests pass (each on the answer its file holds right) (MK-CF-F-065-C03, MK-CF-F-065-C04, MK-CF-F-065-C05) — outside_cashflow_openai_part03.test.ts."
+  },
+  {
+   "n": 4,
+   "text": "MK-CF-F-066: Distinct nonempty vest years define a run-rate, but the label annual equity/stock vesting can be read as this year’s actual value; gaps and unknown dates need a contract.",
+   "same_as": "formula MK-CF-F-066",
+   "classification": "APP WRONG",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B) — as formula MK-CF-F-066 above. Confirmed 2026-10-26 (CLEANUP-TESTS) by its own test run: 3 of 3 tests pass (each on the answer its file holds right) (MK-CF-F-066-C03, MK-CF-F-066-C04, MK-CF-F-066-C05) — outside_cashflow_openai_part03.test.ts."
+  },
+  {
+   "n": 5,
+   "text": "MK-CF-F-219: The owner explicitly treats nonnumeric rent as not entered, but returning the other number minus zero can present a complete net despite a missing component.",
+   "same_as": "formula MK-CF-F-219",
+   "classification": "APP WRONG",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B) — as formula MK-CF-F-219 above. Confirmed 2026-10-26 (CLEANUP-TESTS) by its own test run: 1 of 1 tests pass (each on the answer its file holds right) (MK-CF-F-219-C05) — outside_cashflow_openai_part03.test.ts."
+  },
+  {
+   "n": 6,
+   "text": "DEC-0003: NOT HELD — Year-month preservation is present in canonical wage tables,but annualized/converted paths and yearless vest/one-time defaults lose the same dated meaning.",
+   "same_as": "rule DEC-0003",
+   "classification": "APP WRONG",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B) — as rule DEC-0003 above. Confirmed 2026-10-26 (CLEANUP-TESTS) by its own test run: 15 of 15 tests pass (each on the answer its file holds right) (MK-CF-F-063-C05, MK-CF-F-071-C05, MK-CF-F-079-C03, MK-CF-F-079-C04, MK-CF-F-079-C05, MK-CF-F-143-C03, MK-CF-F-143-C04, MK-CF-F-143-C05), the app's old answer kept as test.failing in 7 of them — outside_cashflow_openai_part01.test.ts, outside_cashflow_openai_part03.test.ts, outside_cashflow_openai_part04.test.ts, outside_cashflow_openai_part15.test.ts."
+  },
+  {
+   "n": 7,
+   "text": "DEC-0151: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "same_as": "rule DEC-0151",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 8,
+   "text": "DEC-0176: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Two-earner readers exist,but annualOfSource substitutes household salary on each earnerrow and partial-year contributions diverge.",
+   "same_as": "rule DEC-0176",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 9,
+   "text": "DEC-0198: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Current monthgrid removes reinvested cash,but legacy cashflowYear includes it and taxOrganizer’s cash-payout basis can omit taxable reinvestments.",
+   "same_as": "rule DEC-0198",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 10,
+   "text": "DEC-0200: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. One-time migration is stated,but its calculated branch omits401(k)from the inverse equation and may not preserve entered landing after deductions.",
+   "same_as": "rule DEC-0200",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 11,
+   "text": "DEC-0291: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "same_as": "rule DEC-0291",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 12,
+   "text": "DEC-0296: NOT HELD — Unknown vestdate,age,amounts and budgets are filled with currentyear,68 or0in severalfinancialpaths.",
+   "same_as": "rule DEC-0296",
+   "classification": "APP WRONG",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B) — as rule DEC-0296 above. Confirmed 2026-10-26 (CLEANUP-TESTS) by its own test run: 10 of 10 tests pass (each on the answer its file holds right) (MK-CF-F-001-C05, MK-CF-F-063-C05, MK-CF-F-064-C05, MK-CF-F-065-C05, MK-CF-F-066-C05, MK-CF-F-222-C05, MK-CF-F-225-C05), the app's old answer kept as test.failing in 3 of them — outside_cashflow_openai_part03.test.ts, outside_cashflow_openai_part06.test.ts, outside_cashflow_openai_part11.test.ts, outside_cashflow_openai_part14.test.ts."
+  },
+  {
+   "n": 13,
+   "text": "DEC-0303: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The outside-stream reader retains inflation flags,but the delegated future projection and next-year update policy are not fully supplied.",
+   "same_as": "rule DEC-0303",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 14,
+   "text": "DEC-0307: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The outside-guaranteed reader excludes withdrawals andRMDs. Taxable treatment remains a separate defect.",
+   "same_as": "rule DEC-0307",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 15,
+   "text": "DEC-0327: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. New tax primitive uses taxable income for state tax,but legacy buildIncomeState drops state from monthly grid and effectiveTaxRate uses a separate rate.",
+   "same_as": "rule DEC-0327",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 16,
+   "text": "DEC-0364: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "same_as": "rule DEC-0364",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 17,
+   "text": "DEC-0447: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Explicit one-time-year handling is present for dated otherincome,but missingyear still recurs and legacy onboarding fixes signingbonus toJanuary.",
+   "same_as": "rule DEC-0447",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 18,
+   "text": "DEC-0487: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "same_as": "rule DEC-0487",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 19,
+   "text": "DEC-0491: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "same_as": "rule DEC-0491",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 20,
+   "text": "DEC-3768: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "same_as": "rule DEC-3768",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 21,
+   "text": "DEC-7935: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Capitalgain lookup is federalonly in its writtencontract;finitegainstacking remains a separate missing capability.",
+   "same_as": "rule DEC-7935",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 22,
+   "text": "DEC-7938: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Part-yeartake-home rate multiplies twelve months,so paidmonths do not preserve the enteredtake-home.",
+   "same_as": "rule DEC-7938",
+   "classification": "RECORDED (CANNOT TELL)"
+  }
+ ],
+ "app_wrong_fixes": [
+  {
+   "function": "MK-CF-F-063 rowVestYear · MK-CF-F-064 equityCashFlow · MK-CF-F-065 equityVestWeights · MK-CF-F-066 rsuAnnual",
+   "owner_file": "src/domain/income/onboarding.ts (and MK-CF-F-018 equityByMonth, src/domain/cashflow/index.ts, part 8's card, the same arithmetic for the dated grid)",
+   "example": "$8,317.43 vesting March 2026, $1,321.19 June 2027, $4,211.17 December 2027; and a vest with no date",
+   "app_gives": "2026: March $4,158.72, June $660.60, December $2,105.59 — $6,924.90 taxed; an undated vest: this year, December",
+   "right": "2026: $8,317.43 in March, nothing else; the run-rate only where it is shown as one; an undated vest refused with \"vest date not entered\"",
+   "ruling_or_source": "DEC-0012 (\"shares that vest land in the month they vest on every screen\"), DEC-0003, DEC-0296, tenets 1, 2, 3",
+   "smallest_change": "weights and totals for the requested calendar year from that year's dated rows; undated rows left out with the reason",
+   "items": [
+    "MK-CF-F-063-C05",
+    "MK-CF-F-064-C05",
+    "MK-CF-F-065-C03",
+    "MK-CF-F-065-C04",
+    "MK-CF-F-065-C05",
+    "MK-CF-F-066-C03",
+    "MK-CF-F-066-C04",
+    "MK-CF-F-066-C05",
+    "formulas MK-CF-F-063..066",
+    "rules DEC-0003, DEC-0296 (part 3)"
+   ]
+  },
+  {
+   "function": "MK-CF-F-219 rentEntryMonthly (read by MK-CF-F-067 rentalList)",
+   "owner_file": "src/domain/income/onboarding.ts",
+   "example": "Rent \"about 2k\" (or blank), running costs $600",
+   "app_gives": "net −$600 a month; a $7,200-a-year rental loss in income and tax",
+   "right": "no net: the entry says its rent is not entered and is counted nowhere",
+   "ruling_or_source": "tenet 3, DEC-3768c (\"it counts as not entered\"), DEC-0296",
+   "smallest_change": "return the net as unknown when the rent is not read; rentalList leaves such an entry out, saying so",
+   "items": [
+    "MK-CF-F-219-C05",
+    "formula MK-CF-F-219"
+   ]
+  }
+ ],
+ "needs_a_ruling": [
+  {
+   "item": "Whether vested shares are money in the bank",
+   "ids": [
+    "MK-CF-F-064 equityCashFlow",
+    "MK-CF-F-092 incomeMonthlyGrid",
+    "MK-CF-F-018 equityByMonth / MK-XS-F-004 buildDatedGrid"
+   ],
+   "example": "10 shares at $100 vest in March 2026",
+   "reading_a": "they land as money in March, $1,000 less the rate (what the app does)",
+   "reading_b": "$1,000 is taxed income in March but not money to spend until the shares are sold; they sit in Net worth",
+   "recommendation": "Reading b, with a \"sold when they vest\" choice that makes them land as money. It is how his DEC-0179 treats reinvested dividends (taxed, not spendable), and tenet 7 (nothing made to look better than it is). DEC-0012 settles the month, not whether it is cash."
+  }
+ ],
+ "blocked_or_outside_domain": [],
+ "counts": {
+  "cases": {
+   "AGREES": 46,
+   "APP WRONG": 9,
+   "REVIEWER WRONG": 0,
+   "NEEDS A RULING": 0,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 0,
+   "total": 55
+  },
+  "formula_checks": {
+   "AGREES": 6,
+   "APP WRONG": 5,
+   "total": 11
+  },
+  "rules_held": {
+   "APP WRONG": 2,
+   "RECORDED (CANNOT TELL)": 15,
+   "AGREES": 1,
+   "total": 18
+  }
+ },
+ "coverage": "Part 3: 55 of 55 cases — 46 agrees, 9 app wrong, 0 reviewer wrong, 0 needs a ruling, 0 blocked, 0 outside domain; 5 of 5 formula verdicts not RIGHT classified (11 cards in all); 2 of 2 rule verdicts NOT HELD classified (18 rules in all)"
+}

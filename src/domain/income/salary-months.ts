@@ -82,15 +82,15 @@ export function monthWindow(from: Date, back: number, count: number): string[] {
  * Formula .....
  *     raw = (op ?? ({} as any)).salary by month
  *     out = {}
+ *     the answer = out
  *     y = now.get full year()
  *     out = {}
- *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-CF-F-166 hasMonthlySalaryTable · MK-CF-F-167 salaryCalendarYear
  *               MK-CF-F-168 salaryWindow · MK-CF-F-169 withSalaryMonth
  *               MK-CF-F-179 entryFromWage
  *
- * Reaches ..... 401 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 405 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -100,7 +100,7 @@ export function monthWindow(from: Date, back: number, count: number): string[] {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 383 more — the full list is on functions_from_code
+ *               … and 387 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
@@ -115,7 +115,12 @@ export function salaryMonths(op: OnboardingProfile | null, now: Date = new Date(
   const raw = (op ?? ({} as any)).salaryByMonth;
   if (raw && !Array.isArray(raw) && typeof raw === 'object') {
     const out: Record<string, number> = {};
-    for (const [k, v] of Object.entries(raw)) if (/^\d{4}-\d{2}$/.test(k)) out[k] = toNum(v as any);
+    // A CLEARED MONTH IS NOT ENTERED; A TYPED $0 IS AN ANSWER (2026-10-25, the lead's ruling on CFR-5's F7; tenets 3 and 5): a box
+    // emptied of its figure is left out, so it reads as the typical month everywhere, where it read as $0
+    for (const [k, v] of Object.entries(raw)) {
+      if (!/^\d{4}-\d{2}$/.test(k) || v == null || String(v).trim() === '') continue;
+      out[k] = toNum(v as any);
+    }
     return out;
   }
   // An older twelve-slot table: positions 0–11 are January to December of the year they are in now.
@@ -139,7 +144,7 @@ export function salaryMonths(op: OnboardingProfile | null, now: Date = new Date(
  *
  * Called by ... MK-CF-F-177 wageGrossByMonth
  *
- * Reaches ..... 396 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 400 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -149,7 +154,7 @@ export function salaryMonths(op: OnboardingProfile | null, now: Date = new Date(
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 378 more — the full list is on functions_from_code
+ *               … and 382 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -174,9 +179,10 @@ export function hasMonthlySalaryTable(op: OnboardingProfile | null): boolean {
  *     t[k]   if k in t
  *     fallback   otherwise
  *
- * Called by ... MK-CF-F-177 wageGrossByMonth
+ * Called by ... MK-CF-F-143 annualisedGross · MK-CF-F-177 wageGrossByMonth
+ *               MK-CF-F-243 grossCalendarYear
  *
- * Reaches ..... 396 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 400 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -186,7 +192,7 @@ export function hasMonthlySalaryTable(op: OnboardingProfile | null): boolean {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 378 more — the full list is on functions_from_code
+ *               … and 382 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -240,7 +246,9 @@ export function salaryWindow(
  * Answers ..... Write one month without disturbing the others.
  *
  * Formula .....
- *     ...salary months(op, now) = ...salary months(op, now)
+ *     out = { ...salary months(op, now) }
+ *     the answer:
+ *     ...out = ...out
  *     [key]: to num(amount) = [key]: to num(amount)
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -256,7 +264,11 @@ export function salaryWindow(
 export function withSalaryMonth(
   op: OnboardingProfile | null, key: string, amount: any, now: Date = new Date(),
 ): Record<string, number> {
-  return { ...salaryMonths(op, now), [key]: toNum(amount) };
+  // A CLEARED MONTH IS NOT ENTERED (2026-10-26, FIX-INCOME-A; the lead's ruling on CFR-1/CFR-5, as MK-CF-F-165 already reads
+  // it; tenet 3): a blank amount takes the month out, so it counts as the typical month — it wrote a typed $0. A typed 0 stays $0.
+  const out = { ...salaryMonths(op, now) };
+  if (amount == null || String(amount).trim() === '') { delete out[key]; return out; }
+  return { ...out, [key]: toNum(amount) };
 }
 
 /** A whole calendar year written at once — what today's twelve-cell grids save. */

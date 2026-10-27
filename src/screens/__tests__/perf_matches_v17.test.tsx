@@ -61,9 +61,16 @@ const pos = (id: string, ticker: string, shares: number, price: number, cost: nu
 
 const STATES: Record<number, () => void> = {
   // phone 1 — two linked accounts, a record that begins 1 Oct 2025, money added
+  // ONE HOUSEHOLD THAT AGREES WITH ITSELF (2026-10-25, the D17 class). The $15,000 paid in went into VTI's value with no share
+  // bought, and the prices ($260 → $330 on 300 VTI, +$21,000) said what the record's own values ($78,000 → $84,000) did not. The
+  // record's accounts are what v17 phone 1 draws, so they are the true ones: Vanguard $80,000 → $101,000 with $15,000 paid in,
+  // dividends $1,500, interest $200, change in investment value $4,300; E*TRADE $20,000 → $22,000. Every flow now moves the cash
+  // (+$15,000 ten months ago, +$1,700 and +$500 of dividends and interest three months ago) and each holding moves only by its
+  // price: VTI 200 × $390.00 = $78,000 → 200 × $411.50 = $82,300; VOO 40 × $427.50 = $17,100 → 40 × $465.00 = $18,600, the
+  // figure-exact household's own shares and prices (perf_mock_match_2026_10_12, phone 1). Stocks / Funds +6.10%, as drawn.
   1: () => useStore.setState({
-    assetAccounts: [acct('van', 'Vanguard', 'BROKERAGE', 101_000, 'connected', [pos('p1', 'VTI', 300, 330, 260, monthsAgo(11))], 2_000),
-                    acct('etr', 'E*TRADE', 'ACCOUNT 1', 22_000, 'connected', [pos('p2', 'VOO', 40, 550, 500, monthsAgo(11))], 0)],
+    assetAccounts: [acct('van', 'Vanguard', 'BROKERAGE', 101_000, 'connected', [pos('p1', 'VTI', 200, 411.5, 390, monthsAgo(11))], 18_700),
+                    acct('etr', 'E*TRADE', 'ACCOUNT 1', 22_000, 'connected', [pos('p2', 'VOO', 40, 465, 427.5, monthsAgo(11))], 3_400)],
     transactions: [
       { id: 'd1', date: monthsAgo(10), type: 'DEPOSIT', account_id: 'van', amount: 15_000, created_at: 'x', source: 'connected' },
       { id: 'v1', date: monthsAgo(3), type: 'DIVIDEND', account_id: 'van', ticker: 'VTI', amount: 1_500, created_at: 'x', source: 'connected' },
@@ -71,27 +78,51 @@ const STATES: Record<number, () => void> = {
       { id: 'v2', date: monthsAgo(3), type: 'DIVIDEND', account_id: 'etr', ticker: 'VOO', amount: 300, created_at: 'x', source: 'connected' },
       { id: 'i2', date: monthsAgo(3), type: 'INTEREST', account_id: 'etr', amount: 200, created_at: 'x', source: 'connected' },
     ],
-    // the $15,000 paid in ten months ago is in the record from that day: $78,000 grew to $84,000, and the $15,000 makes it $99,000
-    snapshotDays: paidIn(daily(monthsAgo(11), [['van', 'VTI', 300, 78_000, 84_000], ['van', 'CASH', 1, 2_000, 2_000], ['etr', 'VOO', 40, 20_000, 22_000]]), 'van', 'VTI', monthsAgo(10), 15_000),
+    snapshotDays: paidIn(paidIn(paidIn(daily(monthsAgo(11), [['van', 'VTI', 200, 78_000, 82_300], ['van', 'CASH', 1, 2_000, 2_000], ['etr', 'VOO', 40, 17_100, 18_600], ['etr', 'CASH', 1, 2_900, 2_900]]),
+      'van', 'CASH', monthsAgo(10), 15_000), 'van', 'CASH', monthsAgo(3), 1_500 + 200), 'etr', 'CASH', monthsAgo(3), 300 + 200),
     invDaily: { [monthsAgo(11)]: 100_000, [TODAY]: 123_000 },
-    priceCache: { VTI: series('VTI', 260, 330, monthsAgo(11)), VOO: series('VOO', 500, 550, monthsAgo(11)) }, pricesFetchedAt: new Date().toISOString(),
+    priceCache: { VTI: series('VTI', 390, 411.5, monthsAgo(11)), VOO: series('VOO', 427.5, 465, monthsAgo(11)) }, pricesFetchedAt: new Date().toISOString(),
   } as any),
   // phone 3 — one linked account, 26 months of record: every window answers
-  3: () => useStore.setState({
-    assetAccounts: [acct('etr', 'E*TRADE', 'ACCOUNT 1', 52_704, 'connected', [pos('p1', 'VTI', 100, 400, 260, monthsAgo(26)), pos('p2', 'US TREASURY 4.25%', 7000, 1, 1, monthsAgo(26), 'bond')], 5_704)],
+  3: () => {
+    // ONE HOUSEHOLD THAT AGREES WITH ITSELF (2026-10-25, the D17 class). It paid in $900 and took out $120 where phone 3 draws
+    // $9,000 and $1,200; its cash drifted $5,000 → $4,924 for no reason; and its $1,180 of dividends and $520 of interest landed
+    // nowhere. The record phone 3 draws is the true one: $38,000 → $52,704, $9,000 paid in, $1,200 taken out, dividends $1,180,
+    // interest $300 + $220, change in investment value $5,204, Stocks / Funds +14.20%. So every flow moves the cash, VTI moves
+    // only by its price, the Treasury is $3,000 with no price history, and the prices agree with the record on every day both
+    // hold one (the record's first day, the day of the purchase, today). Worked by hand:
+    //   VTI $366.48 a share until the purchase, then in a straight line to $418.52 (418.52 ÷ 366.48 − 1 = +14.20%); 80 held,
+    //   20 bought with the $9,000 the day it came in, at $366.48 ($7,329.60), so 100 today;
+    //   the cash: $5,681.60 + $9,000 − $7,329.60 − $1,200 + $1,180 + $300 + $220 = $7,852;
+    //   the beginning 80 × 366.48 + 3,000 + 5,681.60 = $38,000; today 100 × 418.52 + 3,000 + 7,852 = $52,704;
+    //   change in investment value 41,852 − 29,318.40 − 7,329.60 = $5,204 (the Treasury does not move).
+    const S = monthsAgo(26), D = monthsAgo(20), P0 = 366.48, PT = 418.52, Q = 20 * P0;
+    const a = new Date(`${D}T12:00:00`).getTime(), b = new Date(`${TODAY}T12:00:00`).getTime();
+    const price = (d: string) => (d <= D ? P0 : P0 + (PT - P0) * ((new Date(`${d}T12:00:00`).getTime() - a) / (b - a)));
+    const cash = (d: string) => 5_681.6 + (d >= D ? 9_000 - Q : 0) - (d >= monthsAgo(14) ? 1_200 : 0) + (d >= monthsAgo(10) ? 1_180 : 0)
+      + (d >= monthsAgo(8) ? 300 : 0) + (d >= monthsAgo(6) ? 220 : 0);
+    const days: any[] = [];
+    for (let t = new Date(`${S}T12:00:00`).getTime(); t <= b + 1; t += 86_400_000) {
+      const date = isoLocalDate(new Date(t)); const units = date >= D ? 100 : 80;
+      days.push(day(date, [['etr', 'VTI', units, units * price(date)], ['etr', 'US TREASURY 4.25%', 3000, 3_000], ['etr', 'CASH', 1, cash(date)]]));
+    }
+    const vti = { position_id: 'p1', ticker: 'VTI', asset_class: 'stock_etf', last_price: PT,
+      lots: [{ lot_id: 'p1a', shares: 80, cost_per_share: 260, purchase_date: S }, { lot_id: 'p1b', shares: 20, cost_per_share: P0, purchase_date: D }] };
+    return useStore.setState({
+    assetAccounts: [acct('etr', 'E*TRADE', 'ACCOUNT 1', 52_704, 'connected', [vti, pos('p2', 'US TREASURY 4.25%', 3000, 1, 1, S, 'bond')], cash(TODAY))],
     transactions: [
-      { id: 'd1', date: monthsAgo(20), type: 'DEPOSIT', account_id: 'etr', amount: 900, created_at: 'x', source: 'connected' },
-      { id: 'w1', date: monthsAgo(14), type: 'WITHDRAWAL', account_id: 'etr', amount: 120, created_at: 'x', source: 'connected' },
+      { id: 'd1', date: D, type: 'DEPOSIT', account_id: 'etr', amount: 9_000, created_at: 'x', source: 'connected' },
+      { id: 't1', date: D, type: 'BUY', account_id: 'etr', ticker: 'VTI', shares: 20, price: P0, amount: Q, created_at: 'x', source: 'connected' },
+      { id: 'w1', date: monthsAgo(14), type: 'WITHDRAWAL', account_id: 'etr', amount: 1_200, created_at: 'x', source: 'connected' },
       { id: 'v1', date: monthsAgo(10), type: 'DIVIDEND', account_id: 'etr', ticker: 'VTI', amount: 1_180, created_at: 'x', source: 'connected' },
       { id: 'b1', date: monthsAgo(8), type: 'INTEREST', account_id: 'etr', ticker: 'US TREASURY 4.25%', amount: 300, created_at: 'x', source: 'connected' },
       { id: 'i1', date: monthsAgo(6), type: 'INTEREST', account_id: 'etr', amount: 220, created_at: 'x', source: 'connected' },
     ],
-    // the $900 paid in and the $120 taken out are in the cash from their own days on
-    snapshotDays: paidIn(paidIn(daily(monthsAgo(26), [['etr', 'VTI', 100, 26_000, 40_000], ['etr', 'US TREASURY 4.25%', 7000, 7_000, 7_000], ['etr', 'CASH', 1, 5_000, 4_924]]),
-      'etr', 'CASH', monthsAgo(20), 900), 'etr', 'CASH', monthsAgo(14), -120),
-    invDaily: { [monthsAgo(26)]: 38_000, [TODAY]: 52_704 }, rebuiltFrom: { etr: monthsAgo(26) },
-    priceCache: { VTI: series('VTI', 260, 400, monthsAgo(26)) }, pricesFetchedAt: new Date().toISOString(),
-  } as any),
+    snapshotDays: days,
+    invDaily: { [S]: 38_000, [TODAY]: 52_704 }, rebuiltFrom: { etr: S },
+    priceCache: { VTI: { ticker: 'VTI', points: [{ date: S, close: P0 }, { date: D, close: P0 }, { date: TODAY, close: PT }] } }, pricesFetchedAt: new Date().toISOString(),
+  } as any);
+  },
   // phone 4 — day one, two hand-entered accounts, nothing recorded before today
   // DAY ONE AS THE APP HAS IT: Home writes today's values to the daily record the moment it opens (captureDailyNw), so on
   // day one the record exists and begins today. Every earlier window is one the record cannot reach — greyed until
@@ -120,13 +151,18 @@ const norm = (lines: string[]) => lines.join(' ').toLowerCase()
   .replace(/\s+/g, ' ').trim();
 
 /** THE KNOWN DIFFERENCES — each is a decision, written where the comparison is made.
- *  1. A yearly rate on a category row. The drawing prints one for cash and for bonds ("2.50%/year").
- *     The app holds no interest rate for cash, and a bond inside a linked account states none, so the
- *     screen prints an em-dash rather than a rate nobody gave it. A bond held as its own account
- *     states its rate and DOES print "/year" — tested below.
+ *  1. A yearly rate on a category row. The drawing prints one for cash and for bonds ("2.50%/year"). Settled by the
+ *     drawing's dated line of 2026-10-25 (MM-PF D7): Cash in this account is a dash — the app holds no rate for cash, as
+ *     his approved account-page drawing v01 rules (row 17, DEC-6457); Bonds & CDs is the bonds' price change plus the
+ *     interest they paid (DEC-6212) where the app holds their prices — written with its sign, never "/year" over Since
+ *     (Q49) — and a dash where it holds none (DEC-5068, tenet 3), as here: this household's Treasury has no prices.
+ *     A bond held as its own account states its rate and DOES print "/year" — tested below; the measured figure is
+ *     held in perf_mock_match_2026_10_12 (D7, +10.00% on both pages).
  *  2. The closed account line. Phone 1 reads "Linked · wealth generated $2,000 · return +10.00%";
  *     phone 3 reads "Linked · wealth generated $6,904 since Jun 3, 2024". One line cannot be worded
- *     two ways; phone 1's is the one v17 marks as new, so it is the one built.
+ *     two ways; phone 1's is the one v17 marks as new (its "return +10.00%" carries the drawing's dashed mark), so
+ *     it is the one built — the drawing's dated line of 2026-10-25 (MM-PF D9) says so. Its source is the label, as
+ *     on an open account (MM-PF D4, D21); the label's glyph and its "·" are not words, so the stream is unchanged.
  *  3. The graph's axis on phones 1 and 3 (see the header).
  *
  *  AND THE OWNER'S DECISION OF 2026-10-04 (DEC-1669), newer than this drawing: "All return should be

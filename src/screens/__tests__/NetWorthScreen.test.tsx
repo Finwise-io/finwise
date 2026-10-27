@@ -145,7 +145,7 @@ test('#14/#10: a wrapper account can be classified by what it HOLDS (no parallel
   er.useLocalSearchParams = () => ({ edit: 'k1' });                     // the detail screen's Edit path
   render(<NetWorthScreen />);
   er.useLocalSearchParams = restoreParams;
-  expect(screen.getByText("What's it invested in?")).toBeOnTheScreen(); // the wrapper class selector (#14 affordance)
+  expect(screen.getByText("What’s it invested in?")).toBeOnTheScreen(); // the wrapper class selector (#14 affordance)
   fireEvent.press(screen.getByText('Bonds'));                           // classify the existing account…
   fireEvent.press(screen.getByText(/Save \$/));                         // …instead of adding a separate bond account
   const acct = useStore.getState().assetAccounts.find((a: any) => a.asset_id === 'k1') as any;
@@ -164,7 +164,7 @@ test('#10: a 401(k) with unspecified holdings is "Unclassified", NOT assumed Sto
   render(<NetWorthScreen />);
   expect(screen.getByText('Unclassified')).toBeOnTheScreen();              // honest class row — the spec fix
   expect(screen.queryByText('Stocks / Funds')).toBeNull();                  // NOT pretended to be stocks
-  expect(screen.getByText(/tap an account to say what's inside/)).toBeOnTheScreen();  // the nudge, on the class row
+  expect(screen.getByText(/tap an account to say what’s inside/)).toBeOnTheScreen();  // the nudge, on the class row
 });
 
 test('#9: the guided-setup running total carries the Assets − Debts identity (not a bare aggregate)', () => {

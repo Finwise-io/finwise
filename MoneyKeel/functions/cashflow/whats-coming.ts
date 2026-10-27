@@ -4,21 +4,62 @@
 // calendar, Your paycheck month by month and Worth a look answer one question, so what one says is
 // coming cannot differ from what another says.
 //
-// TWO THINGS IT REFUSES TO INVENT:
+// THREE THINGS IT REFUSES TO INVENT:
 //   · a bill with no date is not scheduled. It is in the month's total but it is NOT on the calendar,
 //     because a date the person never gave would be read as one they did.
+//   · a balance nobody gave (2026-10-25, FIX-BILLS; tenet 3). With no starting balance, the bills are listed and nothing is
+//     projected: no "Short", no "Covered", MK-CF-M-063's own refusal instead. A $0 the person typed is an answer.
 //   · "out of the ordinary" needs an ordinary to compare against. With too little history there is no
 //     usual, so nothing is flagged — a first month's expenses are not unusual, it is all there is.
 import { declareFigures } from '../_figure-spec';
+import { localDay } from '../../../src/domain/_shared/dates';   // the one reader of a stored day (CF-21, 2026-10-25)
 import { upcomingBills, type UpcomingBill } from '../../../src/domain/cashflow';
 import { buildDatedGrid, type DatedGrid } from '../../../src/domain/grid';
 import { buildPaycheckYear } from '../../../src/domain/paycheck';
+import { cashTotal, assetClassOf } from '../../../src/domain/assets';   // the cash Net worth counts, and which accounts are cash
+
+/** A bill ahead, as the door hands it out: what is there by its need-by day (MK-CF-M-063) and how much short (MK-CF-M-062) — or
+ *  nothing (null) for both when no balance was given to start from. */
+export type ComingBill = Omit<UpcomingBill, 'availableByNeed' | 'shortfall'> & { availableByNeed: number | null; shortfall: number | null };
+
+/** MK-CF-M-063's own refusal, written once: the door says it, the figure's record prints it, the Bill calendar shows it. */
+export const NO_START_BALANCE = 'No balance to start from — nothing is projected.';
+
+/** What it is for: THE BILL CALENDAR'S STARTING CASH, WHEN THERE IS ONE ON RECORD (2026-10-26, the lead's ruling on FIX-BILLS'
+ *  finding; tenet 5, what was entered is an answer). The cash Net worth counts (cashTotal) when any account holds a cash balance on
+ *  record — a cash account with its balance entered, $0 included, or an account with its uninvested cash entered — and nothing
+ *  (null) when none does. A checking account holding $0 starts the calendar at $0 and is projected; it was left blank and refused,
+ *  as if nothing had been entered. Worked by hand: one checking account at $0 → 0; none at all, or one with no balance → null. */
+/* ─ MK-CF-F-253 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * startingCashOnRecord
+ *
+ * Answers ..... What it is for: THE BILL CALENDAR'S STARTING CASH, WHEN THERE IS ONE ON RECORD (2026-10-26, the lead's ruling on FIX-BILLS' finding; tenet 5, what was entered is an answer).
+ *
+ * Formula .....
+ *     cash total(accounts ?? [])   if on record
+ *     nothing   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-253
+ * Changed ..... not in git yet (—)
+ */
+export function startingCashOnRecord(accounts: any[] | null | undefined): number | null {
+  const onRecord = (accounts ?? []).some((a: any) => a?.cash_balance != null
+    || (assetClassOf(a) === 'cash' && a?.balance != null && Number.isFinite(Number(a.balance))));
+  return onRecord ? cashTotal(accounts ?? []) : null;
+}
 
 export interface WhatsComing {
   /** Every dated bill and paycheck in the window ahead, soonest first. */
-  bills: UpcomingBill[];
+  bills: ComingBill[];
   /** The soonest one, or null when nothing is dated. */
-  next: UpcomingBill | null;
+  next: ComingBill | null;
+  /** NO_START_BALANCE when bills are ahead but no balance was given to start from, so nothing is projected; otherwise null */
+  refusal: string | null;
 }
 
 /** Which bills and paychecks are coming over the next twelve months, and which look out of the ordinary?
@@ -33,9 +74,12 @@ export interface WhatsComing {
  *
  * Formula .....
  *     now = input.now (or new date() when missing)
+ *     given = typeof input.start balance = 'number' and number.is finite(input.start balance)
  *     the answer:
  *     bills = bills
  *     next = the first of bills   if count of bills
+ *     nothing   otherwise
+ *     refusal = NO_START_BALANCE   if count of !given and bills
  *     nothing   otherwise
  *
  * Called by ... MK-CF-F-205 COMING
@@ -59,7 +103,9 @@ export interface WhatsComing {
  */
 export function whatsComing(input: {
   profile: any;
-  startBalance?: number;
+  /** the balance the person gave to start from. Not given (undefined or null): the bills are listed, nothing is projected
+   *  (2026-10-25, FIX-BILLS; tenet 3 "unknown is not zero") — it read "Short $1,200" worked from a $0 nobody entered. $0 typed is an answer. */
+  startBalance?: number | null;
   now?: Date;
   horizonDays?: number;
   /** every debt: its payments come out of the table's months, so out of what is there by a bill's day too (DEC-0269) */
@@ -71,13 +117,14 @@ export function whatsComing(input: {
   const now = input.now ?? new Date();
   const grid = input.grid
     ?? buildDatedGrid(input.profile ?? null, { liabilities: input.debts ?? [], startBalance: input.startBalance ?? 0, now });
-  const bills = upcomingBills(
+  const given = typeof input.startBalance === 'number' && Number.isFinite(input.startBalance);
+  const bills: ComingBill[] = upcomingBills(
     input.profile ?? null,
     grid,
     now,
     input.horizonDays != null ? { horizonDays: input.horizonDays } : {},
-  );
-  return { bills, next: bills.length ? bills[0] : null };
+  ).map((b) => (given ? b : { ...b, availableByNeed: null, shortfall: null }));
+  return { bills, next: bills.length ? bills[0] : null, refusal: !given && bills.length ? NO_START_BALANCE : null };
 }
 
 /** THE WORKED EXAMPLE (six steps, step 6, 2026-09-28).
@@ -151,8 +198,8 @@ const COMING = () => whatsComing(EXAMPLE);
  */
 export function receivedInMonth(incomes: { date?: string; amount?: any }[] | null | undefined, ym: string) {
   return (incomes ?? [])
-    .filter((i) => String(i.date ?? '').startsWith(ym))
-    .sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? '')));
+    .filter((i) => localDay(i.date).startsWith(ym))
+    .sort((a, b) => localDay(b.date).localeCompare(localDay(a.date)) || String(b.date ?? '').localeCompare(String(a.date ?? '')));
 }
 const RECEIVED = [
   { id: 'r1', source: 'Salary', amount: 3600, date: '2026-09-15' },
@@ -207,7 +254,7 @@ export const WHATS_COMING_FIGURES = declareFigures({
     inputs: ['MK-NW-I-001 your accounts', 'MK-CF-I-002 your bills'],
     refusal: 'No balance to start from.',
     ruled: '2026-09-27',
-    worked: { given: GIVEN, answer: '$6,600', run: () => { const b = COMING().bills[0]; return b ? b.availableByNeed - b.amount : null; } },
+    worked: { given: GIVEN, answer: '$6,600', run: () => { const b = COMING().bills[0]; return b && b.availableByNeed != null ? b.availableByNeed - b.amount : null; } },
   },
 
   // ── THE TWELVE-MONTH TABLE (2026-10-02): the Bill calendar and the paycheck year printed six figures
@@ -215,7 +262,9 @@ export const WHATS_COMING_FIGURES = declareFigures({
   'MK-CF-M-060': {
     label: 'Lowest point', unit: 'money', screens: ['/bill-calendar'],
     period: 'the twelve months ahead, from this month, month by month',
-    answers: 'The lowest the balance falls to in the twelve months ahead, and which month.',
+    // (2026-10-27, PF-TOOLS; the screens measurement, MK-CF-M-060 tenet 2) a MONTH-END: inside a month the balance can fall lower
+    // (a bill on the 1st, pay on the 30th), and the formula reads the twelve month-ends. To reverse: the old words.
+    answers: 'The lowest month-end balance in the twelve months ahead, and which month.',
     formula: 'the smallest running balance across the twelve month-ends, starting from the balance you gave',
     inputs: ['MK-NW-I-001 your accounts', 'MK-CF-I-002 your bills', 'MK-XS-I-023 salary and other income'],
     refusal: 'No starting balance — the table starts from $0 and says so.',
@@ -257,7 +306,7 @@ export const WHATS_COMING_FIGURES = declareFigures({
       'Read from the month table on the same screen, so this line and the End column cannot disagree.',
       'Pay is never counted before its month ends: the table does not know the day it lands, and no day is invented.',
     ],
-    refusal: 'No balance to start from — nothing is projected.',
+    refusal: NO_START_BALANCE,
     ruled: '2026-10-02',
     worked: { given: GIVEN, answer: '$8,000', run: () => COMING().bills[0]?.availableByNeed ?? null },
   },

@@ -132,6 +132,26 @@ describe('GoalsScreen — debt payoff plan', () => {
     expect(screen.queryByText(/typical free cash to save/)).toBeNull();
   });
 
+  // FIX-BILLS 2026-10-25 — MK-CF-F-033: debt-to-income is measured on the minimums (DEC-0641), the share kept whole until shown
+  test('debt-to-income reads the minimum the debts oblige: a $200 minimum paid at $600 on $5,000/month gross is 4%, not 12%', () => {
+    complete({ taxMode: 'manual', manualTaxRate: '0', status: 'employed', baseSalary: '5000', salaryMode: 'gross', salaryFreq: 'monthly' });
+    useStore.setState({ liabilities: [{ debt_id: 'c', label: 'Card', debt_type: 'CREDIT_CARD', remaining_balance: 5000, interest_rate_apr: 0.2, minimum_monthly_payment: 200, monthly_payment: 600 }] } as any);
+    render(<GoalsScreen />);
+    expect(screen.getByText('DEBT-TO-INCOME')).toBeOnTheScreen();
+    expect(screen.getByText('4.00%')).toBeOnTheScreen();   // $200 ÷ $5,000 = 4.00%, two decimals since 2026-10-26 (Q49; goals_v01)
+    expect(screen.getByText('$200/month in minimum debt payments ÷ $5,000/month income')).toBeOnTheScreen();
+    expect(screen.queryByText('12.00%')).toBeNull();   // $600 ÷ $5,000, the payment chosen — not the obligation
+  });
+
+  // FIX-BILLS 2026-10-25 — MK-CF-F-034: a loan that falls every month is never "never" — $60,100 at 0% with $100/month clears in 601 months
+  test('a $60,100 loan at 0% with $100/month: debt-free in 601 months, and no "payments don\'t cover the interest" warning', () => {
+    complete({ taxMode: 'manual', manualTaxRate: '0', status: 'employed', baseSalary: '5000', salaryMode: 'gross', salaryFreq: 'monthly' });
+    useStore.setState({ liabilities: [{ debt_id: 'f', label: 'Family loan', debt_type: 'PERSONAL', remaining_balance: 60100, interest_rate_apr: 0, minimum_monthly_payment: 100 }] } as any);
+    render(<GoalsScreen />);
+    expect(screen.getByText('Debt-free in 601 mo')).toBeOnTheScreen();
+    expect(screen.queryByText(/don't cover the interest/)).toBeNull();
+  });
+
   // BUG-LEDGER: B-29 — goals captured in onboarding must appear on the Plan tab (the screen
   // seeds them on mount), not "No goals yet".
   test('onboarding goals appear on the Plan tab on first visit', () => {

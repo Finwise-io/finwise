@@ -8,7 +8,7 @@ const PAT: RetirementInputs = {
   guaranteed_monthly_income: 0, guaranteed_start_age: 67,
   mean_return: 0.0585, vol_return: 0.0752, inflation: 0.025, seed: 42, paths: 400, now_year: 2026,
 } as any;
-const LOAN = { balance: 412_000, annualRate: 0.055, monthlyPayment: 2400, nowYear: 2026 };
+const LOAN = { balance: 412_000, annualRate: 0.055, monthlyPayment: 2400, nowYear: 2026, nowMonth: 1 };
 
 test('both numbers come out of the function — neither is derived from the other', () => {
   const e = mortgageOddsEffect({ base: PAT, ...LOAN, extraMonthly: 500 })!;
@@ -46,7 +46,7 @@ test('no extra payment → nothing to report, rather than a zero-change line', (
 });
 
 test('a payment that never covers the interest → null, never an invented payoff year', () => {
-  expect(mortgageOddsEffect({ base: PAT, balance: 412_000, annualRate: 0.055, monthlyPayment: 100, extraMonthly: 50, nowYear: 2026 })).toBeNull();
+  expect(mortgageOddsEffect({ base: PAT, balance: 412_000, annualRate: 0.055, monthlyPayment: 100, extraMonthly: 50, nowYear: 2026, nowMonth: 1 })).toBeNull();
 });
 
 test('the SAME inputs give the SAME answer every time — a person can trust the number', () => {

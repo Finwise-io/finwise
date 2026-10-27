@@ -1,16 +1,19 @@
 // Goals & Debt — save-by-date goals with progress, and an avalanche/snowball debt-payoff plan.
 // The pre-retirement (30yo) home for "what am I working toward and how do I kill my debt".
 import { plural } from '../domain/_shared/plural';   // the one list of words and plurals (DEC-4082, 2026-10-10)
+import { fig } from '../components/figure';   // a figure prints with its identifier (rule 11; MK-CF-M-096, 2026-10-26)
 import { EmptyNote } from '../components/UI';
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore, type Goal } from '../store/useStore';
+import { useIncomeProfile } from '../hooks/useIncomeProfile';   // the one profile income figures read (2026-10-26)
 import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
-import { payoffPlan, totalDebtMonthly, debtToIncome, loanPayment, type PayoffMethod, type Debt } from '../domain/debt';
+import { payoffPlan, minimumDebtService, debtToIncome, loanPayment, type PayoffMethod, type Debt } from '../domain/debt';
+import { payoffRefusal } from '../../MoneyKeel/functions/cashflow/the-debts';   // one plan, one refusal (2026-10-25, FIX-MONTH)
 import { availableToSaveSummary, sinkingFund, goalStatus, requiredMonthly } from '../domain/goals';
 import { totalGrossAnnual } from '../domain/income';
 import { spendBuckets, nonMonthlyBasis, allocatableThisMonth } from '../domain/budget';
@@ -20,6 +23,7 @@ import { currencySymbol } from '../domain/_shared/money';
 import { surplusByMonth } from '../domain/savings';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { monthKey } from '../domain/income/salary-months';
+import { localDay } from '../domain/_shared/dates';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const monthsToDate = (m: number) => { const d = new Date(); d.setMonth(d.getMonth() + m); return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' }); };
@@ -36,6 +40,7 @@ export default function GoalsScreen() {
   const [extra, setExtra] = useState('');
 
   const op = store.onboardingProfile ?? {};
+  const incomeOp = useIncomeProfile(op);   // the figures read the accounts' interest and dividends in the tax, read only (2026-10-26, FIX-INCOME-A; src/hooks/useIncomeProfile.ts)
   // B-29: pull goals captured during onboarding into the Plan tab on first visit (seeds once).
   useEffect(() => { store.seedGoals?.(op); }, []);   // eslint-disable-line react-hooks/exhaustive-deps
   // B-28 + build-34 #1: "free cash to save" is the canonical SURPLUS = take-home − expenses − DEBT.
@@ -52,13 +57,13 @@ export default function GoalsScreen() {
   // income that month — the same two parts the old function added.
   const flow = useMemo(() => {
     const m = Number(nowYm.slice(5, 7)) || 1;
-    const baseNet = (op ? incomeMonthlyGrid(op, 'net') : [])[m - 1]?.amount ?? 0;
+    const baseNet = (op ? incomeMonthlyGrid(incomeOp, 'net') : [])[m - 1]?.amount ?? 0;
     const extra = (store.incomes ?? [])
-      .filter((i: any) => String(i?.date ?? '').startsWith(nowYm))
+      .filter((i: any) => localDay(i?.date).startsWith(nowYm))   // the income's own day, where the person is (CF-21)
       .reduce((t: number, i: any) => t + (Number(i.amount) || 0), 0);
     return actualMonthFlow({ ym: nowYm, takeHomeMonthly: baseNet + extra, debts: liabilities as any,
                              plannedExpenses: 0, expenses: (store.expenses ?? []) as any });
-  }, [op, store.incomes, store.expenses, liabilities, nowYm]);
+  }, [op, incomeOp, store.incomes, store.expenses, liabilities, nowYm]);
   const availableSurplus = allocatableThisMonth(flow.surplus, store.allocatedByMonth?.[nowYm]);
   const [alloc, setAlloc] = useState<Goal | null>(null);     // goal being funded from surplus
   const [allocAmt, setAllocAmt] = useState('');
@@ -66,7 +71,11 @@ export default function GoalsScreen() {
   const totalDebt = liabilities.reduce((t, d) => t + (d.remaining_balance || 0), 0);   // known debts only (DEC-3279e): one with no balance made this NaN
   const grossMonthly = totalGrossAnnual(op) / 12;
   const homeowner = liabilities.some((d) => d.debt_type === 'MORTGAGE');
-  const dti = useMemo(() => debtToIncome(totalDebtMonthly(liabilities), grossMonthly, homeowner), [liabilities, grossMonthly, homeowner]);
+  // EVERY PERCENT ON THIS SCREEN TO TWO DECIMALS, rounded only when printed (2026-10-26, CLEANUP-LEFT; his Q49, the precision
+  // standard; goals_v01 row of that date): debt-to-income read "8%" for 7.50%, a goal "40%". The rules' own guides (36%, 20%) stay
+  // DEBT-TO-INCOME IS MEASURED ON THE OBLIGATION (2026-10-25, FIX-BILLS; his DEC-0641 "the minimum stays … for debt-to-income"):
+  // the minimums, never what someone chooses to pay — a card with a $200 minimum paid at $600 on $5,000/month read 12%, not 4%
+  const dti = useMemo(() => debtToIncome(minimumDebtService(liabilities), grossMonthly, homeowner), [liabilities, grossMonthly, homeowner]);
   // student-loan outlook (borrowed now, repaid after graduation)
   const loans = (Array.isArray(op.loans) ? op.loans : []) as any[];
   const loanOutlook = useMemo(() => {
@@ -79,8 +88,12 @@ export default function GoalsScreen() {
   }, [loans, grossMonthly]);
   const plan = useMemo(() => payoffPlan(liabilities, num(extra), method), [liabilities, extra, method]);
   const planMin = useMemo(() => payoffPlan(liabilities, 0, method), [liabilities, method]);
-  const savedInterest = Math.max(0, planMin.totalInterest - plan.totalInterest);
-  const soonerMonths = Math.max(0, planMin.months - plan.months);
+  // a saving is only said against payments that themselves clear: "never" has no interest total to save from (2026-10-25). The
+  // plan with no extra pays each debt the payment set, never less than its minimum (payoffPlan, DEC-0641) — so the saving line says
+  // "vs paying no extra", not "vs minimums" (2026-10-26, CLEANUP-LEFT; drawing plan/moneykeel_pres_mock_goals_v01.html)
+  const minClears = !planMin.neverPaysOff && !planMin.pastHorizon && planMin.notEntered.length === 0;
+  const savedInterest = minClears ? Math.max(0, planMin.totalInterest - plan.totalInterest) : 0;
+  const soonerMonths = minClears ? Math.max(0, planMin.months - plan.months) : 0;
 
   return (
     <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -105,7 +118,7 @@ export default function GoalsScreen() {
       {sink.monthly > 0 && !hasSinkingGoal && (
         <View style={styles.suggestCard}>
           <Text style={styles.suggestTitle}>💡 Suggested: a sinking fund</Text>
-          <Text style={styles.suggestSub}>Your non-monthly budget{sinkBasis.allPct ? ` (${sinkBasis.pct}% of take-home pay)` : ''} comes to ~{money(sink.annual)}/year. Set aside {money(sink.monthly)}/month so non-monthly costs (travel, gifts, repairs) never blow the budget.</Text>
+          <Text style={styles.suggestSub}>Your non-monthly budget{sinkBasis.allPct ? ` (${sinkBasis.pct.toFixed(2)}% of take-home pay)` : ''} comes to ~{money(sink.annual)}/year. Set aside {money(sink.monthly)}/month so non-monthly costs (travel, gifts, repairs) never blow the budget.</Text>
           <TouchableOpacity onPress={() => store.addGoal({ label: 'Non-monthly fund', icon: '🛟', target: sink.annual, saved: 0, duration: '12', color: Colors.primary })}>
             <Text style={styles.suggestCta}>Create this goal ›</Text>
           </TouchableOpacity>
@@ -136,7 +149,7 @@ export default function GoalsScreen() {
               <Text style={[styles.goalStatus, { color: fullyFunded ? Colors.blue : onTrack ? Colors.gainText : behind ? Colors.amber : Colors.textSecondary }]}>
                 {fullyFunded ? '🔵 Fully funded' : noDate ? 'Set a date' : onTrack ? '🟢 On track' : '🟡 Behind'}
               </Text>
-              <Text style={styles.goalPct}>{Math.round(pct)}%</Text>
+              <Text style={styles.goalPct}>{pct.toFixed(2)}%</Text>
             </View>
             <View style={styles.bar}><View style={[styles.barFill, { width: `${pct}%`, backgroundColor: barColor }]} /></View>
             <Text style={styles.goalSub}>{money(g.saved)} of {money(g.target)} · {money(remaining)} to go{perMonth > 0 ? ` · need ~${money(perMonth)}/month${mo > 0 ? ` for ${mo} mo` : ''}` : ''}</Text>
@@ -186,7 +199,7 @@ export default function GoalsScreen() {
             {loanOutlook.monthly > 0 ? (
               <>
                 <Text style={styles.loanLine}>≈ <Text style={{ fontWeight: '800' }}>{money(loanOutlook.monthly)}/month</Text> once you're repaying · {money(loanOutlook.interest)} total interest</Text>
-                {grossMonthly > 0 && <Text style={styles.note}>That's ~{Math.round(loanOutlook.projDti * 100)}% of today's income — keeping total debt under 20% keeps you comfortable.</Text>}
+                {grossMonthly > 0 && <Text style={styles.note}>That's ~{(loanOutlook.projDti * 100).toFixed(2)}% of today's income — keeping total debt under 20% keeps you comfortable.</Text>}
               </>
             ) : (
               <Text style={styles.note}>Add an interest rate and term to each loan (in setup) to see the monthly repayment.</Text>
@@ -201,10 +214,10 @@ export default function GoalsScreen() {
           <SectionBand title="DEBT-TO-INCOME" />
           <View style={styles.card}>
             <View style={styles.dtiHead}>
-              <Text style={[styles.dtiPct, { color: dti.status === 'good' ? Colors.primary : dti.status === 'caution' ? Colors.amber : Colors.red }]}>{Math.round(dti.ratio * 100)}%</Text>
+              <Text style={[styles.dtiPct, { color: dti.status === 'good' ? Colors.primary : dti.status === 'caution' ? Colors.amber : Colors.red }]}>{(dti.ratio * 100).toFixed(2)}%</Text>
               <View style={{ flex: 1 }}>
                 <Text style={styles.dtiTitle}>{dti.status === 'good' ? 'Healthy' : dti.status === 'caution' ? 'Getting high' : 'High'}</Text>
-                <Text style={styles.dtiSub}>{money(dti.monthlyDebt)}/month in debt payments ÷ {money(dti.grossMonthly)}/month income</Text>
+                <Text style={styles.dtiSub}>{money(dti.monthlyDebt)}/month in minimum debt payments ÷ {money(dti.grossMonthly)}/month income</Text>
               </View>
             </View>
             <Text style={styles.note}>{homeowner ? 'Aim for 36% or less (homeowners, incl. mortgage).' : 'Aim for 20% or less (renters; rent isn\'t counted).'} {dti.status !== 'good' ? 'Paying debt down lowers this.' : 'You\'re in good shape.'}</Text>
@@ -223,17 +236,26 @@ export default function GoalsScreen() {
             </View>
             <Text style={styles.note}>{method === 'avalanche' ? 'Pays the highest-interest debt first — least total interest.' : 'Pays the smallest balance first — fast momentum.'}</Text>
 
-            <View style={styles.dRow}><Text style={styles.dL}>Extra / month (beyond minimums)</Text></View>
+            {/* the extra goes on top of the payments set, never on top of the minimums alone (2026-10-26; DEC-0641; goals_v01 row 1) */}
+            <View style={styles.dRow}><Text style={styles.dL}>Extra / month (on top of your payments)</Text></View>
             <View style={styles.amtBox}><Text style={styles.amtPre}>$</Text><TextInput style={styles.amtIn} keyboardType="decimal-pad" value={extra} onChangeText={setExtra} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
 
-            {plan.neverPaysOff ? (
-              <Text style={[styles.note, { color: Colors.red, fontWeight: '700' }]}>⚠ Minimum payments don't cover the interest — add extra to make progress.</Text>
+            {plan.notEntered.length > 0 ? (
+              // a payment or a rate never entered gives no date and no warning about it — the Debts tab's words (2026-10-25, FIX-MONTH; tenet 3)
+              <Text style={styles.note}>{payoffRefusal(plan.notEntered)}</Text>
+            ) : plan.neverPaysOff ? (
+              // the payments set (and any extra) cannot cover the interest: the Debts tab's own sentence for the same case, one case one
+              // sentence (2026-10-26, CLEANUP-LEFT; it blamed the minimums for a payment the person set)
+              <Text style={[styles.note, { color: Colors.red, fontWeight: '700' }]}>⚠️ At this payment your balance grows faster than you pay it down. Add an extra payment to start getting ahead.</Text>
+            ) : plan.pastHorizon ? (
+              // still owed after a thousand years of payments that DO get ahead: past the horizon, never "never" (2026-10-25)
+              <Text style={[styles.note, { color: Colors.red, fontWeight: '700' }]}>⚠ Not paid off within 1,000 years at this rate — {fig('MK-CF-M-096', Math.round(plan.stillOwed))} still owed then. Add extra to make progress.</Text>
             ) : (
               <View style={styles.resultBox}>
                 <Text style={styles.resultBig}>Debt-free in {plan.months} mo</Text>
                 <Text style={styles.resultSub}>around {monthsToDate(plan.months)} · {money(totalDebt)} across {plural(liabilities.length, 'debt')}</Text>
                 <Text style={styles.resultSub}>Total interest: {money(plan.totalInterest)}</Text>
-                {num(extra) > 0 && savedInterest > 0 && <Text style={[styles.resultSub, { color: Colors.primary, fontWeight: '700' }]}>Your extra saves {money(savedInterest)} interest{soonerMonths > 0 ? ` & ${soonerMonths} mo` : ''} vs minimums.</Text>}
+                {num(extra) > 0 && savedInterest > 0 && <Text style={[styles.resultSub, { color: Colors.primary, fontWeight: '700' }]}>Your extra saves {money(savedInterest)} interest{soonerMonths > 0 ? ` & ${soonerMonths} mo` : ''} vs paying no extra.</Text>}
               </View>
             )}
 

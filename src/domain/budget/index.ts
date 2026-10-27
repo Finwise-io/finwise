@@ -7,21 +7,25 @@ import { getUserDoc, setUserDoc } from '../_shared/firestore';
 import { emit } from '../_shared/eventBus';
 import { incomeMonthlyGrid } from '../income';
 import { categoryBucketFor } from '../../constants/categories';
+import { localDay } from '../_shared/dates';   // the one reader of a stored day (CF-21, 2026-10-25)
+import { partsShown } from '../../../MoneyKeel/functions/_figure-spec';   // rows in whole dollars that add up to their printed total
 
 export interface BudgetDoc {
   user_id: UserId;
-  monthly_spending: number;        // total planned monthly spend
-  fixed: number;                   // optional flex buckets
-  non_monthly: number;
-  flexible: number;
+  // the year's planned expenses ÷ 12 (MK-CF-F-002) — null when no budget was entered (2026-10-25, FIX-BUDGET; tenet 3:
+  // nothing entered is not a confirmed $0 plan)
+  monthly_spending: number | null;
+  fixed: number | null;            // the three groups, each the year's ÷ 12 — they add up to monthly_spending
+  non_monthly: number | null;
+  flexible: number | null;
   last_updated?: any;
 }
 
 export interface BudgetState {
   user_id: UserId;
-  monthly_spending: number;
+  monthly_spending: number | null;
   net_monthly_income: number;
-  projected_to_save: number;       // income − expenses (the monthly surplus)
+  projected_to_save: number | null;   // income − expenses (the monthly surplus); null when no budget is set (DEC-7939)
 }
 // NOTE: the savings RATE is NOT here — it lives in domain/savings (savingsRateCash / savingsRateTotal),
 // Term #10. The old budget `savings_rate_pct` was a dead, divergent 4th definition; removed.
@@ -33,7 +37,11 @@ export interface BudgetState {
  * Answers ..... projected_to_save = net monthly income − monthly expenses.
  *
  * Formula .....
- *     spend = doc.monthly expenses (or 0 when missing or zero)
+ *     spend = doc.monthly expenses
+ *     user id = uid
+ *     monthly expenses = nothing
+ *     net monthly income = net monthly income
+ *     projected to save = nothing   when spend = nothing (or !number.is finite(spend) when missing or zero)
  *     save = net monthly income − spend
  *
  * Called by ... MK-XS-F-031 buildSnapshot
@@ -43,14 +51,15 @@ export interface BudgetState {
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
- * Decides .....
- *     · If monthly expenses is missing it counts as zero, so nothing recorded and a real zero look the same.
- *
  * Formula also on the master file · functions_from_code · MK-CF-F-001
  * Changed ..... 2026-06-22 (bef9497)
  */
 export function buildBudgetState(uid: UserId, netMonthlyIncome: number, doc: BudgetDoc): BudgetState {
-  const spend = doc.monthly_spending || 0;
+  // NO BUDGET, NO PROJECTED SAVING (2026-10-25, FIX-BUDGET; DEC-7939 "no budget set → no planned surplus", tenet 3). A budget
+  // never entered reached here as $0 of expenses, so $5,000 of take-home read as $5,000 projected to save. A typed $0 plan is
+  // the person's word and is kept: $3,231.17 take-home − $0 = $3,231.17.
+  const spend = doc.monthly_spending;
+  if (spend == null || !Number.isFinite(spend)) return { user_id: uid, monthly_spending: null, net_monthly_income: netMonthlyIncome, projected_to_save: null };
   const save = netMonthlyIncome - spend;
   return {
     user_id: uid,
@@ -75,17 +84,11 @@ export function buildBudgetState(uid: UserId, netMonthlyIncome: number, doc: Bud
  * Called by ... MK-CF-F-009 monthlyEssentials · MK-CF-F-013 budgetFromOnboarding
  *               MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 57 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-079 EF · MK-NW-F-082 NW
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-010 emergencyTest · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               … and 39 more — the full list is on functions_from_code
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-CF-F-013 budgetFromOnboarding
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-010 emergencyTest
+ *               MK-CF-F-009 monthlyEssentials · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-NW-O-004 theEmergencyFund
  *
  * Serves ...... MK-MN-M-007
  *
@@ -113,10 +116,10 @@ export function plannedMonthlySpend(op: OnboardingProfile | null): number {
  *     grid = income monthly grid(op, 'available')
  *     the answer = Σ over grid of (amount)÷ 12
  *
- * Called by ... MK-CF-F-003 categoryMonthly · MK-CF-F-009 monthlyEssentials
- *               MK-CF-F-221 spendByMonthByBucket
+ * Called by ... MK-CF-F-003 categoryMonthly · MK-CF-F-221 spendByMonthByBucket
+ *               MK-CF-F-255 spendByMonthByCategory
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -126,7 +129,7 @@ export function plannedMonthlySpend(op: OnboardingProfile | null): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -141,7 +144,7 @@ function pctBaseMonthly(op: OnboardingProfile | null): number {
 /** Canonical per-category planned $/month — the ONE conversion the buckets AND the Budget screen share,
  *  so a category's on-screen line item ALWAYS reconciles with its bucket total (build-34 #3). $ as-is;
  *  % resolves against take-home (after tax AND 401(k), per A-1) — NOT net-of-tax; non-monthly (yearly) ÷ 12. */
-/* ─ MK-CF-F-003 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-CF-F-003 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * categoryMonthly
  *
  * Answers ..... Canonical per-category planned $/month — the ONE conversion the buckets AND the Budget screen share, so a category's on-screen line item ALWAYS reconciles with its bucket total (build-34 #3).
@@ -157,7 +160,7 @@ function pctBaseMonthly(op: OnboardingProfile | null): number {
  *
  * Called by ... MK-CF-F-004 spendBuckets · MK-CF-F-009 monthlyEssentials
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -167,7 +170,7 @@ function pctBaseMonthly(op: OnboardingProfile | null): number {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
@@ -196,21 +199,19 @@ export function categoryMonthly(c: { amount?: any; unit?: string; bucket?: strin
  *
  * Formula .....
  *     a = op (or none when missing)
- *     cats = spend cats   if array.is array(spend cats)
- *     nothing   otherwise
+ *     cats = categories in force(op)
  *     fixed = to num(b fixed), non = to num(b nonmonthly), flex = to num(b flexible)
  *     the answer:
  *     fixed = fixed
  *     non monthly = non
  *     flexible = flex
  *     monthly total = fixed + non + flex
- *     fixed = 0, flex = 0, non mo = 0
+ *     fixed = 0, flex = 0, non mo = 0, any monthly category = false
  *     m = category monthly(c, op); if (m ≤ 0) continue
  *
- * Called by ... MK-CF-F-009 monthlyEssentials · MK-CF-F-013 budgetFromOnboarding
- *               MK-CF-F-014 budgetVsActual · MK-CF-F-221 spendByMonthByBucket
+ * Called by ... MK-CF-F-221 spendByMonthByBucket
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -220,7 +221,7 @@ export function categoryMonthly(c: { amount?: any; unit?: string; bucket?: strin
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-032 expenses categories the person set up
@@ -230,19 +231,67 @@ export function categoryMonthly(c: { amount?: any; unit?: string; bucket?: strin
  */
 export function spendBuckets(op: OnboardingProfile | null): { fixed: number; non_monthly: number; flexible: number; monthly_total: number } {
   const a = op ?? {};
-  const cats = Array.isArray(a.spendCats) ? a.spendCats : null;
+  // ONE RULE FOR WHEN CATEGORIES REPLACE THE TOTALS TYPED BY GROUP (categoriesInForce, 2026-10-25, FIX-BUDGET; DEC-7951; tenet 4):
+  // an empty category list was read as categories, so typed $1,000 / $100 / $900 became $0 here while the month table read
+  // $1,000 + $900 — two readers, two answers. Now both read $1,000 / $100 / $900.
+  const cats = categoriesInForce(op);
   if (!cats) {
     const fixed = toNum(a.b_fixed), non = toNum(a.b_nonmonthly), flex = toNum(a.b_flexible);
     return { fixed, non_monthly: non, flexible: flex, monthly_total: (fixed + non + flex) };
   }
-  let fixed = 0, flex = 0, nonMo = 0;
+  let fixed = 0, flex = 0, nonMo = 0, anyMonthlyCategory = false;
   for (const c of cats) {
     const m = categoryMonthly(c, op); if (m <= 0) continue;                     // the shared per-category $
     if (c?.bucket === 'nonmonthly') nonMo += m;
-    else if (c?.bucket === 'fixed') fixed += m;
-    else flex += m;
+    else { if (c?.bucket === 'fixed') fixed += m; else flex += m; anyMonthlyCategory = true; }
   }
+  // the typed bills & fixed / everyday split stands while no category of either kind replaces it — as the month table reads it
+  // (spendByMonthByBucket): his DEC-7951 household, $1,100 / $900 typed beside a $1,200 December bill, is 1,100 + 100 + 900
+  if (!anyMonthlyCategory) { fixed += toNum(a.b_fixed); flex += toNum(a.b_flexible); }
   return { fixed: (fixed), non_monthly: (nonMo), flexible: (flex), monthly_total: (fixed + nonMo + flex) };
+}
+
+/** What it is for: THE ONE RULE FOR WHEN THE BUDGET'S CATEGORIES REPLACE THE TOTALS TYPED BY GROUP (2026-10-25, FIX-BUDGET; the
+ *  outside audit MK-CF-F-004-C02; DEC-7951; tenet 4). The categories count once at least one of them is given an amount; a list
+ *  that is empty, or holds only categories left at $0, is no categories, and the totals typed by group (b_fixed, b_nonmonthly,
+ *  b_flexible) stand. spendBuckets, spendByMonthByBucket and monthlyEssentials all ask it, so they cannot read one budget two
+ *  ways. Worked by hand: no categories and $1,000 / $100 / $900 typed → $1,000 / $100 / $900 (an empty list read $0 / $0 / $0). */
+/* ─ MK-CF-F-254 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * categoriesInForce
+ *
+ * Answers ..... What it is for: THE ONE RULE FOR WHEN THE BUDGET'S CATEGORIES REPLACE THE TOTALS TYPED BY GROUP (2026-10-25, FIX-BUDGET; the outside audit MK-CF-F-004-C02; DEC-7951; tenet 4).
+ *
+ * Formula .....
+ *     cats = op!.spend cats!   if array.is array(op.spend cats)
+ *     nothing   otherwise
+ *     the answer:
+ *     cats   if cats and cats.some((c) => to num(amount) > 0)
+ *     nothing   otherwise
+ *
+ * Called by ... MK-CF-F-004 spendBuckets · MK-CF-F-009 monthlyEssentials
+ *               MK-CF-F-221 spendByMonthByBucket · MK-CF-F-257 budgetEntered
+ *
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-032 expenses categories the person set up
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-254
+ * Changed ..... not in git yet (—)
+ */
+function categoriesInForce(op: OnboardingProfile | null): NonNullable<OnboardingProfile['spendCats']> | null {
+  const cats = Array.isArray(op?.spendCats) ? op!.spendCats! : null;
+  return cats && cats.some((c) => toNum(c?.amount) > 0) ? cats : null;
 }
 
 
@@ -282,8 +331,7 @@ export function allocatableThisMonth(surplus: number, allocatedThisMonth: number
  *     []   otherwise
  *     nm = cats where bucket = 'nonmonthly' and to num(amount) > 0
  *     all pct = nm.length > 0 and nm.every((c) => unit = 'pct')
- *     pct = round(Σ over nm of (amount read as a number (0 when it is not one)))   if all pct
- *     0   otherwise
+ *     pct = Σ over all pct ? nm of (amount read as a number (0 when it is not one)): 0
  *     the answer = { all pct, pct }
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
@@ -292,9 +340,6 @@ export function allocatableThisMonth(surplus: number, allocatedThisMonth: number
  * Reads ....... MK-XS-I-032 expenses categories the person set up
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
- * Decides .....
- *     · Rounds the answer to a whole number.
- *
  * Formula also on the master file · functions_from_code · MK-CF-F-007
  * Changed ..... 2026-06-28 (cad76ca)
  */
@@ -302,7 +347,8 @@ export function nonMonthlyBasis(op: OnboardingProfile | null): { allPct: boolean
   const cats = Array.isArray(op?.spendCats) ? op!.spendCats! : [];
   const nm = cats.filter((c) => c?.bucket === 'nonmonthly' && toNum(c?.amount) > 0);
   const allPct = nm.length > 0 && nm.every((c) => c?.unit === 'pct');
-  const pct = allPct ? Math.round(nm.reduce((t, c) => t + toNum(c?.amount), 0)) : 0;
+  // the share kept whole, rounded only when printed (2026-10-26, CLEANUP-LEFT; Q49): it was rounded to a whole percent here
+  const pct = allPct ? nm.reduce((t, c) => t + toNum(c?.amount), 0) : 0;
   return { allPct, pct };
 }
 
@@ -318,10 +364,9 @@ export function nonMonthlyBasis(op: OnboardingProfile | null): { allPct: boolean
  *     for each of spend by month by bucket(op): fixed + nonmonthly + flexible
  *
  * Called by ... MK-CF-F-002 plannedMonthlySpend · MK-CF-F-011 savingsByMonth
- *               MK-CF-F-012 annualCashflow · MK-CF-F-020 cashflowYear
- *               MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-012 annualCashflow · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -331,7 +376,7 @@ export function nonMonthlyBasis(op: OnboardingProfile | null): { allPct: boolean
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -351,8 +396,7 @@ export function spendByMonth(op: OnboardingProfile | null): number[] {
  *  own month, never spread". A once-in-a-while bill with no months set is the one exception: it has no month to land in, so
  *  it is a twelfth a month, as it always was. What the plan's total holds beyond its categories counts with everyday
  *  expenses. Until 2026-10-23 the Expenses tab's rows read the budget's monthly average (budgetVsActual), so a September with a
- *  $1,200 December bill read Expenses −$700 on This month and PLANNED EXPENSES $800 on the Expenses tab.
- *  ID awaiting the builder. */
+ *  $1,200 December bill read Expenses −$700 on This month and PLANNED EXPENSES $800 on the Expenses tab. */
 /* ─ MK-CF-F-221 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * spendByMonthByBucket
  *
@@ -361,8 +405,7 @@ export function spendByMonth(op: OnboardingProfile | null): number[] {
  * Formula .....
  *     a = op (or none when missing)
  *     out = array.from({ length: 12 }, () => ({ fixed: 0, nonmonthly: 0, flexible: 0 }))
- *     cats = spend cats   if array.is array(spend cats)
- *     nothing   otherwise
+ *     cats = categories in force(op)
  *     net monthly = pct base monthly(op)
  *     every month = 0
  *     any monthly category = false
@@ -374,9 +417,13 @@ export function spendByMonth(op: OnboardingProfile | null): number[] {
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-CF-F-008 spendByMonth · MK-CF-F-204 line
+ * Called by ... MK-CF-F-004 spendBuckets · MK-CF-F-008 spendByMonth
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-CF-F-157 debtPaymentsByDebt · MK-CF-F-204 line
+ *               MK-CF-F-255 spendByMonthByCategory · MK-CF-F-256 budgetEditorBuckets
+ *               MK-CF-O-010 theMonth
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -386,10 +433,11 @@ export function spendByMonth(op: OnboardingProfile | null): number[] {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-032 expenses categories the person set up
+ * Reads ....... MK-XS-I-024 logged expenses
+ *               MK-XS-I-032 expenses categories the person set up
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Decides .....
@@ -403,7 +451,9 @@ export function spendByMonth(op: OnboardingProfile | null): number[] {
 export function spendByMonthByBucket(op: OnboardingProfile | null): { fixed: number; nonmonthly: number; flexible: number }[] {
   const a = op ?? {};
   const out = Array.from({ length: 12 }, () => ({ fixed: 0, nonmonthly: 0, flexible: 0 }));
-  const cats = Array.isArray(a.spendCats) ? a.spendCats : null;
+  // categories count once one is given an amount (categoriesInForce, 2026-10-25, FIX-BUDGET): an empty list kept the typed $1,000 /
+  // $900 but dropped the typed $100 once in a while, while spendBuckets dropped all three
+  const cats = categoriesInForce(op);
   const netMonthly = pctBaseMonthly(op);
   // WHAT THE PLAN PUTS IN EVERY MONTH — the yardstick the typed monthly total is measured against. A bill with its own months
   // is not in it: it is added in the months it falls, never taken out of everyday expenses as a twelfth (DEC-0002, DEC-0447;
@@ -444,6 +494,190 @@ export function spendByMonthByBucket(op: OnboardingProfile | null): { fixed: num
   return out;
 }
 
+/** The words for the budget's three groups, written once: Expenses' planned rows and This month read them. */
+/* ─ MK-CF-F-283 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * PLANNED_GROUP_WORDS
+ *
+ * Answers ..... The budget's three groups in the words the Expenses tab draws them — Bills & fixed, Once in a while, Everyday expenses; words only, it calculates nothing.
+ *
+ * Called by ... MK-CF-F-255 spendByMonthByCategory · useCashflowModel (BUCKET_WORDS)
+ *
+ * Numbered by hand 2026-10-26 (PF-TOOLS, the lead's instruction): the scan that issues identifiers reads functions in the
+ *               calculation folders only, so this constant has no generated record; this one is written by hand in the generated form,
+ *               as MK-NW-F-145's is
+ * Changed ..... not in git yet (—)
+ */
+export const PLANNED_GROUP_WORDS: Record<'fixed' | 'nonmonthly' | 'flexible', string> = { fixed: 'Bills & fixed', nonmonthly: 'Once in a while', flexible: 'Everyday expenses' };
+
+/** What it is for: THE MONTH'S PLANNED EXPENSES THE WAY THE BUDGET WAS ENTERED — each calendar month, January first (2026-10-25,
+ *  Cash flow drawing match CF-09). The approved Expenses tab (cash-flow_v01, frame C) lists the budget by its own categories —
+ *  Gas $200 · Grocery $900 · Utilities $200 · Other $700 · = Total $2,000 — and the tab listed only the three groups (Bills &
+ *  fixed $200 · Everyday expenses $1,800). Each category given an amount is a row, in the order it was entered: one that
+ *  comes once a year in the months it falls, never as a twelfth elsewhere (DEC-0002, DEC-0447). What the categories leave of
+ *  a month's group is one more row: "Other" when it is the rest of the monthly total; the group's own name when no category
+ *  of that kind replaced a split typed by group. A budget typed only by group reads by group, as before. Each month's rows
+ *  add up, group by group, to spendByMonthByBucket (MK-CF-F-221) — the same arithmetic, so This month's Expenses row and
+ *  this list are one figure. Worked by hand: $2,000/month, Gas $200, Grocery $900, Utilities $200 → Gas 200 · Grocery
+ *  900 · Utilities 200 · Other 2,000 − 1,300 = 700. */
+/* ─ MK-CF-F-255 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * spendByMonthByCategory
+ *
+ * Answers ..... What it is for: THE MONTH'S PLANNED EXPENSES THE WAY THE BUDGET WAS ENTERED — each calendar month, January first (2026-10-25, Cash flow drawing match CF-09).
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     by bucket = spend by month by bucket(op)
+ *     keys = ['fixed', 'nonmonthly', 'flexible'] as const
+ *     named = spend cats   if array.is array(spend cats)
+ *     []   otherwise where to num(amount) > 0 and string(label ?? '').trim() ! = ''
+ *     for each of by bucket: KEYS where each[each] > 0for each of : label = PLANNED_GROUP_WORDS[each]
+ *     bucket = each
+ *     monthly = each[each]   when count of named is missing
+ *     net monthly = pct base monthly(op)
+ *     out = array.from({ length: 12 }, () => new map<string, row>())
+ *     r = out[i].get(label) (or { label, bucket, monthly: 0 }; monthly += v; out[i].set(label, r) when missing)
+ *     any monthly category = false
+ *     amt = amount read as a number (0 when it is not one)
+ *     pct = unit = 'pct'
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-CF-F-256 budgetEditorBuckets · MK-CF-O-010 theMonth
+ *
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-032 expenses categories the person set up
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
+ *
+ * Decides .....
+ *     · Treats a year as twelve equal months.
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-255
+ * Changed ..... not in git yet (—)
+ */
+export function spendByMonthByCategory(op: OnboardingProfile | null): { label: string; bucket: 'fixed' | 'nonmonthly' | 'flexible'; monthly: number }[][] {
+  type Row = { label: string; bucket: 'fixed' | 'nonmonthly' | 'flexible'; monthly: number };
+  const a = op ?? {};
+  const byBucket = spendByMonthByBucket(op);
+  const KEYS = ['fixed', 'nonmonthly', 'flexible'] as const;
+  const named = (Array.isArray(a.spendCats) ? a.spendCats : []).filter((c: any) => toNum(c?.amount) > 0 && String(c?.label ?? '').trim() !== '');
+  if (!named.length) return byBucket.map((g) => KEYS.filter((k) => g[k] > 0).map((k) => ({ label: PLANNED_GROUP_WORDS[k], bucket: k, monthly: g[k] })));
+  const netMonthly = pctBaseMonthly(op);
+  const out = Array.from({ length: 12 }, () => new Map<string, Row>());
+  const add = (i: number, label: string, bucket: Row['bucket'], v: number) => {
+    const r = out[i].get(label) ?? { label, bucket, monthly: 0 }; r.monthly += v; out[i].set(label, r);
+  };
+  let anyMonthlyCategory = false;
+  for (const c of named as any[]) {
+    const amt = toNum(c.amount);
+    const pct = c.unit === 'pct';
+    if (c.bucket === 'nonmonthly') {
+      const yearly = pct ? (amt / 100) * netMonthly * 12 : amt;
+      const months = Array.isArray(c.months) && c.months.length ? c.months : null;
+      if (months) for (const m of months) add(Math.min(11, Math.max(0, m - 1)), String(c.label), 'nonmonthly', yearly / months.length);
+      else for (let i = 0; i < 12; i++) add(i, String(c.label), 'nonmonthly', yearly / 12);
+    } else {
+      const m = pct ? (amt / 100) * netMonthly : amt;
+      for (let i = 0; i < 12; i++) add(i, String(c.label), c.bucket === 'fixed' ? 'fixed' : 'flexible', m);
+      anyMonthlyCategory = true;
+    }
+  }
+  return out.map((rows, i) => {
+    for (const k of KEYS) {
+      const placed = [...rows.values()].filter((r) => r.bucket === k).reduce((t, r) => t + r.monthly, 0);
+      const rest = byBucket[i][k] - placed;
+      if (rest > 1e-9) add(i, anyMonthlyCategory ? 'Other' : PLANNED_GROUP_WORDS[k], k, rest);
+    }
+    return [...rows.values()].filter((r) => r.monthly > 0);
+  });
+}
+
+/** What it is for: THE BUDGET EDITOR'S BUCKETS AND THE ROWS UNDER THEM, FOR THIS MONTH (2026-10-25, Cash flow drawing match CF-21;
+ *  DEC-3523 tenet 2, the rows under a total add up to it). Each bucket's plan is this month's (spendByMonthByBucket), so the buckets
+ *  add up to the card's "− Expenses (plan)"; what is spent is the month's expenses read once (budgetVsActual), so the rows add up
+ *  to their bucket. A budget entered by category lists each category with its plan this month and the rest of the monthly total
+ *  as Other (spendByMonthByCategory, the list the Expenses tab prints); a budget typed by group lists what was spent by category,
+ *  with no plan of its own. Each row's printed spend shares its bucket's printed spend (partsShown), so the rows as printed add up.
+ *  The editor had read its rows from a second sum that dated "2026-08-01" Jul 31 in a US time zone and counted debt payments:
+ *  Fixed $22 over rows of $400 + $22, Flexible $1,678 over rows of $1,256. Worked by hand, frame C's month with Gas $200, Grocery
+ *  $900, Utilities $200 and $2,000 in all: Fixed $22 of $200 — Utilities $22 of $200; Flexible $1,678 of $1,800 — Other $1,075 of
+ *  $700, Grocery $418 of $900, Gas $185 of $200 (1,075 + 418 + 185 = 1,678; 700 + 900 + 200 = 1,800; 200 + 1,800 = 2,000). */
+/* ─ MK-CF-F-256 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * budgetEditorBuckets
+ *
+ * Answers ..... What it is for: THE BUDGET EDITOR'S BUCKETS AND THE ROWS UNDER THEM, FOR THIS MONTH (2026-10-25, Cash flow drawing match CF-21; DEC-3523 tenet 2, the rows under a total add up to it).
+ *
+ * Formula .....
+ *     m = now.get month()
+ *     bva = budget vs actual(expenses, op, now)
+ *     planned of = (k: 'fixed' | 'nonmonthly' | 'flexible') => bva.buckets.find((b) => key = k).planned (or 0 when missing)
+ *     spent of = a lookup of for each of bva.categories: [label, each]
+ *     by category = (array.is array(op.spend cats) ? op!.spend cats : []).some((c: any) => to num(amount) > 0 and string(label ?? '').trim() ! = '')
+ *     keys = ['fixed', 'nonmonthly', 'flexible'] as const
+ *     rows = fixed = []
+ *     nonmonthly = []
+ *     flexible = []
+ *     seen = new set<string>()
+ *     bucket = spent of.get(label).bucket (or bucket when missing)
+ *     sorted = rows[k].slice().sort((a, b) => spent − spent)
+ *     shown = parts shown(sorted.map((r) => spent)).parts
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged expenses
+ *               MK-XS-I-032 expenses categories the person set up
+ *
+ * Decides .....
+ *     · If planned is missing it uses 0.
+ *     · If spent is missing it uses 0.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-256
+ * Changed ..... not in git yet (—)
+ */
+export function budgetEditorBuckets(expenses: any[], op: OnboardingProfile | null, now: Date = new Date()): {
+  key: 'fixed' | 'nonmonthly' | 'flexible'; planned: number; spent: number;
+  rows: { label: string; planned: number; spent: number; spentShown: number }[];
+}[] {
+  const m = now.getMonth();
+  // the month's plan and what is spent, both from budgetVsActual — since 2026-10-25 (FIX-BUDGET, MK-CF-F-014) its plan is this
+  // month's own (spendByMonthByBucket), so the buckets and the budget card are one reading
+  const bva = budgetVsActual(expenses, op, now);
+  const plannedOf = (k: 'fixed' | 'nonmonthly' | 'flexible') => bva.buckets.find((b) => b.key === k)?.planned ?? 0;
+  const spentOf = new Map(bva.categories.map((c) => [c.label, c]));
+  const byCategory = (Array.isArray(op?.spendCats) ? op!.spendCats : []).some((c: any) => toNum(c?.amount) > 0 && String(c?.label ?? '').trim() !== '');
+  const KEYS = ['fixed', 'nonmonthly', 'flexible'] as const;
+  const rows: Record<string, { label: string; planned: number; spent: number }[]> = { fixed: [], nonmonthly: [], flexible: [] };
+  const seen = new Set<string>();
+  for (const r of byCategory ? (spendByMonthByCategory(op)[m] ?? []) : []) {
+    // a category with spend sits in the bucket its spend is counted in, so its row is inside that bucket's total
+    const bucket = spentOf.get(r.label)?.bucket ?? r.bucket;
+    rows[bucket].push({ label: r.label, planned: r.monthly, spent: spentOf.get(r.label)?.spent ?? 0 });
+    seen.add(r.label);
+  }
+  for (const c of bva.categories) if (!seen.has(c.label)) rows[c.bucket].push({ label: c.label, planned: 0, spent: c.spent });
+  return KEYS.map((k) => {
+    const sorted = rows[k].slice().sort((a, b) => b.spent - a.spent);
+    const shown = partsShown(sorted.map((r) => r.spent)).parts;
+    return { key: k, planned: plannedOf(k), spent: bva.buckets.find((b) => b.key === k)?.spent ?? 0,
+      rows: sorted.map((r, i) => ({ ...r, spentShown: shown[i] })) };
+  });
+}
+
 /** Monthly money you MUST keep paying — the recurring (non-monthly excluded) Critical + Important
  *  bills. Falls back to total monthly spend if categories aren't itemized. */
 /* ─ MK-CF-F-009 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
@@ -453,62 +687,55 @@ export function spendByMonthByBucket(op: OnboardingProfile | null): { fixed: num
  *
  * Formula .....
  *     a = op (or none when missing)
- *     cats = spend cats   if array.is array(spend cats)
- *     nothing   otherwise
+ *     cats = categories in force(op)
  *     planned monthly spend(op)   when cats is missing
- *     net monthly = pct base monthly(op)
  *     ess = 0
- *     amt = to num(amount); if (amt ≤ 0) continue
- *     dated twelfths = 0
- *     uncategorized = max(0, to num(monthly expenses) − (spend buckets(op).monthly total − dated twelfths))
- *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *     every month = 0
+ *     m = category monthly(c, op); if (m ≤ 0) continue
+ *     dated = bucket = 'nonmonthly' and array.is array(months) and months.length > 0
+ *     uncategorized = max(0, to num(monthly expenses) − every month)
+ *     the answer = ess + uncategorized
  *
  * Called by ... MK-CF-F-010 emergencyTest · MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-079 EF · MK-NW-F-082 NW
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-010 emergencyTest · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               … and 38 more — the full list is on functions_from_code
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-CF-F-010 emergencyTest
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-O-004 theEmergencyFund
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-025 typical monthly essentials
- *               MK-XS-I-032 expenses categories the person set up
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Decides .....
  *     · Uses a built-in ess of 0.
- *     · Uses a built-in dated twelfths of 0.
+ *     · Uses a built-in every month of 0.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-009
  * Changed ..... 2026-06-24 (fa35cf4)
  */
 export function monthlyEssentials(op: OnboardingProfile | null): number {
   const a = op ?? {};
-  const cats = Array.isArray(a.spendCats) ? a.spendCats : null;
+  // categories count once one is given an amount (categoriesInForce, 2026-10-25, FIX-BUDGET) — the rule the buckets and the month
+  // table read; an empty list or only $0 categories is no categories
+  const cats = categoriesInForce(op);
   // B-33: with no itemized categories we can't separate wants from needs, so treat the stated total
   // spend as must-pay (conservative for an emergency-fund target). Returning $0 here let the stress
   // test claim "strong emergency fund" with $0 cash while also saying the user would go into the red.
   if (!cats) return plannedMonthlySpend(op);
-  const netMonthly = pctBaseMonthly(op);
   let ess = 0;
+  // the typed total is measured against what the categories put in every month: a bill with its own months is not in it
+  // (DEC-0002, DEC-0447; 2026-10-24, CF-FIX — it was, so $2,000 typed beside a $1,200 dated bill read $1,900 of must-pay). Added
+  // here from the categories themselves (2026-10-25, FIX-BUDGET): spendBuckets now also holds the typed split beside
+  // once-a-year-only categories (DEC-7951), which is the typed total's own content, not a category's
+  let everyMonth = 0;
   for (const c of cats) {
+    const m = categoryMonthly(c, op); if (m <= 0) continue;   // the shared per-category $ (a % of take-home after tax and 401(k))
+    const dated = c?.bucket === 'nonmonthly' && Array.isArray(c?.months) && c.months.length > 0;
+    if (!dated) everyMonth += m;
     if (c?.bucket === 'nonmonthly') continue;                 // lumpy, planned separately
     if ((c?.tier ?? 'flex') === 'flex') continue;             // wants aren't essentials
-    const amt = toNum(c?.amount); if (amt <= 0) continue;
-    ess += c?.unit === 'pct' ? (amt / 100) * netMonthly : amt;
+    ess += m;
   }
-  // the typed total is measured against what the plan puts in every month: a bill with its own months is not in it (DEC-0002,
-  // DEC-0447; 2026-10-24, CF-FIX — it was, so $2,000 typed beside a $1,200 dated bill read $1,900 of must-pay)
-  let datedTwelfths = 0;
-  for (const c of cats) if (c?.bucket === 'nonmonthly' && Array.isArray(c?.months) && c.months.length) datedTwelfths += categoryMonthly(c, op);
-  const uncategorized = Math.max(0, toNum(a.monthlySpending) - (spendBuckets(op).monthly_total - datedTwelfths));
+  const uncategorized = Math.max(0, toNum(a.monthlySpending) - everyMonth);
   return (ess + uncategorized);
 }
 
@@ -516,11 +743,12 @@ export interface ShockResult {
   shock: number;
   cashAfter: number;          // cash left right after the hit
   monthlyEssentials: number;  // what you must keep paying each month
-  runwayAfter: number;        // months your remaining cash covers essentials after the hit
-  jobLossRunway: number;      // months your cash lasts with NO income (no shock)
+  // the four below are null with $0 of essentials: cash ÷ $0 is no count of months, and a $0 target is no fund (2026-10-25)
+  runwayAfter: number | null;      // months your remaining cash covers essentials after the hit
+  jobLossRunway: number | null;    // months your cash lasts with NO income (no shock)
   coversIt: boolean;          // cash absorbs the shock without going negative
-  recommendedFund: number;    // low end of a 3–6 month emergency fund (3× essentials)
-  gapToFund: number;          // how far your cash is from that
+  recommendedFund: number | null;  // low end of a 3–6 month emergency fund (3× essentials)
+  gapToFund: number | null;        // how far your cash is from that
 }
 /** "What if a $X emergency hit right now?" — can your cash absorb it, and how long would you last. */
 /* ─ MK-CF-F-010 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
@@ -529,24 +757,18 @@ export interface ShockResult {
  * Answers ..... "What if a $X emergency hit right now?" — can your cash absorb it, and how long would you last.
  *
  * Formula .....
- *     ess = essentials override   if essentials override ≠ nothing and essentials override > 0
+ *     ess = essentials override   if essentials override ≠ nothing and number.is finite(essentials override)
  *     monthly essentials(op)   otherwise
  *     cash after = cash − shock
- *     recommended fund = ess × 3
+ *     known = ess > 0
+ *     recommended fund = ess × 3   if known
+ *     nothing   otherwise
  *
  * Called by ... MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-079 EF · MK-NW-F-082 NW
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 37 more — the full list is on functions_from_code
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-O-004 theEmergencyFund
  *
  * Serves ...... MK-MN-M-024 · MK-MN-M-025
  * Reads ....... MK-XS-I-025 typical monthly essentials
@@ -564,18 +786,25 @@ export interface ShockResult {
 export function emergencyTest(op: OnboardingProfile | null, cash: number, shock: number, essentialsOverride?: number): ShockResult {
   // G21 (2026-09-08): the screen hands in the ONE essentials figure (MK-CF-F-190, logged average first);
   // the typed categories remain the fallback when nothing is handed in.
-  const ess = essentialsOverride != null && essentialsOverride > 0 ? essentialsOverride : monthlyEssentials(op);
+  // A FIGURE HANDED IN IS KEPT, $0 INCLUDED (2026-10-25, FIX-BUDGET; the outside audit MK-CF-F-010; tenets 1, 3, 5): a $0 handed
+  // in was replaced by the typed plan ($2,000), so the months were worked on a figure the screen never showed.
+  const ess = essentialsOverride != null && Number.isFinite(essentialsOverride) ? essentialsOverride : monthlyEssentials(op);
   const cashAfter = (cash - shock);
-  const recommendedFund = (ess * 3);
+  // NO ESSENTIALS, NO MONTHS AND NO TARGET — never a 0 that reads as an answer (2026-10-25, FIX-BUDGET; MK-CF-F-010-C05). $6,000
+  // of cash, a $1,000 hit and $0 of essentials read "0 months" before and after the hit, a $0 fund and no gap — and the Stress
+  // test printed "about 0.0 months" over "✓ You already have at least 3 months". Its door, MK-NW-O-004, already refuses both
+  // ("never divided by nothing"); the hit itself (covered, $5,000 left) is a real answer and stands.
+  const known = ess > 0;
+  const recommendedFund = known ? (ess * 3) : null;
   return {
     shock: (shock),
     cashAfter,
     monthlyEssentials: ess,
-    runwayAfter: ess > 0 ? (Math.max(0, cashAfter) / ess) : 0,
-    jobLossRunway: ess > 0 ? (cash / ess) : 0,
+    runwayAfter: known ? (Math.max(0, cashAfter) / ess) : null,
+    jobLossRunway: known ? (cash / ess) : null,
     coversIt: cashAfter >= 0,
     recommendedFund,
-    gapToFund: (Math.max(0, recommendedFund - cash)),
+    gapToFund: recommendedFund == null ? null : (Math.max(0, recommendedFund - cash)),
   };
 }
 
@@ -598,7 +827,7 @@ export function emergencyTest(op: OnboardingProfile | null, cash: number, shock:
  * Called by ... MK-XS-F-027 takeHomeMonthly · MK-XS-F-028 surplusByMonth
  *               MK-XS-F-030 effectiveAnnualContribution
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -608,7 +837,7 @@ export function emergencyTest(op: OnboardingProfile | null, cash: number, shock:
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -671,8 +900,13 @@ export function annualCashflow(op: OnboardingProfile | null): {
  * Answers ..... Turns the answers about expenses given during setup into the stored budget: the monthly total and its three parts, which are fixed bills, once-in-a-while costs and everyday expenses.
  *
  * Formula .....
- *     a = op (or none when missing)
- *     b = spend buckets(op)
+ *     user id = uid
+ *     monthly expenses = nothing
+ *     fixed = nothing
+ *     non monthly = nothing
+ *     flexible = nothing   when !budget entered(op)
+ *     months = spend by month by bucket(op)
+ *     year of = Σ over (k: 'fixed' | 'nonmonthly' | 'flexible') => months of (each[k])÷ 12
  *
  * Called by ... MK-XS-F-031 buildSnapshot
  *
@@ -685,24 +919,79 @@ export function annualCashflow(op: OnboardingProfile | null): {
  * Changed ..... 2026-06-13 (bff3637)
  */
 export function budgetFromOnboarding(uid: UserId, op: OnboardingProfile | null): BudgetDoc {
-  const a = op ?? {};
-  const b = spendBuckets(op);
+  // NOTHING ENTERED IS NOT A $0 PLAN (2026-10-25, FIX-BUDGET; the outside audit MK-CF-F-013-C02; tenet 3): a budget never entered was
+  // stored exactly as a confirmed $0 plan, and buildBudgetState then called the whole take-home projected to save. A typed $0
+  // is the person's word and is stored as $0.
+  if (!budgetEntered(op)) return { user_id: uid, monthly_spending: null, fixed: null, non_monthly: null, flexible: null };
+  // THE PARTS ADD UP TO THE TOTAL, FROM ONE PRODUCER (2026-10-25, FIX-BUDGET; the outside verdict on MK-CF-F-013; DEC-7951; tenet 2): the total
+  // is the year's planned expenses ÷ 12 (MK-CF-F-002) and each group is that group's year ÷ 12 (spendByMonthByBucket, the month
+  // table's own). His DEC-7951 household — $2,000 typed as $1,100 / $900 and a $1,200 December bill — is stored as $2,100 = 1,100
+  // + 100 + 900; it was $2,100 over parts of $0 / $100 / $0. The average is stored once and every dated bill is inside it once:
+  // nothing reads a stored budget back into the typed total (saveBudget and loadBudget have no caller), so the December bill
+  // cannot be added a second time.
+  const months = spendByMonthByBucket(op);
+  const yearOf = (k: 'fixed' | 'nonmonthly' | 'flexible') => months.reduce((t, m) => t + m[k], 0) / 12;
   return {
     user_id: uid,
     // B-24/B-50: count the full stated total (itemized buckets PLUS any uncategorized remainder) via
     // the shared plannedMonthlySpend helper — one definition for budget, runway, and essentials.
     monthly_spending: plannedMonthlySpend(op),
-    fixed: b.fixed, non_monthly: b.non_monthly, flexible: b.flexible,
+    fixed: yearOf('fixed'), non_monthly: yearOf('nonmonthly'), flexible: yearOf('flexible'),
   };
+}
+
+/** What it is for: WHETHER A BUDGET WAS ENTERED AT ALL (2026-10-25, FIX-BUDGET; tenet 3, unknown is not zero). Something
+ *  typed counts — a monthly total, $0 included (the person's word), a total typed by group, or a category given an amount; no
+ *  profile, or none of these, is no plan. budgetFromOnboarding asks it before it stores anything. Worked by hand: no profile →
+ *  no plan; "monthlySpending: 0" → a $0 plan; one $1,231.17 December bill and nothing else → a plan. */
+/* ─ MK-CF-F-257 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * budgetEntered
+ *
+ * Answers ..... What it is for: WHETHER A BUDGET WAS ENTERED AT ALL (2026-10-25, FIX-BUDGET; tenet 3, unknown is not zero).
+ *
+ * Formula .....
+ *     false   when op is missing
+ *     typed = (v: unknown) => v ≠ nothing and string(v).trim() ! = '' and number.is finite(number(string(v).replace( ÷ [$,\s] ÷ g, '')))
+ *     true   when [op.monthly expenses, op.b fixed, op.b nonmonthly, op.b flexible].some(typed)
+ *     the answer = categories in force(op) ≠ nothing
+ *
+ * Called by ... MK-CF-F-013 budgetFromOnboarding · MK-CF-O-020 theBudgetCounted
+ *
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-032 expenses categories the person set up
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-257
+ * Changed ..... not in git yet (—)
+ */
+export function budgetEntered(op: OnboardingProfile | null): boolean {
+  if (!op) return false;
+  const typed = (v: unknown) => v != null && String(v).trim() !== '' && Number.isFinite(Number(String(v).replace(/[$,\s]/g, '')));
+  if ([op.monthlySpending, op.b_fixed, op.b_nonmonthly, op.b_flexible].some(typed)) return true;
+  return categoriesInForce(op) != null;
 }
 
 export interface BucketActual { key: 'fixed' | 'nonmonthly' | 'flexible'; planned: number; spent: number; remaining: number; }
 export interface BudgetVsActual {
   month: string;            // 'YYYY-MM'
-  planned_total: number;    // planned monthly budget (from onboarding)
+  planned_total: number;    // this calendar month's planned expenses (the dated plan, MK-CF-F-221 — never the year's average)
   spent_total: number;      // month-to-date actual
   remaining: number;        // planned − spent
   buckets: BucketActual[];
+  /** each category's month-to-date spend and the bucket it is counted in — the rows under a bucket on the budget editor,
+   *  read from the same expenses by the same rules as the bucket, so the rows add up to it (2026-10-25, CF-21) */
+  categories: { label: string; bucket: BucketActual['key']; spent: number }[];
 }
 
 /** Month-to-date actual expenses vs the planned budget, bucketed. `expenses` is the store's
@@ -714,10 +1003,22 @@ export interface BudgetVsActual {
  *
  * Formula .....
  *     ym = `${now.get full year()}-${string(now.get month() + 1).pad start(2, '0')}`
- *     planned = spend buckets(op)
+ *     g = spend by month by bucket(op)[now.get month()] (or fixed = 0
+ *     nonmonthly = 0
+ *     flexible = 0 when missing)
+ *     planned = fixed = fixed
+ *     non monthly = nonmonthly
+ *     flexible = flexible
+ *     monthly total = fixed + nonmonthly + flexible
  *     spent = fixed = 0
  *     nonmonthly = 0
  *     flexible = 0
+ *     by category = new map<string, { label: string; bucket: bucket actual['key']; spent: number }>()
+ *     bucket = category bucket for(category, custom) as bucket actual['key']
+ *     label = string(category ?? '')
+ *     row = by category.get(label) (or label = label
+ *     bucket = bucket
+ *     spent = 0 when missing)
  *     spent total = spent.fixed + spent.nonmonthly + spent.flexible
  *     the answer:
  *     month = ym
@@ -725,10 +1026,12 @@ export interface BudgetVsActual {
  *     spent total = spent total
  *     remaining = planned.monthly total − spent total
  *     buckets = buckets
+ *     categories = [...by category.values()]
  *
- * Called by ... MK-CF-F-008 spendByMonth
+ * Called by ... MK-CF-F-008 spendByMonth · MK-CF-F-255 spendByMonthByCategory
+ *               MK-CF-F-256 budgetEditorBuckets
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -738,7 +1041,7 @@ export interface BudgetVsActual {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... MK-XS-M-005
  * Reads ....... MK-XS-I-024 logged expenses
@@ -752,15 +1055,26 @@ export interface BudgetVsActual {
  */
 export function budgetVsActual(expenses: any[], op: OnboardingProfile | null, now: Date = new Date()): BudgetVsActual {
   const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-  const planned = spendBuckets(op);
+  // THE MONTH'S OWN PLAN, NEVER THE YEAR'S AVERAGE (2026-10-25, FIX-BUDGET; the outside audit MK-CF-F-014; DEC-7611, DEC-7951;
+  // tenet 4): the plan is that calendar month's from spendByMonthByBucket (MK-CF-F-221), the producer This month and the Expenses
+  // tab read. $2,000/month and $1,200 of insurance due in December plan $2,000 in September and $3,200 in December — $25,200 in
+  // the year; it planned the $2,100 average in both. A month with only another month's bill plans $0 (it planned $100).
+  const g = spendByMonthByBucket(op)[now.getMonth()] ?? { fixed: 0, nonmonthly: 0, flexible: 0 };
+  const planned = { fixed: g.fixed, non_monthly: g.nonmonthly, flexible: g.flexible, monthly_total: g.fixed + g.nonmonthly + g.flexible };
   const custom = (Array.isArray(op?.spendCats) ? op!.spendCats : [])
     .filter((c) => c?.custom && !!c.label)
     .map((c) => ({ label: c.label!, bucket: c.bucket }));
   const spent: Record<string, number> = { fixed: 0, nonmonthly: 0, flexible: 0 };
+  const byCategory = new Map<string, { label: string; bucket: BucketActual['key']; spent: number }>();
   for (const e of expenses ?? []) {
-    if (!String(e?.date ?? '').startsWith(ym)) continue;
+    if (!localDay(e?.date).startsWith(ym)) continue;      // the expense's own day, where the person is (CF-21)
     if (e?.category === 'Debt payment') continue;          // debt is tracked separately, not in the expense budget
-    spent[categoryBucketFor(e.category, custom)] += toNum(e.amount);
+    const bucket = categoryBucketFor(e.category, custom) as BucketActual['key'];
+    spent[bucket] += toNum(e.amount);
+    const label = String(e?.category ?? '');
+    const row = byCategory.get(label) ?? { label, bucket, spent: 0 };
+    row.spent += toNum(e.amount);
+    byCategory.set(label, row);
   }
   const buckets: BucketActual[] = [
     { key: 'fixed', planned: planned.fixed, spent: (spent.fixed), remaining: (planned.fixed - spent.fixed) },
@@ -768,7 +1082,7 @@ export function budgetVsActual(expenses: any[], op: OnboardingProfile | null, no
     { key: 'flexible', planned: planned.flexible, spent: (spent.flexible), remaining: (planned.flexible - spent.flexible) },
   ];
   const spent_total = (spent.fixed + spent.nonmonthly + spent.flexible);
-  return { month: ym, planned_total: planned.monthly_total, spent_total, remaining: (planned.monthly_total - spent_total), buckets };
+  return { month: ym, planned_total: planned.monthly_total, spent_total, remaining: (planned.monthly_total - spent_total), buckets, categories: [...byCategory.values()] };
 }
 
 const COLLECTION = 'budgets';

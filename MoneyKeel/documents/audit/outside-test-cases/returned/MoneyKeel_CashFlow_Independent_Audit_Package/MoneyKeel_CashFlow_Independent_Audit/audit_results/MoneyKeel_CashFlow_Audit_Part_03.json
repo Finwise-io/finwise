@@ -1,0 +1,2569 @@
+{
+  "batch": "cf module — part 3",
+  "written_by": "OpenAI independent specification reviewer",
+  "ready_to_close": false,
+  "still_open": [
+    "MK-CF-F-063: Assigns this year to an undated vest rather than identifying the missing date.",
+    "MK-CF-F-064: Grouping known vest values by actual year is correct, but an undated positive vest inherits rowVestYear’s invented current year. Vesting is not cash unless a sale/settlement pays it.",
+    "MK-CF-F-065: Month weights ignore the vesting year and place undated vesting in December. A run-rate allocation is not an actual calendar-year payment schedule.",
+    "MK-CF-F-066: Distinct nonempty vest years define a run-rate, but the label annual equity/stock vesting can be read as this year’s actual value; gaps and unknown dates need a contract.",
+    "MK-CF-F-219: The owner explicitly treats nonnumeric rent as not entered, but returning the other number minus zero can present a complete net despite a missing component.",
+    "DEC-0003: NOT HELD — Year-month preservation is present in canonical wage tables,but annualized/converted paths and yearless vest/one-time defaults lose the same dated meaning.",
+    "DEC-0151: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0176: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Two-earner readers exist,but annualOfSource substitutes household salary on each earnerrow and partial-year contributions diverge.",
+    "DEC-0198: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Current monthgrid removes reinvested cash,but legacy cashflowYear includes it and taxOrganizer’s cash-payout basis can omit taxable reinvestments.",
+    "DEC-0200: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. One-time migration is stated,but its calculated branch omits401(k)from the inverse equation and may not preserve entered landing after deductions.",
+    "DEC-0291: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0296: NOT HELD — Unknown vestdate,age,amounts and budgets are filled with currentyear,68 or0in severalfinancialpaths.",
+    "DEC-0303: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The outside-stream reader retains inflation flags,but the delegated future projection and next-year update policy are not fully supplied.",
+    "DEC-0307: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The outside-guaranteed reader excludes withdrawals andRMDs. Taxable treatment remains a separate defect.",
+    "DEC-0327: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. New tax primitive uses taxable income for state tax,but legacy buildIncomeState drops state from monthly grid and effectiveTaxRate uses a separate rate.",
+    "DEC-0364: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0447: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Explicit one-time-year handling is present for dated otherincome,but missingyear still recurs and legacy onboarding fixes signingbonus toJanuary.",
+    "DEC-0487: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0491: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-3768: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-7935: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Capitalgain lookup is federalonly in its writtencontract;finitegainstacking remains a separate missing capability.",
+    "DEC-7938: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Part-yeartake-home rate multiplies twelve months,so paidmonths do not preserve the enteredtake-home."
+  ],
+  "scope": "Written formulas,owner decisions and primary publications only. No repository code,existingtests or liveapp outputs were inspected for this review. Attached screen-register worked/app-result fields were excluded from expected-answer derivation.",
+  "formula_checks": [
+    {
+      "id": "MK-CF-F-062",
+      "name": "equityRowValue",
+      "verdict": "RIGHT",
+      "why": "Correct intrinsic option value, floored at zero, and share value for other grants; vesting value is not necessarily spendable cash.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-063",
+      "name": "rowVestYear",
+      "verdict": "WRONG",
+      "why": "Assigns this year to an undated vest rather than identifying the missing date.",
+      "should_be": "Keep vest year unknown until confirmed; an estimate must be labeled.",
+      "rests_on": "DEC-0296; DEC-0003",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-064",
+      "name": "equityCashFlow",
+      "verdict": "INCOMPLETE",
+      "why": "Grouping known vest values by actual year is correct, but an undated positive vest inherits rowVestYear’s invented current year. Vesting is not cash unless a sale/settlement pays it.",
+      "should_be": "Keep unknown-year vest values out of dated totals with an explicit incomplete flag; label vesting value separately from bank cash.",
+      "rests_on": "DEC-0003; DEC-0296",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-065",
+      "name": "equityVestWeights",
+      "verdict": "INCOMPLETE",
+      "why": "Month weights ignore the vesting year and place undated vesting in December. A run-rate allocation is not an actual calendar-year payment schedule.",
+      "should_be": "Specify run-rate versus actual-year scope and refuse unknown dates; use only that year’s dated events for actual cash.",
+      "rests_on": "DEC-0003; DEC-0447",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-066",
+      "name": "rsuAnnual",
+      "verdict": "INCOMPLETE",
+      "why": "Distinct nonempty vest years define a run-rate, but the label annual equity/stock vesting can be read as this year’s actual value; gaps and unknown dates need a contract.",
+      "should_be": "Expose run-rate and actual dated annual vesting separately, with unknown-date coverage.",
+      "rests_on": "Tenets 2,4,8",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-CF-F-219",
+      "name": "rentEntryMonthly",
+      "verdict": "INCOMPLETE",
+      "why": "The owner explicitly treats nonnumeric rent as not entered, but returning the other number minus zero can present a complete net despite a missing component.",
+      "should_be": "Retain parsed values and per-field entered flags; refuse an unqualified net when a required component is unentered. Preserve the owner’s strict parser.",
+      "rests_on": "DEC-3768c; tenets 2–3",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-067",
+      "name": "rentalList",
+      "verdict": "RIGHT",
+      "why": "Counts only named properties, preserves a rental loss and uses the owner’s strict parser; unentered component metadata must be supplied by the parser/consumer.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-068",
+      "name": "rentalNetAnnual",
+      "verdict": "RIGHT",
+      "why": "Adds net rent including losses and annualizes known monthly amounts; mortgages are outside running costs under the owner ruling.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-216",
+      "name": "typed",
+      "verdict": "RIGHT",
+      "why": "Checks presence without losing an explicit zero; does not establish the figure’s numeric validity.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-217",
+      "name": "hasOldRentFigure",
+      "verdict": "RIGHT",
+      "why": "Checks presence without losing an explicit zero; does not establish the figure’s numeric validity.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-218",
+      "name": "moveOldRentFigure",
+      "verdict": "RIGHT",
+      "why": "Idempotent migration preserves existing lists and raw text, removes old fields, and never invents a property identity.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-CF-F-062",
+      "case_id": "MK-CF-F-062-C01",
+      "name": "equityRowValue",
+      "kind": "easy",
+      "title": "RSU",
+      "as_of": "2026-10-24",
+      "given": "RSU",
+      "inputs": {
+        "kind": "rsu",
+        "shares": 10,
+        "price": 100,
+        "strike": 0
+      },
+      "expected": {
+        "exact": "1000",
+        "shown": "$1,000"
+      },
+      "working": [
+        "10 × 100"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-062",
+      "case_id": "MK-CF-F-062-C02",
+      "name": "equityRowValue",
+      "kind": "easy",
+      "title": "In-money option",
+      "as_of": "2026-10-24",
+      "given": "In-money option",
+      "inputs": {
+        "kind": "option",
+        "shares": 10,
+        "price": 100,
+        "strike": 80
+      },
+      "expected": {
+        "exact": "200",
+        "shown": "$200"
+      },
+      "working": [
+        "10 × max(0, 100 − 80)"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-062",
+      "case_id": "MK-CF-F-062-C03",
+      "name": "equityRowValue",
+      "kind": "complex",
+      "title": "Unround RSU",
+      "as_of": "2026-10-24",
+      "given": "Unround RSU",
+      "inputs": {
+        "kind": "rsu",
+        "shares": "117.5",
+        "price": "83.17",
+        "strike": 0
+      },
+      "expected": {
+        "exact": "9772.475",
+        "shown": "$9,772"
+      },
+      "working": [
+        "117.5 × 83.17"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-062",
+      "case_id": "MK-CF-F-062-C04",
+      "name": "equityRowValue",
+      "kind": "complex",
+      "title": "Unround option",
+      "as_of": "2026-10-24",
+      "given": "Unround option",
+      "inputs": {
+        "kind": "option",
+        "shares": "213.75",
+        "price": "92.43",
+        "strike": "51.19"
+      },
+      "expected": {
+        "exact": "8815.0500",
+        "shown": "$8,815"
+      },
+      "working": [
+        "213.75 × max(0, 92.43 − 51.19)"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-062",
+      "case_id": "MK-CF-F-062-C05",
+      "name": "equityRowValue",
+      "kind": "edge",
+      "title": "At strike",
+      "as_of": "2026-10-24",
+      "given": "At strike",
+      "inputs": {
+        "kind": "option",
+        "shares": 10,
+        "price": 80,
+        "strike": 80
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "10 × max(0, 80 − 80)"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-063",
+      "case_id": "MK-CF-F-063-C01",
+      "name": "rowVestYear",
+      "kind": "easy",
+      "title": "This year",
+      "as_of": "2026-10-24",
+      "given": "This year",
+      "inputs": {
+        "vesting_date": "2026-10-24",
+        "current_year": 2026
+      },
+      "expected": {
+        "exact": "2026",
+        "shown": "2026"
+      },
+      "working": [
+        "Read YYYY = 2026"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-063",
+      "case_id": "MK-CF-F-063-C02",
+      "name": "rowVestYear",
+      "kind": "easy",
+      "title": "Next year",
+      "as_of": "2026-10-24",
+      "given": "Next year",
+      "inputs": {
+        "vesting_date": "2027-01-01",
+        "current_year": 2026
+      },
+      "expected": {
+        "exact": "2027",
+        "shown": "2027"
+      },
+      "working": [
+        "Read YYYY = 2027"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-063",
+      "case_id": "MK-CF-F-063-C03",
+      "name": "rowVestYear",
+      "kind": "complex",
+      "title": "Leap date",
+      "as_of": "2026-10-24",
+      "given": "Leap date",
+      "inputs": {
+        "vesting_date": "2028-02-29",
+        "current_year": 2026
+      },
+      "expected": {
+        "exact": "2028",
+        "shown": "2028"
+      },
+      "working": [
+        "Read valid leap-year date"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-063",
+      "case_id": "MK-CF-F-063-C04",
+      "name": "rowVestYear",
+      "kind": "complex",
+      "title": "Far future",
+      "as_of": "2026-10-24",
+      "given": "Far future",
+      "inputs": {
+        "vesting_date": "2031-12-17",
+        "current_year": 2026
+      },
+      "expected": {
+        "exact": "2031",
+        "shown": "2031"
+      },
+      "working": [
+        "Keep actual future year"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-063",
+      "case_id": "MK-CF-F-063-C05",
+      "name": "rowVestYear",
+      "kind": "edge",
+      "title": "Date missing",
+      "as_of": "2026-10-24",
+      "given": "Date missing",
+      "inputs": {
+        "vesting_date": null,
+        "current_year": 2026
+      },
+      "expected": {
+        "state": "REFUSES",
+        "reason": "Vesting date not entered"
+      },
+      "working": [
+        "No recorded date establishes a year."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "exact": "2026",
+        "shown": "2026"
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-064",
+      "case_id": "MK-CF-F-064-C01",
+      "name": "equityCashFlow",
+      "kind": "easy",
+      "title": "One vest",
+      "as_of": "2026-10-24",
+      "given": "One vest",
+      "inputs": {
+        "vests": [
+          {
+            "date": "2026-03-15",
+            "independently_valued_amount": 1000
+          }
+        ],
+        "requested_year": 2026
+      },
+      "expected": {
+        "2026": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Group recorded dates by year/month; values add to 1000. Distinguish actual 2026 vesting from run-rate."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Valuation inputs are shares=1 and unit price=amount for each non-option row. Where run-rate is the explicit requested domain, its documented calculation is retained.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-064",
+      "case_id": "MK-CF-F-064-C02",
+      "name": "equityCashFlow",
+      "kind": "easy",
+      "title": "Two quarters",
+      "as_of": "2026-10-24",
+      "given": "Two quarters",
+      "inputs": {
+        "vests": [
+          {
+            "date": "2026-03-15",
+            "independently_valued_amount": 1000
+          },
+          {
+            "date": "2026-06-15",
+            "independently_valued_amount": 3000
+          }
+        ],
+        "requested_year": 2026
+      },
+      "expected": {
+        "2026": {
+          "exact": "4000",
+          "shown": "$4,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Group recorded dates by year/month; values add to 4000. Distinguish actual 2026 vesting from run-rate."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Valuation inputs are shares=1 and unit price=amount for each non-option row. Where run-rate is the explicit requested domain, its documented calculation is retained.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-064",
+      "case_id": "MK-CF-F-064-C03",
+      "name": "equityCashFlow",
+      "kind": "complex",
+      "title": "Different years",
+      "as_of": "2026-10-24",
+      "given": "Different years",
+      "inputs": {
+        "vests": [
+          {
+            "date": "2026-03-15",
+            "independently_valued_amount": "8317.43"
+          },
+          {
+            "date": "2027-12-15",
+            "independently_valued_amount": "4211.17"
+          },
+          {
+            "date": "2027-06-15",
+            "independently_valued_amount": "1321.19"
+          }
+        ],
+        "requested_year": 2026
+      },
+      "expected": {
+        "2026": {
+          "exact": "8317.43",
+          "shown": "$8,317",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027": {
+          "exact": "5532.36",
+          "shown": "$5,532",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Group recorded dates by year/month; values add to 13849.79. Distinguish actual 2026 vesting from run-rate."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Valuation inputs are shares=1 and unit price=amount for each non-option row. Where run-rate is the explicit requested domain, its documented calculation is retained.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-064",
+      "case_id": "MK-CF-F-064-C04",
+      "name": "equityCashFlow",
+      "kind": "complex",
+      "title": "Gap years",
+      "as_of": "2026-10-24",
+      "given": "Gap years",
+      "inputs": {
+        "vests": [
+          {
+            "date": "2026-09-15",
+            "independently_valued_amount": "7113.17"
+          },
+          {
+            "date": "2030-01-15",
+            "independently_valued_amount": "3299.43"
+          },
+          {
+            "date": "2030-09-15",
+            "independently_valued_amount": "1811.19"
+          }
+        ],
+        "requested_year": 2026
+      },
+      "expected": {
+        "2026": {
+          "exact": "7113.17",
+          "shown": "$7,113",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2030": {
+          "exact": "5110.62",
+          "shown": "$5,111",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Group recorded dates by year/month; values add to 12223.79. Distinguish actual 2026 vesting from run-rate."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Valuation inputs are shares=1 and unit price=amount for each non-option row. Where run-rate is the explicit requested domain, its documented calculation is retained.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-064",
+      "case_id": "MK-CF-F-064-C05",
+      "name": "equityCashFlow",
+      "kind": "edge",
+      "title": "Undated vest",
+      "as_of": "2026-10-24",
+      "given": "Undated vest",
+      "inputs": {
+        "vests": [
+          {
+            "date": null,
+            "independently_valued_amount": 1000
+          }
+        ],
+        "requested_year": 2026
+      },
+      "expected": {
+        "state": "REFUSES",
+        "reason": "Vesting year missing"
+      },
+      "working": [
+        "Group recorded dates by year/month; values add to 1000. Distinguish actual 2026 vesting from run-rate."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Valuation inputs are shares=1 and unit price=amount for each non-option row. Where run-rate is the explicit requested domain, its documented calculation is retained.",
+      "formula_gives": {
+        "2026": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-065",
+      "case_id": "MK-CF-F-065-C01",
+      "name": "equityVestWeights",
+      "kind": "easy",
+      "title": "One vest",
+      "as_of": "2026-10-24",
+      "given": "One vest",
+      "inputs": {
+        "vests": [
+          {
+            "date": "2026-03-15",
+            "independently_valued_amount": 1000
+          }
+        ],
+        "requested_year": 2026
+      },
+      "expected": [
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "1",
+          "shown": "$1",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      ],
+      "working": [
+        "Group recorded dates by year/month; values add to 1000. Distinguish actual 2026 vesting from run-rate."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Valuation inputs are shares=1 and unit price=amount for each non-option row. Where run-rate is the explicit requested domain, its documented calculation is retained.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-065",
+      "case_id": "MK-CF-F-065-C02",
+      "name": "equityVestWeights",
+      "kind": "easy",
+      "title": "Two quarters",
+      "as_of": "2026-10-24",
+      "given": "Two quarters",
+      "inputs": {
+        "vests": [
+          {
+            "date": "2026-03-15",
+            "independently_valued_amount": 1000
+          },
+          {
+            "date": "2026-06-15",
+            "independently_valued_amount": 3000
+          }
+        ],
+        "requested_year": 2026
+      },
+      "expected": [
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0.25",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0.75",
+          "shown": "$1",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      ],
+      "working": [
+        "Group recorded dates by year/month; values add to 4000. Distinguish actual 2026 vesting from run-rate."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Valuation inputs are shares=1 and unit price=amount for each non-option row. Where run-rate is the explicit requested domain, its documented calculation is retained.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-065",
+      "case_id": "MK-CF-F-065-C03",
+      "name": "equityVestWeights",
+      "kind": "complex",
+      "title": "Different years",
+      "as_of": "2026-10-24",
+      "given": "Different years",
+      "inputs": {
+        "vests": [
+          {
+            "date": "2026-03-15",
+            "independently_valued_amount": "8317.43"
+          },
+          {
+            "date": "2027-12-15",
+            "independently_valued_amount": "4211.17"
+          },
+          {
+            "date": "2027-06-15",
+            "independently_valued_amount": "1321.19"
+          }
+        ],
+        "requested_year": 2026
+      },
+      "expected": {
+        "actual_2026_values": [
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "8317.43",
+            "shown": "$8,317",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "illustrative_run_rate_contract": "must be explicitly labeled"
+      },
+      "working": [
+        "Group recorded dates by year/month; values add to 13849.79. Distinguish actual 2026 vesting from run-rate."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Valuation inputs are shares=1 and unit price=amount for each non-option row. Where run-rate is the explicit requested domain, its documented calculation is retained.",
+      "formula_gives": {
+        "unqualified_run_rate_values": [
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0.6005455678389347419708168860",
+            "shown": "$1",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0.09539422619404337538691922405",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0.3040602059670218826422638899",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ]
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-065",
+      "case_id": "MK-CF-F-065-C04",
+      "name": "equityVestWeights",
+      "kind": "complex",
+      "title": "Gap years",
+      "as_of": "2026-10-24",
+      "given": "Gap years",
+      "inputs": {
+        "vests": [
+          {
+            "date": "2026-09-15",
+            "independently_valued_amount": "7113.17"
+          },
+          {
+            "date": "2030-01-15",
+            "independently_valued_amount": "3299.43"
+          },
+          {
+            "date": "2030-09-15",
+            "independently_valued_amount": "1811.19"
+          }
+        ],
+        "requested_year": 2026
+      },
+      "expected": {
+        "actual_2026_values": [
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "7113.17",
+            "shown": "$7,113",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "illustrative_run_rate_contract": "must be explicitly labeled"
+      },
+      "working": [
+        "Group recorded dates by year/month; values add to 12223.79. Distinguish actual 2026 vesting from run-rate."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Valuation inputs are shares=1 and unit price=amount for each non-option row. Where run-rate is the explicit requested domain, its documented calculation is retained.",
+      "formula_gives": {
+        "unqualified_run_rate_values": [
+          {
+            "exact": "0.2699187404233875091113312647",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0.7300812595766124908886687353",
+            "shown": "$1",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ]
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-065",
+      "case_id": "MK-CF-F-065-C05",
+      "name": "equityVestWeights",
+      "kind": "edge",
+      "title": "Undated vest",
+      "as_of": "2026-10-24",
+      "given": "Undated vest",
+      "inputs": {
+        "vests": [
+          {
+            "date": null,
+            "independently_valued_amount": 1000
+          }
+        ],
+        "requested_year": 2026
+      },
+      "expected": {
+        "state": "REFUSES",
+        "reason": "Vesting month/year missing"
+      },
+      "working": [
+        "Group recorded dates by year/month; values add to 1000. Distinguish actual 2026 vesting from run-rate."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Valuation inputs are shares=1 and unit price=amount for each non-option row. Where run-rate is the explicit requested domain, its documented calculation is retained.",
+      "formula_gives": [
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "1",
+          "shown": "$1",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      ],
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-066",
+      "case_id": "MK-CF-F-066-C01",
+      "name": "rsuAnnual",
+      "kind": "easy",
+      "title": "One vest",
+      "as_of": "2026-10-24",
+      "given": "One vest",
+      "inputs": {
+        "vests": [
+          {
+            "date": "2026-03-15",
+            "independently_valued_amount": 1000
+          }
+        ],
+        "requested_year": 2026
+      },
+      "expected": {
+        "documented_run_rate": {
+          "exact": "1000",
+          "shown": "100000.00%",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "actual_2026_vesting": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Group recorded dates by year/month; values add to 1000. Distinguish actual 2026 vesting from run-rate."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Valuation inputs are shares=1 and unit price=amount for each non-option row. Where run-rate is the explicit requested domain, its documented calculation is retained.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-066",
+      "case_id": "MK-CF-F-066-C02",
+      "name": "rsuAnnual",
+      "kind": "easy",
+      "title": "Two quarters",
+      "as_of": "2026-10-24",
+      "given": "Two quarters",
+      "inputs": {
+        "vests": [
+          {
+            "date": "2026-03-15",
+            "independently_valued_amount": 1000
+          },
+          {
+            "date": "2026-06-15",
+            "independently_valued_amount": 3000
+          }
+        ],
+        "requested_year": 2026
+      },
+      "expected": {
+        "documented_run_rate": {
+          "exact": "4000",
+          "shown": "400000.00%",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "actual_2026_vesting": {
+          "exact": "4000",
+          "shown": "$4,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Group recorded dates by year/month; values add to 4000. Distinguish actual 2026 vesting from run-rate."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Valuation inputs are shares=1 and unit price=amount for each non-option row. Where run-rate is the explicit requested domain, its documented calculation is retained.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-066",
+      "case_id": "MK-CF-F-066-C03",
+      "name": "rsuAnnual",
+      "kind": "complex",
+      "title": "Different years",
+      "as_of": "2026-10-24",
+      "given": "Different years",
+      "inputs": {
+        "vests": [
+          {
+            "date": "2026-03-15",
+            "independently_valued_amount": "8317.43"
+          },
+          {
+            "date": "2027-12-15",
+            "independently_valued_amount": "4211.17"
+          },
+          {
+            "date": "2027-06-15",
+            "independently_valued_amount": "1321.19"
+          }
+        ],
+        "requested_year": 2026
+      },
+      "expected": {
+        "documented_run_rate": {
+          "exact": "6924.895",
+          "shown": "692489.50%",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "actual_2026_vesting": {
+          "exact": "8317.43",
+          "shown": "$8,317",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Group recorded dates by year/month; values add to 13849.79. Distinguish actual 2026 vesting from run-rate."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Valuation inputs are shares=1 and unit price=amount for each non-option row. Where run-rate is the explicit requested domain, its documented calculation is retained.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-066",
+      "case_id": "MK-CF-F-066-C04",
+      "name": "rsuAnnual",
+      "kind": "complex",
+      "title": "Gap years",
+      "as_of": "2026-10-24",
+      "given": "Gap years",
+      "inputs": {
+        "vests": [
+          {
+            "date": "2026-09-15",
+            "independently_valued_amount": "7113.17"
+          },
+          {
+            "date": "2030-01-15",
+            "independently_valued_amount": "3299.43"
+          },
+          {
+            "date": "2030-09-15",
+            "independently_valued_amount": "1811.19"
+          }
+        ],
+        "requested_year": 2026
+      },
+      "expected": {
+        "documented_run_rate": {
+          "exact": "6111.895",
+          "shown": "611189.50%",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "actual_2026_vesting": {
+          "exact": "7113.17",
+          "shown": "$7,113",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Group recorded dates by year/month; values add to 12223.79. Distinguish actual 2026 vesting from run-rate."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Valuation inputs are shares=1 and unit price=amount for each non-option row. Where run-rate is the explicit requested domain, its documented calculation is retained.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-066",
+      "case_id": "MK-CF-F-066-C05",
+      "name": "rsuAnnual",
+      "kind": "edge",
+      "title": "Undated vest",
+      "as_of": "2026-10-24",
+      "given": "Undated vest",
+      "inputs": {
+        "vests": [
+          {
+            "date": null,
+            "independently_valued_amount": 1000
+          }
+        ],
+        "requested_year": 2026
+      },
+      "expected": {
+        "state": "REFUSES",
+        "reason": "Vesting year missing"
+      },
+      "working": [
+        "Group recorded dates by year/month; values add to 1000. Distinguish actual 2026 vesting from run-rate."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Valuation inputs are shares=1 and unit price=amount for each non-option row. Where run-rate is the explicit requested domain, its documented calculation is retained.",
+      "formula_gives": {
+        "exact": "1000",
+        "shown": "$1,000"
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-219",
+      "case_id": "MK-CF-F-219-C01",
+      "name": "rentEntryMonthly",
+      "kind": "easy",
+      "title": "Known rent and cost",
+      "as_of": "2026-10-24",
+      "given": "Known rent and cost",
+      "inputs": {
+        "rent": "1800",
+        "cost": "600"
+      },
+      "expected": {
+        "rent": {
+          "exact": "1800",
+          "shown": "$1,800.00",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "cost": {
+          "exact": "600",
+          "shown": "$600.00",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "net": {
+          "exact": "1200",
+          "shown": "$1,200.00",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "1800 − 600 = 1200"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-219",
+      "case_id": "MK-CF-F-219-C02",
+      "name": "rentEntryMonthly",
+      "kind": "easy",
+      "title": "Known rental loss",
+      "as_of": "2026-10-24",
+      "given": "Known rental loss",
+      "inputs": {
+        "rent": "1000",
+        "cost": "1200"
+      },
+      "expected": {
+        "rent": {
+          "exact": "1000",
+          "shown": "$1,000.00",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "cost": {
+          "exact": "1200",
+          "shown": "$1,200.00",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "net": {
+          "exact": "-200",
+          "shown": "−$200.00",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "1000 − 1200 = −200"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-219",
+      "case_id": "MK-CF-F-219-C03",
+      "name": "rentEntryMonthly",
+      "kind": "complex",
+      "title": "Formatted numbers",
+      "as_of": "2026-10-24",
+      "given": "Formatted numbers",
+      "inputs": {
+        "rent": "$2,731.49",
+        "cost": "1,113.27"
+      },
+      "expected": {
+        "rent": {
+          "exact": "2731.49",
+          "shown": "$2,731.49",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "cost": {
+          "exact": "1113.27",
+          "shown": "$1,113.27",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "net": {
+          "exact": "1618.22",
+          "shown": "$1,618.22",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "2731.49 − 1113.27 = 1618.22"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-219",
+      "case_id": "MK-CF-F-219-C04",
+      "name": "rentEntryMonthly",
+      "kind": "complex",
+      "title": "Explicit zero cost",
+      "as_of": "2026-10-24",
+      "given": "Explicit zero cost",
+      "inputs": {
+        "rent": "$1,891.17",
+        "cost": "0"
+      },
+      "expected": {
+        "rent": {
+          "exact": "1891.17",
+          "shown": "$1,891.17",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "cost": {
+          "exact": "0",
+          "shown": "$0.00",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "net": {
+          "exact": "1891.17",
+          "shown": "$1,891.17",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Zero is a confirmed number; net is 1891.17."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-219",
+      "case_id": "MK-CF-F-219-C05",
+      "name": "rentEntryMonthly",
+      "kind": "edge",
+      "title": "Words are not numbers",
+      "as_of": "2026-10-24",
+      "given": "Words are not numbers",
+      "inputs": {
+        "rent": "about 2k",
+        "cost": "600"
+      },
+      "expected": {
+        "state": "REFUSES",
+        "reason": "Rent not entered as a number"
+      },
+      "working": [
+        "Strict parse does not turn text into money; 0 is only a parser sentinel."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "rent": {
+          "exact": "0",
+          "shown": "$0.00",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "cost": {
+          "exact": "600",
+          "shown": "$600.00",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "net": {
+          "exact": "-600",
+          "shown": "−$600.00",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-067",
+      "case_id": "MK-CF-F-067-C01",
+      "name": "rentalList",
+      "kind": "easy",
+      "title": "Named rental",
+      "as_of": "2026-10-24",
+      "given": "Named rental",
+      "inputs": {
+        "entries": [
+          {
+            "property": "A",
+            "rent": 1800,
+            "cost": 600
+          }
+        ]
+      },
+      "expected": [
+        {
+          "property": "A",
+          "rent": {
+            "exact": "1800",
+            "shown": "$1,800",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "cost": {
+            "exact": "600",
+            "shown": "$600",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "kind": "long"
+        }
+      ],
+      "working": [
+        "Named A has positive rent/cost and is included."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-067",
+      "case_id": "MK-CF-F-067-C02",
+      "name": "rentalList",
+      "kind": "easy",
+      "title": "Unnamed rental excluded",
+      "as_of": "2026-10-24",
+      "given": "Unnamed rental excluded",
+      "inputs": {
+        "entries": [
+          {
+            "property": "",
+            "rent": 1800,
+            "cost": 600
+          }
+        ]
+      },
+      "expected": [],
+      "working": [
+        "No identified property means no counted rental."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-067",
+      "case_id": "MK-CF-F-067-C03",
+      "name": "rentalList",
+      "kind": "complex",
+      "title": "Two properties and loss",
+      "as_of": "2026-10-24",
+      "given": "Two properties and loss",
+      "inputs": {
+        "entries": [
+          {
+            "property": "A",
+            "rent": "1831.17",
+            "cost": "911.43"
+          },
+          {
+            "property": "B",
+            "rent": "821.19",
+            "cost": "999.31",
+            "kind": "short"
+          }
+        ]
+      },
+      "expected": [
+        "A",
+        "B"
+      ],
+      "working": [
+        "Both named properties have a positive component; B is retained despite its loss."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Expected tests included property identities and class; parser amounts are separately tested in F-219.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-067",
+      "case_id": "MK-CF-F-067-C04",
+      "name": "rentalList",
+      "kind": "complex",
+      "title": "Empty property plus zero row",
+      "as_of": "2026-10-24",
+      "given": "Empty property plus zero row",
+      "inputs": {
+        "entries": [
+          {
+            "property": " ",
+            "rent": "2731.17",
+            "cost": "919.33"
+          },
+          {
+            "property": "B",
+            "rent": 0,
+            "cost": 0
+          },
+          {
+            "property": "C",
+            "rent": "1101.13",
+            "cost": "387.19"
+          }
+        ]
+      },
+      "expected": [
+        "C"
+      ],
+      "working": [
+        "Unnamed row excluded, all-zero row excluded, named positive row C retained."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-067",
+      "case_id": "MK-CF-F-067-C05",
+      "name": "rentalList",
+      "kind": "edge",
+      "title": "No list legacy ignored",
+      "as_of": "2026-10-24",
+      "given": "No list legacy ignored",
+      "inputs": {
+        "entries": null,
+        "legacy_rent": 2000
+      },
+      "expected": [],
+      "working": [
+        "Old unnamed figure does not identify a rental property."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-068",
+      "case_id": "MK-CF-F-068-C01",
+      "name": "rentalNetAnnual",
+      "kind": "easy",
+      "title": "One rental",
+      "as_of": "2026-10-24",
+      "given": "One rental",
+      "inputs": {
+        "properties": [
+          {
+            "rent": 1800,
+            "operating_cost": 600
+          }
+        ]
+      },
+      "expected": {
+        "exact": "14400",
+        "shown": "$14,400"
+      },
+      "working": [
+        "(1800 − 600) × 12"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-068",
+      "case_id": "MK-CF-F-068-C02",
+      "name": "rentalNetAnnual",
+      "kind": "easy",
+      "title": "Loss retained",
+      "as_of": "2026-10-24",
+      "given": "Loss retained",
+      "inputs": {
+        "properties": [
+          {
+            "rent": 1000,
+            "operating_cost": 1200
+          }
+        ]
+      },
+      "expected": {
+        "exact": "-2400",
+        "shown": "−$2,400"
+      },
+      "working": [
+        "(1000 − 1200) × 12"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-068",
+      "case_id": "MK-CF-F-068-C03",
+      "name": "rentalNetAnnual",
+      "kind": "complex",
+      "title": "Mixed properties",
+      "as_of": "2026-10-24",
+      "given": "Mixed properties",
+      "inputs": {
+        "properties": [
+          {
+            "rent": "2831.17",
+            "operating_cost": "1131.29"
+          },
+          {
+            "rent": "1521.43",
+            "operating_cost": "1631.17"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "19081.68",
+        "shown": "$19,082"
+      },
+      "working": [
+        "(2831.17 − 1131.29) × 12 + (1521.43 − 1631.17) × 12"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-068",
+      "case_id": "MK-CF-F-068-C04",
+      "name": "rentalNetAnnual",
+      "kind": "complex",
+      "title": "Three properties",
+      "as_of": "2026-10-24",
+      "given": "Three properties",
+      "inputs": {
+        "properties": [
+          {
+            "rent": "1711.19",
+            "operating_cost": "599.37"
+          },
+          {
+            "rent": "3911.13",
+            "operating_cost": "1437.19"
+          },
+          {
+            "rent": "1199.31",
+            "operating_cost": "731.17"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "48646.80",
+        "shown": "$48,647"
+      },
+      "working": [
+        "(1711.19 − 599.37) × 12 + (3911.13 − 1437.19) × 12 + (1199.31 − 731.17) × 12"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-068",
+      "case_id": "MK-CF-F-068-C05",
+      "name": "rentalNetAnnual",
+      "kind": "edge",
+      "title": "Confirmed no rentals",
+      "as_of": "2026-10-24",
+      "given": "Confirmed no rentals",
+      "inputs": {
+        "properties": []
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "No confirmed rentals: empty sum = 0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-216",
+      "case_id": "MK-CF-F-216-C01",
+      "name": "typed",
+      "kind": "easy",
+      "title": "Present",
+      "as_of": "2026-10-24",
+      "given": "Present",
+      "inputs": {
+        "old_profile": {
+          "rent": "1800"
+        }
+      },
+      "expected": true,
+      "working": [
+        "Selected rent value present and nonblank after trimming; zero is present."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-216",
+      "case_id": "MK-CF-F-216-C02",
+      "name": "typed",
+      "kind": "easy",
+      "title": "Missing",
+      "as_of": "2026-10-24",
+      "given": "Missing",
+      "inputs": {
+        "old_profile": {}
+      },
+      "expected": false,
+      "working": [
+        "Selected rent value present and nonblank after trimming; zero is present."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-216",
+      "case_id": "MK-CF-F-216-C03",
+      "name": "typed",
+      "kind": "complex",
+      "title": "Explicit zero",
+      "as_of": "2026-10-24",
+      "given": "Explicit zero",
+      "inputs": {
+        "old_profile": {
+          "rent": "0",
+          "cost": " 0 ",
+          "kind": "short"
+        }
+      },
+      "expected": true,
+      "working": [
+        "Selected rent value present and nonblank after trimming; zero is present."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-216",
+      "case_id": "MK-CF-F-216-C04",
+      "name": "typed",
+      "kind": "complex",
+      "title": "Spaces with stored kind",
+      "as_of": "2026-10-24",
+      "given": "Spaces with stored kind",
+      "inputs": {
+        "old_profile": {
+          "rent": "  ",
+          "cost": "",
+          "kind": "long"
+        }
+      },
+      "expected": false,
+      "working": [
+        "Selected rent value present and nonblank after trimming; zero is present."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-216",
+      "case_id": "MK-CF-F-216-C05",
+      "name": "typed",
+      "kind": "edge",
+      "title": "Null profile",
+      "as_of": "2026-10-24",
+      "given": "Null profile",
+      "inputs": {
+        "old_profile": null
+      },
+      "expected": false,
+      "working": [
+        "Selected rent value present and nonblank after trimming; zero is present."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-217",
+      "case_id": "MK-CF-F-217-C01",
+      "name": "hasOldRentFigure",
+      "kind": "easy",
+      "title": "Present",
+      "as_of": "2026-10-24",
+      "given": "Present",
+      "inputs": {
+        "old_profile": {
+          "rent": "1800"
+        }
+      },
+      "expected": true,
+      "working": [
+        "Presence of any old rent field, even its kind."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-217",
+      "case_id": "MK-CF-F-217-C02",
+      "name": "hasOldRentFigure",
+      "kind": "easy",
+      "title": "Missing",
+      "as_of": "2026-10-24",
+      "given": "Missing",
+      "inputs": {
+        "old_profile": {}
+      },
+      "expected": false,
+      "working": [
+        "Presence of any old rent field, even its kind."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-217",
+      "case_id": "MK-CF-F-217-C03",
+      "name": "hasOldRentFigure",
+      "kind": "complex",
+      "title": "Explicit zero",
+      "as_of": "2026-10-24",
+      "given": "Explicit zero",
+      "inputs": {
+        "old_profile": {
+          "rent": "0",
+          "cost": " 0 ",
+          "kind": "short"
+        }
+      },
+      "expected": true,
+      "working": [
+        "Presence of any old rent field, even its kind."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-217",
+      "case_id": "MK-CF-F-217-C04",
+      "name": "hasOldRentFigure",
+      "kind": "complex",
+      "title": "Spaces with stored kind",
+      "as_of": "2026-10-24",
+      "given": "Spaces with stored kind",
+      "inputs": {
+        "old_profile": {
+          "rent": "  ",
+          "cost": "",
+          "kind": "long"
+        }
+      },
+      "expected": true,
+      "working": [
+        "Presence of any old rent field, even its kind."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-217",
+      "case_id": "MK-CF-F-217-C05",
+      "name": "hasOldRentFigure",
+      "kind": "edge",
+      "title": "Null profile",
+      "as_of": "2026-10-24",
+      "given": "Null profile",
+      "inputs": {
+        "old_profile": null
+      },
+      "expected": false,
+      "working": [
+        "Presence of any old rent field, even its kind."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-218",
+      "case_id": "MK-CF-F-218-C01",
+      "name": "moveOldRentFigure",
+      "kind": "easy",
+      "title": "Migrate raw entry",
+      "as_of": "2026-10-24",
+      "given": "Migrate raw entry",
+      "inputs": {
+        "old": {
+          "rent": "1800",
+          "cost": "600"
+        },
+        "list": null
+      },
+      "expected": {
+        "list": [
+          {
+            "property": "",
+            "rent": "1800",
+            "cost": "600",
+            "kind": "long"
+          }
+        ],
+        "old_removed": true
+      },
+      "working": [
+        "Copy raw values once; no property assigned."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-218",
+      "case_id": "MK-CF-F-218-C02",
+      "name": "moveOldRentFigure",
+      "kind": "easy",
+      "title": "Already migrated",
+      "as_of": "2026-10-24",
+      "given": "Already migrated",
+      "inputs": {
+        "old": null,
+        "list": [
+          {
+            "property": "A",
+            "rent": "1800"
+          }
+        ]
+      },
+      "expected": {
+        "list": [
+          {
+            "property": "A",
+            "rent": "1800"
+          }
+        ]
+      },
+      "working": [
+        "No old entry: no change."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-218",
+      "case_id": "MK-CF-F-218-C03",
+      "name": "moveOldRentFigure",
+      "kind": "complex",
+      "title": "Existing named list wins",
+      "as_of": "2026-10-24",
+      "given": "Existing named list wins",
+      "inputs": {
+        "old": {
+          "rent": "2731.17",
+          "cost": "911.43"
+        },
+        "list": [
+          {
+            "property": "A",
+            "rent": "1889.13",
+            "cost": "711.19"
+          }
+        ]
+      },
+      "expected": {
+        "list": [
+          {
+            "property": "A",
+            "rent": "1889.13",
+            "cost": "711.19"
+          }
+        ],
+        "old_removed": true
+      },
+      "working": [
+        "Preserve list verbatim; remove legacy duplicates."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-218",
+      "case_id": "MK-CF-F-218-C04",
+      "name": "moveOldRentFigure",
+      "kind": "complex",
+      "title": "Raw text retained",
+      "as_of": "2026-10-24",
+      "given": "Raw text retained",
+      "inputs": {
+        "old": {
+          "rent": "about 2k",
+          "cost": "0",
+          "kind": "short"
+        },
+        "list": null
+      },
+      "expected": {
+        "list": [
+          {
+            "property": "",
+            "rent": "about 2k",
+            "cost": "0",
+            "kind": "short"
+          }
+        ],
+        "old_removed": true
+      },
+      "working": [
+        "Migration does not parse or silently change the user’s words."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-218",
+      "case_id": "MK-CF-F-218-C05",
+      "name": "moveOldRentFigure",
+      "kind": "edge",
+      "title": "Unreadable list",
+      "as_of": "2026-10-24",
+      "given": "Unreadable list",
+      "inputs": {
+        "old": {
+          "rent": "1800"
+        },
+        "list": "unreadable"
+      },
+      "expected": {
+        "unchanged": true
+      },
+      "working": [
+        "Unreadable existing list blocks destructive migration."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    }
+  ],
+  "could_not_test": [],
+  "rules_held": [
+    {
+      "rule": "DEC-0003",
+      "cards": [
+        "MK-CF-F-063"
+      ],
+      "verdict": "NOT HELD",
+      "why": "Year-month preservation is present in canonical wage tables,but annualized/converted paths and yearless vest/one-time defaults lose the same dated meaning.",
+      "decision_in_force": "When you enter a year of income, the app asks which twelve months you mean — the calendar year, or the next twelve months from now. Three decisions:\n1. Every month you enter carries its own month AND year, so entering across a New Year does not overwrite the wrong month.\n2. Both ways of asking write to the same twelve calendar slots underneath, so the answer means the same thing however it was entered.\n3. When a receipt is scanned, the total is read from the total — never from a line about how it was paid, which is not what you spent.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-143-C03",
+        "MK-CF-F-143-C04",
+        "MK-CF-F-143-C05",
+        "MK-CF-F-063-C05",
+        "MK-CF-F-071-C05",
+        "MK-CF-F-079-C03",
+        "MK-CF-F-079-C04",
+        "MK-CF-F-079-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0151",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“yes, I like the text.” The Social Security card is approved in two versions: at 60 and 61 it says the decision is coming up, that you can first claim at 62, and that every year you wait after that raises the amount — so the card is honest about what you cannot do yet.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0176",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Two-earner readers exist,but annualOfSource substitutes household salary on each earnerrow and partial-year contributions diverge.",
+      "decision_in_force": "The whole income surface redesigned. Six decisions:\n1. Base pay becomes a full screen with one expandable section per earner — gross, 401(k), employer match, and what actually lands.\n2. A 14-month dated table when pay varies, rather than one typical figure.\n3. BOTH earners are captured, not one: a household on $84,000 plus $54,000 was being read as $84,000 — one person’s income against two people’s spending.\n4. A filing-status question, which had never been asked, so every couple was taxed as a single filer.\n5. Bonus and company shares follow the same who-earns pattern.\n6. Interest and dividends are worked out from your holdings rather than asked for, and treated as TAXABLE BUT NOT SPENDABLE.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-210-C03",
+        "MK-CF-F-210-C04",
+        "MK-CF-F-210-C05",
+        "MK-CF-F-188-C03",
+        "MK-CF-F-188-C04",
+        "MK-CF-F-188-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0198",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Current monthgrid removes reinvested cash,but legacy cashflowYear includes it and taxOrganizer’s cash-payout basis can omit taxable reinvestments.",
+      "decision_in_force": "Dividends and interest come OUT of your spendable take-home, because in most accounts they are reinvested where they are earned and never reach your bank. The onboarding screen asks “Does this reach your bank?” and says what the answer means.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-020-C01",
+        "MK-CF-F-020-C02",
+        "MK-CF-F-020-C03",
+        "MK-CF-F-020-C04",
+        "MK-CF-O-007-C03",
+        "MK-CF-O-007-C04",
+        "MK-CF-O-007-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0200",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. One-time migration is stated,but its calculated branch omits401(k)from the inverse equation and may not preserve entered landing after deductions.",
+      "decision_in_force": "When you type your take-home instead of your gross, it is converted ONCE on the way in and stored. The old code re-ran the tax schedule backwards on EVERY read to find a gross that would produce your figure — a guess laid on top of an estimate.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-186-C04"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0291",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“spouse.” The word is spouse, not partner, in everything a person reads.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0296",
+      "cards": [
+        "MK-CF-F-063"
+      ],
+      "verdict": "NOT HELD",
+      "why": "Unknown vestdate,age,amounts and budgets are filled with currentyear,68 or0in severalfinancialpaths.",
+      "decision_in_force": "“an unknown input produces no number and a reason — never a default.” Where something is not known, the app says what is missing instead of filling in a plausible figure. A default looks like an answer.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-063-C05",
+        "MK-CF-F-225-C05",
+        "MK-CF-F-222-C05",
+        "MK-CF-F-001-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0303",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The outside-stream reader retains inflation flags,but the delegated future projection and next-year update policy are not fully supplied.",
+      "decision_in_force": "“flat pensions are being inflated — a fixed-versus-inflating flag per stream; Social Security inflates, pensions and annuities flat.” Each income stream says whether it rises with inflation. Inflating a fixed pension overstates a retirement by more every year.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-105-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0307",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The outside-guaranteed reader excludes withdrawals andRMDs. Taxable treatment remains a separate defect.",
+      "decision_in_force": "“withdrawals and RMDs are not guaranteed income — paycheck lists each line; the plan input is outside money only.” Money you draw from your own savings is not guaranteed income; only money arriving from outside is. Counting your own pot as guaranteed makes a plan look safe because it is spending itself.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0327",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. New tax primitive uses taxable income for state tax,but legacy buildIncomeState drops state from monthly grid and effectiveTaxRate uses a separate rate.",
+      "decision_in_force": "“state tax applies to taxable income, never gross.” Applying a state rate to gross income overstates the tax by the whole deduction.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-049-C03",
+        "MK-CF-F-048-C03"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0364",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“Q5 — the mortgage odds placeholder → build the second simulation first; until then the row states today’s odds and stops.” Rather than showing a placeholder figure, the row says what is true today and says nothing more until the calculation exists.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0447",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Explicit one-time-year handling is present for dated otherincome,but missingyear still recurs and legacy onboarding fixes signingbonus toJanuary.",
+      "decision_in_force": "“how about one time income?” Income that arrives once is captured as such and lands in its own month, rather than being spread across twelve.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-071-C05",
+        "MK-CF-F-079-C03",
+        "MK-CF-F-079-C04",
+        "MK-CF-F-079-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0487",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "HIS QUESTION: “How is the amount calculated by age? Is this a formula used by the Social Security Administration?” Asking whether a figure follows the actual rules or our approximation of them.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0491",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "HIS QUESTION: “How all this information will be captured and at what frequency?” Including the parts no connection can reach — cash, and cards that are not linked.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-3768",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "His approval of items 2 and 3 of the open points from OpenAI's final audit, as a whole. Each rule is its own row beside this one.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-3768c",
+      "cards": [
+        "MK-CF-F-219",
+        "MK-CF-F-067"
+      ],
+      "verdict": "HELD",
+      "why": "Strict numeric rent parsing honors the owner’s treatment of wordsasnotentered;unknownnetcoverage remains open.",
+      "decision_in_force": "A rent or running-cost figure is a number. One with words in it — \"about 2k\" — is not read: it counts as not entered, and the rent field on the Income screen takes digits only. Before: \"about 2k\" was read as $2, and the property counted as a rental.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-219-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-7935",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Capitalgain lookup is federalonly in its writtencontract;finitegainstacking remains a separate missing capability.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his ruling DEC-0321, made without asking him, as his order of 2026-09-30 says. His ruling DEC-0321 (2026-08-20): one tab said state tax was missing from the capital-gains figure and one said included; settled in one place. The app applies no state tax to capital gains, and now the two declarations say \"federal only\" in plain words. The Holding page prints the two gains and no tax figure ($8,000 long-term and $1,000 short-term are the gain itself), so no screen words change. userCapGainsRates was the other tab's half: it added the state rate, no app code called it, and its two tests now check the federal rates and that it is gone. Its number stays on the register's retired list with this reason. To reverse: restore the function and drop the two sentences. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-104-C03",
+        "MK-CF-F-104-C04"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7938",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Part-yeartake-home rate multiplies twelve months,so paidmonths do not preserve the enteredtake-home.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0283 and DEC-3523 (tenets 1 and 4), made without asking him, as his order of 2026-09-30 says. $9,000 a month with $1,000 into a 401(k), single: the months read $7,976 while Your base pay read $6,976; all read $6,976 (22%), then $7,403 filing jointly (12%) and $6,963 with $1,500 into the 401(k). A take-home typed as $6,200 reads $6,200 (it read $7,200). A rate the person gave is not laid on rent, and reinvested interest and dividends are not counted as arriving. Checked in 10 of 10 households against the Income summary. The drawing's own words already said after tax and 401(k). To reverse: take the tax off the wage and leave the 401(k) in. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-233-C03",
+        "MK-CF-F-233-C04",
+        "MK-CF-F-233-C05",
+        "MK-CF-F-234-C04"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    }
+  ]
+}

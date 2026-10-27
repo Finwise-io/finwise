@@ -120,6 +120,27 @@ NEW = {
  'MK-XS-I-070': ('the class a broker sends for a holding — its security type and its cash-equivalent flag',
                  'sent by the connection on each sync (SnapTrade\'s type code and flag), or read from an import file\'s type column',
                  ['broker_type', 'cash_equivalent', 'brokerTag', 'cashEquivalent', 'brokerType']),
+ # 2026-10-26 (PF-TOOLS) — the nine values the 2026-10-25 Cash flow fix wave began storing, each named by the agent that added it
+ # (FIX-INCOME-B: signing date, sell at vest, unemployment share; FIX-ROOM: Medicare start; FIX-INCOME-A: hours a week; CF-MMFIX-A:
+ # the Bill calendar's cash on hand; FIX-TRADES: cash never entered; FIX-MONTH: a payment's debt, the Roth conversion's year)
+ 'MK-XS-I-071': ('the date a signing bonus is paid — its year, and its month when known',
+                 'typed by the person in sign-up (Bonuses) or the Income manager', ['signingDate']),
+ 'MK-XS-I-072': ('whether shares are sold when they vest — yes makes a vest money that lands; otherwise it is shares, taxed in its year',
+                 'typed by the person in the grants editor or Bonus and stock', ['rsuSoldAtVest']),
+ 'MK-XS-I-073': ('the part of a month\'s benefits that is unemployment pay, when another kind of benefit is chosen beside it',
+                 'typed by the person in sign-up (Benefits)', ['\\.unemploymentMonthly']),
+ 'MK-XS-I-074': ('the month Medicare began — "YYYY-MM", or "before-YYYY" for a start before the year',
+                 'typed by the person on the Contribution-room screen (HSA card, beside MK-XS-I-062)', ['medicareStart']),
+ 'MK-XS-I-075': ('hours a week, for a wage paid by the hour',
+                 'typed by the person on Your base pay', ['hoursPerWeek']),
+ 'MK-XS-I-076': ('cash on hand typed on the Bill calendar, with the date it was typed',
+                 'typed by the person on the Bill calendar', ['billCalendarStart']),
+ 'MK-XS-I-077': ('that an account\'s cash was never entered — the cash figure is activity since the import or since it was added',
+                 'set by the app when a trade or a deposit opens a cash figure from nothing; cleared by an opening cash record', ['cash_not_entered']),
+ 'MK-XS-I-078': ('the debt a logged debt payment was paid on',
+                 'set when the person logs a payment from a debt (Log a payment)', ['debtId']),
+ 'MK-XS-I-079': ('the year a Roth conversion is made — its tax is due the April after',
+                 'saved when the person adopts a conversion on the Roth screen', ['rothConversionYear']),
 }
 
 # MoneyKeel/functions added 2026-08-27 — new calculations live there, and a folder the sweep

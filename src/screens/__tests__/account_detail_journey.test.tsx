@@ -88,7 +88,7 @@ test('a hand-entered value 6+ months old gets the gentle nudge; "Still right" re
 test('Update value re-stamps the as-of date with the new amount', () => {
   mockParams = { id: 'hme' };
   render(<AccountPortfolioScreen />);
-  fireEvent.press(screen.getByLabelText("Update this account's value"));
+  fireEvent.press(screen.getByLabelText("Update this account’s value"));
   fireEvent.changeText(screen.getByLabelText('Current value'), '680000');
   fireEvent.press(screen.getByLabelText('Save the updated value'));
   const a = (useStore.getState() as any).assetAccounts.find((x: any) => x.asset_id === 'hme');

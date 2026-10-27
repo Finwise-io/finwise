@@ -1,0 +1,2889 @@
+{
+  "batch": "cf module — part 19",
+  "written_by": "OpenAI independent specification reviewer",
+  "ready_to_close": false,
+  "still_open": [
+    "MK-CF-M-024 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for each source of guaranteed income. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-024 tenet6: The package supplies decision references and a ruled date 2026-10-02. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-028 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for each bill and the day it falls. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-028 tenet6: The package supplies decision references and a ruled date 2026-09-27. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-030 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Each person’s pay. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-030 tenet6: The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-032 tenet4: Wages-only bracket differs from ownerDEC-0178/0191all-income bracket when rent/dividends change the band.",
+    "MK-CF-M-032 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Federal tax bracket. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-032 tenet6: The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-033 tenet1: With otherincome,the household effective rate on wages is an allocation,not federal tax attributable only to wages.",
+    "MK-CF-M-033 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Calculated federal tax. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-033 tenet6: The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-033 tenet8: Label calculated taxscope accurately when an enteredstate rate is included.",
+    "MK-CF-M-034 tenet4: Typicalmonthly contribution×12cannotstandfor contributions in paidmonths only.",
+    "MK-CF-M-034 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Your 401(k)s. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-034 tenet6: The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-035 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for The take-home above is higher than it will really be. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-035 tenet6: The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-035 tenet7: Warning describes employee withholding,not finaljoint AdditionalMedicare liability;two150000wagesproduce450additional filingliability.",
+    "MK-CF-M-036 tenet1: F-145subtracts12months of typicaltake-home/401(k)even when the actual wages cover fewerpaidmonths.",
+    "MK-CF-M-036 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Everything else taken out. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-036 tenet6: The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-037 tenet1: Positive-only sourcefilter drops a realrental loss from usual-month income.",
+    "MK-CF-M-037 tenet2: Show each signedcash source andtax adjustment so rows reconcile,including rental losses.",
+    "MK-CF-M-037 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Take-home each month. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-037 tenet6: The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-038 tenet2: Full set of positive andnegative sources needed;omitting losses cannot explain the total.",
+    "MK-CF-M-038 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for each source of take-home. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-038 tenet6: The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-039 tenet4: Actualyear/month lumps must be distinguished from a levelannualvest run-rate.",
+    "MK-CF-M-039 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for its own month, never spread. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-039 tenet6: The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-040 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for is not here — it is reinvested where it is earned. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-040 tenet6: The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-041 tenet4: F-188andF-206disagree on part-year401(k);share oneactual-year contributiontotal.",
+    "MK-CF-M-041 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for What it is taxed on. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-041 tenet6: The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-042 tenet2: incomeSummarylists only wages,rent,dividends,bonus despite totalincluding self-employment,retirement,otherincome,etc.;rowscannotalwaysreconcile.",
+    "MK-CF-M-042 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for each taxed source. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-042 tenet6: The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-043 tenet2: Register formula says incomealreadyafter401(k),then says subtract401(k)again;rewrite as gross−401(k)−deductions once.",
+    "MK-CF-M-043 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Federal tax bracket. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-043 tenet6: The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-044 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Calculated federal tax. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-044 tenet6: The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-044 tenet8: Calculated federal tax label is misleading when its formula includes an enteredstate rate;name both. Typedpayslipimplied deductions are not necessarily federaltax.",
+    "MK-CF-M-045 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Social Security takes 6.2% of a wage up to. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-045 tenet6: The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-046 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Medicare 1.45% of everything, 0.9% more above. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-046 tenet6: The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-046 tenet8: Specify employerwithholding threshold200000;household AdditionalMedicare thresholds differ.",
+    "MK-CF-M-060 tenet2: Minimum month-end is not necessarily the lowest intra-monthbalance;label lowestmonth-end explicitly.",
+    "MK-CF-M-060 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Lowest point. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-060 tenet6: The package supplies decision references and a ruled date 2026-10-02. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-060 tenet7: This projection cannot guarantee daily billliquidity.",
+    "MK-CF-M-061 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for END — where the month leaves you. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-061 tenet6: The package supplies decision references and a ruled date 2026-10-02. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-062 tenet4: Monthmissing annualbill has a conflictingJanuaryplacement;explicit dates and conservative availability assumption are required.",
+    "MK-CF-M-062 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Short — set it aside by <date>. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-062 tenet6: The package supplies decision references and a ruled date 2026-10-02. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-063 tenet2: Conservativeavailable is a policyestimate,not an exactdailybankbalance;sentence about loweradjacentends is not equivalent when dateditems exist.",
+    "MK-CF-M-063 tenet3: Declared empty/missing behavior: No balance to start from — nothing is projected. Missing financial evidence must not be recast as a measured0 or a confirmedbalance.",
+    "MK-CF-M-063 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Covered — about $X there by <date>. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-063 tenet6: The package supplies decision references and a ruled date 2026-10-02. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-066 tenet1: Trailingwindow mustexclude futurepayouts;cash payout subtotal is not alltaxable investmentincome.",
+    "MK-CF-M-066 tenet3: Declared empty/missing behavior: No record of any — $0, never an estimate. Missing financial evidence must not be recast as a measured0 or a confirmedbalance.",
+    "MK-CF-M-066 tenet4: No-record0 needs coverage context and must not be confused with a forwardestimatedcoupon.",
+    "MK-CF-M-066 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Dividends, interest & coupons. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-066 tenet6: The package supplies decision references and a ruled date 2026-10-02. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-069 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Your guaranteed income. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-069 tenet6: The package supplies decision references and a ruled date 2026-10-02. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-076 tenet2: Positive-only taxsource rows omit netlosses and taxabletypes included in total.",
+    "MK-CF-M-076 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for = Gross /year. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-076 tenet6: The package supplies decision references,but this row has no ruleddate. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "MK-CF-M-077 tenet4: Count each earner’s actual paidmonths;F-188uses12regardless.",
+    "MK-CF-M-077 tenet5: A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Your 401(k)s. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+    "MK-CF-M-077 tenet6: The package supplies decision references,but this row has no ruleddate. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+    "DEC-0018: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0078: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0108: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0149: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0152: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0165: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0166: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0176: NOT HELD — Two-earner readers exist,but annualOfSource substitutes household salary on each earnerrow and partial-year contributions diverge.",
+    "DEC-0178: NOT HELD — basePay’s band uses wages while incomeSummary uses alltaxable sources;nonwage income can change the band.",
+    "DEC-0179: NOT HELD — Current monthgrid removes reinvested cash,but legacy cashflowYear includes it and taxOrganizer’s cash-payout basis can omit taxable reinvestments.",
+    "DEC-0181: NOT HELD — The legacy stored-income path still calculates monthlytax as single without state and differs from rateInForce.",
+    "DEC-0182: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0184: NOT HELD — The legacy stored-income path still calculates monthlytax as single without state and differs from rateInForce.",
+    "DEC-0187: NOT HELD — Year-month preservation is present in canonical wage tables,but annualized/converted paths and yearless vest/one-time defaults lose the same dated meaning.",
+    "DEC-0188: NOT HELD — Two-earner readers exist,but annualOfSource substitutes household salary on each earnerrow and partial-year contributions diverge.",
+    "DEC-0189: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0190: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0191: NOT HELD — basePay’s band uses wages while incomeSummary uses alltaxable sources;nonwage income can change the band.",
+    "DEC-0194: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0195: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0196: NOT HELD — The legacy stored-income path still calculates monthlytax as single without state and differs from rateInForce.",
+    "DEC-0198: NOT HELD — Current monthgrid removes reinvested cash,but legacy cashflowYear includes it and taxOrganizer’s cash-payout basis can omit taxable reinvestments.",
+    "DEC-0202: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0207: NOT HELD — Complete approved rows reconcile,but partial-year wage shares and tax/subtotal scope yield counterexamples outside that drawing.",
+    "DEC-0209: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0270: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0283: NOT HELD — Subtraction walk is declared,but annual401(k)times12 disagrees with paid-month contributions and oldgross paths can bypass it.",
+    "DEC-0291: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0327: NOT HELD — New tax primitive uses taxable income for state tax,but legacy buildIncomeState drops state from monthly grid and effectiveTaxRate uses a separate rate.",
+    "DEC-0345: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0352: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0375: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0376: NOT HELD — Complete approved rows reconcile,but partial-year wage shares and tax/subtotal scope yield counterexamples outside that drawing.",
+    "DEC-0380: NOT HELD — Complete approved rows reconcile,but partial-year wage shares and tax/subtotal scope yield counterexamples outside that drawing.",
+    "DEC-0384: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0387: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0389: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0392: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0396: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0431: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-1112: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-1134: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-1560: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-1625: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-1668: CANNOT TELL — The continuingrent emergency-funddoor is outside the219cards;incomeSummary supplies rent,but the completeburnrate subtraction is not supplied here.",
+    "DEC-1924: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-1926: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-2484: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-7171: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-7796: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-7797: NOT HELD — Subtraction walk is declared,but annual401(k)times12 disagrees with paid-month contributions and oldgross paths can bypass it.",
+    "DEC-7798: NOT HELD — Current rate producer describes enteredstate,but legacyeffectiveTaxRateandbuildIncomeState omit it.",
+    "DEC-7887: NOT HELD — Subtraction walk is declared,but annual401(k)times12 disagrees with paid-month contributions and oldgross paths can bypass it.",
+    "DEC-7937: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-7940: NOT HELD — Explicit one-time-year handling is present for dated otherincome,but missingyear still recurs and legacy onboarding fixes signingbonus toJanuary.",
+    "DEC-7941: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-7942: NOT HELD — One-time migration is stated,but its calculated branch omits401(k)from the inverse equation and may not preserve entered landing after deductions.",
+    "DEC-7947: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific."
+  ],
+  "scope": "Written formulas,owner decisions and primary publications only. No repository code,existingtests or liveapp outputs were inspected for this review. Attached screen-register worked/app-result fields were excluded from expected-answer derivation.",
+  "screen_checks": [
+    {
+      "figure": "MK-CF-M-024",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for each source of guaranteed income is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each source of guaranteed income"
+    },
+    {
+      "figure": "MK-CF-M-024",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: each stream as entered, brought to a monthly amount Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each source of guaranteed income"
+    },
+    {
+      "figure": "MK-CF-M-024",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: Nothing entered — the list is replaced by the door to enter it.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each source of guaranteed income"
+    },
+    {
+      "figure": "MK-CF-M-024",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-024 and producer MK-CF-O-004 incomeSummary define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each source of guaranteed income"
+    },
+    {
+      "figure": "MK-CF-M-024",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for each source of guaranteed income. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each source of guaranteed income"
+    },
+    {
+      "figure": "MK-CF-M-024",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-10-02. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each source of guaranteed income"
+    },
+    {
+      "figure": "MK-CF-M-024",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each source of guaranteed income"
+    },
+    {
+      "figure": "MK-CF-M-024",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: each source of guaranteed income. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each source of guaranteed income"
+    },
+    {
+      "figure": "MK-CF-M-028",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for each bill and the day it falls is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each bill and the day it falls"
+    },
+    {
+      "figure": "MK-CF-M-028",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: each dated bill in the window, in date order, with the running balance after it Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each bill and the day it falls"
+    },
+    {
+      "figure": "MK-CF-M-028",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: No dated bill ahead — the COMING UP card is not drawn; with nothing behind the table at all, the one line \"Nothing entered yet. Add your bills ›\" sits under it (Q48).",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each bill and the day it falls"
+    },
+    {
+      "figure": "MK-CF-M-028",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-028 and producer MK-CF-O-008 whatsComing define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each bill and the day it falls"
+    },
+    {
+      "figure": "MK-CF-M-028",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for each bill and the day it falls. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each bill and the day it falls"
+    },
+    {
+      "figure": "MK-CF-M-028",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-09-27. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each bill and the day it falls"
+    },
+    {
+      "figure": "MK-CF-M-028",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each bill and the day it falls"
+    },
+    {
+      "figure": "MK-CF-M-028",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: each bill and the day it falls. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each bill and the day it falls"
+    },
+    {
+      "figure": "MK-CF-M-030",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for Each person’s pay is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Each person’s pay"
+    },
+    {
+      "figure": "MK-CF-M-030",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: gross a year = the sum of every earner’s wage, each annualised from the rhythm they are paid in Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Each person’s pay"
+    },
+    {
+      "figure": "MK-CF-M-030",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: Shows $0 until a wage is entered; the screen offers the door to enter one.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Each person’s pay"
+    },
+    {
+      "figure": "MK-CF-M-030",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-030 and producer MK-CF-O-001 basePay define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Each person’s pay"
+    },
+    {
+      "figure": "MK-CF-M-030",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Each person’s pay. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Each person’s pay"
+    },
+    {
+      "figure": "MK-CF-M-030",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Each person’s pay"
+    },
+    {
+      "figure": "MK-CF-M-030",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Each person’s pay"
+    },
+    {
+      "figure": "MK-CF-M-030",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: Each person’s pay. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Each person’s pay"
+    },
+    {
+      "figure": "MK-CF-M-032",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for Federal tax bracket is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Federal tax bracket"
+    },
+    {
+      "figure": "MK-CF-M-032",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: the published bracket the household’s wages fall in once each earner’s own 401(k) is out — the 401(k) is not taxed — less the standard deduction, for their filing status Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Federal tax bracket"
+    },
+    {
+      "figure": "MK-CF-M-032",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: The row is not shown until a wage is entered.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Federal tax bracket"
+    },
+    {
+      "figure": "MK-CF-M-032",
+      "tenet": 4,
+      "verdict": "FAIL",
+      "why": "Wages-only bracket differs from ownerDEC-0178/0191all-income bracket when rent/dividends change the band.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Federal tax bracket"
+    },
+    {
+      "figure": "MK-CF-M-032",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Federal tax bracket. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Federal tax bracket"
+    },
+    {
+      "figure": "MK-CF-M-032",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Federal tax bracket"
+    },
+    {
+      "figure": "MK-CF-M-032",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Federal tax bracket"
+    },
+    {
+      "figure": "MK-CF-M-032",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: Federal tax bracket. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Federal tax bracket"
+    },
+    {
+      "figure": "MK-CF-M-033",
+      "tenet": 1,
+      "verdict": "FAIL",
+      "why": "With otherincome,the household effective rate on wages is an allocation,not federal tax attributable only to wages.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Calculated federal tax"
+    },
+    {
+      "figure": "MK-CF-M-033",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: tax a month = federal tax on (everything taxable, less the 401(k)s and the standard deduction, at the published bands) ÷ 12 — the same in every month Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Calculated federal tax"
+    },
+    {
+      "figure": "MK-CF-M-033",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: The row appears only when the figure is ours; an entered take-home already has tax inside it.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Calculated federal tax"
+    },
+    {
+      "figure": "MK-CF-M-033",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-033 and producer MK-CF-O-001 basePay define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Calculated federal tax"
+    },
+    {
+      "figure": "MK-CF-M-033",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Calculated federal tax. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Calculated federal tax"
+    },
+    {
+      "figure": "MK-CF-M-033",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Calculated federal tax"
+    },
+    {
+      "figure": "MK-CF-M-033",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Calculated federal tax"
+    },
+    {
+      "figure": "MK-CF-M-033",
+      "tenet": 8,
+      "verdict": "FAIL",
+      "why": "Label calculated taxscope accurately when an enteredstate rate is included.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Calculated federal tax"
+    },
+    {
+      "figure": "MK-CF-M-034",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for Your 401(k)s is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your 401(k)s"
+    },
+    {
+      "figure": "MK-CF-M-034",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: 401(k) a month = the sum of every earner’s own contribution, the employer’s match excluded Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your 401(k)s"
+    },
+    {
+      "figure": "MK-CF-M-034",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: The row is hidden when nobody contributes.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your 401(k)s"
+    },
+    {
+      "figure": "MK-CF-M-034",
+      "tenet": 4,
+      "verdict": "FAIL",
+      "why": "Typicalmonthly contribution×12cannotstandfor contributions in paidmonths only.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your 401(k)s"
+    },
+    {
+      "figure": "MK-CF-M-034",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Your 401(k)s. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your 401(k)s"
+    },
+    {
+      "figure": "MK-CF-M-034",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your 401(k)s"
+    },
+    {
+      "figure": "MK-CF-M-034",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your 401(k)s"
+    },
+    {
+      "figure": "MK-CF-M-034",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: Your 401(k)s. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your 401(k)s"
+    },
+    {
+      "figure": "MK-CF-M-035",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for The take-home above is higher than it will really be is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "The take-home above is higher than it will really be"
+    },
+    {
+      "figure": "MK-CF-M-035",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: overstated by = Σ over earners of (Social Security 6.2% of the wage up to the wage base + Medicare 1.45% of the whole wage + 0.9% of the wage above the additional-tax threshold) ÷ 12 Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "The take-home above is higher than it will really be"
+    },
+    {
+      "figure": "MK-CF-M-035",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: The warning appears only when the take-home is ours and estimated.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "The take-home above is higher than it will really be"
+    },
+    {
+      "figure": "MK-CF-M-035",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-035 and producer MK-CF-O-001 basePay define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "The take-home above is higher than it will really be"
+    },
+    {
+      "figure": "MK-CF-M-035",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for The take-home above is higher than it will really be. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "The take-home above is higher than it will really be"
+    },
+    {
+      "figure": "MK-CF-M-035",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "The take-home above is higher than it will really be"
+    },
+    {
+      "figure": "MK-CF-M-035",
+      "tenet": 7,
+      "verdict": "FAIL",
+      "why": "Warning describes employee withholding,not finaljoint AdditionalMedicare liability;two150000wagesproduce450additional filingliability.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "The take-home above is higher than it will really be"
+    },
+    {
+      "figure": "MK-CF-M-035",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: The take-home above is higher than it will really be. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "The take-home above is higher than it will really be"
+    },
+    {
+      "figure": "MK-CF-M-036",
+      "tenet": 1,
+      "verdict": "FAIL",
+      "why": "F-145subtracts12months of typicaltake-home/401(k)even when the actual wages cover fewerpaidmonths.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Everything else taken out"
+    },
+    {
+      "figure": "MK-CF-M-036",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: for one earner: everything else = (their gross a year − their 401(k) a year − their take-home /year) ÷ 12. For the household: the sum of the earners’ figures, never a second subtraction. Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Everything else taken out"
+    },
+    {
+      "figure": "MK-CF-M-036",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: The row is hidden for anyone whose take-home was calculated rather than entered; the household row is hidden unless every earner entered one.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Everything else taken out"
+    },
+    {
+      "figure": "MK-CF-M-036",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-036 and producer MK-CF-O-001 basePay define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Everything else taken out"
+    },
+    {
+      "figure": "MK-CF-M-036",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Everything else taken out. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Everything else taken out"
+    },
+    {
+      "figure": "MK-CF-M-036",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Everything else taken out"
+    },
+    {
+      "figure": "MK-CF-M-036",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Everything else taken out"
+    },
+    {
+      "figure": "MK-CF-M-036",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: Everything else taken out. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Everything else taken out"
+    },
+    {
+      "figure": "MK-CF-M-037",
+      "tenet": 1,
+      "verdict": "FAIL",
+      "why": "Positive-only sourcefilter drops a realrental loss from usual-month income.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Take-home each month"
+    },
+    {
+      "figure": "MK-CF-M-037",
+      "tenet": 2,
+      "verdict": "FAIL",
+      "why": "Show each signedcash source andtax adjustment so rows reconcile,including rental losses.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Take-home each month"
+    },
+    {
+      "figure": "MK-CF-M-037",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: Shows $0 on a fresh account, with the door to enter income — never a dash.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Take-home each month"
+    },
+    {
+      "figure": "MK-CF-M-037",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-037 and producer MK-CF-O-004 incomeSummary define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Take-home each month"
+    },
+    {
+      "figure": "MK-CF-M-037",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Take-home each month. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Take-home each month"
+    },
+    {
+      "figure": "MK-CF-M-037",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Take-home each month"
+    },
+    {
+      "figure": "MK-CF-M-037",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Take-home each month"
+    },
+    {
+      "figure": "MK-CF-M-037",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: Take-home each month. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Take-home each month"
+    },
+    {
+      "figure": "MK-CF-M-038",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for each source of take-home is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each source of take-home"
+    },
+    {
+      "figure": "MK-CF-M-038",
+      "tenet": 2,
+      "verdict": "FAIL",
+      "why": "Full set of positive andnegative sources needed;omitting losses cannot explain the total.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each source of take-home"
+    },
+    {
+      "figure": "MK-CF-M-038",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: The list is replaced by the door to enter income when nothing is entered.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each source of take-home"
+    },
+    {
+      "figure": "MK-CF-M-038",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-038 and producer MK-CF-O-004 incomeSummary define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each source of take-home"
+    },
+    {
+      "figure": "MK-CF-M-038",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for each source of take-home. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each source of take-home"
+    },
+    {
+      "figure": "MK-CF-M-038",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each source of take-home"
+    },
+    {
+      "figure": "MK-CF-M-038",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each source of take-home"
+    },
+    {
+      "figure": "MK-CF-M-038",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: each source of take-home. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each source of take-home"
+    },
+    {
+      "figure": "MK-CF-M-039",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for its own month, never spread is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "its own month, never spread"
+    },
+    {
+      "figure": "MK-CF-M-039",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: the standout month = of the twelve months’ take-home, the largest, when it is more than the usual month by over $1: its amount is that whole month’s take-home (the usual month plus the lump, after tax), its label the month’s name Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "its own month, never spread"
+    },
+    {
+      "figure": "MK-CF-M-039",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: The line is hidden when no source behaves this way.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "its own month, never spread"
+    },
+    {
+      "figure": "MK-CF-M-039",
+      "tenet": 4,
+      "verdict": "FAIL",
+      "why": "Actualyear/month lumps must be distinguished from a levelannualvest run-rate.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "its own month, never spread"
+    },
+    {
+      "figure": "MK-CF-M-039",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for its own month, never spread. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "its own month, never spread"
+    },
+    {
+      "figure": "MK-CF-M-039",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "its own month, never spread"
+    },
+    {
+      "figure": "MK-CF-M-039",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "its own month, never spread"
+    },
+    {
+      "figure": "MK-CF-M-039",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: its own month, never spread. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "its own month, never spread"
+    },
+    {
+      "figure": "MK-CF-M-040",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for is not here — it is reinvested where it is earned is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "is not here — it is reinvested where it is earned"
+    },
+    {
+      "figure": "MK-CF-M-040",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: taxed but not landed = interest and dividends earned inside accounts, which stay where they are earned Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "is not here — it is reinvested where it is earned"
+    },
+    {
+      "figure": "MK-CF-M-040",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: The sentence is hidden when there is none.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "is not here — it is reinvested where it is earned"
+    },
+    {
+      "figure": "MK-CF-M-040",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-040 and producer MK-CF-O-004 incomeSummary define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "is not here — it is reinvested where it is earned"
+    },
+    {
+      "figure": "MK-CF-M-040",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for is not here — it is reinvested where it is earned. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "is not here — it is reinvested where it is earned"
+    },
+    {
+      "figure": "MK-CF-M-040",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "is not here — it is reinvested where it is earned"
+    },
+    {
+      "figure": "MK-CF-M-040",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "is not here — it is reinvested where it is earned"
+    },
+    {
+      "figure": "MK-CF-M-040",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: is not here — it is reinvested where it is earned. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "is not here — it is reinvested where it is earned"
+    },
+    {
+      "figure": "MK-CF-M-041",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for What it is taxed on is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "What it is taxed on"
+    },
+    {
+      "figure": "MK-CF-M-041",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: what it is taxed on = gross a year (MK-CF-M-076) − the year's 401(k)s (MK-CF-M-077), never below $0 — his DEC-0283: income before tax is gross less the 401(k) Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "What it is taxed on"
+    },
+    {
+      "figure": "MK-CF-M-041",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: Shows $0 on a fresh account, with the door to enter income.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "What it is taxed on"
+    },
+    {
+      "figure": "MK-CF-M-041",
+      "tenet": 4,
+      "verdict": "FAIL",
+      "why": "F-188andF-206disagree on part-year401(k);share oneactual-year contributiontotal.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "What it is taxed on"
+    },
+    {
+      "figure": "MK-CF-M-041",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for What it is taxed on. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "What it is taxed on"
+    },
+    {
+      "figure": "MK-CF-M-041",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "What it is taxed on"
+    },
+    {
+      "figure": "MK-CF-M-041",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "What it is taxed on"
+    },
+    {
+      "figure": "MK-CF-M-041",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: What it is taxed on. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "What it is taxed on"
+    },
+    {
+      "figure": "MK-CF-M-042",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for each taxed source is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each taxed source"
+    },
+    {
+      "figure": "MK-CF-M-042",
+      "tenet": 2,
+      "verdict": "FAIL",
+      "why": "incomeSummarylists only wages,rent,dividends,bonus despite totalincluding self-employment,retirement,otherincome,etc.;rowscannotalwaysreconcile.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each taxed source"
+    },
+    {
+      "figure": "MK-CF-M-042",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: The list is replaced by the door to enter income when nothing is entered.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each taxed source"
+    },
+    {
+      "figure": "MK-CF-M-042",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-042 and producer MK-CF-O-004 incomeSummary define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each taxed source"
+    },
+    {
+      "figure": "MK-CF-M-042",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for each taxed source. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each taxed source"
+    },
+    {
+      "figure": "MK-CF-M-042",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each taxed source"
+    },
+    {
+      "figure": "MK-CF-M-042",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each taxed source"
+    },
+    {
+      "figure": "MK-CF-M-042",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: each taxed source. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "each taxed source"
+    },
+    {
+      "figure": "MK-CF-M-043",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for Federal tax bracket is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Federal tax bracket"
+    },
+    {
+      "figure": "MK-CF-M-043",
+      "tenet": 2,
+      "verdict": "FAIL",
+      "why": "Register formula says incomealreadyafter401(k),then says subtract401(k)again;rewrite as gross−401(k)−deductions once.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Federal tax bracket"
+    },
+    {
+      "figure": "MK-CF-M-043",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: The row is not shown until income is entered.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Federal tax bracket"
+    },
+    {
+      "figure": "MK-CF-M-043",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-043 and producer MK-CF-O-004 incomeSummary define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Federal tax bracket"
+    },
+    {
+      "figure": "MK-CF-M-043",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Federal tax bracket. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Federal tax bracket"
+    },
+    {
+      "figure": "MK-CF-M-043",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Federal tax bracket"
+    },
+    {
+      "figure": "MK-CF-M-043",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Federal tax bracket"
+    },
+    {
+      "figure": "MK-CF-M-043",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: Federal tax bracket. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Federal tax bracket"
+    },
+    {
+      "figure": "MK-CF-M-044",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for Calculated federal tax is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Calculated federal tax"
+    },
+    {
+      "figure": "MK-CF-M-044",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: tax a year = a rate typed by the person × the year's gross (MK-CF-M-076); when it is ours, federal tax on what it is taxed on (MK-CF-M-041: the gross less the 401(k)s) less the standard deduction, at the published bands — plus a state rate the person entered Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Calculated federal tax"
+    },
+    {
+      "figure": "MK-CF-M-044",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: The row is not shown until income is entered.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Calculated federal tax"
+    },
+    {
+      "figure": "MK-CF-M-044",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-044 and producer MK-CF-O-004 incomeSummary define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Calculated federal tax"
+    },
+    {
+      "figure": "MK-CF-M-044",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Calculated federal tax. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Calculated federal tax"
+    },
+    {
+      "figure": "MK-CF-M-044",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Calculated federal tax"
+    },
+    {
+      "figure": "MK-CF-M-044",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Calculated federal tax"
+    },
+    {
+      "figure": "MK-CF-M-044",
+      "tenet": 8,
+      "verdict": "FAIL",
+      "why": "Calculated federal tax label is misleading when its formula includes an enteredstate rate;name both. Typedpayslipimplied deductions are not necessarily federaltax.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Calculated federal tax"
+    },
+    {
+      "figure": "MK-CF-M-045",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for Social Security takes 6.2% of a wage up to is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Social Security takes 6.2% of a wage up to"
+    },
+    {
+      "figure": "MK-CF-M-045",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: the published wage base for the tax year Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Social Security takes 6.2% of a wage up to"
+    },
+    {
+      "figure": "MK-CF-M-045",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: Never absent — it is a published figure, not a calculation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Social Security takes 6.2% of a wage up to"
+    },
+    {
+      "figure": "MK-CF-M-045",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-045 and producer MK-CF-O-001 basePay define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Social Security takes 6.2% of a wage up to"
+    },
+    {
+      "figure": "MK-CF-M-045",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Social Security takes 6.2% of a wage up to. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Social Security takes 6.2% of a wage up to"
+    },
+    {
+      "figure": "MK-CF-M-045",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Social Security takes 6.2% of a wage up to"
+    },
+    {
+      "figure": "MK-CF-M-045",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Social Security takes 6.2% of a wage up to"
+    },
+    {
+      "figure": "MK-CF-M-045",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: Social Security takes 6.2% of a wage up to. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Social Security takes 6.2% of a wage up to"
+    },
+    {
+      "figure": "MK-CF-M-046",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for Medicare 1.45% of everything, 0.9% more above is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Medicare 1.45% of everything, 0.9% more above"
+    },
+    {
+      "figure": "MK-CF-M-046",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: the published additional-Medicare-tax threshold for the tax year Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Medicare 1.45% of everything, 0.9% more above"
+    },
+    {
+      "figure": "MK-CF-M-046",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: Never absent — it is a published figure, not a calculation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Medicare 1.45% of everything, 0.9% more above"
+    },
+    {
+      "figure": "MK-CF-M-046",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-046 and producer MK-CF-O-001 basePay define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Medicare 1.45% of everything, 0.9% more above"
+    },
+    {
+      "figure": "MK-CF-M-046",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Medicare 1.45% of everything, 0.9% more above. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Medicare 1.45% of everything, 0.9% more above"
+    },
+    {
+      "figure": "MK-CF-M-046",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-09-14. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Medicare 1.45% of everything, 0.9% more above"
+    },
+    {
+      "figure": "MK-CF-M-046",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Medicare 1.45% of everything, 0.9% more above"
+    },
+    {
+      "figure": "MK-CF-M-046",
+      "tenet": 8,
+      "verdict": "FAIL",
+      "why": "Specify employerwithholding threshold200000;household AdditionalMedicare thresholds differ.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Medicare 1.45% of everything, 0.9% more above"
+    },
+    {
+      "figure": "MK-CF-M-060",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for Lowest point is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Lowest point"
+    },
+    {
+      "figure": "MK-CF-M-060",
+      "tenet": 2,
+      "verdict": "FAIL",
+      "why": "Minimum month-end is not necessarily the lowest intra-monthbalance;label lowestmonth-end explicitly.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Lowest point"
+    },
+    {
+      "figure": "MK-CF-M-060",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: No starting balance — the table starts from $0 and says so.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Lowest point"
+    },
+    {
+      "figure": "MK-CF-M-060",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-060 and producer MK-CF-O-008 whatsComing define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Lowest point"
+    },
+    {
+      "figure": "MK-CF-M-060",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Lowest point. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Lowest point"
+    },
+    {
+      "figure": "MK-CF-M-060",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-10-02. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Lowest point"
+    },
+    {
+      "figure": "MK-CF-M-060",
+      "tenet": 7,
+      "verdict": "FAIL",
+      "why": "This projection cannot guarantee daily billliquidity.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Lowest point"
+    },
+    {
+      "figure": "MK-CF-M-060",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: Lowest point. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Lowest point"
+    },
+    {
+      "figure": "MK-CF-M-061",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for END — where the month leaves you is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "END — where the month leaves you"
+    },
+    {
+      "figure": "MK-CF-M-061",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: running balance = last month’s end + inflow − outflow, month by month from the starting balance Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "END — where the month leaves you"
+    },
+    {
+      "figure": "MK-CF-M-061",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: No starting balance — the chain starts from $0 and says so.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "END — where the month leaves you"
+    },
+    {
+      "figure": "MK-CF-M-061",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-061 and producer MK-CF-O-008 whatsComing define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "END — where the month leaves you"
+    },
+    {
+      "figure": "MK-CF-M-061",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for END — where the month leaves you. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "END — where the month leaves you"
+    },
+    {
+      "figure": "MK-CF-M-061",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-10-02. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "END — where the month leaves you"
+    },
+    {
+      "figure": "MK-CF-M-061",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "END — where the month leaves you"
+    },
+    {
+      "figure": "MK-CF-M-061",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: END — where the month leaves you. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "END — where the month leaves you"
+    },
+    {
+      "figure": "MK-CF-M-062",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for Short — set it aside by <date> is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Short — set it aside by <date>"
+    },
+    {
+      "figure": "MK-CF-M-062",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: the bill − what is there by its need-by date (MK-CF-M-063, read from the month table), when that is less Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Short — set it aside by <date>"
+    },
+    {
+      "figure": "MK-CF-M-062",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: Nothing short — the line reads Covered instead.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Short — set it aside by <date>"
+    },
+    {
+      "figure": "MK-CF-M-062",
+      "tenet": 4,
+      "verdict": "FAIL",
+      "why": "Monthmissing annualbill has a conflictingJanuaryplacement;explicit dates and conservative availability assumption are required.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Short — set it aside by <date>"
+    },
+    {
+      "figure": "MK-CF-M-062",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Short — set it aside by <date>. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Short — set it aside by <date>"
+    },
+    {
+      "figure": "MK-CF-M-062",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-10-02. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Short — set it aside by <date>"
+    },
+    {
+      "figure": "MK-CF-M-062",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Short — set it aside by <date>"
+    },
+    {
+      "figure": "MK-CF-M-062",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: Short — set it aside by <date>. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Short — set it aside by <date>"
+    },
+    {
+      "figure": "MK-CF-M-063",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for Covered — about $X there by <date> is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Covered — about $X there by <date>"
+    },
+    {
+      "figure": "MK-CF-M-063",
+      "tenet": 2,
+      "verdict": "FAIL",
+      "why": "Conservativeavailable is a policyestimate,not an exactdailybankbalance;sentence about loweradjacentends is not equivalent when dateditems exist.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Covered — about $X there by <date>"
+    },
+    {
+      "figure": "MK-CF-M-063",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "Declared empty/missing behavior: No balance to start from — nothing is projected. Missing financial evidence must not be recast as a measured0 or a confirmedbalance.",
+      "finding_kind": "coverage_or_assumption_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Covered — about $X there by <date>"
+    },
+    {
+      "figure": "MK-CF-M-063",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-063 and producer MK-CF-O-008 whatsComing define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Covered — about $X there by <date>"
+    },
+    {
+      "figure": "MK-CF-M-063",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Covered — about $X there by <date>. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Covered — about $X there by <date>"
+    },
+    {
+      "figure": "MK-CF-M-063",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-10-02. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Covered — about $X there by <date>"
+    },
+    {
+      "figure": "MK-CF-M-063",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Covered — about $X there by <date>"
+    },
+    {
+      "figure": "MK-CF-M-063",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: Covered — about $X there by <date>. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Covered — about $X there by <date>"
+    },
+    {
+      "figure": "MK-CF-M-066",
+      "tenet": 1,
+      "verdict": "FAIL",
+      "why": "Trailingwindow mustexclude futurepayouts;cash payout subtotal is not alltaxable investmentincome.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Dividends, interest & coupons"
+    },
+    {
+      "figure": "MK-CF-M-066",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: the dividend, interest and coupon records of the last twelve months, added up Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Dividends, interest & coupons"
+    },
+    {
+      "figure": "MK-CF-M-066",
+      "tenet": 3,
+      "verdict": "FAIL",
+      "why": "Declared empty/missing behavior: No record of any — $0, never an estimate. Missing financial evidence must not be recast as a measured0 or a confirmedbalance.",
+      "finding_kind": "coverage_or_assumption_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Dividends, interest & coupons"
+    },
+    {
+      "figure": "MK-CF-M-066",
+      "tenet": 4,
+      "verdict": "FAIL",
+      "why": "No-record0 needs coverage context and must not be confused with a forwardestimatedcoupon.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Dividends, interest & coupons"
+    },
+    {
+      "figure": "MK-CF-M-066",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Dividends, interest & coupons. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Dividends, interest & coupons"
+    },
+    {
+      "figure": "MK-CF-M-066",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-10-02. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Dividends, interest & coupons"
+    },
+    {
+      "figure": "MK-CF-M-066",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Dividends, interest & coupons"
+    },
+    {
+      "figure": "MK-CF-M-066",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: Dividends, interest & coupons. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Dividends, interest & coupons"
+    },
+    {
+      "figure": "MK-CF-M-069",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for Your guaranteed income is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your guaranteed income"
+    },
+    {
+      "figure": "MK-CF-M-069",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: the sum of each source of guaranteed income (MK-CF-M-024) Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your guaranteed income"
+    },
+    {
+      "figure": "MK-CF-M-069",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: Nothing entered — $0, with the door to enter it.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your guaranteed income"
+    },
+    {
+      "figure": "MK-CF-M-069",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-069 and producer MK-CF-O-004 incomeSummary define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your guaranteed income"
+    },
+    {
+      "figure": "MK-CF-M-069",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Your guaranteed income. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your guaranteed income"
+    },
+    {
+      "figure": "MK-CF-M-069",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references and a ruled date 2026-10-02. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your guaranteed income"
+    },
+    {
+      "figure": "MK-CF-M-069",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your guaranteed income"
+    },
+    {
+      "figure": "MK-CF-M-069",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: Your guaranteed income. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your guaranteed income"
+    },
+    {
+      "figure": "MK-CF-M-076",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for = Gross /year is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "= Gross /year"
+    },
+    {
+      "figure": "MK-CF-M-076",
+      "tenet": 2,
+      "verdict": "FAIL",
+      "why": "Positive-only taxsource rows omit netlosses and taxabletypes included in total.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "= Gross /year"
+    },
+    {
+      "figure": "MK-CF-M-076",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: Not shown on a fresh account — the door to enter income stands in the list.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "= Gross /year"
+    },
+    {
+      "figure": "MK-CF-M-076",
+      "tenet": 4,
+      "verdict": "PASS",
+      "why": "One declared metric identifier MK-CF-M-076 and producer MK-CF-O-004 incomeSummary define the shared concept. Equality of livecallers remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "= Gross /year"
+    },
+    {
+      "figure": "MK-CF-M-076",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for = Gross /year. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "= Gross /year"
+    },
+    {
+      "figure": "MK-CF-M-076",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references,but this row has no ruleddate. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "= Gross /year"
+    },
+    {
+      "figure": "MK-CF-M-076",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "= Gross /year"
+    },
+    {
+      "figure": "MK-CF-M-076",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: = Gross /year. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "= Gross /year"
+    },
+    {
+      "figure": "MK-CF-M-077",
+      "tenet": 1,
+      "verdict": "PASS",
+      "why": "The stated arithmetic/source for Your 401(k)s is coherent on complete,valid inputs. Relevant formula-level exceptions remain open;no rendered result was observed.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your 401(k)s"
+    },
+    {
+      "figure": "MK-CF-M-077",
+      "tenet": 2,
+      "verdict": "PASS",
+      "why": "Declared formula identifies its inputs/parts: 401(k)s a year = each earner's own contribution for the months they are paid, added up (the employer's match excluded) — as many dollars as the gross is above what it is taxed on Displayed rounding and rendered row reconciliation require implementation evidence.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your 401(k)s"
+    },
+    {
+      "figure": "MK-CF-M-077",
+      "tenet": 3,
+      "verdict": "PASS",
+      "why": "Declared empty/missing behavior: A real $0 when no 401(k) is entered; not shown on a fresh account.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your 401(k)s"
+    },
+    {
+      "figure": "MK-CF-M-077",
+      "tenet": 4,
+      "verdict": "FAIL",
+      "why": "Count each earner’s actual paidmonths;F-188uses12regardless.",
+      "finding_kind": "specification_issue",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your 401(k)s"
+    },
+    {
+      "figure": "MK-CF-M-077",
+      "tenet": 5,
+      "verdict": "FAIL",
+      "why": "A figure declaration cannot establish that edits,sync,imports and recomputation preserve the person’s entered values for Your 401(k)s. No code/test/app was inspected;this is an unclosed evidence requirement,not an observed overwrite.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your 401(k)s"
+    },
+    {
+      "figure": "MK-CF-M-077",
+      "tenet": 6,
+      "verdict": "FAIL",
+      "why": "The package supplies decision references,but this row has no ruleddate. Latest approved full drawing/rendered implementation for this exact figure was not independently supplied/inspected;do not infer designcompliance from registration alone.",
+      "finding_kind": "evidence_gap",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your 401(k)s"
+    },
+    {
+      "figure": "MK-CF-M-077",
+      "tenet": 7,
+      "verdict": "PASS",
+      "why": "The declared measure is descriptive under its stated scope;retain estimate/coverage labels and do not turn the number alone into an unsupported recommendation.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your 401(k)s"
+    },
+    {
+      "figure": "MK-CF-M-077",
+      "tenet": 8,
+      "verdict": "PASS",
+      "why": "Declared words and period are readable for the stated concept: Your 401(k)s. The formula/refusal above gives its context;actual rendered copy remains unobserved.",
+      "finding_kind": "declared_contract",
+      "scope": "written declaration only;PASS is not certification of rendered UI",
+      "declared_label": "Your 401(k)s"
+    }
+  ],
+  "cross_card_checks": [
+    {
+      "id": "X3",
+      "verdict": "DOES NOT HOLD",
+      "case": {
+        "full_year_wage": 60000,
+        "k_annual": 4800,
+        "tax": 4444,
+        "matching_full_year_take_home": "4229.666666666666666666666667",
+        "part_year_witness": "MK-CF-F-233 case3 versus basePay entered monthly amount"
+      },
+      "why": "Complete full-year arithmetic can match,but sixpaidmonths with enteredtake-home fails through earnerWageShares. This is a written-formula discrepancy,not a measured app output."
+    },
+    {
+      "id": "X5",
+      "verdict": "DOES NOT HOLD",
+      "case": {
+        "monthly_k": 1000,
+        "paid_months": 6,
+        "actual_year_k": 6000,
+        "F188_year_k": 12000
+      },
+      "why": "F-206 counts paidmonths;F-188 multiplies12;the same household has incompatible contribution bases."
+    },
+    {
+      "id": "X6",
+      "verdict": "HOLDS",
+      "case": {
+        "wages": 60000,
+        "k": 4800,
+        "status": "single",
+        "ordinary_taxable": 39100,
+        "bracket": "12%"
+      },
+      "why": "On a complete wages-only year both stated current paths use wages less401(k) and standarddeduction. This does not validate all-income band scope or partialyears."
+    },
+    {
+      "id": "X7",
+      "verdict": "DOES NOT HOLD",
+      "case": {
+        "typed_recurring": 2000,
+        "bill_amount": 1200,
+        "month": 12,
+        "september_plan": 2000,
+        "december_plan": 3200,
+        "undated_bill_conflict": "F-008spreads100permonth;F-019places1200inJanuary"
+      },
+      "why": "Known dated bills agree across new readers,but unentered due-month treatment conflicts and F-014still uses the annual-averagebudget."
+    }
+  ],
+  "rules_held": [
+    {
+      "rule": "DEC-0018",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "Two findings from his walk of build 47:\n1. The company-share editor gains a field for the ticker symbol, which fetches the live price to start you off and stays editable.\n2. It gains a real Done button at the bottom. The link at the top of the screen was invisible from the end of a long form, and the form says it saves as you type.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0078",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "Build 51 was cut only after his explicit “cut the build” against a presented checklist, with the gates satisfied in order: scope complete at 59 of 59 rows, and the mock-match audits FINISHED rather than running alongside.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0108",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "The master list of what is built now records the day’s work rather than being reconstructed later: 18 built items in five groups, written down the day they were built.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0149",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "Four folders of design deliveries had accumulated outside the app, all named after net worth because that was the first screen drawn, though they now also held the Performance and Plan work. One named home for them, so the newest delivery can be found.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0152",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“create a folder called August 14th Design, move the latest files there so there is no confusion, and re-check every file carries the decisions we made.” One named home for the live set, and every file in it re-checked against the decisions rather than assumed to carry them.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0165",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“how to avoid this in the next brief?” The honest answer is that more care would not have helped — all three errors were written while reading carefully, and two survived several reviews. So every number in a brief is now either computed by a test or explicitly labelled as his own figure, and a test fails the build when a brief and the calculation disagree.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0166",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“not sure what you want me to check here.” He was right and the framing was mine: I put three options to him as a product decision when it was a technical correction with one right answer. A correction is not a question.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0176",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "Two-earner readers exist,but annualOfSource substitutes household salary on each earnerrow and partial-year contributions diverge.",
+      "decision_in_force": "The whole income surface redesigned. Six decisions:\n1. Base pay becomes a full screen with one expandable section per earner — gross, 401(k), employer match, and what actually lands.\n2. A 14-month dated table when pay varies, rather than one typical figure.\n3. BOTH earners are captured, not one: a household on $84,000 plus $54,000 was being read as $84,000 — one person’s income against two people’s spending.\n4. A filing-status question, which had never been asked, so every couple was taxed as a single filer.\n5. Bonus and company shares follow the same who-earns pattern.\n6. Interest and dividends are worked out from your holdings rather than asked for, and treated as TAXABLE BUT NOT SPENDABLE.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-210-C03",
+        "MK-CF-F-210-C04",
+        "MK-CF-F-210-C05",
+        "MK-CF-F-188-C03",
+        "MK-CF-F-188-C04",
+        "MK-CF-F-188-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0178",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "basePay’s band uses wages while incomeSummary uses alltaxable sources;nonwage income can change the band.",
+      "decision_in_force": "Your tax band is worked out ONCE, from your total income, and every screen reads that one figure. The base-pay screen does not work out a band of its own — a band is set by everything you are taxed on together, so a screen that sees only your wage would show the wrong one.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-O-001-C04",
+        "MK-CF-O-001-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0179",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "Current monthgrid removes reinvested cash,but legacy cashflowYear includes it and taxOrganizer’s cash-payout basis can omit taxable reinvestments.",
+      "decision_in_force": "Interest and dividends are taxed but are not money you can spend, unless you tell us they reach your bank. Two decisions:\n1. In most accounts they are reinvested where they are earned and never arrive, so they are taken out of your spendable take-home.\n2. The tax on them still comes out, because it is real — so simply deleting them would have been wrong in the other direction.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-020-C01",
+        "MK-CF-F-020-C02",
+        "MK-CF-F-020-C03",
+        "MK-CF-F-020-C04",
+        "MK-CF-O-007-C03",
+        "MK-CF-O-007-C04",
+        "MK-CF-O-007-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0181",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "The legacy stored-income path still calculates monthlytax as single without state and differs from rateInForce.",
+      "decision_in_force": "Fifteen calculations were each written in two or more places; now none is. 560 calculations, 560 distinct names. A second copy of a calculation cannot be fixed by fixing the first — which is how the same defect kept coming back.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-049-C03",
+        "MK-CF-F-048-C03"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0182",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "The one function a screen calls for its question gets its own kind of identifier, so it can be told apart at a glance from the ordinary calculations underneath it.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0184",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "The legacy stored-income path still calculates monthlytax as single without state and differs from rateInForce.",
+      "decision_in_force": "The app carried TWO complete tax engines, both live from the same profile on the same day, and one of them could not read a filing status at all. One is deleted. ZERO numbers moved for a single filer — the two were identical arithmetic there — and it becomes correct for couples the moment the filing-status question lands.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-049-C03",
+        "MK-CF-F-048-C03"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0187",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "Year-month preservation is present in canonical wage tables,but annualized/converted paths and yearless vest/one-time defaults lose the same dated meaning.",
+      "decision_in_force": "Months are keyed by their actual date rather than by position — “2026-07”, not “slot 7 of twelve”. The twelve-slot version wrote January into the wrong year whenever the twelve months crossed a New Year.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-143-C03",
+        "MK-CF-F-143-C04",
+        "MK-CF-F-143-C05",
+        "MK-CF-F-063-C05",
+        "MK-CF-F-071-C05",
+        "MK-CF-F-079-C03",
+        "MK-CF-F-079-C04",
+        "MK-CF-F-079-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0188",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "Two-earner readers exist,but annualOfSource substitutes household salary on each earnerrow and partial-year contributions diverge.",
+      "decision_in_force": "A spouse’s wage becomes its own block, using the SAME field names as your own, and the household total sums every earner. A household on $84,000 plus $54,000 had been read as $84,000 — one person’s income against two people’s spending.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-210-C03",
+        "MK-CF-F-210-C04",
+        "MK-CF-F-210-C05",
+        "MK-CF-F-188-C03",
+        "MK-CF-F-188-C04",
+        "MK-CF-F-188-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0189",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "Every “today” in the app is the person’s OWN calendar day, not the day in universal time. Converting local midnight to universal time moves the date back a day anywhere east of Greenwich — which made every look-back answer “nothing” on a device set to India time.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0190",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "A signed-in person opening the guided setup now STAYS there. It previously bounced them back to Home in three of its four states, so the setup was effectively unreachable.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0191",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "basePay’s band uses wages while incomeSummary uses alltaxable sources;nonwage income can change the band.",
+      "decision_in_force": "Your tax band is named as being on EVERYTHING you are taxed on — not just your wage. The band reads every source, so rent and dividends count toward which band you are in.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-O-001-C04",
+        "MK-CF-O-001-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0194",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "The tax rate is shown where the money is, and can be corrected there. The rate could previously only be changed on a step inside the guided setup — itself unreachable — so the figure driving every take-home in the app could not be put right where you noticed it was wrong.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0195",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "The base-pay card names the federal tax bracket, shows the estimated tax in MONEY rather than as a percentage, and says it assumes the standard deduction. A payslip has dollars on it, not a rate.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0196",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "The legacy stored-income path still calculates monthlytax as single without state and differs from rateInForce.",
+      "decision_in_force": "“We’ll use 24% everywhere your take-home matters — cash flow, budget, what’s left over. One-offs like a Roth conversion still use the tax tables.” The screen promises only what a payslip figure can answer: a rate off a payslip is an AVERAGE, and four places need the rate on your NEXT dollar.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-049-C03",
+        "MK-CF-F-048-C03"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0197",
+      "cards": [],
+      "verdict": "HELD",
+      "why": "Typed→implied→calculated precedence is expressly stated;correctness of the implied/calculated inputs remains separately open.",
+      "decision_in_force": "Where your tax rate comes from, in order: TYPED off your payslip, IMPLIED by what you said lands in your bank, or OUR estimate — and each one says whose it is on the screen.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-181-C04"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0198",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "Current monthgrid removes reinvested cash,but legacy cashflowYear includes it and taxOrganizer’s cash-payout basis can omit taxable reinvestments.",
+      "decision_in_force": "Dividends and interest come OUT of your spendable take-home, because in most accounts they are reinvested where they are earned and never reach your bank. The onboarding screen asks “Does this reach your bank?” and says what the answer means.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-020-C01",
+        "MK-CF-F-020-C02",
+        "MK-CF-F-020-C03",
+        "MK-CF-F-020-C04",
+        "MK-CF-O-007-C03",
+        "MK-CF-O-007-C04",
+        "MK-CF-O-007-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0202",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "The base-pay step in the guided setup IS the base-pay screen — one piece of screen, two frames — so the questions cannot drift apart between the two places you can answer them. It saves as you type rather than on a Save button the setup never shows.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0205",
+      "cards": [],
+      "verdict": "HELD",
+      "why": "All printed statutoryconstants were independentlychecked againstIRS/SSA publications;eligibility/application defects do not change thoseconstants.",
+      "decision_in_force": "Every figure set by law is typed in from the published source. The first run against the real figures found three errors: the IRA limits were a year out of date, the bigger catch-up allowance for ages 60 to 63 was missing entirely in an app built for ages 55 to 70, and four of the required-withdrawal divisors were slightly wrong from being interpolated rather than typed.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-055-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0207",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "Complete approved rows reconcile,but partial-year wage shares and tax/subtotal scope yield counterexamples outside that drawing.",
+      "decision_in_force": "The pay card's own rows must add up: your gross pay, minus tax, minus your 401(k) contributions, equals your take-home — to the dollar, with a 401(k) row shown. It came from his first device pass, where the card contradicted itself because each earner was being given the whole married-couple tax allowance separately.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-233-C03",
+        "MK-CF-F-233-C04",
+        "MK-CF-F-233-C05",
+        "MK-CF-O-001-C04",
+        "MK-CF-O-001-C05",
+        "MK-CF-O-004-C04",
+        "MK-CF-O-004-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0208",
+      "cards": [],
+      "verdict": "HELD",
+      "why": "Declared per-earner entered/calculated status and mixedmode preserve the provenance of each payrow;exactscreen rendering was not inspected.",
+      "decision_in_force": "Where one person entered their take-home and the other’s is calculated, the note says so per person — “Your take-home: $5,000 (you entered) · Sam’s take-home: about $3,686 (calculated)”. The prose version was misread: the entered $5,000 was taken for gross.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-O-001-C04",
+        "MK-CF-O-001-C05",
+        "MK-CF-F-171-C03",
+        "MK-CF-F-171-C04",
+        "MK-CF-F-171-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0209",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "One word per concept across the income screens: “take-home” replaces “lands in your bank” and “takes home”; “calculated” replaces “worked out”, “Estimated federal tax” and “our estimate”. A test enforces it.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0270",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“a figure the person gave us → ‘you entered’.” One phrase for a number you typed, so it is never confused with one the app worked out.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0283",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "Subtraction walk is declared,but annual401(k)times12 disagrees with paid-month contributions and oldgross paths can bypass it.",
+      "decision_in_force": "“Gross should be before any deductions. For example Income before tax is not same as gross as Income Before Tax = Gross Income - 401K - any other deductions such as medical premium.” So “Gross” is labelled “before any deductions”, and the earlier wording “before tax” is retired — it meant something different and narrower.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-188-C03",
+        "MK-CF-F-188-C04",
+        "MK-CF-F-188-C05",
+        "MK-CF-F-230-C04",
+        "MK-CF-O-004-C04",
+        "MK-CF-O-004-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0291",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“spouse.” The word is spouse, not partner, in everything a person reads.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0326",
+      "cards": [],
+      "verdict": "HELD",
+      "why": "2026 joint tables are explicit and correctly differ from doubledsingletops at highincome.",
+      "decision_in_force": "“married bands are not double the single ones at the top.” A couple’s tax bands are NOT simply twice a single person’s in the upper brackets — assuming they are overstates take-home for higher earners.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0327",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "New tax primitive uses taxable income for state tax,but legacy buildIncomeState drops state from monthly grid and effectiveTaxRate uses a separate rate.",
+      "decision_in_force": "“state tax applies to taxable income, never gross.” Applying a state rate to gross income overstates the tax by the whole deduction.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-049-C03",
+        "MK-CF-F-048-C03"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0345",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“inputs assembled once per family — one function builds the person’s state for a family and every orchestrator in that family reads it.” The data a group of screens needs is assembled once, so two screens in the same family cannot start from different inputs.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0352",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“a door DECLARES each figure it hands out beside the code that computes it — identifier, the words on screen, unit, formula in plain English, inputs, decisions.” The master file’s rows are then PRINTED from those declarations, so the file is a printout of the code rather than a description of it that can go stale.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0375",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“No. Base Pay is one component of total income or income summary and not the same. Have your checked underlying function? Are two functions calculating save thing?” He rejected the grouping and sent me to check the code — where the nesting turned out to be correct, and my proposal was wrong.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0376",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "Complete approved rows reconcile,but partial-year wage shares and tax/subtotal scope yield counterexamples outside that drawing.",
+      "decision_in_force": "A total must equal the lines printed above it, and where they disagree it is the LINES that are right. The income card showed a household take-home of about $10,442 a month over a take-home line of about $9,242 — the total was corrected down to the lines.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-233-C03",
+        "MK-CF-F-233-C04",
+        "MK-CF-F-233-C05",
+        "MK-CF-O-001-C04",
+        "MK-CF-O-001-C05",
+        "MK-CF-O-004-C04",
+        "MK-CF-O-004-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0380",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "Complete approved rows reconcile,but partial-year wage shares and tax/subtotal scope yield counterexamples outside that drawing.",
+      "decision_in_force": "THE CARD MUST ADD UP: gross − tax − 401(k)s = take-home, with a 401(k)s row, on every frame. From his first device pass of build 54, where the card contradicted itself because every estimated earner was granted the FULL joint deduction.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-233-C03",
+        "MK-CF-F-233-C04",
+        "MK-CF-F-233-C05",
+        "MK-CF-O-001-C04",
+        "MK-CF-O-001-C05",
+        "MK-CF-O-004-C04",
+        "MK-CF-O-004-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0384",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "Our tax estimate covers federal income tax only, and says so on the screen. Three decisions:\n1. We do not add payroll tax to it. Payroll tax applies to wages, and our gross figure also holds rent, dividends and bonuses — applying 7.65% to all of that would be wrong, not just rough.\n2. We do not guess state tax, because it cannot be known without asking.\n3. We work out the one thing we can, name the gap in dollars, and let you correct it.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0387",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "The income screen shows two totals and labels each: what lands in your bank each month, and what the year is taxed on. They are different numbers about the same wages. Mixing them is how a take-home figure comes to include a bonus nobody has been paid yet.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0389",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“calculated” is the word for a figure the app worked out — his standing order. “worked out”, “Estimated federal tax” and “our estimate” are retired.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0392",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“a figure the person gave us → ‘you entered’.” One phrase for a number you typed, so it is never confused with one the app worked out.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0396",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“/month, /year.” One way of writing a period, everywhere — and, asked about the rest, “/quarter, /week, /2 weeks”. “a month” and “/mo” are retired.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0431",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“Nothing entered yet.” The approved wording for a screen with no data: the layout stays, the figure reads $0, this sentence explains it, and the door to enter something sits beneath.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-1112",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "The six Cash flow screens that had no drawing — Log income, Month detail, Bill calendar, Paycheck months, Monthly income, Worth a look — are approved as built, on condition that each meets the screen standard. Each was audited against it the same day and the gaps fixed; the v02 drawings show the result.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-1134",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "Four Cash flow screens are retired: Month detail, Paycheck months, Log income and Worth a look. No approved design draws a door to any of them, and no ruling needs them. Bill calendar and Monthly income stay only as the editors behind figures the approved designs show — not as destinations.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-1560",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "In twelve named places the app differs from its approved drawing and the app stays as it is.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-1625",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "On Your base pay, when the app calculates the tax, the card states its own sum and stops: \"$11,500 gross − $873 tax − $1,200 of 401(k)s = $9,427.\" The second drawn sentence is not shown.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-1668",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "The continuingrent emergency-funddoor is outside the219cards;incomeSummary supplies rent,but the completeburnrate subtraction is not supplied here.",
+      "decision_in_force": "The emergency fund counts rent from a property. Rent keeps arriving when pay stops, so each month it is added to the cash: months = cash ÷ (a month of essentials − the rent).",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-O-004-C04",
+        "MK-CF-O-004-C05",
+        "MK-CF-F-010-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-1859",
+      "cards": [],
+      "verdict": "HELD",
+      "why": "Runningscosts and mortgages are kept conceptually separate in the public rental/debt formulas;editorcopy itself is unobserved.",
+      "decision_in_force": "On the Rent from a property screen, the hint under \"What it costs to run each month\" no longer lists mortgage interest. It reads \"Tax, insurance, repairs, management.\" A mortgage on a rented-out property belongs in Debts.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-O-020-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-1924",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "On Rent from a property, a mortgage is never part of what the property costs to run. The screen asks for the monthly mortgage payment on that property, if there is one, and the app adds that mortgage to Debts by itself.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-1926",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "A property is a second or vacation home unless rental income is entered for it on the Income screen. With rental income entered, it is a rental.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-2484",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "His approval of batches 1 and 2 of the outside review of Net worth, as a whole. Each rule it approved is its own row beside this one, so it can be found and read alone.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7171",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-21 on master question Q35, made without asking him, as his order of 2026-09-30 says, following his comment of 2026-08-26 on this figure (Trailing Twelve Months, not just 12 months). Holding detail reads Dividends received (trailing twelve months); it read Dividends received (12 mo). Income's line for an account's interest and dividends reads paid out over the trailing twelve months; it read over the last year. The figures do not change. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7796",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his ruling DEC-3523 (tenet 4), made without asking him, as his order of 2026-09-30 says. $60,000 of wages, $4,800 into a 401(k) and $700 a month of benefits that are not taxed: the line read \"On ~$68,400 gross\" replaced by \"On the ~$60,000 it is taxed on\" — the full line now reads that the estimate comes from the IRS schedule after your 401(k) and the standard deduction. It worked over every source, the untaxed ones too, with its own bracket, 22% ($68,400 − $16,100 = $52,300), and about 8%; it now shows Cash flow's 12% ($60,000 − $16,100 = $43,900) and about 7%, beside Cash flow's What it is taxed on, $60,000. With a state rate entered, the line says the rate includes it. To reverse: give the step its own rate and the total of every source again. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7797",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "Subtraction walk is declared,but annual401(k)times12 disagrees with paid-month contributions and oldgross paths can bypass it.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0283, DEC-4529 and DEC-3523 (tenets 1 and 4), made without asking him, as his order of 2026-09-30 says. His ruling DEC-0283 (2026-09-10): income before tax is gross less the 401(k) and other deductions. The tax was already worked that way while the bracket named the band of the gross. 5 of 5 places now read the income after the 401(k). The Income summary bracket, single, $70,000 of wages and $10,000 into a 401(k): 22% on $53,900 → 12% on $43,900, tax about $5,020 unchanged. Sign-up's Taxes step shows the same 12%. Your base pay, the drawing's own household, $138,000 of wages and $14,400 into 401(k)s, taxed on $91,400: 22% → 12%. The filing-status comparison works its tax after the 401(k), its line naming what was entered less the 401(k). The draw-order sheet's rates are worked after the 401(k). Base pay's 12% is A FIGURE ON HIS APPROVED DRAWING (income-end-to-end v07, phone 2, which draws 22%), applied under tenet 1, which ranks above tenet 6, with the correction line his DEC-4529 asks for on the drawing. For that household the drawn sentence that begins Filing jointly, the band comes from what you earn together no longer prints (both bands are 12%), and the sentence about the 24% stands on its own. What it is taxed on was left as drawn, each gross line, then Gross a year. CORRECTED 2026-10-24: that no longer holds — two rows were added under the gross, Your 401(k)s and What it is taxed on, drawn by the READ THIS FIRST row of 2026-10-24 on income-end-to-end v07 under his DEC-0283 (DEC-7887). To reverse: read the bracket off the gross again. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-188-C03",
+        "MK-CF-F-188-C04",
+        "MK-CF-F-188-C05",
+        "MK-CF-F-230-C04",
+        "MK-CF-O-004-C04",
+        "MK-CF-O-004-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-7798",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "Current rate producer describes enteredstate,but legacyeffectiveTaxRateandbuildIncomeState omit it.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his ruling DEC-3523 (tenet 1), made without asking him, as his order of 2026-09-30 says. A 5.00% state rate entered on the Tax organizer, no rate typed: the line under Calculated federal tax said federal only, that the rate knew nothing about the state, while the calculated rate held the state rate the person entered. It now reads \"Federal income tax, plus the 5.00% state rate you entered — it knows nothing about Social Security or Medicare.\", the words built for the typed-rate case (DEC-7608). With no state rate entered it reads as built, federal only. The figures do not change. To reverse: take the state rate out of the calculated rate, and the line stands as built. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-048-C03",
+        "MK-CF-F-049-C03"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-7887",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "Subtraction walk is declared,but annual401(k)times12 disagrees with paid-month contributions and oldgross paths can bypass it.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0283 and DEC-3523 (tenet 2), made without asking him, as his order of 2026-09-30 says. A couple with $169,200 of wages and $19,200 into 401(k)s: the card printed only the gross, $169,200, while the bracket and a calculated tax were worked on $150,000. It now prints three rows: Gross a year $169,200, Your 401(k)s −$19,200, What it is taxed on $150,000. The drawing's own household (frame 5a): $167,400 − $14,400 = $153,000, bracket 22%. With no 401(k) the 401(k) row reads $0 and the two totals are the same. Two new figures: MK-CF-M-076, the gross a year, and MK-CF-M-077, the year's 401(k)s; MK-CF-M-041, What it is taxed on, is the gross less the 401(k)s. MK-CF-M-044's worked example is now the calculated case, $15,340, the federal tax on $150,000 less the $32,200 standard deduction ($2,480 + $9,120 + 22% × $17,000); it showed the typed 22% case, $37,224 — the code was right and the words were wrong. Sign-up's Taxes step names about $55,200 it is taxed on, the gross less the 401(k) (it named about $60,000, for $60,000 of wages and $4,800 into a 401(k)). The two rows are drawn by the READ THIS FIRST row of 2026-10-24 on income-end-to-end v07. To reverse: drop the two rows and print the gross as What it is taxed on again. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-188-C03",
+        "MK-CF-F-188-C04",
+        "MK-CF-F-188-C05",
+        "MK-CF-F-230-C04",
+        "MK-CF-O-004-C04",
+        "MK-CF-O-004-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-7933",
+      "cards": [],
+      "verdict": "HELD",
+      "why": "Datedbondwithoutface is explicitlynotcounted,with reason;bankCD/fund balanceexception and matured0are named.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-2748c and DEC-3523 (tenets 3 and 4), made without asking him, as his order of 2026-09-30 says. A $25,000 Treasury at 4.5%, worth $24,200, face value left blank: the account page read \"4.50%/year · $1,089/year\" and a yield on today's value of 4.50%; it now reads \"4.50%/year · face value not entered\" and gives no yield. A bond pays its coupon on its face: $25,000 × 4.5% = $1,125 a year once the face is entered. On Bonds its card names the missing face value, and the summary says \"Average yield leaves out US Treasury 2031 — face value not entered.\" The income sheet counts it at $0 and says why (it counted $1,089), and a bond past its maturity date counts $0 there too, \"matured Jun 30, 2026 — it pays no more interest\" (it counted $400). Tenet 3 outranks the no-face half of DEC-2748c for a dated bond only: a bank CD typed by its balance keeps its rate on that balance ($10,000 at 5.05% = $505), and so does a bond fund with no maturity date, so the income drawing's 4.2% on $30,000 line stands. The four bonds add to $1,630 on all three screens. To reverse: in src/domain/bonds/index.ts remove the maturity condition (keeps the CD and fund exception), or read every bond with no face at its value again. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-184-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-7936",
+      "cards": [],
+      "verdict": "HELD",
+      "why": "Conservative prior-end plusdateditems policy and same-day priorityare described;actual dailybalance is not inferred.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0269 and DEC-3523 (tenets 1, 2, 4 and 7), made without asking him, as his order of 2026-09-30 says. Money there by a day is the table's End for the month before, plus or less anything dated earlier in that month; that month's own pay, everyday expenses and debt payments count only when the month loses money (tenet 7: never better than it is). Sep 28, $0 on hand, $5,000 take-home, $700 of groceries, $2,650 of debt payments, $1,200 due Dec 15 (need-by Dec 13): the line said about $10,744, the wage spread by day with the debts left out; it now reads November's End, about $4,950 (Sep End 5,000 − 3,350 = $1,650, Oct $3,300, Nov $4,950). With property tax of $4,800 due Dec 1 as well: Covered, about $8,765, became Short $1,500 (October's End $3,300), and the Dec 15 bill Short $1,050. Two bills due the same day both counted the whole balance; the first listed now gets the money first ($4,950, then $3,750). A one-time bill for March 2028 is no longer listed as March 2027. Whole months, because the app never asks the day pay lands. To reverse: in MK-CF-F-232 balanceByDay change Math.min(0, regular) to regular, and drop aheadOfIt in upcomingBills. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-019-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-7937",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0264 and DEC-3523 (tenet 2), made without asking him, as his order of 2026-09-30 says. Frame A's household with a $6.50 coffee: the rows made $893 but the surplus read +$894, and Home's Left $894; both read +$893. The rows share the rounded total, each rounded down, the dollars still missing going to the rows with the most cents left over; a whole-dollar row never moves. It is the method the Performance walk already uses. The Bill calendar's rows do the same: each End is the balance rounded to the dollar, and In and Out share the change between two Ends — from $3,000, $5,415.83 in and $1,198.77 out read Sep +$5,416 · −$1,199 · $7,217. To reverse: round every row and every total on its own again. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7940",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "Explicit one-time-year handling is present for dated otherincome,but missingyear still recurs and legacy onboarding fixes signingbonus toJanuary.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0447 and DEC-0196, made without asking him, as his order of 2026-09-30 says. Add your income offered Bonus / one-time as one choice, which opened the yearly bonus editor, so a one-time $2,000 came back the next September and stayed in the next year's taxed income. Bonus and One-time income are now two choices; one-time income keeps its month with its year and lands once. Your sources lists it: Bonus · one-time · lands in September $2,000 (nothing said why THIS MONTH read $7,195). September reads $7,195 on the Income tab, This month and Home; October $5,396; 2027 is back to $5,416. Under his one-rate rule (DEC-0196, ruled as G46) the bonus raises the rate for every month that year, so October falls by $19.88; that is his rule, left as it is. An unpaid one-time bill dated in a passed month stays in Later; only income that has landed leaves it. To reverse: one choice to the bonus editor, and no row for other income. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-071-C05",
+        "MK-CF-F-079-C03",
+        "MK-CF-F-079-C04",
+        "MK-CF-F-079-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-7941",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-1923, DEC-0283 and DEC-3523 (tenets 1 and 4), made without asking him, as his order of 2026-09-30 says. With the home's mortgage in Debts, the Rent / Mortgage budget line is not counted beside it, as This month does not count it: $7,200 in, $700 of groceries and the $2,400 mortgage out, September's End $4,100 (it read $5,400 out and an End of $1,800, the $2,300 line counted too). The In column is the take-home after tax and the 401(k), as Your base pay prints it. A yearly bill whose day passed earlier this month has one place, this month's Out and plan, and is not under COMING UP for next year. To reverse: build the calendar's months from the budget as typed again. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7942",
+      "cards": [],
+      "verdict": "NOT HELD",
+      "why": "One-time migration is stated,but its calculated branch omits401(k)from the inverse equation and may not preserve entered landing after deductions.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-3523 (tenets 3 and 5), made without asking him, as his order of 2026-09-30 says. A $5,000 take-home with the person's own 0% rate: the gross box showed 5475.378787878787, worked back from the federal tables, the card read Everything else taken out $475/month · 0%, and its last line said nothing there was calculated. The gross is now worked back with their own rate, $5,000.00, under the line \"≈ Worked back from the take-home you entered. Type the gross from a payslip to replace it.\", and the card's last line says the take-home is what was entered and the gross was worked back from it. The typed take-home is unchanged ($5,000 on This month). Typing a gross brings back the drawing's words. The drawing's rule 9: every estimate is prefixed ≈ and says what it cannot see. To reverse: work the gross back from the federal schedule and print the drawn words. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-186-C04"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-7947",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-4529 and DEC-3523 (tenets 1 and 4), made without asking him, as his order of 2026-09-30 says. Two drawing errors, each left as drawn with its correction line on bill-calendar v02, as his DEC-4529 asks. The foot line ended with a promise to tap any row for that month's full detail, and a screen reader said each month row opens the month's detail; month detail was retired on 2026-10-02, so the sentence is gone and no row promises it. The line under the title read Oct 2026 – Sep '27 2027, the year twice, copied from the build; it reads \"Oct 2026 – Sep 2027\", each end written by the app's one date writer, and a screen reader hears Jan 2027 where it heard Jan '27 2027. The month names in the table do not change. To reverse: give each month row a door and print the sentence again; print the drawn line. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    }
+  ]
+}

@@ -6,6 +6,10 @@ import { rmdStartAgeFromAge, rmdDivisor as tableRmdDivisor } from '../../../Calc
 import { earmarkedAmount, primaryCarIdOf, primaryHomeIdOf, accountDisplayNames, taxTreatmentOf, assetKind } from '../assets';
 import { marketValue, paidOnRecord, contractMultiplier } from '../performance';
 import { moneyIntoAccount } from '../../../Calculation Module code/engines/ledger';
+import { ltcgTaxOnGain, ltcgRateFor, LTCG, type FilingStatus } from '../income/tax';   // a gain drawn from taxable is taxed stacked on the year's income (2026-10-25)
+import { writeFigure } from '../../../MoneyKeel/functions/_figure-spec';   // the inflation is written by its declaration, MK-CF-M-083 (2026-10-26)
+import { money } from '../_shared/num';
+import { INFLATION_FIGURES } from '../retirement/inflation';
 
 // ---- where the money sits, by tax treatment ----
 export interface BucketSplit { taxable: number; preTax: number; roth: number; cash: number; total: number; }
@@ -295,6 +299,37 @@ export interface OrderStep { bucket: keyof BucketSplit | 'rmd'; label: string; a
  *  once you're 73+). Omitting age keeps the classic order for accumulation/pre-RMD users. */
 export type DrawBucket = 'cash' | 'taxable' | 'preTax' | 'roth';
 export const DEFAULT_DRAW_ORDER: DrawBucket[] = ['cash', 'taxable', 'preTax', 'roth'];
+/** NO BIRTH YEAR, NO AGE-DEPENDENT FIGURE (2026-10-26, CLEANUP-LEFT; tenet 3 of DEC-3523 and his DEC-0296; the paycheck card's own
+ *  words, PAYCHECK_NO_AGE in src/hooks/useCashflowModel.ts). The draw order, its "Why this order?" card and the steer sheet worked
+ *  the required withdrawal and the comparison at age 68 when no birth year was entered — a made-up age. The order of the kinds of
+ *  account does not depend on age and still shows; whether the required withdrawal comes first, its amount and how long the money
+ *  lasts do, so each says this instead (drawing: cashflow/moneykeel_pres_mock_cash-flow_v01.html, READ THIS FIRST row of 2026-10-26). */
+/* ─ MK-PL-F-092 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * RMD_NO_AGE
+ *
+ * Answers ..... The sentence for a required withdrawal that cannot be calculated because no birth year is entered; words only, it calculates nothing.
+ *
+ * Called by ... CashFlowScreen · DrawSteerSheet
+ *
+ * Numbered by hand 2026-10-26 (PF-TOOLS, the lead's instruction): the scan that issues identifiers reads functions in the
+ *               calculation folders only, so this constant has no generated record; this one is written by hand in the generated form,
+ *               as MK-NW-F-145's is
+ * Changed ..... not in git yet (—)
+ */
+export const RMD_NO_AGE = 'Your birth year is not entered, so there is no required withdrawal to work out — we won’t guess one.';
+/* ─ MK-PL-F-093 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * DRAW_COMPARE_NO_AGE
+ *
+ * Answers ..... The sentence for a draw-order comparison that cannot be calculated because no birth year is entered; words only, it calculates nothing.
+ *
+ * Called by ... DrawSteerSheet
+ *
+ * Numbered by hand 2026-10-26 (PF-TOOLS, the lead's instruction): the scan that issues identifiers reads functions in the
+ *               calculation folders only, so this constant has no generated record; this one is written by hand in the generated form,
+ *               as MK-NW-F-145's is
+ * Changed ..... not in git yet (—)
+ */
+export const DRAW_COMPARE_NO_AGE = 'Your birth year is not entered, so there is no comparison to work out — we won’t guess one.';
 
 /* ─ MK-PL-F-004 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * withdrawalOrder
@@ -506,7 +541,6 @@ export interface RmdYearRow {
  * Decides .....
  *     · If exp return is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-008
  * Changed ..... 2026-08-20 (16a56f7)
@@ -518,12 +552,13 @@ export function rmdSchedule(preTaxNow: number, ageNow: number, expReturn: number
   let bal = preTaxNow;
   // walk row 9: the SAME growth step every projection uses — no schedule-only clamp, no inline math
   const { growOneYear } = require('../retirement');
-  const r = Math.max(0, expReturn || 0);
+  const r = Math.max(0, expReturn || 0);   // never below 0% — the same floor growthUsed states (src/domain/paycheck, 2026-10-26)
   for (let age = ageNow; age < startAge; age++) bal = growOneYear(bal, r);   // grow to the start year
   for (let i = 0; i < years; i++) {
     const age = startAge + i;
     const amount = rmdAtAge(bal, age);
-    rows.push({ age, year: nowYear + (age - ageNow), projectedPreTax: Math.round(bal), divisor: rmdDivisorAtAge(age), amount, isCurrent: age === ageNow });
+    // the balance kept whole, rounded only when printed (2026-10-26, CLEANUP-LEFT; Q49): it was rounded to the dollar here
+    rows.push({ age, year: nowYear + (age - ageNow), projectedPreTax: bal, divisor: rmdDivisorAtAge(age), amount, isCurrent: age === ageNow });
     bal = Math.max(0, growOneYear(bal - amount, r));
   }
   return rows;
@@ -592,10 +627,12 @@ export interface DrawOutcome { lastsToAge: number | null; totalTaxes: number | n
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-030 tax filing status and age
  *
  * Decides .....
  *     · If gain share is missing it uses 0.
  *     · Uses a built-in taxes of 0.
+ *     · Uses a built-in pass of 0.
  *     · Never lets real growth fall below -0.05.
  *     · NO built-in tax rates (founder ruling 2026-09-08, second verification G6; rule R2/brief Q-43 (2026-08-20)): the caller hands in the person's own marginal ordinary rate (MK-CF-F-103) and long-term gains rate (MK-CF-F-104), and the gain share of their taxable holdings (MK-PL-F-081); unknown gain share with a taxable balance → no answer, with the reason.
  *     · Balances grow at the real return, floored at −5% a year.
@@ -607,43 +644,178 @@ export interface DrawOutcome { lastsToAge: number | null; totalTaxes: number | n
 export function drawOrderOutcome(
   split: BucketSplit,
   order: DrawBucket[],
-  o: { age: number; horizon: number; spendAnnual: number; guaranteedAnnual: number; realGrowth: number; ordinaryRate: number; capGainsRate: number; gainShare: number | null },
+  o: {
+    age: number; horizon: number; spendAnnual: number; guaranteedAnnual: number; realGrowth: number; ordinaryRate: number;
+    /** what a gain drawn from taxable stacks on (2026-10-25): the year's ordinary income before the deduction and before
+     *  any draw, the filing status and how many on the return are 65 or older — the gain's tax is ltcgTaxOnGain on top of it */
+    gainsOn: { ordinaryIncome: number; status: FilingStatus; over65: number };
+    gainShare: number | null;
+  },
 ): DrawOutcome {
   if (o.gainShare == null && split.taxable > 0) {
     return { lastsToAge: null, totalTaxes: null, unknown: 'no cost basis is recorded for your taxable holdings, so the tax on drawing them cannot be calculated' };
   }
-  const ord = o.ordinaryRate, cg = o.capGainsRate * (o.gainShare ?? 0);
-  const grossUp: Record<DrawBucket, number> = { cash: 0, taxable: cg, preTax: ord, roth: 0 };
+  const ord = o.ordinaryRate, share = o.gainShare ?? 0;
+  const { ordinaryIncome, status, over65 } = o.gainsOn;
+  // A GAIN STACKS ON TOP OF THE YEAR'S ORDINARY INCOME (2026-10-25, outside audit part 16, MK-CF-F-104-C03/C04; IRS Schedule D
+  // Tax Worksheet). Until today every dollar of gain drawn was taxed at ONE rate, the rate on the next dollar of the year's
+  // income: single, $48,111.17 of ordinary taxable income and a $3,311.43 gain read $0 where $1,972.60 of it is over the 0%
+  // top and owes $295.89. Now the year's gains are taxed by ltcgTaxOnGain on top of the ordinary income — the income handed
+  // in plus what the year takes from pre-tax (the required withdrawal and pre-tax draws are ordinary income too).
+  const gainTaxOf = (ordinaryTaken: number, gainBefore: number, take: number) =>
+    ltcgTaxOnGain(ordinaryIncome + ordinaryTaken, gainBefore + take * share, status, over65)
+    - ltcgTaxOnGain(ordinaryIncome + ordinaryTaken, gainBefore, status, over65);
   const bal: Record<DrawBucket, number> = { cash: split.cash, taxable: split.taxable, preTax: split.preTax, roth: split.roth };
   let taxes = 0;
   const need0 = Math.max(0, o.spendAnnual - o.guaranteedAnnual);
   if (need0 <= 0) return { lastsToAge: null, totalTaxes: 0 };
-  for (let age = o.age; age <= o.horizon; age++) {
-    let need = need0;
-    if (age >= rmdStartAgeFor(o.age) && bal.preTax > 0) {
-      const rmd = rmdAtAge(bal.preTax, age);
-      const take = Math.min(rmd, bal.preTax);
-      bal.preTax -= take;
-      const tax = take * ord; taxes += tax;
-      const net = take - tax;
+  /** one year's walk, the gains priced on `ordinaryUnder` taken from pre-tax this year (the guess the year is solved on) */
+  const walkYear = (age: number, ordinaryUnder: number) => {
+    const b: Record<DrawBucket, number> = { ...bal };
+    let need = need0, tax = 0, ordinaryTaken = 0, gain = 0;
+    if (age >= rmdStartAgeFor(o.age) && b.preTax > 0) {
+      const rmd = rmdAtAge(b.preTax, age);
+      const take = Math.min(rmd, b.preTax);
+      b.preTax -= take; ordinaryTaken += take;
+      const t = take * ord; tax += t;
+      const net = take - t;
       const toNeed = Math.min(net, need); need -= toNeed;
-      bal.taxable += net - toNeed;                    // excess RMD reinvested after tax
+      b.taxable += net - toNeed;                    // excess RMD reinvested after tax
     }
-    for (const b of order) {
+    for (const k of order) {
       if (need <= 0.005) break;
-      if (bal[b] <= 0) continue;
-      const rate = grossUp[b];
+      if (b[k] <= 0) continue;
+      if (k === 'taxable') {
+        // what is left after the gain's tax rises with every dollar taken (the tax is never more than 20% of the gain), so
+        // the dollars that leave `need` after their tax are found by halving: all of it when even that falls short
+        const netOf = (take: number) => take - gainTaxOf(ordinaryUnder, gain, take);
+        let take = b.taxable;
+        if (netOf(take) > need) {
+          let lo = 0, hi = take;
+          for (let i = 0; i < 200 && hi - lo > 1e-9; i++) { const mid = (lo + hi) / 2; if (netOf(mid) < need) lo = mid; else hi = mid; }
+          take = hi;
+        }
+        const t = gainTaxOf(ordinaryUnder, gain, take);
+        b.taxable -= take; gain += take * share; tax += t;
+        need -= take - t;
+        continue;
+      }
+      const rate = k === 'preTax' ? ord : 0;      // cash and Roth draw tax-free
       const grossNeeded = need / (1 - rate);
-      const take = Math.min(bal[b], grossNeeded);
-      bal[b] -= take;
-      const tax = take * rate; taxes += tax;
-      need -= take - tax;
+      const take = Math.min(b[k], grossNeeded);
+      b[k] -= take;
+      if (k === 'preTax') ordinaryTaken += take;
+      const t = take * rate; tax += t;
+      need -= take - t;
     }
-    if (need > 0.005) return { lastsToAge: age, totalTaxes: (taxes) };
-    (Object.keys(bal) as DrawBucket[]).forEach((b) => { bal[b] = bal[b] * (1 + Math.max(-0.05, o.realGrowth)); });
+    return { b, need, tax, ordinaryTaken };
+  };
+  for (let age = o.age; age <= o.horizon; age++) {
+    // the year is solved until the pre-tax income under the gains is the pre-tax income the walk takes: a pre-tax draw that
+    // comes AFTER taxable in the order still sits under that year's gains (it rises each pass, so the passes settle)
+    let r = walkYear(age, 0);
+    for (let pass = 0; pass < 50; pass++) {
+      const next = walkYear(age, r.ordinaryTaken);
+      const settled = Math.abs(next.ordinaryTaken - r.ordinaryTaken) < 1e-6;
+      r = next;
+      if (settled) break;
+    }
+    (Object.keys(bal) as DrawBucket[]).forEach((k) => { bal[k] = r.b[k]; });
+    taxes += r.tax;
+    if (r.need > 0.005) return { lastsToAge: age, totalTaxes: (taxes) };
+    (Object.keys(bal) as DrawBucket[]).forEach((k) => { bal[k] = bal[k] * (1 + Math.max(-0.05, o.realGrowth)); });
   }
   return { lastsToAge: null, totalTaxes: (taxes) };   // survives the whole horizon
 }
+
+/** What it is for: the one sentence the draw-order sheet states the assumptions of its comparison in — the rate on pre-tax
+ *  draws, how a gain is taxed on top of the year's income, the gain share, and the growth the money is run on
+ *  (2026-10-25). A gain is taxed stacked on the income (ltcgTaxOnGain), so the words say where its next band starts — "0% on
+ *  gains" was the rate on the first dollar only, and a gain crossing $49,450 of taxable income (single) paid 15% on the rest.
+ *  The growth is the Retirement cockpit's return in its own words (paycheckReturn's `said`, the lead's ruling of 2026-10-25),
+ *  less the one inflation rate. Example: "Rates used — yours, calculated: 12% on pre-tax draws · on gains, 0% until your
+ *  taxable income passes $49,450, then 15% · gains are 33% of your taxable holdings' value. Growth used: 6.00%/year — the
+ *  typical return, with nothing set aside for retirement, less 2.50% inflation." */
+/* ─ MK-PL-F-089 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * drawAssumptionsSaid
+ *
+ * Answers ..... What it is for: the one sentence the draw-order sheet states the assumptions of its comparison in — the rate on pre-tax draws, how a gain is taxed on top of the year's income, the gain share, and the growth the money is run on (2026-10-25).
+ *
+ * Formula .....
+ *     f = draw assumption figures(o)
+ *     pct = (r: number) => `${math.round(r × 100)}%`
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-029 inflation rate
+ *               MK-XS-I-030 tax filing status and age
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-089
+ * Changed ..... not in git yet (—)
+ */
+export function drawAssumptionsSaid(o: {
+  ordinaryRate: number; gainsOn: { ordinaryIncome: number; status: FilingStatus; over65: number };
+  gainShare: number | null; growthSaid: string; inflation: number;
+}): string {
+  // THE RATES ARE WRITTEN HERE, AND THE PERCENT GUARD COUNTS THEM (2026-10-26, PF-TOOLS; the lead's ruling the same day): a figure
+  // is declared through the orchestrator that hands it to the screen, and none hands these — the draw sheet calls this function and
+  // MK-PL-F-091 drawAssumptionFigures itself. So they are not declared, and src/domain/decumulation/index.ts carries them on the
+  // guard's ratchet at their true count; MK-CF-M-084 to 088 stay issued for them on the metric register. The inflation is the one
+  // declared figure here, MK-CF-M-083 (MK-CF-O-017 futurePaycheck hands it); the return inside growthSaid is MK-CF-M-082.
+  const f = drawAssumptionFigures(o);
+  const pct = (r: number) => `${Math.round(r * 100)}%`;
+  const onGains = f.gainsNext != null && f.bandTop != null
+    ? `on gains, ${pct(f.gainsFirst)} until your taxable income passes ${money(f.bandTop)}, then ${pct(f.gainsNext)}`
+    : `${pct(f.gainsFirst)} on gains`;
+  return `Rates used — yours, calculated: ${pct(f.preTaxRate)} on pre-tax draws · ${onGains} · gains are ${pct(f.gainShare)} of your taxable holdings' value. `
+    + `Growth used: ${o.growthSaid}, less ${writeFigure(INFLATION_FIGURES['MK-CF-M-083'], o.inflation)} inflation.`;
+}
+
+/** What it is for: THE FIGURES THE DRAW SHEET'S SENTENCE OF ASSUMPTIONS STATES, calculated once (2026-10-26, PF-TOOLS): the rate on
+ *  pre-tax draws as handed in, the rate on the first dollar of long-term gain at this income (ltcgRateFor), the rate of the band
+ *  after it and the taxable income where that band starts (the 0% band's top, then 15%; the 15% band's top, then 20%; nothing after
+ *  20%), and the gain share (0 when it is not known). drawAssumptionsSaid writes them.
+ *  Example: single, under 65, $64,000 of income → 0% on gains until taxable income passes $49,450, then 15%. */
+/* ─ MK-PL-F-091 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * drawAssumptionFigures
+ *
+ * Answers ..... What it is for: THE FIGURES THE DRAW SHEET'S SENTENCE OF ASSUMPTIONS STATES, calculated once (2026-10-26, PF-TOOLS): the rate on pre-tax draws as handed in, the rate on the first dollar of long-term gain at this income (ltcgRateFor), the rate of the band after it and the taxable income where that band starts (the 0% band's top, then 15%; the 15% band's top, then 20%; nothing after 20%), and the gain share (0 when it is not known).
+ *
+ * Formula .....
+ *     first = ltcg rate for(gains on.ordinary income, gains on.status, gains on.over65)
+ *
+ * Called by ... MK-PL-F-089 drawAssumptionsSaid
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PL-F-089 drawAssumptionsSaid
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-030 tax filing status and age
+ *
+ * Decides .....
+ *     · If gain share is missing it uses 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-091
+ * Changed ..... not in git yet (—)
+ */
+export function drawAssumptionFigures(o: {
+  ordinaryRate: number; gainsOn: { ordinaryIncome: number; status: FilingStatus; over65: number }; gainShare: number | null;
+}): { preTaxRate: number; gainsFirst: number; gainsNext: number | null; bandTop: number | null; gainShare: number } {
+  const first = ltcgRateFor(o.gainsOn.ordinaryIncome, o.gainsOn.status, o.gainsOn.over65);
+  const [zeroTop, fifteenTop] = LTCG[o.gainsOn.status];
+  return {
+    preTaxRate: o.ordinaryRate,
+    gainsFirst: first,
+    gainsNext: first === 0 ? 0.15 : first === 0.15 ? 0.20 : null,
+    bandTop: first === 0 ? zeroTop : first === 0.15 ? fifteenTop : null,
+    gainShare: o.gainShare ?? 0,
+  };
+}
+
 
 /** What share of the person's taxable holdings is unrealised gain? */
 /* ─ MK-PL-F-081 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED

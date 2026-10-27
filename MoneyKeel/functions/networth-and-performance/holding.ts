@@ -254,7 +254,7 @@ export function undatedGainSentence(
 /** THE LINE UNDER AN INDEX OPTION'S GAINS (2026-10-21): why its split is 60/40 and not by how long it was held. The shares are
  *  the law's, read from the one constant (SECTION_1256_LONG_TERM_PERCENT), and the source is named. */
 export const SECTION_1256_LINE =
-  `An index option's gain is taxed ${SECTION_1256_LONG_TERM_PERCENT}% long-term and ${100 - SECTION_1256_LONG_TERM_PERCENT}% short-term, however long it was held (IRS Publication 550).`;
+  `An index option’s gain is taxed ${SECTION_1256_LONG_TERM_PERCENT}% long-term and ${100 - SECTION_1256_LONG_TERM_PERCENT}% short-term, however long it was held (IRS Publication 550).`;
 
 /** A SHARE COUNT NOT ON RECORD, IN ONE SET OF WORDS (2026-10-21 on the Holding page; the lead's ruling of 2026-10-22 brought it
  *  to the account page): every figure built from the count — Quantity, Current value, Price paid (average), Total paid, and the
@@ -478,17 +478,18 @@ const HOLD = () => theHolding({ position: EXAMPLE_POSITION, accountId: 'a2', pri
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
- * Called by ... MK-NW-F-143 gainRowBetween · MK-NW-F-167 COMPARE
- *               MK-NW-F-185 valueChanged · MK-PF-F-007 totalROI
- *               MK-PF-F-010 periodReturn · MK-PF-F-011 periodReturnSince
- *               MK-PF-F-014 buildPerformance · MK-PF-F-029 closeAsOf
- *               MK-PF-F-033 quantityWithUnit · MK-PF-F-034 closeOnOrBefore
- *               MK-PF-F-038 periodTotalReturn · MK-PF-F-039 periodReturnParts
- *               MK-PF-F-040 returnSincePurchases · MK-PF-F-055 valueAtClose
- *               MK-PF-F-056 purchasePieces · MK-PF-F-070 holdingPath
- *               MK-PF-F-077 eventPath · MK-XS-F-192 typedValueDatedBack
+ * Called by ... MK-NW-F-035 blendedVolatility · MK-NW-F-143 gainRowBetween
+ *               MK-NW-F-167 COMPARE · MK-NW-F-185 valueChanged
+ *               MK-PF-F-007 totalROI · MK-PF-F-010 periodReturn
+ *               MK-PF-F-011 periodReturnSince · MK-PF-F-014 buildPerformance
+ *               MK-PF-F-029 closeAsOf · MK-PF-F-033 quantityWithUnit
+ *               MK-PF-F-034 closeOnOrBefore · MK-PF-F-038 periodTotalReturn
+ *               MK-PF-F-039 periodReturnParts · MK-PF-F-040 returnSincePurchases
+ *               MK-PF-F-055 valueAtClose · MK-PF-F-056 purchasePieces
+ *               MK-PF-F-070 holdingPath · MK-PF-F-077 eventPath
+ *               MK-XS-F-192 typedValueDatedBack
  *
- * Reaches ..... 388 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -498,7 +499,7 @@ const HOLD = () => theHolding({ position: EXAMPLE_POSITION, accountId: 'a2', pri
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 370 more — the full list is on functions_from_code
+ *               … and 368 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance

@@ -17,6 +17,8 @@ import { taxBucketSplit, rmdAtAge, rmdSchedule, rmdTakenThisYear, rmdStartAgeFor
 import { requestNotificationPermission, scheduleRmdReminder } from '../services/notifications';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { isoLocalDate } from '../domain/_shared/dates';
+import { paycheckReturn, growthUsed } from '../domain/paycheck';   // the Plan's one return when none is set (2026-10-25, FIX-ROOM)
+import { figWords, saidSentence } from '../components/figure';   // the return prints under its number, MK-CF-M-082 (2026-10-26)
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 
@@ -44,9 +46,14 @@ export default function RequiredWithdrawalsScreen() {
   );
   const still = Math.max(0, required - taken);
 
+  // THE YEAR-BY-YEAR ROWS GROW AT THE PLAN'S ONE RETURN, STATED (2026-10-26, CLEANUP-LEFT; the lead's ruling 2 of 2026-10-25, as the
+  // draw sheet and the paycheck do): a flat 5.5% whenever no return was set, and unstated — paycheckReturn gives a return set on the
+  // Plan, else the blended benchmark of the retirement accounts, else the typical 6%
+  const ret = useMemo(() => paycheckReturn(accounts, A, op), [accounts, A, op]);
+  const growth = growthUsed(ret);   // never below 0%, and the words say so when the floor is used (2026-10-26, round 2 item 5)
   const schedule = useMemo(
-    () => (age != null && preTax > 0 ? rmdSchedule(preTax, age, A.expectedReturn ?? 0.055, 12) : []),
-    [preTax, age, A.expectedReturn],
+    () => (age != null && preTax > 0 ? rmdSchedule(preTax, age, growth.rate, 12) : []),
+    [preTax, age, growth.rate],
   );
   const startYear = age != null ? nowYear + Math.max(0, rmdStartAgeFor(age) - age) : null;
 
@@ -137,7 +144,7 @@ export default function RequiredWithdrawalsScreen() {
           {/* this year (r45): required · taken · still, one ledger */}
           <View style={s.card} accessible
             accessibilityLabel={`This year: required ${spokenMoney(Math.round(required))}, taken so far ${spokenMoney(Math.round(taken))}, still to take ${spokenMoney(Math.round(still))} by December 31`}>
-            <SectionBand title={`THIS YEAR (${nowYear})`} />
+            <SectionBand inCard inset={Spacing.lg} title={`THIS YEAR (${nowYear})`} />
             <Text style={s.bigLine}>Required {maskedMoney(Math.round(required))}</Text>
             {thisYear?.basis === 'prior_year_end' ? (
               <Text style={s.note}>Based on your pre-tax balance of {maskedMoney(Math.round(thisYear.balanceUsed))} on Dec 31, {nowYear - 1} (you entered).</Text>
@@ -195,6 +202,7 @@ export default function RequiredWithdrawalsScreen() {
               <Text style={[s.schedAmt, r.isCurrent && s.strong]}>{r.isCurrent ? '' : '~'}{maskedMoney(Math.round(r.amount))}</Text>
             </View>
           ))}
+          <Text style={s.note} accessibilityLabel={saidSentence(`Growth used: ${growth.said}.`)}>Growth used: {figWords('MK-CF-M-082', growth.said)}.</Text>
           <Text style={s.note}>Future amounts move with your balance and the IRS divisor table — estimates, not promises. Adopting a plan (like a Roth conversion) changes these rows.</Text>
         </View>
       )}

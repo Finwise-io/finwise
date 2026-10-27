@@ -128,8 +128,8 @@ const AAPL_RECORDS = [
 export const ACTIVITY_SHEET: Sheet = {
   id: 'activity', file: 'moneykeel_pres_mock_activity-sheet_v01.html', title: 'Activity',
   states: [
-    { key: 'A', label: 'Apple in Fidelity: a sale, a dividend and a buy, newest first', ...holding(fidelity(AAPL), { transactions: AAPL_RECORDS }), steps: () => press("See AAPL's activity") },
-    { key: 'B', label: 'A holding with no records yet', ...holding(fidelity(AAPL)), steps: () => press("See AAPL's activity") },
+    { key: 'A', label: 'Apple in Fidelity: a sale, a dividend and a buy, newest first', ...holding(fidelity(AAPL), { transactions: AAPL_RECORDS }), steps: () => press("See AAPL’s activity") },
+    { key: 'B', label: 'A holding with no records yet', ...holding(fidelity(AAPL)), steps: () => press("See AAPL’s activity") },
   ],
 };
 

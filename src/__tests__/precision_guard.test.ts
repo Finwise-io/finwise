@@ -19,27 +19,74 @@ function walk(dir: string, out: string[] = []): string[] {
 }
 const stripComments = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/\/\/.*$/gm, '');
 
-test('no calculation rounds inside itself — round2 calls and cents / four-decimal idioms are absent', () => {
+// WIDENED 2026-10-25 (FIX-BILLS, after the outside review's parts 8–10): the line pattern above looked for ×100 / ÷100 and ×10,000
+// only, so `Math.round(ratio * 1000) / 1000` passed — that is how MK-CF-F-031 creditUtilization and MK-CF-F-033 debtToIncome
+// handed out 0.556 for 0.556390… and 0.447 for 0.4468954…. The calculation folders are now read off the code's own syntax tree by
+// the same detector the save guard below uses (roundingsIn): Math.round / floor / ceil / trunc(x × 10ⁿ) ÷ 10ⁿ for ANY power of ten,
+// Number(x.toFixed(n)), parseFloat(x.toFixed(n)), +x.toFixed(n) and round2(x). A rounding that becomes words on the spot is display
+// (allowed, counted); every other one fails unless it is carried below, by file and exact code, with its reason — the true number.
+const CARRIED_CALC: { file: string; code: string; n: number; why: string }[] = [
+  { file: 'src/domain/assets/index.ts', code: 'Math.floor((whole + part) * 10 + 1e-9) / 10', n: 1,
+    why: 'months held, cut DOWN to one decimal so a year less a day never reads "12.0" (outside review 2026-10-07); a stated precision of a kept figure — owner: Net worth' },
+  { file: 'src/domain/debt/index.ts', code: 'Math.ceil(monthly * 100) / 100', n: 1,
+    why: 'MK-CF-F-030 paymentToClearBy: a payment a person makes is whole cents, rounded UP so the stated payment meets the stated date — a payment rule, not a precision loss; called by nothing today' },
+  { file: 'src/domain/debt/mortgageVsTreasury.ts', code: '+((annualRate - yieldUsed) * 100).toFixed(2)', n: 1,
+    why: 'MK-CF-F-043 the gap in points, cut to two decimals before "too close" is judged on it — owner FIX-ROOM (mortgageVsTreasury.ts), 2026-10-25' },
+  { file: 'src/domain/debt/mortgageVsTreasury.ts', code: '+(annualRate * 100).toFixed(2)', n: 1,
+    why: 'MK-CF-F-043 the mortgage rate as a percent with two decimals, kept on the result the card prints — owner FIX-ROOM, 2026-10-25' },
+  { file: 'src/domain/debt/mortgageVsTreasury.ts', code: '+(treasuryYield * 100).toFixed(2)', n: 1,
+    why: 'MK-CF-F-043 the Treasury yield as a percent with two decimals, kept on the result the card prints — owner FIX-ROOM, 2026-10-25' },
+  { file: 'src/domain/retirement/willItLast.ts', code: 'Math.round(chance * 1e6) / 1e6', n: 1,
+    why: 'displayOdds: the same — floating-point noise only, never a real digit (400 futures give quarters, 1,000 give tenths)' },
+  { file: 'Calculation Module code/engines/ledger.ts', code: 'Math.round(n * 1e8) / 1e8', n: 1,
+    why: 'MK-ST-F-059 round8: a coin quantity at eight decimals, the stated precision of a coin quantity (precision standard)' },
+];
+const NO_ACTIONS = new Set<string>();
+
+test('no calculation rounds inside itself — any power of ten, read off the syntax tree (widened 2026-10-25)', () => {
   const offenders: string[] = [];
   const seen: Record<string, number> = {};
+  const count: Record<string, number> = {};
+  let shortening = 0, words = 0;
   for (const root of ROOTS) {
     for (const file of walk(path.join(ROOT, root))) {
       seen[root] = (seen[root] ?? 0) + 1;
-      const rel = path.relative(ROOT, file);
+      const rel = path.relative(ROOT, file).split(path.sep).join('/');
       if (ALLOWED.has(rel)) continue;
-      const src = stripComments(fs.readFileSync(file, 'utf8'));
-      const lines = src.split('\n');
-      lines.forEach((ln, i) => {
-        if (/(?<![\w.])round2\s*\(/.test(ln)) offenders.push(`${rel}:${i + 1} round2(`);
-        if (/Math\.round\([^;]*\*\s*(100|1e4|10000)\s*\)\s*\/\s*(100|1e4|10000)\b/.test(ln)) offenders.push(`${rel}:${i + 1} rounding idiom`);
-      });
+      for (const h of roundingsIn(rel, fs.readFileSync(file, 'utf8'), NO_ACTIONS)) {
+        if (h.kind !== 'shortening') continue;
+        shortening++;
+        if (h.verdict === 'words') { words++; continue; }
+        const k = `${h.file} | ${h.code}`;
+        count[k] = (count[k] ?? 0) + 1;
+        if (!CARRIED_CALC.some((c) => c.file === h.file && c.code === h.code)) offenders.push(`${h.file}:${h.line} ${h.code}`);
+      }
     }
   }
   // A GUARD MUST PROVE IT LOOKED (2026-09-28): on 2026-10-20 it read 65 · 24 · 13 files. A folder that moves goes red here.
   expect(seen['src/domain'] ?? 0).toBeGreaterThanOrEqual(60);
   expect(seen['MoneyKeel/functions'] ?? 0).toBeGreaterThanOrEqual(20);
   expect(seen['Calculation Module code/engines'] ?? 0).toBeGreaterThanOrEqual(10);
+  // …and that the detector still fires on this code: 12 shortening roundings found on 2026-10-25 (7 carried + 5 that become words)
+  expect(shortening).toBeGreaterThanOrEqual(12);
+  expect(words).toBeGreaterThanOrEqual(5);
+  const stale = CARRIED_CALC.filter((c) => (count[`${c.file} | ${c.code}`] ?? 0) !== c.n)
+    .map((c) => `${c.file} — "${c.code}" is carried ${c.n}× but found ${count[`${c.file} | ${c.code}`] ?? 0}× — correct CARRIED_CALC to the true number`);
+  // eslint-disable-next-line no-console
+  console.log(`Q49 calculation guard: ${Object.values(seen).reduce((t, n) => t + n, 0)} files read · ${shortening} shortening roundings · ${words} become words (allowed) · ${shortening - words} round a kept value, ${CARRIED_CALC.reduce((t, c) => t + c.n, 0)} carried with their reasons`);
   expect(offenders).toEqual([]);
+  expect(stale).toEqual([]);
+});
+
+test('Q49 — the calculation guard catches a ratio cut to three decimals (it is fed the two that got through, so it proves it fires)', () => {
+  const src = [
+    'export function creditUtilization(b: number, l: number) { const ratio = b / l; return { ratio: Math.round(ratio * 1000) / 1000 }; }',
+    'export function debtToIncome(d: number, g: number) { const ratio = d / g; return { ratio: Math.round(ratio * 1000) / 1000 }; }',
+    'const t = Math.floor(x * 1e3) / 1e3;',
+    'const said = `${Math.round(r * 1000) / 10}%`;',            // words — allowed
+  ].join('\n');
+  expect(roundingsIn('src/domain/debt/fixture.ts', src, NO_ACTIONS).filter((h) => h.kind === 'shortening').map((h) => h.verdict))
+    .toEqual(['kept', 'kept', 'kept', 'words']);
 });
 
 // ══ NOTHING ROUNDS WHEN IT IS SAVED (DEC-0403, 2026-09-09: "held as a float, decimals shown only for prices") ══
@@ -93,16 +140,9 @@ const CARRIED: { file: string; code: string; n: number; verdict: Verdict; displa
   // sale) left 2026-10-20: both are saved at full precision and rounded only where they are shown.
   { file: 'src/screens/NetWorthScreen.tsx', code: 'Math.round(runwayMonths * 10) / 10', n: 1, verdict: 'kept', display_only: true,
     why: 'DISPLAY ONLY, never saved: the emergency fund\'s months as the card prints them, one decimal; the bar and the word beside the months are drawn from this printed figure on purpose, so they can never disagree with it' },
-  // ── a screen change, drawn before it is built (mock-first order) ──
-  { file: 'src/screens/RetirementCockpit.tsx', code: 'Math.round(planGrowth * 1000) / 10', n: 2, verdict: 'kept',
-    why: 'the scenario dials start from the plan cut to one decimal of a percent, and "Use as my plan" saves what the dials hold — an untouched 5.63% return is saved back as 5.6%' },
-  { file: 'src/screens/RetirementCockpit.tsx', code: 'Math.round(planInfl * 1000) / 10', n: 2, verdict: 'kept', why: 'the same dials — inflation' },
-  { file: 'src/screens/RetirementCockpit.tsx', code: 'Math.round((A.salaryGrowth ?? 0) * 1000) / 10', n: 1, verdict: 'kept', why: 'the same dials — raises' },
-  { file: 'src/screens/RetirementCockpit.tsx', code: 'Math.round((a.expectedReturn ?? planGrowth) * 1000) / 10', n: 1, verdict: 'kept', why: 'the same dials, loading a saved scenario — return' },
-  { file: 'src/screens/RetirementCockpit.tsx', code: 'Math.round((a.inflation ?? planInfl) * 1000) / 10', n: 1, verdict: 'kept', why: 'the same dials, loading a saved scenario — inflation' },
-  { file: 'src/screens/RetirementCockpit.tsx', code: 'Math.round((a.salaryGrowth ?? A.salaryGrowth ?? 0) * 1000) / 10', n: 1, verdict: 'kept', why: 'the same dials, loading a saved scenario — raises' },
-  { file: 'src/screens/RothScreen.tsx', code: 'Math.round((cost / amt) * 100) / 100', n: 1, verdict: 'kept',
-    why: 'the tax rate is cut to a whole percent and the tax bill is worked from the cut rate; the exact rate changes the bill the screen prints ($10,000 at 22.34% is about $2,234, not $2,200), and the screen prints the rate as a whole percent' },
+  // ── paid 2026-10-26 (CLEANUP-LEFT, the lead's round 2, item 3): the Retirement cockpit's dials start from the plan's own rates and
+  // "Use as my plan" saves them whole; Roth conversion works the tax at the exact rate ($20,000 at 18.75% is $3,750, not $3,800 at
+  // 19%). Both print to two decimals. The seven carried lines that stood here are gone because the roundings are. ──
   // ── a reader prints the kept value as it is, so the reader must format it first ──
   { file: 'src/services/economicData.ts', code: 'Math.round(rate * 100) / 100', n: 2, verdict: 'kept',
     why: 'the fetched inflation and ten-year Treasury rates are cut to two decimals before they are kept; app/invest.tsx prints the kept Treasury rate as it is ({treasuryYield}%)' },
@@ -261,8 +301,12 @@ test('DEC-0403 — "held as a float, decimals shown only for prices": nothing is
   // 2026-10-21: the Performance tab's "N.N years" words moved into the one writer both pages now ask (yearsWords, in
   // MoneyKeel/functions/networth-and-performance/performance.ts — words, read by the calculation-folder test above), so it is
   // counted there, not here (MK-PF-M-016). 16 on 2026-10-22: Home's own percent writer (pctTwoDp, Math.round(d * 10000) / 100)
-  // is gone — its glance line prints through fig() and the one writer (DEC-0402 step 2; MK-XS-M-004, MK-PF-M-008, MK-PF-M-027)
-  expect(shortening.length).toBeGreaterThanOrEqual(16);
+  // is gone — its glance line prints through fig() and the one writer (DEC-0402 step 2; MK-XS-M-004, MK-PF-M-008, MK-PF-M-027). 5 on
+  // 2026-10-26 (CLEANUP-LEFT, the lead's round 2, item 3): eleven roundings INSIDE were removed, not hidden — the Retirement
+  // cockpit's sliders started from the plan's rates rounded to a tenth of a point (retPct, inflPct, salGrow: 3 at start, 2 on reset,
+  // 3 on loading a scenario) and its scenario table printed them so (2); Roth conversion rounded its rate to a whole percent before
+  // working the tax (1). Each now keeps the figure whole and prints it with toFixed(2), which this detector does not count
+  expect(shortening.length).toBeGreaterThanOrEqual(5);
   expect(words.length).toBeGreaterThanOrEqual(6);
 
   const key = (file: string, verdict: string, code: string) => `${file} | ${verdict} | ${code}`;

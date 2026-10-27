@@ -4,8 +4,7 @@
   "baseline": {
     "src/screens/InsightsScreen.tsx": 1,
     "src/screens/WillItLastScreen.tsx": 2,
-    "src/screens/PlanHubScreen.tsx": 2,
-    "src/screens/RetirementCockpit.tsx": 26
+    "src/screens/PlanHubScreen.tsx": 2
   },
   "note": ""
 }

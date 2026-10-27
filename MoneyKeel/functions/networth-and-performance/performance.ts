@@ -1552,10 +1552,16 @@ export function thePerformance(input: {
  *  no test, so nothing can check it and nothing can compare it with the same figure elsewhere. That
  *  is how one concept comes to have two answers.
  *
- *  LEDGER-ONLY, and that is a decision of his, not an omission: a category with no records shows an
- *  em-dash, never a false $0, and where nothing at all was received the table does not appear. A zero
- *  reads as "we checked and it earned nothing"; a dash reads as "we have no record" — and only one
- *  of those is true.
+ *  LEDGER-ONLY: what a category earned is read from the records alone, never estimated.
+ *
+ *  THE TABLE IS ALWAYS THERE (2026-10-25, MM-PF D3; Performance v17 draws WHAT EACH CATEGORY EARNED on every phone, with
+ *  $0 rows on day one; his EMPTY-STATE RULE of 2026-08-04: keep the full layout, real structure with $0 values). Every
+ *  category the accounts hold is listed in every window — a holding classed there, cash in an account, a bond held as
+ *  its own account — and a category that received nothing reads $0: the records were read and hold no dividend or
+ *  interest for it in the window. A category that is not held and earned nothing is not listed (phone 1 draws no
+ *  Bonds & CDs). This said "where nothing at all was received the table does not appear" and called that his decision;
+ *  it was the lead's, and the table vanished on phone 1's 1M and on phones 4 and 5 outside Since. Nothing held and
+ *  nothing earned (an account typed as one total) lists the three rows day one lists. To reverse: filter on earned only.
  */
 export interface CategoryEarned {
   key: string;
@@ -1611,6 +1617,7 @@ export interface CategoryEarned {
  *     · If balance is missing it uses 0.
  *     · If start value is missing it uses 0.
  *     · If coupon rate is missing it uses 0.
+ *     · If cash balance is missing it uses 0.
  *
  * Formula also on the master file · functions_from_code · MK-NW-F-084
  * Changed ..... 2026-09-30 (4476da5)
@@ -1625,9 +1632,12 @@ export function categoryEarnings(input: {
   /** Every bond or CD held as its own account: which account it is, what it is worth and the yearly rate it states. */
   bonds?: { asset_id?: string | number; balance?: number; coupon_rate?: number }[];
   /** DAY ONE: every category is shown at $0 — "every line fills in as days pass, the structure never
-   *  changes" (Performance v17, phones 4 and 5). Any other day, a category that received nothing is
-   *  left out. */
+   *  changes" (Performance v17, phones 4 and 5). Any other day, every category held is shown, at $0 where it
+   *  received nothing (2026-10-25). */
   dayOne?: boolean;
+  /** The investment accounts the table is for — read only for the cash sitting in them, so Cash in this account is listed
+   *  wherever an account holds cash (2026-10-25). */
+  accounts?: { cash_balance?: number | null }[];
   /** THE WINDOW'S YEARS WHERE ITS RETURN IS MADE YEARLY (the door's `years`, handed in only where its `perYear` is set — a
    *  window longer than a year): each category's return is then the yearly rate its total makes (classReturnOf, DEC-7217,
    *  2026-10-23). Absent, each category's return is the window's own total. A bond's stated rate is a yearly rate already. */
@@ -1735,11 +1745,21 @@ export function categoryEarnings(input: {
     b.earned += amt;
   }
   // day one shows every category at $0 with NO return — nothing has been measured yet, and a holding's
-  // lifetime gain is not this window's. Any other day a category that received nothing is left out.
+  // lifetime gain is not this window's.
   // day one draws the three categories of v17 phones 4 and 5; Unclassified is drawn only when a holding is in it
   const anyUnclassed = rows.some((x) => categoryOf(x.position) === 'mixed');
   const anyAlternative = rows.some((x) => categoryOf(x.position) === 'alternatives');   // the same, for Alternatives (2026-10-21)
-  return input.dayOne ? buckets.filter((b) => (b.key !== 'mixed' || anyUnclassed) && (b.key !== 'alternatives' || anyAlternative)).map((b) => ({ ...b, ret: null, yearly: false })) : buckets.filter((b) => b.earned > 0);
+  const BASE = ['stocks_etf', 'bonds', 'cash'];
+  if (input.dayOne) return buckets.filter((b) => (b.key !== 'mixed' || anyUnclassed) && (b.key !== 'alternatives' || anyAlternative)).map((b) => ({ ...b, ret: null, yearly: false }));
+  // ANY OTHER DAY, EVERY CATEGORY HELD, $0 WHERE IT RECEIVED NOTHING (2026-10-25, MM-PF D3). Held in the window: a holding
+  // classed there that is worth something, or was when the window began (one sold inside the window counts); for Bonds &
+  // CDs, a bond held as its own account; for Cash in this account, cash in an account. A reversal that leaves a category
+  // below $0 is listed too — it was left out with the rest.
+  const heldIn = (key: string): boolean => rows.some((x) => categoryOf(x.position) === key && (x.marketValue !== 0 || (x.startValue ?? 0) > 0))
+    || (key === 'bonds' && held.length > 0)
+    || (key === 'cash' && (input.accounts ?? []).some((a) => (a?.cash_balance ?? 0) > 0));
+  const listed = buckets.filter((b) => b.earned !== 0 || heldIn(b.key));
+  return listed.length ? listed : buckets.filter((b) => BASE.includes(b.key)).map((b) => ({ ...b, ret: null, yearly: false }));
 }
 
 /** ALL CATEGORIES, THE TABLE'S LAST LINE: what every category categoryEarnings lists earned, added up (2026-10-22; DEC-0346,
@@ -1816,7 +1836,7 @@ export function walkDirectionWords(beginning: number, ending: number): 'up to' |
  *               MK-NW-F-091 pricedGainOf · MK-NW-F-138 knownHoldingsReturn
  *               MK-PF-F-078 yardstickOn
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -1826,7 +1846,7 @@ export function walkDirectionWords(beginning: number, ending: number): 'up to' |
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price

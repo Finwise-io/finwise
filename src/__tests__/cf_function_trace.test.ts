@@ -44,7 +44,6 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-CF-F-017', 'src/domain/budget/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-CF-F-018', 'src/domain/cashflow/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-CF-F-019', 'src/domain/cashflow/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-CF-F-020', 'src/domain/cashflow/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-CF-F-021', 'src/domain/debt/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-CF-F-022', 'src/domain/debt/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-CF-F-023', 'src/domain/debt/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
@@ -71,7 +70,6 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-CF-F-044', 'src/domain/income/calc.ts', 'src/domain/income/income.test.ts'],
   ['MK-CF-F-045', 'src/domain/income/calc.ts', 'src/domain/income/income.test.ts'],
   ['MK-CF-F-046', 'src/domain/income/calc.ts', 'src/domain/income/income.test.ts'],
-  ['MK-CF-F-048', 'src/domain/income/calc.ts', 'src/domain/income/income.test.ts'],
   ['MK-CF-F-049', 'src/domain/income/calc.ts', 'src/domain/income/income.test.ts'],
   ['MK-CF-F-050', 'src/domain/income/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-CF-F-051', 'src/domain/income/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
@@ -118,7 +116,6 @@ const FUNCTIONS: [string, string, string][] = [
   // Its number stays on the register's retired list and is never reused; a test now checks it is gone.
   ['MK-CF-F-092', 'src/domain/income/onboarding.ts', 'Calculation Module code/probes/income-tax.probe.test.ts'],
   ['MK-CF-F-097', 'src/domain/income/tax.ts', 'Calculation Module code/probes/income-tax.probe.test.ts'],
-  ['MK-CF-F-098', 'src/domain/income/tax.ts', 'Calculation Module code/probes/income-tax.probe.test.ts'],
   ['MK-CF-F-099', 'src/domain/income/tax.ts', 'Calculation Module code/probes/income-tax.probe.test.ts'],
   ['MK-CF-F-100', 'src/domain/income/tax.ts', 'Calculation Module code/probes/income-tax.probe.test.ts'],
   ['MK-CF-F-101', 'src/domain/income/tax.ts', 'Calculation Module code/probes/income-tax.probe.test.ts'],
@@ -224,7 +221,8 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-CF-F-205', 'MoneyKeel/functions/cashflow/whats-coming.ts', 'MoneyKeel/functions/cashflow/whats-coming.test.ts'],
   ['MK-CF-F-206', 'src/domain/income/onboarding.ts', 'Calculation Module code/probes/income-tax.probe.test.ts'],
   ['MK-CF-F-207', 'MoneyKeel/functions/cashflow/income-summary.ts', 'MoneyKeel/functions/cashflow/income-summary.test.ts'],
-  ['MK-CF-F-210', 'MoneyKeel/functions/cashflow/income-summary.ts', 'MoneyKeel/functions/cashflow/income-summary.test.ts'],
+  // MK-CF-F-210 annualOfSource: retired 2026-10-25 (FIX-INCOME-B; nothing called it, and YOUR SOURCES never converts a row's
+  // period). Its number stays on the register's retired list and is never reused; a test now checks it is gone.
   ['MK-CF-F-211', 'MoneyKeel/functions/cashflow/the-debts.ts', 'MoneyKeel/functions/cashflow/the-debts.test.ts'],
   ['MK-CF-F-212', 'MoneyKeel/functions/cashflow/whats-coming.ts', 'MoneyKeel/functions/cashflow/whats-coming.test.ts'],
   ['MK-CF-F-216', 'src/domain/income/old-rent-migration.ts', 'src/screens/__tests__/old_rent_figure_moved.test.tsx'],   // no test names it: run through hasOldRentFigure and moveOldRentFigure, which read it, in this test
@@ -254,6 +252,49 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-CF-F-240', 'MoneyKeel/functions/cashflow/base-pay.ts', 'src/__tests__/worked_examples.test.ts'],   // an example helper (MK-CF-O-013 until 2026-10-24): it is the run of the typed take-home worked examples, which this test re-runs
   ['MK-CF-F-241', 'MoneyKeel/functions/cashflow/this-month.ts', 'src/__tests__/worked_examples.test.ts'],   // an example helper (MK-CF-O-014 until 2026-10-24): it is the run of This month's worked examples, which this test re-runs
   ['MK-CF-F-242', 'MoneyKeel/functions/cashflow/this-month.ts', 'src/__tests__/worked_examples.test.ts'],   // an example helper (MK-CF-O-015 until 2026-10-24): it reads one row of This month's worked example, which this test re-runs
+  ['MK-CF-F-243', 'MoneyKeel/functions/cashflow/base-pay.ts', 'MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts'],
+  ['MK-CF-F-244', 'MoneyKeel/functions/cashflow/base-pay.ts', 'MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts'],
+  ['MK-CF-F-245', 'MoneyKeel/functions/cashflow/base-pay.ts', 'MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts'],
+  ['MK-CF-F-246', 'MoneyKeel/functions/cashflow/budget-counted.ts', 'src/__tests__/cf_functions_direct_2026_10_26.test.ts'],
+  ['MK-CF-F-247', 'MoneyKeel/functions/cashflow/budget-counted.ts', 'src/__tests__/cf_functions_direct_2026_10_26.test.ts'],
+  ['MK-CF-F-248', 'MoneyKeel/functions/cashflow/contribution-room.ts', 'MoneyKeel/functions/cashflow/contribution-room.test.ts'],   // not exported: the Medicare months are read through theContributionRoom, whose Medicare cases this test runs
+  ['MK-CF-F-249', 'MoneyKeel/functions/cashflow/income-tab.ts', 'src/__tests__/cf_functions_direct_2026_10_26.test.ts'],
+  ['MK-CF-F-250', 'MoneyKeel/functions/cashflow/income-tab.ts', 'src/__tests__/income_sources_agree_2026_10_25.test.ts'],
+  ['MK-CF-F-251', 'MoneyKeel/functions/cashflow/logged-expenses.ts', 'MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts'],
+  ['MK-CF-F-252', 'MoneyKeel/functions/cashflow/the-debts.ts', 'MoneyKeel/functions/cashflow/the-debts.test.ts'],
+  ['MK-CF-F-253', 'MoneyKeel/functions/cashflow/whats-coming.ts', 'src/__tests__/cf_functions_direct_2026_10_26.test.ts'],
+  ['MK-CF-F-254', 'src/domain/budget/index.ts', 'MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts'],
+  ['MK-CF-F-255', 'src/domain/budget/index.ts', 'src/screens/__tests__/cashflow_drawing_fixes_2026_10_25.test.tsx'],
+  ['MK-CF-F-256', 'src/domain/budget/index.ts', 'src/domain/budget/spend_agreement.test.ts'],
+  ['MK-CF-F-257', 'src/domain/budget/index.ts', 'src/screens/__tests__/fix_month_2026_10_25.test.tsx'],
+  ['MK-CF-F-258', 'src/domain/cashflow/index.ts', 'src/__tests__/income_sources_agree_2026_10_25.test.ts'],
+  ['MK-CF-F-259', 'src/domain/debt/index.ts', 'src/__tests__/cf_functions_direct_2026_10_26.test.ts'],
+  ['MK-CF-F-260', 'src/domain/income/earners.ts', 'src/onboarding/match_year_one_rule_2026_10_26.test.tsx'],
+  ['MK-CF-F-261', 'src/domain/income/earners.ts', 'src/onboarding/match_year_one_rule_2026_10_26.test.tsx'],
+  ['MK-CF-F-262', 'src/domain/income/earners.ts', 'src/onboarding/match_year_one_rule_2026_10_26.test.tsx'],
+  ['MK-CF-F-263', 'src/domain/income/from-accounts.ts', 'src/domain/income/from-accounts.test.ts'],   // not exported: the pre-tax and Roth accounts it leaves out are read through interestAndDividendsForYear and paidOutByAccount, which this test runs
+  ['MK-CF-F-264', 'src/domain/income/from-accounts.ts', 'src/domain/income/from-accounts.test.ts'],
+  ['MK-CF-F-265', 'src/domain/income/onboarding.ts', 'src/__tests__/income_sources_agree_2026_10_25.test.ts'],   // not exported: the one reader of the vests is read through vestsNotEntered and rsuAnnual, which this test runs
+  ['MK-CF-F-266', 'src/domain/income/onboarding.ts', 'src/domain/income/income.test.ts'],
+  ['MK-CF-F-267', 'src/domain/income/onboarding.ts', 'src/__tests__/income_sources_agree_2026_10_25.test.ts'],
+  ['MK-CF-F-268', 'src/domain/income/onboarding.ts', 'MoneyKeel/functions/cashflow/outside_cashflow_openai_part04.test.ts'],
+  ['MK-CF-F-269', 'src/domain/income/onboarding.ts', 'src/__tests__/cf_functions_direct_2026_10_26.test.ts'],
+  ['MK-CF-F-270', 'src/domain/income/onboarding.ts', 'src/__tests__/income_sources_agree_2026_10_25.test.ts'],
+  ['MK-CF-F-271', 'src/domain/income/onboarding.ts', 'src/__tests__/cf_functions_direct_2026_10_26.test.ts'],
+  ['MK-CF-F-272', 'src/domain/income/onboarding.ts', 'src/domain/income/level_months.test.ts'],
+  ['MK-CF-F-273', 'src/domain/income/onboarding.ts', 'MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts'],
+  ['MK-CF-F-274', 'src/domain/income/onboarding.ts', 'src/__tests__/income_sources_agree_2026_10_25.test.ts'],
+  ['MK-CF-F-275', 'src/domain/income/onboarding.ts', 'src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx'],
+  ['MK-CF-F-276', 'src/domain/income/onboarding.ts', 'src/__tests__/cf_functions_direct_2026_10_26.test.ts'],
+  ['MK-CF-F-277', 'src/domain/income/onboarding.ts', 'MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts'],
+  ['MK-CF-F-278', 'src/domain/income/tax.ts', 'MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts'],
+  ['MK-CF-F-279', 'src/domain/paycheck/index.ts', 'src/domain/paycheck/paycheck.test.ts'],
+  ['MK-CF-F-280', 'src/hooks/useIncomeProfile.ts', 'src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx'],
+  ['MK-CF-F-281', 'src/hooks/useIncomeProfile.ts', 'src/__tests__/cf_functions_direct_2026_10_26.test.ts'],
+  ['MK-CF-F-282', 'src/domain/paycheck/index.ts', 'src/domain/paycheck/paycheck.test.ts'],   // growthUsed (CLEANUP-LEFT, numbered by the master build 2026-10-26)
+  ['MK-CF-F-283', 'src/domain/budget/index.ts', 'src/screens/__tests__/cashflow_drawing_fixes_2026_10_25.test.tsx'],   // a constant of words (numbered by hand 2026-10-26): the Expenses tab's group rows this test reads
+  ['MK-CF-F-284', 'src/components/MortgageRateCompare.tsx', 'src/components/__tests__/MortgageRateCompare.test.tsx'],
+  ['MK-CF-F-285', 'src/screens/BasePayScreen.tsx', 'src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx'],   // a screen helper (numbered by hand 2026-10-26): the sentence this test reads
 ];
 
 /** Every MK-CF-F record in the code, read from the code: the header rule the header writer prints directly above each function
@@ -280,8 +321,17 @@ describe('every Cash flow function traces to its proof in one hop (step 3.c)', (
   it('the table covers every Cash flow function in the code — and says how many', () => {
     const code = headersInCode();
     console.log(`cf_function_trace: ${code.size} MK-CF-F records in the code, ${FUNCTIONS.length} rows in the table`);
-    expect(code.size).toBeGreaterThanOrEqual(227);        // 222 on 2026-10-24, 227 the same day once five example helpers left O for F — a floor that only ever rises
-    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(227);
+    // 222 on 2026-10-24, 227 the same day once five example helpers left O for F — a floor that only ever rises, except by a
+    // retirement, which lowers it by the true number: 225 on 2026-10-25, MK-CF-F-048 effectiveTaxRate and MK-CF-F-098
+    // progressiveMonthlyTax retired (FIX-TAX; their numbers stay on the register's retired list); 224 the same day, MK-CF-F-020
+    // cashflowYear retired (FIX-BILLS — a second twelve-month table with no production caller; the number stays retired); 223
+    // the same day, MK-CF-F-210 annualOfSource retired (FIX-INCOME-B — no production caller; the number stays retired)
+    // the same day, MK-CF-F-210 annualOfSource retired (FIX-INCOME-B — no production caller; the number stays retired); 262 on
+    // 2026-10-26, the 39 functions written in the 2026-10-25 fix wave numbered (MK-CF-F-243 to 281, PF-TOOLS)
+    // 266 the same day: growthUsed (CLEANUP-LEFT), and three numbered by hand — PLANNED_GROUP_WORDS, federalBracketForComparison,
+    // accountIncomeIn (the lead's instruction)
+    expect(code.size).toBeGreaterThanOrEqual(266);
+    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(266);
     expect(new Set(FUNCTIONS.map((r) => r[0])).size).toBe(FUNCTIONS.length);
     const table = new Set(FUNCTIONS.map((r) => r[0]));
     expect([...code.keys()].filter((id) => !table.has(id)).sort()).toEqual([]);   // in the code, missing from the table

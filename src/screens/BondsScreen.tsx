@@ -9,14 +9,13 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { fig, figPer, figSpoken, figWords } from '../components/figure';   // rule 11
-import { InfoDot, EmptyNote } from '../components/UI';
+import { EmptyNote } from '../components/UI';
 import { DateField } from '../components/DateField';
 import { type AssetAccount, type TaxBucket, type AddWrapper, HELD_IN_CHOICES, heldInOf, wrapperAccount } from '../domain/assets';
 import { theBonds, MATURITY_NOT_ENTERED, settleBondValue, balanceWithBondTakenOut } from '../../MoneyKeel/functions/networth-and-performance/bonds';
 import { CD_BOUGHT_QUESTION, CD_BOUGHT_CHOICES } from '../constants/cdBought';   // the one wording (DEC-3837)
 import { COUPONS_PER_YEAR_QUESTION, COUPONS_PER_YEAR_CHOICES, type CouponsPerYear } from '../constants/couponsPerYear';   // the one wording (DEC-3390)
 import { modalAnimation } from '../hooks/reducedMotion';
-import { DotJoined } from '../components/SepDot';
 import { isoLocalDate, maturityParts } from '../domain/_shared/dates';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -51,8 +50,11 @@ export default function BondsScreen() {
     <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
     <TopBar back />
     <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}><Text style={styles.h1}>Bonds</Text>
-      <SectionBand title="BONDS & CDS" /><InfoDot term="bonds" /></View>
+      {/* THE TITLE, THEN THE BAR (Bonds v02 phones 1 and 2; the drawing's READ THIS FIRST row of 2026-10-25): the bar runs edge to
+          edge under the title, square corners, the one info dot white inside it. It sat beside the title in one row, as wide as its
+          words and 20 in from each edge, the dot grey outside it. The bleed is the content's own padding (Spacing.lg). */}
+      <Text style={styles.h1}>Bonds</Text>
+      <View style={styles.bleed}><SectionBand title="BONDS & CDS" infoTerm="bonds" /></View>
 
       {bonds.length === 0 ? (
         <View style={styles.card}>
@@ -122,7 +124,10 @@ export default function BondsScreen() {
                 {/* A VALUE THAT IS NOT A MARKET VALUE SAYS SO (DEC-0281, 2026-10-20): what was paid, or the face value — one sentence,
                     from the one value rule, the same the account page prints */}
                 {!!r.valueNote && <Text style={styles.bondSub}>{r.valueNote}</Text>}
-                <DotJoined style={styles.bondSub} numberOfLines={2} parts={[r.face != null ? `face ${fig('MK-NW-M-055', r.face)}` : figWords('MK-NW-M-055', 'face value not entered'), figWords('MK-NW-M-045', r.couponRate != null ? `${(r.couponRate * 100).toFixed(2)}% coupon` : 'coupon rate not entered'), r.maturity ? `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y` : ''}` : MATURITY_NOT_ENTERED]} />
+                {/* THE · AS DRAWN (Bonds v02 phone 1, approved 2026-10-01, DEC-0650; its READ THIS FIRST row of 2026-10-25): in the line's own
+                    grey at regular weight, as the · before the years already was. It was the darker bold separator of 2026-07-31 (DEC-0016);
+                    a drawing he approved after it is the design (DEC-0808). */}
+                <Text style={styles.bondSub} numberOfLines={2}>{[r.face != null ? `face ${fig('MK-NW-M-055', r.face)}` : figWords('MK-NW-M-055', 'face value not entered'), figWords('MK-NW-M-045', r.couponRate != null ? `${(r.couponRate * 100).toFixed(2)}% coupon` : 'coupon rate not entered'), r.maturity ? `matures ${humanDate(r.maturity)}${yrs > 0 ? ` · ${Math.round(yrs)}y` : ''}` : MATURITY_NOT_ENTERED].join(' · ')}</Text>
                 <View style={styles.bondMetrics}>
                   {/* no rate: coupon not entered; a rate and no face value on a bond (2026-10-24, tenet 3): the reason, never the rate on the value */}
                   <Text style={styles.metric}>{r.couponPerYear != null ? `${figPer('MK-NW-M-056', r.couponPerYear)} coupon` : figWords('MK-NW-M-056', r.couponRate == null ? 'coupon not entered' : 'coupon — face value not entered')}</Text>
@@ -154,7 +159,7 @@ export default function BondsScreen() {
             const addAsPartOf = () => { store.updateAsset(dup.asset_id, { balance: balanceWithBondTakenOut(dup.balance, worth) }); addIt(); };   // by the door (DEC-0346)
             Alert.alert(
               'Part of an existing account?',
-              `${dup.institution}'s “${dup.label}” is worth ${fig('MK-NW-M-054', dup.balance || 0)}. Is this ${fig('MK-NW-M-054', worth)} bond part of that, or additional money?\n\n“Part of it” lowers ${dup.label} by ${fig('MK-NW-M-054', worth)} so nothing is double-counted (total stays ${fig('MK-NW-M-054', dup.balance || 0)}).`,
+              `${dup.institution}’s “${dup.label}” is worth ${fig('MK-NW-M-054', dup.balance || 0)}. Is this ${fig('MK-NW-M-054', worth)} bond part of that, or additional money?\n\n“Part of it” lowers ${dup.label} by ${fig('MK-NW-M-054', worth)} so nothing is double-counted (total stays ${fig('MK-NW-M-054', dup.balance || 0)}).`,
               [
                 { text: 'Cancel', style: 'cancel' },
                 { text: 'Additional money', onPress: addIt },
@@ -235,7 +240,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
       full ? 'Sell all of this bond?' : 'Sell part of this bond?',
       full
         ? `Marks the whole position (${fig('MK-NW-M-054', cur)}) as sold and removes it from your holdings.`
-        : `Lowers ${label.trim() || 'this bond'} from ${fig('MK-NW-M-054', cur)} to ${fig('MK-NW-M-054', cur - sold)} (face value adjusts proportionally). Coupons are paid on the remaining face — and the sale shows in this account's activity.`,
+        : `Lowers ${label.trim() || 'this bond'} from ${fig('MK-NW-M-054', cur)} to ${fig('MK-NW-M-054', cur - sold)} (face value adjusts proportionally). Coupons are paid on the remaining face — and the sale shows in this account’s activity.`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: full ? 'Sell all' : 'Sell', onPress: () => {
@@ -287,7 +292,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           <TextInput style={styles.input} value={label} onChangeText={setLabel} placeholder="e.g. US Treasury 2030, Apple Corp 4.5%" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Institution / account (optional)</Text>
           <TextInput style={styles.input} value={institution} onChangeText={setInstitution} placeholder="e.g. Chase, Fidelity, Schwab" placeholderTextColor={Colors.textTertiary} />
-          <Text style={styles.fieldHint}>Held inside a brokerage or bank account? Add it here — if that account already has a balance, we'll ask whether this bond is part of it so nothing is double-counted.</Text>
+          <Text style={styles.fieldHint}>Held inside a brokerage or bank account? Add it here — if that account already has a balance, we’ll ask whether this bond is part of it so nothing is double-counted.</Text>
           <Text style={styles.fieldL}>Face (par) value</Text>
           <TextInput style={styles.input} keyboardType="decimal-pad" value={face} onChangeText={setFace} placeholder="10000" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Coupon rate (% per year)</Text>
@@ -352,7 +357,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           {bond && (
             <View style={styles.sellBox}>
               <Text style={styles.sellTitle}>🔻 Sell</Text>
-              <Text style={styles.fieldHint}>Sold this bond (or part of it) on the secondary market before maturity? Enter the proceeds to lower or close the position. To just re-mark its price, edit “Current value” above.</Text>
+              <Text style={styles.fieldHint}>Sold this bond (or part of it) on the secondary market before maturity? Enter the proceeds to lower or close the position. To just re-mark its price, edit “Market value” above.</Text>
               <View style={styles.sellRow}>
                 <TextInput style={[styles.input, { flex: 1 }]} keyboardType="decimal-pad" value={sellAmt} onChangeText={setSellAmt}
                   placeholder={`amount sold (up to ${fig('MK-NW-M-054', worth)})`} placeholderTextColor={Colors.textTertiary} />
@@ -376,6 +381,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 8, marginBottom: 8 },
+  bleed: { marginHorizontal: -Spacing.lg },   // the dark-green bar runs edge to edge: back out through the content's padding
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 10 },
   empty: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
   addBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 13, alignItems: 'center', marginTop: 14 },

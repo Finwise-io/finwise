@@ -1,0 +1,2066 @@
+{
+ "what_this_is": "What is in each part of the Cash flow package, by identifier. Built by build-outside-test-cards.py --audit-package CF.",
+ "built_on": "2026-10-24",
+ "commit": "d7c79519, plus 148 changed files not yet committed",
+ "counts": {
+  "functions": 227,
+  "orchestrators": 14,
+  "cards": 219,
+  "not_carded": 22,
+  "figures": 67,
+  "decisions": 175,
+  "parts": 19,
+  "cases_asked": 1095
+ },
+ "parts": [
+  {
+   "part": 1,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-01-of-19.md",
+   "title": "Wages — what is paid, in which months, and the year it makes",
+   "kind": "cards",
+   "cards": [
+    "MK-CF-F-059",
+    "MK-CF-F-130",
+    "MK-CF-F-060",
+    "MK-CF-F-177",
+    "MK-CF-F-061",
+    "MK-CF-F-080",
+    "MK-CF-F-081",
+    "MK-CF-F-082",
+    "MK-CF-F-083",
+    "MK-CF-F-206",
+    "MK-CF-F-233",
+    "MK-CF-F-234",
+    "MK-CF-F-078",
+    "MK-CF-F-178",
+    "MK-CF-F-079"
+   ],
+   "figures": [],
+   "decisions": [
+    "DEC-0003",
+    "DEC-0151",
+    "DEC-0176",
+    "DEC-0198",
+    "DEC-0200",
+    "DEC-0291",
+    "DEC-0296",
+    "DEC-0303",
+    "DEC-0307",
+    "DEC-0327",
+    "DEC-0364",
+    "DEC-0376",
+    "DEC-0447",
+    "DEC-0487",
+    "DEC-0491",
+    "DEC-7935",
+    "DEC-7938"
+   ],
+   "leaned_on": []
+  },
+  {
+   "part": 2,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-02-of-19.md",
+   "title": "Earners, and a salary that varies month to month",
+   "kind": "cards",
+   "cards": [
+    "MK-CF-F-172",
+    "MK-CF-F-173",
+    "MK-CF-F-174",
+    "MK-CF-F-175",
+    "MK-CF-F-176",
+    "MK-CF-F-188",
+    "MK-CF-F-163",
+    "MK-CF-F-164",
+    "MK-CF-F-165",
+    "MK-CF-F-166",
+    "MK-CF-F-167",
+    "MK-CF-F-168",
+    "MK-CF-F-169",
+    "MK-CF-F-170"
+   ],
+   "figures": [],
+   "decisions": [
+    "DEC-0252"
+   ],
+   "leaned_on": []
+  },
+  {
+   "part": 3,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-03-of-19.md",
+   "title": "Stock that vests, and rent from a property",
+   "kind": "cards",
+   "cards": [
+    "MK-CF-F-062",
+    "MK-CF-F-063",
+    "MK-CF-F-064",
+    "MK-CF-F-065",
+    "MK-CF-F-066",
+    "MK-CF-F-219",
+    "MK-CF-F-067",
+    "MK-CF-F-068",
+    "MK-CF-F-216",
+    "MK-CF-F-217",
+    "MK-CF-F-218"
+   ],
+   "figures": [],
+   "decisions": [
+    "DEC-0003",
+    "DEC-0151",
+    "DEC-0176",
+    "DEC-0198",
+    "DEC-0200",
+    "DEC-0291",
+    "DEC-0296",
+    "DEC-0303",
+    "DEC-0307",
+    "DEC-0327",
+    "DEC-0364",
+    "DEC-0447",
+    "DEC-0487",
+    "DEC-0491",
+    "DEC-3768",
+    "DEC-3768c",
+    "DEC-7935",
+    "DEC-7938"
+   ],
+   "leaned_on": []
+  },
+  {
+   "part": 4,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-04-of-19.md",
+   "title": "Benefits, retirement income and other income",
+   "kind": "cards",
+   "cards": [
+    "MK-CF-F-069",
+    "MK-CF-F-070",
+    "MK-CF-F-071",
+    "MK-CF-F-072",
+    "MK-CF-F-073",
+    "MK-CF-F-074",
+    "MK-CF-F-075",
+    "MK-CF-F-076",
+    "MK-CF-F-077",
+    "MK-CF-F-092"
+   ],
+   "figures": [
+    "MK-CF-M-022",
+    "MK-CF-M-023"
+   ],
+   "decisions": [
+    "DEC-0003",
+    "DEC-0151",
+    "DEC-0176",
+    "DEC-0198",
+    "DEC-0200",
+    "DEC-0244",
+    "DEC-0245",
+    "DEC-0247",
+    "DEC-0291",
+    "DEC-0296",
+    "DEC-0303",
+    "DEC-0307",
+    "DEC-0327",
+    "DEC-0364",
+    "DEC-0447",
+    "DEC-0487",
+    "DEC-0491",
+    "DEC-7935",
+    "DEC-7938",
+    "DEC-7940"
+   ],
+   "leaned_on": [
+    "MK-CF-F-081",
+    "MK-CF-F-083",
+    "MK-CF-F-084",
+    "MK-CF-F-087",
+    "MK-CF-F-088",
+    "MK-CF-F-181"
+   ]
+  },
+  {
+   "part": 5,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-05-of-19.md",
+   "title": "The income summary, the income manager, and income paid by accounts",
+   "kind": "cards",
+   "cards": [
+    "MK-CF-O-004",
+    "MK-CF-O-016",
+    "MK-CF-O-019",
+    "MK-CF-F-210",
+    "MK-CF-F-182",
+    "MK-CF-F-183",
+    "MK-CF-F-184",
+    "MK-CF-F-127",
+    "MK-CF-F-044",
+    "MK-CF-F-045",
+    "MK-CF-F-046",
+    "MK-CF-F-161",
+    "MK-CF-F-049",
+    "MK-CF-F-129",
+    "MK-CF-F-052"
+   ],
+   "figures": [
+    "MK-CF-M-006",
+    "MK-CF-M-007",
+    "MK-CF-M-008",
+    "MK-CF-M-009",
+    "MK-CF-M-010",
+    "MK-CF-M-011",
+    "MK-CF-M-024",
+    "MK-CF-M-027",
+    "MK-CF-M-037",
+    "MK-CF-M-038",
+    "MK-CF-M-039",
+    "MK-CF-M-040",
+    "MK-CF-M-041",
+    "MK-CF-M-042",
+    "MK-CF-M-043",
+    "MK-CF-M-044",
+    "MK-CF-M-066",
+    "MK-CF-M-069",
+    "MK-CF-M-076",
+    "MK-CF-M-077"
+   ],
+   "decisions": [
+    "DEC-0078",
+    "DEC-0108",
+    "DEC-0149",
+    "DEC-0152",
+    "DEC-0165",
+    "DEC-0166",
+    "DEC-0178",
+    "DEC-0179",
+    "DEC-0181",
+    "DEC-0182",
+    "DEC-0184",
+    "DEC-0187",
+    "DEC-0188",
+    "DEC-0189",
+    "DEC-0191",
+    "DEC-0194",
+    "DEC-0195",
+    "DEC-0196",
+    "DEC-0197",
+    "DEC-0198",
+    "DEC-0207",
+    "DEC-0208",
+    "DEC-0209",
+    "DEC-0279",
+    "DEC-0375",
+    "DEC-0376",
+    "DEC-0387",
+    "DEC-0389",
+    "DEC-0431",
+    "DEC-1668",
+    "DEC-1859",
+    "DEC-1924",
+    "DEC-6796",
+    "DEC-7171",
+    "DEC-7795",
+    "DEC-7796",
+    "DEC-7797",
+    "DEC-7798",
+    "DEC-7887",
+    "DEC-7933",
+    "DEC-7940"
+   ],
+   "leaned_on": [
+    "MK-CF-F-048",
+    "MK-CF-F-060",
+    "MK-CF-F-066",
+    "MK-CF-F-068",
+    "MK-CF-F-075",
+    "MK-CF-F-082",
+    "MK-CF-F-083",
+    "MK-CF-F-084",
+    "MK-CF-F-087",
+    "MK-CF-F-088",
+    "MK-CF-F-092",
+    "MK-CF-F-099",
+    "MK-CF-F-100",
+    "MK-CF-F-101",
+    "MK-CF-F-102",
+    "MK-CF-F-128",
+    "MK-CF-F-130",
+    "MK-CF-F-141",
+    "MK-CF-F-143",
+    "MK-CF-F-144",
+    "MK-CF-F-146",
+    "MK-CF-F-171",
+    "MK-CF-F-177",
+    "MK-CF-F-181",
+    "MK-CF-F-187",
+    "MK-CF-F-198",
+    "MK-CF-O-001",
+    "MK-NW-F-112",
+    "MK-NW-F-126",
+    "MK-NW-F-131"
+   ]
+  },
+  {
+   "part": 6,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-06-of-19.md",
+   "title": "The budget, and the Expenses tab",
+   "kind": "cards",
+   "cards": [
+    "MK-CF-F-001",
+    "MK-CF-F-002",
+    "MK-CF-F-120",
+    "MK-CF-F-003",
+    "MK-CF-F-004",
+    "MK-CF-F-221",
+    "MK-CF-F-008",
+    "MK-CF-O-002",
+    "MK-CF-F-149",
+    "MK-CF-F-150",
+    "MK-CF-F-151",
+    "MK-CF-F-152",
+    "MK-CF-F-153",
+    "MK-CF-O-020"
+   ],
+   "figures": [],
+   "decisions": [
+    "DEC-0292",
+    "DEC-0493",
+    "DEC-2440",
+    "DEC-2484",
+    "DEC-7611",
+    "DEC-7951",
+    "DEC-8153"
+   ],
+   "leaned_on": [
+    "MK-CF-F-083",
+    "MK-CF-F-084",
+    "MK-CF-F-087",
+    "MK-CF-F-088",
+    "MK-CF-F-092",
+    "MK-CF-F-181",
+    "MK-NW-F-106",
+    "MK-NW-F-107",
+    "MK-NW-F-117"
+   ]
+  },
+  {
+   "part": 7,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-07-of-19.md",
+   "title": "Essentials, savings by month, and the budget against what was spent",
+   "kind": "cards",
+   "cards": [
+    "MK-CF-F-006",
+    "MK-CF-F-007",
+    "MK-CF-F-009",
+    "MK-CF-F-010",
+    "MK-CF-F-011",
+    "MK-CF-F-012",
+    "MK-CF-F-013",
+    "MK-CF-F-014",
+    "MK-CF-F-017",
+    "MK-CF-F-191",
+    "MK-CF-F-189",
+    "MK-CF-F-190"
+   ],
+   "figures": [],
+   "decisions": [
+    "DEC-0007",
+    "DEC-0251",
+    "DEC-0260",
+    "DEC-0493",
+    "DEC-7611",
+    "DEC-7951"
+   ],
+   "leaned_on": [
+    "MK-CF-F-002",
+    "MK-CF-F-003",
+    "MK-CF-F-004",
+    "MK-CF-F-008",
+    "MK-CF-F-083",
+    "MK-CF-F-084",
+    "MK-CF-F-087",
+    "MK-CF-F-088",
+    "MK-CF-F-092",
+    "MK-CF-F-120",
+    "MK-CF-F-181",
+    "MK-CF-F-221"
+   ]
+  },
+  {
+   "part": 8,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-08-of-19.md",
+   "title": "Bills ahead, what is coming, and the credit line",
+   "kind": "cards",
+   "cards": [
+    "MK-CF-O-008",
+    "MK-CF-F-212",
+    "MK-CF-F-121",
+    "MK-CF-F-018",
+    "MK-CF-F-160",
+    "MK-CF-F-122",
+    "MK-CF-F-124",
+    "MK-CF-F-019",
+    "MK-CF-F-232",
+    "MK-CF-F-020",
+    "MK-CF-O-006"
+   ],
+   "figures": [
+    "MK-CF-M-012",
+    "MK-CF-M-016",
+    "MK-CF-M-028",
+    "MK-CF-M-060",
+    "MK-CF-M-061",
+    "MK-CF-M-062",
+    "MK-CF-M-063"
+   ],
+   "decisions": [
+    "DEC-0002",
+    "DEC-0078",
+    "DEC-0187",
+    "DEC-0443",
+    "DEC-0447",
+    "DEC-7936",
+    "DEC-7940",
+    "DEC-7941",
+    "DEC-8153"
+   ],
+   "leaned_on": [
+    "MK-CF-F-003",
+    "MK-CF-F-004",
+    "MK-CF-F-008",
+    "MK-CF-F-062",
+    "MK-CF-F-066",
+    "MK-CF-F-083",
+    "MK-CF-F-084",
+    "MK-CF-F-087",
+    "MK-CF-F-088",
+    "MK-CF-F-092",
+    "MK-CF-F-120",
+    "MK-CF-F-181",
+    "MK-CF-F-221"
+   ]
+  },
+  {
+   "part": 9,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-09-of-19.md",
+   "title": "Debts — payments, balances and paying them off",
+   "kind": "cards",
+   "cards": [
+    "MK-CF-O-018",
+    "MK-CF-F-021",
+    "MK-CF-F-022",
+    "MK-CF-F-023",
+    "MK-CF-F-024",
+    "MK-CF-F-025",
+    "MK-CF-F-026",
+    "MK-CF-F-027",
+    "MK-CF-F-028",
+    "MK-CF-F-029",
+    "MK-CF-F-030",
+    "MK-CF-F-034",
+    "MK-CF-F-159",
+    "MK-CF-F-235",
+    "MK-CF-F-236"
+   ],
+   "figures": [
+    "MK-CF-M-057",
+    "MK-CF-M-058",
+    "MK-CF-M-059",
+    "MK-CF-M-071",
+    "MK-CF-M-072",
+    "MK-CF-M-073",
+    "MK-CF-M-074",
+    "MK-CF-M-075"
+   ],
+   "decisions": [
+    "DEC-0393",
+    "DEC-0496",
+    "DEC-0641",
+    "DEC-1923",
+    "DEC-1924",
+    "DEC-1925",
+    "DEC-7607",
+    "DEC-7609",
+    "DEC-7682",
+    "DEC-7795",
+    "DEC-7949",
+    "DEC-8085",
+    "DEC-8152",
+    "DEC-8153"
+   ],
+   "leaned_on": []
+  },
+  {
+   "part": 10,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-10-of-19.md",
+   "title": "Debts — credit, kinds of debt, and a mortgage against a Treasury",
+   "kind": "cards",
+   "cards": [
+    "MK-CF-F-031",
+    "MK-CF-F-032",
+    "MK-CF-F-033",
+    "MK-CF-F-035",
+    "MK-CF-F-036",
+    "MK-CF-F-037",
+    "MK-CF-F-038",
+    "MK-CF-F-041",
+    "MK-CF-F-042",
+    "MK-CF-F-125",
+    "MK-CF-F-126",
+    "MK-CF-F-229",
+    "MK-CF-F-043"
+   ],
+   "figures": [],
+   "decisions": [
+    "DEC-0159",
+    "DEC-0161",
+    "DEC-0364",
+    "DEC-0496",
+    "DEC-1924",
+    "DEC-1925",
+    "DEC-7795",
+    "DEC-8153"
+   ],
+   "leaned_on": [
+    "MK-CF-F-023",
+    "MK-CF-F-024",
+    "MK-CF-F-025",
+    "MK-CF-F-026",
+    "MK-CF-F-027",
+    "MK-CF-F-029"
+   ]
+  },
+  {
+   "part": 11,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-11-of-19.md",
+   "title": "Recording a transaction — cash, holdings and undo",
+   "kind": "cards",
+   "cards": [
+    "MK-CF-F-132",
+    "MK-CF-F-133",
+    "MK-CF-F-134",
+    "MK-CF-F-135",
+    "MK-CF-F-136",
+    "MK-CF-F-137",
+    "MK-CF-F-138",
+    "MK-CF-F-139",
+    "MK-CF-F-111",
+    "MK-CF-F-222",
+    "MK-CF-F-223",
+    "MK-CF-F-224",
+    "MK-CF-F-112",
+    "MK-CF-F-113"
+   ],
+   "figures": [],
+   "decisions": [
+    "DEC-0484",
+    "DEC-2484",
+    "DEC-6796",
+    "DEC-7398",
+    "DEC-7595",
+    "DEC-7596",
+    "DEC-7601",
+    "DEC-7602",
+    "DEC-7605"
+   ],
+   "leaned_on": [
+    "MK-NW-F-124",
+    "MK-PF-F-031",
+    "MK-PF-F-052",
+    "MK-PF-F-057"
+   ]
+  },
+  {
+   "part": 12,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-12-of-19.md",
+   "title": "Transactions — undo, labels, cash effect, income from holdings, and review flags",
+   "kind": "cards",
+   "cards": [
+    "MK-CF-F-114",
+    "MK-CF-F-115",
+    "MK-CF-F-116",
+    "MK-CF-F-117",
+    "MK-CF-F-118",
+    "MK-CF-F-119",
+    "MK-CF-F-108",
+    "MK-CF-F-131",
+    "MK-CF-F-162",
+    "MK-CF-F-109",
+    "MK-CF-F-110"
+   ],
+   "figures": [],
+   "decisions": [
+    "DEC-0317",
+    "DEC-0461",
+    "DEC-0484",
+    "DEC-6796",
+    "DEC-6993",
+    "DEC-7595",
+    "DEC-7596",
+    "DEC-7601",
+    "DEC-7602"
+   ],
+   "leaned_on": [
+    "MK-PF-F-057"
+   ]
+  },
+  {
+   "part": 13,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-13-of-19.md",
+   "title": "Contribution limits, room left this year, and the future paycheck",
+   "kind": "cards",
+   "cards": [
+    "MK-CF-O-005",
+    "MK-CF-F-197",
+    "MK-CF-F-195",
+    "MK-CF-F-196",
+    "MK-CF-F-053",
+    "MK-CF-F-054",
+    "MK-CF-F-055",
+    "MK-CF-F-056",
+    "MK-CF-F-057",
+    "MK-CF-F-058",
+    "MK-CF-O-017",
+    "MK-CF-F-105",
+    "MK-CF-F-106",
+    "MK-CF-F-107"
+   ],
+   "figures": [
+    "MK-CF-M-022",
+    "MK-CF-M-023",
+    "MK-CF-M-055",
+    "MK-CF-M-070",
+    "MK-CF-M-078"
+   ],
+   "decisions": [
+    "DEC-0243",
+    "DEC-0244",
+    "DEC-0245",
+    "DEC-0247",
+    "DEC-0263",
+    "DEC-0336",
+    "DEC-0339",
+    "DEC-0378",
+    "DEC-0495",
+    "DEC-2164",
+    "DEC-8153"
+   ],
+   "leaned_on": [
+    "MK-CF-F-076",
+    "MK-NW-F-030",
+    "MK-NW-F-031",
+    "MK-NW-F-032",
+    "MK-NW-F-033",
+    "MK-NW-F-110",
+    "MK-NW-F-117"
+   ]
+  },
+  {
+   "part": 14,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-14-of-19.md",
+   "title": "This month — the plan and what has happened",
+   "kind": "cards",
+   "cards": [
+    "MK-CF-O-010",
+    "MK-CF-O-003",
+    "MK-CF-F-227",
+    "MK-CF-F-226",
+    "MK-CF-F-225",
+    "MK-CF-F-156",
+    "MK-CF-F-005",
+    "MK-CF-F-220",
+    "MK-CF-F-231",
+    "MK-CF-F-157",
+    "MK-CF-F-155",
+    "MK-CF-F-192",
+    "MK-CF-F-193",
+    "MK-CF-F-194",
+    "MK-CF-F-148"
+   ],
+   "figures": [
+    "MK-CF-M-001",
+    "MK-CF-M-002",
+    "MK-CF-M-003",
+    "MK-CF-M-004",
+    "MK-CF-M-013",
+    "MK-CF-M-014",
+    "MK-CF-M-015",
+    "MK-CF-M-020",
+    "MK-CF-M-021",
+    "MK-CF-M-047",
+    "MK-CF-M-048",
+    "MK-CF-M-049",
+    "MK-CF-M-050",
+    "MK-CF-M-051",
+    "MK-CF-M-052",
+    "MK-CF-M-053",
+    "MK-CF-M-054",
+    "MK-CF-M-056"
+   ],
+   "decisions": [
+    "DEC-0002",
+    "DEC-0199",
+    "DEC-0260",
+    "DEC-0271",
+    "DEC-0292",
+    "DEC-0333",
+    "DEC-0393",
+    "DEC-0512",
+    "DEC-1923",
+    "DEC-7606",
+    "DEC-7607",
+    "DEC-7609",
+    "DEC-7611",
+    "DEC-7682",
+    "DEC-7937",
+    "DEC-7938",
+    "DEC-7939",
+    "DEC-7940",
+    "DEC-7946",
+    "DEC-7949",
+    "DEC-8084",
+    "DEC-8085",
+    "DEC-8152",
+    "DEC-8153"
+   ],
+   "leaned_on": [
+    "MK-CF-F-002",
+    "MK-CF-F-003",
+    "MK-CF-F-004",
+    "MK-CF-F-008",
+    "MK-CF-F-083",
+    "MK-CF-F-084",
+    "MK-CF-F-087",
+    "MK-CF-F-088",
+    "MK-CF-F-092",
+    "MK-CF-F-105",
+    "MK-CF-F-106",
+    "MK-CF-F-107",
+    "MK-CF-F-120",
+    "MK-CF-F-149",
+    "MK-CF-F-150",
+    "MK-CF-F-151",
+    "MK-CF-F-152",
+    "MK-CF-F-153",
+    "MK-CF-F-181",
+    "MK-CF-F-221",
+    "MK-CF-O-002",
+    "MK-CF-O-020",
+    "MK-NW-F-030",
+    "MK-NW-F-031",
+    "MK-NW-F-032",
+    "MK-NW-F-033",
+    "MK-NW-F-106",
+    "MK-NW-F-107",
+    "MK-NW-F-110",
+    "MK-NW-F-117",
+    "MK-NW-F-147"
+   ]
+  },
+  {
+   "part": 15,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-15-of-19.md",
+   "title": "Base pay — gross, take-home, and the rate of tax in force",
+   "kind": "cards",
+   "cards": [
+    "MK-CF-O-001",
+    "MK-CF-F-140",
+    "MK-CF-F-141",
+    "MK-CF-F-142",
+    "MK-CF-F-128",
+    "MK-CF-F-143",
+    "MK-CF-F-144",
+    "MK-CF-F-145",
+    "MK-CF-F-146",
+    "MK-CF-F-171",
+    "MK-CF-F-198",
+    "MK-CF-F-179",
+    "MK-CF-F-180",
+    "MK-CF-F-181"
+   ],
+   "figures": [
+    "MK-CF-M-030",
+    "MK-CF-M-031",
+    "MK-CF-M-032",
+    "MK-CF-M-033",
+    "MK-CF-M-034",
+    "MK-CF-M-035",
+    "MK-CF-M-036",
+    "MK-CF-M-045",
+    "MK-CF-M-046"
+   ],
+   "decisions": [
+    "DEC-0176",
+    "DEC-0178",
+    "DEC-0184",
+    "DEC-0188",
+    "DEC-0194",
+    "DEC-0195",
+    "DEC-0196",
+    "DEC-0197",
+    "DEC-0203",
+    "DEC-0205",
+    "DEC-0207",
+    "DEC-0208",
+    "DEC-0209",
+    "DEC-0270",
+    "DEC-0283",
+    "DEC-0291",
+    "DEC-0326",
+    "DEC-0327",
+    "DEC-0340",
+    "DEC-0352",
+    "DEC-0375",
+    "DEC-0376",
+    "DEC-0380",
+    "DEC-0381",
+    "DEC-0384",
+    "DEC-0389",
+    "DEC-0396",
+    "DEC-0503",
+    "DEC-1625",
+    "DEC-7608",
+    "DEC-7795",
+    "DEC-7797",
+    "DEC-7798",
+    "DEC-7942",
+    "DEC-7944",
+    "DEC-7945"
+   ],
+   "leaned_on": [
+    "MK-CF-F-083",
+    "MK-CF-F-084"
+   ]
+  },
+  {
+   "part": 16,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-16-of-19.md",
+   "title": "Federal tax — the 2026 tables, the deductions and the bands",
+   "kind": "cards",
+   "cards": [
+    "MK-CF-F-097",
+    "MK-CF-F-098",
+    "MK-CF-F-187",
+    "MK-CF-F-099",
+    "MK-CF-F-100",
+    "MK-CF-F-101",
+    "MK-CF-F-102",
+    "MK-CF-F-103",
+    "MK-CF-F-104",
+    "MK-CF-F-185",
+    "MK-CF-F-186"
+   ],
+   "figures": [],
+   "decisions": [
+    "DEC-0184",
+    "DEC-0200",
+    "DEC-0240",
+    "DEC-0253",
+    "DEC-0263",
+    "DEC-0325",
+    "DEC-7942"
+   ],
+   "leaned_on": []
+  },
+  {
+   "part": 17,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-17-of-19.md",
+   "title": "Tax on the household — what is taxed, the filing status, the rates, and the tax organizer",
+   "kind": "cards",
+   "cards": [
+    "MK-CF-O-007",
+    "MK-CF-F-084",
+    "MK-CF-F-230",
+    "MK-CF-F-085",
+    "MK-CF-F-086",
+    "MK-CF-F-087",
+    "MK-CF-F-088",
+    "MK-CF-F-089",
+    "MK-CF-F-090",
+    "MK-CF-F-048"
+   ],
+   "figures": [],
+   "decisions": [
+    "DEC-0003",
+    "DEC-0151",
+    "DEC-0176",
+    "DEC-0198",
+    "DEC-0200",
+    "DEC-0263",
+    "DEC-0270",
+    "DEC-0291",
+    "DEC-0296",
+    "DEC-0303",
+    "DEC-0307",
+    "DEC-0327",
+    "DEC-0364",
+    "DEC-0447",
+    "DEC-0487",
+    "DEC-0491",
+    "DEC-7797",
+    "DEC-7935",
+    "DEC-7938"
+   ],
+   "leaned_on": [
+    "MK-CF-F-083",
+    "MK-CF-F-099",
+    "MK-CF-F-100",
+    "MK-CF-F-101",
+    "MK-CF-F-102",
+    "MK-CF-F-181",
+    "MK-CF-F-183",
+    "MK-CF-F-184",
+    "MK-CF-F-187",
+    "MK-NW-F-112",
+    "MK-NW-F-126",
+    "MK-NW-F-131"
+   ]
+  },
+  {
+   "part": 18,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-18-of-19.md",
+   "title": "The screens — the Cash flow tab, its four tabs, and Home's box for this month",
+   "kind": "screens",
+   "cards": [],
+   "figures": [
+    "MK-CF-M-001",
+    "MK-CF-M-002",
+    "MK-CF-M-003",
+    "MK-CF-M-004",
+    "MK-CF-M-006",
+    "MK-CF-M-007",
+    "MK-CF-M-008",
+    "MK-CF-M-009",
+    "MK-CF-M-010",
+    "MK-CF-M-011",
+    "MK-CF-M-012",
+    "MK-CF-M-013",
+    "MK-CF-M-014",
+    "MK-CF-M-015",
+    "MK-CF-M-016",
+    "MK-CF-M-020",
+    "MK-CF-M-021",
+    "MK-CF-M-022",
+    "MK-CF-M-023",
+    "MK-CF-M-027",
+    "MK-CF-M-031",
+    "MK-CF-M-047",
+    "MK-CF-M-048",
+    "MK-CF-M-049",
+    "MK-CF-M-050",
+    "MK-CF-M-051",
+    "MK-CF-M-052",
+    "MK-CF-M-053",
+    "MK-CF-M-054",
+    "MK-CF-M-055",
+    "MK-CF-M-056",
+    "MK-CF-M-057",
+    "MK-CF-M-058",
+    "MK-CF-M-059",
+    "MK-CF-M-070",
+    "MK-CF-M-071",
+    "MK-CF-M-072",
+    "MK-CF-M-073",
+    "MK-CF-M-074",
+    "MK-CF-M-075",
+    "MK-CF-M-078"
+   ],
+   "decisions": [
+    "DEC-0002",
+    "DEC-0003",
+    "DEC-0018",
+    "DEC-0039",
+    "DEC-0109",
+    "DEC-0176",
+    "DEC-0177",
+    "DEC-0187",
+    "DEC-0188",
+    "DEC-0190",
+    "DEC-0194",
+    "DEC-0198",
+    "DEC-0199",
+    "DEC-0201",
+    "DEC-0202",
+    "DEC-0208",
+    "DEC-0209",
+    "DEC-0213",
+    "DEC-0244",
+    "DEC-0245",
+    "DEC-0247",
+    "DEC-0260",
+    "DEC-0270",
+    "DEC-0283",
+    "DEC-0287",
+    "DEC-0288",
+    "DEC-0291",
+    "DEC-0292",
+    "DEC-0295",
+    "DEC-0320",
+    "DEC-0327",
+    "DEC-0333",
+    "DEC-0345",
+    "DEC-0365",
+    "DEC-0375",
+    "DEC-0380",
+    "DEC-0389",
+    "DEC-0392",
+    "DEC-0393",
+    "DEC-0396",
+    "DEC-0440",
+    "DEC-0443",
+    "DEC-0447",
+    "DEC-0454",
+    "DEC-0485",
+    "DEC-0499",
+    "DEC-0503",
+    "DEC-0505",
+    "DEC-0506",
+    "DEC-0512",
+    "DEC-1112",
+    "DEC-1134",
+    "DEC-1560",
+    "DEC-1625",
+    "DEC-1668",
+    "DEC-1859",
+    "DEC-1923",
+    "DEC-1924",
+    "DEC-1926",
+    "DEC-2164",
+    "DEC-2440",
+    "DEC-2484",
+    "DEC-7171",
+    "DEC-7606",
+    "DEC-7607",
+    "DEC-7608",
+    "DEC-7609",
+    "DEC-7611",
+    "DEC-7682",
+    "DEC-7798",
+    "DEC-7887",
+    "DEC-7936",
+    "DEC-7937",
+    "DEC-7938",
+    "DEC-7939",
+    "DEC-7940",
+    "DEC-7941",
+    "DEC-7942",
+    "DEC-7946",
+    "DEC-7947",
+    "DEC-7949",
+    "DEC-7950",
+    "DEC-8084",
+    "DEC-8085",
+    "DEC-8152",
+    "DEC-8153",
+    "DEC-0036",
+    "DEC-0180",
+    "DEC-0269",
+    "DEC-0273",
+    "DEC-0302",
+    "DEC-0312",
+    "DEC-0318",
+    "DEC-0420",
+    "DEC-0434",
+    "DEC-0477",
+    "DEC-7610",
+    "DEC-7943",
+    "DEC-7948"
+   ],
+   "leaned_on": []
+  },
+  {
+   "part": 19,
+   "file": "moneykeel_audit_module_cf_for-openai_v01_part-19-of-19.md",
+   "title": "The screens — Base pay, Income summary, the income manager, the bill calendar and guaranteed income",
+   "kind": "screens",
+   "cards": [],
+   "figures": [
+    "MK-CF-M-024",
+    "MK-CF-M-028",
+    "MK-CF-M-030",
+    "MK-CF-M-032",
+    "MK-CF-M-033",
+    "MK-CF-M-034",
+    "MK-CF-M-035",
+    "MK-CF-M-036",
+    "MK-CF-M-037",
+    "MK-CF-M-038",
+    "MK-CF-M-039",
+    "MK-CF-M-040",
+    "MK-CF-M-041",
+    "MK-CF-M-042",
+    "MK-CF-M-043",
+    "MK-CF-M-044",
+    "MK-CF-M-045",
+    "MK-CF-M-046",
+    "MK-CF-M-060",
+    "MK-CF-M-061",
+    "MK-CF-M-062",
+    "MK-CF-M-063",
+    "MK-CF-M-066",
+    "MK-CF-M-069",
+    "MK-CF-M-076",
+    "MK-CF-M-077"
+   ],
+   "decisions": [
+    "DEC-0018",
+    "DEC-0078",
+    "DEC-0108",
+    "DEC-0149",
+    "DEC-0152",
+    "DEC-0165",
+    "DEC-0166",
+    "DEC-0176",
+    "DEC-0178",
+    "DEC-0179",
+    "DEC-0181",
+    "DEC-0182",
+    "DEC-0184",
+    "DEC-0187",
+    "DEC-0188",
+    "DEC-0189",
+    "DEC-0190",
+    "DEC-0191",
+    "DEC-0194",
+    "DEC-0195",
+    "DEC-0196",
+    "DEC-0197",
+    "DEC-0198",
+    "DEC-0202",
+    "DEC-0205",
+    "DEC-0207",
+    "DEC-0208",
+    "DEC-0209",
+    "DEC-0270",
+    "DEC-0283",
+    "DEC-0291",
+    "DEC-0326",
+    "DEC-0327",
+    "DEC-0345",
+    "DEC-0352",
+    "DEC-0375",
+    "DEC-0376",
+    "DEC-0380",
+    "DEC-0384",
+    "DEC-0387",
+    "DEC-0389",
+    "DEC-0392",
+    "DEC-0396",
+    "DEC-0431",
+    "DEC-1112",
+    "DEC-1134",
+    "DEC-1560",
+    "DEC-1625",
+    "DEC-1668",
+    "DEC-1859",
+    "DEC-1924",
+    "DEC-1926",
+    "DEC-2484",
+    "DEC-7171",
+    "DEC-7796",
+    "DEC-7797",
+    "DEC-7798",
+    "DEC-7887",
+    "DEC-7933",
+    "DEC-7936",
+    "DEC-7937",
+    "DEC-7940",
+    "DEC-7941",
+    "DEC-7942",
+    "DEC-7947"
+   ],
+   "leaned_on": []
+  }
+ ],
+ "not_carded": [
+  {
+   "id": "MK-CF-F-015",
+   "name": "loadBudget",
+   "why": "storage only — it reads or saves and does no arithmetic"
+  },
+  {
+   "id": "MK-CF-F-016",
+   "name": "saveBudget",
+   "why": "storage only — it reads or saves and does no arithmetic"
+  },
+  {
+   "id": "MK-CF-F-039",
+   "name": "loadDebt",
+   "why": "storage only — it reads or saves and does no arithmetic"
+  },
+  {
+   "id": "MK-CF-F-040",
+   "name": "saveDebt",
+   "why": "storage only — it reads or saves and does no arithmetic"
+  },
+  {
+   "id": "MK-CF-F-050",
+   "name": "loadIncome",
+   "why": "storage only — it reads or saves and does no arithmetic"
+  },
+  {
+   "id": "MK-CF-F-051",
+   "name": "saveIncome",
+   "why": "storage only — it reads or saves and does no arithmetic"
+  },
+  {
+   "id": "MK-CF-F-199",
+   "name": "ROOM",
+   "why": "an example helper — it runs another function on a worked example"
+  },
+  {
+   "id": "MK-CF-F-200",
+   "name": "LINE",
+   "why": "an example helper — it runs another function on a worked example"
+  },
+  {
+   "id": "MK-CF-F-201",
+   "name": "INCOME",
+   "why": "an example helper — it runs another function on a worked example"
+  },
+  {
+   "id": "MK-CF-F-202",
+   "name": "TAX",
+   "why": "an example helper — it runs another function on a worked example"
+  },
+  {
+   "id": "MK-CF-F-203",
+   "name": "MONTH",
+   "why": "an example helper — it runs another function on a worked example"
+  },
+  {
+   "id": "MK-CF-F-204",
+   "name": "line",
+   "why": "an example helper — it runs another function on a worked example"
+  },
+  {
+   "id": "MK-CF-F-205",
+   "name": "COMING",
+   "why": "an example helper — it runs another function on a worked example"
+  },
+  {
+   "id": "MK-CF-F-207",
+   "name": "SOURCE",
+   "why": "an example helper — it runs another function on a worked example"
+  },
+  {
+   "id": "MK-CF-F-211",
+   "name": "DEBTS",
+   "why": "an example helper — it runs another function on a worked example"
+  },
+  {
+   "id": "MK-CF-F-228",
+   "name": "useThisMonthInputs",
+   "why": "storage only — it reads or saves and does no arithmetic"
+  },
+  {
+   "id": "MK-CF-F-237",
+   "name": "LATER",
+   "why": "an example helper — it runs another function on a worked example"
+  },
+  {
+   "id": "MK-CF-F-238",
+   "name": "PAY",
+   "why": "an example helper — it runs another function on a worked example"
+  },
+  {
+   "id": "MK-CF-F-239",
+   "name": "PAY_ESTIMATED",
+   "why": "an example helper — it runs another function on a worked example"
+  },
+  {
+   "id": "MK-CF-F-240",
+   "name": "PAY_LANDS_TYPED",
+   "why": "an example helper — it runs another function on a worked example"
+  },
+  {
+   "id": "MK-CF-F-241",
+   "name": "M",
+   "why": "an example helper — it runs another function on a worked example"
+  },
+  {
+   "id": "MK-CF-F-242",
+   "name": "workedLineAmount",
+   "why": "an example helper — it runs another function on a worked example"
+  }
+ ],
+ "placed_by_rule": [],
+ "decisions": {
+  "DEC-0002": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-O-003, MK-CF-O-008, MK-CF-O-010"
+  ],
+  "DEC-0003": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0007": [
+   "named on the code record of MK-CF-F-190"
+  ],
+  "DEC-0018": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0036": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0039": [
+   "filed on the home tab, and it names CashFlowScreen"
+  ],
+  "DEC-0078": [
+   "filed on the process-and-standards tab, and it names MK-CF-M-028, MK-CF-M-037",
+   "named on the code record of MK-CF-O-004, MK-CF-O-008"
+  ],
+  "DEC-0108": [
+   "filed on the process-and-standards tab, and it names MK-CF-M-037",
+   "named on the code record of MK-CF-O-004"
+  ],
+  "DEC-0109": [
+   "filed on the multiple_screens tab, and it names CashFlowScreen"
+  ],
+  "DEC-0149": [
+   "filed on the process-and-standards tab, and it names MK-CF-M-037",
+   "named on the code record of MK-CF-O-004"
+  ],
+  "DEC-0151": [
+   "filed on the plan tab, and it names src/domain/income/onboarding.ts"
+  ],
+  "DEC-0152": [
+   "filed on the process-and-standards tab, and it names MK-CF-M-037",
+   "named on the code record of MK-CF-O-004"
+  ],
+  "DEC-0159": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0161": [
+   "filed on the multiple_screens tab, and it names src/domain/debt/mortgageVsTreasury.ts"
+  ],
+  "DEC-0165": [
+   "filed on the process-and-standards tab, and it names MK-CF-M-037",
+   "named on the code record of MK-CF-O-004"
+  ],
+  "DEC-0166": [
+   "filed on the process-and-standards tab, and it names MK-CF-M-037",
+   "named on the code record of MK-CF-O-004"
+  ],
+  "DEC-0176": [
+   "filed on the multiple_screens tab, and it names /base-pay, /cashflow, MoneyKeel/functions/cashflow/base-pay.ts, src/domain/income/onboarding.ts"
+  ],
+  "DEC-0177": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0178": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-O-001, MK-CF-O-004"
+  ],
+  "DEC-0179": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0180": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0181": [
+   "filed on the process-and-standards tab, and it names MK-CF-M-037",
+   "named on the code record of MK-CF-O-004"
+  ],
+  "DEC-0182": [
+   "filed on the process-and-standards tab, and it names MK-CF-M-037, MK-CF-M-040",
+   "named on the code record of MK-CF-O-004"
+  ],
+  "DEC-0184": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-F-097, MK-CF-F-100, MK-CF-F-101, MK-CF-F-102, MK-CF-F-103, MK-CF-O-001"
+  ],
+  "DEC-0187": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-O-004, MK-CF-O-008"
+  ],
+  "DEC-0188": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-O-001, MK-CF-O-004"
+  ],
+  "DEC-0189": [
+   "filed on the process-and-standards tab, and it names MK-CF-M-037",
+   "named on the code record of MK-CF-O-004"
+  ],
+  "DEC-0190": [
+   "filed on the home tab, and it names BasePayScreen"
+  ],
+  "DEC-0191": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-O-004"
+  ],
+  "DEC-0194": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-O-001, MK-CF-O-004"
+  ],
+  "DEC-0195": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-O-001, MK-CF-O-004"
+  ],
+  "DEC-0196": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0197": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-O-001, MK-CF-O-004"
+  ],
+  "DEC-0198": [
+   "filed on the multiple_screens tab, and it names /cashflow, /income-summary, MoneyKeel/functions/cashflow/income-summary.ts, src/domain/income/onboarding.ts"
+  ],
+  "DEC-0199": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-O-003"
+  ],
+  "DEC-0200": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0201": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0202": [
+   "filed on the home tab, and it names BasePayScreen"
+  ],
+  "DEC-0203": [
+   "filed on the multiple_screens tab, and it names MK-CF-O-001"
+  ],
+  "DEC-0205": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-O-001"
+  ],
+  "DEC-0207": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-O-001, MK-CF-O-004"
+  ],
+  "DEC-0208": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-O-001, MK-CF-O-004"
+  ],
+  "DEC-0209": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-O-001, MK-CF-O-004"
+  ],
+  "DEC-0213": [
+   "filed on the home tab, and it names CashFlowScreen"
+  ],
+  "DEC-0240": [
+   "filed on the process-and-standards tab, and it names MK-CF-F-099, MK-CF-F-100, MK-CF-F-187"
+  ],
+  "DEC-0243": [
+   "filed on the process-and-standards tab, and it names MK-CF-F-055"
+  ],
+  "DEC-0244": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0245": [
+   "filed on the process-and-standards tab, and it names MK-CF-F-076, MK-CF-F-107, MK-CF-M-022"
+  ],
+  "DEC-0247": [
+   "filed on the plan tab, and it names MK-CF-M-022"
+  ],
+  "DEC-0251": [
+   "filed on the networth tab, and it names MK-CF-F-010, MK-CF-F-189, MK-CF-F-190"
+  ],
+  "DEC-0252": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0253": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0260": [
+   "filed on the process-and-standards tab, and it names MK-CF-M-002, MK-CF-M-052",
+   "named on the code record of MK-CF-F-010, MK-CF-F-190, MK-CF-O-003, MK-CF-O-010"
+  ],
+  "DEC-0263": [
+   "filed on the process-and-standards tab, and it names MK-CF-F-057, MK-CF-F-087, MK-CF-F-097, MK-CF-F-101"
+  ],
+  "DEC-0269": [
+   "filed on the multiple_screens tab, and it names BudgetScreen"
+  ],
+  "DEC-0270": [
+   "filed on the multiple_screens tab, and it names /base-pay, /cashflow, MoneyKeel/functions/cashflow/base-pay.ts, src/domain/income/tax-rate.ts"
+  ],
+  "DEC-0271": [
+   "filed on the multiple_screens tab, and it names MK-CF-F-192, MK-CF-F-193"
+  ],
+  "DEC-0273": [
+   "filed on the multiple_screens tab, and it names BudgetScreen"
+  ],
+  "DEC-0279": [
+   "filed on the multiple_screens tab, and it names MK-CF-F-184"
+  ],
+  "DEC-0283": [
+   "filed on the multiple_screens tab, and it names /base-pay, /cashflow, MoneyKeel/functions/cashflow/base-pay.ts"
+  ],
+  "DEC-0287": [
+   "filed on the multiple_screens tab, and it names CashFlowScreen"
+  ],
+  "DEC-0288": [
+   "filed on the multiple_screens tab, and it names CashFlowScreen"
+  ],
+  "DEC-0291": [
+   "filed on the multiple_screens tab, and it names /base-pay, /cashflow, MoneyKeel/functions/cashflow/base-pay.ts, src/domain/income/onboarding.ts"
+  ],
+  "DEC-0292": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0295": [
+   "filed on the multiple_screens tab, and it names CashFlowScreen"
+  ],
+  "DEC-0296": [
+   "filed on the process-and-standards tab, and it names src/domain/income/onboarding.ts"
+  ],
+  "DEC-0302": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0303": [
+   "filed on the plan tab, and it names src/domain/income/onboarding.ts"
+  ],
+  "DEC-0307": [
+   "filed on the multiple_screens tab, and it names src/domain/income/onboarding.ts"
+  ],
+  "DEC-0312": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0317": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-F-109"
+  ],
+  "DEC-0318": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0320": [
+   "filed on the multiple_screens tab, and it names CashFlowScreen"
+  ],
+  "DEC-0325": [
+   "filed on the process-and-standards tab, and it names MK-CF-F-187"
+  ],
+  "DEC-0326": [
+   "filed on the process-and-standards tab, and it names MK-CF-M-035",
+   "named on the code record of MK-CF-O-001"
+  ],
+  "DEC-0327": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0333": [
+   "filed on the process-and-standards tab, and it names MK-CF-F-194, MK-CF-M-004, MK-CF-M-019, MK-CF-M-052"
+  ],
+  "DEC-0336": [
+   "filed on the process-and-standards tab, and it names MK-CF-F-195, MK-CF-F-196"
+  ],
+  "DEC-0339": [
+   "filed on the multiple_screens tab, and it names MK-CF-F-053, MK-CF-F-054, MK-CF-F-055"
+  ],
+  "DEC-0340": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0345": [
+   "filed on the process-and-standards tab, and it names IncomeManagerScreen"
+  ],
+  "DEC-0352": [
+   "filed on the process-and-standards tab, and it names MK-CF-M-030"
+  ],
+  "DEC-0364": [
+   "filed on the plan tab, and it names src/domain/debt/mortgageOdds.ts, src/domain/income/onboarding.ts"
+  ],
+  "DEC-0365": [
+   "filed on the plan tab, and it names CashFlowScreen"
+  ],
+  "DEC-0375": [
+   "filed on the multiple_screens tab, and it names MK-CF-M-006, MK-CF-M-007, MK-CF-M-008, MK-CF-M-009, MK-CF-M-010, MK-CF-M-027"
+  ],
+  "DEC-0376": [
+   "filed on the multiple_screens tab, and it names MK-CF-F-060, MK-CF-F-206, MK-CF-M-037, MK-CF-M-038, MK-CF-O-001, MK-CF-O-004"
+  ],
+  "DEC-0378": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0380": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0381": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0384": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0387": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0389": [
+   "filed on the process-and-standards tab, and it names MK-CF-M-031, MK-CF-M-033, MK-CF-M-035, MK-CF-M-044",
+   "named on the code record of MK-CF-O-001, MK-CF-O-004"
+  ],
+  "DEC-0392": [
+   "filed on the process-and-standards tab, and it names BasePayScreen"
+  ],
+  "DEC-0393": [
+   "filed on the multiple_screens tab, and it names /cashflow, MoneyKeel/functions/cashflow/this-month.ts"
+  ],
+  "DEC-0396": [
+   "filed on the process-and-standards tab, and it names /base-pay, /cashflow, MoneyKeel/functions/cashflow/base-pay.ts"
+  ],
+  "DEC-0420": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0431": [
+   "filed on the process-and-standards tab, and it names MK-CF-M-037",
+   "named on the code record of MK-CF-O-004"
+  ],
+  "DEC-0434": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0440": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-0443": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-O-008"
+  ],
+  "DEC-0447": [
+   "filed on the multiple_screens tab, and it names /cashflow, src/domain/income/onboarding.ts, src/domain/cashflow/index.ts"
+  ],
+  "DEC-0454": [
+   "filed on the multiple_screens tab, and it names CashFlowScreen"
+  ],
+  "DEC-0461": [
+   "filed on the home tab, and it names src/domain/transactions/flags.ts"
+  ],
+  "DEC-0477": [
+   "filed on the multiple_screens tab, and it names BudgetScreen"
+  ],
+  "DEC-0484": [
+   "filed on the multiple_screens tab, and it names src/domain/transactions/index.ts"
+  ],
+  "DEC-0485": [
+   "filed on the multiple_screens tab, and it names CashFlowScreen"
+  ],
+  "DEC-0487": [
+   "filed on the plan tab, and it names src/domain/income/onboarding.ts"
+  ],
+  "DEC-0491": [
+   "filed on the multiple_screens tab, and it names src/domain/income/onboarding.ts"
+  ],
+  "DEC-0493": [
+   "filed on the multiple_screens tab, and it names src/domain/budget/index.ts"
+  ],
+  "DEC-0495": [
+   "filed on the multiple_screens tab, and it names src/domain/paycheck/index.ts"
+  ],
+  "DEC-0496": [
+   "filed on the home tab, and it names src/domain/debt/index.ts"
+  ],
+  "DEC-0499": [
+   "filed on the home tab, and it names CashFlowScreen"
+  ],
+  "DEC-0503": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-O-001"
+  ],
+  "DEC-0505": [
+   "filed on the plan tab, and it names CashFlowScreen"
+  ],
+  "DEC-0506": [
+   "filed on the multiple_screens tab, and it names CashFlowScreen"
+  ],
+  "DEC-0512": [
+   "filed on the cashflow tab of the decision log",
+   "named on the code record of MK-CF-O-003"
+  ],
+  "DEC-0641": [
+   "named on the code record of MK-CF-F-024"
+  ],
+  "DEC-1112": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-1134": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-1560": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-1625": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-1668": [
+   "filed on the networth tab, and it names MK-CF-O-004, /cashflow, /income-summary, MoneyKeel/functions/cashflow/income-summary.ts"
+  ],
+  "DEC-1859": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-1923": [
+   "filed on the networth tab, and it names /cashflow, MoneyKeel/functions/cashflow/this-month.ts"
+  ],
+  "DEC-1924": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-1925": [
+   "filed on the networth tab, and it names src/domain/debt/index.ts"
+  ],
+  "DEC-1926": [
+   "filed on the networth tab, and it names IncomeManagerScreen, /income-manager"
+  ],
+  "DEC-2164": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-2440": [
+   "filed on the networth tab, and it names MK-CF-O-020, /cashflow"
+  ],
+  "DEC-2484": [
+   "filed on the networth tab, and it names MK-CF-F-139, MK-CF-O-020, /cashflow, /income-manager"
+  ],
+  "DEC-3768": [
+   "filed on the networth-and-performance tab, and it names MK-CF-F-067"
+  ],
+  "DEC-3768c": [
+   "filed on the networth-and-performance tab, and it names MK-CF-F-067"
+  ],
+  "DEC-6796": [
+   "filed on the networth tab, and it names MK-CF-F-108, MK-CF-F-111, MK-CF-F-116, MK-CF-F-119, MK-CF-F-183"
+  ],
+  "DEC-6993": [
+   "filed on the networth tab, and it names MK-CF-F-116"
+  ],
+  "DEC-7171": [
+   "filed on the networth tab, and it names MK-CF-F-184, IncomeManagerScreen, /income-manager, src/domain/income/from-accounts.ts"
+  ],
+  "DEC-7398": [
+   "filed on the performance tab, and it names MK-CF-F-139"
+  ],
+  "DEC-7595": [
+   "filed on the performance tab, and it names MK-CF-F-136, MK-CF-F-222, src/domain/transactions/index.ts"
+  ],
+  "DEC-7596": [
+   "filed on the performance tab, and it names MK-CF-F-111, MK-CF-F-118"
+  ],
+  "DEC-7601": [
+   "filed on the performance tab, and it names MK-CF-F-224, src/domain/transactions/index.ts"
+  ],
+  "DEC-7602": [
+   "filed on the performance tab, and it names MK-CF-F-111, MK-CF-F-118, MK-CF-F-223, src/domain/transactions/index.ts"
+  ],
+  "DEC-7605": [
+   "filed on the performance tab, and it names MK-CF-F-138"
+  ],
+  "DEC-7606": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7607": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7608": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7609": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7610": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7611": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7682": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7795": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7796": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7797": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7798": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7887": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7933": [
+   "filed on the networth tab, and it names MK-CF-F-184, MK-CF-M-066"
+  ],
+  "DEC-7935": [
+   "filed on the networth tab, and it names MK-CF-F-091, src/domain/income/onboarding.ts"
+  ],
+  "DEC-7936": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7937": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7938": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7939": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7940": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7941": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7942": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7943": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7944": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7945": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7946": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7947": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7948": [
+   "filed on the multiple_screens tab, and it names BudgetScreen"
+  ],
+  "DEC-7949": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7950": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-7951": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-8084": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-8085": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-8152": [
+   "filed on the cashflow tab of the decision log"
+  ],
+  "DEC-8153": [
+   "filed on the cashflow tab of the decision log"
+  ]
+ },
+ "screens": [
+  {
+   "route": "/base-pay",
+   "screen": "BasePayScreen",
+   "figures": [
+    "MK-CF-M-030",
+    "MK-CF-M-031",
+    "MK-CF-M-032",
+    "MK-CF-M-033",
+    "MK-CF-M-034",
+    "MK-CF-M-035",
+    "MK-CF-M-036",
+    "MK-CF-M-045",
+    "MK-CF-M-046"
+   ],
+   "printed_in": [
+    "BasePayScreen",
+    "BasePayScreen › EarnerSection",
+    "BudgetScreen",
+    "CashFlowScreen › IncomeTab",
+    "IncomeManagerScreen"
+   ]
+  },
+  {
+   "route": "/bill-calendar",
+   "screen": "BillCalendarScreen",
+   "figures": [
+    "MK-CF-M-016",
+    "MK-CF-M-028",
+    "MK-CF-M-060",
+    "MK-CF-M-061",
+    "MK-CF-M-062",
+    "MK-CF-M-063",
+    "MK-CF-M-073"
+   ],
+   "printed_in": [
+    "BillCalendarScreen",
+    "BudgetScreen",
+    "CashFlowScreen › ExpensesTab",
+    "CashFlowScreen › MonthBars"
+   ]
+  },
+  {
+   "route": "/cashflow",
+   "screen": "CashFlowScreen",
+   "figures": [
+    "MK-CF-M-001",
+    "MK-CF-M-002",
+    "MK-CF-M-003",
+    "MK-CF-M-004",
+    "MK-CF-M-006",
+    "MK-CF-M-007",
+    "MK-CF-M-008",
+    "MK-CF-M-009",
+    "MK-CF-M-010",
+    "MK-CF-M-011",
+    "MK-CF-M-012",
+    "MK-CF-M-013",
+    "MK-CF-M-014",
+    "MK-CF-M-015",
+    "MK-CF-M-016",
+    "MK-CF-M-020",
+    "MK-CF-M-021",
+    "MK-CF-M-022",
+    "MK-CF-M-023",
+    "MK-CF-M-027",
+    "MK-CF-M-031",
+    "MK-CF-M-047",
+    "MK-CF-M-048",
+    "MK-CF-M-049",
+    "MK-CF-M-050",
+    "MK-CF-M-051",
+    "MK-CF-M-052",
+    "MK-CF-M-053",
+    "MK-CF-M-054",
+    "MK-CF-M-055",
+    "MK-CF-M-056",
+    "MK-CF-M-057",
+    "MK-CF-M-058",
+    "MK-CF-M-059",
+    "MK-CF-M-070",
+    "MK-CF-M-071",
+    "MK-CF-M-072",
+    "MK-CF-M-073",
+    "MK-CF-M-074",
+    "MK-CF-M-075",
+    "MK-CF-M-078"
+   ],
+   "printed_in": [
+    "BasePayScreen",
+    "BasePayScreen › EarnerSection",
+    "BillCalendarScreen",
+    "BudgetScreen",
+    "CashFlowScreen › DrawOrderWhy",
+    "CashFlowScreen › ExpensesTab",
+    "CashFlowScreen › IncomeTab",
+    "CashFlowScreen › MonthBars",
+    "CashFlowScreen › MonthRow",
+    "CashFlowScreen › OtherMonthCard",
+    "CashFlowScreen › RetiredMain",
+    "CashFlowScreen › WorkingMain",
+    "HomeScreen",
+    "IncomeManagerScreen",
+    "IncomeManagerScreen › AskedBefore",
+    "IncomeManagerScreen › BonusAndStock",
+    "IncomeManagerScreen › Rent"
+   ]
+  },
+  {
+   "route": "/home",
+   "screen": "HomeScreen",
+   "figures": [
+    "MK-CF-M-002",
+    "MK-CF-M-051",
+    "MK-CF-M-052",
+    "MK-CF-M-053"
+   ],
+   "printed_in": [
+    "BillCalendarScreen",
+    "BudgetScreen",
+    "CashFlowScreen › OtherMonthCard",
+    "CashFlowScreen › WorkingMain",
+    "HomeScreen"
+   ]
+  },
+  {
+   "route": "/income-manager",
+   "screen": "IncomeManagerScreen",
+   "figures": [
+    "MK-CF-M-008",
+    "MK-CF-M-009",
+    "MK-CF-M-010",
+    "MK-CF-M-012",
+    "MK-CF-M-027",
+    "MK-CF-M-031",
+    "MK-CF-M-037",
+    "MK-CF-M-039",
+    "MK-CF-M-066"
+   ],
+   "printed_in": [
+    "BasePayScreen",
+    "BasePayScreen › EarnerSection",
+    "BudgetScreen",
+    "CashFlowScreen › IncomeTab",
+    "CashFlowScreen › MonthBars",
+    "IncomeManagerScreen",
+    "IncomeManagerScreen › AskedBefore",
+    "IncomeManagerScreen › BonusAndStock",
+    "IncomeManagerScreen › InterestAndDividends",
+    "IncomeManagerScreen › Rent",
+    "IncomeSummaryScreen"
+   ]
+  },
+  {
+   "route": "/income-summary",
+   "screen": "IncomeSummaryScreen",
+   "figures": [
+    "MK-CF-M-037",
+    "MK-CF-M-038",
+    "MK-CF-M-039",
+    "MK-CF-M-040",
+    "MK-CF-M-041",
+    "MK-CF-M-042",
+    "MK-CF-M-043",
+    "MK-CF-M-044",
+    "MK-CF-M-076",
+    "MK-CF-M-077"
+   ],
+   "printed_in": [
+    "IncomeManagerScreen › BonusAndStock",
+    "IncomeSummaryScreen"
+   ]
+  },
+  {
+   "route": "/monthly-income",
+   "screen": "MonthlyIncomeScreen",
+   "figures": [
+    "MK-CF-M-024",
+    "MK-CF-M-069"
+   ],
+   "printed_in": [
+    "CashFlowScreen › MonthBars",
+    "MonthlyIncomeScreen"
+   ]
+  }
+ ],
+ "parts_that_check_published_amounts": {
+  "13": [
+   "Contribution limits, 2026 — 401(k), IRA, HSA and catch-ups"
+  ],
+  "15": [
+   "Social Security and Medicare withheld from a paycheck, 2026"
+  ],
+  "16": [
+   "Federal income tax 2026 — bands by filing status",
+   "Standard deduction and the amount added at 65, 2026",
+   "Senior deduction, tax years 2025 to 2028",
+   "Long-term capital gains, 2026 — the 0% and 15% tops"
+  ],
+  "17": [
+   "Standard deduction and the amount added at 65, 2026"
+  ]
+ },
+ "writer_examples": [
+  {
+   "unit": "money",
+   "per": "month",
+   "value": -3248.4,
+   "written": "−$3,248/month"
+  },
+  {
+   "unit": "money-cents",
+   "per": null,
+   "value": 186,
+   "written": "$186.00"
+  },
+  {
+   "unit": "percent",
+   "per": null,
+   "value": 0.2178,
+   "written": "22%"
+  }
+ ]
+}

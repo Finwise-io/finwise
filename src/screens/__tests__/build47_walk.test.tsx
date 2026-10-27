@@ -254,8 +254,16 @@ test('separator dots render the dark designed glyph on the marquee lines', () =>
   const { SEP_DOT_COLOR } = require('../../components/SepDot');
   expect(SEP_DOT_COLOR).toBe('#3A3A36');
   const fs = require('fs'); const path = require('path');
-  for (const f of ['screens/HomeScreen.tsx', 'screens/NetWorthScreen.tsx', 'screens/CashFlowScreen.tsx', 'screens/BondsScreen.tsx']) {
+  for (const f of ['screens/HomeScreen.tsx', 'screens/CashFlowScreen.tsx']) {
     expect(fs.readFileSync(path.join(__dirname, '..', '..', f), 'utf8')).toMatch(/DotJoined/);
+  }
+  // NET WORTH AND BONDS PRINT THE · AS THEIR DRAWINGS DRAW IT (2026-10-25): in the line's own grey, regular — Net worth v08
+  // (DEC-0644) and Bonds v02 (DEC-0650) were approved on 2026-10-01, after this pick, and a drawing he approves after the build
+  // is the design (DEC-0808). Each drawing says so in a dated READ THIS FIRST row; the two screens no longer use the dark glyph.
+  for (const [f, drawing] of [['screens/NetWorthScreen.tsx', 'net-worth-quiet-instrument_v08'], ['screens/BondsScreen.tsx', 'bonds_v02']]) {
+    expect(fs.readFileSync(path.join(__dirname, '..', '..', f), 'utf8')).not.toMatch(/DotJoined/);
+    const html = fs.readFileSync(path.join(__dirname, '..', '..', '..', `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_${drawing}.html`), 'utf8');
+    expect(html).toMatch(/2026-10-25<\/td>[\s\S]{0,400}[Tt]he · [\s\S]{0,200}in the line’s own grey at regular weight/);
   }
 });
 
@@ -416,7 +424,7 @@ test('B47 finding 4: the delete path leaves quietly (leaving-guard before the no
   const fs = require('fs'); const path = require('path');
   const src = fs.readFileSync(path.join(__dirname, '..', 'HoldingDetailScreen.tsx'), 'utf8');
   expect(src).toMatch(/if \(leaving\) return null;/);
-  expect(src.indexOf('if (leaving) return null;')).toBeLessThan(src.indexOf("This holding isn't here any more"));
+  expect(src.indexOf('if (leaving) return null;')).toBeLessThan(src.indexOf("This holding isn’t here any more"));
   expect(src).toMatch(/setLeaving\(true\); store\.deletePosition/);
 });
 
@@ -535,7 +543,7 @@ describe('B47 finding 11 — the one repayment-shaped debt editor', () => {
     fireEvent.changeText(screen.getByPlaceholderText('0'), '100000');
     fireEvent.changeText(screen.getByPlaceholderText('6.5'), '6');
     fireEvent.changeText(screen.getByPlaceholderText('$0'), '400');
-    expect(screen.getByText(/doesn't cover the interest — this never pays off/)).toBeOnTheScreen();
+    expect(screen.getByText(/doesn’t cover the interest — this never pays off/)).toBeOnTheScreen();
   });
 
   test('due in full: amount + date save with NO monthly payment; the save button gates on the date', () => {
@@ -548,7 +556,7 @@ describe('B47 finding 11 — the one repayment-shaped debt editor', () => {
     fireEvent.press(screen.getByLabelText('Add debt'));          // no date yet → must NOT save
     expect((useStore.getState() as any).liabilities.filter((x: any) => x.debt_type === 'PERSONAL')).toHaveLength(0);
     fireEvent.changeText(screen.getByPlaceholderText('12/2026'), '12/2026');
-    expect(screen.getByText(/big-ticket in December 2026's cash flow and on the bill calendar/)).toBeOnTheScreen();
+    expect(screen.getByText(/big-ticket in December 2026’s cash flow and on the bill calendar/)).toBeOnTheScreen();
     fireEvent.press(screen.getByLabelText('Add debt'));
     const d = (useStore.getState() as any).liabilities.find((x: any) => x.debt_type === 'PERSONAL');
     expect(d.payment_type).toBe('due_in_full');

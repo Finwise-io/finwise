@@ -22,7 +22,7 @@ import { filingStatusOf, over65CountOf } from './onboarding';
 const PERIODS: Record<string, number> = { hourly: 12, weekly: 52, biweekly: 26, monthly: 12 };
 
 /** True when this profile still holds a pre-2026-08-28 take-home entry. */
-/* ─ MK-CF-F-185 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-CF-F-185 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * needsTakeHomeConversion
  *
  * Answers ..... True when this profile still holds a pre-2026-08-28 take-home entry.
@@ -32,17 +32,8 @@ const PERIODS: Record<string, number> = { hourly: 12, weekly: 52, biweekly: 26, 
  *
  * Called by ... MK-CF-F-186 convertTakeHomeMode
  *
- * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 36 more — the full list is on functions_from_code
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-186 convertTakeHomeMode · MK-XS-F-199 profileOnTheWayIn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly
@@ -55,7 +46,7 @@ export function needsTakeHomeConversion(op: OnboardingProfile | null): boolean {
 }
 
 /** Convert it. What they typed becomes what LANDS; the gross is worked back once and stored. */
-/* ─ MK-CF-F-186 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-CF-F-186 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * convertTakeHomeMode
  *
  * Answers ..... Convert it. What they typed becomes what LANDS; the gross is worked back once and stored.
@@ -67,20 +58,12 @@ export function needsTakeHomeConversion(op: OnboardingProfile | null): boolean {
  *     net annual = net per period × periods
  *     typed rate = to num((op as any).manual tax rate) ÷ 100   if (op as any).tax mode = 'manual'
  *     na n   otherwise
+ *     k401 annual = to num((op as any).c 401k) × 12
  *
- * Called by ... MK-XS-F-175 uid
+ * Called by ... MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
- *               … and 35 more — the full list is on functions_from_code
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-039 how often each income arrives
@@ -103,9 +86,14 @@ export function convertTakeHomeMode<T extends Record<string, any>>(op: T): T {
   // rate and their typed take-home both hold — take-home = gross × (1 − rate) − the 401(k). It was worked back from the federal
   // schedule whatever they typed, so a typed 0% read "Everything else taken out $475/month · 0%" on $5,000.
   const typedRate = (op as any).taxMode === 'manual' ? toNum((op as any).manualTaxRate) / 100 : NaN;
+  // WITH NO RATE OF THEIR OWN, THE 401(k) IS ADDED BACK TOO (2026-10-26, FIX-INCOME-A; the lead's DEC-7942, his DEC-0200 and
+  // DEC-0283 — a 401(k) is taken out before the tax is worked): gross − 401(k) − tax on (gross − 401(k)) = the take-home they typed, so what is
+  // taxed is worked back from the take-home (grossFromNet) and the year's 401(k) sits on top. $4,211.17 a month with $511.43
+  // into a 401(k) read $54,947.77 a year, which leaves $1,723.43 less than they said lands; it is $61,084.93.
+  const k401Annual = toNum((op as any).c_401k) * 12;
   const grossAnnual = typedRate >= 0 && typedRate < 1
-    ? (netAnnual + toNum((op as any).c_401k) * 12) / (1 - typedRate)
-    : grossFromNet(netAnnual, filingStatusOf(op as any), over65CountOf(op as any));
+    ? (netAnnual + k401Annual) / (1 - typedRate)
+    : grossFromNet(netAnnual, filingStatusOf(op as any), over65CountOf(op as any)) + k401Annual;
   return {
     ...op,
     baseSalary: String((grossAnnual / periods)),   // gross, as every other screen assumes

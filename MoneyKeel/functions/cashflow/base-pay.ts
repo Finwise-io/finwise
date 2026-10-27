@@ -16,8 +16,9 @@ import { declareFigures } from '../_figure-spec';
 import { toNum } from '../../../src/domain/_shared/num';
 import { taxOwedFor, marginalBracketFor, type FilingStatus } from '../../../src/domain/income/tax';
 import { money } from '../../../src/domain/_shared/num';
-import { salaryMonths } from '../../../src/domain/income/salary-months';
+import { salaryMonths, salaryCalendarYear } from '../../../src/domain/income/salary-months';
 import { rateInForce } from '../../../src/domain/income/tax-rate';
+import { wageMatchMonthly, taxableAnnual, rentalNetAnnual, stateRateOf, salaryAnnual } from '../../../src/domain/income/onboarding';
 
 /** How often the person is paid, and how many of those periods make a year. */
 export const PAY_PERIODS: Record<string, number> = {
@@ -35,6 +36,10 @@ export interface BasePayEntry {
   landsTypical?: any;                         // EACH MONTH, whatever the pay frequency — the screen asks "take-home each month" (approved drawing v07, frames 2b and 2c) — OPTIONAL
   landsByMonth?: Record<string, any>;
   hoursPerWeek?: any;
+  /** the employer's match as typed — a share of their own 401(k) ('pct', the default every screen shows chosen) or a set
+   *  amount a month ('dollar') — so the section can say what it is worth (2026-10-25, IN-04) */
+  matchMode?: 'pct' | 'dollar' | string;
+  matchValue?: any;
   /** THE BAND IS NOT BASE PAY'S TO WORK OUT. A tax band is set by everything the household is taxed
    *  on together — both wages, the rent kept, the bonus, the dividends — so it is produced ONCE, by
    *  MK-CF-F-084 taxable annual feeding MK-CF-F-090 effective rate, and handed in here. Base pay
@@ -60,17 +65,17 @@ export interface BasePayEntry {
  *
  * Called by ... MK-CF-F-141 perMonth
  *
- * Reaches ..... 76 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 404 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-CF-F-238 PAY · MK-CF-F-239 PAY_ESTIMATED
- *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-210 annualOfSource · MK-CF-F-143 annualisedGross
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               … and 58 more — the full list is on functions_from_code
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 386 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -87,31 +92,39 @@ const periodsAYear = (e: BasePayEntry): number => PAY_PERIODS[String(e.freq)] ??
  *
  * Formula .....
  *     n = amount read as a number (0 when it is not one)
- *     (n × (to num(hours per week) or 40) × 52) ÷ 12   when string(freq) = 'hourly'
- *     the answer = (n × periods ayear(e)) ÷ 12
+ *     nothing   when hours per week = nothing (or string(hours per week).trim() = '' when missing or zero)
+ *     the answer = (n × to num(hours per week) × 52) ÷ 12
  *
- * Called by ... MK-CF-F-128 grossByMonth
+ * Called by ... MK-CF-F-128 grossByMonth · MK-CF-F-130 enteredMonthlyRaw
+ *               MK-CF-F-171 earnerPay · MK-CF-F-243 grossCalendarYear
+ *               MK-CF-F-245 hoursNotEntered
  *
- * Reaches ..... 75 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 403 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-CF-F-238 PAY · MK-CF-F-239 PAY_ESTIMATED
- *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-210 annualOfSource · MK-CF-F-143 annualisedGross
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               … and 57 more — the full list is on functions_from_code
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 385 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-075 hours a week, for a wage paid by the hour
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-141
  * Changed ..... not in git yet (—)
  */
-function perMonth(amount: any, e: BasePayEntry): number {
+function perMonth(amount: any, e: BasePayEntry): number | null {
   const n = toNum(amount);
-  if (String(e.freq) === 'hourly') return (n * (toNum(e.hoursPerWeek) || 40) * 52) / 12;
+  if (String(e.freq) === 'hourly') {
+    // HOURS A WEEK NOT ENTERED IS NO NUMBER (2026-10-26, FIX-INCOME-A; his DEC-0296 "an unknown input produces no number and a
+    // reason — never a default", tenet 3): $25 an hour read $4,333.33 a month on a 40-hour week nobody entered. A typed 0 is an answer.
+    if (e.hoursPerWeek == null || String(e.hoursPerWeek).trim() === '') return null;
+    return (n * toNum(e.hoursPerWeek) * 52) / 12;
+  }
   return (n * periodsAYear(e)) / 12;
 }
 
@@ -126,19 +139,19 @@ function perMonth(amount: any, e: BasePayEntry): number {
  *     for each of the names in table, in order: [each, to num(table[each])] as [string, number]
  *
  * Called by ... MK-CF-F-128 grossByMonth · MK-CF-F-144 takeHomeAsEntered
- *               MK-CF-F-146 payFiguresAgree
+ *               MK-CF-F-146 payFiguresAgree · MK-CF-F-243 grossCalendarYear
  *
- * Reaches ..... 75 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-CF-F-238 PAY · MK-CF-F-239 PAY_ESTIMATED
- *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-210 annualOfSource · MK-CF-F-143 annualisedGross
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               … and 57 more — the full list is on functions_from_code
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 368 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -159,22 +172,22 @@ function monthsOf(table: Record<string, any> | undefined): [string, number][] {
  * Formula .....
  *     table = months of(gross by month)
  *     table   when count of varies and table
- *     the answer = [['typical', per month(gross typical, e)]]
+ *     the answer = [['typical', per month(gross typical, e) ?? 0]]
  *
- * Called by ... MK-CF-F-143 annualisedGross · MK-CF-F-146 payFiguresAgree
- *               MK-CF-F-171 earnerPay
+ * Called by ... MK-CF-F-146 payFiguresAgree · MK-CF-F-171 earnerPay
+ *               MK-CF-F-243 grossCalendarYear
  *
- * Reaches ..... 74 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-CF-F-238 PAY · MK-CF-F-239 PAY_ESTIMATED
- *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-210 annualOfSource · MK-CF-F-143 annualisedGross
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-O-001 basePay
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               … and 56 more — the full list is on functions_from_code
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -184,7 +197,7 @@ function monthsOf(table: Record<string, any> | undefined): [string, number][] {
 export function grossByMonth(e: BasePayEntry): [string, number][] {
   const table = monthsOf(e.grossByMonth);
   if (e.varies && table.length) return table;
-  return [['typical', perMonth(e.grossTypical, e)]];
+  return [['typical', perMonth(e.grossTypical, e) ?? 0]];   // hours a week not entered: no typical month (DEC-0296)
 }
 
 /** GROSS PAY ANNUALISED — the figure a tax bracket is read from.
@@ -202,39 +215,159 @@ export function grossByMonth(e: BasePayEntry): [string, number][] {
  * Answers ..... GROSS PAY ANNUALISED — the figure a tax bracket is read from.
  *
  * Formula .....
- *     months = gross by month(e)
- *     0   when count of months is missing
- *     avg = count of months.reduce((t, [, v]) => t + v, 0) ÷ months
- *     the answer = avg × 12
+ *     Σ over gross calendar year(e) of (each)
  *
  * Called by ... MK-CF-F-144 takeHomeAsEntered · MK-CF-F-145 deductionsFromPay
- *               MK-CF-F-171 earnerPay
+ *               MK-CF-F-146 payFiguresAgree · MK-CF-F-171 earnerPay
+ *               MK-CF-F-240 PAY_LANDS_TYPED
  *
- * Reaches ..... 73 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-CF-F-238 PAY · MK-CF-F-239 PAY_ESTIMATED
- *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-210 annualOfSource · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               … and 55 more — the full list is on functions_from_code
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- *
- * Decides .....
- *     · Turns a monthly figure into a year by multiplying by twelve.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-143
  * Changed ..... not in git yet (—)
  */
 export function annualisedGross(e: BasePayEntry): number {
-  const months = grossByMonth(e);
-  if (!months.length) return 0;
-  const avg = months.reduce((t, [, v]) => t + v, 0) / months.length;
-  return (avg * 12);
+  // A TABLE OF PAY THAT VARIES IS READ AS THIS CALENDAR YEAR'S TWELVE MONTHS, by the helper every Cash flow month reads
+  // (salaryCalendarYear, as wageGrossByMonth does), so Your base pay and Cash flow give one number (2026-10-25, CF-MMFIX-B;
+  // drawing check IN-05; the lead's ruling on CFR-5's F7; tenets 4 and 5). A month typed — $0 included — counts as typed: a
+  // typed $0 is an answer. A month with nothing typed, never or cleared, counts as the typical month: "Every month below
+  // starts from this" (drawing v07, phone 6). It averaged the typed months only, so Sam, paid $2,077 a fortnight with
+  // September typed at $6,000, read every month as $6,000 ($72,000) where the year is 11 × $4,500.17 + $6,000 = $55,502; and
+  // averaging the screen's fourteen months instead (2026-10-25, briefly) read a worker paid $12,500 from July, $0 before, as
+  // $109,091 where this year is $75,000.
+  // (2026-10-26, FIX-INCOME-A) one reading of the year for both shapes — steady pay is twelve typical months — so the months the
+  // wage is paid (paidMonthsOf) come from the same twelve numbers as its year
+  return grossCalendarYear(e).reduce((t, v) => t + v, 0);
+}
+
+/** What it is for: ONE WAGE'S GROSS FOR EACH MONTH OF THIS CALENDAR YEAR, January first — a month typed is what was typed ($0
+ *  included), a month not typed is the typical month, and steady pay is the typical month twelve times. The same twelve numbers
+ *  the Cash flow months read for the stored wage (MK-CF-F-177 wageGrossByMonth, through MK-CF-F-167 salaryCalendarYear), so Your
+ *  base pay's year and its paid months cannot drift from them (2026-10-26, FIX-INCOME-A). Hours a week not entered: an hourly
+ *  wage has no typical month, so only the months typed count (DEC-0296). */
+/* ─ MK-CF-F-243 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * grossCalendarYear
+ *
+ * Answers ..... What it is for: ONE WAGE'S GROSS FOR EACH MONTH OF THIS CALENDAR YEAR, January first — a month typed is what was typed ($0 included), a month not typed is the typical month, and steady pay is the typical month twelve times.
+ *
+ * Formula .....
+ *     typical = per month(gross typical, e) (or 0 when missing)
+ *     table = months of(gross by month)
+ *     the answer = salary calendar year({ salary by month: object.from entries(table) } as any, new date().get full year(), typical)
+ *
+ * Called by ... MK-CF-F-143 annualisedGross · MK-CF-F-244 paidMonthsOf
+ *
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-023 salary and other income
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-243
+ * Changed ..... not in git yet (—)
+ */
+export function grossCalendarYear(e: BasePayEntry): number[] {
+  const typical = perMonth(e.grossTypical, e) ?? 0;
+  const table = monthsOf(e.grossByMonth);
+  if (e.varies && table.length) {
+    return salaryCalendarYear({ salaryByMonth: Object.fromEntries(table) } as any, new Date().getFullYear(), typical);
+  }
+  return new Array(12).fill(typical);
+}
+
+/** What it is for: HOW MANY MONTHS OF THIS CALENDAR YEAR THE WAGE IS PAID IN — the months of grossCalendarYear above $0. A
+ *  take-home and a 401(k) are each a paid month's (the screen asks for them "each month"), so the year of either is that month
+ *  × this — the rule the Cash flow months use (MK-CF-F-206 householdK401ByMonth; MK-CF-F-233 earnerWageShares). It took twelve:
+ *  the July starter's $3,799.17 a month read $45,590.04 a year and "Everything else taken out" $700/month where a paid month
+ *  takes out $5,699.75 (2026-10-26, FIX-INCOME-A; DEC-7938, DEC-0376, tenets 1 and 4). */
+/* ─ MK-CF-F-244 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * paidMonthsOf
+ *
+ * Answers ..... What it is for: HOW MANY MONTHS OF THIS CALENDAR YEAR THE WAGE IS PAID IN — the months of grossCalendarYear above $0.
+ *
+ * Formula .....
+ *     gross calendar year(e) where each > 0count of
+ *
+ * Called by ... MK-CF-F-143 annualisedGross · MK-CF-F-144 takeHomeAsEntered
+ *               MK-CF-F-145 deductionsFromPay · MK-CF-F-146 payFiguresAgree
+ *               MK-CF-F-171 earnerPay
+ *
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-244
+ * Changed ..... not in git yet (—)
+ */
+export function paidMonthsOf(e: BasePayEntry): number {
+  return grossCalendarYear(e).filter((g) => g > 0).length;
+}
+
+/** What it is for: an hourly wage whose hours a week are not entered — Your base pay says so and counts none of it (DEC-0296). */
+/* ─ MK-CF-F-245 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * hoursNotEntered
+ *
+ * Answers ..... What it is for: an hourly wage whose hours a week are not entered — Your base pay says so and counts none of it (DEC-0296).
+ *
+ * Formula .....
+ *     string(freq) = 'hourly' and to num(gross typical) > 0 and per month(gross typical, e) = nothing
+ *
+ * Called by ... MK-CF-F-145 deductionsFromPay · MK-CF-F-171 earnerPay
+ *               MK-CF-O-001 basePay
+ *
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-245
+ * Changed ..... not in git yet (—)
+ */
+export function hoursNotEntered(e: BasePayEntry): boolean {
+  return String(e.freq) === 'hourly' && toNum(e.grossTypical) > 0 && perMonth(e.grossTypical, e) == null;
 }
 
 /** WHAT LANDS IN THE BANK, each month.
@@ -258,31 +391,33 @@ export interface TakeHome { monthly: number; estimated: boolean; why: string; }
  *     months = months of(lands by month)
  *     entered = lands typical
  *     gross = annualised gross(e)
- *     k401 = to num(monthly401k) × 12
+ *     paid = paid months of(e)
+ *     k401 = to num(monthly401k) × paid
+ *     per = paid   if paid > 0
+ *     12   otherwise
  *     taxable = max(0, gross − k401)
- *     monthly = (gross − k401 − tax owed for(taxable, filing status ?? 'single', 0, over65 ?? 0)) ÷ 12
+ *     monthly = (gross − k401 − tax owed for(taxable, filing status ?? 'single', 0, over65 ?? 0)) ÷ per
  *
  * Called by ... MK-CF-F-145 deductionsFromPay · MK-CF-F-146 payFiguresAgree
  *               MK-CF-F-171 earnerPay
  *
- * Reaches ..... 72 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-CF-F-238 PAY · MK-CF-F-239 PAY_ESTIMATED
- *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-210 annualOfSource · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               … and 54 more — the full list is on functions_from_code
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
  *
  * Decides .....
  *     · If over65 is missing it uses 0.
- *     · Turns a monthly figure into a year by multiplying by twelve.
  *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-144
@@ -298,7 +433,9 @@ export function takeHomeAsEntered(e: BasePayEntry): TakeHome {
              estimated: false, why: 'the take-home you entered, month by month' };
   }
   const entered = e.landsTypical;
-  if (entered != null && String(entered).trim() !== '' && toNum(entered) > 0) {
+  // A TAKE-HOME TYPED AS 0 IS THE PERSON'S ANSWER (2026-10-26, FIX-INCOME-A; tenet 5, the lead's ruling 3 on CFR-1): only a blank
+  // is "not entered". It read $0 as nothing typed and put a calculated $3,500 in its place.
+  if (entered != null && String(entered).trim() !== '') {
     // The screen asks for the take-home EACH MONTH at every pay frequency (approved drawing v07:
     // "Sam’s take-home each month — $3,300", for someone paid fortnightly). It was being scaled as
     // though it were typed for each pay period, which turned $3,300 into $7,150 (found 2026-10-04
@@ -307,11 +444,17 @@ export function takeHomeAsEntered(e: BasePayEntry): TakeHome {
              why: 'the take-home you entered' };
   }
   const gross = annualisedGross(e);
-  const k401 = (toNum(e.monthly401k) * 12);      // zero unless they entered one
+  // A PAID MONTH'S TAKE-HOME (2026-10-26, FIX-INCOME-A; DEC-7938, DEC-0376, tenets 1 and 4): the 401(k) comes out of the months the
+  // wage is paid, and the take-home is a month you are paid — that month's take-home, as a typed take-home is and as the Cash flow
+  // months land it. It took twelve months of 401(k) out of the year and spread what was left over twelve: $10,000/month from July with
+  // $1,000 into a 401(k) read $3,642 where each paid month lands $8,283.
+  const paid = paidMonthsOf(e);
+  const k401 = (toNum(e.monthly401k) * paid);      // zero unless they entered one
+  const per = paid > 0 ? paid : 12;                // no month of pay: $0/month, as before
   if (e.estRate != null) {
     // The household rate in force — typed, or the federal estimate on the WHOLE household. Never
     // this wage through the schedule alone: that hands every earner the full standard deduction.
-    return { monthly: ((gross * (1 - e.estRate) - k401) / 12), estimated: true,
+    return { monthly: ((gross * (1 - e.estRate) - k401) / per), estimated: true,
              why: `calculated at the household rate of ${Math.round(e.estRate * 100)}% — this take-home is higher than it will really be until the real figure is entered` };
   }
   const taxable = Math.max(0, gross - k401);
@@ -319,7 +462,7 @@ export function takeHomeAsEntered(e: BasePayEntry): TakeHome {
   // (founder ruling 2026-08-27). Base pay READS it: the status and the over-65 count come in with
   // the entry, and default to a single filer only because that is what the app assumed before the
   // filing-status question existed.
-  const monthly = ((gross - k401 - taxOwedFor(taxable, e.filingStatus ?? 'single', 0, e.over65 ?? 0)) / 12);
+  const monthly = ((gross - k401 - taxOwedFor(taxable, e.filingStatus ?? 'single', 0, e.over65 ?? 0)) / per);
   return {
     monthly, estimated: true,
     why: k401 > 0
@@ -343,37 +486,40 @@ export function takeHomeAsEntered(e: BasePayEntry): TakeHome {
  *
  * Formula .....
  *     t = take home as entered(e)
- *     nothing   when estimated
- *     the answer = annualised gross(e) − (to num(monthly401k) × 12) − (monthly × 12)
+ *     nothing   when estimated (or hours not entered(e) when missing or zero)
+ *     paid = paid months of(e)
+ *     the answer = annualised gross(e) − (to num(monthly401k) × paid) − (monthly × paid)
  *
  * Called by ... MK-CF-F-171 earnerPay
  *
- * Reaches ..... 70 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-CF-F-238 PAY · MK-CF-F-239 PAY_ESTIMATED
- *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-210 annualOfSource · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               … and 52 more — the full list is on functions_from_code
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
  *     · Uses a built-in a g r e e t o l e r a n c e of 5.
  *     · Uses a built-in h i g h d e d u c t i o n s h a r e of 60%.
- *     · Turns a monthly figure into a year by multiplying by twelve.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-145
  * Changed ..... not in git yet (—)
  */
 export function deductionsFromPay(e: BasePayEntry): number | null {
   const t = takeHomeAsEntered(e);
-  if (t.estimated) return null;
-  return (annualisedGross(e) - (toNum(e.monthly401k) * 12) - (t.monthly * 12));
+  if (t.estimated || hoursNotEntered(e)) return null;   // no gross to take it from while the hours are not entered (DEC-0296)
+  // the 401(k) and the take-home of the months paid, never × 12 (2026-10-26, FIX-INCOME-A; DEC-7938, DEC-0376, tenet 1): the July
+  // starter's $60,000.30 − $3,006.78 − $22,795.02 = $34,198.50 a year, where twelve of each read $8,396.70
+  const paid = paidMonthsOf(e);
+  return (annualisedGross(e) - (toNum(e.monthly401k) * paid) - (t.monthly * paid));
 }
 
 /** DO THE THREE FIGURES AGREE?
@@ -404,31 +550,29 @@ export interface PayVerdict { ok: boolean; warn: boolean; say: string; }
  *     k401 = monthly401k read as a number (0 when it is not one)
  *     gm = gross by month(e)
  *     lands = a lookup of lm
+ *     full = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+ *     in month = the first 4)}` : '' of (key: string) => ( ÷ ^\d{4}-\d{2}$ ÷ .test(key) ? ` in ${FULL[number(key.slice(5)) − 1]} ${key
+ *     warning = nothing
  *     landed = lands.get(key) as number   if lands.has(key)
  *     lands typical read as a number (0 when it is not one)   otherwise
  *     left = gross − k401 − landed
- *     when = ''   if key = 'typical'
- *     ` in ${key}`   otherwise
- *     when = ''   if key = 'typical'
- *     ` in ${key}`   otherwise
- *     the answer:
- *     ok = true
- *     warn = false
- *     say = ''
+ *     when = in month(key)
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-F-171 earnerPay
  *
- * Reaches ..... 70 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-CF-F-238 PAY · MK-CF-F-239 PAY_ESTIMATED
- *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-210 annualOfSource · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               … and 52 more — the full list is on functions_from_code
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -452,25 +596,36 @@ export function payFiguresAgree(e: BasePayEntry): PayVerdict {
     : gm.map(([k]) => [k, toNum(e.landsTypical)] as [string, number]);
   const lands = new Map(lm);
 
+  // A MONTH WITH NO PAY IS NOT RECONCILED (2026-10-25, CFR-5 found F6; tenet 1): no 401(k) comes out of a month typed $0, and a
+  // take-home typed for the paid months is not that month's. It read "These three cannot all be right in 2026-01. $0 gross, less
+  // $501 into your 401(k) …" for a worker paid from July. A take-home typed for that very month is still checked. The month is
+  // named in words ("in March 2026"), never as a key ("in 2026-03").
+  const FULL = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const inMonth = (key: string) => (/^\d{4}-\d{2}$/.test(key) ? ` in ${FULL[Number(key.slice(5)) - 1]} ${key.slice(0, 4)}` : '');
+  // A WARNING NEVER HIDES A LATER MONTH THAT CANNOT BE RIGHT (2026-10-26, FIX-INCOME-A; tenet 1): every month is read before the
+  // verdict. It returned on the first warning, so January's 75% "higher than most" stood while February's $3,000.17 − $500.13 −
+  // $2,800.19 = −$300.15 was never read, and the check passed. The first month that cannot be right wins; else the first warning.
+  let warning: PayVerdict | null = null;
   for (const [key, gross] of gm) {
+    if (!(gross > 0) && !(lands.has(key) && (lands.get(key) as number) > 0 && e.varies && e.landsByMonth)) continue;
     const landed = lands.has(key) ? (lands.get(key) as number) : toNum(e.landsTypical);
     const left = gross - k401 - landed;
     if (left < -AGREE_TOLERANCE) {
-      const when = key === 'typical' ? '' : ` in ${key}`;
+      const when = inMonth(key);
       return { ok: false, warn: false, say:
         `These three cannot all be right${when}. ${money(gross)} gross, less ${money(k401)} into ` +
         `your 401(k), leaves ${money(gross - k401)} — but you entered a take-home of ${money(landed)}. That is ${money(Math.abs(left))} more than there is. Most likely the gross ` +
         `figure is per fortnight rather than per month, or the 401(k) is a yearly amount.` };
     }
-    if (gross > 0 && left / gross > HIGH_DEDUCTION_SHARE) {
-      const when = key === 'typical' ? '' : ` in ${key}`;
-      return { ok: true, warn: true, say:
+    if (!warning && gross > 0 && left / gross > HIGH_DEDUCTION_SHARE) {
+      const when = inMonth(key);
+      warning = { ok: true, warn: true, say:
         `That leaves ${Math.round((left / gross) * 100)}% of your pay${when} going somewhere other ` +
         `than your bank, which is higher than most. Worth a look in case a figure went in for the ` +
         `wrong period — but if that is really your payslip, carry on.` };
     }
   }
-  return { ok: true, warn: false, say: '' };
+  return warning ?? { ok: true, warn: false, say: '' };
 }
 
 
@@ -497,6 +652,16 @@ export interface EarnerPay {
   everythingElseMonthly: number | null;   // the same figure ÷ 12, HERE — a screen never divides
   verdict: PayVerdict;
   months: [string, number][];
+  /** THE TYPICAL GROSS AS A MONTH (2026-10-25, IN-05) — what a month left blank in the table counts as (annualisedGross), so
+   *  the screen can show it in that month's box. $2,077 a fortnight is $2,077 × 26 ÷ 12 = $4,500.17. */
+  typicalMonth: number;
+  /** WHAT THE EMPLOYER'S MATCH IS WORTH A MONTH (2026-10-25, IN-04; MK-CF-F-178 wageMatchMonthly): 50% of $800 is $400. */
+  matchMonthly: number;
+  /** THE MONTHS OF THIS YEAR THE WAGE IS PAID (2026-10-26, FIX-INCOME-A): the take-home, the 401(k) and everything else taken out
+   *  are each a paid month's, and the year of each is that month × this (paidMonthsOf). Twelve for pay that does not vary. */
+  paidMonths: number;
+  /** An hourly wage with its hours a week not entered: none of it is counted, and the section says so (DEC-0296). */
+  hoursNotEntered: boolean;
 }
 
 /** One earner's pay: gross for a month and for a year, their 401(k), their take-home and whether it was entered or calculated, and everything else taken out. */
@@ -508,23 +673,26 @@ export interface EarnerPay {
  * Formula .....
  *     t = take home as entered(e)
  *     annual = annualised gross(e)
+ *     paid = paid months of(e)
  *
- * Called by ... MK-CF-O-001 basePay
+ * Called by ... MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-O-001 basePay
  *
- * Reaches ..... 69 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-CF-F-238 PAY · MK-CF-F-239 PAY_ESTIMATED
- *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-210 annualOfSource · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               … and 51 more — the full list is on functions_from_code
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
+ *               MK-XS-I-043 their own retirement contribution
+ *               MK-XS-I-046 how the employer match is expressed — percent or dollars
  *
  * Decides .....
  *     · Treats a year as twelve equal months.
@@ -535,6 +703,7 @@ export interface EarnerPay {
 export function earnerPay(e: BasePayEntry): EarnerPay {
   const t = takeHomeAsEntered(e);
   const annual = annualisedGross(e);
+  const paid = paidMonthsOf(e);
   return {
     grossMonthly: (annual / 12),
     grossAnnualised: annual,
@@ -546,9 +715,15 @@ export function earnerPay(e: BasePayEntry): EarnerPay {
     // Monthly is calculated HERE. Build 54 showed the annual figure in a monthly card ("$5,400"
     // beside a $5,000 paycheck) — and the founder's fix question was the right one: dividing on the
     // screen is how two screens come to divide differently. The screen prints this verbatim.
-    everythingElseMonthly: deductionsFromPay(e) == null ? null : ((deductionsFromPay(e) as number) / 12),
+    // A PAID MONTH'S (2026-10-26, FIX-INCOME-A; DEC-7938, tenet 1): the July starter's $34,198.50 a year over six paid months is
+    // $5,699.75 a month taken out — $10,000.05 − $501.13 − $3,799.17 — where ÷ 12 read $700
+    everythingElseMonthly: deductionsFromPay(e) == null ? null : ((deductionsFromPay(e) as number) / (paid > 0 ? paid : 12)),
     verdict: payFiguresAgree(e),
     months: grossByMonth(e),
+    typicalMonth: perMonth(e.grossTypical, e) ?? 0,
+    matchMonthly: wageMatchMonthly({ c_401k: e.monthly401k, employerMatchMode: e.matchMode, employerMatchValue: e.matchValue }),
+    paidMonths: paid,
+    hoursNotEntered: hoursNotEntered(e),
   };
 }
 
@@ -591,10 +766,29 @@ export interface TaxOnPay {
    *  a number that explains nothing; the take-home sentence carries the split instead. */
   mode: 'entered' | 'estimated' | 'mixed';
   statusAssumed: boolean; // filing status inferred (two wages → jointly), not yet answered
+  /** A STATE RATE ENTERED ON THE TAX ORGANIZER IS INSIDE THE CALCULATED TAX, and the words say so (2026-10-25, the lead's ruling
+   *  on MK-CF-M-033 t8; canon row 25): "the 5.00% state rate you entered", or null when none was entered. */
+  stateWords: string | null;
 }
 
 export interface BasePay {
-  earners: { name: string; pay: EarnerPay }[];
+  /** `approx`: this earner's take-home is the app's own estimate — worked with the CALCULATED rate — so it wears ≈. A take-home
+   *  worked from the person's own typed rate is theirs and does not (2026-10-25, IN-03; drawing v07 rule 9). `entered`: the
+   *  earner has a gross or a take-home on record; one with nothing is left out of the household's sentences (IN-08). */
+  earners: { name: string; pay: EarnerPay; approx: boolean; entered: boolean }[];
+  /** No earner has a gross or a take-home on record: the card shows the empty-state line (Q48), never ≈$0 (IN-08). */
+  nothingEntered: boolean;
+  /** THE EARNERS PAID BY THE HOUR WHOSE HOURS A WEEK ARE NOT ENTERED (2026-10-26, FIX-INCOME-A; DEC-0296, tenet 3): their pay is
+   *  no number, so the household card shows no total — it says what is missing instead. Empty when every wage is complete. */
+  hoursNotEntered: string[];
+  /** The band is read on more than the wages — rent kept, a bonus, interest and dividends are entered (DEC-0178), so the note
+   *  under it says "and your other income" (2026-10-26, FIX-INCOME-A). */
+  bandOnOtherIncome: boolean;
+  /** WHAT THE BAND IS READ ON, AND WHAT IS STILL TO ADD (2026-10-25, CFR-5 found F3): everything taxable entered so far — wages,
+   *  rent kept, a bonus, interest and dividends (MK-CF-F-084 taxableAnnual, the "= Gross /year" of the Income summary) — and
+   *  which of rent, a bonus and a spouse's wage are not entered yet, in the drawn order. */
+  bandReadOn: number;
+  stillToAdd: string[];
   grossAnnual: number;            // every wage, added
   landsInBank: number;            // every wage's take-home, added, per month
   bandOnOneWage: number;          // the first earner's wage alone
@@ -602,7 +796,7 @@ export interface BasePay {
   bandNote: string | null;        // what the difference is worth, in words, or null when there is none
   everyFigureAgrees: boolean;     // no earner's three figures contradict each other
   tax: TaxOnPay;                  // the bracket, the tax in money, and whose rate produced it
-  landsEstimated: boolean;        // any earner's take-home is calculated → the total wears ≈
+  landsEstimated: boolean;        // any earner's take-home is the app's estimate (calculated rate) → the total wears ≈ (IN-03)
   landsNote: string | null;       // whose figure is entered and whose is calculated, with the dollars
   monthly401k: number;            // every earner's own contribution, added — the card's 401(k)s row
   otherTakenMonthly: number | null;  // MK-CF-M-036 at the household — the SUM of the earners' own
@@ -658,10 +852,20 @@ const GIVEN_LAW =
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
- * Called by ... MK-CF-F-240 PAY_LANDS_TYPED
- *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ * Called by ... MK-CF-F-079 incomeFromOnboarding · MK-CF-F-233 earnerWageShares
  *               MK-CF-F-240 PAY_LANDS_TYPED
+ *
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-030 tax filing status and age
@@ -709,6 +913,7 @@ const PAY_ESTIMATED = () => basePay({ earners: EXAMPLE_EARNERS as any, filingSta
  * Reads ....... MK-XS-I-030 tax filing status and age
  *               MK-XS-I-039 how often each income arrives
  *               MK-XS-I-043 their own retirement contribution
+ *               MK-XS-I-046 how the employer match is expressed — percent or dollars
  *               MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
@@ -743,7 +948,8 @@ export const FIGURES = declareFigures({
     decisions: ['Federal income tax when it is calculated, plus the state rate when one was entered (the Tax organizer’s "State income tax %", applied to taxable income) — no Social Security or Medicare, and no state tax when none was entered (MK-CF-D-001, DEC-0384).'],
     ruled: '2026-09-14',
     refusal: 'Shows $0 until a wage is entered.',
-    note: 'ONE figure over two sets: one earner, and the household — so a total and its parts cannot disagree (rule 2). It wears ≈ whenever the figure was calculated rather than entered.',
+    // (2026-10-25, IN-03) ≈ is the app's own estimate only: a take-home worked from the person's typed rate is theirs
+    note: 'ONE figure over two sets: one earner, and the household — so a total and its parts cannot disagree (rule 2). It wears ≈ whenever the app worked it with the calculated rate; one entered, or worked from the person’s own typed rate, wears none.',
     worked: {
       given: GIVEN,
       answer: '$9,398/month',
@@ -856,6 +1062,56 @@ export const FIGURES = declareFigures({
       run: () => MEDICARE_ADDITIONAL_THRESHOLD,
     },
   },
+  // THE MATCH'S WORTH, IN THE BOX (2026-10-25, CF-MMFIX-B; drawing check IN-04): the drawing prints "50% · $400/month" — every
+  // figure says what it is worth before you leave it. It printed "50" and nothing else.
+  'MK-CF-M-079': {
+    label: 'Your employer’s match', unit: 'money', per: 'month', screens: ['/base-pay'],
+    answers: 'What the employer puts into the 401(k) each month, beside the share or the amount typed.',
+    formula: 'a share of what they put in: their own 401(k) a month × the share typed ÷ 100; a set amount: the amount typed, a month (MK-CF-F-178 wageMatchMonthly)',
+    inputs: ['MK-XS-I-043 their own retirement contribution', 'MK-XS-I-046 how the employer match is expressed — percent or dollars'],
+    decisions: ['A match typed with neither choice tapped is read as the choice every screen shows chosen, a share of theirs (2026-10-25; tenets 4 and 5).'],
+    ruled: '2026-10-25',
+    refusal: 'Nothing is shown beside the box until a match is typed.',
+    worked: {
+      given: 'One earner putting $800/month into a 401(k); the employer matches 50% of it.',
+      answer: '$400/month',
+      run: () => wageMatchMonthly({ c_401k: 800, employerMatchValue: 50, employerMatchMode: 'pct' }),
+    },
+  },
+  // A MONTH NOT TYPED, IN THE TABLE OF PAY THAT VARIES (2026-10-25, CF-MMFIX-B; drawing check IN-05): the month the app counts
+  // for it — "Every month below starts from this" (phone 6) — where the box showed "2077", the fortnight figure.
+  'MK-CF-M-080': {
+    label: 'A month not typed', unit: 'money', per: 'month', screens: ['/base-pay'],
+    answers: 'What a month left blank in the table counts as: the typical gross pay, as a month.',
+    formula: 'the typical gross typed × the pay periods in a year ÷ 12 (an hourly figure × the hours a week × 52 ÷ 12) — MK-CF-F-171 earnerPay, typical month',
+    inputs: ['MK-CF-I-001 wage', 'MK-CF-I-002 how often it is paid'],
+    decisions: ['A month with nothing typed — never or cleared — counts as the typical month in the year’s gross too (MK-CF-F-143 annualisedGross), so the box shows what is counted; a typed $0 counts as $0 (2026-10-25; tenets 1 and 5).'],
+    ruled: '2026-10-25',
+    refusal: 'The box is empty until a typical gross is typed.',
+    worked: {
+      given: 'Sam is paid $2,077 every two weeks and his pay varies; the month is left blank.',
+      answer: '$4,500/month',
+      run: () => earnerPay({ freq: 'biweekly', varies: true, grossTypical: 2077, grossByMonth: { '2026-09': 6000 }, monthly401k: 400 }).typicalMonth,
+    },
+  },
+  // THE RATE THE TAKE-HOME IS WORKED AT, PRINTED WITH ITS NAME (2026-10-25, CF-MMFIX-B): "· 24%" beside everything else taken out,
+  // "We’ll use 24% everywhere …", "using the 24% rate you entered" — three places that printed the rate with no identifier.
+  'MK-CF-M-081': {
+    // TWO DECIMALS, ONE WAY (2026-10-26, CLEANUP-LEFT; Q49; income-end-to-end_v07 row of that date): it printed whole ("~7%", "24%")
+    // while the sign-up recap's sentence wrote the same rate to two decimals
+    label: 'The rate in force', unit: 'percent-2dp', screens: ['/base-pay', '/onboarding'],   // and the sign-up recap's "Tax (~X% …)" (2026-10-26)
+    answers: 'The share of the gross the take-home is worked at — the rate the person typed, the share their own figures imply, or the calculated rate.',
+    formula: 'the rate in force (MK-CF-F-181 rateInForce): a typed rate ÷ 100; else (gross − 401(k)s − take-homes) ÷ gross when every earner typed a take-home; else the year’s tax on what is taxed ÷ everything taxable',
+    inputs: ['MK-CF-I-005 tax rate as entered', 'MK-CF-I-003 take-home as entered', 'MK-CF-M-030 gross a year'],
+    decisions: ['The person’s rate outranks the calculated one (tenet 5); a take-home worked from it wears no ≈ (2026-10-25).'],
+    ruled: '2026-10-25',
+    refusal: 'Not shown until a wage is entered.',
+    worked: {
+      given: GIVEN,
+      answer: '22.00%',
+      run: () => PAY().tax.rate,
+    },
+  },
 } as const);
 
 /** What does this household's base pay come to: each earner's pay, and the household's gross, tax bracket, tax, 401(k)s and take-home for a month? */
@@ -869,35 +1125,40 @@ export const FIGURES = declareFigures({
  *     status = filing status (or 'single' when missing)
  *     over65 = over65 (or 0 when missing)
  *     pre rate = rate in force(profile ?? nothing)
+ *     pay = earner pay({ ...entry, filing status: status, over65, est rate: pre rate.rate })
+ *     entered = pay.gross annualised > 0 (or pay.lands is estimated is missing (or pay.hours not entered when missing or zero) when missing or zero)
+ *     the answer:
+ *     name = name
+ *     pay = pay
+ *     entered = entered
+ *     approx = entered and pay.lands is estimated and pre rate.source = 'estimated'
  *     gross annual = Σ over earners of (pay.gross annualised)
  *     lands in bank = Σ over earners of (pay.lands in bank)
  *     first wage = earners[0].pay.gross annualised (or 0 when missing)
- *     k401 annual = Σ over earners of (pay.monthly401k × 12)
- *     band on one wage = marginal bracket for(math.max(0, first wage − (earners[0].pay.monthly401k ?? 0) × 12), status, over65)
- *     band on every wage = marginal bracket for(math.max(0, gross annual − k401 annual), status, over65)
- *     band note = nothing
+ *     k401 annual = Σ over earners of (pay.monthly401k × pay.paid months)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-F-238 PAY · MK-CF-F-239 PAY_ESTIMATED
  *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-O-004 incomeSummary
  *               MK-CF-O-019 theIncomeManager
  *
- * Reaches ..... 68 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-CF-F-238 PAY · MK-CF-F-239 PAY_ESTIMATED
- *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-210 annualOfSource · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               … and 50 more — the full list is on functions_from_code
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-030 · MK-CF-M-031 · MK-CF-M-032 · MK-CF-M-033
  *               MK-CF-M-034 · MK-CF-M-035 · MK-CF-M-036 · MK-CF-M-045
- *               MK-CF-M-046
- * Reads ....... MK-XS-I-030 tax filing status and age
+ *               MK-CF-M-046 · MK-CF-M-079 · MK-CF-M-080 · MK-CF-M-081
+ * Reads ....... MK-XS-I-023 salary and other income
+ *               MK-XS-I-030 tax filing status and age
  * Ruled by .... DEC-0178 · DEC-0184 · DEC-0188 · DEC-0194 · DEC-0195 · DEC-0197
  *               DEC-0205 · DEC-0207 · DEC-0208 · DEC-0209 · DEC-0326 · DEC-0389
  *               DEC-0503
@@ -908,10 +1169,10 @@ export const FIGURES = declareFigures({
  *     · If over65 is missing it uses 0.
  *     · If gross annualised is missing it uses 0.
  *     · If monthly401k is missing it uses 0.
+ *     · If paid months is missing it uses 0.
  *     · Uses a built-in f i c a s h a r e of 7.65%.
- *     · Treats a year as twelve equal months.
- *     · Turns a monthly figure into a year by multiplying by twelve.
  *     · Rounds the answer to a whole number.
+ *     · Shows 2 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-CF-O-001
  * Changed ..... not in git yet (—)
@@ -924,8 +1185,15 @@ export function basePay(h: HouseholdPayInput): BasePay {
   // profile BEFORE the earners run, and its own source must ignore half-entered households — see
   // rateInForce. Passing nothing here is what let build 54's card contradict itself.
   const preRate = rateInForce(h.profile ?? null);
-  const earners = (h.earners ?? []).map((e) => ({ name: e.name,
-    pay: earnerPay({ ...e.entry, filingStatus: status, over65, estRate: preRate.rate }) }));
+  // WHOSE FIGURE WEARS ≈ (2026-10-25, CF-MMFIX-B; drawing check IN-03; rule 9 and tenet 2): a take-home the app works out with
+  // its CALCULATED rate is an estimate; one worked from the person's own typed rate is theirs, as the drawn "= Take-home
+  // $8,740/month" under a typed 24% has none. An earner with neither a gross nor a take-home entered is not "≈$0 calculated":
+  // they are left out of whose-figure-is-whose (IN-08, tenet 3).
+  const earners = (h.earners ?? []).map((e) => {
+    const pay = earnerPay({ ...e.entry, filingStatus: status, over65, estRate: preRate.rate });
+    const entered = pay.grossAnnualised > 0 || !pay.landsIsEstimated || pay.hoursNotEntered;   // $25 an hour typed is entered (DEC-0296)
+    return { name: e.name, pay, entered, approx: entered && pay.landsIsEstimated && preRate.source === 'estimated' };
+  });
 
   const grossAnnual = (earners.reduce((t, e) => t + e.pay.grossAnnualised, 0));
   const landsInBank = (earners.reduce((t, e) => t + e.pay.landsInBank, 0));
@@ -933,9 +1201,17 @@ export function basePay(h: HouseholdPayInput): BasePay {
 
   // THE BAND OF WHAT IS TAXED — each wage less that earner's own 401(k), which comes off before tax (B05; 2026-10-24, CF-FIX).
   // It read the band of the gross wage, so near an edge the card named a band the tax was not worked in.
-  const k401Annual = (earners.reduce((t, e) => t + e.pay.monthly401k * 12, 0));
-  const bandOnOneWage = marginalBracketFor(Math.max(0, firstWage - (earners[0]?.pay.monthly401k ?? 0) * 12), status, over65);
-  const bandOnEveryWage = marginalBracketFor(Math.max(0, grossAnnual - k401Annual), status, over65);
+  // ...in the months each earner is paid (2026-10-26, FIX-INCOME-A; DEC-0376, DEC-7797, tenet 4): a worker paid $12,500/month from
+  // July with $1,000 into a 401(k) put in $6,000, not $12,000 — the band read 12% where the Income summary reads 22%
+  const k401Annual = (earners.reduce((t, e) => t + e.pay.monthly401k * e.pay.paidMonths, 0));
+  const bandOnOneWage = marginalBracketFor(Math.max(0, firstWage - (earners[0]?.pay.monthly401k ?? 0) * (earners[0]?.pay.paidMonths ?? 0)), status, over65);
+  // THE BAND IS WORKED ONCE, ON EVERYTHING TAXED (2026-10-26, FIX-INCOME-A; his DEC-0178 and DEC-0191; tenet 4): the wages less
+  // their 401(k)s, plus everything else the profile is taxed on (rent kept, a bonus, interest and dividends — MK-CF-F-084
+  // taxableAnnual less the wages). For the stored household that is exactly MK-CF-F-230 taxedAfterPreTax, the Income summary's
+  // bracket (pinned by base_pay_band_agrees_2026_10_26). It read the wages alone: $60,000 of wages and $50,000 of rent, single,
+  // read 12% here and 22% there; the next dollar costs 22%.
+  const otherTaxed = profile ? Math.max(0, taxableAnnual(profile as any) - salaryAnnual(profile as any)) : 0;
+  const bandOnEveryWage = marginalBracketFor(Math.max(0, grossAnnual - k401Annual) + otherTaxed, status, over65);
 
   // What reading the band off one wage would have cost, per month. Only said when it is not zero:
   // a note explaining a difference of nothing is noise.
@@ -957,9 +1233,16 @@ export function basePay(h: HouseholdPayInput): BasePay {
   // say what it assumed, and let the person replace it with a figure off their payslip.
   const inForce = rateInForce(profile ?? null);
   const wagesAnnual = earners.reduce((t, e) => t + e.pay.grossAnnualised, 0);
-  const monthlyTax = ((grossAnnual * inForce.rate) / 12);
-  const entered = earners.filter((e) => !e.pay.landsIsEstimated);
-  const estimatedE = earners.filter((e) => e.pay.landsIsEstimated);
+  // EACH "/month" ON THIS CARD IS A MONTH THE WAGE IS PAID (2026-10-26, FIX-INCOME-A; DEC-7938, tenets 1 and 4) — the take-home a
+  // person types and the month Cash flow lands — so the card's sum holds: a paid month's gross − its tax − its 401(k) = its take-home.
+  // A wage paid every month is twelve, exactly as before.
+  const per = (e: { pay: EarnerPay }) => (e.pay.paidMonths > 0 ? e.pay.paidMonths : 12);
+  const grossMonth = earners.reduce((t, e) => t + e.pay.grossAnnualised / per(e), 0);
+  const monthlyTax = earners.reduce((t, e) => t + (e.pay.grossAnnualised * inForce.rate) / per(e), 0);
+  // whose figures are whose is said of the earners with something entered — the rest are not "≈$0 calculated" (IN-08)
+  const basis = earners.some((e) => e.entered) ? earners.filter((e) => e.entered) : earners;
+  const entered = basis.filter((e) => !e.pay.landsIsEstimated);
+  const estimatedE = basis.filter((e) => e.pay.landsIsEstimated);
   const mode: TaxOnPay['mode'] = estimatedE.length === 0 ? 'entered'
     : entered.length === 0 ? 'estimated' : 'mixed';
   const tax: TaxOnPay = {
@@ -970,9 +1253,10 @@ export function basePay(h: HouseholdPayInput): BasePay {
     estimated: inForce.source === 'estimated',
     covers: inForce.covers,
     // FICA_SHARE is NEVER added to the estimate — it exists so the screen can say what is missing.
-    shortBy: inForce.source === 'estimated' ? (earners.reduce((t, e) => t + payrollTaxWithheld(e.pay.grossAnnualised), 0) / 12) : null,   // G4: per earner, the wage base respected
+    shortBy: inForce.source === 'estimated' ? earners.reduce((t, e) => t + payrollTaxWithheld(e.pay.grossAnnualised) / per(e), 0) : null,   // G4: per earner, the wage base respected; a paid month's
     mode,
     statusAssumed: (h.profile as any)?.filingStatus == null,
+    stateWords: stateRateOf(profile ?? null) > 0 ? `the ${(stateRateOf(profile ?? null) * 100).toFixed(2)}% state rate you entered` : null,
   };
 
   // WHOSE FIGURE IS WHOSE — the sentence under the lands total, per person, with the dollars.
@@ -981,11 +1265,11 @@ export function basePay(h: HouseholdPayInput): BasePay {
   let landsNote: string | null = null;
   // a gross worked back from a take-home entered before 2026-08-28 was not entered, so the card does not say it was (tenet 3)
   const workedBack = !!(h.profile as any)?.grossWorkedBack;
-  if (mode === 'entered' && earners.length > 0) {
+  if (mode === 'entered' && basis.length > 0) {
     landsNote = workedBack
-      ? (earners.length > 1 ? 'Both take-homes are what you entered; your gross was worked back from yours.'
-                            : 'The take-home is what you entered; the gross was worked back from it.')
-      : earners.length > 1
+      ? (basis.length > 1 ? 'Both take-homes are what you entered; your gross was worked back from yours.'
+                          : 'The take-home is what you entered; the gross was worked back from it.')
+      : basis.length > 1
       ? 'Both figures are what you entered — nothing here is calculated.'
       : 'This is what you entered — nothing here is calculated.';
   } else if (mode === 'mixed') {
@@ -993,16 +1277,17 @@ export function basePay(h: HouseholdPayInput): BasePay {
     // says WHAT the figure is (take-home), WHOSE it is, and whether it was entered or calculated —
     // his first reading of the prose version took the entered take-home for a gross.
     const how = inForce.mine
-      ? `calculated at your ${Math.round(inForce.rate * 100)}% rate, less 401(k)`
+      ? `calculated at your ${(inForce.rate * 100).toFixed(2)}% rate, less 401(k)`
       : 'calculated — gross less federal tax and 401(k)';
-    const line = (e: { name: string; pay: EarnerPay }) => e.pay.landsIsEstimated
-      ? `${e.name === 'You' ? 'Your' : `${e.name}’s`} take-home: ≈${money0(e.pay.landsInBank)} (${how})`
+    // ≈ only on the app's own estimate: a take-home at their typed rate is theirs (IN-03)
+    const line = (e: { name: string; pay: EarnerPay; approx: boolean }) => e.pay.landsIsEstimated
+      ? `${e.name === 'You' ? 'Your' : `${e.name}’s`} take-home: ${e.approx ? '≈' : ''}${money0(e.pay.landsInBank)} (${how})`
       : `${e.name === 'You' ? 'Your' : `${e.name}’s`} take-home: ${money0(e.pay.landsInBank)} (${e.name === 'You' ? 'you' : e.name} entered)`;
-    landsNote = earners.map(line).join('\n');
+    landsNote = basis.map(line).join('\n');
   } else if (mode === 'estimated' && grossAnnual > 0) {
     // THE CARD SAYS ITS OWN SUM (approved drawing v07, frame 2a-ii): gross − tax − 401(k)s = take-home
     const k401 = earners.reduce((t, e) => t + e.pay.monthly401k, 0);
-    landsNote = `${money0(grossAnnual / 12)} gross − ${money0(monthlyTax)} tax`
+    landsNote = `${money0(grossMonth)} gross − ${money0(monthlyTax)} tax`
       + `${k401 > 0 ? ` − ${money0(k401)} of 401(k)s` : ''} = ${money0(landsInBank)}.`;
   }
   // THE BAND IS EXPLAINED ONLY BESIDE FIGURES THEY ENTERED (frame 2a) — it speaks of "your real
@@ -1011,12 +1296,24 @@ export function basePay(h: HouseholdPayInput): BasePay {
   if (mode !== 'entered') bandNote = null;
   // THE OWN-FIGURES SENTENCE STANDS ON ITS OWN (2026-10-24, CF-FIX): it rode on the band sentence, so once the bands are read
   // after the 401(k)s (B05) and agree, the drawing's "The 24% is your own figures — …" left with it. Two earners, entered.
-  if (mode === 'entered' && earners.length > 1) {
-    bandNote = `${bandNote ? bandNote + ' ' : ''}The ${Math.round(inForce.rate * 100)}% is your own figures — tax, Social Security, Medicare, everything.`;
+  if (mode === 'entered' && basis.length > 1) {
+    bandNote = `${bandNote ? bandNote + ' ' : ''}The ${(inForce.rate * 100).toFixed(2)}% is your own figures — tax, Social Security, Medicare, everything.`;
   }
 
+  // what the band is read on, and the drawn list of what can still be added, less what is already entered (F3)
+  const p: any = profile ?? {};
+  const stillToAdd = [
+    ...(rentalNetAnnual(p) > 0 ? [] : ['rent']),
+    ...(toNum(p.bonusAnnual) > 0 ? [] : ['a bonus']),
+    ...(earners.filter((e) => e.entered).length > 1 || p.hasPartner === 'no' ? [] : ['a spouse’s wage']),
+  ];
   return {
     earners,
+    nothingEntered: !earners.some((e) => e.entered),
+    hoursNotEntered: earners.filter((e) => e.pay.hoursNotEntered).map((e) => e.name),
+    bandOnOtherIncome: otherTaxed > 0,
+    bandReadOn: taxableAnnual(p),
+    stillToAdd,
     grossAnnual,
     landsInBank,
     bandOnOneWage,
@@ -1024,12 +1321,12 @@ export function basePay(h: HouseholdPayInput): BasePay {
     bandNote,
     everyFigureAgrees: earners.every((e) => e.pay.verdict.ok),
     tax,
-    landsEstimated: estimatedE.length > 0,
+    landsEstimated: basis.some((e) => e.approx),
     landsNote,
     monthly401k: (earners.reduce((t, e) => t + e.pay.monthly401k, 0)),
-    otherTakenMonthly: earners.some((e) => e.pay.everythingElseMonthly == null)
+    otherTakenMonthly: basis.some((e) => e.pay.everythingElseMonthly == null)
       ? null
-      : earners.reduce((t, e) => t + (e.pay.everythingElseMonthly as number), 0),
+      : basis.reduce((t, e) => t + (e.pay.everythingElseMonthly as number), 0),
   };
 }
 
@@ -1056,17 +1353,17 @@ export const MEDICARE_ADDITIONAL_THRESHOLD = 200_000; // wages above this carry 
  *
  * Called by ... MK-CF-O-001 basePay
  *
- * Reaches ..... 69 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
  *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-CF-F-238 PAY · MK-CF-F-239 PAY_ESTIMATED
- *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-026 actualDebtPayment
- *               MK-CF-F-210 annualOfSource · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-O-001 basePay · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               … and 51 more — the full list is on functions_from_code
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1105,21 +1402,23 @@ export function payrollTaxWithheld(wageAnnual: number): number {
  *
  * Called by ... MK-CF-O-004 incomeSummary · MK-CF-O-019 theIncomeManager
  *
- * Reaches ..... 65 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               … and 47 more — the full list is on functions_from_code
+ * Reaches ..... 20 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-082 NW · MK-CF-F-207 SOURCE
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-010 drawOrderOutcome
+ *               MK-CF-F-041 getDebtState · MK-CF-O-016 incomeSources
+ *               MK-CF-O-004 incomeSummary · MK-XS-F-029 monthlySavings
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-NW-O-004 theEmergencyFund
+ *               MK-CF-O-019 theIncomeManager · MK-NW-O-003 theNetWorth
+ *               … and 2 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-039 how often each income arrives
  *               MK-XS-I-043 their own retirement contribution
+ *               MK-XS-I-046 how the employer match is expressed — percent or dollars
+ *               MK-XS-I-075 hours a week, for a wage paid by the hour
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-179
  * Changed ..... not in git yet (—)
@@ -1136,5 +1435,7 @@ export function entryFromWage(w: Record<string, any> | null | undefined): BasePa
     monthly401k: a.c_401k,
     landsTypical: a.landsTypical,
     hoursPerWeek: a.hoursPerWeek,
+    matchMode: a.employerMatchMode,
+    matchValue: a.employerMatchValue,
   };
 }

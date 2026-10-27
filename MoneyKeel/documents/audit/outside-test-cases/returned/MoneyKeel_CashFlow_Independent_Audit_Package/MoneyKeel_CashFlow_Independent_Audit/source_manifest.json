@@ -1,0 +1,117 @@
+[
+  {
+    "file": "moneykeel_audit_module_cf_contents_v01.json",
+    "sha256": "845575758acc6743102a5ad6c9cedaf3d885c9200e1b944a83300e040c1bd3d6",
+    "size_bytes": 46520
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01.md",
+    "sha256": "70e69e15c7299e278633d5517414f97c8096da826d07f4666d3a61ab114ff380",
+    "size_bytes": 48279
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-01-of-19.md",
+    "sha256": "9b3252ed4d0ac982c54b7af858e207e35885609ccaa206abb0d0fa8d0f8ffd55",
+    "size_bytes": 27190
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-02-of-19.md",
+    "sha256": "21335cdee60c140242c9d51d6ba567150e987edaf3e8f49d34025df45e0e7a08",
+    "size_bytes": 12474
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-03-of-19.md",
+    "sha256": "696e05f985ef897a2bc6a54e325df1f2447d68fa1c65b9942eee74fb54fc4690",
+    "size_bytes": 22620
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-04-of-19.md",
+    "sha256": "b08ee0fdfb06b890c506b2ab8b89cfdc978afe7abeae3c39120863445c11960f",
+    "size_bytes": 33487
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-05-of-19.md",
+    "sha256": "43fd436a34308e02c2b351b5cb1e713536d311f4a05a30d92c10fcbbe3675a2a",
+    "size_bytes": 118033
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-06-of-19.md",
+    "sha256": "2a04cc78b9c55d315904a3f5ce483d4d66ea89a5fc431c9482fc86f2540c131e",
+    "size_bytes": 40806
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-07-of-19.md",
+    "sha256": "d8182de6d797185a9a1ac08331f5d309ef762dfc52d9fca8d30fb982ecae205e",
+    "size_bytes": 40300
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-08-of-19.md",
+    "sha256": "68fb4af527c67cddcc2f277a3382c2f6c5e81e64a73b5773133c49d4cce02acb",
+    "size_bytes": 47171
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-09-of-19.md",
+    "sha256": "74ffbca661bf3bf2860fc4409b969f66835b320fe0c241b8f419217af838a125",
+    "size_bytes": 47889
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-10-of-19.md",
+    "sha256": "4ef815e30c23e38cecb978150f8728d1eea33fd80cda13595ca2675163f04449",
+    "size_bytes": 30051
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-11-of-19.md",
+    "sha256": "a125f5e13acd328a96dea6d76aa15013adc046d14b1e5d5bd08c64a946735a98",
+    "size_bytes": 35183
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-12-of-19.md",
+    "sha256": "5830f6f268cfee391f8eaf02f3280404e6b7dc2a6e4c064ceeea7cdd7f9a63a5",
+    "size_bytes": 30134
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-13-of-19.md",
+    "sha256": "ab8c0f99e31d4361003a73b4717242aea221f5453bc044a602d878bceacb4fc4",
+    "size_bytes": 53567
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-14-of-19.md",
+    "sha256": "0ea84a10c989b50994d8be9b8006d5c5f9b10408eb4b266cd561af2614d90923",
+    "size_bytes": 121338
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-15-of-19.md",
+    "sha256": "2887951a6f69aa3aa5fe317b114871b0de5d83b5b74a078f4311f424fb528337",
+    "size_bytes": 73779
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-16-of-19.md",
+    "sha256": "600c889162731417b9e50537d3dab8e3a99a034a6af04806b5bec54bc7a2f791",
+    "size_bytes": 20447
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-17-of-19.md",
+    "sha256": "e0c095172be526f10df52cca92a3fc72c65b7d757c789145e8bc4aaa5000b6b0",
+    "size_bytes": 35324
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-18-of-19.md",
+    "sha256": "59e07442669173ace544a57e88649d48d086dffd191f8dd07fad378cc6ee682e",
+    "size_bytes": 131412
+  },
+  {
+    "file": "moneykeel_audit_module_cf_for-openai_v01_part-19-of-19.md",
+    "sha256": "03afda317dc36bf3614e3eb80db78e3b509166d87cf3584efe842aa9c17ae0df",
+    "size_bytes": 85083
+  },
+  {
+    "file": "moneykeel_audit_module_cf_tax-sources-and-acceptance_v01.json",
+    "sha256": "ff0c95624b0f9447e1fae45d98e76e60e8052855b5a0eaa23b2661c12bbe25f9",
+    "size_bytes": 15703
+  },
+  {
+    "file": "moneykeel_audit_module_cf_validation_v01.json",
+    "sha256": "febc9e4bd44de94a2a3fa6222f300a5479d92af789463daa4d24acdd475f56e2",
+    "size_bytes": 4136
+  }
+]

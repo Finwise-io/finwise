@@ -9,6 +9,9 @@
  *  byte-identical; a difference is a number that changed, and a difference has no winner — it stops
  *  the work and goes to the founder. Update the photograph only with `jest -u` and a ruling.
  *
+ *  UPDATED 2026-10-25 (CF-MMFIX-B; the income drawing check IN-03, rule 9 — an estimate says so): the retiree's Income summary
+ *  prints her Social Security after the CALCULATED rate as "≈$2,361" — the row, the total and the band — where it printed
+ *  "$2,361". The figure did not move; only the ≈ that says it is the app's estimate. Every other figure is unchanged.
  *  UPDATED 2026-10-23 (CF-FIX; outside re-run of Performance, gap list item 38): Home's cash-flow box says its middle figure as
  *  "expenses and debt paid so far" — it prints the Cash flow tab's Outflow (expenses + debt), the one word for money leaving
  *  (DEC-0269, canon row 3) — where it said "spent so far". Words only, in the spoken label, for both people: every figure

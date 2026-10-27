@@ -1,0 +1,2866 @@
+{
+  "batch": "cf module — part 9",
+  "written_by": "OpenAI independent specification reviewer",
+  "ready_to_close": false,
+  "still_open": [
+    "MK-CF-O-018: Known positive balances produce the debt total, but missing balances/rates/payments lack complete-total flags and the payoff horizon can be misreported as never.",
+    "MK-CF-F-026: The legacy name says actual but the formula is a planned obligation, not logged payments. The owner chose a payment override as the normal monthly plan, but actual-month records must not reuse it.",
+    "MK-CF-F-034: A 600-month cap is called never pays off although an amortizing zero-rate debt can take 601 months. Due-in-full interest/cash funding and exact payoff dates need an explicit contract.",
+    "DEC-0393: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0496: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0641: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-1923: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Current actualcounts only loggeddebt and home-mortgage suppressionexists,but legacy cashflowYear omitsdebt and otherduplicatebudgetdebtslacklinks.",
+    "DEC-1924: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-1925: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-7607: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Approvedactualinflow is projected monthtake-home;receivedlogs are listed separately and not added twice. This remains a hybrid view and needs honestlabels.",
+    "DEC-7609: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Currentactualoutflow delegates expensesplusdebtpaidto monthOutflow and Home reads the same declared door.",
+    "DEC-7682: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Missingdebtpayment produces a reason and blocks planned surplus as stated. No-budget refusal is separately incomplete.",
+    "DEC-7795: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Sharedgrowth F-229still depends on zero-rate-incomplete F-126;one-producer use is not sufficientwithout a valid0%branch.",
+    "DEC-7949: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Late additions are detected only when saved_at exists;missing timestampreturnsnoneinstead of unknowncoverage.",
+    "DEC-8085: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Currentactualoutflow delegates expensesplusdebtpaidto monthOutflow and Home reads the same declared door.",
+    "DEC-8152: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Both200HELOC and200cardpayments are deducted once in the approved household;rowsgive350plannedand900actual."
+  ],
+  "scope": "Written formulas,owner decisions and primary publications only. No repository code,existingtests or liveapp outputs were inspected for this review. Attached screen-register worked/app-result fields were excluded from expected-answer derivation.",
+  "formula_checks": [
+    {
+      "id": "MK-CF-O-018",
+      "name": "theDebts",
+      "verdict": "INCOMPLETE",
+      "why": "Known positive balances produce the debt total, but missing balances/rates/payments lack complete-total flags and the payoff horizon can be misreported as never.",
+      "should_be": "Expose partial coverage and pass through distinct incomplete/nonamortizing/horizon states.",
+      "rests_on": "Tenets1–3; MK-CF-F-034",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-021",
+      "name": "defaultPaymentType",
+      "verdict": "RIGHT",
+      "why": "Uses an explicit payment-shape override before the documented kind default.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-022",
+      "name": "paymentShape",
+      "verdict": "RIGHT",
+      "why": "Uses an explicit payment-shape override before the documented kind default.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-023",
+      "name": "requiredPayment",
+      "verdict": "RIGHT",
+      "why": "Correct complete-input balance/minimum/override arithmetic for a generic monthly obligation. Dated-month selection and missing-input disclosure are separate readers.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-024",
+      "name": "totalDebtMonthly",
+      "verdict": "RIGHT",
+      "why": "Correct complete-input balance/minimum/override arithmetic for a generic monthly obligation. Dated-month selection and missing-input disclosure are separate readers.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-025",
+      "name": "minimumDebtService",
+      "verdict": "RIGHT",
+      "why": "Correct complete-input balance/minimum/override arithmetic for a generic monthly obligation. Dated-month selection and missing-input disclosure are separate readers.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-026",
+      "name": "actualDebtPayment",
+      "verdict": "INCOMPLETE",
+      "why": "The legacy name says actual but the formula is a planned obligation, not logged payments. The owner chose a payment override as the normal monthly plan, but actual-month records must not reuse it.",
+      "should_be": "Label this as planned monthly payments, and reserve actually paid for dated logs.",
+      "rests_on": "DEC-0641; DEC-1923",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-027",
+      "name": "totalDebtBalance",
+      "verdict": "RIGHT",
+      "why": "Correct complete-input balance/minimum/override arithmetic for a generic monthly obligation. Dated-month selection and missing-input disclosure are separate readers.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-028",
+      "name": "loanPayment",
+      "verdict": "RIGHT",
+      "why": "Correct ordinary fixed-rate monthly amortization, with APR supplied as a percent and an explicit zero-rate branch.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-029",
+      "name": "monthsToClear",
+      "verdict": "RIGHT",
+      "why": "Correct logarithmic monthly-payoff formula and nonamortizing refusal, with zero-rate and zero-balance branches.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-030",
+      "name": "paymentToClearBy",
+      "verdict": "RIGHT",
+      "why": "Correct fixed monthly payment and upward-cent contract on positive months; invalid/nonpositive horizon is a documented sentinel and should not be presented as a real payment.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-034",
+      "name": "payoffPlan",
+      "verdict": "INCOMPLETE",
+      "why": "A 600-month cap is called never pays off although an amortizing zero-rate debt can take 601 months. Due-in-full interest/cash funding and exact payoff dates need an explicit contract.",
+      "should_be": "Report horizon exhaustion separately; include balloon funding and interest timing in the cash plan.",
+      "rests_on": "Tenets 1–2; DEC-0454",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-159",
+      "name": "isRecurringDebt",
+      "verdict": "RIGHT",
+      "why": "Uses an explicit payment-shape override before the documented kind default.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-235",
+      "name": "paysInMonth",
+      "verdict": "RIGHT",
+      "why": "Inclusive start/payoff calendar bounds; balloon only in recorded payoff month while a positive balance remains.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-236",
+      "name": "paymentInMonth",
+      "verdict": "RIGHT",
+      "why": "Uses the same inclusion test; full balance in balloon month, otherwise required payment.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-CF-O-018",
+      "case_id": "MK-CF-O-018-C01",
+      "name": "theDebts",
+      "kind": "easy",
+      "title": "One known debt",
+      "as_of": "2026-10-24",
+      "given": "One known debt",
+      "inputs": {
+        "debts": [
+          {
+            "name": "A",
+            "balance": 10000,
+            "minimum": 100,
+            "override": 200,
+            "apr": "0.06"
+          }
+        ],
+        "extra": 50
+      },
+      "expected": {
+        "balance": {
+          "exact": "10000",
+          "shown": "$10,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "minimum": {
+          "exact": "100",
+          "shown": "$100",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "planned_payment": {
+          "exact": "200",
+          "shown": "$200",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "payoff_budget": {
+          "exact": "150",
+          "shown": "$150",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "monthly_interest": {
+          "exact": "50",
+          "shown": "$50",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Interest10000×.06÷12=50;payoff budget100+50=150;override monthly plan200 is a distinct concept."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-018",
+      "case_id": "MK-CF-O-018-C02",
+      "name": "theDebts",
+      "kind": "easy",
+      "title": "No debts",
+      "as_of": "2026-10-24",
+      "given": "No debts",
+      "inputs": {
+        "debts": []
+      },
+      "expected": {
+        "balance": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "minimum": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "planned_payment": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "monthly_interest": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Known empty list totals0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-018",
+      "case_id": "MK-CF-O-018-C03",
+      "name": "theDebts",
+      "kind": "complex",
+      "title": "Approved Debts drawing",
+      "as_of": "2026-10-24",
+      "given": "Approved Debts drawing",
+      "inputs": {
+        "debts": [
+          {
+            "name": "Visa",
+            "balance": 3200,
+            "apr": "0.229"
+          },
+          {
+            "name": "Car",
+            "balance": 9800,
+            "apr": "0.064"
+          }
+        ],
+        "recorded_start_balance": 17100,
+        "start_record_date": "2026-01-31"
+      },
+      "expected": {
+        "balance_rows": [
+          {
+            "exact": "3200",
+            "shown": "$3,200",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "9800",
+            "shown": "$9,800",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "total": {
+          "exact": "13000",
+          "shown": "$13,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "paid_down": {
+          "exact": "4100",
+          "shown": "$4,100",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "paid_down_share": {
+          "exact": "41/171",
+          "shown": "23.98%",
+          "decimal_approximation": "0.2397660818713450292397660819",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "share_shown": "24%",
+        "monthly_interest": {
+          "exact": "113.3333333333333333333333333",
+          "shown": "$113",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "payoff": {
+          "state": "REFUSES",
+          "reason": "Monthly minimums/extra omitted by drawing"
+        }
+      },
+      "working": [
+        "3200+9800=13000;17100−13000=4100.",
+        "4100÷17100=41/171≈23.976608%;shown24%.",
+        "(3200×.229+9800×.064)÷12=113.333333…"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "No payoff duration is invented; drawing omits required payment inputs.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-018",
+      "case_id": "MK-CF-O-018-C04",
+      "name": "theDebts",
+      "kind": "complex",
+      "title": "Unround mixed debt shapes",
+      "as_of": "2026-10-24",
+      "given": "Unround mixed debt shapes",
+      "inputs": {
+        "debts": [
+          {
+            "name": "A",
+            "balance": "7311.17",
+            "minimum": "231.43",
+            "override": "311.19",
+            "apr": "0.0731"
+          },
+          {
+            "name": "B",
+            "balance": "3111.43",
+            "shape": "due_full",
+            "due_date": "2027-03-17",
+            "apr": "0.0413"
+          }
+        ],
+        "extra": "71.13"
+      },
+      "expected": {
+        "balance": {
+          "exact": "10422.60",
+          "shown": "$10,423",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "minimum": {
+          "exact": "231.43",
+          "shown": "$231",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "planned_monthly_payment": {
+          "exact": "311.19",
+          "shown": "$311",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "payoff_budget": {
+          "exact": "302.56",
+          "shown": "$303",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "monthly_interest": {
+          "exact": "55.2457155",
+          "shown": "$55",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Balance7311.17+3111.43=10422.60;balloon has no regular monthly minimum;231.43+71.13=302.56."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-018",
+      "case_id": "MK-CF-O-018-C05",
+      "name": "theDebts",
+      "kind": "edge",
+      "title": "Missing balance excluded",
+      "as_of": "2026-10-24",
+      "given": "Missing balance excluded",
+      "inputs": {
+        "debts": [
+          {
+            "name": "A",
+            "balance": 1000,
+            "apr": "0.06"
+          },
+          {
+            "name": "B",
+            "balance": null,
+            "apr": "0.2"
+          }
+        ]
+      },
+      "expected": {
+        "known_balance_subtotal": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "complete": false,
+        "unvalued_debts": [
+          "B"
+        ]
+      },
+      "working": [
+        "Known1000 is a subtotal,not complete household debt."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "total": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-021",
+      "case_id": "MK-CF-F-021-C01",
+      "name": "defaultPaymentType",
+      "kind": "easy",
+      "title": "Mortgage",
+      "as_of": "2026-10-24",
+      "given": "Mortgage",
+      "inputs": {
+        "kind": "mortgage",
+        "payment_type": null
+      },
+      "expected": "instalment",
+      "working": [
+        "Explicit shape wins, except defaultPaymentType intentionally reads kind only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-021",
+      "case_id": "MK-CF-F-021-C02",
+      "name": "defaultPaymentType",
+      "kind": "easy",
+      "title": "Card",
+      "as_of": "2026-10-24",
+      "given": "Card",
+      "inputs": {
+        "kind": "credit_card",
+        "payment_type": null
+      },
+      "expected": "revolving",
+      "working": [
+        "Explicit shape wins, except defaultPaymentType intentionally reads kind only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-021",
+      "case_id": "MK-CF-F-021-C03",
+      "name": "defaultPaymentType",
+      "kind": "complex",
+      "title": "Explicit full balance",
+      "as_of": "2026-10-24",
+      "given": "Explicit full balance",
+      "inputs": {
+        "kind": "personal",
+        "payment_type": "due_full"
+      },
+      "expected": "instalment",
+      "working": [
+        "Explicit shape wins, except defaultPaymentType intentionally reads kind only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-021",
+      "case_id": "MK-CF-F-021-C04",
+      "name": "defaultPaymentType",
+      "kind": "complex",
+      "title": "Override card loan",
+      "as_of": "2026-10-24",
+      "given": "Override card loan",
+      "inputs": {
+        "kind": "credit_card",
+        "payment_type": "instalment"
+      },
+      "expected": "revolving",
+      "working": [
+        "Explicit shape wins, except defaultPaymentType intentionally reads kind only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-021",
+      "case_id": "MK-CF-F-021-C05",
+      "name": "defaultPaymentType",
+      "kind": "edge",
+      "title": "HELOC",
+      "as_of": "2026-10-24",
+      "given": "HELOC",
+      "inputs": {
+        "kind": "heloc",
+        "payment_type": null
+      },
+      "expected": "revolving",
+      "working": [
+        "Explicit shape wins, except defaultPaymentType intentionally reads kind only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-022",
+      "case_id": "MK-CF-F-022-C01",
+      "name": "paymentShape",
+      "kind": "easy",
+      "title": "Mortgage",
+      "as_of": "2026-10-24",
+      "given": "Mortgage",
+      "inputs": {
+        "kind": "mortgage",
+        "payment_type": null
+      },
+      "expected": "instalment",
+      "working": [
+        "Explicit shape wins, except defaultPaymentType intentionally reads kind only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-022",
+      "case_id": "MK-CF-F-022-C02",
+      "name": "paymentShape",
+      "kind": "easy",
+      "title": "Card",
+      "as_of": "2026-10-24",
+      "given": "Card",
+      "inputs": {
+        "kind": "credit_card",
+        "payment_type": null
+      },
+      "expected": "revolving",
+      "working": [
+        "Explicit shape wins, except defaultPaymentType intentionally reads kind only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-022",
+      "case_id": "MK-CF-F-022-C03",
+      "name": "paymentShape",
+      "kind": "complex",
+      "title": "Explicit full balance",
+      "as_of": "2026-10-24",
+      "given": "Explicit full balance",
+      "inputs": {
+        "kind": "personal",
+        "payment_type": "due_full"
+      },
+      "expected": "due_full",
+      "working": [
+        "Explicit shape wins, except defaultPaymentType intentionally reads kind only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-022",
+      "case_id": "MK-CF-F-022-C04",
+      "name": "paymentShape",
+      "kind": "complex",
+      "title": "Override card loan",
+      "as_of": "2026-10-24",
+      "given": "Override card loan",
+      "inputs": {
+        "kind": "credit_card",
+        "payment_type": "instalment"
+      },
+      "expected": "instalment",
+      "working": [
+        "Explicit shape wins, except defaultPaymentType intentionally reads kind only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-022",
+      "case_id": "MK-CF-F-022-C05",
+      "name": "paymentShape",
+      "kind": "edge",
+      "title": "HELOC",
+      "as_of": "2026-10-24",
+      "given": "HELOC",
+      "inputs": {
+        "kind": "heloc",
+        "payment_type": null
+      },
+      "expected": "revolving",
+      "working": [
+        "Explicit shape wins, except defaultPaymentType intentionally reads kind only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-023",
+      "case_id": "MK-CF-F-023-C01",
+      "name": "requiredPayment",
+      "kind": "easy",
+      "title": "One instalment",
+      "as_of": "2026-10-24",
+      "given": "One instalment",
+      "inputs": {
+        "debts": [
+          {
+            "balance": 10000,
+            "minimum": 100,
+            "payment_override": 200,
+            "shape": "instalment"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "200",
+        "shown": "$200"
+      },
+      "working": [
+        "For each debt: full balance is not a monthly instalment; otherwise max(minimum, chosen payment). Sum only at aggregate readers."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-023",
+      "case_id": "MK-CF-F-023-C02",
+      "name": "requiredPayment",
+      "kind": "easy",
+      "title": "One due in full",
+      "as_of": "2026-10-24",
+      "given": "One due in full",
+      "inputs": {
+        "debts": [
+          {
+            "balance": 10000,
+            "minimum": 100,
+            "payment_override": 200,
+            "shape": "due_full"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "For each debt: full balance is not a monthly instalment; otherwise max(minimum, chosen payment). Sum only at aggregate readers."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-023",
+      "case_id": "MK-CF-F-023-C03",
+      "name": "requiredPayment",
+      "kind": "complex",
+      "title": "Two payment choices",
+      "as_of": "2026-10-24",
+      "given": "Two payment choices",
+      "inputs": {
+        "debts": [
+          {
+            "balance": "12311.17",
+            "minimum": "231.43",
+            "payment_override": "311.19",
+            "shape": "instalment"
+          },
+          {
+            "balance": "3111.17",
+            "minimum": "93.19",
+            "payment_override": "71.13",
+            "shape": "revolving"
+          }
+        ]
+      },
+      "expected": {
+        "per_debt": [
+          {
+            "exact": "311.19",
+            "shown": "$311",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "93.19",
+            "shown": "$93",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "sum_for_comparison": {
+          "exact": "404.38",
+          "shown": "$404",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "For each debt: full balance is not a monthly instalment; otherwise max(minimum, chosen payment). Sum only at aggregate readers."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-023",
+      "case_id": "MK-CF-F-023-C04",
+      "name": "requiredPayment",
+      "kind": "complex",
+      "title": "Three debts",
+      "as_of": "2026-10-24",
+      "given": "Three debts",
+      "inputs": {
+        "debts": [
+          {
+            "balance": "12311.17",
+            "minimum": "231.43",
+            "payment_override": "311.19",
+            "shape": "instalment"
+          },
+          {
+            "balance": "3111.17",
+            "minimum": "93.19",
+            "payment_override": "171.13",
+            "shape": "revolving"
+          },
+          {
+            "balance": "9711.13",
+            "minimum": 0,
+            "payment_override": 0,
+            "shape": "due_full"
+          }
+        ]
+      },
+      "expected": {
+        "per_debt": [
+          {
+            "exact": "311.19",
+            "shown": "$311",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "171.13",
+            "shown": "$171",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "sum_for_comparison": {
+          "exact": "482.32",
+          "shown": "$482",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "For each debt: full balance is not a monthly instalment; otherwise max(minimum, chosen payment). Sum only at aggregate readers."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-023",
+      "case_id": "MK-CF-F-023-C05",
+      "name": "requiredPayment",
+      "kind": "edge",
+      "title": "Confirmed empty",
+      "as_of": "2026-10-24",
+      "given": "Confirmed empty",
+      "inputs": {
+        "debts": []
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "For each debt: full balance is not a monthly instalment; otherwise max(minimum, chosen payment). Sum only at aggregate readers."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-024",
+      "case_id": "MK-CF-F-024-C01",
+      "name": "totalDebtMonthly",
+      "kind": "easy",
+      "title": "One instalment",
+      "as_of": "2026-10-24",
+      "given": "One instalment",
+      "inputs": {
+        "debts": [
+          {
+            "balance": 10000,
+            "minimum": 100,
+            "payment_override": 200,
+            "shape": "instalment"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "200",
+        "shown": "$200"
+      },
+      "working": [
+        "For each debt: full balance is not a monthly instalment; otherwise max(minimum, chosen payment). Sum only at aggregate readers."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-024",
+      "case_id": "MK-CF-F-024-C02",
+      "name": "totalDebtMonthly",
+      "kind": "easy",
+      "title": "One due in full",
+      "as_of": "2026-10-24",
+      "given": "One due in full",
+      "inputs": {
+        "debts": [
+          {
+            "balance": 10000,
+            "minimum": 100,
+            "payment_override": 200,
+            "shape": "due_full"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "For each debt: full balance is not a monthly instalment; otherwise max(minimum, chosen payment). Sum only at aggregate readers."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-024",
+      "case_id": "MK-CF-F-024-C03",
+      "name": "totalDebtMonthly",
+      "kind": "complex",
+      "title": "Two payment choices",
+      "as_of": "2026-10-24",
+      "given": "Two payment choices",
+      "inputs": {
+        "debts": [
+          {
+            "balance": "12311.17",
+            "minimum": "231.43",
+            "payment_override": "311.19",
+            "shape": "instalment"
+          },
+          {
+            "balance": "3111.17",
+            "minimum": "93.19",
+            "payment_override": "71.13",
+            "shape": "revolving"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "404.38",
+        "shown": "$404"
+      },
+      "working": [
+        "For each debt: full balance is not a monthly instalment; otherwise max(minimum, chosen payment). Sum only at aggregate readers."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-024",
+      "case_id": "MK-CF-F-024-C04",
+      "name": "totalDebtMonthly",
+      "kind": "complex",
+      "title": "Three debts",
+      "as_of": "2026-10-24",
+      "given": "Three debts",
+      "inputs": {
+        "debts": [
+          {
+            "balance": "12311.17",
+            "minimum": "231.43",
+            "payment_override": "311.19",
+            "shape": "instalment"
+          },
+          {
+            "balance": "3111.17",
+            "minimum": "93.19",
+            "payment_override": "171.13",
+            "shape": "revolving"
+          },
+          {
+            "balance": "9711.13",
+            "minimum": 0,
+            "payment_override": 0,
+            "shape": "due_full"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "482.32",
+        "shown": "$482"
+      },
+      "working": [
+        "For each debt: full balance is not a monthly instalment; otherwise max(minimum, chosen payment). Sum only at aggregate readers."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-024",
+      "case_id": "MK-CF-F-024-C05",
+      "name": "totalDebtMonthly",
+      "kind": "edge",
+      "title": "Confirmed empty",
+      "as_of": "2026-10-24",
+      "given": "Confirmed empty",
+      "inputs": {
+        "debts": []
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "For each debt: full balance is not a monthly instalment; otherwise max(minimum, chosen payment). Sum only at aggregate readers."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-025",
+      "case_id": "MK-CF-F-025-C01",
+      "name": "minimumDebtService",
+      "kind": "easy",
+      "title": "One instalment",
+      "as_of": "2026-10-24",
+      "given": "One instalment",
+      "inputs": {
+        "debts": [
+          {
+            "balance": 10000,
+            "minimum": 100,
+            "payment_override": 200,
+            "shape": "instalment"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "100",
+        "shown": "$100"
+      },
+      "working": [
+        "Add minimums, excluding due-in-full debts."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-025",
+      "case_id": "MK-CF-F-025-C02",
+      "name": "minimumDebtService",
+      "kind": "easy",
+      "title": "One due in full",
+      "as_of": "2026-10-24",
+      "given": "One due in full",
+      "inputs": {
+        "debts": [
+          {
+            "balance": 10000,
+            "minimum": 100,
+            "payment_override": 200,
+            "shape": "due_full"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "Add minimums, excluding due-in-full debts."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-025",
+      "case_id": "MK-CF-F-025-C03",
+      "name": "minimumDebtService",
+      "kind": "complex",
+      "title": "Two payment choices",
+      "as_of": "2026-10-24",
+      "given": "Two payment choices",
+      "inputs": {
+        "debts": [
+          {
+            "balance": "12311.17",
+            "minimum": "231.43",
+            "payment_override": "311.19",
+            "shape": "instalment"
+          },
+          {
+            "balance": "3111.17",
+            "minimum": "93.19",
+            "payment_override": "71.13",
+            "shape": "revolving"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "324.62",
+        "shown": "$325"
+      },
+      "working": [
+        "Add minimums, excluding due-in-full debts."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-025",
+      "case_id": "MK-CF-F-025-C04",
+      "name": "minimumDebtService",
+      "kind": "complex",
+      "title": "Three debts",
+      "as_of": "2026-10-24",
+      "given": "Three debts",
+      "inputs": {
+        "debts": [
+          {
+            "balance": "12311.17",
+            "minimum": "231.43",
+            "payment_override": "311.19",
+            "shape": "instalment"
+          },
+          {
+            "balance": "3111.17",
+            "minimum": "93.19",
+            "payment_override": "171.13",
+            "shape": "revolving"
+          },
+          {
+            "balance": "9711.13",
+            "minimum": 0,
+            "payment_override": 0,
+            "shape": "due_full"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "324.62",
+        "shown": "$325"
+      },
+      "working": [
+        "Add minimums, excluding due-in-full debts."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-025",
+      "case_id": "MK-CF-F-025-C05",
+      "name": "minimumDebtService",
+      "kind": "edge",
+      "title": "Confirmed empty",
+      "as_of": "2026-10-24",
+      "given": "Confirmed empty",
+      "inputs": {
+        "debts": []
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "Add minimums, excluding due-in-full debts."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-026",
+      "case_id": "MK-CF-F-026-C01",
+      "name": "actualDebtPayment",
+      "kind": "easy",
+      "title": "One instalment",
+      "as_of": "2026-10-24",
+      "given": "One instalment",
+      "inputs": {
+        "debts": [
+          {
+            "balance": 10000,
+            "minimum": 100,
+            "payment_override": 200,
+            "shape": "instalment"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "200",
+        "shown": "$200"
+      },
+      "working": [
+        "For each debt: full balance is not a monthly instalment; otherwise max(minimum, chosen payment). Sum only at aggregate readers."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-026",
+      "case_id": "MK-CF-F-026-C02",
+      "name": "actualDebtPayment",
+      "kind": "easy",
+      "title": "One due in full",
+      "as_of": "2026-10-24",
+      "given": "One due in full",
+      "inputs": {
+        "debts": [
+          {
+            "balance": 10000,
+            "minimum": 100,
+            "payment_override": 200,
+            "shape": "due_full"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "For each debt: full balance is not a monthly instalment; otherwise max(minimum, chosen payment). Sum only at aggregate readers."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-026",
+      "case_id": "MK-CF-F-026-C03",
+      "name": "actualDebtPayment",
+      "kind": "complex",
+      "title": "Two payment choices",
+      "as_of": "2026-10-24",
+      "given": "Two payment choices",
+      "inputs": {
+        "debts": [
+          {
+            "balance": "12311.17",
+            "minimum": "231.43",
+            "payment_override": "311.19",
+            "shape": "instalment"
+          },
+          {
+            "balance": "3111.17",
+            "minimum": "93.19",
+            "payment_override": "71.13",
+            "shape": "revolving"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "404.38",
+        "shown": "$404"
+      },
+      "working": [
+        "For each debt: full balance is not a monthly instalment; otherwise max(minimum, chosen payment). Sum only at aggregate readers."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-026",
+      "case_id": "MK-CF-F-026-C04",
+      "name": "actualDebtPayment",
+      "kind": "complex",
+      "title": "Three debts",
+      "as_of": "2026-10-24",
+      "given": "Three debts",
+      "inputs": {
+        "debts": [
+          {
+            "balance": "12311.17",
+            "minimum": "231.43",
+            "payment_override": "311.19",
+            "shape": "instalment"
+          },
+          {
+            "balance": "3111.17",
+            "minimum": "93.19",
+            "payment_override": "171.13",
+            "shape": "revolving"
+          },
+          {
+            "balance": "9711.13",
+            "minimum": 0,
+            "payment_override": 0,
+            "shape": "due_full"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "482.32",
+        "shown": "$482"
+      },
+      "working": [
+        "For each debt: full balance is not a monthly instalment; otherwise max(minimum, chosen payment). Sum only at aggregate readers."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-026",
+      "case_id": "MK-CF-F-026-C05",
+      "name": "actualDebtPayment",
+      "kind": "edge",
+      "title": "Required but unpaid",
+      "as_of": "2026-10-24",
+      "given": "Required but unpaid",
+      "inputs": {
+        "debts": [
+          {
+            "balance": 10000,
+            "minimum": 100,
+            "payment_override": 200,
+            "shape": "instalment"
+          }
+        ],
+        "payments_logged_this_month": []
+      },
+      "expected": {
+        "state": "RULE UNCLEAR",
+        "reason": "Legacy planned meaning versus name actually paid",
+        "readings": {
+          "planned_monthly": {
+            "exact": "200",
+            "shown": "$200",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "actually_paid": {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        }
+      },
+      "working": [
+        "200 is reserved; no log establishes cash paid."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "exact": "200",
+        "shown": "$200"
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-027",
+      "case_id": "MK-CF-F-027-C01",
+      "name": "totalDebtBalance",
+      "kind": "easy",
+      "title": "One instalment",
+      "as_of": "2026-10-24",
+      "given": "One instalment",
+      "inputs": {
+        "debts": [
+          {
+            "balance": 10000,
+            "minimum": 100,
+            "payment_override": 200,
+            "shape": "instalment"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "10000",
+        "shown": "$10,000"
+      },
+      "working": [
+        "Add known balances."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-027",
+      "case_id": "MK-CF-F-027-C02",
+      "name": "totalDebtBalance",
+      "kind": "easy",
+      "title": "One due in full",
+      "as_of": "2026-10-24",
+      "given": "One due in full",
+      "inputs": {
+        "debts": [
+          {
+            "balance": 10000,
+            "minimum": 100,
+            "payment_override": 200,
+            "shape": "due_full"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "10000",
+        "shown": "$10,000"
+      },
+      "working": [
+        "Add known balances."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-027",
+      "case_id": "MK-CF-F-027-C03",
+      "name": "totalDebtBalance",
+      "kind": "complex",
+      "title": "Two payment choices",
+      "as_of": "2026-10-24",
+      "given": "Two payment choices",
+      "inputs": {
+        "debts": [
+          {
+            "balance": "12311.17",
+            "minimum": "231.43",
+            "payment_override": "311.19",
+            "shape": "instalment"
+          },
+          {
+            "balance": "3111.17",
+            "minimum": "93.19",
+            "payment_override": "71.13",
+            "shape": "revolving"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "15422.34",
+        "shown": "$15,422"
+      },
+      "working": [
+        "Add known balances."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-027",
+      "case_id": "MK-CF-F-027-C04",
+      "name": "totalDebtBalance",
+      "kind": "complex",
+      "title": "Three debts",
+      "as_of": "2026-10-24",
+      "given": "Three debts",
+      "inputs": {
+        "debts": [
+          {
+            "balance": "12311.17",
+            "minimum": "231.43",
+            "payment_override": "311.19",
+            "shape": "instalment"
+          },
+          {
+            "balance": "3111.17",
+            "minimum": "93.19",
+            "payment_override": "171.13",
+            "shape": "revolving"
+          },
+          {
+            "balance": "9711.13",
+            "minimum": 0,
+            "payment_override": 0,
+            "shape": "due_full"
+          }
+        ]
+      },
+      "expected": {
+        "exact": "25133.47",
+        "shown": "$25,133"
+      },
+      "working": [
+        "Add known balances."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-027",
+      "case_id": "MK-CF-F-027-C05",
+      "name": "totalDebtBalance",
+      "kind": "edge",
+      "title": "Confirmed empty",
+      "as_of": "2026-10-24",
+      "given": "Confirmed empty",
+      "inputs": {
+        "debts": []
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "Add known balances."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-028",
+      "case_id": "MK-CF-F-028-C01",
+      "name": "loanPayment",
+      "kind": "easy",
+      "title": "Zero-interest loan",
+      "as_of": "2026-10-24",
+      "given": "Zero-interest loan",
+      "inputs": {
+        "principal": 1200,
+        "apr_percent": "0",
+        "years": "1"
+      },
+      "expected": {
+        "payment": {
+          "exact": "100",
+          "shown": "$100",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "total_paid": {
+          "exact": "1200",
+          "shown": "$1,200",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "interest": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "r=0/12; n=12; P*r/(1−(1+r)^−n), or P/n at r=0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-028",
+      "case_id": "MK-CF-F-028-C02",
+      "name": "loanPayment",
+      "kind": "easy",
+      "title": "Ordinary loan",
+      "as_of": "2026-10-24",
+      "given": "Ordinary loan",
+      "inputs": {
+        "principal": 10000,
+        "apr_percent": "6.00",
+        "years": "5"
+      },
+      "expected": {
+        "payment": {
+          "exact": "193.3280152942791838353043704",
+          "shown": "$193",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "total_paid": {
+          "exact": "11599.68091765675103011826222",
+          "shown": "$11,600",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "interest": {
+          "exact": "1599.68091765675103011826222",
+          "shown": "$1,600",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "r=0.06/12; n=60; P*r/(1−(1+r)^−n), or P/n at r=0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-028",
+      "case_id": "MK-CF-F-028-C03",
+      "name": "loanPayment",
+      "kind": "complex",
+      "title": "Unround loan",
+      "as_of": "2026-10-24",
+      "given": "Unround loan",
+      "inputs": {
+        "principal": "19311.17",
+        "apr_percent": "7.1900",
+        "years": "4"
+      },
+      "expected": {
+        "payment": {
+          "exact": "464.1341936035343180864471511",
+          "shown": "$464",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "total_paid": {
+          "exact": "22278.44129296964726814946325",
+          "shown": "$22,278",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "interest": {
+          "exact": "2967.27129296964726814946325",
+          "shown": "$2,967",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "r=0.0719/12; n=48; P*r/(1−(1+r)^−n), or P/n at r=0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-028",
+      "case_id": "MK-CF-F-028-C04",
+      "name": "loanPayment",
+      "kind": "complex",
+      "title": "Unround second rate",
+      "as_of": "2026-10-24",
+      "given": "Unround second rate",
+      "inputs": {
+        "principal": "7311.43",
+        "apr_percent": "18.3700",
+        "years": "3"
+      },
+      "expected": {
+        "payment": {
+          "exact": "265.6847641787124979802660696",
+          "shown": "$266",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "total_paid": {
+          "exact": "9564.651510433649927289578506",
+          "shown": "$9,565",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "interest": {
+          "exact": "2253.221510433649927289578506",
+          "shown": "$2,253",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "r=0.1837/12; n=36; P*r/(1−(1+r)^−n), or P/n at r=0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-028",
+      "case_id": "MK-CF-F-028-C05",
+      "name": "loanPayment",
+      "kind": "edge",
+      "title": "Zero rate with positive balance",
+      "as_of": "2026-10-24",
+      "given": "Zero rate with positive balance",
+      "inputs": {
+        "principal": 10000,
+        "apr_percent": "0",
+        "years": "1.666666666666666666666666667"
+      },
+      "expected": {
+        "payment": {
+          "exact": "500",
+          "shown": "$500",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "total_paid": {
+          "exact": "10000",
+          "shown": "$10,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "interest": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "r=0/12; n=20; P*r/(1−(1+r)^−n), or P/n at r=0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-029",
+      "case_id": "MK-CF-F-029-C01",
+      "name": "monthsToClear",
+      "kind": "easy",
+      "title": "Zero-interest loan",
+      "as_of": "2026-10-24",
+      "given": "Zero-interest loan",
+      "inputs": {
+        "principal": 1200,
+        "apr_decimal": 0,
+        "monthly_payment": 100
+      },
+      "expected": {
+        "exact": "12",
+        "shown": "12"
+      },
+      "working": [
+        "Each month interest=remaining*0/12; pay min(100, balance+interest); count until 0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-029",
+      "case_id": "MK-CF-F-029-C02",
+      "name": "monthsToClear",
+      "kind": "easy",
+      "title": "Ordinary loan",
+      "as_of": "2026-10-24",
+      "given": "Ordinary loan",
+      "inputs": {
+        "principal": 10000,
+        "apr_decimal": "0.06",
+        "monthly_payment": 200
+      },
+      "expected": {
+        "exact": "58",
+        "shown": "58"
+      },
+      "working": [
+        "Each month interest=remaining*0.06/12; pay min(200, balance+interest); count until 0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-029",
+      "case_id": "MK-CF-F-029-C03",
+      "name": "monthsToClear",
+      "kind": "complex",
+      "title": "Unround loan",
+      "as_of": "2026-10-24",
+      "given": "Unround loan",
+      "inputs": {
+        "principal": "19311.17",
+        "apr_decimal": "0.0719",
+        "monthly_payment": "497.31"
+      },
+      "expected": {
+        "exact": "45",
+        "shown": "45"
+      },
+      "working": [
+        "Each month interest=remaining*0.0719/12; pay min(497.31, balance+interest); count until 0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-029",
+      "case_id": "MK-CF-F-029-C04",
+      "name": "monthsToClear",
+      "kind": "complex",
+      "title": "Unround second rate",
+      "as_of": "2026-10-24",
+      "given": "Unround second rate",
+      "inputs": {
+        "principal": "7311.43",
+        "apr_decimal": "0.1837",
+        "monthly_payment": "311.17"
+      },
+      "expected": {
+        "exact": "30",
+        "shown": "30"
+      },
+      "working": [
+        "Each month interest=remaining*0.1837/12; pay min(311.17, balance+interest); count until 0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-029",
+      "case_id": "MK-CF-F-029-C05",
+      "name": "monthsToClear",
+      "kind": "edge",
+      "title": "Payment equals interest",
+      "as_of": "2026-10-24",
+      "given": "Payment equals interest",
+      "inputs": {
+        "principal": 10000,
+        "apr_decimal": "0.12",
+        "monthly_payment": 100
+      },
+      "expected": {
+        "state": "REFUSES",
+        "reason": "Payment equals 100 monthly interest; never clears"
+      },
+      "working": [
+        "10000 × .12 ÷ 12 = 100; no principal retired."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-030",
+      "case_id": "MK-CF-F-030-C01",
+      "name": "paymentToClearBy",
+      "kind": "easy",
+      "title": "Zero-interest loan",
+      "as_of": "2026-10-24",
+      "given": "Zero-interest loan",
+      "inputs": {
+        "principal": 1200,
+        "apr_decimal": 0,
+        "months": 12
+      },
+      "expected": {
+        "exact": "100.00",
+        "shown": "$100"
+      },
+      "working": [
+        "Exact payment 100; upward cent = 100.00."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-030",
+      "case_id": "MK-CF-F-030-C02",
+      "name": "paymentToClearBy",
+      "kind": "easy",
+      "title": "Ordinary loan",
+      "as_of": "2026-10-24",
+      "given": "Ordinary loan",
+      "inputs": {
+        "principal": 10000,
+        "apr_decimal": "0.06",
+        "months": 60
+      },
+      "expected": {
+        "exact": "193.33",
+        "shown": "$193"
+      },
+      "working": [
+        "Exact payment 193.3280152942791838353043704; upward cent = 193.33."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-030",
+      "case_id": "MK-CF-F-030-C03",
+      "name": "paymentToClearBy",
+      "kind": "complex",
+      "title": "Unround loan",
+      "as_of": "2026-10-24",
+      "given": "Unround loan",
+      "inputs": {
+        "principal": "19311.17",
+        "apr_decimal": "0.0719",
+        "months": 48
+      },
+      "expected": {
+        "exact": "464.14",
+        "shown": "$464"
+      },
+      "working": [
+        "Exact payment 464.1341936035343180864471511; upward cent = 464.14."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-030",
+      "case_id": "MK-CF-F-030-C04",
+      "name": "paymentToClearBy",
+      "kind": "complex",
+      "title": "Unround second rate",
+      "as_of": "2026-10-24",
+      "given": "Unround second rate",
+      "inputs": {
+        "principal": "7311.43",
+        "apr_decimal": "0.1837",
+        "months": 36
+      },
+      "expected": {
+        "exact": "265.69",
+        "shown": "$266"
+      },
+      "working": [
+        "Exact payment 265.6847641787124979802660696; upward cent = 265.69."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-030",
+      "case_id": "MK-CF-F-030-C05",
+      "name": "paymentToClearBy",
+      "kind": "edge",
+      "title": "Zero rate with positive balance",
+      "as_of": "2026-10-24",
+      "given": "Zero rate with positive balance",
+      "inputs": {
+        "principal": 10000,
+        "apr_decimal": 0,
+        "months": 20
+      },
+      "expected": {
+        "exact": "500.00",
+        "shown": "$500"
+      },
+      "working": [
+        "Exact payment 500; upward cent = 500.00."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-034",
+      "case_id": "MK-CF-F-034-C01",
+      "name": "payoffPlan",
+      "kind": "easy",
+      "title": "One zero-rate debt",
+      "as_of": "2026-10-24",
+      "given": "One zero-rate debt",
+      "inputs": {
+        "debts": [
+          {
+            "name": "A",
+            "balance": 1000,
+            "apr": 0,
+            "minimum": 100
+          }
+        ],
+        "extra": 0
+      },
+      "expected": {
+        "months": {
+          "exact": "10",
+          "shown": "10",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "interest": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "order": [
+          {
+            "name": "A",
+            "month": {
+              "exact": "10",
+              "shown": "10",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            }
+          }
+        ]
+      },
+      "working": [
+        "1000 ÷ 100 = 10 months."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-034",
+      "case_id": "MK-CF-F-034-C02",
+      "name": "payoffPlan",
+      "kind": "easy",
+      "title": "Extra halves duration",
+      "as_of": "2026-10-24",
+      "given": "Extra halves duration",
+      "inputs": {
+        "debts": [
+          {
+            "name": "A",
+            "balance": 1000,
+            "apr": 0,
+            "minimum": 100
+          }
+        ],
+        "extra": 100
+      },
+      "expected": {
+        "months": {
+          "exact": "5",
+          "shown": "5",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "interest": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "order": [
+          {
+            "name": "A",
+            "month": {
+              "exact": "5",
+              "shown": "5",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            }
+          }
+        ]
+      },
+      "working": [
+        "1000 ÷ (100+100) = 5."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-034",
+      "case_id": "MK-CF-F-034-C03",
+      "name": "payoffPlan",
+      "kind": "complex",
+      "title": "Freed minimum rolls over",
+      "as_of": "2026-10-24",
+      "given": "Freed minimum rolls over",
+      "inputs": {
+        "debts": [
+          {
+            "name": "A",
+            "balance": "111.17",
+            "apr": 0,
+            "minimum": "100.13"
+          },
+          {
+            "name": "B",
+            "balance": "388.83",
+            "apr": 0,
+            "minimum": "99.87"
+          }
+        ],
+        "extra": 50,
+        "method": "snowball"
+      },
+      "expected": {
+        "months": {
+          "exact": "2",
+          "shown": "2",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "interest": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "order": [
+          {
+            "name": "A",
+            "month": {
+              "exact": "1",
+              "shown": "1",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            }
+          },
+          {
+            "name": "B",
+            "month": {
+              "exact": "2",
+              "shown": "2",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            }
+          }
+        ]
+      },
+      "working": [
+        "Budget = 100.13+99.87+50=250.",
+        "Month 1 minimums leave A 11.04, B 288.96; extra 50 clears A and leaves B 250.",
+        "Month 2 rolling budget 250 clears B."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-034",
+      "case_id": "MK-CF-F-034-C04",
+      "name": "payoffPlan",
+      "kind": "complex",
+      "title": "Delayed start",
+      "as_of": "2026-10-24",
+      "given": "Delayed start",
+      "inputs": {
+        "debts": [
+          {
+            "name": "A",
+            "balance": "731.17",
+            "apr": 0,
+            "minimum": "400.13",
+            "first_payment_date": "2026-12-01"
+          }
+        ],
+        "extra": 0
+      },
+      "expected": {
+        "months": {
+          "exact": "4",
+          "shown": "4",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "interest": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "order": [
+          {
+            "name": "A",
+            "month": {
+              "exact": "4",
+              "shown": "4",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            }
+          }
+        ]
+      },
+      "working": [
+        "October month1, November2: no payment; December3 400.13; January4 remaining331.04."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-034",
+      "case_id": "MK-CF-F-034-C05",
+      "name": "payoffPlan",
+      "kind": "edge",
+      "title": "Amortizing after horizon",
+      "as_of": "2026-10-24",
+      "given": "Amortizing after horizon",
+      "inputs": {
+        "debts": [
+          {
+            "name": "A",
+            "balance": 60100,
+            "apr": 0,
+            "minimum": 100
+          }
+        ],
+        "extra": 0
+      },
+      "expected": {
+        "state": "HORIZON EXHAUSTED",
+        "remaining_at_month_600": {
+          "exact": "100",
+          "shown": "$100",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "actual_payoff_month": {
+          "exact": "601",
+          "shown": "601",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "60100 ÷ 100 = 601; finite, not never."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "state": "NEVER",
+        "remaining_at_month_600": {
+          "exact": "100",
+          "shown": "$100",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-159",
+      "case_id": "MK-CF-F-159-C01",
+      "name": "isRecurringDebt",
+      "kind": "easy",
+      "title": "Mortgage",
+      "as_of": "2026-10-24",
+      "given": "Mortgage",
+      "inputs": {
+        "kind": "mortgage",
+        "payment_type": null
+      },
+      "expected": true,
+      "working": [
+        "Explicit shape wins, except defaultPaymentType intentionally reads kind only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-159",
+      "case_id": "MK-CF-F-159-C02",
+      "name": "isRecurringDebt",
+      "kind": "easy",
+      "title": "Card",
+      "as_of": "2026-10-24",
+      "given": "Card",
+      "inputs": {
+        "kind": "credit_card",
+        "payment_type": null
+      },
+      "expected": false,
+      "working": [
+        "Explicit shape wins, except defaultPaymentType intentionally reads kind only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-159",
+      "case_id": "MK-CF-F-159-C03",
+      "name": "isRecurringDebt",
+      "kind": "complex",
+      "title": "Explicit full balance",
+      "as_of": "2026-10-24",
+      "given": "Explicit full balance",
+      "inputs": {
+        "kind": "personal",
+        "payment_type": "due_full"
+      },
+      "expected": false,
+      "working": [
+        "Explicit shape wins, except defaultPaymentType intentionally reads kind only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-159",
+      "case_id": "MK-CF-F-159-C04",
+      "name": "isRecurringDebt",
+      "kind": "complex",
+      "title": "Override card loan",
+      "as_of": "2026-10-24",
+      "given": "Override card loan",
+      "inputs": {
+        "kind": "credit_card",
+        "payment_type": "instalment"
+      },
+      "expected": true,
+      "working": [
+        "Explicit shape wins, except defaultPaymentType intentionally reads kind only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-159",
+      "case_id": "MK-CF-F-159-C05",
+      "name": "isRecurringDebt",
+      "kind": "edge",
+      "title": "HELOC",
+      "as_of": "2026-10-24",
+      "given": "HELOC",
+      "inputs": {
+        "kind": "heloc",
+        "payment_type": null
+      },
+      "expected": false,
+      "working": [
+        "Explicit shape wins, except defaultPaymentType intentionally reads kind only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-235",
+      "case_id": "MK-CF-F-235-C01",
+      "name": "paysInMonth",
+      "kind": "easy",
+      "title": "Active instalment",
+      "as_of": "2026-10-24",
+      "given": "Active instalment",
+      "inputs": {
+        "debt": {
+          "name": "A",
+          "shape": "instalment",
+          "first_payment_date": "2026-09-01",
+          "payoff_date": null,
+          "balance": 10000,
+          "required_payment": 250
+        },
+        "month": "2026-10"
+      },
+      "expected": true,
+      "working": [
+        "Compare month keys inclusively; only due month for a full-balance debt."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-235",
+      "case_id": "MK-CF-F-235-C02",
+      "name": "paysInMonth",
+      "kind": "easy",
+      "title": "Not started",
+      "as_of": "2026-10-24",
+      "given": "Not started",
+      "inputs": {
+        "debt": {
+          "name": "A",
+          "shape": "instalment",
+          "first_payment_date": "2026-11-01",
+          "payoff_date": null,
+          "balance": 10000,
+          "required_payment": 250
+        },
+        "month": "2026-10"
+      },
+      "expected": false,
+      "working": [
+        "Compare month keys inclusively; only due month for a full-balance debt."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-235",
+      "case_id": "MK-CF-F-235-C03",
+      "name": "paysInMonth",
+      "kind": "complex",
+      "title": "Ends in month",
+      "as_of": "2026-10-24",
+      "given": "Ends in month",
+      "inputs": {
+        "debt": {
+          "name": "A",
+          "shape": "instalment",
+          "first_payment_date": "2026-01-01",
+          "payoff_date": "2026-10-02",
+          "balance": "7311.17",
+          "required_payment": "231.43"
+        },
+        "month": "2026-10"
+      },
+      "expected": true,
+      "working": [
+        "Compare month keys inclusively; only due month for a full-balance debt."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-235",
+      "case_id": "MK-CF-F-235-C04",
+      "name": "paysInMonth",
+      "kind": "complex",
+      "title": "Balloon month",
+      "as_of": "2026-10-24",
+      "given": "Balloon month",
+      "inputs": {
+        "debt": {
+          "name": "A",
+          "shape": "due_full",
+          "first_payment_date": null,
+          "payoff_date": "2026-10-29",
+          "balance": "9111.19",
+          "required_payment": 0
+        },
+        "month": "2026-10"
+      },
+      "expected": true,
+      "working": [
+        "Compare month keys inclusively; only due month for a full-balance debt."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-235",
+      "case_id": "MK-CF-F-235-C05",
+      "name": "paysInMonth",
+      "kind": "edge",
+      "title": "Paid off before month",
+      "as_of": "2026-10-24",
+      "given": "Paid off before month",
+      "inputs": {
+        "debt": {
+          "name": "A",
+          "shape": "instalment",
+          "first_payment_date": null,
+          "payoff_date": "2026-09-30",
+          "balance": 0,
+          "required_payment": 250
+        },
+        "month": "2026-10"
+      },
+      "expected": false,
+      "working": [
+        "Compare month keys inclusively; only due month for a full-balance debt."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-236",
+      "case_id": "MK-CF-F-236-C01",
+      "name": "paymentInMonth",
+      "kind": "easy",
+      "title": "Active instalment",
+      "as_of": "2026-10-24",
+      "given": "Active instalment",
+      "inputs": {
+        "debt": {
+          "name": "A",
+          "shape": "instalment",
+          "first_payment_date": "2026-09-01",
+          "payoff_date": null,
+          "balance": 10000,
+          "required_payment": 250
+        },
+        "month": "2026-10"
+      },
+      "expected": {
+        "exact": "250",
+        "shown": "$250"
+      },
+      "working": [
+        "Compare month keys inclusively; only due month for a full-balance debt."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-236",
+      "case_id": "MK-CF-F-236-C02",
+      "name": "paymentInMonth",
+      "kind": "easy",
+      "title": "Not started",
+      "as_of": "2026-10-24",
+      "given": "Not started",
+      "inputs": {
+        "debt": {
+          "name": "A",
+          "shape": "instalment",
+          "first_payment_date": "2026-11-01",
+          "payoff_date": null,
+          "balance": 10000,
+          "required_payment": 250
+        },
+        "month": "2026-10"
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "Compare month keys inclusively; only due month for a full-balance debt."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-236",
+      "case_id": "MK-CF-F-236-C03",
+      "name": "paymentInMonth",
+      "kind": "complex",
+      "title": "Ends in month",
+      "as_of": "2026-10-24",
+      "given": "Ends in month",
+      "inputs": {
+        "debt": {
+          "name": "A",
+          "shape": "instalment",
+          "first_payment_date": "2026-01-01",
+          "payoff_date": "2026-10-02",
+          "balance": "7311.17",
+          "required_payment": "231.43"
+        },
+        "month": "2026-10"
+      },
+      "expected": {
+        "exact": "231.43",
+        "shown": "$231"
+      },
+      "working": [
+        "Compare month keys inclusively; only due month for a full-balance debt."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-236",
+      "case_id": "MK-CF-F-236-C04",
+      "name": "paymentInMonth",
+      "kind": "complex",
+      "title": "Balloon month",
+      "as_of": "2026-10-24",
+      "given": "Balloon month",
+      "inputs": {
+        "debt": {
+          "name": "A",
+          "shape": "due_full",
+          "first_payment_date": null,
+          "payoff_date": "2026-10-29",
+          "balance": "9111.19",
+          "required_payment": 0
+        },
+        "month": "2026-10"
+      },
+      "expected": {
+        "exact": "9111.19",
+        "shown": "$9,111"
+      },
+      "working": [
+        "Compare month keys inclusively; only due month for a full-balance debt."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-236",
+      "case_id": "MK-CF-F-236-C05",
+      "name": "paymentInMonth",
+      "kind": "edge",
+      "title": "Paid off before month",
+      "as_of": "2026-10-24",
+      "given": "Paid off before month",
+      "inputs": {
+        "debt": {
+          "name": "A",
+          "shape": "instalment",
+          "first_payment_date": null,
+          "payoff_date": "2026-09-30",
+          "balance": 0,
+          "required_payment": 250
+        },
+        "month": "2026-10"
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "Compare month keys inclusively; only due month for a full-balance debt."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    }
+  ],
+  "could_not_test": [],
+  "rules_held": [
+    {
+      "rule": "DEC-0393",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“Again context is important. Term to represent Net amount person get should be ‘take-home’. In context of take home base salary use ‘Base salary (take-home)’.” One word for the concept, with the context named in brackets — not a different word per screen.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0496",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "HIS QUESTION: “How you plan to capture the information?” Asked of the Home screen — what is behind each figure it shows.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0641",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "The line reads “Monthly debt payments” and two amounts could go there: the minimum each debt obliges, or the money that actually goes. On a card with a $200 minimum paid at $600, it read $200 and now reads $600. HIS WORDS: “what actually leaves.” The words say payments, and what a person pays is what they pay. The minimum stays on the door for debt-to-income.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-1923",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Current actualcounts only loggeddebt and home-mortgage suppressionexists,but legacy cashflowYear omitsdebt and otherduplicatebudgetdebtslacklinks.",
+      "decision_in_force": "A mortgage or any debt is taken from Debts, by the app, wherever a planned figure needs it — surplus, the emergency fund, anywhere. The person does not add it to planned expenses. On the actual side nothing is assumed paid: a debt counts only when its payment is logged.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-020-C01",
+        "MK-CF-F-020-C02",
+        "MK-CF-F-020-C03",
+        "MK-CF-F-020-C04",
+        "MK-CF-O-020-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-1924",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "On Rent from a property, a mortgage is never part of what the property costs to run. The screen asks for the monthly mortgage payment on that property, if there is one, and the app adds that mortgage to Debts by itself.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-1925",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "Every property, mortgage and debt has a name the person gives it. Each mortgage is matched to a property in Net worth. A property can have no mortgage; a mortgage cannot be without a property. So there are never more mortgages than properties: three properties, three mortgages or fewer.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7607",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Approvedactualinflow is projected monthtake-home;receivedlogs are listed separately and not added twice. This remains a hybrid view and needs honestlabels.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-0440 and DEC-3523 (tenet 4), made without asking him, as his order of 2026-09-30 says. His approved drawing (DEC-0440, 2026-09-28) is newer than the 2026-08-28 words \"nothing is assumed to have arrived\", and the newest approval wins. With $500 recorded as received, Home read $7,700 against Cash flow's $7,200; both read $7,200. The row's formula now says, in plain words, that the inflow is the month's take-home. This settles screen check MK-CF-M-051#1, which was marked as needing a ruling. To reverse: count only recorded payments; both screens move together. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7609",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Currentactualoutflow delegates expensesplusdebtpaidto monthOutflow and Home reads the same declared door.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-0269 and DEC-0345, made without asking him, as his order of 2026-09-30 says. Worked September: Home's box label \"Actual expenses so far\" replaced by \"Outflow (expenses + debt)\". The box read Actual expenses so far $2,998 · Left $4,202; it now prints the Cash flow tab's month, Outflow (expenses + debt) $3,248 with the $250 car loan paid, Left $3,952 on both. Home's month-end sheet offers \"$3,952 of $3,952 left to assign\" (it offered $4,202). To reverse the label: put the old label back; the figures stay the Cash flow tab's. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7682",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Missingdebtpayment produces a reason and blocks planned surplus as stated. No-budget refusal is separately incomplete.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-3523 (tenet 3) and DEC-0345, made without asking him, as his order of 2026-09-30 says. A car loan with no monthly payment entered, with a budget set: the band read \"+No budget set — …\" and the debt's row printed a sentence written for the master file. The row now reads \"payment not entered\" where the amount would be, the band reads —, and under the rows: \"Car loan's payment is not entered, so there is no planned surplus — we won't guess one.\" ACTUAL is unchanged. To reverse: give the debt's row and the surplus their earlier words. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-156-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7795",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Sharedgrowth F-229still depends on zero-rate-incomplete F-126;one-producer use is not sufficientwithout a valid0%branch.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-3523 (tenet 4) and DEC-0345, made without asking him, as his order of 2026-09-30 says. Single filer, $60,000 of wages, $4,800 into a 401(k), no rate typed: sign-up worked its own rate, 8.37%, tax $5,020 and take-home $50,180 a year, beside ≈ $4,230 a month on the same card. It now reads MK-CF-F-181 rateInForce through MK-CF-O-004 incomeSummary: 7.41%, $4,444 and $50,756 a year ($4,230 a month), as Cash flow's Income summary, and the Taxes step offers the calculated rate at about 7% (it offered about 8%). The months to clear a debt read MK-CF-F-029 monthsToClear ($10,000 at 18%: $300 a month clears in 47 months; $100 a month never clears) and the growth reads MK-CF-F-229 balanceGrownTo ($300,000 and $1,500 a month at 4.6% for 15 years): the same figures as before, through one formula each. None of these is stored in the profile. To reverse: give sign-up back its own incomeTaxRate, debtPayoff and fv. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-126-C05",
+        "MK-CF-F-229-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7949",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Late additions are detected only when saved_at exists;missing timestampreturnsnoneinstead of unknowncoverage.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-3523 (tenets 1 and 4), made without asking him, as his order of 2026-09-30 says. A $150 grocery purchase dated Sep 25, imported on Oct 3, after September's record was saved: it was listed with nothing said, the card reading $1,510 and the list $1,360. The row now says, under its name, that it was added after September closed and is not in September's figures, and under the total that $150 of it was added after September closed. The card stays $1,510: a past month never changes under the person. To reverse: drop the two lines. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-231-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-8085",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Currentactualoutflow delegates expensesplusdebtpaidto monthOutflow and Home reads the same declared door.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his ruling DEC-0333, made without asking him, as his order of 2026-09-30 says. His ruling DEC-0333 (G12, 2026-09-12): the month's outflow, expenses and debt paid, comes from one function, MK-CF-F-194 monthOutflow, never from the screen. Only a past month used it: this month's outflow was summed inside MK-CF-F-005 actualMonthFlow, and Home added the rows again. Both now hand the month's expenses so far and debt paid so far to monthOutflow, and Home prints the door's inflow and outflow. The dollars do not move: A $3,248 · C $9,248 · D $3,548 · E $3,398, and a past month $2,998 + $250 = $3,248. DEC-0333 stays TESTED, now on eight checks in the agreement test. To reverse: restore this-month.ts from the scratchpad backup-1024b/ and revert the two lines in HomeScreen.tsx. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-8152",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Both200HELOC and200cardpayments are deducted once in the approved household;rowsgive350plannedand900actual.",
+      "decision_in_force": "“count them.” His answer to master question Q50, on his own 2026-08-27 worked example: the HELOC payment of 200 and the card payment of 200, which his spending section counts as expenses, come off the surplus too. His household's planned surplus is 350 and its actual 900, not 750 and 1,300.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-8153",
+      "cards": [
+        "MK-CF-F-235",
+        "MK-CF-F-236"
+      ],
+      "verdict": "HELD",
+      "why": "New per-month debt readersrespect inclusive start/payoff bounds and a balloon’s due-month balance.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-1923 and DEC-3523 (tenets 1 and 4), made without asking him, as his order of 2026-09-30 says. One rule for a debt in a month, in two new shared functions, MK-CF-F-235 paysInMonth and MK-CF-F-236 paymentInMonth: from its first payment to its payoff, and a balance due in full once, in its month, at its balance. A $7,200 take-home, a $3,400 budget, the $2,400 mortgage, a $250 car loan whose first payment is Oct 28, a $300 loan paid off in August and a $1,000 tax bill due in full Sep 20: September's planned surplus read +$850, the car loan and the paid-off loan counted and the tax bill left out; it reads +$400 = 7,200 − 3,400 − 2,400 − 1,000, what the Bill calendar's September holds. October's card is unchanged, $1,150. ACTUAL no longer lists the car loan as due the 28th at $0; MONTHLY RECURRING EXPENSES reads $2,400 (it read $2,650); the tax bill is on the BIG-TICKET RADAR at $1,000; Home's due-soon reminder no longer fires for a loan not yet started. MK-CF-M-047, 048 and 049 now say they print on a later month's plan card, from the grid ($7,200 / $6,050 / $1,150), and the retired surplus line and the paycheck card's SURPLUS have their own number, MK-CF-M-078 (it printed under MK-CF-M-049). To reverse: count every debt's payment in this month again, whatever its dates. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    }
+  ]
+}

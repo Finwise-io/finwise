@@ -116,7 +116,7 @@ export default function HoldingDetailScreen() {
     return (
       <ScrollView style={s.root} contentContainerStyle={s.content}>
         <TopBar back />
-        <Text style={s.h1}>This holding isn't here any more</Text>
+        <Text style={s.h1}>This holding isn’t here any more</Text>
         <Text style={s.sub}>It may have been deleted. Your investments live on the Performance tab.</Text>
         <TouchableOpacity accessibilityRole="button" style={s.cta} onPress={() => router.replace('/(tabs)/invest')} accessibilityLabel="Open the Performance tab">
           <Text style={s.ctaTxt}>Open Performance ›</Text>
@@ -325,10 +325,14 @@ export default function HoldingDetailScreen() {
       </View>
 
       {/* vs the stock market — SAME DATES (r24); window words match the math (capped at purchase) */}
+      {/* ON THE PAGE, NOT IN A CARD, ITS BAR EDGE TO EDGE (Holding detail v02, phone A: .bandPage, margin 0 −20 on the page's 20,
+          the rows on the page beneath it). It sat in a white card with the bar 20 points short of each card edge (MM-PF D1,
+          2026-10-25; the dark-green bar standard, 2026-08-11). The not-drawn state (no comparison) sits the same way: one section,
+          one layout. To reverse: put both back in s.card with the bar inCard inset={20}. */}
       {hasPrice && !closed && (row.periodReturn != null && row.benchReturn != null && yardstick != null ? (
-        <View style={s.card} accessible
+        <View style={s.pageSection} accessible
           accessibilityLabel={`Versus ${yardstick}, same dates: your return ${directionSaid('MK-PF-M-023', row.periodReturn)}${yearly ? ' a year' : ''}, the market ${directionSaid('MK-NW-M-070', row.benchReturn)}${yearly ? ' a year' : ''}${row.beatBy != null ? `, you are ${gapWords(row.beatBy)}${yearly ? ' a year' : ''}` : ''}`}>
-          <SectionBand title={`VS ${yardstick.toUpperCase()} · SAME DATES`} />
+          <View style={s.pageBand}><SectionBand title={`VS ${yardstick.toUpperCase()} · SAME DATES`} /></View>
           <View style={s.tRow}><Text style={s.tL}>{row.cappedSince ? 'Your return since purchase' : `Your return, past ${PERIOD_WORDS[period]}`}</Text><Text style={s.tV}>{fig('MK-PF-M-023', row.periodReturn)}{perYear}</Text></View>
           <View style={s.tRow}><Text style={s.tL}>The market, same dates</Text><Text style={s.tV}>{fig('MK-NW-M-070', row.benchReturn)}{perYear}</Text></View>
           {/* THE GAP IS TO TWO DECIMALS, like the two returns it is taken from (precision standard, Q49; 2026-10-21): it printed
@@ -350,12 +354,12 @@ export default function HoldingDetailScreen() {
               the holding and its market yardstick (SPY or AGG) are both read from dividend-adjusted closes, so both
               figures include their dividends and interest. The drawing (holding-detail v02) carries a dated line. */}
           <View style={s.kickerRow}><Text style={s.note}>both include dividends and interest</Text><InfoDot term="benchmark" /></View>
-          {isBondFund && <Text style={s.note}>Bond funds fall when interest rates rise — that's the mechanism, not a prediction.</Text>}
+          {isBondFund && <Text style={s.note}>Bond funds fall when interest rates rise — that’s the mechanism, not a prediction.</Text>}
         </View>
       ) : (
-        <View style={s.card}>
+        <View style={s.pageSection}>
           {/* the band names the yardstick here too; an Unclassified holding has none, and the line says that is why (DEC-2160) */}
-          <SectionBand inCard inset={20} title={`VS ${(yardstick ?? 'the market').toUpperCase()}`} />
+          <View style={s.pageBand}><SectionBand title={`VS ${(yardstick ?? 'the market').toUpperCase()}`} /></View>
           {/* a purchase with no date beside dated ones: no return since purchase, and the reason is that, not the prices
               (2026-10-21, MK-PF-F-040, the lead's decision under DEC-3523 tenet 3) */}
           <Text style={s.note}>{yardstick == null
@@ -484,7 +488,7 @@ export default function HoldingDetailScreen() {
         <TouchableOpacity accessibilityRole="button" style={s.btn} onPress={() => setTxnOpen(true)} accessibilityLabel={`Record a buy or sell for ${ticker}`}>
           <Text style={s.btnTxt}>Record buy/sell</Text>
         </TouchableOpacity>
-        <TouchableOpacity accessibilityRole="button" style={s.btn} onPress={() => setHistoryOpen(true)} accessibilityLabel={`See ${ticker}'s activity`}>
+        <TouchableOpacity accessibilityRole="button" style={s.btn} onPress={() => setHistoryOpen(true)} accessibilityLabel={`See ${ticker}’s activity`}>
           <Text style={s.btnTxt}>Activity</Text>
         </TouchableOpacity>
       </View>
@@ -525,6 +529,9 @@ const s = StyleSheet.create({
   h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 15, color: Colors.textSecondary, marginBottom: Spacing.md },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg, marginBottom: Spacing.md },
+  // a section on the page (VS THE STOCK MARKET, drawing v02 phone A): its rows at the page's gutter, its bar out to the phone's edges
+  pageSection: { marginBottom: Spacing.md },
+  pageBand: { marginHorizontal: -Spacing.lg },   // the page's own 20 of padding, taken back on both sides
   big: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary },
   // the text colour unless a change colours it — "Holding liquidated …" had none, so it fell to the platform's black (drawing check 2026-10-12)
   gainLine: { fontSize: 15, fontWeight: '800', marginTop: 2, color: Colors.textPrimary },

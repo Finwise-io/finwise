@@ -46,12 +46,12 @@ export default function MultiGoalScreen() {
     () => resolveNetWorthRows(uid, op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? []),
     [uid, op, store.nwSeeded, store.assetAccounts, store.liabilities]);
   const baseInputs = useMemo(
-    () => willItLastInputs({ op, accounts, assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus }),
-    [op, accounts, A, store.inflationRate, store.employmentStatus]);
+    () => willItLastInputs({ op, accounts, assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, transactions: store.transactions ?? [] }),
+    [op, accounts, A, store.inflationRate, store.employmentStatus, store.transactions]);
   // 'before' = the adopted plan — read from the same selector as the hub, never retyped
   const before = useMemo(
-    () => selectWillItLast({ op, accounts, assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus }),
-    [op, accounts, A, store.inflationRate, store.employmentStatus]);
+    () => selectWillItLast({ op, accounts, assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, transactions: store.transactions ?? [] }),
+    [op, accounts, A, store.inflationRate, store.employmentStatus, store.transactions]);
 
   // 'before' retire age: the adopted plan's own contribution level through the same walk
   const beforeRetireAge = useMemo(
@@ -166,7 +166,7 @@ export default function MultiGoalScreen() {
       {/* verdict — against the canonical capacity (your regular bills are already counted) */}
       <View style={s.card} accessible
         accessibilityLabel={`Can you do it all? ${weighed.covered ? `Covered, with ${spokenMoney(weighed.spare)} a month to spare` : `Short ${spokenMoney(Math.abs(weighed.spare))} a month`}`}>
-        <SectionBand title="CAN YOU DO IT ALL?" />
+        <SectionBand inCard inset={Spacing.md} title="CAN YOU DO IT ALL?" />
         <Text style={s.hint}>Your regular bills, including the mortgage, are already counted.</Text>
         <Text style={[s.verdict, { color: weighed.covered ? Colors.primary : Colors.red }]}>
           {weighed.covered ? `Covered — ${maskedMoney(weighed.spare)}/month to spare` : `Short ${maskedMoney(Math.abs(weighed.spare))}/month`}
@@ -190,7 +190,7 @@ export default function MultiGoalScreen() {
       {before.chance != null && weighed.chance != null && (
         <View style={s.card} accessible
           accessibilityLabel={`Effect on retirement: will-it-last ${before.chance} percent to ${weighed.chance} percent. Estimate, not a promise.`}>
-          <SectionBand title="EFFECT ON RETIREMENT" />
+          <SectionBand inCard inset={Spacing.md} title="EFFECT ON RETIREMENT" />
           {beforeRetireAge != null && weighed.retireAge != null && (
             <Row label="Earliest retire age" value={`${beforeRetireAge} → ${weighed.retireAge}`} />
           )}

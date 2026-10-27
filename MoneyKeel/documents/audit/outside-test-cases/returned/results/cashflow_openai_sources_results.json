@@ -1,0 +1,2167 @@
+{
+ "batch": "cf module — MoneyKeel_CashFlow_Source_Checks.json (primary sources, statutory checks, 100 witnesses incl. the 48 band-top / one-dollar-above witnesses, cross-card checks)",
+ "reviewer": "OpenAI independent specification reviewer, 2026-10-24",
+ "run_by": "Claude Code, CFR-4",
+ "run_on": "2026-10-25",
+ "test_file": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts",
+ "source": "returned/MoneyKeel_CashFlow_Independent_Audit_Package/MoneyKeel_CashFlow_Independent_Audit/audit_results/MoneyKeel_CashFlow_Source_Checks.json",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts → 110 passed, 0 failed, 110 total (100 witnesses — the two-earner payroll witness as two halves — 2 APP WRONG items as test.failing with twins, constant checks, X6, the coverage guard). npx tsc --noEmit: clean.",
+ "ready_to_close": false,
+ "primary_sources": [
+  {
+   "key": "irs_2026",
+   "source": "IRS Revenue Procedure 2025-32",
+   "url": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf",
+   "sections": "4.01,4.03,4.14",
+   "checked_on": "2026-10-24",
+   "scope": "2026 ordinary bands, capital-gain thresholds, standard and aged deductions",
+   "app_register": "TAX_BRACKETS, TAX_TABLES, STANDARD_DEDUCTION, LTCG, TAX_YEAR (Rev. Proc. 2025-32 §§4.01, 4.03, 4.14)"
+  },
+  {
+   "key": "retirement_2026",
+   "source": "IRS Notice 2025-67",
+   "url": "https://www.irs.gov/pub/irs-drop/n-25-67.pdf",
+   "sections": "2026 cost-of-living adjusted limitations",
+   "checked_on": "2026-10-24",
+   "scope": "401(k),IRA,catch-up amounts and age60–63 replacement catch-up",
+   "app_register": "IRS_LIMITS (IRS Notice 2025-67; SECURE 2.0 §109)"
+  },
+  {
+   "key": "hsa_2026",
+   "source": "IRS Revenue Procedure 2025-19",
+   "url": "https://www.irs.gov/pub/irs-drop/rp-25-19.pdf",
+   "sections": "2.01(1)",
+   "checked_on": "2026-10-24",
+   "scope": "2026 HSA self/family bases",
+   "app_register": "annualHsaLimit (Rev. Proc. 2025-19)"
+  },
+  {
+   "key": "senior",
+   "source": "IRS Schedule1-A (2025), statutory phaseout mechanics",
+   "url": "https://www.irs.gov/pub/irs-pdf/f1040s1a.pdf",
+   "sections": "PartI;PartV lines31–37",
+   "checked_on": "2026-10-24",
+   "scope": "MAGI,per-personphaseout,marriedjointeligibility;2025 form used for mechanics,not2026 ordinary bracket values",
+   "app_register": "SENIOR_DEDUCTION (P.L. 119-21 §70103; IRC §151(d)(5)(C); IRS Schedule 1-A 2025)"
+  },
+  {
+   "key": "ssa",
+   "source": "SSA Contribution and Benefit Base",
+   "url": "https://www.ssa.gov/oact/cola/cbb.html",
+   "sections": "2026 base and employee OASDI rate",
+   "checked_on": "2026-10-24",
+   "app_register": "SS_WAGE_BASE (SSA 2026 contribution and benefit base)"
+  },
+  {
+   "key": "medicare",
+   "source": "IRS Topic560 and Additional Medicare questions/answers",
+   "url": "https://www.irs.gov/taxtopics/tc560",
+   "additional_url": "https://www.irs.gov/businesses/small-businesses-self-employed/questions-and-answers-for-the-additional-medicare-tax",
+   "sections": "Employer withholding versus filing-status liability",
+   "checked_on": "2026-10-24",
+   "app_register": "MEDICARE_ADDITIONAL_THRESHOLD (IRC §3101(b)(2); IRS Topic 560)"
+  },
+  {
+   "key": "hsa_eligibility",
+   "source": "IRS Publication969",
+   "url": "https://www.irs.gov/publications/p969",
+   "sections": "Additional contribution;Enrolled in Medicare;employer contributions;last-month rule",
+   "checked_on": "2026-10-24",
+   "scope": "2025 publication used for continuing eligibility mechanics;2026 dollar bases from RP2025-19",
+   "app_register": "annualHsaLimit cites IRC §223(b)(7) only (\"no contribution once enrolled\"); Publication 969's month-by-month rule is not used — the gap behind witness limits-9"
+  },
+  {
+   "key": "social_security",
+   "source": "IRS Publication915",
+   "url": "https://www.irs.gov/publications/p915",
+   "sections": "Whether benefits are taxable;combined-income worksheet",
+   "checked_on": "2026-10-24",
+   "app_register": "NOT REGISTERED: Publication 915 (how much Social Security is taxable) is not modelled — Social Security is taxed in full (part 17, MK-CF-F-084 APP WRONG)"
+  },
+  {
+   "key": "gains",
+   "source": "IRS Instructions for ScheduleD",
+   "url": "https://www.irs.gov/instructions/i1040sd",
+   "sections": "ScheduleD Tax Worksheet",
+   "checked_on": "2026-10-24",
+   "scope": "Stacking mechanism only;2026 thresholds fromRP2025-32",
+   "app_register": "NOT REGISTERED: the Schedule D Tax Worksheet stacking is not used — the gap behind witness gains-17 / part 16 fix B"
+  },
+  {
+   "key": "age65",
+   "source": "IRS Form1040 instructions",
+   "url": "https://www.irs.gov/instructions/i1040gi",
+   "sections": "Line12d;age attained day before65thbirthday",
+   "checked_on": "2026-10-24",
+   "scope": "Age mechanism;2026 threshold advanced one year from2025 form",
+   "app_register": "ageAttainedInYear (IRC §414(v)(1), §219(b)(5)(B), §223(b)(3)); the Form 1040 \"day before the 65th birthday\" convention is not modelled: the app holds birth year and month only (part 17, MK-CF-F-089-C05 outside domain)"
+  }
+ ],
+ "source_checks": [
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_why": "All four printed ordinary-income band tables and rates match the2026 primary publication; this verifies constants,not complete return-level tax treatment.",
+   "witnesses": 48,
+   "witnesses_agree": 48,
+   "witnesses_other": [],
+   "constants": "The app's constants equal the reviewer's printed ones (RIGHT confirmed)."
+  },
+  {
+   "topic": "Standard deduction and age65 additions2026",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_why": "All printed amounts match RP2025-32. Joint returns add the age amount once per eligible spouse; eligibility is tested for the taxyear,including the January1 birthday convention.",
+   "witnesses": 9,
+   "witnesses_agree": 9,
+   "witnesses_other": [],
+   "constants": "The app's constants equal the reviewer's printed ones (RIGHT confirmed)."
+  },
+  {
+   "topic": "Enhanced senior deduction2025–2028",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_why": "Printed amount,years,6%per-personphaseout and filing restrictions match the law/form. MissingMAGI/SSN/age is an eligibility gap,not a different statutory constant.",
+   "witnesses": 10,
+   "witnesses_agree": 10,
+   "witnesses_other": [],
+   "constants": "The app's constants equal the reviewer's printed ones (RIGHT confirmed)."
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_why": "All printed thresholds match. Ordinary income fills lower bands first; a finite gain can cross bands,so a single baseline rate cannot calculate its total tax.",
+   "witnesses": 17,
+   "witnesses_agree": 16,
+   "witnesses_other": [
+    "gains-17: APP WRONG"
+   ],
+   "constants": "The app's constants equal the reviewer's printed ones (RIGHT confirmed)."
+  },
+  {
+   "topic": "Contribution limits2026",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_why": "All printed base/catchup amounts match primary sources. Ceilings require plan/compensation/coverage eligibility;usedYTD must not be inferred from a monthly plan.",
+   "witnesses": 9,
+   "witnesses_agree": 8,
+   "witnesses_other": [
+    "limits-9: APP WRONG"
+   ],
+   "constants": "The app's constants equal the reviewer's printed ones (RIGHT confirmed)."
+  },
+  {
+   "topic": "Social Security and Medicare2026withholding",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_why": "Printed employee rates,wagebase and employer200000threshold match primary sources. Household additional-tax thresholds differ:250000MFJ,125000MFS,200000other.",
+   "witnesses": 7,
+   "witnesses_agree": 6,
+   "witnesses_other": [
+    "payroll-7: AGREE (withholding half) · REVIEWER WRONG by DEC-0384 (household half)"
+   ],
+   "constants": "The app's constants equal the reviewer's printed ones (RIGHT confirmed)."
+  }
+ ],
+ "witnesses": [
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-01",
+   "input": {
+    "filing_status": "single",
+    "taxable_income_after_deductions": 12400
+   },
+   "expected": {
+    "exact": "1240.0",
+    "shown": "$1,240.00"
+   },
+   "classification": "AGREE",
+   "actual": 1240,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-01 · single taxable $12400 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-02",
+   "input": {
+    "filing_status": "single",
+    "taxable_income_after_deductions": 12401
+   },
+   "expected": {
+    "exact": "1240.12",
+    "shown": "$1,240.12"
+   },
+   "classification": "AGREE",
+   "actual": 1240.12,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-02 · single taxable $12401 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-03",
+   "input": {
+    "filing_status": "single",
+    "taxable_income_after_deductions": 50400
+   },
+   "expected": {
+    "exact": "5800.00",
+    "shown": "$5,800.00"
+   },
+   "classification": "AGREE",
+   "actual": 5800,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-03 · single taxable $50400 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-04",
+   "input": {
+    "filing_status": "single",
+    "taxable_income_after_deductions": 50401
+   },
+   "expected": {
+    "exact": "5800.22",
+    "shown": "$5,800.22"
+   },
+   "classification": "AGREE",
+   "actual": 5800.22,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-04 · single taxable $50401 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-05",
+   "input": {
+    "filing_status": "single",
+    "taxable_income_after_deductions": 105700
+   },
+   "expected": {
+    "exact": "17966.00",
+    "shown": "$17,966.00"
+   },
+   "classification": "AGREE",
+   "actual": 17966,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-05 · single taxable $105700 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-06",
+   "input": {
+    "filing_status": "single",
+    "taxable_income_after_deductions": 105701
+   },
+   "expected": {
+    "exact": "17966.24",
+    "shown": "$17,966.24"
+   },
+   "classification": "AGREE",
+   "actual": 17966.24,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-06 · single taxable $105701 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-07",
+   "input": {
+    "filing_status": "single",
+    "taxable_income_after_deductions": 201775
+   },
+   "expected": {
+    "exact": "41024.00",
+    "shown": "$41,024.00"
+   },
+   "classification": "AGREE",
+   "actual": 41024,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-07 · single taxable $201775 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-08",
+   "input": {
+    "filing_status": "single",
+    "taxable_income_after_deductions": 201776
+   },
+   "expected": {
+    "exact": "41024.32",
+    "shown": "$41,024.32"
+   },
+   "classification": "AGREE",
+   "actual": 41024.32,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-08 · single taxable $201776 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-09",
+   "input": {
+    "filing_status": "single",
+    "taxable_income_after_deductions": 256225
+   },
+   "expected": {
+    "exact": "58448.00",
+    "shown": "$58,448.00"
+   },
+   "classification": "AGREE",
+   "actual": 58448,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-09 · single taxable $256225 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-10",
+   "input": {
+    "filing_status": "single",
+    "taxable_income_after_deductions": 256226
+   },
+   "expected": {
+    "exact": "58448.35",
+    "shown": "$58,448.35"
+   },
+   "classification": "AGREE",
+   "actual": 58448.35,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-10 · single taxable $256226 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-11",
+   "input": {
+    "filing_status": "single",
+    "taxable_income_after_deductions": 640600
+   },
+   "expected": {
+    "exact": "192979.25",
+    "shown": "$192,979.25"
+   },
+   "classification": "AGREE",
+   "actual": 192979.25,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-11 · single taxable $640600 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-12",
+   "input": {
+    "filing_status": "single",
+    "taxable_income_after_deductions": 640601
+   },
+   "expected": {
+    "exact": "192979.62",
+    "shown": "$192,979.62"
+   },
+   "classification": "AGREE",
+   "actual": 192979.62,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-12 · single taxable $640601 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-13",
+   "input": {
+    "filing_status": "married",
+    "taxable_income_after_deductions": 24800
+   },
+   "expected": {
+    "exact": "2480.0",
+    "shown": "$2,480.00"
+   },
+   "classification": "AGREE",
+   "actual": 2480,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-13 · married taxable $24800 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-14",
+   "input": {
+    "filing_status": "married",
+    "taxable_income_after_deductions": 24801
+   },
+   "expected": {
+    "exact": "2480.12",
+    "shown": "$2,480.12"
+   },
+   "classification": "AGREE",
+   "actual": 2480.12,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-14 · married taxable $24801 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-15",
+   "input": {
+    "filing_status": "married",
+    "taxable_income_after_deductions": 100800
+   },
+   "expected": {
+    "exact": "11600.00",
+    "shown": "$11,600.00"
+   },
+   "classification": "AGREE",
+   "actual": 11600,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-15 · married taxable $100800 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-16",
+   "input": {
+    "filing_status": "married",
+    "taxable_income_after_deductions": 100801
+   },
+   "expected": {
+    "exact": "11600.22",
+    "shown": "$11,600.22"
+   },
+   "classification": "AGREE",
+   "actual": 11600.22,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-16 · married taxable $100801 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-17",
+   "input": {
+    "filing_status": "married",
+    "taxable_income_after_deductions": 211400
+   },
+   "expected": {
+    "exact": "35932.00",
+    "shown": "$35,932.00"
+   },
+   "classification": "AGREE",
+   "actual": 35932,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-17 · married taxable $211400 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-18",
+   "input": {
+    "filing_status": "married",
+    "taxable_income_after_deductions": 211401
+   },
+   "expected": {
+    "exact": "35932.24",
+    "shown": "$35,932.24"
+   },
+   "classification": "AGREE",
+   "actual": 35932.24,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-18 · married taxable $211401 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-19",
+   "input": {
+    "filing_status": "married",
+    "taxable_income_after_deductions": 403550
+   },
+   "expected": {
+    "exact": "82048.00",
+    "shown": "$82,048.00"
+   },
+   "classification": "AGREE",
+   "actual": 82048,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-19 · married taxable $403550 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-20",
+   "input": {
+    "filing_status": "married",
+    "taxable_income_after_deductions": 403551
+   },
+   "expected": {
+    "exact": "82048.32",
+    "shown": "$82,048.32"
+   },
+   "classification": "AGREE",
+   "actual": 82048.32,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-20 · married taxable $403551 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-21",
+   "input": {
+    "filing_status": "married",
+    "taxable_income_after_deductions": 512450
+   },
+   "expected": {
+    "exact": "116896.00",
+    "shown": "$116,896.00"
+   },
+   "classification": "AGREE",
+   "actual": 116896,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-21 · married taxable $512450 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-22",
+   "input": {
+    "filing_status": "married",
+    "taxable_income_after_deductions": 512451
+   },
+   "expected": {
+    "exact": "116896.35",
+    "shown": "$116,896.35"
+   },
+   "classification": "AGREE",
+   "actual": 116896.35,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-22 · married taxable $512451 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-23",
+   "input": {
+    "filing_status": "married",
+    "taxable_income_after_deductions": 768700
+   },
+   "expected": {
+    "exact": "206583.50",
+    "shown": "$206,583.50"
+   },
+   "classification": "AGREE",
+   "actual": 206583.5,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-23 · married taxable $768700 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-24",
+   "input": {
+    "filing_status": "married",
+    "taxable_income_after_deductions": 768701
+   },
+   "expected": {
+    "exact": "206583.87",
+    "shown": "$206,583.87"
+   },
+   "classification": "AGREE",
+   "actual": 206583.87,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-24 · married taxable $768701 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-25",
+   "input": {
+    "filing_status": "mfs",
+    "taxable_income_after_deductions": 12400
+   },
+   "expected": {
+    "exact": "1240.0",
+    "shown": "$1,240.00"
+   },
+   "classification": "AGREE",
+   "actual": 1240,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-25 · mfs taxable $12400 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-26",
+   "input": {
+    "filing_status": "mfs",
+    "taxable_income_after_deductions": 12401
+   },
+   "expected": {
+    "exact": "1240.12",
+    "shown": "$1,240.12"
+   },
+   "classification": "AGREE",
+   "actual": 1240.12,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-26 · mfs taxable $12401 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-27",
+   "input": {
+    "filing_status": "mfs",
+    "taxable_income_after_deductions": 50400
+   },
+   "expected": {
+    "exact": "5800.00",
+    "shown": "$5,800.00"
+   },
+   "classification": "AGREE",
+   "actual": 5800,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-27 · mfs taxable $50400 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-28",
+   "input": {
+    "filing_status": "mfs",
+    "taxable_income_after_deductions": 50401
+   },
+   "expected": {
+    "exact": "5800.22",
+    "shown": "$5,800.22"
+   },
+   "classification": "AGREE",
+   "actual": 5800.22,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-28 · mfs taxable $50401 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-29",
+   "input": {
+    "filing_status": "mfs",
+    "taxable_income_after_deductions": 105700
+   },
+   "expected": {
+    "exact": "17966.00",
+    "shown": "$17,966.00"
+   },
+   "classification": "AGREE",
+   "actual": 17966,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-29 · mfs taxable $105700 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-30",
+   "input": {
+    "filing_status": "mfs",
+    "taxable_income_after_deductions": 105701
+   },
+   "expected": {
+    "exact": "17966.24",
+    "shown": "$17,966.24"
+   },
+   "classification": "AGREE",
+   "actual": 17966.24,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-30 · mfs taxable $105701 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-31",
+   "input": {
+    "filing_status": "mfs",
+    "taxable_income_after_deductions": 201775
+   },
+   "expected": {
+    "exact": "41024.00",
+    "shown": "$41,024.00"
+   },
+   "classification": "AGREE",
+   "actual": 41024,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-31 · mfs taxable $201775 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-32",
+   "input": {
+    "filing_status": "mfs",
+    "taxable_income_after_deductions": 201776
+   },
+   "expected": {
+    "exact": "41024.32",
+    "shown": "$41,024.32"
+   },
+   "classification": "AGREE",
+   "actual": 41024.32,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-32 · mfs taxable $201776 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-33",
+   "input": {
+    "filing_status": "mfs",
+    "taxable_income_after_deductions": 256225
+   },
+   "expected": {
+    "exact": "58448.00",
+    "shown": "$58,448.00"
+   },
+   "classification": "AGREE",
+   "actual": 58448,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-33 · mfs taxable $256225 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-34",
+   "input": {
+    "filing_status": "mfs",
+    "taxable_income_after_deductions": 256226
+   },
+   "expected": {
+    "exact": "58448.35",
+    "shown": "$58,448.35"
+   },
+   "classification": "AGREE",
+   "actual": 58448.35,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-34 · mfs taxable $256226 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-35",
+   "input": {
+    "filing_status": "mfs",
+    "taxable_income_after_deductions": 384350
+   },
+   "expected": {
+    "exact": "103291.75",
+    "shown": "$103,291.75"
+   },
+   "classification": "AGREE",
+   "actual": 103291.75,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-35 · mfs taxable $384350 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-36",
+   "input": {
+    "filing_status": "mfs",
+    "taxable_income_after_deductions": 384351
+   },
+   "expected": {
+    "exact": "103292.12",
+    "shown": "$103,292.12"
+   },
+   "classification": "AGREE",
+   "actual": 103292.12,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-36 · mfs taxable $384351 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-37",
+   "input": {
+    "filing_status": "hoh",
+    "taxable_income_after_deductions": 17700
+   },
+   "expected": {
+    "exact": "1770.0",
+    "shown": "$1,770.00"
+   },
+   "classification": "AGREE",
+   "actual": 1770,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-37 · hoh taxable $17700 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-38",
+   "input": {
+    "filing_status": "hoh",
+    "taxable_income_after_deductions": 17701
+   },
+   "expected": {
+    "exact": "1770.12",
+    "shown": "$1,770.12"
+   },
+   "classification": "AGREE",
+   "actual": 1770.12,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-38 · hoh taxable $17701 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-39",
+   "input": {
+    "filing_status": "hoh",
+    "taxable_income_after_deductions": 67450
+   },
+   "expected": {
+    "exact": "7740.00",
+    "shown": "$7,740.00"
+   },
+   "classification": "AGREE",
+   "actual": 7740,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-39 · hoh taxable $67450 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-40",
+   "input": {
+    "filing_status": "hoh",
+    "taxable_income_after_deductions": 67451
+   },
+   "expected": {
+    "exact": "7740.22",
+    "shown": "$7,740.22"
+   },
+   "classification": "AGREE",
+   "actual": 7740.22,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-40 · hoh taxable $67451 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-41",
+   "input": {
+    "filing_status": "hoh",
+    "taxable_income_after_deductions": 105700
+   },
+   "expected": {
+    "exact": "16155.00",
+    "shown": "$16,155.00"
+   },
+   "classification": "AGREE",
+   "actual": 16155,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-41 · hoh taxable $105700 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-42",
+   "input": {
+    "filing_status": "hoh",
+    "taxable_income_after_deductions": 105701
+   },
+   "expected": {
+    "exact": "16155.24",
+    "shown": "$16,155.24"
+   },
+   "classification": "AGREE",
+   "actual": 16155.24,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-42 · hoh taxable $105701 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-43",
+   "input": {
+    "filing_status": "hoh",
+    "taxable_income_after_deductions": 201750
+   },
+   "expected": {
+    "exact": "39207.00",
+    "shown": "$39,207.00"
+   },
+   "classification": "AGREE",
+   "actual": 39207,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-43 · hoh taxable $201750 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-44",
+   "input": {
+    "filing_status": "hoh",
+    "taxable_income_after_deductions": 201751
+   },
+   "expected": {
+    "exact": "39207.32",
+    "shown": "$39,207.32"
+   },
+   "classification": "AGREE",
+   "actual": 39207.32,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-44 · hoh taxable $201751 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-45",
+   "input": {
+    "filing_status": "hoh",
+    "taxable_income_after_deductions": 256200
+   },
+   "expected": {
+    "exact": "56631.00",
+    "shown": "$56,631.00"
+   },
+   "classification": "AGREE",
+   "actual": 56631,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-45 · hoh taxable $256200 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-46",
+   "input": {
+    "filing_status": "hoh",
+    "taxable_income_after_deductions": 256201
+   },
+   "expected": {
+    "exact": "56631.35",
+    "shown": "$56,631.35"
+   },
+   "classification": "AGREE",
+   "actual": 56631.35,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-46 · hoh taxable $256201 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-47",
+   "input": {
+    "filing_status": "hoh",
+    "taxable_income_after_deductions": 640600
+   },
+   "expected": {
+    "exact": "191171.00",
+    "shown": "$191,171.00"
+   },
+   "classification": "AGREE",
+   "actual": 191171,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-47 · hoh taxable $640600 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "witness": "bands-48",
+   "input": {
+    "filing_status": "hoh",
+    "taxable_income_after_deductions": 640601
+   },
+   "expected": {
+    "exact": "191171.37",
+    "shown": "$191,171.37"
+   },
+   "classification": "AGREE",
+   "actual": 191171.37,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Federal income tax 2026 — bands by filing status (IRS Rev. Proc. 2025-32 §4.01) › bands-48 · hoh taxable $640601 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Standard deduction and age65 additions2026",
+   "witness": "deduction-1",
+   "input": {
+    "filing_status": "single",
+    "eligible_people65_plus": 0
+   },
+   "expected": {
+    "exact": "16100",
+    "shown": "$16,100"
+   },
+   "classification": "AGREE",
+   "actual": 16100,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Standard deduction and age-65 additions 2026 (IRS Rev. Proc. 2025-32 §4.14) › deduction-1 · single, 0 aged 65+ [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Standard deduction and age65 additions2026",
+   "witness": "deduction-2",
+   "input": {
+    "filing_status": "single",
+    "eligible_people65_plus": 1
+   },
+   "expected": {
+    "exact": "18150",
+    "shown": "$18,150"
+   },
+   "classification": "AGREE",
+   "actual": 18150,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Standard deduction and age-65 additions 2026 (IRS Rev. Proc. 2025-32 §4.14) › deduction-2 · single, 1 aged 65+ [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Standard deduction and age65 additions2026",
+   "witness": "deduction-3",
+   "input": {
+    "filing_status": "married",
+    "eligible_people65_plus": 0
+   },
+   "expected": {
+    "exact": "32200",
+    "shown": "$32,200"
+   },
+   "classification": "AGREE",
+   "actual": 32200,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Standard deduction and age-65 additions 2026 (IRS Rev. Proc. 2025-32 §4.14) › deduction-3 · married, 0 aged 65+ [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Standard deduction and age65 additions2026",
+   "witness": "deduction-4",
+   "input": {
+    "filing_status": "married",
+    "eligible_people65_plus": 1
+   },
+   "expected": {
+    "exact": "33850",
+    "shown": "$33,850"
+   },
+   "classification": "AGREE",
+   "actual": 33850,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Standard deduction and age-65 additions 2026 (IRS Rev. Proc. 2025-32 §4.14) › deduction-4 · married, 1 aged 65+ [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Standard deduction and age65 additions2026",
+   "witness": "deduction-5",
+   "input": {
+    "filing_status": "married",
+    "eligible_people65_plus": 2
+   },
+   "expected": {
+    "exact": "35500",
+    "shown": "$35,500"
+   },
+   "classification": "AGREE",
+   "actual": 35500,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Standard deduction and age-65 additions 2026 (IRS Rev. Proc. 2025-32 §4.14) › deduction-5 · married, 2 aged 65+ [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Standard deduction and age65 additions2026",
+   "witness": "deduction-6",
+   "input": {
+    "filing_status": "mfs",
+    "eligible_people65_plus": 0
+   },
+   "expected": {
+    "exact": "16100",
+    "shown": "$16,100"
+   },
+   "classification": "AGREE",
+   "actual": 16100,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Standard deduction and age-65 additions 2026 (IRS Rev. Proc. 2025-32 §4.14) › deduction-6 · mfs, 0 aged 65+ [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Standard deduction and age65 additions2026",
+   "witness": "deduction-7",
+   "input": {
+    "filing_status": "mfs",
+    "eligible_people65_plus": 1
+   },
+   "expected": {
+    "exact": "17750",
+    "shown": "$17,750"
+   },
+   "classification": "AGREE",
+   "actual": 17750,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Standard deduction and age-65 additions 2026 (IRS Rev. Proc. 2025-32 §4.14) › deduction-7 · mfs, 1 aged 65+ [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Standard deduction and age65 additions2026",
+   "witness": "deduction-8",
+   "input": {
+    "filing_status": "hoh",
+    "eligible_people65_plus": 0
+   },
+   "expected": {
+    "exact": "24150",
+    "shown": "$24,150"
+   },
+   "classification": "AGREE",
+   "actual": 24150,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Standard deduction and age-65 additions 2026 (IRS Rev. Proc. 2025-32 §4.14) › deduction-8 · hoh, 0 aged 65+ [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Standard deduction and age65 additions2026",
+   "witness": "deduction-9",
+   "input": {
+    "filing_status": "hoh",
+    "eligible_people65_plus": 1
+   },
+   "expected": {
+    "exact": "26200",
+    "shown": "$26,200"
+   },
+   "classification": "AGREE",
+   "actual": 26200,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Standard deduction and age-65 additions 2026 (IRS Rev. Proc. 2025-32 §4.14) › deduction-9 · hoh, 1 aged 65+ [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Enhanced senior deduction2025–2028",
+   "witness": "senior-01",
+   "input": {
+    "status": "married",
+    "eligible_people": 2,
+    "magi": 150000,
+    "tax_year": 2026
+   },
+   "expected": {
+    "exact": "12000.00",
+    "shown": "$12,000"
+   },
+   "classification": "AGREE",
+   "actual": 12000,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Enhanced senior deduction 2025–2028 (P.L. 119-21 §70103; IRS Schedule 1-A Part V) › senior-01 · married, 2 eligible, income $150000 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Enhanced senior deduction2025–2028",
+   "witness": "senior-02",
+   "input": {
+    "status": "married",
+    "eligible_people": 2,
+    "magi": 175000,
+    "tax_year": 2026
+   },
+   "expected": {
+    "exact": "9000.00",
+    "shown": "$9,000"
+   },
+   "classification": "AGREE",
+   "actual": 9000,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Enhanced senior deduction 2025–2028 (P.L. 119-21 §70103; IRS Schedule 1-A Part V) › senior-02 · married, 2 eligible, income $175000 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Enhanced senior deduction2025–2028",
+   "witness": "senior-03",
+   "input": {
+    "status": "married",
+    "eligible_people": 2,
+    "magi": 200000,
+    "tax_year": 2026
+   },
+   "expected": {
+    "exact": "6000.00",
+    "shown": "$6,000"
+   },
+   "classification": "AGREE",
+   "actual": 6000,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Enhanced senior deduction 2025–2028 (P.L. 119-21 §70103; IRS Schedule 1-A Part V) › senior-03 · married, 2 eligible, income $200000 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Enhanced senior deduction2025–2028",
+   "witness": "senior-04",
+   "input": {
+    "status": "married",
+    "eligible_people": 2,
+    "magi": 250000,
+    "tax_year": 2026
+   },
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "classification": "AGREE",
+   "actual": 0,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Enhanced senior deduction 2025–2028 (P.L. 119-21 §70103; IRS Schedule 1-A Part V) › senior-04 · married, 2 eligible, income $250000 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Enhanced senior deduction2025–2028",
+   "witness": "senior-05",
+   "input": {
+    "status": "single",
+    "eligible_people": 1,
+    "magi": 75000,
+    "tax_year": 2026
+   },
+   "expected": {
+    "exact": "6000.00",
+    "shown": "$6,000"
+   },
+   "classification": "AGREE",
+   "actual": 6000,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Enhanced senior deduction 2025–2028 (P.L. 119-21 §70103; IRS Schedule 1-A Part V) › senior-05 · single, 1 eligible, income $75000 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Enhanced senior deduction2025–2028",
+   "witness": "senior-06",
+   "input": {
+    "status": "single",
+    "eligible_people": 1,
+    "magi": 100000,
+    "tax_year": 2026
+   },
+   "expected": {
+    "exact": "4500.00",
+    "shown": "$4,500"
+   },
+   "classification": "AGREE",
+   "actual": 4500,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Enhanced senior deduction 2025–2028 (P.L. 119-21 §70103; IRS Schedule 1-A Part V) › senior-06 · single, 1 eligible, income $100000 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Enhanced senior deduction2025–2028",
+   "witness": "senior-07",
+   "input": {
+    "status": "single",
+    "eligible_people": 1,
+    "magi": 125000,
+    "tax_year": 2026
+   },
+   "expected": {
+    "exact": "3000.00",
+    "shown": "$3,000"
+   },
+   "classification": "AGREE",
+   "actual": 3000,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Enhanced senior deduction 2025–2028 (P.L. 119-21 §70103; IRS Schedule 1-A Part V) › senior-07 · single, 1 eligible, income $125000 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Enhanced senior deduction2025–2028",
+   "witness": "senior-08",
+   "input": {
+    "status": "single",
+    "eligible_people": 1,
+    "magi": 175000,
+    "tax_year": 2026
+   },
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "classification": "AGREE",
+   "actual": 0,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Enhanced senior deduction 2025–2028 (P.L. 119-21 §70103; IRS Schedule 1-A Part V) › senior-08 · single, 1 eligible, income $175000 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Enhanced senior deduction2025–2028",
+   "witness": "senior-09",
+   "input": {
+    "status": "mfs",
+    "eligible_people": 1,
+    "magi": 50000,
+    "tax_year": 2026
+   },
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "classification": "AGREE",
+   "actual": 0,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Enhanced senior deduction 2025–2028 (P.L. 119-21 §70103; IRS Schedule 1-A Part V) › senior-09 · mfs, 1 eligible, income $50000 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Enhanced senior deduction2025–2028",
+   "witness": "senior-10",
+   "input": {
+    "status": "mfs",
+    "eligible_people": 1,
+    "magi": 150000,
+    "tax_year": 2026
+   },
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "classification": "AGREE",
+   "actual": 0,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Enhanced senior deduction 2025–2028 (P.L. 119-21 §70103; IRS Schedule 1-A Part V) › senior-10 · mfs, 1 eligible, income $150000 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "witness": "gains-01",
+   "input": {
+    "status": "single",
+    "taxable_income_at_lookup": 49450
+   },
+   "expected": {
+    "exact": "0",
+    "shown": "0.00%"
+   },
+   "classification": "AGREE",
+   "actual": 0,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Long-term capital gains 2026 thresholds (IRS Rev. Proc. 2025-32 §4.03; Schedule D Tax Worksheet) › gains-01 · single taxable $49450 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "witness": "gains-02",
+   "input": {
+    "status": "single",
+    "taxable_income_at_lookup": 49451
+   },
+   "expected": {
+    "exact": "0.15",
+    "shown": "15.00%"
+   },
+   "classification": "AGREE",
+   "actual": 0.15,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Long-term capital gains 2026 thresholds (IRS Rev. Proc. 2025-32 §4.03; Schedule D Tax Worksheet) › gains-02 · single taxable $49451 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "witness": "gains-03",
+   "input": {
+    "status": "single",
+    "taxable_income_at_lookup": 545500
+   },
+   "expected": {
+    "exact": "0.15",
+    "shown": "15.00%"
+   },
+   "classification": "AGREE",
+   "actual": 0.15,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Long-term capital gains 2026 thresholds (IRS Rev. Proc. 2025-32 §4.03; Schedule D Tax Worksheet) › gains-03 · single taxable $545500 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "witness": "gains-04",
+   "input": {
+    "status": "single",
+    "taxable_income_at_lookup": 545501
+   },
+   "expected": {
+    "exact": "0.2",
+    "shown": "20.00%"
+   },
+   "classification": "AGREE",
+   "actual": 0.2,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Long-term capital gains 2026 thresholds (IRS Rev. Proc. 2025-32 §4.03; Schedule D Tax Worksheet) › gains-04 · single taxable $545501 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "witness": "gains-05",
+   "input": {
+    "status": "married",
+    "taxable_income_at_lookup": 98900
+   },
+   "expected": {
+    "exact": "0",
+    "shown": "0.00%"
+   },
+   "classification": "AGREE",
+   "actual": 0,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Long-term capital gains 2026 thresholds (IRS Rev. Proc. 2025-32 §4.03; Schedule D Tax Worksheet) › gains-05 · married taxable $98900 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "witness": "gains-06",
+   "input": {
+    "status": "married",
+    "taxable_income_at_lookup": 98901
+   },
+   "expected": {
+    "exact": "0.15",
+    "shown": "15.00%"
+   },
+   "classification": "AGREE",
+   "actual": 0.15,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Long-term capital gains 2026 thresholds (IRS Rev. Proc. 2025-32 §4.03; Schedule D Tax Worksheet) › gains-06 · married taxable $98901 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "witness": "gains-07",
+   "input": {
+    "status": "married",
+    "taxable_income_at_lookup": 613700
+   },
+   "expected": {
+    "exact": "0.15",
+    "shown": "15.00%"
+   },
+   "classification": "AGREE",
+   "actual": 0.15,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Long-term capital gains 2026 thresholds (IRS Rev. Proc. 2025-32 §4.03; Schedule D Tax Worksheet) › gains-07 · married taxable $613700 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "witness": "gains-08",
+   "input": {
+    "status": "married",
+    "taxable_income_at_lookup": 613701
+   },
+   "expected": {
+    "exact": "0.2",
+    "shown": "20.00%"
+   },
+   "classification": "AGREE",
+   "actual": 0.2,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Long-term capital gains 2026 thresholds (IRS Rev. Proc. 2025-32 §4.03; Schedule D Tax Worksheet) › gains-08 · married taxable $613701 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "witness": "gains-09",
+   "input": {
+    "status": "mfs",
+    "taxable_income_at_lookup": 49450
+   },
+   "expected": {
+    "exact": "0",
+    "shown": "0.00%"
+   },
+   "classification": "AGREE",
+   "actual": 0,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Long-term capital gains 2026 thresholds (IRS Rev. Proc. 2025-32 §4.03; Schedule D Tax Worksheet) › gains-09 · mfs taxable $49450 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "witness": "gains-10",
+   "input": {
+    "status": "mfs",
+    "taxable_income_at_lookup": 49451
+   },
+   "expected": {
+    "exact": "0.15",
+    "shown": "15.00%"
+   },
+   "classification": "AGREE",
+   "actual": 0.15,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Long-term capital gains 2026 thresholds (IRS Rev. Proc. 2025-32 §4.03; Schedule D Tax Worksheet) › gains-10 · mfs taxable $49451 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "witness": "gains-11",
+   "input": {
+    "status": "mfs",
+    "taxable_income_at_lookup": 306850
+   },
+   "expected": {
+    "exact": "0.15",
+    "shown": "15.00%"
+   },
+   "classification": "AGREE",
+   "actual": 0.15,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Long-term capital gains 2026 thresholds (IRS Rev. Proc. 2025-32 §4.03; Schedule D Tax Worksheet) › gains-11 · mfs taxable $306850 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "witness": "gains-12",
+   "input": {
+    "status": "mfs",
+    "taxable_income_at_lookup": 306851
+   },
+   "expected": {
+    "exact": "0.2",
+    "shown": "20.00%"
+   },
+   "classification": "AGREE",
+   "actual": 0.2,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Long-term capital gains 2026 thresholds (IRS Rev. Proc. 2025-32 §4.03; Schedule D Tax Worksheet) › gains-12 · mfs taxable $306851 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "witness": "gains-13",
+   "input": {
+    "status": "hoh",
+    "taxable_income_at_lookup": 66200
+   },
+   "expected": {
+    "exact": "0",
+    "shown": "0.00%"
+   },
+   "classification": "AGREE",
+   "actual": 0,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Long-term capital gains 2026 thresholds (IRS Rev. Proc. 2025-32 §4.03; Schedule D Tax Worksheet) › gains-13 · hoh taxable $66200 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "witness": "gains-14",
+   "input": {
+    "status": "hoh",
+    "taxable_income_at_lookup": 66201
+   },
+   "expected": {
+    "exact": "0.15",
+    "shown": "15.00%"
+   },
+   "classification": "AGREE",
+   "actual": 0.15,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Long-term capital gains 2026 thresholds (IRS Rev. Proc. 2025-32 §4.03; Schedule D Tax Worksheet) › gains-14 · hoh taxable $66201 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "witness": "gains-15",
+   "input": {
+    "status": "hoh",
+    "taxable_income_at_lookup": 579600
+   },
+   "expected": {
+    "exact": "0.15",
+    "shown": "15.00%"
+   },
+   "classification": "AGREE",
+   "actual": 0.15,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Long-term capital gains 2026 thresholds (IRS Rev. Proc. 2025-32 §4.03; Schedule D Tax Worksheet) › gains-15 · hoh taxable $579600 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "witness": "gains-16",
+   "input": {
+    "status": "hoh",
+    "taxable_income_at_lookup": 579601
+   },
+   "expected": {
+    "exact": "0.2",
+    "shown": "20.00%"
+   },
+   "classification": "AGREE",
+   "actual": 0.2,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Long-term capital gains 2026 thresholds (IRS Rev. Proc. 2025-32 §4.03; Schedule D Tax Worksheet) › gains-16 · hoh taxable $579601 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "witness": "gains-17",
+   "input": {
+    "status": "single",
+    "ordinary_taxable": 48111.17,
+    "gain": 3311.43
+   },
+   "expected": {
+    "exact": "295.89",
+    "shown": "$295.89"
+   },
+   "classification": "APP WRONG",
+   "actual": 0,
+   "rests_on": "IRS Schedule D Tax Worksheet; Rev. Proc. 2025-32 §4.03; tenets 1, 7",
+   "note": "Same item as part 16 fix B: the draw-order sheet prices the whole gain at 0% → $0, right $295.89.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Long-term capital gains 2026 thresholds (IRS Rev. Proc. 2025-32 §4.03; Schedule D Tax Worksheet) › gains-17 · single ordinary taxable $48111.17, a $3311.43 gain across the 0%/15% line [APP WRONG]",
+   "test_result": "passed (test.failing on the reviewer's answer)",
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — the draw-order sheet stacks the gain on the income (ltcgTaxOnGain): the reviewer's answer."
+  },
+  {
+   "topic": "Contribution limits2026",
+   "witness": "limits-1",
+   "input": {
+    "age_attained_in2026": 49,
+    "full_year_eligible": true
+   },
+   "expected": {
+    "k": {
+     "exact": "24500"
+    },
+    "ira": {
+     "exact": "7500"
+    },
+    "hsa_self": {
+     "exact": "4400"
+    },
+    "hsa_family_one_person_catchup": {
+     "exact": "8750"
+    }
+   },
+   "classification": "AGREE",
+   "actual": {
+    "k": 24500,
+    "ira": 7500,
+    "hsa_self": 4400,
+    "hsa_family": 8750
+   },
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Contribution limits 2026 (IRS Notice 2025-67; Rev. Proc. 2025-19; Publication 969) › limits-1 · age 49 in 2026, eligible all year [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Contribution limits2026",
+   "witness": "limits-2",
+   "input": {
+    "age_attained_in2026": 50,
+    "full_year_eligible": true
+   },
+   "expected": {
+    "k": {
+     "exact": "32500"
+    },
+    "ira": {
+     "exact": "8600"
+    },
+    "hsa_self": {
+     "exact": "4400"
+    },
+    "hsa_family_one_person_catchup": {
+     "exact": "8750"
+    }
+   },
+   "classification": "AGREE",
+   "actual": {
+    "k": 32500,
+    "ira": 8600,
+    "hsa_self": 4400,
+    "hsa_family": 8750
+   },
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Contribution limits 2026 (IRS Notice 2025-67; Rev. Proc. 2025-19; Publication 969) › limits-2 · age 50 in 2026, eligible all year [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Contribution limits2026",
+   "witness": "limits-3",
+   "input": {
+    "age_attained_in2026": 54,
+    "full_year_eligible": true
+   },
+   "expected": {
+    "k": {
+     "exact": "32500"
+    },
+    "ira": {
+     "exact": "8600"
+    },
+    "hsa_self": {
+     "exact": "4400"
+    },
+    "hsa_family_one_person_catchup": {
+     "exact": "8750"
+    }
+   },
+   "classification": "AGREE",
+   "actual": {
+    "k": 32500,
+    "ira": 8600,
+    "hsa_self": 4400,
+    "hsa_family": 8750
+   },
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Contribution limits 2026 (IRS Notice 2025-67; Rev. Proc. 2025-19; Publication 969) › limits-3 · age 54 in 2026, eligible all year [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Contribution limits2026",
+   "witness": "limits-4",
+   "input": {
+    "age_attained_in2026": 55,
+    "full_year_eligible": true
+   },
+   "expected": {
+    "k": {
+     "exact": "32500"
+    },
+    "ira": {
+     "exact": "8600"
+    },
+    "hsa_self": {
+     "exact": "5400"
+    },
+    "hsa_family_one_person_catchup": {
+     "exact": "9750"
+    }
+   },
+   "classification": "AGREE",
+   "actual": {
+    "k": 32500,
+    "ira": 8600,
+    "hsa_self": 5400,
+    "hsa_family": 9750
+   },
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Contribution limits 2026 (IRS Notice 2025-67; Rev. Proc. 2025-19; Publication 969) › limits-4 · age 55 in 2026, eligible all year [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Contribution limits2026",
+   "witness": "limits-5",
+   "input": {
+    "age_attained_in2026": 59,
+    "full_year_eligible": true
+   },
+   "expected": {
+    "k": {
+     "exact": "32500"
+    },
+    "ira": {
+     "exact": "8600"
+    },
+    "hsa_self": {
+     "exact": "5400"
+    },
+    "hsa_family_one_person_catchup": {
+     "exact": "9750"
+    }
+   },
+   "classification": "AGREE",
+   "actual": {
+    "k": 32500,
+    "ira": 8600,
+    "hsa_self": 5400,
+    "hsa_family": 9750
+   },
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Contribution limits 2026 (IRS Notice 2025-67; Rev. Proc. 2025-19; Publication 969) › limits-5 · age 59 in 2026, eligible all year [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Contribution limits2026",
+   "witness": "limits-6",
+   "input": {
+    "age_attained_in2026": 60,
+    "full_year_eligible": true
+   },
+   "expected": {
+    "k": {
+     "exact": "35750"
+    },
+    "ira": {
+     "exact": "8600"
+    },
+    "hsa_self": {
+     "exact": "5400"
+    },
+    "hsa_family_one_person_catchup": {
+     "exact": "9750"
+    }
+   },
+   "classification": "AGREE",
+   "actual": {
+    "k": 35750,
+    "ira": 8600,
+    "hsa_self": 5400,
+    "hsa_family": 9750
+   },
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Contribution limits 2026 (IRS Notice 2025-67; Rev. Proc. 2025-19; Publication 969) › limits-6 · age 60 in 2026, eligible all year [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Contribution limits2026",
+   "witness": "limits-7",
+   "input": {
+    "age_attained_in2026": 63,
+    "full_year_eligible": true
+   },
+   "expected": {
+    "k": {
+     "exact": "35750"
+    },
+    "ira": {
+     "exact": "8600"
+    },
+    "hsa_self": {
+     "exact": "5400"
+    },
+    "hsa_family_one_person_catchup": {
+     "exact": "9750"
+    }
+   },
+   "classification": "AGREE",
+   "actual": {
+    "k": 35750,
+    "ira": 8600,
+    "hsa_self": 5400,
+    "hsa_family": 9750
+   },
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Contribution limits 2026 (IRS Notice 2025-67; Rev. Proc. 2025-19; Publication 969) › limits-7 · age 63 in 2026, eligible all year [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Contribution limits2026",
+   "witness": "limits-8",
+   "input": {
+    "age_attained_in2026": 64,
+    "full_year_eligible": true
+   },
+   "expected": {
+    "k": {
+     "exact": "32500"
+    },
+    "ira": {
+     "exact": "8600"
+    },
+    "hsa_self": {
+     "exact": "5400"
+    },
+    "hsa_family_one_person_catchup": {
+     "exact": "9750"
+    }
+   },
+   "classification": "AGREE",
+   "actual": {
+    "k": 32500,
+    "ira": 8600,
+    "hsa_self": 5400,
+    "hsa_family": 9750
+   },
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Contribution limits 2026 (IRS Notice 2025-67; Rev. Proc. 2025-19; Publication 969) › limits-8 · age 64 in 2026, eligible all year [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Contribution limits2026",
+   "witness": "limits-9",
+   "input": {
+    "age_attained": 65,
+    "medicare_start": "2026-07-01",
+    "self_only_eligible_months": 6
+   },
+   "expected": {
+    "exact": "2700",
+    "shown": "$2,700"
+   },
+   "classification": "APP WRONG",
+   "actual": 0,
+   "rests_on": "IRS Publication 969 (Enrolled in Medicare: the months before count); Rev. Proc. 2025-19 §2.01; DEC-0378",
+   "note": "Same item as part 13 fix C (MK-CF-F-055): the app holds only \"on Medicare: yes/no\" and yes gives $0 for the year; right (4,400 + 1,000) × 6 ÷ 12 = $2,700.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Contribution limits 2026 (IRS Notice 2025-67; Rev. Proc. 2025-19; Publication 969) › limits-9 · age 65, on Medicare from 2026-07-01, six eligible months self-only [APP WRONG]",
+   "test_result": "passed (test.failing on the reviewer's answer)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-ROOM, MK-CF-F-055): the months before Medicare count — (4,400 + 1,000) × 6 ÷ 12 = $2,700; the screen asks when Medicare started. — marked by PF-RECORDS 2026-10-26 from that agent’s report; the mark was missing."
+  },
+  {
+   "topic": "Social Security and Medicare2026withholding",
+   "witness": "payroll-1",
+   "input": {
+    "annual_employee_wages": "0"
+   },
+   "expected": {
+    "exact": "0.0000",
+    "shown": "$0.00"
+   },
+   "classification": "AGREE",
+   "actual": 0,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Social Security and Medicare 2026 withholding (SSA 2026 base; IRC §3101(b)(2); IRS Topic 560) › payroll-1 · wages $0 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Social Security and Medicare2026withholding",
+   "witness": "payroll-2",
+   "input": {
+    "annual_employee_wages": "184500"
+   },
+   "expected": {
+    "exact": "14114.2500",
+    "shown": "$14,114.25"
+   },
+   "classification": "AGREE",
+   "actual": 14114.25,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Social Security and Medicare 2026 withholding (SSA 2026 base; IRC §3101(b)(2); IRS Topic 560) › payroll-2 · wages $184500 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Social Security and Medicare2026withholding",
+   "witness": "payroll-3",
+   "input": {
+    "annual_employee_wages": "184501"
+   },
+   "expected": {
+    "exact": "14114.2645",
+    "shown": "$14,114.26"
+   },
+   "classification": "AGREE",
+   "actual": 14114.264500000001,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Social Security and Medicare 2026 withholding (SSA 2026 base; IRC §3101(b)(2); IRS Topic 560) › payroll-3 · wages $184501 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Social Security and Medicare2026withholding",
+   "witness": "payroll-4",
+   "input": {
+    "annual_employee_wages": "200000"
+   },
+   "expected": {
+    "exact": "14339.0000",
+    "shown": "$14,339.00"
+   },
+   "classification": "AGREE",
+   "actual": 14339,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Social Security and Medicare 2026 withholding (SSA 2026 base; IRC §3101(b)(2); IRS Topic 560) › payroll-4 · wages $200000 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Social Security and Medicare2026withholding",
+   "witness": "payroll-5",
+   "input": {
+    "annual_employee_wages": "200001"
+   },
+   "expected": {
+    "exact": "14339.0235",
+    "shown": "$14,339.02"
+   },
+   "classification": "AGREE",
+   "actual": 14339.023500000001,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Social Security and Medicare 2026 withholding (SSA 2026 base; IRC §3101(b)(2); IRS Topic 560) › payroll-5 · wages $200001 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Social Security and Medicare2026withholding",
+   "witness": "payroll-6",
+   "input": {
+    "annual_employee_wages": "231731.17"
+   },
+   "expected": {
+    "exact": "15084.682495",
+    "shown": "$15,084.68"
+   },
+   "classification": "AGREE",
+   "actual": 15084.682495,
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Social Security and Medicare 2026 withholding (SSA 2026 base; IRC §3101(b)(2); IRS Topic 560) › payroll-6 · wages $231731.17 [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "topic": "Social Security and Medicare2026withholding",
+   "witness": "payroll-7",
+   "input": {
+    "status": "married",
+    "earner1": 150000,
+    "earner2": 150000
+   },
+   "expected": {
+    "additional_employer_withholding": {
+     "exact": "0"
+    },
+    "additional_household_liability": {
+     "exact": "450"
+    }
+   },
+   "classification": "AGREE (withholding half) · REVIEWER WRONG by DEC-0384 (household half)",
+   "actual": {
+    "additional_employer_withholding": 0,
+    "household": {
+     "covers": "federal income tax only, assuming the standard deduction",
+     "taxedOn": 300000,
+     "householdLiabilityShown": null,
+     "factCheck": 449.99999999999994
+    }
+   },
+   "rests_on": "DEC-0340 (the take-home caveat uses what each paycheck withholds: 0.9% more above $200,000 per employee); DEC-0384 (the tax estimate stays federal income tax, and the screen says so)",
+   "note": "Each $150,000 wage has $0 extra withheld (right). The $450 a joint return owes at filing is a true fact; the app makes no household Medicare figure to put it in, by his DEC-0384, and the calculated rate says \"federal income tax only, assuming the standard deduction\". Nothing replaces the withholding rule with the filing rule — the reviewer's acceptance target holds.",
+   "test": [
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Social Security and Medicare 2026 withholding (SSA 2026 base; IRC §3101(b)(2); IRS Topic 560) › payroll-7a · two $150,000 wages: the extra 0.9% each employer withholds [AGREE]",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_sources.test.ts › Social Security and Medicare 2026 withholding (SSA 2026 base; IRC §3101(b)(2); IRS Topic 560) › payroll-7b · two $150,000 wages, joint: the household's extra $450 — not a figure the app makes, by DEC-0384 [REVIEWER WRONG]"
+   ],
+   "test_result": "passed"
+  }
+ ],
+ "cross_card_checks": [
+  {
+   "id": "X1",
+   "reviewer_verdict": "HOLDS",
+   "measured_by": "parts 18–19 measurer (the same IDs are in parts 18 and 19)"
+  },
+  {
+   "id": "X2",
+   "reviewer_verdict": "HOLDS",
+   "measured_by": "parts 18–19 measurer (the same IDs are in parts 18 and 19)"
+  },
+  {
+   "id": "X3",
+   "reviewer_verdict": "DOES NOT HOLD",
+   "measured_by": "parts 18–19 measurer (the same IDs are in parts 18 and 19)"
+  },
+  {
+   "id": "X4",
+   "reviewer_verdict": "HOLDS",
+   "measured_by": "parts 18–19 measurer (the same IDs are in parts 18 and 19)"
+  },
+  {
+   "id": "X5",
+   "reviewer_verdict": "DOES NOT HOLD",
+   "measured_by": "parts 18–19 measurer (the same IDs are in parts 18 and 19)"
+  },
+  {
+   "id": "X6",
+   "reviewer_verdict": "HOLDS",
+   "measured_by": "parts 18–19 measurer (the same IDs are in parts 18 and 19); also run here: taxed on $55,200, taxable $39,100, the 12% band — AGREE"
+  },
+  {
+   "id": "X7",
+   "reviewer_verdict": "DOES NOT HOLD",
+   "measured_by": "parts 18–19 measurer (the same IDs are in parts 18 and 19)"
+  }
+ ],
+ "counts": {
+  "witnesses": {
+   "AGREE": 97,
+   "APP WRONG": 2,
+   "split (AGREE + REVIEWER WRONG)": 1,
+   "total": 100
+  },
+  "topics": 6,
+  "primary_sources": 10,
+  "cross_card_checks": 7
+ },
+ "coverage": "Source checks: 10 of 10 primary sources matched to the app's register (7 registered, 1 cited only in part, 2 not registered because the rule is not modelled); 6 of 6 topics — every printed constant equals the app's; 100 of 100 witnesses run — 97 agree, 2 app wrong (gains-17 finite gain = part 16 fix B; limits-9 midyear Medicare HSA = part 13 fix C), 1 split (payroll-7: withholding agrees; the household $450 is not a figure the app makes, by DEC-0384); the 48 band witnesses: 48 of 48 agree, head of household included; 7 of 7 cross-card checks recorded (owned by parts 18–19; X6 also run here, agrees)."
+}

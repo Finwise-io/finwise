@@ -1,0 +1,1752 @@
+{
+  "DEC-0003": {
+    "id": "DEC-0003",
+    "decided": "2026-07-19",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "Which 12 months are you entering?",
+    "the_log_records": "When you enter a year of income, the app asks which twelve months you mean — the calendar year, or the next twelve months from now. Three decisions:\n1. Every month you enter carries its own month AND year, so entering across a New Year does not overwrite the wrong month.\n2. Both ways of asking write to the same twelve calendar slots underneath, so the answer means the same thing however it was entered.\n3. When a receipt is scanned, the total is read from the total — never from a line about how it was paid, which is not what you spent.",
+    "governs": "src/domain/income/onboarding.ts · src/screens/CashFlowScreen.tsx"
+  },
+  "DEC-0151": {
+    "id": "DEC-0151",
+    "decided": "2026-08-14",
+    "type": "DESIGN",
+    "tab": "plan",
+    "whose": "his",
+    "his_words": "yes, I like the text.",
+    "the_log_records": "“yes, I like the text.” The Social Security card is approved in two versions: at 60 and 61 it says the decision is coming up, that you can first claim at 62, and that every year you wait after that raises the amount — so the card is honest about what you cannot do yet.",
+    "governs": "src/screens/HomeScreen.tsx · src/domain/income/onboarding.ts"
+  },
+  "DEC-0176": {
+    "id": "DEC-0176",
+    "decided": "2026-08-27",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "s against two people",
+    "the_log_records": "The whole income surface redesigned. Six decisions:\n1. Base pay becomes a full screen with one expandable section per earner — gross, 401(k), employer match, and what actually lands.\n2. A 14-month dated table when pay varies, rather than one typical figure.\n3. BOTH earners are captured, not one: a household on $84,000 plus $54,000 was being read as $84,000 — one person’s income against two people’s spending.\n4. A filing-status question, which had never been asked, so every couple was taxed as a single filer.\n5. Bonus and company shares follow the same who-earns pattern.\n6. Interest and dividends are worked out from your holdings rather than asked for, and treated as TAXABLE BUT NOT SPENDABLE.",
+    "governs": "src/domain/income/onboarding.ts · MoneyKeel/functions/cashflow/base-pay.ts"
+  },
+  "DEC-0198": {
+    "id": "DEC-0198",
+    "decided": "2026-08-28",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "by default = reinvested). The onboarding dividends screen now asks",
+    "the_log_records": "Dividends and interest come OUT of your spendable take-home, because in most accounts they are reinvested where they are earned and never reach your bank. The onboarding screen asks “Does this reach your bank?” and says what the answer means.",
+    "governs": "src/domain/income/onboarding.ts · MoneyKeel/functions/cashflow/income-summary.ts"
+  },
+  "DEC-0200": {
+    "id": "DEC-0200",
+    "decided": "2026-08-28",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "takehome",
+    "the_log_records": "When you type your take-home instead of your gross, it is converted ONCE on the way in and stored. The old code re-ran the tax schedule backwards on EVERY read to find a gross that would produce your figure — a guess laid on top of an estimate.",
+    "governs": "src/domain/income/take-home-mode-migration.ts · src/domain/income/onboarding.ts"
+  },
+  "DEC-0291": {
+    "id": "DEC-0291",
+    "decided": "2026-08-27",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "spouse",
+    "the_log_records": "“spouse.” The word is spouse, not partner, in everything a person reads.",
+    "governs": "src/domain/income/onboarding.ts · MoneyKeel/functions/cashflow/base-pay.ts"
+  },
+  "DEC-0296": {
+    "id": "DEC-0296",
+    "decided": "2026-08-20",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "an unknown input produces no number and a reason — never a default",
+    "the_log_records": "“an unknown input produces no number and a reason — never a default.” Where something is not known, the app says what is missing instead of filling in a plausible figure. A default looks like an answer.",
+    "governs": "src/domain/income/onboarding.ts · src/screens/AccountPortfolioScreen.tsx"
+  },
+  "DEC-0303": {
+    "id": "DEC-0303",
+    "decided": "2026-08-20",
+    "type": "RULE",
+    "tab": "plan",
+    "whose": "his",
+    "his_words": "flat pensions are being inflated — a fixed-versus-inflating flag per stream; Social Security inflates, pensions and annuities flat",
+    "the_log_records": "“flat pensions are being inflated — a fixed-versus-inflating flag per stream; Social Security inflates, pensions and annuities flat.” Each income stream says whether it rises with inflation. Inflating a fixed pension overstates a retirement by more every year.",
+    "governs": "src/domain/retirement/index.ts · src/domain/income/onboarding.ts"
+  },
+  "DEC-0307": {
+    "id": "DEC-0307",
+    "decided": "2026-08-20",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "withdrawals and RMDs are not guaranteed income — paycheck lists each line; the plan input is outside money only",
+    "the_log_records": "“withdrawals and RMDs are not guaranteed income — paycheck lists each line; the plan input is outside money only.” Money you draw from your own savings is not guaranteed income; only money arriving from outside is. Counting your own pot as guaranteed makes a plan look safe because it is spending itself.",
+    "governs": "src/domain/income/onboarding.ts · src/screens/RetirementCockpit.tsx"
+  },
+  "DEC-0327": {
+    "id": "DEC-0327",
+    "decided": "2026-08-20",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "state tax applies to taxable income, never gross",
+    "the_log_records": "“state tax applies to taxable income, never gross.” Applying a state rate to gross income overstates the tax by the whole deduction.",
+    "governs": "MoneyKeel/functions/cashflow/base-pay.ts · src/domain/income/onboarding.ts"
+  },
+  "DEC-0364": {
+    "id": "DEC-0364",
+    "decided": "2026-09-26",
+    "type": "RULE",
+    "tab": "plan",
+    "whose": "his",
+    "his_words": "Q5 — the mortgage odds placeholder → build the second simulation first; until then the row states today’s odds and stops",
+    "the_log_records": "“Q5 — the mortgage odds placeholder → build the second simulation first; until then the row states today’s odds and stops.” Rather than showing a placeholder figure, the row says what is true today and says nothing more until the calculation exists.",
+    "governs": "src/domain/income/onboarding.ts · src/domain/debt/mortgageOdds.ts"
+  },
+  "DEC-0376": {
+    "id": "DEC-0376",
+    "decided": "2026-09-12",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "one card disagreeing with itself: the household take-home row read ~$10,442/month over a take-home line of ~$9,242; corrected to ~$9,242. A total agrees with the lines printed above it, and it is the LINES that are right.",
+    "the_log_records": "A total must equal the lines printed above it, and where they disagree it is the LINES that are right. The income card showed a household take-home of about $10,442 a month over a take-home line of about $9,242 — the total was corrected down to the lines.",
+    "governs": "MK-CF-M-037 · MK-CF-M-038 · MK-CF-O-004 · MK-CF-O-001 · MK-CF-M-037 · MK-CF-F-060 · MK-CF-F-206"
+  },
+  "DEC-0447": {
+    "id": "DEC-0447",
+    "decided": "2026-06-30",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "how about one time income?",
+    "the_log_records": "“how about one time income?” Income that arrives once is captured as such and lands in its own month, rather than being spread across twelve.",
+    "governs": "src/domain/income/onboarding.ts · src/domain/cashflow/index.ts"
+  },
+  "DEC-0487": {
+    "id": "DEC-0487",
+    "decided": "2026-07-01",
+    "type": "RULE",
+    "tab": "plan",
+    "whose": "his",
+    "his_words": "How is the amount calculated by age? Is this a formula used by social security administration?",
+    "the_log_records": "HIS QUESTION: “How is the amount calculated by age? Is this a formula used by the Social Security Administration?” Asking whether a figure follows the actual rules or our approximation of them.",
+    "governs": "src/domain/decumulation/index.ts · src/domain/income/onboarding.ts"
+  },
+  "DEC-0491": {
+    "id": "DEC-0491",
+    "decided": "2026-06-30",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "How all this information will be captured and at what frequency?",
+    "the_log_records": "HIS QUESTION: “How all this information will be captured and at what frequency?” Including the parts no connection can reach — cash, and cards that are not linked.",
+    "governs": "src/domain/income/onboarding.ts · src/domain/assets/index.ts"
+  },
+  "DEC-7935": {
+    "id": "DEC-7935",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "networth",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his ruling DEC-0321, made without asking him, as his order of 2026-09-30 says. His ruling DEC-0321 (2026-08-20): one tab said state tax was missing from the capital-gains figure and one said included; settled in one place. The app applies no state tax to capital gains, and now the two declarations say \"federal only\" in plain words. The Holding page prints the two gains and no tax figure ($8,000 long-term and $1,000 short-term are the gain itself), so no screen words change. userCapGainsRates was the other tab's half: it added the state rate, no app code called it, and its two tests now check the federal rates and that it is gone. Its number stays on the register's retired list with this reason. To reverse: restore the function and drop the two sentences. One word from him reverses it.",
+    "governs": "MoneyKeel/functions/networth-and-performance/holding.ts (MK-NW-M-036, MK-NW-M-037) · MK-CF-F-091 userCapGainsRates (retired) · src/domain/income/onboarding.ts"
+  },
+  "DEC-7938": {
+    "id": "DEC-7938",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0283 and DEC-3523 (tenets 1 and 4), made without asking him, as his order of 2026-09-30 says. $9,000 a month with $1,000 into a 401(k), single: the months read $7,976 while Your base pay read $6,976; all read $6,976 (22%), then $7,403 filing jointly (12%) and $6,963 with $1,500 into the 401(k). A take-home typed as $6,200 reads $6,200 (it read $7,200). A rate the person gave is not laid on rent, and reinvested interest and dividends are not counted as arriving. Checked in 10 of 10 households against the Income summary. The drawing's own words already said after tax and 401(k). To reverse: take the tax off the wage and leave the 401(k) in. One word from him reverses it.",
+    "governs": "MK-XS-F-004 buildDatedGrid (no rule entry) · MK-CF-F-092 incomeMonthlyGrid · MK-CF-F-226 datedGridOf · MK-CF-F-233 earnerWageShares, MK-CF-F-234 wagesLandingByMonth (src/domain/income/onboarding.ts) · MK-CF-M-047 · MK-CF-M-051"
+  },
+  "DEC-0252": {
+    "id": "DEC-0252",
+    "decided": "2026-09-08",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "the tax organizer shows gross income, 401(k) contribution, standard deduction and taxable income",
+    "the_log_records": "“the tax organizer shows gross income, 401(k) contribution, standard deduction and taxable income.” The four lines a tax return shows, in order, so the subtraction can be followed by hand.",
+    "governs": "MK-MN-M-027 · MK-MN-M-028 · MK-PL-F-082 · MK-CF-F-188"
+  },
+  "DEC-3768": {
+    "id": "DEC-3768",
+    "decided": "2026-10-10",
+    "type": "PROCESS",
+    "tab": "networth-and-performance",
+    "whose": "his",
+    "his_words": "#2,3 - approved.",
+    "the_log_records": "His approval of items 2 and 3 of the open points from OpenAI's final audit, as a whole. Each rule is its own row beside this one.",
+    "governs": "MK-NW-F-090 windowStartKey · MK-PF-F-008 startDateFor · MK-NW-F-114 rentAmount · MK-CF-F-067 rentalList · MK-NW-F-115 liveRent"
+  },
+  "DEC-3768c": {
+    "id": "DEC-3768c",
+    "decided": "2026-10-10",
+    "type": "CALCULATION",
+    "tab": "networth-and-performance",
+    "whose": "his",
+    "his_words": "#2,3 - approved.",
+    "the_log_records": "A rent or running-cost figure is a number. One with words in it — \"about 2k\" — is not read: it counts as not entered, and the rent field on the Income screen takes digits only. Before: \"about 2k\" was read as $2, and the property counted as a rental.",
+    "governs": "MK-NW-F-114 rentAmount · MK-CF-F-067 rentalList · MK-NW-F-115 liveRent"
+  },
+  "DEC-0244": {
+    "id": "DEC-0244",
+    "decided": "2026-09-08",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "ok — the paycheck's guaranteed line = the four outside sources",
+    "the_log_records": "“ok — the paycheck’s guaranteed line = the four outside sources.” The guaranteed part of a retirement paycheck is the income that comes from outside your savings — four named sources — not anything drawn from the pot.",
+    "governs": "MK-CF-M-023 · MK-CF-F-076"
+  },
+  "DEC-0245": {
+    "id": "DEC-0245",
+    "decided": "2026-09-08",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "question answered: yes, the row named the wrong function; the screen was right",
+    "the_log_records": "“question answered: yes, the row named the wrong function; the screen was right.” The master file pointed at the wrong calculation; the app was correct. The file was fixed, not the code.",
+    "governs": "MK-CF-M-022 · MK-CF-F-107 · MK-CF-F-076 · MK-PL-F-050"
+  },
+  "DEC-0247": {
+    "id": "DEC-0247",
+    "decided": "2026-09-08",
+    "type": "RULE",
+    "tab": "plan",
+    "whose": "his",
+    "his_words": "1000 everywhere",
+    "the_log_records": "“1000 everywhere.” Every projection runs 1,000 possible futures — one number, on every screen and in every calculation, so no two screens run a different many.",
+    "governs": "MK-XS-M-002 · MK-CF-M-022 · MK-PL-F-050"
+  },
+  "DEC-7940": {
+    "id": "DEC-7940",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0447 and DEC-0196, made without asking him, as his order of 2026-09-30 says. Add your income offered Bonus / one-time as one choice, which opened the yearly bonus editor, so a one-time $2,000 came back the next September and stayed in the next year's taxed income. Bonus and One-time income are now two choices; one-time income keeps its month with its year and lands once. Your sources lists it: Bonus · one-time · lands in September $2,000 (nothing said why THIS MONTH read $7,195). September reads $7,195 on the Income tab, This month and Home; October $5,396; 2027 is back to $5,416. Under his one-rate rule (DEC-0196, ruled as G46) the bonus raises the rate for every month that year, so October falls by $19.88; that is his rule, left as it is. An unpaid one-time bill dated in a passed month stays in Later; only income that has landed leaves it. To reverse: one choice to the bonus editor, and no row for other income. One word from him reverses it.",
+    "governs": "MK-CF-F-071 extraIncome · MK-CF-F-124 nextOccurrence · MK-XS-F-004 buildDatedGrid · MK-CF-M-027 · MK-CF-M-047 · the Income tab (src/screens/IncomeManagerScreen.tsx)"
+  },
+  "DEC-0078": {
+    "id": "DEC-0078",
+    "decided": "2026-08-11",
+    "type": "DESIGN",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "cut the build",
+    "the_log_records": "Build 51 was cut only after his explicit “cut the build” against a presented checklist, with the gates satisfied in order: scope complete at 59 of 59 rows, and the mock-match audits FINISHED rather than running alongside.",
+    "governs": "MK-CF-M-037 · MK-CF-M-028"
+  },
+  "DEC-0108": {
+    "id": "DEC-0108",
+    "decided": "2026-08-11",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "Update master PRD document. Go to master list of what",
+    "the_log_records": "The master list of what is built now records the day’s work rather than being reconstructed later: 18 built items in five groups, written down the day they were built.",
+    "governs": "MK-CF-M-037 · MK-NW-M-027 · MK-NW-M-020 · MK-NW-M-034"
+  },
+  "DEC-0149": {
+    "id": "DEC-0149",
+    "decided": "2026-08-14",
+    "type": "DESIGN",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "rename the latest folder that way we know what is single source of truth",
+    "the_log_records": "Four folders of design deliveries had accumulated outside the app, all named after net worth because that was the first screen drawn, though they now also held the Performance and Plan work. One named home for them, so the newest delivery can be found.",
+    "governs": "MK-PF-M-008 · MK-CF-M-037 · MK-NW-M-021 · MK-NW-M-008"
+  },
+  "DEC-0152": {
+    "id": "DEC-0152",
+    "decided": "2026-08-14",
+    "type": "DESIGN",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "s own five words,",
+    "the_log_records": "“create a folder called August 14th Design, move the latest files there so there is no confusion, and re-check every file carries the decisions we made.” One named home for the live set, and every file in it re-checked against the decisions rather than assumed to carry them.",
+    "governs": "MK-CF-M-037 · MK-NW-M-006 · MK-NW-M-029"
+  },
+  "DEC-0165": {
+    "id": "DEC-0165",
+    "decided": "2026-08-14",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "how to avoid this in the next brief?",
+    "the_log_records": "“how to avoid this in the next brief?” The honest answer is that more care would not have helped — all three errors were written while reading carefully, and two survived several reviews. So every number in a brief is now either computed by a test or explicitly labelled as his own figure, and a test fails the build when a brief and the calculation disagree.",
+    "governs": "MK-CF-M-037 · MK-NW-M-029 · MK-PF-M-008 · MK-NW-M-006"
+  },
+  "DEC-0166": {
+    "id": "DEC-0166",
+    "decided": "2026-08-14",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "not sure what you want me to check here.",
+    "the_log_records": "“not sure what you want me to check here.” He was right and the framing was mine: I put three options to him as a product decision when it was a technical correction with one right answer. A correction is not a question.",
+    "governs": "MK-CF-M-037 · MK-NW-M-006 · MK-NW-M-021 · MK-NW-M-015"
+  },
+  "DEC-0178": {
+    "id": "DEC-0178",
+    "decided": "2026-08-27",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "\"yes\" — DEC-0178, confirmed as written: The tax band is produced ONCE, at total income (MK-CF-F-084 taxable annual → MK-CF-F-090 effective rate). The base-pay s",
+    "the_log_records": "Your tax band is worked out ONCE, from your total income, and every screen reads that one figure. The base-pay screen does not work out a band of its own — a band is set by everything you are taxed on together, so a screen that sees only your wage would show the wrong one.",
+    "governs": "MK-CF-M-032 · MK-CF-M-043"
+  },
+  "DEC-0179": {
+    "id": "DEC-0179",
+    "decided": "2026-08-27",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "\"yes\" — DEC-0179, confirmed as written: Interest and dividends are WORKED OUT from the accounts (MK-NW-F-063 interest income annual), shown with the working, an",
+    "the_log_records": "Interest and dividends are taxed but are not money you can spend, unless you tell us they reach your bank. Two decisions:\n1. In most accounts they are reinvested where they are earned and never arrive, so they are taken out of your spendable take-home.\n2. The tax on them still comes out, because it is real — so simply deleting them would have been wrong in the other direction.",
+    "governs": "MK-CF-M-040 · MK-CF-O-004"
+  },
+  "DEC-0181": {
+    "id": "DEC-0181",
+    "decided": "2026-08-27",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "fix it completely. No two functions doing same thing.",
+    "the_log_records": "Fifteen calculations were each written in two or more places; now none is. 560 calculations, 560 distinct names. A second copy of a calculation cannot be fixed by fixing the first — which is how the same defect kept coming back.",
+    "governs": "MK-CF-M-037"
+  },
+  "DEC-0182": {
+    "id": "DEC-0182",
+    "decided": "2026-08-27",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "for orchestrator use O instead of F to make it easy to identify.",
+    "the_log_records": "The one function a screen calls for its question gets its own kind of identifier, so it can be told apart at a glance from the ordinary calculations underneath it.",
+    "governs": "MK-CF-M-037 · MK-CF-M-040 · MK-XS-M-004"
+  },
+  "DEC-0184": {
+    "id": "DEC-0184",
+    "decided": "2026-08-27",
+    "type": "BUILD RECORD",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "",
+    "the_log_records": "The app carried TWO complete tax engines, both live from the same profile on the same day, and one of them could not read a filing status at all. One is deleted. ZERO numbers moved for a single filer — the two were identical arithmetic there — and it becomes correct for couples the moment the filing-status question lands.",
+    "governs": "MK-CF-F-100 taxableIncomeFor · MK-CF-F-101 taxOwedFor · MK-CF-F-102 effectiveRateOnGrossFor · MK-CF-F-103 marginalBracketFor · MK-CF-F-097 grossFromNet (src/domain/income/tax.ts) · MK-CF-M-032 · MK-CF-M-043 · MK-MN-M-028"
+  },
+  "DEC-0187": {
+    "id": "DEC-0187",
+    "decided": "2026-08-27",
+    "type": "BUILD RECORD",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "",
+    "the_log_records": "Months are keyed by their actual date rather than by position — “2026-07”, not “slot 7 of twelve”. The twelve-slot version wrote January into the wrong year whenever the twelve months crossed a New Year.",
+    "governs": "MK-CF-M-037 · MK-CF-M-016 · MK-CF-M-028"
+  },
+  "DEC-0188": {
+    "id": "DEC-0188",
+    "decided": "2026-08-27",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "Who earns this income? You / Partner / Both",
+    "the_log_records": "A spouse’s wage becomes its own block, using the SAME field names as your own, and the household total sums every earner. A household on $84,000 plus $54,000 had been read as $84,000 — one person’s income against two people’s spending.",
+    "governs": "MK-CF-M-037 · MK-CF-M-030 · MK-CF-M-031 · MK-CF-M-036"
+  },
+  "DEC-0189": {
+    "id": "DEC-0189",
+    "decided": "2026-08-27",
+    "type": "BUILD RECORD",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "",
+    "the_log_records": "Every “today” in the app is the person’s OWN calendar day, not the day in universal time. Converting local midnight to universal time moves the date back a day anywhere east of Greenwich — which made every look-back answer “nothing” on a device set to India time.",
+    "governs": "MK-CF-M-037"
+  },
+  "DEC-0191": {
+    "id": "DEC-0191",
+    "decided": "2026-08-28",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "your tax band, on everything you are taxed on",
+    "the_log_records": "Your tax band is named as being on EVERYTHING you are taxed on — not just your wage. The band reads every source, so rent and dividends count toward which band you are in.",
+    "governs": "MK-CF-M-037"
+  },
+  "DEC-0194": {
+    "id": "DEC-0194",
+    "decided": "2026-08-28",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "effective tax rate % from last year",
+    "the_log_records": "The tax rate is shown where the money is, and can be corrected there. The rate could previously only be changed on a step inside the guided setup — itself unreachable — so the figure driving every take-home in the app could not be put right where you noticed it was wrong.",
+    "governs": "MK-CF-M-035 · MK-CF-M-037 · MK-CF-M-031 · MK-CF-M-046"
+  },
+  "DEC-0195": {
+    "id": "DEC-0195",
+    "decided": "2026-08-28",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "Federal tax bracket",
+    "the_log_records": "The base-pay card names the federal tax bracket, shows the estimated tax in MONEY rather than as a percentage, and says it assumes the standard deduction. A payslip has dollars on it, not a rate.",
+    "governs": "MK-CF-M-044 · MK-CF-M-032 · MK-CF-M-033 · MK-CF-M-043"
+  },
+  "DEC-0196": {
+    "id": "DEC-0196",
+    "decided": "2026-08-28",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "ll use 24% everywhere your take-home matters — cash flow, budget, what",
+    "the_log_records": "“We’ll use 24% everywhere your take-home matters — cash flow, budget, what’s left over. One-offs like a Roth conversion still use the tax tables.” The screen promises only what a payslip figure can answer: a rate off a payslip is an AVERAGE, and four places need the rate on your NEXT dollar.",
+    "governs": "MK-CF-M-043 · MK-CF-F-181"
+  },
+  "DEC-0197": {
+    "id": "DEC-0197",
+    "decided": "2026-08-28",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "Where your tax rate comes from, in order: TYPED off your payslip, IMPLIED by what you said lands in your bank, or OUR estimate — and each one says whose it is on the screen.",
+    "the_log_records": "Where your tax rate comes from, in order: TYPED off your payslip, IMPLIED by what you said lands in your bank, or OUR estimate — and each one says whose it is on the screen.",
+    "governs": "MK-CF-M-029 · MK-CF-M-032 · MK-CF-M-043 · MK-CF-M-044"
+  },
+  "DEC-0207": {
+    "id": "DEC-0207",
+    "decided": "2026-09-02",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "s first device pass, two accuracy-class: the card contradicted itself ($21,159 − $4,380 − $1,656 ≠ $16,403 — every estimated earner was granted the FULL joint deduction), and a two-earner household was banded as single (32% vs jointly 24%) because",
+    "the_log_records": "The pay card's own rows must add up: your gross pay, minus tax, minus your 401(k) contributions, equals your take-home — to the dollar, with a 401(k) row shown. It came from his first device pass, where the card contradicted itself because each earner was being given the whole married-couple tax allowance separately.",
+    "governs": "MK-CF-M-037 · MK-CF-M-032 · MK-CF-M-043 · MK-CF-M-030"
+  },
+  "DEC-0208": {
+    "id": "DEC-0208",
+    "decided": "2026-09-02",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "worked out",
+    "the_log_records": "Where one person entered their take-home and the other’s is calculated, the note says so per person — “Your take-home: $5,000 (you entered) · Sam’s take-home: about $3,686 (calculated)”. The prose version was misread: the entered $5,000 was taken for gross.",
+    "governs": "MK-CF-M-031 · MK-CF-M-033 · MK-CF-M-035 · MK-CF-M-044"
+  },
+  "DEC-0209": {
+    "id": "DEC-0209",
+    "decided": "2026-09-02",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "Always use same words to describe same thing in the app. There is no score for creative writing.",
+    "the_log_records": "One word per concept across the income screens: “take-home” replaces “lands in your bank” and “takes home”; “calculated” replaces “worked out”, “Estimated federal tax” and “our estimate”. A test enforces it.",
+    "governs": "MK-CF-M-037 · MK-CF-M-043 · MK-CF-M-032 · MK-CF-M-031"
+  },
+  "DEC-0279": {
+    "id": "DEC-0279",
+    "decided": "2026-08-26",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "if the coupon rate is not available use 0",
+    "the_log_records": "“if the coupon rate is not available use 0.” A bond with no stated rate pays nothing in our figures, rather than being given a guessed rate.",
+    "governs": "MK-NW-F-063 · MK-NW-F-063 · MK-CF-F-184"
+  },
+  "DEC-0375": {
+    "id": "DEC-0375",
+    "decided": "2026-09-27",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "No. Base Pay is one component of total income or income summary and not the same. Have your checked underlying function? Are two functions calculating save thing?",
+    "the_log_records": "“No. Base Pay is one component of total income or income summary and not the same. Have your checked underlying function? Are two functions calculating save thing?” He rejected the grouping and sent me to check the code — where the nesting turned out to be correct, and my proposal was wrong.",
+    "governs": "MK-XS-M-006 · MK-CF-M-006 · MK-CF-M-007 · MK-CF-M-008 · MK-CF-M-009 · MK-CF-M-010 · MK-CF-M-027 · MK-CF-M-029 · MK-MN-M-011 · MK-MN-M-012 · MK-MN-M-013 · MK-MN-M-014 · MK-CF-M-030 · MK-CF-M-031 · MK-CF-M-032 · MK-CF-M-033 · MK-CF-M-034 · MK-CF-M-035 · MK-CF-M-036 · MK-CF-M-037 · MK-CF-M-038 · MK-CF-M-039 · MK-CF-M-040 · MK-CF-M-041 · MK-CF-M-042 · MK-CF-M-043 · MK-CF-M-044 · MK-CF-M-045 · MK-CF-M-046"
+  },
+  "DEC-0387": {
+    "id": "DEC-0387",
+    "decided": "2026-08-28",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "TWO TOTALS, NEVER ONE on the income recap: what lands each month, and what the year is taxed on — each labelled. And a recap SHOWS, it does not ask: the rate is set on Your base pay and every other screen reads it.",
+    "the_log_records": "The income screen shows two totals and labels each: what lands in your bank each month, and what the year is taxed on. They are different numbers about the same wages. Mixing them is how a take-home figure comes to include a bonus nobody has been paid yet.",
+    "governs": "MK-CF-M-037 · MK-CF-M-038 · MK-CF-M-041 · MK-CF-M-042 · MK-CF-O-004 · MK-CF-O-004"
+  },
+  "DEC-0389": {
+    "id": "DEC-0389",
+    "decided": "not dated in the log",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "calculated (your standing order, 2026-09-02)",
+    "the_log_records": "“calculated” is the word for a figure the app worked out — his standing order. “worked out”, “Estimated federal tax” and “our estimate” are retired.",
+    "governs": "MK-CF-M-031 · MK-CF-M-033 · MK-CF-M-035 · MK-CF-M-044"
+  },
+  "DEC-0431": {
+    "id": "DEC-0431",
+    "decided": "not dated in the log",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "Nothing entered yet.",
+    "the_log_records": "“Nothing entered yet.” The approved wording for a screen with no data: the layout stays, the figure reads $0, this sentence explains it, and the door to enter something sits beneath.",
+    "governs": "MK-CF-M-037"
+  },
+  "DEC-1668": {
+    "id": "DEC-1668",
+    "decided": "2026-10-04",
+    "type": "RULE",
+    "tab": "networth",
+    "whose": "his",
+    "his_words": "add it to the cash as losing job does not mean loosing rental income too.",
+    "the_log_records": "The emergency fund counts rent from a property. Rent keeps arriving when pay stops, so each month it is added to the cash: months = cash ÷ (a month of essentials − the rent).",
+    "governs": "MK-NW-M-013 EMERGENCY FUND — X.X months · MK-NW-M-046 at your planned spend · MK-NW-M-064 rent from your property, which keeps arriving · MK-MN-M-020 · MK-MN-M-025 · MoneyKeel/functions/networth-and-performance/emergency-fund.ts (MK-NW-O-004 theEmergencyFund) · MoneyKeel/functions/cashflow/income-summary.ts (MK-CF-O-004 incomeSummary, lands.rentMonthly) · src/screens/NetWorthScreen.tsx · src/screens/StressTestScreen.tsx · src/screens/JobSafetyScreen.tsx · src/screens/InsightsScreen.tsx"
+  },
+  "DEC-1859": {
+    "id": "DEC-1859",
+    "decided": "2026-10-04",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "#1 - remove langage to include interest on mortgage in maintenance expenses, as that is not standard practice.",
+    "the_log_records": "On the Rent from a property screen, the hint under \"What it costs to run each month\" no longer lists mortgage interest. It reads \"Tax, insurance, repairs, management.\" A mortgage on a rented-out property belongs in Debts.",
+    "governs": "src/screens/IncomeManagerScreen.tsx (Rent from a property) · MK-CF-M-027 · MK-NW-M-064 rent from your property, which keeps arriving · [a test of the app]"
+  },
+  "DEC-1924": {
+    "id": "DEC-1924",
+    "decided": "2026-10-04",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "11 - mortgage should not costs to run. We should ask to add monthly mortgage payment if any mortgage on second property. And automatically add it to debt.",
+    "the_log_records": "On Rent from a property, a mortgage is never part of what the property costs to run. The screen asks for the monthly mortgage payment on that property, if there is one, and the app adds that mortgage to Debts by itself.",
+    "governs": "src/screens/IncomeManagerScreen.tsx (Rent from a property) · src/onboarding/modules.tsx (Rental property) · MK-CF-M-027 · MK-NW-M-064 rent from your property, which keeps arriving · src/domain/debt/index.ts"
+  },
+  "DEC-6796": {
+    "id": "DEC-6796",
+    "decided": "2026-10-21",
+    "type": "RULE",
+    "tab": "networth",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-21 under his rulings DEC-3523 (tenet 1, a wrong number ends trust) and DEC-6623, made without asking him, as his order of 2026-09-30 says. A −$50 dividend reversal and a +$5 fee refund on a $10,000 brokerage: ACTIVITY −$50 and +$5, dividends −$50, Return −0.45% on the account page, Performance and Net worth alike (before: +$50 and −$5, dividends $50, the income +$50). To reverse: restore the three-kind check in ingest.ts. One word from him reverses it.",
+    "governs": "MK-XS-F-102 ingestSync (src/services/sync/ingest.ts) · MK-ST-F-012 toLedgerRow · MK-XS-F-116 · MK-CF-F-108 · MK-CF-F-111 · MK-CF-F-116 · MK-CF-F-119 · MK-CF-F-183 · MK-PL-F-009 · MK-PF-F-048 · MK-NW-F-084 · fixStoredMoney, ID awaiting"
+  },
+  "DEC-7171": {
+    "id": "DEC-7171",
+    "decided": "2026-10-21",
+    "type": "RULE",
+    "tab": "networth",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-21 on master question Q35, made without asking him, as his order of 2026-09-30 says, following his comment of 2026-08-26 on this figure (Trailing Twelve Months, not just 12 months). Holding detail reads Dividends received (trailing twelve months); it read Dividends received (12 mo). Income's line for an account's interest and dividends reads paid out over the trailing twelve months; it read over the last year. The figures do not change. One word from him reverses it.",
+    "governs": "MK-NW-M-034 (where Q35 sits) · MK-NW-O-006 theHolding (MoneyKeel/functions/networth-and-performance/holding.ts) · MK-CF-F-184 incomeFromAccounts (src/domain/income/from-accounts.ts) · src/screens/HoldingDetailScreen.tsx · src/screens/IncomeManagerScreen.tsx"
+  },
+  "DEC-7795": {
+    "id": "DEC-7795",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-3523 (tenet 4) and DEC-0345, made without asking him, as his order of 2026-09-30 says. Single filer, $60,000 of wages, $4,800 into a 401(k), no rate typed: sign-up worked its own rate, 8.37%, tax $5,020 and take-home $50,180 a year, beside ≈ $4,230 a month on the same card. It now reads MK-CF-F-181 rateInForce through MK-CF-O-004 incomeSummary: 7.41%, $4,444 and $50,756 a year ($4,230 a month), as Cash flow's Income summary, and the Taxes step offers the calculated rate at about 7% (it offered about 8%). The months to clear a debt read MK-CF-F-029 monthsToClear ($10,000 at 18%: $300 a month clears in 47 months; $100 a month never clears) and the growth reads MK-CF-F-229 balanceGrownTo ($300,000 and $1,500 a month at 4.6% for 15 years): the same figures as before, through one formula each. None of these is stored in the profile. To reverse: give sign-up back its own incomeTaxRate, debtPayoff and fv. One word from him reverses it.",
+    "governs": "src/onboarding/modules.tsx (incomeTaxRate, debtPayoff, fv) · MK-CF-F-181 rateInForce · MK-CF-O-004 incomeSummary (hands out the rate) · MK-CF-F-029 monthsToClear · MK-CF-F-229 balanceGrownTo (src/domain/debt/mortgageVsTreasury.ts) · MK-CF-F-126 futureValue"
+  },
+  "DEC-7796": {
+    "id": "DEC-7796",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his ruling DEC-3523 (tenet 4), made without asking him, as his order of 2026-09-30 says. $60,000 of wages, $4,800 into a 401(k) and $700 a month of benefits that are not taxed: the line read \"On ~$68,400 gross\" replaced by \"On the ~$60,000 it is taxed on\" — the full line now reads that the estimate comes from the IRS schedule after your 401(k) and the standard deduction. It worked over every source, the untaxed ones too, with its own bracket, 22% ($68,400 − $16,100 = $52,300), and about 8%; it now shows Cash flow's 12% ($60,000 − $16,100 = $43,900) and about 7%, beside Cash flow's What it is taxed on, $60,000. With a state rate entered, the line says the rate includes it. To reverse: give the step its own rate and the total of every source again. One word from him reverses it.",
+    "governs": "src/onboarding/modules.tsx (the Taxes step) · MK-CF-O-004 incomeSummary · MK-CF-M-041 · MK-CF-M-043"
+  },
+  "DEC-7797": {
+    "id": "DEC-7797",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0283, DEC-4529 and DEC-3523 (tenets 1 and 4), made without asking him, as his order of 2026-09-30 says. His ruling DEC-0283 (2026-09-10): income before tax is gross less the 401(k) and other deductions. The tax was already worked that way while the bracket named the band of the gross. 5 of 5 places now read the income after the 401(k). The Income summary bracket, single, $70,000 of wages and $10,000 into a 401(k): 22% on $53,900 → 12% on $43,900, tax about $5,020 unchanged. Sign-up's Taxes step shows the same 12%. Your base pay, the drawing's own household, $138,000 of wages and $14,400 into 401(k)s, taxed on $91,400: 22% → 12%. The filing-status comparison works its tax after the 401(k), its line naming what was entered less the 401(k). The draw-order sheet's rates are worked after the 401(k). Base pay's 12% is A FIGURE ON HIS APPROVED DRAWING (income-end-to-end v07, phone 2, which draws 22%), applied under tenet 1, which ranks above tenet 6, with the correction line his DEC-4529 asks for on the drawing. For that household the drawn sentence that begins Filing jointly, the band comes from what you earn together no longer prints (both bands are 12%), and the sentence about the 24% stands on its own. What it is taxed on was left as drawn, each gross line, then Gross a year. CORRECTED 2026-10-24: that no longer holds — two rows were added under the gross, Your 401(k)s and What it is taxed on, drawn by the READ THIS FIRST row of 2026-10-24 on income-end-to-end v07 under his DEC-0283 (DEC-7887). To reverse: read the bracket off the gross again. One word from him reverses it.",
+    "governs": "MK-CF-F-230 taxedAfterPreTax (src/domain/income/tax-rate.ts) · MK-CF-F-181 rateInForce · MK-CF-M-043 (the Income summary bracket) · MK-CF-M-032 (the Base pay bracket) · MK-CF-O-001 · MK-CF-O-004 · the filing-status comparison · the draw-order sheet"
+  },
+  "DEC-7798": {
+    "id": "DEC-7798",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his ruling DEC-3523 (tenet 1), made without asking him, as his order of 2026-09-30 says. A 5.00% state rate entered on the Tax organizer, no rate typed: the line under Calculated federal tax said federal only, that the rate knew nothing about the state, while the calculated rate held the state rate the person entered. It now reads \"Federal income tax, plus the 5.00% state rate you entered — it knows nothing about Social Security or Medicare.\", the words built for the typed-rate case (DEC-7608). With no state rate entered it reads as built, federal only. The figures do not change. To reverse: take the state rate out of the calculated rate, and the line stands as built. One word from him reverses it.",
+    "governs": "MK-CF-M-044 (the line under Calculated federal tax) · MK-CF-O-004 incomeSummary (MoneyKeel/functions/cashflow/income-summary.ts) · MK-CF-F-181 rateInForce"
+  },
+  "DEC-7887": {
+    "id": "DEC-7887",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0283 and DEC-3523 (tenet 2), made without asking him, as his order of 2026-09-30 says. A couple with $169,200 of wages and $19,200 into 401(k)s: the card printed only the gross, $169,200, while the bracket and a calculated tax were worked on $150,000. It now prints three rows: Gross a year $169,200, Your 401(k)s −$19,200, What it is taxed on $150,000. The drawing's own household (frame 5a): $167,400 − $14,400 = $153,000, bracket 22%. With no 401(k) the 401(k) row reads $0 and the two totals are the same. Two new figures: MK-CF-M-076, the gross a year, and MK-CF-M-077, the year's 401(k)s; MK-CF-M-041, What it is taxed on, is the gross less the 401(k)s. MK-CF-M-044's worked example is now the calculated case, $15,340, the federal tax on $150,000 less the $32,200 standard deduction ($2,480 + $9,120 + 22% × $17,000); it showed the typed 22% case, $37,224 — the code was right and the words were wrong. Sign-up's Taxes step names about $55,200 it is taxed on, the gross less the 401(k) (it named about $60,000, for $60,000 of wages and $4,800 into a 401(k)). The two rows are drawn by the READ THIS FIRST row of 2026-10-24 on income-end-to-end v07. To reverse: drop the two rows and print the gross as What it is taxed on again. One word from him reverses it.",
+    "governs": "MK-CF-M-041 · MK-CF-M-076 · MK-CF-M-077 · MK-CF-M-044 · MK-CF-O-004 incomeSummary (MoneyKeel/functions/cashflow/income-summary.ts) · src/screens/IncomeSummaryScreen.tsx · src/onboarding/modules.tsx (the Taxes step)"
+  },
+  "DEC-7933": {
+    "id": "DEC-7933",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "networth",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-2748c and DEC-3523 (tenets 3 and 4), made without asking him, as his order of 2026-09-30 says. A $25,000 Treasury at 4.5%, worth $24,200, face value left blank: the account page read \"4.50%/year · $1,089/year\" and a yield on today's value of 4.50%; it now reads \"4.50%/year · face value not entered\" and gives no yield. A bond pays its coupon on its face: $25,000 × 4.5% = $1,125 a year once the face is entered. On Bonds its card names the missing face value, and the summary says \"Average yield leaves out US Treasury 2031 — face value not entered.\" The income sheet counts it at $0 and says why (it counted $1,089), and a bond past its maturity date counts $0 there too, \"matured Jun 30, 2026 — it pays no more interest\" (it counted $400). Tenet 3 outranks the no-face half of DEC-2748c for a dated bond only: a bank CD typed by its balance keeps its rate on that balance ($10,000 at 5.05% = $505), and so does a bond fund with no maturity date, so the income drawing's 4.2% on $30,000 line stands. The four bonds add to $1,630 on all three screens. To reverse: in src/domain/bonds/index.ts remove the maturity condition (keeps the CD and fund exception), or read every bond with no face at its value again. One word from him reverses it.",
+    "governs": "MK-NW-M-024 · MK-NW-M-056 · MK-NW-F-126 yearlyInterestNow · MK-NW-F-112 yearlyInterest · MK-CF-F-184 incomeFromAccounts · src/domain/bonds/index.ts · MK-CF-M-066"
+  },
+  "DEC-0292": {
+    "id": "DEC-0292",
+    "decided": "2026-08-27",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "This-month screen, Planned: In (take-home) 5,000 · mortgage 2,000 · car 250 · expenses 2,000 · HELOC from the big-ticket radar 200 · credit-card payment entered by hand 200 · surplus 750. Actual: 5,000 · mortgage paid 2,000 · car paid 0 · expenses entered 500 · expenses imported from the card 1,200 · HELOC 200 · card payment 200 · surplus 1,300. Spending: recurring (mortgage 2,000, car 250), planned expenses (gas 200, grocery 900, utilities 200, other 700 = 2,000), radar: card payment 1,200 NOT counted as an expense, HELOC 200 counted, card payment entered by hand 200 counted.",
+    "the_log_records": "A worked example of the This-month screen in his own numbers: take-home 5,000, mortgage 2,000, car 250, expenses 2,000, a HELOC payment of 200 from the big-ticket list and a 200 card payment entered by hand, leaving a surplus of 750 — with the actual column beside it. The rows have to add up to the surplus, which is what the example pins.",
+    "governs": "MK-CF-M-048 · MK-CF-M-052 · MK-CF-M-015 · MK-CF-M-019 · MK-CF-O-003 · MK-CF-O-002"
+  },
+  "DEC-0493": {
+    "id": "DEC-0493",
+    "decided": "2026-06-30",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "Why retirement number resides in spend tab? What's the logical reason?",
+    "the_log_records": "HIS QUESTION: “Why retirement number resides in spend tab? What’s the logical reason?” A figure placed where it does not belong makes the tab about something other than its name.",
+    "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/domain/budget/index.ts"
+  },
+  "DEC-2440": {
+    "id": "DEC-2440",
+    "decided": "2026-10-07",
+    "type": "RULE",
+    "tab": "networth",
+    "whose": "his",
+    "his_words": "NW batch one close.",
+    "the_log_records": "The first batch of the outside review of Net worth is closed. Everything corrected in it stands: every return time-weighted, rent counted in the emergency fund, every debt counted from Debts, a mortgage on a named property, and the smaller fixes to bonds, holdings and the account page.",
+    "governs": "MK-NW-O-001 · MK-NW-O-002 · MK-NW-O-003 · MK-NW-O-004 · MK-NW-O-005 · MK-NW-O-006 · MK-NW-F-106 · MK-NW-F-107 · MK-CF-O-020 · MK-NW-M-002 · MK-NW-M-013 · MK-NW-M-036 · MK-NW-M-044 · MK-NW-M-064 · MK-PF-M-016"
+  },
+  "DEC-2484": {
+    "id": "DEC-2484",
+    "decided": "2026-10-07",
+    "type": "PROCESS",
+    "tab": "networth",
+    "whose": "his",
+    "his_words": "all the code changes, findings and changes - for batch one and two - I approved.",
+    "the_log_records": "His approval of batches 1 and 2 of the outside review of Net worth, as a whole. Each rule it approved is its own row beside this one, so it can be found and read alone.",
+    "governs": "MK-NW-O-001 theBonds · MK-NW-O-002 theAccount · MK-NW-O-003 theNetWorth · MK-NW-O-004 theEmergencyFund · MK-NW-O-005 theAlternativesOutlook · MK-NW-O-006 theHolding · MK-NW-O-008 thePerformance · MK-NW-F-003 valueFreshness · MK-NW-F-004 portfolioActualReturn · MK-NW-F-005 accountAllowsTicker · MK-NW-F-010 wrapperAccount · MK-NW-F-011 assetClassOf · MK-NW-F-012 taxTreatmentOf · MK-NW-F-016 cashTotal · MK-NW-F-017 equitiesTotal · MK-NW-F-018 fixedIncomeTotal · MK-NW-F-019 alternativesTotal · MK-NW-F-020 realEstateTotal · MK-NW-F-021 investmentsTotal · MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames · MK-NW-F-027 accountClassBreakdown · MK-NW-F-028 classPortionLabel · MK-NW-F-061 bondSummary · MK-NW-F-064 bondRateSensitivity · MK-NW-F-106 mortgagesByProperty · MK-NW-F-107 propertyUses · MK-NW-F-108 taxWordsOf · MK-NW-F-109 holdingClassOf · MK-CF-O-020 theBudgetCounted · MK-CF-F-139 removeShares · MK-PF-F-006 capGains · MK-XS-F-102 ingestSync · Calculation Module code/engines/time-weighted-return.ts · MK-NW-M-002 · MK-NW-M-005 · MK-NW-M-007 · MK-NW-M-008 · MK-NW-M-013 · MK-NW-M-014 · MK-NW-M-036 · MK-NW-M-044 · MK-NW-M-064 · MK-PF-M-001 · MK-PF-M-016"
+  },
+  "DEC-7611": {
+    "id": "DEC-7611",
+    "decided": "2026-10-23",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-0002, DEC-0447 and DEC-0345, made without asking him, as his order of 2026-09-30 says. September with $700 of groceries and a $1,200 bill in December: This month −$700, the Expenses tab $700 (it read $800, with Once in a while $100), Home's September record $700. December: $1,900 on all three (Once in a while $1,200). A budget whose only line is the December bill reads $0 planned in September on both tabs — set, never \"You haven't set your budget yet\". A once-in-a-while bill with no month set is still a twelfth a month, as before. To reverse: build the Expenses tab's rows from the monthly average again. One word from him reverses it.",
+    "governs": "MK-CF-F-221 spendByMonthByBucket (src/domain/budget/index.ts) · MK-CF-F-008 spendByMonth (the sum of the three groups) · MK-CF-F-227 thisMonthInputs (src/hooks/useCashflowModel.ts) · MK-CF-F-156 plannedMonthFlow (budgetSet) · MK-CF-M-001 · MK-CF-M-004 · MK-CF-M-015"
+  },
+  "DEC-7951": {
+    "id": "DEC-7951",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0002, DEC-0447, DEC-4529 and DEC-3523 (tenet 1), made without asking him, as his order of 2026-09-30 says. His $2,000 a month typed ($1,100 bills & fixed, $900 everyday) with $1,200 of car insurance in December: every month read $1,900, the typed $2,000 taken to hold $100 a month of the bill, and the $1,100 / $900 split was dropped. Now eleven months read $2,000 and December $3,200. Where a figure is a whole year shown by the month it counts the bill once: MK-CF-F-002, the planned monthly figure, 2,000 + 1,200 ÷ 12 = $2,100 (it read $2,000); MK-CF-F-009, the must-pay figure, $2,000 (it read $1,900). The Net worth emergency fund in the family-inputs household: (2,900 × 12 + 3,600) ÷ 12 + 4,670 = $7,870 (it read $7,570), $31,489 ÷ 6,070 = 5.2 months (it read 5.5). On his approved Net worth v08 drawing's household, $4,500 a month typed and a $3,600 April premium: the months of essentials read 2.1 ($8,838 ÷ $4,150; the drawing shows 2.3, from $3,850), and at the planned spend 1.8 ($5,050; the drawing shows 1.9, from $4,750). The drawing is left as drawn, with the correction line his DEC-4529 asks for in its READ THIS FIRST and the matching allowed difference in its test. Sign-up's recap reads MK-CF-F-002. No ruling of his says a typed budget already holds such a bill. To reverse: read the typed total as holding a twelfth of each dated bill again. One word from him reverses it.",
+    "governs": "MK-CF-F-008 spendByMonth · MK-CF-F-221 spendByMonthByBucket · MK-CF-F-002 · MK-CF-F-009 · src/domain/budget/index.ts · MoneyKeel/functions/networth-and-performance/emergency-fund.ts (MK-NW-M-046) · MK-NW-M-014 · MK-NW-M-048 · src/onboarding/modules.tsx (the recap)"
+  },
+  "DEC-8153": {
+    "id": "DEC-8153",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-1923 and DEC-3523 (tenets 1 and 4), made without asking him, as his order of 2026-09-30 says. One rule for a debt in a month, in two new shared functions, MK-CF-F-235 paysInMonth and MK-CF-F-236 paymentInMonth: from its first payment to its payoff, and a balance due in full once, in its month, at its balance. A $7,200 take-home, a $3,400 budget, the $2,400 mortgage, a $250 car loan whose first payment is Oct 28, a $300 loan paid off in August and a $1,000 tax bill due in full Sep 20: September's planned surplus read +$850, the car loan and the paid-off loan counted and the tax bill left out; it reads +$400 = 7,200 − 3,400 − 2,400 − 1,000, what the Bill calendar's September holds. October's card is unchanged, $1,150. ACTUAL no longer lists the car loan as due the 28th at $0; MONTHLY RECURRING EXPENSES reads $2,400 (it read $2,650); the tax bill is on the BIG-TICKET RADAR at $1,000; Home's due-soon reminder no longer fires for a loan not yet started. MK-CF-M-047, 048 and 049 now say they print on a later month's plan card, from the grid ($7,200 / $6,050 / $1,150), and the retired surplus line and the paycheck card's SURPLUS have their own number, MK-CF-M-078 (it printed under MK-CF-M-049). To reverse: count every debt's payment in this month again, whatever its dates. One word from him reverses it.",
+    "governs": "MK-CF-F-235 paysInMonth · MK-CF-F-236 paymentInMonth (src/domain/debt/index.ts) · MK-CF-F-156 plannedMonthFlow · MK-CF-F-005 actualMonthFlow · MK-CF-F-149 recurringDebtPayments · MK-CF-F-153 radar · MK-XS-F-004 buildDatedGrid · MK-CF-M-002 · MK-CF-M-016 · MK-CF-M-047 · MK-CF-M-048 · MK-CF-M-049 · MK-CF-M-078 · src/screens/HomeScreen.tsx · src/components/PaycheckCard.tsx"
+  },
+  "DEC-0007": {
+    "id": "DEC-0007",
+    "decided": "2026-07-28",
+    "type": "DESIGN",
+    "tab": "networth",
+    "whose": "his",
+    "his_words": "X months of essentials",
+    "the_log_records": "The emergency fund card — “X months of essentials” — comes back into scope on the Net worth screen, below the main figures. It is drawn as a mock and approved before any code is written.",
+    "governs": "MK-NW-M-013"
+  },
+  "DEC-0251": {
+    "id": "DEC-0251",
+    "decided": "2026-09-08",
+    "type": "RULE",
+    "tab": "networth",
+    "whose": "his",
+    "his_words": "ok — one producer for essentials per brief Q-21 (2026-08-20); fewer than 12 months logged → the average for the logged months, labelled 'N month average'",
+    "the_log_records": "“ok — one producer for essentials per brief Q-21; fewer than 12 months logged → the average for the logged months, labelled ‘N month average’.” ONE essentials figure across every screen, taken from what you have actually logged, with the label saying how many months it stands on. The typed plan is the fallback for someone who has logged nothing — never the other way round.",
+    "governs": "MK-NW-M-013 · MK-NW-M-014 · MK-MN-M-020 · MK-MN-M-021 · MK-MN-M-024 · MK-MN-M-025 · MK-MN-M-026 · MK-CF-F-189 · MK-CF-F-190 · MK-CF-F-010"
+  },
+  "DEC-0260": {
+    "id": "DEC-0260",
+    "decided": "2026-09-09",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "the screen shows $0 with a sentence explaining nothing is entered, and the door; the sentence approved; one mock of the pattern on one screen",
+    "the_log_records": "“the screen shows $0 with a sentence explaining nothing is entered, and the door.” On a fresh account a screen keeps its shape, shows $0, says plainly that nothing is entered, and offers the way to enter it — rather than a blank space or a dash.",
+    "governs": "MK-NW-M-048 · MK-MN-M-025 · MK-CF-M-002 · MK-CF-M-052"
+  },
+  "DEC-0002": {
+    "id": "DEC-0002",
+    "decided": "2026-07-19",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "cashflow. Approve.",
+    "the_log_records": "Cash flow becomes ONE screen with four tabs, replacing the two separate Cash flow and Budget screens. Four decisions:\n1. The Budget screen is RETIRED; its job moves onto the cash-flow surface.\n2. Income is entered through a pop-up that asks whether your pay is steady or varies.\n3. You can move between past and future months.\n4. Big one-off bills get their own list, so a bill that lands once a year is not lost inside a monthly average.\nSTILL IN FORCE: his approval of the combined cash-flow mock (2026-09-28) carries this architecture forward by name — 'the four-tab architecture from v02'. Only the NAME of the third tab changed; see the row beside this one.",
+    "governs": "MK-CF-M-048 · MK-CF-M-016 · MK-CF-M-004"
+  },
+  "DEC-0443": {
+    "id": "DEC-0443",
+    "decided": "2026-06-30",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "The display never showcased year. So, user want to see cashflow from July 2026 to June 2027 how would they do that?",
+    "the_log_records": "“The display never showcased year. So, user want to see cashflow from July 2026 to June 2027 how would they do that?” A month shown without its year cannot be read across a year boundary — which is exactly the window most people want.",
+    "governs": "MK-CF-M-016"
+  },
+  "DEC-7936": {
+    "id": "DEC-7936",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0269 and DEC-3523 (tenets 1, 2, 4 and 7), made without asking him, as his order of 2026-09-30 says. Money there by a day is the table's End for the month before, plus or less anything dated earlier in that month; that month's own pay, everyday expenses and debt payments count only when the month loses money (tenet 7: never better than it is). Sep 28, $0 on hand, $5,000 take-home, $700 of groceries, $2,650 of debt payments, $1,200 due Dec 15 (need-by Dec 13): the line said about $10,744, the wage spread by day with the debts left out; it now reads November's End, about $4,950 (Sep End 5,000 − 3,350 = $1,650, Oct $3,300, Nov $4,950). With property tax of $4,800 due Dec 1 as well: Covered, about $8,765, became Short $1,500 (October's End $3,300), and the Dec 15 bill Short $1,050. Two bills due the same day both counted the whole balance; the first listed now gets the money first ($4,950, then $3,750). A one-time bill for March 2028 is no longer listed as March 2027. Whole months, because the app never asks the day pay lands. To reverse: in MK-CF-F-232 balanceByDay change Math.min(0, regular) to regular, and drop aheadOfIt in upcomingBills. One word from him reverses it.",
+    "governs": "MK-CF-F-019 upcomingBills · MK-CF-F-232 balanceByDay (src/domain/cashflow/index.ts) · MK-CF-O-008 whatsComing (MoneyKeel/functions/cashflow/whats-coming.ts) · MK-CF-M-062 · MK-CF-M-063 · src/screens/BillCalendarScreen.tsx"
+  },
+  "DEC-7941": {
+    "id": "DEC-7941",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-1923, DEC-0283 and DEC-3523 (tenets 1 and 4), made without asking him, as his order of 2026-09-30 says. With the home's mortgage in Debts, the Rent / Mortgage budget line is not counted beside it, as This month does not count it: $7,200 in, $700 of groceries and the $2,400 mortgage out, September's End $4,100 (it read $5,400 out and an End of $1,800, the $2,300 line counted too). The In column is the take-home after tax and the 401(k), as Your base pay prints it. A yearly bill whose day passed earlier this month has one place, this month's Out and plan, and is not under COMING UP for next year. To reverse: build the calendar's months from the budget as typed again. One word from him reverses it.",
+    "governs": "src/screens/BillCalendarScreen.tsx · MK-XS-F-004 buildDatedGrid · MK-CF-F-019 upcomingBills"
+  },
+  "DEC-0393": {
+    "id": "DEC-0393",
+    "decided": "not dated in the log",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "Again context is important. Term to represent Net amount person get should be \"take-home\". In context of take home base salary use \"Base salary (take-home)\". In context of total income use \"Income (Take-home)\". Again in context of cashflow it is always inflow and outflow. Describe inflow and outflow same way \"Inflow (income (take-home) + rent)\" where terms in parentheses represent source of inflow or outflow. \"Money In\" should be \"Inflow (xxx)\".",
+    "the_log_records": "“Again context is important. Term to represent Net amount person get should be ‘take-home’. In context of take home base salary use ‘Base salary (take-home)’.” One word for the concept, with the context named in brackets — not a different word per screen.",
+    "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · MoneyKeel/functions/cashflow/this-month.ts"
+  },
+  "DEC-0496": {
+    "id": "DEC-0496",
+    "decided": "2026-06-30",
+    "type": "RULE",
+    "tab": "home",
+    "whose": "his",
+    "his_words": "How you plan to capture the information?",
+    "the_log_records": "HIS QUESTION: “How you plan to capture the information?” Asked of the Home screen — what is behind each figure it shows.",
+    "governs": "src/screens/HomeScreen.tsx · src/domain/debt/index.ts"
+  },
+  "DEC-0641": {
+    "id": "DEC-0641",
+    "decided": "2026-09-30",
+    "type": "RULE",
+    "tab": "networth",
+    "whose": "his",
+    "his_words": "Q53 - what actually leaves.",
+    "the_log_records": "The line reads “Monthly debt payments” and two amounts could go there: the minimum each debt obliges, or the money that actually goes. On a card with a $200 minimum paid at $600, it read $200 and now reads $600. HIS WORDS: “what actually leaves.” The words say payments, and what a person pays is what they pay. The minimum stays on the door for debt-to-income.",
+    "governs": "MK-NW-M-012 Monthly debt payments · MoneyKeel/functions/networth-and-performance/net-worth.ts theNetWorth (monthlyDebtPayments, monthlyDebtMinimum)"
+  },
+  "DEC-1923": {
+    "id": "DEC-1923",
+    "decided": "2026-10-04",
+    "type": "RULE",
+    "tab": "networth",
+    "whose": "his",
+    "his_words": "Once user enters mortgage or any debt - the app deduct it directly to calculate surplus, emergency fund, and any other place instead of leaving it for user to add it to planned expenses. Actual expenses - we wait for debt to be paid, and not assume it is paid, similar to mock up.",
+    "the_log_records": "A mortgage or any debt is taken from Debts, by the app, wherever a planned figure needs it — surplus, the emergency fund, anywhere. The person does not add it to planned expenses. On the actual side nothing is assumed paid: a debt counts only when its payment is logged.",
+    "governs": "MK-NW-M-013 EMERGENCY FUND — X.X months · MK-NW-M-047 debt payments you cannot stop · MoneyKeel/functions/networth-and-performance/emergency-fund.ts (MK-NW-O-004 theEmergencyFund) · MoneyKeel/functions/cashflow/this-month.ts (plannedMonthFlow, actualMonthFlow)"
+  },
+  "DEC-1925": {
+    "id": "DEC-1925",
+    "decided": "2026-10-04",
+    "type": "RULE",
+    "tab": "networth",
+    "whose": "his",
+    "his_words": "Properties, mortgages, and debt we should ask user to name. App should map properties included in networth against mortgages. It is feasible to have property without mortgage but no mortgage without property. So check should be 3 properties in NW - 3 or less mortgage.",
+    "the_log_records": "Every property, mortgage and debt has a name the person gives it. Each mortgage is matched to a property in Net worth. A property can have no mortgage; a mortgage cannot be without a property. So there are never more mortgages than properties: three properties, three mortgages or fewer.",
+    "governs": "src/screens/AddAccountScreen.tsx · src/components/DebtEditorSheet.tsx · src/screens/NetWorthScreen.tsx · src/domain/debt/index.ts · src/domain/assets/index.ts · MK-NW-M-010 · MK-NW-M-047 debt payments you cannot stop"
+  },
+  "DEC-7607": {
+    "id": "DEC-7607",
+    "decided": "2026-10-23",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-0440 and DEC-3523 (tenet 4), made without asking him, as his order of 2026-09-30 says. His approved drawing (DEC-0440, 2026-09-28) is newer than the 2026-08-28 words \"nothing is assumed to have arrived\", and the newest approval wins. With $500 recorded as received, Home read $7,700 against Cash flow's $7,200; both read $7,200. The row's formula now says, in plain words, that the inflow is the month's take-home. This settles screen check MK-CF-M-051#1, which was marked as needing a ruling. To reverse: count only recorded payments; both screens move together. One word from him reverses it.",
+    "governs": "MK-CF-M-051 (Inflow) · MoneyKeel/functions/cashflow/this-month.ts · MK-CF-F-227 thisMonthInputs · MK-CF-F-228 useThisMonthInputs"
+  },
+  "DEC-7609": {
+    "id": "DEC-7609",
+    "decided": "2026-10-23",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-0269 and DEC-0345, made without asking him, as his order of 2026-09-30 says. Worked September: Home's box label \"Actual expenses so far\" replaced by \"Outflow (expenses + debt)\". The box read Actual expenses so far $2,998 · Left $4,202; it now prints the Cash flow tab's month, Outflow (expenses + debt) $3,248 with the $250 car loan paid, Left $3,952 on both. Home's month-end sheet offers \"$3,952 of $3,952 left to assign\" (it offered $4,202). To reverse the label: put the old label back; the figures stay the Cash flow tab's. One word from him reverses it.",
+    "governs": "MK-CF-M-052 · MK-CF-M-053 · MK-CF-F-220 pastMonthFlow (MoneyKeel/functions/cashflow/this-month.ts) · MK-CF-F-228 useThisMonthInputs · src/screens/HomeScreen.tsx"
+  },
+  "DEC-7682": {
+    "id": "DEC-7682",
+    "decided": "2026-10-23",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-3523 (tenet 3) and DEC-0345, made without asking him, as his order of 2026-09-30 says. A car loan with no monthly payment entered, with a budget set: the band read \"+No budget set — …\" and the debt's row printed a sentence written for the master file. The row now reads \"payment not entered\" where the amount would be, the band reads —, and under the rows: \"Car loan's payment is not entered, so there is no planned surplus — we won't guess one.\" ACTUAL is unchanged. To reverse: give the debt's row and the surplus their earlier words. One word from him reverses it.",
+    "governs": "MK-CF-M-002 (Planned surplus) · src/screens/CashFlowScreen.tsx · MoneyKeel/functions/cashflow/the-debts.ts"
+  },
+  "DEC-7949": {
+    "id": "DEC-7949",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-3523 (tenets 1 and 4), made without asking him, as his order of 2026-09-30 says. A $150 grocery purchase dated Sep 25, imported on Oct 3, after September's record was saved: it was listed with nothing said, the card reading $1,510 and the list $1,360. The row now says, under its name, that it was added after September closed and is not in September's figures, and under the total that $150 of it was added after September closed. The card stays $1,510: a past month never changes under the person. To reverse: drop the two lines. One word from him reverses it.",
+    "governs": "MK-CF-F-231 addedAfterRecord (MoneyKeel/functions/cashflow/this-month.ts) · MK-CF-M-013 · MK-CF-M-052 · src/screens/CashFlowScreen.tsx"
+  },
+  "DEC-8085": {
+    "id": "DEC-8085",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his ruling DEC-0333, made without asking him, as his order of 2026-09-30 says. His ruling DEC-0333 (G12, 2026-09-12): the month's outflow, expenses and debt paid, comes from one function, MK-CF-F-194 monthOutflow, never from the screen. Only a past month used it: this month's outflow was summed inside MK-CF-F-005 actualMonthFlow, and Home added the rows again. Both now hand the month's expenses so far and debt paid so far to monthOutflow, and Home prints the door's inflow and outflow. The dollars do not move: A $3,248 · C $9,248 · D $3,548 · E $3,398, and a past month $2,998 + $250 = $3,248. DEC-0333 stays TESTED, now on eight checks in the agreement test. To reverse: restore this-month.ts from the scratchpad backup-1024b/ and revert the two lines in HomeScreen.tsx. One word from him reverses it.",
+    "governs": "MK-CF-F-194 monthOutflow · MK-CF-F-005 actualMonthFlow · MK-CF-O-003 thisMonth (MoneyKeel/functions/cashflow/this-month.ts) · src/screens/HomeScreen.tsx · MK-CF-M-052"
+  },
+  "DEC-8152": {
+    "id": "DEC-8152",
+    "decided": "2026-09-14",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "count them",
+    "the_log_records": "“count them.” His answer to master question Q50, on his own 2026-08-27 worked example: the HELOC payment of 200 and the card payment of 200, which his spending section counts as expenses, come off the surplus too. His household's planned surplus is 350 and its actual 900, not 750 and 1,300.",
+    "governs": "MK-CF-M-052 (This month's outflow, counting the HELOC and card payments) · MK-CF-M-002 · MK-CF-M-053 · MK-CF-F-194 monthOutflow · MK-CF-O-003 thisMonth (MoneyKeel/functions/cashflow/this-month.ts)"
+  },
+  "DEC-0159": {
+    "id": "DEC-0159",
+    "decided": "2026-08-14",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "s mortgage-versus-Treasury comparison, which depends on this number being real. The app fetched the yield from the Treasury Fiscal Data",
+    "the_log_records": "A LIVE, SILENT BUG. The ten-year Treasury yield was being fetched from a feed that had stopped working, and the app quietly used a fallback number instead — so a figure presented as today’s market rate was not. Found only because his mortgage-versus-Treasury comparison depends on that number being real.",
+    "governs": "src/services/economicData.ts (the ten-year Treasury yield, read from FRED series DGS10; a fallback is flagged, never silent) · src/domain/debt/mortgageVsTreasury.ts (the mortgage-versus-Treasury comparison that depends on it)"
+  },
+  "DEC-0161": {
+    "id": "DEC-0161",
+    "decided": "2026-08-14",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "BELOW THE YIELD (a 2021 loan at 3.1%): identical shape,",
+    "the_log_records": "He asked what the text would say EXACTLY. It was written out word for word, in the same sentence shape whichever way the comparison falls — so nobody can tell from the layout which answer they are about to get.",
+    "governs": "src/components/MortgageRateCompare.tsx · src/domain/debt/mortgageVsTreasury.ts"
+  },
+  "DEC-0484": {
+    "id": "DEC-0484",
+    "decided": "2026-07-01",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "If an account is connected but someone adds transaction manually - is that allowed and how will the reconciliation between captured info from Plaid versus manual entry happen?",
+    "the_log_records": "HIS QUESTION: “If an account is connected but someone adds a transaction manually — is that allowed, and how will the reconciliation between captured information work?” The question behind the later rule: both versions are shown side by side and the person chooses; nothing is merged for them.",
+    "governs": "src/domain/assets/index.ts · src/domain/transactions/index.ts"
+  },
+  "DEC-7398": {
+    "id": "DEC-7398",
+    "decided": "2026-10-22",
+    "type": "RULE",
+    "tab": "performance",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-22 under his rulings DEC-3656 and DEC-3523 (tenet 3), made without asking him, as his order of 2026-09-30 says. Worked back, a holding's start is the shares held when the window began: today's shares, less those bought since, plus those sold since; its gain adds what the sales brought in. 20 held at $100, 10 sold at $110, 10 left at $121: gain $310, beginning $2,000 (before: $210, $2,100). Read off the screens, AAA and BND: Beginning $12,000, Wealth generated $150, Return +1.29% on all three (before: $12,050, $100, +0.91%). Sold out and bought again: $260 from $1,000 (before: $160). If an oldest-first sale may have taken a purchase inside the window that no record sizes, the start is unknown, never guessed. To reverse: stop tradesAfter reading sales. One word from him reverses it.",
+    "governs": "tradesAfter and sharesThroughWindow, IDs awaiting (src/domain/performance/index.ts) · MK-NW-F-091 pricedGainOf · MK-NW-F-127 gainOfRow · MK-CF-F-139 (oldest-first sale) · MK-PF-M-013 · MK-PF-M-018"
+  },
+  "DEC-7595": {
+    "id": "DEC-7595",
+    "decided": "2026-10-23",
+    "type": "RULE",
+    "tab": "performance",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-3523 (tenets 1 and 5), made without asking him, as his order of 2026-09-30 says. $40,000 typed, 100 VTI inside it, 10 more bought at $100: the account read $10,000 on every screen; it reads $40,000 before and after, and the window reads Beginning $39,500, Wealth generated $500. A trade's fee leaves the account as money out. The holding editor's own promise is that a trade won't change the total typed. To reverse: put || a.cash_balance != null back in recomputeBalances and send buys and sales through bumpCash. One word from him reverses it.",
+    "governs": "MK-XS-F-174 recomputeBalances (no rule entry yet) · MK-CF-F-136 bumpCash · MK-CF-F-222 tradeCash (src/domain/transactions/index.ts) · src/store/useStore.ts"
+  },
+  "DEC-7596": {
+    "id": "DEC-7596",
+    "decided": "2026-10-23",
+    "type": "RULE",
+    "tab": "performance",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-6873 and DEC-6874, made without asking him, as his order of 2026-09-30 says. 10 VTI sold at $98 with a $5 fee: the sale brings in $975, counted once on the account page, the Performance tab, the Holding page and Home (no fee could be recorded). The cash a buy needs counts its fee: 50 VTI at $100.00 is the whole $5,000, so a $5 fee makes $5,005 — refused, and said so. The record keeps fee 5 beside the price (fee in price: no). To reverse: remove the row. One word from him reverses it.",
+    "governs": "the trade sheet in src/screens/AccountPortfolioScreen.tsx · MK-CF-F-118 cashEffect · MK-CF-F-111 applyTransaction"
+  },
+  "DEC-7601": {
+    "id": "DEC-7601",
+    "decided": "2026-10-23",
+    "type": "RULE",
+    "tab": "performance",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-3523 (tenets 1 and 3), made without asking him, as his order of 2026-09-30 says. Import 100 VTI (cost $8,000), then sell 10 at $98.00: realized +$180 all time (it read \"not on record\"). A purchase added in the editor, 10 VTI at $90.00 on Jan 5, 2026, then 105 sold at $100.00: +$2,050 (it read +$2,000, and 5 shares with no price paid). Each record carries its date, shares and price where on record; a missing price reads \"no price paid on record\". A re-import into a matched account writes records only for holdings that have none yet, so a purchase is never counted twice. Limits: changing or removing an existing purchase in the editor does not change its record; a re-import keeps the first file's records. To reverse: drop openingRecordsOf from addAsset, updateAsset and updatePosition. One word from him reverses it.",
+    "governs": "MK-CF-F-224 openingRecordsOf (src/domain/transactions/index.ts) · addAsset, updateAsset, updatePosition (src/store/useStore.ts) · MK-PF-F-028 realizedFromLedger"
+  },
+  "DEC-7602": {
+    "id": "DEC-7602",
+    "decided": "2026-10-23",
+    "type": "RULE",
+    "tab": "performance",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-0274 and DEC-4646, made without asking him, as his order of 2026-09-30 says. 1 contract bought at $2.50 costs $250 (cash moved $2.50 and the activity said \"1 share\"); 1 sold at $3.00 brings in $300, realized +$100, matched first in line to the Aug 3 contract bought at $2.00. The cash, the activity amount and the sheet's cash check all count contracts × the holding's shares per contract × price. Records made before 2026-10-23 stay at ×1, as they were applied. Limit: a ticker bought before it is held counts ×1, because the trade sheet does not ask the holding's type. To reverse: drop the stamp in recordTransaction. One word from him reverses it.",
+    "governs": "MK-CF-F-223 tradeMultiplierOf (src/domain/transactions/index.ts) · the record's new field multiplier · recordTransaction (src/store/useStore.ts) · MK-CF-F-111 applyTransaction · MK-CF-F-118 cashEffect"
+  },
+  "DEC-7605": {
+    "id": "DEC-7605",
+    "decided": "2026-10-23",
+    "type": "RULE",
+    "tab": "performance",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his ruling DEC-3523 (tenet 4), made without asking him, as his order of 2026-09-30 says. 10 VTI bought on the trade sheet: the account page lists it under ▾ STOCKS / FUNDS $1,000 (it listed under Unclassified), and after a $5 dividend the Performance tab's category table reads Stocks / Funds earned $5. The class comes from MK-XS-F-172 assetClassForSymbol, Import's road into classifyHoldingClass, stored under its tag (holdingTagFor). To reverse: drop asset_class in addLot. One word from him reverses it.",
+    "governs": "MK-XS-F-172 assetClassForSymbol · MK-CF-F-138 addLot · MK-NW-F-122 holdingTagFor"
+  },
+  "DEC-0317": {
+    "id": "DEC-0317",
+    "decided": "2026-08-20",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "the Plaid overlap — both versions side by side, the person chooses per transaction; stable pair identity; unmatched rows kept and flagged",
+    "the_log_records": "“the Plaid overlap — both versions side by side, the person chooses per transaction; stable pair identity; unmatched rows kept and flagged.” Where an imported transaction and one you entered look like the same thing, BOTH are shown and you choose. Nothing is merged for you, and nothing is silently dropped.",
+    "governs": "MK-CF-F-109 reviewTransactions (src/domain/transactions/flags.ts) · src/services/sync/snaptrade.ts (a stable row identity, so a re-sync never doubles money)"
+  },
+  "DEC-0461": {
+    "id": "DEC-0461",
+    "decided": "2026-07-01",
+    "type": "RULE",
+    "tab": "home",
+    "whose": "his",
+    "his_words": "How are response formulated? Are we using LLM or theseare pre-crafted responses and app uses one the pre-crafted response just replacing $$$?",
+    "the_log_records": "HIS QUESTION: “How are responses formulated? Are we using LLM or are these pre-crafted responses where the app just replaces the figures?” A fair thing to ask of anything that reads like advice.",
+    "governs": "src/domain/transactions/flags.ts · MoneyKeel/functions/networth-and-performance/performance.ts"
+  },
+  "DEC-6993": {
+    "id": "DEC-6993",
+    "decided": "2026-10-21",
+    "type": "RULE",
+    "tab": "networth",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-21 under his rulings DEC-3523 (tenet 1, a wrong number ends trust), made without asking him, as his order of 2026-09-30 says. Undoing a $500 transfer swapped the accounts and also flipped the direction, so the two cancelled and the $500 moved a second time. Now a transfer's undo swaps the accounts and keeps the direction; every other kind flips its direction. All 17 kinds, applied then undone, give the starting balances to the cent. One word from him reverses it.",
+    "governs": "MK-CF-F-116 inverseOf (src/domain/transactions) · the store's delete"
+  },
+  "DEC-0243": {
+    "id": "DEC-0243",
+    "decided": "2026-09-08",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "show the HSA limit at 65+ only with 'If you are not enrolled in Medicare …' and a place to update it",
+    "the_log_records": "“show the HSA limit at 65+ only with ‘If you are not enrolled in Medicare …’ and a place to update it.” Medicare bars an HSA contribution entirely, so the limit is shown at 65 and over only with that condition attached and a way to tell us.",
+    "governs": "MK-MN-M-003 · MK-MN-M-004 · MK-MN-M-005 · MK-CF-F-055 · MK-XS-I-062"
+  },
+  "DEC-0263": {
+    "id": "DEC-0263",
+    "decided": "2026-09-08",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "explained and fixed in the file: the four mis-rendered functions written by hand; caps declared",
+    "the_log_records": "“explained and fixed in the file: the four mis-rendered functions written by hand; caps declared.” Four calculations the automatic reader could not render faithfully were written out by hand rather than left as a bad approximation.",
+    "governs": "MK-CF-F-057 · MK-CF-F-097 · MK-CF-F-087 · MK-CF-F-101"
+  },
+  "DEC-0336": {
+    "id": "DEC-0336",
+    "decided": "2026-09-12",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "ok — state the months-left convention; move the division off the screen",
+    "the_log_records": "“ok — state the months-left convention; move the division off the screen.” How many months are left in the year is defined once and stated — the current month counts — and the arithmetic moves out of the screen into the calculation.",
+    "governs": "MK-MN-M-003 · MK-MN-M-004 · MK-MN-M-005 · MK-MN-M-029 · MK-CF-F-195 · MK-CF-F-196"
+  },
+  "DEC-0339": {
+    "id": "DEC-0339",
+    "decided": "2026-09-12",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "agree — every contribution limit uses the age attained in the calendar year (this year − birth year), the IRS test",
+    "the_log_records": "“agree — every contribution limit uses the age attained in the calendar year (this year − birth year), the IRS test.” The age that matters is the one you reach at any point in the year, not your age today — which is the rule for every catch-up allowance.",
+    "governs": "MK-CF-F-053 · MK-CF-F-054 · MK-CF-F-055"
+  },
+  "DEC-0378": {
+    "id": "DEC-0378",
+    "decided": "2026-09-01",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "“how can I trust the formulas given how many errors his reviews find?” — stop checking the code against itself. Every statutory constant is typed in from its PUBLISHED source, never from our own constants.",
+    "the_log_records": "Every figure set by law is typed in from the published source — the IRS or the SSA — and never from our own constants. It came from his question of how he can trust the formulas given how many errors his reviews find; the answer was to stop checking the code against itself. The first run against the published figures found three errors: the IRA limits were a year out of date, the bigger catch-up allowance for ages 60 to 63 was missing entirely in an app built for ages 55 to 70, and four of the required-withdrawal divisors were slightly wrong.",
+    "governs": "src/domain/income/limits.ts · [a test of the app]"
+  },
+  "DEC-0495": {
+    "id": "DEC-0495",
+    "decided": "2026-06-30",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "Do not like the name",
+    "the_log_records": "“Do not like the name.” A tab name rejected.",
+    "governs": "src/domain/paycheck/index.ts · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md"
+  },
+  "DEC-2164": {
+    "id": "DEC-2164",
+    "decided": "2026-09-28",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "rise with inflation each year",
+    "the_log_records": "The draw from savings rises with inflation each year, so it keeps its buying power. The figure shown is what it buys today.",
+    "governs": "MK-CF-M-055 · MoneyKeel/functions/cashflow/future-paycheck.ts (MK-CF-O-017 futurePaycheck)"
+  },
+  "DEC-0199": {
+    "id": "DEC-0199",
+    "decided": "2026-08-28",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "for a brokerage, an IRA and a 401(k) — so a check for",
+    "the_log_records": "What each account pays you is worked out once, per account, with the working shown line by line — so the coupons you received are no longer ADDED to the coupons you were expecting.",
+    "governs": "MK-CF-M-051"
+  },
+  "DEC-0271": {
+    "id": "DEC-0271",
+    "decided": "2026-09-03",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "money arriving in a month → take-home; 'Base salary (take-home)', 'Income (take-home)'; cash flow always 'Inflow (income (take-home) + rent)' / Outflow",
+    "the_log_records": "“money arriving in a month → take-home; ‘Base salary (take-home)’, ‘Income (take-home)’; cash flow always ‘Inflow (income (take-home) + rent)’.” One word for money arriving, and the inflow line names what is inside it.",
+    "governs": "MK-CF-F-192 · MK-CF-F-193"
+  },
+  "DEC-0333": {
+    "id": "DEC-0333",
+    "decided": "2026-09-12",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "agree; ensure compliance with the synonym ruling",
+    "the_log_records": "“agree; ensure compliance with the synonym ruling.” Agreed, with the condition that the change also obeys the one-word-per-concept rule.",
+    "governs": "MK-CF-M-052 · MK-CF-M-019 · MK-XS-M-007 · MK-CF-F-194"
+  },
+  "DEC-0512": {
+    "id": "DEC-0512",
+    "decided": "2026-06-30",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "Are the month bars cash flows -- inflow / outflow?",
+    "the_log_records": "HIS QUESTION: “Are the month bars cash flows — inflow / outflow?”",
+    "governs": "MK-CF-M-049 · MK-CF-M-053"
+  },
+  "DEC-7606": {
+    "id": "DEC-7606",
+    "decided": "2026-10-23",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his ruling DEC-3523 (tenet 3), made without asking him, as his order of 2026-09-30 says. A household with no income entered: Home's box read a red \"Over\" and Left $0; it now reads Income $0 · Nothing entered yet. Add your income › · Outflow (expenses + debt) $0 · Left —, with no pace word and no share spent, because the Cash flow tab draws no surplus then. With $500 logged and still no income, Left still reads —. To reverse: print $0 again. One word from him reverses it.",
+    "governs": "MK-CF-M-053 (Home's Left) · src/screens/HomeScreen.tsx"
+  },
+  "DEC-7937": {
+    "id": "DEC-7937",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0264 and DEC-3523 (tenet 2), made without asking him, as his order of 2026-09-30 says. Frame A's household with a $6.50 coffee: the rows made $893 but the surplus read +$894, and Home's Left $894; both read +$893. The rows share the rounded total, each rounded down, the dollars still missing going to the rows with the most cents left over; a whole-dollar row never moves. It is the method the Performance walk already uses. The Bill calendar's rows do the same: each End is the balance rounded to the dollar, and In and Out share the change between two Ends — from $3,000, $5,415.83 in and $1,198.77 out read Sep +$5,416 · −$1,199 · $7,217. To reverse: round every row and every total on its own again. One word from him reverses it.",
+    "governs": "MK-XS-F-195 monthShown, MK-XS-F-196 flowShown, MK-XS-F-194 partsShown, MK-XS-F-197 chainShown (MoneyKeel/functions/_figure-spec.ts) · MK-CF-M-002 · MK-CF-M-003 · MK-CF-M-004 · MK-CF-M-051 · MK-CF-M-052 · MK-CF-M-053 · src/screens/CashFlowScreen.tsx · src/screens/HomeScreen.tsx · src/screens/BillCalendarScreen.tsx"
+  },
+  "DEC-7939": {
+    "id": "DEC-7939",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0002, DEC-0447, DEC-1923 and DEC-3523 (tenets 3 and 4), made without asking him, as his order of 2026-09-30 says. With nothing set the card read Expenses (plan) $0 and Planned surplus $2,350 beside This month's not set; it now reads — not set and no planned surplus. With a $1,200 bill in December, September's card reads without it (it read $100 a month of it), and a Rent / Mortgage line is not counted when the home's mortgage is in Debts. In the founder's fresh account: $1,200 set reads +$1,550, and Dining out $300 → $450 reads +$1,400, on the card, This month and Expenses alike. A screen reader names each limit box by its category (it heard No limit fifteen times). It amends DEC-7610, which kept the editor on the typical month. To reverse: give the card its own typical month again. One word from him reverses it.",
+    "governs": "src/screens/BudgetScreen.tsx (the plan card) · MK-CF-O-010 theMonth · MK-CF-F-228 useThisMonthInputs · MK-CF-M-001 · MK-CF-M-002"
+  },
+  "DEC-7946": {
+    "id": "DEC-7946",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0269 and DEC-3523 (tenets 1 and 3), made without asking him, as his order of 2026-09-30 says. September's band read SEPTEMBER 2026 — FINAL — WHAT ACTUALLY HAPPENED under a switcher already saying final; it reads \"SEPTEMBER 2026 — WHAT ACTUALLY HAPPENED\". November's card named the wrong bill, incl. Everyday expenses, and said Nothing entered yet with a budget entered; it reads \"Planned outflow (expenses + debt) $800\", names a dated bill only, and says nothing is entered only when the month plans $0. The words are those of the last drawing of that card, the archived this-month-and-spending v02. To reverse: give the band, the outflow line and the note their earlier words. One word from him reverses it.",
+    "governs": "src/screens/CashFlowScreen.tsx (bandMonth, the month cards) · MK-CF-M-048 · MK-CF-M-053"
+  },
+  "DEC-8084": {
+    "id": "DEC-8084",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0192 and DEC-3523 (tenet 4), made without asking him, as his order of 2026-09-30 says. Each of the four numbers had two register keys. On 2026-10-02, when the hand-typed rows became declarations, each was handed to another figure: MK-CF-M-001 now Expenses, MK-CF-M-002 = Planned surplus (this month), MK-CF-M-003 = Actual surplus so far, MK-CF-M-004 each row of the month. The four original keys are retired, each with its reason and where its figure lives now: Expected in is MK-CF-M-047, Planned out is MK-CF-M-048, the grid month's = Planned surplus is MK-CF-M-049, and Out (spent + debt) is MK-CF-M-052. Renumbering back would touch about 17 code files, 7 test files and some 60 documents, approved drawings among them. The old anchors follow their figures: G12 (DEC-0333) and the 2026-08-27 worked example (DEC-0292) now name MK-CF-M-052 and MK-CF-M-048, and DEC-0260's $0 rule MK-CF-M-052. DEC-0002, his approval of the whole Cash flow surface, is kept as it is. MK-CF-M-002 and MK-CF-M-049 stay two figures: this month's planned surplus counts every debt's payment this month, the grid's later months count a debt from its first payment (a $250 car loan whose first payment is next month). His words are untouched. To reverse: restore moneykeel_metric_register.json, moneykeel_rulings.json and moneykeel_decisions_anchors.json from the scratchpad backup-1024b/. One word from him reverses it.",
+    "governs": "Calculation Module code/scripts/moneykeel_metric_register.json (retired keys) · moneykeel_rulings.json (G12, the worked example) · moneykeel_decisions_anchors.json (DEC-0260) · MK-CF-M-001 · MK-CF-M-002 · MK-CF-M-003 · MK-CF-M-004 · MK-CF-M-047 · MK-CF-M-048 · MK-CF-M-049 · MK-CF-M-052"
+  },
+  "DEC-0203": {
+    "id": "DEC-0203",
+    "decided": "2026-09-01",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "If someone is not working, how can they contribute to 401K?",
+    "the_log_records": "The app asks about a 401(k) only where you could legally have one — that means a wage, or self-employment earnings. His challenge: \"If someone is not working, how can they contribute to 401K?\" They cannot. A pension, Social Security, rent or dividends give nobody the right to contribute, so the question is not asked of someone with no earned income.",
+    "governs": "MK-CF-O-001"
+  },
+  "DEC-0205": {
+    "id": "DEC-0205",
+    "decided": "2026-09-01",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "\"yes\" — DEC-0205, confirmed as written: New src/__tests__/statutory_constants.test.ts: the 2026 bracket tables and deductions, the complete IRS Uniform Lifetime",
+    "the_log_records": "Every figure set by law is typed in from the published source. The first run against the real figures found three errors: the IRA limits were a year out of date, the bigger catch-up allowance for ages 60 to 63 was missing entirely in an app built for ages 55 to 70, and four of the required-withdrawal divisors were slightly wrong from being interpolated rather than typed.",
+    "governs": "IRS_LIMITS in src/domain · MK-CF-M-045 · MK-CF-M-046"
+  },
+  "DEC-0270": {
+    "id": "DEC-0270",
+    "decided": "2026-09-03",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "a figure the person gave us → 'you entered'",
+    "the_log_records": "“a figure the person gave us → ‘you entered’.” One phrase for a number you typed, so it is never confused with one the app worked out.",
+    "governs": "MoneyKeel/functions/cashflow/base-pay.ts · src/domain/income/tax-rate.ts"
+  },
+  "DEC-0283": {
+    "id": "DEC-0283",
+    "decided": "2026-09-10",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "Gross should be before any deductions. For example Income before tax is not same as gross as Income Before Tax = Gross Income - 401K - any other deductions such as medical premium.",
+    "the_log_records": "“Gross should be before any deductions. For example Income before tax is not same as gross as Income Before Tax = Gross Income - 401K - any other deductions such as medical premium.” So “Gross” is labelled “before any deductions”, and the earlier wording “before tax” is retired — it meant something different and narrower.",
+    "governs": "MoneyKeel/functions/cashflow/base-pay.ts · MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md"
+  },
+  "DEC-0326": {
+    "id": "DEC-0326",
+    "decided": "2026-08-20",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "married bands are not double the single ones at the top",
+    "the_log_records": "“married bands are not double the single ones at the top.” A couple’s tax bands are NOT simply twice a single person’s in the upper brackets — assuming they are overstates take-home for higher earners.",
+    "governs": "MK-CF-M-035"
+  },
+  "DEC-0340": {
+    "id": "DEC-0340",
+    "decided": "2026-09-12",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "the caveat under the federal-only take-home must name its subject and use the real withholding: 6.2% up to the wage base, 1.45% on all, 0.9% more above $200,000 — \"Let's not assume that reader knows what statement is referring to. Always be explicit.\"",
+    "the_log_records": "“the caveat under the federal-only take-home must name its subject and use the real withholding: 6.2% up to the wage base, 1.45% on all, 0.9% more above $200,000 — Let’s not assume that reader knows what statement is referring to. Always be explicit.” So the sentence names what it is about and uses the actual rates, rather than a rounded 7.65%.",
+    "governs": "MK-CF-O-001"
+  },
+  "DEC-0352": {
+    "id": "DEC-0352",
+    "decided": "2026-09-14",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "a door DECLARES each figure it hands out beside the code that computes it (identifier, the words on screen, unit, formula in plain English, inputs, decisions, refusal); a screen prints a figure ONLY by its identifier; and the master file's figure rows are PRINTED from those declarations rather than typed, so the file and the code cannot disagree",
+    "the_log_records": "“a door DECLARES each figure it hands out beside the code that computes it — identifier, the words on screen, unit, formula in plain English, inputs, decisions.” The master file’s rows are then PRINTED from those declarations, so the file is a printout of the code rather than a description of it that can go stale.",
+    "governs": "MK-CF-M-030"
+  },
+  "DEC-0380": {
+    "id": "DEC-0380",
+    "decided": "2026-09-02",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "THE CARD MUST ADD UP: gross − tax − 401(k)s = take-home, with a 401(k)s row, on every frame. From his first build-54 device pass — the card contradicted itself ($21,159 − $4,380 − $1,656 ≠ $16,403) because every estimated earner was granted the FULL joint deduction; and a two-earner household was banded as single (32% vs jointly 24%).",
+    "the_log_records": "THE CARD MUST ADD UP: gross − tax − 401(k)s = take-home, with a 401(k)s row, on every frame. From his first device pass of build 54, where the card contradicted itself because every estimated earner was granted the FULL joint deduction.",
+    "governs": "MK-CF-M-030 · MK-CF-M-031 · MK-CF-M-032 · MK-CF-M-033 · MK-CF-M-034 · MK-CF-O-001 · MK-CF-O-001"
+  },
+  "DEC-0381": {
+    "id": "DEC-0381",
+    "decided": "2026-09-02",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "a mixed household's take-home note is a labelled fact per person, never prose: “Your take-home: $5,000 (you entered) · Sam’s take-home: ≈$3,686 (calculated — gross less federal tax and 401(k))”",
+    "the_log_records": "A mixed household’s take-home note is a labelled fact per person, never prose: “Your take-home: $5,000 (you entered) · Sam’s take-home: about $3,686 (calculated).” The prose version was misread — the entered $5,000 was taken for gross.",
+    "governs": "MK-CF-O-001 · MK-CF-O-001"
+  },
+  "DEC-0384": {
+    "id": "DEC-0384",
+    "decided": "2026-08-28",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "FOUNDER RULING: the tax estimate STAYS FEDERAL. “Payroll tax applies to wages, and our gross also carries rent, dividends and bonuses — applying 7.65% to that total would be wrong, not merely imprecise. State tax cannot be known without asking. So we work out the one thing we can, say so, and let it be corrected.”",
+    "the_log_records": "Our tax estimate covers federal income tax only, and says so on the screen. Three decisions:\n1. We do not add payroll tax to it. Payroll tax applies to wages, and our gross figure also holds rent, dividends and bonuses — applying 7.65% to all of that would be wrong, not just rough.\n2. We do not guess state tax, because it cannot be known without asking.\n3. We work out the one thing we can, name the gap in dollars, and let you correct it.",
+    "governs": "MK-CF-M-033 · MK-CF-M-035 · MK-CF-O-001"
+  },
+  "DEC-0396": {
+    "id": "DEC-0396",
+    "decided": "not dated in the log",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "/month, /year",
+    "the_log_records": "“/month, /year.” One way of writing a period, everywhere — and, asked about the rest, “/quarter, /week, /2 weeks”. “a month” and “/mo” are retired.",
+    "governs": "MoneyKeel/functions/cashflow/base-pay.ts · src/screens/IncomeDetailScreen.tsx"
+  },
+  "DEC-0503": {
+    "id": "DEC-0503",
+    "decided": "2026-06-30",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "How is income + spending captured, at what frequency, and what about cash / unconnected cards?",
+    "the_log_records": "HIS QUESTION: “How is income + spending captured, at what frequency, and what about cash / unconnected cards?” The parts no connection reaches still have to be captured somehow.",
+    "governs": "MK-CF-M-031"
+  },
+  "DEC-1625": {
+    "id": "DEC-1625",
+    "decided": "2026-10-04",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "#4 - remove second sentence.",
+    "the_log_records": "On Your base pay, when the app calculates the tax, the card states its own sum and stops: \"$11,500 gross − $873 tax − $1,200 of 401(k)s = $9,427.\" The second drawn sentence is not shown.",
+    "governs": "MoneyKeel/functions/cashflow/base-pay.ts (MK-CF-O-001 basePay) · src/screens/BasePayScreen.tsx · [a test of the app]"
+  },
+  "DEC-7608": {
+    "id": "DEC-7608",
+    "decided": "2026-10-23",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-3523 (tenet 5) and DEC-0327, made without asking him, as his order of 2026-09-30 says. 5.00% state rate typed on the Tax organizer: the words read \"federal income tax only\"; they now read \"federal income tax, plus the 5.00% state rate you entered\". The Tax organizer's own words say the rate tunes every tax estimate, so the typed rate counts. To reverse: leave the typed state rate out of the calculated rate and say \"federal income tax only\". One word from him reverses it.",
+    "governs": "MK-CF-M-031 · MK-CF-F-181 rateInForce"
+  },
+  "DEC-7942": {
+    "id": "DEC-7942",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-3523 (tenets 3 and 5), made without asking him, as his order of 2026-09-30 says. A $5,000 take-home with the person's own 0% rate: the gross box showed 5475.378787878787, worked back from the federal tables, the card read Everything else taken out $475/month · 0%, and its last line said nothing there was calculated. The gross is now worked back with their own rate, $5,000.00, under the line \"≈ Worked back from the take-home you entered. Type the gross from a payslip to replace it.\", and the card's last line says the take-home is what was entered and the gross was worked back from it. The typed take-home is unchanged ($5,000 on This month). Typing a gross brings back the drawing's words. The drawing's rule 9: every estimate is prefixed ≈ and says what it cannot see. To reverse: work the gross back from the federal schedule and print the drawn words. One word from him reverses it.",
+    "governs": "MK-CF-F-186 convertTakeHomeMode · MK-CF-O-001 basePay · MK-CF-M-030 · src/screens/BasePayScreen.tsx"
+  },
+  "DEC-7944": {
+    "id": "DEC-7944",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-3523 (tenet 1) and DEC-0283, made without asking him, as his order of 2026-09-30 says. It always compared against single with no one over 65: Sam's household, 67 and already taxed jointly, saw Taxed as single $9,650 and $328/month more while the take-home stayed $6,600. What we were assuming is now the status in force before the answer (the answer on record, or filing jointly when a spouse was entered and nothing was asked), and both sides count who is 65 or older as the take-home does. A couple already taxed jointly who confirm it see no comparison; a single 67-year-old now filing jointly sees $266/month more; jointly to separately reads \"$327/month less take-home than we were showing you.\" To reverse: compare with single, no one over 65, and show only a rise. One word from him reverses it.",
+    "governs": "src/screens/FilingStatusScreen.tsx · MK-CF-F-181 rateInForce"
+  },
+  "DEC-7945": {
+    "id": "DEC-7945",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his ruling DEC-3523 (tenet 2), made without asking him, as his order of 2026-09-30 says. Single to jointly: take-home $6,196 → $6,523 a month, printed; the comparison said $328/month more, the cent-exact $327.50 rounded, so the printed figures did not subtract to it. It now says $327/month more, the difference of the two printed take-homes, as the Performance walk's rows do; both over 65, $481 → $480. The first cut kept the $1 gap, reading the precision ruling (DEC-0264) as rounding once at display; the lead overruled it: a difference shown beside two printed figures is a figure made from those two. To reverse: print the cent-exact difference rounded. One word from him reverses it.",
+    "governs": "src/screens/FilingStatusScreen.tsx · MK-CF-F-181 rateInForce"
+  },
+  "DEC-0240": {
+    "id": "DEC-0240",
+    "decided": "2026-09-08",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "agree — add the $6,000 senior deduction (65+, 2025–2028)",
+    "the_log_records": "“agree — add the $6,000 senior deduction (65+, 2025–2028).” An extra deduction for people 65 and over, which exists for those tax years and was missing from every tax figure.",
+    "governs": "MK-MN-M-027 · MK-MN-M-028 · MK-CF-F-099 · MK-CF-F-187 · MK-CF-F-099 · MK-CF-F-100"
+  },
+  "DEC-0253": {
+    "id": "DEC-0253",
+    "decided": "2026-09-08",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "ok — the bracket loops written by hand; the statutory tables in the file",
+    "the_log_records": "“ok — the bracket loops written by hand; the statutory tables in the file.” The tax tables are typed in from the law and kept in the file; only the arithmetic over them is code.",
+    "governs": "MK-CF-F-101 · MK-CF-F-103"
+  },
+  "DEC-0325": {
+    "id": "DEC-0325",
+    "decided": "2026-08-20",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "over-65 additional standard deduction",
+    "the_log_records": "“over-65 additional standard deduction.” People 65 and over get an extra amount on top of the standard deduction, and it was missing.",
+    "governs": "MK-CF-F-187"
+  },
+  "DEC-0018": {
+    "id": "DEC-0018",
+    "decided": "2026-07-31",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "saves as you type",
+    "the_log_records": "Two findings from his walk of build 47:\n1. The company-share editor gains a field for the ticker symbol, which fetches the live price to start you off and stays editable.\n2. It gains a real Done button at the bottom. The link at the top of the screen was invisible from the end of a long form, and the form says it saves as you type.",
+    "governs": "src/screens/IncomeManagerScreen.tsx"
+  },
+  "DEC-0039": {
+    "id": "DEC-0039",
+    "decided": "2026-08-02",
+    "type": "RULE",
+    "tab": "home",
+    "whose": "his",
+    "his_words": "\"yes\" — DEC-0039, confirmed as written: +Expense floating button removed from Home — logging lives on Cash flow only (founder UX review 7/16; predates this chan",
+    "the_log_records": "The floating “+Expense” button comes off the Home screen. Logging an expense lives on Cash flow only, so there is one place to do it.",
+    "governs": "src/screens/HomeScreen.tsx · src/screens/CashFlowScreen.tsx"
+  },
+  "DEC-0109": {
+    "id": "DEC-0109",
+    "decided": "2026-08-11",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "s make sure we are using same language everywhere to convey same message — xx% odds of lasting to age abc",
+    "the_log_records": "Home, Net worth and the Plan screen all said “[word] — xx% odds of lasting to age nn”, but the answers screen — the very screen you land on to FIX your odds — said “0 in 100”. Found by walking the whole journey end to end rather than testing each screen alone.",
+    "governs": "src/domain/planning/hub.ts oddsLine + oddsTail · src/screens/HomeScreen.tsx · src/screens/NetWorthScreen.tsx · src/screens/PlanHubScreen.tsx · src/screens/CashFlowScreen.tsx · src/components/PlanOutcome.tsx · src/domain/glossary.ts"
+  },
+  "DEC-0177": {
+    "id": "DEC-0177",
+    "decided": "2026-08-27",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "\"yes\" — DEC-0177, confirmed as written: moneykeel_pres_mock_income-end-to-end_v02.html APPROVED. 14 screens in one document; 13 earlier income mocks archived.",
+    "the_log_records": "The income mock is approved: 14 screens in one document, with the 13 earlier income mocks archived so there is one live file rather than a folder to choose from.",
+    "governs": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v07.html"
+  },
+  "DEC-0190": {
+    "id": "DEC-0190",
+    "decided": "2026-08-28",
+    "type": "RULE",
+    "tab": "home",
+    "whose": "his",
+    "his_words": "Or answer guided setup questions",
+    "the_log_records": "A signed-in person opening the guided setup now STAYS there. It previously bounced them back to Home in three of its four states, so the setup was effectively unreachable.",
+    "governs": "src/screens/FirstRunScreen.tsx · src/screens/BasePayScreen.tsx"
+  },
+  "DEC-0201": {
+    "id": "DEC-0201",
+    "decided": "2026-08-28",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "Use latest mockup version of income screen",
+    "the_log_records": "Use latest mockup version of income screen",
+    "governs": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_income-end-to-end_v07.html · the income screens"
+  },
+  "DEC-0202": {
+    "id": "DEC-0202",
+    "decided": "2026-08-28",
+    "type": "RULE",
+    "tab": "home",
+    "whose": "his",
+    "his_words": "onboarding",
+    "the_log_records": "The base-pay step in the guided setup IS the base-pay screen — one piece of screen, two frames — so the questions cannot drift apart between the two places you can answer them. It saves as you type rather than on a Save button the setup never shows.",
+    "governs": "src/screens/BasePayScreen.tsx · src/screens/FirstRunScreen.tsx"
+  },
+  "DEC-0213": {
+    "id": "DEC-0213",
+    "decided": "2026-09-14",
+    "type": "RULE",
+    "tab": "home",
+    "whose": "his",
+    "his_words": "Connect your bank ›",
+    "the_log_records": "The door to link a bank reads “Connect your bank” everywhere. Home still said “Connect your first account”, so the same door had two names depending on where you met it. Home now takes its wording from the one list.",
+    "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/screens/CashFlowScreen.tsx"
+  },
+  "DEC-0287": {
+    "id": "DEC-0287",
+    "decided": "2026-09-10",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "activity",
+    "the_log_records": "“activity.” One word for the list of what has happened in an account.",
+    "governs": "src/screens/CashFlowScreen.tsx · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md"
+  },
+  "DEC-0288": {
+    "id": "DEC-0288",
+    "decided": "2026-09-10",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "one-time. Lump-sum does not always mean one-time. What's the intent behind \"plan for the lump sum\" before you change it to one-time? · his answer 2026-09-12: No monthly payment — the full balance is due on that date.",
+    "the_log_records": "“one-time. Lump-sum does not always mean one-time. What’s the intent behind ‘plan for the lump sum’ before you change it to one-time?” The word is “one-time” — and his question stopped a rename that would have changed the meaning of a sentence rather than just its wording.",
+    "governs": "src/screens/RetirementCockpit.tsx · src/screens/CashFlowScreen.tsx"
+  },
+  "DEC-0295": {
+    "id": "DEC-0295",
+    "decided": "2026-08-20",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "never the word \"safe\" — kills \"safe to spend\" and \"safe withdrawal rate\"",
+    "the_log_records": "“never the word ‘safe’.” It kills “safe to spend” and “safe withdrawal rate”. Nothing in a projection is safe, and a word promising safety is a promise the app cannot keep.",
+    "governs": "src/screens/NetWorthScreen.tsx · src/screens/CashFlowScreen.tsx"
+  },
+  "DEC-0320": {
+    "id": "DEC-0320",
+    "decided": "2026-08-20",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "property sale/purchase as two events · stepped part-time income · pre-65 health premiums as a spread · owner tag you/spouse/joint with a full-value joint column · survivor inputs · insurance labels (SIPC clause) · amber box sorted by money · expense-to-income ratio (TTM) · pacing method stated · debt-to-asset · debt-payments-to-income denominator stated",
+    "the_log_records": "Nine things settled in one go: a property sale or purchase is recorded as TWO events, not one; part-time income can step down in stages; health premiums before 65 are spread rather than lumped; every item is tagged as yours, your spouse’s or joint, with a joint column at full value; survivor inputs are captured; insurance labels carry the protection clause; the attention box is sorted by money at stake; and two ratios are added — expenses against income over the trailing year, and debt against assets.",
+    "governs": "src/screens/PlanHubScreen.tsx · src/screens/CashFlowScreen.tsx · src/domain/planning/index.ts"
+  },
+  "DEC-0345": {
+    "id": "DEC-0345",
+    "decided": "2026-09-13",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "inputs assembled once per family — one function builds the person's state for a family and every orchestrator in that family reads it; no orchestrator and no screen assembles its own",
+    "the_log_records": "“inputs assembled once per family — one function builds the person’s state for a family and every orchestrator in that family reads it.” The data a group of screens needs is assembled once, so two screens in the same family cannot start from different inputs.",
+    "governs": "MK-NW-F-145 netWorthInputs (src/hooks/useNetWorthInputs.ts) · src/screens/NetWorthScreen.tsx · src/screens/HomeScreen.tsx · src/screens/InsightsScreen.tsx · src/screens/OtherInvestmentsScreen.tsx · src/screens/StressTestScreen.tsx · src/screens/JobSafetyScreen.tsx · src/screens/IncomeManagerScreen.tsx"
+  },
+  "DEC-0365": {
+    "id": "DEC-0365",
+    "decided": "2026-09-26",
+    "type": "RULE",
+    "tab": "plan",
+    "whose": "his",
+    "his_words": "Q6 — future dollars and tax. FIRST ANSWER (mine, and wrong): “today’s money, after tax”. HIS CORRECTION, 2026-09-26: “does this even make sense to you? … I thought I already made decision in the past … to keep retirement number pre-tax, as we cannot determine tax accurately. The lengthly explanation is horrible.”",
+    "the_log_records": "“Q6 — future dollars and tax.” MY FIRST ANSWER WAS WRONG — I proposed ‘today’s money, after tax’. HIS CORRECTION: “does this even make sense to you?” It did not, and the row records the correction rather than quietly replacing my answer.",
+    "governs": "src/screens/RetirementCockpit.tsx · src/screens/CashFlowScreen.tsx"
+  },
+  "DEC-0392": {
+    "id": "DEC-0392",
+    "decided": "not dated in the log",
+    "type": "RULE",
+    "tab": "process-and-standards",
+    "whose": "his",
+    "his_words": "\"you entered\"",
+    "the_log_records": "“a figure the person gave us → ‘you entered’.” One phrase for a number you typed, so it is never confused with one the app worked out.",
+    "governs": "the canon table · BasePayScreen · ItemizeScreen · WillItLastScreen · ContributionRoomScreen"
+  },
+  "DEC-0440": {
+    "id": "DEC-0440",
+    "decided": "2026-09-28",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "Approved",
+    "the_log_records": "“Approved.” The cash-flow mocks become ONE file: moneykeel_pres_mock_cash-flow_v01.html. It carries the four-tab architecture from v02 together with the This month and Expenses screens as revised in v07, so there is no longer a choice between two half-current versions. v02 and v07 are dated and archived.",
+    "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md · MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md"
+  },
+  "DEC-0454": {
+    "id": "DEC-0454",
+    "decided": "2026-06-30",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "we should capture as some debt might not be due for many years",
+    "the_log_records": "“we should capture as some debt might not be due for many years.” A debt’s due date is captured even when it is far off, because a lump due in 2031 still belongs in the plan.",
+    "governs": "src/screens/NetWorthScreen.tsx · src/screens/CashFlowScreen.tsx"
+  },
+  "DEC-0485": {
+    "id": "DEC-0485",
+    "decided": "2026-07-01",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "What's the flow to add actual day to day expenses such grocery, gas, etc? Also, what's the flow to capture or add income?",
+    "the_log_records": "HIS QUESTION: “What’s the flow to add actual day-to-day expenses such as grocery, gas? Also, what’s the flow to capture or add income?” Two everyday journeys that had no drawn flow.",
+    "governs": "src/screens/CashFlowScreen.tsx · src/screens/HomeScreen.tsx"
+  },
+  "DEC-0499": {
+    "id": "DEC-0499",
+    "decided": "2026-06-30",
+    "type": "RULE",
+    "tab": "home",
+    "whose": "his",
+    "his_words": "are month bars cashflows - showing inflow and outflow?",
+    "the_log_records": "HIS QUESTION: “are month bars cashflows — showing inflow and outflow?” A chart that does not say what it plots has not said anything.",
+    "governs": "src/screens/CashFlowScreen.tsx · src/screens/RetirementCockpit.tsx"
+  },
+  "DEC-0505": {
+    "id": "DEC-0505",
+    "decided": "2026-06-30",
+    "type": "RULE",
+    "tab": "plan",
+    "whose": "his",
+    "his_words": "Why does the will-it-last number live in the Spend tab? (retiree-centric)",
+    "the_log_records": "HIS QUESTION: “Why does the will-it-last number live in the Spend tab?” — noting it reads as retiree-centric, on a tab about spending.",
+    "governs": "src/screens/CashFlowScreen.tsx · MK-XS-M-002"
+  },
+  "DEC-0506": {
+    "id": "DEC-0506",
+    "decided": "2026-06-30",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "Net worth + money + spending all on one tab -- too much?",
+    "the_log_records": "HIS QUESTION: “Net worth + money + spending all on one tab — too much?”",
+    "governs": "src/screens/NetWorthScreen.tsx · src/screens/CashFlowScreen.tsx · the tab bar"
+  },
+  "DEC-1112": {
+    "id": "DEC-1112",
+    "decided": "2026-10-02",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "ok. open them from build but make sure it meets new design standards.",
+    "the_log_records": "The six Cash flow screens that had no drawing — Log income, Month detail, Bill calendar, Paycheck months, Monthly income, Worth a look — are approved as built, on condition that each meets the screen standard. Each was audited against it the same day and the gaps fixed; the v02 drawings show the result.",
+    "governs": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_bill-calendar_v02.html · MoneyKeel/documents/cashflow/moneykeel_pres_mock_monthly-income_v02.html · src/screens/BillCalendarScreen.tsx · src/screens/MonthlyIncomeScreen.tsx · src/constants/doors.ts"
+  },
+  "DEC-1134": {
+    "id": "DEC-1134",
+    "decided": "2026-10-02",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "I am pretty confident - these are no longer needed per new design and like before you like to beat around the bush and be stubborn that you are right, versus trying to think through - why we need this, and does the need still exists.",
+    "the_log_records": "Four Cash flow screens are retired: Month detail, Paycheck months, Log income and Worth a look. No approved design draws a door to any of them, and no ruling needs them. Bill calendar and Monthly income stay only as the editors behind figures the approved designs show — not as destinations.",
+    "governs": "src/screens/CashFlowScreen.tsx (no door to a month or the calendar) · src/components/PaycheckCard.tsx · src/domain/insights/index.ts · app/_layout.tsx · MK-CF-M-017 · MK-CF-M-026 · MK-CF-M-064 · MK-CF-M-067 · MK-CF-M-068 (retired) · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md"
+  },
+  "DEC-1560": {
+    "id": "DEC-1560",
+    "decided": "2026-10-04",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "Rest - keep it.",
+    "the_log_records": "In twelve named places the app differs from its approved drawing and the app stays as it is.",
+    "governs": "[a test of the app] · [a test of the app] · [a test of the app] (each names the difference) · Calculation Module code/scripts/moneykeel_workplan.json"
+  },
+  "DEC-1926": {
+    "id": "DEC-1926",
+    "decided": "2026-10-04",
+    "type": "RULE",
+    "tab": "networth",
+    "whose": "his",
+    "his_words": "unless rental income is added on the income screen, assume property is second or vacation home.",
+    "the_log_records": "A property is a second or vacation home unless rental income is entered for it on the Income screen. With rental income entered, it is a rental.",
+    "governs": "src/domain/assets/index.ts (realEstateUseOf) · MoneyKeel/functions/networth-and-performance/emergency-fund.ts (MK-NW-O-004 theEmergencyFund) · src/screens/IncomeManagerScreen.tsx (Rent from a property) · MK-NW-M-064 rent from your property, which keeps arriving"
+  },
+  "DEC-7947": {
+    "id": "DEC-7947",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-4529 and DEC-3523 (tenets 1 and 4), made without asking him, as his order of 2026-09-30 says. Two drawing errors, each left as drawn with its correction line on bill-calendar v02, as his DEC-4529 asks. The foot line ended with a promise to tap any row for that month's full detail, and a screen reader said each month row opens the month's detail; month detail was retired on 2026-10-02, so the sentence is gone and no row promises it. The line under the title read Oct 2026 – Sep '27 2027, the year twice, copied from the build; it reads \"Oct 2026 – Sep 2027\", each end written by the app's one date writer, and a screen reader hears Jan 2027 where it heard Jan '27 2027. The month names in the table do not change. To reverse: give each month row a door and print the sentence again; print the drawn line. One word from him reverses it.",
+    "governs": "src/screens/BillCalendarScreen.tsx · MK-ST-F-095 monthYearShown (src/domain/_shared/dates.ts)"
+  },
+  "DEC-7950": {
+    "id": "DEC-7950",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his ruling DEC-3523 (tenet 2), made without asking him, as his order of 2026-09-30 says. With balances hidden a row was heard as Mortgage, debt and the dots; it is heard as Mortgage, debt, minus hidden. The planned-expenses door said only that it was planned expenses, by category; it now says each group and the total — Bills & fixed $1,100, Everyday expenses $900, total $2,000. A brand-new person's empty box held its Add your income door out of a screen reader's reach; the door is the box's own spoken action. To reverse: remove the spoken labels and the action. One word from him reverses it.",
+    "governs": "src/screens/CashFlowScreen.tsx (sayRow) · src/screens/BudgetScreen.tsx (dueInDays, dueWords) · src/screens/HomeScreen.tsx"
+  },
+  "DEC-0036": {
+    "id": "DEC-0036",
+    "decided": "2026-08-02",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "above what your own numbers support long-term",
+    "the_log_records": "The warning about drawing more than about 4% a year is reworded to be about YOUR numbers rather than a rule of thumb: “above what your own numbers support long-term”.",
+    "governs": "src/domain/decumulation/index.ts rateBandWords · src/screens/PlanHubScreen.tsx · src/screens/RetirementCockpit.tsx (both the verdict sentence and the rate box) · src/components/PaycheckCard.tsx"
+  },
+  "DEC-0180": {
+    "id": "DEC-0180",
+    "decided": "2026-08-27",
+    "type": "DESIGN",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "one component, two frames",
+    "the_log_records": "One live income mock, with ten superseded versions archived. Where several versions of a design exist, only one is live — otherwise the next piece of work starts from whichever file was opened first.",
+    "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md"
+  },
+  "DEC-0269": {
+    "id": "DEC-0269",
+    "decided": "2026-09-03",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "money going out in a month → Expenses (planned / actual / recurring by context); 'Outflow (expenses + debt)' for money leaving; evaluate context, never replace blindly · his answer 2026-09-12: replace with expenses in prose too. Again keep in mind context per my prior response",
+    "the_log_records": "“money going out in a month → Expenses (planned / actual / recurring by context); ‘Outflow (expenses + debt)’ for money leaving.” One word for money going out, with the context saying which kind.",
+    "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/screens/BudgetScreen.tsx"
+  },
+  "DEC-0273": {
+    "id": "DEC-0273",
+    "decided": "2026-09-03",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "the per-category monthly plan → Budget; review context before replacing",
+    "the_log_records": "“the per-category monthly plan → Budget; review context before replacing.” One word for the plan, with the caution that “budget” means something else in some sentences — read the context first.",
+    "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_calculation-vocabulary_v01.md · src/screens/BudgetScreen.tsx"
+  },
+  "DEC-0302": {
+    "id": "DEC-0302",
+    "decided": "2026-08-20",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "one mechanism per shape: amount + start year + end year + growth rate",
+    "the_log_records": "“one mechanism per shape: amount + start year + end year + growth rate.” Every income stream and every cost is described the same four ways, so a new kind needs no new machinery.",
+    "governs": "src/screens/RetirementCockpit.tsx · src/domain/retirement/index.ts"
+  },
+  "DEC-0312": {
+    "id": "DEC-0312",
+    "decided": "2026-08-20",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "deferred, not dropped: forward income (Q18), budget rollover (Q28), non-USD holdings (Q25 — store the currency field now)",
+    "the_log_records": "“deferred, not dropped: forward income, budget rollover, non-USD holdings — store the currency field now.” Three things put off rather than abandoned, and the currency field is stored TODAY so the data exists when they are picked up.",
+    "governs": "src/domain/assets/index.ts · src/screens/NetWorthScreen.tsx"
+  },
+  "DEC-0318": {
+    "id": "DEC-0318",
+    "decided": "2026-08-20",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "affordability replaces safe-to-spend: recurring cost with an end date; one-off purchase against liquid assets and months of cover",
+    "the_log_records": "“affordability replaces safe-to-spend: recurring cost with an end date; one-off purchase against liquid assets and months of cover.” The question becomes whether you can afford a specific thing, rather than a general figure calling itself safe.",
+    "governs": "Calculation Module code/engines/events.ts · src/domain/assets/index.ts"
+  },
+  "DEC-0420": {
+    "id": "DEC-0420",
+    "decided": "2026-09-27",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "fix cashflow screens before moving forward.",
+    "the_log_records": "“fix cashflow screens before moving forward.” The cash-flow screens are brought onto the standards before any new work starts.",
+    "governs": "MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md · MoneyKeel/documents/standards/moneykeel_calc_spec_one-door-per-question_v01.md"
+  },
+  "DEC-0434": {
+    "id": "DEC-0434",
+    "decided": "2026-09-28",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "his",
+    "his_words": "let's discuss how to clean cashflow mockups and combine into one file, as currently we have v2 with few final screen, and v7 with this month and expense screen revised.",
+    "the_log_records": "“let’s discuss how to clean cashflow mockups and combine into one file, as currently we have v2 with few final screen, and v7 with this month and expense screen revised.” The cash-flow mocks become ONE file, so there is no choosing between two half-current versions.",
+    "governs": "src/domain/assets/index.ts · src/screens/BudgetScreen.tsx"
+  },
+  "DEC-0477": {
+    "id": "DEC-0477",
+    "decided": "2026-07-01",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "his",
+    "his_words": "Is it imported directly using Plaid? Also, Does it capture interest payment for bonds?",
+    "the_log_records": "HIS QUESTIONS: “Is it imported directly using Plaid? Also, does it capture interest payment for bonds?” What comes in automatically and what does not.",
+    "governs": "src/domain/assets/index.ts · src/screens/BudgetScreen.tsx"
+  },
+  "DEC-7610": {
+    "id": "DEC-7610",
+    "decided": "2026-10-23",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his ruling DEC-3523 (tenet 4), made without asking him, as his order of 2026-09-30 says. The editor's own header says it is the plan for a typical month (the 2026-06-23 surplus decision, in the code's comment; it has no row in this log). A $1,200 December bill reads $100 a month there, while This month and the Expenses tab read it only in December. To reverse: point its groups at MK-CF-F-221 spendByMonthByBucket for this month. One word from him reverses it.",
+    "governs": "src/screens/BudgetScreen.tsx (the per-group spent / planned)"
+  },
+  "DEC-7943": {
+    "id": "DEC-7943",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "cashflow",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0264 and DEC-3523 (tenet 1), made without asking him, as his order of 2026-09-30 says. A $386.42 car payment was offered as 386, so Log recorded $386 and left the balance 42 cents too high; it is offered as 386.42 and recorded to the cent. A $250 car-loan payment moves Debts and Net worth together: owed $333,000 → $332,750, surplus +$900 → +$650, Home's Outflow $4,350. To reverse: offer the payment rounded to the dollar again. One word from him reverses it.",
+    "governs": "src/screens/BudgetScreen.tsx (openPay) · MK-NW-M-010"
+  },
+  "DEC-7948": {
+    "id": "DEC-7948",
+    "decided": "2026-10-24",
+    "type": "RULE",
+    "tab": "multiple_screens",
+    "whose": "the lead's decision under his rulings, recorded in his log — not his own",
+    "his_words": "",
+    "the_log_records": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-3523 (tenets 4 and 8), made without asking him, as his order of 2026-09-30 says. iOS read a dot nested inside a sentence by its glyph, whatever its label, so the mortgage comparison on the Debts tab ended with the dot heard as a symbol. The two nested dots, the mortgage comparison and Required withdrawals, now sit beside their sentence, and every dot is said as About, then what it explains — About How we calculate your odds, About Summary, About Day one, About Earned, About Debt. A guard reads all 36 dots in src and fails on a nested one. Moving the two dots changes the layout a little: a check on a phone is owed. To reverse: put the two dots back inside their sentence and the glyph in the label. One word from him reverses it.",
+    "governs": "src/components/UI.tsx (the info dot label) · the Debts tab (src/screens/BudgetScreen.tsx) · src/screens/RequiredWithdrawalsScreen.tsx"
+  }
+}

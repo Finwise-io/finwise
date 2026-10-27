@@ -106,7 +106,7 @@ describe('the Itemize into holdings door is the amber action box, not green (DEC
 });
 
 describe('the HISTORIC 12-MONTH RETURN card (DEC-6005)', () => {
-  const BODY = "Add historic 12-month return on your holdings. For bonds or CDs, enter the yield to maturity if it's different from the coupon rate. The Plan tab compares it with the typical return for this type of account, and can grow your savings at it if you choose that there.";   // last clause approved 2026-10-19 ("approved.")
+  const BODY = "Add historic 12-month return on your holdings. For bonds or CDs, enter the yield to maturity if it’s different from the coupon rate. The Plan tab compares it with the typical return for this type of account, and can grow your savings at it if you choose that there.";   // last clause approved 2026-10-19 ("approved.")
   test.each([
     ['a bond', { asset_id: 'b', kind: 'fixed_income', asset_class: 'bonds', tax_bucket: 'TAXABLE' }],
     ['a CD', { asset_id: 'c', kind: 'cd', tax_bucket: 'TAXABLE' }],

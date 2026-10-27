@@ -59,8 +59,17 @@ test('the Expenses detail hangs off the flow — part, not a rival answer', () =
 test('nothing entered: the flow still has its shape and refuses a made-up surplus', () => {
   const m = theMonth({ ym, takeHomeMonthly: 0, debts: [], plannedExpenses: 0, expenses: [] } as any);
   expect(Array.isArray(m.planned.lines)).toBe(true);
-  expect(m.planned.surplus).toBe(0);
+  // NO BUDGET, NO PLANNED SURPLUS (2026-10-25, FIX-MONTH; DEC-0296, DEC-7939; CFR-4 MK-CF-F-156-C05): it read $0 — a figure made up
+  // from a budget nobody set. It is no number, with the reason, and the free figure after goals is none either
+  expect(Number.isNaN(m.planned.surplus)).toBe(true);
+  expect(m.planned.refusal).toBe('You haven’t set your budget. Until you do there is no planned surplus — we won’t guess one.');
+  expect(Number.isNaN(m.free)).toBe(true);
+  expect(m.actual.surplus).toBe(0);               // what has happened needs no plan: a real $0
   expect(m.expenses.actualTotal).toBe(0);
+});
+test.failing('nothing entered — the answer before 2026-10-25, kept: a planned surplus of $0 built on no budget', () => {
+  const m = theMonth({ ym, takeHomeMonthly: 0, debts: [], plannedExpenses: 0, expenses: [] } as any);
+  expect(m.planned.surplus).toBe(0);
 });
 
 /* ── THE APPROVED MOCK, ROW FOR ROW (cash-flow_v01) ───────────────────────────────────────────────

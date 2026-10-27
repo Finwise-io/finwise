@@ -44,10 +44,15 @@ export default function StressTestScreen() {
   const rent = answer.rentalIncomeMonthly;
   const rentPaysForIt = answer.rentCoversEssentials;
   const rentLine = rent > 0 ? figPer('MK-NW-M-064', rent) : '';   // "$1,000/month", with its identifier
-  const r = { cashAfter: hit.cashAfter, runwayAfter: hit.monthsAfter ?? 0, coversIt: hit.coversIt,
-              monthlyEssentials: ess, jobLossRunway: answer.monthsCovered ?? 0,
-              recommendedFund: answer.targetFor(3)?.target ?? 0, gapToFund: answer.targetFor(3)?.gap ?? 0, shock };
+  // NO ESSENTIALS, NO MONTHS AND NO TARGET (2026-10-25, FIX-BUDGET; MK-CF-F-010; drawing stresstest-mock_v02, READ THIS FIRST):
+  // the door's months and target are null with $0 of essentials, and this screen turned them back into 0 — "about 0.0 months
+  // of essentials" and "✓ You already have at least 3 months". A null stays a null here; each sentence below says so instead.
+  const fund3 = answer.targetFor(3);
+  const r = { cashAfter: hit.cashAfter, runwayAfter: hit.monthsAfter, coversIt: hit.coversIt,
+              monthlyEssentials: ess, jobLossRunway: answer.monthsCovered,
+              recommendedFund: fund3?.target ?? null, gapToFund: fund3?.gap ?? null, shock };
 
+  const leftWords = `You'd have ${money(r.cashAfter)} left`;   // the hit's answer, said once for both sentences below
   const tone = (months: number) => (months >= 6 ? Colors.primary : months >= 3 ? Colors.amber : Colors.red);
 
   return (
@@ -76,7 +81,9 @@ export default function StressTestScreen() {
         </Text>
         <Text style={styles.vSub}>
           {r.coversIt
-            ? `You'd have ${money(r.cashAfter)} left${rentPaysForIt ? ', and rent from your property pays for your essentials' : ` — about ${r.runwayAfter.toFixed(1)} months of essentials`} (${money(ess)}/month — ${essLabel}${rentLine ? (rentPaysForIt ? `; the rent is ${rentLine}` : `, less ${rentLine} rent from your property`) : ''}).`
+            ? (!rentPaysForIt && r.runwayAfter == null
+              ? `${leftWords}. With ${figPer('MK-MN-M-026', ess)} of essentials there is no count of months to state.`
+              : `${leftWords}${rentPaysForIt ? ', and rent from your property pays for your essentials' : ` — about ${(r.runwayAfter as number).toFixed(1)} months of essentials`} (${money(ess)}/month — ${essLabel}${rentLine ? (rentPaysForIt ? `; the rent is ${rentLine}` : `, less ${rentLine} rent from your property`) : ''}).`)
             : `You'd need ${money(Math.abs(r.cashAfter))} more to absorb it without borrowing.`}
         </Text>
         {cash === 0 && <EmptyNote door="accounts" />}   {/* Q48 (MK-MN-M-024/025): no cash account entered */}
@@ -87,7 +94,7 @@ export default function StressTestScreen() {
         <Text style={styles.cardTitle}>If you lost your income</Text>
         {rentPaysForIt ? (
           <Text style={styles.note}>Rent from your property ({rentLine}) pays for your {figPer('MK-MN-M-026', ess)} of essentials ({essLabel}), so your cash would not be drawn on.</Text>
-        ) : ess > 0 ? (
+        ) : ess > 0 && r.jobLossRunway != null ? (
           <>
             <View style={styles.bigRow}>
               <Text style={[styles.big, { color: tone(r.jobLossRunway) }]}>{r.jobLossRunway.toFixed(1)}</Text>
@@ -115,7 +122,9 @@ export default function StressTestScreen() {
       {/* emergency fund target */}
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Your emergency fund</Text>
-        {r.gapToFund > 0 ? (
+        {r.gapToFund == null || r.recommendedFund == null ? (
+          <Text style={styles.fundTxt}>No target yet: your essentials come to {figPer('MK-MN-M-026', ess)}.</Text>
+        ) : r.gapToFund > 0 ? (
           <Text style={styles.fundTxt}>3 months of essentials{rent > 0 ? ', less the rent that keeps arriving,' : ''} is <Text style={styles.bold}>{money(r.recommendedFund)}</Text>. You're <Text style={[styles.bold, { color: Colors.amber }]}>{money(r.gapToFund)}</Text> short of it today — a goal can track it, if you want one.</Text>
         ) : (
           <Text style={styles.fundTxt}>✓ You already have at least 3 months of essentials set aside. A strong emergency fund — some stretch toward 6 months — your call.</Text>

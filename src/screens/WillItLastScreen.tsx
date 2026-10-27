@@ -25,8 +25,8 @@ export default function WillItLastScreen() {
     () => resolveNetWorthRows(uid, op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? []),
     [uid, op, store.nwSeeded, store.assetAccounts, store.liabilities]);
   const wil = useMemo(
-    () => selectWillItLast({ op, accounts, assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, withBand: true }),
-    [op, accounts, A, store.inflationRate, store.employmentStatus]);
+    () => selectWillItLast({ op, accounts, assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, withBand: true, transactions: store.transactions ?? [] }),
+    [op, accounts, A, store.inflationRate, store.employmentStatus, store.transactions]);
 
   if (!wil.captured || wil.chance == null || !wil.inputs) {
     return (
@@ -61,7 +61,7 @@ export default function WillItLastScreen() {
       {/* the headline — the one selector, the one number */}
       <View style={s.card} accessible
         accessibilityLabel={`Will my money last to ${wil.horizonAge}: ${wil.chance} percent, an estimate.`}>
-        <SectionBand title={`WILL MY MONEY LAST? — TO ${wil.horizonAge}`} />
+        <SectionBand inCard inset={Spacing.md} title={`WILL MY MONEY LAST? — TO ${wil.horizonAge}`} />
         <Text style={s.headline}>{wil.chance}% <EstimateTag /></Text>
       </View>
 

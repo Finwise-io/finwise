@@ -255,7 +255,9 @@ describe('MK-NW-F-084 categoryEarnings — five cases', () => {
   }, 'decided 2026-10-21 (tenets 1, 4): an Alternatives row, never Stocks / Funds');
   test('complex · Partial priced coverage — the app\'s answer since the decision: Alternatives earned $83.27, no return (before: Stocks / Funds $83.27, +7.31%)', () => {
     const out = partialAlt(C('MK-NW-F-084', 'complex', 'Partial priced coverage and misclassified alternative income'));
-    expect(out.map((b) => [b.label, b.earned, b.ret])).toEqual([['Alternatives', 83.27, null]]);
+    // every category held is listed, $0 where nothing came in (2026-10-25, MM-PF D3): VTI +7.31% and the Treasury with no price
+    // history beside the alternative's $83.27 — the income is still Alternatives', never Stocks / Funds
+    expect(out.map((b) => [b.label, b.earned, b.ret])).toEqual([['Stocks / Funds', 0, expect.closeTo(0.0731, 9)], ['Bonds & CDs', 0, null], ['Alternatives', 83.27, null]]);
   });
   kase('MK-NW-F-084', 'edge', 'Day one with no income', 'AGREES', (c) => {
     const out = categoryEarnings({ windowStart: null, transactions: c.inputs.transactions, rows: [], dayOne: c.inputs.dayOne });

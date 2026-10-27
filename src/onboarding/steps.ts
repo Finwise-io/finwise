@@ -312,3 +312,20 @@ export function buildSteps(status: Status | null, tracks: Track[], answers?: Rec
 export function isOptional(step: StepId): boolean {
   return OPTIONAL_STEPS.has(step);
 }
+
+/** A QUESTION ALREADY ANSWERED FOR THE PERSON CARRIES NO "Skip for now" (2026-10-25, CF-MMFIX-B; drawing check IN-18): the
+ *  filing question is pre-answered from what they said, and Continue keeps that answer — the approved drawing (income v07,
+ *  phones 13 and 14) draws Continue alone. It stays optional: Continue is never held back on it. */
+/* ─ MK-XS-F-203 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * PRE_ANSWERED_STEPS
+ *
+ * Answers ..... The sign-up steps that are already answered when they are reached (the filing status, pre-answered from the household), so the step shows no Skip; words only, it calculates nothing.
+ *
+ * Called by ... OnboardingScreen
+ *
+ * Numbered by hand 2026-10-26 (PF-TOOLS, the lead's instruction): the scan that issues identifiers reads functions in the
+ *               calculation folders only, so this constant has no generated record; this one is written by hand in the generated form,
+ *               as MK-NW-F-145's is
+ * Changed ..... not in git yet (—)
+ */
+export const PRE_ANSWERED_STEPS = new Set<StepId>(['filing_status']);

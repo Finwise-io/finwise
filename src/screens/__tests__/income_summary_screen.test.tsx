@@ -51,7 +51,7 @@ test('a recap SHOWS the rate and points at the one place it is set — it never 
   set({ ...HOUSE, taxMode: 'manual', manualTaxRate: '24' });
   render(<IncomeSummaryScreen />);
   expect(screen.getByText('Tax')).toBeOnTheScreen();
-  expect(screen.getByText(/your rate, 24% \(edit on Your base pay screen\)/)).toBeOnTheScreen();
+  expect(screen.getByText(/your rate, 24\.00% \(edit on Your base pay screen\)/)).toBeOnTheScreen();   // two decimals since 2026-10-26 (MK-CF-M-081)
   expect(screen.queryByLabelText('The tax rate you want us to use')).toBeNull();   // no field here
 });
 
@@ -71,5 +71,8 @@ test('5b — a fresh account keeps both headings and shows $0 with the one line 
   expect(screen.queryByText('—')).toBeNull();
   expect(screen.getAllByText('$0')).toHaveLength(2);
   expect(screen.getAllByText(/^Nothing entered yet\./).length).toBe(2);
-  expect(screen.getByLabelText('Add your income')).toBeOnTheScreen();
+  // ONE DOOR under each figure, never the same door twice in a row (IN-11, 2026-10-25; Q48: one line and its door) — the
+  // separate "Add your income ›" button under the first line is gone; each line carries its own door
+  expect(screen.queryByLabelText('Add your income')).toBeNull();
+  expect(screen.getAllByText('Add your income ›')).toHaveLength(2);
 });

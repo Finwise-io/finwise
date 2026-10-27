@@ -51,14 +51,16 @@ export type FigureUnit =
  * Called by ... MK-NW-F-163 yardstickName · MK-NW-F-164 gapWords
  *               MK-XS-F-183 writeFigure
  *
- * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-167 COMPARE
  *               MK-NW-F-140 LEFT_OUT · MK-NW-F-083 PERF
  *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-144 beforeTheRecordSentence · MK-NW-F-164 gapWords
- *               MK-NW-F-130 notIncludedSentence · MK-NW-O-008 thePerformance
- *               MK-NW-F-105 whyNoReturn · MK-XS-F-183 writeFigure
- *               MK-NW-F-163 yardstickName
+ *               MK-NW-F-144 beforeTheRecordSentence · MK-CF-F-107 buildPaycheckYear
+ *               MK-PL-F-089 drawAssumptionsSaid · MK-CF-O-017 futurePaycheck
+ *               MK-NW-F-164 gapWords · MK-CF-F-282 growthUsed
+ *               MK-NW-F-130 notIncludedSentence · MK-CF-F-279 paycheckReturn
+ *               MK-NW-O-008 thePerformance · MK-NW-F-105 whyNoReturn
+ *               MK-XS-F-183 writeFigure · MK-NW-F-163 yardstickName
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -95,14 +97,18 @@ export function percentDigits(rate: number): string {
  *     signed + (opts.spoken ? ` a ${spec.per}` : ` ÷ ${spec.per}`)   when opts.with period and spec.per
  *     the answer = signed
  *
- * Called by ... MK-NW-F-105 whyNoReturn · MK-NW-F-130 notIncludedSentence
+ * Called by ... MK-CF-F-279 paycheckReturn · MK-CF-F-282 growthUsed
+ *               MK-NW-F-105 whyNoReturn · MK-NW-F-130 notIncludedSentence
+ *               MK-PL-F-089 drawAssumptionsSaid
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
- *               MK-NW-F-130 notIncludedSentence · MK-NW-O-008 thePerformance
- *               MK-NW-F-105 whyNoReturn
+ *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-089 drawAssumptionsSaid
+ *               MK-CF-O-017 futurePaycheck · MK-CF-F-282 growthUsed
+ *               MK-NW-F-130 notIncludedSentence · MK-CF-F-279 paycheckReturn
+ *               MK-NW-O-008 thePerformance · MK-NW-F-105 whyNoReturn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
@@ -228,10 +234,20 @@ export function walkShown(w: Omit<WalkLines, 'wealthGenerated'> & { wealthGenera
  *     parts = shown
  *     total = total
  *
- * Called by ... MK-XS-F-195 monthShown
- *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ * Called by ... MK-CF-F-255 spendByMonthByCategory · MK-CF-F-256 budgetEditorBuckets
  *               MK-XS-F-195 monthShown
+ *
+ * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 368 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -454,17 +470,18 @@ export type FigureDeclaration = Record<string, FigureSpec>;
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
- * Called by ... MK-CF-F-199 ROOM · MK-CF-F-200 LINE
- *               MK-CF-F-202 TAX · MK-CF-F-204 line
- *               MK-CF-F-210 annualOfSource · MK-CF-F-211 DEBTS
- *               MK-CF-F-212 receivedInMonth · MK-CF-F-240 PAY_LANDS_TYPED
- *               MK-CF-F-242 workedLineAmount · MK-CF-O-017 futurePaycheck
- *               MK-NW-F-075 ACC · MK-NW-F-076 ALT
- *               MK-NW-F-079 EF · MK-NW-F-081 LB
- *               MK-NW-F-088 BENCH · MK-NW-F-167 COMPARE
- *               MK-NW-F-179 balanceWithBondTakenOut · MK-NW-F-185 valueChanged
+ * Called by ... MK-CF-F-107 buildPaycheckYear · MK-CF-F-199 ROOM
+ *               MK-CF-F-200 LINE · MK-CF-F-202 TAX
+ *               MK-CF-F-204 line · MK-CF-F-207 SOURCE
+ *               MK-CF-F-211 DEBTS · MK-CF-F-212 receivedInMonth
+ *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-242 workedLineAmount
+ *               MK-CF-O-017 futurePaycheck · MK-NW-F-075 ACC
+ *               MK-NW-F-076 ALT · MK-NW-F-079 EF
+ *               MK-NW-F-081 LB · MK-NW-F-088 BENCH
+ *               MK-NW-F-167 COMPARE · MK-NW-F-179 balanceWithBondTakenOut
+ *               MK-NW-F-185 valueChanged · MK-PL-F-083 inflationRateInForce
  *
- * Reaches ..... 389 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -474,7 +491,7 @@ export type FigureDeclaration = Record<string, FigureSpec>;
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 371 more — the full list is on functions_from_code
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

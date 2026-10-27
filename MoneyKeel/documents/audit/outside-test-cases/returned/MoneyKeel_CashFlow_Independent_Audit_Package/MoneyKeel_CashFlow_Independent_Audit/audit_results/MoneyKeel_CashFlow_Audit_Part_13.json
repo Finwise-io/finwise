@@ -1,0 +1,2854 @@
+{
+  "batch": "cf module — part 13",
+  "written_by": "OpenAI independent specification reviewer",
+  "ready_to_close": false,
+  "still_open": [
+    "MK-CF-O-005: Calls monthly contribution ×12 money used so far, hides overcontributions by capping used at the limit, counts only Roth IRA amounts for combined IRA room, and assumes self-only HSA cover.",
+    "MK-CF-F-055: Base/catch-up constants are correct for a full eligible year, but current Medicare status alone cannot determine this year’s limit: eligible pre-enrollment months may still allow contributions.",
+    "MK-CF-F-056: Caps reported used at the statutory limit, hiding an actual excess even though remaining room is correctly floored at zero.",
+    "MK-CF-F-058: Age73 and Social Security claiming age are heuristic cutoff points, not a complete conversion-opportunity test. It can return false for a low-income retiree already claiming a small benefit.",
+    "MK-CF-O-017: Positive savings projections and simulation-supported draws cannot be independently computed without the projection’s public equations and timing conventions.",
+    "MK-CF-F-105: Dated payment placement is correct, but the inflation flags captured by guaranteedOutsideStreams are not reflected in next-year payments in the described rolling grid.",
+    "MK-CF-F-106: Twelve bisections inside an unverified initial upper bound do not establish the largest feasible draw. An all-feasible bracket can cap the answer too low; a chanceFloor argument is not reflected in the fixed80 wording.",
+    "MK-CF-F-107: Combines guaranteed receipts and a draw coherently, but safe-to-spend wording is forbidden, simulation assumptions are incomplete, and guaranteed monthly average can hide timing risk.",
+    "DEC-0243: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0244: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The outside-guaranteed reader excludes withdrawals andRMDs. Taxable treatment remains a separate defect.",
+    "DEC-0245: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0263: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0495: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-2164: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-8153: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. New per-month debt readersrespect inclusive start/payoff bounds and a balloon’s due-month balance."
+  ],
+  "scope": "Written formulas,owner decisions and primary publications only. No repository code,existingtests or liveapp outputs were inspected for this review. Attached screen-register worked/app-result fields were excluded from expected-answer derivation.",
+  "formula_checks": [
+    {
+      "id": "MK-CF-O-005",
+      "name": "theContributionRoom",
+      "verdict": "WRONG",
+      "why": "Calls monthly contribution ×12 money used so far, hides overcontributions by capping used at the limit, counts only Roth IRA amounts for combined IRA room, and assumes self-only HSA cover.",
+      "should_be": "Use confirmed year-to-date contributions per person across relevant accounts, show excesses, use coverage/eligibility months, and distinguish planned annual contributions from used.",
+      "rests_on": "IRS Notice 2025-67; Rev. Proc. 2025-19; tenets 1–3",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-197",
+      "name": "ageAttainedInYear",
+      "verdict": "RIGHT",
+      "why": "Uses the calendar-year age required for catch-up thresholds and refuses an absent/unusable birth year; future birth years should be rejected at input.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-195",
+      "name": "monthsLeftInYear",
+      "verdict": "RIGHT",
+      "why": "Includes the current month explicitly: January12, December1.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-196",
+      "name": "perMonthToFill",
+      "verdict": "RIGHT",
+      "why": "Divides known room by explicitly inclusive remaining months and rounds only the displayed planning amount to $100; this rounded amount may leave residual room.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-053",
+      "name": "annual401kLimit",
+      "verdict": "RIGHT",
+      "why": "The supplied 2026 base and catch-up constants match IRS Notice 2025-67. Returns a statutory ceiling, not a determination of compensation/plan eligibility.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-054",
+      "name": "annualIraLimit",
+      "verdict": "RIGHT",
+      "why": "The 2026 base and catch-up constants match IRS Notice 2025-67; this is the combined statutory IRA ceiling, subject to compensation/eligibility rules.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-055",
+      "name": "annualHsaLimit",
+      "verdict": "INCOMPLETE",
+      "why": "Base/catch-up constants are correct for a full eligible year, but current Medicare status alone cannot determine this year’s limit: eligible pre-enrollment months may still allow contributions.",
+      "should_be": "Declare full-year eligibility as a precondition, or use month-by-month eligibility and permitted last-month-rule treatment.",
+      "rests_on": "IRS Pub969; Rev. Proc.2025-19",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-056",
+      "name": "k401Headroom",
+      "verdict": "INCOMPLETE",
+      "why": "Caps reported used at the statutory limit, hiding an actual excess even though remaining room is correctly floored at zero.",
+      "should_be": "Show actual contributed, limit, excess and remaining room separately; never erase an entered overcontribution.",
+      "rests_on": "Tenets 1,2,5",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-057",
+      "name": "rothVsTraditional",
+      "verdict": "RIGHT",
+      "why": "Implements a clearly conditional heuristic comparing current and expected future marginal bands; it is not an individualized optimal strategy.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-058",
+      "name": "rothConversionWindow",
+      "verdict": "INCOMPLETE",
+      "why": "Age73 and Social Security claiming age are heuristic cutoff points, not a complete conversion-opportunity test. It can return false for a low-income retiree already claiming a small benefit.",
+      "should_be": "Label a heuristic signal; use cohort-specific required-distribution rules and actual marginal tax capacity for advice.",
+      "rests_on": "Tenet7; ordinary tax planning",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-CF-O-017",
+      "name": "futurePaycheck",
+      "verdict": "CANNOT TELL",
+      "why": "Positive savings projections and simulation-supported draws cannot be independently computed without the projection’s public equations and timing conventions.",
+      "should_be": "Supply mathematical simulation/projection contract; meantime test refusals, composition and labeled assumptions.",
+      "rests_on": "DEC-0247; DEC-0364; package simulation-case exception",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-105",
+      "name": "guaranteedRows",
+      "verdict": "INCOMPLETE",
+      "why": "Dated payment placement is correct, but the inflation flags captured by guaranteedOutsideStreams are not reflected in next-year payments in the described rolling grid.",
+      "should_be": "State whether the 12-month grid holds nominal flat amounts or adjusts inflation-linked payments, with source-year assumptions.",
+      "rests_on": "DEC-0303; tenets2,4",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-CF-F-106",
+      "name": "solveSafeDraw",
+      "verdict": "INCOMPLETE",
+      "why": "Twelve bisections inside an unverified initial upper bound do not establish the largest feasible draw. An all-feasible bracket can cap the answer too low; a chanceFloor argument is not reflected in the fixed80 wording.",
+      "should_be": "Expand until an infeasible upper bound is proven, keep feasible/infeasible invariants, use the requested floor, declare tolerance and validate the downward-rounded draw.",
+      "rests_on": "Package public signature; ordinary bounded-search correctness",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-107",
+      "name": "buildPaycheckYear",
+      "verdict": "INCOMPLETE",
+      "why": "Combines guaranteed receipts and a draw coherently, but safe-to-spend wording is forbidden, simulation assumptions are incomplete, and guaranteed monthly average can hide timing risk.",
+      "should_be": "Use approved affordability wording, disclose projection assumptions and retain bill/guaranteed timing; never include withdrawals as outside income.",
+      "rests_on": "DEC-0295; DEC-0244; DEC-0307; DEC-2164",
+      "severity": "high"
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-CF-O-005",
+      "case_id": "MK-CF-O-005-C01",
+      "name": "theContributionRoom",
+      "kind": "easy",
+      "title": "January no contributions yet",
+      "as_of": "2026-01-01",
+      "given": "January no contributions yet",
+      "inputs": {
+        "birth_year": 1976,
+        "contributed_ytd_401k": 0,
+        "monthly_plan_401k": 1000,
+        "ira_ytd": 0,
+        "hsa_eligible": true,
+        "hsa_coverage": "self"
+      },
+      "expected": {
+        "age": {
+          "exact": "50",
+          "shown": "50",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "k_limit": {
+          "exact": "32500",
+          "shown": "$32,500",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "k_used": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "k_room": {
+          "exact": "32500",
+          "shown": "$32,500",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "ira_limit": {
+          "exact": "8600",
+          "shown": "$8,600",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "months_left": {
+          "exact": "12",
+          "shown": "12",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Age2026−1976=50;24500+8000=32500;used0;room32500."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "k_used": {
+          "exact": "12000",
+          "shown": "$12,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "k_room": {
+          "exact": "20500",
+          "shown": "$20,500",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-005",
+      "case_id": "MK-CF-O-005-C02",
+      "name": "theContributionRoom",
+      "kind": "easy",
+      "title": "December known YTD",
+      "as_of": "2026-12-01",
+      "given": "December known YTD",
+      "inputs": {
+        "birth_year": 1966,
+        "contributed_ytd_401k": 30000,
+        "monthly_plan_401k": 2500,
+        "ira_ytd": 0
+      },
+      "expected": {
+        "age": {
+          "exact": "60",
+          "shown": "60",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "k_limit": {
+          "exact": "35750",
+          "shown": "$35,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "k_used": {
+          "exact": "30000",
+          "shown": "$30,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "k_room": {
+          "exact": "5750",
+          "shown": "$5,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "months_left": {
+          "exact": "1",
+          "shown": "1",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "per_month_display": {
+          "exact": "5800",
+          "shown": "$5,800",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "35750−30000=5750;one month left;nearest100=5800."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-005",
+      "case_id": "MK-CF-O-005-C03",
+      "name": "theContributionRoom",
+      "kind": "complex",
+      "title": "Mixed IRA and family HSA",
+      "as_of": "2026-10-24",
+      "given": "Mixed IRA and family HSA",
+      "inputs": {
+        "birth_year": 1971,
+        "k_ytd": "17311.17",
+        "k_monthly_plan": "1731.43",
+        "traditional_ira_ytd": "3111.19",
+        "roth_ira_ytd": "2311.37",
+        "hsa_ytd": "3111.13",
+        "hsa_coverage": "family",
+        "full_year_eligible": true
+      },
+      "expected": {
+        "age": {
+          "exact": "55",
+          "shown": "55",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "k_limit": {
+          "exact": "32500",
+          "shown": "$32,500",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "k_room": {
+          "exact": "15188.83",
+          "shown": "$15,189",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "ira_limit": {
+          "exact": "8600",
+          "shown": "$8,600",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "ira_used": {
+          "exact": "5422.56",
+          "shown": "$5,423",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "ira_room": {
+          "exact": "3177.44",
+          "shown": "$3,177",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "hsa_limit": {
+          "exact": "9750",
+          "shown": "$9,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "hsa_room": {
+          "exact": "6638.87",
+          "shown": "$6,639",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "IRA3111.19+2311.37=5422.56;8600−5422.56=3177.44;family8750+1000=9750;subtract3111.13."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "k_used": {
+          "exact": "20777.16",
+          "shown": "$20,777",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "ira_used": {
+          "exact": "2311.37",
+          "shown": "$2,311",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "hsa_limit": {
+          "exact": "5400",
+          "shown": "$5,400",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-005",
+      "case_id": "MK-CF-O-005-C04",
+      "name": "theContributionRoom",
+      "kind": "complex",
+      "title": "Overcontribution remains visible",
+      "as_of": "2026-10-24",
+      "given": "Overcontribution remains visible",
+      "inputs": {
+        "birth_year": 1966,
+        "k_ytd": 40000,
+        "monthly_k": "3333.333333333333333333333333"
+      },
+      "expected": {
+        "k_limit": {
+          "exact": "35750",
+          "shown": "$35,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "k_used": {
+          "exact": "40000",
+          "shown": "$40,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "k_room": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "excess": {
+          "exact": "4250",
+          "shown": "$4,250",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "40000−35750=4250excess;do not cap observed used."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "k_used": {
+          "exact": "35750",
+          "shown": "$35,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "k_room": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-005",
+      "case_id": "MK-CF-O-005-C05",
+      "name": "theContributionRoom",
+      "kind": "edge",
+      "title": "Birth year absent",
+      "as_of": "2026-10-24",
+      "given": "Birth year absent",
+      "inputs": {
+        "birth_year": null,
+        "monthly_k": 1000
+      },
+      "expected": null,
+      "working": [
+        "No age:orchestrator refuses under its stated rule;base-only ceiling may be separately labeled."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-197",
+      "case_id": "MK-CF-F-197-C01",
+      "name": "ageAttainedInYear",
+      "kind": "easy",
+      "title": "Turns50",
+      "as_of": "2026-10-24",
+      "given": "Turns50",
+      "inputs": {
+        "birth_year": 1976,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "50",
+        "shown": "50"
+      },
+      "working": [
+        "2026 − 1976"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-197",
+      "case_id": "MK-CF-F-197-C02",
+      "name": "ageAttainedInYear",
+      "kind": "easy",
+      "title": "Turns55",
+      "as_of": "2026-10-24",
+      "given": "Turns55",
+      "inputs": {
+        "birth_year": 1971,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "55",
+        "shown": "55"
+      },
+      "working": [
+        "2026 − 1971"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-197",
+      "case_id": "MK-CF-F-197-C03",
+      "name": "ageAttainedInYear",
+      "kind": "complex",
+      "title": "Turns60",
+      "as_of": "2026-10-24",
+      "given": "Turns60",
+      "inputs": {
+        "birth_year": 1966,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "60",
+        "shown": "60"
+      },
+      "working": [
+        "2026 − 1966"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-197",
+      "case_id": "MK-CF-F-197-C04",
+      "name": "ageAttainedInYear",
+      "kind": "complex",
+      "title": "Turns64",
+      "as_of": "2026-10-24",
+      "given": "Turns64",
+      "inputs": {
+        "birth_year": 1962,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "64",
+        "shown": "64"
+      },
+      "working": [
+        "2026 − 1962"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-197",
+      "case_id": "MK-CF-F-197-C05",
+      "name": "ageAttainedInYear",
+      "kind": "edge",
+      "title": "Missing",
+      "as_of": "2026-10-24",
+      "given": "Missing",
+      "inputs": {
+        "birth_year": null,
+        "year": 2026
+      },
+      "expected": null,
+      "working": [
+        "No birth year: no age."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-195",
+      "case_id": "MK-CF-F-195-C01",
+      "name": "monthsLeftInYear",
+      "kind": "easy",
+      "title": "January",
+      "as_of": "2026-01-01",
+      "given": "January",
+      "inputs": {
+        "date": "2026-01-01"
+      },
+      "expected": {
+        "exact": "12",
+        "shown": "12"
+      },
+      "working": [
+        "12 − completed months = 13 − 1"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-195",
+      "case_id": "MK-CF-F-195-C02",
+      "name": "monthsLeftInYear",
+      "kind": "easy",
+      "title": "December",
+      "as_of": "2026-12-31",
+      "given": "December",
+      "inputs": {
+        "date": "2026-12-31"
+      },
+      "expected": {
+        "exact": "1",
+        "shown": "1"
+      },
+      "working": [
+        "12 − completed months = 13 − 12"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-195",
+      "case_id": "MK-CF-F-195-C03",
+      "name": "monthsLeftInYear",
+      "kind": "complex",
+      "title": "October late",
+      "as_of": "2026-10-24",
+      "given": "October late",
+      "inputs": {
+        "date": "2026-10-24"
+      },
+      "expected": {
+        "exact": "3",
+        "shown": "3"
+      },
+      "working": [
+        "12 − completed months = 13 − 10"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-195",
+      "case_id": "MK-CF-F-195-C04",
+      "name": "monthsLeftInYear",
+      "kind": "complex",
+      "title": "February leap",
+      "as_of": "2028-02-29",
+      "given": "February leap",
+      "inputs": {
+        "date": "2028-02-29"
+      },
+      "expected": {
+        "exact": "11",
+        "shown": "11"
+      },
+      "working": [
+        "12 − completed months = 13 − 2"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-195",
+      "case_id": "MK-CF-F-195-C05",
+      "name": "monthsLeftInYear",
+      "kind": "edge",
+      "title": "Last September day",
+      "as_of": "2026-09-30",
+      "given": "Last September day",
+      "inputs": {
+        "date": "2026-09-30"
+      },
+      "expected": {
+        "exact": "4",
+        "shown": "4"
+      },
+      "working": [
+        "12 − completed months = 13 − 9"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-196",
+      "case_id": "MK-CF-F-196-C01",
+      "name": "perMonthToFill",
+      "kind": "easy",
+      "title": "January",
+      "as_of": "2026-01-01",
+      "given": "January",
+      "inputs": {
+        "room": 12000,
+        "date": "2026-01-01"
+      },
+      "expected": {
+        "unrounded": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "shown_nearest_100": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "12000 ÷ 12 = 1000; round display to nearest100."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-196",
+      "case_id": "MK-CF-F-196-C02",
+      "name": "perMonthToFill",
+      "kind": "easy",
+      "title": "December",
+      "as_of": "2026-12-01",
+      "given": "December",
+      "inputs": {
+        "room": 5000,
+        "date": "2026-12-01"
+      },
+      "expected": {
+        "unrounded": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "shown_nearest_100": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "5000 ÷ 1 = 5000; round display to nearest100."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-196",
+      "case_id": "MK-CF-F-196-C03",
+      "name": "perMonthToFill",
+      "kind": "complex",
+      "title": "October unround",
+      "as_of": "2026-10-24",
+      "given": "October unround",
+      "inputs": {
+        "room": "17311.17",
+        "date": "2026-10-24"
+      },
+      "expected": {
+        "unrounded": {
+          "exact": "5770.39",
+          "shown": "$5,770",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "shown_nearest_100": {
+          "exact": "5800",
+          "shown": "$5,800",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "17311.17 ÷ 3 = 5770.39; round display to nearest100."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-196",
+      "case_id": "MK-CF-F-196-C04",
+      "name": "perMonthToFill",
+      "kind": "complex",
+      "title": "September unround",
+      "as_of": "2026-09-17",
+      "given": "September unround",
+      "inputs": {
+        "room": "8311.43",
+        "date": "2026-09-17"
+      },
+      "expected": {
+        "unrounded": {
+          "exact": "2077.8575",
+          "shown": "$2,078",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "shown_nearest_100": {
+          "exact": "2100",
+          "shown": "$2,100",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "8311.43 ÷ 4 = 2077.8575; round display to nearest100."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-196",
+      "case_id": "MK-CF-F-196-C05",
+      "name": "perMonthToFill",
+      "kind": "edge",
+      "title": "No room",
+      "as_of": "2026-10-24",
+      "given": "No room",
+      "inputs": {
+        "room": 0,
+        "date": "2026-10-24"
+      },
+      "expected": {
+        "unrounded": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "shown_nearest_100": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "0 ÷ 3 = 0; round display to nearest100."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-053",
+      "case_id": "MK-CF-F-053-C01",
+      "name": "annual401kLimit",
+      "kind": "easy",
+      "title": "Below catch-up",
+      "as_of": "2026-10-24",
+      "given": "Below catch-up",
+      "inputs": {
+        "age_attained_2026": 49,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "24500",
+        "shown": "$24,500"
+      },
+      "working": [
+        "24500 + correct age-band catch-up (11250 replaces8000)."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-053",
+      "case_id": "MK-CF-F-053-C02",
+      "name": "annual401kLimit",
+      "kind": "easy",
+      "title": "At catch-up",
+      "as_of": "2026-10-24",
+      "given": "At catch-up",
+      "inputs": {
+        "age_attained_2026": 50,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "32500",
+        "shown": "$32,500"
+      },
+      "working": [
+        "24500 + correct age-band catch-up (11250 replaces8000)."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-053",
+      "case_id": "MK-CF-F-053-C03",
+      "name": "annual401kLimit",
+      "kind": "complex",
+      "title": "Higher age/coverage",
+      "as_of": "2026-10-24",
+      "given": "Higher age/coverage",
+      "inputs": {
+        "age_attained_2026": 60,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "35750",
+        "shown": "$35,750"
+      },
+      "working": [
+        "24500 + correct age-band catch-up (11250 replaces8000)."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-053",
+      "case_id": "MK-CF-F-053-C04",
+      "name": "annual401kLimit",
+      "kind": "complex",
+      "title": "Upper boundary",
+      "as_of": "2026-10-24",
+      "given": "Upper boundary",
+      "inputs": {
+        "age_attained_2026": 63,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "35750",
+        "shown": "$35,750"
+      },
+      "working": [
+        "24500 + correct age-band catch-up (11250 replaces8000)."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-053",
+      "case_id": "MK-CF-F-053-C05",
+      "name": "annual401kLimit",
+      "kind": "edge",
+      "title": "Other boundary or missing",
+      "as_of": "2026-10-24",
+      "given": "Other boundary or missing",
+      "inputs": {
+        "age_attained_2026": 64,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "32500",
+        "shown": "$32,500"
+      },
+      "working": [
+        "24500 + correct age-band catch-up (11250 replaces8000)."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-054",
+      "case_id": "MK-CF-F-054-C01",
+      "name": "annualIraLimit",
+      "kind": "easy",
+      "title": "Below catch-up",
+      "as_of": "2026-10-24",
+      "given": "Below catch-up",
+      "inputs": {
+        "age_attained_2026": 49,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "7500",
+        "shown": "$7,500"
+      },
+      "working": [
+        "7500 +1100 when age≥50; absent age explicitly base only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-054",
+      "case_id": "MK-CF-F-054-C02",
+      "name": "annualIraLimit",
+      "kind": "easy",
+      "title": "At catch-up",
+      "as_of": "2026-10-24",
+      "given": "At catch-up",
+      "inputs": {
+        "age_attained_2026": 50,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "8600",
+        "shown": "$8,600"
+      },
+      "working": [
+        "7500 +1100 when age≥50; absent age explicitly base only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-054",
+      "case_id": "MK-CF-F-054-C03",
+      "name": "annualIraLimit",
+      "kind": "complex",
+      "title": "Higher age/coverage",
+      "as_of": "2026-10-24",
+      "given": "Higher age/coverage",
+      "inputs": {
+        "age_attained_2026": 55,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "8600",
+        "shown": "$8,600"
+      },
+      "working": [
+        "7500 +1100 when age≥50; absent age explicitly base only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-054",
+      "case_id": "MK-CF-F-054-C04",
+      "name": "annualIraLimit",
+      "kind": "complex",
+      "title": "Upper boundary",
+      "as_of": "2026-10-24",
+      "given": "Upper boundary",
+      "inputs": {
+        "age_attained_2026": 63,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "8600",
+        "shown": "$8,600"
+      },
+      "working": [
+        "7500 +1100 when age≥50; absent age explicitly base only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-054",
+      "case_id": "MK-CF-F-054-C05",
+      "name": "annualIraLimit",
+      "kind": "edge",
+      "title": "Other boundary or missing",
+      "as_of": "2026-10-24",
+      "given": "Other boundary or missing",
+      "inputs": {
+        "age_attained_2026": null,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "7500",
+        "shown": "$7,500"
+      },
+      "working": [
+        "7500 +1100 when age≥50; absent age explicitly base only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-055",
+      "case_id": "MK-CF-F-055-C01",
+      "name": "annualHsaLimit",
+      "kind": "easy",
+      "title": "Below catch-up",
+      "as_of": "2026-10-24",
+      "given": "Below catch-up",
+      "inputs": {
+        "age_attained_2026": 54,
+        "year": 2026,
+        "family_cover": false,
+        "eligible_months": 12,
+        "medicare": false
+      },
+      "expected": {
+        "exact": "4400",
+        "shown": "$4,400"
+      },
+      "working": [
+        "2026 full-year base plus1000 at55; no double family base."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-055",
+      "case_id": "MK-CF-F-055-C02",
+      "name": "annualHsaLimit",
+      "kind": "easy",
+      "title": "At catch-up",
+      "as_of": "2026-10-24",
+      "given": "At catch-up",
+      "inputs": {
+        "age_attained_2026": 55,
+        "year": 2026,
+        "family_cover": false,
+        "eligible_months": 12,
+        "medicare": false
+      },
+      "expected": {
+        "exact": "5400",
+        "shown": "$5,400"
+      },
+      "working": [
+        "2026 full-year base plus1000 at55; no double family base."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-055",
+      "case_id": "MK-CF-F-055-C03",
+      "name": "annualHsaLimit",
+      "kind": "complex",
+      "title": "Higher age/coverage",
+      "as_of": "2026-10-24",
+      "given": "Higher age/coverage",
+      "inputs": {
+        "age_attained_2026": 63,
+        "year": 2026,
+        "family_cover": true,
+        "eligible_months": 12,
+        "medicare": false
+      },
+      "expected": {
+        "exact": "9750",
+        "shown": "$9,750"
+      },
+      "working": [
+        "2026 full-year base plus1000 at55; no double family base."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-055",
+      "case_id": "MK-CF-F-055-C04",
+      "name": "annualHsaLimit",
+      "kind": "complex",
+      "title": "Upper boundary",
+      "as_of": "2026-10-24",
+      "given": "Upper boundary",
+      "inputs": {
+        "age_attained_2026": 65,
+        "year": 2026,
+        "family_cover": false,
+        "eligible_months": 12,
+        "medicare": false
+      },
+      "expected": {
+        "exact": "5400",
+        "shown": "$5,400"
+      },
+      "working": [
+        "2026 full-year base plus1000 at55; no double family base."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-055",
+      "case_id": "MK-CF-F-055-C05",
+      "name": "annualHsaLimit",
+      "kind": "edge",
+      "title": "Other boundary or missing",
+      "as_of": "2026-10-24",
+      "given": "Other boundary or missing",
+      "inputs": {
+        "age_attained_2026": 65,
+        "year": 2026,
+        "family_cover": false,
+        "eligible_months": 6,
+        "medicare": true,
+        "medicare_start": "2026-07-01"
+      },
+      "expected": {
+        "exact": "2700",
+        "shown": "$2,700"
+      },
+      "working": [
+        "Eligible January–June: (4400+1000)×6/12=2700, absent a special eligibility rule."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-056",
+      "case_id": "MK-CF-F-056-C01",
+      "name": "k401Headroom",
+      "kind": "easy",
+      "title": "Below50",
+      "as_of": "2026-10-24",
+      "given": "Below50",
+      "inputs": {
+        "age": 49,
+        "contributed_ytd": 10000,
+        "year": 2026
+      },
+      "expected": {
+        "limit": {
+          "exact": "24500",
+          "shown": "$24,500",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "actual_used": {
+          "exact": "10000",
+          "shown": "$10,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "room": {
+          "exact": "14500",
+          "shown": "$14,500",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "excess": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Limit24500;room=max(0,24500−10000);excess=max(0,10000−24500)."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-056",
+      "case_id": "MK-CF-F-056-C02",
+      "name": "k401Headroom",
+      "kind": "easy",
+      "title": "Age50 catch-up",
+      "as_of": "2026-10-24",
+      "given": "Age50 catch-up",
+      "inputs": {
+        "age": 50,
+        "contributed_ytd": 10000,
+        "year": 2026
+      },
+      "expected": {
+        "limit": {
+          "exact": "32500",
+          "shown": "$32,500",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "actual_used": {
+          "exact": "10000",
+          "shown": "$10,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "room": {
+          "exact": "22500",
+          "shown": "$22,500",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "excess": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Limit32500;room=max(0,32500−10000);excess=max(0,10000−32500)."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-056",
+      "case_id": "MK-CF-F-056-C03",
+      "name": "k401Headroom",
+      "kind": "complex",
+      "title": "Age60 unround",
+      "as_of": "2026-10-24",
+      "given": "Age60 unround",
+      "inputs": {
+        "age": 60,
+        "contributed_ytd": "17311.17",
+        "year": 2026
+      },
+      "expected": {
+        "limit": {
+          "exact": "35750",
+          "shown": "$35,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "actual_used": {
+          "exact": "17311.17",
+          "shown": "$17,311",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "room": {
+          "exact": "18438.83",
+          "shown": "$18,439",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "excess": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Limit35750;room=max(0,35750−17311.17);excess=max(0,17311.17−35750)."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-056",
+      "case_id": "MK-CF-F-056-C04",
+      "name": "k401Headroom",
+      "kind": "complex",
+      "title": "Age64 unround",
+      "as_of": "2026-10-24",
+      "given": "Age64 unround",
+      "inputs": {
+        "age": 64,
+        "contributed_ytd": "31131.43",
+        "year": 2026
+      },
+      "expected": {
+        "limit": {
+          "exact": "32500",
+          "shown": "$32,500",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "actual_used": {
+          "exact": "31131.43",
+          "shown": "$31,131",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "room": {
+          "exact": "1368.57",
+          "shown": "$1,369",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "excess": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Limit32500;room=max(0,32500−31131.43);excess=max(0,31131.43−32500)."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-056",
+      "case_id": "MK-CF-F-056-C05",
+      "name": "k401Headroom",
+      "kind": "edge",
+      "title": "Overcontribution",
+      "as_of": "2026-10-24",
+      "given": "Overcontribution",
+      "inputs": {
+        "age": 60,
+        "contributed_ytd": 40000,
+        "year": 2026
+      },
+      "expected": {
+        "limit": {
+          "exact": "35750",
+          "shown": "$35,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "actual_used": {
+          "exact": "40000",
+          "shown": "$40,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "room": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "excess": {
+          "exact": "4250",
+          "shown": "$4,250",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Limit35750;room=max(0,35750−40000);excess=max(0,40000−35750)."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "used": {
+          "exact": "35750",
+          "shown": "$35,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "room": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-057",
+      "case_id": "MK-CF-F-057-C01",
+      "name": "rothVsTraditional",
+      "kind": "easy",
+      "title": "Low current",
+      "as_of": "2026-10-24",
+      "given": "Low current",
+      "inputs": {
+        "current_marginal": "0.12",
+        "retirement_marginal": "0.22"
+      },
+      "expected": "Roth",
+      "working": [
+        "At≤12% lean Roth; at≥24% and lower future band lean Traditional; else either."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-057",
+      "case_id": "MK-CF-F-057-C02",
+      "name": "rothVsTraditional",
+      "kind": "easy",
+      "title": "High now lower later",
+      "as_of": "2026-10-24",
+      "given": "High now lower later",
+      "inputs": {
+        "current_marginal": "0.24",
+        "retirement_marginal": "0.12"
+      },
+      "expected": "Traditional",
+      "working": [
+        "At≤12% lean Roth; at≥24% and lower future band lean Traditional; else either."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-057",
+      "case_id": "MK-CF-F-057-C03",
+      "name": "rothVsTraditional",
+      "kind": "complex",
+      "title": "High both rising",
+      "as_of": "2026-10-24",
+      "given": "High both rising",
+      "inputs": {
+        "current_marginal": "0.32",
+        "retirement_marginal": "0.35"
+      },
+      "expected": "either",
+      "working": [
+        "At≤12% lean Roth; at≥24% and lower future band lean Traditional; else either."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-057",
+      "case_id": "MK-CF-F-057-C04",
+      "name": "rothVsTraditional",
+      "kind": "complex",
+      "title": "Middle current",
+      "as_of": "2026-10-24",
+      "given": "Middle current",
+      "inputs": {
+        "current_marginal": "0.22",
+        "retirement_marginal": "0.12"
+      },
+      "expected": "either",
+      "working": [
+        "At≤12% lean Roth; at≥24% and lower future band lean Traditional; else either."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-057",
+      "case_id": "MK-CF-F-057-C05",
+      "name": "rothVsTraditional",
+      "kind": "edge",
+      "title": "Exactly same24",
+      "as_of": "2026-10-24",
+      "given": "Exactly same24",
+      "inputs": {
+        "current_marginal": "0.24",
+        "retirement_marginal": "0.24"
+      },
+      "expected": "either",
+      "working": [
+        "At≤12% lean Roth; at≥24% and lower future band lean Traditional; else either."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-058",
+      "case_id": "MK-CF-F-058-C01",
+      "name": "rothConversionWindow",
+      "kind": "easy",
+      "title": "Before retirement",
+      "as_of": "2026-10-24",
+      "given": "Before retirement",
+      "inputs": {
+        "age": 60,
+        "retirement_age": 65,
+        "claim_age": 70
+      },
+      "expected": false,
+      "working": [
+        "60<65; heuristic false."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-058",
+      "case_id": "MK-CF-F-058-C02",
+      "name": "rothConversionWindow",
+      "kind": "easy",
+      "title": "Retired before claiming",
+      "as_of": "2026-10-24",
+      "given": "Retired before claiming",
+      "inputs": {
+        "age": 67,
+        "retirement_age": 65,
+        "claim_age": 70
+      },
+      "expected": true,
+      "working": [
+        "65≤67<70."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-058",
+      "case_id": "MK-CF-F-058-C03",
+      "name": "rothConversionWindow",
+      "kind": "complex",
+      "title": "Missing claim age heuristic",
+      "as_of": "2026-10-24",
+      "given": "Missing claim age heuristic",
+      "inputs": {
+        "age": 71,
+        "retirement_age": 66,
+        "claim_age": null
+      },
+      "expected": true,
+      "working": [
+        "66≤71<73 under stated default, not a tax-capacity conclusion."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-058",
+      "case_id": "MK-CF-F-058-C04",
+      "name": "rothConversionWindow",
+      "kind": "complex",
+      "title": "Already claiming low benefit",
+      "as_of": "2026-10-24",
+      "given": "Already claiming low benefit",
+      "inputs": {
+        "age": 68,
+        "retirement_age": 65,
+        "claim_age": 67,
+        "benefit_annual": "11311.17",
+        "other_income": "7311.43"
+      },
+      "expected": {
+        "state": "RULE UNCLEAR",
+        "reason": "Heuristic flag versus actual conversion opportunity",
+        "readings": {
+          "heuristic": false,
+          "opportunity": "may remain; determine taxable marginal capacity"
+        }
+      },
+      "working": [
+        "Receipt of a small benefit alone does not consume all low-tax conversion room."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": false,
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-058",
+      "case_id": "MK-CF-F-058-C05",
+      "name": "rothConversionWindow",
+      "kind": "edge",
+      "title": "At fixed cutoff",
+      "as_of": "2026-10-24",
+      "given": "At fixed cutoff",
+      "inputs": {
+        "age": 73,
+        "retirement_age": 65,
+        "claim_age": null
+      },
+      "expected": false,
+      "working": [
+        "73 is not below73; label this exact heuristic."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-017",
+      "case_id": "MK-CF-O-017-C01",
+      "name": "futurePaycheck",
+      "kind": "easy",
+      "title": "Age absent",
+      "as_of": "2026-10-24",
+      "given": "Age absent",
+      "inputs": {
+        "age": null,
+        "savings": 100000
+      },
+      "expected": null,
+      "working": [
+        "Unknown age refuses."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Simulation-case exception: refusal or relational/composition assertion. Positive simulation outputs are not certified; supplied independent witness values test wrapper composition only.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-017",
+      "case_id": "MK-CF-O-017-C02",
+      "name": "futurePaycheck",
+      "kind": "easy",
+      "title": "Already retired",
+      "as_of": "2026-10-24",
+      "given": "Already retired",
+      "inputs": {
+        "age": 67,
+        "retirement_age": 67,
+        "savings": 100000
+      },
+      "expected": null,
+      "working": [
+        "Already at retirement age: card omitted."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Simulation-case exception: refusal or relational/composition assertion. Positive simulation outputs are not certified; supplied independent witness values test wrapper composition only.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-017",
+      "case_id": "MK-CF-O-017-C03",
+      "name": "futurePaycheck",
+      "kind": "complex",
+      "title": "No savings",
+      "as_of": "2026-10-24",
+      "given": "No savings",
+      "inputs": {
+        "age": 60,
+        "retirement_age": 67,
+        "savings": 0
+      },
+      "expected": null,
+      "working": [
+        "No projected pot."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Simulation-case exception: refusal or relational/composition assertion. Positive simulation outputs are not certified; supplied independent witness values test wrapper composition only.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-017",
+      "case_id": "MK-CF-O-017-C04",
+      "name": "futurePaycheck",
+      "kind": "complex",
+      "title": "Composition with external witnesses",
+      "as_of": "2026-10-24",
+      "given": "Composition with external witnesses",
+      "inputs": {
+        "age": "61.5",
+        "retirement_age": 67,
+        "savings": "311731.17",
+        "independent_projected_pot": "497311.43",
+        "guaranteed_monthly": "2731.17",
+        "independent_supported_draw": "1730"
+      },
+      "expected": {
+        "unrounded_total": {
+          "exact": "4461.17",
+          "shown": "$4,461",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "guaranteed_shown": {
+          "exact": "2731",
+          "shown": "$2,731",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "draw_shown": {
+          "exact": "1730",
+          "shown": "$1,730",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "total_shown": {
+          "exact": "4461",
+          "shown": "$4,461",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "2731.17+1730=4461.17; round display once."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Simulation-case exception: refusal or relational/composition assertion. Positive simulation outputs are not certified; supplied independent witness values test wrapper composition only.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-017",
+      "case_id": "MK-CF-O-017-C05",
+      "name": "futurePaycheck",
+      "kind": "edge",
+      "title": "Projection unavailable",
+      "as_of": "2026-10-24",
+      "given": "Projection unavailable",
+      "inputs": {
+        "age": 60,
+        "retirement_age": 67,
+        "savings": "173111.19",
+        "projection": null
+      },
+      "expected": null,
+      "working": [
+        "No projection: no paycheck estimate."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Simulation-case exception: refusal or relational/composition assertion. Positive simulation outputs are not certified; supplied independent witness values test wrapper composition only.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-105",
+      "case_id": "MK-CF-F-105-C01",
+      "name": "guaranteedRows",
+      "kind": "easy",
+      "title": "Monthly Social Security",
+      "as_of": "2026-10-24",
+      "given": "Monthly Social Security",
+      "inputs": {
+        "stream": {
+          "kind": "ss",
+          "amount": 2000,
+          "frequency": "monthly"
+        }
+      },
+      "expected": [
+        {
+          "month": "2026-10",
+          "amount": {
+            "exact": "2000",
+            "shown": "$2,000.00",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        {
+          "month": "2026-11",
+          "amount": {
+            "exact": "2000",
+            "shown": "$2,000.00",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        {
+          "month": "2026-12",
+          "amount": {
+            "exact": "2000",
+            "shown": "$2,000.00",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        {
+          "month": "2027-01",
+          "amount": {
+            "exact": "2000",
+            "shown": "$2,000.00",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        {
+          "month": "2027-02",
+          "amount": {
+            "exact": "2000",
+            "shown": "$2,000.00",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        {
+          "month": "2027-03",
+          "amount": {
+            "exact": "2000",
+            "shown": "$2,000.00",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        {
+          "month": "2027-04",
+          "amount": {
+            "exact": "2000",
+            "shown": "$2,000.00",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        {
+          "month": "2027-05",
+          "amount": {
+            "exact": "2000",
+            "shown": "$2,000.00",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        {
+          "month": "2027-06",
+          "amount": {
+            "exact": "2000",
+            "shown": "$2,000.00",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        {
+          "month": "2027-07",
+          "amount": {
+            "exact": "2000",
+            "shown": "$2,000.00",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        {
+          "month": "2027-08",
+          "amount": {
+            "exact": "2000",
+            "shown": "$2,000.00",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        {
+          "month": "2027-09",
+          "amount": {
+            "exact": "2000",
+            "shown": "$2,000.00",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        }
+      ],
+      "working": [
+        "Monthly stream is present in every rolling month; inflation convention held fixed."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-105",
+      "case_id": "MK-CF-F-105-C02",
+      "name": "guaranteedRows",
+      "kind": "easy",
+      "title": "Quarterly pension",
+      "as_of": "2026-10-24",
+      "given": "Quarterly pension",
+      "inputs": {
+        "stream": {
+          "kind": "pension",
+          "amount": 3000,
+          "frequency": "quarterly",
+          "month": 11
+        }
+      },
+      "expected": [
+        {
+          "month": "2026-11",
+          "amount": {
+            "exact": "3000",
+            "shown": "$3,000.00",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        {
+          "month": "2027-02",
+          "amount": {
+            "exact": "3000",
+            "shown": "$3,000.00",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        {
+          "month": "2027-05",
+          "amount": {
+            "exact": "3000",
+            "shown": "$3,000.00",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        {
+          "month": "2027-08",
+          "amount": {
+            "exact": "3000",
+            "shown": "$3,000.00",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        }
+      ],
+      "working": [
+        "3000 per payment, not1000 per quarterly payment."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-105",
+      "case_id": "MK-CF-F-105-C03",
+      "name": "guaranteedRows",
+      "kind": "complex",
+      "title": "Annual annuity",
+      "as_of": "2026-10-24",
+      "given": "Annual annuity",
+      "inputs": {
+        "stream": {
+          "kind": "annuity",
+          "amount": "11311.17",
+          "frequency": "yearly",
+          "month": 3
+        }
+      },
+      "expected": [
+        {
+          "month": "2027-03",
+          "amount": {
+            "exact": "11311.17",
+            "shown": "$11,311.17",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        }
+      ],
+      "working": [
+        "One March payment within October2026–September2027."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-105",
+      "case_id": "MK-CF-F-105-C04",
+      "name": "guaranteedRows",
+      "kind": "complex",
+      "title": "Multiple streams one date",
+      "as_of": "2026-10-24",
+      "given": "Multiple streams one date",
+      "inputs": {
+        "streams": [
+          {
+            "kind": "pension",
+            "amount": "1831.17",
+            "frequency": "monthly"
+          },
+          {
+            "kind": "other",
+            "amount": "3111.43",
+            "frequency": "quarterly",
+            "month": 10
+          }
+        ]
+      },
+      "expected": {
+        "october_total": {
+          "exact": "4942.60",
+          "shown": "$4,943",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "annual_total": {
+          "exact": "34419.76",
+          "shown": "$34,420",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "1831.17+3111.43=4942.60;12×1831.17+4×3111.43=34419.76."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-105",
+      "case_id": "MK-CF-F-105-C05",
+      "name": "guaranteedRows",
+      "kind": "edge",
+      "title": "Inflation-linked crosses year",
+      "as_of": "2026-10-24",
+      "given": "Inflation-linked crosses year",
+      "inputs": {
+        "stream": {
+          "kind": "ss",
+          "amount": 2000,
+          "frequency": "monthly",
+          "inflates": true
+        },
+        "next_year_increase": "0.025"
+      },
+      "expected": {
+        "state": "RULE UNCLEAR",
+        "reason": "Nominal payment adjustment contract missing",
+        "readings": {
+          "fixed_input": {
+            "exact": "2000",
+            "shown": "$2,000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "inflation_adjusted_january": {
+            "exact": "2050",
+            "shown": "$2,050",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        }
+      },
+      "working": [
+        "If increase is to be applied:2000×1.025=2050;otherwise label fixed-input projection."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "next_year_month": {
+          "exact": "2000",
+          "shown": "$2,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-106",
+      "case_id": "MK-CF-F-106-C01",
+      "name": "solveSafeDraw",
+      "kind": "easy",
+      "title": "Zero pot",
+      "as_of": "2026-10-24",
+      "given": "Zero pot",
+      "inputs": {
+        "pot": 0,
+        "guaranteed": 2000
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "No savings implies zero draw."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Simulation-case exception: refusal or relational/composition assertion. Positive simulation outputs are not certified; supplied independent witness values test wrapper composition only.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-106",
+      "case_id": "MK-CF-F-106-C02",
+      "name": "solveSafeDraw",
+      "kind": "easy",
+      "title": "Negative pot",
+      "as_of": "2026-10-24",
+      "given": "Negative pot",
+      "inputs": {
+        "pot": -100,
+        "guaranteed": 2000
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "Nonpositive pot: zero draw, not a financial forecast."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Simulation-case exception: refusal or relational/composition assertion. Positive simulation outputs are not certified; supplied independent witness values test wrapper composition only.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-106",
+      "case_id": "MK-CF-F-106-C03",
+      "name": "solveSafeDraw",
+      "kind": "complex",
+      "title": "Feasible bracket contract",
+      "as_of": "2026-10-24",
+      "given": "Feasible bracket contract",
+      "inputs": {
+        "pot": "311731.17",
+        "guaranteed": "2731.43",
+        "years": 30,
+        "floor": 80
+      },
+      "expected": {
+        "assertions": [
+          "returned draw is a multiple of5",
+          "tested chance≥80 at returned draw",
+          "same seed/path set for all candidates",
+          "retained feasible lower bracket"
+        ]
+      },
+      "working": [
+        "Properties can be checked independently without guessing stochastic probabilities."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "medium",
+      "outside_domain": false,
+      "notes": "Simulation-case exception: refusal or relational/composition assertion. Positive simulation outputs are not certified; supplied independent witness values test wrapper composition only.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-106",
+      "case_id": "MK-CF-F-106-C04",
+      "name": "solveSafeDraw",
+      "kind": "complex",
+      "title": "All-feasible starting bracket",
+      "as_of": "2026-10-24",
+      "given": "All-feasible starting bracket",
+      "inputs": {
+        "pot": "173111.19",
+        "guaranteed": "7311.43",
+        "years": 30,
+        "independent_chance_oracle": {
+          "at_initial_upper": 100,
+          "at_twice_upper": 95
+        }
+      },
+      "expected": {
+        "state": "RULE UNCLEAR",
+        "reason": "Need a genuinely infeasible upper bound",
+        "readings": {
+          "proper": "expand bracket",
+          "written": "returns within initial upper"
+        }
+      },
+      "working": [
+        "If even twice upper is feasible, the initial bracket does not contain the maximum."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Simulation-case exception: refusal or relational/composition assertion. Positive simulation outputs are not certified; supplied independent witness values test wrapper composition only.",
+      "formula_gives": {
+        "search_claim": "largest without infeasible bound"
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-106",
+      "case_id": "MK-CF-F-106-C05",
+      "name": "solveSafeDraw",
+      "kind": "edge",
+      "title": "Different requested floor",
+      "as_of": "2026-10-24",
+      "given": "Different requested floor",
+      "inputs": {
+        "pot": "231731.17",
+        "guaranteed": "1311.43",
+        "years": 27,
+        "chance_floor": 95
+      },
+      "expected": {
+        "assertion": "returned draw satisfies requested95 percent, not fixed80"
+      },
+      "working": [
+        "The public chanceFloor argument must control acceptance."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "medium",
+      "outside_domain": false,
+      "notes": "Simulation-case exception: refusal or relational/composition assertion. Positive simulation outputs are not certified; supplied independent witness values test wrapper composition only.",
+      "formula_gives": {
+        "chance_floor_used": {
+          "exact": "80",
+          "shown": "$80",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-107",
+      "case_id": "MK-CF-F-107-C01",
+      "name": "buildPaycheckYear",
+      "kind": "easy",
+      "title": "No pot",
+      "as_of": "2026-10-24",
+      "given": "No pot",
+      "inputs": {
+        "pot": 0,
+        "guaranteed": 2000,
+        "bills": 0
+      },
+      "expected": {
+        "draw": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "monthly_total": {
+          "exact": "2000",
+          "shown": "$2,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "2000+0−0=2000."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Simulation-case exception: refusal or relational/composition assertion. Positive simulation outputs are not certified; supplied independent witness values test wrapper composition only.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-107",
+      "case_id": "MK-CF-F-107-C02",
+      "name": "buildPaycheckYear",
+      "kind": "easy",
+      "title": "No bills",
+      "as_of": "2026-10-24",
+      "given": "No bills",
+      "inputs": {
+        "independent_supported_draw": 1000,
+        "guaranteed": 2000,
+        "big_bills": []
+      },
+      "expected": {
+        "monthly_total": {
+          "exact": "3000",
+          "shown": "$3,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "twelve_month_total": {
+          "exact": "36000",
+          "shown": "$36,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "(2000+1000)×12=36000."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Simulation-case exception: refusal or relational/composition assertion. Positive simulation outputs are not certified; supplied independent witness values test wrapper composition only.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-107",
+      "case_id": "MK-CF-F-107-C03",
+      "name": "buildPaycheckYear",
+      "kind": "complex",
+      "title": "Dated bills",
+      "as_of": "2026-10-24",
+      "given": "Dated bills",
+      "inputs": {
+        "independent_supported_draw": "1730",
+        "guaranteed": "2731.17",
+        "big_bills": [
+          {
+            "date": "2026-12-15",
+            "amount": "1831.43"
+          }
+        ]
+      },
+      "expected": {
+        "regular_month": {
+          "exact": "4461.17",
+          "shown": "$4,461",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "bill_month": {
+          "exact": "2629.74",
+          "shown": "$2,630",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "twelve_month_total": {
+          "exact": "51702.61",
+          "shown": "$51,703",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "2731.17+1730=4461.17;December subtract1831.43;12×4461.17−1831.43=51702.61."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Simulation-case exception: refusal or relational/composition assertion. Positive simulation outputs are not certified; supplied independent witness values test wrapper composition only.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-107",
+      "case_id": "MK-CF-F-107-C04",
+      "name": "buildPaycheckYear",
+      "kind": "complex",
+      "title": "Withdrawal excluded",
+      "as_of": "2026-10-24",
+      "given": "Withdrawal excluded",
+      "inputs": {
+        "pot": "311731.17",
+        "independent_supported_draw": "1730",
+        "guaranteed": "2731.17",
+        "existing_withdrawal_monthly": "511.43"
+      },
+      "expected": {
+        "monthly_total": {
+          "exact": "4461.17",
+          "shown": "$4,461",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Do not add the511.43 own-savings withdrawal again."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Simulation-case exception: refusal or relational/composition assertion. Positive simulation outputs are not certified; supplied independent witness values test wrapper composition only.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-107",
+      "case_id": "MK-CF-F-107-C05",
+      "name": "buildPaycheckYear",
+      "kind": "edge",
+      "title": "Unknown simulation",
+      "as_of": "2026-10-24",
+      "given": "Unknown simulation",
+      "inputs": {
+        "pot": 100000,
+        "guaranteed": 2000,
+        "simulation_public_contract": null
+      },
+      "expected": {
+        "state": "REFUSES",
+        "reason": "Cannot independently calculate positive-pot supported draw"
+      },
+      "working": [
+        "Do not infer a stochastic answer from supplied app examples."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Simulation-case exception: refusal or relational/composition assertion. Positive simulation outputs are not certified; supplied independent witness values test wrapper composition only.",
+      "formula_gives": {
+        "label": "safe to spend"
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    }
+  ],
+  "could_not_test": [
+    {
+      "id": "MK-CF-O-017",
+      "missing": "Positive savings projections and simulation-supported draws cannot be independently computed without the projection’s public equations and timing conventions.",
+      "scope": "Some refusals/properties/wrappercomposition are tested;full literal/numeric output remains untestable. Five witness cases are retained rather than invented outputs."
+    }
+  ],
+  "source_checks": [
+    {
+      "topic": "Contribution limits2026",
+      "verdict": "RIGHT",
+      "why": "All printed base/catchup amounts match primary sources. Ceilings require plan/compensation/coverage eligibility;usedYTD must not be inferred from a monthly plan.",
+      "source": {
+        "key": "retirement_2026",
+        "source": "IRS Notice 2025-67",
+        "url": "https://www.irs.gov/pub/irs-drop/n-25-67.pdf",
+        "sections": "2026 cost-of-living adjusted limitations",
+        "checked_on": "2026-10-24",
+        "scope": "401(k),IRA,catch-up amounts and age60–63 replacement catch-up"
+      },
+      "hsa_source": {
+        "key": "hsa_2026",
+        "source": "IRS Revenue Procedure 2025-19",
+        "url": "https://www.irs.gov/pub/irs-drop/rp-25-19.pdf",
+        "sections": "2.01(1)",
+        "checked_on": "2026-10-24",
+        "scope": "2026 HSA self/family bases"
+      },
+      "eligibility_source": {
+        "key": "hsa_eligibility",
+        "source": "IRS Publication969",
+        "url": "https://www.irs.gov/publications/p969",
+        "sections": "Additional contribution;Enrolled in Medicare;employer contributions;last-month rule",
+        "checked_on": "2026-10-24",
+        "scope": "2025 publication used for continuing eligibility mechanics;2026 dollar bases from RP2025-19"
+      },
+      "witnesses": [
+        {
+          "input": {
+            "age_attained_in2026": 49,
+            "full_year_eligible": true
+          },
+          "expected": {
+            "k": {
+              "exact": "24500"
+            },
+            "ira": {
+              "exact": "7500"
+            },
+            "hsa_self": {
+              "exact": "4400"
+            },
+            "hsa_family_one_person_catchup": {
+              "exact": "8750"
+            }
+          },
+          "working": [
+            "2026 bases24500,7500,4400,8750;add only applicable catchup;60–63 replaces standard401(k)catchup."
+          ]
+        },
+        {
+          "input": {
+            "age_attained_in2026": 50,
+            "full_year_eligible": true
+          },
+          "expected": {
+            "k": {
+              "exact": "32500"
+            },
+            "ira": {
+              "exact": "8600"
+            },
+            "hsa_self": {
+              "exact": "4400"
+            },
+            "hsa_family_one_person_catchup": {
+              "exact": "8750"
+            }
+          },
+          "working": [
+            "2026 bases24500,7500,4400,8750;add only applicable catchup;60–63 replaces standard401(k)catchup."
+          ]
+        },
+        {
+          "input": {
+            "age_attained_in2026": 54,
+            "full_year_eligible": true
+          },
+          "expected": {
+            "k": {
+              "exact": "32500"
+            },
+            "ira": {
+              "exact": "8600"
+            },
+            "hsa_self": {
+              "exact": "4400"
+            },
+            "hsa_family_one_person_catchup": {
+              "exact": "8750"
+            }
+          },
+          "working": [
+            "2026 bases24500,7500,4400,8750;add only applicable catchup;60–63 replaces standard401(k)catchup."
+          ]
+        },
+        {
+          "input": {
+            "age_attained_in2026": 55,
+            "full_year_eligible": true
+          },
+          "expected": {
+            "k": {
+              "exact": "32500"
+            },
+            "ira": {
+              "exact": "8600"
+            },
+            "hsa_self": {
+              "exact": "5400"
+            },
+            "hsa_family_one_person_catchup": {
+              "exact": "9750"
+            }
+          },
+          "working": [
+            "2026 bases24500,7500,4400,8750;add only applicable catchup;60–63 replaces standard401(k)catchup."
+          ]
+        },
+        {
+          "input": {
+            "age_attained_in2026": 59,
+            "full_year_eligible": true
+          },
+          "expected": {
+            "k": {
+              "exact": "32500"
+            },
+            "ira": {
+              "exact": "8600"
+            },
+            "hsa_self": {
+              "exact": "5400"
+            },
+            "hsa_family_one_person_catchup": {
+              "exact": "9750"
+            }
+          },
+          "working": [
+            "2026 bases24500,7500,4400,8750;add only applicable catchup;60–63 replaces standard401(k)catchup."
+          ]
+        },
+        {
+          "input": {
+            "age_attained_in2026": 60,
+            "full_year_eligible": true
+          },
+          "expected": {
+            "k": {
+              "exact": "35750"
+            },
+            "ira": {
+              "exact": "8600"
+            },
+            "hsa_self": {
+              "exact": "5400"
+            },
+            "hsa_family_one_person_catchup": {
+              "exact": "9750"
+            }
+          },
+          "working": [
+            "2026 bases24500,7500,4400,8750;add only applicable catchup;60–63 replaces standard401(k)catchup."
+          ]
+        },
+        {
+          "input": {
+            "age_attained_in2026": 63,
+            "full_year_eligible": true
+          },
+          "expected": {
+            "k": {
+              "exact": "35750"
+            },
+            "ira": {
+              "exact": "8600"
+            },
+            "hsa_self": {
+              "exact": "5400"
+            },
+            "hsa_family_one_person_catchup": {
+              "exact": "9750"
+            }
+          },
+          "working": [
+            "2026 bases24500,7500,4400,8750;add only applicable catchup;60–63 replaces standard401(k)catchup."
+          ]
+        },
+        {
+          "input": {
+            "age_attained_in2026": 64,
+            "full_year_eligible": true
+          },
+          "expected": {
+            "k": {
+              "exact": "32500"
+            },
+            "ira": {
+              "exact": "8600"
+            },
+            "hsa_self": {
+              "exact": "5400"
+            },
+            "hsa_family_one_person_catchup": {
+              "exact": "9750"
+            }
+          },
+          "working": [
+            "2026 bases24500,7500,4400,8750;add only applicable catchup;60–63 replaces standard401(k)catchup."
+          ]
+        },
+        {
+          "input": {
+            "age_attained": 65,
+            "medicare_start": "2026-07-01",
+            "self_only_eligible_months": 6
+          },
+          "expected": {
+            "exact": "2700",
+            "shown": "$2,700"
+          },
+          "working": [
+            "(4400+1000)×6/12=2700;currentMedicareenrollmentdoesnoterasetheeligiblefirstsixmonths."
+          ]
+        }
+      ]
+    }
+  ],
+  "rules_held": [
+    {
+      "rule": "DEC-0243",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“show the HSA limit at 65+ only with ‘If you are not enrolled in Medicare …’ and a place to update it.” Medicare bars an HSA contribution entirely, so the limit is shown at 65 and over only with that condition attached and a way to tell us.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0244",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The outside-guaranteed reader excludes withdrawals andRMDs. Taxable treatment remains a separate defect.",
+      "decision_in_force": "“ok — the paycheck’s guaranteed line = the four outside sources.” The guaranteed part of a retirement paycheck is the income that comes from outside your savings — four named sources — not anything drawn from the pot.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0245",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“question answered: yes, the row named the wrong function; the screen was right.” The master file pointed at the wrong calculation; the app was correct. The file was fixed, not the code.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0247",
+      "cards": [
+        "MK-CF-F-106"
+      ],
+      "verdict": "HELD",
+      "why": "Specified paycheck simulation convention explicitly states1000paths with fixedseed42;no actual projection was run.",
+      "decision_in_force": "“1000 everywhere.” Every projection runs 1,000 possible futures — one number, on every screen and in every calculation, so no two screens run a different many.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-225-C05",
+        "MK-CF-F-106-C04",
+        "MK-CF-F-106-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0263",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“explained and fixed in the file: the four mis-rendered functions written by hand; caps declared.” Four calculations the automatic reader could not render faithfully were written out by hand rather than left as a bad approximation.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0336",
+      "cards": [
+        "MK-CF-F-195",
+        "MK-CF-F-196"
+      ],
+      "verdict": "HELD",
+      "why": "Currentmonth counts in remainingmonths;division is in perMonthToFill.",
+      "decision_in_force": "“ok — state the months-left convention; move the division off the screen.” How many months are left in the year is defined once and stated — the current month counts — and the arithmetic moves out of the screen into the calculation.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0339",
+      "cards": [
+        "MK-CF-F-197"
+      ],
+      "verdict": "HELD",
+      "why": "AgeAttainedInYear uses year−birthyear for contributioncatchup thresholds. Tax-age65 January1 convention is a different statutoryquestion.",
+      "decision_in_force": "“agree — every contribution limit uses the age attained in the calendar year (this year − birth year), the IRS test.” The age that matters is the one you reach at any point in the year, not your age today — which is the rule for every catch-up allowance.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0378",
+      "cards": [
+        "MK-CF-F-053",
+        "MK-CF-F-054",
+        "MK-CF-F-055"
+      ],
+      "verdict": "HELD",
+      "why": "All printed statutoryconstants were independentlychecked againstIRS/SSA publications;eligibility/application defects do not change thoseconstants.",
+      "decision_in_force": "Every figure set by law is typed in from the published source — the IRS or the SSA — and never from our own constants. It came from his question of how he can trust the formulas given how many errors his reviews find; the answer was to stop checking the code against itself. The first run against the published figures found three errors: the IRA limits were a year out of date, the bigger catch-up allowance for ages 60 to 63 was missing entirely in an app built for ages 55 to 70, and four of the required-withdrawal divisors were slightly wrong.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-055-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0495",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“Do not like the name.” A tab name rejected.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-2164",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "The draw from savings rises with inflation each year, so it keeps its buying power. The figure shown is what it buys today.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-8153",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. New per-month debt readersrespect inclusive start/payoff bounds and a balloon’s due-month balance.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-1923 and DEC-3523 (tenets 1 and 4), made without asking him, as his order of 2026-09-30 says. One rule for a debt in a month, in two new shared functions, MK-CF-F-235 paysInMonth and MK-CF-F-236 paymentInMonth: from its first payment to its payoff, and a balance due in full once, in its month, at its balance. A $7,200 take-home, a $3,400 budget, the $2,400 mortgage, a $250 car loan whose first payment is Oct 28, a $300 loan paid off in August and a $1,000 tax bill due in full Sep 20: September's planned surplus read +$850, the car loan and the paid-off loan counted and the tax bill left out; it reads +$400 = 7,200 − 3,400 − 2,400 − 1,000, what the Bill calendar's September holds. October's card is unchanged, $1,150. ACTUAL no longer lists the car loan as due the 28th at $0; MONTHLY RECURRING EXPENSES reads $2,400 (it read $2,650); the tax bill is on the BIG-TICKET RADAR at $1,000; Home's due-soon reminder no longer fires for a loan not yet started. MK-CF-M-047, 048 and 049 now say they print on a later month's plan card, from the grid ($7,200 / $6,050 / $1,150), and the retired surplus line and the paycheck card's SURPLUS have their own number, MK-CF-M-078 (it printed under MK-CF-M-049). To reverse: count every debt's payment in this month again, whatever its dates. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    }
+  ]
+}

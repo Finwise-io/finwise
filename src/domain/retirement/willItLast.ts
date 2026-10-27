@@ -10,6 +10,7 @@ import { retirementEarmarkedValue, blendedReturn, blendedVolatility, portfolioAc
 import { taxBucketSplit } from '../decumulation';
 import { effectiveRateOnGrossFor } from '../income/tax';
 import { totalGrossAnnual, filingStatusOf, stateRateOf } from '../income';
+import { profileWithAccountIncome } from '../income/onboarding';   // the year's interest and dividends from the accounts, in the tax (2026-10-26)
 import { retirementIncomeMonthly, guaranteedOutsideStreams, over65CountOf } from '../income';
 
 /* ─ MK-PL-F-079 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
@@ -43,8 +44,9 @@ const numOrZero = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^
  *
  * Called by ... MK-PL-F-008 rmdSchedule · MK-PL-F-065 volOf
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
- *               MK-CF-O-017 futurePaycheck · MK-PL-F-008 rmdSchedule
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-107 buildPaycheckYear · MK-CF-O-017 futurePaycheck
+ *               MK-CF-F-279 paycheckReturn · MK-PL-F-008 rmdSchedule
  *               MK-PL-F-068 selectWillItLast · MK-PL-F-065 volOf
  *               MK-PL-F-067 willItLastInputs
  *
@@ -66,14 +68,16 @@ export const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.mi
  * Formula .....
  *     hold ret × 1.7 between 0.05 and 0.2
  *
- * Called by ... MK-PL-F-067 willItLastInputs
+ * Called by ... MK-CF-F-279 paycheckReturn · MK-PL-F-067 willItLastInputs
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-CF-O-017 futurePaycheck · MK-PL-F-068 selectWillItLast
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-107 buildPaycheckYear · MK-CF-O-017 futurePaycheck
+ *               MK-CF-F-279 paycheckReturn · MK-PL-F-068 selectWillItLast
  *               MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-026 big costs (amount and year)
+ * Reads ....... MK-XS-I-024 logged expenses
+ *               MK-XS-I-026 big costs (amount and year)
  *               MK-XS-I-029 inflation rate
  *               MK-XS-I-044 the person’s own plan overrides
  *
@@ -97,6 +101,7 @@ export interface WillItLastArgs {
   inflationRate?: number;                    // store economic data, e.g. 3.2 (percent)
   employmentStatus?: string | null;          // store.employmentStatus
   withBand?: boolean;
+  transactions?: any[];                      // store.transactions — the year's interest records, for the tax rate (optional)
 }
 
 export interface WillItLastResult {
@@ -176,10 +181,10 @@ export function displayOdds(chance: number): number {
  *               MK-XS-I-018 retirement age
  *               MK-XS-I-020 Social Security monthly amount
  *               MK-XS-I-021 Social Security claim age
+ *               MK-XS-I-024 logged expenses
  *               MK-XS-I-026 big costs (amount and year)
  *               MK-XS-I-028 assumed return
  *               MK-XS-I-029 inflation rate
- *               MK-XS-I-036 other guaranteed income
  *
  * Decides .....
  *     · If social security claim age is missing it uses 67.
@@ -187,7 +192,6 @@ export function displayOdds(chance: number): number {
  *     · If salary growth is missing it uses 0.
  *     · Turns a monthly figure into a year by multiplying by twelve.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Rounds the answer to a whole number.
  *     · The current age is birthday-aware when the birth month is known, else the year-attained age (G9, 2026-09-12).
  *     · Inflation: the percent figure entered (2.5) is divided by 100 before use — 0.025 a year (G5). The effective tax rate on pre-tax withdrawals is the person's own, from filing status and income (income floored at $30,000), clamped between 10% and 60% (G7 / G35).
  *
@@ -222,8 +226,10 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
   const ssBase = outside.find((st) => st.kind === 'ss');
   const flatStreams = outside.filter((st) => st.kind !== 'ss');
   const outsideTotal = outside.reduce((t, st) => t + st.monthly, 0);
-  const contribDefault = Math.round(monthlyContributionsFromOnboarding(op) ?? 0);   // not answered → the plan's own default of $0 (Plan build: say "not entered")
-  const spendDefault = Math.round(retirementSpendMonthly(op) || numOrZero(op.monthlySpending) || 5000);
+  // kept whole, rounded only when printed (2026-10-26, CLEANUP-LEFT; Q49): both were rounded to the dollar here, and the cockpit did
+  // the same; the two stay one rule
+  const contribDefault = monthlyContributionsFromOnboarding(op) ?? 0;   // not answered → the plan's own default of $0 (Plan build: say "not entered")
+  const spendDefault = retirementSpendMonthly(op) || numOrZero(op.monthlySpending) || 5000;
   const retireDefault = numOrZero(op.targetRetirementAge) || (a.employmentStatus === 'retired' ? age : 65);
   const horizon = A.horizonAge ?? (numOrZero(op.horizonAge) || 90);
   const ssEligibleEffective = A.ssEligible == null ? outsideTotal > 0 : A.ssEligible;
@@ -257,7 +263,11 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
       const eggForShare = spendableEgg;   // the same pot the odds run on — see start_balance above
       return eggForShare > 0 ? Math.min(1, sp.preTax / eggForShare) : 0;
     })(),
-    rmd_tax_rate: Math.min(0.6, Math.max(0.1, effectiveRateOnGrossFor(Math.max(30000, totalGrossAnnual(op)), filingStatusOf(op), stateRateOf(op), over65CountOf(op)))),
+    // THE TAX RATE ON REQUIRED WITHDRAWALS READS THE PROFILE EVERY TAX FIGURE READS (2026-10-26, CLEANUP-LEFT; FIX-INCOME-A's one place,
+    // src/hooks/useIncomeProfile.ts, whose pure half is profileWithAccountIncome): the year's interest and dividends from the accounts
+    // the plan runs on are in the income, typed or not (the lead's ruling from DEC-0179/DEC-0198). It read totalGrossAnnual(op) and
+    // left a calculated $400 out, while the Income summary and Your base pay taxed it. Read only — nothing is stored.
+    rmd_tax_rate: Math.min(0.6, Math.max(0.1, effectiveRateOnGrossFor(Math.max(30000, totalGrossAnnual(profileWithAccountIncome(op, a.accounts, a.transactions) ?? op)), filingStatusOf(op), stateRateOf(op), over65CountOf(op)))),
     annual_contribution: (isRetired ? 0 : planSave) * 12,
     contribution_growth: A.salaryGrowth ?? 0,
     retire_monthly_spend_today: planSpend,

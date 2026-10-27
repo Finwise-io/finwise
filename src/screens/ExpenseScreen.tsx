@@ -13,6 +13,7 @@ import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 // B-L1: on-device OCR (ML Kit) — the receipt image never leaves the device (was Google Cloud Vision).
 import { ocrReceipt } from '../services/receiptScan';
 import { format, addDays, addMonths } from 'date-fns';
+import { isoLocalDate, localDay, localMoment } from '../domain/_shared/dates';   // the one reader of a stored day (CF-21)
 import { EXPENSE_CATEGORIES, getCategoryIcon as getCatIcon, useAllCategories } from '../constants/categories';
 
 type Tab = 'list' | 'add' | 'recurring';
@@ -84,16 +85,15 @@ export default function ExpenseScreen() {
 
   // Sort expenses newest first
   const sortedExpenses = [...expenses].sort((a, b) =>
-    new Date(b.date).getTime() - new Date(a.date).getTime()
+    (localMoment(b.date)?.getTime() ?? 0) - (localMoment(a.date)?.getTime() ?? 0)   // each day where the person is (CF-21)
   );
 
   // Category budget check
   const now = new Date();
+  const nowYm = isoLocalDate(now).slice(0, 7);
   const catSpend = expenses
-    .filter((e: any) => {
-      const d = new Date(e.date);
-      return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() && e.category === category;
-    })
+    // the expense's own day, read where the person is: one dated "2026-08-01" is August's, not Jul 31's (CF-21, 2026-10-25)
+    .filter((e: any) => localDay(e.date).startsWith(nowYm) && e.category === category)
     .reduce((s: number, e: any) => s + e.amount, 0);
   const catBudget = monthlyBudgetTarget * getCategoryBudgetPct(category);
   const catPct = catBudget > 0 ? ((catSpend + parsedAmount) / catBudget) * 100 : 0;
@@ -105,7 +105,7 @@ export default function ExpenseScreen() {
     setStore(entry.store || '');
     setNotes(entry.notes || '');
     if (entry.date) {
-      const d = new Date(entry.date);
+      const d = localMoment(entry.date) ?? new Date();   // "2026-08-01" opens as Aug 1, so saving never moves it to Jul 31 (CF-21)
       setDateStr(format(d, 'yyyy-MM-dd'));
       setTimeStr(format(d, 'HH:mm'));
     }
@@ -148,10 +148,11 @@ export default function ExpenseScreen() {
     if (!isValid) { Alert.alert('Enter an amount', 'How much did you spend?'); return; }
     setSaving(true);
     if (editId) deleteExpense(editId);
-    const dateTime = new Date(`${dateStr}T${timeStr}:00`);
+    // THE DAY AND TIME AS THE PERSON TYPED THEM, with no zone (2026-10-25, CF-21): an instant ("…Z") filed a purchase made at
+    // 6:30pm on Aug 31 in California under September, because every month is read from the day the record names
     addExpense({
       amount: parsedAmount, category,
-      store: store.trim(), date: dateTime.toISOString(),
+      store: store.trim(), date: `${dateStr}T${timeStr}:00`,
       notes: notes.trim() || undefined,
       receiptUri: receiptUri || undefined,
     });
@@ -217,7 +218,7 @@ export default function ExpenseScreen() {
                 <View style={{ flex: 1 }}>
                   <Text style={styles.entryLabel}>{(item as any).store || (item as any).category}</Text>
                   <Text style={styles.entryDate}>
-                    {(item as any).category} · {format(new Date(item.date), 'MMM d, yyyy')}
+                    {(item as any).category} · {(() => { const at = localMoment(item.date); return at ? format(at, 'MMM d, yyyy') : ''; })()}
                     {(item as any).notes ? ` · ${(item as any).notes}` : ''}
                   </Text>
                 </View>

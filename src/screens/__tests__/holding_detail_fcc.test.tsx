@@ -181,7 +181,7 @@ test('hide balances: dollars mask; shares, dates and percentages stay readable',
 test('a deleted holding degrades honestly (no crash, a way back to Invest)', () => {
   mockParams = { account: 'brk', position: 'gone' };
   render(<HoldingDetailScreen />);
-  expect(screen.getByText("This holding isn't here any more")).toBeOnTheScreen();
+  expect(screen.getByText("This holding isn’t here any more")).toBeOnTheScreen();
 });
 
 test('the holdings list ROUTES to this page — from the account page, where the holdings now live', () => {
@@ -205,7 +205,10 @@ test('function: holding-concentration insight fires from the SAME shared rule th
   const ins = buildInsights({ cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: true, retireChance: 90, topAccountPct: 20, planPct: 100, beatBy: 0.01, investRate: 0.2, topHolding: top } as any);
   const hit = ins.find((i) => i.id === 'holding-concentration')!;
   // walk row 9 (home-v2): dollar-first — the value leads, the percent follows in parentheses
-  expect(hit.body).toMatch(new RegExp(`^\\$[\\d,]+ \\(${top.pct}%\\) of your invested money rides on one stock \\(NVDA\\)`));
+  // one HOLDING, the canon's word for one ticker, whatever it is (2026-10-25): it said "one stock", and read so for VTI, a fund
+  expect(hit.title).toBe('A lot rides on one holding');
+  expect(hit.body).toMatch(new RegExp(`^\\$[\\d,]+ \\(${top.pct}%\\) of your invested money rides on one holding \\(NVDA\\)`));
+  expect(`${hit.title} ${hit.body}`).not.toMatch(/\bstock\b/);
   expect(hit.body).toContain(top.value.toLocaleString());
   expect(hit.theme).toBe('protect');
 });

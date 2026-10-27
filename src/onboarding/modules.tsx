@@ -7,11 +7,13 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { Status, Track, StepId, incomeSourceOptionsFor } from './steps';
 import Mascot from './Mascot';
 import { useRouter } from 'expo-router';
-import { stateRateOf, TAX_YEAR, grossSalaryMonthly, annualizedEnteredSalary, rsuAnnual, equityRowValue, equityCashFlow, rentalNetAnnual, incomeMonthlyGrid, totalGrossAnnual, taxableAnnual, extraIncome, salaryAnnual, salaryActiveMonths, benefitAnnual } from '../domain/income';
+import { stateRateOf, TAX_YEAR, grossSalaryMonthly, rsuAnnual, equityRowValue, equityCashFlow, rentalNetAnnual, incomeMonthlyGrid, totalGrossAnnual, taxableAnnual, extraIncome, salaryAnnual, salaryActiveMonths, benefitAnnual } from '../domain/income';
+import { vestsNotEntered, landsOnce, landsOnceInYear, unemploymentMonthly, vestsAreCash } from '../domain/income/onboarding';   // 2026-10-25, FIX-INCOME-B
 import { loanPayment, monthsToClear } from '../domain/debt';   // monthsToClear: the one months-to-clear (MK-CF-F-029, 2026-10-24)
 // ONE RATE, ONE GROWTH (2026-10-24, CF-FIX): sign-up's tax rate is the rate in force Cash flow uses (MK-CF-F-181, through
 // MK-CF-O-004 incomeSummary), and its growth is the one formula (MK-CF-F-126, through balanceGrownTo)
 import { incomeSummary } from '../../MoneyKeel/functions/cashflow/income-summary';
+import { fig } from '../components/figure';   // the recap's year tax and rate print with their numbers (rule 11, 2026-10-26)
 import { balanceGrownTo } from '../domain/debt/mortgageVsTreasury';
 import { currentAge as domainCurrentAge, ageToday } from '../domain/profile/calc';
 import { colFactor } from '../domain/retirement/col';
@@ -24,7 +26,9 @@ import { savingsByMonth, spendBuckets, annualCashflow, plannedMonthlySpend } fro
 // the 401(k) comes off BEFORE tax as a traditional contribution does. $160/month apart on the
 // employedPartner persona. Same defect as B05, fixed in the grid and never reaching this copy.
 import { takeHomeMonthly as domainTakeHomeMonthly } from '../domain/savings';
-import { annual401kLimit, IRS_LIMITS, ageAttainedInYear } from '../domain/income/limits';
+import { k401Headroom, IRS_LIMITS, ageAttainedInYear } from '../domain/income/limits';
+import { householdEmployerMatchAnnual } from '../domain/income/earners';   // the match a year, the months paid (2026-10-26)
+import { useIncomeProfile, incomeProfileNow } from '../hooks/useIncomeProfile';   // the one profile income figures read (2026-10-26)
 import { formatMoney, currencySymbol } from '../domain/_shared/money';
 
 export type StepCtx = {
@@ -474,7 +478,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       const picked: string[] = Array.isArray(a.incomeSources) ? a.incomeSources : [];
       const toggle = (v: string) => ctx.setAnswer('incomeSources', picked.includes(v) ? picked.filter((x) => x !== v) : [...picked, v]);
       return (<>
-        <Header emoji="💰" title="Where does your money come from?" sub="Pick everything that applies. We'll only ask about what you choose." />
+        <Header emoji="💰" title="Where does your money come from?" sub="Pick everything that applies. We’ll only ask about what you choose." />
         {incomeSourceOptionsFor(ctx.status).map((o) => {
           const on = picked.includes(o.value);
           return (
@@ -538,9 +542,10 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             {!!worked.missing && <Text style={s.hint}>{worked.missing}</Text>}
             {Math.round(worked.annual) !== Math.round(annual) && worked.annual > 0 && (
               <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Use ${money(worked.annual)}`}
-                onPress={() => { ctx.setAnswer('invAmount', String(Math.round(worked.annual)));
+                // the calculated figure is stored to the cent and rounded only where it is shown (Q49, DEC-0264; 2026-10-25)
+                onPress={() => { ctx.setAnswer('invAmount', String(worked.annual));
                                  ctx.setAnswer('invFreq', 'annual');
-                                 ctx.setAnswer('invAnnual', String(Math.round(worked.annual))); }}>
+                                 ctx.setAnswer('invAnnual', String(worked.annual)); }}>
                 <Text style={s.addAnother}>Use {money(worked.annual)} ›</Text>
               </TouchableOpacity>
             )}
@@ -620,8 +625,20 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             if (types.includes('snap')) notes.push('SNAP can usually only buy food');
             if (types.includes('housing')) notes.push('housing help often goes straight to your landlord');
             if (types.includes('unemployment')) notes.push('unemployment benefits end after a set period — plan for that');
-            return (notes.length ? `Heads up: ${notes.join('; ')}. ` : 'Heads up: some benefits can only be spent on certain things, and a few have limits on how much you can save. ') + "We won't tax this income.";
+            // UNEMPLOYMENT PAY IS TAXED (2026-10-25, FIX-INCOME-B; IRC §85(a), IRS Publication 525; the outside review's part 4): the
+            // step said "We won't tax this income." with Unemployment chosen. Dated row on income-end-to-end_v07 of 2026-10-25.
+            const taxWords = !types.includes('unemployment') ? 'We won’t tax this income.'
+              : types.length === 1 ? 'Unemployment pay is taxed, so we count it in what you are taxed on.'
+              : 'Unemployment pay is taxed and the rest is not — we count the unemployment part in what you are taxed on.';
+            return (notes.length ? `Heads up: ${notes.join('; ')}. ` : 'Heads up: some benefits can only be spent on certain things, and a few have limits on how much you can save. ') + taxWords;
           })()}</Text>
+          {/* the unemployment part, when it is not the only kind chosen (unemploymentMonthly): until it is typed, all of it is counted */}
+          {types.includes('unemployment') && types.length > 1 && num(a.benefitMonthly) > 0 && (<>
+            <Text style={[s.label, { marginTop: 10 }]}>How much of that is unemployment, per month?</Text>
+            <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+              value={a.unemploymentMonthly ?? ''} onChangeText={(t) => ctx.setAnswer('unemploymentMonthly', t)} accessibilityLabel="How much of that is unemployment, per month?" />
+            {String(a.unemploymentMonthly ?? '').trim() === '' && <Text style={s.hint}>Not entered yet — until it is, all {money(unemploymentMonthly(a))}/month is counted as taxed.</Text>}
+          </>)}
         </Card>
       </>);
     }
@@ -744,7 +761,10 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     case 'income_other': {
       const freq = a.otherFreq ?? 'monthly';
       const freqLabel = freq === 'annual' ? 'per year' : freq === 'onetime' ? 'one time' : 'per month';
-      const otherMo = num(a.otherMonth) || 1;
+      // NOTHING IS PICKED FOR HIM (2026-10-25, FIX-INCOME-B; the lead; tenet 3, DEC-0447): no month is lit until one is tapped — January
+      // was lit and nothing saved, so the payment landed in no year it was told
+      const otherMo = num(a.otherMonth);
+      const otherYr = num(a.otherIncomeYear);
       return (<>
         <Header emoji="🧾" title="Other income" sub="Anything else — a gift, royalties, a one-time payment." />
         <Card>
@@ -761,12 +781,25 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
               <View style={s.monthGrid}>
                 {MONTHS3.map((lbl, idx) => {
                   const m = idx + 1, on = otherMo === m;
-                  // ONE TIME MEANS ONE YEAR (2026-10-24, Cash flow journey E2E-70; DEC-0447): the month is kept with its year — the
-                  // next time that month comes — so the money lands once. With the month alone it came back every year.
-                  const year = idx >= new Date().getMonth() ? new Date().getFullYear() : new Date().getFullYear() + 1;
-                  return <TouchableOpacity key={m} style={[s.monthChip, on && s.monthChipOn]} onPress={() => { ctx.setAnswer('otherMonth', m); ctx.setAnswer('otherIncomeYear', year); }}><Text style={[s.monthTxt, on && s.monthTxtOn]}>{lbl}</Text></TouchableOpacity>;
+                  return <TouchableOpacity key={m} style={[s.monthChip, on && s.monthChipOn]} accessibilityLabel={`Lands in ${lbl}`} accessibilityState={{ selected: on }}
+                    onPress={() => ctx.setAnswer('otherMonth', m)}><Text style={[s.monthTxt, on && s.monthTxtOn]}>{lbl}</Text></TouchableOpacity>;
                 })}
               </View>
+              {/* ONE TIME MEANS ONE YEAR, AND THE YEAR IS ASKED (2026-10-25; DEC-0447, DEC-7940): this year or next — it was taken as the
+                  next time the month comes, without asking */}
+              <Text style={s.label}>Which year?</Text>
+              <View style={s.monthGrid}>
+                {[new Date().getFullYear(), new Date().getFullYear() + 1].map((y) => {
+                  const on = otherYr === y;
+                  return <TouchableOpacity key={y} style={[s.monthChip, on && s.monthChipOn]} accessibilityLabel={`Lands in ${y}`} accessibilityState={{ selected: on }}
+                    onPress={() => ctx.setAnswer('otherIncomeYear', y)}><Text style={[s.monthTxt, on && s.monthTxtOn]}>{y}</Text></TouchableOpacity>;
+                })}
+              </View>
+              {/* until both are given it is counted nowhere, and says so — the words every other screen uses (landsOnce) */}
+              <Text style={s.hint}>{!otherMo && !otherYr ? 'Month and year not entered — it is not counted until you pick both.'
+                : !otherMo ? 'Month not entered — it is not counted until you pick it.'
+                : !otherYr ? 'Year not entered — it is not counted until you pick it.'
+                : `Counted once, in ${MONTHS3[otherMo - 1]} ${otherYr}.`}</Text>
             </>
           )}
           {num(a.otherAmount) > 0 && (
@@ -792,19 +825,23 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
 
     case 'income_401k': {
       const monthly401k = num(a.c_401k);
-      const annual401k = monthly401k * 12;
-      const limit = annual401kLimit(ageAttainedInYear(num(a.birthYear) || null));   // G1: the year-attained age, as the law counts it
-      const overLimit = annual401k > limit;
+      const annual401k = monthly401k * 12;   // the plan's year, said as such ("$X/year"), as Contribution room says it (FIX-ROOM ruling 1)
+      // THE LIMIT, THE ROOM AND THE EXCESS ARE MK-CF-F-056 k401Headroom's (2026-10-26, FIX-INCOME-A; tenet 4): this step worked them
+      // out itself, so a change to the rule — what goes in is never cut to the limit — could reach Contribution room and not here.
+      // G1: the year-attained age, as the law counts it
+      const room = k401Headroom(ageAttainedInYear(num(a.birthYear) || null), annual401k);
+      const limit = room.limit;
+      const overLimit = room.excess > 0;
       return (<>
         <Header emoji="🏦" title="401(k) contributions" sub="Locked until retirement — we track it separately." />
         <Card>
           <HeroAmount ctx={ctx} k="c_401k" label="Your contribution (per month)" />
         </Card>
         {monthly401k > 0 && (overLimit
-          ? <Callout warn text={`${money(annual401k)}/year — over the ${IRS_LIMITS.year} limit by ${money(annual401k - limit)}`}
+          ? <Callout warn text={`${money(annual401k)}/year — over the ${IRS_LIMITS.year} limit by ${money(room.excess)}`}
               sub={`Limit is ${money(limit)}.`} />
           : <Callout text={`${money(annual401k)}/year — within the ${IRS_LIMITS.year} limit of ${money(limit)}`}
-              sub={`Room for ${money(limit - annual401k)} more this year.`} />)}
+              sub={`Room for ${money(room.remaining)} more this year.`} />)}
       </>);
     }
 
@@ -819,8 +856,10 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             <Text style={s.hint}>You haven't set a contribution yet, so a % match counts as {currencySymbol()}0 — enter a flat amount instead, or go back and add your contribution.</Text>
           )}
         </Card>
+        {/* the year is the months the wage is paid (MK-CF-F-178 × payrollMonths; 2026-10-26, FIX-INCOME-A): $500/month of match
+            from July is $3,000 this year, never × 12 */}
         {matchMonthly > 0 && <Callout text={`≈ ${money(matchMonthly)}/month of free money`}
-          sub={`About ${money(matchMonthly * 12)}/year your employer adds on top of your own savings.`} />}
+          sub={`About ${money(householdEmployerMatchAnnual(a as any))}/year your employer adds on top of your own savings.`} />}
       </>);
     }
 
@@ -843,6 +882,26 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             </>
           )}
           <MoneyRow ctx={ctx} k="signingOnetime" label="Signing bonus (one-time)" />
+          {/* A SIGNING BONUS LANDS ONCE, IN ITS OWN MONTH AND YEAR (2026-10-25, FIX-INCOME-B; DEC-0447, DEC-7940; the outside review's
+              MK-CF-F-079-C04): it had no date and landed every January. The month chip stores the month with its year — the next
+              time that month comes, as the one-time question does — and until one is picked it is counted nowhere, "date not
+              entered". Dated row on income-end-to-end_v07 of 2026-10-25. */}
+          {sign > 0 && (() => {
+            const when = landsOnce(a).find((o) => o.kind === 'signing');
+            return (<>
+              <Text style={s.label}>Which month is it paid?</Text>
+              <View style={s.monthGrid}>
+                {MONTHS3.map((lbl, idx) => {
+                  const m = idx + 1, on = when?.month === m;
+                  const year = idx >= new Date().getMonth() ? new Date().getFullYear() : new Date().getFullYear() + 1;
+                  return <TouchableOpacity key={m} style={[s.monthChip, on && s.monthChipOn]} accessibilityLabel={`Signing bonus paid in ${lbl} ${year}`}
+                    onPress={() => ctx.setAnswer('signingDate', `${year}-${String(m).padStart(2, '0')}`)}><Text style={[s.monthTxt, on && s.monthTxtOn]}>{lbl}</Text></TouchableOpacity>;
+                })}
+              </View>
+              {when?.missing === 'date not entered' && <Text style={s.hint}>Date not entered — it is not counted until you pick its month.</Text>}
+              {when?.year != null && <Text style={s.hint}>{`Counted once, in ${MONTHS3[(when.month ?? 1) - 1]} ${when.year}.`}</Text>}
+            </>);
+          })()}
         </Card>
         {(b > 0 || sign > 0) && <Callout text={`${money(b + sign)} in bonus income`}
           sub={sign > 0 ? `Includes a one-time ${money(sign)} signing bonus.` : 'On top of your base salary.'} />}
@@ -870,9 +929,10 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       // rate in force, MK-CF-F-181): what the year is taxed on — Cash flow's "What it is taxed on" — the calculated rate (the
       // rate in force with no rate typed), and the bracket on that same income. Until 2026-10-24 this step read the total of
       // every source, the untaxed ones too, called it "gross", and took the rate and the bracket on it.
-      const taxed = incomeSummary({ ...a, taxMode: undefined, manualTaxRate: undefined }).taxed;
+      // read with the accounts' interest and dividends, as every income screen reads it (useIncomeProfile; 2026-10-26, FIX-INCOME-A)
+      const taxed = incomeSummary({ ...incomeProfileNow(a), taxMode: undefined, manualTaxRate: undefined }).taxed;
       const gross = taxed.taxedOn;   // what it is taxed on: the gross less the 401(k)s (MK-CF-M-041, DEC-0283)
-      const estPct = Math.round(taxed.rate * 100);
+      const estPct = (taxed.rate * 100).toFixed(2);   // the rate in force, MK-CF-M-081, to two decimals (2026-10-26; Q49)
       const brkPct = Math.round(taxed.bracket * 100);
       const state = stateRateOf(a as any);
       return (<>
@@ -1381,15 +1441,29 @@ export function RsuEditor({ ctx }: { ctx: StepCtx }) {
       </Card>
     )}
 
-    {totalAnnual > 0 && <Callout text={`${money(totalAnnual)}/year average while vesting`}
-      sub={isOpt && totalAnnual === 0 ? 'Underwater — strike is at or above market.' : 'Taxed as ordinary income at vesting, like salary.'} />}
+    {/* EACH VEST IN ITS OWN YEAR (2026-10-25, FIX-INCOME-B; DEC-0012): the year's vests, never an average of the years — a vest
+        with no date is not counted until it has one; shares are not money to spend unless sold when they vest (the lead's ruling,
+        like DEC-0179). Dated row on income-end-to-end_v07 of 2026-10-25. */}
+    {(totalAnnual ?? 0) > 0 && <Callout text={`${money(totalAnnual ?? 0)} vests in ${new Date().getFullYear()}`}
+      sub="Taxed as ordinary income in the year it vests, like salary." />}
+    {vestsNotEntered(a).dateNotEntered > 0 && <Text style={s.hint}>{`${vestsNotEntered(a).dateNotEntered === 1 ? 'One grant has' : `${vestsNotEntered(a).dateNotEntered} grants have`} no vest date — vest date not entered, so it is not counted yet.`}</Text>}
+    {rows.length > 0 && (
+      <Card>
+        <Text style={s.label}>Do you sell the shares when they vest?</Text>
+        <Segmented ctx={ctx} k="rsuSoldAtVest" defaultValue="no" options={[
+          { value: 'no', label: 'Keep them' }, { value: 'yes', label: 'Sell them' }]} />
+        <Text style={s.note2}>{a.rsuSoldAtVest === 'yes'
+          ? 'Sold, they land as money in the month they vest, after tax.'
+          : 'Kept, they are shares, not money to spend. They are still taxed in the year they vest.'}</Text>
+      </Card>
+    )}
   </>);
 }
 
 // Income recap — line-item breakdown, gross→net→available per year, plus a lumpy monthly
 // cash-flow chart/table that you can flip between gross, net, and available.
 function IncomeRecap({ ctx }: { ctx: StepCtx }) {
-  const a = ctx.answers;
+  const a = useIncomeProfile(ctx.answers);   // the year's interest and dividends from the accounts, for the figures only (2026-10-26)
   const [view, setView] = React.useState<'chart' | 'table'>('chart');
   const [mode, setMode] = React.useState<'gross' | 'net' | 'available'>('available');
 
@@ -1404,24 +1478,48 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
     // current income only when actually receiving it now — future SS (outlook editor) excluded
     { label: 'Retirement income', value: (!Array.isArray(a.incomeSources) || a.incomeSources.includes('retirement_income')) ? retirementMonthlyIncome(a) * 12 : 0 },
     { label: 'Bonus', value: num(a.bonusAnnual) },
-    { label: 'Signing bonus', value: num(a.signingOnetime), once: true },
-    { label: 'Equity (vesting)', value: rsuAnnual(a) },
+    // money that lands once counts in its own year only, and a vest in the year it vests (landsOnce, rsuAnnual; 2026-10-25)
+    { label: 'Signing bonus', value: landsOnceInYear(a, 'signing'), once: true },
+    { label: 'Equity (vesting)', value: rsuAnnual(a) ?? 0 },
     { label: 'Rental income (net)', value: rentalNetAnnual(a) },
     { label: 'Self-employment', value: a.seFreq === 'annual' ? num(a.seAmount) : num(a.seAmount) * 12 },
     { label: 'Interest & dividends', value: num(a.invAnnual) },
     { label: 'Benefits', value: benefitAnnual(a) },
     { label: 'Child support / alimony', value: num(a.supportMonthly) * 12 },
     { label: 'Scholarships & grants', value: scholarshipAnnual },
-    { label: 'Other income', value: a.otherFreq === 'annual' ? num(a.otherAmount) : a.otherFreq === 'onetime' ? num(a.otherAmount) : num(a.otherAmount) * 12 },
+    { label: 'Other income', value: a.otherFreq === 'annual' ? num(a.otherAmount) : a.otherFreq === 'onetime' ? landsOnceInYear(a, 'other') : num(a.otherAmount) * 12 },
   ].filter((l) => l.value > 0);
 
   const total = totalGrossAnnual(a);              // sum of all the lines above
   const rate = incomeTaxRate(a);
-  const tax = taxableAnnual(a) * rate;            // tax applies to the taxable part only
+  // the year's tax as the Income summary hands it (MK-CF-M-044, MK-CF-O-004; 2026-10-26, PF-TOOLS) — what is taxed × the rate in force,
+  // the arithmetic this card did itself, so the card's year tax is the door's figure and prints under its number
+  const tax = incomeSummary(a).taxed.tax;
   const net = total - tax;
-  const k401 = num(a.c_401k) * 12;
-  const availableYr = net - k401;
-  const nonTaxable = ex.nontaxMonthly * 12 + ex.onetimeNontax;   // benefits + support + scholarships + gifts
+  // every earner's 401(k), in the months each is paid — the Income summary's "Your 401(k)s" (MK-CF-M-077, MK-CF-O-004; 2026-10-26,
+  // FIX-INCOME-A): it was the first earner's × 12, so a spouse's 401(k) never came off and a worker paid from July lost twelve of it
+  const k401 = incomeSummary(a).taxed.k401Annual;
+  // ONE TAKE-HOME, ONE RULE (2026-10-26, CLEANUP-LEFT; his DEC-0198 "does this reach your bank?", DEC-0179, the lead's ruling for
+  // vests kept as shares; tenet 4; income-end-to-end_v07 row of that date): the year is the twelve months' take-home added up — the
+  // month grid that owns take-home (MK-XS-F-027 takeHomeMonthly), the figure the "≈/month average" beside it is worked from. It was
+  // total − tax − 401(k), which counted interest reinvested where it is earned, and stock kept as shares when it vests, as money in
+  // the bank: Pat with $3,600 reinvested read $53,924/year beside ≈$4,194/month ($50,324/year). The card names both, so its
+  // lines still add up: the reinvested interest in full (its tax still comes out of pay), the kept shares after their tax (neither
+  // the vest nor its tax moves a month, the grid's rule)
+  const availableYr = domainTakeHomeMonthly(a) * 12;
+  const reinvestedYr = ex.reinvestedMonthly * 12;
+  const vestKeptNet = vestsAreCash(a) ? 0 : (rsuAnnual(a) ?? 0) * (1 - rate);
+  // THE PERSON'S OWN RATE IS FOR THEIR PAY (2026-10-26, CLEANUP-LEFT; income-end-to-end_v07 rule 5 and phone 16, the approved
+  // drawing, and its row of that date): with a rate typed, or worked from a take-home typed, the months take no tax on rent or
+  // interest (the grid's notOnThePayslip; phone 16's rent lands whole), while the year's tax is that rate on every source (phone
+  // 16's $40,176). Both stand as drawn, so the card follows the months — "Tax taken out of your pay" — and says the year's tax
+  // and the difference under it. 20% typed, $1,200/month rent, $3,600 reinvested: $78,000 − $12,000 − $4,800 − $3,600 = $57,600
+  // (its rows gave $54,000 beside a $57,600 box). With the calculated rate the difference is $0 and the card is as before.
+  const theirs = !incomeSummary(a).taxed.estimated;
+  const notOnPayslipYr = rentalNetAnnual(a) + num(a.invAnnual);
+  const taxNotFromPay = theirs ? notOnPayslipYr * rate : 0;
+  const notOnPayslipWords = [rentalNetAnnual(a) !== 0 ? 'rent' : null, num(a.invAnnual) > 0 ? 'interest and dividends' : null].filter(Boolean).join(', ');
+  const nonTaxable = ex.nontaxMonthly * 12 + (ex.onetimeNontax ?? 0);   // benefits + support + scholarships + gifts
 
   const grid = incomeMonthlyGrid(a, mode);
   const gridMax = Math.max(...grid.map((g) => g.amount), 1);
@@ -1433,7 +1531,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
   const availGrid = incomeMonthlyGrid(a, 'available');
   const labels = availGrid.map((g) => g.label);
   const amounts = availGrid.map((g) => g.amount);
-  const avgMo = domainTakeHomeMonthly(a);   // single source — identical to availableYr/12, shared with the expenses-plan screen
+  const avgMo = domainTakeHomeMonthly(a);   // single source — availableYr ÷ 12, shared with the expenses-plan screen (2026-10-26: now true)
   // most-common month = mode of the rounded amounts (ties → the higher value)
   const round100 = (x: number) => Math.round(x / 100) * 100;
   const freq: Record<number, number> = {};
@@ -1476,10 +1574,16 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
       <RecapBox label="Total income /year" value={money(total)} />
 
       <Text style={[s.sectionLabel, { marginTop: Spacing.md }]}>WHAT'S TAKEN OUT</Text>
-      <RecapStat plain label={`Tax (~${Math.round(rate * 100)}% on taxable income)`} value={`-${money(tax)}`} color={Colors.amber} />
+      {taxNotFromPay !== 0
+        ? <RecapStat plain label="Tax taken out of your pay" value={`-${money(tax - taxNotFromPay)}`} color={Colors.amber} />
+        : <RecapStat plain label={`Tax (~${fig('MK-CF-M-081', rate)} on taxable income)`} value={`-${fig('MK-CF-M-044', tax)}`} color={Colors.amber} />}
       {nonTaxable > 0 && <RecapStat plain label="Tax-free (benefits, support, gifts…)" value={money(nonTaxable)} color={Colors.textTertiary} />}
       {k401 > 0 && <RecapStat plain label="401(k), locked to retirement" value={`-${money(k401)}`} color={Colors.amber} />}
+      {reinvestedYr > 0 && <RecapStat plain label="Interest & dividends, reinvested — not money to spend" value={`-${money(reinvestedYr)}`} color={Colors.amber} />}
+      {vestKeptNet > 0 && <RecapStat plain label="Stock vesting, kept as shares, after its tax — not money to spend" value={`-${money(vestKeptNet)}`} color={Colors.amber} />}
       <RecapBox label="Available /year" value={money(availableYr)} tone="green" />
+      {taxNotFromPay > 0 && <Text style={s.hint}>{`Your tax for the year is ${fig('MK-CF-M-044', tax)}, at your ${fig('MK-CF-M-081', rate)} rate. ${money(taxNotFromPay)} of it is on your ${notOnPayslipWords} — your own rate is for your pay, so it is not taken out of your take-home.`}</Text>}
+      {taxNotFromPay < 0 && <Text style={s.hint}>{`Your tax for the year is ${fig('MK-CF-M-044', tax)}, at your ${fig('MK-CF-M-081', rate)} rate. Your rental loss lowers it by ${money(-taxNotFromPay)} — your own rate is for your pay, so your take-home is not raised by it.`}</Text>}
     </Card>
 
     {/* monthly cash flow — lumpy, with mode + view toggles */}
@@ -1517,8 +1621,8 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
       <Text style={s.note2}>{modeLabel}. {(() => {
         const why: string[] = [];
         if (num(a.bonusAnnual) > 0) why.push(`a bonus lands in ${MONTHS3[Math.min(11, Math.max(0, (num(a.bonusMonth) || 12) - 1))]}`);
-        if (num(a.signingOnetime) > 0 || ex.onetimeTaxable + ex.onetimeNontax > 0) why.push('one-time payments land in their month');
-        if (rsuAnnual(a) > 0) why.push('equity follows your vesting months');
+        if (num(a.signingOnetime) > 0 || (ex.onetimeTaxable ?? 0) + (ex.onetimeNontax ?? 0) > 0) why.push('one-time payments land in their month');
+        if ((rsuAnnual(a) ?? 0) > 0) why.push('equity follows your vesting months');
         if (Array.isArray(a.scholarships) && a.scholarships.some((x: any) => num(x?.amount) > 0 && x?.freq !== 'monthly')) why.push('scholarships land when they\'re disbursed');
         return why.length ? `Some months differ because ${why.join('; ')}.` : 'Your income is the same every month.';
       })()}</Text>
@@ -1564,7 +1668,7 @@ const SAVE_COLOR = Colors.primary;
 // Final cash-flow recap — hero totals (gross/net/spend/save), an insight, and a stacked
 // monthly column chart showing where each month's gross splits: tax · expenses · savings.
 function CashflowRecap({ ctx }: { ctx: StepCtx }) {
-  const a = ctx.answers;
+  const a = useIncomeProfile(ctx.answers);   // the year's interest and dividends from the accounts, for the figures only (2026-10-26)
   const [chartMode, setChartMode] = React.useState<'amount' | 'percent'>('amount');
   const retired = ctx.status === 'retired';
   const grossYrGate = grossAnnual(a);
@@ -1686,7 +1790,7 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
 // Savings plan — column chart of what's free to save each month (income after tax/401k − expenses),
 // a table you can keep or override per month, a hero annual total, and an insight.
 function SavingsEditor({ ctx }: { ctx: StepCtx }) {
-  const a = ctx.answers;
+  const a = useIncomeProfile(ctx.answers);   // the year's interest and dividends from the accounts, for the figures only (2026-10-26)
   const suggested = savingsByMonth(a);                 // [{label, amount}] × 12
   const mode = a.savingsMode ?? 'auto';
   const overrides = (a.savingsByMonth ?? []) as string[];
@@ -1812,7 +1916,8 @@ function WfRow({ dot, label, value, strong, color, topline, onPress }: {
 // ONE free-cash measure for goal capacity — the SAME month-aware number the save-plan screen
 // shows (income placed in its months, net of tax/401(k)/expenses), minus the investing plan.
 // Two screens disagreeing about the same pool is how dollars get counted twice.
-function goalCapacity(a: Record<string, any>): { capMo: number; investMo: number; hasCashflow: boolean } {
+function goalCapacity(answers: Record<string, any>): { capMo: number; investMo: number; hasCashflow: boolean } {
+  const a = incomeProfileNow(answers);   // the take-home with the accounts' interest and dividends in its tax (2026-10-26)
   const investMo = num(a.c_roth) + num(a.c_invest) + num(a.c_property);
   const hasCashflow = num(a.monthlySpending) > 0 || spendBuckets(a).monthly_total > 0;
   const freeMo = hasCashflow
@@ -1904,7 +2009,7 @@ function RetireOutlook({ ctx }: { ctx: StepCtx }) {
 // has consequences (Retirement tax-smart moves, Net worth accounts). Stored as monthly dollars in
 // c_invest (the canonical contribution key all projections read); goals draw from the REMAINDER.
 function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
-  const a = ctx.answers;
+  const a = useIncomeProfile(ctx.answers);   // the year's interest and dividends from the accounts, for the figures only (2026-10-26)
   const [view, setView] = React.useState<'chart' | 'table'>('chart');
   const hasCashflow = num(a.monthlySpending) > 0 || spendBuckets(a).monthly_total > 0;
   const sug = savingsByMonth(a);                              // [{label, amount}] × 12, net of tax+401(k)+expenses
@@ -2067,7 +2172,7 @@ function WhenField({ day, year, onDay, onYear }: { day?: string; year?: string; 
 }
 
 function SpendingEditor({ ctx }: { ctx: StepCtx }) {
-  const a = ctx.answers;
+  const a = useIncomeProfile(ctx.answers);   // the year's interest and dividends from the accounts, for the figures only (2026-10-26)
   const cats = (a.spendCats ?? []) as any[];
   const net = domainTakeHomeMonthly(a);   // #BUG: true take-home (after tax AND 401k) — was monthlyIncome (before 401k), which disagreed with the income screen by the 401(k)
   const get = (id: string) => cats.find((c) => c.id === id) ?? {};
@@ -2235,7 +2340,7 @@ export function rentStepReady(answers: Record<string, any>, properties: any[]): 
  *  number, so it reads as not entered — never as $2. The step used the lenient reader, which keeps the digits, so a
  *  pasted "about 2k" showed "Net $2/month" while what is counted (rentalList) read it as nothing. Fixed 2026-10-20:
  *  the step asks rentEntryMonthly, which reads with the same strict reader rentalList counts with. */
-const rentIn = (r: any): number => rentEntryMonthly(r).income;
+const rentIn = (r: any): number => rentEntryMonthly(r).income ?? 0;   // a rent not entered shows no net (2026-10-25, MK-CF-F-219)
 const rentOut = (r: any): number => rentEntryMonthly(r).expenses;
 
 // Rental properties — one editable card each, type toggle on top, summed into net income.
@@ -2257,7 +2362,7 @@ export function RentalEditor({ ctx }: { ctx: StepCtx }) {
   // is not counted yet. With one or more held, the step asks "Which property is it?" right here (DEC-4327, 2026-10-11).
   const named = (r: any) => properties.some((a) => String(a.asset_id) === String(r?.property_id ?? ''));
   const allNamed = list.filter((r) => rentIn(r) > 0 || rentOut(r) > 0).every(named);
-  const netMonthly = list.reduce((t, r) => t + rentEntryMonthly(r).net, 0);
+  const netMonthly = list.reduce((t, r) => t + (rentEntryMonthly(r).net ?? 0), 0);
   const count = list.filter((r) => rentIn(r) > 0).length;
 
   return (<>
@@ -2288,7 +2393,7 @@ export function RentalEditor({ ctx }: { ctx: StepCtx }) {
           </View>
         </View>
         {(r.type ?? 'long') === 'short' && <Text style={s.hint}>Short-term income varies by season — enter a typical month, or your annual total ÷ 12.</Text>}
-        {rentIn(r) > 0 && <Text style={s.note2}>Net <Text style={{ fontWeight: '700' }}>{money(rentEntryMonthly(r).net)}/month{(r.type ?? 'long') === 'short' ? ' avg' : ''}</Text></Text>}
+        {rentIn(r) > 0 && <Text style={s.note2}>Net <Text style={{ fontWeight: '700' }}>{money(rentEntryMonthly(r).net ?? 0)}/month{(r.type ?? 'long') === 'short' ? ' avg' : ''}</Text></Text>}
         {/* WHICH PROPERTY IS IT? (DEC-4327, 2026-10-11, "1: yes") — the Income screen's question and pick, asked here
             when a property is already held; picking saves property_id on the entry, so the rent counts at once. */}
         {properties.length > 0 && (<>

@@ -45,8 +45,13 @@ const stock = (r: { answers: string }) => /^── ORCHESTRATOR/.test(r.answers)
 
 test('the guard looked: it read every record in the code', () => {
   const all = records();
-  expect(all.length).toBeGreaterThanOrEqual(690);
-  expect(all.filter((r) => THIS_BUILD.includes(r.family)).length).toBeGreaterThanOrEqual(358);   // 358, not 360 (2026-10-04): the money-weighted rate and its helpers were removed (DEC-1669), and two functions were added
+  // THE TRUE COUNTS, 2026-10-26 (PF-TOOLS, after the 48 functions of the 2026-10-25 fix wave were numbered): 892 records in all,
+  // 522 of them in Net worth, Performance and Cash flow. The floors were 690 and 358 (2026-10-04) — a floor that lags the code by
+  // 200 records would stay green while a third of them went unread. A retirement lowers them by its true number, said here.
+  const mine = all.filter((r) => THIS_BUILD.includes(r.family)).length;
+  console.log(`guard_function_descriptions: ${all.length} records in the code, ${mine} in Net worth, Performance and Cash flow`);
+  expect(all.length).toBeGreaterThanOrEqual(903);   // 903 at the end of 2026-10-26: 892 + growthUsed, drawAssumptionFigures and nine numbered by hand
+  expect(mine).toBeGreaterThanOrEqual(526);   // 358, not 360 (2026-10-04): the money-weighted rate and its helpers were removed (DEC-1669), and two functions were added; 522 on 2026-10-26
 });
 
 test('Net worth, Performance and Cash flow: every function and orchestrator says what it is for', () => {
@@ -65,7 +70,7 @@ test('Net worth, Performance and Cash flow: every function that calculates anyth
   const tested = records().filter((r) => (THIS_BUILD.includes(r.family) || ALSO_CARDED.includes(r.id))
     && !r.answers.startsWith('Example only') && !r.answers.includes('calculates nothing'));
   expect(tested.filter((r) => ALSO_CARDED.includes(r.id)).length).toBe(ALSO_CARDED.length);   // the engine was found
-  expect(tested.length).toBeGreaterThanOrEqual(315);           // the guard looked
+  expect(tested.length).toBeGreaterThanOrEqual(481);           // the guard looked: 481 carded functions at the end of 2026-10-26 (it was a floor of 315)
   expect(tested.filter((r) => !(rules[r.id]?.rule?.trim().length >= 10)).map((r) => r.id)).toEqual([]);
   expect(tested.filter((r) => !/^[0-9a-f]{10}$/.test(rules[r.id]?.read_from ?? '')).map((r) => r.id)).toEqual([]);
   // and no rule is left behind for a function that is gone

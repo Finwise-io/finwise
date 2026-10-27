@@ -11,8 +11,9 @@ describe('MK-CF-F-219 rentEntryMonthly — one rent entry a month: its rent, its
   test('$2,000 rent and $500 of costs: $2,000 · $500 · $1,500', () => {
     expect(rentEntryMonthly({ income: 2000, expenses: 500 })).toEqual({ income: 2000, expenses: 500, net: 1500 });
   });
-  test('nothing entered: $0 · $0 · $0', () => {
-    expect(rentEntryMonthly(null)).toEqual({ income: 0, expenses: 0, net: 0 });
+  // a rent not entered gives no net (2026-10-25, FIX-INCOME-B; MK-CF-F-219-C05, tenet 3): it read $0 · $0 · $0
+  test('nothing entered: no rent · $0 · no net', () => {
+    expect(rentEntryMonthly(null)).toEqual({ income: null, expenses: 0, net: null });
   });
 });
 

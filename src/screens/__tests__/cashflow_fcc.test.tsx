@@ -7,7 +7,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import CashFlowScreen from '../CashFlowScreen';
 import { useStore } from '../../store/useStore';
-import { buildPaycheckYear } from '../../domain/paycheck';
+import { buildPaycheckYear, paycheckReturn } from '../../domain/paycheck';
 
 const pushes: string[] = [];
 jest.mock('expo-router', () => ({
@@ -49,12 +49,17 @@ describe('retired lens', () => {
     seedRetired();
     render(<CashFlowScreen />);
     // the hero (PaycheckCard) leads
-    expect(screen.getByText(/SURPLUS — [A-Z]/)).toBeOnTheScreen();
+    expect(screen.getByText(/YOUR PAYCHECK — [A-Z]/)).toBeOnTheScreen();
     // compute the same function the screen's hook runs (same params by construction)
     const s = useStore.getState() as any;
+    // THE COCKPIT'S RETURN (2026-10-25, FIX-MONTH; the lead's ruling 2 on CFR-4, cash-flow_v01's row of that date): with no return set
+    // the paycheck runs the blended benchmark of the accounts set aside for retirement — the IRA's 7.90%, volatility 11.0% — where it
+    // ran a flat 5.5% (spread 9.35%)
+    const ret = paycheckReturn(s.assetAccounts, s.retirementAssumptions ?? {}, s.onboardingProfile);
+    expect([ret.mean_return, ret.vol_return, ret.basis]).toEqual([0.079, 0.11, 'benchmark']);
     const year = buildPaycheckYear(s.onboardingProfile, {
       accounts: s.assetAccounts, liabilities: [],
-      sim: { current_age: 68, horizon_age: 92, mean_return: 0.055, vol_return: Math.min(0.2, Math.max(0.05, 0.055 * 1.7)), inflation: 0.025, seed: 42, paths: 1000 },
+      sim: { current_age: 68, horizon_age: 92, mean_return: ret.mean_return, vol_return: ret.vol_return, inflation: 0.025, seed: 42, paths: 1000 },
     });
     // the current-month bar carries the same in/out the cell holds
     const currentBar = screen.getByLabelText(new RegExp(`^${year.months[0].label}: ${Math.round(year.months[0].guaranteedTotal + year.months[0].safeDraw)} dollars in`));
@@ -62,6 +67,15 @@ describe('retired lens', () => {
     // RETIRED 2026-10-02: the bar is a row, not a door — no approved design opens a month from it
     fireEvent.press(currentBar);
     expect(pushes).not.toContain('/month-detail?slot=0');
+  });
+
+  test.failing('PIN 1 · the answer before 2026-10-25 (FIX-MONTH), kept: the bar at the flat 5.5% return', () => {
+    seedRetired();
+    render(<CashFlowScreen />);
+    const s = useStore.getState() as any;
+    const year = buildPaycheckYear(s.onboardingProfile, { accounts: s.assetAccounts, liabilities: [],
+      sim: { current_age: 68, horizon_age: 92, mean_return: 0.055, vol_return: Math.min(0.2, Math.max(0.05, 0.055 * 1.7)), inflation: 0.025, seed: 42, paths: 1000 } });
+    expect(screen.getByLabelText(new RegExp(`^${year.months[0].label}: ${Math.round(year.months[0].guaranteedTotal + year.months[0].safeDraw)} dollars in`))).toBeOnTheScreen();
   });
 
   test('draw-order preview names the buckets and the Why sheet explains each in plain English', () => {
@@ -90,7 +104,7 @@ describe('working lens', () => {
     expect(screen.getByText(/= Planned surplus/)).toBeOnTheScreen();
     expect(screen.getByText('ACTUAL · SO FAR')).toBeOnTheScreen();
     expect(screen.getByText('= Actual surplus so far')).toBeOnTheScreen();
-    expect(screen.queryByText(/SURPLUS —/)).toBeNull();   // no retiree hero on the working lens
+    expect(screen.queryByText(/YOUR PAYCHECK —/)).toBeNull();   // no retiree hero on the working lens
   });
 
   test('and nothing follows them: the cards the approved drawing does not have are gone', () => {
@@ -173,7 +187,8 @@ test('a gross biweekly salary is described truthfully and reconciles with the In
   const expectedNet = Math.round(basePay({ earners: [{ name: 'You', entry: entryFromWage(op) }], profile: op }).landsInBank);
   render(<CashFlowScreen />);
   fireEvent.press(screen.getByText('Income'));
-  const bridge = 'before tax · every 2 weeks · ≈ ' + '$' + expectedNet.toLocaleString() + '/month take-home';
+  // "≈$9,172", the one form of the approximate mark, as Your base pay prints it (2026-10-25, CF-24 — it read "≈ $9,172")
+  const bridge = 'before tax · every 2 weeks · ≈' + '$' + expectedNet.toLocaleString() + '/month take-home';
   expect(screen.getByText(bridge)).toBeOnTheScreen();
   expect(screen.queryByText('take-home · monthly')).toBeNull();   // the old hardcoded lie
 });

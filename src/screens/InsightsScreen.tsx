@@ -12,6 +12,7 @@ import { assetClassOf, blendedReturn, portfolioActualReturn, monthlyContribution
 import { theNetWorth } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
 import { totalGrossAnnual, salaryAnnual } from '../domain/income';
 import { k401Headroom, IRS_LIMITS } from '../domain/income/limits';
+import { ownK401Annual } from '../domain/income/earners';   // one person's 401(k) a year, the months paid (FIX-INCOME-A, 2026-10-26)
 import { TOXIC_APR } from '../domain/debt';
 import { theEmergencyFund } from '../../MoneyKeel/functions/networth-and-performance/emergency-fund';
 import { useNetWorthInputs } from '../hooks/useNetWorthInputs';   // the Net worth family's inputs, built once (MK-NW-F-145, DEC-0345)
@@ -144,7 +145,7 @@ export function useInsights(limit?: number): Insight[] {
       goalOffTrack,
       cashMonths: ef.monthsCovered,                    // the door's figure, not a second division
       toxicDebt: toxic && toxic.interest_rate_apr > TOXIC_APR ? { label: toxic.label, apr: toxic.interest_rate_apr } : null,
-      k401Remaining: k401Headroom(age, num(op.c_401k) * 12).remaining,
+      k401Remaining: k401Headroom(age, ownK401Annual(op)).remaining,   // your own 401(k) this year, the months you are paid (2026-10-26)
       hasEarnedIncome: salaryAnnual(op) > 0,
       retireChance: typeof store.lastRetireChance === 'number' ? store.lastRetireChance : null,   // cached by the Retire cockpit; null until viewed
       topAccountPct: invested > 0 ? (topAccount / invested) * 100 : 0,
@@ -176,7 +177,7 @@ export function useInsights(limit?: number): Insight[] {
                      // below could not be followed by hand from the rows above them
                      ...(ef.rentalIncomeMonthly > 0 ? [{ label: 'Rent from your property each month', value: fig('MK-NW-M-064', ef.rentalIncomeMonthly) }] : []),
                      { label: 'Months covered', value: ef.monthsCovered != null ? ef.monthsCovered.toFixed(1) : '—' }],
-      'k401-room': () => { const h = k401Headroom(age, num(op.c_401k) * 12); return [
+      'k401-room': () => { const h = k401Headroom(age, ownK401Annual(op)); return [
         { label: `${IRS_LIMITS.year} 401(k) limit`, value: money(h.limit) }, { label: "You've contributed", value: money(h.used) }, { label: 'Room left', value: money(h.remaining) }]; },
       'behind-bench': () => [{ label: 'Your 12-mo return', value: actual != null ? pct(actual) : '—' }, { label: 'Benchmark', value: bench != null ? pct(bench) : '—' },
                              { label: 'Gap', value: actual != null && bench != null ? pct(actual - bench) : '—' }],

@@ -20,6 +20,9 @@ export interface FuturePaycheck {
   guaranteed: number;
   /** MK-CF-M-055 — the draw from savings the pot can support, level. */
   draw: number;
+  /** WHAT IT ASSUMES, so the card can say it (2026-10-25, CF-MMFIX-A; DEC-0088 names every figure an explanation assumes, DEC-2164
+   *  the dollars are today's): the yearly return and the yearly inflation the projection ran on, as fractions (0.06 = 6%). */
+  assumes: { yearlyReturn: number; yearlyInflation: number };
 }
 
 /** About what would a month bring in at retirement: the guaranteed income plus a level draw from savings?
@@ -36,19 +39,15 @@ export interface FuturePaycheck {
  *     retire age = A.retire age (or op.target retirement age read as a number (or 67 when missing or zero) when missing)
  *     guaranteed = Σ over guaranteed outside streams(op) of (monthly)
  *     nothing   when age = nothing (or age ≥ retire age when missing or zero)
- *     inputs = will it last inputs({ op, accounts: input.accounts ?? [], assumptions: A, big costs: input.big costs, inflation rate: input.inflation rate, employment status: input.employment status } as any)
+ *     inputs = will it last inputs({ op, accounts: input.accounts ?? [], assumptions: A, big costs: input.big costs, inflation rate: input.inflation rate, employment status: input.employment status, transactions: input.transactions ?? [] } as any)
  *     nothing   when inputs is missing (or inputs.start balance ≤ 0 when missing or zero)
  *     projected egg = simulate(inputs).projected at retirement
  *     nothing   when projected egg is missing (or projected egg ≤ 0 when missing or zero)
- *     the answer:
- *     retire age = retire age
- *     monthly = round(guaranteed + proj year.draw from savings monthly)
- *     guaranteed = round(guaranteed)
- *     draw = round(proj year.draw from savings monthly)
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
- * Serves ...... MK-CF-M-055 · MK-CF-M-070 · MK-CF-M-078
+ * Serves ...... MK-CF-M-055 · MK-CF-M-070 · MK-CF-M-078 · MK-CF-M-082
+ *               MK-CF-M-083
  * Reads ....... MK-XS-I-001 account balance
  *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
  *               MK-XS-I-017 birth year
@@ -58,14 +57,12 @@ export interface FuturePaycheck {
  *               MK-XS-I-026 big costs (amount and year)
  *               MK-XS-I-028 assumed return
  *
- * Decides .....
- *     · Rounds the answer to a whole number.
- *
  * Formula also on the master file · functions_from_code · MK-CF-O-017
  * Changed ..... not in git yet (—)
  */
 export function futurePaycheck(input: {
   op: any; accounts: any[]; assumptions: any; bigCosts?: any[]; inflationRate?: number; employmentStatus?: any;
+  transactions?: any[];   // the year's interest records, for the plan's tax rate (2026-10-26, CLEANUP-LEFT)
 }): FuturePaycheck | null {
   const { op, assumptions: A } = input;
   const age = ageFromProfile(op);
@@ -75,7 +72,7 @@ export function futurePaycheck(input: {
   // and counting both is the double count his ruling Q-38 (2026-08-20) forbids.
   const guaranteed = guaranteedOutsideStreams(op).reduce((t, st) => t + st.monthly, 0);
   if (age == null || age >= retireAge) return null;
-  const inputs = willItLastInputs({ op, accounts: input.accounts ?? [], assumptions: A, bigCosts: input.bigCosts, inflationRate: input.inflationRate, employmentStatus: input.employmentStatus } as any);
+  const inputs = willItLastInputs({ op, accounts: input.accounts ?? [], assumptions: A, bigCosts: input.bigCosts, inflationRate: input.inflationRate, employmentStatus: input.employmentStatus, transactions: input.transactions ?? [] } as any);
   if (!inputs || inputs.start_balance <= 0) return null;
   const projectedEgg = simulate(inputs).projected_at_retirement;
   if (!projectedEgg || projectedEgg <= 0) return null;
@@ -83,7 +80,10 @@ export function futurePaycheck(input: {
     nestEgg: projectedEgg,
     sim: { current_age: retireAge, horizon_age: Math.max(retireAge + 5, inputs.horizon_age), mean_return: inputs.mean_return, vol_return: inputs.vol_return, inflation: inputs.inflation, seed: 42, paths: 1000 },
   } as any);
-  return { retireAge, monthly: Math.round(guaranteed + projYear.safeDrawMonthly), guaranteed: Math.round(guaranteed), draw: Math.round(projYear.safeDrawMonthly) };
+  // FULL PRECISION, ROUNDED ONCE AT THE SCREEN (2026-10-25, FIX-ROOM; his PRECISION order, Q49): $2,731.17 guaranteed + a
+  // $1,730 draw is $4,461.17, and the card prints $4,461 through fig(). It was rounded here, to 4,461 and 2,731.
+  return { retireAge, monthly: guaranteed + projYear.safeDrawMonthly, guaranteed, draw: projYear.safeDrawMonthly,
+    assumes: { yearlyReturn: inputs.mean_return, yearlyInflation: inputs.inflation } };
 }
 
 const NONE = { op: { birthYear: 1980 }, accounts: [], assumptions: {} };
@@ -129,17 +129,20 @@ export const FUTURE_PAYCHECK_FIGURES = declareFigures({
     ],
     formula: 'the paycheck year’s level draw from the pot, at the assumed return and horizon',
     inputs: ['MK-NW-I-001 your accounts', 'MK-XS-I-028 assumed return', 'MK-XS-I-018 retirement age'],
-    refusal: 'No pot — no draw; the paycheck is the guaranteed income alone.',
+    // THE REFUSAL NOW SAYS WHAT THE SCREEN DOES (2026-10-27, PF-TOOLS; the screens measurement, MK-CF-M-055 tenet 3): with no pot
+    // futurePaycheck returns nothing and the card is not drawn — it never shows a $0 draw. Its three stops, read from the code:
+    // no age, already at the retirement age, no pot (or none projected). To reverse: the old words.
+    refusal: 'No age entered, retirement age already reached, or no pot to project from — the card is not drawn.',
     ruled: '2026-10-02',
     worked: { given: GIVEN, answer: '$2,345/month', run: () => futurePaycheck(SAVER as any)?.draw ?? null },
   },
-  // ITS OWN NUMBER (2026-10-24, CF-FIX; PF-TOOLS, settling MK-CF-M-001 to 004): the retired view's surplus this month — the
-  // paycheck card's "SURPLUS — <MONTH>" and the pace line's "Spent $X of $Y surplus this month" — was printed under
+  // ITS OWN NUMBER (2026-10-24, CF-FIX; PF-TOOLS, settling MK-CF-M-001 to 004): the retired view's paycheck this month — the
+  // paycheck card's hero and the pace line's $Y (named a surplus until 2026-10-25: canon row 25) — was printed under
   // MK-CF-M-049, the later-month card's planned surplus, a third figure under one number. The register issued MK-CF-M-078.
   'MK-CF-M-078': {
-    label: 'SURPLUS — <MONTH> (retired)', unit: 'money', per: 'month', screens: ['/cashflow'],
+    label: 'YOUR PAYCHECK — <MONTH> (retired)', unit: 'money', per: 'month', screens: ['/cashflow'],
     answers: 'What a retired person can spend this month: the guaranteed income that lands this month, plus the level draw from savings, less the big dated bills that fall in it.',
-    formula: 'this month’s surplus = guaranteed income landing this month + the level draw the savings can support − the big dated bills in this month (everyday expenses and monthly debt payments are what it is for, so they are not taken off)',
+    formula: 'this month’s paycheck = guaranteed income landing this month + the level draw the savings can support − the big dated bills in this month (everyday expenses and monthly debt payments are what it is for, so they are not taken off)',
     inputs: ['MK-XS-I-020 Social Security monthly amount', 'MK-XS-I-022 pension monthly amount', 'MK-NW-I-001 your accounts', 'MK-CF-I-014 big bill'],
     decisions: ['A short month shows the minus with the word “short” and the bill named — never smoothed, never clipped to zero.'],
     grain: 'one figure per household per month',

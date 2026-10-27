@@ -10,7 +10,7 @@ const op = {
 describe('MK-CF-F-202 TAX — the organizer on its own example', () => {
   it('MK-MN-M-028: gross − 401(k) − the standard deduction = taxable income, and the steps add up', () => {
     const t = theTaxOrganizer({ profile: op, accounts: [], debts: [], transactions: [], year: 2026 } as any);
-    const s = t.steps;
+    const s = t.steps!;   // null only when nothing is entered (2026-10-25)
     expect(s.grossIncome).toBeGreaterThan(0);
     expect(s.taxableIncome).toBeCloseTo(Math.max(0, s.grossIncome - s.preTaxContributions - s.standardDeduction), 0);
   });

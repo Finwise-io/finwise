@@ -80,7 +80,7 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-NW-F-064', 'src/domain/bonds/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-065', 'src/domain/networth/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-066', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
-  ['MK-NW-F-067', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
+  ['MK-NW-F-067', 'src/domain/_shared/plural.ts', 'MoneyKeel/functions/networth-and-performance/outside_networth_rerun_openai_03.test.ts'],   // moved to the one list of words and plurals (DEC-4082); the table still named assets/index.ts until 2026-10-26
   ['MK-NW-F-068', 'src/domain/assets/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-069', 'src/domain/bonds/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-NW-F-070', 'src/domain/bonds/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
@@ -116,7 +116,106 @@ const FUNCTIONS: [string, string, string][] = [
   // MK-NW-F-102 rateWhereItRefuses is retired (2026-10-04, DEC-1669: every return is time-weighted and nothing stands in for one)
   ['MK-NW-F-104', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'MoneyKeel/functions/networth-and-performance/performance.test.ts'],
   ['MK-NW-F-105', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'MoneyKeel/functions/networth-and-performance/performance.test.ts'],
+  // 2026-10-26 (PF-TOOLS): the rows the table was missing — numbered after it was printed, and passed by a typed floor
+  ['MK-NW-F-103', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'MoneyKeel/functions/networth-and-performance/nwfix_performance_rerun_01.test.ts'],
+  ['MK-NW-F-106', 'MoneyKeel/functions/networth-and-performance/net-worth.ts', 'MoneyKeel/functions/networth-and-performance/net-worth.test.ts'],
+  ['MK-NW-F-107', 'MoneyKeel/functions/networth-and-performance/net-worth.ts', 'MoneyKeel/functions/networth-and-performance/recheck_2026-10-13.test.ts'],
+  ['MK-NW-F-108', 'src/domain/assets/index.ts', 'MoneyKeel/functions/networth-and-performance/dec_4036_rulings.test.ts'],
+  ['MK-NW-F-109', 'src/domain/assets/index.ts', 'src/domain/assets/outside_review_openai_final_fixes.test.ts'],
+  ['MK-NW-F-110', 'src/domain/assets/index.ts', 'src/screens/__tests__/dec4913_retirement_money_agreement.test.tsx'],
+  ['MK-NW-F-112', 'src/domain/bonds/index.ts', 'src/screens/__tests__/outside_performance_rerun_openai_01_screens.test.tsx'],
+  ['MK-NW-F-113', 'src/domain/alternatives/index.ts', 'MoneyKeel/functions/networth-and-performance/dec_4036_rulings.test.ts'],
+  ['MK-NW-F-114', 'src/domain/assets/index.ts', 'MoneyKeel/functions/networth-and-performance/outside_networth_rerun_openai_03.test.ts'],
+  ['MK-NW-F-115', 'src/domain/assets/index.ts', 'src/domain/assets/dec4059_tax_unstated.test.ts'],
+  ['MK-NW-F-116', 'src/domain/assets/index.ts', 'MoneyKeel/functions/networth-and-performance/outside_networth_rerun_openai_03.test.ts'],
+  ['MK-NW-F-117', 'src/domain/assets/index.ts', 'src/domain/assets/classification.test.ts'],
+  ['MK-NW-F-118', 'src/domain/assets/itemize.ts', 'MoneyKeel/functions/networth-and-performance/fix_brief_networth_06.test.ts'],
+  ['MK-NW-F-119', 'src/domain/bonds/index.ts', 'src/domain/bonds/coupons_per_year.test.ts'],
+  ['MK-NW-F-120', 'src/domain/assets/index.ts', 'src/domain/assets/dec4059_tax_unstated.test.ts'],
+  ['MK-NW-F-121', 'src/domain/assets/index.ts', 'MoneyKeel/functions/networth-and-performance/outside_networth_rerun_openai_04.test.ts'],
+  ['MK-NW-F-122', 'src/domain/assets/index.ts', 'MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts'],
+  ['MK-NW-F-123', 'src/domain/assets/index.ts', 'MoneyKeel/functions/networth-and-performance/outside_networth_rerun_openai_04.test.ts'],
+  ['MK-NW-F-124', 'src/domain/_shared/dates.ts', 'src/domain/bonds/outside_final_openai_fixes.test.ts'],
+  ['MK-NW-F-125', 'src/domain/bonds/index.ts', 'src/domain/bonds/outside_final_openai_fixes.test.ts'],
+  ['MK-NW-F-126', 'src/domain/bonds/index.ts', 'src/domain/bonds/outside_final_openai_fixes.test.ts'],
+  ['MK-NW-F-127', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'MoneyKeel/functions/networth-and-performance/outside_performance_claude_01.test.ts'],
+  ['MK-NW-F-128', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'MoneyKeel/functions/networth-and-performance/outside_performance_claude_01.test.ts'],
+  ['MK-NW-F-129', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'MoneyKeel/functions/networth-and-performance/outside_performance_claude_01.test.ts'],
+  ['MK-NW-F-130', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'MoneyKeel/functions/networth-and-performance/outside_performance_claude_01.test.ts'],
+  ['MK-NW-F-131', 'src/domain/bonds/index.ts', 'src/domain/bonds/dec3837_cd_bought.test.ts'],
+  ['MK-NW-F-132', 'MoneyKeel/functions/networth-and-performance/alternatives-outlook.ts', 'MoneyKeel/functions/networth-and-performance/dec_4036_rulings.test.ts'],
+  ['MK-NW-F-133', 'src/domain/assets/index.ts', 'MoneyKeel/functions/networth-and-performance/outside_networth_rerun_openai_04.test.ts'],
+  ['MK-NW-F-134', 'src/domain/assets/index.ts', 'MoneyKeel/functions/networth-and-performance/dec_4036_rulings.test.ts'],
+  ['MK-NW-F-135', 'src/domain/assets/index.ts', 'MoneyKeel/functions/networth-and-performance/dec_4036_rulings.test.ts'],
+  ['MK-NW-F-136', 'src/domain/assets/index.ts', 'MoneyKeel/functions/networth-and-performance/dec_4036_rulings.test.ts'],
+  ['MK-NW-F-137', 'src/domain/assets/index.ts', 'MoneyKeel/functions/networth-and-performance/dec_4036_rulings.test.ts'],
+  ['MK-NW-F-138', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_tax.test.ts'],
+  ['MK-NW-F-139', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'src/screens/__tests__/paid_read_one_way_agreement.test.tsx'],
+  ['MK-NW-F-140', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'src/domain/scenarios.test.ts'],   // not named by a test: the test runs its file
+  ['MK-NW-F-141', 'MoneyKeel/functions/networth-and-performance/bonds.ts', 'MoneyKeel/functions/networth-and-performance/dec6212_bond_interest.test.ts'],
+  ['MK-NW-F-142', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'MoneyKeel/functions/networth-and-performance/dec3656_shares_added_inside_window.test.ts'],
+  ['MK-NW-F-143', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'src/screens/__tests__/paid_read_one_way_agreement.test.tsx'],
+  ['MK-NW-F-144', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'src/domain/scenarios.test.ts'],   // not named by a test: the test runs its file
+  ['MK-NW-F-145', 'src/hooks/useNetWorthInputs.ts', 'src/screens/__tests__/fcc_agreement.test.tsx'],
+  ['MK-NW-F-146', 'MoneyKeel/functions/networth-and-performance/holding.ts', 'src/screens/__tests__/holding_gains_if_sold_today.test.tsx'],
+  ['MK-NW-F-147', 'MoneyKeel/functions/networth-and-performance/net-worth.ts', 'src/screens/__tests__/networth_rerun01_fixes.test.tsx'],
+  ['MK-NW-F-148', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'MoneyKeel/functions/networth-and-performance/nwfix_performance_rerun_01.test.ts'],
+  ['MK-NW-F-149', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_01.test.ts'],
+  ['MK-NW-F-150', 'src/domain/assets/index.ts', 'src/domain/modules.test.ts'],   // not named by a test: the test runs its file
+  ['MK-NW-F-151', 'src/domain/assets/index.ts', 'src/domain/modules.test.ts'],   // not named by a test: the test runs its file
+  ['MK-NW-F-152', 'src/domain/assets/index.ts', 'src/domain/modules.test.ts'],   // not named by a test: the test runs its file
+  ['MK-NW-F-153', 'src/domain/assets/index.ts', 'src/screens/__tests__/networth_rerun01_fixes.test.tsx'],
+  ['MK-NW-F-154', 'src/domain/assets/index.ts', 'src/screens/__tests__/networth_rerun01_fixes.test.tsx'],
+  ['MK-NW-F-155', 'src/domain/bonds/index.ts', 'src/__tests__/golden.test.ts'],   // not named by a test: the test runs its file
+  ['MK-NW-F-156', 'src/domain/bonds/index.ts', 'src/__tests__/golden.test.ts'],   // not named by a test: the test runs its file
+  ['MK-NW-F-157', 'src/domain/bonds/index.ts', 'src/__tests__/golden.test.ts'],   // not named by a test: the test runs its file
+  ['MK-NW-F-158', 'src/domain/bonds/index.ts', 'src/__tests__/golden.test.ts'],   // not named by a test: the test runs its file
+  ['MK-NW-F-159', 'src/domain/bonds/index.ts', 'src/screens/__tests__/bond_value_agreement.test.tsx'],
+  ['MK-NW-F-160', 'src/domain/bonds/index.ts', 'src/__tests__/golden.test.ts'],   // not named by a test: the test runs its file
+  ['MK-NW-F-161', 'src/domain/bonds/index.ts', 'src/__tests__/golden.test.ts'],   // not named by a test: the test runs its file
+  ['MK-NW-F-162', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'src/screens/__tests__/outside_performance_rerun_openai_01_screens.test.tsx'],
+  ['MK-NW-F-163', 'MoneyKeel/functions/networth-and-performance/holding.ts', 'src/screens/__tests__/holding_page_comparison_and_unknowns_2026_10_21.test.tsx'],
+  ['MK-NW-F-164', 'MoneyKeel/functions/networth-and-performance/holding.ts', 'src/screens/__tests__/holding_page_comparison_and_unknowns_2026_10_21.test.tsx'],
+  ['MK-NW-F-165', 'MoneyKeel/functions/networth-and-performance/holding.ts', 'src/screens/__tests__/holding_page_comparison_and_unknowns_2026_10_21.test.tsx'],
+  ['MK-NW-F-166', 'MoneyKeel/functions/networth-and-performance/holding.ts', 'MoneyKeel/functions/networth-and-performance/look-back.test.ts'],
+  ['MK-NW-F-167', 'MoneyKeel/functions/networth-and-performance/holding.ts', 'src/screens/__tests__/holding_page_comparison_and_unknowns_2026_10_21.test.tsx'],
+  ['MK-NW-F-168', 'MoneyKeel/functions/networth-and-performance/holding.ts', 'src/screens/__tests__/holding_return_one_figure_2026_10_22.test.tsx'],
+  ['MK-NW-F-169', 'MoneyKeel/functions/networth-and-performance/account.ts', 'MoneyKeel/functions/networth-and-performance/dec0346_screens_compute_nothing.test.ts'],
+  ['MK-NW-F-170', 'MoneyKeel/functions/networth-and-performance/account.ts', 'MoneyKeel/functions/networth-and-performance/dec0346_screens_compute_nothing.test.ts'],
+  ['MK-NW-F-171', 'MoneyKeel/functions/networth-and-performance/account.ts', 'MoneyKeel/functions/networth-and-performance/dec0346_screens_compute_nothing.test.ts'],
+  ['MK-NW-F-172', 'MoneyKeel/functions/networth-and-performance/account.ts', 'MoneyKeel/functions/networth-and-performance/dec0346_screens_compute_nothing.test.ts'],
+  ['MK-NW-F-173', 'MoneyKeel/functions/networth-and-performance/account.ts', 'MoneyKeel/functions/networth-and-performance/dec0346_screens_compute_nothing.test.ts'],
+  ['MK-NW-F-174', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'src/screens/__tests__/holding_page_comparison_and_unknowns_2026_10_21.test.tsx'],
+  ['MK-NW-F-175', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'src/domain/scenarios.test.ts'],   // not named by a test: the test runs its file
+  ['MK-NW-F-176', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'MoneyKeel/functions/networth-and-performance/dec0346_screens_compute_nothing.test.ts'],
+  ['MK-NW-F-177', 'MoneyKeel/functions/networth-and-performance/performance.ts', 'MoneyKeel/functions/networth-and-performance/dec0346_screens_compute_nothing.test.ts'],
+  ['MK-NW-F-178', 'MoneyKeel/functions/networth-and-performance/account.ts', 'MoneyKeel/functions/networth-and-performance/dec0346_screens_compute_nothing.test.ts'],
+  ['MK-NW-F-179', 'MoneyKeel/functions/networth-and-performance/bonds.ts', 'MoneyKeel/functions/networth-and-performance/dec0346_screens_compute_nothing.test.ts'],
+  ['MK-NW-F-180', 'MoneyKeel/functions/networth-and-performance/net-worth.ts', 'MoneyKeel/functions/networth-and-performance/dec0346_screens_compute_nothing.test.ts'],
+  ['MK-NW-F-181', 'MoneyKeel/functions/networth-and-performance/net-worth.ts', 'MoneyKeel/functions/networth-and-performance/dec0346_screens_compute_nothing.test.ts'],
+  ['MK-NW-F-182', 'MoneyKeel/functions/networth-and-performance/net-worth.ts', 'src/__tests__/decisions_are_held.test.ts'],   // not named by a test: the test runs its file
+  ['MK-NW-F-183', 'MoneyKeel/functions/networth-and-performance/net-worth.ts', 'MoneyKeel/functions/networth-and-performance/dec0346_screens_compute_nothing.test.ts'],
+  ['MK-NW-F-184', 'MoneyKeel/functions/networth-and-performance/net-worth.ts', 'MoneyKeel/functions/networth-and-performance/dec0346_screens_compute_nothing.test.ts'],
+  ['MK-NW-F-185', 'MoneyKeel/functions/networth-and-performance/net-worth.ts', 'MoneyKeel/functions/networth-and-performance/dec0346_screens_compute_nothing.test.ts'],
 ];
+
+/** Every MK-NW-F record in the code, read from the code: the header rule printed directly above each function (the one the card
+ *  builder and guard_function_descriptions read), with the file that declares it (2026-10-26, PF-TOOLS — the CF table's fix of
+ *  2026-10-24, carried to this one). */
+function headersInCode(): Map<string, string> {
+  const out = new Map<string, string>();
+  const walk = (dir: string) => {
+    for (const f of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (f.name === 'node_modules') continue;
+      const p = path.join(dir, f.name);
+      if (f.isDirectory()) { walk(p); continue; }
+      if (!/\.tsx?$/.test(f.name) || /\.test\./.test(f.name)) continue;
+      for (const m of fs.readFileSync(p, 'utf8').matchAll(/\/\* ─ (MK-NW-F-\d{3}) ─/g)) if (!out.has(m[1])) out.set(m[1], path.relative(ROOT, p));
+    }
+  };
+  for (const c of ['src', 'MoneyKeel/functions', 'Calculation Module code/engines']) walk(path.join(ROOT, c));
+  return out;
+}
 
 describe('every Net worth function traces to its proof in one hop (step 3.c)', () => {
   it('the table covers every Net worth function in the code — and says how many', () => {
@@ -128,8 +227,17 @@ describe('every Net worth function traces to its proof in one hop (step 3.c)', (
     // MK-NW-F-013, -015, -017, -018, -019, -020, -038; nothing in the app called them. The floor carries the true number.
     // 90, not 91 (2026-10-19, same day): the eighth, MK-NW-F-006 isCashKind, followed once the Net worth screen's unused
     // import of it was taken out. The floor carries the true number.
-    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(90);
+    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(170);   // 170 on 2026-10-26: 80 rows were missing (MK-NW-F-103 to 185) — the typed floor of 90 passed them
     expect(new Set(FUNCTIONS.map((r) => r[0])).size).toBe(FUNCTIONS.length);
+    // THE GUARD PROVES IT LOOKED (2026-10-26, PF-TOOLS): it read a typed floor and nothing else, so every function numbered after the
+    // table was printed passed unseen — the CF table's fault of 2026-10-24. The table must be exactly the code's MK-NW-F records.
+    const code = headersInCode();
+    console.log(`nw_function_trace: ${code.size} MK-NW-F records in the code, ${FUNCTIONS.length} rows in the table`);
+    expect(code.size).toBeGreaterThanOrEqual(170);
+    const table = new Set(FUNCTIONS.map((r) => r[0]));
+    expect([...code.keys()].filter((id) => !table.has(id)).sort()).toEqual([]);   // in the code, missing from the table
+    expect([...table].filter((id) => !code.has(id)).sort()).toEqual([]);          // in the table, gone from the code
+    expect(FUNCTIONS.filter(([id, src]) => code.get(id) !== src).map(([id, src]) => `${id}: the table says ${src}, the code declares it in ${code.get(id)}`)).toEqual([]);
   });
 
   it('each identifier really is in the file this table names', () => {

@@ -128,10 +128,13 @@ test('EDGE: a one-time bill dated for a PASSED month this year lands in Later �
   expect(inCells).toBe(0);                                               // a passed date can't be in the window
 });
 
-test('EDGE: the bill calendar renders sanely for a user with NO cash accounts (start = 0, verdict still honest)', () => {
+// CHANGED 2026-10-26 (the lead's ruling on FIX-BILLS' finding; tenet 3): with no cash on record nothing is projected — the verdict
+// says only "No balance to start from — nothing is projected." (it was worked from a $0 nobody entered)
+test('EDGE: the bill calendar renders sanely for a user with NO cash accounts (no balance, so no verdict — the refusal)', () => {
   useStore.setState({ onboardingProfile: WORKER, assetAccounts: [] } as any);
   render(<BillCalendarScreen />);
-  expect(screen.getByText(/stay above zero|Careful — short/)).toBeOnTheScreen();
+  expect(screen.queryByText(/stay above zero|Careful — short/)).toBeNull();
+  expect(screen.getAllByText('No balance to start from — nothing is projected.').length).toBeGreaterThanOrEqual(1);
   expect(screen.getByLabelText('Cash on hand now, editable')).toBeOnTheScreen();
 });
 

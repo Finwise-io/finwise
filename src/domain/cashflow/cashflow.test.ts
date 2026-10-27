@@ -1,5 +1,7 @@
-import { cashflowYear, upcomingBills } from './index';
+import { upcomingBills } from './index';
 import { buildDatedGrid } from '../grid';   // what is there by a bill's day is read from the month table (2026-10-24)
+// MK-CF-F-020 cashflowYear was RETIRED on 2026-10-25: these cases read the one month table (MK-XS-F-004 buildDatedGrid) now —
+// the same months, the same money in and out, End = runningBalance
 import type { OnboardingProfile } from '../onboardingProfile';
 
 const NO_TAX: OnboardingProfile = { taxMode: 'manual', manualTaxRate: '0' };
@@ -14,14 +16,14 @@ describe('cashflow / bill calendar', () => {
       monthlySpending: '0',
       spendCats: [{ id: 'tuition', tier: 'critical', bucket: 'nonmonthly', amount: '10000', unit: 'dollar', months: [1, 8] }], // $5k Jan, $5k Aug
     };
-    const cf = cashflowYear(op, 0, JAN);
-    expect(cf.months[0].inflow).toBeCloseTo(6000, 0);   // Jan scholarship
-    expect(cf.months[0].outflow).toBeCloseTo(5000, 0);  // Jan tuition
-    expect(cf.months[7].inflow).toBeCloseTo(6000, 0);   // Aug scholarship
-    expect(cf.months[1].inflow).toBe(0);                // Feb: nothing lands
+    const cf = buildDatedGrid(op, { startBalance: 0, now: JAN });
+    expect(cf.cells[0].inflow).toBeCloseTo(6000, 0);   // Jan scholarship
+    expect(cf.cells[0].outflow).toBeCloseTo(5000, 0);  // Jan tuition
+    expect(cf.cells[7].inflow).toBeCloseTo(6000, 0);   // Aug scholarship
+    expect(cf.cells[1].inflow).toBe(0);                // Feb: nothing lands
     expect(cf.totalIn).toBeCloseTo(12000, 0);
     expect(cf.totalOut).toBeCloseTo(10000, 0);
-    expect(cf.months[11].balance).toBeCloseTo(2000, 0); // ends +$2k for the year
+    expect(cf.cells[11].runningBalance).toBeCloseTo(2000, 0); // ends +$2k for the year
   });
 
   test('flags short months when bills outrun cash on hand', () => {
@@ -34,7 +36,7 @@ describe('cashflow / bill calendar', () => {
     };
     // pinned clock like the test above — run FROM January (on a real Aug 1 the aid month IS month 1
     // and no short window exists; this flaked the day the calendar rolled to August)
-    const cf = cashflowYear(op, 0, JAN);
+    const cf = buildDatedGrid(op, { startBalance: 0, now: JAN });
     expect(cf.shortMonths.length).toBeGreaterThan(0);   // negative before Aug aid arrives
     expect(cf.lowestBalance).toBeLessThan(0);
   });
@@ -42,16 +44,16 @@ describe('cashflow / bill calendar', () => {
   test('per-month salary table drives cash flow (a $0 month shows no pay)', () => {
     const salaryByMonth = Array.from({ length: 12 }, (_, i) => (i === 0 ? '4000' : '1500'));   // Jan 4000, rest 1500
     const op: OnboardingProfile = { ...NO_TAX, salaryByMonth, salaryMode: 'gross', incomeSources: ['employment'], monthlySpending: '0' };
-    const cf = cashflowYear(op, 0, JAN);
-    expect(cf.months[0].inflow).toBeCloseTo(4000, 0);   // Jan
-    expect(cf.months[1].inflow).toBeCloseTo(1500, 0);   // Feb
+    const cf = buildDatedGrid(op, { startBalance: 0, now: JAN });
+    expect(cf.cells[0].inflow).toBeCloseTo(4000, 0);   // Jan
+    expect(cf.cells[1].inflow).toBeCloseTo(1500, 0);   // Feb
   });
 
   test('loan disbursement shows as cash in (per-occurrence in each chosen month)', () => {
     const op: OnboardingProfile = { ...NO_TAX, incomeSources: ['loans'], loans: [{ amount: '5000', months: [1, 8] }], monthlySpending: '0' };
-    const cf = cashflowYear(op, 0, JAN);
-    expect(cf.months[0].inflow).toBeCloseTo(5000, 0);
-    expect(cf.months[7].inflow).toBeCloseTo(5000, 0);
+    const cf = buildDatedGrid(op, { startBalance: 0, now: JAN });
+    expect(cf.cells[0].inflow).toBeCloseTo(5000, 0);
+    expect(cf.cells[7].inflow).toBeCloseTo(5000, 0);
     expect(cf.totalIn).toBeCloseTo(10000, 0);
   });
 
@@ -64,12 +66,12 @@ describe('cashflow / bill calendar', () => {
       monthlySpending: '0',
       spendCats: [{ id: 'tuition', tier: 'critical', bucket: 'nonmonthly', amount: '15000', unit: 'dollar', months: [9] }],
     };
-    const cf = cashflowYear(op, 0, new Date(2026, 5, 1));   // June
-    const sep = cf.months.findIndex((m) => m.label.startsWith('Sep'));
-    const jan = cf.months.findIndex((m) => m.label.startsWith('Jan'));
+    const cf = buildDatedGrid(op, { startBalance: 0, now: new Date(2026, 5, 1) });   // June
+    const sep = cf.cells.findIndex((m) => m.label.startsWith('Sep'));
+    const jan = cf.cells.findIndex((m) => m.label.startsWith('Jan'));
     expect(jan).toBeGreaterThan(sep);                       // Jan 2027 comes AFTER Sept 2026
-    expect(cf.months[sep].balance).toBeCloseTo(-8000, 0);   // Sept: +7k aid − 15k tuition = short $8k
-    expect(cf.months[jan].label).toContain('’27');          // labelled as next year
+    expect(cf.cells[sep].runningBalance).toBeCloseTo(-8000, 0);   // Sept: +7k aid − 15k tuition = short $8k
+    expect(cf.cells[jan].label).toContain('’27');          // labelled as next year
     expect(cf.shortMonths.length).toBeGreaterThan(0);
   });
 });

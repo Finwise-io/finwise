@@ -49,7 +49,7 @@ test('an unpriced holding names itself and says what we show meanwhile — the h
   expect(g.title).toBe('LCTX has no price today');
   // linked, no price at all: counted as the rest of the broker's total, as the account page's row shows it (2026-10-21; it read
   // "what you paid", which no screen showed for a linked holding — one built by hand still reads so)
-  expect(g.meanwhile).toBe("Meanwhile it counts as the rest of " + (acct.institution?.trim() || 'your broker') + "'s total — what the other holdings and the cash leave over. It stays out of the change line, and we say so.");
+  expect(g.meanwhile).toBe("Meanwhile it counts as the rest of " + (acct.institution?.trim() || 'your broker') + "’s total — what the other holdings and the cash leave over. It stays out of the change line, and we say so.");
   expect(g.route).toBe(`/holding-detail?account=${acct.asset_id}&position=${pos.position_id}`);   // lands on the exact cure
 });
 
@@ -89,7 +89,7 @@ test('a broker with holdings but no income records offers the enter-it-yourself 
     positions: [{ position_id: 'p1', ticker: 'VTI', last_price: 200, lots: [{ lot_id: 'l1', shares: 5, cost_per_share: 150, purchase_date: '2025-01-02' }] }] as any,
   })], null, NOW, []);
   const g = gaps.find((x) => x.kind === 'no-activity')!;
-  expect(g.title).toMatch(/hasn't shared dividend records/);
+  expect(g.title).toMatch(/hasn’t shared dividend records/);
   expect(g.fixLabel).toBe('Enter dividends yourself');
   // corrected 2026-10-12 (DEC-4645): the return is not "price change only" — the dividends are in it, unnamed
   expect(g.meanwhile).toBe('Its dividends sit inside the change in investment value, not on a line of their own — we never estimate income we were not given.');
@@ -107,7 +107,7 @@ test('history depth speaks only when the window predates what the source shared'
 test('a hand-entered property value untouched for a year asks to be refreshed', () => {
   const gaps = dataGaps([a({ asset_id: 'h1' as any, label: 'Home', tax_bucket: 'PROPERTY', source: 'manual', value_as_of: '2025-01-02' })], null, NOW, []);
   const g = gaps.find((x) => x.kind === 'stale-value')!;
-  expect(g.title).toMatch(/Home hasn't been updated in 1 year/);
+  expect(g.title).toMatch(/Home hasn’t been updated in 1 year/);
   expect(g.fixLabel).toBe('Update the value');
 });
 

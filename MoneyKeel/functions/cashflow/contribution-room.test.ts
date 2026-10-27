@@ -32,10 +32,52 @@ test('G36: this month COUNTS as remaining, so the per-month figure is not overst
   expect(r.perMonthToFill401k).toBe(Math.round(r.k401.remaining / r.monthsLeft / 100) * 100);
 });
 
-test('what has gone in is never shown above the limit', () => {
+// FIXED 2026-10-25 (FIX-ROOM; tenets 1, 5, 7 of DEC-3523; IRC §402(g)): what goes in is never cut to the limit — the excess is
+// a figure of its own, because money over the limit has to come out by April 15 or it is taxed twice
+test('what goes in is shown as it is, and what is over the limit is the excess — never cut to the limit', () => {
+  const r = theContributionRoom({ profile: { birthYear: thisYear - 40, c_401k: 99999 } });
+  expect(r.k401.used).toBe(99999 * 12);
+  expect(r.k401.remaining).toBe(0);
+  expect(r.k401.excess).toBe(99999 * 12 - r.k401.limit);
+  // the worked case: at 60, $3,333.33 a month = $39,999.96 — $4,249.96 over the $35,750 limit
+  const at60 = theContributionRoom({ profile: { birthYear: 1966, c_401k: 3333.33 }, today: new Date(2026, 9, 25, 12) });
+  expect([at60.k401.limit, at60.k401.remaining]).toEqual([35_750, 0]);
+  expect(at60.k401.used).toBeCloseTo(39_999.96, 9);
+  expect(at60.k401.excess).toBeCloseTo(4_249.96, 9);
+  // the IRA follows the same rule: $800 a month at 60 is $9,600, $1,000 over $8,600
+  const ira = theContributionRoom({ profile: { birthYear: 1966, c_roth: 800 }, today: new Date(2026, 9, 25, 12) }).ira;
+  expect([ira.limit, ira.used, ira.remaining, ira.excess]).toEqual([8_600, 9_600, 0, 1_000]);
+});
+test.failing('the door until 2026-10-25, pinned: what had gone in was cut to the limit — no longer its answer (FIXED 2026-10-25)', () => {
   const r = theContributionRoom({ profile: { birthYear: thisYear - 40, c_401k: 99999 } });
   expect(r.k401.used).toBe(r.k401.limit);
-  expect(r.k401.remaining).toBe(0);
+});
+
+test('no birth year: the base limits, and the door says they are the base ones (tenet 3; MK-MN-M-003\'s refusal line)', () => {
+  const r = theContributionRoom({ profile: { c_401k: 1000 }, today: new Date(2026, 9, 25, 12) });
+  expect(r.baseLimitOnly).toBe(true);
+  expect([r.k401.limit, r.ira.limit, r.hsa.limit]).toEqual([24_500, 7_500, 4_400]);
+  expect([r.k401.used, r.k401.remaining]).toEqual([12_000, 12_500]);
+  expect(theContributionRoom({ profile: { birthYear: 1976 }, today: new Date(2026, 9, 25, 12) }).baseLimitOnly).toBe(false);
+});
+
+test('MEDICARE FROM A MONTH THIS YEAR leaves the months before it (IRS Publication 969): 66, from July 2026 → $5,400 × 6 ÷ 12 = $2,700', () => {
+  const on = (medicareStart?: string) => theContributionRoom({ profile: { birthYear: 1960, medicareEnrolled: 'yes', ...(medicareStart ? { medicareStart } : {}) }, today: new Date(2026, 9, 25, 12) });
+  const july = on('2026-07');
+  expect([july.hsa.limit, july.hsaEligibleMonths, july.hsaFullYearLimit, july.hsaBarredByMedicare]).toEqual([2_700, 6, 5_400, false]);
+  expect(july.medicareFrom).toEqual({ year: 2026, month: 7 });
+  // January, before this year, or no month said: none at all (his G10 where nothing more is known)
+  for (const v of ['2026-01', 'before-2026', '2025-03', undefined]) {
+    const r = on(v);
+    expect([v, r.hsa.limit, r.hsaEligibleMonths, r.hsaBarredByMedicare]).toEqual([v, 0, 0, true]);
+  }
+  // a start in a later year leaves this whole year
+  expect(on('2027-02').hsa.limit).toBe(5_400);
+});
+
+test('the day it is read on reaches the age too: a fixed day fixes the age, not the device clock', () => {
+  const r = theContributionRoom({ profile: { birthYear: 1976 }, today: new Date(2030, 5, 1, 12) });
+  expect(r.age).toBe(54);
 });
 
 test('no birth year: the base limit stands, and no catch-up is claimed', () => {

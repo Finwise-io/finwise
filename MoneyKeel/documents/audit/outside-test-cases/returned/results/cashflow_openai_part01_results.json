@@ -1,0 +1,3554 @@
+{
+ "batch": "cf module — part 1: Wages — what is paid, in which months, and the year it makes",
+ "reviewer": "OpenAI independent specification reviewer, package of 2026-10-24",
+ "run_by": "Claude Code (CFR-1, outside-audit measurer, Cash flow parts 1–4)",
+ "run_on": "2026-10-25",
+ "test_file": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts",
+ "source": "returned/MoneyKeel_CashFlow_Independent_Audit_Package/MoneyKeel_CashFlow_Independent_Audit/audit_results/MoneyKeel_CashFlow_Audit_Part_01.json",
+ "share": "Parts 1–4 in full: cases, formula_checks, rules_held (NOT HELD classified; HELD and CANNOT TELL recorded), still_open (each the same item as a formula or rule line).",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts → 104 passed, 0 failed, 0 skipped, 104 total. Each APP WRONG case is test.failing on the reviewer's answer with a twin test pinning the app's answer today; CFR_STRICT=1 runs the failing ones as plain tests, and every one fails on its own assertion (read 2026-10-25). npx tsc --noEmit: clean for these files (src/screens/CashFlowScreen.tsx carries another agent's uncommitted errors).",
+ "working_tree": "Measured on the working tree of 2026-10-25 at b1c659e8 plus other agents' uncommitted edits (Net worth / Performance screens, MM-CF on Cash flow screens). No app code, record or drawing was changed by this run.",
+ "ready_to_close": false,
+ "cases": [
+  {
+   "id": "MK-CF-F-059",
+   "case_id": "MK-CF-F-059-C01",
+   "name": "annualizedEnteredSalary",
+   "kind": "easy",
+   "title": "Monthly salary",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "60000/1",
+    "shown": "$60,000"
+   },
+   "actual": 60000,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-059-C01 · easy · Monthly salary [AGREES] — 5000 × 12",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-059",
+   "case_id": "MK-CF-F-059-C02",
+   "name": "annualizedEnteredSalary",
+   "kind": "easy",
+   "title": "Every two weeks",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "52000/1",
+    "shown": "$52,000"
+   },
+   "actual": 52000,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-059-C02 · easy · Every two weeks [AGREES] — 2000 × 26",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-059",
+   "case_id": "MK-CF-F-059-C03",
+   "name": "annualizedEnteredSalary",
+   "kind": "complex",
+   "title": "Part-time hourly",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "447993/10",
+    "shown": "$44,799"
+   },
+   "actual": 44799.3,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-059-C03 · complex · Part-time hourly [AGREES] — 27.35 × 31.5 × 52",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-059",
+   "case_id": "MK-CF-F-059-C04",
+   "name": "annualizedEnteredSalary",
+   "kind": "complex",
+   "title": "Unround weekly",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "2038257/25",
+    "shown": "$81,530"
+   },
+   "actual": 81530.28,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-059-C04 · complex · Unround weekly [AGREES] — 1567.89 × 52",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-059",
+   "case_id": "MK-CF-F-059-C05",
+   "name": "annualizedEnteredSalary",
+   "kind": "edge",
+   "title": "Hourly hours not entered",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Hours per week not entered; 40 requires a disclosed assumption"
+   },
+   "actual": 52000,
+   "note": "Hours a week were never entered and the app assumes 40: $25 an hour reads $52,000 a year. Your base pay offers Hourly but has no hours field (src/screens/BasePayScreen.tsx), so every hourly wage gets 40 hours silently.",
+   "rests_on": [
+    "DEC-0296",
+    "tenet 3"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-059-C05 · edge · Hourly hours not entered [APP WRONG] — hours never entered read as 40 (DEC-0296)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-059-C05 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): hours a week not entered give no number (null), never a 40-hour week (DEC-0296, tenet 3); Your base pay asks \"Hours a week\"."
+  },
+  {
+   "id": "MK-CF-F-130",
+   "case_id": "MK-CF-F-130-C01",
+   "name": "enteredMonthlyRaw",
+   "kind": "easy",
+   "title": "Monthly salary",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "5000/1",
+    "shown": "$5,000"
+   },
+   "actual": 5000,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-130-C01 · easy · Monthly salary [AGREES] — 5000 × 12 ÷ 12",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-130",
+   "case_id": "MK-CF-F-130-C02",
+   "name": "enteredMonthlyRaw",
+   "kind": "easy",
+   "title": "Every two weeks",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "13000/3",
+    "shown": "$4,333"
+   },
+   "actual": 4333.333333333333,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-130-C02 · easy · Every two weeks [AGREES] — 2000 × 26 ÷ 12",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-130",
+   "case_id": "MK-CF-F-130-C03",
+   "name": "enteredMonthlyRaw",
+   "kind": "complex",
+   "title": "Part-time hourly",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "149331/40",
+    "shown": "$3,733"
+   },
+   "actual": 3733.275,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-130-C03 · complex · Part-time hourly [AGREES] — 27.35 × 31.5 × 52 ÷ 12",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-130",
+   "case_id": "MK-CF-F-130-C04",
+   "name": "enteredMonthlyRaw",
+   "kind": "complex",
+   "title": "Unround weekly",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "679419/100",
+    "shown": "$6,794"
+   },
+   "actual": 6794.19,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-130-C04 · complex · Unround weekly [AGREES] — 1567.89 × 52 ÷ 12",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-130",
+   "case_id": "MK-CF-F-130-C05",
+   "name": "enteredMonthlyRaw",
+   "kind": "edge",
+   "title": "Hourly hours not entered",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Hours per week not entered; 40 requires a disclosed assumption"
+   },
+   "actual": 4333.333333333333,
+   "note": "The live path of the same fault: $25 an hour reads $4,333.33 a month on 40 assumed hours, and wageGrossByMonth reads this figure for every month.",
+   "rests_on": [
+    "DEC-0296",
+    "tenet 3"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-130-C05 · edge · Hourly hours not entered [APP WRONG] — hours never entered read as 40 (DEC-0296)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-130-C05 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): no hours a week, no number; the live path (wageGrossByMonth) reads the wage's untyped months as $0 and Your base pay says \"Hours a week not entered\" (DEC-0296)."
+  },
+  {
+   "id": "MK-CF-F-060",
+   "case_id": "MK-CF-F-060-C01",
+   "name": "salaryGrossByMonth",
+   "kind": "easy",
+   "title": "One wage",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    1000,
+    1000,
+    1000,
+    1000,
+    1000,
+    1000,
+    1000,
+    1000,
+    1000,
+    1000,
+    1000,
+    1000
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-060-C01 · easy · One wage [AGREES] — each slot = earner 1 + earner 2",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-060",
+   "case_id": "MK-CF-F-060-C02",
+   "name": "salaryGrossByMonth",
+   "kind": "easy",
+   "title": "Two full-year wages",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    {
+     "exact": "3000",
+     "shown": "$3,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3000",
+     "shown": "$3,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3000",
+     "shown": "$3,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3000",
+     "shown": "$3,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3000",
+     "shown": "$3,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3000",
+     "shown": "$3,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3000",
+     "shown": "$3,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3000",
+     "shown": "$3,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3000",
+     "shown": "$3,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3000",
+     "shown": "$3,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3000",
+     "shown": "$3,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3000",
+     "shown": "$3,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    3000,
+    3000,
+    3000,
+    3000,
+    3000,
+    3000,
+    3000,
+    3000,
+    3000,
+    3000,
+    3000,
+    3000
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-060-C02 · easy · Two full-year wages [AGREES] — each slot = earner 1 + earner 2",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-060",
+   "case_id": "MK-CF-F-060-C03",
+   "name": "salaryGrossByMonth",
+   "kind": "complex",
+   "title": "Dated uneven pay",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    {
+     "exact": "6255.59",
+     "shown": "$6,256",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5811.29",
+     "shown": "$5,811",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "6100.71",
+     "shown": "$6,101",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    6255.59,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    5811.29,
+    0,
+    6100.71
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-060-C03 · complex · Dated uneven pay [AGREES] — each slot = earner 1 + earner 2",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-060",
+   "case_id": "MK-CF-F-060-C04",
+   "name": "salaryGrossByMonth",
+   "kind": "complex",
+   "title": "Nonoverlapping jobs",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    {
+     "exact": "3100.13",
+     "shown": "$3,100",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3100.13",
+     "shown": "$3,100",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3100.13",
+     "shown": "$3,100",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3100.13",
+     "shown": "$3,100",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3100.13",
+     "shown": "$3,100",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "3100.13",
+     "shown": "$3,100",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2877.19",
+     "shown": "$2,877",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2877.19",
+     "shown": "$2,877",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2877.19",
+     "shown": "$2,877",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2877.19",
+     "shown": "$2,877",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2877.19",
+     "shown": "$2,877",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2877.19",
+     "shown": "$2,877",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    3100.13,
+    3100.13,
+    3100.13,
+    3100.13,
+    3100.13,
+    3100.13,
+    2877.19,
+    2877.19,
+    2877.19,
+    2877.19,
+    2877.19,
+    2877.19
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-060-C04 · complex · Nonoverlapping jobs [AGREES] — each slot = earner 1 + earner 2",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-060",
+   "case_id": "MK-CF-F-060-C05",
+   "name": "salaryGrossByMonth",
+   "kind": "edge",
+   "title": "Known zero year",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-060-C05 · edge · Known zero year [AGREES] — each slot = earner 1 + earner 2",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-177",
+   "case_id": "MK-CF-F-177-C01",
+   "name": "wageGrossByMonth",
+   "kind": "easy",
+   "title": "Steady wage",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    5000,
+    5000,
+    5000,
+    5000,
+    5000,
+    5000,
+    5000,
+    5000,
+    5000,
+    5000,
+    5000,
+    5000
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-177-C01 · easy · Steady wage [AGREES] — twelve × 5000",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-177",
+   "case_id": "MK-CF-F-177-C02",
+   "name": "wageGrossByMonth",
+   "kind": "easy",
+   "title": "Explicit unpaid January",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    0,
+    5000,
+    5000,
+    5000,
+    5000,
+    5000,
+    5000,
+    5000,
+    5000,
+    5000,
+    5000,
+    5000
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-177-C02 · easy · Explicit unpaid January [AGREES] — January a known $0",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-177",
+   "case_id": "MK-CF-F-177-C03",
+   "name": "wageGrossByMonth",
+   "kind": "complex",
+   "title": "Changed pay and unpaid month",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    {
+     "exact": "4211.35",
+     "shown": "$4,211",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "4876.19",
+     "shown": "$4,876",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "4211.35",
+     "shown": "$4,211",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "4211.35",
+     "shown": "$4,211",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "4211.35",
+     "shown": "$4,211",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "4211.35",
+     "shown": "$4,211",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "4211.35",
+     "shown": "$4,211",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "4211.35",
+     "shown": "$4,211",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "4211.35",
+     "shown": "$4,211",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "4211.35",
+     "shown": "$4,211",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "4211.35",
+     "shown": "$4,211",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    4211.35,
+    4876.19,
+    4211.35,
+    4211.35,
+    4211.35,
+    4211.35,
+    4211.35,
+    4211.35,
+    4211.35,
+    0,
+    4211.35,
+    4211.35
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-177-C03 · complex · Changed pay and unpaid month [AGREES] — 2026 entries only",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-177",
+   "case_id": "MK-CF-F-177-C04",
+   "name": "wageGrossByMonth",
+   "kind": "complex",
+   "title": "Twelve dated cells",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    {
+     "exact": "2100.17",
+     "shown": "$2,100",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "4200.34",
+     "shown": "$4,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "6300.51",
+     "shown": "$6,301",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "8400.68",
+     "shown": "$8,401",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "10500.85",
+     "shown": "$10,501",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "12601.02",
+     "shown": "$12,601",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "14701.19",
+     "shown": "$14,701",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "16801.36",
+     "shown": "$16,801",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "18901.53",
+     "shown": "$18,902",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "21001.70",
+     "shown": "$21,002",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "23101.87",
+     "shown": "$23,102",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "25202.04",
+     "shown": "$25,202",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    2100.17,
+    4200.34,
+    6300.51,
+    8400.68,
+    10500.85,
+    12601.02,
+    14701.19,
+    16801.36,
+    18901.53,
+    21001.7,
+    23101.87,
+    25202.04
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-177-C04 · complex · Twelve dated cells [AGREES] — every month explicit",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-177",
+   "case_id": "MK-CF-F-177-C05",
+   "name": "wageGrossByMonth",
+   "kind": "edge",
+   "title": "No wage record",
+   "classification": "OUTSIDE DOMAIN",
+   "app_matches_reviewer": false,
+   "expected": {
+    "state": "REFUSES",
+    "reason": "No wage entered"
+   },
+   "actual": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "note": "No caller passes a missing wage: its three call sites (read from every source file) each hand it a row of earnerWages, which always returns the profile itself. For a literal null it returns twelve $0.",
+   "rests_on": [
+    "caller: MK-CF-F-173 earnerWages"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-177-C05 · edge · No wage record [OUTSIDE DOMAIN] — no caller passes a null wage (earnerWages always hands a row)",
+   "test_result": "passed",
+   "marked": "test (the app's answer, pinned)",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-177-C05 · the app's answer today, pinned [OUTSIDE DOMAIN]",
+   "pinned_test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-061",
+   "case_id": "MK-CF-F-061-C01",
+   "name": "grossSalaryMonthly",
+   "kind": "easy",
+   "title": "Steady",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "5000",
+    "shown": "$5,000"
+   },
+   "actual": 5000,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-061-C01 · easy · Steady [AGREES] — the largest month",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-061",
+   "case_id": "MK-CF-F-061-C02",
+   "name": "grossSalaryMonthly",
+   "kind": "easy",
+   "title": "Six months worked",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "5000",
+    "shown": "$5,000"
+   },
+   "actual": 5000,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-061-C02 · easy · Six months worked [AGREES] — the largest month",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-061",
+   "case_id": "MK-CF-F-061-C03",
+   "name": "grossSalaryMonthly",
+   "kind": "complex",
+   "title": "Uneven year",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "7250.31",
+    "shown": "$7,250"
+   },
+   "actual": 7250.31,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-061-C03 · complex · Uneven year [AGREES] — the largest month",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-061",
+   "case_id": "MK-CF-F-061-C04",
+   "name": "grossSalaryMonthly",
+   "kind": "complex",
+   "title": "Employment gaps",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "4811.33",
+    "shown": "$4,811"
+   },
+   "actual": 4811.33,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-061-C04 · complex · Employment gaps [AGREES] — the largest month",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-061",
+   "case_id": "MK-CF-F-061-C05",
+   "name": "grossSalaryMonthly",
+   "kind": "edge",
+   "title": "Explicit unpaid year",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-061-C05 · edge · Explicit unpaid year [AGREES] — the largest month",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-080",
+   "case_id": "MK-CF-F-080-C01",
+   "name": "jobActiveMonth",
+   "kind": "easy",
+   "title": "Steady",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": true,
+   "actual": true,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-080-C01 · easy · Steady [AGREES] — that month above $0",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-080",
+   "case_id": "MK-CF-F-080-C02",
+   "name": "jobActiveMonth",
+   "kind": "easy",
+   "title": "Six months worked",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": true,
+   "actual": true,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-080-C02 · easy · Six months worked [AGREES] — that month above $0",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-080",
+   "case_id": "MK-CF-F-080-C03",
+   "name": "jobActiveMonth",
+   "kind": "complex",
+   "title": "Uneven year",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": true,
+   "actual": true,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-080-C03 · complex · Uneven year [AGREES] — that month above $0",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-080",
+   "case_id": "MK-CF-F-080-C04",
+   "name": "jobActiveMonth",
+   "kind": "complex",
+   "title": "Employment gaps",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": true,
+   "actual": true,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-080-C04 · complex · Employment gaps [AGREES] — that month above $0",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-080",
+   "case_id": "MK-CF-F-080-C05",
+   "name": "jobActiveMonth",
+   "kind": "edge",
+   "title": "Explicit unpaid year",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": false,
+   "actual": false,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-080-C05 · edge · Explicit unpaid year [AGREES] — that month above $0",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-081",
+   "case_id": "MK-CF-F-081-C01",
+   "name": "salaryActiveMonths",
+   "kind": "easy",
+   "title": "Steady",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "12",
+    "shown": "12"
+   },
+   "actual": 12,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-081-C01 · easy · Steady [AGREES] — months above $0",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-081",
+   "case_id": "MK-CF-F-081-C02",
+   "name": "salaryActiveMonths",
+   "kind": "easy",
+   "title": "Six months worked",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "6",
+    "shown": "6"
+   },
+   "actual": 6,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-081-C02 · easy · Six months worked [AGREES] — months above $0",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-081",
+   "case_id": "MK-CF-F-081-C03",
+   "name": "salaryActiveMonths",
+   "kind": "complex",
+   "title": "Uneven year",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "2",
+    "shown": "2"
+   },
+   "actual": 2,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-081-C03 · complex · Uneven year [AGREES] — months above $0",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-081",
+   "case_id": "MK-CF-F-081-C04",
+   "name": "salaryActiveMonths",
+   "kind": "complex",
+   "title": "Employment gaps",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "3",
+    "shown": "3"
+   },
+   "actual": 3,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-081-C04 · complex · Employment gaps [AGREES] — months above $0",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-081",
+   "case_id": "MK-CF-F-081-C05",
+   "name": "salaryActiveMonths",
+   "kind": "edge",
+   "title": "Explicit unpaid year",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "0",
+    "shown": "0"
+   },
+   "actual": 0,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-081-C05 · edge · Explicit unpaid year [AGREES] — months above $0",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-082",
+   "case_id": "MK-CF-F-082-C01",
+   "name": "salaryAnnual",
+   "kind": "easy",
+   "title": "Steady",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "60000",
+    "shown": "$60,000"
+   },
+   "actual": 60000,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-082-C01 · easy · Steady [AGREES] — the twelve months added",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-082",
+   "case_id": "MK-CF-F-082-C02",
+   "name": "salaryAnnual",
+   "kind": "easy",
+   "title": "Six months worked",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "30000",
+    "shown": "$30,000"
+   },
+   "actual": 30000,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-082-C02 · easy · Six months worked [AGREES] — the twelve months added",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-082",
+   "case_id": "MK-CF-F-082-C03",
+   "name": "salaryAnnual",
+   "kind": "complex",
+   "title": "Uneven year",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "11250.46",
+    "shown": "$11,250"
+   },
+   "actual": 11250.460000000001,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-082-C03 · complex · Uneven year [AGREES] — the twelve months added",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-082",
+   "case_id": "MK-CF-F-082-C04",
+   "name": "salaryAnnual",
+   "kind": "complex",
+   "title": "Employment gaps",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "10843.69",
+    "shown": "$10,844"
+   },
+   "actual": 10843.69,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-082-C04 · complex · Employment gaps [AGREES] — the twelve months added",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-082",
+   "case_id": "MK-CF-F-082-C05",
+   "name": "salaryAnnual",
+   "kind": "edge",
+   "title": "Explicit unpaid year",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-082-C05 · edge · Explicit unpaid year [AGREES] — the twelve months added",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-083",
+   "case_id": "MK-CF-F-083-C01",
+   "name": "totalGrossAnnual",
+   "kind": "easy",
+   "title": "Wages only",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "60000",
+    "shown": "$60,000"
+   },
+   "actual": 60000,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-083-C01 · easy · Wages only [AGREES] — wages only",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-083",
+   "case_id": "MK-CF-F-083-C02",
+   "name": "totalGrossAnnual",
+   "kind": "easy",
+   "title": "Wages plus untaxed support",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "72000",
+    "shown": "$72,000"
+   },
+   "actual": 72000,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-083-C02 · easy · Wages plus untaxed support [AGREES] — wages + untaxed support",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-083",
+   "case_id": "MK-CF-F-083-C03",
+   "name": "totalGrossAnnual",
+   "kind": "complex",
+   "title": "Multiple sources unround",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "181788.89",
+    "shown": "$181,789"
+   },
+   "actual": 181788.89,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-083-C03 · complex · Multiple sources unround [AGREES] — every source, before the 401(k)",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-083",
+   "case_id": "MK-CF-F-083-C04",
+   "name": "totalGrossAnnual",
+   "kind": "complex",
+   "title": "Negative rent",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "73622.10",
+    "shown": "$73,622"
+   },
+   "actual": 73622.10000000002,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-083-C04 · complex · Negative rent [AGREES] — a rental loss kept",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-083",
+   "case_id": "MK-CF-F-083-C05",
+   "name": "totalGrossAnnual",
+   "kind": "edge",
+   "title": "Social Security only",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "state": "REFUSES",
+    "reason": "One-time year not entered"
+   },
+   "actual": 2000,
+   "note": "A one-time $2,000 with no year is counted in this year's total income, and again every later year. Reachable: the sign-up Other income step shows January selected but saves no month or year until a chip is tapped. (The case is titled \"Social Security only\"; its inputs and answer are the one-time year, which is what was measured.)",
+   "rests_on": [
+    "DEC-0447",
+    "DEC-7940",
+    "DEC-0296"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-083-C05 · edge · Social Security only [APP WRONG] — a one-time amount with no year counted in the year (DEC-0447, DEC-7940)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-083-C05 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): the yearless $2,000 is counted in no year ($0, not $2,000 every year), and named \"year not entered\". Reclassified REVIEWER WRONG on the refusal: the known total stands (tenet 1 outranks); the test pins $0."
+  },
+  {
+   "id": "MK-CF-F-206",
+   "case_id": "MK-CF-F-206-C01",
+   "name": "householdK401ByMonth",
+   "kind": "easy",
+   "title": "One wage",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    1000,
+    1000,
+    1000,
+    1000,
+    1000,
+    1000,
+    1000,
+    1000,
+    1000,
+    1000,
+    1000,
+    1000
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-206-C01 · easy · One wage [AGREES] — own 401(k) only in own paid months",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-206",
+   "case_id": "MK-CF-F-206-C02",
+   "name": "householdK401ByMonth",
+   "kind": "easy",
+   "title": "Two wages",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    {
+     "exact": "1500",
+     "shown": "$1,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1500",
+     "shown": "$1,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1500",
+     "shown": "$1,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1500",
+     "shown": "$1,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1500",
+     "shown": "$1,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1500",
+     "shown": "$1,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1500",
+     "shown": "$1,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1500",
+     "shown": "$1,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1500",
+     "shown": "$1,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1500",
+     "shown": "$1,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1500",
+     "shown": "$1,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1500",
+     "shown": "$1,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    1500,
+    1500,
+    1500,
+    1500,
+    1500,
+    1500,
+    1500,
+    1500,
+    1500,
+    1500,
+    1500,
+    1500
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-206-C02 · easy · Two wages [AGREES] — own 401(k) only in own paid months",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-206",
+   "case_id": "MK-CF-F-206-C03",
+   "name": "householdK401ByMonth",
+   "kind": "complex",
+   "title": "One starts in July",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    {
+     "exact": "398.43",
+     "shown": "$398",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "398.43",
+     "shown": "$398",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "398.43",
+     "shown": "$398",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "398.43",
+     "shown": "$398",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "398.43",
+     "shown": "$398",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "398.43",
+     "shown": "$398",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1111.70",
+     "shown": "$1,112",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1111.70",
+     "shown": "$1,112",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1111.70",
+     "shown": "$1,112",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1111.70",
+     "shown": "$1,112",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1111.70",
+     "shown": "$1,112",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1111.70",
+     "shown": "$1,112",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    398.43,
+    398.43,
+    398.43,
+    398.43,
+    398.43,
+    398.43,
+    1111.7,
+    1111.7,
+    1111.7,
+    1111.7,
+    1111.7,
+    1111.7
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-206-C03 · complex · One starts in July [AGREES] — own 401(k) only in own paid months",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-206",
+   "case_id": "MK-CF-F-206-C04",
+   "name": "householdK401ByMonth",
+   "kind": "complex",
+   "title": "Different paid months",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    {
+     "exact": "821.15",
+     "shown": "$821",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "821.15",
+     "shown": "$821",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "821.15",
+     "shown": "$821",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "233.19",
+     "shown": "$233",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "233.19",
+     "shown": "$233",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "233.19",
+     "shown": "$233",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "233.19",
+     "shown": "$233",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    821.15,
+    821.15,
+    821.15,
+    0,
+    0,
+    0,
+    0,
+    0,
+    233.19,
+    233.19,
+    233.19,
+    233.19
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-206-C04 · complex · Different paid months [AGREES] — own 401(k) only in own paid months",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-206",
+   "case_id": "MK-CF-F-206-C05",
+   "name": "householdK401ByMonth",
+   "kind": "edge",
+   "title": "Both explicitly unpaid",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": [
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-206-C05 · edge · Both explicitly unpaid [AGREES] — own 401(k) only in own paid months",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-233",
+   "case_id": "MK-CF-F-233-C01",
+   "name": "earnerWageShares",
+   "kind": "easy",
+   "title": "Full year",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "own_share": {
+     "exact": "0.1",
+     "shown": "10.00%",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": 0.1,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-233-C01 · easy · Full year [AGREES] — (60000 − 6000 − 48000) ÷ 60000",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-233",
+   "case_id": "MK-CF-F-233-C02",
+   "name": "earnerWageShares",
+   "kind": "easy",
+   "title": "No deduction",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "own_share": {
+     "exact": "0",
+     "shown": "0.00%",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": 0,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-233-C02 · easy · No deduction [AGREES] — no deduction",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-233",
+   "case_id": "MK-CF-F-233-C03",
+   "name": "earnerWageShares",
+   "kind": "complex",
+   "title": "July starter",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "own_share": {
+     "exact": "0.5699721501392493037534812326",
+     "shown": "57.00%",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": 0.19005704971475157,
+   "note": "The July starter's own share reads 19.01% where the six paid months give 57.00%: the typed take-home is taken off twelve times. So each paid month lands $7,598.34 instead of the $3,799.17 typed.",
+   "rests_on": [
+    "DEC-7938",
+    "DEC-0176",
+    "tenets 1, 4, 5"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-233-C03 · complex · July starter [APP WRONG] — a part-year take-home × 12 (DEC-7938, DEC-0176)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-233-C03 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): a take-home and a 401(k) are each a PAID month's, so the year of either is that month × the months paid — (60,000.30 − 6 × 501.13 − 6 × 3,799.17) ÷ 60,000.30 = 57.00%; a paid month lands $3,799.17 (DEC-7938, DEC-0176)."
+  },
+  {
+   "id": "MK-CF-F-233",
+   "case_id": "MK-CF-F-233-C04",
+   "name": "earnerWageShares",
+   "kind": "complex",
+   "title": "Three paid months",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "own_share": {
+     "exact": "0.2144006617053054279977628875",
+     "shown": "21.44%",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": 0,
+   "note": "Three paid months: the share goes below zero and is held at 0%, so the paid month lands $13,601.78 instead of the $10,600.13 typed.",
+   "rests_on": [
+    "DEC-7938",
+    "DEC-0176",
+    "tenets 1, 4, 5"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-233-C04 · complex · Three paid months [APP WRONG] — three paid months × 12 clamps to 0% (DEC-7938, DEC-0176)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-233-C04 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): three paid months — (42,000.57 − 3 × 398.41 − 3 × 10,600.13) ÷ 42,000.57 = 21.44% (it clamped to 0%)."
+  },
+  {
+   "id": "MK-CF-F-233",
+   "case_id": "MK-CF-F-233-C05",
+   "name": "earnerWageShares",
+   "kind": "edge",
+   "title": "Known zero take-home",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "own_share": {
+     "exact": "1",
+     "shown": "100.00%",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": null,
+   "note": "A take-home typed as 0 is treated as not typed (only figures above 0 count), so the calculated household rate replaces the person's own figure. Blank is what means \"calculate it\" on the screen; a typed 0 is an answer.",
+   "rests_on": [
+    "tenet 5",
+    "tenet 3",
+    "Your base pay hint \"Leave blank and we'll calculate it\""
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-233-C05 · edge · Known zero take-home [APP WRONG] — a typed $0 take-home read as not typed (tenets 3, 5)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-233-C05 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): a take-home typed as 0 is the person's answer (tenet 5; the lead's ruling 3) — share 100%; only a blank box is not typed."
+  },
+  {
+   "id": "MK-CF-F-234",
+   "case_id": "MK-CF-F-234-C01",
+   "name": "wagesLandingByMonth",
+   "kind": "easy",
+   "title": "One wage",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "earner_take_home": [
+     {
+      "exact": "4000.0",
+      "shown": "$4,000",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     }
+    ],
+    "total": {
+     "exact": "4000.0",
+     "shown": "$4,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "total": 4000,
+    "rows": [
+     4000
+    ]
+   },
+   "note": "The share is handed in the only way the app takes one: the earner's typed take-home on a full year, T = gross × (1 − share) − 401(k).",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-234-C01 · easy · One wage [AGREES] — 5000 × 0.9 − 500",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-234",
+   "case_id": "MK-CF-F-234-C02",
+   "name": "wagesLandingByMonth",
+   "kind": "easy",
+   "title": "Two wages",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "earner_take_home": [
+     {
+      "exact": "4000.0",
+      "shown": "$4,000",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "2200.0",
+      "shown": "$2,200",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     }
+    ],
+    "total": {
+     "exact": "6200.0",
+     "shown": "$6,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "total": 6200,
+    "rows": [
+     4000,
+     2200
+    ]
+   },
+   "note": "Shares handed in as typed take-homes on full years ($4,000 and $2,200).",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-234-C02 · easy · Two wages [AGREES] — two wages added",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-234",
+   "case_id": "MK-CF-F-234-C03",
+   "name": "wagesLandingByMonth",
+   "kind": "complex",
+   "title": "Different entered shares",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "earner_take_home": [
+     {
+      "exact": "3698.44413",
+      "shown": "$3,698",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     {
+      "exact": "2284.60311",
+      "shown": "$2,285",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     }
+    ],
+    "total": {
+     "exact": "5983.04724",
+     "shown": "$5,983",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "total": 5983.04724,
+    "rows": [
+     3698.444129999999,
+     2284.6031100000014
+    ]
+   },
+   "note": "Shares handed in as typed take-homes on full years.",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-234-C03 · complex · Different entered shares [AGREES] — different shares",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-234",
+   "case_id": "MK-CF-F-234-C04",
+   "name": "wagesLandingByMonth",
+   "kind": "complex",
+   "title": "Part-year typed take-home",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "earner_take_home": [
+     {
+      "exact": "3799.170000000000000000000000",
+      "shown": "$3,799",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     }
+    ],
+    "total": {
+     "exact": "3799.170000000000000000000000",
+     "shown": "$3,799",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "total": 7598.339999999999,
+    "rows": [
+     7598.339999999999
+    ]
+   },
+   "note": "The July starter's paid month lands $7,598.34, twice the $3,799.17 typed. This is what the dated grid puts on This month and Home, while Your base pay shows $3,799.17.",
+   "rests_on": [
+    "DEC-7938",
+    "tenet 4"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-234-C04 · complex · Part-year typed take-home [APP WRONG] — the part-year take-home doubled in a paid month (DEC-7938, tenet 4)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-234-C04 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): reads the corrected shares (MK-CF-F-233) — the July starter's paid month lands $3,799.17 on This month and Home (it landed $7,598.34)."
+  },
+  {
+   "id": "MK-CF-F-234",
+   "case_id": "MK-CF-F-234-C05",
+   "name": "wagesLandingByMonth",
+   "kind": "edge",
+   "title": "Known unpaid month",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "earner_take_home": [
+     {
+      "exact": "0.00",
+      "shown": "$0",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     }
+    ],
+    "total": {
+     "exact": "0.00",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "total": 0,
+    "rows": [
+     0
+    ]
+   },
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-234-C05 · edge · Known unpaid month [AGREES] — a known unpaid month lands $0",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-078",
+   "case_id": "MK-CF-F-078-C01",
+   "name": "employerMatchMonthly",
+   "kind": "easy",
+   "title": "Half match",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "500",
+    "shown": "$500"
+   },
+   "actual": 500,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-078-C01 · easy · Half match [AGREES] — percent of the contribution, or flat",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-078",
+   "case_id": "MK-CF-F-078-C02",
+   "name": "employerMatchMonthly",
+   "kind": "easy",
+   "title": "Flat match",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "300",
+    "shown": "$300"
+   },
+   "actual": 300,
+   "note": "A 0% match plus a flat $300 is mapped to the flat match the screen offers.",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-078-C02 · easy · Flat match [AGREES] — percent of the contribution, or flat",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-078",
+   "case_id": "MK-CF-F-078-C03",
+   "name": "employerMatchMonthly",
+   "kind": "complex",
+   "title": "Unround percentage",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "342.47625",
+    "shown": "$342"
+   },
+   "actual": 342.47625,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-078-C03 · complex · Unround percentage [AGREES] — percent of the contribution, or flat",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-078",
+   "case_id": "MK-CF-F-078-C04",
+   "name": "employerMatchMonthly",
+   "kind": "complex",
+   "title": "Percentage plus flat match",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "659.37489",
+    "shown": "$659"
+   },
+   "actual": 659.3748899999999,
+   "note": "A percent and a flat match cannot sit on one earner (the screen offers one or the other); mapped to two earners, one of each, which is how the household figure receives two matches.",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-078-C04 · complex · Percentage plus flat match [AGREES] — a percent match and a flat match: two earners, one of each, added",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-078",
+   "case_id": "MK-CF-F-078-C05",
+   "name": "employerMatchMonthly",
+   "kind": "edge",
+   "title": "Zero contribution",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-078-C05 · edge · Zero contribution [AGREES] — percent of the contribution, or flat",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-178",
+   "case_id": "MK-CF-F-178-C01",
+   "name": "wageMatchMonthly",
+   "kind": "easy",
+   "title": "Half match",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "500",
+    "shown": "$500"
+   },
+   "actual": 500,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-178-C01 · easy · Half match [AGREES] — percent of the contribution, or flat",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-178",
+   "case_id": "MK-CF-F-178-C02",
+   "name": "wageMatchMonthly",
+   "kind": "easy",
+   "title": "Flat match",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "300",
+    "shown": "$300"
+   },
+   "actual": 300,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-178-C02 · easy · Flat match [AGREES] — percent of the contribution, or flat",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-178",
+   "case_id": "MK-CF-F-178-C03",
+   "name": "wageMatchMonthly",
+   "kind": "complex",
+   "title": "Unround percentage",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "342.47625",
+    "shown": "$342"
+   },
+   "actual": 342.47625,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-178-C03 · complex · Unround percentage [AGREES] — percent of the contribution, or flat",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-178",
+   "case_id": "MK-CF-F-178-C04",
+   "name": "wageMatchMonthly",
+   "kind": "complex",
+   "title": "Percentage plus flat match",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "659.37489",
+    "shown": "$659"
+   },
+   "actual": 659.3748899999999,
+   "note": "Two independent calls, percent and flat, added, as the case's note asks.",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-178-C04 · complex · Percentage plus flat match [AGREES] — two independent calls, percent and flat, added (the case's note)",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-178",
+   "case_id": "MK-CF-F-178-C05",
+   "name": "wageMatchMonthly",
+   "kind": "edge",
+   "title": "Zero contribution",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-178-C05 · edge · Zero contribution [AGREES] — percent of the contribution, or flat",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-079",
+   "case_id": "MK-CF-F-079-C01",
+   "name": "incomeFromOnboarding",
+   "kind": "easy",
+   "title": "Steady wage",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "monthly_salary": {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "income_source_id": "inc_mvmrjz406f69ek",
+    "label": "Base salary",
+    "income_type": "W2_JOB",
+    "gross_amount": 5000,
+    "frequency": "MONTHLY",
+    "operating_expenses": 0,
+    "who_earns": "you",
+    "employer_match_amount": 0
+   },
+   "note": "",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-079-C01 · easy · Steady wage [AGREES] — 60000 ÷ 12, monthly",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-079",
+   "case_id": "MK-CF-F-079-C02",
+   "name": "incomeFromOnboarding",
+   "kind": "easy",
+   "title": "Annual bonus placement",
+   "classification": "AGREES",
+   "app_matches_reviewer": true,
+   "expected": {
+    "bonus_payment": {
+     "exact": "12000",
+     "shown": "$12,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "date": "2026-09"
+   },
+   "actual": {
+    "s": {
+     "income_source_id": "inc_mvmrjz40zm7ehb",
+     "label": "Bonus",
+     "income_type": "W2_JOB",
+     "gross_amount": 12000,
+     "frequency": "ANNUAL",
+     "operating_expenses": 0,
+     "who_earns": "you",
+     "landing_month": 9
+    },
+    "sep": 12000
+   },
+   "note": "A bonus is yearly (DEC-7940 separated Bonus from One-time income), so it carries its month and no year; it lands $12,000 in September of 2026, read back through buildIncomeState's months.",
+   "rests_on": [],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-079-C02 · easy · Annual bonus placement [AGREES] — $12,000 kept in September (a yearly bonus has its month, DEC-7940)",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer)",
+   "pinned_app_answer_test": "",
+   "pinned_test_result": ""
+  },
+  {
+   "id": "MK-CF-F-079",
+   "case_id": "MK-CF-F-079-C03",
+   "name": "incomeFromOnboarding",
+   "kind": "complex",
+   "title": "Seasonal two earners",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "wage_months_preserved": true,
+    "rental_monthly_net": {
+     "exact": "1219.74",
+     "shown": "$1,220",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "rentNet": 1219.7400000000002,
+    "jan": 1194.4825,
+    "feb": 1194.4825,
+    "jul": 1194.4825,
+    "aug": 1194.4825
+   },
+   "note": "The seasonal pair is stored as $1,194.48 in every month (the year divided by 12) instead of July $5,111.17, August $6,111.43 and the spouse's January $3,111.19; the rent net, $1,219.74, agrees. Reach is small: the stored income list and the Income detail months, which have no way in today.",
+   "rests_on": [
+    "DEC-0003"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-079-C03 · complex · Seasonal two earners [APP WRONG] — dated wage months stored as equal twelfths (DEC-0003)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-079-C03 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): pay that differs month to month is stored as the year with each month's share (landing_months): July $5,111.17, August $6,111.43, the spouse's January $3,111.19 (it read $1,194.48 in every month)."
+  },
+  {
+   "id": "MK-CF-F-079",
+   "case_id": "MK-CF-F-079-C04",
+   "name": "incomeFromOnboarding",
+   "kind": "complex",
+   "title": "Signing bonus actual date",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "one_off": {
+     "amount": {
+      "exact": "7311.17",
+      "shown": "$7,311.17",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     "date": "2026-10-17"
+    }
+   },
+   "actual": {
+    "income_source_id": "inc_mvmrjz40dlvtt8",
+    "label": "Signing bonus",
+    "income_type": "W2_JOB",
+    "gross_amount": 7311.17,
+    "frequency": "ONETIME",
+    "operating_expenses": 0,
+    "who_earns": "you",
+    "landing_month": 1
+   },
+   "note": "The signing bonus is stored landing in January. The app never asks a signing bonus's month or year, so the October date cannot be kept; the fix needs that question asked.",
+   "rests_on": [
+    "DEC-0447"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-079-C04 · complex · Signing bonus actual date [APP WRONG] — a signing bonus pinned to January (DEC-0447)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-079-C04 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): the sign-up Bonuses step asks the signing bonus's month, stored with its year; dated 2026-10-17 it is stored once, landing in October (it landed in January)."
+  },
+  {
+   "id": "MK-CF-F-079",
+   "case_id": "MK-CF-F-079-C05",
+   "name": "incomeFromOnboarding",
+   "kind": "edge",
+   "title": "One-off must not recur",
+   "classification": "APP WRONG",
+   "app_matches_reviewer": false,
+   "expected": {
+    "amount": {
+     "exact": "0",
+     "shown": "$0.00",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "amount": 2000,
+    "taxed": 2000
+   },
+   "note": "A $2,000 signing bonus of 2026 is booked again as 2027 income, because no year is stored; taxableAnnual adds it every year too.",
+   "rests_on": [
+    "DEC-0447",
+    "DEC-7940"
+   ],
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-079-C05 · edge · One-off must not recur [APP WRONG] — a 2026 one-off is 2027 income again (DEC-0447, DEC-7940)",
+   "test_result": "passed",
+   "marked": "test.failing on the reviewer's answer",
+   "pinned_app_answer_test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › MK-CF-F-079-C05 · the app's answer today, pinned [APP WRONG]",
+   "pinned_test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): a 2026 signing bonus is not 2027 income: $0 in 2027 (it read $2,000 every year)."
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-CF-F-059",
+   "name": "annualizedEnteredSalary",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "The arithmetic converts a known pay rhythm correctly. Missing hours or pay rhythm silently become 40 hours or monthly pay without an assumption flag.",
+   "reviewer_should_be": "Keep the conversion for known inputs; identify the assumed hours/frequency or refuse an unqualified figure.",
+   "classification": "APP WRONG",
+   "fix_kind": "app",
+   "rests_on": [
+    "DEC-0296",
+    "tenet 3"
+   ],
+   "what_the_code_actually_does": "Hourly pay × hours a week × 52, with 40 hours when none were entered; no screen asks the hours. The frequency default is shown on screen (Monthly is the selected choice on Your base pay), so only the hours half is a fault.",
+   "plain_example": "$25 an hour, hours not entered: $52,000 a year (40 assumed); right: no figure until the hours are entered.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): an hourly wage with no hours a week is refused (null) — no 40-hour default (DEC-0296)."
+  },
+  {
+   "id": "MK-CF-F-130",
+   "name": "enteredMonthlyRaw",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "The arithmetic converts a known pay rhythm correctly. Missing hours or pay rhythm silently become 40 hours or monthly pay without an assumption flag.",
+   "reviewer_should_be": "Keep the conversion for known inputs; identify the assumed hours/frequency or refuse an unqualified figure.",
+   "classification": "APP WRONG",
+   "fix_kind": "app",
+   "rests_on": [
+    "DEC-0296",
+    "tenet 3"
+   ],
+   "what_the_code_actually_does": "The same, and it is the live reader: wageGrossByMonth takes it for every month of a wage with no month table.",
+   "plain_example": "$25 an hour: $4,333.33 a month on 40 assumed hours.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): as MK-CF-F-059; its caller wageGrossByMonth reads no typical month."
+  },
+  {
+   "id": "MK-CF-F-060",
+   "name": "salaryGrossByMonth",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Adds the same calendar slots across the earners; an explicit zero month remains zero.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "fix_kind": "none",
+   "rests_on": [],
+   "what_the_code_actually_does": "The reviewer found it right; its five cases agree with the app.",
+   "plain_example": ""
+  },
+  {
+   "id": "MK-CF-F-177",
+   "name": "wageGrossByMonth",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Dated table values override the explicitly supplied typical fallback, including a typed zero. Null-record propagation is not established by the prose; the edge case records that limitation.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "fix_kind": "none",
+   "rests_on": [],
+   "what_the_code_actually_does": "The reviewer found it right; its five cases agree with the app.",
+   "plain_example": ""
+  },
+  {
+   "id": "MK-CF-F-061",
+   "name": "grossSalaryMonthly",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Correct maximum, positivity check, count, or sum on a known twelve-month wage vector; no annualization of an already dated year.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "fix_kind": "none",
+   "rests_on": [],
+   "what_the_code_actually_does": "The reviewer found it right; its five cases agree with the app.",
+   "plain_example": ""
+  },
+  {
+   "id": "MK-CF-F-080",
+   "name": "jobActiveMonth",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Correct maximum, positivity check, count, or sum on a known twelve-month wage vector; no annualization of an already dated year.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "fix_kind": "none",
+   "rests_on": [],
+   "what_the_code_actually_does": "The reviewer found it right; its five cases agree with the app.",
+   "plain_example": ""
+  },
+  {
+   "id": "MK-CF-F-081",
+   "name": "salaryActiveMonths",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Correct maximum, positivity check, count, or sum on a known twelve-month wage vector; no annualization of an already dated year.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "fix_kind": "none",
+   "rests_on": [],
+   "what_the_code_actually_does": "The reviewer found it right; its five cases agree with the app.",
+   "plain_example": ""
+  },
+  {
+   "id": "MK-CF-F-082",
+   "name": "salaryAnnual",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Correct maximum, positivity check, count, or sum on a known twelve-month wage vector; no annualization of an already dated year.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "fix_kind": "none",
+   "rests_on": [],
+   "what_the_code_actually_does": "The reviewer found it right; its five cases agree with the app.",
+   "plain_example": ""
+  },
+  {
+   "id": "MK-CF-F-083",
+   "name": "totalGrossAnnual",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Annual identity is valid for already classified sources, but yearly totals inherit undated repeating one-offs and a level equity run-rate instead of actual dated vesting.",
+   "reviewer_should_be": "Use actual tax-year events and distinguish planned run-rate from received/vested annual amounts.",
+   "classification": "APP WRONG",
+   "fix_kind": "app",
+   "rests_on": [
+    "DEC-0447",
+    "DEC-7940",
+    "DEC-0012"
+   ],
+   "what_the_code_actually_does": "Adds a one-time amount with no year to every year (C05), adds the signing bonus every year (it has no year at all), and adds equity as the run-rate rather than the year's own vests (part 3, MK-CF-F-066).",
+   "plain_example": "One-time $2,000, no year: $2,000 in 2026 and again in 2027.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): one-time amounts in their own year only (landsOnce); the total is everything taxed with Social Security whole, + the untaxed."
+  },
+  {
+   "id": "MK-CF-F-206",
+   "name": "householdK401ByMonth",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Counts each earner’s contribution only in that earner’s paid months and sums by month. Assumes traditional pre-tax contributions already identified.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "fix_kind": "none",
+   "rests_on": [],
+   "what_the_code_actually_does": "The reviewer found it right; its five cases agree with the app.",
+   "plain_example": ""
+  },
+  {
+   "id": "MK-CF-F-233",
+   "name": "earnerWageShares",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Subtracts twelve months of entered take-home even when the earner is paid in fewer months. The resulting share cannot reproduce take-home in a paid month.",
+   "reviewer_should_be": "Use each earner’s actual dated take-home or the stated typical take-home only for the corresponding paid months; keep explicit zero distinct from missing.",
+   "classification": "APP WRONG",
+   "fix_kind": "app",
+   "rests_on": [
+    "DEC-7938",
+    "DEC-0176",
+    "tenets 1, 4, 5"
+   ],
+   "what_the_code_actually_does": "share = (year's wages − 401(k) × paid months − typed take-home × 12) ÷ year's wages: the 401(k) side uses paid months, the take-home side still uses twelve. A typed 0 counts as not typed.",
+   "plain_example": "July starter, $60,000.30 over six months, $501.13 401(k), $3,799.17 typed: 19.01%, landing $7,598.34 a paid month; right 57.00%, landing $3,799.17.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): a take-home and a 401(k) are each a PAID month's, so the year of either is that month × the months paid; a typed 0 is kept distinct from a blank."
+  },
+  {
+   "id": "MK-CF-F-234",
+   "name": "wagesLandingByMonth",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "The combining identity is right, but it inherits the part-year and explicit-zero errors of earnerWageShares.",
+   "reviewer_should_be": "Read the corrected per-earner shares and month-specific contributions.",
+   "classification": "APP WRONG",
+   "fix_kind": "app",
+   "rests_on": [
+    "DEC-7938",
+    "tenet 4"
+   ],
+   "what_the_code_actually_does": "The combining arithmetic is right (C01–C03 agree); it inherits MK-CF-F-233's part-year share, so This month and Home land twice the typed take-home.",
+   "plain_example": "July: $7,598.34 on This month; $3,799.17 on Your base pay.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): reads the corrected per-earner shares and the paid months' 401(k)s."
+  },
+  {
+   "id": "MK-CF-F-078",
+   "name": "employerMatchMonthly",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "A match defined as a share of the employee contribution uses that contribution as its base; a flat amount stays flat. This is not a percent of wages.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "fix_kind": "none",
+   "rests_on": [],
+   "what_the_code_actually_does": "The reviewer found it right; its five cases agree with the app.",
+   "plain_example": ""
+  },
+  {
+   "id": "MK-CF-F-178",
+   "name": "wageMatchMonthly",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "A match defined as a share of the employee contribution uses that contribution as its base; a flat amount stays flat. This is not a percent of wages.",
+   "reviewer_should_be": "",
+   "classification": "AGREES",
+   "fix_kind": "none",
+   "rests_on": [],
+   "what_the_code_actually_does": "The reviewer found it right; its five cases agree with the app.",
+   "plain_example": ""
+  },
+  {
+   "id": "MK-CF-F-079",
+   "name": "incomeFromOnboarding",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "A yearly wage divided by 12 erases unpaid months; a signing bonus is pinned to January and may recur without a year. Stored-source timing is not shown to preserve the profile’s dated evidence.",
+   "reviewer_should_be": "Keep actual month/year, per-earner identity and one-time year through conversion; do not store a run-rate as actual cash in every month.",
+   "classification": "APP WRONG",
+   "fix_kind": "app",
+   "rests_on": [
+    "DEC-0003",
+    "DEC-0447",
+    "DEC-7940"
+   ],
+   "what_the_code_actually_does": "Stores the salary as the year ÷ 12 (dated months lost), the signing bonus in January with no year (lands every year), as the reviewer says.",
+   "plain_example": "Seasonal pair: $1,194.48 every month instead of July $5,111.17; signing bonus of October lands in January, and again next year.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): C03-C05 fixed (months kept; a once-only amount in its own year and month)."
+  }
+ ],
+ "rules_held": [
+  {
+   "rule": "DEC-0003",
+   "cards": [
+    "MK-CF-F-079"
+   ],
+   "authority": "his",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Year-month preservation is present in canonical wage tables,but annualized/converted paths and yearless vest/one-time defaults lose the same dated meaning.",
+   "classification": "APP WRONG",
+   "note": "The salary months are kept by the dated table but lost in the stored income list (MK-CF-F-079-C03), and an undated vest is given this year (part 3).",
+   "evidence_case_refs": [
+    "MK-CF-F-143-C03",
+    "MK-CF-F-143-C04",
+    "MK-CF-F-143-C05",
+    "MK-CF-F-063-C05",
+    "MK-CF-F-071-C05",
+    "MK-CF-F-079-C03",
+    "MK-CF-F-079-C04",
+    "MK-CF-F-079-C05"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): each vest counts in the year its date names, read through the one reader of the vests (equityVests, yearMonthOf): rsuAnnual, equityCashFlow, equityVestWeights and taxableByCalendarMonth agree with equityByMonth; 2026 is $8,317.43 in March only; no date is \"vest date not entered\", in no year and no month."
+  },
+  {
+   "rule": "DEC-0151",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0176",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Two-earner readers exist,but annualOfSource substitutes household salary on each earnerrow and partial-year contributions diverge.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": [
+    "MK-CF-F-210-C03",
+    "MK-CF-F-210-C04",
+    "MK-CF-F-210-C05",
+    "MK-CF-F-188-C03",
+    "MK-CF-F-188-C04",
+    "MK-CF-F-188-C05"
+   ]
+  },
+  {
+   "rule": "DEC-0198",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Current monthgrid removes reinvested cash,but legacy cashflowYear includes it and taxOrganizer’s cash-payout basis can omit taxable reinvestments.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": [
+    "MK-CF-F-020-C01",
+    "MK-CF-F-020-C02",
+    "MK-CF-F-020-C03",
+    "MK-CF-F-020-C04",
+    "MK-CF-O-007-C03",
+    "MK-CF-O-007-C04",
+    "MK-CF-O-007-C05"
+   ]
+  },
+  {
+   "rule": "DEC-0200",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. One-time migration is stated,but its calculated branch omits401(k)from the inverse equation and may not preserve entered landing after deductions.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": [
+    "MK-CF-F-186-C04"
+   ]
+  },
+  {
+   "rule": "DEC-0291",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0296",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Unknown vestdate,age,amounts and budgets are filled with currentyear,68 or0in severalfinancialpaths.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": [
+    "MK-CF-F-063-C05",
+    "MK-CF-F-225-C05",
+    "MK-CF-F-222-C05",
+    "MK-CF-F-001-C05"
+   ]
+  },
+  {
+   "rule": "DEC-0303",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The outside-stream reader retains inflation flags,but the delegated future projection and next-year update policy are not fully supplied.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": [
+    "MK-CF-F-105-C05"
+   ]
+  },
+  {
+   "rule": "DEC-0307",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The outside-guaranteed reader excludes withdrawals andRMDs. Taxable treatment remains a separate defect.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0327",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. New tax primitive uses taxable income for state tax,but legacy buildIncomeState drops state from monthly grid and effectiveTaxRate uses a separate rate.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": [
+    "MK-CF-F-049-C03",
+    "MK-CF-F-048-C03"
+   ]
+  },
+  {
+   "rule": "DEC-0364",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0376",
+   "cards": [
+    "MK-CF-F-233"
+   ],
+   "authority": "his",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Complete approved rows reconcile,but partial-year wage shares and tax/subtotal scope yield counterexamples outside that drawing.",
+   "classification": "APP WRONG",
+   "note": "On one card: the Income summary reads the July starter's usual month $3,799.17 and, beside it, a \"standout\" July of $7,598.34 from the same wage; This month lands $7,598.34 while Your base pay says $3,799.17. The approved drawing households still reconcile.",
+   "evidence_case_refs": [
+    "MK-CF-F-233-C03",
+    "MK-CF-F-233-C04",
+    "MK-CF-F-233-C05",
+    "MK-CF-O-001-C04",
+    "MK-CF-O-001-C05",
+    "MK-CF-O-004-C04",
+    "MK-CF-O-004-C05"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): the Income summary's usual month $3,799.17 and no standout July — every paid month lands the take-home typed."
+  },
+  {
+   "rule": "DEC-0447",
+   "cards": [
+    "MK-CF-F-079"
+   ],
+   "authority": "his",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Explicit one-time-year handling is present for dated otherincome,but missingyear still recurs and legacy onboarding fixes signingbonus toJanuary.",
+   "classification": "APP WRONG",
+   "note": "One-time money with no year lands every year (MK-CF-F-083-C05), and the signing bonus has neither month nor year (MK-CF-F-079-C04, C05).",
+   "evidence_case_refs": [
+    "MK-CF-F-071-C05",
+    "MK-CF-F-079-C03",
+    "MK-CF-F-079-C04",
+    "MK-CF-F-079-C05"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): money that lands once lands in its own year and month (landsOnce): a one-time payment with no year waits — \"year not entered\" — in no year, no month and no tax; a signing bonus is asked its month (signingDate) and lands once."
+  },
+  {
+   "rule": "DEC-0487",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-0491",
+   "cards": [],
+   "authority": "his",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": []
+  },
+  {
+   "rule": "DEC-7935",
+   "cards": [],
+   "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Capitalgain lookup is federalonly in its writtencontract;finitegainstacking remains a separate missing capability.",
+   "classification": "RECORDED (CANNOT TELL)",
+   "note": "The reviewer could not judge it from this part (a cross-part or screen matter); this phase classifies NOT HELD lines only. Recorded, not dropped.",
+   "evidence_case_refs": [
+    "MK-CF-F-104-C03",
+    "MK-CF-F-104-C04"
+   ]
+  },
+  {
+   "rule": "DEC-7938",
+   "cards": [
+    "MK-CF-F-233",
+    "MK-CF-F-234"
+   ],
+   "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Part-yeartake-home rate multiplies twelve months,so paidmonths do not preserve the enteredtake-home.",
+   "classification": "APP WRONG",
+   "note": "A typed take-home of $3,799.17 reads $7,598.34 in a paid month for a part-year earner (MK-CF-F-233-C03, MK-CF-F-234-C04).",
+   "evidence_case_refs": [
+    "MK-CF-F-233-C03",
+    "MK-CF-F-233-C04",
+    "MK-CF-F-233-C05",
+    "MK-CF-F-234-C04"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): a take-home typed $3,799.17 lands $3,799.17 in each paid month (it read $7,598.34)."
+  }
+ ],
+ "still_open": [
+  {
+   "n": 1,
+   "text": "MK-CF-F-059: The arithmetic converts a known pay rhythm correctly. Missing hours or pay rhythm silently become 40 hours or monthly pay without an assumption flag.",
+   "same_as": "formula MK-CF-F-059",
+   "classification": "APP WRONG",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26) — as formula MK-CF-F-059 above. Confirmed 2026-10-26 (CLEANUP-TESTS) by its own test run: 2 of 2 tests pass (each on the answer its file holds right) (MK-CF-F-059-C05), the app's old answer kept as test.failing in 1 of them — outside_cashflow_openai_part01.test.ts."
+  },
+  {
+   "n": 2,
+   "text": "MK-CF-F-130: The arithmetic converts a known pay rhythm correctly. Missing hours or pay rhythm silently become 40 hours or monthly pay without an assumption flag.",
+   "same_as": "formula MK-CF-F-130",
+   "classification": "APP WRONG",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26) — as formula MK-CF-F-130 above. Confirmed 2026-10-26 (CLEANUP-TESTS) by its own test run: 3 of 3 tests pass (each on the answer its file holds right) (MK-CF-F-130-C05), the app's old answer kept as test.failing in 1 of them — outside_cashflow_openai_part01.test.ts."
+  },
+  {
+   "n": 3,
+   "text": "MK-CF-F-083: Annual identity is valid for already classified sources, but yearly totals inherit undated repeating one-offs and a level equity run-rate instead of actual dated vesting.",
+   "same_as": "formula MK-CF-F-083",
+   "classification": "APP WRONG",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B) — as formula MK-CF-F-083 above. Confirmed 2026-10-26 (CLEANUP-TESTS) by its own test run: 1 of 1 tests pass (each on the answer its file holds right) (MK-CF-F-083-C05) — outside_cashflow_openai_part01.test.ts."
+  },
+  {
+   "n": 4,
+   "text": "MK-CF-F-233: Subtracts twelve months of entered take-home even when the earner is paid in fewer months. The resulting share cannot reproduce take-home in a paid month.",
+   "same_as": "formula MK-CF-F-233",
+   "classification": "APP WRONG",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26) — as formula MK-CF-F-233 above. Confirmed 2026-10-26 (CLEANUP-TESTS) by its own test run: 6 of 6 tests pass (each on the answer its file holds right) (MK-CF-F-233-C03, MK-CF-F-233-C04, MK-CF-F-233-C05), the app's old answer kept as test.failing in 3 of them — outside_cashflow_openai_part01.test.ts."
+  },
+  {
+   "n": 5,
+   "text": "MK-CF-F-234: The combining identity is right, but it inherits the part-year and explicit-zero errors of earnerWageShares.",
+   "same_as": "formula MK-CF-F-234",
+   "classification": "APP WRONG",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26) — as formula MK-CF-F-234 above. Confirmed 2026-10-26 (CLEANUP-TESTS) by its own test run: 2 of 2 tests pass (each on the answer its file holds right) (MK-CF-F-234-C04), the app's old answer kept as test.failing in 1 of them — outside_cashflow_openai_part01.test.ts."
+  },
+  {
+   "n": 6,
+   "text": "MK-CF-F-079: A yearly wage divided by 12 erases unpaid months; a signing bonus is pinned to January and may recur without a year. Stored-source timing is not shown to preserve the profile’s dated evidence.",
+   "same_as": "formula MK-CF-F-079",
+   "classification": "APP WRONG",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B) — as formula MK-CF-F-079 above. Confirmed 2026-10-26 (CLEANUP-TESTS) by its own test run: 3 of 3 tests pass (each on the answer its file holds right) (MK-CF-F-079-C03, MK-CF-F-079-C04, MK-CF-F-079-C05) — outside_cashflow_openai_part01.test.ts."
+  },
+  {
+   "n": 7,
+   "text": "DEC-0003: NOT HELD — Year-month preservation is present in canonical wage tables,but annualized/converted paths and yearless vest/one-time defaults lose the same dated meaning.",
+   "same_as": "rule DEC-0003",
+   "classification": "APP WRONG",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B) — as rule DEC-0003 above. Confirmed 2026-10-26 (CLEANUP-TESTS) by its own test run: 17 of 17 tests pass (each on the answer its file holds right) (MK-CF-F-063-C05, MK-CF-F-071-C05, MK-CF-F-079-C03, MK-CF-F-079-C04, MK-CF-F-079-C05, MK-CF-F-143-C03, MK-CF-F-143-C04, MK-CF-F-143-C05), the app's old answer kept as test.failing in 7 of them — outside_cashflow_openai_part01.test.ts, outside_cashflow_openai_part03.test.ts, outside_cashflow_openai_part04.test.ts, outside_cashflow_openai_part15.test.ts."
+  },
+  {
+   "n": 8,
+   "text": "DEC-0151: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "same_as": "rule DEC-0151",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 9,
+   "text": "DEC-0176: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Two-earner readers exist,but annualOfSource substitutes household salary on each earnerrow and partial-year contributions diverge.",
+   "same_as": "rule DEC-0176",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 10,
+   "text": "DEC-0198: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Current monthgrid removes reinvested cash,but legacy cashflowYear includes it and taxOrganizer’s cash-payout basis can omit taxable reinvestments.",
+   "same_as": "rule DEC-0198",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 11,
+   "text": "DEC-0200: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. One-time migration is stated,but its calculated branch omits401(k)from the inverse equation and may not preserve entered landing after deductions.",
+   "same_as": "rule DEC-0200",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 12,
+   "text": "DEC-0291: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "same_as": "rule DEC-0291",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 13,
+   "text": "DEC-0296: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Unknown vestdate,age,amounts and budgets are filled with currentyear,68 or0in severalfinancialpaths.",
+   "same_as": "rule DEC-0296",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 14,
+   "text": "DEC-0303: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The outside-stream reader retains inflation flags,but the delegated future projection and next-year update policy are not fully supplied.",
+   "same_as": "rule DEC-0303",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 15,
+   "text": "DEC-0307: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The outside-guaranteed reader excludes withdrawals andRMDs. Taxable treatment remains a separate defect.",
+   "same_as": "rule DEC-0307",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 16,
+   "text": "DEC-0327: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. New tax primitive uses taxable income for state tax,but legacy buildIncomeState drops state from monthly grid and effectiveTaxRate uses a separate rate.",
+   "same_as": "rule DEC-0327",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 17,
+   "text": "DEC-0364: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "same_as": "rule DEC-0364",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 18,
+   "text": "DEC-0376: NOT HELD — Complete approved rows reconcile,but partial-year wage shares and tax/subtotal scope yield counterexamples outside that drawing.",
+   "same_as": "rule DEC-0376",
+   "classification": "APP WRONG",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26) — as rule DEC-0376 above. Confirmed 2026-10-26 (CLEANUP-TESTS) by its own test run: 15 of 15 tests pass (each on the answer its file holds right) (MK-CF-F-233-C03, MK-CF-F-233-C04, MK-CF-F-233-C05, MK-CF-O-001-C04, MK-CF-O-001-C05, MK-CF-O-004-C04, MK-CF-O-004-C05), the app's old answer kept as test.failing in 6 of them — outside_cashflow_openai_part01.test.ts, outside_cashflow_openai_part05.test.ts, outside_cashflow_openai_part15.test.ts."
+  },
+  {
+   "n": 19,
+   "text": "DEC-0447: NOT HELD — Explicit one-time-year handling is present for dated otherincome,but missingyear still recurs and legacy onboarding fixes signingbonus toJanuary.",
+   "same_as": "rule DEC-0447",
+   "classification": "APP WRONG",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B) — as rule DEC-0447 above. Confirmed 2026-10-26 (CLEANUP-TESTS) by its own test run: 9 of 9 tests pass (each on the answer its file holds right) (MK-CF-F-071-C05, MK-CF-F-079-C03, MK-CF-F-079-C04, MK-CF-F-079-C05), the app's old answer kept as test.failing in 5 of them — outside_cashflow_openai_part01.test.ts, outside_cashflow_openai_part04.test.ts."
+  },
+  {
+   "n": 20,
+   "text": "DEC-0487: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "same_as": "rule DEC-0487",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 21,
+   "text": "DEC-0491: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "same_as": "rule DEC-0491",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 22,
+   "text": "DEC-7935: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Capitalgain lookup is federalonly in its writtencontract;finitegainstacking remains a separate missing capability.",
+   "same_as": "rule DEC-7935",
+   "classification": "RECORDED (CANNOT TELL)"
+  },
+  {
+   "n": 23,
+   "text": "DEC-7938: NOT HELD — Part-yeartake-home rate multiplies twelve months,so paidmonths do not preserve the enteredtake-home.",
+   "same_as": "rule DEC-7938",
+   "classification": "APP WRONG",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26) — as rule DEC-7938 above. Confirmed 2026-10-26 (CLEANUP-TESTS) by its own test run: 9 of 9 tests pass (each on the answer its file holds right) (MK-CF-F-233-C03, MK-CF-F-233-C04, MK-CF-F-233-C05, MK-CF-F-234-C04), the app's old answer kept as test.failing in 4 of them — outside_cashflow_openai_part01.test.ts."
+  }
+ ],
+ "app_wrong_fixes": [
+  {
+   "function": "MK-CF-F-233 earnerWageShares",
+   "owner_file": "src/domain/income/onboarding.ts",
+   "example": "July starter: $60,000.30 over six paid months, $501.13 into a 401(k), $3,799.17 take-home typed",
+   "app_gives": "share 19.01%; lands $7,598.34 a paid month (This month, Home, Income summary's standout July)",
+   "right": "share 57.00%; lands $3,799.17 a paid month",
+   "ruling_or_source": "DEC-7938, DEC-0176, DEC-0376, tenets 1, 4, 5",
+   "smallest_change": "take the typed take-home off for the earner's paid months, not 12; treat a typed \"0\" as typed (blank still means calculate)",
+   "items": [
+    "MK-CF-F-233-C03",
+    "MK-CF-F-233-C04",
+    "MK-CF-F-233-C05",
+    "MK-CF-F-234-C04",
+    "MK-CF-F-092-C04",
+    "formula MK-CF-F-233",
+    "formula MK-CF-F-234",
+    "formula MK-CF-F-092",
+    "rule DEC-7938",
+    "rule DEC-0376"
+   ],
+   "same_class_elsewhere": "MK-CF-F-180 enteredLandsAnnual and MK-CF-F-181 rateInForce (src/domain/income/tax-rate.ts: lands × 12, 401(k) × 12 — \"your figures, 14%\"), MK-CF-F-145 deductionsFromPay ($8,396.70; right $34,198.50) and MK-CF-F-146 payFiguresAgree (refuses the July starter over January) in MoneyKeel/functions/cashflow/base-pay.ts — part 15's cards, measured in part 1's file"
+  },
+  {
+   "function": "MK-CF-F-059 annualizedEnteredSalary · MK-CF-F-130 enteredMonthlyRaw",
+   "owner_file": "src/domain/income/onboarding.ts (and src/screens/BasePayScreen.tsx, which has no hours field)",
+   "example": "$25 an hour, hours a week never entered",
+   "app_gives": "$52,000 a year, $4,333.33 a month (40 hours assumed, nothing said)",
+   "right": "no figure, with the reason \"hours a week not entered\"",
+   "ruling_or_source": "DEC-0296, tenet 3",
+   "smallest_change": "no default hours; Your base pay asks hours a week when Hourly is chosen (a screen change: mock first)",
+   "items": [
+    "MK-CF-F-059-C05",
+    "MK-CF-F-130-C05",
+    "formula MK-CF-F-059",
+    "formula MK-CF-F-130"
+   ]
+  },
+  {
+   "function": "MK-CF-F-071 extraIncome",
+   "owner_file": "src/domain/income/onboarding.ts (and src/onboarding/modules.tsx income_other, income_benefits)",
+   "example": "One-time $2,000 with no year saved; $1,000 a month of unemployment benefits",
+   "app_gives": "$2,000 counted every year; unemployment $0 taxed (\"We won't tax this income.\")",
+   "right": "the one-time amount pending until its year is known (the step saves the January it shows, with its year); unemployment $12,000 a year taxed",
+   "ruling_or_source": "DEC-0447, DEC-7940, DEC-0296; Internal Revenue Code §85(a), IRS Publication 525",
+   "smallest_change": "count a one-time amount only in its own saved year; mark unemployment benefits taxed",
+   "items": [
+    "MK-CF-F-071-C05",
+    "MK-CF-F-083-C05 (totalGrossAnnual reads extraIncome)",
+    "formula MK-CF-F-071",
+    "formula MK-CF-F-083 (one-off half)",
+    "rules DEC-0003, DEC-0447, DEC-7940 (part 4)",
+    "rule DEC-0447 (part 1)"
+   ]
+  },
+  {
+   "function": "MK-CF-F-079 incomeFromOnboarding",
+   "owner_file": "src/domain/income/onboarding.ts (the signing bonus also in MK-CF-F-083/-084/-088 there, and src/onboarding/modules.tsx, which asks no month)",
+   "example": "Seasonal pair: July $5,111.17, August $6,111.43, spouse January $3,111.19; a $7,311.17 signing bonus paid October 17, 2026",
+   "app_gives": "$1,194.48 stored in every month; the signing bonus in January, and again every year",
+   "right": "each wage month kept as entered; the bonus once, in October 2026",
+   "ruling_or_source": "DEC-0003, DEC-0447, DEC-7940",
+   "smallest_change": "store the dated months (or a landing per month) for the salary; ask the signing bonus's month and year and count it in that year only",
+   "items": [
+    "MK-CF-F-079-C03",
+    "MK-CF-F-079-C04",
+    "MK-CF-F-079-C05",
+    "formula MK-CF-F-079",
+    "formula MK-CF-F-083 (signing bonus)",
+    "rules DEC-0003, DEC-0447 (part 1)"
+   ]
+  }
+ ],
+ "needs_a_ruling": [],
+ "blocked_or_outside_domain": [
+  {
+   "case_id": "MK-CF-F-177-C05",
+   "classification": "OUTSIDE DOMAIN",
+   "note": "No caller passes a missing wage: its three call sites (read from every source file) each hand it a row of earnerWages, which always returns the profile itself. For a literal null it returns twelve $0.",
+   "rests_on": [
+    "caller: MK-CF-F-173 earnerWages"
+   ]
+  }
+ ],
+ "counts": {
+  "cases": {
+   "AGREES": 64,
+   "APP WRONG": 10,
+   "REVIEWER WRONG": 0,
+   "NEEDS A RULING": 0,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 1,
+   "total": 75
+  },
+  "formula_checks": {
+   "APP WRONG": 6,
+   "AGREES": 9,
+   "total": 15
+  },
+  "rules_held": {
+   "APP WRONG": 4,
+   "RECORDED (CANNOT TELL)": 13,
+   "total": 17
+  }
+ },
+ "coverage": "Part 1: 75 of 75 cases — 64 agrees, 10 app wrong, 0 reviewer wrong, 0 needs a ruling, 0 blocked, 1 outside domain; 6 of 6 formula verdicts not RIGHT classified (15 cards in all); 4 of 4 rule verdicts NOT HELD classified (17 rules in all)",
+ "priority_findings_on_other_parts_cards": {
+  "measured_in": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01.test.ts › priority findings on other parts' cards",
+  "findings": [
+   {
+    "ids": "MK-CF-F-233, F-234",
+    "real": true,
+    "plain": "Real. The July starter's paid month lands $7,598.34, not the $3,799.17 typed."
+   },
+   {
+    "ids": "MK-CF-F-180",
+    "real": true,
+    "plain": "Real. Entered take-home a year reads $45,590.04 (× 12); the six paid months give $22,795.02. MK-CF-F-181 prints \"your figures, 14%\" where the paid months give 57%."
+   },
+   {
+    "ids": "MK-CF-F-145",
+    "real": true,
+    "plain": "Real. Everything else taken out reads $8,396.70 a year; right $34,198.50. And MK-CF-F-146 tells the July starter \"These three cannot all be right in 2026-01\"."
+   },
+   {
+    "ids": "MK-CF-F-188",
+    "real": true,
+    "plain": "Real. $6,013.56 of 401(k) for the July starter where the paid months put in $3,006.78; it is the Tax organizer's 401(k) step."
+   },
+   {
+    "ids": "MK-CF-F-230",
+    "real": false,
+    "plain": "Not real on the measured household. It already takes the paid months' 401(k): $60,000.30 − $3,006.78 = $56,993.52. The disagreement the reviewer saw is MK-CF-F-188."
+   },
+   {
+    "ids": "MK-CF-F-210",
+    "real": true,
+    "plain": "Real but reached by nothing. Each salary row returns the household's $138,000 instead of $84,000 and $54,000; only its own test calls it."
+   },
+   {
+    "ids": "MK-CF-F-063, F-071",
+    "real": true,
+    "plain": "Real. An undated vest is given this year; a one-time amount with no year counts every year."
+   },
+   {
+    "ids": "MK-CF-F-018, F-066",
+    "real": true,
+    "plain": "Real. 2026's months carry 2027's vests at the run-rate: March $4,158.72, June $660.60, December $2,105.59, where 2026 vests $8,317.43 in March only.",
+    "fixed_2026_10_25": "MK-CF-F-018 FIXED 2026-10-25 (FIX-BILLS): equityByMonth(op, year) — 2026 lands $8,317.43 in March only, 2027's vests in 2027; the month table reads it year by year. MK-CF-F-066 rsuAnnual (the yearly average the Income tab prints) is FIX-INCOME's."
+   }
+  ]
+ }
+}

@@ -64,7 +64,7 @@ const MONEY_KINDS = new Set(['DEPOSIT', 'WITHDRAWAL', 'TRANSFER', 'DIVIDEND', 'I
  *  stored as a $50 dividend, and a real $0 was stored as no amount. Each fix is used once, on the first stored broker
  *  record with no direction of the same account, day, kind and ticker whose stored size is the broker's (or which holds
  *  no amount where the broker sends $0). A record that already states a direction, or that the person typed, is left as it is. */
-/* ─ MK-XS-F-187 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-XS-F-187 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * fixStoredMoney
  *
  * Answers ..... GIVE A MONEY RECORD STORED BEFORE 2026-10-21 THE DIRECTION THE BROKER REPORTS FOR IT (2026-10-21).
@@ -82,20 +82,12 @@ const MONEY_KINDS = new Set(['DEPOSIT', 'WITHDRAWAL', 'TRANSFER', 'DIVIDEND', 'I
  *     ...(f.direction ? { direction: f.direction } : {}) = ...(f.direction ? { direction: f.direction } : {})
  *     ...(stored == null && f.size === 0 ? { amount: 0 } : {}) = ...(stored == null && f.size === 0 ? { amount: 0 } : {})
  *
- * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-175 uid
- *               MK-XS-F-192 typedValueDatedBack
+ * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-192 typedValueDatedBack
+ *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
- *               … and 36 more — the full list is on functions_from_code
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-102 ingestSync · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-008 transaction amount
@@ -126,7 +118,7 @@ export function fixStoredMoney<T extends { type?: any; account_id?: any; date?: 
 /** GIVE A BUY OR A SALE STORED BEFORE 2026-10-21 THE FEE THE BROKER REPORTS FOR IT (2026-10-21). Until then the sync dropped
  *  a trade's fee. Each fix is used once, on the first stored broker trade of the same account, day, kind, ticker and shares
  *  that holds no fee; a trade that already holds one, or that the person typed, is left as it is. */
-/* ─ MK-XS-F-188 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-XS-F-188 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * fixStoredFees
  *
  * Answers ..... GIVE A BUY OR A SALE STORED BEFORE 2026-10-21 THE FEE THE BROKER REPORTS FOR IT (2026-10-21).
@@ -141,20 +133,12 @@ export function fixStoredMoney<T extends { type?: any; account_id?: any; date?: 
  *     fee = fixes[i].fee
  *     fee in price = fixes[i].fee in price
  *
- * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-175 uid
- *               MK-XS-F-192 typedValueDatedBack
+ * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-192 typedValueDatedBack
+ *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
- *               … and 36 more — the full list is on functions_from_code
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-102 ingestSync · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)

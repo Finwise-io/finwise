@@ -1,6 +1,6 @@
 // Real-world scenarios per persona — each encodes a question a real user would ask and checks the
 // app's domain gives a sensible answer. Doubles as documentation of what works (and a couple of gaps).
-import { cashflowYear, upcomingBills } from './cashflow';
+import { upcomingBills } from './cashflow';   // MK-CF-F-020 cashflowYear was RETIRED 2026-10-25 — the month table answers
 import { buildDatedGrid } from './grid';   // what is there by a bill's day is read from the month table (2026-10-24)
 import { incomeMonthlyGrid, totalGrossAnnual, tipsAnnual, salaryAnnual } from './income';
 import { savingsByMonth } from './budget';
@@ -35,7 +35,7 @@ describe('Student scenarios', () => {
 
   test('2. Medical emergency: a surprise $2,500 bill in October', () => {
     const withER: OnboardingProfile = { ...student, spendCats: [...(student.spendCats ?? []), { id: 'er', tier: 'critical', bucket: 'nonmonthly', amount: '2500', unit: 'dollar', months: [10] }] };
-    const cf = cashflowYear(withER, 500, JUN);
+    const cf = buildDatedGrid(withER, { startBalance: 500, now: JUN });
     expect(cf.shortMonths.length).toBeGreaterThan(0);   // the app shows the emergency tips them short
   });
 
@@ -66,8 +66,8 @@ describe('Variable-income scenarios', () => {
   const steady: OnboardingProfile = { ...server, salaryByMonth: new Array(12).fill('2600') };
 
   test('1. "Will I make it through a slow stretch?" (uneven months are tighter)', () => {
-    const cf = cashflowYear(server, 0, JUN);
-    expect(cf.lowestBalance).toBeLessThan(cashflowYear(steady, 0, JUN).lowestBalance);   // the lean months bite
+    const cf = buildDatedGrid(server, { startBalance: 0, now: JUN });
+    expect(cf.lowestBalance).toBeLessThan(buildDatedGrid(steady, { startBalance: 0, now: JUN }).lowestBalance);   // the lean months bite
     expect(cf.shortMonths.length).toBeGreaterThan(0);                                    // and tip you short
   });
 

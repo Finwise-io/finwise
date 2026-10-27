@@ -5,7 +5,8 @@
  *  are handed out here, with their inputs and an example that runs.
  */
 import { declareFigures } from '../_figure-spec';
-import { payoffPlan, minimumDebtService, totalDebtMonthly, requiredPayment, type Debt, type PayoffMethod, type PayoffResult } from '../../../src/domain/debt';
+import { payoffPlan, minimumDebtService, totalDebtMonthly, requiredPayment, rateNotEntered, type Debt, type PayoffMethod, type PayoffResult } from '../../../src/domain/debt';
+import { mortgagesByProperty, type MortgageCheck } from '../networth-and-performance/net-worth';   // which property each mortgage is on (DEC-1925)
 
 export interface TheDebts {
   /** Every debt still owed, together. */
@@ -14,17 +15,32 @@ export interface TheDebts {
   minimumMonthly: number;
   /** What actually leaves each month, across every debt. */
   paymentsMonthly: number;
-  /** Interest accruing in a month at today's balances and rates. */
+  /** Interest accruing in a month at today's balances and rates. NOT A NUMBER when a debt's rate was never entered (2026-10-25,
+   *  FIX-MONTH; tenet 3): `interestRefusal` names it. */
   interestMonthly: number;
-  /** What the plan puts to debts each month: every minimum plus anything extra. */
+  /** Why there is no interest figure: the debts whose rate was never entered. Null when there is a figure. */
+  interestRefusal: string | null;
+  /** EACH DEBT'S INTEREST IN A MONTH, by its id (2026-10-26, PF-TOOLS; MK-CF-M-089): balance × yearly rate ÷ 12, nothing for a
+   *  debt whose rate was never entered. The Debts tab's row reads it here — it worked it out on the screen. */
+  interestByDebt: Record<string, number | null>;
+  /** What the plan puts to debts each month: what is paid on each debt — the payment set, never less than its minimum — plus
+   *  anything extra (2026-10-25, FIX-MONTH; DEC-0641 "what actually leaves"; it was the minimums plus the extra). */
   planMonthly: number;
-  /** The plan: months to debt-free, interest paid over it, and whether the payments can ever clear it. */
-  plan: PayoffResult;
+  /** The plan: months to debt-free, interest paid over it, and whether the payments can ever clear it. NULL when a debt's payment
+   *  or rate was never entered (2026-10-25, FIX-MONTH; tenet 3, DEC-0296; CFR-3, MK-CF-O-018-C03) — no date and no "never": `refusal`
+   *  says which is missing. */
+  plan: PayoffResult | null;
+  /** Why there is no payoff plan. Null when there is one. */
+  refusal: string | null;
   /** PROGRESS (cash-flow_v01, frame 6: "$4,100 paid down since January — 24% of where you started").
    *  What the debts stood at on the first month-end we hold this year, less what they stand at now.
    *  Null — and the line is not drawn — where we hold no earlier figure, or the debts have not fallen:
    *  progress is read from two recorded totals, never estimated from the payments. */
   progress: { paidDown: number; share: number } | null;
+  /** WHICH PROPERTY EACH MORTGAGE IS ON (2026-10-25, Cash flow drawing match CF-23; his rule DEC-1925, "no mortgage without
+   *  property"): Net worth's one reading (MK-NW-F-106), so the Debts tab names the same property Net worth does, and says the
+   *  same sentence about a mortgage on none. Null when no accounts were handed in. */
+  mortgages: MortgageCheck | null;
 }
 
 /** What do I owe, what does it ask of me each month, when would I be clear of it, and how much have I paid down this year?
@@ -40,23 +56,25 @@ export interface TheDebts {
  *     total now = Σ over active of (remaining balance (or 0 when missing or zero))
  *     began = input.start of year debt (or 0 when missing)
  *     paid down = began − total now
+ *     plan = payoff plan(input.debts ?? [], input.extra monthly ?? 0, input.method ?? 'avalanche', input.now ?? new date())
+ *     rate missing = active where rate not entered(each)for each of : label
+ *     payments monthly = Σ over active of (required payment(each) read as a number (or 0 when missing or zero))
  *
  * Called by ... MK-CF-F-211 DEBTS
  *
  * Reaches ..... 1 function. Change the arithmetic above and these change with it:
  *               MK-CF-F-211 DEBTS
  *
- * Serves ...... MK-CF-M-057 · MK-CF-M-058 · MK-CF-M-059 · MK-CF-M-071
- *               MK-CF-M-072 · MK-CF-M-073 · MK-CF-M-074 · MK-CF-M-075
+ * Serves ...... MK-CF-M-057 · MK-CF-M-058 · MK-CF-M-059 · MK-CF-M-072
+ *               MK-CF-M-073 · MK-CF-M-074 · MK-CF-M-075 · MK-CF-M-089
+ *               MK-CF-M-096
  * Reads ....... MK-XS-I-014 debt balance
  *               MK-XS-I-015 debt interest rate
- *               MK-XS-I-016 debt minimum payment
  *
  * Decides .....
  *     · If start of year debt is missing it uses 0.
  *     · If extra monthly is missing it uses 0.
  *     · If remaining balance is missing it counts as zero, so nothing recorded and a real zero look the same.
- *     · If interest rate apr is missing it counts as zero, so nothing recorded and a real zero look the same.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
  * Formula also on the master file · functions_from_code · MK-CF-O-018
@@ -64,20 +82,78 @@ export interface TheDebts {
  */
 export function theDebts(input: { debts: Debt[]; extraMonthly?: number; method?: PayoffMethod; now?: Date;
   /** what every debt together stood at on the earliest month-end recorded this year, if any */
-  startOfYearDebt?: number | null }): TheDebts {
+  startOfYearDebt?: number | null;
+  /** the accounts Net worth holds — where a mortgage's property is (CF-23) */
+  accounts?: any[] }): TheDebts {
   const active = (input.debts ?? []).filter((d) => (d.remaining_balance || 0) > 0);
   const totalNow = active.reduce((t, d) => t + (d.remaining_balance || 0), 0);
   const began = input.startOfYearDebt ?? 0;
   const paidDown = began - totalNow;
+  const plan = payoffPlan(input.debts ?? [], input.extraMonthly ?? 0, input.method ?? 'avalanche', input.now ?? new Date());
+  const rateMissing = active.filter((d) => rateNotEntered(d)).map((d) => d.label);
+  // what is paid, each debt's payment as requiredPayment gives it (the payment set, or its minimum); a payment never entered adds
+  // nothing, and the screen names it as left out (2026-10-25, MK-CF-M-073 — it read NaN for a mortgage whose payment was blank)
+  const paymentsMonthly = active.reduce((t, d) => t + (Number(requiredPayment(d)) || 0), 0);
   return {
     progress: began > 0 && paidDown > 0 ? { paidDown, share: paidDown / began } : null,
     totalBalance: active.reduce((t, d) => t + (d.remaining_balance || 0), 0),
     minimumMonthly: minimumDebtService(active),
-    paymentsMonthly: totalDebtMonthly(active),
-    interestMonthly: active.reduce((t, d) => t + (d.remaining_balance || 0) * (d.interest_rate_apr || 0) / 12, 0),
-    planMonthly: minimumDebtService(active) + (input.extraMonthly ?? 0),
-    plan: payoffPlan(input.debts ?? [], input.extraMonthly ?? 0, input.method ?? 'avalanche', input.now ?? new Date()),
+    paymentsMonthly,
+    // A RATE NEVER ENTERED IS NOT 0% (2026-10-25, FIX-MONTH; tenet 3): it was read as 0, so a mortgage whose rate the form never asks
+    // cost "~$0/month interest". There is now no interest figure, and the sentence names the debt.
+    interestMonthly: rateMissing.length ? NaN : active.reduce((t, d) => t + (d.remaining_balance || 0) * Number(d.interest_rate_apr) / 12, 0),
+    interestRefusal: rateMissing.length
+      ? `${rateMissing.join(' and ')}${rateMissing.length > 1 ? ' rates are' : '’s rate is'} not entered, so there is no interest figure — we won’t guess one.` : null,
+    interestByDebt: Object.fromEntries(active.map((d) => [String(d.debt_id),
+      rateNotEntered(d) ? null : (d.remaining_balance || 0) * Number(d.interest_rate_apr) / 12])),
+    // THE PLAN PUTS TO DEBTS WHAT IS PAID ON THEM, plus the extra (2026-10-25, FIX-MONTH; DEC-0641): payoffPlan pays each debt its
+    // payment set, never less than its minimum — the minimums alone read $450 where $550 is paid
+    planMonthly: plan.notEntered.length ? NaN : paymentsMonthly + Math.max(0, input.extraMonthly ?? 0),
+    plan: plan.notEntered.length ? null : plan,
+    refusal: plan.notEntered.length ? payoffRefusal(plan.notEntered) : null,
+    mortgages: input.accounts ? mortgagesByProperty(input.accounts as any, input.debts ?? []) : null,
   };
+}
+
+/** What it is for: THE ONE SENTENCE FOR A PAYOFF PLAN THAT CANNOT BE WORKED OUT (2026-10-25, FIX-MONTH; tenet 3, DEC-0296), in This
+ *  month's words ("… not entered, so there is no planned surplus — we won’t guess one."): each debt whose payment or rate was never
+ *  entered, named. "Car loan’s payment is not entered, so there is no payoff date — we won’t guess one." The Debts tab and the Goals
+ *  tab print it, so one plan has one refusal. */
+/* ─ MK-CF-F-252 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * payoffRefusal
+ *
+ * Answers ..... What it is for: THE ONE SENTENCE FOR A PAYOFF PLAN THAT CANNOT BE WORKED OUT (2026-10-25, FIX-MONTH; tenet 3, DEC-0296), in This month's words ("… not entered, so there is no planned surplus — we won’t guess one."): each debt whose payment or rate was never entered, named.
+ *
+ * Formula .....
+ *     both = not entered where what.length > 1for each of : label
+ *     pays = not entered where what.length = 1 and what[0] = 'payment'for each of : label
+ *     rates = not entered where what.length = 1 and what[0] = 'rate'for each of : label
+ *     clause = (names: string[], word: string) => `${names.join(' and ')}${names.length > 1 ? ` ${word}s` : `’s ${word}`}`
+ *     parts = [...both.map((l) => `${l}’s payment and rate`), ...(pays.length ? [clause(pays, 'payment')] : []), ...(rates.length ? [clause(rates, 'rate')] : [])]
+ *     many = parts.length > 1 (or both.length > 0 (or pays.length > 1 (or rates.length > 1 when missing or zero) when missing or zero) when missing or zero)
+ *     the answer = `${parts.join(' and ')} ${many ? 'are' : 'is'} not entered, so there is no payoff date — we won’t guess one.`
+ *
+ * Called by ... MK-CF-O-018 theDebts
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-211 DEBTS · MK-CF-O-018 theDebts
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-014 debt balance
+ *               MK-XS-I-015 debt interest rate
+ *               MK-XS-I-016 debt minimum payment
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-252
+ * Changed ..... not in git yet (—)
+ */
+export function payoffRefusal(notEntered: { label: string; what: ('payment' | 'rate')[] }[]): string {
+  const both = notEntered.filter((x) => x.what.length > 1).map((x) => x.label);
+  const pays = notEntered.filter((x) => x.what.length === 1 && x.what[0] === 'payment').map((x) => x.label);
+  const rates = notEntered.filter((x) => x.what.length === 1 && x.what[0] === 'rate').map((x) => x.label);
+  const clause = (names: string[], word: string) => `${names.join(' and ')}${names.length > 1 ? ` ${word}s` : `’s ${word}`}`;
+  const parts = [...both.map((l) => `${l}’s payment and rate`), ...(pays.length ? [clause(pays, 'payment')] : []), ...(rates.length ? [clause(rates, 'rate')] : [])];
+  const many = parts.length > 1 || both.length > 0 || pays.length > 1 || rates.length > 1;
+  return `${parts.join(' and ')} ${many ? 'are' : 'is'} not entered, so there is no payoff date — we won’t guess one.`;
 }
 
 const EXAMPLE = {
@@ -102,6 +178,10 @@ const GIVEN = 'A $9,000 card at 24% with a $200 minimum and a $14,000 car loan a
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-014 debt balance
+ *               MK-XS-I-015 debt interest rate
+ *               MK-XS-I-016 debt minimum payment
+ *               MK-XS-I-027 goals (target, saved, date)
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-211
@@ -115,19 +195,19 @@ export const DEBT_FIGURES = declareFigures({
     answers: 'What your debts cost in interest in a month, at today’s balances and rates.',
     formula: 'Σ balance × yearly rate ÷ 12, over every debt still owed',
     inputs: ['MK-XS-I-014 debt balance', 'MK-XS-I-015 debt interest rate'],
-    refusal: 'No debts — $0.',
+    refusal: 'No debts — $0. A debt whose rate was never entered: no figure, and the line names it (“… rate is not entered, so there is no interest figure — we won’t guess one.”).',
     ruled: '2026-10-02',
     worked: { given: GIVEN, answer: '$261/month', run: () => DEBTS().interestMonthly },
   },
   'MK-CF-M-058': {
     label: 'debt-free', unit: 'count', screens: ['/cashflow'],
     period: 'from today until the last debt is paid off',
-    answers: 'How many months until the last debt is cleared, paying the minimums plus anything extra, highest rate first.',
-    formula: 'the payoff plan: each month pay every minimum, put the extra on the costliest debt, roll a cleared debt’s payment onto the next',
+    answers: 'How many months until the last debt is cleared, paying what is paid on each debt — the payment you set, never less than its minimum — plus anything extra, highest rate first.',
+    formula: 'the payoff plan: each month pay each debt its payment (the payment you set, never less than its minimum), put the extra on the costliest debt, roll a cleared debt’s payment onto the next',
     inputs: ['MK-XS-I-014 debt balance', 'MK-XS-I-015 debt interest rate', 'MK-XS-I-016 debt minimum payment'],
-    refusal: 'The payments cannot cover the interest — the screen says never, not a number.',
+    refusal: 'The payments cannot cover the interest — the screen says never, not a number. A debt whose payment or rate was never entered: no date and no “never” — the line names it (“… not entered, so there is no payoff date — we won’t guess one.”).',
     ruled: '2026-10-02',
-    worked: { given: GIVEN, answer: '84', run: () => (DEBTS().plan.neverPaysOff ? null : DEBTS().plan.months) },
+    worked: { given: GIVEN, answer: '84', run: () => (DEBTS().plan!.neverPaysOff ? null : DEBTS().plan!.months) },
   },
   'MK-CF-M-059': {
     label: 'total interest', unit: 'money', screens: ['/cashflow'],
@@ -135,23 +215,44 @@ export const DEBT_FIGURES = declareFigures({
     answers: 'All the interest paid over the plan until the last debt is gone.',
     formula: 'the interest paid month by month over the payoff plan, added up',
     inputs: ['MK-XS-I-014 debt balance', 'MK-XS-I-015 debt interest rate', 'MK-XS-I-016 debt minimum payment'],
-    refusal: 'The payments cannot cover the interest — the screen says never, not a number.',
+    refusal: 'The payments cannot cover the interest — the screen says never, not a number. A debt whose payment or rate was never entered: no figure — the line names it.',
     ruled: '2026-10-02',
-    worked: { given: GIVEN, answer: '$14,787', run: () => (DEBTS().plan.neverPaysOff ? null : DEBTS().plan.totalInterest) },
+    worked: { given: GIVEN, answer: '$14,787', run: () => (DEBTS().plan!.neverPaysOff ? null : DEBTS().plan!.totalInterest) },
   },
-  'MK-CF-M-071': {
-    label: '/month min', unit: 'money', per: 'month', screens: ['/cashflow'],
-    answers: 'The least your debts require of you in a month, every minimum added up — the obligation, not what you choose to pay.',
-    formula: 'Σ the minimum monthly payment of every debt still owed',
-    inputs: ['MK-XS-I-016 debt minimum payment'],
-    refusal: 'No debts — $0.',
-    ruled: '2026-10-02',
-    worked: { given: GIVEN, answer: '$450/month', run: () => DEBTS().minimumMonthly },
+  // MK-CF-M-071 "/month min" (every minimum added up) RETIRED 2026-10-26 (PF-TOOLS): no screen prints it since the Debts tab's
+  // "in payments" became the payments set (his DEC-0641, 2026-10-25, CF-MMFIX-A) — that figure is MK-NW-M-012, the one sum of
+  // each debt's required payment, which Net worth and Home print too. The door still hands out minimumMonthly; the number is on
+  // the metric register's retired list and is never reused.
+  // PER-DEBT INTEREST, ITS OWN NUMBER (2026-10-26, PF-TOOLS; CF-MMFIX-A's "figure IDs wanted"): each debt's row printed its month's
+  // interest under MK-CF-M-057, the total of every debt — two figures under one number.
+  'MK-CF-M-089': {
+    label: '~$X/month interest', unit: 'money', per: 'month', screens: ['/cashflow'], grain: 'one debt',
+    answers: 'What one debt costs in interest in a month, at today\u2019s balance and rate — on its own row.',
+    formula: 'the debt\u2019s balance × its yearly rate ÷ 12 — the rule of MK-CF-M-057, for one debt (MK-CF-O-018 theDebts hands it by the debt)',
+    inputs: ['MK-XS-I-014 debt balance', 'MK-XS-I-015 debt interest rate'],
+    refusal: 'A rate never entered: no interest on the row, which reads "rate not entered".',
+    ruled: '2026-10-26',   // the lead's decision, made without asking him (decide, apply, report); its decision row is PF-RECORDS'
+    worked: { given: 'A credit card owing $9,000 at 24% a year, read today: 9,000 × 24% ÷ 12.', answer: '$180/month', run: () => theDebts(EXAMPLE).interestByDebt.c },
+  },
+  // WHAT IS STILL OWED WHEN THE PAYOFF WALK STOPS, ITS OWN NUMBER (2026-10-26, PF-TOOLS; CLEANUP-LEFT's finding): the Debts tab
+  // printed it under MK-NW-M-009 (Net worth's DEBTS) and Goals with none — one figure, two screens, one number now
+  'MK-CF-M-096': {
+    label: '$X still owed then', unit: 'money', screens: ['/cashflow', '/goals'],
+    answers: 'What is still owed after a thousand years of payments that do get ahead of the interest — said instead of a payoff date.',
+    formula: 'the balance of every debt still owed when the payoff plan stops at its 12,000th month (MK-CF-F-034 payoffPlan, past the horizon)',
+    inputs: ['MK-XS-I-014 debt balance', 'MK-XS-I-015 debt interest rate', 'MK-XS-I-041 the payment the person chose to make on a debt'],
+    decisions: ['"NEVER" MUST BE PROVEN (2026-10-25, FIX-BILLS): a plan whose payments get ahead of the interest but do not finish is past the horizon, with what is still owed — never "never at this rate".'],
+    refusal: 'Shown only when the plan is past the horizon; a plan that clears gives its date instead.',
+    ruled: '2026-10-26',   // the lead's decision, made without asking him (decide, apply, report); its decision row is PF-RECORDS'
+    worked: { given: 'A $10,000,000 loan at 0% paid at $1/month: 12,000 months pay $12,000.', answer: '$9,988,000',
+      run: () => theDebts({ debts: [{ debt_id: 'x', label: 'Loan', debt_type: 'PERSONAL', remaining_balance: 10_000_000, interest_rate_apr: 0, minimum_monthly_payment: 1 }] as any[],
+        extraMonthly: 0, method: 'avalanche', now: new Date('2026-10-01T12:00:00') }).plan?.stillOwed ?? null },
   },
   'MK-CF-M-072': {
     label: '/month total', unit: 'money', per: 'month', screens: ['/cashflow'],
-    answers: 'What the payoff plan puts to debts each month: every minimum plus the extra you set.',
-    formula: 'the minimums added up (MK-CF-M-071) + the extra a month you set',
+    answers: 'What the payoff plan puts to debts each month: what you pay on each debt — the payment you set, never less than its minimum — plus the extra you set.',
+    formula: 'Σ what is paid on each debt still owed (MK-CF-M-073: the payment you chose, its minimum where none is chosen or the one chosen is below it) + the extra a month you set',
+    decisions: ['WHAT ACTUALLY LEAVES (his DEC-0641, Q53): a $300 payment set on a $200-minimum card and a $250 car loan put $550/month to the plan, not the $450 of minimums (2026-10-25, FIX-MONTH; CFR-5, MK-CF-M-073).'],
     inputs: ['MK-XS-I-016 debt minimum payment', 'MK-XS-I-041 the payment the person chose to make on a debt'],
     refusal: 'No debts — $0.',
     ruled: '2026-10-02',

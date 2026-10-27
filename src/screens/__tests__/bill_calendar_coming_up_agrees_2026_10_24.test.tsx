@@ -87,6 +87,10 @@ const comingUp = (ls = lines()) => {
   const j = ls.indexOf('Assumes money should be in your account 2 days before the due date.', i); expect(j).toBeGreaterThan(i);
   return ls.slice(i + 1, j);
 };
+/** NO BALANCE GIVEN, NOTHING PROJECTED (2026-10-25, FIX-BILLS; tenet 3): with $0 on hand and the box blank, COMING UP lists the
+ *  bills and says MK-CF-M-063's refusal. These households have no cash account, so the person types their $0 — a typed $0 is
+ *  an answer (tenet 5) and the line is worked from it, as the table is. */
+const typeStart = (v: string) => fireEvent.changeText(screen.getByLabelText('Cash on hand now, editable'), v);
 /** the dollars a COMING UP line says are there (Covered) or short (Short) */
 const thereIn = (line: string) => dollars(line.match(/about (\$[\d,]+) there/)![1]);
 
@@ -141,6 +145,7 @@ describe('E2E-81 · the COMING UP line and the month table move together', () =>
     fireEvent.press(screen.getByLabelText('Menu'));
     fireEvent.press(screen.getByLabelText('Bill calendar'));
     expect(follow()).toBe('/bill-calendar');
+    typeStart('0');
 
     // BEFORE. Each month In $5,000 (the take-home); Out the $800 typed (700 groceries + 100 more) + 2,000 + 250 + 200 + 200 debts =
     // $3,450; December adds the $1,200 insurance, $4,650. End chains from $0: Sep 1,550 · Oct 3,100 · Nov 4,650 ·
@@ -174,6 +179,7 @@ describe('E2E-81 · the COMING UP line and the month table move together', () =>
     fireEvent.press(screen.getByLabelText('Menu'));
     fireEvent.press(screen.getByLabelText('Bill calendar'));
     expect(follow()).toBe('/bill-calendar');
+    typeStart('0');
     // AFTER. Out 3,450 + 100 = $3,550 a month, December $4,750. End: Sep 1,450 · Oct 2,900 · Nov 4,350 · Dec 4,350 + 5,000 − 4,750 = 4,600
     expect([row('Sep'), row('Oct'), row('Nov'), row('Dec')]).toEqual([
       ['Sep', '+$5,000', '−$3,550', '$1,450'], ['Oct', '+$5,000', '−$3,550', '$2,900'],
@@ -190,7 +196,7 @@ describe('E2E-81 · the COMING UP line and the month table move together', () =>
 // ════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 describe('the COMING UP line is the table read at the need-by day (5 households)', () => {
   test('H1 · a bill alone in its month: the line is the End of the month before — November, $4,650', () => {
-    onDay(SEP_28); start(H1); open('/bill-calendar');
+    onDay(SEP_28); start(H1); open('/bill-calendar'); typeStart('0');
     expect(thereIn(comingUp()[1])).toBe(dollars(row('Nov')[3]));    // 4,650 = 4,650 (both read 4,950 until 2026-10-24)
     const { grid, bills } = doorAndTable();
     expect(bills[0].availableByNeed).toBe(balanceByDay(grid, bills[0].needByDate));
@@ -198,7 +204,7 @@ describe('the COMING UP line is the table read at the need-by day (5 households)
   });
 
   test('H2 · two bills in December: the Dec 1 property tax is taken before the Dec 13 need-by; the Nov 29 need-by reads October', () => {
-    onDay(SEP_28); start(H2); open('/bill-calendar');
+    onDay(SEP_28); start(H2); open('/bill-calendar'); typeStart('0');
     // Out the $1,200 typed + 2,650 = $3,850 a month; December 3,850 + 4,800 + 1,200 = 9,850. End from $0: Sep 1,150 · Oct 2,300 ·
     // Nov 3,450 · Dec 3,450 + 5,000 − 9,850 = −1,400, short. (Until 2026-10-24 Out read $3,350, the $1,200 taken to hold
     // 400 + 100 a month of the two December bills: Dec End $600.)
@@ -213,7 +219,7 @@ describe('the COMING UP line is the table read at the need-by day (5 households)
     expect(4_800 - dollars(row('Oct')[3])).toBe(2_500);
     expect(1_200 - (dollars(row('Nov')[3]) - 4_800)).toBe(2_550);
     const { grid, bills } = doorAndTable();
-    expect(bills.map((b) => Math.round(b.availableByNeed))).toEqual([2_300, -1_350]);
+    expect(bills.map((b) => Math.round(b.availableByNeed!))).toEqual([2_300, -1_350]);
     for (const b of bills) expect(b.availableByNeed).toBe(balanceByDay(grid, b.needByDate));
   });
 
@@ -229,7 +235,7 @@ describe('the COMING UP line is the table read at the need-by day (5 households)
   });
 
   test('H4 · the founder\'s household (cash-flow_v01): he adds car insurance for Oct 15 on the calendar; the line is September\'s End', () => {
-    onDay(AUG_20); start(H4); open('/bill-calendar');
+    onDay(AUG_20); start(H4); open('/bill-calendar'); typeStart('0');
     expect(lines()).not.toContain('COMING UP');                      // nothing dated yet: the card is not drawn
     // + Add a dated bill → Car insurance · $1,200 · Oct · day 15 → Save bill
     fireEvent.press(screen.getByLabelText('Add a dated bill'));
@@ -288,7 +294,7 @@ describe('the COMING UP line is the table read at the need-by day (5 households)
     const HOME_INS_DEC = { id: 'home', label: 'Home insurance', amount: 2_000, bucket: 'nonmonthly', months: [12], dueDay: 15, tier: 'critical', custom: true };
     onDay(SEP_28);
     start({ ...H1, onboardingProfile: { ...H1.onboardingProfile, monthlySpending: String(800 + 2_000 / 12), spendCats: [GROCERIES, CAR_INS_DEC, HOME_INS_DEC] } });
-    open('/bill-calendar');
+    open('/bill-calendar'); typeStart('0');
     // Out the $966.67 typed + 2,650 = $3,616.67 a month, $3,617 as printed; December 3,616.67 + 1,200 + 2,000 = 6,816.67. End
     // from $0: Sep 1,383.33 · Oct 2,766.67 · Nov 4,150 · Dec 4,150 + 5,000 − 6,816.67 = 2,333.33. (Until 2026-10-24 Out read
     // $3,350, the typed total taken to hold 100 + 166.67 a month of the two bills: Nov End $4,950.)
@@ -299,6 +305,15 @@ describe('the COMING UP line is the table read at the need-by day (5 households)
       'Car insurance · $1,200 due Dec 15, 2026', '✓ Covered — about $4,150 there by Dec 13, 2026.',
       'Home insurance · $2,000 due Dec 15, 2026', '✓ Covered — about $2,950 there by Dec 13, 2026.']);
     expect(thereIn(comingUp()[3])).toBe(dollars(row('Nov')[3]) - 1_200);
+  });
+
+  test('FIX-BILLS 2026-10-25 · no balance given: the bill is listed and nothing is projected — "No balance to start from — nothing is projected." (MK-CF-M-063); a typed $0 projects', () => {
+    onDay(SEP_28); start(H1); open('/bill-calendar');
+    expect(comingUp()).toEqual(['Car insurance · $1,200 due Dec 15, 2026', 'No balance to start from — nothing is projected.']);
+    expect(lines().join(' ')).not.toMatch(/Short \$1,200|Covered — about/);
+    expect(screen.getByLabelText('Car insurance, $1,200 due Dec 15, 2026. No balance to start from — nothing is projected. Opens the editor.')).toBeOnTheScreen();
+    typeStart('0');
+    expect(comingUp()).toEqual(['Car insurance · $1,200 due Dec 15, 2026', '✓ Covered — about $4,650 there by Dec 13, 2026.']);
   });
 
   test('every item in the table is placed one way or the other — regular money at the month\'s end, the rest on its day (7 of 7)', () => {

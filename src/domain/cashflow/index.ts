@@ -3,15 +3,13 @@ import type { OnboardingProfile } from '../onboardingProfile';
 // (paychecks, scholarships, loan disbursements, benefits…) vs money OUT (bills by their due months),
 // with a running balance so we can flag the months where you'd come up short.
 import { toNum } from '../_shared/num';
-import {
-  grossSalaryMonthly, rsuAnnual, rentalNetAnnual, equityRowValue, salaryGrossByMonth,
-  effectiveRate, totalGrossAnnual, taxableAnnual, retirementIncomeMonthly, currentRetirementIncomeMonthly,
-  benefitAnnual, benefitActiveMonths, otherIncomeMonth,
-} from '../income';
-import { spendBuckets, spendByMonth } from '../budget';
+import { equityRowValue } from '../income';
+import { isoLocalDate, daysInMonth, yearMonthOf } from '../_shared/dates';   // the app's one reader of a day, a month and a typed date
 import type { DatedGrid } from '../grid';   // a type only: the grid reads equityByMonth from here
-
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+// MK-CF-F-020 cashflowYear — the second twelve-month table, read by tests only — was RETIRED on 2026-10-25 (FIX-BILLS, the
+// outside review's part 8): it taxed the wage with the 401(k) left in, counted reinvested dividends as money arriving and had no
+// debt in its outflow ($5,211.17 wage, $611.43 into a 401(k), a $250 loan: $5,128.94 in and $2,000 out, where the month table
+// every screen draws, MK-XS-F-004 buildDatedGrid, gives $4,517.51 in and $2,250 out). Its tests read the month table now.
 
 /** Twelve zeros: an empty year, one slot for each month. */
 /* ─ MK-CF-F-121 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
@@ -22,14 +20,19 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
  * Formula .....
  *     the answer = twelve zeros, one per month
  *
- * Called by ... MK-CF-F-018 equityByMonth · MK-CF-F-020 cashflowYear
+ * Called by ... MK-CF-F-018 equityByMonth
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-CF-F-237 LATER
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-CF-F-020 cashflowYear · MK-CF-F-018 equityByMonth
- *               MK-CF-O-017 futurePaycheck · MK-CF-F-212 receivedInMonth
- *               MK-CF-O-008 whatsComing · MK-CF-F-242 workedLineAmount
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -38,55 +41,104 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
  */
 function zero12(): number[] { return new Array(12).fill(0); }
 
-/** Level annual equity spread across the months it vests (0 for most students). */
+/** What it is for: EVERY VEST WITH A VALUE, AND WHAT ITS DATE NAMES — its year, its month, or what is missing (2026-10-25,
+ *  FIX-BILLS). The one reading of a vest's date for the month table: a year and a month place it; a year with no month counts in
+ *  that year's total and says "vest month not entered"; no date at all is refused — "vest date not entered" (the lead's ruling on
+ *  the outside review's open case, under tenet 3 and his DEC-0296 "an unknown input produces no number and a reason — never a
+ *  default"). An undated vest used to land in December, and a year with no month was a year with no month in December too. */
+/* ─ MK-CF-F-258 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * equityVests
+ *
+ * Answers ..... What it is for: EVERY VEST WITH A VALUE, AND WHAT ITS DATE NAMES — its year, its month, or what is missing (2026-10-25, FIX-BILLS).
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     rows = rsu grants   if array.is array(rsu grants)
+ *     []   otherwise
+ *     type = equity type (or 'rsu' when missing)
+ *     out = []
+ *     amount = equity row value(r, type, opt strike, opt market)
+ *     when = year month of(date)
+ *     the answer = out
+ *
+ * Called by ... MK-CF-F-018 equityByMonth · MK-CF-F-064 equityCashFlow
+ *               MK-CF-F-065 equityVestWeights · MK-CF-F-066 rsuAnnual
+ *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-088 taxableByCalendarMonth
+ *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-F-265 vestsOf
+ *               MK-XS-F-004 buildDatedGrid
+ *
+ * Reaches ..... 392 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 374 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-258
+ * Changed ..... not in git yet (—)
+ */
+export function equityVests(op: Record<string, any> | null): { amount: number; year: number | null; month: number | null; missing: 'vest month not entered' | 'vest date not entered' | null }[] {
+  const a = op ?? {};
+  const rows = Array.isArray(a.rsuGrants) ? a.rsuGrants : [];
+  const type = a.equityType ?? 'rsu';
+  const out: { amount: number; year: number | null; month: number | null; missing: 'vest month not entered' | 'vest date not entered' | null }[] = [];
+  for (const r of rows) {
+    const amount = equityRowValue(r, type, a.optStrike, a.optMarket);
+    if (!(amount > 0)) continue;
+    const when = yearMonthOf(r?.date);
+    out.push({ amount, year: when?.year ?? null, month: when?.month ?? null,
+      missing: !when ? 'vest date not entered' : when.month == null ? 'vest month not entered' : null });
+  }
+  return out;
+}
+
+/** What it is for: WHAT VESTS IN EACH MONTH OF ONE CALENDAR YEAR, January first — each vest's own value in the month and the year
+ *  its date names (2026-10-25, FIX-BILLS; his DEC-0012 "shares that vest land in the month they vest on every screen", DEC-0003
+ *  "every month you enter carries its own month AND year"). It was the year's run-rate (rsuAnnual) spread over the vest months
+ *  with the year ignored: vests in March 2026, June 2027 and December 2027 gave 2026 $4,158.72 in March, $660.60 in June and
+ *  $2,105.59 in December; 2026 holds March's $8,317.43 and nothing else. A vest with no month is in no month (equityVests). */
 /* ─ MK-CF-F-018 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * equityByMonth
  *
- * Answers ..... Level annual equity spread across the months it vests (0 for most students).
+ * Answers ..... What it is for: WHAT VESTS IN EACH MONTH OF ONE CALENDAR YEAR, January first — each vest's own value in the month and the year its date names (2026-10-25, FIX-BILLS; his DEC-0012 "shares that vest land in the month they vest on every screen", DEC-0003 "every month you enter carries its own month AND year").
  *
  * Formula .....
- *     rows = op.rsu grants   if array.is array(op.rsu grants)
- *     []   otherwise
- *     type = op.equity type (or 'rsu' when missing)
- *     weights = zero12(); let total = 0
- *     v = equity row value(r, type, op.opt strike, op.opt market)
- *     m = string(date ?? '').match( ÷ \d{4}-(\d{1,2}) ÷ )
- *     idx = min(11, max(0, +m[1] − 1))   if m
- *     11   otherwise
- *     annual = rsu annual(op), out = zero12()
+ *     out = zero12()
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
- * Called by ... MK-CF-F-020 cashflowYear · MK-XS-F-004 buildDatedGrid
+ * Called by ... MK-CF-F-063 rowVestYear · MK-CF-F-088 taxableByCalendarMonth
+ *               MK-CF-F-092 incomeMonthlyGrid · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-205 COMING · MK-CF-F-237 LATER
- *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
- *               MK-CF-F-020 cashflowYear · MK-CF-O-017 futurePaycheck
- *               MK-CF-F-212 receivedInMonth · MK-CF-O-008 whatsComing
- *               MK-CF-F-242 workedLineAmount
+ * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 368 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
- *     · Uses a built-in total of 0.
  *     · Uses a built-in d a y m s of 86400000.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-018
  * Changed ..... 2026-07-12 (086b68a)
  */
-export function equityByMonth(op: Record<string, any>): number[] {
-  const rows = Array.isArray(op.rsuGrants) ? op.rsuGrants : [];
-  const type = op.equityType ?? 'rsu';
-  const weights = zero12(); let total = 0;
-  for (const r of rows) {
-    const v = equityRowValue(r, type, op.optStrike, op.optMarket);
-    if (v <= 0) continue;
-    const m = String(r?.date ?? '').match(/\d{4}-(\d{1,2})/);
-    const idx = m ? Math.min(11, Math.max(0, +m[1] - 1)) : 11;
-    weights[idx] += v; total += v;
-  }
-  const annual = rsuAnnual(op), out = zero12();
-  if (total > 0) for (let i = 0; i < 12; i++) out[i] = annual * (weights[i] / total);
+export function equityByMonth(op: Record<string, any>, year: number): number[] {
+  const out = zero12();
+  for (const v of equityVests(op)) if (v.year === year && v.month != null) out[v.month - 1] += v.amount;
   return out;
 }
 
@@ -96,15 +148,20 @@ export function equityByMonth(op: Record<string, any>): number[] {
 // money in the bank, how much will you actually have — and how much (and by when) to ask whoever
 // covers your shortfall. Works at DAY resolution for dated items; steady income/spend accrues daily.
 const DAY_MS = 86400000;
+// CALENDAR DAYS, NEVER ELAPSED TIME (2026-10-25, FIX-BILLS; his DEC-0189 "every today is the person's OWN calendar day"): the
+// three date functions below count and add whole calendar days on the person's own calendar. They worked in milliseconds: a bill
+// due today dropped off the list at 13:00 (half a day rounds up to "yesterday"), a bill due 15 March 2027 was asked for a day
+// early because the clocks go forward on 14 March (a day that is 23 hours long), and a bill on 29 February was dated 1 March.
 
-/** The number of whole days from one date to another. */
+/** The number of whole calendar days from one date to another: each date's own calendar day, counted, so 23:59 to 00:01 is one day
+ *  and two times on the same day are none. */
 /* ─ MK-CF-F-160 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * daysBetweenDates
  *
- * Answers ..... The number of whole days from one date to another.
+ * Answers ..... The number of whole calendar days from one date to another: each date's own calendar day, counted, so 23:59 to 00:01 is one day and two times on the same day are none.
  *
  * Formula .....
- *     the answer = round((b − a) in milliseconds ÷ 86,400,000)
+ *     the answer = the calendar day of b − the calendar day of a (each the local date, counted)
  *
  * Called by ... MK-CF-F-019 upcomingBills
  *
@@ -114,22 +171,22 @@ const DAY_MS = 86400000;
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
- * Decides .....
- *     · Rounds the answer to a whole number.
- *
  * Formula also on the master file · functions_from_code · MK-CF-F-160
  * Changed ..... not in git yet (—)
  */
-function daysBetweenDates(a: Date, b: Date): number { return Math.round((b.getTime() - a.getTime()) / DAY_MS); }
+function daysBetweenDates(a: Date, b: Date): number {
+  const dayNumber = (d: Date) => Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / DAY_MS;   // the local day, counted — a whole number
+  return dayNumber(b) - dayNumber(a);
+}
 
-/** The date a given number of days after another date. */
+/** The date a given number of calendar days after another date — the same clock time on that day, however long the days between. */
 /* ─ MK-CF-F-122 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * addDays
  *
- * Answers ..... The date a given number of days after another date.
+ * Answers ..... The date a given number of calendar days after another date — the same clock time on that day, however long the days between.
  *
  * Formula .....
- *     the answer = d + n × 86,400,000 milliseconds
+ *     the answer = the same clock time, n calendar days after d (year, month, day + n)
  *
  * Called by ... MK-CF-F-019 upcomingBills
  *
@@ -142,9 +199,11 @@ function daysBetweenDates(a: Date, b: Date): number { return Math.round((b.getTi
  * Formula also on the master file · functions_from_code · MK-CF-F-122
  * Changed ..... not in git yet (—)
  */
-function addDays(d: Date, n: number): Date { return new Date(d.getTime() + n * DAY_MS); }
-import { isoLocalDate } from '../_shared/dates';
-/** The next time (month, day) occurs on/after `now`, unless an explicit year is given. */
+function addDays(d: Date, n: number): Date {
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n, d.getHours(), d.getMinutes(), d.getSeconds(), d.getMilliseconds());
+}
+/** The next time (month, day) occurs on/after `now`, unless an explicit year is given. A day past the end of its month is that
+ *  month's last day — a bill on the 29th of February is due the 28th in 2027 — never the first of the next month (tenet 4). */
 /* ─ MK-CF-F-124 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * nextOccurrence
  *
@@ -153,8 +212,9 @@ import { isoLocalDate } from '../_shared/dates';
  * Formula .....
  *     d0 = day   if day > 0
  *     1   otherwise
- *     the date year, month1to12 − 1, d0   when year and year > 0
- *     d = the date now.get full year(), month1to12 − 1, d0
+ *     on = (y: number) => new date(y, month1to12 − 1, math.min(d0, days in month(y, month1to12)))
+ *     on(year)   when year and year > 0
+ *     d = on(now.get full year())
  *     the answer = d
  *
  * Called by ... MK-CF-F-019 upcomingBills
@@ -170,13 +230,14 @@ import { isoLocalDate } from '../_shared/dates';
  */
 function nextOccurrence(month1to12: number, day: number, now: Date, year?: number): Date {
   const d0 = day > 0 ? day : 1;
-  if (year && year > 0) return new Date(year, month1to12 - 1, d0);
-  let d = new Date(now.getFullYear(), month1to12 - 1, d0);
+  const on = (y: number) => new Date(y, month1to12 - 1, Math.min(d0, daysInMonth(y, month1to12)));
+  if (year && year > 0) return on(year);
+  let d = on(now.getFullYear());
   // THIS MONTH'S BILL IS THIS MONTH'S, even once its day has passed (2026-10-24, found by CJC's E2E-81, placed as the month table
   // places it — buildDatedGrid counts a yearly bill in the next time its MONTH comes, so September's bill seen on Sep 28 is in
   // September's Out; this list dated it Sep 15 of next year, a month the table does not have it in). A passed day is not
   // "coming up": the list leaves it out (daysAway below 0). Only a month already gone rolls to next year.
-  if (month1to12 - 1 < now.getMonth()) d = new Date(now.getFullYear() + 1, month1to12 - 1, d0);
+  if (month1to12 - 1 < now.getMonth()) d = on(now.getFullYear() + 1);
   return d;
 }
 
@@ -268,8 +329,7 @@ export function balanceByDay(grid: DatedGrid, dayIso: string): number {
  *     amt = to num(amount); if (amt ≤ 0) continue
  *     yearly = (amt ÷ 100) × grid.total in   if unit = 'pct'
  *     amt   otherwise
- *     ms = months   if count of array.is array(months) and months
- *     [1]   otherwise
+ *     ms = months
  *     cover source = 'your family'   if (income sources ?? []).includes('support')
  *     'your savings or a backup'   otherwise
  *     need by = add days(bill.date, -buffer)
@@ -283,8 +343,7 @@ export function balanceByDay(grid: DatedGrid, dayIso: string): number {
  *               MK-CF-O-008 whatsComing
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-032 expenses categories the person set up
+ * Reads ....... MK-XS-I-032 expenses categories the person set up
  *               MK-XS-I-040 whether a stream is already being received
  *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
@@ -316,7 +375,11 @@ export function upcomingBills(
     if (c?.bucket !== 'nonmonthly') continue;
     const amt = toNum(c?.amount); if (amt <= 0) continue;
     const yearly = c?.unit === 'pct' ? (amt / 100) * grid.totalIn : amt;
-    const ms = Array.isArray(c?.months) && c.months.length ? c.months : [1];
+    // A BILL WITH NO MONTH HAS NO DATE, SO IT IS NOT LISTED (2026-10-25, FIX-BILLS; MK-CF-M-028 "a date nobody gave would be read
+    // as one they did"; DEC-7611 — it is a twelfth a month in the budget and on the month table). A $1,200 yearly bill with no
+    // month read "due Jan 1", and the table counted $1,200 in January on top of $100 in every month: $2,300/year.
+    if (!(Array.isArray(c?.months) && c.months.length)) continue;
+    const ms: number[] = c.months;
     // a one-time bill keeps its YEAR, as the table places it — it was dated at its next month, so a bill for March 2028 was listed
     // as due in March 2027, a month the table does not have it in
     for (const m of ms) billsOut.push({ id: `${c.id}-${m}`, label: c.label ?? c.id ?? 'Bill', amount: yearly / ms.length, date: nextOccurrence(m, toNum(c?.dueDay), now, toNum((c as any)?.year)), critical: (c.tier ?? 'flex') === 'critical' });
@@ -343,141 +406,5 @@ export function upcomingBills(
         availableByNeed: (avail), shortfall, coverSource, daysAway: daysBetweenDates(now, bill.date),
       };
     });
-}
-
-export interface MonthFlow { label: string; inflow: number; outflow: number; net: number; balance: number; }
-export interface CashflowYear {
-  months: MonthFlow[];
-  shortMonths: string[];      // months where the running balance dips below 0
-  lowestBalance: number;
-  totalIn: number;
-  totalOut: number;
-  beyondWindow: number;       // dated items (scholarships/loans) that fall outside the next 12 months
-}
-
-/** Build the 12-month cash-flow picture. `startBalance` = cash on hand today (default 0).
- *  Salary timing comes from the per-month base-salary table (a $0 month = no pay that month). */
-/* ─ MK-CF-F-020 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
- * cashflowYear
- *
- * Answers ..... Build the 12-month cash-flow picture.
- *
- * Formula .....
- *     a = op (or none when missing)
- *     rate = effective rate(op)
- *     start month = now.get month()
- *     start year = now.get full year()
- *     cal month = (s: number) => (start month + s) % 12
- *     slot of = (m1to12: number) => ((m1to12 − 1) − start month + 12) % 12
- *     now idx = start year × 12 + start month
- *     slot of(m1to12)   when year is missing
- *     idx = year × 12 + (m1to12 − 1) − now idx
- *     the answer:
- *     idx   if idx ≥ 0 and idx < 12
- *     -1   otherwise
- *     beyond window = 0
- *     … the first steps only — the rest of the body needs reading by hand.
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-023 salary and other income
- *               MK-XS-I-039 how often each income arrives
- *               MK-XS-I-059 the month a bonus lands
- *
- * Decides .....
- *     · Uses a built-in beyond window of 0.
- *     · Turns a monthly figure into a year by multiplying by twelve.
- *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *
- * Formula also on the master file · functions_from_code · MK-CF-F-020
- * Changed ..... 2026-06-09 (e39df23)
- */
-export function cashflowYear(op: OnboardingProfile | null, startBalance = 0, now: Date = new Date()): CashflowYear {
-  const a = op ?? {};
-  const rate = effectiveRate(op);
-
-  // Rolling 12-month window anchored to THIS month, so timing is real: each chosen month maps to
-  // its NEXT occurrence (e.g. with "now" = June, "September" = this Sep, "January" = next Jan, which
-  // therefore lands AFTER September — never propping up an earlier month's balance).
-  const startMonth = now.getMonth();                          // 0–11
-  const startYear = now.getFullYear();
-  const calMonth = (s: number) => (startMonth + s) % 12;      // calendar month (0–11) at slot s
-  const slotOf = (m1to12: number) => ((m1to12 - 1) - startMonth + 12) % 12;   // slot for a calendar month (next occurrence)
-  const nowIdx = startYear * 12 + startMonth;
-  // slot for an explicit month + year; -1 if outside the next-12-month window. No year → next occurrence.
-  const slotForMY = (m1to12: number, year: number) => {
-    if (!year) return slotOf(m1to12);
-    const idx = year * 12 + (m1to12 - 1) - nowIdx;
-    return idx >= 0 && idx < 12 ? idx : -1;
-  };
-  let beyondWindow = 0;
-
-  // ── money in (net of tax for taxable sources; non-taxable lands in full) ──
-  const taxableMo = zero12(), nontaxMo = zero12();
-  const salByMonth = salaryGrossByMonth(op), rentalM = rentalNetAnnual(op) / 12;
-  const seM = a.seFreq === 'annual' ? toNum(a.seAmount) / 12 : toNum(a.seAmount);
-  const invM = toNum(a.invAnnual) / 12;
-  const otherFreq = a.otherFreq ?? 'monthly';
-  const otherTaxable = a.otherTaxable !== 'no';
-  const otherM = otherFreq === 'monthly' ? toNum(a.otherAmount) : otherFreq === 'annual' ? toNum(a.otherAmount) / 12 : 0;
-  const eq = equityByMonth(a);
-  const retIncM = currentRetirementIncomeMonthly(op), tipsM = toNum(a.tipsMonthly);
-  const benM = toNum(a.benefitMonthly); const benSet = new Set(benefitActiveMonths(op));
-  for (let s = 0; s < 12; s++) {
-    const cm = calMonth(s);
-    const sal = salByMonth[cm];                                           // base salary for that calendar month
-    const job = sal + (sal > 0 ? tipsM : 0);                              // wage + tips (tips only in paid months)
-    taxableMo[s] += job + seM + rentalM + invM + (otherTaxable ? otherM : 0) + eq[cm] + retIncM;
-    nontaxMo[s] += (benSet.has(cm + 1) ? benM : 0) + toNum(a.supportMonthly)
-      + (otherTaxable ? 0 : otherM);                                        // benefits in THEIR months; gifts non-taxable
-  }
-  if (toNum(a.bonusAnnual) > 0) taxableMo[slotOf(Math.min(12, Math.max(1, toNum(a.bonusMonth) || 12)))] += toNum(a.bonusAnnual);   // bonus → its month
-  if (toNum(a.signingOnetime) > 0) taxableMo[0] += toNum(a.signingOnetime);            // signing → now
-  if (otherFreq === 'onetime' && toNum(a.otherAmount) > 0) {
-    const slot = slotOf(otherIncomeMonth(op));                              // one-time other → ITS month
-    (otherTaxable ? taxableMo : nontaxMo)[slot] += toNum(a.otherAmount);
-  }
-
-  // scholarships/grants land on their disbursement months (+ optional year); yearly total split across them
-  for (const sc of (Array.isArray(a.scholarships) ? a.scholarships : [])) {
-    if (sc?.freq === 'monthly') { for (let s = 0; s < 12; s++) nontaxMo[s] += toNum(sc.amount); continue; }
-    const amt = toNum(sc?.amount); if (amt <= 0) continue;
-    const ms = Array.isArray(sc?.months) && sc.months.length ? sc.months : null;
-    const yr = toNum(sc?.year);
-    if (ms) for (const m of ms) { const slot = slotForMY(m, yr); if (slot >= 0) nontaxMo[slot] += amt / ms.length; else beyondWindow++; }
-    else for (let s = 0; s < 12; s++) nontaxMo[s] += amt / 12;
-  }
-  // student loans disburse (per-occurrence amount) in each chosen month (+ optional year) — borrowed cash in
-  for (const ln of (Array.isArray(a.loans) ? a.loans : [])) {
-    const amt = toNum(ln?.amount); if (amt <= 0) continue;
-    const ms = Array.isArray(ln?.months) && ln.months.length ? ln.months : null;
-    const yr = toNum(ln?.year);
-    if (ms) for (const m of ms) { const slot = slotForMY(m, yr); if (slot >= 0) nontaxMo[slot] += amt; else beyondWindow++; }
-    else nontaxMo[0] += amt;   // unspecified → assume this month
-  }
-
-  // ── money out (bills by due month) — single source of truth: budget.spendByMonth (calendar),
-  //    remapped onto the rolling timeline. ──
-  const out = zero12();
-  const spendCal = spendByMonth(op);                       // Jan→Dec: monthly bills + non-monthly in their months + uncategorized
-  for (let s = 0; s < 12; s++) out[s] += spendCal[calMonth(s)];
-
-  // ── roll into a running balance over the real timeline ──
-  let bal = startBalance, totalIn = 0, totalOut = 0;
-  const months: MonthFlow[] = Array.from({ length: 12 }, (_, s) => {
-    const cm = calMonth(s);
-    const yr = startYear + Math.floor((startMonth + s) / 12);
-    const label = MONTHS[cm] + (yr > startYear ? ` ’${String(yr).slice(2)}` : '');
-    const inflow = taxableMo[s] * (1 - rate) + nontaxMo[s];
-    const outflow = out[s];
-    bal += inflow - outflow;
-    totalIn += inflow; totalOut += outflow;
-    return { label, inflow: (inflow), outflow: (outflow), net: (inflow - outflow), balance: (bal) };
-  });
-  const shortMonths = months.filter((m) => m.balance < -0.005).map((m) => m.label);
-  const lowestBalance = (Math.min(...months.map((m) => m.balance)));
-  return { months, shortMonths, lowestBalance, totalIn: (totalIn), totalOut: (totalOut), beyondWindow };
 }
 

@@ -102,8 +102,9 @@ describe('MK-PF-M-006 WHAT EACH CATEGORY EARNED — RETURN', () => {
 describe('MK-PF-M-007 All categories', () => {
   const rows = [{ position: { ticker: 'VTI', asset_class: 'stocks_etf' }, periodReturn: 0.1, marketValue: 1_000 }];
   test('LEDGER ONLY: what was actually RECEIVED, never a rate applied to a balance', () => {
-    // a $1,000 holding up 10% and NO records: nothing was received, so nothing is claimed
-    expect(categoryEarnings({ windowStart: '2026-01-01', transactions: [], rows })).toEqual([]);
+    // a $1,000 holding up 10% and NO records: nothing was received, so it earned $0 — never 10% of $1,000. The category is held,
+    // so it is listed (2026-10-25, MM-PF D3: Performance v17 draws the table in every state; it vanished)
+    expect(categoryEarnings({ windowStart: '2026-01-01', transactions: [], rows }).map((c) => [c.key, c.earned])).toEqual([['stocks_etf', 0]]);
   });
   test('a record that names no holding is classed by WHAT IT IS — a dividend from a fund, interest from the cash in the account', () => {
     const cats = categoryEarnings({
@@ -136,7 +137,7 @@ describe('MK-PF-M-007 All categories', () => {
     expect(cats.find((c) => c.key === 'bonds')!.earned).toBe(40);
     expect(cats.find((c) => c.key === 'bonds')!.ret).toBeCloseTo(0.02, 9);
   });
-  test('a class that received nothing is not shown at all — never a $0 row', () => {
+  test('a class that is not held and received nothing is not listed (phone 1 draws no Bonds & CDs)', () => {
     const cats = categoryEarnings({
       windowStart: '2026-01-01', rows,
       transactions: [{ txn_id: 'd', ticker: 'VTI', type: 'DIVIDEND', amount: 90, date: '2026-05-01' }],
@@ -144,12 +145,17 @@ describe('MK-PF-M-007 All categories', () => {
     expect(cats.map((c) => c.key)).toEqual(['stocks_etf']);
     expect(cats.some((c) => c.earned === 0)).toBe(false);
   });
-  test('and a window with nothing received at all means the table does not appear', () => {
+  test('a window with nothing received still lists every category held, at $0 (2026-10-25, MM-PF D3; it read: the table does not appear)', () => {
     const cats = categoryEarnings({
       windowStart: '2026-06-01', rows,
       transactions: [{ txn_id: 'd', ticker: 'VTI', type: 'DIVIDEND', amount: 90, date: '2026-05-01' }],
     });
-    expect(cats).toEqual([]);                                   // the May record is outside the window
+    expect(cats.map((c) => [c.key, c.earned])).toEqual([['stocks_etf', 0]]);   // the May record is outside the window
+    // cash in an account lists Cash in this account; a bond held as its own account lists Bonds & CDs
+    const more = categoryEarnings({ windowStart: '2026-06-01', rows, transactions: [], accounts: [{ cash_balance: 2_000 }], bonds: [{ asset_id: 'cd', balance: 5_000, coupon_rate: 0.04 }] });
+    expect(more.map((c) => [c.key, c.earned])).toEqual([['stocks_etf', 0], ['bonds', 0], ['cash', 0]]);
+    // nothing held and nothing received (an account typed as one total): the three rows day one lists
+    expect(categoryEarnings({ windowStart: '2026-06-01', rows: [], transactions: [] }).map((c) => [c.key, c.earned, c.ret])).toEqual([['stocks_etf', 0, null], ['bonds', 0, null], ['cash', 0, null]]);
   });
 });
 

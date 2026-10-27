@@ -1,0 +1,2359 @@
+{
+ "batch": "cf module — part 11 (cases, formula checks, NOT HELD rules)",
+ "reviewer": "OpenAI independent specification reviewer, CashFlow package of 2026-10-24",
+ "run_by": "Claude Code (CFR-3 measuring fork: parts 11 and 12)",
+ "run_on": "2026-10-25",
+ "test_file": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts",
+ "source": "returned/MoneyKeel_CashFlow_Independent_Audit_Package/MoneyKeel_CashFlow_Independent_Audit/audit_results/MoneyKeel_CashFlow_Audit_Part_11.json",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts → 85 passed, 0 skipped (BLOCKED), 0 failed, 85 total. Each APP WRONG item is test.failing on the reviewer's answer (counted as passed while the app is wrong). npx tsc --noEmit: no error in this file (errors elsewhere belong to other agents' files mid-edit: base-pay.ts, part03 test, CashFlowScreen.tsx).",
+ "working_tree": "Measured on the working tree of 2026-10-25 at b1c659e8 (branch taxonomy-v1.0.7), other agents editing other files. No app code, drawing, record or existing test was changed; only this part's test file and this results file were written.",
+ "ready_to_close": false,
+ "cases": [
+  {
+   "id": "MK-CF-F-132",
+   "case_id": "MK-CF-F-132-C01",
+   "name": "map",
+   "kind": "easy",
+   "title": "One target",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "id": "A",
+     "balance": {
+      "exact": "1100",
+      "shown": "$1,100"
+     }
+    }
+   ],
+   "actual": [
+    {
+     "asset_id": "A",
+     "balance": 1100
+    }
+   ],
+   "difference": "none",
+   "mapped": "accounts [{id, balance, cash}] → [{asset_id, balance, cash_balance}]; the change → a function adding delta to balance (or to cash_balance when field is cash), handed to map with the target id",
+   "rests_on": "ordinary arithmetic",
+   "note": "Only the named account changes, by the delta; the others come back as they were.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-132 map — five cases › MK-CF-F-132-C01 · easy · One target [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-132",
+   "case_id": "MK-CF-F-132-C02",
+   "name": "map",
+   "kind": "easy",
+   "title": "No target",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "id": "A",
+     "balance": {
+      "exact": "1000",
+      "shown": "$1,000"
+     }
+    }
+   ],
+   "actual": [
+    {
+     "asset_id": "A",
+     "balance": 1000
+    }
+   ],
+   "difference": "none",
+   "mapped": "accounts [{id, balance, cash}] → [{asset_id, balance, cash_balance}]; the change → a function adding delta to balance (or to cash_balance when field is cash), handed to map with the target id",
+   "rests_on": "ordinary arithmetic",
+   "note": "Only the named account changes, by the delta; the others come back as they were.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-132 map — five cases › MK-CF-F-132-C02 · easy · No target [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-132",
+   "case_id": "MK-CF-F-132-C03",
+   "name": "map",
+   "kind": "complex",
+   "title": "Middle target",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "id": "A",
+     "balance": {
+      "exact": "1111.17",
+      "shown": "$1,111"
+     }
+    },
+    {
+     "id": "B",
+     "balance": {
+      "exact": "2520.06",
+      "shown": "$2,520"
+     }
+    },
+    {
+     "id": "C",
+     "balance": {
+      "exact": "931.19",
+      "shown": "$931"
+     }
+    }
+   ],
+   "actual": [
+    {
+     "asset_id": "A",
+     "balance": 1111.17
+    },
+    {
+     "asset_id": "B",
+     "balance": 2520.06
+    },
+    {
+     "asset_id": "C",
+     "balance": 931.19
+    }
+   ],
+   "difference": "none",
+   "mapped": "accounts [{id, balance, cash}] → [{asset_id, balance, cash_balance}]; the change → a function adding delta to balance (or to cash_balance when field is cash), handed to map with the target id",
+   "rests_on": "ordinary arithmetic",
+   "note": "Only the named account changes, by the delta; the others come back as they were.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-132 map — five cases › MK-CF-F-132-C03 · complex · Middle target [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-132",
+   "case_id": "MK-CF-F-132-C04",
+   "name": "map",
+   "kind": "complex",
+   "title": "Target cash sleeve",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "id": "A",
+     "balance": {
+      "exact": "9311.17",
+      "shown": "$9,311"
+     },
+     "cash": {
+      "exact": "1044.60",
+      "shown": "$1,045"
+     }
+    },
+    {
+     "id": "B",
+     "balance": {
+      "exact": "1311.19",
+      "shown": "$1,311"
+     }
+    }
+   ],
+   "actual": [
+    {
+     "asset_id": "A",
+     "balance": 9311.17,
+     "cash_balance": 1044.6
+    },
+    {
+     "asset_id": "B",
+     "balance": 1311.19
+    }
+   ],
+   "difference": "none",
+   "mapped": "accounts [{id, balance, cash}] → [{asset_id, balance, cash_balance}]; the change → a function adding delta to balance (or to cash_balance when field is cash), handed to map with the target id",
+   "rests_on": "ordinary arithmetic",
+   "note": "Only the named account changes, by the delta; the others come back as they were.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-132 map — five cases › MK-CF-F-132-C04 · complex · Target cash sleeve [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-132",
+   "case_id": "MK-CF-F-132-C05",
+   "name": "map",
+   "kind": "edge",
+   "title": "Empty list",
+   "classification": "AGREE",
+   "expected": [],
+   "actual": [],
+   "difference": "none",
+   "mapped": "accounts [{id, balance, cash}] → [{asset_id, balance, cash_balance}]; the change → a function adding delta to balance (or to cash_balance when field is cash), handed to map with the target id",
+   "rests_on": "ordinary arithmetic",
+   "note": "Only the named account changes, by the delta; the others come back as they were.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-132 map — five cases › MK-CF-F-132-C05 · edge · Empty list [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-133",
+   "case_id": "MK-CF-F-133-C01",
+   "name": "cashOf",
+   "kind": "easy",
+   "title": "Bank cash",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Cash not entered"
+   },
+   "reviewer_formula_gives": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "App gives 0 where the reviewer refuses; cashOf has no caller: transactions/index.ts:203 defines it and nothing reads it (grep of src/, app/, MoneyKeel/functions and Calculation Module code/engines).",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true)",
+   "rests_on": "no caller (see note)",
+   "note": "App gives 0 where the reviewer refuses; cashOf has no caller: transactions/index.ts:203 defines it and nothing reads it (grep of src/, app/, MoneyKeel/functions and Calculation Module code/engines). Its record says \"Called by MK-ST-F-073 rebuildDays\" — a word match with a local Map also named cashOf in rebuild-history.ts:439.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-133 cashOf — five cases (a helper nothing calls) › MK-CF-F-133-C01 · easy · Bank cash [OUTSIDE DOMAIN]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-133",
+   "case_id": "MK-CF-F-133-C02",
+   "name": "cashOf",
+   "kind": "easy",
+   "title": "Typed brokerage",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "1000",
+    "shown": "$1,000"
+   },
+   "actual": 1000,
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true)",
+   "rests_on": "ordinary arithmetic",
+   "note": "A cash figure on record is returned as it is.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-133 cashOf — five cases (a helper nothing calls) › MK-CF-F-133-C02 · easy · Typed brokerage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-133",
+   "case_id": "MK-CF-F-133-C03",
+   "name": "cashOf",
+   "kind": "complex",
+   "title": "Derived brokerage",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "731.43",
+    "shown": "$731"
+   },
+   "actual": 731.43,
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true)",
+   "rests_on": "ordinary arithmetic",
+   "note": "A cash figure on record is returned as it is.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-133 cashOf — five cases (a helper nothing calls) › MK-CF-F-133-C03 · complex · Derived brokerage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-133",
+   "case_id": "MK-CF-F-133-C04",
+   "name": "cashOf",
+   "kind": "complex",
+   "title": "Property is illiquid",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Cash not entered"
+   },
+   "reviewer_formula_gives": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "App gives 0 for a property with no cash figure; cashOf has no caller: transactions/index.ts:203 defines it and nothing reads it (grep of src/, app/, MoneyKeel/functions and Calculation Module code/engines).",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true)",
+   "rests_on": "no caller (see note)",
+   "note": "App gives 0 for a property with no cash figure; cashOf has no caller: transactions/index.ts:203 defines it and nothing reads it (grep of src/, app/, MoneyKeel/functions and Calculation Module code/engines). Its record says \"Called by MK-ST-F-073 rebuildDays\" — a word match with a local Map also named cashOf in rebuild-history.ts:439.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-133 cashOf — five cases (a helper nothing calls) › MK-CF-F-133-C04 · complex · Property is illiquid [OUTSIDE DOMAIN]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-133",
+   "case_id": "MK-CF-F-133-C05",
+   "name": "cashOf",
+   "kind": "edge",
+   "title": "Investment cash missing",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Cash not entered"
+   },
+   "reviewer_formula_gives": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "App gives 0 for investment cash never entered; cashOf has no caller: transactions/index.ts:203 defines it and nothing reads it (grep of src/, app/, MoneyKeel/functions and Calculation Module code/engines).",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true)",
+   "rests_on": "no caller (see note)",
+   "note": "App gives 0 for investment cash never entered; cashOf has no caller: transactions/index.ts:203 defines it and nothing reads it (grep of src/, app/, MoneyKeel/functions and Calculation Module code/engines). Its record says \"Called by MK-ST-F-073 rebuildDays\" — a word match with a local Map also named cashOf in rebuild-history.ts:439.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-133 cashOf — five cases (a helper nothing calls) › MK-CF-F-133-C05 · edge · Investment cash missing [OUTSIDE DOMAIN]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-134",
+   "case_id": "MK-CF-F-134-C01",
+   "name": "usesSleeve",
+   "kind": "easy",
+   "title": "Bank cash",
+   "classification": "AGREE",
+   "expected": false,
+   "actual": false,
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true)",
+   "rests_on": "written formula",
+   "note": "Bank and property money lives in the balance; an investment account keeps its own cash when it is built from holdings or has a cash figure.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-134 usesSleeve — five cases › MK-CF-F-134-C01 · easy · Bank cash [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-134",
+   "case_id": "MK-CF-F-134-C02",
+   "name": "usesSleeve",
+   "kind": "easy",
+   "title": "Typed brokerage",
+   "classification": "AGREE",
+   "expected": true,
+   "actual": true,
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true)",
+   "rests_on": "written formula",
+   "note": "Bank and property money lives in the balance; an investment account keeps its own cash when it is built from holdings or has a cash figure.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-134 usesSleeve — five cases › MK-CF-F-134-C02 · easy · Typed brokerage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-134",
+   "case_id": "MK-CF-F-134-C03",
+   "name": "usesSleeve",
+   "kind": "complex",
+   "title": "Derived brokerage",
+   "classification": "AGREE",
+   "expected": true,
+   "actual": true,
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true)",
+   "rests_on": "written formula",
+   "note": "Bank and property money lives in the balance; an investment account keeps its own cash when it is built from holdings or has a cash figure.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-134 usesSleeve — five cases › MK-CF-F-134-C03 · complex · Derived brokerage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-134",
+   "case_id": "MK-CF-F-134-C04",
+   "name": "usesSleeve",
+   "kind": "complex",
+   "title": "Property is illiquid",
+   "classification": "AGREE",
+   "expected": false,
+   "actual": false,
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true)",
+   "rests_on": "written formula",
+   "note": "Bank and property money lives in the balance; an investment account keeps its own cash when it is built from holdings or has a cash figure.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-134 usesSleeve — five cases › MK-CF-F-134-C04 · complex · Property is illiquid [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-134",
+   "case_id": "MK-CF-F-134-C05",
+   "name": "usesSleeve",
+   "kind": "edge",
+   "title": "Investment cash missing",
+   "classification": "AGREE",
+   "expected": true,
+   "actual": true,
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true)",
+   "rests_on": "written formula",
+   "note": "Bank and property money lives in the balance; an investment account keeps its own cash when it is built from holdings or has a cash figure.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-134 usesSleeve — five cases › MK-CF-F-134-C05 · edge · Investment cash missing [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-135",
+   "case_id": "MK-CF-F-135-C01",
+   "name": "availableCash",
+   "kind": "easy",
+   "title": "Bank cash",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "1000",
+    "shown": "$1,000"
+   },
+   "actual": 1000,
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true)",
+   "rests_on": "DEC-3279e; tenet 3",
+   "note": "Bank balance, or the investment account’s own cash figure.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-135 availableCash — five cases › MK-CF-F-135-C01 · easy · Bank cash [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-135",
+   "case_id": "MK-CF-F-135-C02",
+   "name": "availableCash",
+   "kind": "easy",
+   "title": "Typed brokerage",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "1000",
+    "shown": "$1,000"
+   },
+   "actual": 1000,
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true)",
+   "rests_on": "DEC-3279e; tenet 3",
+   "note": "Bank balance, or the investment account’s own cash figure.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-135 availableCash — five cases › MK-CF-F-135-C02 · easy · Typed brokerage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-135",
+   "case_id": "MK-CF-F-135-C03",
+   "name": "availableCash",
+   "kind": "complex",
+   "title": "Derived brokerage",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "731.43",
+    "shown": "$731"
+   },
+   "actual": 731.43,
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true)",
+   "rests_on": "DEC-3279e; tenet 3",
+   "note": "Bank balance, or the investment account’s own cash figure.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-135 availableCash — five cases › MK-CF-F-135-C03 · complex · Derived brokerage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-135",
+   "case_id": "MK-CF-F-135-C04",
+   "name": "availableCash",
+   "kind": "complex",
+   "title": "Property is illiquid",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Property value is not spendable cash"
+   },
+   "reviewer_formula_gives": {
+    "exact": "400731.17",
+    "shown": "$400,731"
+   },
+   "actual": 400731.17,
+   "difference": "App gives the property’s $400,731.17 as available cash, but its one caller, the trade sheet (PerformanceScreen.tsx:955), only offers accounts that take a ticker (accountAllowsTicker refuses PROPERTY, assets/index.ts:273) or whose class is cash — a property’s class is Real estate or Personal property (assets/index.ts:665).",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true)",
+   "rests_on": "caller domain: PerformanceScreen.tsx:929-955; assets/index.ts:273 and :665",
+   "note": "App gives the property’s $400,731.17 as available cash, but its one caller, the trade sheet (PerformanceScreen.tsx:955), only offers accounts that take a ticker (accountAllowsTicker refuses PROPERTY, assets/index.ts:273) or whose class is cash — a property’s class is Real estate or Personal property (assets/index.ts:665). No screen can show it.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-135 availableCash — five cases › MK-CF-F-135-C04 · complex · Property is illiquid [OUTSIDE DOMAIN]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-135",
+   "case_id": "MK-CF-F-135-C05",
+   "name": "availableCash",
+   "kind": "edge",
+   "title": "Investment cash missing",
+   "classification": "AGREE",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Investment cash not entered"
+   },
+   "actual": null,
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true)",
+   "rests_on": "DEC-3279e; tenet 3",
+   "note": "Investment cash never entered is unknown (null), never $0 (fixed 2026-10-21, MK-PF-M-020).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-135 availableCash — five cases › MK-CF-F-135-C05 · edge · Investment cash missing [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-136",
+   "case_id": "MK-CF-F-136-C01",
+   "name": "bumpCash",
+   "kind": "easy",
+   "title": "Bank cash",
+   "classification": "AGREE",
+   "expected": {
+    "balance": {
+     "exact": "1100",
+     "shown": "$1,100"
+    }
+   },
+   "actual": {
+    "cash": null,
+    "balance": 1100
+   },
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true); cash_delta → delta",
+   "rests_on": "DEC-7595; DEC-0096",
+   "note": "Bank and property: the balance moves; an investment account: its cash moves, and a typed total with it; a total built from holdings is rebuilt from them.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-136 bumpCash — five cases › MK-CF-F-136-C01 · easy · Bank cash [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-136",
+   "case_id": "MK-CF-F-136-C02",
+   "name": "bumpCash",
+   "kind": "easy",
+   "title": "Typed brokerage",
+   "classification": "AGREE",
+   "expected": {
+    "cash": {
+     "exact": "1100",
+     "shown": "$1,100"
+    },
+    "balance": {
+     "exact": "10100",
+     "shown": "$10,100"
+    }
+   },
+   "actual": {
+    "cash": 1100,
+    "balance": 10100
+   },
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true); cash_delta → delta",
+   "rests_on": "DEC-7595; DEC-0096",
+   "note": "Bank and property: the balance moves; an investment account: its cash moves, and a typed total with it; a total built from holdings is rebuilt from them.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-136 bumpCash — five cases › MK-CF-F-136-C02 · easy · Typed brokerage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-136",
+   "case_id": "MK-CF-F-136-C03",
+   "name": "bumpCash",
+   "kind": "complex",
+   "title": "Derived brokerage",
+   "classification": "AGREE",
+   "expected": {
+    "cash": {
+     "exact": "520.24",
+     "shown": "$520"
+    },
+    "balance": {
+     "exact": "13111.17",
+     "shown": "$13,111"
+    }
+   },
+   "actual": {
+    "cash": 520.24,
+    "balance": 13111.17
+   },
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true); cash_delta → delta",
+   "rests_on": "DEC-7595; DEC-0096",
+   "note": "Bank and property: the balance moves; an investment account: its cash moves, and a typed total with it; a total built from holdings is rebuilt from them.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-136 bumpCash — five cases › MK-CF-F-136-C03 · complex · Derived brokerage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-136",
+   "case_id": "MK-CF-F-136-C04",
+   "name": "bumpCash",
+   "kind": "complex",
+   "title": "Property is illiquid",
+   "classification": "AGREE",
+   "expected": {
+    "balance": {
+     "exact": "401862.60",
+     "shown": "$401,863"
+    }
+   },
+   "actual": {
+    "cash": null,
+    "balance": 401862.6
+   },
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true); cash_delta → delta",
+   "rests_on": "DEC-7595; DEC-0096",
+   "note": "Bank and property: the balance moves; an investment account: its cash moves, and a typed total with it; a total built from holdings is rebuilt from them.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-136 bumpCash — five cases › MK-CF-F-136-C04 · complex · Property is illiquid [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-136",
+   "case_id": "MK-CF-F-136-C05",
+   "name": "bumpCash",
+   "kind": "edge",
+   "title": "Investment cash missing",
+   "classification": "REVIEWER WRONG",
+   "expected": {
+    "cash": null,
+    "balance": {
+     "exact": "10000",
+     "shown": "$10,000"
+    },
+    "needs_opening_cash": true
+   },
+   "reviewer_formula_gives": {
+    "state": "RULE UNCLEAR",
+    "reason": "Missing-cash update not specified",
+    "readings": {
+     "assumed_zero_plus_delta": {
+      "exact": "100",
+      "shown": "$100"
+     },
+     "unknown": null
+    }
+   },
+   "actual": {
+    "cash": 100,
+    "balance": 10000
+   },
+   "difference": "App opens the cash at $100; the reviewer keeps it not entered.",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true); cash_delta → delta",
+   "rests_on": "DEC-0096 (his); recomputeBalances useStore.ts:57",
+   "note": "App opens the cash at $100; the reviewer keeps it not entered. An account built from its holdings is rebuilt as cash (missing read as $0) plus holdings (useStore.ts:57-92), so a $100 deposit kept off the cash would vanish from the balance — the fault his DEC-0096 ($500 deposit to Vanguard) fixed.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-136 bumpCash — five cases › MK-CF-F-136-C05 · edge · Investment cash missing [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-137",
+   "case_id": "MK-CF-F-137-C01",
+   "name": "findPos",
+   "kind": "easy",
+   "title": "By id",
+   "classification": "AGREE",
+   "expected": "h1",
+   "actual": "h1",
+   "difference": "none",
+   "mapped": "holdings [{id, ticker}] → positions [{position_id, ticker}]; id/ticker → the transaction’s position_id/ticker",
+   "rests_on": "written formula",
+   "note": "The holding with the id, or the ticker in capitals; none found gives no holding.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-137 findPos — five cases › MK-CF-F-137-C01 · easy · By id [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-137",
+   "case_id": "MK-CF-F-137-C02",
+   "name": "findPos",
+   "kind": "easy",
+   "title": "By ticker",
+   "classification": "AGREE",
+   "expected": "h1",
+   "actual": "h1",
+   "difference": "none",
+   "mapped": "holdings [{id, ticker}] → positions [{position_id, ticker}]; id/ticker → the transaction’s position_id/ticker",
+   "rests_on": "written formula",
+   "note": "The holding with the id, or the ticker in capitals; none found gives no holding.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-137 findPos — five cases › MK-CF-F-137-C02 · easy · By ticker [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-137",
+   "case_id": "MK-CF-F-137-C03",
+   "name": "findPos",
+   "kind": "complex",
+   "title": "Id before different ticker",
+   "classification": "AGREE",
+   "expected": "h1",
+   "actual": "h1",
+   "difference": "none",
+   "mapped": "holdings [{id, ticker}] → positions [{position_id, ticker}]; id/ticker → the transaction’s position_id/ticker",
+   "rests_on": "written formula",
+   "note": "The holding with the id, or the ticker in capitals; none found gives no holding.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-137 findPos — five cases › MK-CF-F-137-C03 · complex · Id before different ticker [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-137",
+   "case_id": "MK-CF-F-137-C04",
+   "name": "findPos",
+   "kind": "complex",
+   "title": "No match in several",
+   "classification": "AGREE",
+   "expected": null,
+   "actual": null,
+   "difference": "none",
+   "mapped": "holdings [{id, ticker}] → positions [{position_id, ticker}]; id/ticker → the transaction’s position_id/ticker",
+   "rests_on": "written formula",
+   "note": "The holding with the id, or the ticker in capitals; none found gives no holding.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-137 findPos — five cases › MK-CF-F-137-C04 · complex · No match in several [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-137",
+   "case_id": "MK-CF-F-137-C05",
+   "name": "findPos",
+   "kind": "edge",
+   "title": "Empty holdings",
+   "classification": "AGREE",
+   "expected": null,
+   "actual": null,
+   "difference": "none",
+   "mapped": "holdings [{id, ticker}] → positions [{position_id, ticker}]; id/ticker → the transaction’s position_id/ticker",
+   "rests_on": "written formula",
+   "note": "The holding with the id, or the ticker in capitals; none found gives no holding.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-137 findPos — five cases › MK-CF-F-137-C05 · edge · Empty holdings [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-138",
+   "case_id": "MK-CF-F-138-C01",
+   "name": "addLot",
+   "kind": "easy",
+   "title": "Add stock lot",
+   "classification": "AGREE",
+   "expected": {
+    "ticker": "AAA",
+    "lots": [
+     {
+      "shares": {
+       "exact": "10",
+       "shown": "10"
+      },
+      "price": {
+       "exact": "100",
+       "shown": "$100.00"
+      },
+      "date": "2026-10-01"
+     }
+    ]
+   },
+   "actual": {
+    "ticker": "AAA",
+    "lots": [
+     {
+      "shares": 10,
+      "price": 100,
+      "date": "2026-10-01"
+     }
+    ]
+   },
+   "difference": "none",
+   "mapped": "old_lots / old_shares+old_basis → the existing holding AAA (one lot at old_basis ÷ old_shares); shares, price, date → addLot’s shares, cost per share and the transaction date; ticker → the transaction ticker",
+   "rests_on": "written formula",
+   "note": "A new holding in capitals with one lot of 10 at $100 on Oct 1.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-138 addLot — five cases › MK-CF-F-138-C01 · easy · Add stock lot [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-138",
+   "case_id": "MK-CF-F-138-C02",
+   "name": "addLot",
+   "kind": "easy",
+   "title": "Append existing lot",
+   "classification": "AGREE",
+   "expected": {
+    "total_shares": {
+     "exact": "15",
+     "shown": "15"
+    },
+    "total_basis": {
+     "exact": "1550",
+     "shown": "$1,550.00"
+    }
+   },
+   "actual": {
+    "total_shares": 15,
+    "total_basis": 1550
+   },
+   "difference": "none",
+   "mapped": "old_lots / old_shares+old_basis → the existing holding AAA (one lot at old_basis ÷ old_shares); shares, price, date → addLot’s shares, cost per share and the transaction date; ticker → the transaction ticker",
+   "rests_on": "ordinary arithmetic",
+   "note": "10 × $100 + 5 × $110 = $1,550 over 15 shares.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-138 addLot — five cases › MK-CF-F-138-C02 · easy · Append existing lot [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-138",
+   "case_id": "MK-CF-F-138-C03",
+   "name": "addLot",
+   "kind": "complex",
+   "title": "Unround lot",
+   "classification": "AGREE",
+   "expected": {
+    "total_shares": {
+     "exact": "14.60",
+     "shown": "14.60"
+    },
+    "total_basis": {
+     "exact": "1016.4631",
+     "shown": "$1,016.46"
+    }
+   },
+   "actual": {
+    "total_shares": 14.6,
+    "total_basis": 1016.4631
+   },
+   "difference": "none",
+   "mapped": "old_lots / old_shares+old_basis → the existing holding AAA (one lot at old_basis ÷ old_shares); shares, price, date → addLot’s shares, cost per share and the transaction date; ticker → the transaction ticker",
+   "rests_on": "ordinary arithmetic",
+   "note": "731.19 + 3.43 × 83.17 = 1,016.4631 over 14.60 shares, kept unrounded.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-138 addLot — five cases › MK-CF-F-138-C03 · complex · Unround lot [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-138",
+   "case_id": "MK-CF-F-138-C04",
+   "name": "addLot",
+   "kind": "complex",
+   "title": "Preserve user classification",
+   "classification": "AGREE",
+   "expected": {
+    "kind": "bond",
+    "total_shares": {
+     "exact": "19.50",
+     "shown": "19.50"
+    },
+    "total_basis": {
+     "exact": "1931.4017",
+     "shown": "$1,931.40"
+    }
+   },
+   "actual": {
+    "kind": "bond",
+    "asset_class": "bond",
+    "total_shares": 19.5,
+    "total_basis": 1931.4017000000001
+   },
+   "difference": "none",
+   "mapped": "old_lots / old_shares+old_basis → the existing holding AAA (one lot at old_basis ÷ old_shares); shares, price, date → addLot’s shares, cost per share and the transaction date; ticker → the transaction ticker; old_kind bond → the holding’s kind 'bond' and class 'bond'",
+   "rests_on": "tenet 5",
+   "note": "The holding keeps its own class; only its lots grow.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-138 addLot — five cases › MK-CF-F-138-C04 · complex · Preserve user classification [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-138",
+   "case_id": "MK-CF-F-138-C05",
+   "name": "addLot",
+   "kind": "edge",
+   "title": "New unknown ticker type",
+   "classification": "APP WRONG",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Classifier/unknown-date contract not supplied",
+    "readings": {
+     "pending": "date and classification remain unknown",
+     "classified": "requires classifier evidence"
+    }
+   },
+   "reviewer_formula_gives": {
+    "state": "RULE UNCLEAR",
+    "reason": "Dependency mapping absent",
+    "readings": {
+     "new_lot_date": null
+    }
+   },
+   "actual": {
+    "ticker": "UNKNOWN123",
+    "asset_class": "stock_etf",
+    "class_asked": null,
+    "classifier": {
+     "cls": "stocks_etf",
+     "source": "security-default"
+    },
+    "vti_classifier": {
+     "cls": "stocks_etf",
+     "source": "security-default"
+    },
+    "lot_date": null
+   },
+   "difference": "The reviewer wrote RULE UNCLEAR.",
+   "mapped": "old_lots / old_shares+old_basis → the existing holding AAA (one lot at old_basis ÷ old_shares); shares, price, date → addLot’s shares, cost per share and the transaction date; ticker → the transaction ticker; date null → the transaction date null",
+   "rests_on": "DEC-2160 (his, Q11: \"Refuse the line and ask\" — when nothing says what a holding is, the app does not guess); tenet 4",
+   "note": "The reviewer wrote RULE UNCLEAR. The date is kept as handed (null stays null). The class is not: a ticker nothing identifies, bought on the trade sheet, is filed under Stocks / Funds by the classifier’s last-resort default (holding-class.ts:346, source security-default), while the same holding from a sync is asked (ingest.ts:495, DEC-2160). His DEC-2160 gives the reviewer’s \"pending\" reading: no class until the person says.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-138 addLot — five cases › MK-CF-F-138-C05 · edge · New unknown ticker type [AGREE] — FIXED 2026-10-25 — DEC-2160: in no class, marked asked",
+   "test_result": "passed (FIXED 2026-10-25: the case passes on the reviewer's answer; the app's old answer is pinned beside it as test.failing)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-TRADES; DEC-2160, tenet 4): a record that names no type for a ticker nothing identifies opens the holding in no class, marked asked — Unclassified on the account page and the Performance tab, and Net worth asks what it is (was: Stocks / Funds by the classifier's last-resort default). The trade sheet now asks the type of a ticker the account does not hold and waits for the answer; DEC-7605's 10 VTI, chosen as Stocks / Funds, list there."
+  },
+  {
+   "id": "MK-CF-F-139",
+   "case_id": "MK-CF-F-139-C01",
+   "name": "removeShares",
+   "kind": "easy",
+   "title": "Remove partial lot",
+   "classification": "AGREE",
+   "expected": {
+    "remaining_lots": [
+     {
+      "date": "2026-01-01",
+      "shares": {
+       "exact": "6",
+       "shown": "6"
+      },
+      "price": {
+       "exact": "100",
+       "shown": "$100.00"
+      }
+     }
+    ]
+   },
+   "actual": [
+    {
+     "lot_id": "L0",
+     "shares": 6,
+     "cost_per_share": 100,
+     "purchase_date": "2026-01-01"
+    }
+   ],
+   "difference": "none",
+   "mapped": "lots [{date, shares, price}] → the holding AAA’s lots {purchase_date, shares, cost_per_share} in the order given; sell_shares → shares",
+   "rests_on": "ordinary arithmetic",
+   "note": "10 − 4 = 6 left in the one lot.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-139 removeShares — five cases › MK-CF-F-139-C01 · easy · Remove partial lot [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-139",
+   "case_id": "MK-CF-F-139-C02",
+   "name": "removeShares",
+   "kind": "easy",
+   "title": "Sell all",
+   "classification": "AGREE",
+   "expected": {
+    "holding_removed": true
+   },
+   "actual": {
+    "holding_removed": true
+   },
+   "difference": "none",
+   "mapped": "lots [{date, shares, price}] → the holding AAA’s lots {purchase_date, shares, cost_per_share} in the order given; sell_shares → shares",
+   "rests_on": "ordinary arithmetic",
+   "note": "Every share sold: the holding leaves the account.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-139 removeShares — five cases › MK-CF-F-139-C02 · easy · Sell all [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-139",
+   "case_id": "MK-CF-F-139-C03",
+   "name": "removeShares",
+   "kind": "complex",
+   "title": "Unsorted FIFO",
+   "classification": "AGREE",
+   "expected": {
+    "remaining_lots": [
+     {
+      "date": "2026-09-01",
+      "shares": {
+       "exact": "4.05",
+       "shown": "4.05"
+      },
+      "price": {
+       "exact": "91.17",
+       "shown": "$91.17"
+      }
+     },
+     {
+      "date": null,
+      "shares": {
+       "exact": "2.19",
+       "shown": "2.19"
+      },
+      "price": {
+       "exact": "73.11",
+       "shown": "$73.11"
+      }
+     }
+    ]
+   },
+   "actual": [
+    {
+     "lot_id": "L0",
+     "shares": 4.05,
+     "cost_per_share": 91.17,
+     "purchase_date": "2026-09-01"
+    },
+    {
+     "lot_id": "L2",
+     "shares": 2.19,
+     "cost_per_share": 73.11,
+     "purchase_date": null
+    }
+   ],
+   "difference": "none",
+   "mapped": "lots [{date, shares, price}] → the holding AAA’s lots {purchase_date, shares, cost_per_share} in the order given; sell_shares → shares",
+   "rests_on": "first in, first out by purchase day; an undated lot goes last (index.ts:626-632)",
+   "note": "January’s 5.17 go first, then 3.26 of September’s; the undated 2.19 stay.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-139 removeShares — five cases › MK-CF-F-139-C03 · complex · Unsorted FIFO [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-139",
+   "case_id": "MK-CF-F-139-C04",
+   "name": "removeShares",
+   "kind": "complex",
+   "title": "Across two dated lots",
+   "classification": "AGREE",
+   "expected": {
+    "remaining_lots": [
+     {
+      "date": "2026-09-17",
+      "shares": {
+       "exact": "5.60",
+       "shown": "5.60"
+      },
+      "price": {
+       "exact": "91.37",
+       "shown": "$91.37"
+      }
+     }
+    ]
+   },
+   "actual": [
+    {
+     "lot_id": "L2",
+     "shares": 5.599999999999999,
+     "cost_per_share": 91.37,
+     "purchase_date": "2026-09-17"
+    }
+   ],
+   "difference": "none",
+   "mapped": "lots [{date, shares, price}] → the holding AAA’s lots {purchase_date, shares, cost_per_share} in the order given; sell_shares → shares",
+   "rests_on": "first in, first out",
+   "note": "3.19 + 5.43 go whole; 1.51 of September’s 7.11 leave 5.60.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-139 removeShares — five cases › MK-CF-F-139-C04 · complex · Across two dated lots [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-139",
+   "case_id": "MK-CF-F-139-C05",
+   "name": "removeShares",
+   "kind": "edge",
+   "title": "Quantity unknown",
+   "classification": "APP WRONG",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Recorded share count insufficient for FIFO allocation"
+   },
+   "reviewer_formula_gives": {
+    "state": "RULE UNCLEAR",
+    "reason": "Unknown-lot allocation omitted",
+    "readings": {
+     "leave_unknown": "pending",
+     "erase": "not supported"
+    }
+   },
+   "actual": null,
+   "difference": "A purchase whose share count is not on record is ERASED by a sale of 4: Math.min(null, 4) reads it as 0 shares, then the empty lot and the holding are dropped.",
+   "mapped": "lots [{date, shares, price}] → the holding AAA’s lots {purchase_date, shares, cost_per_share} in the order given; sell_shares → shares",
+   "rests_on": "tenet 3 (unknown is not zero); tenet 5 (the person’s entry is never overwritten)",
+   "note": "A purchase whose share count is not on record is ERASED by a sale of 4: Math.min(null, 4) reads it as 0 shares, then the empty lot and the holding are dropped. Reached through applyTransaction’s SELL, which lets a sale on an unknown count stand (index.ts:719-722) — the edit sheet (AccountPortfolioScreen.tsx:1657) and the delete replay (useStore.ts:992) re-apply sales without the trade sheet’s check.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-139 removeShares — five cases › MK-CF-F-139-C05 · edge · Quantity unknown [AGREE] — FIXED 2026-10-25 — DEC-3523 tenets 3 and 5: the purchase of unknown size is kept",
+   "test_result": "passed (FIXED 2026-10-25: the case passes on the reviewer's answer; the app's old answer is pinned beside it as test.failing)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-TRADES; DEC-3523 tenets 3 and 5): removeShares stops at a purchase whose share count is not on record; that purchase and every later one are kept as they were (was: erased, and the holding left the account). The trade sheet refuses such a sale and says why: \"You own: Not stated — a purchase has no share count on record. ⚠ add the share count in Edit holding before recording a sale\"."
+  },
+  {
+   "id": "MK-CF-F-111",
+   "case_id": "MK-CF-F-111-C01",
+   "name": "applyTransaction",
+   "kind": "easy",
+   "title": "Cash deposit",
+   "classification": "AGREE",
+   "expected": {
+    "cash": {
+     "exact": "6000.17",
+     "shown": "$6,000.17"
+    },
+    "typed_total": {
+     "exact": "21000.43",
+     "shown": "$21,000.43"
+    }
+   },
+   "actual": {
+    "cash": 6000.17,
+    "typed_total": 21000.43
+   },
+   "difference": "none",
+   "mapped": "account {cash, balance, typed_total} → a hand-typed TAXABLE brokerage A (cash_balance, balance); transaction → a record {type, amount, shares, price, multiplier, fee (fee_in_price false), date, direction}; a sale’s shares are held (holding XYZ, 10 shares) so the sale is not clamped",
+   "rests_on": "DEC-6796 (signed reversals); DEC-7595 (a typed total moves only by the fee); DEC-7596 (fee once); DEC-7602 (contracts × multiplier)",
+   "note": "Deposit +$1,000 and a −$50 dividend move cash and the typed total alike; a buy or a sale moves cash by shares × price × multiplier ∓ fee and the typed total by the fee only.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-111 applyTransaction — five cases › MK-CF-F-111-C01 · easy · Cash deposit [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-111",
+   "case_id": "MK-CF-F-111-C02",
+   "name": "applyTransaction",
+   "kind": "easy",
+   "title": "Signed dividend reversal",
+   "classification": "AGREE",
+   "expected": {
+    "cash": {
+     "exact": "4950.17",
+     "shown": "$4,950.17"
+    },
+    "typed_total": {
+     "exact": "19950.43",
+     "shown": "$19,950.43"
+    }
+   },
+   "actual": {
+    "cash": 4950.17,
+    "typed_total": 19950.43
+   },
+   "difference": "none",
+   "mapped": "account {cash, balance, typed_total} → a hand-typed TAXABLE brokerage A (cash_balance, balance); transaction → a record {type, amount, shares, price, multiplier, fee (fee_in_price false), date, direction}; a sale’s shares are held (holding XYZ, 10 shares) so the sale is not clamped",
+   "rests_on": "DEC-6796 (signed reversals); DEC-7595 (a typed total moves only by the fee); DEC-7596 (fee once); DEC-7602 (contracts × multiplier)",
+   "note": "Deposit +$1,000 and a −$50 dividend move cash and the typed total alike; a buy or a sale moves cash by shares × price × multiplier ∓ fee and the typed total by the fee only.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-111 applyTransaction — five cases › MK-CF-F-111-C02 · easy · Signed dividend reversal [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-111",
+   "case_id": "MK-CF-F-111-C03",
+   "name": "applyTransaction",
+   "kind": "complex",
+   "title": "Mini option buy with fee",
+   "classification": "AGREE",
+   "expected": {
+    "cash": {
+     "exact": "4921.9490",
+     "shown": "$4,921.95"
+    },
+    "typed_total": {
+     "exact": "19999.24",
+     "shown": "$19,999.24"
+    }
+   },
+   "actual": {
+    "cash": 4921.9490000000005,
+    "typed_total": 19999.24
+   },
+   "difference": "none",
+   "mapped": "account {cash, balance, typed_total} → a hand-typed TAXABLE brokerage A (cash_balance, balance); transaction → a record {type, amount, shares, price, multiplier, fee (fee_in_price false), date, direction}; a sale’s shares are held (holding XYZ, 10 shares) so the sale is not clamped",
+   "rests_on": "DEC-6796 (signed reversals); DEC-7595 (a typed total moves only by the fee); DEC-7596 (fee once); DEC-7602 (contracts × multiplier)",
+   "note": "Deposit +$1,000 and a −$50 dividend move cash and the typed total alike; a buy or a sale moves cash by shares × price × multiplier ∓ fee and the typed total by the fee only.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-111 applyTransaction — five cases › MK-CF-F-111-C03 · complex · Mini option buy with fee [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-111",
+   "case_id": "MK-CF-F-111-C04",
+   "name": "applyTransaction",
+   "kind": "complex",
+   "title": "Stock sale with fee",
+   "classification": "AGREE",
+   "expected": {
+    "cash": {
+     "exact": "5714.3627",
+     "shown": "$5,714.36"
+    },
+    "typed_total": {
+     "exact": "19997.00",
+     "shown": "$19,997.00"
+    }
+   },
+   "actual": {
+    "cash": 5714.3627,
+    "typed_total": 19997
+   },
+   "difference": "none",
+   "mapped": "account {cash, balance, typed_total} → a hand-typed TAXABLE brokerage A (cash_balance, balance); transaction → a record {type, amount, shares, price, multiplier, fee (fee_in_price false), date, direction}; a sale’s shares are held (holding XYZ, 10 shares) so the sale is not clamped",
+   "rests_on": "DEC-6796 (signed reversals); DEC-7595 (a typed total moves only by the fee); DEC-7596 (fee once); DEC-7602 (contracts × multiplier)",
+   "note": "Deposit +$1,000 and a −$50 dividend move cash and the typed total alike; a buy or a sale moves cash by shares × price × multiplier ∓ fee and the typed total by the fee only.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-111 applyTransaction — five cases › MK-CF-F-111-C04 · complex · Stock sale with fee [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-111",
+   "case_id": "MK-CF-F-111-C05",
+   "name": "applyTransaction",
+   "kind": "edge",
+   "title": "Amount-only sale",
+   "classification": "AGREE",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Sale or external disposal?",
+    "readings": {
+     "internal_sale": {
+      "typed_total": {
+       "exact": "10000",
+       "shown": "$10,000.00"
+      },
+      "cash": {
+       "exact": "1500",
+       "shown": "$1,500.00"
+      }
+     },
+     "external_disposal": {
+      "typed_total": {
+       "exact": "9500",
+       "shown": "$9,500.00"
+      },
+      "cash": {
+       "exact": "1000",
+       "shown": "$1,000.00"
+      }
+     }
+    }
+   },
+   "reviewer_formula_gives": {
+    "typed_total": {
+     "exact": "9500",
+     "shown": "$9,500.00"
+    }
+   },
+   "actual": {
+    "cash": 1000,
+    "typed_total": 9500
+   },
+   "difference": "none",
+   "mapped": "account {cash, balance, typed_total} → a hand-typed TAXABLE brokerage A (cash_balance, balance); transaction → a record {type, amount, shares, price, multiplier, fee (fee_in_price false), date, direction}; a sale’s shares are held (holding XYZ, 10 shares) so the sale is not clamped; no shares → an amount-only sale",
+   "rests_on": "caller domain: BondsScreen.tsx:247, OtherInvestmentsScreen.tsx:155, AccountPortfolioScreen.tsx:959",
+   "note": "The reviewer wrote RULE UNCLEAR (sale or disposal?). Every amount-only sale the app records is a bond, CD or other investment sold or paid out to the bank — money that leaves that account — so the callers settle it: the app gives the reviewer’s \"external disposal\" reading, total $9,500, cash $1,000.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-111 applyTransaction — five cases › MK-CF-F-111-C05 · edge · Amount-only sale [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-222",
+   "case_id": "MK-CF-F-222-C01",
+   "name": "tradeCash",
+   "kind": "easy",
+   "title": "Bank cash",
+   "classification": "AGREE",
+   "expected": {
+    "cash": null,
+    "stored_total": {
+     "exact": "996.83",
+     "shown": "$996.83"
+    }
+   },
+   "actual": {
+    "cash": null,
+    "stored_total": 996.83
+   },
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true); cash_delta → gross (what the shares cost or brought in); fee_not_in_price → fee",
+   "rests_on": "DEC-7595 (his ruling DEC-3523 tenets 1 and 5)",
+   "note": "Cash moves by gross − fee where the account keeps cash; a typed total moves by the fee only; cash never entered stays not entered.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-222 tradeCash — five cases › MK-CF-F-222-C01 · easy · Bank cash [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-222",
+   "case_id": "MK-CF-F-222-C02",
+   "name": "tradeCash",
+   "kind": "easy",
+   "title": "Typed brokerage",
+   "classification": "AGREE",
+   "expected": {
+    "cash": {
+     "exact": "1096.83",
+     "shown": "$1,096.83"
+    },
+    "stored_total": {
+     "exact": "9996.83",
+     "shown": "$9,996.83"
+    }
+   },
+   "actual": {
+    "cash": 1096.83,
+    "stored_total": 9996.83
+   },
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true); cash_delta → gross (what the shares cost or brought in); fee_not_in_price → fee",
+   "rests_on": "DEC-7595 (his ruling DEC-3523 tenets 1 and 5)",
+   "note": "Cash moves by gross − fee where the account keeps cash; a typed total moves by the fee only; cash never entered stays not entered.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-222 tradeCash — five cases › MK-CF-F-222-C02 · easy · Typed brokerage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-222",
+   "case_id": "MK-CF-F-222-C03",
+   "name": "tradeCash",
+   "kind": "complex",
+   "title": "Derived brokerage",
+   "classification": "AGREE",
+   "expected": {
+    "cash": {
+     "exact": "517.07",
+     "shown": "$517.07"
+    },
+    "stored_total": {
+     "exact": "13111.17",
+     "shown": "$13,111.17"
+    }
+   },
+   "actual": {
+    "cash": 517.07,
+    "stored_total": 13111.17
+   },
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true); cash_delta → gross (what the shares cost or brought in); fee_not_in_price → fee",
+   "rests_on": "DEC-7595 (his ruling DEC-3523 tenets 1 and 5)",
+   "note": "Cash moves by gross − fee where the account keeps cash; a typed total moves by the fee only; cash never entered stays not entered.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-222 tradeCash — five cases › MK-CF-F-222-C03 · complex · Derived brokerage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-222",
+   "case_id": "MK-CF-F-222-C04",
+   "name": "tradeCash",
+   "kind": "complex",
+   "title": "Property is illiquid",
+   "classification": "AGREE",
+   "expected": {
+    "cash": null,
+    "stored_total": {
+     "exact": "400728.00",
+     "shown": "$400,728.00"
+    }
+   },
+   "actual": {
+    "cash": null,
+    "stored_total": 400728
+   },
+   "difference": "none",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true); cash_delta → gross (what the shares cost or brought in); fee_not_in_price → fee",
+   "rests_on": "DEC-7595 (his ruling DEC-3523 tenets 1 and 5)",
+   "note": "Cash moves by gross − fee where the account keeps cash; a typed total moves by the fee only; cash never entered stays not entered.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-222 tradeCash — five cases › MK-CF-F-222-C04 · complex · Property is illiquid [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-222",
+   "case_id": "MK-CF-F-222-C05",
+   "name": "tradeCash",
+   "kind": "edge",
+   "title": "Investment cash missing",
+   "classification": "REVIEWER WRONG",
+   "expected": {
+    "cash": null,
+    "stored_total": {
+     "exact": "10000",
+     "shown": "$10,000.00"
+    }
+   },
+   "reviewer_formula_gives": {
+    "cash": {
+     "exact": "96.83",
+     "shown": "$96.83"
+    },
+    "stored_total": {
+     "exact": "10000",
+     "shown": "$10,000.00"
+    }
+   },
+   "actual": {
+    "cash": 96.83,
+    "stored_total": 10000
+   },
+   "difference": "App opens the cash at $96.83 on an account built from its holdings; the reviewer keeps it not entered.",
+   "mapped": "account {kind, balance, cash, typed_total|derived} → AssetAccount (cash → checking/CASH, investment → brokerage/TAXABLE, property → home/PROPERTY; cash null → cash_balance absent; derived → derive_balance true); cash_delta → gross (what the shares cost or brought in); fee_not_in_price → fee",
+   "rests_on": "DEC-0096 (his); DEC-7595; recomputeBalances useStore.ts:57",
+   "note": "App opens the cash at $96.83 on an account built from its holdings; the reviewer keeps it not entered. That account is rebuilt as cash (missing read as $0) plus holdings, so a sale’s $96.83 kept off the cash would vanish from the balance — the fault DEC-0096 fixed. A typed account with no cash keeps it not entered (C01–C04, rule DEC-7595 below).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-222 tradeCash — five cases › MK-CF-F-222-C05 · edge · Investment cash missing [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-223",
+   "case_id": "MK-CF-F-223-C01",
+   "name": "tradeMultiplierOf",
+   "kind": "easy",
+   "title": "Stock buy",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "1",
+    "shown": "1"
+   },
+   "actual": 1,
+   "difference": "none",
+   "mapped": "transaction_kind → type; holding_kind stock → a held position kind stocks_etf, option → kind options; shares_per_contract → the position’s multiplier; holding_exists false → the account holds nothing and the record names the kind (Transaction.kind, \"instrument kind … for new positions\")",
+   "rests_on": "DEC-0274 (his); DEC-4646 (his); DEC-7602",
+   "note": "A held stock 1, a held option 100, a mini option its own 10, anything but a trade 1.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-223 tradeMultiplierOf — five cases › MK-CF-F-223-C01 · easy · Stock buy [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-223",
+   "case_id": "MK-CF-F-223-C02",
+   "name": "tradeMultiplierOf",
+   "kind": "easy",
+   "title": "Standard option",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "100",
+    "shown": "100"
+   },
+   "actual": 100,
+   "difference": "none",
+   "mapped": "transaction_kind → type; holding_kind stock → a held position kind stocks_etf, option → kind options; shares_per_contract → the position’s multiplier; holding_exists false → the account holds nothing and the record names the kind (Transaction.kind, \"instrument kind … for new positions\")",
+   "rests_on": "DEC-0274 (his); DEC-4646 (his); DEC-7602",
+   "note": "A held stock 1, a held option 100, a mini option its own 10, anything but a trade 1.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-223 tradeMultiplierOf — five cases › MK-CF-F-223-C02 · easy · Standard option [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-223",
+   "case_id": "MK-CF-F-223-C03",
+   "name": "tradeMultiplierOf",
+   "kind": "complex",
+   "title": "Mini option",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "10",
+    "shown": "10"
+   },
+   "actual": 10,
+   "difference": "none",
+   "mapped": "transaction_kind → type; holding_kind stock → a held position kind stocks_etf, option → kind options; shares_per_contract → the position’s multiplier; holding_exists false → the account holds nothing and the record names the kind (Transaction.kind, \"instrument kind … for new positions\")",
+   "rests_on": "DEC-0274 (his); DEC-4646 (his); DEC-7602",
+   "note": "A held stock 1, a held option 100, a mini option its own 10, anything but a trade 1.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-223 tradeMultiplierOf — five cases › MK-CF-F-223-C03 · complex · Mini option [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-223",
+   "case_id": "MK-CF-F-223-C04",
+   "name": "tradeMultiplierOf",
+   "kind": "complex",
+   "title": "Nontrade record",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "1",
+    "shown": "1"
+   },
+   "actual": 1,
+   "difference": "none",
+   "mapped": "transaction_kind → type; holding_kind stock → a held position kind stocks_etf, option → kind options; shares_per_contract → the position’s multiplier; holding_exists false → the account holds nothing and the record names the kind (Transaction.kind, \"instrument kind … for new positions\")",
+   "rests_on": "DEC-0274 (his); DEC-4646 (his); DEC-7602",
+   "note": "A held stock 1, a held option 100, a mini option its own 10, anything but a trade 1.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-223 tradeMultiplierOf — five cases › MK-CF-F-223-C04 · complex · Nontrade record [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-223",
+   "case_id": "MK-CF-F-223-C05",
+   "name": "tradeMultiplierOf",
+   "kind": "edge",
+   "title": "First option buy",
+   "classification": "APP WRONG",
+   "expected": {
+    "exact": "100",
+    "shown": "100"
+   },
+   "reviewer_formula_gives": {
+    "exact": "1",
+    "shown": "1"
+   },
+   "actual": 1,
+   "difference": "A first buy of an option the account does not hold yet counts ×1: 1 contract at $2.50 moves $2.50, not $250.",
+   "mapped": "transaction_kind → type; holding_kind stock → a held position kind stocks_etf, option → kind options; shares_per_contract → the position’s multiplier; holding_exists false → the account holds nothing and the record names the kind (Transaction.kind, \"instrument kind … for new positions\")",
+   "rests_on": "DEC-0274 (his): \"options: value = contracts × 100 × price unless the broker or the person states otherwise\"",
+   "note": "A first buy of an option the account does not hold yet counts ×1: 1 contract at $2.50 moves $2.50, not $250. tradeMultiplierOf reads only a held position and ignores the record’s kind; the trade sheet does not ask the type (DEC-7602 records this as a limit, not a ruling). The holding addLot opens then carries no kind, so it stays ×1 afterwards too.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-223 tradeMultiplierOf — five cases › MK-CF-F-223-C05 · edge · First option buy [AGREE] — FIXED 2026-10-25 — DEC-0274, DEC-4646: the record’s type and shares per contract are read",
+   "test_result": "passed (FIXED 2026-10-25: the case passes on the reviewer's answer; the app's old answer is pinned beside it as test.failing)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-TRADES; DEC-0274, DEC-4646): for a ticker the account does not hold, tradeMultiplierOf reads the type and shares per contract the record names; the trade sheet asks both (100 unless changed). 1 contract at $2.50 moves $250: $1,000 of cash reads $750 (was $2.50 and $997.50), and the holding opened keeps its 100 a contract."
+  },
+  {
+   "id": "MK-CF-F-224",
+   "case_id": "MK-CF-F-224-C01",
+   "name": "openingRecordsOf",
+   "kind": "easy",
+   "title": "One record",
+   "classification": "AGREE",
+   "expected": {
+    "economic_records": [
+     {
+      "shares": {
+       "exact": "10",
+       "shown": "10"
+      },
+      "price": {
+       "exact": "100",
+       "shown": "$100.00"
+      },
+      "date": "2026-01-01",
+      "ticker": "AAA"
+     }
+    ],
+    "assertions": [
+     "one fresh unique id per output",
+     "creation timestamp distinct from transaction/purchase date",
+     "no invented price or purchase date"
+    ]
+   },
+   "actual": [
+    {
+     "shares": 10,
+     "price": 100,
+     "date": "2026-01-01",
+     "ticker": "AAA",
+     "id_unique": true,
+     "created_at_is_timestamp": true
+    }
+   ],
+   "difference": "none",
+   "mapped": "purchases_or_partial_records → one holding (ticker = the first record’s spelling) whose lots are the records {shares, cost_per_share = price, purchase_date = date}; openingRecordsOf(account A, that holding)",
+   "rests_on": "DEC-7601",
+   "note": "One opening record per purchase, its shares, price paid and date as on record (a missing price stays missing, a $0 stays $0, a missing date stays missing), the ticker in capitals.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-224 openingRecordsOf — five cases › MK-CF-F-224-C01 · easy · One record [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-224",
+   "case_id": "MK-CF-F-224-C02",
+   "name": "openingRecordsOf",
+   "kind": "easy",
+   "title": "No records",
+   "classification": "AGREE",
+   "expected": {
+    "economic_records": [],
+    "assertions": [
+     "one fresh unique id per output",
+     "creation timestamp distinct from transaction/purchase date",
+     "no invented price or purchase date"
+    ]
+   },
+   "actual": [],
+   "difference": "none",
+   "mapped": "purchases_or_partial_records → one holding (ticker = the first record’s spelling) whose lots are the records {shares, cost_per_share = price, purchase_date = date}; openingRecordsOf(account A, that holding)",
+   "rests_on": "DEC-7601",
+   "note": "One opening record per purchase, its shares, price paid and date as on record (a missing price stays missing, a $0 stays $0, a missing date stays missing), the ticker in capitals.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-224 openingRecordsOf — five cases › MK-CF-F-224-C02 · easy · No records [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-224",
+   "case_id": "MK-CF-F-224-C03",
+   "name": "openingRecordsOf",
+   "kind": "complex",
+   "title": "Unround lots",
+   "classification": "AGREE",
+   "expected": {
+    "economic_records": [
+     {
+      "shares": {
+       "exact": "3.17",
+       "shown": "3.17"
+      },
+      "price": {
+       "exact": "83.19",
+       "shown": "$83.19"
+      },
+      "date": "2026-01-13",
+      "ticker": "AAA"
+     },
+     {
+      "shares": {
+       "exact": "7.31",
+       "shown": "7.31"
+      },
+      "price": {
+       "exact": "91.43",
+       "shown": "$91.43"
+      },
+      "date": "2026-09-17",
+      "ticker": "AAA"
+     }
+    ],
+    "assertions": [
+     "one fresh unique id per output",
+     "creation timestamp distinct from transaction/purchase date",
+     "no invented price or purchase date"
+    ]
+   },
+   "actual": [
+    {
+     "shares": 3.17,
+     "price": 83.19,
+     "date": "2026-01-13",
+     "ticker": "AAA",
+     "id_unique": true,
+     "created_at_is_timestamp": true
+    },
+    {
+     "shares": 7.31,
+     "price": 91.43,
+     "date": "2026-09-17",
+     "ticker": "AAA",
+     "id_unique": true,
+     "created_at_is_timestamp": true
+    }
+   ],
+   "difference": "none",
+   "mapped": "purchases_or_partial_records → one holding (ticker = the first record’s spelling) whose lots are the records {shares, cost_per_share = price, purchase_date = date}; openingRecordsOf(account A, that holding)",
+   "rests_on": "DEC-7601",
+   "note": "One opening record per purchase, its shares, price paid and date as on record (a missing price stays missing, a $0 stays $0, a missing date stays missing), the ticker in capitals.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-224 openingRecordsOf — five cases › MK-CF-F-224-C03 · complex · Unround lots [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-224",
+   "case_id": "MK-CF-F-224-C04",
+   "name": "openingRecordsOf",
+   "kind": "complex",
+   "title": "Unknown price preserved",
+   "classification": "AGREE",
+   "expected": {
+    "economic_records": [
+     {
+      "shares": {
+       "exact": "11.19",
+       "shown": "11.19"
+      },
+      "price": null,
+      "date": "2026-02-17",
+      "ticker": "BBB"
+     },
+     {
+      "shares": {
+       "exact": "3.17",
+       "shown": "3.17"
+      },
+      "price": {
+       "exact": "0",
+       "shown": "$0.00"
+      },
+      "date": "2026-03-13",
+      "ticker": "BBB"
+     }
+    ],
+    "assertions": [
+     "one fresh unique id per output",
+     "creation timestamp distinct from transaction/purchase date",
+     "no invented price or purchase date"
+    ]
+   },
+   "actual": [
+    {
+     "shares": 11.19,
+     "price": null,
+     "date": "2026-02-17",
+     "ticker": "BBB",
+     "id_unique": true,
+     "created_at_is_timestamp": true
+    },
+    {
+     "shares": 3.17,
+     "price": 0,
+     "date": "2026-03-13",
+     "ticker": "BBB",
+     "id_unique": true,
+     "created_at_is_timestamp": true
+    }
+   ],
+   "difference": "none",
+   "mapped": "purchases_or_partial_records → one holding (ticker = the first record’s spelling) whose lots are the records {shares, cost_per_share = price, purchase_date = date}; openingRecordsOf(account A, that holding)",
+   "rests_on": "DEC-7601",
+   "note": "One opening record per purchase, its shares, price paid and date as on record (a missing price stays missing, a $0 stays $0, a missing date stays missing), the ticker in capitals.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-224 openingRecordsOf — five cases › MK-CF-F-224-C04 · complex · Unknown price preserved [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-224",
+   "case_id": "MK-CF-F-224-C05",
+   "name": "openingRecordsOf",
+   "kind": "edge",
+   "title": "Unknown purchase date",
+   "classification": "AGREE",
+   "expected": {
+    "economic_records": [
+     {
+      "shares": {
+       "exact": "10",
+       "shown": "10"
+      },
+      "price": {
+       "exact": "100",
+       "shown": "$100.00"
+      },
+      "date": null,
+      "ticker": "AAA"
+     }
+    ],
+    "assertions": [
+     "one fresh unique id per output",
+     "creation timestamp distinct from transaction/purchase date",
+     "no invented price or purchase date"
+    ]
+   },
+   "actual": [
+    {
+     "shares": 10,
+     "price": 100,
+     "date": null,
+     "ticker": "AAA",
+     "id_unique": true,
+     "created_at_is_timestamp": true
+    }
+   ],
+   "difference": "none",
+   "mapped": "purchases_or_partial_records → one holding (ticker = the first record’s spelling) whose lots are the records {shares, cost_per_share = price, purchase_date = date}; openingRecordsOf(account A, that holding)",
+   "rests_on": "DEC-7601",
+   "note": "One opening record per purchase, its shares, price paid and date as on record (a missing price stays missing, a $0 stays $0, a missing date stays missing), the ticker in capitals.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-224 openingRecordsOf — five cases › MK-CF-F-224-C05 · edge · Unknown purchase date [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-112",
+   "case_id": "MK-CF-F-112-C01",
+   "name": "makeTransaction",
+   "kind": "easy",
+   "title": "One record",
+   "classification": "AGREE",
+   "expected": {
+    "economic_records": [
+     {
+      "shares": {
+       "exact": "10",
+       "shown": "10"
+      },
+      "price": {
+       "exact": "100",
+       "shown": "$100.00"
+      },
+      "date": "2026-01-01",
+      "ticker": "AAA"
+     }
+    ],
+    "assertions": [
+     "one fresh unique id per output",
+     "creation timestamp distinct from transaction/purchase date",
+     "no invented price or purchase date"
+    ]
+   },
+   "actual": [
+    {
+     "shares": 10,
+     "price": 100,
+     "date": "2026-01-01",
+     "ticker": "AAA",
+     "id_unique": true,
+     "created_at_is_timestamp": true
+    }
+   ],
+   "difference": "none",
+   "mapped": "each partial record → one makeTransaction({date, type OPENING_POSITION, account_id A, ticker, shares, price}) call",
+   "rests_on": "written formula",
+   "note": "Keeps every field handed in, puts the ticker in capitals, adds a fresh id and the creation time.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-112 makeTransaction — five cases › MK-CF-F-112-C01 · easy · One record [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-112",
+   "case_id": "MK-CF-F-112-C02",
+   "name": "makeTransaction",
+   "kind": "easy",
+   "title": "No records",
+   "classification": "AGREE",
+   "expected": {
+    "economic_records": [],
+    "assertions": [
+     "one fresh unique id per output",
+     "creation timestamp distinct from transaction/purchase date",
+     "no invented price or purchase date"
+    ]
+   },
+   "actual": [],
+   "difference": "none",
+   "mapped": "each partial record → one makeTransaction({date, type OPENING_POSITION, account_id A, ticker, shares, price}) call",
+   "rests_on": "written formula",
+   "note": "Keeps every field handed in, puts the ticker in capitals, adds a fresh id and the creation time.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-112 makeTransaction — five cases › MK-CF-F-112-C02 · easy · No records [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-112",
+   "case_id": "MK-CF-F-112-C03",
+   "name": "makeTransaction",
+   "kind": "complex",
+   "title": "Unround lots",
+   "classification": "AGREE",
+   "expected": {
+    "economic_records": [
+     {
+      "shares": {
+       "exact": "3.17",
+       "shown": "3.17"
+      },
+      "price": {
+       "exact": "83.19",
+       "shown": "$83.19"
+      },
+      "date": "2026-01-13",
+      "ticker": "AAA"
+     },
+     {
+      "shares": {
+       "exact": "7.31",
+       "shown": "7.31"
+      },
+      "price": {
+       "exact": "91.43",
+       "shown": "$91.43"
+      },
+      "date": "2026-09-17",
+      "ticker": "AAA"
+     }
+    ],
+    "assertions": [
+     "one fresh unique id per output",
+     "creation timestamp distinct from transaction/purchase date",
+     "no invented price or purchase date"
+    ]
+   },
+   "actual": [
+    {
+     "shares": 3.17,
+     "price": 83.19,
+     "date": "2026-01-13",
+     "ticker": "AAA",
+     "id_unique": true,
+     "created_at_is_timestamp": true
+    },
+    {
+     "shares": 7.31,
+     "price": 91.43,
+     "date": "2026-09-17",
+     "ticker": "AAA",
+     "id_unique": true,
+     "created_at_is_timestamp": true
+    }
+   ],
+   "difference": "none",
+   "mapped": "each partial record → one makeTransaction({date, type OPENING_POSITION, account_id A, ticker, shares, price}) call",
+   "rests_on": "written formula",
+   "note": "Keeps every field handed in, puts the ticker in capitals, adds a fresh id and the creation time.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-112 makeTransaction — five cases › MK-CF-F-112-C03 · complex · Unround lots [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-112",
+   "case_id": "MK-CF-F-112-C04",
+   "name": "makeTransaction",
+   "kind": "complex",
+   "title": "Unknown price preserved",
+   "classification": "AGREE",
+   "expected": {
+    "economic_records": [
+     {
+      "shares": {
+       "exact": "11.19",
+       "shown": "11.19"
+      },
+      "price": null,
+      "date": "2026-02-17",
+      "ticker": "BBB"
+     },
+     {
+      "shares": {
+       "exact": "3.17",
+       "shown": "3.17"
+      },
+      "price": {
+       "exact": "0",
+       "shown": "$0.00"
+      },
+      "date": "2026-03-13",
+      "ticker": "BBB"
+     }
+    ],
+    "assertions": [
+     "one fresh unique id per output",
+     "creation timestamp distinct from transaction/purchase date",
+     "no invented price or purchase date"
+    ]
+   },
+   "actual": [
+    {
+     "shares": 11.19,
+     "price": null,
+     "date": "2026-02-17",
+     "ticker": "BBB",
+     "id_unique": true,
+     "created_at_is_timestamp": true
+    },
+    {
+     "shares": 3.17,
+     "price": 0,
+     "date": "2026-03-13",
+     "ticker": "BBB",
+     "id_unique": true,
+     "created_at_is_timestamp": true
+    }
+   ],
+   "difference": "none",
+   "mapped": "each partial record → one makeTransaction({date, type OPENING_POSITION, account_id A, ticker, shares, price}) call",
+   "rests_on": "written formula",
+   "note": "Keeps every field handed in, puts the ticker in capitals, adds a fresh id and the creation time.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-112 makeTransaction — five cases › MK-CF-F-112-C04 · complex · Unknown price preserved [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-112",
+   "case_id": "MK-CF-F-112-C05",
+   "name": "makeTransaction",
+   "kind": "edge",
+   "title": "Unknown purchase date",
+   "classification": "AGREE",
+   "expected": {
+    "economic_records": [
+     {
+      "shares": {
+       "exact": "10",
+       "shown": "10"
+      },
+      "price": {
+       "exact": "100",
+       "shown": "$100.00"
+      },
+      "date": null,
+      "ticker": "AAA"
+     }
+    ],
+    "assertions": [
+     "one fresh unique id per output",
+     "creation timestamp distinct from transaction/purchase date",
+     "no invented price or purchase date"
+    ]
+   },
+   "actual": [
+    {
+     "shares": 10,
+     "price": 100,
+     "date": null,
+     "ticker": "AAA",
+     "id_unique": true,
+     "created_at_is_timestamp": true
+    }
+   ],
+   "difference": "none",
+   "mapped": "each partial record → one makeTransaction({date, type OPENING_POSITION, account_id A, ticker, shares, price}) call",
+   "rests_on": "written formula",
+   "note": "Keeps every field handed in, puts the ticker in capitals, adds a fresh id and the creation time.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-112 makeTransaction — five cases › MK-CF-F-112-C05 · edge · Unknown purchase date [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-113",
+   "case_id": "MK-CF-F-113-C01",
+   "name": "affectedAccountIds",
+   "kind": "easy",
+   "title": "One account",
+   "classification": "AGREE",
+   "expected": [
+    "A"
+   ],
+   "actual": [
+    "A"
+   ],
+   "difference": "none",
+   "mapped": "primary → account_id; counter → counter_account_id (null → absent)",
+   "rests_on": "written formula",
+   "note": "The account, and the other account of a transfer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-113 affectedAccountIds — five cases › MK-CF-F-113-C01 · easy · One account [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-113",
+   "case_id": "MK-CF-F-113-C02",
+   "name": "affectedAccountIds",
+   "kind": "easy",
+   "title": "Transfer",
+   "classification": "AGREE",
+   "expected": [
+    "A",
+    "B"
+   ],
+   "actual": [
+    "A",
+    "B"
+   ],
+   "difference": "none",
+   "mapped": "primary → account_id; counter → counter_account_id (null → absent)",
+   "rests_on": "written formula",
+   "note": "The account, and the other account of a transfer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-113 affectedAccountIds — five cases › MK-CF-F-113-C02 · easy · Transfer [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-113",
+   "case_id": "MK-CF-F-113-C03",
+   "name": "affectedAccountIds",
+   "kind": "complex",
+   "title": "Three-account context",
+   "classification": "AGREE",
+   "expected": [
+    "B",
+    "C"
+   ],
+   "actual": [
+    "B",
+    "C"
+   ],
+   "difference": "none",
+   "mapped": "primary → account_id; counter → counter_account_id (null → absent)",
+   "rests_on": "written formula",
+   "note": "The account, and the other account of a transfer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-113 affectedAccountIds — five cases › MK-CF-F-113-C03 · complex · Three-account context [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-113",
+   "case_id": "MK-CF-F-113-C05",
+   "name": "affectedAccountIds",
+   "kind": "edge",
+   "title": "No counter account",
+   "classification": "AGREE",
+   "expected": [
+    "C"
+   ],
+   "actual": [
+    "C"
+   ],
+   "difference": "none",
+   "mapped": "primary → account_id; counter → counter_account_id (null → absent)",
+   "rests_on": "written formula",
+   "note": "The account, and the other account of a transfer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-113 affectedAccountIds — five cases › MK-CF-F-113-C05 · edge · No counter account [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-113",
+   "case_id": "MK-CF-F-113-C04",
+   "name": "affectedAccountIds",
+   "kind": "complex",
+   "title": "Self-transfer identity",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": [
+    "A"
+   ],
+   "actual": [
+    "A",
+    "A"
+   ],
+   "difference": "App gives [A, A] for a transfer from A to A; no sheet can record one (the trade sheet needs another account, the record sheet lists only others), and the one caller, undoSnapshot, reads the ids as a set, so A is copied once..",
+   "mapped": "primary → account_id; counter → counter_account_id (null → absent)",
+   "rests_on": "caller domain: PerformanceScreen.tsx (valid needs counterId !== accountId); AccountPortfolioScreen.tsx:1347 (the other accounts exclude this one); undoSnapshot index.ts:859 (a Set)",
+   "note": "App gives [A, A] for a transfer from A to A; no sheet can record one (the trade sheet needs another account, the record sheet lists only others), and the one caller, undoSnapshot, reads the ids as a set, so A is copied once.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › MK-CF-F-113 affectedAccountIds — five cases › MK-CF-F-113-C04 · complex · Self-transfer identity [OUTSIDE DOMAIN]",
+   "test_result": "passed"
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-CF-F-133",
+   "name": "cashOf",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Unentered investment cash is returned as zero, unlike availableCash’s explicit unknown state. A structural fallback must not become a displayed or spendable cash balance.",
+   "reviewer_should_be": "Return unknown/entered metadata or restrict this helper to nonfinancial structural accumulation.",
+   "classification": "OUTSIDE DOMAIN",
+   "records_or_app_fix": "records fix: the rule text",
+   "what_the_code_actually_does": "cashOf returns cash_balance or 0 — and nothing calls it. Its record’s \"Called by MK-ST-F-073 rebuildDays\" is a word match with rebuild-history.ts’s own Map named cashOf.",
+   "governing_decisions": [
+    "DEC-3523 tenet 3"
+   ],
+   "plain_example": "No cash entered: cashOf gives $0 — on no screen, because no function reads it.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › formula checks — the reviewer’s 8 card verdicts that are not RIGHT › MK-CF-F-133 · formula verdict INCOMPLETE [OUTSIDE DOMAIN]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-135",
+   "name": "availableCash",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Treats property market value as spendable balance. A $400,000 home is not $400,000 available to settle a purchase without a sale.",
+   "reviewer_should_be": "Restrict immediately spendable cash to actual cash accounts and known investment cash sleeves; property requires a dated sale/financing event.",
+   "classification": "OUTSIDE DOMAIN",
+   "records_or_app_fix": "records fix: the rule text (and, optionally, drop PROPERTY from the branch — no screen figure moves)",
+   "what_the_code_actually_does": "availableCash reads a property’s balance as cash, but its one caller (the trade sheet, PerformanceScreen.tsx:955) never offers a property: accountAllowsTicker refuses PROPERTY and a property’s class is never cash. Unknown investment cash is already null (fixed 2026-10-21).",
+   "governing_decisions": [
+    "DEC-3279e",
+    "DEC-3523 tenets 1 and 3"
+   ],
+   "plain_example": "A $400,731.17 home: availableCash gives $400,731.17, but no sheet lists a home to trade or move cash from.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › formula checks — the reviewer’s 8 card verdicts that are not RIGHT › MK-CF-F-135 · formula verdict WRONG [OUTSIDE DOMAIN]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-136",
+   "name": "bumpCash",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Investment cash can be initialized from a missing amount; updates must preserve unknown cash and linked/derived total conventions.",
+   "reviewer_should_be": "If cash is unknown, keep it unknown or require a confirmed opening amount; preserve typed, derived and broker totals as declared.",
+   "classification": "REVIEWER WRONG",
+   "records_or_app_fix": "records fix: the rule text",
+   "what_the_code_actually_does": "A deposit into an investment account with no cash figure opens the cash at the deposit, because an account built from holdings is rebuilt as cash + holdings and the money would otherwise vanish (DEC-0096). A typed total keeps its own figure and moves by the money.",
+   "governing_decisions": [
+    "DEC-0096",
+    "DEC-7595"
+   ],
+   "plain_example": "$100 deposited into an imported $10,000 account with no cash entered: cash $100, total $10,100 after the rebuild — not cash unknown and $10,000.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › formula checks — the reviewer’s 8 card verdicts that are not RIGHT › MK-CF-F-136 · formula verdict INCOMPLETE [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-138",
+   "name": "addLot",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "Adds shares/cost correctly, but a missing date cannot become a known acquisition date and ticker classification is delegated without a fully supplied mapping.",
+   "reviewer_should_be": "Preserve absent date/cost and classification uncertainty; never overwrite an explicit classification.",
+   "classification": "APP WRONG",
+   "records_or_app_fix": "app fix (the class of a holding a trade opens) and records fix: the rule text (dates and an existing class are already kept)",
+   "what_the_code_actually_does": "addLot keeps the date it is handed (null stays null) and an existing holding’s class. A holding a trade opens is classed by assetClassForSymbol (DEC-7605), whose last step files a ticker nothing identifies under Stocks / Funds — the guess his DEC-2160 forbids, and the one the sync already refuses (ingest.ts:495).",
+   "governing_decisions": [
+    "DEC-2160",
+    "DEC-7605",
+    "DEC-7601"
+   ],
+   "plain_example": "10 UNKNOWN123 bought at $100 on the trade sheet: filed under Stocks / Funds. Right: Unclassified, and Net worth asks what it is — as a synced UNKNOWN123 is.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › formula checks — the reviewer’s 8 card verdicts that are not RIGHT › MK-CF-F-138 · formula verdict INCOMPLETE [AGREE] — FIXED 2026-10-25 — DEC-2160",
+   "test_result": "passed (FIXED 2026-10-25; the old answer pinned as test.failing)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-TRADES): no class stored where only the classifier's default speaks; the holding is marked asked."
+  },
+  {
+   "id": "MK-CF-F-139",
+   "name": "removeShares",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "FIFO order is stated correctly, including undated lots last, but excess removals and a lot with unknown quantity have no explicit refusal/allocation contract.",
+   "reviewer_should_be": "Do not erase unknown shares or oversell; require enough recorded quantity or retain an unresolved sale.",
+   "classification": "APP WRONG",
+   "records_or_app_fix": "app fix",
+   "what_the_code_actually_does": "A lot whose share count is not on record is read as 0 by Math.min and dropped, so a sale erases a purchase of unknown size.",
+   "governing_decisions": [
+    "DEC-3523 tenets 3 and 5"
+   ],
+   "plain_example": "Holding AAA with one purchase of unknown shares at $100; a sale of 4 recorded through the edit sheet: the holding disappears. Right: the purchase stays, unknown.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › formula checks — the reviewer’s 8 card verdicts that are not RIGHT › MK-CF-F-139 · formula verdict INCOMPLETE [AGREE] — FIXED 2026-10-25 — DEC-3523 tenets 3 and 5",
+   "test_result": "passed (FIXED 2026-10-25; the old answer pinned as test.failing)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-TRADES): a purchase whose share count is not on record is never read as 0 or dropped."
+  },
+  {
+   "id": "MK-CF-F-111",
+   "name": "applyTransaction",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Its broad transaction contract contains unresolved paths: sale without shares lowers balance although a sale is internal cash conversion, and unknown existing quantities allow a sale to stand without a specified residual position.",
+   "reviewer_should_be": "Define amount-only sales and unknown-lot sales explicitly; preserve cash unknowns and total-asset conservation, with fees applied once.",
+   "classification": "APP WRONG",
+   "records_or_app_fix": "app fix (in MK-CF-F-139 removeShares) — the amount-only sale point is settled by the callers",
+   "what_the_code_actually_does": "Amount-only sales come only from bond, CD and other-investment sales and a matured bond’s payout, so the value drops by the sale (the reviewer’s own formula reading). A sale on a holding whose count is unknown stands (index.ts:719-721) and removeShares then erases that purchase.",
+   "governing_decisions": [
+    "DEC-7595",
+    "DEC-7596",
+    "DEC-3523 tenet 3"
+   ],
+   "plain_example": "XYZ held as one purchase of unknown shares; a recorded sale of 4 at $10: cash +$40 and XYZ gone. Right: XYZ stays, its count unknown.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › formula checks — the reviewer’s 8 card verdicts that are not RIGHT › MK-CF-F-111 · formula verdict INCOMPLETE [AGREE] — FIXED 2026-10-25 — in MK-CF-F-139 removeShares",
+   "test_result": "passed (FIXED 2026-10-25; the old answer pinned as test.failing)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-TRADES): a recorded sale of 4 at $10 on XYZ held as one purchase of unknown size: cash +$40, XYZ kept, its count not stated."
+  },
+  {
+   "id": "MK-CF-F-222",
+   "name": "tradeCash",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Explicitly changes missing cash as if it were zero, creating an invented balance even though applyTransaction promises missing cash stays unentered.",
+   "reviewer_should_be": "Preserve unknown cash; update only entered cash and the applicable typed fee effect.",
+   "classification": "REVIEWER WRONG",
+   "records_or_app_fix": "records fix: the rule text",
+   "what_the_code_actually_does": "tradeCash keeps cash not entered on a typed account (it moves the typed total by the fee only — DEC-7595) and opens the cash only on an account built from holdings, whose rebuilt total would otherwise lose the trade’s money (DEC-0096).",
+   "governing_decisions": [
+    "DEC-7595",
+    "DEC-0096"
+   ],
+   "plain_example": "Typed $40,000 account, 100 VTI, no cash entered, 10 VTI bought at $100 with a $5 fee: total $39,995, cash still not entered.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › formula checks — the reviewer’s 8 card verdicts that are not RIGHT › MK-CF-F-222 · formula verdict WRONG [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-223",
+   "name": "tradeMultiplierOf",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Known holdings use the correct multiplier, but a newly bought option has no holding and falls back to 1. The recorded limitation undercounts a new option trade unless type is acquired upstream.",
+   "reviewer_should_be": "Require instrument type/multiplier when opening a new position, or refuse an unclassified contract trade; preserve historical ×1 records.",
+   "classification": "APP WRONG",
+   "records_or_app_fix": "app fix",
+   "what_the_code_actually_does": "Only a held position gives a contract multiplier; a first buy of an option counts ×1 and the new holding carries no kind.",
+   "governing_decisions": [
+    "DEC-0274",
+    "DEC-4646",
+    "DEC-7602"
+   ],
+   "plain_example": "1 contract of a new option bought at $2.50: cash moves $2.50; right $250.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › formula checks — the reviewer’s 8 card verdicts that are not RIGHT › MK-CF-F-223 · formula verdict INCOMPLETE [AGREE] — FIXED 2026-10-25 — DEC-0274, DEC-4646",
+   "test_result": "passed (FIXED 2026-10-25; the old answer pinned as test.failing)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-TRADES): a first buy of an option reads the record’s type: ×100 (or its stated shares per contract)."
+  }
+ ],
+ "rules_not_held": [
+  {
+   "rule": "DEC-7595",
+   "cards": [
+    "MK-CF-F-222"
+   ],
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Typedtotal fee-only rule is declared,but tradeCash still initializesunknowncashfrom0.",
+   "classification": "REVIEWER WRONG",
+   "what_the_code_actually_does": "The typed-total rule holds: a trade on a typed account with no cash entered moves the total by the fee and leaves the cash not entered. The case the reviewer cites (F-222-C05) is an account built from holdings, where opening the cash keeps the trade’s money in the total (DEC-0096).",
+   "governing_decisions": [
+    "DEC-7595",
+    "DEC-0096"
+   ],
+   "plain_example": "$40,000 typed, 100 VTI, 10 more bought at $100 with a $5 fee: $39,995 and 110 VTI; cash not entered.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › rules — the reviewer’s 2 NOT HELD verdicts › DEC-7595 · rule verdict NOT HELD [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "rule": "DEC-7602",
+   "cards": [
+    "MK-CF-F-223"
+   ],
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Knownholdingmultiplier works,but firstoptionbuy with no existingholdinguses1;recorded limitation cannot support a general optionscash claim.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "The limit DEC-7602 records is real: a ticker bought before it is held counts ×1, against his DEC-0274.",
+   "governing_decisions": [
+    "DEC-0274",
+    "DEC-4646",
+    "DEC-7602"
+   ],
+   "plain_example": "A first buy of 1 option contract at $2.50 in an account holding $1,000 cash: cash reads $997.50; right $750.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts › rules — the reviewer’s 2 NOT HELD verdicts › DEC-7602 · rule verdict NOT HELD [AGREE] — FIXED 2026-10-25 — DEC-0274: the limit is gone",
+   "test_result": "passed (FIXED 2026-10-25; the old answer pinned as test.failing)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-TRADES): the limit DEC-7602 recorded is gone — a ticker bought before it is held counts contracts × its stated shares per contract (100 unless changed) × price: 1 contract at $2.50 in an account with $1,000 cash leaves $750."
+  }
+ ],
+ "app_wrong_fixes": [
+  {
+   "function_id": "MK-CF-F-139",
+   "function": "removeShares",
+   "owner_file": "src/domain/transactions/index.ts (lines 621-644); reached from MK-CF-F-111 applyTransaction SELL (lines 717-722)",
+   "example": "Holding AAA with one purchase whose share count is not on record (bought at $100); a sale of 4 is applied (the edit sheet AccountPortfolioScreen.tsx:1657 re-records sales without the trade sheet's check; the delete replay useStore.ts:992 re-applies them).",
+   "app_gives": "The purchase is erased: Math.min(null, 4) reads it as 0 shares, the empty lot is dropped and AAA leaves the account.",
+   "right": "The purchase of unknown size stays, untouched (the sale cannot be shared out over it); the sale is refused or kept unresolved.",
+   "ruling_or_source": "DEC-3523 tenet 3 (unknown is not zero) and tenet 5 (the person's entry is never overwritten)",
+   "items": [
+    "case MK-CF-F-139-C05",
+    "formula MK-CF-F-139",
+    "formula MK-CF-F-111 (its unknown-quantity point)"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-TRADES; DEC-3523 tenets 3 and 5): removeShares stops at a purchase whose share count is not on record; that purchase and every later one are kept as they were (was: erased, and the holding left the account). The trade sheet refuses such a sale and says why: \"You own: Not stated — a purchase has no share count on record. ⚠ add the share count in Edit holding before recording a sale\"."
+  },
+  {
+   "function_id": "MK-CF-F-223",
+   "function": "tradeMultiplierOf (with the trade sheet, src/screens/PerformanceScreen.tsx TransactionSheet, and recordTransaction, src/store/useStore.ts:931-946)",
+   "owner_file": "src/domain/transactions/index.ts (lines 443-448)",
+   "example": "A first buy of 1 option contract at $2.50 in an account holding $1,000 cash and no position in that option.",
+   "app_gives": "Multiplier 1: cash moves $2.50 (reads $997.50); the holding addLot opens carries no kind, so it stays ×1 afterwards too.",
+   "right": "Multiplier 100: cash moves $250 (reads $750). The record must carry the instrument's type for a ticker not yet held — the trade sheet asks it, and tradeMultiplierOf reads it (Transaction.kind exists for new positions).",
+   "ruling_or_source": "DEC-0274 (his): \"options: value = contracts × 100 × price unless the broker or the person states otherwise\"; DEC-4646 (his); DEC-7602 records the limit, it does not rule it",
+   "items": [
+    "case MK-CF-F-223-C05",
+    "formula MK-CF-F-223",
+    "rule DEC-7602 (NOT HELD)"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-TRADES; DEC-0274, DEC-4646): for a ticker the account does not hold, tradeMultiplierOf reads the type and shares per contract the record names; the trade sheet asks both (100 unless changed). 1 contract at $2.50 moves $250: $1,000 of cash reads $750 (was $2.50 and $997.50), and the holding opened keeps its 100 a contract."
+  },
+  {
+   "function_id": "MK-CF-F-138",
+   "function": "addLot (the class of a holding a trade opens; through MK-XS-F-172 assetClassForSymbol)",
+   "owner_file": "src/domain/transactions/index.ts (lines 568-582); the default it reaches is Calculation Module code/engines/holding-class.ts:346",
+   "example": "10 UNKNOWN123 bought at $100 on the trade sheet, a ticker nothing identifies.",
+   "app_gives": "Filed under Stocks / Funds (asset_class stock_etf) by the classifier's last step, source \"security-default\" — while the same holding from a linked broker is asked (ingest.ts:495).",
+   "right": "No class until the person says: shown as Unclassified and asked, as a synced holding is.",
+   "ruling_or_source": "DEC-2160 (his, Q11: \"Refuse the line and ask\"); tenet 4 (one rule). NOTE for the fix: VTI also reaches Stocks / Funds only by that default (measured), so DEC-7605's own example would read Unclassified after this fix unless the trade sheet asks the type — the same question the F-223 fix adds.",
+   "items": [
+    "case MK-CF-F-138-C05",
+    "formula MK-CF-F-138"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-TRADES; DEC-2160, tenet 4): a record that names no type for a ticker nothing identifies opens the holding in no class, marked asked — Unclassified on the account page and the Performance tab, and Net worth asks what it is (was: Stocks / Funds by the classifier's last-resort default). The trade sheet now asks the type of a ticker the account does not hold and waits for the answer; DEC-7605's 10 VTI, chosen as Stocks / Funds, list there."
+  }
+ ],
+ "needs_a_ruling": [
+  {
+   "item": "Available cash after a buy in an account built from imported holdings whose cash was never entered (not a package case; it is where the F-222 / F-135 priority finding still touches a screen)",
+   "ids": [
+    "MK-CF-F-222 tradeCash",
+    "MK-CF-F-135 availableCash",
+    "MK-PF-M-020 Available cash"
+   ],
+   "two_readings": {
+    "as_built": "The buy opens the cash at minus the cost so the rebuilt total stays right: 100 VTI imported ($10,000, no cash entered), 10 more bought at $100 → cash −$1,000, total $10,000, and the trade sheet prints \"Available cash: −$1,000 ⚠ not enough\" and refuses the next buy (before the buy it read not entered).",
+    "unknown_kept": "The stored figure stays (it keeps the total right), but the sheet reads the cash as not entered while no cash figure was ever entered: \"Available cash: not entered\", nothing refused."
+   },
+   "recommendation": "The second reading (tenet 3: a number made from an unknown is not known cash). It needs a marker that the cash figure was opened by a trade, not entered; no total moves. Pinned as the app's answer in the part 11 file (observation test).",
+   "fixed_2026_10_25": "RULED + FIXED 2026-10-25 (the lead's ruling, tenet 3; FIX-TRADES): the second reading. The stored figure stays (the total stays right: 120 × $100 − $2,000 = $10,000) and the account is marked cash_not_entered; availableCash reads it as not entered, so the sheet says \"Available cash: not entered\" before and after the buy and refuses nothing on it. Cleared by an opening cash record; a linked account's cash is the broker's. Journey: src/screens/__tests__/trade_sheet_first_buy_and_unknowns_2026_10_25.test.tsx J4."
+  }
+ ],
+ "blocked": [],
+ "outside_domain": [
+  {
+   "id": "MK-CF-F-133-C01",
+   "caller_cited": "no caller (see note)",
+   "app_gives": 0,
+   "note": "App gives 0 where the reviewer refuses; cashOf has no caller: transactions/index.ts:203 defines it and nothing reads it (grep of src/, app/, MoneyKeel/functions and Calculation Module code/engines). Its record says \"Called by MK-ST-F-073 rebuildDays\" — a word match with a local Map also named cashOf in rebuild-history.ts:439."
+  },
+  {
+   "id": "MK-CF-F-133-C04",
+   "caller_cited": "no caller (see note)",
+   "app_gives": 0,
+   "note": "App gives 0 for a property with no cash figure; cashOf has no caller: transactions/index.ts:203 defines it and nothing reads it (grep of src/, app/, MoneyKeel/functions and Calculation Module code/engines). Its record says \"Called by MK-ST-F-073 rebuildDays\" — a word match with a local Map also named cashOf in rebuild-history.ts:439."
+  },
+  {
+   "id": "MK-CF-F-133-C05",
+   "caller_cited": "no caller (see note)",
+   "app_gives": 0,
+   "note": "App gives 0 for investment cash never entered; cashOf has no caller: transactions/index.ts:203 defines it and nothing reads it (grep of src/, app/, MoneyKeel/functions and Calculation Module code/engines). Its record says \"Called by MK-ST-F-073 rebuildDays\" — a word match with a local Map also named cashOf in rebuild-history.ts:439."
+  },
+  {
+   "id": "MK-CF-F-135-C04",
+   "caller_cited": "caller domain: PerformanceScreen.tsx:929-955; assets/index.ts:273 and :665",
+   "app_gives": 400731.17,
+   "note": "App gives the property’s $400,731.17 as available cash, but its one caller, the trade sheet (PerformanceScreen.tsx:955), only offers accounts that take a ticker (accountAllowsTicker refuses PROPERTY, assets/index.ts:273) or whose class is cash — a property’s class is Real estate or Personal property (assets/index.ts:665). No screen can show it."
+  },
+  {
+   "id": "MK-CF-F-113-C04",
+   "caller_cited": "caller domain: PerformanceScreen.tsx (valid needs counterId !== accountId); AccountPortfolioScreen.tsx:1347 (the other accounts exclude this one); undoSnapshot index.ts:859 (a Set)",
+   "app_gives": [
+    "A",
+    "A"
+   ],
+   "note": "App gives [A, A] for a transfer from A to A; no sheet can record one (the trade sheet needs another account, the record sheet lists only others), and the one caller, undoSnapshot, reads the ids as a set, so A is copied once."
+  },
+  {
+   "id": "MK-CF-F-133",
+   "caller_cited": "cashOf returns cash_balance or 0 — and nothing calls it. Its record’s \"Called by MK-ST-F-073 rebuildDays\" is a word match with rebuild-history.ts’s own Map named cashOf.",
+   "note": "records fix: the rule text"
+  },
+  {
+   "id": "MK-CF-F-135",
+   "caller_cited": "availableCash reads a property’s balance as cash, but its one caller (the trade sheet, PerformanceScreen.tsx:955) never offers a property: accountAllowsTicker refuses PROPERTY and a property’s class is never cash. Unknown investment cash is already null (fixed 2026-10-21).",
+   "note": "records fix: the rule text (and, optionally, drop PROPERTY from the branch — no screen figure moves)"
+  }
+ ],
+ "counts": {
+  "cases": {
+   "AGREE": 60,
+   "APP WRONG": 3,
+   "REVIEWER WRONG": 2,
+   "NEEDS RULING": 0,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 5,
+   "total": 70
+  },
+  "formula_checks": {
+   "AGREE": 0,
+   "APP WRONG": 4,
+   "REVIEWER WRONG": 2,
+   "NEEDS RULING": 0,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 2,
+   "total": 8
+  },
+  "rules_not_held": {
+   "AGREE": 0,
+   "APP WRONG": 1,
+   "REVIEWER WRONG": 1,
+   "NEEDS RULING": 0,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 0,
+   "total": 2
+  },
+  "tests": {
+   "passed": 85,
+   "skipped": 0,
+   "failed": 0,
+   "total": 85
+  }
+ },
+ "coverage": "Part 11: 70 of 70 cases — 60 agree, 3 app wrong, 2 reviewer wrong, 0 needs ruling, 0 blocked, 5 outside domain; 8 of 8 formula verdicts classified (0 agree, 4 app wrong, 2 reviewer wrong, 0 needs ruling, 0 blocked, 2 outside domain); 2 of 2 rule verdicts classified (0 agree, 1 app wrong, 1 reviewer wrong, 0 needs ruling, 0 blocked, 0 outside domain)",
+ "fix_wave_2026_10_25": "FIX-TRADES, 2026-10-25: 3 of 3 APP WRONG cases, 4 of 4 APP WRONG formula verdicts, 1 of 1 APP WRONG rule verdict and 1 of 1 open question fixed; each pin flipped the file's own way (the old answer kept as test.failing). Run: npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_part11.test.ts → 96 passed, 96 total."
+}

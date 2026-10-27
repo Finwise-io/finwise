@@ -47,7 +47,8 @@ import { InfoDot, EmptyNote } from '../components/UI';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { SectionBand } from '../components/SectionBand';
 import { DotJoined } from '../components/SepDot';
-import { isoLocalDate } from '../domain/_shared/dates';
+import { isoLocalDate, localDay } from '../domain/_shared/dates';
+import { incomeSummary } from '../../MoneyKeel/functions/cashflow/income-summary';   // the take-home's own estimate flag (CF-24)
 import { DOORS, EMPTY_DOORS } from '../constants/doors';
 // The connect door's words come from the one list of ways in (founder ruling 2026-09-14: "Connect your bank"),
 // so Home can never re-type them differently again — his build-53 note found Home using its own, different words.
@@ -90,11 +91,13 @@ export default function HomeScreen() {
     () => {
       // no data = no answers AND nothing live — mirror resolveNetWorthRows' useLive rule, else a
       // skip-then-import user gets stuck on the doors with real money already in the store
-      if (!op && !store.nwSeeded && (store.assetAccounts?.length ?? 0) === 0 && (store.liabilities?.length ?? 0) === 0) return null;
+      // an expense or an income logged is data too (2026-10-25, HM-02): with no answers yet, two expenses logged still bring the box
+      if (!op && !store.nwSeeded && (store.assetAccounts?.length ?? 0) === 0 && (store.liabilities?.length ?? 0) === 0
+        && (store.expenses?.length ?? 0) === 0 && (store.incomes?.length ?? 0) === 0) return null;
       const { accounts, debts: liabilities } = nwIn.withEstimate;   // the family's rows (DEC-0345)
       return buildSnapshot(uid, op, { inflationRate: store.inflationRate ?? 2.4, treasuryYield: store.treasuryYield ?? 4.3 }, accounts, liabilities);
     },
-    [op, uid, store.inflationRate, store.treasuryYield, store.nwSeeded, store.assetAccounts, store.liabilities, nwIn],
+    [op, uid, store.inflationRate, store.treasuryYield, store.nwSeeded, store.assetAccounts, store.liabilities, store.expenses, store.incomes, nwIn],
   );
 
   const netWorthNow = snap ? Math.round((snap as any).networth?.net_worth ?? 0) : null;
@@ -115,13 +118,18 @@ export default function HomeScreen() {
   // "Left $4,202" here and "+$3,952" on Cash flow, the $250 car loan paid.
   const monthIn = useThisMonthInputs();
   const cf = useMemo(() => theMonth(monthIn).actual, [monthIn]);
+  // whether that take-home is the app's calculation (Your base pay's own flag) — then it wears ≈, as on the Cash flow tab (CF-24)
+  // the accounts' interest and dividends in the tax, as the Income summary reads them (2026-10-26, FIX-INCOME-A; the one profile income figures read, src/hooks/useIncomeProfile.ts)
+  const takeHomeCalculated = useMemo(() => incomeSummary(op, { accounts: store.assetAccounts, transactions: store.transactions }).lands.lines.some((l: any) => l.estimated === true),
+    [op, store.assetAccounts, store.transactions]);
 
   // month-end nudge: after a month with savings, ask where it went (once, if not skipped)
   const priorDate = new Date(now.getFullYear(), now.getMonth() - 1, 1);
   const priorYm = `${priorDate.getFullYear()}-${String(priorDate.getMonth() + 1).padStart(2, '0')}`;
   const incomesArr = store.incomes ?? [];
-  const priorHasActivity = expenses.some((e: any) => String(e?.date ?? '').startsWith(priorYm))
-    || incomesArr.some((i: any) => String(i?.date ?? '').startsWith(priorYm));
+  // each record's own day, read where the person is (localDay, CF-21 — 2026-10-25)
+  const priorHasActivity = expenses.some((e: any) => localDay(e?.date).startsWith(priorYm))
+    || incomesArr.some((i: any) => localDay(i?.date).startsWith(priorYm));
   useEffect(() => {
     if (!priorHasActivity) return;
     // last month's surplus as the Cash flow tab shows it for that month — the same producer (pastMonthFlow, 2026-10-23); it
@@ -138,7 +146,7 @@ export default function HomeScreen() {
 
   // debt due-soon reminder (current month, from due_day − 1)
   useEffect(() => {
-    const paidThisMonth = (d: any) => (store.expenses ?? []).some((e: any) => e.category === 'Debt payment' && e.store === d.label && String(e.date).startsWith(ym));
+    const paidThisMonth = (d: any) => (store.expenses ?? []).some((e: any) => e.category === 'Debt payment' && e.store === d.label && localDay(e.date).startsWith(ym));
     // only a debt with a payment in this month (paysInMonth, the Cash flow tab's rule; 2026-10-24, CF-FIX): a loan whose first
     // payment is next month said "due day 28" this month
     const due = (store.liabilities ?? []).filter((d: any) => d.due_day && paysInMonth(d, ym) && now.getDate() >= d.due_day - 1 && !paidThisMonth(d));
@@ -152,9 +160,11 @@ export default function HomeScreen() {
     const { accounts: a, liabilities: l } = resolvedRows;
     const worth = theNetWorth({ ...nwIn, ...nwIn.withEstimate });   // the family's inputs, on Home's rows (DEC-0345)
     const nwv = { gross_assets: worth.assets, gross_debt: worth.debts, net_worth: worth.netWorth };
-    const monthExp = (store.expenses ?? []).filter((e: any) => String(e.date).startsWith(ym));
+    // the month's expenses AS THIS MONTH COUNTS THEM (2026-10-25, FIX-MONTH; expensesAsCounted inside useThisMonthInputs): what was logged
+    // under a budget line that stood down for a debt is that debt's payment, so the record splits expenses and debt paid as the tab does
+    const monthExp = ((monthIn.expenses ?? []) as any[]).filter((e: any) => localDay(e.date).startsWith(ym));
     const dPaid = monthExp.filter((e: any) => e.category === 'Debt payment').reduce((t: number, e: any) => t + (Number(e.amount) || 0), 0);
-    const eSpent = bva.spent_total;
+    const eSpent = budgetVsActual(monthExp, op, now).spent_total;
     const byCategory: Record<string, number> = {};
     monthExp.filter((e: any) => e.category !== 'Debt payment').forEach((e: any) => { byCategory[e.category] = (byCategory[e.category] ?? 0) + (Number(e.amount) || 0); });
     const assetsSnap = a.map((x: any) => ({ id: x.asset_id, label: x.label, kind: x.kind ?? null, bucket: x.tax_bucket, institution: x.institution ?? null, balance: x.balance }));
@@ -238,16 +248,20 @@ export default function HomeScreen() {
 
   // ── will-it-last strip: the ONE selector's number (same seeded run as the Plan hub) ──
   const wil = useMemo(
-    () => selectWillItLast({ op, accounts: resolvedRows.accounts, assumptions: store.retirementAssumptions ?? {}, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus }),
-    [op, resolvedRows.accounts, store.retirementAssumptions, store.inflationRate, store.employmentStatus]);
+    () => selectWillItLast({ op, accounts: resolvedRows.accounts, assumptions: store.retirementAssumptions ?? {}, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, transactions: store.transactions ?? [] }),
+    [op, resolvedRows.accounts, store.retirementAssumptions, store.inflationRate, store.employmentStatus, store.transactions]);
   useEffect(() => { if (wil.chance != null) store.setLastRetireChance?.(wil.chance); }, [wil.chance]);
 
   // founder finding 2026-07-15: answering the two setup questions creates a PROFILE, not DATA —
   // a user who finished the questions still needs the doors in (connect / import / add by hand).
   // The doors show until real money data exists from ANY source: a live or onboarding-derived
   // account or debt, or a captured income. Never a dashboard of fake zeros.
+  // AN EXPENSE OR AN INCOME LOGGED IS DATA TOO (2026-10-25, Cash flow drawing match HM-02): the THIS MONTH'S CASH FLOW box shows
+  // "once anything is added" (ways-to-add v10, its 2026-10-23 row), and a person whose first act was to log a $40 expense saw
+  // the first-day doors and no box
   const hasMoneyData = resolvedRows.accounts.length > 0 || resolvedRows.liabilities.length > 0
-    || salaryAnnual(op) > 0 || currentRetirementIncomeMonthly(op) > 0;
+    || salaryAnnual(op) > 0 || currentRetirementIncomeMonthly(op) > 0
+    || (store.expenses ?? []).length > 0 || (store.incomes ?? []).length > 0;
   if (!snap || !hasMoneyData) {
     // Home — first run, nothing connected yet (FCC detailed design v1.1, Home sheet): never fake
     // zeros or demo charts — one promise and the DOORS in: connect (honestly 'coming soon' until
@@ -622,7 +636,7 @@ export default function HomeScreen() {
           const left = shown.surplus;
           return (
             <TouchableOpacity accessibilityRole="button" style={styles.box} activeOpacity={0.85} onPress={() => router.push('/(tabs)/cashflow')}
-              accessibilityLabel={`This month's cash flow${pace ? `, ${pace.word.replace('✓ ', '')}` : ''}: income ${incomeKnown ? spokenMoney(shown.inflow) : 'not entered'}, expenses and debt paid so far ${spokenMoney(shown.outflow)}, ${!incomeKnown ? 'nothing left is shown until your income is entered' : left >= 0 ? `${spokenMoney(left)} left, bills may still be coming` : `${spokenMoney(-left)} over`}. Opens the Cash flow tab.`}
+              accessibilityLabel={`This month's cash flow${pace ? `, ${pace.word.replace('✓ ', '')}` : ''}: income ${incomeKnown ? `${takeHomeCalculated ? 'about ' : ''}${spokenMoney(shown.inflow)}` : 'not entered'}, expenses and debt paid so far ${spokenMoney(shown.outflow)}, ${!incomeKnown ? 'nothing left is shown until your income is entered' : left >= 0 ? `${spokenMoney(left)} left, bills may still be coming` : `${spokenMoney(-left)} over`}. Opens the Cash flow tab.`}
               // THE DOOR INSIDE THE BOX, AS THE BOX'S ACTION (2026-10-24, Cash flow journey E2E-78): "Add your income ›" sits inside
               // this one element, so a screen reader could not reach it; it is offered as the box's action, in its own words
               accessibilityActions={!incomeKnown ? [{ name: 'addIncome', label: EMPTY_DOORS.income.label.replace(' ›', '') }] : undefined}
@@ -630,7 +644,9 @@ export default function HomeScreen() {
               <SectionBand inCard title={"THIS MONTH'S CASH FLOW"} />
               <View style={styles.paceRow}>
                 {pace && <Text style={[styles.paceChip, { backgroundColor: pace.bg, color: pace.fg }]}>{pace.word}</Text>}
-                <Text style={styles.paceNote}>{pctSpent != null ? `${pctSpent}% spent · ` : ''}day {now.getDate()} of {daysInMonth}</Text>
+                {/* the pace line goes with the pace word: before income it is not shown at all — the row lists Income $0 · Nothing
+                    entered yet · Outflow $0 · Left —, and no "day 20 of 31" (2026-10-25, HM-01) */}
+                {pace && <Text style={styles.paceNote}>{pctSpent != null ? `${pctSpent}% spent · ` : ''}day {now.getDate()} of {daysInMonth}</Text>}
               </View>
               <View style={styles.cfBarTrack}>
                 <View style={[styles.cfBarFill, {
@@ -639,7 +655,8 @@ export default function HomeScreen() {
                 }]} />
               </View>
               <View style={styles.cfRow}>
-                <View style={styles.cfCell}><Text style={styles.cfLabel}>Income</Text><Text style={styles.cfNum}>{fig('MK-CF-M-051', shown.inflow)}</Text>{!incomeKnown && <EmptyNote door="income" />}</View>
+                {/* the tab's own form of the figure: a take-home the app calculated wears ≈, one typed never (2026-10-25, CF-24) */}
+                <View style={styles.cfCell}><Text style={styles.cfLabel}>Income</Text><Text style={styles.cfNum}>{takeHomeCalculated && shown.inflow > 0 ? '≈' : ''}{fig('MK-CF-M-051', shown.inflow)}</Text>{!incomeKnown && <EmptyNote door="income" />}</View>
                 {/* the expenses AND the debt paid — Cash flow's "Outflow (expenses + debt)" (DEC-0269). It read "Actual expenses so
                     far" and left the debt paid out (2026-10-23) */}
                 <View style={styles.cfCell}><Text style={styles.cfLabel}>Outflow (expenses + debt)</Text><Text style={styles.cfNum}>{fig('MK-CF-M-052', shown.outflow)}</Text></View>

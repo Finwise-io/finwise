@@ -1,9 +1,8 @@
 // F2 dated grid — the agreement suite that lets screens move onto the grid without any number
-// changing: cells reconcile with cashflowYear and spendByMonth by construction, and the new
+// changing: cells reconcile with spendByMonth by construction (the second table, cashflowYear, was retired 2026-10-25), and the new
 // dated behaviors (real one-time dates, quarterly anchoring, deferred debts, F5 income seam)
 // are pinned here once, for every future surface.
-import { buildDatedGrid } from './index';
-import { cashflowYear } from '../cashflow';
+import { buildDatedGrid, datedBillsIn } from './index';
 import { spendByMonth } from '../budget';
 import { payoffPlan, type Debt } from '../debt';
 
@@ -47,10 +46,10 @@ describe('F2 — agreement with the canonical functions (numbers cannot change w
       expect(billSum).toBeCloseTo(cal[c.calendarMonth - 1], 1);
     }
   });
-  test('total money in ≈ cashflowYear.totalIn on the same profile (no new features used)', () => {
+  test('total money in = every month\'s money in, added up (the second table this was checked against, cashflowYear, was retired 2026-10-25)', () => {
     const g = buildDatedGrid(employed, { now: NOW });
-    const cy = cashflowYear(employed, 0, NOW);
-    expect(g.totalIn).toBeCloseTo(cy.totalIn, 0);
+    expect(g.totalIn).toBeCloseTo(g.cells.reduce((t, c) => t + c.incomeItems.reduce((u, i) => u + i.amount, 0), 0), 6);
+    expect(g.totalIn).toBeGreaterThan(0);
     // and the bonus lands in the SAME slot both ways (March)
     const slotMar = g.cells.findIndex((c) => c.calendarMonth === 3);
     expect(g.cells[slotMar].incomeItems.some((i) => i.source === 'Bonus')).toBe(true);
@@ -155,5 +154,49 @@ describe('B47 finding 11 — due-in-full debts in the dated grid', () => {
     const g = buildDatedGrid(employed, { now: NOW, liabilities: [far] });
     expect(g.cells.flatMap((c) => c.billItems).some((b) => b.label.includes('Family loan'))).toBe(false);
     expect(g.later.some((l) => l.label.includes('Family loan') && l.amount === 15000 && l.year === 2028)).toBe(true);
+  });
+});
+
+
+// ── FIX-BILLS, 2026-10-25 — the outside review's part 8 (CFR-2), fixed in the one month table ──────────────────────────────────
+describe('MK-XS-F-004 buildDatedGrid — a bill with no month, a vest in its own year, a day past the month\'s end (2026-10-25)', () => {
+  const OCT = new Date(2026, 9, 24, 12);
+  test('a $1,200 yearly bill with no month: $100 in every month, $1,200 a year — never named in January (DEC-7611, MK-CF-M-028)', () => {
+    const op: any = { monthlySpending: 0, spendCats: [{ id: 'ins', label: 'Insurance', amount: 1200, bucket: 'nonmonthly', months: [] }] };
+    const g = buildDatedGrid(op, { now: OCT });
+    expect(g.cells.map((c) => c.outflow)).toEqual(new Array(12).fill(100));
+    expect(g.totalOut).toBeCloseTo(1200, 9);
+    for (const c of g.cells) expect(datedBillsIn(c)).toEqual([]);
+    // the budget says the same month by month (one spend function)
+    spendByMonth(op).forEach((v) => expect(v).toBeCloseTo(100, 9));
+  });
+  test('the same bill dated December 15: December carries $1,200 on its day, and it is December\'s dated bill — the radar\'s month (the lead\'s ruling)', () => {
+    const op: any = { monthlySpending: 0, spendCats: [{ id: 'ins', label: 'Car insurance', amount: 1200, bucket: 'nonmonthly', months: [12], dueDay: 15 }] };
+    const g = buildDatedGrid(op, { now: OCT });
+    const dec = g.cells.find((c) => c.calendarMonth === 12)!;
+    expect(datedBillsIn(dec).map((b) => [b.label, b.amount, b.day])).toEqual([['Car insurance', 1200, 15]]);
+    expect(datedBillsIn(g.cells[0])).toEqual([]);   // October's month has no dated bill
+  });
+  test('vests land in their own year and month: Mar 2026 has passed, Jun 2027 is in the window, Dec 2027 is LATER (DEC-0012, DEC-0003)', () => {
+    // the shares sold when they vest, so a vest is money in its month (2026-10-25, the lead's ruling, like DEC-0179; vestsAreCash)
+    const op: any = { taxMode: 'manual', manualTaxRate: 0, equityType: 'rsu', rsuSoldAtVest: 'yes',
+      rsuGrants: [{ shares: 1, price: '8317.43', date: '2026-03-15' }, { shares: 1, price: '4211.17', date: '2027-12-15' }, { shares: 1, price: '1321.19', date: '2027-06-15' }] };
+    const g = buildDatedGrid(op, { now: OCT });
+    const eq = g.cells.map((c) => c.incomeItems.filter((i) => i.source === 'Equity vesting').reduce((t, i) => t + i.amount, 0));
+    expect(eq).toEqual([0, 0, 0, 0, 0, 0, 0, 0, 1321.19, 0, 0, 0]);
+    expect(g.cells[8].label).toBe('Jun ’27');
+    expect(g.later).toEqual([{ label: 'Equity vesting', amount: 4211.17, month: 12, year: 2027 }]);
+    expect(g.notInAMonth).toBeUndefined();
+    // KEPT AS SHARES, a vest is no month's money and nothing comes in later (2026-10-25, FIX-INCOME-B)
+    const kept = buildDatedGrid({ ...op, rsuSoldAtVest: undefined }, { now: OCT });
+    expect(kept.cells.flatMap((c) => c.incomeItems).filter((i) => i.source === 'Equity vesting')).toEqual([]);
+    expect(kept.later).toEqual([]);
+  });
+  test('a bill on the 29th of February is on the 28th in 2027 — on the table and on the list alike (tenet 4)', () => {
+    const op: any = { monthlySpending: 0, spendCats: [{ id: 'fee', label: 'Fee', amount: 300, bucket: 'nonmonthly', months: [2], dueDay: 29 }] };
+    const feb = buildDatedGrid(op, { now: OCT }).cells.find((c) => c.calendarMonth === 2)!;
+    expect([feb.year, feb.billItems[0].day]).toEqual([2027, 28]);
+    const feb28 = buildDatedGrid(op, { now: new Date(2027, 9, 24, 12) }).cells.find((c) => c.calendarMonth === 2)!;
+    expect([feb28.year, feb28.billItems[0].day]).toEqual([2028, 29]);
   });
 });

@@ -10,7 +10,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'reac
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { useStore } from '../store/useStore';
 import {
-  DEBT_KINDS, debtKind, defaultPaymentType, monthsToClear, paymentToClearBy,
+  DEBT_KINDS, debtKind, defaultPaymentType, monthsToClear, paymentToClearBy, rateNotEntered,
   type Debt, type DebtType,
 } from '../domain/debt';
 import { KeyboardAwareSheet } from './KeyboardAwareSheet';
@@ -78,7 +78,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
     if (!state.open) return;
     const k = (editing?.debt_type as DebtType) ?? 'CREDIT_CARD';
     setKind(k); setInst(editing?.institution ?? '');
-    setBal(editing ? String(editing.remaining_balance) : ''); setApr(editing ? String(editing.interest_rate_apr * 100) : '');
+    setBal(editing ? String(editing.remaining_balance) : ''); setApr(editing && !rateNotEntered(editing) ? String(editing.interest_rate_apr * 100) : '');   // a rate never entered opens empty, never "NaN" (2026-10-25)
     // a payment never entered opens as an empty box, never the word "undefined" (2026-10-21)
     setPay(editing && editing.minimum_monthly_payment != null ? String(editing.minimum_monthly_payment) : '');
     setDue(editing?.due_day ? String(editing.due_day) : ''); setMonthly(editing?.monthly_payment ? String(editing.monthly_payment) : '');
@@ -106,7 +106,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
   if (shape === 'installment' && amt > 0) {
     if (drives === 'payment' && payIn > 0) {
       const months = monthsToClear(amt, aprDec, payIn);
-      if (months == null) derivedLine = `⚠ ${money(payIn)}/month doesn't cover the interest — this never pays off`;
+      if (months == null) derivedLine = `⚠ ${money(payIn)}/month doesn’t cover the interest — this never pays off`;
       else { calcPayoffIso = isoInMonths(months, now); derivedLine = `✓ paid off by ${fmtMonthYear(calcPayoffIso)} — computed from your balance, rate and payment`; }
     } else if (drives === 'date' && endIso) {
       const months = Math.max(1, monthsFromNow(endIso, now));
@@ -129,7 +129,8 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
     if (!ready) return;
     const label = inst.trim() || debtKind(kind)?.label || 'Debt';
     const dd = Math.min(31, Math.max(0, Math.round(num(due)))) || undefined;
-    const base = { label, institution: inst.trim(), debt_type: kind, remaining_balance: amt, interest_rate_apr: aprDec, payment_type: shape,
+    // A RATE LEFT BLANK IS NOT 0% (2026-10-25, FIX-MONTH; tenet 3): it is saved as not entered and every screen says "rate not entered"; a typed 0 is 0%
+    const base = { label, institution: inst.trim(), debt_type: kind, remaining_balance: amt, interest_rate_apr: apr.trim() === '' ? (undefined as any) : aprDec, payment_type: shape,
       property_id: onAProperty && propertyId !== '' ? propertyId : undefined };
     // A PAYMENT LEFT BLANK IS NOT $0 (2026-10-21, DEC-3523 tenet 3): it is saved as not entered, so Net worth and the
     // emergency fund name the debt instead of counting $0 for it. A typed 0 is 0; a payment calculated from an end date is a
@@ -152,7 +153,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
     if (!editing) { onClose(); return; }
     Alert.alert(
       `Remove ${editing.label}?`,
-      `Its ${money(Math.round(editing.remaining_balance || 0))} debt comes off your list. This can't be undone.`,
+      `Its ${money(Math.round(editing.remaining_balance || 0))} debt comes off your list. This can’t be undone.`,
       [
         { text: 'Keep it', style: 'cancel' },
         { text: 'Remove', style: 'destructive', onPress: () => { store.deleteLiability?.(editing.debt_id); onClose(); } },
@@ -213,7 +214,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
           <View style={{ flex: 1 }}><Text style={sh.lbl}>Interest rate % (optional)</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="0%" placeholderTextColor={Colors.textTertiary} value={apr} onChangeText={setApr} /></View>
         </View>
         {amt > 0 && dueIso
-          ? <Text style={sh.derived}>✓ lands as a {money(amt)} big-ticket in {fmtMonthYear(dueIso)}'s cash flow and on the bill calendar{monthsToDue != null && monthsToDue > 0 ? ` — ${plural(monthsToDue, 'month')} of warning` : ''}, not a surprise</Text>
+          ? <Text style={sh.derived}>✓ lands as a {money(amt)} big-ticket in {fmtMonthYear(dueIso)}’s cash flow and on the bill calendar{monthsToDue != null && monthsToDue > 0 ? ` — ${plural(monthsToDue, 'month')} of warning` : ''}, not a surprise</Text>
           : <Text style={sh.derivedMuted}>Enter the amount and its due date — no monthly payment to track.</Text>}
       </>) : shape === 'installment' ? (<>
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
@@ -227,7 +228,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
         {derivedLine
           ? <Text style={derivedLine.startsWith('⚠') ? sh.derivedWarn : sh.derived}>{derivedLine}</Text>
           : <Text style={sh.derivedMuted}>Enter either one — the other is computed from your balance and rate.</Text>}
-        <Text style={sh.lbl}>Payments start (month/year — only for loans that haven't started yet)</Text>
+        <Text style={sh.lbl}>Payments start (month/year — only for loans that haven’t started yet)</Text>
         <TextInput style={sh.input} keyboardType="numbers-and-punctuation" placeholder="already paying" placeholderTextColor={Colors.textTertiary} value={startsOn} onChangeText={setStartsOn} />
       </>) : (<>
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
@@ -241,7 +242,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
         {cardMonths != null
           ? <Text style={sh.derived}>✓ clear in {plural(cardMonths, 'month')} at {money(cardPay)}/month</Text>
           : cardPay > 0 && amt > 0
-            ? <Text style={sh.derivedWarn}>⚠ {money(cardPay)}/month doesn't cover the interest — this never pays off</Text>
+            ? <Text style={sh.derivedWarn}>⚠ {money(cardPay)}/month doesn’t cover the interest — this never pays off</Text>
             : null}
       </>)}
 

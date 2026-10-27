@@ -22,7 +22,9 @@ const CALC = /(src\/domain|MoneyKeel\/functions|Calculation Module code\/engines
 
 /** file → the number of dependent-function imports it carried on 2026-09-12. Only ever goes down. */
 const BASELINE: Record<string, number> = {
-  'src/onboarding/modules.tsx': 7,
+  // 7 → 6 on 2026-10-26 (FIX-INCOME-A): annualizedEnteredSalary was imported and never read; the year's 401(k)s come from the
+  // Income summary (MK-CF-O-004) rather than MK-CF-F-188 directly
+  'src/onboarding/modules.tsx': 6,
   // HomeScreen and ImportHoldingsScreen reached zero on 2026-10-20: their one import each was round2, the cents
   // rounding, which no longer runs on a value being saved (DEC-0403) — so their lines are gone, as this ratchet asks.
   'src/screens/IncomeDetailScreen.tsx': 2,
@@ -159,7 +161,7 @@ const ARITH_BASELINE: Record<string, number> = {
   'src/onboarding/modules.tsx': 19,
   'src/screens/BigCostsScreen.tsx': 1,
   'src/screens/BillCalendarScreen.tsx': 1,
-  'src/screens/BudgetScreen.tsx': 6,
+  'src/screens/BudgetScreen.tsx': 5,     // 6 until 2026-10-25: the budget editor's rows are budgetEditorBuckets' now (CF-21)
   'src/screens/CashFlowScreen.tsx': 1,   // 4 until 2026-10-23: this month's inputs and the past month's sums moved into thisMonthInputs and pastMonthFlow (CF-FIX)
   'src/screens/CreditScreen.tsx': 1,
   'src/screens/ExpenseScreen.tsx': 1,

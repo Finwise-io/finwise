@@ -23,9 +23,13 @@ import { solveSafeDraw } from '../domain/paycheck';
 import { ssBenefitAtClaimAge } from '../domain/retirement/ssTiming';
 import { blendedReturn, blendedVolatility } from '../domain/assets';
 import { targetAtRetirement } from '../domain/planning/target';
+import { compareMortgageToTreasury } from '../domain/debt/mortgageVsTreasury';
 
 const BRIEF = path.join(__dirname, '..', '..', 'August 14th Design', 'PLAN-REDESIGN-BRIEF-v3-2026-08-14.md');
 const brief = fs.readFileSync(BRIEF, 'utf8');
+// THE BRIEF HAS A SECOND COPY under the file-and-folder standard's name (MoneyKeel/documents/plan/), and on 2026-10-26 a correction
+// reached that copy and not this one — so a guard reading one copy could pass while the other said something else. They are one text.
+const BRIEF_COPY = path.join(__dirname, '..', '..', 'MoneyKeel', 'documents', 'plan', 'moneykeel_pres_spec_plan-redesign-brief_v03.md');
 const money = (n: number) => `$${Math.round(n).toLocaleString('en-US')}`;   // money-mask-ok: doc text, never rendered
 
 const BASE = { inflation: 0.025, seed: 42, paths: 400, vol_return: 0.0935, mean_return: 0.055 };
@@ -140,9 +144,25 @@ describe('the brief agrees with the function', () => {
     inBrief('7 future simulations out of 10'); inBrief('8 in 10');
   });
 
+  test('the brief\'s two copies are one text', () => {
+    expect(fs.readFileSync(BRIEF_COPY, 'utf8')).toBe(brief);
+  });
+
+  // RECOMPUTED FROM THE ENGINE, NOT LOOKED UP (2026-10-26, PF-TOOLS; FIX-ROOM's finding). Until today this test checked only that
+  // the brief CONTAINED "$36,577" and "$40,217" — so when the comparison's lifetime figure moved on 2026-10-25 (each route's last
+  // payment is only what is left: Pat $39,618, the 3.1% loan −$41,295) it stayed green while the brief said the old figures. A guard
+  // that holds a brief to the engine must ask the engine. Each figure below is compareMortgageToTreasury's, on the brief's own inputs.
   test('the mortgage comparison is drawn in BOTH directions, with the losing case the bigger number', () => {
-    inBrief('$36,577');    // above the yield — paying down wins
-    inBrief('$40,217');    // below the yield — paying down LOSES, and by more
+    const TSY = 0.0463;   // the live ten-year the brief states
+    const above = compareMortgageToTreasury({ balance: 412_000, annualRate: 0.055, monthlyPayment: 2400, extraMonthly: 500, treasuryYield: TSY })!;
+    const below = compareMortgageToTreasury({ balance: 412_000, annualRate: 0.031, monthlyPayment: 2000, extraMonthly: 500, treasuryYield: TSY })!;
+    inBrief(money(above.annualDifference));                  // $3,584 a year — paying down wins
+    inBrief(money(Math.abs(below.annualDifference)));        // $6,304 a year — paying down LOSES
+    inBrief(money(above.lifetimeDifference));                // $39,618 (2026-10-26 erratum; the body still prints $36,577)
+    inBrief(money(Math.abs(below.lifetimeDifference)));      // $41,295 (the body still prints $40,217)
+    inBrief(money(above.routes!.treasuries));                // $346,718 into Treasuries, to the original payoff date
+    inBrief(money(above.routes!.payingDown));                // $386,336 paying it down, then investing what it frees
+    expect(Math.abs(below.lifetimeDifference)).toBeGreaterThan(above.lifetimeDifference);   // the losing case IS the bigger number
     inBrief('4.63%');      // the live ten-year
     // 4.35% may appear ONLY in the note explaining the dead feed — never as the yield in screen copy.
     // (The first version of this assertion banned the string outright and failed on that note, which

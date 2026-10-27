@@ -1,0 +1,2108 @@
+{
+ "batch": "cf module — part 17 (tax on the household): cases, formula checks, rules held, source checks",
+ "reviewer": "OpenAI independent specification reviewer, Cash flow package of 2026-10-24",
+ "run_by": "Claude Code, CFR-4 measurer, part 17",
+ "run_on": "2026-10-25",
+ "test_file": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts",
+ "source": "returned/MoneyKeel_CashFlow_Independent_Audit_Package/MoneyKeel_CashFlow_Independent_Audit/audit_results/MoneyKeel_CashFlow_Audit_Part_17.json",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts → 62 passed, 0 failed, 0 skipped, 62 total (each APP WRONG case is test.failing on the reviewer's answer). npx tsc --noEmit: no error in this file (two errors in another agent's part-06 file).",
+ "working_tree": "Measured on b1c659e8 plus other agents' uncommitted edits made during the run (budget, this-month, expenses and screen files); none touches a file this part measures — src/domain/income/*, src/domain/planning/index.ts, tax-organizer.ts, base-pay.ts and TaxOrganizerScreen.tsx are unchanged from b1c659e8 (git status, 2026-10-25). This run changed no app code, record, drawing or existing test. The 2026-10-23/24 tax changes (head-of-household bands, per-person senior deduction, after-401(k) bracket and \"What it is taxed on\", state-rate words, DEC-0321) were already in the code; none of this part's findings is one of them.",
+ "ready_to_close": false,
+ "cases": [
+  {
+   "id": "MK-CF-O-007",
+   "case_id": "MK-CF-O-007-C01",
+   "name": "theTaxOrganizer",
+   "kind": "easy",
+   "title": "Record-based annual wages",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "wages $60,000 a year, c_401k $400 a month, single; federal_tax = estTaxRate × steps.grossIncome (the screen prints only the rate, \"~7%\")",
+   "expected": {
+    "gross": {
+     "exact": "60000",
+     "shown": "$60,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "k": {
+     "exact": "4800",
+     "shown": "$4,800",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "standard": {
+     "exact": "16100",
+     "shown": "$16,100",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "taxable": {
+     "exact": "39100",
+     "shown": "$39,100",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "federal_tax": {
+     "exact": "4444",
+     "shown": "$4,444",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "grossIncome": 60000,
+    "preTaxContributions": 4800,
+    "standardDeduction": 16100,
+    "deductionIncludes": [],
+    "taxableIncome": 39100,
+    "federal_tax": 4444
+   },
+   "difference": "none",
+   "rests_on": "DEC-0252; IRS Rev. Proc. 2025-32",
+   "note": "60,000 − 4,800 − 16,100 = 39,100; tax $4,444. Agrees.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-O-007 theTaxOrganizer — five cases MK-CF-O-007-C01 · easy · Record-based annual wages [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-O-007",
+   "case_id": "MK-CF-O-007-C02",
+   "name": "theTaxOrganizer",
+   "kind": "easy",
+   "title": "No profile",
+   "classification": "APP WRONG",
+   "status": "APP WRONG",
+   "mapped": "profile null, no accounts, no records",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "No taxable-income evidence"
+   },
+   "actual": {
+    "year": 2026,
+    "income": [],
+    "steps": {
+     "grossIncome": 0,
+     "preTaxContributions": 0,
+     "standardDeduction": 16100,
+     "deductionIncludes": [],
+     "taxableIncome": 0
+    },
+    "taxableTotal": 0,
+    "nonTaxableTotal": 0,
+    "estTaxRate": 0,
+    "contributions": [],
+    "accounts": [],
+    "documents": [
+     "Last year's tax return",
+     "SSN/ID for you and any dependents"
+    ]
+   },
+   "difference": "see note",
+   "rests_on": "tenet 3 (DEC-3523); DEC-0296; MK-MN-M-028 declared refusal \"No income entered yet.\"",
+   "note": "With nothing entered the door returns Gross income $0, Standard deduction $16,100, Taxable income $0 and a 0% rate, and TaxOrganizerScreen prints them. It should refuse.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-O-007 theTaxOrganizer — five cases MK-CF-O-007-C02 · easy · No profile [APP WRONG] — no income: prints $0 taxable and ~0%, should refuse (tenet 3, DEC-0296, MK-MN-M-028 refusal)",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer)",
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — nothing entered: his Q48 (DEC-0431) — Gross income $0, \"Nothing entered yet. Add your income ›\" beneath; no deduction, no taxable income, no rate (null in the door)."
+  },
+  {
+   "id": "MK-CF-O-007",
+   "case_id": "MK-CF-O-007-C03",
+   "name": "theTaxOrganizer",
+   "kind": "complex",
+   "title": "Reinvested taxable distribution",
+   "classification": "APP WRONG",
+   "status": "APP WRONG",
+   "mapped": "brokerage account brk-1; one DIVIDEND record $731.17 dated 2026-09-17 with reinvested: true; wages $83,111.43; c_401k $7,111.19 ÷ 12",
+   "expected": {
+    "taxable_distribution": {
+     "exact": "731.17",
+     "shown": "$731",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "gross_before_k": {
+     "exact": "83842.60",
+     "shown": "$83,843",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "taxable_distribution": null,
+    "gross_before_k": 83111.43
+   },
+   "difference": "see note",
+   "rests_on": "DEC-0179 (#2: the tax on them still comes out); DEC-0198; IRS Pub 550 (reinvested dividends are taxable)",
+   "note": "paidOutByAccount skips reinvested records, so the reinvested dividend leaves the tax organizer altogether: gross $83,111.43, right $83,842.60.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-O-007 theTaxOrganizer — five cases MK-CF-O-007-C03 · complex · Reinvested taxable distribution [APP WRONG] — reinvested $731.17 dividend dropped: gross $83,111.43, should be $83,842.60 (DEC-0179, DEC-0198)",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer)",
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — the organizer reads the year's records by paidOutByAccount, reinvested counted (DEC-0179): gross $83,842.60 (was $83,111.43)."
+  },
+  {
+   "id": "MK-CF-O-007",
+   "case_id": "MK-CF-O-007-C04",
+   "name": "theTaxOrganizer",
+   "kind": "complex",
+   "title": "Retain cents before aggregate",
+   "classification": "APP WRONG",
+   "status": "APP WRONG",
+   "mapped": "savings account sav-1; two INTEREST records $731.17 (2026-09-17) and $611.43 (2026-10-17); wages $83,111.19",
+   "expected": {
+    "interest": {
+     "exact": "1342.60",
+     "shown": "$1,343",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "gross_before_deductions": {
+     "exact": "84453.79",
+     "shown": "$84,454",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "interest": 1343,
+    "gross_before_deductions": 84454.19
+   },
+   "difference": "see note",
+   "rests_on": "DEC-0264 (nothing rounds inside a calculation)",
+   "note": "theTaxOrganizer Math.round()s the accounts' income before the walk: $1,343 and $84,454.19, right $1,342.60 and $84,453.79.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-O-007 theTaxOrganizer — five cases MK-CF-O-007-C04 · complex · Retain cents before aggregate [APP WRONG] — $1,342.60 rounded to $1,343 inside the door (DEC-0264)",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer)",
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — no rounding in the door (DEC-0264): $1,342.60 (was $1,343)."
+  },
+  {
+   "id": "MK-CF-O-007",
+   "case_id": "MK-CF-O-007-C05",
+   "name": "theTaxOrganizer",
+   "kind": "edge",
+   "title": "Tax year differs from trailing year",
+   "classification": "OUTSIDE DOMAIN",
+   "status": "OUTSIDE DOMAIN",
+   "mapped": "savings account; INTEREST $1,000 on 2025-02-17 and $2,000 on 2026-02-17; year 2025; clock 2026-10-24",
+   "expected": {
+    "tax_year_income": {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "year": 2025,
+    "tax_year_income": 2000
+   },
+   "difference": "see note",
+   "rests_on": "DEC-0298 (a tax figure requires a YEAR)",
+   "note": "The one caller (TaxOrganizerScreen.tsx:22) passes the current year, so 2025 cannot be sent. Handed 2025, the door labels 2025 and counts the trailing twelve months ($2,000). The same fault IS reachable for the current year: witness W1 ($1,200 counted for 2026 where 2026's is $700).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-O-007 theTaxOrganizer — five cases MK-CF-O-007-C05 · edge · Tax year differs from trailing year [OUTSIDE DOMAIN] — no caller sends a past year (TaxOrganizerScreen.tsx:22); app counts the trailing window, $2,000",
+   "test_result": "passed",
+   "marked": "test (what the app does, recorded; caller cited)",
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — the calendar tax year named (DEC-0298), never past today: $1,000 (was $2,000). Still no caller sends a past year."
+  },
+  {
+   "id": "MK-CF-F-084",
+   "case_id": "MK-CF-F-084-C01",
+   "name": "taxableAnnual",
+   "kind": "easy",
+   "title": "Wages only",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "wages → salaryFreq annually + baseSalary; rent → one rent entry naming its property; interest → invAnnual; support → supportMonthly; bonus → bonusAnnual + bonusMonth; vesting → one rsuGrants row; Social Security → ri_ss a month; 401(k) → c_401k a month (paid months via a dated pay table)",
+   "expected": {
+    "exact": "60000",
+    "shown": "$60,000"
+   },
+   "actual": 60000,
+   "difference": "none",
+   "rests_on": "Written formula; DEC-0179",
+   "note": "Same-year taxable sources added; untaxed support excluded; the 401(k) is not subtracted here (that is MK-CF-F-230).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-084 taxableAnnual — five cases MK-CF-F-084-C01 · easy · Wages only [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-084",
+   "case_id": "MK-CF-F-084-C02",
+   "name": "taxableAnnual",
+   "kind": "easy",
+   "title": "Wages plus untaxed support",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "wages → salaryFreq annually + baseSalary; rent → one rent entry naming its property; interest → invAnnual; support → supportMonthly; bonus → bonusAnnual + bonusMonth; vesting → one rsuGrants row; Social Security → ri_ss a month; 401(k) → c_401k a month (paid months via a dated pay table)",
+   "expected": {
+    "exact": "60000",
+    "shown": "$60,000"
+   },
+   "actual": 60000,
+   "difference": "none",
+   "rests_on": "Written formula; DEC-0179",
+   "note": "Same-year taxable sources added; untaxed support excluded; the 401(k) is not subtracted here (that is MK-CF-F-230).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-084 taxableAnnual — five cases MK-CF-F-084-C02 · easy · Wages plus untaxed support [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-084",
+   "case_id": "MK-CF-F-084-C03",
+   "name": "taxableAnnual",
+   "kind": "complex",
+   "title": "Multiple sources unround",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "wages → salaryFreq annually + baseSalary; rent → one rent entry naming its property; interest → invAnnual; support → supportMonthly; bonus → bonusAnnual + bonusMonth; vesting → one rsuGrants row; Social Security → ri_ss a month; 401(k) → c_401k a month (paid months via a dated pay table)",
+   "expected": {
+    "exact": "173077.70",
+    "shown": "$173,078"
+   },
+   "actual": 173077.7,
+   "difference": "none",
+   "rests_on": "Written formula; DEC-0179",
+   "note": "Same-year taxable sources added; untaxed support excluded; the 401(k) is not subtracted here (that is MK-CF-F-230).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-084 taxableAnnual — five cases MK-CF-F-084-C03 · complex · Multiple sources unround [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-084",
+   "case_id": "MK-CF-F-084-C04",
+   "name": "taxableAnnual",
+   "kind": "complex",
+   "title": "Negative rent",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "wages → salaryFreq annually + baseSalary; rent → one rent entry naming its property; interest → invAnnual; support → supportMonthly; bonus → bonusAnnual + bonusMonth; vesting → one rsuGrants row; Social Security → ri_ss a month; 401(k) → c_401k a month (paid months via a dated pay table)",
+   "expected": {
+    "exact": "73622.10",
+    "shown": "$73,622"
+   },
+   "actual": 73622.10000000002,
+   "difference": "none",
+   "rests_on": "Written formula; DEC-0179",
+   "note": "Same-year taxable sources added; untaxed support excluded; the 401(k) is not subtracted here (that is MK-CF-F-230).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-084 taxableAnnual — five cases MK-CF-F-084-C04 · complex · Negative rent [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-084",
+   "case_id": "MK-CF-F-084-C05",
+   "name": "taxableAnnual",
+   "kind": "edge",
+   "title": "Social Security only",
+   "classification": "APP WRONG",
+   "status": "APP WRONG",
+   "mapped": "wages → salaryFreq annually + baseSalary; rent → one rent entry naming its property; interest → invAnnual; support → supportMonthly; bonus → bonusAnnual + bonusMonth; vesting → one rsuGrants row; Social Security → ri_ss a month; 401(k) → c_401k a month (paid months via a dated pay table)",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 24000,
+   "difference": "see note",
+   "rests_on": "IRS Publication 915 (combined income ½ × $24,000 = $12,000, under the $25,000 base); tenets 1 and 7",
+   "note": "All of Social Security is counted as taxable: $24,000, right $0. Reachable: a 63-year-old single filer on $2,000 a month of Social Security is charged $790 a year of calculated tax (witness W6).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-084 taxableAnnual — five cases MK-CF-F-084-C05 · edge · Social Security only [APP WRONG] — Social Security counted in full: $24,000, should be $0 (IRS Pub 915)",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): Social Security taxed per IRS Publication 915 Worksheet 1 (socialSecurityTaxedAnnual): $24,000 alone is $0 taxed (it read $24,000)."
+  },
+  {
+   "id": "MK-CF-F-230",
+   "case_id": "MK-CF-F-230-C01",
+   "name": "taxedAfterPreTax",
+   "kind": "easy",
+   "title": "Wages only",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "wages → salaryFreq annually + baseSalary; rent → one rent entry naming its property; interest → invAnnual; support → supportMonthly; bonus → bonusAnnual + bonusMonth; vesting → one rsuGrants row; Social Security → ri_ss a month; 401(k) → c_401k a month (paid months via a dated pay table)",
+   "expected": {
+    "exact": "60000",
+    "shown": "$60,000"
+   },
+   "actual": 60000,
+   "difference": "none",
+   "rests_on": "DEC-0283; DEC-7797",
+   "note": "taxableAnnual less the household 401(k) for the months each earner is paid.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-230 taxedAfterPreTax — five cases MK-CF-F-230-C01 · easy · Wages only [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-230",
+   "case_id": "MK-CF-F-230-C02",
+   "name": "taxedAfterPreTax",
+   "kind": "easy",
+   "title": "Wages plus untaxed support",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "wages → salaryFreq annually + baseSalary; rent → one rent entry naming its property; interest → invAnnual; support → supportMonthly; bonus → bonusAnnual + bonusMonth; vesting → one rsuGrants row; Social Security → ri_ss a month; 401(k) → c_401k a month (paid months via a dated pay table)",
+   "expected": {
+    "exact": "60000",
+    "shown": "$60,000"
+   },
+   "actual": 60000,
+   "difference": "none",
+   "rests_on": "DEC-0283; DEC-7797",
+   "note": "taxableAnnual less the household 401(k) for the months each earner is paid.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-230 taxedAfterPreTax — five cases MK-CF-F-230-C02 · easy · Wages plus untaxed support [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-230",
+   "case_id": "MK-CF-F-230-C03",
+   "name": "taxedAfterPreTax",
+   "kind": "complex",
+   "title": "Multiple sources unround",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "wages → salaryFreq annually + baseSalary; rent → one rent entry naming its property; interest → invAnnual; support → supportMonthly; bonus → bonusAnnual + bonusMonth; vesting → one rsuGrants row; Social Security → ri_ss a month; 401(k) → c_401k a month (paid months via a dated pay table)",
+   "expected": {
+    "exact": "158766.27",
+    "shown": "$158,766"
+   },
+   "actual": 158766.27000000002,
+   "difference": "none",
+   "rests_on": "DEC-0283; DEC-7797",
+   "note": "taxableAnnual less the household 401(k) for the months each earner is paid.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-230 taxedAfterPreTax — five cases MK-CF-F-230-C03 · complex · Multiple sources unround [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-230",
+   "case_id": "MK-CF-F-230-C04",
+   "name": "taxedAfterPreTax",
+   "kind": "complex",
+   "title": "Negative rent",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "wages → salaryFreq annually + baseSalary; rent → one rent entry naming its property; interest → invAnnual; support → supportMonthly; bonus → bonusAnnual + bonusMonth; vesting → one rsuGrants row; Social Security → ri_ss a month; 401(k) → c_401k a month (paid months via a dated pay table); paid_months 6 → a pay table paying $12,185.195 in Jan–Jun; c_401k = employee_k_monthly",
+   "expected": {
+    "exact": "66490.91",
+    "shown": "$66,491"
+   },
+   "actual": 66490.91,
+   "difference": "none",
+   "rests_on": "DEC-7797; MK-CF-F-206",
+   "note": "The code counts the 401(k) in paid months only ($7,131.19): $66,490.91. The reviewer's formula_gives ($59,359.72, twelve months) is not what the code does.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-230 taxedAfterPreTax — five cases MK-CF-F-230-C04 · complex · Negative rent [AGREE] — paid months only, as MK-CF-F-206 counts them",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-230",
+   "case_id": "MK-CF-F-230-C05",
+   "name": "taxedAfterPreTax",
+   "kind": "edge",
+   "title": "Social Security only",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "wages → salaryFreq annually + baseSalary; rent → one rent entry naming its property; interest → invAnnual; support → supportMonthly; bonus → bonusAnnual + bonusMonth; vesting → one rsuGrants row; Social Security → ri_ss a month; 401(k) → c_401k a month (paid months via a dated pay table)",
+   "expected": {
+    "exact": "24000",
+    "shown": "$24,000"
+   },
+   "actual": 24000,
+   "difference": "none",
+   "rests_on": "the package's expected; IRS Pub 915 disagrees",
+   "note": "The app equals the package's $24,000 — but that figure carries the MK-CF-F-084-C05 Social Security fault and contradicts the reviewer's own F-084-C05 ($0). When taxableAnnual is fixed this case reads $0 and its test goes red: that red is correct.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-230 taxedAfterPreTax — five cases MK-CF-F-230-C05 · edge · Social Security only [AGREE] — equals the package; flips with the F-084 Social Security fix (IRS Pub 915: $0)",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): reclassified REVIEWER WRONG: the package's $24,000 carries the F-084-C05 fault; IRS Publication 915 gives $0, which the app now prints."
+  },
+  {
+   "id": "MK-CF-F-085",
+   "case_id": "MK-CF-F-085-C01",
+   "name": "filingStatusOf",
+   "kind": "easy",
+   "title": "Explicit single",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "status → filingStatus; spouse_present → hasPartner yes",
+   "expected": "single",
+   "actual": "single",
+   "difference": "none",
+   "rests_on": "DEC-0176 #4",
+   "note": "The answer on record wins.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-085 filingStatusOf — five cases MK-CF-F-085-C01 · easy · Explicit single [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-085",
+   "case_id": "MK-CF-F-085-C02",
+   "name": "filingStatusOf",
+   "kind": "easy",
+   "title": "Explicit separate",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "status → filingStatus; spouse_present → hasPartner yes",
+   "expected": "mfs",
+   "actual": "mfs",
+   "difference": "none",
+   "rests_on": "DEC-0176 #4",
+   "note": "The answer on record wins.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-085 filingStatusOf — five cases MK-CF-F-085-C02 · easy · Explicit separate [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-085",
+   "case_id": "MK-CF-F-085-C03",
+   "name": "filingStatusOf",
+   "kind": "complex",
+   "title": "Head of household",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "status → filingStatus; spouse_present → hasPartner yes",
+   "expected": "hoh",
+   "actual": "hoh",
+   "difference": "none",
+   "rests_on": "DEC-0176 #4",
+   "note": "The answer on record wins.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-085 filingStatusOf — five cases MK-CF-F-085-C03 · complex · Head of household [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-085",
+   "case_id": "MK-CF-F-085-C04",
+   "name": "filingStatusOf",
+   "kind": "complex",
+   "title": "Missing status with spouse",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "filingStatus absent; hasPartner yes",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Unconfirmedstatusisinferred",
+    "readings": {
+     "estimate": "married",
+     "confirmed": "notentered"
+    }
+   },
+   "actual": "married",
+   "difference": "none",
+   "rests_on": "SETTLED BY DEC-7944 and MK-CF-D-004 (under DEC-0176 #4 and the B31 ruling of 2026-08-27)",
+   "note": "The reviewer wrote RULE UNCLEAR. A decision settles it: with a spouse entered and no answer, the status in force is jointly, stated as assumed, and the answer wins. The app gives the \"estimate\" reading. On the Tax organizer the assumption is printed with the wrong word — witness W3.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-085 filingStatusOf — five cases MK-CF-F-085-C04 · complex · Missing status with spouse [AGREE] — SETTLED BY DEC-7944 / MK-CF-D-004: jointly assumed, stated \"Assumed — we have never asked\"",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-085",
+   "case_id": "MK-CF-F-085-C05",
+   "name": "filingStatusOf",
+   "kind": "edge",
+   "title": "Missing all status data",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "nothing entered",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "No confirmed filingstatus",
+    "readings": {
+     "estimate": "single",
+     "confirmed": "notentered"
+    }
+   },
+   "actual": "single",
+   "difference": "none",
+   "rests_on": "SETTLED BY MK-CF-D-004; base-pay.ts:41 (\"absent means single\")",
+   "note": "The reviewer wrote RULE UNCLEAR; no spouse and no answer → single, shown \"Assumed — we have never asked\" (TaxOrganizerScreen.tsx:70).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-085 filingStatusOf — five cases MK-CF-F-085-C05 · edge · Missing all status data [AGREE] — SETTLED BY MK-CF-D-004 / base-pay.ts:41: absent means single, stated as assumed",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-086",
+   "case_id": "MK-CF-F-086-C01",
+   "name": "stateRateOf",
+   "kind": "easy",
+   "title": "Fivepercent",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "state_percent → stateTaxRate as the Tax organizer box stores it (the typed text)",
+   "expected": {
+    "exact": "0.05",
+    "shown": "5.00%"
+   },
+   "actual": 0.05,
+   "difference": "none",
+   "rests_on": "Written formula",
+   "note": "Percent ÷ 100, held between 0 and 15%; nothing typed reads 0 and the rate's words say \"federal income tax only\".",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-086 stateRateOf — five cases MK-CF-F-086-C01 · easy · Fivepercent [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-086",
+   "case_id": "MK-CF-F-086-C02",
+   "name": "stateRateOf",
+   "kind": "easy",
+   "title": "Zeroentered",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "state_percent → stateTaxRate as the Tax organizer box stores it (the typed text)",
+   "expected": {
+    "exact": "0",
+    "shown": "0.00%"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "Written formula",
+   "note": "Percent ÷ 100, held between 0 and 15%; nothing typed reads 0 and the rate's words say \"federal income tax only\".",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-086 stateRateOf — five cases MK-CF-F-086-C02 · easy · Zeroentered [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-086",
+   "case_id": "MK-CF-F-086-C03",
+   "name": "stateRateOf",
+   "kind": "complex",
+   "title": "Unround",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "state_percent → stateTaxRate as the Tax organizer box stores it (the typed text)",
+   "expected": {
+    "exact": "0.0473",
+    "shown": "4.73%"
+   },
+   "actual": 0.0473,
+   "difference": "none",
+   "rests_on": "Written formula",
+   "note": "Percent ÷ 100, held between 0 and 15%; nothing typed reads 0 and the rate's words say \"federal income tax only\".",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-086 stateRateOf — five cases MK-CF-F-086-C03 · complex · Unround [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-086",
+   "case_id": "MK-CF-F-086-C04",
+   "name": "stateRateOf",
+   "kind": "complex",
+   "title": "Uppercap",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "state_percent → stateTaxRate as the Tax organizer box stores it (the typed text)",
+   "expected": {
+    "exact": "0.15",
+    "shown": "15.00%"
+   },
+   "actual": 0.15,
+   "difference": "none",
+   "rests_on": "Written formula",
+   "note": "Percent ÷ 100, held between 0 and 15%; nothing typed reads 0 and the rate's words say \"federal income tax only\".",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-086 stateRateOf — five cases MK-CF-F-086-C04 · complex · Uppercap [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-086",
+   "case_id": "MK-CF-F-086-C05",
+   "name": "stateRateOf",
+   "kind": "edge",
+   "title": "Noestimate",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "state_percent → stateTaxRate as the Tax organizer box stores it (the typed text)",
+   "expected": {
+    "exact": "0",
+    "shown": "0.00%"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "Written formula",
+   "note": "Percent ÷ 100, held between 0 and 15%; nothing typed reads 0 and the rate's words say \"federal income tax only\".",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-086 stateRateOf — five cases MK-CF-F-086-C05 · edge · Noestimate [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-087",
+   "case_id": "MK-CF-F-087-C01",
+   "name": "monthlyTaxRates",
+   "kind": "easy",
+   "title": "Typed rate wins",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "taxable_annual → wages a year (annually); k_annual → c_401k ÷ 12; status → filingStatus; state_rate → stateTaxRate (percent); typed_rate_percent → taxMode manual + manualTaxRate",
+   "expected": [
+    {
+     "exact": "0.24",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.24",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.24",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.24",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.24",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.24",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.24",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.24",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.24",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.24",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.24",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.24",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    0.24,
+    0.24,
+    0.24,
+    0.24,
+    0.24,
+    0.24,
+    0.24,
+    0.24,
+    0.24,
+    0.24,
+    0.24,
+    0.24
+   ],
+   "difference": "none",
+   "rests_on": "DEC-0196; DEC-7940",
+   "note": "One rate, the same in every month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-087 monthlyTaxRates — five cases MK-CF-F-087-C01 · easy · Typed rate wins [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-087",
+   "case_id": "MK-CF-F-087-C02",
+   "name": "monthlyTaxRates",
+   "kind": "easy",
+   "title": "Calculated federal",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "taxable_annual → wages a year (annually); k_annual → c_401k ÷ 12; status → filingStatus; state_rate → stateTaxRate (percent); typed_rate_percent → taxMode manual + manualTaxRate",
+   "expected": [
+    {
+     "exact": "0.07406666666666666666666666667",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.07406666666666666666666666667",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.07406666666666666666666666667",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.07406666666666666666666666667",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.07406666666666666666666666667",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.07406666666666666666666666667",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.07406666666666666666666666667",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.07406666666666666666666666667",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.07406666666666666666666666667",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.07406666666666666666666666667",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.07406666666666666666666666667",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.07406666666666666666666666667",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    0.07406666666666667,
+    0.07406666666666667,
+    0.07406666666666667,
+    0.07406666666666667,
+    0.07406666666666667,
+    0.07406666666666667,
+    0.07406666666666667,
+    0.07406666666666667,
+    0.07406666666666667,
+    0.07406666666666667,
+    0.07406666666666667,
+    0.07406666666666667
+   ],
+   "difference": "none",
+   "rests_on": "DEC-0196; DEC-7940",
+   "note": "One rate, the same in every month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-087 monthlyTaxRates — five cases MK-CF-F-087-C02 · easy · Calculated federal [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-087",
+   "case_id": "MK-CF-F-087-C03",
+   "name": "monthlyTaxRates",
+   "kind": "complex",
+   "title": "Calculated with state",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "taxable_annual → wages a year (annually); k_annual → c_401k ÷ 12; status → filingStatus; state_rate → stateTaxRate (percent); typed_rate_percent → taxMode manual + manualTaxRate",
+   "expected": [
+    {
+     "exact": "0.1092993911838685396358950132",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.1092993911838685396358950132",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.1092993911838685396358950132",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.1092993911838685396358950132",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.1092993911838685396358950132",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.1092993911838685396358950132",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.1092993911838685396358950132",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.1092993911838685396358950132",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.1092993911838685396358950132",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.1092993911838685396358950132",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.1092993911838685396358950132",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.1092993911838685396358950132",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    0.10929939118386854,
+    0.10929939118386854,
+    0.10929939118386854,
+    0.10929939118386854,
+    0.10929939118386854,
+    0.10929939118386854,
+    0.10929939118386854,
+    0.10929939118386854,
+    0.10929939118386854,
+    0.10929939118386854,
+    0.10929939118386854,
+    0.10929939118386854
+   ],
+   "difference": "none",
+   "rests_on": "DEC-0196; DEC-7940",
+   "note": "One rate, the same in every month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-087 monthlyTaxRates — five cases MK-CF-F-087-C03 · complex · Calculated with state [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-087",
+   "case_id": "MK-CF-F-087-C04",
+   "name": "monthlyTaxRates",
+   "kind": "complex",
+   "title": "Part-year implied take-home",
+   "classification": "APP WRONG",
+   "status": "APP WRONG",
+   "mapped": "the household F-048-C04 resolves the rate from: $60,000.30 over six paid months (dated pay table), c_401k $501.13, landsTypical $3,799.17",
+   "expected": [
+    {
+     "exact": "0.5699721501392493037534812326",
+     "shown": "$1",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.5699721501392493037534812326",
+     "shown": "$1",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.5699721501392493037534812326",
+     "shown": "$1",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.5699721501392493037534812326",
+     "shown": "$1",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.5699721501392493037534812326",
+     "shown": "$1",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.5699721501392493037534812326",
+     "shown": "$1",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.5699721501392493037534812326",
+     "shown": "$1",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.5699721501392493037534812326",
+     "shown": "$1",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.5699721501392493037534812326",
+     "shown": "$1",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.5699721501392493037534812326",
+     "shown": "$1",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.5699721501392493037534812326",
+     "shown": "$1",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0.5699721501392493037534812326",
+     "shown": "$1",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    0.13994430027849877,
+    0.13994430027849877,
+    0.13994430027849877,
+    0.13994430027849877,
+    0.13994430027849877,
+    0.13994430027849877,
+    0.13994430027849877,
+    0.13994430027849877,
+    0.13994430027849877,
+    0.13994430027849877,
+    0.13994430027849877,
+    0.13994430027849877
+   ],
+   "difference": "see note",
+   "rests_on": "DEC-7938 (\"a take-home typed as $6,200 reads $6,200\"); tenet 1",
+   "note": "monthlyTaxRates lays the rate in force on every month as ruled; the rate itself is wrong upstream: MK-CF-F-180 enteredLandsAnnual takes the take-home × 12 and MK-CF-F-181 rateInForce the 401(k) × 12, so six paid months read as twelve: 13.99%, right 57.00%.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-087 monthlyTaxRates — five cases MK-CF-F-087-C04 · complex · Part-year implied take-home [APP WRONG] — six paid months read as twelve upstream (F-180/F-181): 13.99%, should be 57.00% (DEC-7938)",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26) upstream (MK-CF-F-180/F-181): 57.00% in every month (it read 13.99%)."
+  },
+  {
+   "id": "MK-CF-F-087",
+   "case_id": "MK-CF-F-087-C05",
+   "name": "monthlyTaxRates",
+   "kind": "edge",
+   "title": "Known explicit0 rate",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "taxable_annual → wages a year (annually); k_annual → c_401k ÷ 12; status → filingStatus; state_rate → stateTaxRate (percent); typed_rate_percent → taxMode manual + manualTaxRate",
+   "expected": [
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "difference": "none",
+   "rests_on": "DEC-0196; DEC-7940",
+   "note": "One rate, the same in every month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-087 monthlyTaxRates — five cases MK-CF-F-087-C05 · edge · Known explicit0 rate [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-088",
+   "case_id": "MK-CF-F-088-C01",
+   "name": "taxableByCalendarMonth",
+   "kind": "easy",
+   "title": "Wage less401k",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "wages → baseSalary a month; k → c_401k; rent_net → one rent entry a month; interest → invAnnual (× 12); bonus → bonusAnnual + bonusMonth",
+   "expected": {
+    "exact": "4500",
+    "shown": "$4,500"
+   },
+   "actual": 4500,
+   "difference": "none",
+   "rests_on": "Written formula; B05 (DEC-0185)",
+   "note": "The month's taxable amount, 401(k) out.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-088 taxableByCalendarMonth — five cases MK-CF-F-088-C01 · easy · Wage less401k [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-088",
+   "case_id": "MK-CF-F-088-C02",
+   "name": "taxableByCalendarMonth",
+   "kind": "easy",
+   "title": "Bonus in ownmonth",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "wages → baseSalary a month; k → c_401k; rent_net → one rent entry a month; interest → invAnnual (× 12); bonus → bonusAnnual + bonusMonth",
+   "expected": {
+    "exact": "16500",
+    "shown": "$16,500"
+   },
+   "actual": 16500,
+   "difference": "none",
+   "rests_on": "Written formula; B05 (DEC-0185)",
+   "note": "The month's taxable amount, 401(k) out.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-088 taxableByCalendarMonth — five cases MK-CF-F-088-C02 · easy · Bonus in ownmonth [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-088",
+   "case_id": "MK-CF-F-088-C03",
+   "name": "taxableByCalendarMonth",
+   "kind": "complex",
+   "title": "Unround taxablemix",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "wages → baseSalary a month; k → c_401k; rent_net → one rent entry a month; interest → invAnnual (× 12); bonus → bonusAnnual + bonusMonth",
+   "expected": {
+    "exact": "7024.30",
+    "shown": "$7,024"
+   },
+   "actual": 7024.3,
+   "difference": "none",
+   "rests_on": "Written formula; B05 (DEC-0185)",
+   "note": "The month's taxable amount, 401(k) out.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-088 taxableByCalendarMonth — five cases MK-CF-F-088-C03 · complex · Unround taxablemix [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-088",
+   "case_id": "MK-CF-F-088-C04",
+   "name": "taxableByCalendarMonth",
+   "kind": "complex",
+   "title": "Monthlylossretained",
+   "classification": "APP WRONG",
+   "status": "APP WRONG",
+   "mapped": "wages $1,311.17 a month, c_401k $311.43, a rent entry with $1,731.19 a month of running costs",
+   "expected": {
+    "exact": "-731.45",
+    "shown": "−$731"
+   },
+   "actual": 0,
+   "difference": "see note",
+   "rests_on": "tenets 1 and 4 (DEC-3523)",
+   "note": "The month is floored at $0, and MK-CF-F-092 incomeMonthlyGrid rebuilds the month's pay from it (taxable + 401(k)), so the month reads $311.43 gross and $0 take-home where the money was −$731.45 (witness W4). Commoner: pay stops after June with a rent entry losing $200 a month → July–December read $0, not −$200 (W4b).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-088 taxableByCalendarMonth — five cases MK-CF-F-088-C04 · complex · Monthlylossretained [APP WRONG] — a month with a rent loss floored at $0: should be −$731.45",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): a month with a rent loss is kept, never floored: −$731.45 (it read $0)."
+  },
+  {
+   "id": "MK-CF-F-088",
+   "case_id": "MK-CF-F-088-C05",
+   "name": "taxableByCalendarMonth",
+   "kind": "edge",
+   "title": "Knownzero",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "wages → baseSalary a month; k → c_401k; rent_net → one rent entry a month; interest → invAnnual (× 12); bonus → bonusAnnual + bonusMonth",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "Written formula; B05 (DEC-0185)",
+   "note": "The month's taxable amount, 401(k) out.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-088 taxableByCalendarMonth — five cases MK-CF-F-088-C05 · edge · Knownzero [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-089",
+   "case_id": "MK-CF-F-089-C01",
+   "name": "over65CountOf",
+   "kind": "easy",
+   "title": "Neither joint spouse",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "status → filingStatus; age_question → over65Who ('one' → 'me', FilingStatusScreen's value)",
+   "expected": {
+    "exact": "0",
+    "shown": "0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "B33 ruling 2026-08-27 (on a joint return we ask, and the answer wins)",
+   "note": "The answer counts.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-089 over65CountOf — five cases MK-CF-F-089-C01 · easy · Neither joint spouse [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-089",
+   "case_id": "MK-CF-F-089-C02",
+   "name": "over65CountOf",
+   "kind": "easy",
+   "title": "Both joint spouses",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "status → filingStatus; age_question → over65Who ('one' → 'me', FilingStatusScreen's value)",
+   "expected": {
+    "exact": "2",
+    "shown": "2"
+   },
+   "actual": 2,
+   "difference": "none",
+   "rests_on": "B33 ruling 2026-08-27 (on a joint return we ask, and the answer wins)",
+   "note": "The answer counts.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-089 over65CountOf — five cases MK-CF-F-089-C02 · easy · Both joint spouses [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-089",
+   "case_id": "MK-CF-F-089-C03",
+   "name": "over65CountOf",
+   "kind": "complex",
+   "title": "One joint spouse",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "status → filingStatus; age_question → over65Who ('one' → 'me', FilingStatusScreen's value)",
+   "expected": {
+    "exact": "1",
+    "shown": "1"
+   },
+   "actual": 1,
+   "difference": "none",
+   "rests_on": "B33 ruling 2026-08-27 (on a joint return we ask, and the answer wins)",
+   "note": "The answer counts.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-089 over65CountOf — five cases MK-CF-F-089-C03 · complex · One joint spouse [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-089",
+   "case_id": "MK-CF-F-089-C04",
+   "name": "over65CountOf",
+   "kind": "complex",
+   "title": "Joint spouse age unentered",
+   "classification": "NEEDS RULING",
+   "status": "NEEDS RULING",
+   "mapped": "filingStatus married, over65Who absent, birthYear 1960",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Spouse65+eligibilitynotentered"
+   },
+   "actual": 1,
+   "difference": "reviewer refuses / app answers",
+   "rests_on": "none settles it: Brief E8 / DEC-0325 only added the 65+ deduction; tenet 3 and DEC-0296 say unknown is not a default",
+   "note": "The app counts the person alone (1): the spouse is taken as under 65 until asked. The reviewer refuses.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-089 over65CountOf — five cases MK-CF-F-089-C04 · complex · Joint spouse age unentered [NEEDS RULING] — spouse 65+ unanswered → counted as under 65 (app 1; reviewer refuses)",
+   "test_result": "passed",
+   "marked": "test (the app's answer pinned)",
+   "fixed": "RULED 2026-10-25 (lead): count the person only (1) and say so — the Tax organizer's line \"Your spouse counted as under 65 — not entered ›\" opens the filing question. Built by FIX-TAX."
+  },
+  {
+   "id": "MK-CF-F-089",
+   "case_id": "MK-CF-F-089-C05",
+   "name": "over65CountOf",
+   "kind": "edge",
+   "title": "IRS January1 birthday convention",
+   "classification": "OUTSIDE DOMAIN",
+   "status": "OUTSIDE DOMAIN",
+   "mapped": "filingStatus single, birthYear 1962, birthMonth 1",
+   "expected": {
+    "exact": "1",
+    "shown": "1"
+   },
+   "actual": 0,
+   "difference": "see note",
+   "rests_on": "IRS Form 1040 instructions (the day before the 65th birthday)",
+   "note": "The profile holds birth year and month, never the day (src/domain/onboardingProfile.ts:61), so a 1 January birthday cannot be sent. Recorded: 1962 → 64 in 2026 → 0, right for everyone born 2 January 1962 or later.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-089 over65CountOf — five cases MK-CF-F-089-C05 · edge · IRS January1 birthday convention [OUTSIDE DOMAIN] — no birth day is captured (onboardingProfile.ts:61); birth year 1962 → 0",
+   "test_result": "passed",
+   "marked": "test (what the app does, recorded; caller cited)"
+  },
+  {
+   "id": "MK-CF-F-090",
+   "case_id": "MK-CF-F-090-C01",
+   "name": "effectiveRate",
+   "kind": "easy",
+   "title": "Typed rate wins",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "taxable_annual → wages a year (annually); k_annual → c_401k ÷ 12; status → filingStatus; state_rate → stateTaxRate (percent); typed_rate_percent → taxMode manual + manualTaxRate",
+   "expected": {
+    "exact": "0.24",
+    "shown": "24.00%"
+   },
+   "actual": 0.24,
+   "difference": "none",
+   "rests_on": "DEC-0196; DEC-7608",
+   "note": "Delegates to rateInForce, no second calculation (the test asserts effectiveRate === rateInForce(op).rate).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-090 effectiveRate — five cases MK-CF-F-090-C01 · easy · Typed rate wins [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-090",
+   "case_id": "MK-CF-F-090-C02",
+   "name": "effectiveRate",
+   "kind": "easy",
+   "title": "Calculated federal",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "taxable_annual → wages a year (annually); k_annual → c_401k ÷ 12; status → filingStatus; state_rate → stateTaxRate (percent); typed_rate_percent → taxMode manual + manualTaxRate",
+   "expected": {
+    "exact": "0.07406666666666666666666666667",
+    "shown": "7.41%"
+   },
+   "actual": 0.07406666666666667,
+   "difference": "none",
+   "rests_on": "DEC-0196; DEC-7608",
+   "note": "Delegates to rateInForce, no second calculation (the test asserts effectiveRate === rateInForce(op).rate).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-090 effectiveRate — five cases MK-CF-F-090-C02 · easy · Calculated federal [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-090",
+   "case_id": "MK-CF-F-090-C03",
+   "name": "effectiveRate",
+   "kind": "complex",
+   "title": "Calculated with state",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "taxable_annual → wages a year (annually); k_annual → c_401k ÷ 12; status → filingStatus; state_rate → stateTaxRate (percent); typed_rate_percent → taxMode manual + manualTaxRate",
+   "expected": {
+    "exact": "0.1092993911838685396358950132",
+    "shown": "10.93%"
+   },
+   "actual": 0.10929939118386854,
+   "difference": "none",
+   "rests_on": "DEC-0196; DEC-7608",
+   "note": "Delegates to rateInForce, no second calculation (the test asserts effectiveRate === rateInForce(op).rate).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-090 effectiveRate — five cases MK-CF-F-090-C03 · complex · Calculated with state [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-090",
+   "case_id": "MK-CF-F-090-C04",
+   "name": "effectiveRate",
+   "kind": "complex",
+   "title": "Part-year implied take-home",
+   "classification": "APP WRONG",
+   "status": "APP WRONG",
+   "mapped": "the household F-048-C04 resolves the rate from: $60,000.30 over six paid months (dated pay table), c_401k $501.13, landsTypical $3,799.17",
+   "expected": {
+    "exact": "0.5699721501392493037534812326",
+    "shown": "57.00%"
+   },
+   "actual": 0.13994430027849877,
+   "difference": "see note",
+   "rests_on": "DEC-7938; tenet 1",
+   "note": "effectiveRate delegates faithfully; the rate in force is wrong upstream (MK-CF-F-180, MK-CF-F-181): 13.99%, right 57.00%.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-090 effectiveRate — five cases MK-CF-F-090-C04 · complex · Part-year implied take-home [APP WRONG] — delegates faithfully; the rate in force reads six paid months as twelve (F-180/F-181): 13.99%, should be 57.00%",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26) upstream (MK-CF-F-180/F-181): 57.00% (it read 13.99%)."
+  },
+  {
+   "id": "MK-CF-F-090",
+   "case_id": "MK-CF-F-090-C05",
+   "name": "effectiveRate",
+   "kind": "edge",
+   "title": "Known explicit0 rate",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "taxable_annual → wages a year (annually); k_annual → c_401k ÷ 12; status → filingStatus; state_rate → stateTaxRate (percent); typed_rate_percent → taxMode manual + manualTaxRate",
+   "expected": {
+    "exact": "0",
+    "shown": "0.00%"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "DEC-0196; DEC-7608",
+   "note": "Delegates to rateInForce, no second calculation (the test asserts effectiveRate === rateInForce(op).rate).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-090 effectiveRate — five cases MK-CF-F-090-C05 · edge · Known explicit0 rate [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-048",
+   "case_id": "MK-CF-F-048-C01",
+   "name": "effectiveTaxRate",
+   "kind": "easy",
+   "title": "Typed rate wins",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "profile as for F-090, run through incomeFromOnboarding → grossAnnualBaseline → effectiveTaxRate (the chain buildIncomeState takes for IncomeDetailScreen.tsx:39 and buildSnapshot)",
+   "expected": {
+    "exact": "0.24",
+    "shown": "24.00%"
+   },
+   "actual": 0.24,
+   "difference": "none",
+   "rests_on": "DEC-0196",
+   "note": "A typed rate (including 0%) is carried through.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-048 effectiveTaxRate — five cases (the legacy reader, through its one production chain) MK-CF-F-048-C01 · easy · Typed rate wins [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  },
+  {
+   "id": "MK-CF-F-048",
+   "case_id": "MK-CF-F-048-C02",
+   "name": "effectiveTaxRate",
+   "kind": "easy",
+   "title": "Calculated federal",
+   "classification": "APP WRONG",
+   "status": "APP WRONG",
+   "mapped": "profile as for F-090, run through incomeFromOnboarding → grossAnnualBaseline → effectiveTaxRate (the chain buildIncomeState takes for IncomeDetailScreen.tsx:39 and buildSnapshot)",
+   "expected": {
+    "exact": "0.07406666666666666666666666667",
+    "shown": "7.41%"
+   },
+   "actual": 0.08366666666666667,
+   "difference": "see note",
+   "rests_on": "DEC-0283 and B05/DEC-0185 (the 401(k) is not taxed); DEC-0196 (one rate everywhere); tenet 4",
+   "note": "The legacy chain has no 401(k): 8.37% where the rate in force is 7.41%. Reaches no figure anyone can see today (see formula check).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-048 effectiveTaxRate — five cases (the legacy reader, through its one production chain) MK-CF-F-048-C02 · easy · Calculated federal [APP WRONG] — 401(k) taxed: 8.37%, rate in force 7.41%",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer)",
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — effectiveTaxRate RETIRED into MK-CF-F-181 rateInForce; buildIncomeState is handed the profile: 7.41% (was 8.37%)."
+  },
+  {
+   "id": "MK-CF-F-048",
+   "case_id": "MK-CF-F-048-C03",
+   "name": "effectiveTaxRate",
+   "kind": "complex",
+   "title": "Calculated with state",
+   "classification": "APP WRONG",
+   "status": "APP WRONG",
+   "mapped": "profile as for F-090, run through incomeFromOnboarding → grossAnnualBaseline → effectiveTaxRate (the chain buildIncomeState takes for IncomeDetailScreen.tsx:39 and buildSnapshot)",
+   "expected": {
+    "exact": "0.1092993911838685396358950132",
+    "shown": "10.93%"
+   },
+   "actual": 0.15861743548846152,
+   "difference": "see note",
+   "rests_on": "DEC-0184 (one tax engine); DEC-0327 and DEC-7608 (state on taxable income); DEC-0283; tenet 4",
+   "note": "The legacy chain never hands effectiveTaxRate a filing status (incomeFromOnboarding uses DEFAULT_TAX, no filing_status), a 401(k) or the state rate: a married couple is taxed as single — 15.86% where the rate in force is 10.93% (the reviewer's formula_gives 9.24% assumed the status was passed; it is not).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-048 effectiveTaxRate — five cases (the legacy reader, through its one production chain) MK-CF-F-048-C03 · complex · Calculated with state [APP WRONG] — married taxed as single, no 401(k), no state: 15.86%, rate in force 10.93%",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer)",
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — as C02: 10.93% (was 15.86%)."
+  },
+  {
+   "id": "MK-CF-F-048",
+   "case_id": "MK-CF-F-048-C04",
+   "name": "effectiveTaxRate",
+   "kind": "complex",
+   "title": "Part-year implied take-home",
+   "classification": "APP WRONG",
+   "status": "APP WRONG",
+   "mapped": "profile as for F-090, run through incomeFromOnboarding → grossAnnualBaseline → effectiveTaxRate (the chain buildIncomeState takes for IncomeDetailScreen.tsx:39 and buildSnapshot); the household F-048-C04 resolves the rate from: $60,000.30 over six paid months (dated pay table), c_401k $501.13, landsTypical $3,799.17",
+   "expected": {
+    "exact": "0.5699721501392493037534812326",
+    "shown": "57.00%"
+   },
+   "actual": 0.083666848332425,
+   "difference": "see note",
+   "rests_on": "DEC-7938; DEC-0196",
+   "note": "No implied branch: 8.37% calculated on the gross, where the take-home typed needs 57.00%.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-048 effectiveTaxRate — five cases (the legacy reader, through its one production chain) MK-CF-F-048-C04 · complex · Part-year implied take-home [APP WRONG] — no implied branch: calculated 8.37% on the gross",
+   "test_result": "passed",
+   "marked": "test.failing (the reviewer's answer)",
+   "fixed": "FIXED 2026-10-25 (FIX-TAX with FIX-INCOME) — the chain reads MK-CF-F-181 (effectiveTaxRate retired), and FIX-INCOME's part-year F-180/F-181 counts the six paid months: 57.00% (was 13.99%)."
+  },
+  {
+   "id": "MK-CF-F-048",
+   "case_id": "MK-CF-F-048-C05",
+   "name": "effectiveTaxRate",
+   "kind": "edge",
+   "title": "Known explicit0 rate",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "profile as for F-090, run through incomeFromOnboarding → grossAnnualBaseline → effectiveTaxRate (the chain buildIncomeState takes for IncomeDetailScreen.tsx:39 and buildSnapshot)",
+   "expected": {
+    "exact": "0",
+    "shown": "0.00%"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "DEC-0196",
+   "note": "A typed rate (including 0%) is carried through.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part17.test.ts › MK-CF-F-048 effectiveTaxRate — five cases (the legacy reader, through its one production chain) MK-CF-F-048-C05 · edge · Known explicit0 rate [AGREE]",
+   "test_result": "passed",
+   "marked": "test (the reviewer's answer, from the package)"
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-CF-O-007",
+   "name": "theTaxOrganizer",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Rounds account income before handing it to another tax calculator and uses mixed trailing paid/estimated account income for an explicit tax year. Reinvested taxable income may be omitted.",
+   "reviewer_should_be": "Retain full precision, select the stated tax year, separate actual records from estimates and include taxable reinvested distributions for taxable accounts. Supply the delegated tax organizer’s public formula.",
+   "reviewer_rests_on": "DEC-0264; DEC-0179; tenets1–3",
+   "classification": "APP WRONG",
+   "function_file": "theTaxOrganizer (MoneyKeel/functions/cashflow/tax-organizer.ts) with MK-PL-F-031 taxOrganizer / MK-PL-F-082 taxableIncomeSteps (src/domain/planning/index.ts)",
+   "what_the_code_actually_does": "Five faults, each measured: (1) it rounds the accounts' income before the walk (C04: $1,343 for $1,342.60, DEC-0264); (2) it reads the trailing twelve months for the year it names (W1: \"Tax organizer · 2026\" counts a November 2025 payment, $1,200 for $700, DEC-0298); (3) a reinvested taxable dividend is dropped (C03, DEC-0179 #2); (4) with no income it prints $0 / $16,100 / $0 / ~0% instead of refusing (C02, tenet 3); (5) its 401(k) line reads MK-CF-F-188 (× 12), not the paid months MK-CF-F-230 uses (W2: six paid months of $1,000 → $12,000 on the line, $6,000 went in; taxable $19,900 where $25,900). Also by code read: an account record replaces the whole entered estimate (actualPassive > 0 ? actual : invAnnual), and a bond's projected coupon is added beside records actually paid — actual and estimate are mixed in one line.",
+   "items": "C02, C03, C04 APP WRONG; C05 OUTSIDE DOMAIN with reachable twin W1; W2.",
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — the one interest-and-dividends figure for the year (interestAndDividendsForYear: records → entered → calculated ≈ → not entered), reinvested counted, the tax year, full precision, Q48 empty state, the rate in canon row 25's words; W2 by FIX-INCOME's F-188."
+  },
+  {
+   "id": "MK-CF-F-084",
+   "name": "taxableAnnual",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Treats all retirement cash receipts as taxable income, including full Social Security and withdrawals, without taxable-fraction/account-basis data.",
+   "reviewer_should_be": "Separate cash receipts from taxable amounts by source/account; compute Social-Security taxable fraction and qualified Roth/tax-basis treatment, or mark estimate/incomplete.",
+   "reviewer_rests_on": "IRS Pub915; IRS Topic410; tenets1,7",
+   "classification": "APP WRONG",
+   "function_file": "taxableAnnual (src/domain/income/onboarding.ts:1329)",
+   "what_the_code_actually_does": "Social Security is counted in full (C05: $24,000 taxable where IRS Pub 915 gives $0 at $12,000 combined income; W6: a 63-year-old on $2,000 a month is charged $790 a year). Withdrawals: the app holds no field saying which account a withdrawal comes from (Roth or pre-tax), so the \"Retirement income (SS / pension / withdrawals)\" line taxes all of it — a missing input, not only a formula fix. The other four cases agree.",
+   "items": "C05 APP WRONG; W6.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): Social Security per Publication 915; every taxed source a row (taxedSourcesAnnual)."
+  },
+  {
+   "id": "MK-CF-F-230",
+   "name": "taxedAfterPreTax",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Correct identity only with correctly scoped taxable income and contributions; the text says paid-month contributions while the legacy household annual helper uses12.",
+   "reviewer_should_be": "Use sum(householdK401ByMonth) and corrected source-specific taxable amounts; preserve unknowns.",
+   "reviewer_rests_on": "DEC-0283; MK-CF-F-188,206,084",
+   "classification": "AGREE",
+   "function_file": "taxedAfterPreTax (src/domain/income/tax-rate.ts:209)",
+   "what_the_code_actually_does": "Code right: it subtracts the household 401(k) for paid months only (MK-CF-F-206), C04 $66,490.91. What the reviewer saw is real but sits elsewhere: the \"legacy household annual helper\" is MK-CF-F-188 householdPreTaxContributionsAnnual (× 12), which the Tax organizer's 401(k) line reads (W2) — fix belongs to MK-CF-F-188 / MK-PL-F-082, not to this function. Its Social Security case (C05) inherits the MK-CF-F-084 fault.",
+   "items": "C01–C05 AGREE; W2 is the APP WRONG half (MK-CF-F-188)."
+  },
+  {
+   "id": "MK-CF-F-085",
+   "name": "filingStatusOf",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "The formula reads filing status, but the purpose wrongly describes a tax-rate function. Missing status is inferred from spouse presence rather than a confirmed filing election.",
+   "reviewer_should_be": "Correct the purpose; label inferred status and ask/allow correction, never present it as confirmed.",
+   "reviewer_rests_on": "DEC-0176; DEC-0197; tenets2,5",
+   "classification": "AGREE (records fix + one screen fault)",
+   "function_file": "filingStatusOf (src/domain/income/onboarding.ts:1373)",
+   "what_the_code_actually_does": "Records fix: the header's \"Answers\" line reads \"Effective tax rate in use: …\" — an orphan doc comment left above filingStatusOf (onboarding.ts:1336) was picked up by the header generator; the code is right. The inferred status is SETTLED BY DEC-7944 / MK-CF-D-004 (jointly when a spouse is entered and nothing asked; the answer always wins). Screen fault found on the way (W3, code read): TaxOrganizerScreen.tsx:68 prints the raw answer (filingStatus ?? 'single') — a couple with no answer reads \"Single · Assumed — we have never asked\" while the walk under it uses the joint $32,200 deduction (tenet 4).",
+   "items": "C01–C05 AGREE; W3 APP WRONG (screen)."
+  },
+  {
+   "id": "MK-CF-F-086",
+   "name": "stateRateOf",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Converts an explicitly entered percent to a fraction within the documented0–15% estimate range; absence must be labeled as no state estimate, not known0 tax.",
+   "reviewer_should_be": "",
+   "reviewer_rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+   "classification": "RIGHT — not reclassified (reviewer RIGHT; its five cases measured above)",
+   "function_file": "",
+   "what_the_code_actually_does": "",
+   "items": ""
+  },
+  {
+   "id": "MK-CF-F-087",
+   "name": "monthlyTaxRates",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Uses the same household rate in every month as explicitly decided; this is a budgeting allocation, not IRS actual paycheck withholding.",
+   "reviewer_should_be": "",
+   "reviewer_rests_on": "DEC-0196; DEC-7940",
+   "classification": "RIGHT — not reclassified (reviewer RIGHT; its five cases measured above)",
+   "function_file": "",
+   "what_the_code_actually_does": "",
+   "items": ""
+  },
+  {
+   "id": "MK-CF-F-088",
+   "name": "taxableByCalendarMonth",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Floors each month’s taxable amount at0, discarding negative net rental/business income; summing months can exceed taxableAnnual.",
+   "reviewer_should_be": "Preserve signed eligible losses and apply any annual statutory limits at the annual tax calculation, not monthly clipping.",
+   "reviewer_rests_on": "Tenets1,4; MK-CF-F-068,084",
+   "classification": "APP WRONG",
+   "function_file": "taxableByCalendarMonth (src/domain/income/onboarding.ts:1590)",
+   "what_the_code_actually_does": "The month is floored at $0 (C04: −$731.45 reads $0), and MK-CF-F-092 incomeMonthlyGrid rebuilds the month's pay as taxable + 401(k), so the floored month's gross and take-home are wrong too (W4: $311.43 gross, $0 take-home, the money −$731.45; W4b: pay stops after June, rent loses $200 a month → July–December read $0). Found by code read: a signing bonus is always placed in January (`if (i === 0) t += signingOnetime`; the profile has no signing month).",
+   "items": "C04 APP WRONG; W4, W4b.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-B): no floor on the month; only the pay less its 401(k) stops at $0."
+  },
+  {
+   "id": "MK-CF-F-089",
+   "name": "over65CountOf",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Defaults a joint household with an unanswered spouse-age question to the person’s age alone; January1 birthdays and unknown eligibility require the IRS age rule.",
+   "reviewer_should_be": "Preserve unknown spouse age/eligibility and use the statutory end-of-tax-year age test including January1 convention; label estimates.",
+   "reviewer_rests_on": "IRS Form1040 instructions; tenet3",
+   "classification": "NEEDS RULING + OUTSIDE DOMAIN",
+   "function_file": "over65CountOf (src/domain/income/onboarding.ts:1665)",
+   "what_the_code_actually_does": "Unanswered spouse age on a joint return → the spouse is counted as under 65 (C04, NEEDS RULING; no decision of his says so — the code comment's \"E8\" is DEC-0325, which only added the deduction). The 1 January convention needs a birth day the app does not capture (C05, OUTSIDE DOMAIN). Also by code read: it tests age on the device clock's year, not the tax year passed to the organizer (same today, since the screen passes the current year).",
+   "items": "C04 NEEDS RULING; C05 OUTSIDE DOMAIN."
+  },
+  {
+   "id": "MK-CF-F-090",
+   "name": "effectiveRate",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Delegates to the same authoritative rate without a second calculation.",
+   "reviewer_should_be": "",
+   "reviewer_rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+   "classification": "RIGHT — not reclassified (reviewer RIGHT; its five cases measured above)",
+   "function_file": "",
+   "what_the_code_actually_does": "",
+   "items": ""
+  },
+  {
+   "id": "MK-CF-F-048",
+   "name": "effectiveTaxRate",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Calculated branch ignores entered state tax and uses a separate gross/status path instead of the one rateInForce promised throughout the app.",
+   "reviewer_should_be": "Delegate to rateInForce with the same taxable-income/401(k)/state inputs, or retire this incompatible reader.",
+   "reviewer_rests_on": "DEC-0184; DEC-0196; DEC-7608; tenet4",
+   "classification": "APP WRONG (latent)",
+   "function_file": "effectiveTaxRate (src/domain/income/calc.ts:147)",
+   "what_the_code_actually_does": "LIVE BUT UNSEEN. Callers: MK-CF-F-049 buildIncomeState ← IncomeDetailScreen.tsx:39 (route /income-detail: NO WAY IN, kept by DEC-0027) and ← MK-XS-F-031 buildSnapshot ← HomeScreen.tsx:95 (Home reads only snap.networth.net_worth, lines 100 and 318); getIncomeState (income/index.ts:81) has no caller; snapshotFromOnboarding is called by tests only. Through that chain the rate is always single (incomeFromOnboarding hands DEFAULT_TAX, which has no filing_status), never takes off the 401(k), never adds the state rate and has no implied branch: $60,000 single with $4,800 into a 401(k) reads 8.37% (rate in force 7.41%); a married $138,432.60 with a 5% state rate reads 15.86% (rate in force 10.93%). No screen anyone can reach shows it today, so no wrong number is in front of a person; it is a second tax rate for one concept (tenet 4) that reappears the moment Income detail gets a door or Home reads the snapshot's income.",
+   "items": "C02, C03, C04 APP WRONG (latent); C01, C05 AGREE.",
+   "fixed": "FIXED 2026-10-25 — RETIRED into MK-CF-F-181; C04 with FIX-INCOME's F-180/F-181."
+  }
+ ],
+ "rules_held": [
+  {
+   "rule": "DEC-0003",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Year-month preservation is present in canonical wage tables,but annualized/converted paths and yearless vest/one-time defaults lose the same dated meaning.",
+   "authority": "his",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "Months carry month and year in the pay table (salaryMonths keys YYYY-MM, DEC-0187); the reviewer's cross-part examples (F-143, F-063, F-071, F-079) belong to other parts. Not settled here."
+  },
+  {
+   "rule": "DEC-0151",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "authority": "his",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "Social Security card copy — a screen check, not a part-17 formula."
+  },
+  {
+   "rule": "DEC-0176",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Two-earner readers exist,but annualOfSource substitutes household salary on each earnerrow and partial-year contributions diverge.",
+   "authority": "his",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "Two earners: earnerWages and householdK401ByMonth count both (W5 household used both wages). The F-210 / F-188 examples are other parts' cards; W2 here shows F-188's × 12."
+  },
+  {
+   "rule": "DEC-0198",
+   "cards": [
+    "MK-CF-O-007"
+   ],
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Current monthgrid removes reinvested cash,but legacy cashflowYear includes it and taxOrganizer’s cash-payout basis can omit taxable reinvestments.",
+   "authority": "his",
+   "classification": "APP WRONG",
+   "measured": "MK-CF-O-007-C03: the reinvested $731.17 dividend leaves the tax organizer (paidOutByAccount skips reinvested records). His DEC-0179 #2 keeps the tax on reinvested income; only the take-home leaves it out. The month grid half holds (extraIncome keeps reinvested income in taxableMonthly and takes it back out of take-home). The \"legacy cashflowYear includes it\" half is MK-CF-F-020 (another part).",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-TAX, MK-CF-O-007): the Tax organizer counts the reinvested $731.17 dividend (gross $83,842.60); the legacy cashflowYear half is retired (MK-CF-F-020, FIX-BILLS). — marked by PF-RECORDS 2026-10-26 from that agent’s report; the mark was missing."
+  },
+  {
+   "rule": "DEC-0200",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. One-time migration is stated,but its calculated branch omits401(k)from the inverse equation and may not preserve entered landing after deductions.",
+   "authority": "his",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "The convert-once rule is MK-CF-F-186 (part 16, the lead's file)."
+  },
+  {
+   "rule": "DEC-0263",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "authority": "his",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "A records rule about hand-written renders — no part-17 formula to measure."
+  },
+  {
+   "rule": "DEC-0270",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "authority": "his",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "\"you entered\" copy — a screen check."
+  },
+  {
+   "rule": "DEC-0291",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "authority": "his",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "\"spouse\" — held by src/__tests__/one_term_per_concept.test.ts; not a formula."
+  },
+  {
+   "rule": "DEC-0296",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Unknown vestdate,age,amounts and budgets are filled with currentyear,68 or0in severalfinancialpaths.",
+   "authority": "his",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "Measured in this part: the tax organizer with nothing entered prints $0 / $16,100 / $0 / ~0% (O-007-C02, APP WRONG), and an unanswered spouse age is counted as under 65 (F-089-C04, NEEDS RULING). Not held in those two places."
+  },
+  {
+   "rule": "DEC-0303",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The outside-stream reader retains inflation flags,but the delegated future projection and next-year update policy are not fully supplied.",
+   "authority": "his",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "Code read: guaranteedOutsideStreams defaults Social Security to rising with prices and pensions, annuities and other to flat, with a per-stream override — held in the function; the projection is another part's."
+  },
+  {
+   "rule": "DEC-0307",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The outside-guaranteed reader excludes withdrawals andRMDs. Taxable treatment remains a separate defect.",
+   "authority": "his",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "Code read: guaranteedOutsideStreams lists ss, pension, annuities and other only — withdrawals and RMDs are excluded. Held. (Their tax treatment is the MK-CF-F-084 fault.)"
+  },
+  {
+   "rule": "DEC-0327",
+   "cards": [
+    "MK-CF-F-048"
+   ],
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "New tax primitive uses taxable income for state tax,but legacy buildIncomeState drops state from monthly grid and effectiveTaxRate uses a separate rate.",
+   "authority": "his",
+   "classification": "APP WRONG (latent)",
+   "measured": "MK-CF-F-048 hands effectiveRateOnGrossFor a state rate of 0 — the state rate is not applied at all on the legacy chain (C03: 15.86% with no state, single). The live rate in force applies it to taxable income (F-090-C03 agrees, 10.93%). Reaches no visible screen today (see MK-CF-F-048).",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-TAX): MK-CF-F-048 is retired; its caller reads MK-CF-F-181, which applies the state rate to taxable income (10.93%). — marked by PF-RECORDS 2026-10-26 from that agent’s report; the mark was missing."
+  },
+  {
+   "rule": "DEC-0364",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "authority": "his",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "Mortgage odds row — not a part-17 formula."
+  },
+  {
+   "rule": "DEC-0447",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Explicit one-time-year handling is present for dated otherincome,but missingyear still recurs and legacy onboarding fixes signingbonus toJanuary.",
+   "authority": "his",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "Code read: one-time other income carries its year (extraIncome onceYear, 2026-10-24) — held; but taxableByCalendarMonth places a signing bonus in January always (the profile has no signing month) — a one-time amount not in its own month (noted under MK-CF-F-088)."
+  },
+  {
+   "rule": "DEC-0487",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "authority": "his",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "His question about the Social Security formula — not a formula of this part."
+  },
+  {
+   "rule": "DEC-0491",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "authority": "his",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "His question about capture frequency — not a formula of this part."
+  },
+  {
+   "rule": "DEC-7797",
+   "cards": [
+    "MK-CF-F-230"
+   ],
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Subtraction walk is declared,but annual401(k)times12 disagrees with paid-month contributions and oldgross paths can bypass it.",
+   "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+   "classification": "APP WRONG",
+   "measured": "MK-CF-F-230 itself holds (paid months, C04). Not held at MK-CF-F-188 householdPreTaxContributionsAnnual (× 12), which the Tax organizer's 401(k) line reads: six paid months of $1,000 → the line reads $12,000, taxable $19,900 where $25,900 (W2).",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): the Tax organizer's 401(k) line reads MK-CF-F-188, now the paid months — $6,000 for six months at $1,000 (it read $12,000; witness W2)."
+  },
+  {
+   "rule": "DEC-7935",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Capitalgain lookup is federalonly in its writtencontract;finitegainstacking remains a separate missing capability.",
+   "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "Capital gains: MK-CF-F-104 ltcgRateFor has no caller since 2026-10-24 (tax.ts header \"Called by ... nothing\"); finite-gain stacking is part 16 (the lead's)."
+  },
+  {
+   "rule": "DEC-7938",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Part-yeartake-home rate multiplies twelve months,so paidmonths do not preserve the enteredtake-home.",
+   "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "Measured here, not only CANNOT TELL: the part-year household of F-048-C04 reads a rate in force of 13.99% where the typed take-home needs 57.00% (F-087-C04, F-090-C04 APP WRONG). Not held for part-year earners (MK-CF-F-180, MK-CF-F-181, MK-CF-F-233 all × 12)."
+  }
+ ],
+ "source_checks": [
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "reviewer_verdict": "RIGHT",
+   "witnesses": 48,
+   "classification": "AGREE on the constants (bands checked here against TAX_TABLES for all four statuses); every witness is run in the lead's sources file",
+   "note": "Byte-identical to the same topic in MoneyKeel_CashFlow_Source_Checks.json (asserted in the test)."
+  },
+  {
+   "topic": "Standard deduction and age65 additions2026",
+   "reviewer_verdict": "RIGHT",
+   "witnesses": 9,
+   "classification": "AGREE on the constants (bands checked here against TAX_TABLES for all four statuses); every witness is run in the lead's sources file",
+   "note": "Byte-identical to the same topic in MoneyKeel_CashFlow_Source_Checks.json (asserted in the test)."
+  },
+  {
+   "topic": "Enhanced senior deduction2025–2028",
+   "reviewer_verdict": "RIGHT",
+   "witnesses": 10,
+   "classification": "AGREE on the constants (bands checked here against TAX_TABLES for all four statuses); every witness is run in the lead's sources file",
+   "note": "Byte-identical to the same topic in MoneyKeel_CashFlow_Source_Checks.json (asserted in the test)."
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "reviewer_verdict": "RIGHT",
+   "witnesses": 17,
+   "classification": "AGREE on the constants (bands checked here against TAX_TABLES for all four statuses); every witness is run in the lead's sources file",
+   "note": "Byte-identical to the same topic in MoneyKeel_CashFlow_Source_Checks.json (asserted in the test)."
+  },
+  {
+   "topic": "Social Security and Medicare2026withholding",
+   "reviewer_verdict": "RIGHT",
+   "witnesses": 7,
+   "classification": "AGREE on the constants (bands checked here against TAX_TABLES for all four statuses); every witness is run in the lead's sources file",
+   "note": "Byte-identical to the same topic in MoneyKeel_CashFlow_Source_Checks.json (asserted in the test)."
+  }
+ ],
+ "still_open": "26 of 26 — the reviewer's list is the 7 non-RIGHT formula verdicts and the 19 rules held, each classified above.",
+ "witnesses": {
+  "W1": 1200,
+  "W2": {
+   "organizer401k": 12000,
+   "organizerTaxable": 19900,
+   "taxedAfterPreTax": 42000
+  },
+  "W4": {
+   "gross": 311.43,
+   "available": 0,
+   "right_available": -731.45
+  },
+  "W4b": {
+   "julyTaxable": 0,
+   "julyGross": 0,
+   "right": -200
+  },
+  "W5": {
+   "withholdingExtraEach": 0,
+   "householdFederal": 49468,
+   "householdAdditionalMedicareModelled": 0,
+   "statutory": 449.99999999999994
+  },
+  "W6": {
+   "yearly": 789.9999999999999,
+   "monthly": 65.83333333333333,
+   "right": 0
+  }
+ },
+ "app_wrong_fixes": [
+  {
+   "function": "MK-CF-O-007 theTaxOrganizer (+ MK-PL-F-031 taxOrganizer, MK-PL-F-082 taxableIncomeSteps)",
+   "owner_file": "MoneyKeel/functions/cashflow/tax-organizer.ts; src/domain/planning/index.ts; src/domain/income/from-accounts.ts (paidOutByAccount)",
+   "examples": [
+    {
+     "example": "wages $83,111.43, a $731.17 dividend reinvested on 2026-09-17",
+     "app_gives": "gross $83,111.43, no dividend line",
+     "right": "$83,842.60 with a $731.17 line",
+     "rests_on": "DEC-0179 #2, DEC-0198, IRS Pub 550",
+     "items": [
+      "MK-CF-O-007-C03",
+      "rule DEC-0198"
+     ]
+    },
+    {
+     "example": "two interest records $731.17 + $611.43, wages $83,111.19",
+     "app_gives": "$1,343; gross $84,454.19",
+     "right": "$1,342.60; gross $84,453.79",
+     "rests_on": "DEC-0264",
+     "items": [
+      "MK-CF-O-007-C04"
+     ]
+    },
+    {
+     "example": "nothing entered",
+     "app_gives": "Gross $0 · Standard deduction $16,100 · Taxable $0 · ~0%",
+     "right": "no number; \"No income entered yet.\"",
+     "rests_on": "tenet 3, DEC-0296, MK-MN-M-028 refusal",
+     "items": [
+      "MK-CF-O-007-C02"
+     ]
+    },
+    {
+     "example": "\"Tax organizer · 2026\" on 2026-10-24: $500 paid 2025-11-14, $700 paid 2026-03-13",
+     "app_gives": "$1,200",
+     "right": "$700 (calendar 2026)",
+     "rests_on": "DEC-0298",
+     "items": [
+      "W1",
+      "MK-CF-O-007-C05 (outside-domain twin)"
+     ]
+    }
+   ]
+  },
+  {
+   "function": "MK-CF-F-188 householdPreTaxContributionsAnnual (read by MK-PL-F-082 for the Tax organizer's 401(k) line)",
+   "owner_file": "src/domain/income/earners.ts:238",
+   "examples": [
+    {
+     "example": "$8,000 a month for six months, $1,000 a month into the 401(k), single",
+     "app_gives": "401(k) line $12,000; taxable $19,900",
+     "right": "$6,000; taxable $25,900 (what MK-CF-F-230 already uses)",
+     "rests_on": "DEC-7797, DEC-0283; cross-card X5",
+     "items": [
+      "W2",
+      "rule DEC-7797"
+     ]
+    }
+   ]
+  },
+  {
+   "function": "MK-CF-F-084 taxableAnnual",
+   "owner_file": "src/domain/income/onboarding.ts:1329",
+   "examples": [
+    {
+     "example": "single, $2,000 a month of Social Security, nothing else",
+     "app_gives": "$24,000 taxable; $790 a year calculated tax at 63",
+     "right": "$0 taxable (combined income $12,000 < $25,000)",
+     "rests_on": "IRS Publication 915; tenets 1, 7",
+     "items": [
+      "MK-CF-F-084-C05",
+      "W6",
+      "MK-CF-F-230-C05 flips with it"
+     ]
+    }
+   ],
+   "note": "Withdrawals also counted in full: needs an input saying whether a withdrawal is from a Roth or a pre-tax account."
+  },
+  {
+   "function": "MK-CF-F-088 taxableByCalendarMonth (feeds MK-CF-F-092 incomeMonthlyGrid)",
+   "owner_file": "src/domain/income/onboarding.ts:1590",
+   "examples": [
+    {
+     "example": "wages $1,311.17 a month, 401(k) $311.43, rent running costs $1,731.19 a month",
+     "app_gives": "October taxable $0; month grid gross $311.43, take-home $0",
+     "right": "taxable −$731.45; take-home −$731.45",
+     "rests_on": "tenets 1, 4",
+     "items": [
+      "MK-CF-F-088-C04",
+      "W4"
+     ]
+    },
+    {
+     "example": "pay $6,000 a month Jan–Jun only, rent $1,000 in / $1,200 out a month",
+     "app_gives": "July–December $0",
+     "right": "−$200 a month",
+     "rests_on": "tenets 1, 4",
+     "items": [
+      "W4b"
+     ]
+    }
+   ]
+  },
+  {
+   "function": "MK-CF-F-180 enteredLandsAnnual and MK-CF-F-181 rateInForce (part 15 cards; MK-CF-F-233 earnerWageShares does the same × 12, part 1)",
+   "owner_file": "src/domain/income/tax-rate.ts:77 (enteredLandsAnnual), :134 (rateInForce); src/domain/income/onboarding.ts:1759 (earnerWageShares)",
+   "examples": [
+    {
+     "example": "$60,000.30 over six paid months, $501.13 into the 401(k) and $3,799.17 take-home each paid month",
+     "app_gives": "rate in force 13.99% in every month",
+     "right": "57.00% (= (60,000.30 − 3,006.78 − 22,795.02) ÷ 60,000.30), so a paid month lands $3,799.17",
+     "rests_on": "DEC-7938",
+     "items": [
+      "MK-CF-F-087-C04",
+      "MK-CF-F-090-C04",
+      "rule DEC-7938"
+     ]
+    }
+   ]
+  },
+  {
+   "function": "MK-CF-F-048 effectiveTaxRate (legacy reader; with MK-CF-F-049 buildIncomeState, MK-CF-F-079 incomeFromOnboarding)",
+   "owner_file": "src/domain/income/calc.ts:147; src/domain/income/onboarding.ts:1158",
+   "examples": [
+    {
+     "example": "married, $138,432.60 of wages, $14,311.43 into the 401(k), 5% state",
+     "app_gives": "15.86% (taxed as single, no 401(k), no state)",
+     "right": "10.93% (the rate in force)",
+     "rests_on": "DEC-0184, DEC-0196, DEC-0283, DEC-0327, tenet 4",
+     "items": [
+      "MK-CF-F-048-C02",
+      "MK-CF-F-048-C03",
+      "MK-CF-F-048-C04",
+      "rule DEC-0327"
+     ]
+    }
+   ],
+   "note": "LATENT: reaches Income detail (no way in, DEC-0027) and the snapshot Home builds but reads only net worth from. Smallest fix: delegate to rateInForce, or retire the reader."
+  },
+  {
+   "function": "TaxOrganizerScreen \"How you file\" line (reads the raw answer, not MK-CF-F-085)",
+   "owner_file": "src/screens/TaxOrganizerScreen.tsx:68",
+   "examples": [
+    {
+     "example": "a spouse entered, filing never answered, $90,000 of wages",
+     "app_gives": "\"Single · Assumed — we have never asked\" above a walk using the joint $32,200 deduction",
+     "right": "\"Married, filing jointly · Assumed — we have never asked\" (filingStatusOf)",
+     "rests_on": "DEC-7944, MK-CF-D-004, tenet 4",
+     "items": [
+      "W3 (code read, not rendered)"
+     ]
+    }
+   ],
+   "note": "A screen fault: also for the MM-CF screen audit."
+  }
+ ],
+ "needs_a_ruling": [
+  {
+   "item": "A joint return whose spouse has not answered the 65-or-over question",
+   "ids": [
+    "MK-CF-F-089-C04 (MK-CF-F-089 over65CountOf)"
+   ],
+   "reading_a": "Count only the person until asked (today). Couple, he 66, she unanswered: deduction $32,200 + $1,650 = $33,850; if she is 65+ too the right figure is $35,500, so tax is overstated by $1,650 × 12% = $198 a year.",
+   "reading_b": "Refuse the figure: \"Your spouse's age is not entered\" (the reviewer; tenet 3, DEC-0296).",
+   "recommendation": "Keep reading (a) as the number, and say it where the filing status is shown, as the filing status already is: \"Your spouse counted as under 65 — not entered ›\" opening the question. Refusing would blank every couple's take-home for one unanswered question. One word reverses it."
+  }
+ ],
+ "blocked": [],
+ "priority_findings": [
+  {
+   "finding": "MK-CF-F-084 / MK-CF-O-007: retirement cash vs taxable income; tax year; reinvested distributions; cents",
+   "real": "REAL, all four parts",
+   "numbers": "Social Security $24,000 counted taxable where $0 (C05); \"Tax organizer · 2026\" counts a Nov-2025 payment, $1,200 for $700 (W1); a reinvested $731.17 dividend dropped (C03); $1,342.60 rounded to $1,343 inside the door (C04)."
+  },
+  {
+   "finding": "MK-CF-F-048 effectiveTaxRate legacy reader",
+   "real": "REAL in the code, LATENT on screen",
+   "numbers": "Always single, no 401(k), no state, no implied branch: married $138,432.60 + 5% state → 15.86% vs the rate in force 10.93%. Callers: buildIncomeState ← IncomeDetailScreen (no way in, DEC-0027) and ← buildSnapshot ← HomeScreen (reads only net worth). No visible figure today."
+  },
+  {
+   "finding": "Additional Medicare: withholding vs household liability",
+   "real": "NOT A DEFECT",
+   "numbers": "payrollTaxWithheld withholds $0 extra on each $150,000 wage (right, IRC §3101(b)(2), DEC-0340); the household tax is federal income tax only by DEC-0384 and says so (\"federal income tax only, assuming the standard deduction\"), so the $450 (0.9% × $50,000) is not computed and no caller uses the withholding rule as liability."
+  }
+ ],
+ "counts": {
+  "cases": {
+   "AGREE": 37,
+   "APP WRONG": 10,
+   "OUTSIDE DOMAIN": 2,
+   "NEEDS RULING": 1,
+   "total": 50
+  },
+  "formula_checks_non_right": {
+   "APP WRONG": 3,
+   "AGREE": 1,
+   "AGREE (records fix + one screen fault)": 1,
+   "NEEDS RULING + OUTSIDE DOMAIN": 1,
+   "APP WRONG (latent)": 1,
+   "total": 7
+  },
+  "rules_held": {
+   "CANNOT TELL — recorded": 16,
+   "APP WRONG": 2,
+   "APP WRONG (latent)": 1,
+   "total": 19
+  },
+  "source_checks": 5
+ },
+ "coverage": "Part 17: 50 of 50 cases — 37 agree, 10 app wrong, 0 reviewer wrong, 1 needs ruling, 0 blocked, 2 outside domain; 7 of 7 formula verdicts classified; 3 of 3 NOT HELD classified, 16 of 16 CANNOT TELL recorded; 5 of 5 source checks; 6 witnesses (W1–W6).",
+ "witnesses_fixed": {
+  "W1": "FIXED 2026-10-25 (FIX-TAX) — the calendar year: $700 (was $1,200).",
+  "W3": "FIXED 2026-10-25 (FIX-TAX) — the screen line reads filingStatusOf: \"Married, filing jointly\" · \"Assumed — we have never asked\" (rendered in src/screens/__tests__/fix_tax_2026_10_25.test.tsx).",
+  "W2": "FIXED 2026-10-25 (FIX-INCOME's MK-CF-F-188, read by the organizer's walk) — $6,000 (was $12,000)."
+ }
+}

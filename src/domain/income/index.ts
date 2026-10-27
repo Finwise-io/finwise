@@ -8,7 +8,7 @@ import { buildIncomeState } from './calc';
 export * from './types';
 export {
   buildIncomeState, grossAnnualBaseline, annualNet,
-  effectiveTaxRate, employerMatchAnnual,
+  employerMatchAnnual,   // effectiveTaxRate (MK-CF-F-048) retired 2026-10-25: the rate is MK-CF-F-181 rateInForce
 } from './calc';
 export { incomeFromOnboarding, employerMatchMonthly, grossSalaryMonthly, annualizedEnteredSalary, rsuAnnual, equityRowValue, equityCashFlow, equityVestWeights, rowVestYear, rentalList, rentalNetAnnual, totalGrossAnnual, taxableAnnual, extraIncome, retirementIncomeMonthly, guaranteedOutsideStreams, over65CountOf, currentRetirementIncomeMonthly, scholarshipByCalendarMonth, tipsAnnual, salaryAnnual, salaryActiveMonths, salaryGrossByMonth, wageGrossByMonth, wageMatchMonthly, jobActiveMonth, effectiveRate, monthlyTaxRates, taxableByCalendarMonth, filingStatusOf, stateRateOf, incomeMonthlyGrid, SALARY_PERIODS, benefitAnnual, benefitActiveMonths, otherIncomeMonth } from './onboarding';
 export { taxOwedFor, effectiveRateOnGrossFor, grossFromNet, marginalBracketFor, TAX_YEAR, TAX_BRACKETS } from './tax';
@@ -27,8 +27,11 @@ export const INCOME_UPDATED = 'IncomeUpdated';
  *
  * Called by ... MK-CF-F-052 getIncomeState
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-052 getIncomeState
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-052 getIncomeState
+ *               MK-CF-F-097 grossFromNet · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -71,7 +74,13 @@ export async function saveIncome(docData: IncomeDoc): Promise<void> {
  *     nothing   when d is missing
  *     the answer = build income state(uid, sources ?? [], tax ?? DEFAULT_TAX)
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-F-049 buildIncomeState
+ *
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-052 getIncomeState
+ *               MK-CF-F-097 grossFromNet · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

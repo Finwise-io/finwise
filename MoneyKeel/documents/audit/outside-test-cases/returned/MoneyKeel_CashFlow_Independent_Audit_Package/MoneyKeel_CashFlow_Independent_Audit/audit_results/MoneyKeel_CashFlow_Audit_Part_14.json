@@ -1,0 +1,3703 @@
+{
+  "batch": "cf module — part 14",
+  "written_by": "OpenAI independent specification reviewer",
+  "ready_to_close": false,
+  "still_open": [
+    "MK-CF-F-227: Takes the first grid cell even when an explicit queried month differs, and substitutes 0 for absent take-home/bill amounts.",
+    "MK-CF-F-226: Roth-conversion tax is put in April next year with no adoption-year contract, risking a moving bill on later reads; omitted starting cash uses0 as a projection assumption.",
+    "MK-CF-F-225: An unknown age becomes68 and missing return/inflation become assumed values without a refusal or disclosed provenance in the returned public contract.",
+    "MK-CF-F-156: Explicit debt-payment unknown handling is good, but no-budget expenses are represented as0 and the formula’s final refusal condition mentions only missing debt payments, while screen rules forbid a surplus with no budget.",
+    "MK-CF-F-220: A saved record’s missing expense/debt component becomes0, and absent records use current logs without identifying whether they are complete.",
+    "MK-CF-F-231: When the saved record has no timestamp, returns no later additions as if none existed, although ordering cannot be established.",
+    "MK-CF-F-157: Matching by normalized payee/name can allocate a single payment to multiple debts with the same name.",
+    "DEC-0002: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0199: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0260: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0271: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0393: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0512: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-1923: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Current actualcounts only loggeddebt and home-mortgage suppressionexists,but legacy cashflowYear omitsdebt and otherduplicatebudgetdebtslacklinks.",
+    "DEC-7606: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-7611: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Dated budgetreaders honor own-month bills,but budgetVsActual still uses annual-average spendBuckets.",
+    "DEC-7937: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-7938: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Part-yeartake-home rate multiplies twelve months,so paidmonths do not preserve the enteredtake-home.",
+    "DEC-7939: NOT HELD — buildBudgetState still treats absentbudgetas0,and plannedMonthFlow finalrefusalconditiondoesnotexplicitlyincludenobudget.",
+    "DEC-7940: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Explicit one-time-year handling is present for dated otherincome,but missingyear still recurs and legacy onboarding fixes signingbonus toJanuary.",
+    "DEC-7946: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-7949: NOT HELD — Late additions are detected only when saved_at exists;missing timestampreturnsnoneinstead of unknowncoverage.",
+    "DEC-8084: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-8153: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. New per-month debt readersrespect inclusive start/payoff bounds and a balloon’s due-month balance."
+  ],
+  "scope": "Written formulas,owner decisions and primary publications only. No repository code,existingtests or liveapp outputs were inspected for this review. Attached screen-register worked/app-result fields were excluded from expected-answer derivation.",
+  "formula_checks": [
+    {
+      "id": "MK-CF-O-010",
+      "name": "theMonth",
+      "verdict": "RIGHT",
+      "why": "Composes distinct planned/actual blocks and subtracts stated goal commitments from planned surplus. A negative free figure is a funding gap, not allocatable cash. Propagates refusal states from inputs.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-O-003",
+      "name": "thisMonth",
+      "verdict": "RIGHT",
+      "why": "Keeps planned and actual blocks distinct, with their independent sums and refusal states; no new arithmetic is introduced.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-227",
+      "name": "thisMonthInputs",
+      "verdict": "INCOMPLETE",
+      "why": "Takes the first grid cell even when an explicit queried month differs, and substitutes 0 for absent take-home/bill amounts.",
+      "should_be": "Look up the requested month by year-month and preserve missing-data states; keep a known zero-budget month distinct from not set.",
+      "rests_on": "DEC-0345; DEC-0003; tenet3",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-226",
+      "name": "datedGridOf",
+      "verdict": "INCOMPLETE",
+      "why": "Roth-conversion tax is put in April next year with no adoption-year contract, risking a moving bill on later reads; omitted starting cash uses0 as a projection assumption.",
+      "should_be": "Bind conversion tax to the conversion tax year and show the zero-start assumption consistently.",
+      "rests_on": "DEC-0447; tenets2–4",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-225",
+      "name": "useCashflowModel",
+      "verdict": "WRONG",
+      "why": "An unknown age becomes68 and missing return/inflation become assumed values without a refusal or disclosed provenance in the returned public contract.",
+      "should_be": "Refuse age-dependent projections without age, and expose every explicit projection assumption; keep the person’s chosen lens and inputs.",
+      "rests_on": "DEC-0296; tenets2–3",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-156",
+      "name": "plannedMonthFlow",
+      "verdict": "INCOMPLETE",
+      "why": "Explicit debt-payment unknown handling is good, but no-budget expenses are represented as0 and the formula’s final refusal condition mentions only missing debt payments, while screen rules forbid a surplus with no budget.",
+      "should_be": "Refuse surplus/outflow whenever a required budget or income is unentered, while preserving confirmed zero in a set budget.",
+      "rests_on": "DEC-7939; DEC-7682; tenet3",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-005",
+      "name": "actualMonthFlow",
+      "verdict": "RIGHT",
+      "why": "Uses approved month take-home inflow and only logged debt payments, keeps planned obligations from actual outflow, and partitions expense/debt rows once. It is the owner’s hybrid month view, not verified income received.",
+      "should_be": "",
+      "rests_on": "DEC-7607; DEC-1923; DEC-8085; approved Cash flow frameA",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-220",
+      "name": "pastMonthFlow",
+      "verdict": "INCOMPLETE",
+      "why": "A saved record’s missing expense/debt component becomes0, and absent records use current logs without identifying whether they are complete.",
+      "should_be": "Keep saved records immutable but expose missing components and tracking coverage; label unsaved reconstruction.",
+      "rests_on": "DEC-7949; tenet3",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-231",
+      "name": "addedAfterRecord",
+      "verdict": "INCOMPLETE",
+      "why": "When the saved record has no timestamp, returns no later additions as if none existed, although ordering cannot be established.",
+      "should_be": "Return unknown comparison/coverage when saved_at is absent; keep record totals unchanged.",
+      "rests_on": "DEC-7949; tenet3",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-CF-F-157",
+      "name": "debtPaymentsByDebt",
+      "verdict": "WRONG",
+      "why": "Matching by normalized payee/name can allocate a single payment to multiple debts with the same name.",
+      "should_be": "Use a stable debt id or flag ambiguous matches; never assign one expense twice.",
+      "rests_on": "DEC-1923; tenets1–3",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-155",
+      "name": "cash",
+      "verdict": "RIGHT",
+      "why": "Converts negative zero to positive zero while preserving every other value, preventing a misleading minus zero display.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-192",
+      "name": "inflowLabel",
+      "verdict": "RIGHT",
+      "why": "Deduplicates source words while retaining order and uses the approved fallback phrase.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-193",
+      "name": "inflowSourceWord",
+      "verdict": "RIGHT",
+      "why": "Canonicalizes the described source prefix without doing financial arithmetic.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-194",
+      "name": "monthOutflow",
+      "verdict": "RIGHT",
+      "why": "Uses stored expense+debt components or the already known logged subtotal; it does not itself invent completeness. Inputs must distinguish absent components upstream.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-148",
+      "name": "inMonth",
+      "verdict": "RIGHT",
+      "why": "Correct year-month membership for valid date records; as-of filtering, when needed, is separate from month membership.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-CF-O-010",
+      "case_id": "MK-CF-O-010-C01",
+      "name": "theMonth",
+      "kind": "easy",
+      "title": "Known simple month",
+      "as_of": "2026-10-24",
+      "given": "Known simple month",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": 5000,
+        "debt_due": 250,
+        "debt_paid": 0,
+        "budget": 2000,
+        "budget_set": true,
+        "manual_expenses": 500,
+        "goals": []
+      },
+      "expected": {
+        "planned_surplus": {
+          "exact": "2750",
+          "shown": "$2,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "actual_surplus": {
+          "exact": "4500",
+          "shown": "$4,500",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "free_after_goals": {
+          "exact": "2750",
+          "shown": "$2,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Plan5000−250−2000=2750;actual5000−0−500=4500;goals0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-010",
+      "case_id": "MK-CF-O-010-C02",
+      "name": "theMonth",
+      "kind": "easy",
+      "title": "Logged payment differs from plan",
+      "as_of": "2026-10-24",
+      "given": "Logged payment differs from plan",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": 5000,
+        "debt_due": 250,
+        "debt_paid": 100,
+        "budget": 2000,
+        "budget_set": true,
+        "manual_expenses": 500,
+        "goals": []
+      },
+      "expected": {
+        "planned_surplus": {
+          "exact": "2750",
+          "shown": "$2,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "actual_surplus": {
+          "exact": "4400",
+          "shown": "$4,400",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Only100 is paid;actual5000−100−500=4400."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-010",
+      "case_id": "MK-CF-O-010-C03",
+      "name": "theMonth",
+      "kind": "complex",
+      "title": "Approved frameA household",
+      "as_of": "2026-10-24",
+      "given": "Approved frameA household",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": 5000,
+        "debts": [
+          {
+            "id": "M",
+            "name": "Mortgage",
+            "payment": 2000,
+            "shape": "instalment",
+            "paid": 2000
+          },
+          {
+            "id": "C",
+            "name": "Car",
+            "payment": 250,
+            "shape": "instalment",
+            "paid": 0,
+            "due_date": "2026-10-28"
+          },
+          {
+            "id": "H",
+            "name": "HELOC",
+            "payment": 200,
+            "shape": "revolving",
+            "paid": 200
+          },
+          {
+            "id": "V",
+            "name": "Card",
+            "payment": 200,
+            "shape": "revolving",
+            "paid": 200
+          }
+        ],
+        "budget": 2000,
+        "manual_expenses": 500,
+        "imported_purchases": 1200,
+        "goals": []
+      },
+      "expected": {
+        "planned": {
+          "rows": [
+            {
+              "exact": "5000",
+              "shown": "$5,000",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-2000",
+              "shown": "−$2,000",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-250",
+              "shown": "−$250",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-2000",
+              "shown": "−$2,000",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-200",
+              "shown": "−$200",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-200",
+              "shown": "−$200",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            }
+          ],
+          "inflow": {
+            "exact": "5000",
+            "shown": "$5,000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "outflow": {
+            "exact": "4650",
+            "shown": "$4,650",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "surplus": {
+            "exact": "350",
+            "shown": "$350",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        "actual": {
+          "rows": [
+            {
+              "exact": "5000",
+              "shown": "$5,000",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-2000",
+              "shown": "−$2,000",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "0",
+              "shown": "$0",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-500",
+              "shown": "−$500",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-1200",
+              "shown": "−$1,200",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-200",
+              "shown": "−$200",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-200",
+              "shown": "−$200",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            }
+          ],
+          "inflow": {
+            "exact": "5000",
+            "shown": "$5,000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "outflow": {
+            "exact": "4100",
+            "shown": "$4,100",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "surplus": {
+            "exact": "900",
+            "shown": "$900",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        "same_across": [
+          "This month",
+          "Home actual surplus900"
+        ],
+        "free_after_goals": {
+          "exact": "350",
+          "shown": "$350",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Plan5000−2000−250−2000−200−200=350.",
+        "Actual5000−2000−0−500−1200−200−200=900.",
+        "Each signed row sum equals its surplus;Home must show the same900."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-010",
+      "case_id": "MK-CF-O-010-C04",
+      "name": "theMonth",
+      "kind": "complex",
+      "title": "Unround month and goals",
+      "as_of": "2026-10-24",
+      "given": "Unround month and goals",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": "7231.17",
+        "debt_due": "731.43",
+        "debt_paid": "611.19",
+        "budget": "3111.37",
+        "budget_set": true,
+        "manual_expenses": "1311.19",
+        "imported_expenses": "911.43",
+        "goal_commitment": "300.17"
+      },
+      "expected": {
+        "planned_surplus": {
+          "exact": "3388.37",
+          "shown": "$3,388",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "actual_surplus": {
+          "exact": "4397.36",
+          "shown": "$4,397",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "goal_rows": [
+          {
+            "exact": "300.17",
+            "shown": "$300",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "free_after_goals": {
+          "exact": "3088.20",
+          "shown": "$3,088",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Plan7231.17−731.43−3111.37=3388.37;actual7231.17−611.19−1311.19−911.43=4397.36;free3388.37−300.17=3088.20."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-010",
+      "case_id": "MK-CF-O-010-C05",
+      "name": "theMonth",
+      "kind": "edge",
+      "title": "Budget not set",
+      "as_of": "2026-10-24",
+      "given": "Budget not set",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": 5000,
+        "debt_due": 250,
+        "debt_paid": 0,
+        "budget": null,
+        "budget_set": false,
+        "expenses_logged": []
+      },
+      "expected": {
+        "planned_surplus": {
+          "state": "REFUSES",
+          "reason": "Budget not set"
+        },
+        "actual_surplus": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "free_after_goals": {
+          "state": "REFUSES",
+          "reason": "No plan"
+        }
+      },
+      "working": [
+        "Unknown planned spending prevents a planned surplus;actual log view follows the owner’s explicitly approved take-home convention."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-003",
+      "case_id": "MK-CF-O-003-C01",
+      "name": "thisMonth",
+      "kind": "easy",
+      "title": "Known simple month",
+      "as_of": "2026-10-24",
+      "given": "Known simple month",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": 5000,
+        "debt_due": 250,
+        "debt_paid": 0,
+        "budget": 2000,
+        "budget_set": true,
+        "manual_expenses": 500,
+        "goals": []
+      },
+      "expected": {
+        "planned_surplus": {
+          "exact": "2750",
+          "shown": "$2,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "actual_surplus": {
+          "exact": "4500",
+          "shown": "$4,500",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "free_after_goals": {
+          "exact": "2750",
+          "shown": "$2,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Plan5000−250−2000=2750;actual5000−0−500=4500;goals0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-003",
+      "case_id": "MK-CF-O-003-C02",
+      "name": "thisMonth",
+      "kind": "easy",
+      "title": "Logged payment differs from plan",
+      "as_of": "2026-10-24",
+      "given": "Logged payment differs from plan",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": 5000,
+        "debt_due": 250,
+        "debt_paid": 100,
+        "budget": 2000,
+        "budget_set": true,
+        "manual_expenses": 500,
+        "goals": []
+      },
+      "expected": {
+        "planned_surplus": {
+          "exact": "2750",
+          "shown": "$2,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "actual_surplus": {
+          "exact": "4400",
+          "shown": "$4,400",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Only100 is paid;actual5000−100−500=4400."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-003",
+      "case_id": "MK-CF-O-003-C03",
+      "name": "thisMonth",
+      "kind": "complex",
+      "title": "Approved frameA household",
+      "as_of": "2026-10-24",
+      "given": "Approved frameA household",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": 5000,
+        "debts": [
+          {
+            "id": "M",
+            "name": "Mortgage",
+            "payment": 2000,
+            "shape": "instalment",
+            "paid": 2000
+          },
+          {
+            "id": "C",
+            "name": "Car",
+            "payment": 250,
+            "shape": "instalment",
+            "paid": 0,
+            "due_date": "2026-10-28"
+          },
+          {
+            "id": "H",
+            "name": "HELOC",
+            "payment": 200,
+            "shape": "revolving",
+            "paid": 200
+          },
+          {
+            "id": "V",
+            "name": "Card",
+            "payment": 200,
+            "shape": "revolving",
+            "paid": 200
+          }
+        ],
+        "budget": 2000,
+        "manual_expenses": 500,
+        "imported_purchases": 1200,
+        "goals": []
+      },
+      "expected": {
+        "planned": {
+          "rows": [
+            {
+              "exact": "5000",
+              "shown": "$5,000",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-2000",
+              "shown": "−$2,000",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-250",
+              "shown": "−$250",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-2000",
+              "shown": "−$2,000",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-200",
+              "shown": "−$200",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-200",
+              "shown": "−$200",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            }
+          ],
+          "inflow": {
+            "exact": "5000",
+            "shown": "$5,000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "outflow": {
+            "exact": "4650",
+            "shown": "$4,650",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "surplus": {
+            "exact": "350",
+            "shown": "$350",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        "actual": {
+          "rows": [
+            {
+              "exact": "5000",
+              "shown": "$5,000",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-2000",
+              "shown": "−$2,000",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "0",
+              "shown": "$0",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-500",
+              "shown": "−$500",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-1200",
+              "shown": "−$1,200",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-200",
+              "shown": "−$200",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            },
+            {
+              "exact": "-200",
+              "shown": "−$200",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            }
+          ],
+          "inflow": {
+            "exact": "5000",
+            "shown": "$5,000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "outflow": {
+            "exact": "4100",
+            "shown": "$4,100",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "surplus": {
+            "exact": "900",
+            "shown": "$900",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        },
+        "same_across": [
+          "This month",
+          "Home actual surplus900"
+        ],
+        "free_after_goals": {
+          "exact": "350",
+          "shown": "$350",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Plan5000−2000−250−2000−200−200=350.",
+        "Actual5000−2000−0−500−1200−200−200=900.",
+        "Each signed row sum equals its surplus;Home must show the same900."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-003",
+      "case_id": "MK-CF-O-003-C04",
+      "name": "thisMonth",
+      "kind": "complex",
+      "title": "Unround month and goals",
+      "as_of": "2026-10-24",
+      "given": "Unround month and goals",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": "7231.17",
+        "debt_due": "731.43",
+        "debt_paid": "611.19",
+        "budget": "3111.37",
+        "budget_set": true,
+        "manual_expenses": "1311.19",
+        "imported_expenses": "911.43",
+        "goal_commitment": "300.17"
+      },
+      "expected": {
+        "planned_surplus": {
+          "exact": "3388.37",
+          "shown": "$3,388",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "actual_surplus": {
+          "exact": "4397.36",
+          "shown": "$4,397",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "goal_rows": [
+          {
+            "exact": "300.17",
+            "shown": "$300",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "free_after_goals": {
+          "exact": "3088.20",
+          "shown": "$3,088",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Plan7231.17−731.43−3111.37=3388.37;actual7231.17−611.19−1311.19−911.43=4397.36;free3388.37−300.17=3088.20."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-O-003",
+      "case_id": "MK-CF-O-003-C05",
+      "name": "thisMonth",
+      "kind": "edge",
+      "title": "Budget not set",
+      "as_of": "2026-10-24",
+      "given": "Budget not set",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": 5000,
+        "debt_due": 250,
+        "debt_paid": 0,
+        "budget": null,
+        "budget_set": false,
+        "expenses_logged": []
+      },
+      "expected": {
+        "planned_surplus": {
+          "state": "REFUSES",
+          "reason": "Budget not set"
+        },
+        "actual_surplus": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "free_after_goals": {
+          "state": "REFUSES",
+          "reason": "No plan"
+        }
+      },
+      "working": [
+        "Unknown planned spending prevents a planned surplus;actual log view follows the owner’s explicitly approved take-home convention."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-227",
+      "case_id": "MK-CF-F-227-C01",
+      "name": "thisMonthInputs",
+      "kind": "easy",
+      "title": "Matching first grid month",
+      "as_of": "2026-10-24",
+      "given": "Matching first grid month",
+      "inputs": {
+        "requested_month": "2026-10",
+        "grid": [
+          {
+            "month": "2026-10",
+            "in": 5000,
+            "bills": 2000
+          }
+        ]
+      },
+      "expected": {
+        "month": "2026-10",
+        "inflow": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "planned_bills": {
+          "exact": "2000",
+          "shown": "$2,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Select October cell."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-227",
+      "case_id": "MK-CF-F-227-C02",
+      "name": "thisMonthInputs",
+      "kind": "easy",
+      "title": "Known zero-budget month",
+      "as_of": "2026-10-24",
+      "given": "Known zero-budget month",
+      "inputs": {
+        "requested_month": "2026-10",
+        "grid": [
+          {
+            "month": "2026-10",
+            "in": 5000,
+            "bills": 0
+          }
+        ],
+        "plan_has_december_bill": true
+      },
+      "expected": {
+        "inflow": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "planned_bills": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "budget_set": true
+      },
+      "working": [
+        "Dated plan exists though no bill falls this month."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-227",
+      "case_id": "MK-CF-F-227-C03",
+      "name": "thisMonthInputs",
+      "kind": "complex",
+      "title": "Requested later month differs",
+      "as_of": "2026-10-24",
+      "given": "Requested later month differs",
+      "inputs": {
+        "requested_month": "2026-12",
+        "grid": [
+          {
+            "month": "2026-10",
+            "in": "5111.17",
+            "bills": "2311.43"
+          },
+          {
+            "month": "2026-12",
+            "in": "7311.19",
+            "bills": "4131.37"
+          }
+        ]
+      },
+      "expected": {
+        "month": "2026-12",
+        "inflow": {
+          "exact": "7311.19",
+          "shown": "$7,311",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "planned_bills": {
+          "exact": "4131.37",
+          "shown": "$4,131",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Explicit requestedDecember must readDecember."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "month": "2026-12",
+        "inflow": {
+          "exact": "5111.17",
+          "shown": "$5,111",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "planned_bills": {
+          "exact": "2311.43",
+          "shown": "$2,311",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-227",
+      "case_id": "MK-CF-F-227-C04",
+      "name": "thisMonthInputs",
+      "kind": "complex",
+      "title": "Groups reconcile",
+      "as_of": "2026-10-24",
+      "given": "Groups reconcile",
+      "inputs": {
+        "requested_month": "2026-10",
+        "inflow": "7311.17",
+        "planned_groups": [
+          "1131.43",
+          "831.19",
+          "1731.37"
+        ],
+        "goals": [
+          "311.17",
+          "211.43"
+        ]
+      },
+      "expected": {
+        "planned_bills": {
+          "exact": "3693.99",
+          "shown": "$3,694",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "goal_commitments": {
+          "exact": "522.60",
+          "shown": "$523",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "1131.43+831.19+1731.37=3693.99;311.17+211.43=522.60."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-227",
+      "case_id": "MK-CF-F-227-C05",
+      "name": "thisMonthInputs",
+      "kind": "edge",
+      "title": "Grid absent",
+      "as_of": "2026-10-24",
+      "given": "Grid absent",
+      "inputs": {
+        "requested_month": "2026-10",
+        "grid": []
+      },
+      "expected": {
+        "state": "REFUSES",
+        "reason": "Requested income/bill cell absent"
+      },
+      "working": [
+        "Missing cell is not confirmed zero."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "inflow": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "planned_bills": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-226",
+      "case_id": "MK-CF-F-226-C01",
+      "name": "datedGridOf",
+      "kind": "easy",
+      "title": "Explicit starting balance",
+      "as_of": "2026-10-24",
+      "given": "Explicit starting balance",
+      "inputs": {
+        "starting_balance": 3000,
+        "independent_monthly_net": [
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000
+        ]
+      },
+      "expected": {
+        "first_end": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "last_end": {
+          "exact": "27000",
+          "shown": "$27,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "3000+2000=5000;3000+12×2000=27000."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-226",
+      "case_id": "MK-CF-F-226-C02",
+      "name": "datedGridOf",
+      "kind": "easy",
+      "title": "Zero starting assumption",
+      "as_of": "2026-10-24",
+      "given": "Zero starting assumption",
+      "inputs": {
+        "starting_balance": null,
+        "independent_monthly_net": [
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000
+        ]
+      },
+      "expected": {
+        "first_end": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "last_end": {
+          "exact": "12000",
+          "shown": "$12,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "assumption": "starts from0,not observed balance"
+      },
+      "working": [
+        "Disclose0 start;12×1000=12000."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-226",
+      "case_id": "MK-CF-F-226-C03",
+      "name": "datedGridOf",
+      "kind": "complex",
+      "title": "Dated conversion bill",
+      "as_of": "2026-10-24",
+      "given": "Dated conversion bill",
+      "inputs": {
+        "conversion_year": 2026,
+        "conversion_tax": "1831.17",
+        "adoption_date": "2026-09-17",
+        "starting_balance": "3111.43"
+      },
+      "expected": {
+        "tax_bill": {
+          "amount": {
+            "exact": "1831.17",
+            "shown": "$1,831.17",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "date": "2027-04-01",
+          "source": "Plan"
+        }
+      },
+      "working": [
+        "2026 conversion’s tax-year bill belongsApril2027 under the stated annual-bill convention."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-226",
+      "case_id": "MK-CF-F-226-C04",
+      "name": "datedGridOf",
+      "kind": "complex",
+      "title": "Reread after New Year",
+      "as_of": "2027-01-17",
+      "given": "Reread after New Year",
+      "inputs": {
+        "conversion_year": 2026,
+        "conversion_tax": "1831.17",
+        "adoption_date": "2026-09-17",
+        "read_date": "2027-01-17"
+      },
+      "expected": {
+        "tax_bill": {
+          "amount": {
+            "exact": "1831.17",
+            "shown": "$1,831.17",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "date": "2027-04-01"
+        }
+      },
+      "working": [
+        "Reopening in2027 must not shift the same2026 tax to2028."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "state": "RULE UNCLEAR",
+        "reason": "Adoption-year anchor not specified",
+        "readings": {
+          "current_read_year": "2028-04-01",
+          "conversion_year": "2027-04-01"
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-226",
+      "case_id": "MK-CF-F-226-C05",
+      "name": "datedGridOf",
+      "kind": "edge",
+      "title": "No adopted tax",
+      "as_of": "2026-10-24",
+      "given": "No adopted tax",
+      "inputs": {
+        "conversion_tax": 0,
+        "starting_balance": 0
+      },
+      "expected": {
+        "extra_tax_bills": []
+      },
+      "working": [
+        "No positive adopted tax adds no bill."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-225",
+      "case_id": "MK-CF-F-225-C01",
+      "name": "useCashflowModel",
+      "kind": "easy",
+      "title": "Explicit assumptions",
+      "as_of": "2026-10-24",
+      "given": "Explicit assumptions",
+      "inputs": {
+        "age": 60,
+        "horizon_age": 92,
+        "return": "0.055",
+        "inflation": "0.025"
+      },
+      "expected": {
+        "simulation_inputs": {
+          "age": {
+            "exact": "60",
+            "shown": "60",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "horizon_age": {
+            "exact": "92",
+            "shown": "$92",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "mean": {
+            "exact": "0.055",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "spread": {
+            "exact": "0.0935",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "inflation": {
+            "exact": "0.025",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "seed": {
+            "exact": "42",
+            "shown": "42",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          "paths": {
+            "exact": "1000",
+            "shown": "1000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        }
+      },
+      "working": [
+        "Spread1.7×.055=.0935 within[.05,.2];same explicit inputs on both consumers."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-225",
+      "case_id": "MK-CF-F-225-C02",
+      "name": "useCashflowModel",
+      "kind": "easy",
+      "title": "Spread low clamp",
+      "as_of": "2026-10-24",
+      "given": "Spread low clamp",
+      "inputs": {
+        "age": 60,
+        "horizon_age": 95,
+        "return": "0.02",
+        "inflation": "0.025"
+      },
+      "expected": {
+        "spread": {
+          "exact": "0.05",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "1.7×.02=.034;lower bound.05."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-225",
+      "case_id": "MK-CF-F-225-C03",
+      "name": "useCashflowModel",
+      "kind": "complex",
+      "title": "Spread high clamp",
+      "as_of": "2026-10-24",
+      "given": "Spread high clamp",
+      "inputs": {
+        "age": "61.5",
+        "horizon_age": 97,
+        "return": "0.137",
+        "inflation": "0.0319"
+      },
+      "expected": {
+        "spread": {
+          "exact": "0.2",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "1.7×.137=.2329;upper bound.2;other values preserved."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-225",
+      "case_id": "MK-CF-F-225-C04",
+      "name": "useCashflowModel",
+      "kind": "complex",
+      "title": "Budget dedup shared",
+      "as_of": "2026-10-24",
+      "given": "Budget dedup shared",
+      "inputs": {
+        "age": "61.5",
+        "home_mortgage": "2311.17",
+        "budget_mortgage": "2111.43",
+        "typed_budget": "3111.19",
+        "return": "0.0471",
+        "inflation": "0.0273"
+      },
+      "expected": {
+        "counted_budget": {
+          "exact": "999.76",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "same_budget_on": [
+          "paycheck",
+          "dated_grid"
+        ]
+      },
+      "working": [
+        "3111.19−2111.43=999.76;pass same counted budget to both."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-225",
+      "case_id": "MK-CF-F-225-C05",
+      "name": "useCashflowModel",
+      "kind": "edge",
+      "title": "Age missing",
+      "as_of": "2026-10-24",
+      "given": "Age missing",
+      "inputs": {
+        "age": null,
+        "return": null,
+        "inflation": null
+      },
+      "expected": {
+        "state": "REFUSES",
+        "reason": "Age-dependent projection requires entered age"
+      },
+      "working": [
+        "Age68 is invented,not observed."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "age": {
+          "exact": "68",
+          "shown": "68",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "return": {
+          "exact": "0.055",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "inflation": {
+          "exact": "0.025",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-156",
+      "case_id": "MK-CF-F-156-C01",
+      "name": "plannedMonthFlow",
+      "kind": "easy",
+      "title": "Known simple month",
+      "as_of": "2026-10-24",
+      "given": "Known simple month",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": 5000,
+        "debt_due": 250,
+        "debt_paid": 0,
+        "budget": 2000,
+        "budget_set": true,
+        "manual_expenses": 500,
+        "goals": []
+      },
+      "expected": {
+        "rows": [
+          {
+            "exact": "5000",
+            "shown": "$5,000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-250",
+            "shown": "−$250",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-2000",
+            "shown": "−$2,000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "surplus": {
+          "exact": "2750",
+          "shown": "$2,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Plan5000−250−2000=2750;actual5000−0−500=4500;goals0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-156",
+      "case_id": "MK-CF-F-156-C02",
+      "name": "plannedMonthFlow",
+      "kind": "easy",
+      "title": "Logged payment differs from plan",
+      "as_of": "2026-10-24",
+      "given": "Logged payment differs from plan",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": 5000,
+        "debt_due": 250,
+        "debt_paid": 100,
+        "budget": 2000,
+        "budget_set": true,
+        "manual_expenses": 500,
+        "goals": []
+      },
+      "expected": {
+        "rows": [
+          {
+            "exact": "5000",
+            "shown": "$5,000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-250",
+            "shown": "−$250",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-2000",
+            "shown": "−$2,000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "surplus": {
+          "exact": "2750",
+          "shown": "$2,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Only100 is paid;actual5000−100−500=4400."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-156",
+      "case_id": "MK-CF-F-156-C03",
+      "name": "plannedMonthFlow",
+      "kind": "complex",
+      "title": "Approved frameA household",
+      "as_of": "2026-10-24",
+      "given": "Approved frameA household",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": 5000,
+        "debts": [
+          {
+            "id": "M",
+            "name": "Mortgage",
+            "payment": 2000,
+            "shape": "instalment",
+            "paid": 2000
+          },
+          {
+            "id": "C",
+            "name": "Car",
+            "payment": 250,
+            "shape": "instalment",
+            "paid": 0,
+            "due_date": "2026-10-28"
+          },
+          {
+            "id": "H",
+            "name": "HELOC",
+            "payment": 200,
+            "shape": "revolving",
+            "paid": 200
+          },
+          {
+            "id": "V",
+            "name": "Card",
+            "payment": 200,
+            "shape": "revolving",
+            "paid": 200
+          }
+        ],
+        "budget": 2000,
+        "manual_expenses": 500,
+        "imported_purchases": 1200,
+        "goals": []
+      },
+      "expected": {
+        "rows": [
+          {
+            "exact": "5000",
+            "shown": "$5,000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-2000",
+            "shown": "−$2,000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-250",
+            "shown": "−$250",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-2000",
+            "shown": "−$2,000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-200",
+            "shown": "−$200",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-200",
+            "shown": "−$200",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "inflow": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "outflow": {
+          "exact": "4650",
+          "shown": "$4,650",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "surplus": {
+          "exact": "350",
+          "shown": "$350",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Plan5000−2000−250−2000−200−200=350.",
+        "Actual5000−2000−0−500−1200−200−200=900.",
+        "Each signed row sum equals its surplus;Home must show the same900."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-156",
+      "case_id": "MK-CF-F-156-C04",
+      "name": "plannedMonthFlow",
+      "kind": "complex",
+      "title": "Unround month and goals",
+      "as_of": "2026-10-24",
+      "given": "Unround month and goals",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": "7231.17",
+        "debt_due": "731.43",
+        "debt_paid": "611.19",
+        "budget": "3111.37",
+        "budget_set": true,
+        "manual_expenses": "1311.19",
+        "imported_expenses": "911.43",
+        "goal_commitment": "300.17"
+      },
+      "expected": {
+        "rows": [
+          {
+            "exact": "7231.17",
+            "shown": "$7,231",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-731.43",
+            "shown": "−$731",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-3111.37",
+            "shown": "−$3,111",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "surplus": {
+          "exact": "3388.37",
+          "shown": "$3,388",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Plan7231.17−731.43−3111.37=3388.37;actual7231.17−611.19−1311.19−911.43=4397.36;free3388.37−300.17=3088.20."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-156",
+      "case_id": "MK-CF-F-156-C05",
+      "name": "plannedMonthFlow",
+      "kind": "edge",
+      "title": "Budget not set",
+      "as_of": "2026-10-24",
+      "given": "Budget not set",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": 5000,
+        "debt_due": 250,
+        "debt_paid": 0,
+        "budget": null,
+        "budget_set": false,
+        "expenses_logged": []
+      },
+      "expected": {
+        "surplus": {
+          "state": "REFUSES",
+          "reason": "Budget not set"
+        }
+      },
+      "working": [
+        "Unknown planned spending prevents a planned surplus;actual log view follows the owner’s explicitly approved take-home convention."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "planned_surplus": {
+          "exact": "4750",
+          "shown": "$4,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-005",
+      "case_id": "MK-CF-F-005-C01",
+      "name": "actualMonthFlow",
+      "kind": "easy",
+      "title": "Known simple month",
+      "as_of": "2026-10-24",
+      "given": "Known simple month",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": 5000,
+        "debt_due": 250,
+        "debt_paid": 0,
+        "budget": 2000,
+        "budget_set": true,
+        "manual_expenses": 500,
+        "goals": []
+      },
+      "expected": {
+        "rows": [
+          {
+            "exact": "5000",
+            "shown": "$5,000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-500",
+            "shown": "−$500",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "surplus": {
+          "exact": "4500",
+          "shown": "$4,500",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Plan5000−250−2000=2750;actual5000−0−500=4500;goals0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-005",
+      "case_id": "MK-CF-F-005-C02",
+      "name": "actualMonthFlow",
+      "kind": "easy",
+      "title": "Logged payment differs from plan",
+      "as_of": "2026-10-24",
+      "given": "Logged payment differs from plan",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": 5000,
+        "debt_due": 250,
+        "debt_paid": 100,
+        "budget": 2000,
+        "budget_set": true,
+        "manual_expenses": 500,
+        "goals": []
+      },
+      "expected": {
+        "rows": [
+          {
+            "exact": "5000",
+            "shown": "$5,000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-100",
+            "shown": "−$100",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-500",
+            "shown": "−$500",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "surplus": {
+          "exact": "4400",
+          "shown": "$4,400",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Only100 is paid;actual5000−100−500=4400."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-005",
+      "case_id": "MK-CF-F-005-C03",
+      "name": "actualMonthFlow",
+      "kind": "complex",
+      "title": "Approved frameA household",
+      "as_of": "2026-10-24",
+      "given": "Approved frameA household",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": 5000,
+        "debts": [
+          {
+            "id": "M",
+            "name": "Mortgage",
+            "payment": 2000,
+            "shape": "instalment",
+            "paid": 2000
+          },
+          {
+            "id": "C",
+            "name": "Car",
+            "payment": 250,
+            "shape": "instalment",
+            "paid": 0,
+            "due_date": "2026-10-28"
+          },
+          {
+            "id": "H",
+            "name": "HELOC",
+            "payment": 200,
+            "shape": "revolving",
+            "paid": 200
+          },
+          {
+            "id": "V",
+            "name": "Card",
+            "payment": 200,
+            "shape": "revolving",
+            "paid": 200
+          }
+        ],
+        "budget": 2000,
+        "manual_expenses": 500,
+        "imported_purchases": 1200,
+        "goals": []
+      },
+      "expected": {
+        "rows": [
+          {
+            "exact": "5000",
+            "shown": "$5,000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-2000",
+            "shown": "−$2,000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-500",
+            "shown": "−$500",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-1200",
+            "shown": "−$1,200",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-200",
+            "shown": "−$200",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-200",
+            "shown": "−$200",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "inflow": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "outflow": {
+          "exact": "4100",
+          "shown": "$4,100",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "surplus": {
+          "exact": "900",
+          "shown": "$900",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Plan5000−2000−250−2000−200−200=350.",
+        "Actual5000−2000−0−500−1200−200−200=900.",
+        "Each signed row sum equals its surplus;Home must show the same900."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-005",
+      "case_id": "MK-CF-F-005-C04",
+      "name": "actualMonthFlow",
+      "kind": "complex",
+      "title": "Unround month and goals",
+      "as_of": "2026-10-24",
+      "given": "Unround month and goals",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": "7231.17",
+        "debt_due": "731.43",
+        "debt_paid": "611.19",
+        "budget": "3111.37",
+        "budget_set": true,
+        "manual_expenses": "1311.19",
+        "imported_expenses": "911.43",
+        "goal_commitment": "300.17"
+      },
+      "expected": {
+        "rows": [
+          {
+            "exact": "7231.17",
+            "shown": "$7,231",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-611.19",
+            "shown": "−$611",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-1311.19",
+            "shown": "−$1,311",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "-911.43",
+            "shown": "−$911",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "outflow": {
+          "exact": "2833.81",
+          "shown": "$2,834",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "surplus": {
+          "exact": "4397.36",
+          "shown": "$4,397",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Plan7231.17−731.43−3111.37=3388.37;actual7231.17−611.19−1311.19−911.43=4397.36;free3388.37−300.17=3088.20."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-005",
+      "case_id": "MK-CF-F-005-C05",
+      "name": "actualMonthFlow",
+      "kind": "edge",
+      "title": "Budget not set",
+      "as_of": "2026-10-24",
+      "given": "Budget not set",
+      "inputs": {
+        "month": "2026-10",
+        "take_home": 5000,
+        "debt_due": 250,
+        "debt_paid": 0,
+        "budget": null,
+        "budget_set": false,
+        "expenses_logged": []
+      },
+      "expected": {
+        "rows": [
+          {
+            "exact": "5000",
+            "shown": "$5,000",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "surplus": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "basis": "approved month take-home minus logs,not confirmed receipts"
+      },
+      "working": [
+        "Unknown planned spending prevents a planned surplus;actual log view follows the owner’s explicitly approved take-home convention."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-220",
+      "case_id": "MK-CF-F-220-C01",
+      "name": "pastMonthFlow",
+      "kind": "easy",
+      "title": "Frozen known month",
+      "as_of": "2026-10-24",
+      "given": "Frozen known month",
+      "inputs": {
+        "month": "2026-09",
+        "saved": {
+          "expenses": 2998,
+          "debt_paid": 250,
+          "take_home": 7200,
+          "saved_at": "2026-10-01T10:00:00Z"
+        },
+        "later_expenses": []
+      },
+      "expected": {
+        "inflow": {
+          "exact": "7200",
+          "shown": "$7,200",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "outflow": {
+          "exact": "3248",
+          "shown": "$3,248",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "surplus": {
+          "exact": "3952",
+          "shown": "$3,952",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "record_unchanged_by_late_expense": true
+      },
+      "working": [
+        "Frozen outflow=expenses+debt paid;surplus=inflow−outflow;late logs are disclosed separately and do not rewrite saved totals."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-220",
+      "case_id": "MK-CF-F-220-C02",
+      "name": "pastMonthFlow",
+      "kind": "easy",
+      "title": "No later additions",
+      "as_of": "2026-10-24",
+      "given": "No later additions",
+      "inputs": {
+        "month": "2026-09",
+        "saved": {
+          "expenses": 2000,
+          "debt_paid": 0,
+          "take_home": 5000,
+          "saved_at": "2026-10-01T10:00:00Z"
+        },
+        "later_expenses": []
+      },
+      "expected": {
+        "inflow": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "outflow": {
+          "exact": "2000",
+          "shown": "$2,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "surplus": {
+          "exact": "3000",
+          "shown": "$3,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "record_unchanged_by_late_expense": true
+      },
+      "working": [
+        "Frozen outflow=expenses+debt paid;surplus=inflow−outflow;late logs are disclosed separately and do not rewrite saved totals."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-220",
+      "case_id": "MK-CF-F-220-C03",
+      "name": "pastMonthFlow",
+      "kind": "complex",
+      "title": "Late unround expense",
+      "as_of": "2026-10-24",
+      "given": "Late unround expense",
+      "inputs": {
+        "month": "2026-09",
+        "saved": {
+          "expenses": "2731.17",
+          "debt_paid": "611.43",
+          "take_home": "7311.19",
+          "saved_at": "2026-10-01T10:00:00Z"
+        },
+        "later_expenses": [
+          {
+            "id": "late",
+            "date": "2026-09-25",
+            "created_at": "2026-10-03T12:00:00Z",
+            "amount": "153.37"
+          }
+        ]
+      },
+      "expected": {
+        "inflow": {
+          "exact": "7311.19",
+          "shown": "$7,311",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "outflow": {
+          "exact": "3342.60",
+          "shown": "$3,343",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "surplus": {
+          "exact": "3968.59",
+          "shown": "$3,969",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "record_unchanged_by_late_expense": true
+      },
+      "working": [
+        "Frozen outflow=expenses+debt paid;surplus=inflow−outflow;late logs are disclosed separately and do not rewrite saved totals."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-220",
+      "case_id": "MK-CF-F-220-C04",
+      "name": "pastMonthFlow",
+      "kind": "complex",
+      "title": "Late imported statement",
+      "as_of": "2026-10-24",
+      "given": "Late imported statement",
+      "inputs": {
+        "month": "2026-09",
+        "saved": {
+          "expenses": "3111.17",
+          "debt_paid": "731.43",
+          "take_home": "8311.19",
+          "saved_at": "2026-10-01T10:00:00Z"
+        },
+        "later_expenses": [
+          {
+            "id": "late",
+            "date": "2026-09-25",
+            "created_at": "2026-10-03T12:00:00Z",
+            "amount": "311.37"
+          }
+        ]
+      },
+      "expected": {
+        "inflow": {
+          "exact": "8311.19",
+          "shown": "$8,311",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "outflow": {
+          "exact": "3842.60",
+          "shown": "$3,843",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "surplus": {
+          "exact": "4468.59",
+          "shown": "$4,469",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "record_unchanged_by_late_expense": true
+      },
+      "working": [
+        "Frozen outflow=expenses+debt paid;surplus=inflow−outflow;late logs are disclosed separately and do not rewrite saved totals."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-220",
+      "case_id": "MK-CF-F-220-C05",
+      "name": "pastMonthFlow",
+      "kind": "edge",
+      "title": "Saved component/timestamp missing",
+      "as_of": "2026-10-24",
+      "given": "Saved component/timestamp missing",
+      "inputs": {
+        "month": "2026-09",
+        "saved": {
+          "expenses": null,
+          "debt_paid": 250,
+          "take_home": 7200,
+          "saved_at": null
+        },
+        "later_expenses": [
+          {
+            "id": "late",
+            "date": "2026-09-25",
+            "created_at": "2026-10-03T12:00:00Z",
+            "amount": 150
+          }
+        ]
+      },
+      "expected": {
+        "state": "REFUSES",
+        "reason": "Saved expense component absent"
+      },
+      "working": [
+        "Frozen outflow=expenses+debt paid;surplus=inflow−outflow;late logs are disclosed separately and do not rewrite saved totals."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "inflow": {
+          "exact": "7200",
+          "shown": "$7,200",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "outflow": {
+          "exact": "250",
+          "shown": "$250",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "surplus": {
+          "exact": "6950",
+          "shown": "$6,950",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-231",
+      "case_id": "MK-CF-F-231-C01",
+      "name": "addedAfterRecord",
+      "kind": "easy",
+      "title": "Frozen known month",
+      "as_of": "2026-10-24",
+      "given": "Frozen known month",
+      "inputs": {
+        "month": "2026-09",
+        "saved": {
+          "expenses": 2998,
+          "debt_paid": 250,
+          "take_home": 7200,
+          "saved_at": "2026-10-01T10:00:00Z"
+        },
+        "later_expenses": []
+      },
+      "expected": {
+        "late_ids": [],
+        "late_total": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Frozen outflow=expenses+debt paid;surplus=inflow−outflow;late logs are disclosed separately and do not rewrite saved totals."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-231",
+      "case_id": "MK-CF-F-231-C02",
+      "name": "addedAfterRecord",
+      "kind": "easy",
+      "title": "No later additions",
+      "as_of": "2026-10-24",
+      "given": "No later additions",
+      "inputs": {
+        "month": "2026-09",
+        "saved": {
+          "expenses": 2000,
+          "debt_paid": 0,
+          "take_home": 5000,
+          "saved_at": "2026-10-01T10:00:00Z"
+        },
+        "later_expenses": []
+      },
+      "expected": {
+        "late_ids": [],
+        "late_total": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Frozen outflow=expenses+debt paid;surplus=inflow−outflow;late logs are disclosed separately and do not rewrite saved totals."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-231",
+      "case_id": "MK-CF-F-231-C03",
+      "name": "addedAfterRecord",
+      "kind": "complex",
+      "title": "Late unround expense",
+      "as_of": "2026-10-24",
+      "given": "Late unround expense",
+      "inputs": {
+        "month": "2026-09",
+        "saved": {
+          "expenses": "2731.17",
+          "debt_paid": "611.43",
+          "take_home": "7311.19",
+          "saved_at": "2026-10-01T10:00:00Z"
+        },
+        "later_expenses": [
+          {
+            "id": "late",
+            "date": "2026-09-25",
+            "created_at": "2026-10-03T12:00:00Z",
+            "amount": "153.37"
+          }
+        ]
+      },
+      "expected": {
+        "late_ids": [
+          "late"
+        ],
+        "late_total": {
+          "exact": "153.37",
+          "shown": "$153",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Frozen outflow=expenses+debt paid;surplus=inflow−outflow;late logs are disclosed separately and do not rewrite saved totals."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-231",
+      "case_id": "MK-CF-F-231-C04",
+      "name": "addedAfterRecord",
+      "kind": "complex",
+      "title": "Late imported statement",
+      "as_of": "2026-10-24",
+      "given": "Late imported statement",
+      "inputs": {
+        "month": "2026-09",
+        "saved": {
+          "expenses": "3111.17",
+          "debt_paid": "731.43",
+          "take_home": "8311.19",
+          "saved_at": "2026-10-01T10:00:00Z"
+        },
+        "later_expenses": [
+          {
+            "id": "late",
+            "date": "2026-09-25",
+            "created_at": "2026-10-03T12:00:00Z",
+            "amount": "311.37"
+          }
+        ]
+      },
+      "expected": {
+        "late_ids": [
+          "late"
+        ],
+        "late_total": {
+          "exact": "311.37",
+          "shown": "$311",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Frozen outflow=expenses+debt paid;surplus=inflow−outflow;late logs are disclosed separately and do not rewrite saved totals."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-231",
+      "case_id": "MK-CF-F-231-C05",
+      "name": "addedAfterRecord",
+      "kind": "edge",
+      "title": "Saved component/timestamp missing",
+      "as_of": "2026-10-24",
+      "given": "Saved component/timestamp missing",
+      "inputs": {
+        "month": "2026-09",
+        "saved": {
+          "expenses": null,
+          "debt_paid": 250,
+          "take_home": 7200,
+          "saved_at": null
+        },
+        "later_expenses": [
+          {
+            "id": "late",
+            "date": "2026-09-25",
+            "created_at": "2026-10-03T12:00:00Z",
+            "amount": 150
+          }
+        ]
+      },
+      "expected": {
+        "state": "REFUSES",
+        "reason": "Saved timestamp missing;cannot order later additions"
+      },
+      "working": [
+        "Frozen outflow=expenses+debt paid;surplus=inflow−outflow;late logs are disclosed separately and do not rewrite saved totals."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "late_ids": [],
+        "late_total": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-157",
+      "case_id": "MK-CF-F-157-C01",
+      "name": "debtPaymentsByDebt",
+      "kind": "easy",
+      "title": "One matching payment",
+      "as_of": "2026-10-24",
+      "given": "One matching payment",
+      "inputs": {
+        "debts": [
+          {
+            "id": "A",
+            "name": "Loan",
+            "shape": "revolving"
+          }
+        ],
+        "logs": [
+          {
+            "date": "2026-10-17",
+            "payee": "Loan",
+            "amount": 250,
+            "category": "Debt payment"
+          }
+        ],
+        "purchases_captured": false
+      },
+      "expected": {
+        "A": {
+          "exact": "250",
+          "shown": "$250",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Filter month and Debt payment; normalize payee; require a unique debt identity; counted-as-expense also excludes captured card settlement."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-157",
+      "case_id": "MK-CF-F-157-C02",
+      "name": "debtPaymentsByDebt",
+      "kind": "easy",
+      "title": "No payment",
+      "as_of": "2026-10-24",
+      "given": "No payment",
+      "inputs": {
+        "debts": [
+          {
+            "id": "A",
+            "name": "Loan",
+            "shape": "revolving"
+          }
+        ],
+        "logs": [],
+        "purchases_captured": false
+      },
+      "expected": {},
+      "working": [
+        "Filter month and Debt payment; normalize payee; require a unique debt identity; counted-as-expense also excludes captured card settlement."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-157",
+      "case_id": "MK-CF-F-157-C03",
+      "name": "debtPaymentsByDebt",
+      "kind": "complex",
+      "title": "Two distinct debts",
+      "as_of": "2026-10-24",
+      "given": "Two distinct debts",
+      "inputs": {
+        "debts": [
+          {
+            "id": "A",
+            "name": "Auto",
+            "shape": "revolving"
+          },
+          {
+            "id": "B",
+            "name": "HELOC",
+            "shape": "revolving"
+          }
+        ],
+        "logs": [
+          {
+            "date": "2026-10-13",
+            "payee": "auto",
+            "amount": "231.17",
+            "category": "Debt payment"
+          },
+          {
+            "date": "2026-10-17",
+            "payee": " heloc ",
+            "amount": "111.43",
+            "category": "Debt payment"
+          },
+          {
+            "date": "2026-09-17",
+            "payee": "Auto",
+            "amount": "331.19",
+            "category": "Debt payment"
+          }
+        ],
+        "purchases_captured": false
+      },
+      "expected": {
+        "A": {
+          "exact": "231.17",
+          "shown": "$231",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "B": {
+          "exact": "111.43",
+          "shown": "$111",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Filter month and Debt payment; normalize payee; require a unique debt identity; counted-as-expense also excludes captured card settlement."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-157",
+      "case_id": "MK-CF-F-157-C04",
+      "name": "debtPaymentsByDebt",
+      "kind": "complex",
+      "title": "Linked card already expensed",
+      "as_of": "2026-10-24",
+      "given": "Linked card already expensed",
+      "inputs": {
+        "debts": [
+          {
+            "id": "A",
+            "name": "Visa",
+            "shape": "revolving"
+          }
+        ],
+        "logs": [
+          {
+            "date": "2026-10-17",
+            "payee": "Visa",
+            "amount": "611.19",
+            "category": "Debt payment"
+          }
+        ],
+        "purchases_captured": true
+      },
+      "expected": {
+        "A": {
+          "exact": "611.19",
+          "shown": "$611",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Filter month and Debt payment; normalize payee; require a unique debt identity; counted-as-expense also excludes captured card settlement."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-157",
+      "case_id": "MK-CF-F-157-C05",
+      "name": "debtPaymentsByDebt",
+      "kind": "edge",
+      "title": "Duplicate normalized names",
+      "as_of": "2026-10-24",
+      "given": "Duplicate normalized names",
+      "inputs": {
+        "debts": [
+          {
+            "id": "A",
+            "name": "Loan",
+            "shape": "revolving"
+          },
+          {
+            "id": "B",
+            "name": " loan ",
+            "shape": "revolving"
+          }
+        ],
+        "logs": [
+          {
+            "date": "2026-10-17",
+            "payee": "Loan",
+            "amount": 250,
+            "category": "Debt payment"
+          }
+        ],
+        "purchases_captured": false
+      },
+      "expected": {
+        "state": "REFUSES",
+        "reason": "Payment has two indistinguishable debt matches",
+        "unallocated_payment": {
+          "exact": "250",
+          "shown": "$250",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Filter month and Debt payment; normalize payee; require a unique debt identity; counted-as-expense also excludes captured card settlement."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "A": {
+          "exact": "250",
+          "shown": "$250",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "B": {
+          "exact": "250",
+          "shown": "$250",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-155",
+      "case_id": "MK-CF-F-155-C01",
+      "name": "cash",
+      "kind": "easy",
+      "title": "Positive",
+      "as_of": "2026-10-24",
+      "given": "Positive",
+      "inputs": {
+        "number": 100
+      },
+      "expected": {
+        "exact": "100",
+        "shown": "$100",
+        "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      },
+      "working": [
+        "Normalize only signed zero; do not round."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-155",
+      "case_id": "MK-CF-F-155-C02",
+      "name": "cash",
+      "kind": "easy",
+      "title": "Negative",
+      "as_of": "2026-10-24",
+      "given": "Negative",
+      "inputs": {
+        "number": -100
+      },
+      "expected": {
+        "exact": "-100",
+        "shown": "−$100",
+        "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      },
+      "working": [
+        "Normalize only signed zero; do not round."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-155",
+      "case_id": "MK-CF-F-155-C03",
+      "name": "cash",
+      "kind": "complex",
+      "title": "Unround",
+      "as_of": "2026-10-24",
+      "given": "Unround",
+      "inputs": {
+        "number": "731.17319"
+      },
+      "expected": {
+        "exact": "731.17319",
+        "shown": "$731",
+        "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      },
+      "working": [
+        "Normalize only signed zero; do not round."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-155",
+      "case_id": "MK-CF-F-155-C04",
+      "name": "cash",
+      "kind": "complex",
+      "title": "Small negative",
+      "as_of": "2026-10-24",
+      "given": "Small negative",
+      "inputs": {
+        "number": "-0.00017"
+      },
+      "expected": {
+        "exact": "-0.00017",
+        "shown": "−$0",
+        "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      },
+      "working": [
+        "Normalize only signed zero; do not round."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-155",
+      "case_id": "MK-CF-F-155-C05",
+      "name": "cash",
+      "kind": "edge",
+      "title": "Negative zero",
+      "as_of": "2026-10-24",
+      "given": "Negative zero",
+      "inputs": {
+        "number": "-0"
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0",
+        "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+      },
+      "working": [
+        "Normalize only signed zero; do not round."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-192",
+      "case_id": "MK-CF-F-192-C01",
+      "name": "inflowLabel",
+      "kind": "easy",
+      "title": "Pay",
+      "as_of": "2026-10-24",
+      "given": "Pay",
+      "inputs": {
+        "prefix": "Inflow",
+        "sources": [
+          "income (take-home)"
+        ]
+      },
+      "expected": "Inflow (income (take-home))",
+      "working": [
+        "Keep first instance of each source word, in order; fallback when empty."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-192",
+      "case_id": "MK-CF-F-192-C02",
+      "name": "inflowLabel",
+      "kind": "easy",
+      "title": "Pay plus rent",
+      "as_of": "2026-10-24",
+      "given": "Pay plus rent",
+      "inputs": {
+        "prefix": "Inflow",
+        "sources": [
+          "income (take-home)",
+          "rent"
+        ]
+      },
+      "expected": "Inflow (income (take-home) + rent)",
+      "working": [
+        "Keep first instance of each source word, in order; fallback when empty."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-192",
+      "case_id": "MK-CF-F-192-C03",
+      "name": "inflowLabel",
+      "kind": "complex",
+      "title": "Repeated words",
+      "as_of": "2026-10-24",
+      "given": "Repeated words",
+      "inputs": {
+        "prefix": "Inflow",
+        "sources": [
+          "rent",
+          "income (take-home)",
+          "rent",
+          "Social Security"
+        ]
+      },
+      "expected": "Inflow (rent + income (take-home) + Social Security)",
+      "working": [
+        "Keep first instance of each source word, in order; fallback when empty."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-192",
+      "case_id": "MK-CF-F-192-C04",
+      "name": "inflowLabel",
+      "kind": "complex",
+      "title": "Different prefix",
+      "as_of": "2026-10-24",
+      "given": "Different prefix",
+      "inputs": {
+        "prefix": "Planned inflow",
+        "sources": [
+          "income (take-home)",
+          "rent",
+          "pension"
+        ]
+      },
+      "expected": "Planned inflow (income (take-home) + rent + pension)",
+      "working": [
+        "Keep first instance of each source word, in order; fallback when empty."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-192",
+      "case_id": "MK-CF-F-192-C05",
+      "name": "inflowLabel",
+      "kind": "edge",
+      "title": "No sources",
+      "as_of": "2026-10-24",
+      "given": "No sources",
+      "inputs": {
+        "prefix": "Inflow",
+        "sources": []
+      },
+      "expected": "Inflow (income (take-home))",
+      "working": [
+        "Keep first instance of each source word, in order; fallback when empty."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-193",
+      "case_id": "MK-CF-F-193-C01",
+      "name": "inflowSourceWord",
+      "kind": "easy",
+      "title": "Salary",
+      "as_of": "2026-10-24",
+      "given": "Salary",
+      "inputs": {
+        "source": " Salary (gross) "
+      },
+      "expected": "income (take-home)",
+      "working": [
+        "Trim/case-fold; apply canonical source words and remove trailing bracketed qualifier."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-193",
+      "case_id": "MK-CF-F-193-C02",
+      "name": "inflowSourceWord",
+      "kind": "easy",
+      "title": "Rental",
+      "as_of": "2026-10-24",
+      "given": "Rental",
+      "inputs": {
+        "source": "Rental property — A"
+      },
+      "expected": "rent",
+      "working": [
+        "Trim/case-fold; apply canonical source words and remove trailing bracketed qualifier."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-193",
+      "case_id": "MK-CF-F-193-C03",
+      "name": "inflowSourceWord",
+      "kind": "complex",
+      "title": "Social Security",
+      "as_of": "2026-10-24",
+      "given": "Social Security",
+      "inputs": {
+        "source": "social security benefit"
+      },
+      "expected": "Social Security",
+      "working": [
+        "Trim/case-fold; apply canonical source words and remove trailing bracketed qualifier."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-193",
+      "case_id": "MK-CF-F-193-C04",
+      "name": "inflowSourceWord",
+      "kind": "complex",
+      "title": "Other qualified",
+      "as_of": "2026-10-24",
+      "given": "Other qualified",
+      "inputs": {
+        "source": "  Pension (quarterly)  "
+      },
+      "expected": "pension",
+      "working": [
+        "Trim/case-fold; apply canonical source words and remove trailing bracketed qualifier."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-193",
+      "case_id": "MK-CF-F-193-C05",
+      "name": "inflowSourceWord",
+      "kind": "edge",
+      "title": "Unknown phrase",
+      "as_of": "2026-10-24",
+      "given": "Unknown phrase",
+      "inputs": {
+        "source": "Scholarship"
+      },
+      "expected": "scholarship",
+      "working": [
+        "Trim/case-fold; apply canonical source words and remove trailing bracketed qualifier."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-194",
+      "case_id": "MK-CF-F-194-C01",
+      "name": "monthOutflow",
+      "kind": "easy",
+      "title": "Saved components",
+      "as_of": "2026-10-24",
+      "given": "Saved components",
+      "inputs": {
+        "stored_record": {
+          "expenses": 2998,
+          "debt_paid": 250
+        },
+        "logged_so_far": 0
+      },
+      "expected": {
+        "exact": "3248",
+        "shown": "$3,248"
+      },
+      "working": [
+        "2998+250"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-194",
+      "case_id": "MK-CF-F-194-C02",
+      "name": "monthOutflow",
+      "kind": "easy",
+      "title": "Current logged",
+      "as_of": "2026-10-24",
+      "given": "Current logged",
+      "inputs": {
+        "stored_record": null,
+        "logged_so_far": 3248
+      },
+      "expected": {
+        "exact": "3248",
+        "shown": "$3,248"
+      },
+      "working": [
+        "No record; use supplied logged subtotal 3248."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-194",
+      "case_id": "MK-CF-F-194-C03",
+      "name": "monthOutflow",
+      "kind": "complex",
+      "title": "Unround saved",
+      "as_of": "2026-10-24",
+      "given": "Unround saved",
+      "inputs": {
+        "stored_record": {
+          "expenses": "2731.17",
+          "debt_paid": "611.43"
+        },
+        "logged_so_far": "9999.19"
+      },
+      "expected": {
+        "exact": "3342.60",
+        "shown": "$3,343"
+      },
+      "working": [
+        "2731.17+611.43"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-194",
+      "case_id": "MK-CF-F-194-C04",
+      "name": "monthOutflow",
+      "kind": "complex",
+      "title": "Unround live",
+      "as_of": "2026-10-24",
+      "given": "Unround live",
+      "inputs": {
+        "stored_record": null,
+        "logged_so_far": "3311.17"
+      },
+      "expected": {
+        "exact": "3311.17",
+        "shown": "$3,311"
+      },
+      "working": [
+        "No record; use supplied logged subtotal 3311.17."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-194",
+      "case_id": "MK-CF-F-194-C05",
+      "name": "monthOutflow",
+      "kind": "edge",
+      "title": "Known zero",
+      "as_of": "2026-10-24",
+      "given": "Known zero",
+      "inputs": {
+        "stored_record": {
+          "expenses": 0,
+          "debt_paid": 0
+        },
+        "logged_so_far": 0
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "0+0"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-148",
+      "case_id": "MK-CF-F-148-C01",
+      "name": "inMonth",
+      "kind": "easy",
+      "title": "Same month",
+      "as_of": "2026-10-24",
+      "given": "Same month",
+      "inputs": {
+        "date": "2026-10-01",
+        "month": "2026-10"
+      },
+      "expected": true,
+      "working": [
+        "Compare valid date’s year-month with requested year-month."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-148",
+      "case_id": "MK-CF-F-148-C02",
+      "name": "inMonth",
+      "kind": "easy",
+      "title": "Other month",
+      "as_of": "2026-10-24",
+      "given": "Other month",
+      "inputs": {
+        "date": "2026-09-30",
+        "month": "2026-10"
+      },
+      "expected": false,
+      "working": [
+        "Compare valid date’s year-month with requested year-month."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-148",
+      "case_id": "MK-CF-F-148-C03",
+      "name": "inMonth",
+      "kind": "complex",
+      "title": "Different year",
+      "as_of": "2026-10-24",
+      "given": "Different year",
+      "inputs": {
+        "date": "2027-10-17",
+        "month": "2026-10"
+      },
+      "expected": false,
+      "working": [
+        "Compare valid date’s year-month with requested year-month."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-148",
+      "case_id": "MK-CF-F-148-C04",
+      "name": "inMonth",
+      "kind": "complex",
+      "title": "End of leap February",
+      "as_of": "2026-10-24",
+      "given": "End of leap February",
+      "inputs": {
+        "date": "2028-02-29",
+        "month": "2028-02"
+      },
+      "expected": true,
+      "working": [
+        "Compare valid date’s year-month with requested year-month."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-148",
+      "case_id": "MK-CF-F-148-C05",
+      "name": "inMonth",
+      "kind": "edge",
+      "title": "Boundary January",
+      "as_of": "2026-10-24",
+      "given": "Boundary January",
+      "inputs": {
+        "date": "2027-01-01",
+        "month": "2026-12"
+      },
+      "expected": false,
+      "working": [
+        "Compare valid date’s year-month with requested year-month."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    }
+  ],
+  "could_not_test": [],
+  "rules_held": [
+    {
+      "rule": "DEC-0002",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "Cash flow becomes ONE screen with four tabs, replacing the two separate Cash flow and Budget screens. Four decisions:\n1. The Budget screen is RETIRED; its job moves onto the cash-flow surface.\n2. Income is entered through a pop-up that asks whether your pay is steady or varies.\n3. You can move between past and future months.\n4. Big one-off bills get their own list, so a bill that lands once a year is not lost inside a monthly average.\nSTILL IN FORCE: his approval of the combined cash-flow mock (2026-09-28) carries this architecture forward by name — 'the four-tab architecture from v02'. Only the NAME of the third tab changed; see the row beside this one.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0199",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "What each account pays you is worked out once, per account, with the working shown line by line — so the coupons you received are no longer ADDED to the coupons you were expecting.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0260",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“the screen shows $0 with a sentence explaining nothing is entered, and the door.” On a fresh account a screen keeps its shape, shows $0, says plainly that nothing is entered, and offers the way to enter it — rather than a blank space or a dash.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0271",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“money arriving in a month → take-home; ‘Base salary (take-home)’, ‘Income (take-home)’; cash flow always ‘Inflow (income (take-home) + rent)’.” One word for money arriving, and the inflow line names what is inside it.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0292",
+      "cards": [
+        "MK-CF-O-010",
+        "MK-CF-O-003"
+      ],
+      "verdict": "HELD",
+      "why": "Use the newer approved drawing plus DEC-8152 correction:planned350actual900,not older750/1300.",
+      "decision_in_force": "A worked example of the This-month screen in his own numbers: take-home 5,000, mortgage 2,000, car 250, expenses 2,000, a HELOC payment of 200 from the big-ticket list and a 200 card payment entered by hand, leaving a surplus of 750 — with the actual column beside it. The rows have to add up to the surplus, which is what the example pins.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0333",
+      "cards": [
+        "MK-CF-F-005",
+        "MK-CF-F-194"
+      ],
+      "verdict": "HELD",
+      "why": "Currentactualoutflow delegates expensesplusdebtpaidto monthOutflow and Home reads the same declared door.",
+      "decision_in_force": "“agree; ensure compliance with the synonym ruling.” Agreed, with the condition that the change also obeys the one-word-per-concept rule.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0393",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“Again context is important. Term to represent Net amount person get should be ‘take-home’. In context of take home base salary use ‘Base salary (take-home)’.” One word for the concept, with the context named in brackets — not a different word per screen.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0512",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "HIS QUESTION: “Are the month bars cash flows — inflow / outflow?”",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-1923",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Current actualcounts only loggeddebt and home-mortgage suppressionexists,but legacy cashflowYear omitsdebt and otherduplicatebudgetdebtslacklinks.",
+      "decision_in_force": "A mortgage or any debt is taken from Debts, by the app, wherever a planned figure needs it — surplus, the emergency fund, anywhere. The person does not add it to planned expenses. On the actual side nothing is assumed paid: a debt counts only when its payment is logged.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-020-C01",
+        "MK-CF-F-020-C02",
+        "MK-CF-F-020-C03",
+        "MK-CF-F-020-C04",
+        "MK-CF-O-020-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7606",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his ruling DEC-3523 (tenet 3), made without asking him, as his order of 2026-09-30 says. A household with no income entered: Home's box read a red \"Over\" and Left $0; it now reads Income $0 · Nothing entered yet. Add your income › · Outflow (expenses + debt) $0 · Left —, with no pace word and no share spent, because the Cash flow tab draws no surplus then. With $500 logged and still no income, Left still reads —. To reverse: print $0 again. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7607",
+      "cards": [
+        "MK-CF-F-005"
+      ],
+      "verdict": "HELD",
+      "why": "Approvedactualinflow is projected monthtake-home;receivedlogs are listed separately and not added twice. This remains a hybrid view and needs honestlabels.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-0440 and DEC-3523 (tenet 4), made without asking him, as his order of 2026-09-30 says. His approved drawing (DEC-0440, 2026-09-28) is newer than the 2026-08-28 words \"nothing is assumed to have arrived\", and the newest approval wins. With $500 recorded as received, Home read $7,700 against Cash flow's $7,200; both read $7,200. The row's formula now says, in plain words, that the inflow is the month's take-home. This settles screen check MK-CF-M-051#1, which was marked as needing a ruling. To reverse: count only recorded payments; both screens move together. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-7609",
+      "cards": [
+        "MK-CF-F-005",
+        "MK-CF-F-194"
+      ],
+      "verdict": "HELD",
+      "why": "Currentactualoutflow delegates expensesplusdebtpaidto monthOutflow and Home reads the same declared door.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-0269 and DEC-0345, made without asking him, as his order of 2026-09-30 says. Worked September: Home's box label \"Actual expenses so far\" replaced by \"Outflow (expenses + debt)\". The box read Actual expenses so far $2,998 · Left $4,202; it now prints the Cash flow tab's month, Outflow (expenses + debt) $3,248 with the $250 car loan paid, Left $3,952 on both. Home's month-end sheet offers \"$3,952 of $3,952 left to assign\" (it offered $4,202). To reverse the label: put the old label back; the figures stay the Cash flow tab's. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-7611",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Dated budgetreaders honor own-month bills,but budgetVsActual still uses annual-average spendBuckets.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-0002, DEC-0447 and DEC-0345, made without asking him, as his order of 2026-09-30 says. September with $700 of groceries and a $1,200 bill in December: This month −$700, the Expenses tab $700 (it read $800, with Once in a while $100), Home's September record $700. December: $1,900 on all three (Once in a while $1,200). A budget whose only line is the December bill reads $0 planned in September on both tabs — set, never \"You haven't set your budget yet\". A once-in-a-while bill with no month set is still a twelfth a month, as before. To reverse: build the Expenses tab's rows from the monthly average again. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-014-C02",
+        "MK-CF-F-014-C03",
+        "MK-CF-F-014-C04",
+        "MK-CF-F-014-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7682",
+      "cards": [
+        "MK-CF-F-156"
+      ],
+      "verdict": "HELD",
+      "why": "Missingdebtpayment produces a reason and blocks planned surplus as stated. No-budget refusal is separately incomplete.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-23 under his rulings DEC-3523 (tenet 3) and DEC-0345, made without asking him, as his order of 2026-09-30 says. A car loan with no monthly payment entered, with a budget set: the band read \"+No budget set — …\" and the debt's row printed a sentence written for the master file. The row now reads \"payment not entered\" where the amount would be, the band reads —, and under the rows: \"Car loan's payment is not entered, so there is no planned surplus — we won't guess one.\" ACTUAL is unchanged. To reverse: give the debt's row and the surplus their earlier words. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-156-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-7937",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0264 and DEC-3523 (tenet 2), made without asking him, as his order of 2026-09-30 says. Frame A's household with a $6.50 coffee: the rows made $893 but the surplus read +$894, and Home's Left $894; both read +$893. The rows share the rounded total, each rounded down, the dollars still missing going to the rows with the most cents left over; a whole-dollar row never moves. It is the method the Performance walk already uses. The Bill calendar's rows do the same: each End is the balance rounded to the dollar, and In and Out share the change between two Ends — from $3,000, $5,415.83 in and $1,198.77 out read Sep +$5,416 · −$1,199 · $7,217. To reverse: round every row and every total on its own again. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7938",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Part-yeartake-home rate multiplies twelve months,so paidmonths do not preserve the enteredtake-home.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0283 and DEC-3523 (tenets 1 and 4), made without asking him, as his order of 2026-09-30 says. $9,000 a month with $1,000 into a 401(k), single: the months read $7,976 while Your base pay read $6,976; all read $6,976 (22%), then $7,403 filing jointly (12%) and $6,963 with $1,500 into the 401(k). A take-home typed as $6,200 reads $6,200 (it read $7,200). A rate the person gave is not laid on rent, and reinvested interest and dividends are not counted as arriving. Checked in 10 of 10 households against the Income summary. The drawing's own words already said after tax and 401(k). To reverse: take the tax off the wage and leave the 401(k) in. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-233-C03",
+        "MK-CF-F-233-C04",
+        "MK-CF-F-233-C05",
+        "MK-CF-F-234-C04"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7939",
+      "cards": [
+        "MK-CF-F-156"
+      ],
+      "verdict": "NOT HELD",
+      "why": "buildBudgetState still treats absentbudgetas0,and plannedMonthFlow finalrefusalconditiondoesnotexplicitlyincludenobudget.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0002, DEC-0447, DEC-1923 and DEC-3523 (tenets 3 and 4), made without asking him, as his order of 2026-09-30 says. With nothing set the card read Expenses (plan) $0 and Planned surplus $2,350 beside This month's not set; it now reads — not set and no planned surplus. With a $1,200 bill in December, September's card reads without it (it read $100 a month of it), and a Rent / Mortgage line is not counted when the home's mortgage is in Debts. In the founder's fresh account: $1,200 set reads +$1,550, and Dining out $300 → $450 reads +$1,400, on the card, This month and Expenses alike. A screen reader names each limit box by its category (it heard No limit fifteen times). It amends DEC-7610, which kept the editor on the typical month. To reverse: give the card its own typical month again. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-001-C05",
+        "MK-CF-F-156-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-7940",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Explicit one-time-year handling is present for dated otherincome,but missingyear still recurs and legacy onboarding fixes signingbonus toJanuary.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0447 and DEC-0196, made without asking him, as his order of 2026-09-30 says. Add your income offered Bonus / one-time as one choice, which opened the yearly bonus editor, so a one-time $2,000 came back the next September and stayed in the next year's taxed income. Bonus and One-time income are now two choices; one-time income keeps its month with its year and lands once. Your sources lists it: Bonus · one-time · lands in September $2,000 (nothing said why THIS MONTH read $7,195). September reads $7,195 on the Income tab, This month and Home; October $5,396; 2027 is back to $5,416. Under his one-rate rule (DEC-0196, ruled as G46) the bonus raises the rate for every month that year, so October falls by $19.88; that is his rule, left as it is. An unpaid one-time bill dated in a passed month stays in Later; only income that has landed leaves it. To reverse: one choice to the bonus editor, and no row for other income. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-071-C05",
+        "MK-CF-F-079-C03",
+        "MK-CF-F-079-C04",
+        "MK-CF-F-079-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7946",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0269 and DEC-3523 (tenets 1 and 3), made without asking him, as his order of 2026-09-30 says. September's band read SEPTEMBER 2026 — FINAL — WHAT ACTUALLY HAPPENED under a switcher already saying final; it reads \"SEPTEMBER 2026 — WHAT ACTUALLY HAPPENED\". November's card named the wrong bill, incl. Everyday expenses, and said Nothing entered yet with a budget entered; it reads \"Planned outflow (expenses + debt) $800\", names a dated bill only, and says nothing is entered only when the month plans $0. The words are those of the last drawing of that card, the archived this-month-and-spending v02. To reverse: give the band, the outflow line and the note their earlier words. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-7949",
+      "cards": [
+        "MK-CF-F-231"
+      ],
+      "verdict": "NOT HELD",
+      "why": "Late additions are detected only when saved_at exists;missing timestampreturnsnoneinstead of unknowncoverage.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-3523 (tenets 1 and 4), made without asking him, as his order of 2026-09-30 says. A $150 grocery purchase dated Sep 25, imported on Oct 3, after September's record was saved: it was listed with nothing said, the card reading $1,510 and the list $1,360. The row now says, under its name, that it was added after September closed and is not in September's figures, and under the total that $150 of it was added after September closed. The card stays $1,510: a past month never changes under the person. To reverse: drop the two lines. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-231-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-8084",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-0192 and DEC-3523 (tenet 4), made without asking him, as his order of 2026-09-30 says. Each of the four numbers had two register keys. On 2026-10-02, when the hand-typed rows became declarations, each was handed to another figure: MK-CF-M-001 now Expenses, MK-CF-M-002 = Planned surplus (this month), MK-CF-M-003 = Actual surplus so far, MK-CF-M-004 each row of the month. The four original keys are retired, each with its reason and where its figure lives now: Expected in is MK-CF-M-047, Planned out is MK-CF-M-048, the grid month's = Planned surplus is MK-CF-M-049, and Out (spent + debt) is MK-CF-M-052. Renumbering back would touch about 17 code files, 7 test files and some 60 documents, approved drawings among them. The old anchors follow their figures: G12 (DEC-0333) and the 2026-08-27 worked example (DEC-0292) now name MK-CF-M-052 and MK-CF-M-048, and DEC-0260's $0 rule MK-CF-M-052. DEC-0002, his approval of the whole Cash flow surface, is kept as it is. MK-CF-M-002 and MK-CF-M-049 stay two figures: this month's planned surplus counts every debt's payment this month, the grid's later months count a debt from its first payment (a $250 car loan whose first payment is next month). His words are untouched. To reverse: restore moneykeel_metric_register.json, moneykeel_rulings.json and moneykeel_decisions_anchors.json from the scratchpad backup-1024b/. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-8085",
+      "cards": [
+        "MK-CF-F-005",
+        "MK-CF-F-194"
+      ],
+      "verdict": "HELD",
+      "why": "Currentactualoutflow delegates expensesplusdebtpaidto monthOutflow and Home reads the same declared door.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his ruling DEC-0333, made without asking him, as his order of 2026-09-30 says. His ruling DEC-0333 (G12, 2026-09-12): the month's outflow, expenses and debt paid, comes from one function, MK-CF-F-194 monthOutflow, never from the screen. Only a past month used it: this month's outflow was summed inside MK-CF-F-005 actualMonthFlow, and Home added the rows again. Both now hand the month's expenses so far and debt paid so far to monthOutflow, and Home prints the door's inflow and outflow. The dollars do not move: A $3,248 · C $9,248 · D $3,548 · E $3,398, and a past month $2,998 + $250 = $3,248. DEC-0333 stays TESTED, now on eight checks in the agreement test. To reverse: restore this-month.ts from the scratchpad backup-1024b/ and revert the two lines in HomeScreen.tsx. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-8152",
+      "cards": [
+        "MK-CF-O-010",
+        "MK-CF-F-005"
+      ],
+      "verdict": "HELD",
+      "why": "Both200HELOC and200cardpayments are deducted once in the approved household;rowsgive350plannedand900actual.",
+      "decision_in_force": "“count them.” His answer to master question Q50, on his own 2026-08-27 worked example: the HELOC payment of 200 and the card payment of 200, which his spending section counts as expenses, come off the surplus too. His household's planned surplus is 350 and its actual 900, not 750 and 1,300.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-8153",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. New per-month debt readersrespect inclusive start/payoff bounds and a balloon’s due-month balance.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-1923 and DEC-3523 (tenets 1 and 4), made without asking him, as his order of 2026-09-30 says. One rule for a debt in a month, in two new shared functions, MK-CF-F-235 paysInMonth and MK-CF-F-236 paymentInMonth: from its first payment to its payoff, and a balance due in full once, in its month, at its balance. A $7,200 take-home, a $3,400 budget, the $2,400 mortgage, a $250 car loan whose first payment is Oct 28, a $300 loan paid off in August and a $1,000 tax bill due in full Sep 20: September's planned surplus read +$850, the car loan and the paid-off loan counted and the tax bill left out; it reads +$400 = 7,200 − 3,400 − 2,400 − 1,000, what the Bill calendar's September holds. October's card is unchanged, $1,150. ACTUAL no longer lists the car loan as due the 28th at $0; MONTHLY RECURRING EXPENSES reads $2,400 (it read $2,650); the tax bill is on the BIG-TICKET RADAR at $1,000; Home's due-soon reminder no longer fires for a loan not yet started. MK-CF-M-047, 048 and 049 now say they print on a later month's plan card, from the grid ($7,200 / $6,050 / $1,150), and the retired surplus line and the paycheck card's SURPLUS have their own number, MK-CF-M-078 (it printed under MK-CF-M-049). To reverse: count every debt's payment in this month again, whatever its dates. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    }
+  ]
+}

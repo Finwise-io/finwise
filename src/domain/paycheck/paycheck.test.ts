@@ -108,3 +108,45 @@ describe('buildPaycheckYear — the month-by-month truth', () => {
     expect(shortHorizon.drawRateFlag).toBe('high');
   });
 });
+
+// ── THE RETURN THE PAYCHECK RUNS ON IS THE COCKPIT'S (2026-10-25, FIX-ROOM; the lead's ruling on CFR-4's second question) ──
+// One number on both screens: for every basis the cockpit offers, paycheckReturn gives exactly the return and volatility
+// MK-PL-F-067 willItLastInputs hands the Retirement cockpit's simulation — read from the cockpit's own function, never retyped.
+import { paycheckReturn } from './index';
+import { willItLastInputs } from '../retirement/willItLast';
+
+describe('paycheckReturn — the Retirement cockpit\'s return, one number on both screens (agreement)', () => {
+  const op = { birthYear: 1958, status: 'retired', monthlySpending: 4000 };
+  const STOCKS = { asset_id: 's', kind: 'stocks_etf', label: 'Stocks / Funds', tax_bucket: 'TAXABLE', balance: 300_000, retirement_pct: 100 };
+  const BONDS = { asset_id: 'b', kind: 'fixed_income', label: 'Fixed income', tax_bucket: 'TAXABLE', balance: 100_000, retirement_pct: 100 };
+  const CASES: [string, any[], Record<string, any>][] = [
+    ['nothing set aside, nothing set', [], {}],
+    ['nothing set aside, the store\'s nulls', [], { expectedReturn: null, returnBasis: null }],
+    ['accounts, no return set (the blended benchmark)', [STOCKS, BONDS], {}],
+    ['accounts, a return set on the Plan (scenario)', [STOCKS, BONDS], { expectedReturn: 0.1, returnBasis: 'scenario' }],
+    ['accounts, the 12-month basis', [STOCKS, BONDS], { returnBasis: 'actual' }],
+    ['no accounts, a return set on the Plan', [], { expectedReturn: 0.07, returnBasis: 'scenario' }],
+  ];
+  test.each(CASES)('%s', (_name, accounts, assumptions) => {
+    const cockpit = willItLastInputs({ op, accounts, assumptions } as any)!;
+    const pay = paycheckReturn(accounts as any, assumptions, op);
+    expect(pay.mean_return).toBe(cockpit.mean_return);
+    expect(pay.vol_return).toBe(cockpit.vol_return);
+  });
+  test('with nothing set aside and nothing set: 6.00% a year, volatility 10.2% — and the figure is stated, not hidden', () => {
+    const r = paycheckReturn([], {}, op);
+    expect([r.mean_return, r.vol_return, r.basis]).toEqual([0.06, expect.any(Number), 'typical']);
+    expect(r.vol_return).toBeCloseTo(0.102, 12);   // volOf(6%) = 6% × 1.7
+    expect(r.said).toBe('6.00%/year — the typical return, with nothing set aside for retirement');   // canon row 14 (2026-10-26)
+  });
+  test('a return set on the Plan is named as such; the blended benchmark as such', () => {
+    expect(paycheckReturn([], { expectedReturn: 0.07, returnBasis: 'scenario' }, op).said).toBe('7.00%/year — your scenario return');
+    const blended = paycheckReturn([STOCKS, BONDS] as any, {}, op);
+    expect(blended.basis).toBe('benchmark');
+    // the agreement above is not two 6% stand-ins agreeing: these accounts blend to their own rate
+    expect(blended.mean_return).not.toBe(0.06);
+    expect(blended.said).toBe(`${(blended.mean_return * 100).toFixed(2)}%/year — the blended benchmark`);
+    // the paycheck ran 5.5% here until now (useCashflowModel, `A.expectedReturn ?? 0.055`): the two screens disagreed
+    expect(blended.mean_return).not.toBe(0.055);
+  });
+});

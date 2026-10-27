@@ -4,7 +4,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { secureStorage } from './secureStorage';
-import { assetsFromOnboarding, isRealAsset, type AssetAccount } from '../domain/assets';
+import { assetsFromOnboarding, isRealAsset, holdingClassOf, holdingTagFor, type AssetAccount } from '../domain/assets';
 import { settleBondValue } from '../../MoneyKeel/functions/networth-and-performance/bonds';   // the one value rule, through the bonds door (DEC-0281)
 import { benchmarkTicker, marketValue, latestCloseLookup, closeOnOrBefore, paidOnRecord, type Position, type PriceSeries } from '../domain/performance';
 import { applyTransaction, makeTransaction, undoSnapshot, restoreUndo, inverseOf, openingRecordsOf, tradeMultiplierOf, type Transaction } from '../domain/transactions';
@@ -13,7 +13,7 @@ import { fetchPriceSeries } from '../services/marketData';
 
 // Recompute the cached `balance` of every ledger-managed account = cash sleeve + Σ(position × live price).
 // Pure manual accounts (no positions, no cash sleeve) keep their entered balance.
-/* ─ MK-XS-F-174 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-XS-F-174 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * recomputeBalances
  *
  * Answers ..... Recompute the cached `balance` of every ledger-managed account = cash sleeve + Σ(position × live price).
@@ -30,9 +30,9 @@ import { fetchPriceSeries } from '../services/marketData';
  *     balance = (cash balance or 0) + mv
  *
  * Called by ... MK-CF-F-136 bumpCash · MK-ST-F-027 accountId
- *               MK-ST-F-028 buildDayFromAccounts · MK-XS-F-175 uid
+ *               MK-ST-F-028 buildDayFromAccounts · MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -42,7 +42,7 @@ import { fetchPriceSeries } from '../services/marketData';
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -99,7 +99,7 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
  *  balance the app lowers by itself (a bond split out of an account, a sale) carries no date and moves no history.
  *  The month records (monthlySnapshots) are left as captured: a month's point is read as its first day, so moving it
  *  would take a change out of a window that holds it. */
-/* ─ MK-XS-F-192 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-XS-F-192 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * typedValueDatedBack
  *
  * Answers ..... A VALUE TYPED WITH AN EARLIER "VALUE AS OF" DATE GOES ON THAT DATE (2026-10-20).
@@ -116,19 +116,10 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
  *     nw daily = nw daily
  *     inv daily = inv daily
  *
- * Called by ... MK-XS-F-175 uid
+ * Called by ... MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
- *               … and 35 more — the full list is on functions_from_code
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -167,7 +158,7 @@ import { rebuildDays, fillBetweenObservations } from '../../Calculation Module c
 import { newEntityId } from '../domain/_shared/ids';
 import { goalsFromOnboarding } from '../domain/goals';
 import { setMoneyFormat, CURRENCIES } from '../domain/_shared/money';
-import { isoLocalDate } from '../domain/_shared/dates';
+import { isoLocalDate, localMoment } from '../domain/_shared/dates';
 
 export type IncomeEntry = {
   id: string;
@@ -195,6 +186,9 @@ export type ExpenseEntry = {
    *  entered by hand" and "Expenses imported from your card" — and without this they cannot be told
    *  apart, which is why the screen showed one merged row (2026-09-30). */
   origin?: 'imported';
+  /** A DEBT PAYMENT names the debt it was paid on, by its id (2026-10-25, FIX-MONTH; DEC-1923): it is matched to that debt and
+   *  never to another of the same name. Payments logged before then carry only the debt's name, in `store`. */
+  debtId?: string;
 };
 
 export type SavingsEntry = {
@@ -389,6 +383,9 @@ type AppState = {
   deleteBigCost: (id: string) => void;
   allocatedByMonth: Record<string, number>;     // 'YYYY-MM' → total savings allocated to assets
   allocPromptSkipped: Record<string, boolean>;   // months where the user dismissed the allocate prompt
+  /** the cash on hand typed on the Bill calendar, kept with the day it was typed (2026-10-25, the lead's ruling on BC-02) */
+  billCalendarStart: { amount: string; date: string } | null;
+  setBillCalendarStart: (v: { amount: string; date: string } | null) => void;
   monthlySnapshots: Record<string, any>;         // 'YYYY-MM' → frozen month-end metrics (net worth, income, spend, savings, debt)
   nwDaily: Record<string, number>;               // 'YYYY-MM-DD' → net worth chart point (founder 2026-07-19: graph within days); pruned to DAILY_KEEP
   invDaily: Record<string, number>;              // 'YYYY-MM-DD' → cash+investments point — the NW change-% denominator (founder rule 2026-08-04)
@@ -595,19 +592,6 @@ const DEFAULT_BADGES: Badge[] = [
  *
  * Formula .....
  *     math.random().to string(36).slice(2, 10) + date.now().to string(36)
- *     t   when type ! = 'TRANSFER_IN_KIND' (or direction when missing or zero)
- *     {}   when f is missing
- *     {}   when goals seeded
- *     goals seeded = true   when count of fresh is missing
- *     a   when it is missing
- *     g   when it is missing
- *     {}   when reclassify version = RECLASSIFY_VERSION
- *     {}   when count of linked is missing
- *     rebuilt from = out.start by account
- *     rebuilt at = the date ).to isostring(   when count of out.days is missing
- *     {}   when prev is missing
- *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
- *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-CF-F-001 buildBudgetState · MK-CF-F-013 budgetFromOnboarding
  *               MK-CF-F-015 loadBudget · MK-CF-F-017 publishSurplus
@@ -631,18 +615,58 @@ const DEFAULT_BADGES: Badge[] = [
  *               MK-XS-F-074 loadUserData · MK-XS-F-077 setUserHousehold
  *               MK-XS-F-078 joinHouseholdMembership · MK-XS-F-079 loadUserRoot
  *               MK-XS-F-138 deriveKeyFromSecret · MK-XS-F-139 wrapWithSecret
+ *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
  *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
  *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
+ *               MK-PL-F-011 buildGoalsState · MK-CF-F-049 buildIncomeState
+ *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-186 convertTakeHomeMode
  *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
  *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
  *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
- *               … and 35 more — the full list is on functions_from_code
+ *               … and 38 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-175
+ * Changed ..... not in git yet (—)
+ */
+function uid() {
+  return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+}
+
+/** A PROFILE ON ITS WAY INTO THE STORE — the one set of once-only moves, wherever it comes from: a save, the phone's own copy
+ *  when the app opens, or the cloud copy (2026-10-25, CF-MMFIX-B; drawing check IN-09). The take-home typed the old way was
+ *  converted only on a save, so the founder's household opened Your base pay with $5,000 in the GROSS box, "Calculated federal
+ *  tax ≈$0/month" and "We'll calculate ≈$5,000/month" until something else was saved. Both moves change nothing a second time. */
+/* ─ MK-XS-F-199 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * profileOnTheWayIn
+ *
+ * Answers ..... A PROFILE ON ITS WAY INTO THE STORE — the one set of once-only moves, wherever it comes from: a save, the phone's own copy when the app opens, or the cloud copy (2026-10-25, CF-MMFIX-B; drawing check IN-09).
+ *
+ * Formula .....
+ *     require('.. ÷ domain ÷ income ÷ old − rent − migration').move old rent figure(require('.. ÷ domain ÷ income ÷ take − home − mode − migration').convert take home mode(p))
+ *     t   when type ! = 'TRANSFER_IN_KIND' (or direction when missing or zero)
+ *     {}   when f is missing
+ *     {}   when goals seeded
+ *     goals seeded = true   when count of fresh is missing
+ *     a   when it is missing
+ *     g   when it is missing
+ *     {}   when reclassify version = RECLASSIFY_VERSION
+ *     {}   when count of linked is missing
+ *     rebuilt from = out.start by account
+ *     rebuilt at = the date ).to isostring(   when count of out.days is missing
+ *     {}   when prev is missing
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -663,11 +687,11 @@ const DEFAULT_BADGES: Badge[] = [
  *     · Uses a built-in total of 0.
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
  *
- * Formula also on the master file · functions_from_code · MK-XS-F-175
+ * Formula also on the master file · functions_from_code · MK-XS-F-199
  * Changed ..... not in git yet (—)
  */
-function uid() {
-  return Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+function profileOnTheWayIn<T>(p: T): T {
+  return require('../domain/income/old-rent-migration').moveOldRentFigure(require('../domain/income/take-home-mode-migration').convertTakeHomeMode(p));
 }
 
 export const useStore = create<AppState>()(
@@ -714,6 +738,7 @@ export const useStore = create<AppState>()(
       deleteBigCost: (id) => set((st: any) => ({ bigCosts: (st.bigCosts ?? []).filter((x: any) => x.id !== id) })),
       allocatedByMonth: {},
       allocPromptSkipped: {},
+      billCalendarStart: null,
       monthlySnapshots: {},
       nwDaily: {},
       invDaily: {},
@@ -784,8 +809,7 @@ export const useStore = create<AppState>()(
       // The take-home mode is converted here, once, on its way in — so no screen and no function
       // below this line ever sees it again. See take-home-mode-migration.ts for why.
       // The old single rent figure is moved into the rent list the same way, once (old-rent-migration.ts).
-      setOnboardingProfile: (p) => set({ onboardingProfile: p
-        ? require('../domain/income/old-rent-migration').moveOldRentFigure(require('../domain/income/take-home-mode-migration').convertTakeHomeMode(p)) : p }),
+      setOnboardingProfile: (p) => set({ onboardingProfile: p ? profileOnTheWayIn(p) : p }),
       setSelectedGoals: (goals) => set({ selectedGoals: goals }),
       setBudgetFrequency: (f) => set({ budgetFrequency: f }),
       setPayFrequency: (f) => set({ payFrequency: f }),
@@ -908,8 +932,15 @@ export const useStore = create<AppState>()(
       updatePosition: (accountId, positionId, patch) => set((s) => {
         // B7: a class the person sets themselves outranks every automatic rule and survives every
         // sync — stamp it, and clear any pending class-change flag (their answer resolves it).
-        const classed = patch.asset_class != null
-          ? { ...patch, class_source: 'user' as const, class_flag: undefined, class_asked: undefined } : patch;
+        // A HOLDING MARKED TO BE ASKED IS ANSWERED BY THE TYPE SAVED FOR IT (2026-10-25, FIX-HOLDINGS item 4; his DEC-2160 "Refuse the
+        // line and ask", step 4: the mark is cleared when the person answers). Edit holding saves a type, never a class, so the mark
+        // stood and Net worth kept asking — a linked holding's too. The type's class is stored under its tag as the person's own
+        // answer, so a sync keeps it (ingest reads a 'user' class first). To reverse: drop answerTag.
+        const was = (s.assetAccounts.find((a) => a.asset_id === accountId)?.positions ?? []).find((p) => p.position_id === positionId);
+        const answerTag = patch.asset_class == null && patch.kind != null && was?.class_asked === true && was.class_source !== 'user'
+          ? holdingTagFor(holdingClassOf({ kind: patch.kind } as Position)) : null;
+        const classed = patch.asset_class != null || answerTag != null
+          ? { ...patch, ...(answerTag != null ? { asset_class: answerTag } : {}), class_source: 'user' as const, class_flag: undefined, class_asked: undefined } : patch;
         // …and so does a cost they set on a linked holding: quantity, price and value can change with
         // time, cost cannot — so the next sync keeps their cost per share (the same ruling, Q12)
         const linked = s.assetAccounts.find((a) => a.asset_id === accountId)?.source === 'connected';
@@ -931,7 +962,9 @@ export const useStore = create<AppState>()(
       }),
       recordTransaction: (partial) => set((s) => {
         const t = makeTransaction(partial);
-        // an option's buy or sale carries the shares in one contract, as its holding states them (2026-10-23; DEC-0274, DEC-4646)
+        // an option's buy or sale carries the shares in one contract, as its holding states them (2026-10-23; DEC-0274, DEC-4646) —
+        // or, for a ticker the account does not hold yet, as the record states them: the type and the shares per contract the
+        // trade sheet asks (2026-10-25, MK-CF-F-223), so a first buy of 1 contract at $2.50 moves $250
         const perContract = tradeMultiplierOf(s.assetAccounts, t);
         if (perContract !== 1 && t.multiplier == null) t.multiplier = perContract;
         t.undo_prev = undoSnapshot(s.assetAccounts, t);   // pre-apply copies -> deletes can reverse exactly
@@ -1095,6 +1128,7 @@ export const useStore = create<AppState>()(
         return { goals, allocatedByMonth: { ...s.allocatedByMonth, [ym]: (s.allocatedByMonth[ym] ?? 0) + total } };
       }),
       skipAllocPrompt: (ym) => set((s) => ({ allocPromptSkipped: { ...s.allocPromptSkipped, [ym]: true } })),
+      setBillCalendarStart: (v) => set({ billCalendarStart: v }),
       // Freeze a month's metrics. The CURRENT month is overwritten on each change (so it ends the month
       // at its final state); past months stay frozen. We keep ALL months (history is cheap, data is key).
       captureMonthlySnapshot: (ym, data) => set((s) => ({ monthlySnapshots: { ...s.monthlySnapshots, [ym]: { ...data } } })),
@@ -1197,7 +1231,10 @@ export const useStore = create<AppState>()(
 
         const updatedRecurring = state.recurringIncomes.map((r) => {
           if (!r.active) return r;
-          let next = new Date(r.nextDate);
+          // the next date on the person's own calendar: "2026-09-01" is Sep 1 here, not Aug 31 (CF-21, 2026-10-25)
+          const at = localMoment(r.nextDate);
+          if (!at) return r;                   // no day to land on: nothing is made up
+          let next = at;
           next.setHours(0, 0, 0, 0);
           if (next > today) return r;
 
@@ -1207,7 +1244,7 @@ export const useStore = create<AppState>()(
               type: 'recurring',
               amount: r.amount,
               source: r.source,
-              date: next.toISOString(),
+              date: isoLocalDate(next),   // the day it lands, where the person is — never London's (CF-21)
               notes: `Auto: ${r.frequency}`,
             });
             if (r.frequency === 'monthly') {
@@ -1240,7 +1277,9 @@ export const useStore = create<AppState>()(
 
         const updated = state.recurringExpenses.map((r) => {
           if (!r.active) return r;
-          let next = new Date(r.nextDate);
+          const at = localMoment(r.nextDate);  // the person's own calendar (CF-21)
+          if (!at) return r;
+          let next = at;
           next.setHours(0, 0, 0, 0);
           if (next > today) return r;
 
@@ -1250,7 +1289,7 @@ export const useStore = create<AppState>()(
               amount: r.amount,
               category: r.category,
               store: r.store,
-              date: next.toISOString(),
+              date: isoLocalDate(next),   // the day it lands, where the person is (CF-21)
               notes: r.notes || `Auto: ${r.frequency}`,
             });
             if (r.frequency === 'monthly') {
@@ -1293,7 +1332,7 @@ export const useStore = create<AppState>()(
             amount: parseFloat(r.amount) || 0,
             category: r.category || 'Other',
             store: r.store || r.merchant || '',
-            date: r.date || new Date().toISOString(),
+            date: r.date || isoLocalDate(new Date()),   // no date in the file: today, where the person is (CF-21)
             notes: r.notes || '',
             createdAt: new Date().toISOString(),
             // IMPORTED SAYS SO (2026-09-30). The approved cash-flow mock draws TWO rows under
@@ -1355,7 +1394,7 @@ export const useStore = create<AppState>()(
       addBigCost: (c) => set((st: any) => ({ bigCosts: [...(st.bigCosts ?? []), { id: `bc_${(st.bigCosts?.length ?? 0) + 1}_${c.year}`, ...c }] })),
       updateBigCost: (id, patch) => set((st: any) => ({ bigCosts: (st.bigCosts ?? []).map((x: any) => x.id === id ? { ...x, ...patch } : x) })),
       deleteBigCost: (id) => set((st: any) => ({ bigCosts: (st.bigCosts ?? []).filter((x: any) => x.id !== id) })),
-      allocatedByMonth: {}, allocPromptSkipped: {}, monthlySnapshots: {}, nwDaily: {}, invDaily: {}, snapshotDays: [], rebuiltFrom: {}, rebuiltAt: null,
+      allocatedByMonth: {}, allocPromptSkipped: {}, billCalendarStart: null, monthlySnapshots: {}, nwDaily: {}, invDaily: {}, snapshotDays: [], rebuiltFrom: {}, rebuiltAt: null,
         retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, targetNestEgg: null, debtExtraMonthly: null, actualReturn: null, returnBasis: null },
       estatePlan: {},
         retirementScenarios: [], planHistory: [],
@@ -1392,7 +1431,7 @@ export const useStore = create<AppState>()(
       loadFromCloud: (data) => set((s) => ({
         ...s,
         ...data,
-        ...(data?.onboardingProfile ? { onboardingProfile: require('../domain/income/old-rent-migration').moveOldRentFigure(data.onboardingProfile) } : {}),
+        ...(data?.onboardingProfile ? { onboardingProfile: profileOnTheWayIn(data.onboardingProfile) } : {}),   // the take-home too (IN-09)
         user: s.user,
       })),
     }),
@@ -1405,7 +1444,7 @@ export const useStore = create<AppState>()(
       merge: (persisted: any, current) => {
         const p = { ...current, ...(persisted ?? {}) } as typeof current;
         return p.onboardingProfile
-          ? { ...p, onboardingProfile: require('../domain/income/old-rent-migration').moveOldRentFigure(p.onboardingProfile) }
+          ? { ...p, onboardingProfile: profileOnTheWayIn(p.onboardingProfile) }   // the take-home too (IN-09, 2026-10-25)
           : p;
       },
     }
@@ -1420,7 +1459,7 @@ export const useStore = create<AppState>()(
  *
  * Formula .....
  *     now = new date()
- *     d = the date date
+ *     d = local moment(date) (or the date na n when missing)
  *     the answer = to date string() = now.to date string()
  *     week ago = the date now.get time() − 7 × 86400000
  *     period income = Σ over incomes where filter by period(date) of (amount)
@@ -1449,7 +1488,7 @@ export function useMonthlyStats() {
   const now = new Date();
 
   const filterByPeriod = (date: string) => {
-    const d = new Date(date);
+    const d = localMoment(date) ?? new Date(NaN);   // the stored day where the person is: "2026-08-01" is August's (CF-21)
     if (budgetFrequency === 'daily') {
       return d.toDateString() === now.toDateString();
     } else if (budgetFrequency === 'weekly') {
@@ -1483,7 +1522,7 @@ export function useMonthlyStats() {
  *
  * Formula .....
  *     now = new date()
- *     d = the date date
+ *     d = local moment(date) (or the date na n when missing)
  *     to date string() = now.to date string()   when budget frequency = 'daily'
  *     d ≥ new date(now.get time() − 7 × 86400000)   when budget frequency = 'weekly'
  *     the answer = get full year() = now.get full year() and get month() = now.get month()
@@ -1505,7 +1544,7 @@ export function useCategorySpend() {
   const { expenses, budgetFrequency } = useStore();
   const now = new Date();
   const filtered = expenses.filter((e) => {
-    const d = new Date(e.date);
+    const d = localMoment(e.date) ?? new Date(NaN);   // "2026-08-01" read as Aug 1 where the person is, not Jul 31 (CF-21)
     if (budgetFrequency === 'daily') return d.toDateString() === now.toDateString();
     if (budgetFrequency === 'weekly') return d >= new Date(now.getTime() - 7 * 86400000);
     return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();

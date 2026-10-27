@@ -8,7 +8,8 @@
 // this person's accounts actually paid. An estimate on a tax page would be read as a figure to file.
 import { declareFigures } from '../_figure-spec';
 import { taxOrganizer, type TaxOrganizer } from '../../../src/domain/planning';
-import { incomeFromAccounts } from '../../../src/domain/income/from-accounts';
+import { interestAndDividendsForYear } from '../../../src/domain/income/from-accounts';
+import { profileWithAccountIncome } from '../../../src/domain/income/onboarding';
 
 /** What will my taxes look like: each taxable line, the deduction and the tax?
  *  ── ORCHESTRATOR ── the one function a screen asks for this.
@@ -22,12 +23,25 @@ import { incomeFromAccounts } from '../../../src/domain/income/from-accounts';
  *
  * Formula .....
  *     year = input.year (or the date ).get full year( when missing)
- *     actual passive = round(income from accounts(input.accounts ?? [], input.transactions ?? []).annual)
+ *     interest = interest and dividends for year(input.profile, input.accounts ?? [], input.transactions ?? [], year)
+ *     as of = new date()   if year = new date().get full year()
+ *     the date year, 11, 31, 12   otherwise
+ *     profile = profile with account income(input.profile, input.accounts ?? [], input.transactions ?? [], as of)
+ *     the answer = tax organizer(profile, { accounts: input.accounts ?? [], liabilities: input.debts ?? [], interest, year })
  *
  * Called by ... MK-CF-F-202 TAX
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-202 TAX
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -38,7 +52,6 @@ import { incomeFromAccounts } from '../../../src/domain/income/from-accounts';
  *
  * Decides .....
  *     · Uses today's date from the device clock, so the answer changes by itself overnight.
- *     · Rounds the answer to a whole number.
  *
  * Formula also on the master file · functions_from_code · MK-CF-O-007
  * Changed ..... not in git yet (—)
@@ -51,11 +64,18 @@ export function theTaxOrganizer(input: {
   year?: number;
 }): TaxOrganizer {
   const year = input.year ?? new Date().getFullYear();
-  // READ, not estimated: what the accounts actually paid
-  const actualPassive = Math.round(incomeFromAccounts(input.accounts ?? [], input.transactions ?? []).annual);
-  return taxOrganizer(input.profile, {
-    accounts: input.accounts ?? [], liabilities: input.debts ?? [], actualPassive, year,
-  });
+  // THE ONE INTEREST-AND-DIVIDENDS FIGURE FOR THE YEAR (2026-10-25, the lead's ruling; interestAndDividendsForYear): the
+  // year's records → else the figure the person typed → else calculated from the accounts' rates, ≈ with its working →
+  // else not entered. The records are the calendar year the screen names (DEC-0298 — "Tax organizer · 2026" counted a
+  // November 2025 payment, $1,200 where 2026's is $700), reinvested ones counted (DEC-0179: $83,111.43 of wages and a $731.17
+  // reinvested dividend read $83,111.43 where it is $83,842.60), to the cent (DEC-0264: $1,342.60 read $1,343).
+  const interest = interestAndDividendsForYear(input.profile, input.accounts ?? [], input.transactions ?? [], year);
+  // THE RATE READS THE SAME PROFILE AS EVERY INCOME SCREEN (2026-10-26, FIX-INCOME-A; tenet 4): the year's interest and dividends from
+  // the accounts handed in (profileWithAccountIncome), so the estimated rate below the lines is the Income summary's and Your base
+  // pay's — with $10,000 of savings at 4% and nothing typed it left the $400 out of the rate while the line above counted it
+  const asOf = year === new Date().getFullYear() ? new Date() : new Date(year, 11, 31, 12);   // the year the screen names
+  const profile = profileWithAccountIncome(input.profile, input.accounts ?? [], input.transactions ?? [], asOf);
+  return taxOrganizer(profile, { accounts: input.accounts ?? [], liabilities: input.debts ?? [], interest, year });
 }
 
 /** THE WORKED EXAMPLE (six steps, step 6, 2026-09-28).
@@ -93,7 +113,21 @@ const GIVEN =
  * Formula .....
  *     the tax organizer(EXAMPLE)
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-F-046 employerMatchAnnual · MK-CF-F-097 grossFromNet
+ *               MK-CF-F-171 earnerPay · MK-CF-F-207 SOURCE
+ *               MK-CF-F-274 taxedSourcesAnnual · MK-CF-O-004 incomeSummary
+ *
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -127,12 +161,12 @@ export const TAX_ORGANIZER_FIGURES = declareFigures({
     formula: 'gross, less the 401(k), less the standard deduction for your filing status = taxable income',
     inputs: ['MK-XS-I-023 salary and other income', 'MK-XS-I-030 tax filing status and age'],
     decisions: ['ONE tax function across the app (rule 2) — the same one that sets the band on your pay.'],
-    refusal: 'No income entered yet.',
+    refusal: 'Nothing entered — Gross income $0 with "Nothing entered yet. Add your income ›" under it (his Q48, DEC-0431); no deduction, no taxable income and no rate, which would rest on an answer nobody gave.',
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,
       answer: '$117,800',
-      run: () => TAX().steps.taxableIncome,
+      run: () => TAX().steps?.taxableIncome ?? null,
     },
   },
 });

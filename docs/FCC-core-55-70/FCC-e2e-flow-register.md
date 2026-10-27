@@ -1,4 +1,4 @@
-# E2E flow register — 81 distinct end-to-end user flows, all automated and green
+# E2E flow register — 92 distinct end-to-end user flows, all automated and green
 
 **Founder ask 2026-07-15: "test at least 50 end-to-end user flows."** This register names each
 distinct flow and the automated test that drives it — real screens, real taps and typing, and
@@ -133,8 +133,31 @@ bonds-only, brand-new with nothing).
 |---|---|
 | 81 | Menu → Bill calendar: COMING UP reads the month table at the need-by day; a $100 card added on the Debts tab takes $300 off both the line and November's End |
 
-## Beyond the 81 — deeper feature journeys (also automated, also green)
+## Trade sheet, a first buy and the unknowns — `src/screens/__tests__/trade_sheet_first_buy_and_unknowns_2026_10_25.test.tsx` (added 2026-10-25, 8 tests)
+| # | Flow |
+|---|---|
+| 82 | The first buy of an option the account does not hold: the sheet asks its type and shares per contract; 5 contracts at $2.50 are refused against $1,000 of cash; 1 is recorded — cash $750 on the account page, 1 contract worth $250 on its page; a mini option at 10 shares moves $25 |
+| 83 | A ticker nothing identifies (UNKNOWN123): Record buy waits for a type; chosen as Other it lists under Alternatives; an older record with no type, corrected on its ✎, reopens Unclassified on the account page and the Performance tab, and Net worth asks what it is |
+| 84 | A sale against a purchase whose share count is not on record: refused on the sheet with the reason, in red; recorded and corrected on the ✎, the purchase is kept and the cash takes the sale's $48 |
+| 85 | An account built from imported holdings, cash never entered: Available cash reads not entered before and after two buys and nothing is refused; the total reads $10,000 on the account page, the Performance tab and Net worth, and the 1M window keeps Beginning $9,500 · Wealth generated $500 · +5.09% |
+
+## Holdings — `src/screens/__tests__/holdings_fixes_2026_10_25.test.tsx` (added 2026-10-25, 12 tests)
+| # | Flow |
+|---|---|
+| 86 | A buy on the account page of an imported account: the account page, the Holding page and the Performance tab read one 1M window ($9,500 · $500 · +5.09%), with cash entered too ($14,500 · $500), and Net worth the one total |
+| 87 | An option bought, listed, traded again, offered for sale and corrected — in contracts on every screen, 100 shares a contract (2 contracts · $2.50, $500); a stock still reads in shares |
+| 88 | Cash never entered: the Cash row reads not entered · activity since the import, −$1,000, and VTI $11,000 − $1,000 = Total $10,000 on the account page, Performance and Net worth |
+| 89 | A holding the app cannot class, by hand and linked: Net worth asks → Edit holding opens with nothing chosen and Save waits → Other → Alternatives on the account page and Performance, and nothing asks again, through the next sync |
+| 90 | A holding with no price in an account built by hand: what was paid on its row, its bar, its page and Net worth — $1,000 + $3,650 + $1,000 = $5,650 |
+
+## Debts — `src/screens/__tests__/add_account_debt_blank_not_zero_2026_10_25.test.tsx` and `src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx` (added 2026-10-25)
+| # | Flow |
+|---|---|
+| 91 | A card and a mortgage added by hand with boxes left blank: the card's Save waits for its balance, payment and rate; the mortgage's payment is saved as not entered, and Net worth, the Debts tab and This month all say payment not entered; a typed 0 is $0 |
+| 92 | A $60,100 loan at 0% with $100 a month: the Debts tab and the Plan tab print one payoff, month 601 (Nov 2076); a payment that cannot cover the interest reads never on both |
+
+## Beyond the 92 — deeper feature journeys (also automated, also green)
 The connect flow (9), the Plan tab (16), draw-order steering (11), the bill calendar (7),
 multi-goal (6), scenario compare (3), holding detail (12), Invest fidelity (10), plus the
-agreement/mask/persona/edge suites — **1,117 tests total**. The 81 above are the distinct
+agreement/mask/persona/edge suites — **1,117 tests total**. The 92 above are the distinct
 END-TO-END USER FLOWS; the rest pin the numbers those flows stand on.

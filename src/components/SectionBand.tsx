@@ -9,7 +9,7 @@ import { Colors, Spacing } from '../utils/theme';
 import { InfoDot } from './UI';
 import { saidSentence } from './figure';   // a title or total that holds a figure is said through the one spoken writer
 
-export function SectionBand({ title, value, light, inCard, inset = Spacing.md, infoTerm, trailing = 0, quiet, onTitlePress, titleHint, gutter, onChevronPress, titleSaid, valueSaid }: {
+export function SectionBand({ title, value, light, inCard, inset = Spacing.md, infoTerm, trailing = 0, quiet, onTitlePress, titleHint, gutter, onChevronPress, titleSaid, valueSaid, onRowEdges, valueWords }: {
   title: string; value?: string; light?: boolean; inCard?: boolean; inset?: number; infoTerm?: string;
   /** THE NAME IS ITS OWN DOOR (founder, 2026-09-27: "build it" — approved mock v14, first phone,
    *  "Tap ▾ to collapse · tap the name to open this account's portfolio ›"). One bar, two jobs: the
@@ -39,8 +39,19 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
   /** WHAT A SCREEN READER SAYS FOR A TITLE OR A TOTAL THAT HOLDS A FIGURE (2026-10-21, Performance audit row 29): the figure's
    *  spoken form (figSaid) — "hidden" under hide-balances, never the dots. Given without them, nothing changes. */
   titleSaid?: string; valueSaid?: string;
+  /** THE BAND'S WORDS AND ITS TOTAL ON THE ROWS' OWN EDGES (2026-10-25, Cash flow drawing match CF-01; DEC-0093, one right edge).
+   *  Inside a card the bar's own padding was 12 while the rows sat 16 in, and the total carried the card's inset back on top
+   *  of it: every Cash flow band total sat 12 points left of the figures under it. Given with `inCard`, the bar is padded by
+   *  the card's inset — the drawing's geometry, band padding = card padding — so the title starts where the rows' words start
+   *  and the total ends where their figures end. Without it, nothing changes. */
+  onRowEdges?: boolean;
+  /** A VALUE THAT IS WORDS, NOT MONEY ("SINCE OCT 1" on WHAT EACH CATEGORY EARNED): 13 points (2026-10-25, MM-PF D5). Performance
+   *  v17 draws every bar value at 12; a money total is 15, as Net worth v08 draws it (v17 READ THIS FIRST, 2026-10-12 (5)), and
+   *  words take 12 up to 13, the one type scale (DEC-0059). They printed at 15, the size of a money total. */
+  valueWords?: boolean;
 }) {
-  const valuePad = (inCard ? inset : 0) + trailing;
+  const rowEdges = !!onRowEdges && !!inCard;
+  const valuePad = rowEdges ? trailing : (inCard ? inset : 0) + trailing;
   // said as printed unless the printed words carry a hidden balance or a period mark: then "hidden", "a year" (2026-10-22)
   const said = (t: string | undefined) => (t == null ? undefined : saidSentence(t) !== t ? saidSentence(t) : undefined);
   const titleLabel = titleSaid ?? said(title);
@@ -65,7 +76,7 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
     );
   }
   return (
-    <View style={[s.band, light && s.light, inCard && { marginTop: -inset, marginHorizontal: -inset }]}>
+    <View style={[s.band, light && s.light, inCard && { marginTop: -inset, marginHorizontal: -inset }, rowEdges && { paddingHorizontal: inset }]}>
       {/* the dot hugs the title text (founder 2026-08-10): plain siblings + a spacer — no nested
           row, because the nested flex collapsed the title to nothing on web. */}
       {onTitlePress ? (
@@ -83,7 +94,7 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
       <View style={{ flex: 1 }} />
       {/* founder gap 4 (2026-08-10): the band bleeds to the card edge while rows are inset, so the
           value carries the same inset back — every number on the screen shares ONE right edge. */}
-      {value != null && <Text style={[s.value, light && s.textLight, gutter == null && valuePad > 0 && { marginRight: valuePad }]} accessibilityLabel={valueLabel}>{value}</Text>}
+      {value != null && <Text style={[s.value, valueWords && { fontSize: 13 }, light && s.textLight, gutter == null && valuePad > 0 && { marginRight: valuePad }]} accessibilityLabel={valueLabel}>{value}</Text>}
       {gutter != null && (
         <View testID="right-gutter" style={{ width: gutter, alignItems: 'flex-end', marginLeft: -6 }}>
           {!!onChevronPress && (

@@ -65,8 +65,8 @@ export default function PlanHubScreen() {
 
   const { accounts } = resolveNetWorthRows(uid, op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? []);
   const wil = useMemo(
-    () => selectWillItLast({ op, accounts, assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, withBand: true }),
-    [op, accounts, A, store.inflationRate, store.employmentStatus],
+    () => selectWillItLast({ op, accounts, assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, withBand: true, transactions: store.transactions ?? [] }),
+    [op, accounts, A, store.inflationRate, store.employmentStatus, store.transactions],
   );
   // PIN: the hub's number is THE number — cache it so Home's strip and Insights read the same value.
   useEffect(() => { if (wil.chance != null) store.setLastRetireChance?.(wil.chance); }, [wil.chance]);
@@ -85,9 +85,9 @@ export default function PlanHubScreen() {
   // the odds the OUTCOME shows: the draft's, whenever one is in play
   const draftWil = useMemo(
     () => (trying
-      ? selectWillItLast({ op, accounts, assumptions: { ...A, retireAge: draft.retireAge, horizonAge: draft.horizonAge, contribMonthly: draft.extraMonthly }, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, withBand: true })
+      ? selectWillItLast({ op, accounts, assumptions: { ...A, retireAge: draft.retireAge, horizonAge: draft.horizonAge, contribMonthly: draft.extraMonthly }, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, withBand: true, transactions: store.transactions ?? [] })
       : wil),
-    [trying, draft, op, accounts, A, store.inflationRate, store.employmentStatus, wil],
+    [trying, draft, op, accounts, A, store.inflationRate, store.employmentStatus, store.transactions, wil],
   );
   const commitDraft = () => {
     Alert.alert('Use this as your plan?', `Retire at ${draft.retireAge}, plan to ${draft.horizonAge}${draft.extraMonthly ? `, saving ${money(draft.extraMonthly)}/month more` : ''}.\n\nYour odds become ${draftWil.chance}%.`, [
@@ -172,7 +172,7 @@ export default function PlanHubScreen() {
   }, [lens, wil.chance, wil.inputs]);
   // retired: the paycheck numbers — the ONE model Home's card uses (never re-derived)
   const { year: payYear } = useCashflowModel();
-  const payMonth = payYear.thisMonth;
+  const payMonth = payYear?.thisMonth;   // no birth year: no paycheck, and the card is not drawn (2026-10-25, FIX-MONTH)
   const drawUsed = Math.max(0, planSpend - (payMonth?.guaranteedTotal ?? 0));
   const paycheckTotal = (payMonth?.guaranteedTotal ?? 0) + (payMonth?.safeDraw ?? 0);
   // SAMENESS (pre-48 audit): the rate comes from the CANONICAL withdrawalPlan helper, fed the SAME

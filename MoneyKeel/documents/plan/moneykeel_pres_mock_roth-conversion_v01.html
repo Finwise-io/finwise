@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Roth conversion v01</title>
+<style>
+  :root{--primary:#178F6B;--primaryDark:#0F6E56;--primaryDeep:#085041;--primaryLight:#E1F5EE;--primaryMid:#9FE1CB;--onDeepTint:#BEE7D8;
+        --amber:#854F0B;--amberLight:#FAEEDA;--red:#A32D2D;--bg2:#F6F7F5;--bg3:#EEEEE9;--card:#FFFFFF;--t1:#1A1A18;--t2:#6B6B66;--t3:#76766F;
+        --border:rgba(0,0,0,0.10);--gain:#006300}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,'SF Pro Text','Segoe UI',Roboto,sans-serif;background:#ECEBE4;color:var(--t1);padding:22px}
+  .wrap{max-width:1500px}
+  .row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+  .phone{width:375px;background:#000;border-radius:44px;padding:10px;box-shadow:0 16px 36px rgba(0,0,0,.24)}
+  .screen{background:var(--bg2);border-radius:35px;overflow:hidden;display:flex;flex-direction:column}
+  .sbar{display:flex;justify-content:space-between;padding:12px 22px 4px;font-size:14px;font-weight:700}
+  .nav{display:flex;align-items:center;min-height:44px;background:var(--bg2)}
+  .back{font-size:16px;color:var(--primary);font-weight:600;padding:8px 16px}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:6px 20px 10px;background:var(--bg2)}
+  .menuBtn{display:flex;align-items:center;gap:6px;height:38px;padding:0 13px;border-radius:12px;background:var(--card);border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--t2)}
+  .wordmark{font-size:15px;font-weight:800;letter-spacing:-.2px}.wordmark .m{color:#178F6B}.wordmark .k{color:#1F3A5F}
+  .tright{display:flex;gap:8px}
+  .ico{width:38px;height:38px;border-radius:19px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--t2)}
+  .tabbar{display:flex;justify-content:space-around;background:var(--card);border-top:.5px solid var(--border);height:84px;padding:6px 0 20px}
+  .tb{width:56px;display:flex;flex-direction:column;align-items:center;font-size:10.5px;font-weight:700;color:var(--t3)}
+  .tb i{display:block;height:3px;width:22px;margin-bottom:5px}
+  .tb b{font-size:20px;font-weight:400;line-height:23px;color:var(--t3)}
+  .band{background:var(--primaryDeep);padding:8px 12px;margin-bottom:4px;color:#fff;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;border-radius:0}
+  .new{outline:2px dashed #185FA5;outline-offset:2px}
+  .adv{text-decoration:underline dotted #185FA5;text-underline-offset:3px}
+  .cap{font-size:12px;color:#4a4a45;max-width:375px;margin-top:9px;line-height:1.5}
+  .note-doc{max-width:1100px;margin:0 0 14px;padding:12px 14px;border:2px solid #0B5D3B;border-radius:12px;font-size:13px;line-height:1.5;background:#fff;color:#111}
+  .note-doc table{border-collapse:collapse;margin-top:8px;font-size:12.5px}
+  .note-doc td,.note-doc th{padding:4px 8px;border:1px solid #ccc;vertical-align:top;text-align:left}
+
+  .content{padding:24px 20px 20px}
+  .h1{font-size:20px;font-weight:800;color:var(--t1)}
+  .sub{font-size:15px;color:var(--t2);margin-bottom:12px;line-height:20px}
+  .tryBanner{font-size:13px;font-weight:700;color:var(--primaryDark);background:var(--primaryLight);border-radius:12px;padding:10px;margin-bottom:8px}
+  .saveLink{min-height:44px;display:flex;align-items:center;margin-bottom:8px;font-size:13px;font-weight:700;color:var(--primary)}
+  .card{background:var(--card);border-radius:16px;padding:20px;margin-bottom:12px}
+  .card > .band{margin:-20px -20px 4px}
+  .amtInput{background:var(--bg2);border-radius:12px;border:1px solid var(--border);padding:12px;font-size:24px;font-weight:800;color:var(--t1)}
+  .note{font-size:13px;color:var(--t3);margin-top:8px;line-height:17px}
+  .chipRow{display:flex;gap:8px;margin-top:8px}
+  .chip{background:var(--bg3);border-radius:12px;padding:0 14px;min-height:44px;display:flex;align-items:center;font-size:13px;font-weight:700;color:var(--primaryDark)}
+  .bigLine{font-size:17px;font-weight:800;color:var(--t1)}
+  .link{font-size:15px;font-weight:700;color:var(--primaryDark);margin-top:4px;padding:12px 0;min-height:44px}
+  .line{font-size:15px;color:var(--t1);margin-top:4px;line-height:21px}
+  .strong{font-weight:800}
+  .primaryBtn{background:var(--primary);border-radius:16px;min-height:50px;display:flex;align-items:center;justify-content:center;margin-top:4px;color:#fff;font-size:17px;font-weight:800}
+</style></head>
+<body><div class="wrap">
+
+<div class="note-doc">
+<b>READ THIS FIRST — 2026-10-26. Drawn from the build 2026-10-26, no approval on record.</b>
+<br>Roth conversion (route /roth, opened from the Plan) had no drawing. This file draws it as the code builds it on 26 October 2026 — every string from <span style="font-family:ui-monospace,monospace">src/screens/RothScreen.tsx</span>, every size, weight and colour from its StyleSheet and <span style="font-family:ui-monospace,monospace">src/utils/theme.ts</span>, the navigator’s “← Back” bar — one phone, in the state with $20,000 typed. Today’s changes are drawn on it and marked with a dashed blue outline. Where a line here and the phone disagree, this line is the design.
+<table>
+<tr><th>Dated</th><th>What changed on the screen today</th><th>Why · how to reverse</th><th>Record</th><th>State</th></tr>
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>The tax is worked at the exact rate.</b> “Tax bill next April: about $3,750” and “Rate used: 18.75% (calculated from your income)”. It read “about $3,800” and “19%”: the rate was rounded to a whole percent before the tax was worked from it.</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. His Q49: every calculation at full precision, rounded once, when printed; percents to two decimals. To reverse: round the rate to a whole percent again.</td><td>MK-PL-F-032 rothConversionCost · Q49</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>The tax stands on what the year is taxed on — the Income summary’s figure.</b> $70,000 of wages less the $10,000 into a 401(k) = $60,000, with the accounts’ interest and dividends in it, typed or not. It stood on $70,000, the 401(k) left in, and read about $4,400 at 22%.</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. His DEC-0283 (income before tax is gross less the 401(k)) and tenet 4 (one figure, one number). To reverse: stand the tax on the year’s whole gross again.</td><td>MK-CF-M-041 · MK-CF-O-004 · DEC-0283</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>The growth to the first required withdrawal is the Plan’s one return, and the screen says which.</b> “Growth used until 75: 7.62%/year — the blended benchmark.” It was a flat 5.50%, not stated: “about $1,815/year smaller”, now $2,445.</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. The lead’s ruling 2 of 2026-10-25 (one plan, one return) and tenet 1. To reverse: grow at 5.50% again.</td><td>MK-CF-M-082 · MK-CF-F-279 paycheckReturn</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>A loss is never projected forward, and the line says so.</b> Not drawn (this household’s rate is the benchmark): with the 12-month return chosen and the last 12 months at −4.20%, the line reads “Growth used until 75: 0.00%/year — your last 12 months were −4.20%; we don’t project a loss forward.” Until today a negative return was stated as it was while the balance grew at 0%.</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. Tenet 1 (DEC-3523): the rate stated is the rate used. To reverse: state the negative return and grow at 0% silently.</td><td>growthUsed (src/domain/paycheck) · MK-CF-M-082</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>The odds read the year’s interest the way the Income summary does</b> — the year’s records, then the figure typed, then calculated from the accounts’ rates. No drawn figure moves for this household.</td><td>Not a decision of his: the lead’s, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. One word from him reverses it. Tenet 4. To reverse: hand the plan no records.</td><td>MK-PL-F-067 willItLastInputs</td><td>In the code</td></tr>
+</table>
+</div>
+
+<div class="row">
+<div>
+<div class="phone"><div class="screen">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◔ ▮</span></div>
+  <div class="nav"><span class="back">← Back</span></div>
+  <div class="content" id="roth-content">
+    <div class="h1">Roth conversion</div>
+    <div class="sub">Pay some tax now, in a low-tax year, so more of later life is tax-free. Estimates — you decide.</div>
+    <div class="tryBanner">Trying it out — nothing changes until you tap Use as my plan.</div>
+    <div class="saveLink">Save this scenario — compare it later on the Plan hub ›</div>
+    <div class="card">
+      <div class="band">CONVERT THIS YEAR</div>
+      <div class="amtInput">20000</div>
+      <div class="note">from your pre-tax $415,000</div>
+      <div class="chipRow"><span class="chip">$10,000</span><span class="chip">$25,000</span><span class="chip">$50,000</span></div>
+    </div>
+    <div class="card">
+      <div class="band">THE COST NOW</div>
+      <div class="bigLine new">Tax bill next April: about $3,750</div>
+      <div class="link new">Rate used: 18.75% (calculated from your income) · change it ›</div>
+      <div class="note">Estimate — your tax preparer has the exact number.</div>
+    </div>
+    <div class="card">
+      <div class="band">WHAT IT BUYS LATER</div>
+      <div class="line">Required withdrawals at 75: about <span class="strong new">$2,445/year smaller</span></div>
+      <div class="note new">Growth used until 75: 7.62%/year — the blended benchmark.</div>
+      <div class="line">Tax-free bucket: $88,000 → <span class="strong">$108,000</span></div>
+      <div class="note">From 75 the government requires yearly withdrawals from pre-tax accounts — converting shrinks that requirement.</div>
+    </div>
+    <div class="card">
+      <div class="band">WILL MY MONEY LAST?</div>
+      <div class="line">35.3% → 35.9% — little change. This decision is about taxes, not the odds.</div>
+    </div>
+    <div class="primaryBtn">Use as my plan</div>
+    <div class="note">Nothing moves by itself — you'd do the conversion with your brokerage; this records the numbers.</div>
+    <span id="roth-content-end"></span>
+  </div>
+</div></div>
+<div class="cap"><b>The household, on 26 October 2026.</b> Born 1966 (60 this year), single; $70,000 of wages, $10,000 of it into a 401(k); Checking $20,000, a Fidelity IRA $415,000, a Roth IRA $88,000. $20,000 typed to convert.<br><b>The figures, by hand.</b> The year is taxed on $70,000 − $10,000 = $60,000. Federal tax on $60,000: $60,000 − $16,100 = $43,900 → $1,240 + 12% × $31,500 = $5,020; on $80,000: $63,900 → $1,240 + $4,560 + 22% × $13,500 = $8,770. The conversion costs $8,770 − $5,020 = $3,750, 18.75% of $20,000. The return: ($415,000 × 7.90% + $88,000 × 7.90% + $20,000 × 0.50%) ÷ $523,000 = 7.62%. Required withdrawals start at 75 (born 1966), in 15 years: $20,000 × 1.0762¹⁵ = $60,150, ÷ the age-75 divisor 24.6 = $2,445 a year less. The Roth: $88,000 + $20,000 = $108,000. The odds: 1,000 simulated futures; paying the $3,750 from Checking leaves less cash in the mix the plan’s return is blended from (7.62% → 7.67%), so they move 35.3% → 35.9%.</div>
+</div>
+</div>
+
+</div></body></html>

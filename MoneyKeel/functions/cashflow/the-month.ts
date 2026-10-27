@@ -24,6 +24,9 @@
 import { declareFigures } from '../_figure-spec';
 import { thisMonth, cash, type ThisMonth, type MonthInput } from './this-month';
 import { expenses, type Expenses, type ExpensesInput } from './expenses';
+// the worked month runs on the budget AS IT IS COUNTED, as every screen's month does (2026-10-26, PF-TOOLS; FIX-MONTH's finding)
+import { theBudgetCounted, expensesAsCounted } from './budget-counted';
+import { spendByMonthByBucket, spendByMonthByCategory } from '../../../src/domain/budget';
 
 export interface TheMonth {
   /** The flow, spelled out — planned and actual, each ending in its surplus. */
@@ -50,10 +53,11 @@ export interface TheMonth {
  * Formula .....
  *     flow = this month(input)
  *     committed = cash((input.commitments ?? []).reduce((t, c) => t + (monthly amount or 0), 0))
+ *     sep = spend by month by bucket(counted)[8]
  *
  * Called by ... MK-CF-F-203 MONTH
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -63,7 +67,7 @@ export interface TheMonth {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-001 · MK-CF-M-002 · MK-CF-M-003 · MK-CF-M-004
  *               MK-CF-M-013 · MK-CF-M-014 · MK-CF-M-015 · MK-CF-M-020
@@ -72,6 +76,7 @@ export interface TheMonth {
  *               MK-XS-I-015 debt interest rate
  *               MK-XS-I-016 debt minimum payment
  *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-032 expenses categories the person set up
  *               MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
  * Ruled by .... DEC-0002 · DEC-0260
  *               his decisions, in MoneyKeel/documents/decision-log/moneykeel_log_decisions_v01.xlsx.
@@ -105,13 +110,19 @@ export function theMonth(input: MonthInput & ExpensesInput): TheMonth {
 
 /** THE WORKED EXAMPLE — ONE MONTH, SPELLED OUT (six steps, step 6, 2026-09-28).
  *
- *  September 2026: $7,200 of take-home, a $2,400 mortgage and a $250 car loan due, a $3,400 budget.
- *  So far $2,300 of rent, $512 of groceries and $186 of eating out are logged, and the car loan has
- *  been paid. Every figure runs `theMonth`, the real door.
+ *  September 2026: $7,200 of take-home, a $2,400 mortgage (on no property in Net worth) and a $250 car loan due, a $3,400
+ *  budget — $2,300 Rent / Mortgage, $700 groceries, $400 eating out. So far $2,300 under Rent / Mortgage, $512 of groceries and
+ *  $186 of eating out are logged, and the car loan has been paid. Every figure runs `theMonth`, the real door.
+ *
+ *  THE BUDGET AS IT IS COUNTED (2026-10-26, PF-TOOLS; FIX-MONTH's finding, his DEC-1923 and the lead's ruling of 2026-10-25 on
+ *  DEC-2440): the example handed theMonth the budget as typed, so it counted the mortgage twice — once as the $2,300 line, once as
+ *  the $2,400 debt — and read $1,150, where every screen reads $3,450. It now runs the screens' own rule (theBudgetCounted, then
+ *  expensesAsCounted): a mortgage on no property beside a Rent / Mortgage line is taken as that line, so the line stands down and
+ *  what was logged under it is the mortgage's payment.
  *
  *  THE ROWS ADD UP, WHICH IS THE WHOLE POINT of his correction on 2026-09-28: This month is not three
  *  summary numbers, it SPELLS OUT every flow until it reaches the surplus. Planned: 7,200 − 2,400 −
- *  250 − 3,400 = $1,150. Actual so far: 7,200 − 0 (the mortgage is not paid yet) − 250 − 2,998 =
+ *  250 − 1,100 = $3,450. Actual so far: 7,200 − 2,300 (the mortgage's payment, logged under Rent / Mortgage) − 250 − 698 =
  *  $3,952. Anyone can add either column by hand and land on the figure the screen shows.
  */
 const EXAMPLE = {
@@ -120,25 +131,33 @@ const EXAMPLE = {
     { debt_id: 'd1', label: 'Mortgage', debt_type: 'MORTGAGE', remaining_balance: 228000, interest_rate_apr: 0.0625, minimum_monthly_payment: 2400, payment_type: 'installment' },
     { debt_id: 'd2', label: 'Car loan', debt_type: 'AUTO', remaining_balance: 14000, interest_rate_apr: 0.069, minimum_monthly_payment: 250, payment_type: 'installment' },
   ] as any[],
-  plannedExpenses: 3400,
-  plannedByCategory: [
-    { label: 'Rent / Mortgage', monthly: 2300 },
-    { label: 'Groceries', monthly: 700 },
-    { label: 'Eating out', monthly: 400 },
-  ],
-  expenses: [
-    { amount: 2300, category: 'Rent / Mortgage', date: '2026-09-01' },
-    { amount: 512, category: 'Groceries', date: '2026-09-07' },
-    { amount: 186, category: 'Eating out', date: '2026-09-12' },
-    { amount: 250, category: 'Debt payment', store: 'Car loan', date: '2026-09-12' },
-  ],
-  bigBills: [{ label: 'Property tax', amount: 4800, dueLabel: 'due Nov 1' }],
+  // the $3,400 budget as typed, $2,300 of it the Rent / Mortgage line — and, below, as it is counted
+  ...((): any => {
+    const typed = { monthlySpending: '3400', spendCats: [
+      { id: 'rent', label: 'Rent / Mortgage', amount: 2300, bucket: 'fixed' }, { id: 'groceries', label: 'Groceries', amount: 700, bucket: 'flexible' },
+      { id: 'dining', label: 'Eating out', amount: 400, bucket: 'flexible' }] };
+    const counted = theBudgetCounted({ profile: typed, accounts: [], debts: [
+      { debt_id: 'd1', label: 'Mortgage', debt_type: 'MORTGAGE', remaining_balance: 228000, interest_rate_apr: 0.0625, minimum_monthly_payment: 2400, payment_type: 'installment' },
+      { debt_id: 'd2', label: 'Car loan', debt_type: 'AUTO', remaining_balance: 14000, interest_rate_apr: 0.069, minimum_monthly_payment: 250, payment_type: 'installment' }] as any[] }).profile;
+    const sep = spendByMonthByBucket(counted)[8];
+    return {
+      plannedExpenses: sep.fixed + sep.nonmonthly + sep.flexible,
+      plannedByCategory: spendByMonthByCategory(counted)[8].map((r) => ({ label: r.label, monthly: r.monthly })),
+      expenses: expensesAsCounted([
+        { amount: 2300, category: 'Rent / Mortgage', date: '2026-09-01' },
+        { amount: 512, category: 'Groceries', date: '2026-09-07' },
+        { amount: 186, category: 'Eating out', date: '2026-09-12' },
+        { amount: 250, category: 'Debt payment', store: 'Car loan', date: '2026-09-12' }] as any[], counted),
+    };
+  })(),
+  bigBills: [{ label: 'Property tax', amount: 4800, dueLabel: 'Nov 1' }],   // the radar writes "due …" itself (it read "due due Nov 1"; 2026-10-25)
   commitments: [{ label: 'Emergency fund', monthlyAmount: 300 }],
 } as any;
 const GIVEN =
-  'September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget '
-  + '($2,300 rent, $700 groceries, $400 eating out). Logged so far: $2,300 rent, $512 groceries, '
-  + '$186 eating out, and the $250 car loan paid. The Plan already promises $300/month to the emergency fund.';
+  'September 2026: $7,200 take-home; a $2,400 mortgage (on no property in Net worth) and a $250 car loan due; a $3,400 budget '
+  + '($2,300 Rent / Mortgage, $700 groceries, $400 eating out) — the Rent / Mortgage line stands down, the mortgage in Debts counted once. '
+  + 'Logged so far: $2,300 under Rent / Mortgage (the mortgage\u2019s payment), $512 groceries, $186 eating out, and the $250 car loan paid. '
+  + 'The Plan already promises $300/month to the emergency fund.';
 
 /** Example only: runs theMonth on the worked example and calculates nothing of its own. */
 /* ─ MK-CF-F-203 ──────────────────────────────────────────────────────────────────── 1 · ACTION
@@ -149,13 +168,18 @@ const GIVEN =
  * Formula .....
  *     the month(EXAMPLE)
  *
- * Called by ... MK-CF-F-023 requiredPayment · MK-CF-F-087 monthlyTaxRates
- *               MK-CF-F-157 debtPaymentsByDebt · MK-CF-F-204 line
- *               MK-CF-F-205 COMING · MK-CF-O-004 incomeSummary
- *               MK-CF-O-010 theMonth · MK-NW-F-046 historyCoverage
- *               MK-PF-F-045 priceHistoryShortSentence
+ * Called by ... MK-CF-F-055 annualHsaLimit · MK-CF-F-065 equityVestWeights
+ *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-087 monthlyTaxRates
+ *               MK-CF-F-088 taxableByCalendarMonth · MK-CF-F-146 payFiguresAgree
+ *               MK-CF-F-153 radar · MK-CF-F-157 debtPaymentsByDebt
+ *               MK-CF-F-204 line · MK-CF-F-205 COMING
+ *               MK-CF-F-246 expensesAsCounted · MK-CF-F-255 spendByMonthByCategory
+ *               MK-CF-F-259 rateNotEntered · MK-CF-O-004 incomeSummary
+ *               MK-CF-O-010 theMonth · MK-CF-O-020 theBudgetCounted
+ *               MK-NW-F-046 historyCoverage · MK-PF-F-045 priceHistoryShortSentence
+ *               MK-PL-F-036 weighGoals · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -165,7 +189,7 @@ const GIVEN =
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -183,8 +207,12 @@ const MONTH = () => theMonth(EXAMPLE);
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
- * Called by ... MK-CF-F-036 buildDebtState · MK-CF-O-001 basePay
- *               MK-CF-O-006 theCreditLine · MK-CF-O-017 futurePaycheck
+ * Called by ... MK-CF-F-036 buildDebtState · MK-CF-F-157 debtPaymentsByDebt
+ *               MK-CF-F-171 earnerPay · MK-CF-F-184 incomeFromAccounts
+ *               MK-CF-F-199 ROOM · MK-CF-F-241 M
+ *               MK-CF-F-246 expensesAsCounted · MK-CF-O-001 basePay
+ *               MK-CF-O-006 theCreditLine · MK-CF-O-010 theMonth
+ *               MK-CF-O-017 futurePaycheck · MK-CF-O-020 theBudgetCounted
  *               MK-NW-F-002 alternativesSummary · MK-NW-F-028 classPortionLabel
  *               MK-NW-F-088 BENCH · MK-NW-F-139 leftOutValueOf
  *               MK-NW-F-141 holdingBondFacts · MK-NW-F-147 paymentNotEntered
@@ -195,7 +223,7 @@ const MONTH = () => theMonth(EXAMPLE);
  *               MK-XS-F-004 buildDatedGrid · MK-XS-F-058 parseReceipt
  *               MK-XS-F-094 parseReceiptText · MK-XS-F-096 pickReceipt
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -205,7 +233,7 @@ const MONTH = () => theMonth(EXAMPLE);
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -233,7 +261,7 @@ export const THE_MONTH_FIGURES = declareFigures({
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,
-      answer: '−$3,400/month',
+      answer: '−$1,100/month',   // 3,400 typed − the 2,300 Rent / Mortgage line, stood down for the mortgage in Debts (2026-10-26)
       run: () => line('planned', 'Expenses'),
     },
   },
@@ -247,14 +275,17 @@ export const THE_MONTH_FIGURES = declareFigures({
     ruled: '2026-09-27',
     worked: {
       given: GIVEN,
-      answer: '$1,150/month',
+      answer: '$3,450/month',   // 7,200 − 2,400 − 250 − 1,100: the mortgage counted once, as the screens count it (2026-10-26; was $1,150)
       run: () => MONTH().planned.surplus,
     },
   },
   'MK-CF-M-003': {
     label: '= Actual surplus so far', unit: 'money', per: 'month', screens: ['/cashflow'],
     answers: 'What is actually left, on what has really happened so far this month.',
-    formula: 'the inflow received, less each debt actually paid, less everything logged by hand and imported',
+    // THE ROW'S WORDS NOW SAY WHAT THE CODE COUNTS (2026-10-27, PF-TOOLS; the screens measurement, MK-CF-M-003 tenet 1): the
+    // words said "the inflow received", but the code counts the month's take-home before anything is received ($7,200 on
+    // the 1st), as DEC-7607 settled for MK-CF-M-051's row. No figure moves ($3,952). To reverse: put "received" back.
+    formula: 'the month’s take-home (MK-CF-M-051), less each debt actually paid, less everything logged by hand and imported',
     inputs: ['MK-NW-I-004 the activity records', 'MK-CF-I-001 your logged expenses'],
     decisions: [
       'An unpaid debt shows $0 with its due date — never silently dropped, or the surplus would flatter the month.',
@@ -298,7 +329,7 @@ export const THE_MONTH_FIGURES = declareFigures({
     inputs: ['MK-CF-I-001 your logged expenses'],
     refusal: 'Nothing logged in the month — a real $0 on the ACTUAL EXPENSES band, with "Nothing logged this month. Connect a card and purchases arrive on their own, or add a receipt by hand." and the door "Log an expense".',
     ruled: '2026-10-02',
-    worked: { given: GIVEN, answer: '$2,998', run: () => MONTH().expenses.actualTotal },
+    worked: { given: GIVEN, answer: '$698', run: () => MONTH().expenses.actualTotal },   // 512 + 186: the 2,300 is the mortgage's payment (2026-10-26; was $2,998)
   },
   'MK-CF-M-014': {
     label: 'each expense and its amount', unit: 'money-cents', screens: ['/cashflow'], grain: 'one expense',
@@ -318,7 +349,7 @@ export const THE_MONTH_FIGURES = declareFigures({
     inputs: ['MK-CF-I-012 planned expenses', 'MK-CF-I-001 your logged expenses'],
     refusal: 'No budget set — the categories are not drawn: the band reads —, with "You haven’t set your budget yet. This is what every “of $X planned” on any screen is measured against." and the door "Set your budget".',
     ruled: '2026-10-02',
-    worked: { given: GIVEN, answer: '$2,300', run: () => MONTH().expenses.planned[0].monthly },
+    worked: { given: GIVEN, answer: '$700', run: () => MONTH().expenses.planned[0].monthly },   // Groceries: the Rent / Mortgage line stood down (2026-10-26; was $2,300)
   },
   'MK-CF-M-020': {
     label: 'THIS MONTH — free to use', unit: 'money', screens: ['/cashflow'],
@@ -329,7 +360,7 @@ export const THE_MONTH_FIGURES = declareFigures({
     decisions: ['A PROMISE TO A GOAL IS MONEY ALREADY SPOKEN FOR — it never reads as free.'],
     refusal: 'No budget set, or a debt’s payment never entered (2026-10-23) — no line: nothing is called free until there is a plan to be free of.',
     ruled: '2026-10-02',
-    worked: { given: GIVEN, answer: '$850', run: () => MONTH().free },
+    worked: { given: GIVEN, answer: '$3,150', run: () => MONTH().free },   // 3,450 − the 300 promised to the emergency fund (2026-10-26; was $850)
   },
   'MK-CF-M-021': {
     label: '<goal> · from your Plan', unit: 'money', per: 'month', screens: ['/cashflow'], grain: 'one goal',

@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contribution room v01</title>
+<style>
+  :root{--primary:#178F6B;--primaryDark:#0F6E56;--primaryDeep:#085041;--red:#A32D2D;--amber:#854F0B;--bg2:#F6F7F5;--card:#FFFFFF;
+        --t1:#1A1A18;--t2:#6B6B66;--t3:#76766F;--border:rgba(0,0,0,0.10);--green:#0ca30c}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,'SF Pro Text','Segoe UI',Roboto,sans-serif;background:#ECEBE4;color:var(--t1);padding:22px}
+  .wrap{max-width:1900px}
+  .eyebrow{font-size:11px;letter-spacing:.6px;color:#66655f;font-weight:800;margin:14px 0 6px}
+  .row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+  .phone{width:375px;background:#000;border-radius:44px;padding:10px;box-shadow:0 16px 36px rgba(0,0,0,.24)}
+  .screen{background:var(--bg2);border-radius:35px;overflow:hidden;min-height:780px;display:flex;flex-direction:column}
+  .sbar{display:flex;justify-content:space-between;padding:12px 22px 4px;font-size:14px;font-weight:700}
+  .nav{display:flex;align-items:center;height:44px;background:var(--bg2);position:relative}
+  .back{font-size:16px;color:var(--primary);font-weight:600;padding:0 16px;min-height:44px;display:flex;align-items:center;position:absolute;left:0}
+  .navt{flex:1;text-align:center;font-size:17px;font-weight:600;color:var(--t1)}
+  .c{padding:20px;display:flex;flex-direction:column;gap:12px}
+  .h1{font-size:20px;font-weight:800;color:var(--t1);display:flex;align-items:center;gap:4px}
+  .dot{font-size:13px;color:var(--t2)}
+  .sub{font-size:13px;color:var(--t2);line-height:19px;margin-top:-4px;margin-bottom:4px}
+  .card{background:var(--card);border-radius:16px;padding:12px;border:.5px solid var(--border)}
+  .head{display:flex;align-items:center;margin-bottom:8px}
+  .icon{font-size:24px;margin-right:8px}
+  .title{flex:1;font-size:17px;font-weight:800;color:var(--t1)}
+  .room{font-size:20px;font-weight:800;color:var(--primaryDark);font-variant-numeric:tabular-nums}
+  .room.over{color:var(--red)}
+  .track{height:7px;border-radius:99px;background:var(--bg2);overflow:hidden}
+  .fill{height:7px;border-radius:99px;background:var(--primary)}
+  .fill.full{background:var(--green)} .fill.over{background:var(--red)}
+  .line{font-size:13px;color:var(--t1);margin-top:8px;line-height:18px}
+  .note{font-size:13px;color:var(--t2);margin-top:4px;line-height:18px}
+  .how{font-size:13px;color:var(--primaryDeep);margin-top:6px;font-weight:600}
+  .try{background:var(--card);border:1.5px solid var(--border);border-radius:16px;min-height:44px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--primary)}
+  .mrow{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .mbtn{border:1px solid var(--border);border-radius:12px;padding:8px 12px;background:var(--bg2);font-size:15px;color:var(--t2)}
+  .mbtn.on{border-color:var(--primary);color:var(--primary);font-weight:700}
+  .mlabel{font-size:13px;color:var(--t1);font-weight:600;margin-top:10px}
+  .mchips{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap}
+  .mchip{border:1px solid var(--border);border-radius:12px;padding:6px 9px;background:var(--bg2);font-size:13px;color:var(--t2);min-height:32px}
+  .mchip.on{border-color:var(--primary);color:var(--primary);font-weight:700}
+  .byrow{display:flex;align-items:center;gap:10px;background:var(--card);border:.5px solid var(--border);border-radius:16px;padding:10px 12px}
+  .bylab{flex:1;font-size:13px;font-weight:600;color:var(--t1)}
+  .byin{width:96px;height:44px;border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;padding:0 10px;font-size:15px;color:var(--t3);background:var(--bg2)}
+  .disc{font-size:11px;line-height:16px;color:var(--t3);text-align:center;margin:12px 0 8px;padding:0 16px}
+  .cap{font-size:12px;color:#4a4a45;max-width:375px;margin-top:9px;line-height:1.5}
+  .mark{background:#FFF4C2;border-radius:3px;padding:0 2px}
+  table.rt{border-collapse:collapse;margin-top:8px;font-size:12.5px}
+  table.rt th,table.rt td{padding:4px 8px;border:1px solid #ccc;vertical-align:top;text-align:left}
+</style></head>
+<body><div class="wrap">
+
+<div style="max-width:1100px;margin:0 0 14px;padding:12px 14px;border:2px solid #0B5D3B;border-radius:12px;font-size:13px;line-height:1.5;background:#fff;color:#111">
+<b>READ THIS FIRST — 2026-10-25. What this drawing is, and what changed on the screen.</b>
+<br>No approved drawing of Contribution room exists: the only earlier file, <span style="font-family:ui-monospace,monospace">other/archive/2026-07-19_moneykeel_pres_mock_contributionroom-mock_v01.html</span>, drew three empty rows and was never approved. This file draws the screen as the code builds it on 2026-10-25 — every string from <span style="font-family:ui-monospace,monospace">src/screens/ContributionRoomScreen.tsx</span>, every size and colour from its StyleSheet and <span style="font-family:ui-monospace,monospace">src/utils/theme.ts</span>, the header from the app's navigator ("← Back", "Contribution room 💼") — with the changes below, which are drawn on the phones. Every figure is worked by MK-CF-O-005 theContributionRoom on 25 October 2026, so three months of the year are left. None of these is a decision of his: each is the lead's, under the rule named, made without asking him, as his order of 2026-09-30 says; one word from him reverses any of them.
+<table class="rt">
+<tr><th>Ruled</th><th>What changed on the screen</th><th>Where it came from · how to reverse</th><th>Record</th><th>State</th></tr>
+<tr><td style="white-space:nowrap">2026-10-25</td><td><b>The year at the monthly amount, said as a plan, not as money already in.</b> A card with a monthly amount entered reads “At $1,200/month you will put in $14,400 this year — room for $21,350 more. Calculated from the monthly amount you entered — check it against your latest statement.” Its headline reads “room for $21,350”. It read “$21,350 left” and “That is about $14,400 of the $35,750 limit — calculated from what you entered you contribute each month, not from your payroll, so check it against your latest statement.” The arithmetic does not change. A card with nothing entered reads “up to $24,500” and “The 2026 limit is $24,500.”, as the IRA card already did — the 401(k) card said “about $0 of the limit” for a person who had entered nothing.</td><td>The lead's ruling on CFR-4's first question (what “used” means): keep the plan arithmetic and say so in words, the way DEC-0013 did for the HSA card (“up to $X” when contributions are not tracked). The app has no input for money already in this year. Printed “/month”, the canon’s word (one term per concept, cluster 14); a screen reader says “a month”. To reverse: the old two lines.</td><td>DEC-0013 · DEC-3523 (tenet 3) · MK-MN-M-003 · MK-MN-M-004 · MK-CF-O-005</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-25</td><td><b>Over the limit is shown, never cut to the limit.</b> At 60 with $3,333.33 a month (state B): headline “$4,250 over” in red, the bar full in red, and “At $3,333/month you will put in $40,000 this year — $4,250 over the $35,750 limit. Money over the limit has to come out by April 15 next year, or it is taxed twice.” The IRA card does the same with its own rule: “… has to come out by your tax-filing deadline, or it is taxed 6% for each year it stays.” It read “$0 left” and “That is about $35,750 of the $35,750 limit” — the $4,250 vanished.</td><td>Tenets 1, 5 and 7 (DEC-3523); IRC §402(g) for the 401(k), IRC §4973 for the IRA. Sign-up already says “over the 2026 limit by $4,250”. To reverse: cap what goes in at the limit again.</td><td>MK-CF-F-056 · MK-CF-O-005 · MK-MN-M-003 · MK-MN-M-004</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-25</td><td><b>No birth year: the limits say they are the base ones, and the year can be entered here</b> (states C and E). The line under the title reads “… Limits are set by the IRS. Your birth year is not entered, so each limit below is the one before any catch-up.”, and below it “Your birth year” with a box for the year. Entering it is the same answer sign-up asks for (MK-XS-I-017), and every limit moves to the person's age at once. It read only “Limits are set by the IRS.” beside a $24,500 that is $32,500 at 50 and $35,750 at 60 to 63.</td><td>Tenet 3 (DEC-3523) and the figure's own refusal line, MK-MN-M-003: “No birth year entered — the catch-up cannot be judged, so the limit says it is the base one.” To reverse: drop the sentence and the box.</td><td>MK-MN-M-003 · MK-XS-I-017 · MK-CF-O-005</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-25</td><td><b>Medicare from a month this year leaves the months before it</b> (state D). At 65 or over, “I'm enrolled in Medicare” now asks “When did your Medicare start?” — Before 2026 · Jan · Feb · … · Dec. Enrolled from July 2026: headline “up to $2,700”, and “You are enrolled in Medicare from July 2026, so HSA money counts for January to June only: $5,400 × 6 ÷ 12 = $2,700 (IRS Publication 969).” Enrolled with no month picked, or before 2026: “up to $0”, as before, with “You are enrolled in Medicare, so no HSA contribution is allowed from its first month (IRS Publication 969). If it began this year, pick the month below — the months before it still count.” It read $0 for the whole year whatever the month.</td><td>IRS Publication 969 and Rev. Proc. 2025-19 (DEC-0378, every figure set by law from its published source); his G10 (DEC-0243, 2026-09-08) kept where no month is given — the reading that never lets a person put in more than the law allows. To reverse: drop the month question, and enrolled means $0 again.</td><td>DEC-0243 · DEC-0378 · MK-CF-F-055 · MK-XS-I-062 · the Medicare start month (new input, ID awaiting)</td><td>In the code</td></tr>
+<tr><td style="white-space:nowrap">2026-10-25</td><td><b>Each card names its own catch-up.</b> 401(k) at 60 to 63: “(Includes the age 60–63 catch-up.)”; 401(k) and IRA from 50: “(Includes the age-50+ catch-up.)”; HSA from 55: “(Includes the age-55+ catch-up.)”. Every card read “(Includes the age-50+ catch-up.)” — the HSA catch-up starts at 55, and at 60 to 63 the 401(k)'s is the bigger one.</td><td>Tenet 1 (DEC-3523); IRC §414(v), SECURE 2.0 §109, IRC §223(b)(3). To reverse: the one sentence on every card.</td><td>MK-CF-F-053 · MK-CF-F-054 · MK-CF-F-055</td><td>In the code</td></tr>
+</table>
+</div>
+
+<p class="eyebrow">MoneyKeel · Contribution room (/contribution-room) · v01 · 2026-10-25 · drawn from the build, five data states</p>
+
+<div class="row">
+
+<!-- ── STATE A — the usual: born 1965 (61 this year), $1,200 a month 401(k), $300 Roth IRA, $150 HSA, not on Medicare ── -->
+<div>
+<div class="phone"><div class="screen">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◠ ▮</span></div>
+  <div class="nav"><span class="back">← Back</span><span class="navt">Contribution room 💼</span></div>
+  <div class="c">
+    <div class="h1">Contribution room · 2026 <span class="dot">ⓘ</span></div>
+    <div class="sub">How much more you can still put into tax-advantaged accounts this year. Limits are set by the IRS for your age (61).</div>
+    <div class="card">
+      <div class="head"><span class="icon">💼</span><span class="title">401(k)</span><span class="room"><span class="mark">room for $21,350</span></span></div>
+      <div class="track"><div class="fill" style="width:40%"></div></div>
+      <div class="line"><span class="mark">At $1,200/month you will put in $14,400 this year — room for $21,350 more. Calculated from the monthly amount you entered — check it against your latest statement.</span> <span class="mark">(Includes the age 60–63 catch-up.)</span></div>
+      <div class="how">How to add: raise your paycheck deferral % with your employer/plan.</div>
+    </div>
+    <div class="try">Try it in a what-if — about $7,100/month ›</div>
+    <div class="card">
+      <div class="head"><span class="icon">🏦</span><span class="title">IRA (Traditional + Roth)</span><span class="room"><span class="mark">room for $5,000</span></span></div>
+      <div class="track"><div class="fill" style="width:42%"></div></div>
+      <div class="line"><span class="mark">At $300/month you will put in $3,600 this year — room for $5,000 more. Calculated from the monthly amount you entered — check it against your latest statement.</span> (Includes the age-50+ catch-up.)</div>
+      <div class="note">Traditional + Roth IRA share one combined limit. Income limits may reduce how much is deductible / Roth-eligible.</div>
+      <div class="how">How to add: open or add to an IRA at any brokerage before the tax-filing deadline.</div>
+    </div>
+    <div class="card">
+      <div class="head"><span class="icon">🩺</span><span class="title">HSA (Health Savings Account)</span><span class="room">up to $5,400</span></div>
+      <div class="track"><div class="fill" style="width:0%"></div></div>
+      <div class="line">The 2026 limit is $5,400. <span class="mark">(Includes the age-55+ catch-up.)</span></div>
+      <div class="note">Only if you're on a high-deductible health plan. We don't track your HSA contributions yet, so this shows the full-year cap — self-only limit; family plans cap higher.</div>
+      <div class="how">How to add: contribute via payroll or directly to your HSA provider.</div>
+    </div>
+    <div class="disc">Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer.</div>
+  </div>
+</div></div>
+<p class="cap"><b>A · the usual.</b> 401(k): limit $24,500 + $11,250 (60 to 63) = $35,750; $1,200 × 12 = $14,400; $35,750 − $14,400 = $21,350; ÷ 3 months left = $7,116.67 → about $7,100. IRA: $7,500 + $1,100 = $8,600; $300 × 12 = $3,600; room $5,000. HSA: $4,400 + $1,000 = $5,400. Yellow = changed today.</p>
+</div>
+
+<!-- ── STATE B — over the limit: born 1966 (60), $3,333.33 a month 401(k), $800 Roth IRA ── -->
+<div>
+<div class="phone"><div class="screen">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◠ ▮</span></div>
+  <div class="nav"><span class="back">← Back</span><span class="navt">Contribution room 💼</span></div>
+  <div class="c">
+    <div class="h1">Contribution room · 2026 <span class="dot">ⓘ</span></div>
+    <div class="sub">How much more you can still put into tax-advantaged accounts this year. Limits are set by the IRS for your age (60).</div>
+    <div class="card">
+      <div class="head"><span class="icon">💼</span><span class="title">401(k)</span><span class="room over"><span class="mark">$4,250 over</span></span></div>
+      <div class="track"><div class="fill over" style="width:100%"></div></div>
+      <div class="line"><span class="mark">At $3,333/month you will put in $40,000 this year — $4,250 over the $35,750 limit. Money over the limit has to come out by April 15 next year, or it is taxed twice. Calculated from the monthly amount you entered — check it against your latest statement.</span> <span class="mark">(Includes the age 60–63 catch-up.)</span></div>
+      <div class="how">How to add: raise your paycheck deferral % with your employer/plan.</div>
+    </div>
+    <div class="card">
+      <div class="head"><span class="icon">🏦</span><span class="title">IRA (Traditional + Roth)</span><span class="room over"><span class="mark">$1,000 over</span></span></div>
+      <div class="track"><div class="fill over" style="width:100%"></div></div>
+      <div class="line"><span class="mark">At $800/month you will put in $9,600 this year — $1,000 over the $8,600 limit. Money over the limit has to come out by your tax-filing deadline, or it is taxed 6% for each year it stays. Calculated from the monthly amount you entered — check it against your latest statement.</span> (Includes the age-50+ catch-up.)</div>
+      <div class="note">Traditional + Roth IRA share one combined limit. Income limits may reduce how much is deductible / Roth-eligible.</div>
+      <div class="how">How to add: open or add to an IRA at any brokerage before the tax-filing deadline.</div>
+    </div>
+    <div class="card">
+      <div class="head"><span class="icon">🩺</span><span class="title">HSA (Health Savings Account)</span><span class="room">up to $5,400</span></div>
+      <div class="track"><div class="fill" style="width:0%"></div></div>
+      <div class="line">The 2026 limit is $5,400. <span class="mark">(Includes the age-55+ catch-up.)</span></div>
+      <div class="note">Only if you're on a high-deductible health plan. We don't track your HSA contributions yet, so this shows the full-year cap — self-only limit; family plans cap higher.</div>
+      <div class="how">How to add: contribute via payroll or directly to your HSA provider.</div>
+    </div>
+    <div class="disc">Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer.</div>
+  </div>
+</div></div>
+<p class="cap"><b>B · over the limit.</b> $3,333.33 × 12 = $39,999.96, shown $40,000; − $35,750 = $4,249.96 over, shown $4,250. No what-if button: there is no room to fill. IRA: $800 × 12 = $9,600 − $8,600 = $1,000 over.</p>
+</div>
+
+<!-- ── STATE C — no birth year, $1,000 a month 401(k) ── -->
+<div>
+<div class="phone"><div class="screen">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◠ ▮</span></div>
+  <div class="nav"><span class="back">← Back</span><span class="navt">Contribution room 💼</span></div>
+  <div class="c">
+    <div class="h1">Contribution room · 2026 <span class="dot">ⓘ</span></div>
+    <div class="sub">How much more you can still put into tax-advantaged accounts this year. Limits are set by the IRS. <span class="mark">Your birth year is not entered, so each limit below is the one before any catch-up.</span></div>
+    <div class="byrow"><span class="bylab mark">Your birth year</span><span class="byin">YYYY</span></div>
+    <div class="card">
+      <div class="head"><span class="icon">💼</span><span class="title">401(k)</span><span class="room"><span class="mark">room for $12,500</span></span></div>
+      <div class="track"><div class="fill" style="width:49%"></div></div>
+      <div class="line"><span class="mark">At $1,000/month you will put in $12,000 this year — room for $12,500 more. Calculated from the monthly amount you entered — check it against your latest statement.</span></div>
+      <div class="how">How to add: raise your paycheck deferral % with your employer/plan.</div>
+    </div>
+    <div class="try">Try it in a what-if — about $4,200/month ›</div>
+    <div class="card">
+      <div class="head"><span class="icon">🏦</span><span class="title">IRA (Traditional + Roth)</span><span class="room">up to $7,500</span></div>
+      <div class="track"><div class="fill" style="width:0%"></div></div>
+      <div class="line">The 2026 limit is $7,500.</div>
+      <div class="note">Traditional + Roth IRA share one combined limit. Income limits may reduce how much is deductible / Roth-eligible.</div>
+      <div class="how">How to add: open or add to an IRA at any brokerage before the tax-filing deadline.</div>
+    </div>
+    <div class="card">
+      <div class="head"><span class="icon">🩺</span><span class="title">HSA (Health Savings Account)</span><span class="room">up to $4,400</span></div>
+      <div class="track"><div class="fill" style="width:0%"></div></div>
+      <div class="line">The 2026 limit is $4,400.</div>
+      <div class="note">Only if you're on a high-deductible health plan. We don't track your HSA contributions yet, so this shows the full-year cap — self-only limit; family plans cap higher.</div>
+      <div class="how">How to add: contribute via payroll or directly to your HSA provider.</div>
+    </div>
+    <div class="disc">Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer.</div>
+  </div>
+</div></div>
+<p class="cap"><b>C · no birth year.</b> The base limits: 401(k) $24,500, IRA $7,500, HSA $4,400. $1,000 × 12 = $12,000; room $12,500; ÷ 3 = $4,166.67 → about $4,200. Typing 1976 here makes the 401(k) $32,500 and the IRA $8,600 at once.</p>
+</div>
+
+<!-- ── STATE D — 66, enrolled in Medicare from July 2026, nothing else entered ── -->
+<div>
+<div class="phone"><div class="screen">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◠ ▮</span></div>
+  <div class="nav"><span class="back">← Back</span><span class="navt">Contribution room 💼</span></div>
+  <div class="c">
+    <div class="h1">Contribution room · 2026 <span class="dot">ⓘ</span></div>
+    <div class="sub">How much more you can still put into tax-advantaged accounts this year. Limits are set by the IRS for your age (66).</div>
+    <div class="card">
+      <div class="head"><span class="icon">💼</span><span class="title">401(k)</span><span class="room"><span class="mark">up to $32,500</span></span></div>
+      <div class="track"><div class="fill" style="width:0%"></div></div>
+      <div class="line"><span class="mark">The 2026 limit is $32,500.</span> (Includes the age-50+ catch-up.)</div>
+      <div class="how">How to add: raise your paycheck deferral % with your employer/plan.</div>
+    </div>
+    <div class="try">Try it in a what-if — about $10,800/month ›</div>
+    <div class="card">
+      <div class="head"><span class="icon">🏦</span><span class="title">IRA (Traditional + Roth)</span><span class="room">up to $8,600</span></div>
+      <div class="track"><div class="fill" style="width:0%"></div></div>
+      <div class="line">The 2026 limit is $8,600. (Includes the age-50+ catch-up.)</div>
+      <div class="note">Traditional + Roth IRA share one combined limit. Income limits may reduce how much is deductible / Roth-eligible.</div>
+      <div class="how">How to add: open or add to an IRA at any brokerage before the tax-filing deadline.</div>
+    </div>
+    <div class="card">
+      <div class="head"><span class="icon">🩺</span><span class="title">HSA (Health Savings Account)</span><span class="room"><span class="mark">up to $2,700</span></span></div>
+      <div class="track"><div class="fill" style="width:0%"></div></div>
+      <div class="line">The 2026 limit is $2,700. <span class="mark">(Includes the age-55+ catch-up.)</span></div>
+      <div class="note"><span class="mark">You are enrolled in Medicare from July 2026, so HSA money counts for January to June only: $5,400 × 6 ÷ 12 = $2,700 (IRS Publication 969).</span></div>
+      <div class="mrow"><span class="mbtn on">◉  I'm enrolled in Medicare</span><span class="mbtn">○  I'm not enrolled</span></div>
+      <div class="mlabel mark">When did your Medicare start?</div>
+      <div class="mchips"><span class="mchip">Before 2026</span><span class="mchip">Jan</span><span class="mchip">Feb</span><span class="mchip">Mar</span><span class="mchip">Apr</span><span class="mchip">May</span><span class="mchip">Jun</span><span class="mchip on">Jul</span><span class="mchip">Aug</span><span class="mchip">Sep</span><span class="mchip">Oct</span><span class="mchip">Nov</span><span class="mchip">Dec</span></div>
+      <div class="how">How to add: contribute via payroll or directly to your HSA provider.</div>
+    </div>
+    <div class="disc">Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer.</div>
+  </div>
+</div></div>
+<p class="cap"><b>D · Medicare from July.</b> $4,400 + $1,000 = $5,400 for the year; January to June are the six months before Medicare: $5,400 × 6 ÷ 12 = $2,700. With no month picked, or “Before 2026”: up to $0 and “You are enrolled in Medicare, so no HSA contribution is allowed from its first month (IRS Publication 969). If it began this year, pick the month below — the months before it still count.” Nothing entered for the 401(k), so it reads “up to”: $32,500 ÷ 3 = $10,833.33 → about $10,800.</p>
+</div>
+
+<!-- ── STATE E — the first day: nothing entered at all ── -->
+<div>
+<div class="phone"><div class="screen">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◠ ▮</span></div>
+  <div class="nav"><span class="back">← Back</span><span class="navt">Contribution room 💼</span></div>
+  <div class="c">
+    <div class="h1">Contribution room · 2026 <span class="dot">ⓘ</span></div>
+    <div class="sub">How much more you can still put into tax-advantaged accounts this year. Limits are set by the IRS. <span class="mark">Your birth year is not entered, so each limit below is the one before any catch-up.</span></div>
+    <div class="byrow"><span class="bylab mark">Your birth year</span><span class="byin">YYYY</span></div>
+    <div class="card">
+      <div class="head"><span class="icon">💼</span><span class="title">401(k)</span><span class="room"><span class="mark">up to $24,500</span></span></div>
+      <div class="track"><div class="fill" style="width:0%"></div></div>
+      <div class="line"><span class="mark">The 2026 limit is $24,500.</span></div>
+      <div class="how">How to add: raise your paycheck deferral % with your employer/plan.</div>
+    </div>
+    <div class="try">Try it in a what-if — about $8,200/month ›</div>
+    <div class="card">
+      <div class="head"><span class="icon">🏦</span><span class="title">IRA (Traditional + Roth)</span><span class="room">up to $7,500</span></div>
+      <div class="track"><div class="fill" style="width:0%"></div></div>
+      <div class="line">The 2026 limit is $7,500.</div>
+      <div class="note">Traditional + Roth IRA share one combined limit. Income limits may reduce how much is deductible / Roth-eligible.</div>
+      <div class="how">How to add: open or add to an IRA at any brokerage before the tax-filing deadline.</div>
+    </div>
+    <div class="card">
+      <div class="head"><span class="icon">🩺</span><span class="title">HSA (Health Savings Account)</span><span class="room">up to $4,400</span></div>
+      <div class="track"><div class="fill" style="width:0%"></div></div>
+      <div class="line">The 2026 limit is $4,400.</div>
+      <div class="note">Only if you're on a high-deductible health plan. We don't track your HSA contributions yet, so this shows the full-year cap — self-only limit; family plans cap higher.</div>
+      <div class="how">How to add: contribute via payroll or directly to your HSA provider.</div>
+    </div>
+    <div class="disc">Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer.</div>
+  </div>
+</div></div>
+<p class="cap"><b>E · the first day.</b> Nothing entered: every card reads “up to” its base limit, and the year can be entered at the top. It read “$24,500 left” and “That is about $0 of the $24,500 limit”. $24,500 ÷ 3 = $8,166.67 → about $8,200.</p>
+</div>
+
+</div>
+</div></body></html>

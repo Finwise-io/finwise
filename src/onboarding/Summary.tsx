@@ -25,7 +25,7 @@ function incomeStreams(a: Record<string, any>): string {
   const p: string[] = [];
   if (salaryAnnual(a as any) > 0) p.push('salary');
   if (num(a.bonusAnnual) > 0 || num(a.signingOnetime) > 0) p.push('bonus');
-  if (rsuAnnual(a) > 0) p.push('equity');
+  if ((rsuAnnual(a) ?? 0) > 0) p.push('equity');
   if (rentalNetAnnual(a) > 0) p.push('rental');
   if (retirementMonthlyIncome(a) > 0) p.push('retirement income');
   return p.length ? `Monitoring your ${joinHuman(p)}.` : 'Tracking your income streams.';

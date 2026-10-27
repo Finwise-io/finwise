@@ -273,7 +273,7 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     tapWindow('1Y'); ls = lines();
     expect(ls).toContain('SUMMARY · PAST YEAR');
     expect([after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$10,200', '+9.34%']);
-    expect(ls).toContain("Your daily record begins Oct 1, 2025, so the days before it are worked back from each holding's price history.");
+    expect(ls).toContain("Your daily record begins Oct 1, 2025, so the days before it are worked back from each holding’s price history.");
     expect(ls).toContain('Beginning market value (Sep 29, 2025)');
 
     // 2Y — beginning Sep 29, 2024 (closes of Sep 27): 300 × $208 + 40 × $400 + $2,000 cash = 62,400 + 16,000 + 2,000 = $80,400.
@@ -286,7 +286,7 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     expect(ls).toContain('SUMMARY · PAST 2 YEARS');
     expect([after('Ending value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$125,200', '$29,800', '+16.88%']);
     expect(ls).toContain('2Y is shown per year, so it sits fairly beside 1Y');
-    const note = ls.indexOf("Your daily record begins Oct 1, 2025, so the days before it are worked back from each holding's price history.");
+    const note = ls.indexOf("Your daily record begins Oct 1, 2025, so the days before it are worked back from each holding’s price history.");
     expect(ls[note + 1]).toBe('+36.67% over the two years, which is +16.88%/year — a yearly rate, so it sits fairly beside a one-year window.');
     expect(ls).toContain('HOW $80,400 BECAME $125,200 · ALL ACCOUNTS');
     expect(after('Change in investment value', 1, ls)).toBe('$27,600');
@@ -294,7 +294,8 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     // 1.359072 → +35.91%, a year +16.55%. E*TRADE (closed): 1.25 × 22,500 ÷ 20,000 = 1.40625 → +40.63%, a year +18.56%;
     // its wealth generated 22,500 − 16,000 = $6,500.
     expect(ls).toContain('+35.91% over the two years, which is +16.55%/year — a yearly rate, so it sits fairly beside a one-year window.');
-    expect(ls).toContain('🔗 Linked · wealth generated $6,500 · return +40.63% over the two years, which is +18.56%/year');
+    // the source label, then the rest of the closed line beside it (2026-10-25, MM-PF D4)
+    expect(ls.join('\n')).toContain('🔗 Linked\n· wealth generated $6,500 · return +40.63% over the two years, which is +18.56%/year');
     // WHAT EACH CATEGORY EARNED, 2Y: Stocks / Funds grew (84,000 + 22,000) ÷ (62,400 + 16,000) − 1 = +35.20% in all, which is
     // 1.352^(365 ÷ 731) − 1 = +16.25% a year — the yearly rate, as the summary above it, saying it is yearly (FIXED 2026-10-23:
     // it printed +35.20%; the lead's ruling the same day: "/year" on it)
@@ -310,14 +311,14 @@ describe('E2E-63 · the window journey in the founder\'s household (Performance 
     const tab = lines();
     // what the tab printed for Vanguard on 2Y: its walk and its Return row
     const vStart = tab.indexOf('▾ Vanguard Brokerage');
-    const vanguard = tab.slice(vStart, tab.indexOf('Tap ▾ to collapse · tap the name to open this account\'s portfolio ›', vStart));
+    const vanguard = tab.slice(vStart, tab.indexOf('Tap ▾ to collapse · tap the name to open this account’s portfolio ›', vStart));
     expect(vanguard).toEqual(['▾ Vanguard Brokerage', '$102,700', '›', '🔗 Linked',
       'Beginning market value (Sep 29, 2024)', '$64,400', 'Contributions', '$15,000', 'Withdrawals', '$0', 'Wealth generated', '$23,300',
       'Dividends', '$1,500', 'Interest', '$200', 'Change in investment value', '$21,600', 'Ending market value (Sep 30, 2026)', '$102,700',
       'Return', '+16.55%', '+35.91% over the two years, which is +16.55%/year — a yearly rate, so it sits fairly beside a one-year window.']);
 
     // the person taps Vanguard's name
-    fireEvent.press(screen.getAllByLabelText("Open Vanguard Brokerage — this account's own page")[0]);
+    fireEvent.press(screen.getAllByLabelText("Open Vanguard Brokerage — this account’s own page")[0]);
     expect(follow()).toBe('/account-detail?id=van&period=2Y');
     // the account page opens ON 2Y (the drawing's row 18): the 2Y button is the chosen one
     expect(windowButton('2Y').props.accessibilityState.selected).toBe(true);
@@ -392,7 +393,7 @@ describe('E2E-64 · hide balances, from the eye on the Performance tab', () => {
     expect([after('Ending value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['••••', '••••', '+16.88%']);
     expect(ls).toContain('HOW •••• BECAME •••• · ALL ACCOUNTS');
     expect(ls).toContain('+36.67% over the two years, which is +16.88%/year — a yearly rate, so it sits fairly beside a one-year window.');
-    expect(ls).toContain('🔗 Linked · wealth generated •••• · return +40.63% over the two years, which is +18.56%/year');
+    expect(ls.join('\n')).toContain('🔗 Linked\n· wealth generated •••• · return +40.63% over the two years, which is +18.56%/year');
     let h = heard();
     expect(dotsHeard()).toEqual([]);
     for (const said of ['Ending value, hidden', 'Wealth generated, hidden', 'Return, +16.88% a year', 'How hidden became hidden, all accounts',
@@ -400,7 +401,7 @@ describe('E2E-64 · hide balances, from the eye on the Performance tab', () => {
       'Linked, wealth generated hidden, return +40.63% over the two years, which is +18.56% a year']) expect(h).toContain(said);
 
     // THE ACCOUNT PAGE, opened from Vanguard's name
-    fireEvent.press(screen.getAllByLabelText("Open Vanguard Brokerage — this account's own page")[0]);
+    fireEvent.press(screen.getAllByLabelText("Open Vanguard Brokerage — this account’s own page")[0]);
     follow();
     ls = lines();
     expect(noDollars()).toEqual([]);
@@ -478,7 +479,7 @@ describe('E2E-65 · a brand-new person adds an account by hand, then a holding',
       'Ending value', '$28,000', 'Wealth generated', '$0', 'Return', '—',
       // phone 4's drawn line (FIXED 2026-10-23: it read "You added your accounts today. Figures for 1M, 1Y and longer come from
       // each holding's past prices." — and no figure came from any price)
-      "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."]);
+      "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn’t see."]);
     const card = ls.indexOf('Fidelity Brokerage');
     expect(ls.slice(card, card + 21)).toEqual(['Fidelity Brokerage', '$28,000', '›', '✍️ By hand · you update it',
       'Beginning market value (today)', '$28,000', 'Contributions', '$0', 'Withdrawals', '$0', 'Wealth generated', '$0',
@@ -489,11 +490,12 @@ describe('E2E-65 · a brand-new person adds an account by hand, then a holding',
       'Fills in with your first dividend or interest record. A file import carries no activity — that line will say so rather than show a false $0.', 'ⓘ']);
 
     // the person opens the account and records what it holds: a buy of 100 VTI at $280.00 today
-    fireEvent.press(screen.getAllByLabelText("Open Fidelity Brokerage — this account's own page")[0]);
+    fireEvent.press(screen.getAllByLabelText("Open Fidelity Brokerage — this account’s own page")[0]);
     expect(follow()).toBe(`/account-detail?id=${acct.asset_id}&period=SINCE`);
     // the door names the account as its page does (FIXED 2026-10-23: "Add a buy or sale for Brokerage", the stored label)
     fireEvent.press(screen.getByLabelText('Add a buy or sale for Fidelity Brokerage'));
     fireEvent.changeText(screen.getByPlaceholderText('e.g. AAPL'), 'VTI');
+    fireEvent.press(screen.getByLabelText('Type: Stocks / Funds'));   // a first holding: its type is asked (2026-10-25, trade-sheet v03 row 16)
     const [shares, price] = screen.getAllByPlaceholderText('0');
     fireEvent.changeText(shares, '100');
     fireEvent.changeText(price, '280');
@@ -513,7 +515,7 @@ describe('E2E-65 · a brand-new person adds an account by hand, then a holding',
     // Bought today at $280.00 and closing at $280.00 today, it has gained nothing in any window: 280 ÷ 280 − 1 = +0.00%,
     // each window's figure worked from VTI's own price history (DEC-5291), so the day-one line says so (DEC-5425, his words).
     expect(['Since today', '1M', 'This year', '1Y', '2Y'].map((w) => after(w, 1, ls))).toEqual(['—', '+0.00%', '+0.00%', '+0.00%', '+0.00%']);
-    expect(ls).toContain("You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices.");
+    expect(ls).toContain("You added your accounts today. Figures for 1M, 1Y and longer come from each holding’s past prices.");
     expect(after('Ending value', 1, ls)).toBe('$28,000');
     expect(ls.slice(ls.indexOf('Fidelity Brokerage'), ls.indexOf('Fidelity Brokerage') + 2)).toEqual(['Fidelity Brokerage', '$28,000']);
     expect(ls.slice(ls.indexOf('CATEGORY'), ls.indexOf('CATEGORY') + 6)).toEqual(['CATEGORY', 'EARNED', 'RETURN', 'Stocks / Funds', '$0', '—']);
@@ -521,7 +523,7 @@ describe('E2E-65 · a brand-new person adds an account by hand, then a holding',
     // the holding has a door: the account's page lists it under the total entered, at its latest close, 100 × $280.00 = $28,000,
     // with the line saying the rows need not add up to it (FIXED 2026-10-23: an account typed as one total listed nothing, so
     // the holding bought into it had no way to its own page — READ THIS FIRST row 70 of the account-page drawing)
-    fireEvent.press(screen.getAllByLabelText("Open Fidelity Brokerage — this account's own page")[0]);
+    fireEvent.press(screen.getAllByLabelText("Open Fidelity Brokerage — this account’s own page")[0]);
     follow();
     ls = lines();
     const tbl = ls.indexOf('BY CATEGORY & HOLDING');
@@ -664,7 +666,7 @@ describe('E2E-67 · old prices, a failed refresh, then a pull to refresh that wo
     expect([after('Wealth generated'), after('Return')]).toEqual(['$2,000', '+7.14%']);    // Home's month, the same figures
 
     // the account page: the same three figures
-    fireEvent.press(screen.getAllByLabelText("Open Fidelity Brokerage — this account's own page")[0]);
+    fireEvent.press(screen.getAllByLabelText("Open Fidelity Brokerage — this account’s own page")[0]);
     follow();
     ls = lines();
     expect([after('Market value', 1, ls), after('Wealth generated', 1, ls), after('Return', 1, ls)]).toEqual(['$30,000', '$2,000', '+7.14%']);
@@ -737,9 +739,9 @@ describe('E2E-68 · a screen-reader user', () => {
     // nothing on the tab is heard as a mark: ▾ ▸ › ⚠ are said as words or not at all
     expect(markHeard()).toEqual([]);
     // its door to the account's own page sits inside it, so a screen reader cannot reach the door itself …
-    expect(r.some((x) => x.said === "Open Vanguard Brokerage — this account's own page")).toBe(false);
+    expect(r.some((x) => x.said === "Open Vanguard Brokerage — this account’s own page")).toBe(false);
     // … and reaches the page as the bar's action (FIXED 2026-10-23: there was none, so the page could not be opened)
-    const open1 = bar.node.props.accessibilityActions?.find((a: any) => a.label === "Open Vanguard Brokerage — this account's own page");
+    const open1 = bar.node.props.accessibilityActions?.find((a: any) => a.label === "Open Vanguard Brokerage — this account’s own page");
     expect(open1).toBeDefined();
     fireEvent(screen.getByLabelText(bar.said), 'accessibilityAction', { nativeEvent: { actionName: open1.name } });
     expect(follow()).toBe('/account-detail?id=van&period=SINCE');

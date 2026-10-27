@@ -9,7 +9,8 @@ const op: Record<string, any> = {
   status: 'employed', tracks: ['spend', 'retire_acc'],
   baseSalary: '8000', salaryMode: 'gross', salaryFreq: 'monthly',
   bonusAnnual: '12000', signingOnetime: '10000',
-  equityType: 'rsu', rsuGrants: [{ shares: '100', price: '400', date: '2026-03' }],
+  // sold when they vest, so March's vest is money (2026-10-25, FIX-INCOME-B: kept, shares are not cash — vestsAreCash)
+  equityType: 'rsu', rsuSoldAtVest: 'yes', rsuGrants: [{ shares: '100', price: '400', date: `${new Date().getFullYear()}-03` }],
   c_401k: '800', employerMatchMode: 'pct', employerMatchValue: '50',
   taxMode: 'system',
   spendCats: [

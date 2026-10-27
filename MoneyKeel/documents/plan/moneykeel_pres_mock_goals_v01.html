@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Goals v01</title>
+<style>
+  /* tokens from src/utils/theme.ts; sizes, weights and spacing from GoalsScreen.tsx's StyleSheet, src/components/SectionBand.tsx,
+     src/components/TopBar.tsx and the tab bar in app/(tabs)/_layout.tsx */
+  :root{--primary:#178F6B;--primaryDark:#0F6E56;--primaryDeep:#085041;--primaryLight:#E1F5EE;--amber:#854F0B;--red:#A32D2D;
+        --bg2:#F6F7F5;--bg3:#EEEEE9;--card:#FFFFFF;--t1:#1A1A18;--t2:#6B6B66;--t3:#76766F;--border:rgba(0,0,0,0.10)}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,'SF Pro Text','Segoe UI',Roboto,sans-serif;background:#ECEBE4;color:var(--t1);padding:22px}
+  .wrap{max-width:1500px}
+  .row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+  .phone{width:375px;background:#000;border-radius:44px;padding:10px;box-shadow:0 16px 36px rgba(0,0,0,.24)}
+  .screen{background:var(--bg2);border-radius:35px;overflow:hidden;display:flex;flex-direction:column}
+  .sbar{display:flex;justify-content:space-between;padding:12px 22px 4px;font-size:14px;font-weight:700}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:6px 20px 10px;background:var(--bg2)}
+  .menuBtn{display:flex;align-items:center;gap:6px;height:38px;padding:0 13px;border-radius:12px;background:var(--card);border:1px solid var(--border);font-size:13px;font-weight:700;color:var(--t2)}
+  .wordmark{font-size:15px;font-weight:800;letter-spacing:-.2px}.wordmark .m{color:#178F6B}.wordmark .k{color:#1F3A5F}
+  .tright{display:flex;gap:8px}
+  .ico{width:38px;height:38px;border-radius:19px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--t2)}
+  .content{padding:20px}
+  .h1{font-size:20px;font-weight:800;color:var(--t1);margin-top:8px}
+  .capCard{background:var(--primaryLight);border-radius:16px;padding:12px;margin-top:14px}
+  .capVal{font-size:24px;font-weight:800;color:var(--primaryDark)}
+  .capLab{font-size:13px;color:var(--t2);margin-top:2px;line-height:16px}
+  .band{background:var(--primaryDeep);padding:8px 12px;margin-bottom:4px;color:#fff;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;border-radius:0}
+  .suggestCard{background:var(--card);border-radius:16px;padding:12px;margin-bottom:10px;border:1px solid var(--border)}
+  .suggestTitle{font-size:15px;font-weight:800;color:var(--t1)}
+  .suggestSub{font-size:13px;color:var(--t2);margin-top:4px;line-height:17px}
+  .suggestCta{font-size:13px;font-weight:800;color:var(--primary);margin-top:8px}
+  .card{background:var(--card);border-radius:16px;padding:12px;margin-bottom:10px}
+  .goalHead{display:flex;align-items:center;gap:8px}
+  .goalIcon{font-size:17px}
+  .goalName{flex:1;font-size:15px;font-weight:700;color:var(--t1)}
+  .goalStatus{font-size:13px;font-weight:800;margin-right:8px;color:var(--amber)}
+  .goalPct{font-size:15px;font-weight:800;color:var(--primary)}
+  .bar{height:8px;border-radius:4px;background:var(--bg3);margin-top:8px;overflow:hidden}
+  .barFill{height:8px;border-radius:4px;background:var(--amber);width:40%}
+  .goalSub{font-size:13px;color:var(--t2);margin-top:6px}
+  .goalBehind{font-size:11px;color:var(--amber);margin-top:3px}
+  .goalAllocate{font-size:13px;color:var(--t2);margin-top:6px;padding:10px 0;min-height:44px;line-height:19px}
+  .cta{color:var(--primary);font-weight:700}
+  .addLink{font-size:13px;font-weight:700;color:var(--primary);margin-top:2px}
+  .creditCard{display:flex;align-items:center;gap:10px;background:var(--card);border-radius:16px;padding:12px;margin-top:10px;border:1px solid var(--border)}
+  .creditCard.first{margin-top:0}
+  .creditIcon{font-size:24px}
+  .creditBody{flex:1}
+  .creditTitle{font-size:15px;font-weight:800;color:var(--t1)}
+  .creditSub{font-size:11px;color:var(--t2);margin-top:1px}
+  .creditArrow{font-size:24px;color:var(--t3)}
+  .dtiHead{display:flex;align-items:center;gap:12px}
+  .dtiPct{font-size:24px;font-weight:800;color:var(--primary)}
+  .dtiTitle{font-size:15px;font-weight:800;color:var(--t1)}
+  .dtiSub{font-size:11px;color:var(--t2);margin-top:1px}
+  .note{font-size:11px;color:var(--t2);line-height:16px;margin-top:8px}
+  .segRow{display:flex;gap:8px}
+  .seg{flex:1;border:1.5px solid var(--border);border-radius:12px;padding:9px 0;text-align:center}
+  .seg.on{border-color:var(--primary);background:var(--primaryLight)}
+  .segT{font-size:13px;font-weight:800;color:var(--t2)}.seg.on .segT{color:var(--primaryDark)}
+  .segSub{font-size:11px;color:var(--t3);margin-top:1px}
+  .dRow{margin-top:12px}
+  .dL{font-size:13px;color:var(--t2);font-weight:600}
+  .amtBox{display:flex;align-items:center;border:1.5px solid var(--border);border-radius:12px;padding:0 12px;margin-top:6px}
+  .amtPre{font-size:17px;color:var(--t2)}
+  .amtIn{flex:1;padding:11px;font-size:17px;color:var(--t1)}
+  .resultBox{background:var(--primaryLight);border-radius:12px;padding:12px;margin-top:12px}
+  .resultBig{font-size:20px;font-weight:800;color:var(--primaryDark)}
+  .resultSub{font-size:13px;color:var(--t2);margin-top:3px}
+  .resultSub.saves{color:var(--primary);font-weight:700}
+  .orderHead{font-size:13px;font-weight:800;color:var(--t1);margin-top:12px}
+  .orderRow{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--bg3)}
+  .orderNum{width:22px;height:22px;border-radius:11px;background:var(--primaryLight);color:var(--primaryDark);font-weight:800;font-size:13px;text-align:center;line-height:22px}
+  .orderName{flex:1;font-size:13px;font-weight:700;color:var(--t1)}
+  .orderMo{font-size:11px;color:var(--t3)}
+  .spacer{height:40px}
+  .tabbar{display:flex;justify-content:space-around;background:var(--card);border-top:.5px solid var(--border);height:84px;padding:6px 0 20px}
+  .tb{width:56px;display:flex;flex-direction:column;align-items:center;font-size:10.5px;font-weight:700;color:var(--t3)}
+  .tb i{display:block;height:3px;width:22px;margin-bottom:5px}
+  .tb b{font-size:20px;font-weight:400;line-height:23px;color:var(--t3)}
+  .new{outline:2px dashed #185FA5;outline-offset:2px}
+  .cap{font-size:12px;color:#4a4a45;max-width:375px;margin-top:9px;line-height:1.5}
+  .note-doc{max-width:1100px;margin:0 0 14px;padding:12px 14px;border:2px solid #0B5D3B;border-radius:12px;font-size:13px;line-height:1.5;background:#fff;color:#111}
+  .note-doc table{border-collapse:collapse;margin-top:8px;font-size:12.5px}
+  .note-doc td,.note-doc th{padding:4px 8px;border:1px solid #ccc;vertical-align:top;text-align:left}
+</style></head>
+<body><div class="wrap">
+
+<div class="note-doc">
+<b>READ THIS FIRST — 2026-10-26. Drawn from the build, before the change below is built. Not approved by him: no approval of this screen is on record.</b>
+<br>The Goals screen (the Plan tab's "Goals" in the Menu, route /(tabs)/goals) had no drawing. This file draws it as the code builds it on 26 October 2026 — every string from <span style="font-family:ui-monospace,monospace">src/screens/GoalsScreen.tsx</span>, every size, weight and colour from its StyleSheet and <span style="font-family:ui-monospace,monospace">src/utils/theme.ts</span>, the app's top bar (Menu, the wordmark, hide balances, settings) and its tab bar (no tab lit: Goals is not one of the five) — with the one change below, drawn on the phone and marked with a dashed blue outline. Where a line here and the phone disagree, this line is the design.
+<table>
+<tr><th>Dated</th><th>What changed on the screen</th><th>Why · how to reverse</th><th>Record</th><th>State</th></tr>
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>DEBT PAYOFF PLAN: the words say what the plan pays.</b> Since 2026-10-25 the plan pays each debt the payment the person set, never less than its minimum, plus the extra typed. Three lines still said it ran on the minimums. (1) The box's label reads “Extra / month (on top of your payments)” — it read “Extra / month (beyond minimums)”. (2) The saving line reads “Your extra saves $2,237 interest &amp; 12 mo vs paying no extra.” — it read “… vs minimums.”; the figure was already worked against the payments set with no extra, so the figure does not move. (3) When the payments cannot cover the interest, the card reads the Debts tab’s own sentence for the same case: “⚠️ At this payment your balance grows faster than you pay it down. Add an extra payment to start getting ahead.” — it read “⚠ Minimum payments don't cover the interest — add extra to make progress.”, which blamed the minimums for a payment the person set. Not drawn on the phone: the phone shows the household whose debts clear.</td><td>Not a decision of his: the lead's, made without asking him, as his order of 2026-09-30 says; built by CLEANUP-LEFT. Under tenet 1 of DEC-3523 (no untrue sentence beside a figure), his DEC-0641 (the plan pays what actually leaves; the minimum stays for debt-to-income only) and one term per concept (one case, one sentence on both screens). One word from him reverses it. To reverse: the three old lines.</td><td>DEC-0641 · DEC-3523 (tenet 1) · MK-CF-F-034 payoffPlan · MK-CF-M-058 · MK-CF-M-059</td><td>In the code since 2026-10-26</td></tr>
+<tr><td style="white-space:nowrap">2026-10-26</td><td><b>Every percent on the screen to two decimals.</b> Debt-to-income reads “7.50%” ($450 ÷ $6,000) — it read “8%”; the goal’s progress reads “40.00%” ($4,000 ÷ $10,000) — it read “40%”; the student-loan share of today’s income and a non-monthly budget typed as a share of take-home (“15.00% of take-home pay”) the same way, worked at full precision and rounded only when printed. The guides written as rules — “Aim for 36% or less”, “Aim for 20% or less”, “under 20%” — are the rules’ own numbers and stay as written.</td><td>Not a decision of his: the lead’s, made without asking him; built by CLEANUP-LEFT. The precision standard (his Q49, 2026-09-09): percents to two decimals, rounding once, at display. One word from him reverses it. To reverse: whole percents again.</td><td>MK-CF-F-033 debtToIncome · MK-CF-F-007 nonMonthlyBasis · Q49</td><td>In the code since 2026-10-26</td></tr>
+</table>
+</div>
+
+<div class="row">
+<div>
+<div class="phone"><div class="screen">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◔ ▮</span></div>
+  <div class="topbar"><span class="menuBtn">▦ Menu</span><span class="wordmark"><span class="m">Money</span><span class="k">Keel</span></span><span class="tright"><span class="ico">◉</span><span class="ico">⚙</span></span></div>
+  <div class="content" id="goals-content">
+    <div class="h1">Plan</div>
+    <div class="capCard">
+      <div class="capVal">$1,750/month</div>
+      <div class="capLab">typical free cash to save</div>
+    </div>
+
+    <div class="band">YOUR GOALS</div>
+    <div class="suggestCard">
+      <div class="suggestTitle">💡 Suggested: a sinking fund</div>
+      <div class="suggestSub">Your non-monthly budget comes to ~$2,400/year. Set aside $200/month so non-monthly costs (travel, gifts, repairs) never blow the budget.</div>
+      <div class="suggestCta">Create this goal ›</div>
+    </div>
+    <div class="card">
+      <div class="goalHead"><span class="goalIcon">🛟</span><span class="goalName">Emergency fund</span><span class="goalStatus">🟡 Behind</span><span class="goalPct new">40.00%</span></div>
+      <div class="bar"><div class="barFill"></div></div>
+      <div class="goalSub">$4,000 of $10,000 · $6,000 to go · need ~$500/month for 12 mo</div>
+      <div class="goalBehind">This month: funded $0 of $500/month — allocate more to catch up.</div>
+      <div class="goalAllocate">Surplus this month: $4,800 — <span class="cta">Allocate to this goal ›</span></div>
+    </div>
+    <div class="addLink">＋ Add a goal</div>
+    <div class="creditCard"><span class="creditIcon">🎓</span><div class="creditBody"><div class="creditTitle">College planner</div><div class="creditSub">What school will cost and the monthly savings to get there</div></div><span class="creditArrow">›</span></div>
+
+    <div class="band">DEBT &amp; CREDIT</div>
+    <div class="creditCard first"><span class="creditIcon">📊</span><div class="creditBody"><div class="creditTitle">Build credit</div><div class="creditSub">Check your utilization + the habits that raise your score</div></div><span class="creditArrow">›</span></div>
+
+    <div class="band">DEBT-TO-INCOME</div>
+    <div class="card">
+      <div class="dtiHead"><span class="dtiPct new">7.50%</span><div><div class="dtiTitle">Healthy</div><div class="dtiSub">$450/month in minimum debt payments ÷ $6,000/month income</div></div></div>
+      <div class="note">Aim for 20% or less (renters; rent isn't counted). You're in good shape.</div>
+    </div>
+
+    <div class="band">DEBT PAYOFF PLAN</div>
+    <div class="card">
+      <div class="segRow">
+        <div class="seg on"><div class="segT">Avalanche</div><div class="segSub">least interest</div></div>
+        <div class="seg"><div class="segT">Snowball</div><div class="segSub">quick wins</div></div>
+      </div>
+      <div class="note">Pays the highest-interest debt first — least total interest.</div>
+      <div class="dRow"><span class="dL new">Extra / month (on top of your payments)</span></div>
+      <div class="amtBox"><span class="amtPre">$</span><span class="amtIn">100</span></div>
+      <div class="resultBox">
+        <div class="resultBig">Debt-free in 44 mo</div>
+        <div class="resultSub">around Jun 2030 · $23,000 across 2 debts</div>
+        <div class="resultSub">Total interest: $5,409</div>
+        <div class="resultSub saves new">Your extra saves $2,237 interest &amp; 12 mo vs paying no extra.</div>
+      </div>
+      <div class="orderHead">Payoff order</div>
+      <div class="orderRow"><span class="orderNum">1</span><span class="orderName">Visa card</span><span class="orderMo">paid off May 2029</span></div>
+      <div class="orderRow"><span class="orderNum">2</span><span class="orderName">Car loan</span><span class="orderMo">paid off Jun 2030</span></div>
+    </div>
+
+    <div class="band">PREPARE &amp; PROTECT</div>
+    <div class="creditCard first"><span class="creditIcon">🛡️</span><div class="creditBody"><div class="creditTitle">Life insurance check</div><div class="creditSub">How much coverage would keep your family secure</div></div><span class="creditArrow">›</span></div>
+    <div class="creditCard"><span class="creditIcon">📜</span><div class="creditBody"><div class="creditTitle">Estate &amp; legacy</div><div class="creditSub">Will, beneficiaries &amp; directives — a short checklist</div></div><span class="creditArrow">›</span></div>
+    <div class="creditCard"><span class="creditIcon">🔄</span><div class="creditBody"><div class="creditTitle">Roth conversion</div><div class="creditSub">Convert pre-tax savings in a low-income year — tax-free growth</div></div><span class="creditArrow">›</span></div>
+    <div class="creditCard"><span class="creditIcon">🧾</span><div class="creditBody"><div class="creditTitle">Tax organizer</div><div class="creditSub">A year-end summary + document checklist for your accountant</div></div><span class="creditArrow">›</span></div>
+    <span id="goals-content-end"></span>
+    <div class="spacer"></div>
+  </div>
+  <div class="tabbar">
+    <div class="tb"><i></i><b>⌂</b>Home</div>
+    <div class="tb"><i></i><b>◇</b>Net worth</div>
+    <div class="tb"><i></i><b>▤</b>Performance</div>
+    <div class="tb"><i></i><b>▭</b>Cash flow</div>
+    <div class="tb"><i></i><b>◎</b>Plan</div>
+  </div>
+</div></div>
+<div class="cap"><b>The household, on 26 October 2026.</b> Born 1975, working; $6,000/month of wages before tax, at the 20% rate typed: $4,800 of take-home. A budget of $1,500 bills and fixed, $200 non-monthly and $800 everyday: $2,500/month. A Visa card, $9,000 at 24%, minimum $200, payment set at $300; a car loan, $14,000 at 6.9%, $250. One goal: an emergency fund, $4,000 of $10,000 by October 2027, nothing funded this month. Extra typed: $100.
+<br><b>The figures, by hand.</b> Free cash: $4,800 − $2,500 − ($300 + $250) = $1,750. Sinking fund: $200 × 12 = $2,400/year. The goal: $10,000 − $4,000 = $6,000, ÷ 12 months = $500/month; 4,000 ÷ 10,000 = 40.00%. Surplus this month: $4,800 in, nothing logged out (on the actual side nothing is assumed paid, DEC-1923). Debt-to-income: the minimums, $200 + $250 = $450, ÷ $6,000 = 7.50%. The plan pays $300 + $250 + $100 = $650 a month, the Visa first (the highest rate): the Visa clears in month 31 (May 2029), the car loan in month 44 (Jun 2030), $5,409.45 of interest. With no extra, $550 a month: month 56 (Jun 2031), $7,646.60. The extra saves $7,646.60 − $5,409.45 = $2,237.15, printed $2,237, and 56 − 44 = 12 months. (On the minimums alone, $450 a month, it would be month 84 and $14,786.87 — the figure the old words implied.)</div>
+</div>
+</div>
+
+</div></body></html>

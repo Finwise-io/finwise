@@ -4,14 +4,14 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-048 · MK-CF-M-016 · MK-CF-M-004",
-  "notes": "19 of 31 of his words appear in what implements it: approval approve average beside bills budget; cited by identifier in BudgetScreen.tsx"
+  "notes": "20 of 31 of his words appear in what implements it: approval approve average beside bills budget; cited by identifier in BudgetScreen.tsx"
  },
  {
   "id": "DEC-0078",
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-037 · MK-CF-M-028",
-  "notes": "only 18 of 59 appear — present: audit closed commit complete correction · absent: adversarial alongside among audits autoincrement; cited by identifie"
+  "notes": "only 19 of 59 appear — present: audit closed commit complete correction · absent: adversarial alongside among audits autoincrement; cited by identifie"
  },
  {
   "id": "DEC-0108",
@@ -25,21 +25,21 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-PF-M-008 · MK-CF-M-037 · MK-NW-M-021 · MK-NW-M-008",
-  "notes": "only 26 of 62 appear — present: beneath carries claude comparison correct · absent: accumulated byte-for-byte character clean confirmed; cited by iden"
+  "notes": "only 27 of 62 appear — present: beneath carries claude comparison correct · absent: accumulated byte-for-byte character clean confirmed; cited by iden"
  },
  {
   "id": "DEC-0152",
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-037 · MK-NW-M-006 · MK-NW-M-029",
-  "notes": "only 22 of 65 appear — present: absent assumed august carry checked · absent: a-instructions accurately brief briefs carries; cited by identifier in i"
+  "notes": "only 23 of 65 appear — present: absent assumed august carry checked · absent: a-instructions accurately brief briefs carries; cited by identifier in i"
  },
  {
   "id": "DEC-0165",
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-037 · MK-NW-M-029 · MK-PF-M-008 · MK-NW-M-006",
-  "notes": "only 44 of 106 appear — present: accounts added appears behaves blend · absent: accept app's asserts avoid banned; cited by identifier in income-summa"
+  "notes": "only 45 of 106 appear — present: accounts added appears behaves blend · absent: accept app's asserts avoid banned; cited by identifier in income-summa"
  },
  {
   "id": "DEC-0166",
@@ -53,7 +53,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "src/domain/income/onboarding.ts · MoneyKeel/functions/",
-  "notes": "only 17 of 44 appear — present: actually calculated earner earners employer · absent: asked becomes bonus captured company; cited by identifier in dec"
+  "notes": "only 20 of 44 appear — present: actually bonus calculated earner earners · absent: asked becomes captured company couple; cited by identifier in decis"
  },
  {
   "id": "DEC-0177",
@@ -67,28 +67,28 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-032 · MK-CF-M-043",
-  "notes": "13 of 17 of his words appear in what implements it: annual base-pay counted function income mk-cf-f-; cited by identifier in base-pay.ts"
+  "notes": "13 of 17 of his words appear in what implements it: annual base-pay counted function income mk-cf-f-; cited by identifier in BasePayScreen.tsx"
  },
  {
   "id": "DEC-0179",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-M-040 · MK-CF-O-004",
-  "notes": "23 of 33 of his words appear in what implements it: accounts annual arrive comes counted dividends"
+  "notes": "23 of 33 of his words appear in what implements it: accounts annual arrive comes counted dividends; cited by identifier in IncomeManagerScreen.tsx"
  },
  {
   "id": "DEC-0181",
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-037",
-  "notes": "only 16 of 57 appear — present: calculation coming fixed function functions · absent: actualmonthflow adapters assetclassforsymbol build byte-identica"
+  "notes": "only 17 of 57 appear — present: calculation coming fixed function functions · absent: actualmonthflow adapters assetclassforsymbol build byte-identica"
  },
  {
   "id": "DEC-0182",
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-037 · MK-CF-M-040 · MK-XS-M-004",
-  "notes": "only 8 of 21 appear — present: apart function glance identifier mk-cf-f- · absent: basepay calculations calls counter family; cited by identifier in i"
+  "notes": "only 9 of 21 appear — present: apart function glance identifier mk-cf-f- · absent: basepay calculations calls counter family; cited by identifier in i"
  },
  {
   "id": "DEC-0184",
@@ -102,35 +102,35 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-037 · MK-CF-M-016 · MK-CF-M-028",
-  "notes": "22 of 32 of his words appear in what implements it: actual amount array calendar crossed domain; cited by identifier in income-summary.ts"
+  "notes": "23 of 32 of his words appear in what implements it: actual amount array calendar crossed domain; cited by identifier in income-summary.ts"
  },
  {
   "id": "DEC-0188",
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-037 · MK-CF-M-030 · MK-CF-M-031 · MK-CF-M-036",
-  "notes": "17 of 30 of his words appear in what implements it: block domain earner earners earns field; cited by identifier in base-pay.ts"
+  "notes": "20 of 30 of his words appear in what implements it: block domain earner earnerpay earners earns; cited by identifier in base-pay.ts"
  },
  {
   "id": "DEC-0189",
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-037",
-  "notes": "only 6 of 29 appear — present: calendar genuinely guard local market · absent: allowlist anywhere converting cursor device; cited by identifier in inc"
+  "notes": "only 7 of 29 appear — present: calendar genuinely guard local market · absent: allowlist anywhere converting cursor device; cited by identifier in inc"
  },
  {
   "id": "DEC-0191",
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-037",
-  "notes": "17 of 26 of his words appear in what implements it: count counts dividends domain green income; cited by identifier in income-summary.ts"
+  "notes": "17 of 26 of his words appear in what implements it: count counts dividends domain green income; cited by identifier in base-pay.ts"
  },
  {
   "id": "DEC-0194",
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-035 · MK-CF-M-037 · MK-CF-M-031 · MK-CF-M-046",
-  "notes": "26 of 43 of his words appear in what implements it: approved base-pay comes corrected estimate estimated; cited by identifier in base-pay.ts"
+  "notes": "28 of 43 of his words appear in what implements it: approved base-pay comes corrected estimate estimated; cited by identifier in base-pay.ts"
  },
  {
   "id": "DEC-0195",
@@ -141,24 +141,24 @@
  },
  {
   "id": "DEC-0196",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-M-043 · MK-CF-F-181",
-  "notes": "only 8 of 17 appear — present: average budget built dollar lands · absent: conversion else' everywhere matters one-offs"
+  "notes": "10 of 17 of his words appear in what implements it: average budget built conversion dollar lands; cited by identifier in outside_cashflow_openai_part0"
  },
  {
   "id": "DEC-0197",
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-029 · MK-CF-M-032 · MK-CF-M-043 · MK-CF-M-044",
-  "notes": "19 of 31 of his words appear in what implements it: base-pay bracket comes domain estimate estimated; cited by identifier in base-pay.ts"
+  "notes": "21 of 31 of his words appear in what implements it: base-pay bracket comes domain estimate estimated; cited by identifier in base-pay.ts"
  },
  {
   "id": "DEC-0198",
-  "verdict": "CONFIRMED BY CITATION",
-  "check": "CITED",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
   "governs": "src/domain/income/onboarding.ts · MoneyKeel/functions/",
-  "notes": "quoted copy nowhere a person reads: \"Does this reach your bank?\"; his remark, not copy to find — the rule is held by the test named; cited by identifi"
+  "notes": "1 quoted phrase(s) present; cited by identifier in IncomeManagerScreen.tsx"
  },
  {
   "id": "DEC-0199",
@@ -172,7 +172,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_incom",
-  "notes": "18 of 25 of his words appear in what implements it: account bracket earner force fresh income"
+  "notes": "20 of 25 of his words appear in what implements it: account bracket earner force fresh income"
  },
  {
   "id": "DEC-0203",
@@ -193,21 +193,21 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-037 · MK-CF-M-032 · MK-CF-M-043 · MK-CF-M-030",
-  "notes": "30 of 60 of his words appear in what implements it: approved audit bracket deduction dollar dollars; cited by identifier in base-pay.ts"
+  "notes": "32 of 60 of his words appear in what implements it: approved audit bracket deduction dollar dollars; cited by identifier in base-pay.ts"
  },
  {
   "id": "DEC-0208",
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-031 · MK-CF-M-033 · MK-CF-M-035 · MK-CF-M-044",
-  "notes": "7 of 12 of his words appear in what implements it: calculated entered federal gross take-home taken; cited by identifier in base-pay.ts"
+  "notes": "8 of 12 of his words appear in what implements it: calculated entered federal gross take-home taken; cited by identifier in base-pay.ts"
  },
  {
   "id": "DEC-0209",
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-037 · MK-CF-M-043 · MK-CF-M-032 · MK-CF-M-031",
-  "notes": "16 of 22 of his words appear in what implements it: calculated concept contribution estimate estimated federal; cited by identifier in base-pay.ts"
+  "notes": "17 of 22 of his words appear in what implements it: calculated concept contribution describe estimate estimated; cited by identifier in base-pay.ts"
  },
  {
   "id": "DEC-0240",
@@ -221,14 +221,14 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-MN-M-003 · MK-MN-M-004 · MK-MN-M-005 · MK-CF-F-055 ",
-  "notes": "9 of 14 of his words appear in what implements it: contribution enrolled input limit medicare mk-cf-f-"
+  "notes": "10 of 14 of his words appear in what implements it: annualhsalimit contribution enrolled input limit medicare"
  },
  {
   "id": "DEC-0244",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-M-023 · MK-CF-F-076",
-  "notes": "10 of 13 of his words appear in what implements it: comes drawn future guaranteed income mk-cf-f-"
+  "notes": "10 of 13 of his words appear in what implements it: comes drawn future guaranteed income mk-cf-f-; cited by identifier in outside_cashflow_openai_part"
  },
  {
   "id": "DEC-0245",
@@ -270,7 +270,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-NW-M-048 · MK-MN-M-025 · MK-CF-M-002 · MK-CF-M-052",
-  "notes": "45 of 53 of his words appear in what implements it: account approved bands big-ticket blank bonds; cited by identifier in essentials.ts"
+  "notes": "46 of 53 of his words appear in what implements it: account approved bands big-ticket blank bonds; cited by identifier in BudgetScreen.tsx"
  },
  {
   "id": "DEC-0263",
@@ -288,17 +288,17 @@
  },
  {
   "id": "DEC-0271",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-F-192 · MK-CF-F-193",
-  "notes": "28 of 35 of his words appear in what implements it: actual applied cash-flow cashflow example expected"
+  "notes": "28 of 35 of his words appear in what implements it: actual applied cash-flow cashflow example expected; cited by identifier in outside_cashflow_openai"
  },
  {
   "id": "DEC-0279",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-F-063 · MK-NW-F-063 · MK-CF-F-184",
-  "notes": "12 of 17 of his words appear in what implements it: available bonds constant counted coupon domain"
+  "notes": "12 of 17 of his words appear in what implements it: available bonds constant counted coupon domain; cited by identifier in outside_cashflow_openai_par"
  },
  {
   "id": "DEC-0283",
@@ -326,7 +326,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-F-109 reviewTransactions (src/domain/transaction",
-  "notes": "only 10 of 24 appear — present: built choose dropped entered imported · absent: choice chooses dedupes doubles flagged; cited by identifier in decisio"
+  "notes": "only 11 of 24 appear — present: built choice choose dropped entered · absent: chooses dedupes doubles flagged identity; cited by identifier in decisio"
  },
  {
   "id": "DEC-0325",
@@ -344,10 +344,10 @@
  },
  {
   "id": "DEC-0327",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MoneyKeel/functions/cashflow/base-pay.ts · src/domain/",
-  "notes": "8 of 10 of his words appear in what implements it: applies deduction gross income overstates state"
+  "notes": "8 of 10 of his words appear in what implements it: applies deduction gross income overstates state; cited by identifier in outside_cashflow_openai_par"
  },
  {
   "id": "DEC-0333",
@@ -361,7 +361,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-MN-M-003 · MK-MN-M-004 · MK-MN-M-005 · MK-MN-M-029 ",
-  "notes": "13 of 22 of his words appear in what implements it: calculation contribution-room counts current december domain; cited by identifier in decisions_are"
+  "notes": "14 of 22 of his words appear in what implements it: calculation contribution-room counts current december domain; cited by identifier in decisions_are"
  },
  {
   "id": "DEC-0339",
@@ -382,7 +382,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "MK-CF-M-030",
-  "notes": "only 12 of 25 appear — present: beside components disagree figure-spec functions · absent: build-moneykeel-master computes declarations declared decla"
+  "notes": "14 of 25 of his words appear in what implements it: beside components disagree figure-spec functions hands; cited by identifier in decisions_are_held."
  },
  {
   "id": "DEC-0375",
@@ -393,24 +393,24 @@
  },
  {
   "id": "DEC-0376",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-M-037 · MK-CF-M-038 · MK-CF-O-004 · MK-CF-O-001 ",
-  "notes": "34 of 38 of his words appear in what implements it: agrees alone base-pay bymonth cause corrected"
+  "notes": "34 of 38 of his words appear in what implements it: agrees alone base-pay bymonth cause corrected; cited by identifier in IncomeSummaryScreen.tsx"
  },
  {
   "id": "DEC-0380",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-M-030 · MK-CF-M-031 · MK-CF-M-032 · MK-CF-M-033 ",
-  "notes": "14 of 27 of his words appear in what implements it: deduction earner estimate estimated estrate gross"
+  "notes": "15 of 27 of his words appear in what implements it: deduction earner estimate estimated estrate gross; cited by identifier in outside_cashflow_openai_"
  },
  {
   "id": "DEC-0381",
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-CF-O-001 · MK-CF-O-001",
-  "notes": "9 of 16 of his words appear in what implements it: calculated entered federal gross household mixed"
+  "notes": "11 of 16 of his words appear in what implements it: calculated entered federal gross household mixed"
  },
  {
   "id": "DEC-0384",
@@ -424,7 +424,7 @@
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "MK-CF-M-037 · MK-CF-M-038 · MK-CF-M-041 · MK-CF-M-042 ",
-  "notes": "17 of 25 of his words appear in what implements it: account bonus comes fresh include income"
+  "notes": "18 of 25 of his words appear in what implements it: account bonus comes fresh include income"
  },
  {
   "id": "DEC-0389",
@@ -435,10 +435,10 @@
  },
  {
   "id": "DEC-0393",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MoneyKeel/documents/standards/moneykeel_naming_spec_ca",
-  "notes": "10 of 20 of his words appear in what implements it: amount cashflow income inflow money month"
+  "notes": "10 of 20 of his words appear in what implements it: amount cashflow income inflow money month; cited by identifier in outside_cashflow_openai_part14.t"
  },
  {
   "id": "DEC-0396",
@@ -452,7 +452,7 @@
   "verdict": "COMPLIES",
   "check": "REQUIRES",
   "governs": "MK-CF-M-037",
-  "notes": "1 quoted phrase(s) present; cited by identifier in income-summary.ts"
+  "notes": "1 quoted phrase(s) present; cited by identifier in BudgetScreen.tsx"
  },
  {
   "id": "DEC-0443",
@@ -466,7 +466,7 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "src/domain/income/onboarding.ts · src/domain/cashflow/",
-  "notes": "14 of 21 of his words appear in what implements it: annual arrives biweekly captured income lands; cited by identifier in BudgetScreen.tsx"
+  "notes": "15 of 21 of his words appear in what implements it: annual arrives biweekly captured income lands; cited by identifier in BudgetScreen.tsx"
  },
  {
   "id": "DEC-0503",
@@ -494,21 +494,21 @@
   "verdict": "CONFIRMED BY CITATION",
   "check": "CITED",
   "governs": "src/screens/CashFlowScreen.tsx (no door to a month or ",
-  "notes": "only 16 of 52 appear — present: big-ticket detail draws future income · absent: approved calendar carries cash-flow checked; cited by identifier in de"
+  "notes": "only 15 of 52 appear — present: big-ticket draws future income month · absent: approved calendar carries cash-flow checked; cited by identifier in dec"
  },
  {
   "id": "DEC-1560",
   "verdict": "COMPLIES",
   "check": "REQUIRES",
   "governs": "src/screens/__tests__/cashflow_matches_v01.test.tsx · ",
-  "notes": "2 quoted phrase(s) present"
+  "notes": "2 quoted phrase(s) present; cited by identifier in BudgetScreen.tsx"
  },
  {
   "id": "DEC-1625",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MoneyKeel/functions/cashflow/base-pay.ts (MK-CF-O-001 ",
-  "notes": "only 8 of 21 appear — present: disagree gross second sentence shown · absent: approved asked calculates drawing drawn"
+  "notes": "only 8 of 21 appear — present: disagree gross second sentence shown · absent: approved asked calculates drawing drawn; cited by identifier in outside_"
  },
  {
   "id": "DEC-1668",
@@ -540,17 +540,17 @@
  },
  {
   "id": "DEC-2164",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-M-055 · MoneyKeel/functions/cashflow/future-payc",
-  "notes": "11 of 21 of his words appear in what implements it: buying decided dollars inflation keeps master"
+  "notes": "11 of 21 of his words appear in what implements it: buying decided dollars inflation keeps master; cited by identifier in CashFlowScreen.tsx"
  },
  {
   "id": "DEC-2440",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-O-001 · MK-NW-O-002 · MK-NW-O-003 · MK-NW-O-004 ",
-  "notes": "23 of 45 of his words appear in what implements it: account added audit bonds close closed"
+  "notes": "23 of 45 of his words appear in what implements it: account added audit bonds close closed; cited by identifier in budget-counted.ts"
  },
  {
   "id": "DEC-2484",
@@ -575,80 +575,80 @@
  },
  {
   "id": "DEC-6796",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-XS-F-102 ingestSync (src/services/sync/ingest.ts) ·",
-  "notes": "only 16 of 35 appear — present: account activity amount brokerage check · absent: alike asking deposits ingest journals"
+  "notes": "only 16 of 35 appear — present: account activity amount brokerage check · absent: alike asking deposits ingest journals; cited by identifier in outsid"
  },
  {
   "id": "DEC-6993",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-F-116 inverseOf (src/domain/transactions) · the ",
-  "notes": "only 11 of 28 appear — present: accounts applied balances keeps moved · absent: asking cancelled direction flipped flips"
+  "notes": "only 11 of 28 appear — present: accounts applied balances keeps moved · absent: asking cancelled direction flipped flips; cited by identifier in outsi"
  },
  {
   "id": "DEC-7171",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-034 (where Q35 sits) · MK-NW-O-006 theHolding ",
-  "notes": "only 14 of 42 appear — present: account counts dividends ending holding · absent: account's approved asked asking canon"
+  "notes": "only 14 of 42 appear — present: account counts dividends ending holding · absent: account's approved asked asking canon; cited by identifier in outsid"
  },
  {
   "id": "DEC-7398",
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "tradesAfter and sharesThroughWindow, IDs awaiting (src",
-  "notes": "18 of 35 of his words appear in what implements it: beginning bought brought counted order purchase"
+  "notes": "19 of 35 of his words appear in what implements it: began beginning bought brought counted order"
  },
  {
   "id": "DEC-7595",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-XS-F-174 recomputeBalances (no rule entry yet) · MK",
-  "notes": "only 13 of 30 appear — present: account balance bought holding leaves · absent: app's asking beginning bumpcash editor's"
+  "notes": "15 of 30 of his words appear in what implements it: account balance bought holding leaves money; cited by identifier in outside_cashflow_openai_part11"
  },
  {
   "id": "DEC-7596",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "the trade sheet in src/screens/AccountPortfolioScreen.",
-  "notes": "16 of 22 of his words appear in what implements it: account beside brings counted counts holding"
+  "notes": "16 of 22 of his words appear in what implements it: account beside brings counted counts holding; cited by identifier in outside_cashflow_openai_part1"
  },
  {
   "id": "DEC-7601",
   "verdict": "COMPLIES",
   "check": "REQUIRES",
   "governs": "MK-CF-F-224 openingRecordsOf (src/domain/transactions/",
-  "notes": "2 quoted phrase(s) present"
+  "notes": "2 quoted phrase(s) present; cited by identifier in outside_cashflow_openai_part11.test.ts"
  },
  {
   "id": "DEC-7602",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-F-223 tradeMultiplierOf (src/domain/transactions",
-  "notes": "22 of 36 of his words appear in what implements it: activity amount applied bought brings broker"
+  "notes": "22 of 36 of his words appear in what implements it: activity amount applied bought brings broker; cited by identifier in outside_cashflow_openai_part1"
  },
  {
   "id": "DEC-7605",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-XS-F-172 assetClassForSymbol · MK-CF-F-138 addLot ·",
-  "notes": "21 of 36 of his words appear in what implements it: account arrives asset bought category comes"
+  "notes": "21 of 36 of his words appear in what implements it: account arrives asset bought category comes; cited by identifier in outside_cashflow_openai_part11"
  },
  {
   "id": "DEC-7606",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-M-053 (Home's Left) · src/screens/HomeScreen.tsx",
-  "notes": "11 of 21 of his words appear in what implements it: entered expenses home's household income outflow"
+  "notes": "11 of 21 of his words appear in what implements it: entered expenses home's household income outflow; cited by identifier in outside_cashflow_openai_p"
  },
  {
   "id": "DEC-7607",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-M-051 (Inflow) · MoneyKeel/functions/cashflow/th",
-  "notes": "19 of 32 of his words appear in what implements it: approval approved arrived assumed check count"
+  "notes": "19 of 32 of his words appear in what implements it: approval approved arrived assumed check count; cited by identifier in the-month.ts"
  },
  {
   "id": "DEC-7608",
@@ -662,63 +662,63 @@
   "verdict": "COMPLIES",
   "check": "FORBIDS",
   "governs": "MK-CF-M-052 · MK-CF-M-053 · MK-CF-F-220 pastMonthFlow ",
-  "notes": "1 forbidden phrase(s) absent; 1 quoted phrase(s) present"
+  "notes": "1 forbidden phrase(s) absent; 1 quoted phrase(s) present; cited by identifier in outside_cashflow_openai_part14.test.ts"
  },
  {
   "id": "DEC-7611",
   "verdict": "COMPLIES",
   "check": "FORBIDS",
   "governs": "MK-CF-F-221 spendByMonthByBucket (src/domain/budget/in",
-  "notes": "1 forbidden phrase(s) absent; "
+  "notes": "1 forbidden phrase(s) absent; ; cited by identifier in outside_cashflow_openai_part08.test.ts"
  },
  {
   "id": "DEC-7682",
   "verdict": "COMPLIES",
   "check": "REQUIRES",
   "governs": "MK-CF-M-002 (Planned surplus) · src/screens/CashFlowSc",
-  "notes": "2 quoted phrase(s) present"
+  "notes": "2 quoted phrase(s) present; cited by identifier in outside_cashflow_openai_part09.test.ts"
  },
  {
   "id": "DEC-7795",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/onboarding/modules.tsx (incomeTaxRate, debtPayoff,",
-  "notes": "24 of 43 of his words appear in what implements it: beside built calculated clear filer growth"
+  "notes": "28 of 43 of his words appear in what implements it: beside built calculated clear clears filer; cited by identifier in outside_cashflow_openai_part10."
  },
  {
   "id": "DEC-7796",
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
   "governs": "src/onboarding/modules.tsx (the Taxes step) · MK-CF-O-",
-  "notes": "23 of 30 of his words appear in what implements it: benefits beside bracket comes deduction entered"
+  "notes": "22 of 30 of his words appear in what implements it: benefits beside bracket comes deduction entered"
  },
  {
   "id": "DEC-7797",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-F-230 taxedAfterPreTax (src/domain/income/tax-ra",
-  "notes": "35 of 54 of his words appear in what implements it: added applied approved bands bracket comes"
+  "notes": "38 of 54 of his words appear in what implements it: added applied approved bands bracket comes; cited by identifier in base-pay.ts"
  },
  {
   "id": "DEC-7798",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-M-044 (the line under Calculated federal tax) · ",
-  "notes": "15 of 24 of his words appear in what implements it: beside built calculated entered federal income"
+  "notes": "15 of 24 of his words appear in what implements it: beside built calculated entered federal income; cited by identifier in outside_cashflow_openai_par"
  },
  {
   "id": "DEC-7887",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-M-041 · MK-CF-M-076 · MK-CF-M-077 · MK-CF-M-044 ",
-  "notes": "19 of 36 of his words appear in what implements it: bracket calculated deduction example federal gross"
+  "notes": "20 of 36 of his words appear in what implements it: bracket calculated deduction example federal gross; cited by identifier in outside_cashflow_openai"
  },
  {
   "id": "DEC-7933",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-NW-M-024 · MK-NW-M-056 · MK-NW-F-126 yearlyInterest",
-  "notes": "31 of 44 of his words appear in what implements it: account average balance blank bonds counted"
+  "notes": "32 of 44 of his words appear in what implements it: account average balance blank bonds counted; cited by identifier in outside_cashflow_openai_part05"
  },
  {
   "id": "DEC-7935",
@@ -736,52 +736,52 @@
  },
  {
   "id": "DEC-7937",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-XS-F-195 monthShown, MK-XS-F-196 flowShown, MK-XS-F",
-  "notes": "only 12 of 27 appear — present: balance dollar dollars home's household · absent: asking calendar's cents coffee display"
+  "notes": "only 12 of 27 appear — present: balance dollar dollars home's household · absent: asking calendar's cents coffee display; cited by identifier in outsi"
  },
  {
   "id": "DEC-7938",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-XS-F-004 buildDatedGrid (no rule entry) · MK-CF-F-0",
-  "notes": "20 of 28 of his words appear in what implements it: checked counted dividends filing gross income"
+  "notes": "21 of 28 of his words appear in what implements it: checked counted dividends filing gross income; cited by identifier in base-pay.ts"
  },
  {
   "id": "DEC-7939",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/BudgetScreen.tsx (the plan card) · MK-CF-O",
-  "notes": "only 14 of 33 appear — present: account category counted debts december · absent: alike amends asking beside dining"
+  "notes": "only 14 of 33 appear — present: account category counted debts december · absent: alike amends asking beside dining; cited by identifier in CashFlowSc"
  },
  {
   "id": "DEC-7940",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-F-071 extraIncome · MK-CF-F-124 nextOccurrence ·",
-  "notes": "only 10 of 39 appear — present: bonus comes counts dated income · absent: asking choice choices editor falls"
+  "notes": "only 10 of 39 appear — present: bonus comes counts dated income · absent: asking choice choices editor falls; cited by identifier in income-summary.ts"
  },
  {
   "id": "DEC-7941",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/BillCalendarScreen.tsx · MK-XS-F-004 build",
-  "notes": "only 6 of 32 appear — present: budget coming count counted month · absent: asking beside build calendar's column"
+  "notes": "only 6 of 32 appear — present: budget coming count counted month · absent: asking beside build calendar's column; cited by identifier in outside_cashf"
  },
  {
   "id": "DEC-7942",
-  "verdict": "FAINT TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-F-186 convertTakeHomeMode · MK-CF-O-001 basePay ",
-  "notes": "only 11 of 36 appear — present: calculated entered estimate federal gross · absent: app's asking brings card's drawing's"
+  "notes": "only 11 of 36 appear — present: calculated entered estimate federal gross · absent: app's asking brings card's drawing's; cited by identifier in part_"
  },
  {
   "id": "DEC-7944",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/FilingStatusScreen.tsx · MK-CF-F-181 rateI",
-  "notes": "23 of 35 of his words appear in what implements it: asked assuming compare count entered filing"
+  "notes": "23 of 35 of his words appear in what implements it: asked assuming compare count entered filing; cited by identifier in outside_cashflow_openai_part17"
  },
  {
   "id": "DEC-7945",
@@ -792,51 +792,919 @@
  },
  {
   "id": "DEC-7946",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "src/screens/CashFlowScreen.tsx (bandMonth, the month c",
-  "notes": "17 of 33 of his words appear in what implements it: actually budget dated entered everyday expenses"
+  "notes": "only 16 of 33 appear — present: actually budget dated entered expenses · absent: archived asking drawing earlier everyday; cited by identifier in outs"
  },
  {
   "id": "DEC-7949",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-F-231 addedAfterRecord (MoneyKeel/functions/cash",
-  "notes": "12 of 23 of his words appear in what implements it: added closed dated imported listed month"
+  "notes": "12 of 23 of his words appear in what implements it: added closed dated imported listed month; cited by identifier in CashFlowScreen.tsx"
  },
  {
   "id": "DEC-7951",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-F-008 spendByMonth · MK-CF-F-221 spendByMonthByB",
-  "notes": "41 of 54 of his words appear in what implements it: allowed approved april average bills budget"
+  "notes": "40 of 54 of his words appear in what implements it: approved april average bills budget comes; cited by identifier in outside_cashflow_openai_part08.t"
  },
  {
   "id": "DEC-8084",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "Calculation Module code/scripts/moneykeel_metric_regis",
-  "notes": "28 of 55 of his words appear in what implements it: actual approval approved became count counts"
+  "notes": "28 of 55 of his words appear in what implements it: actual approval approved became count counts; cited by identifier in outside_cashflow_openai_part1"
  },
  {
   "id": "DEC-8085",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-F-194 monthOutflow · MK-CF-F-005 actualMonthFlow",
-  "notes": "16 of 32 of his words appear in what implements it: added comes dollars expenses function inflow"
+  "notes": "16 of 32 of his words appear in what implements it: added comes dollars expenses function inflow; cited by identifier in outside_cashflow_openai_part1"
  },
  {
   "id": "DEC-8152",
-  "verdict": "LEAVES A TRACE",
-  "check": "TRACE",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
   "governs": "MK-CF-M-052 (This month's outflow, counting the HELOC ",
-  "notes": "13 of 24 of his words appear in what implements it: actual commit count counts expenses mk-cf-m-"
+  "notes": "13 of 24 of his words appear in what implements it: actual commit count counts expenses mk-cf-m-; cited by identifier in outside_cashflow_openai_part1"
  },
  {
   "id": "DEC-8153",
+  "verdict": "CONFIRMED BY CITATION",
+  "check": "CITED",
+  "governs": "MK-CF-F-235 paysInMonth · MK-CF-F-236 paymentInMonth (",
+  "notes": "30 of 60 of his words appear in what implements it: august balance big-ticket budget count counted; cited by identifier in outside_cashflow_openai_par"
+ },
+ {
+  "id": "DEC-8344",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "src/screens/AddAccountScreen.tsx · src/screens/BudgetS",
+  "notes": "2 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8355",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-255 spendByMonthByCategory, MK-CF-F-256 budget",
+  "notes": "only 4 of 17 appear — present: expense fixed flexible payment · absent: asking buckets drawing's grocery household"
+ },
+ {
+  "id": "DEC-8357",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/BudgetScreen.tsx (Expenses) · MK-CF-F-283 ",
+  "notes": "only 9 of 21 appear — present: bills budget entered everyday expenses · absent: asking draws frame grocery lead's"
+ },
+ {
+  "id": "DEC-8358",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "src/screens/CashFlowScreen.tsx · src/screens/BudgetScr",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8359",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/BudgetScreen.tsx (Debts) · MK-CF-O-018 the",
+  "notes": "only 10 of 23 appear — present: balance costliest fixed interest minimum · absent: asking built card's floats guess"
+ },
+ {
+  "id": "DEC-8361",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "MK-CF-F-249 rentalsHeld (MoneyKeel/functions/cashflow/",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8362",
   "verdict": "LEAVES A TRACE",
   "check": "TRACE",
-  "governs": "MK-CF-F-235 paysInMonth · MK-CF-F-236 paymentInMonth (",
-  "notes": "30 of 60 of his words appear in what implements it: august balance big-ticket budget count counted"
+  "governs": "src/screens/CashFlowScreen.tsx · src/screens/BudgetScr",
+  "notes": "14 of 28 of his words appear in what implements it: account debts entered expenses income label"
+ },
+ {
+  "id": "DEC-8363",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/BudgetScreen.tsx · MK-CF-M-015",
+  "notes": "only 9 of 23 appear — present: bucket budget editor fixed limit · absent: asking drawing lead's nobody order"
+ },
+ {
+  "id": "DEC-8364",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "src/screens/BudgetScreen.tsx (Debts) · MK-CF-O-018 the",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8365",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/CashFlowScreen.tsx · src/screens/HomeScree",
+  "notes": "only 8 of 19 appear — present: estimate income month order print · absent: asking beside everywhere lead's pay's"
+ },
+ {
+  "id": "DEC-8366",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "OtherMonthCard (src/screens/CashFlowScreen.tsx) · MK-C",
+  "notes": "2 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8367",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/BudgetScreen.tsx (Debts) · MK-CF-M-073 · M",
+  "notes": "only 9 of 23 appear — present: debts interest minimum mk-cf-m- mk-nw-m- · absent: actually asking debt's lead's leaves"
+ },
+ {
+  "id": "DEC-8368",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "MK-CF-F-250 guaranteedReceivedNow (MoneyKeel/functions",
+  "notes": "2 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8369",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-O-017 futurePaycheck · MK-CF-M-022 · MK-CF-M-023",
+  "notes": "only 9 of 22 appear — present: article assumes dollars inflation mk-cf-m- · absent: app's asking assumed chosen fixed"
+ },
+ {
+  "id": "DEC-8370",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "src/components/PaycheckCard.tsx · MK-CF-M-078 · MoneyK",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8371",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "src/screens/BillCalendarScreen.tsx · billCalendarStart",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8374",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/__tests__/cashflow_matches_v01.test.tsx · ",
+  "notes": "12 of 21 of his words appear in what implements it: applied cashflow compare difference dollar drawing"
+ },
+ {
+  "id": "DEC-8375",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-M-012 · MK-CF-M-014 · MK-CF-M-071 · src/screens/",
+  "notes": "only 9 of 31 appear — present: dollars drawn draws expense month · absent: app's asking carries connected corrections"
+ },
+ {
+  "id": "DEC-8376",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "MK-CF-O-008 whatsComing (MoneyKeel/functions/cashflow/",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8377",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-253 startingCashOnRecord (MoneyKeel/functions/",
+  "notes": "only 11 of 23 appear — present: account balance careful entered leave · absent: asking balance's blank checking holding"
+ },
+ {
+  "id": "DEC-8378",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-034 payoffPlan · src/screens/BudgetScreen.tsx ",
+  "notes": "only 8 of 23 appear — present: debt-free extra interest mk-nw-m- month · absent: asking clears goals lead's order"
+ },
+ {
+  "id": "DEC-8379",
+  "verdict": "COMPLIES",
+  "check": "FORBIDS",
+  "governs": "MK-XS-F-198 datedBillsIn (src/domain/grid/index.ts) · ",
+  "notes": "1 forbidden phrase(s) absent; "
+ },
+ {
+  "id": "DEC-8380",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-143 annualisedGross (MoneyKeel/functions/cashf",
+  "notes": "only 7 of 21 appear — present: annualised mk-cf-f- month months table · absent: asking average averaged crossing drawing's"
+ },
+ {
+  "id": "DEC-8381",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-165 salaryMonths · MK-CF-F-169 withSalaryMonth",
+  "notes": "only 11 of 24 appear — present: blank cleared count counted counts · absent: asking flight january lead's october"
+ },
+ {
+  "id": "DEC-8383",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-O-001 basePay · src/screens/BasePayScreen.tsx · ",
+  "notes": "10 of 19 of his words appear in what implements it: calculated federal income label summary take-home"
+ },
+ {
+  "id": "DEC-8384",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-O-001 basePay · src/screens/BasePayScreen.tsx · ",
+  "notes": "only 7 of 17 appear — present: beside counted counts match month · absent: asking dollars lead's order reads"
+ },
+ {
+  "id": "DEC-8387",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "MK-XS-F-199 profileOnTheWayIn (src/store/useStore.ts) ",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8389",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "MK-CF-O-001 basePay · MK-CF-F-146 payFiguresAgree · sr",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8390",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/MonthlyIncomeScreen.tsx · MK-CF-M-024 · MK",
+  "notes": "only 5 of 21 appear — present: income receive received security social · absent: asking erased estimate estimates lead's"
+ },
+ {
+  "id": "DEC-8391",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_incom",
+  "notes": "9 of 17 of his words appear in what implements it: built carry drawn draws filing month"
+ },
+ {
+  "id": "DEC-8392",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-278 ltcgTaxOnGain (src/domain/income/tax.ts) ·",
+  "notes": "19 of 25 of his words appear in what implements it: dollar drawn gains income joint money"
+ },
+ {
+  "id": "DEC-8393",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-020 cashflowYear · MK-CF-F-048 effectiveTaxRat",
+  "notes": "15 of 22 of his words appear in what implements it: earner fixed force function mk-cf-f- mk-cf-o-"
+ },
+ {
+  "id": "DEC-8394",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-O-007 theTaxOrganizer (MoneyKeel/functions/cashf",
+  "notes": "only 10 of 22 appear — present: count dividend entered gross income · absent: asking calendar comes lead's listed"
+ },
+ {
+  "id": "DEC-8395",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-O-007 theTaxOrganizer · src/screens/TaxOrganizer",
+  "notes": "17 of 27 of his words appear in what implements it: beside deduction empty entered gross holds"
+ },
+ {
+  "id": "DEC-8396",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "src/screens/TaxOrganizerScreen.tsx · MK-CF-O-007",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8397",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "over65CountOf (src/domain/income/onboarding.ts) · MK-C",
+  "notes": "13 of 22 of his words appear in what implements it: assumed count counted entered filing jointly"
+ },
+ {
+  "id": "DEC-8398",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-183 paidOutByAccount · MK-CF-F-184 (src/domain",
+  "notes": "only 10 of 27 appear — present: added amount count counted dividend · absent: asking brokerage dated future keeps"
+ },
+ {
+  "id": "DEC-8399",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-049 buildIncomeState (src/domain/income/calc.t",
+  "notes": "only 11 of 23 appear — present: income landed married month order · absent: asking buildincomestate calls couple detail's"
+ },
+ {
+  "id": "DEC-8400",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-264 interestAndDividendsForYear (src/domain/in",
+  "notes": "21 of 26 of his words appear in what implements it: accounts accounts' alone calculated dividends entered"
+ },
+ {
+  "id": "DEC-8403",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "MK-CF-O-007 · MK-PL-F-031 taxOrganizer (src/domain/pla",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8405",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-056 k401Headroom (src/domain/income/limits.ts)",
+  "notes": "13 of 18 of his words appear in what implements it: agrees april excess limit money month"
+ },
+ {
+  "id": "DEC-8406",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "MK-CF-O-005 theContributionRoom · MK-MN-M-003 · MK-MN-",
+  "notes": "2 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8407",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-O-005 theContributionRoom (baseLimitOnly) · src/",
+  "notes": "12 of 24 of his words appear in what implements it: birth catch-up entered limit opens order"
+ },
+ {
+  "id": "DEC-8408",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "MK-CF-F-055 annualHsaLimit · MK-CF-F-248 medicareFromO",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8409",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-106 solveSafeDraw (src/domain/paycheck/index.t",
+  "notes": "11 of 20 of his words appear in what implements it: chance higher holds order return reverse"
+ },
+ {
+  "id": "DEC-8410",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-O-017 futurePaycheck (MoneyKeel/functions/cashfl",
+  "notes": "only 4 of 21 appear — present: keeps month order reverse · absent: asking branch divided formula function"
+ },
+ {
+  "id": "DEC-8411",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-125 amortise (src/domain/debt/mortgageVsTreasu",
+  "notes": "12 of 21 of his words appear in what implements it: cleared clears interest month months moves"
+ },
+ {
+  "id": "DEC-8412",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-043 (src/domain/debt/mortgageVsTreasury.ts) · ",
+  "notes": "14 of 21 of his words appear in what implements it: bracket close compare entered federal income"
+ },
+ {
+  "id": "DEC-8413",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-279 paycheckReturn (src/domain/paycheck/index.",
+  "notes": "17 of 27 of his words appear in what implements it: accounts aside assumes function growth household"
+ },
+ {
+  "id": "DEC-8415",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-019 upcomingBills (src/domain/cashflow/index.t",
+  "notes": "11 of 15 of his words appear in what implements it: counted counts dated january known month"
+ },
+ {
+  "id": "DEC-8416",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-018 equityByMonth · MK-CF-F-258 equityVests, M",
+  "notes": "13 of 18 of his words appear in what implements it: average counts december entered holds march"
+ },
+ {
+  "id": "DEC-8417",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-160 daysBetweenDates · MK-CF-F-122 addDays · M",
+  "notes": "12 of 18 of his words appear in what implements it: agreeing calendar checked count dropped falls"
+ },
+ {
+  "id": "DEC-8418",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-031 creditUtilization · MK-CF-F-033 debtToInco",
+  "notes": "only 5 of 25 appear — present: credit debt-to-income goals income payment · absent: asking chosen divide divided keeps"
+ },
+ {
+  "id": "DEC-8419",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-034 payoffPlan (src/domain/debt/index.ts) · sr",
+  "notes": "only 5 of 25 appear — present: balance extra month months payoff · absent: added asking clears falling faster"
+ },
+ {
+  "id": "DEC-8420",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-042 mortgageOddsEffect (src/domain/debt/mortga",
+  "notes": "12 of 15 of his words appear in what implements it: counted december extra function january month"
+ },
+ {
+  "id": "DEC-8422",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-153 radar (MoneyKeel/functions/cashflow/expens",
+  "notes": "only 3 of 25 appear — present: december month reads · absent: asking bills calendar dated drawing's"
+ },
+ {
+  "id": "DEC-8423",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-223 tradeMultiplierOf (src/domain/transactions",
+  "notes": "15 of 26 of his words appear in what implements it: count counts holding limit moved moves"
+ },
+ {
+  "id": "DEC-8424",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-138 addLot (src/domain/transactions/index.ts) ",
+  "notes": "only 15 of 31 appear — present: apply asked brokerage chosen example · absent: asking assetclassforsymbol class classed classifier's"
+ },
+ {
+  "id": "DEC-8425",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-139 removeShares · MK-CF-F-111 applyTransactio",
+  "notes": "16 of 27 of his words appear in what implements it: count holding keeps missing order purchase"
+ },
+ {
+  "id": "DEC-8426",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-135 availableCash · MK-CF-F-136 bumpCash · MK-",
+  "notes": "16 of 23 of his words appear in what implements it: account activity available beside entered import"
+ },
+ {
+  "id": "DEC-8431",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-233 earnerWageShares · MK-CF-F-234 wagesLandin",
+  "notes": "12 of 18 of his words appear in what implements it: december deductions landed month months order"
+ },
+ {
+  "id": "DEC-8432",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-O-001 basePay · MK-CF-F-144 · MK-CF-M-034",
+  "notes": "12 of 18 of his words appear in what implements it: average income month months order print"
+ },
+ {
+  "id": "DEC-8433",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-141 perMonth · MK-CF-F-059 · MK-CF-F-130 · MK-",
+  "notes": "only 11 of 23 appear — present: assumed counted entered hourly hours · absent: asked asking filled lead's order"
+ },
+ {
+  "id": "DEC-8434",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "MK-CF-O-001 basePay · MK-CF-M-032",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8435",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "MK-CF-F-233 earnerWageShares · MK-CF-F-144 · MK-CF-F-1",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8436",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-146 payFiguresAgree (MoneyKeel/functions/cashf",
+  "notes": "only 6 of 18 appear — present: check february january month tenet · absent: asking fails february's lead's order"
+ },
+ {
+  "id": "DEC-8437",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-186 convertTakeHomeMode (src/domain/income/tak",
+  "notes": "10 of 17 of his words appear in what implements it: alone covered gross month order reads"
+ },
+ {
+  "id": "DEC-8438",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "src/onboarding/modules.tsx (IncomeRecap, the 401(k) st",
+  "notes": "13 of 20 of his words appear in what implements it: agrees calculation contribution earner excess income"
+ },
+ {
+  "id": "DEC-8439",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-260 householdEmployerMatchAnnual, MK-CF-F-262 ",
+  "notes": "14 of 20 of his words appear in what implements it: amount counts december income match money"
+ },
+ {
+  "id": "DEC-8440",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-261 ownK401Annual (src/domain/income/earners.t",
+  "notes": "13 of 24 of his words appear in what implements it: annual checked earner earners limit mk-cf-f-"
+ },
+ {
+  "id": "DEC-8441",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-280 useIncomeProfile, MK-CF-F-281 incomeProfil",
+  "notes": "17 of 25 of his words appear in what implements it: alone income interest month order profile"
+ },
+ {
+  "id": "DEC-8442",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-O-004 incomeSummary (MoneyKeel/functions/cashflo",
+  "notes": "only 8 of 17 appear — present: gross household income security self-employment · absent: asking lead's order reads register's"
+ },
+ {
+  "id": "DEC-8443",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-O-004 · MK-CF-F-088 taxableByCalendarMonth · MK-",
+  "notes": "15 of 23 of his words appear in what implements it: costs counted happens month order planned"
+ },
+ {
+  "id": "DEC-8444",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "MK-CF-O-004 · MK-CF-O-019 theIncomeManager · src/scree",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8445",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-219 rentEntryMonthly · MK-CF-F-067 rentalList ",
+  "notes": "10 of 17 of his words appear in what implements it: blank costs counted empty missing month"
+ },
+ {
+  "id": "DEC-8446",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/IncomeManagerScreen.tsx (the rental’s mort",
+  "notes": "only 4 of 18 appear — present: debts entered mortgage payment · absent: asking balance dropped editor lead's"
+ },
+ {
+  "id": "DEC-8447",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "MK-CF-F-084 taxableAnnual · MK-CF-F-273 socialSecurity",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8448",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-268 unemploymentMonthly (src/domain/income/onb",
+  "notes": "17 of 22 of his words appear in what implements it: benefit chosen count counts income month"
+ },
+ {
+  "id": "DEC-8449",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "MK-CF-F-071 extraIncome · MK-CF-F-270 landsOnce, MK-CF",
+  "notes": "2 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8450",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-079 incomeFromOnboarding (src/domain/income/on",
+  "notes": "14 of 23 of his words appear in what implements it: august bonus dated january keeps landed"
+ },
+ {
+  "id": "DEC-8451",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-265 vestsOf, MK-CF-F-266 vestsAreCash, MK-CF-F",
+  "notes": "19 of 24 of his words appear in what implements it: dividends grants landed lands march money"
+ },
+ {
+  "id": "DEC-8452",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-272 socialSecurityReceivedMonthly, MK-CF-F-271",
+  "notes": "only 1 of 21 appear — present: income · absent: answered arrives asking check count"
+ },
+ {
+  "id": "DEC-8453",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-O-016 incomeSources · MK-CF-O-004 incomeSummary ",
+  "notes": "18 of 28 of his words appear in what implements it: alimony baseline benefits child dividends entered"
+ },
+ {
+  "id": "DEC-8454",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MoneyKeel/documents/audit/outside-test-cases/returned/",
+  "notes": "15 of 30 of his words appear in what implements it: asked checked expected fixed income known"
+ },
+ {
+  "id": "DEC-8455",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "MK-CF-F-156 plannedMonthFlow · MK-CF-O-003 · MK-CF-O-0",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8456",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-227 thisMonthInputs · MK-CF-F-226 datedGridOf ",
+  "notes": "only 3 of 23 appear — present: april asked conversion · absent: asking conversion's dated december december's"
+ },
+ {
+  "id": "DEC-8457",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-225 useCashflowModel (src/hooks/useCashflowMod",
+  "notes": "14 of 20 of his words appear in what implements it: birth dated entered guess hidden order"
+ },
+ {
+  "id": "DEC-8458",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-251 debtPaymentsMatched (MoneyKeel/functions/c",
+  "notes": "only 8 of 24 appear — present: counted debts expenses match month · absent: asking counts debt's lead's logged"
+ },
+ {
+  "id": "DEC-8459",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-O-020 theBudgetCounted · MK-CF-F-246 expensesAsC",
+  "notes": "only 13 of 28 appear — present: actual budget count counted counts · absent: asking beside home's lead's moves"
+ },
+ {
+  "id": "DEC-8460",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "MK-CF-F-034 payoffPlan · MK-CF-F-252 payoffRefusal (Mo",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8461",
+  "verdict": "COMPLIES",
+  "check": "REQUIRES",
+  "governs": "MK-CF-F-034 payoffPlan · requiredPayment (src/domain/d",
+  "notes": "1 quoted phrase(s) present"
+ },
+ {
+  "id": "DEC-8462",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-259 rateNotEntered (src/domain/debt/index.ts) ",
+  "notes": "16 of 22 of his words appear in what implements it: account apart blank debts entered guess"
+ },
+ {
+  "id": "DEC-8463",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-220 (src/screens/CashFlowScreen.tsx)",
+  "notes": "only 7 of 21 appear — present: added frozen imported logged month · absent: asking keeps lead's moved print"
+ },
+ {
+  "id": "DEC-8464",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-231 addedAfterRecord · src/screens/BudgetScree",
+  "notes": "only 3 of 16 appear — present: august differ reads · absent: asking entries holds lead's leave"
+ },
+ {
+  "id": "DEC-8465",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-014 budgetVsActual (src/domain/budget/index.ts",
+  "notes": "16 of 22 of his words appear in what implements it: average budget check december editor holds"
+ },
+ {
+  "id": "DEC-8466",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-013 budgetFromOnboarding (src/domain/budget/in",
+  "notes": "10 of 16 of his words appear in what implements it: added december household order parts reverse"
+ },
+ {
+  "id": "DEC-8467",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-004 spendBuckets · MK-CF-F-221 · MK-CF-F-009 ·",
+  "notes": "12 of 20 of his words appear in what implements it: beside budget categories category count empty"
+ },
+ {
+  "id": "DEC-8468",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-010 emergencyTest (src/domain/budget/index.ts)",
+  "notes": "16 of 26 of his words appear in what implements it: approved became count drawing drawn emergency"
+ },
+ {
+  "id": "DEC-8470",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MoneyKeel/functions/cashflow/outside_cashflow_openai_p",
+  "notes": "only 10 of 28 appear — present: holds mk-cf-f- module order reverse · absent: app's asking cases compile crashed"
+ },
+ {
+  "id": "DEC-8516",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/GoalsScreen.tsx (DEBT PAYOFF PLAN) · MK-CF",
+  "notes": "only 7 of 20 appear — present: goals interest month paying payment · absent: asking extra lead's minimum minimums"
+ },
+ {
+  "id": "DEC-8517",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/GoalsScreen.tsx · src/screens/BudgetScreen",
+  "notes": "only 8 of 25 appear — present: balance debts goals interest minimum · absent: asking cover don't faster goals-only"
+ },
+ {
+  "id": "DEC-8519",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/RetirementCockpit.tsx · MK-CF-M-043",
+  "notes": "12 of 19 of his words appear in what implements it: bracket calculated gross income interest order"
+ },
+ {
+  "id": "DEC-8521",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-279 paycheckReturn (src/domain/paycheck/index.",
+  "notes": "only 5 of 24 appear — present: growth order pre-tax required withdrawal · absent: asking benchmark blended converting floored"
+ },
+ {
+  "id": "DEC-8522",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-PL-F-067 · willItLastInputs (src/domain/retirement/",
+  "notes": "15 of 23 of his words appear in what implements it: accounts calculated domain function gross interest"
+ },
+ {
+  "id": "DEC-8524",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/BasePayScreen.tsx · MK-CF-F-285 accountInc",
+  "notes": "only 9 of 22 appear — present: accounts accounts' calculated comes dividends · absent: asking exist lead's order reads"
+ },
+ {
+  "id": "DEC-8593",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "willItLastInputs (src/domain/retirement/willItLast.ts)",
+  "notes": "16 of 24 of his words appear in what implements it: domain function gross income interest order"
+ },
+ {
+  "id": "DEC-8594",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-282 growthUsed (src/domain/paycheck/index.ts) ",
+  "notes": "only 5 of 24 appear — present: growth month order required withdrawal · absent: asking chosen forward lead's months"
+ },
+ {
+  "id": "DEC-8595",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/GoalsScreen.tsx · MK-CF-F-033 debtToIncome",
+  "notes": "only 4 of 25 appear — present: budget debt-to-income non-monthly share · absent: asking decimals goal's guides latter"
+ },
+ {
+  "id": "DEC-8596",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "src/screens/RothScreen.tsx · src/screens/RetirementCoc",
+  "notes": "only 1 of 28 appear — present: start · absent: asking balances cockpit's converted display"
+ },
+ {
+  "id": "DEC-8667",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-M-082 · MK-CF-O-017 futurePaycheck · MoneyKeel/f",
+  "notes": "18 of 27 of his words appear in what implements it: comes futurepaycheck hands master mk-cf-m- mk-cf-o-"
+ },
+ {
+  "id": "DEC-8668",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-M-083 · MK-CF-O-017 futurePaycheck · MoneyKeel/f",
+  "notes": "15 of 23 of his words appear in what implements it: comes futurepaycheck hands inflation master mk-cf-m-"
+ },
+ {
+  "id": "DEC-8669",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-M-089 · MK-CF-O-018 theDebts · MoneyKeel/functio",
+  "notes": "17 of 25 of his words appear in what implements it: comes debts hands interest master mk-cf-m-"
+ },
+ {
+  "id": "DEC-8670",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-M-096 · MK-CF-O-018 theDebts · MoneyKeel/functio",
+  "notes": "21 of 30 of his words appear in what implements it: comes debts example goals hands master"
+ },
+ {
+  "id": "DEC-8671",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-MN-M-031 to MK-MN-M-033 · MK-CF-O-005 theContributi",
+  "notes": "18 of 29 of his words appear in what implements it: amount comes contribution hands limit master"
+ },
+ {
+  "id": "DEC-8672",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-M-071 · MK-NW-M-012 · Calculation Module code/sc",
+  "notes": "15 of 25 of his words appear in what implements it: keeps lists measured mk-cf-m- mk-nw-m- month"
+ },
+ {
+  "id": "DEC-8673",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-M-084 · MK-CF-M-085 · MK-CF-M-086 · MK-CF-M-087 ",
+  "notes": "only 13 of 32 appear — present: catch-up count dollar functions hands · absent: asking calling card's cockpit's declare"
+ },
+ {
+  "id": "DEC-8676",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "src/onboarding/modules.tsx (IncomeRecap) · MK-CF-M-044",
+  "notes": "15 of 23 of his words appear in what implements it: dollar force income mk-cf-m- moves order"
+ },
+ {
+  "id": "DEC-8722",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-M-081 · MK-CF-F-181 rateInForce · src/screens/Ba",
+  "notes": "only 5 of 26 appear — present: bracket count force mk-cf-m- typed · absent: asking decimals everywhere lead's order"
+ },
+ {
+  "id": "DEC-8767",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-187 seniorDeductionFor (src/domain/income/tax.",
+  "notes": "16 of 25 of his words appear in what implements it: deduction entry filing fixed income joint"
+ },
+ {
+  "id": "DEC-8768",
+  "verdict": "FAINT TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-F-036 buildDebtState (src/domain/debt/index.ts) ",
+  "notes": "only 8 of 20 appear — present: entry example fixed match moneykeel · absent: asking decimals file's formula header"
+ },
+ {
+  "id": "DEC-8769",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-M-055 · MK-CF-O-017 futurePaycheck",
+  "notes": "16 of 20 of his words appear in what implements it: alone drawn entered guaranteed income moves"
+ },
+ {
+  "id": "DEC-8770",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-M-043 · MK-CF-F-099 deductionFor",
+  "notes": "8 of 15 of his words appear in what implements it: additions and-over earners mk-cf-f- order reverse"
+ },
+ {
+  "id": "DEC-8771",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MK-CF-M-054 · Calculation Module code/scripts/moneykee",
+  "notes": "10 of 17 of his words appear in what implements it: actual guard happened label lists order"
+ },
+ {
+  "id": "DEC-8772",
+  "verdict": "LEAVES A TRACE",
+  "check": "TRACE",
+  "governs": "MoneyKeel/documents/audit/outside-test-cases/returned/",
+  "notes": "16 of 26 of his words appear in what implements it: counts dated dropped fixed keeps marked"
  }
 ]

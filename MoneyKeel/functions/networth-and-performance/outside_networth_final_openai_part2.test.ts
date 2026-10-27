@@ -259,7 +259,7 @@ describe('MK-NW-F-031 primaryCarIdOf — five cases', () => {
     // the screen showing the choice says "A's value not entered — it may be the car you drive."
     const cars = [acct({ id: 'A', label: 'A', kind: 'vehicle', balance: null }), acct({ id: 'B', label: 'B', kind: 'vehicle', balance: 8000 })];
     expect(primaryCarIdOf(cars)).toBe('B');
-    expect(carValueNotEnteredNotes(cars)).toEqual(["A's value not entered — it may be the car you drive."]);
+    expect(carValueNotEnteredNotes(cars)).toEqual(["A’s value not entered — it may be the car you drive."]);
   });
 });
 

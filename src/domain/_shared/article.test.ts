@@ -19,6 +19,8 @@ test.each([
   ['Taxable', 'a Taxable'], ['401(k)', 'a 401(k)'], ['Roth 401(k)', 'a Roth 401(k)'],
   // numbers by how they are said
   ['8% rate', 'an 8% rate'], ['11-month CD', 'an 11-month CD'], ['18,000 limit', 'an 18,000 limit'], ['1,800 limit', 'a 1,800 limit'],
+  // the future paycheck's assumed return (CashFlowScreen, MK-CF-M-022, 2026-10-26)
+  ['8.00%', 'an 8.00%'], ['6.00%', 'a 6.00%'], ['11.50%', 'an 11.50%'],
 ])('withArticle(%j) is %j', (word, said) => {
   expect(withArticle(word)).toBe(said);
 });

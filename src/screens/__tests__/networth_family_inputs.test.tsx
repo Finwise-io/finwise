@@ -135,7 +135,7 @@ const FIGURES_MOVED_ON_PURPOSE: Record<string, { id: string; was: string; now: s
     { id: 'MK-NW-M-048', was: '$7,570/month', now: '$7,870/month', why: 'the planned spend, the April premium counted once in the year' },
   ]])),
 };
-const MOVED_ON_PURPOSE: Record<string, { at: number; was: string; now: string | null; why: string }[]> = {   // now: null — a number no longer on the screen
+const MOVED_ON_PURPOSE: Record<string, { at: number; was: string; now: string | string[] | null; why: string }[]> = {   // now: null — a number no longer on the screen; a list — a number now read in more than one place
   // 2026-10-22 (W-A11Y): the figure did not move — the punctuation after it did. Home's hero card's spoken label said
   // "Your investments: $433,200, prices updated …", and this file's number reader takes a trailing comma with the digits; the
   // label now says each printed line as its own sentence ("Your investments: $433,200. …"), so the same figure reads clean
@@ -185,6 +185,14 @@ const MOVED_ON_PURPOSE: Record<string, { at: number; was: string; now: string | 
   ],
   // 2026-10-21, MK-NW-M-013 (re-run part 1, T4): Job safety's savings are the emergency fund's cash on Net worth
   // ($12,400 + $18,250.55 + Vanguard's $838 = $31,488.55), not an old savings log nobody fills — so the gap is $2,231
+  // 2026-10-25 (FIX-INCOME-B; the rent editor drawn with the app's one band): the property's band is a SectionBand, which says
+  // its value to a screen reader in words ("$1,800 a month net") beside the printed "$1,800/month net". The figure did not move
+  // and is printed once — $2,400 rent − $600 to run it = $1,800 — the same number is now also what a screen reader says, as on
+  // every band of the app. Checked 2026-10-26 (CLEANUP-TESTS): no figure counts the rent twice; "= You keep" $1,800 and
+  // $21,600/year (1,800 × 12) are unchanged.
+  'Income · rent': [
+    { at: 0, was: '$1,800', now: ['$1,800', '$1,800'], why: 'the band\'s value, said ("$1,800 a month net") and printed ("$1,800/month net")' },
+  ],
   'Job safety': [
     { at: 0, was: '$33,720', now: '$2,231', why: 'still needed: $33,720 − $31,489' },
     { at: 5, was: '$0', now: '$31,489', why: 'your savings cover — the cash Net worth counts' },
@@ -215,9 +223,9 @@ describe('DEC-0345 — every Net worth figure reads the same as before the input
       }
       expect(now.figures).toEqual(wantFigures);
       const expected = [...before.numbers];
-      const shown: (string | null)[] = [...expected];
+      const shown: (string | string[] | null)[] = [...expected];
       for (const m of MOVED_ON_PURPOSE[s.name] ?? []) { expect(shown[m.at]).toBe(m.was); shown[m.at] = m.now; }
-      expect(now.numbers).toEqual(shown.filter((x): x is string => x !== null));
+      expect(now.numbers).toEqual(shown.flat().filter((x): x is string => x !== null));
     });
   }
   afterAll(() => {

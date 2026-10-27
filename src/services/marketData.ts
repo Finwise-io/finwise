@@ -126,7 +126,7 @@ export function priceFreshness(fetchedAt: string | null | undefined, now: number
 }
 
 /** Fetch many tickers in parallel; returns only the ones that resolved. */
-/* ─ MK-XS-F-083 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-XS-F-083 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * fetchPriceSeries
  *
  * Answers ..... Fetch many tickers in parallel; returns only the ones that resolved.
@@ -138,19 +138,10 @@ export function priceFreshness(fetchedAt: string | null | undefined, now: number
  *     r = results[i]
  *     the answer = out
  *
- * Called by ... MK-XS-F-175 uid
+ * Called by ... MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
- *               … and 35 more — the full list is on functions_from_code
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

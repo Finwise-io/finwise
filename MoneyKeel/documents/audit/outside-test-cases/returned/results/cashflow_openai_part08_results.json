@@ -1,0 +1,2552 @@
+{
+ "batch": "cf module — part 8",
+ "reviewer": "OpenAI independent specification reviewer (CashFlow package of 2026-10-24)",
+ "run_by": "Claude Code — CFR-2 measurer (parts 5–8), part 8 fork",
+ "run_on": "2026-10-25",
+ "test_file": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts",
+ "source": "returned/MoneyKeel_CashFlow_Independent_Audit_Package/MoneyKeel_CashFlow_Independent_Audit/audit_results/MoneyKeel_CashFlow_Audit_Part_08.json",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts → 91 passed, 0 failed, 91 total (each APP WRONG is test.failing on the reviewer's or the settled answer, with a twin \"app today\" test). npx tsc --noEmit: 0 errors in the whole repo (re-run 2026-10-25 after the part 6 file was finished; the 2 errors seen earlier were in that file while it was being written).",
+ "working_tree": "measured at b1c659e8 + other agents' uncommitted work of 2026-10-25; nothing changed but these two files",
+ "mapping": [
+  "bills [{name, amount, date}] → once-in-a-while budget categories {label, amount, bucket nonmonthly, months [MM], dueDay DD} (+ year when beyond twelve months), the Bill calendar editor's shape",
+  "independent_available(_by_need_date) X → the month table from buildDatedGrid with starting balance X and nothing else in or out",
+  "annual_bill with months [] → a yearly category with no month picked (the sign-up editor allows it)",
+  "vests [{date, amount}] → rsuGrants [{shares 1, price amount, date}], equityType rsu",
+  "cashflowYear: wage → baseSalary monthly; k → c_401k; rate → taxMode manual, manualTaxRate r×100 (the only way to hand an exact rate); other taxed → otherAmount monthly; reinvested → invAnnual ×12, invPaidToBank no; planned spend → monthlySpending; debt → one instalment debt handed to buildDatedGrid (cashflowYear takes none); first month (October 2026) compared",
+  "balanceByDay inputs → a two-month DatedGrid (Oct, Nov 2026): October End = prior month end; November = regular money undated, dated income day 5, dated bill day 10",
+  "as_of → now = that day at local noon (America/Los_Angeles); non-exported zero12, daysBetweenDates, addDays, nextOccurrence compiled from their own source text"
+ ],
+ "cases": [
+  {
+   "case_id": "MK-CF-O-008-C01",
+   "id": "MK-CF-O-008",
+   "name": "whatsComing",
+   "kind": "easy",
+   "title": "One covered December bill",
+   "classification": "AGREE",
+   "expected": {
+    "rows": [
+     {
+      "name": "Insurance",
+      "amount": {
+       "exact": "1200",
+       "shown": "$1,200.00"
+      },
+      "due": "2026-12-15",
+      "need_by": "2026-12-13",
+      "ask_by": "2026-12-03",
+      "available": {
+       "exact": "5000",
+       "shown": "$5,000"
+      },
+      "shortfall": {
+       "exact": "0",
+       "shown": "$0"
+      }
+     }
+    ],
+    "next": "Insurance"
+   },
+   "actual": {
+    "rows": [
+     {
+      "name": "Insurance",
+      "amount": 1200,
+      "due": "2026-12-15",
+      "need_by": "2026-12-13",
+      "ask_by": "2026-12-03",
+      "available": 5000,
+      "shortfall": 0
+     }
+    ],
+    "next": "Insurance"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The door lists Insurance $1,200 due 2026-12-15, need-by 2026-12-13, ask-by 2026-12-03, $5,000 there by then, short $0; next = Insurance.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-O-008-C01 · easy · One covered December bill [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-O-008-C02",
+   "id": "MK-CF-O-008",
+   "name": "whatsComing",
+   "kind": "easy",
+   "title": "No dated bills",
+   "classification": "AGREE",
+   "expected": {
+    "rows": [],
+    "next": null
+   },
+   "actual": {
+    "rows": [],
+    "next": null
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "Nothing dated: no rows and no next bill, with a month table handed in.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-O-008-C02 · easy · No dated bills [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-O-008-C03",
+   "id": "MK-CF-O-008",
+   "name": "whatsComing",
+   "kind": "complex",
+   "title": "Two same-day bills share money",
+   "classification": "AGREE",
+   "expected": {
+    "rows": [
+     {
+      "name": "A",
+      "available": {
+       "exact": "2731.19",
+       "shown": "$2,731"
+      },
+      "shortfall": {
+       "exact": "0",
+       "shown": "$0"
+      }
+     },
+     {
+      "name": "B",
+      "available": {
+       "exact": "900.02",
+       "shown": "$900"
+      },
+      "shortfall": {
+       "exact": "411.41",
+       "shown": "$411"
+      }
+     }
+    ],
+    "next": "A"
+   },
+   "actual": {
+    "rows": [
+     {
+      "name": "A",
+      "amount": 1831.17,
+      "due": "2026-12-15",
+      "need_by": "2026-12-13",
+      "ask_by": "2026-12-03",
+      "available": 2731.19,
+      "shortfall": 0
+     },
+     {
+      "name": "B",
+      "amount": 1311.43,
+      "due": "2026-12-15",
+      "need_by": "2026-12-13",
+      "ask_by": "2026-12-03",
+      "available": 900.02,
+      "shortfall": 411.4100000000001
+     }
+    ],
+    "next": "A"
+   },
+   "difference": "none",
+   "rests_on": "DEC-7936",
+   "note": "Bill A reads the whole $2,731.19; bill B reads what A left, $900.02, short $411.41; the same-day tie keeps the order given.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-O-008-C03 · complex · Two same-day bills share money [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-O-008-C04",
+   "id": "MK-CF-O-008",
+   "name": "whatsComing",
+   "kind": "complex",
+   "title": "Far explicit year outside horizon",
+   "classification": "AGREE",
+   "expected": {
+    "rows": [],
+    "next": null
+   },
+   "actual": {
+    "rows": [],
+    "next": null
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The recorded year 2028 is kept, so the March 2028 tax bill is beyond the 365-day horizon and not listed.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-O-008-C04 · complex · Far explicit year outside horizon [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-O-008-C05",
+   "id": "MK-CF-O-008",
+   "name": "whatsComing",
+   "kind": "edge",
+   "title": "Annual month missing",
+   "classification": "APP WRONG",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "No due month is established",
+    "readings": {
+     "budget_months": [
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      }
+     ],
+     "upcoming_bill_january": {
+      "exact": "1200",
+      "shown": "$1,200"
+     }
+    }
+   },
+   "actual": {
+    "budget_months": [
+     100,
+     100,
+     100,
+     100,
+     100,
+     100,
+     100,
+     100,
+     100,
+     100,
+     100,
+     100
+    ],
+    "rows": [
+     {
+      "name": "Insurance",
+      "amount": 1200,
+      "due": "2027-01-01",
+      "need_by": "2026-12-30",
+      "ask_by": "2026-12-20",
+      "available": -300,
+      "shortfall": 1500
+     }
+    ]
+   },
+   "difference": "The door lists a $1,200 bill due 2027-01-01 that the person never dated; the budget spreads the same bill at $100 a month.",
+   "rests_on": "DEC-7611 (a once-in-a-while bill with no month is a twelfth a month); MK-CF-M-028's recorded decision (\"A bill with NO date is not on the calendar — a date nobody gave would be read as one they did. It is still counted in the month's total.\"); tenets 3 and 4",
+   "note": "The reviewer left it RULE UNCLEAR; the app's own record and DEC-7611 settle it: the budget reading ($100 x 12) holds and agrees, and no January bill should be invented. The app invents 1 January. Reachable: the sign-up \"Yearly\" editor saves a category with no month picked.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-O-008-C05 · edge · Annual month missing [APP WRONG]",
+   "test_result": "passed (test.failing on the reviewer's / settled answer; twin \"app today\" test pins the app)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): a once-in-a-while bill with no month is not dated — upcomingBills (MK-CF-F-019) leaves it out; the budget and the month table count $100 a month (DEC-7611, MK-CF-M-028)."
+  },
+  {
+   "case_id": "MK-CF-F-212-C01",
+   "id": "MK-CF-F-212",
+   "name": "receivedInMonth",
+   "kind": "easy",
+   "title": "Inside month",
+   "classification": "AGREE",
+   "expected": [
+    "0"
+   ],
+   "actual": [
+    "0"
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-212-C01 · easy · Inside month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-212-C02",
+   "id": "MK-CF-F-212",
+   "name": "receivedInMonth",
+   "kind": "easy",
+   "title": "Other month",
+   "classification": "AGREE",
+   "expected": [],
+   "actual": [],
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-212-C02 · easy · Other month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-212-C03",
+   "id": "MK-CF-F-212",
+   "name": "receivedInMonth",
+   "kind": "complex",
+   "title": "Mixed dated records",
+   "classification": "AGREE",
+   "expected": [
+    "2",
+    "0"
+   ],
+   "actual": [
+    "2",
+    "0"
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-212-C03 · complex · Mixed dated records [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-212-C04",
+   "id": "MK-CF-F-212",
+   "name": "receivedInMonth",
+   "kind": "complex",
+   "title": "Year boundary",
+   "classification": "AGREE",
+   "expected": [
+    "2",
+    "1"
+   ],
+   "actual": [
+    "2",
+    "1"
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-212-C04 · complex · Year boundary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-212-C05",
+   "id": "MK-CF-F-212",
+   "name": "receivedInMonth",
+   "kind": "edge",
+   "title": "First day",
+   "classification": "AGREE",
+   "expected": [
+    "0"
+   ],
+   "actual": [
+    "0"
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-212-C05 · edge · First day [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-121-C01",
+   "id": "MK-CF-F-121",
+   "name": "zero12",
+   "kind": "easy",
+   "title": "Initial year",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    }
+   ],
+   "actual": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-121-C01 · easy · Initial year [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-121-C02",
+   "id": "MK-CF-F-121",
+   "name": "zero12",
+   "kind": "easy",
+   "title": "After a prior mutation",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    }
+   ],
+   "actual": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-121-C02 · easy · After a prior mutation [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-121-C03",
+   "id": "MK-CF-F-121",
+   "name": "zero12",
+   "kind": "complex",
+   "title": "January indexing",
+   "classification": "AGREE",
+   "expected": {
+    "values": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "assertion": "mutating slot0 of resultA does not change fresh resultB"
+   },
+   "actual": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-121-C03 · complex · January indexing [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-121-C04",
+   "id": "MK-CF-F-121",
+   "name": "zero12",
+   "kind": "complex",
+   "title": "December indexing",
+   "classification": "AGREE",
+   "expected": {
+    "values": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0
+    ],
+    "assertions": [
+     "length exactly12",
+     "indices0through11 present",
+     "January and December slots both0"
+    ]
+   },
+   "actual": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-121-C04 · complex · December indexing [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-121-C05",
+   "id": "MK-CF-F-121",
+   "name": "zero12",
+   "kind": "edge",
+   "title": "Empty accumulator",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    }
+   ],
+   "actual": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-121-C05 · edge · Empty accumulator [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-018-C01",
+   "id": "MK-CF-F-018",
+   "name": "equityByMonth",
+   "kind": "easy",
+   "title": "One vest",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    }
+   ],
+   "actual": [
+    0,
+    0,
+    1000,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-018-C01 · easy · One vest [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-018-C02",
+   "id": "MK-CF-F-018",
+   "name": "equityByMonth",
+   "kind": "easy",
+   "title": "Two quarters",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "1000",
+     "shown": "$1,000"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "3000",
+     "shown": "$3,000"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    }
+   ],
+   "actual": [
+    0,
+    0,
+    1000,
+    0,
+    0,
+    3000,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-018-C02 · easy · Two quarters [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-018-C03",
+   "id": "MK-CF-F-018",
+   "name": "equityByMonth",
+   "kind": "complex",
+   "title": "Different years",
+   "classification": "APP WRONG",
+   "expected": {
+    "actual_2026_values": [
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "8317.43",
+      "shown": "$8,317"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    "illustrative_run_rate_contract": "must be explicitly labeled"
+   },
+   "actual": [
+    0,
+    0,
+    4158.715,
+    0,
+    0,
+    660.595,
+    0,
+    0,
+    0,
+    0,
+    0,
+    2105.585
+   ],
+   "difference": "The app lays the level run-rate (13,849.79 / 2 years = 6,924.895) on the vest months with the year ignored: Mar 4,158.715, Jun 660.595, Dec 2,105.585, where 2026 vests only Mar 8,317.43.",
+   "rests_on": "DEC-0003 (his: every month entered carries its own month AND year); DEC-0187 (months keyed by their date); tenet 1",
+   "note": "The function reads only the month of each vest date. On the dated month table (buildDatedGrid) this puts vesting in Dec 2026, Mar 2027 and Jun 2027, where only Jun 2027 ($1,321.19) vests in that window — measured in the formula-verdict test. Nothing labels it a run-rate.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-018-C03 · complex · Different years [APP WRONG]",
+   "test_result": "passed (test.failing on the reviewer's / settled answer; twin \"app today\" test pins the app)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): equityByMonth(op, year) lands each vest in its own year and month — 2026 is $8,317.43 in March only (DEC-0012, DEC-0003)."
+  },
+  {
+   "case_id": "MK-CF-F-018-C04",
+   "id": "MK-CF-F-018",
+   "name": "equityByMonth",
+   "kind": "complex",
+   "title": "Gap years",
+   "classification": "APP WRONG",
+   "expected": {
+    "actual_2026_values": [
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "7113.17",
+      "shown": "$7,113"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    "illustrative_run_rate_contract": "must be explicitly labeled"
+   },
+   "actual": [
+    1649.715,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    4462.18,
+    0,
+    0,
+    0
+   ],
+   "difference": "The 2030 vests are laid on 2026's January (1,649.715) and September (4,462.18 in place of 7,113.17).",
+   "rests_on": "DEC-0003; DEC-0187; tenet 1",
+   "note": "Same defect as C03: the year of each vest is ignored and a level annual figure is spread by month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-018-C04 · complex · Gap years [APP WRONG]",
+   "test_result": "passed (test.failing on the reviewer's / settled answer; twin \"app today\" test pins the app)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): 2026 is $7,113.17 in September only; the 2030 vests are in 2030."
+  },
+  {
+   "case_id": "MK-CF-F-018-C05",
+   "id": "MK-CF-F-018",
+   "name": "equityByMonth",
+   "kind": "edge",
+   "title": "Undated vest",
+   "classification": "NEEDS RULING",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Vesting month/year missing"
+   },
+   "actual": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1000
+   ],
+   "difference": "The app puts the undated $1,000 vest in December; the reviewer refuses to date it.",
+   "rests_on": "no ruling; tenet 3 leans to the reviewer",
+   "note": "NEEDS RULING. The editor's \"Vest date\" is optional free text, so an undated vest is reachable. App answer pinned.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-018-C05 · edge · Undated vest [NEEDS RULING]",
+   "test_result": "passed",
+   "fixed_2026_10_25": "RULED + FIXED 2026-10-25 (the lead, reading A; FIX-BILLS): a vest with no date is in no month, refused \"vest date not entered\" (equityVests; the month table lists it under notInAMonth). It read $1,000 in December."
+  },
+  {
+   "case_id": "MK-CF-F-160-C01",
+   "id": "MK-CF-F-160",
+   "name": "daysBetweenDates",
+   "kind": "easy",
+   "title": "One day",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "1",
+    "shown": "1"
+   },
+   "actual": 1,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-160-C01 · easy · One day [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-160-C02",
+   "id": "MK-CF-F-160",
+   "name": "daysBetweenDates",
+   "kind": "easy",
+   "title": "Reverse dates",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "-1",
+    "shown": "-1"
+   },
+   "actual": -1,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-160-C02 · easy · Reverse dates [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-160-C03",
+   "id": "MK-CF-F-160",
+   "name": "daysBetweenDates",
+   "kind": "complex",
+   "title": "Leap boundary",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "2",
+    "shown": "2"
+   },
+   "actual": 2,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-160-C03 · complex · Leap boundary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-160-C04",
+   "id": "MK-CF-F-160",
+   "name": "daysBetweenDates",
+   "kind": "complex",
+   "title": "Year boundary",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "5",
+    "shown": "5"
+   },
+   "actual": 5,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-160-C04 · complex · Year boundary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-160-C05",
+   "id": "MK-CF-F-160",
+   "name": "daysBetweenDates",
+   "kind": "edge",
+   "title": "Calendar versus elapsed convention",
+   "classification": "APP WRONG",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Whole calendar dates or elapsed duration?",
+    "readings": {
+     "calendar_days": {
+      "exact": "1",
+      "shown": "$1"
+     },
+     "elapsed_days_rounded": {
+      "exact": "0",
+      "shown": "$0"
+     }
+    }
+   },
+   "actual": 0,
+   "difference": "The app gives 0 days (two minutes rounded); calendar days give 1.",
+   "rests_on": "DEC-0189 (the day is the person's own calendar day); the F-019 card's own words \"bills due from today to the horizon\"; tenet 1",
+   "note": "The reviewer left it RULE UNCLEAR; its one caller settles it: elapsed time rounded drops a bill due today from COMING UP once the clock passes noon (listed at 11:00, gone at 13:00 — measured), and reads tomorrow's bill as 0 days away late at night.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-160-C05 · edge · Calendar versus elapsed convention [APP WRONG]",
+   "test_result": "passed (test.failing on the reviewer's / settled answer; twin \"app today\" test pins the app)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): calendar days — 23:59 to 00:01 is 1 day; a bill due today is listed all day (DEC-0189)."
+  },
+  {
+   "case_id": "MK-CF-F-122-C01",
+   "id": "MK-CF-F-122",
+   "name": "addDays",
+   "kind": "easy",
+   "title": "One day",
+   "classification": "AGREE",
+   "expected": "2026-10-25",
+   "actual": "2026-10-25",
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-122-C01 · easy · One day [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-122-C02",
+   "id": "MK-CF-F-122",
+   "name": "addDays",
+   "kind": "easy",
+   "title": "Reverse dates",
+   "classification": "AGREE",
+   "expected": "2026-10-24",
+   "actual": "2026-10-24",
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-122-C02 · easy · Reverse dates [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-122-C03",
+   "id": "MK-CF-F-122",
+   "name": "addDays",
+   "kind": "complex",
+   "title": "Leap boundary",
+   "classification": "AGREE",
+   "expected": "2028-03-01",
+   "actual": "2028-03-01",
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-122-C03 · complex · Leap boundary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-122-C04",
+   "id": "MK-CF-F-122",
+   "name": "addDays",
+   "kind": "complex",
+   "title": "Year boundary",
+   "classification": "AGREE",
+   "expected": "2027-01-03",
+   "actual": "2027-01-03",
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-122-C04 · complex · Year boundary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-122-C05",
+   "id": "MK-CF-F-122",
+   "name": "addDays",
+   "kind": "edge",
+   "title": "Same day",
+   "classification": "AGREE",
+   "expected": "2026-10-24",
+   "actual": "2026-10-24",
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-122-C05 · edge · Same day [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-124-C01",
+   "id": "MK-CF-F-124",
+   "name": "nextOccurrence",
+   "kind": "easy",
+   "title": "Future month",
+   "classification": "AGREE",
+   "expected": "2026-12-15",
+   "actual": "2026-12-15",
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-124-C01 · easy · Future month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-124-C02",
+   "id": "MK-CF-F-124",
+   "name": "nextOccurrence",
+   "kind": "easy",
+   "title": "Passed month",
+   "classification": "AGREE",
+   "expected": "2027-09-15",
+   "actual": "2027-09-15",
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-124-C02 · easy · Passed month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-124-C03",
+   "id": "MK-CF-F-124",
+   "name": "nextOccurrence",
+   "kind": "complex",
+   "title": "Explicit distant year",
+   "classification": "AGREE",
+   "expected": "2028-03-17",
+   "actual": "2028-03-17",
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-124-C03 · complex · Explicit distant year [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-124-C04",
+   "id": "MK-CF-F-124",
+   "name": "nextOccurrence",
+   "kind": "complex",
+   "title": "Current month future day",
+   "classification": "AGREE",
+   "expected": "2026-10-29",
+   "actual": "2026-10-29",
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-124-C04 · complex · Current month future day [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-124-C05",
+   "id": "MK-CF-F-124",
+   "name": "nextOccurrence",
+   "kind": "edge",
+   "title": "Current month earlier day",
+   "classification": "AGREE",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Purpose promises future, caller rule preserves current cycle",
+    "readings": {
+     "current_cycle": "2026-10-01",
+     "next_on_or_after": "2027-10-01"
+    }
+   },
+   "actual": "2026-10-01",
+   "difference": "none",
+   "rests_on": "DEC-7941 (the lead's decision under his DEC-1923, DEC-0283, DEC-3523): a yearly bill whose day passed earlier this month stays in this month and is not under COMING UP for next year",
+   "note": "The reviewer left it RULE UNCLEAR; DEC-7941 settles it, and the app gives that reading: 2026-10-01 (this cycle), which the list then leaves out as passed.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-124-C05 · edge · Current month earlier day [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-019-C01",
+   "id": "MK-CF-F-019",
+   "name": "upcomingBills",
+   "kind": "easy",
+   "title": "One covered December bill",
+   "classification": "AGREE",
+   "expected": {
+    "rows": [
+     {
+      "name": "Insurance",
+      "amount": {
+       "exact": "1200",
+       "shown": "$1,200.00"
+      },
+      "due": "2026-12-15",
+      "need_by": "2026-12-13",
+      "ask_by": "2026-12-03",
+      "available": {
+       "exact": "5000",
+       "shown": "$5,000"
+      },
+      "shortfall": {
+       "exact": "0",
+       "shown": "$0"
+      }
+     }
+    ],
+    "next": "Insurance"
+   },
+   "actual": {
+    "rows": [
+     {
+      "name": "Insurance",
+      "amount": 1200,
+      "due": "2026-12-15",
+      "need_by": "2026-12-13",
+      "ask_by": "2026-12-03",
+      "available": 5000,
+      "shortfall": 0
+     }
+    ],
+    "next": "Insurance"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-019-C01 · easy · One covered December bill [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-019-C02",
+   "id": "MK-CF-F-019",
+   "name": "upcomingBills",
+   "kind": "easy",
+   "title": "No dated bills",
+   "classification": "AGREE",
+   "expected": {
+    "rows": [],
+    "next": null
+   },
+   "actual": {
+    "rows": [],
+    "next": null
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-019-C02 · easy · No dated bills [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-019-C03",
+   "id": "MK-CF-F-019",
+   "name": "upcomingBills",
+   "kind": "complex",
+   "title": "Two same-day bills share money",
+   "classification": "AGREE",
+   "expected": {
+    "rows": [
+     {
+      "name": "A",
+      "available": {
+       "exact": "2731.19",
+       "shown": "$2,731"
+      },
+      "shortfall": {
+       "exact": "0",
+       "shown": "$0"
+      }
+     },
+     {
+      "name": "B",
+      "available": {
+       "exact": "900.02",
+       "shown": "$900"
+      },
+      "shortfall": {
+       "exact": "411.41",
+       "shown": "$411"
+      }
+     }
+    ],
+    "next": "A"
+   },
+   "actual": {
+    "rows": [
+     {
+      "name": "A",
+      "amount": 1831.17,
+      "due": "2026-12-15",
+      "need_by": "2026-12-13",
+      "ask_by": "2026-12-03",
+      "available": 2731.19,
+      "shortfall": 0
+     },
+     {
+      "name": "B",
+      "amount": 1311.43,
+      "due": "2026-12-15",
+      "need_by": "2026-12-13",
+      "ask_by": "2026-12-03",
+      "available": 900.02,
+      "shortfall": 411.4100000000001
+     }
+    ],
+    "next": "A"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-019-C03 · complex · Two same-day bills share money [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-019-C04",
+   "id": "MK-CF-F-019",
+   "name": "upcomingBills",
+   "kind": "complex",
+   "title": "Far explicit year outside horizon",
+   "classification": "AGREE",
+   "expected": {
+    "rows": [],
+    "next": null
+   },
+   "actual": {
+    "rows": [],
+    "next": null
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-019-C04 · complex · Far explicit year outside horizon [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-019-C05",
+   "id": "MK-CF-F-019",
+   "name": "upcomingBills",
+   "kind": "edge",
+   "title": "Annual month missing",
+   "classification": "APP WRONG",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "No due month is established",
+    "readings": {
+     "budget_months": [
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      },
+      {
+       "exact": "100",
+       "shown": "$100"
+      }
+     ],
+     "upcoming_bill_january": {
+      "exact": "1200",
+      "shown": "$1,200"
+     }
+    }
+   },
+   "actual": {
+    "budget_months": [
+     100,
+     100,
+     100,
+     100,
+     100,
+     100,
+     100,
+     100,
+     100,
+     100,
+     100,
+     100
+    ],
+    "rows": [
+     {
+      "name": "Insurance",
+      "amount": 1200,
+      "due": "2027-01-01",
+      "need_by": "2026-12-30",
+      "ask_by": "2026-12-20",
+      "available": -300,
+      "shortfall": 1500
+     }
+    ]
+   },
+   "difference": "upcomingBills lists $1,200 due 2027-01-01 for a bill with no month; the budget spreads it at $100 a month.",
+   "rests_on": "DEC-7611; MK-CF-M-028's recorded decision; tenets 3 and 4",
+   "note": "Same as MK-CF-O-008-C05 (the door just passes it through). The month table the bill list reads also counts this bill twice: $1,200 in January plus $100 in each of the other eleven months = $2,300 a year (probe P2, MK-XS-F-004 buildDatedGrid).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-019-C05 · edge · Annual month missing [APP WRONG]",
+   "test_result": "passed (test.failing on the reviewer's / settled answer; twin \"app today\" test pins the app)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): no \"due Jan 1\" — a bill with no month is not on the list; the month table counts $100 a month, $1,200 a year (it read $2,300)."
+  },
+  {
+   "case_id": "MK-CF-F-232-C01",
+   "id": "MK-CF-F-232",
+   "name": "balanceByDay",
+   "kind": "easy",
+   "title": "Positive regular net excluded",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "5000",
+    "shown": "$5,000"
+   },
+   "actual": 5000,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-232-C01 · easy · Positive regular net excluded [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-232-C02",
+   "id": "MK-CF-F-232",
+   "name": "balanceByDay",
+   "kind": "easy",
+   "title": "Negative regular net counted",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "4000",
+    "shown": "$4,000"
+   },
+   "actual": 4000,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-232-C02 · easy · Negative regular net counted [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-232-C03",
+   "id": "MK-CF-F-232",
+   "name": "balanceByDay",
+   "kind": "complex",
+   "title": "Dated income and bill",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "6330.99",
+    "shown": "$6,331"
+   },
+   "actual": 6330.99,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-232-C03 · complex · Dated income and bill [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-232-C04",
+   "id": "MK-CF-F-232",
+   "name": "balanceByDay",
+   "kind": "complex",
+   "title": "Negative net and dated items",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "3499.56",
+    "shown": "$3,500"
+   },
+   "actual": 3499.56,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-232-C04 · complex · Negative net and dated items [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-232-C05",
+   "id": "MK-CF-F-232",
+   "name": "balanceByDay",
+   "kind": "edge",
+   "title": "Before table",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "3000",
+    "shown": "$3,000"
+   },
+   "actual": 3000,
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-232-C05 · edge · Before table [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-020-C01",
+   "id": "MK-CF-F-020",
+   "name": "cashflowYear",
+   "kind": "easy",
+   "title": "Known one-wage month",
+   "classification": "APP WRONG",
+   "expected": {
+    "gross": {
+     "exact": "5000",
+     "shown": "$5,000"
+    },
+    "tax": {
+     "exact": "500.0",
+     "shown": "$500"
+    },
+    "k": {
+     "exact": "500",
+     "shown": "$500"
+    },
+    "take_home": {
+     "exact": "4000.0",
+     "shown": "$4,000"
+    },
+    "outflow": {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    "net": {
+     "exact": "2000.0",
+     "shown": "$2,000"
+    }
+   },
+   "actual": {
+    "take_home": 4500,
+    "outflow": 2000,
+    "net": 2500
+   },
+   "difference": "cashflowYear gives take-home $4,500 (5,000 x 0.9, 401(k) left in); right $4,000. Net $2,500 vs $2,000.",
+   "rests_on": "DEC-7938 (wage that lands is after tax AND the 401(k)s); DEC-0283; tenet 4",
+   "note": "Legacy reader with 0 production callers (P9: 758 files read, only 5 test files import it). The current path (buildDatedGrid) gives the reviewer's $4,000 / $2,000 / $2,000 on the same household (P6).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-020-C01 · easy · Known one-wage month [APP WRONG]",
+   "test_result": "passed (test.failing on the reviewer's / settled answer; twin \"app today\" test pins the app)",
+   "fixed_2026_10_25": "RETIRED 2026-10-25 (FIX-BILLS): MK-CF-F-020 cashflowYear removed (0 production callers); the month table every screen draws gives $4,000 in, $2,000 out."
+  },
+  {
+   "case_id": "MK-CF-F-020-C02",
+   "id": "MK-CF-F-020",
+   "name": "cashflowYear",
+   "kind": "easy",
+   "title": "Typed take-home with rent",
+   "classification": "APP WRONG",
+   "expected": {
+    "gross": {
+     "exact": "6411.17",
+     "shown": "$6,411"
+    },
+    "tax": {
+     "exact": "1282.234",
+     "shown": "$1,282"
+    },
+    "k": {
+     "exact": "611.43",
+     "shown": "$611"
+    },
+    "take_home": {
+     "exact": "4517.506",
+     "shown": "$4,518"
+    },
+    "outflow": {
+     "exact": "2250",
+     "shown": "$2,250"
+    },
+    "net": {
+     "exact": "2267.506",
+     "shown": "$2,268"
+    }
+   },
+   "actual": {
+    "take_home": 5128.936000000001,
+    "outflow": 2000,
+    "net": 3128.9360000000006
+   },
+   "difference": "cashflowYear gives take-home $5,128.936 and outflow $2,000 (no debt); right $4,517.506 and $2,250, net $2,267.506.",
+   "rests_on": "DEC-7938; DEC-1923 (a debt is taken from Debts wherever a planned figure needs it); DEC-0269 (outflow = expenses + debt)",
+   "note": "Legacy reader, no debt input at all. The current path gives the reviewer's numbers exactly (P6).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-020-C02 · easy · Typed take-home with rent [APP WRONG]",
+   "test_result": "passed (test.failing on the reviewer's / settled answer; twin \"app today\" test pins the app)",
+   "fixed_2026_10_25": "RETIRED 2026-10-25 (FIX-BILLS): the month table gives $4,517.51 in, $2,250 out (it read $5,128.94 and $2,000)."
+  },
+  {
+   "case_id": "MK-CF-F-020-C03",
+   "id": "MK-CF-F-020",
+   "name": "cashflowYear",
+   "kind": "complex",
+   "title": "Reinvested taxable income",
+   "classification": "APP WRONG",
+   "expected": {
+    "gross": {
+     "exact": "7311.17",
+     "shown": "$7,311"
+    },
+    "tax": {
+     "exact": "1296.1412",
+     "shown": "$1,296"
+    },
+    "k": {
+     "exact": "713.43",
+     "shown": "$713"
+    },
+    "take_home": {
+     "exact": "5301.5988",
+     "shown": "$5,302"
+    },
+    "outflow": {
+     "exact": "3342.60",
+     "shown": "$3,343"
+    },
+    "net": {
+     "exact": "1958.9988",
+     "shown": "$1,959"
+    }
+   },
+   "actual": {
+    "take_home": 6328.218800000001,
+    "outflow": 2731.17,
+    "net": 3597.0488000000005
+   },
+   "difference": "cashflowYear gives take-home $6,328.2188 (the reinvested $313.19 counted as cash in, before tax, 401(k) left in) and outflow $2,731.17; right $5,301.5988 and $3,342.60.",
+   "rests_on": "DEC-7938 (reinvested interest and dividends are not counted as arriving); DEC-1923; DEC-0269",
+   "note": "Legacy reader. The current path, under a calculated rate, leaves the reinvested money out, takes its tax from the pay and counts the debt (P6, with the app's own rate 10.29%).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-020-C03 · complex · Reinvested taxable income [APP WRONG]",
+   "test_result": "passed (test.failing on the reviewer's / settled answer; twin \"app today\" test pins the app)",
+   "fixed_2026_10_25": "RETIRED 2026-10-25 (FIX-BILLS): the month table takes the reinvested $313.19 out of money in and its tax out of the pay at the calculated rate; out $3,342.60."
+  },
+  {
+   "case_id": "MK-CF-F-020-C04",
+   "id": "MK-CF-F-020",
+   "name": "cashflowYear",
+   "kind": "complex",
+   "title": "Uneven real household",
+   "classification": "APP WRONG",
+   "expected": {
+    "gross": {
+     "exact": "12222.36",
+     "shown": "$12,222"
+    },
+    "tax": {
+     "exact": "2896.69932",
+     "shown": "$2,897"
+    },
+    "k": {
+     "exact": "1731.43",
+     "shown": "$1,731"
+    },
+    "take_home": {
+     "exact": "7594.23068",
+     "shown": "$7,594"
+    },
+    "outflow": {
+     "exact": "7042.60",
+     "shown": "$7,043"
+    },
+    "net": {
+     "exact": "551.63068",
+     "shown": "$552"
+    }
+   },
+   "actual": {
+    "take_home": 9325.66068,
+    "outflow": 6311.17,
+    "net": 3014.490680000001
+   },
+   "difference": "cashflowYear gives take-home $9,325.66068 and outflow $6,311.17; right $7,594.23068 and $7,042.60, net $551.63068.",
+   "rests_on": "DEC-7938; DEC-1923; DEC-0269",
+   "note": "Legacy reader. The current path gives the reviewer's numbers exactly (P6).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-020-C04 · complex · Uneven real household [APP WRONG]",
+   "test_result": "passed (test.failing on the reviewer's / settled answer; twin \"app today\" test pins the app)",
+   "fixed_2026_10_25": "RETIRED 2026-10-25 (FIX-BILLS): the month table gives $7,594.23068 in, $7,042.60 out."
+  },
+  {
+   "case_id": "MK-CF-F-020-C05",
+   "id": "MK-CF-F-020",
+   "name": "cashflowYear",
+   "kind": "edge",
+   "title": "Explicit zero income",
+   "classification": "AGREE",
+   "expected": {
+    "gross": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "tax": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "k": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "take_home": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "outflow": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "net": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "take_home": 0,
+    "outflow": 0,
+    "net": 0
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-F-020-C05 · edge · Explicit zero income [AGREE]",
+   "test_result": "passed",
+   "fixed_2026_10_25": "RETIRED 2026-10-25 (FIX-BILLS): the month table gives $0, $0, $0."
+  },
+  {
+   "case_id": "MK-CF-O-006-C01",
+   "id": "MK-CF-O-006",
+   "name": "theCreditLine",
+   "kind": "easy",
+   "title": "At 30 percent",
+   "classification": "AGREE",
+   "expected": {
+    "share": {
+     "exact": "0.3",
+     "shown": "30.00%"
+    },
+    "status": "good"
+   },
+   "actual": {
+    "used": 0.3,
+    "status": "good"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-O-006-C01 · easy · At 30 percent [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-O-006-C02",
+   "id": "MK-CF-O-006",
+   "name": "theCreditLine",
+   "kind": "easy",
+   "title": "Above half",
+   "classification": "AGREE",
+   "expected": {
+    "share": {
+     "exact": "0.6",
+     "shown": "60.00%"
+    },
+    "status": "high"
+   },
+   "actual": {
+    "used": 0.6,
+    "status": "high"
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "The app gives the reviewer's answer exactly.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-O-006-C02 · easy · Above half [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-O-006-C03",
+   "id": "MK-CF-O-006",
+   "name": "theCreditLine",
+   "kind": "complex",
+   "title": "Just above 30 percent",
+   "classification": "APP WRONG",
+   "expected": {
+    "share": {
+     "exact": "0.3001",
+     "shown": "30.01%"
+    },
+    "status": "caution"
+   },
+   "actual": {
+    "used": 0.3,
+    "status": "caution"
+   },
+   "difference": "Status caution is right (classified on the full 0.3001), but the share handed out is 0.300 (rounded to three decimals inside creditUtilization).",
+   "rests_on": "DEC-0264 / Q49 (his: full precision; nothing rounds inside a function)",
+   "note": "The share must be 0.3001 (30.01%). The precision guard misses it: its pattern looks for x 100 / 1e4 / 10000, not x 1000.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-O-006-C03 · complex · Just above 30 percent [APP WRONG]",
+   "test_result": "passed (test.failing on the reviewer's / settled answer; twin \"app today\" test pins the app)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS, MK-CF-F-031): the share is 0.3001 at full precision (it was cut to 0.300)."
+  },
+  {
+   "case_id": "MK-CF-O-006-C04",
+   "id": "MK-CF-O-006",
+   "name": "theCreditLine",
+   "kind": "complex",
+   "title": "Unround high",
+   "classification": "APP WRONG",
+   "expected": {
+    "share": {
+     "exact": "0.5563904699768273751940426106",
+     "shown": "55.64%"
+    },
+    "status": "high"
+   },
+   "actual": {
+    "used": 0.556,
+    "status": "high"
+   },
+   "difference": "Status high is right; the share is 0.556 where it is 0.5563904699768…",
+   "rests_on": "DEC-0264 / Q49",
+   "note": "Same rounding inside the function.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-O-006-C04 · complex · Unround high [APP WRONG]",
+   "test_result": "passed (test.failing on the reviewer's / settled answer; twin \"app today\" test pins the app)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS, MK-CF-F-031): the share is 0.55639… (it was 0.556)."
+  },
+  {
+   "case_id": "MK-CF-O-006-C05",
+   "id": "MK-CF-O-006",
+   "name": "theCreditLine",
+   "kind": "edge",
+   "title": "Zero limit",
+   "classification": "AGREE",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Credit limit not positive"
+   },
+   "actual": {
+    "used": null,
+    "status": null
+   },
+   "difference": "none",
+   "rests_on": "tenet 3",
+   "note": "No limit: no share and no status (null), never 0%.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › MK-CF-O-006-C05 · edge · Zero limit [AGREE]",
+   "test_result": "passed"
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-CF-O-008",
+   "name": "whatsComing",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "Composes the declared grid and bill reader, inheriting bill-date ambiguity and unknown starting-balance assumptions.",
+   "reviewer_should_be": "Carry starting-balance assumption and unknown bill dates to the visible projection, then reuse corrected upcomingBills.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix",
+   "what_the_code_actually_does": "whatsComing defaults a missing starting balance to $0 (\"If start balance is missing it uses 0\") and the Bill calendar passes num('') = 0 for a blank field, so a bill reads \"Short $1,200 — set it aside by Dec 13\" from a balance the person never entered. MK-CF-M-063's own refusal is \"No balance to start from — nothing is projected.\" It also passes through upcomingBills' invented January date for an undated bill (F-019).",
+   "governing_decisions": [
+    "DEC-7936",
+    "DEC-3523 (tenet 3)",
+    "MK-CF-M-063 refusal"
+   ],
+   "plain_example": "No balance entered, $1,200 insurance due Dec 15: app \"Short $1,200 by Dec 13\"; right: nothing projected (or the line says it starts from $0).",
+   "production_callers": "BillCalendarScreen (COMING UP).",
+   "note": "Classified (verdict WRONG / INCOMPLETE). Test: MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › formula verdicts",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): no starting balance handed in → each bill keeps its dates, availableByNeed and shortfall are null and the door says \"No balance to start from — nothing is projected.\"; the Bill calendar passes no balance when its box is blank. A typed $0 is projected."
+  },
+  {
+   "id": "MK-CF-F-212",
+   "name": "receivedInMonth",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Filters the requested recorded year-month and sorts newest first; this is month membership, not a guarantee that every record is before an in-month as-of time.",
+   "reviewer_should_be": "",
+   "classification": "RECORDED — reviewer RIGHT (not classified; its five cases were measured)",
+   "fix_kind": "none",
+   "what_the_code_actually_does": "",
+   "governing_decisions": [],
+   "plain_example": "",
+   "production_callers": "",
+   "note": ""
+  },
+  {
+   "id": "MK-CF-F-121",
+   "name": "zero12",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "A structural zero accumulator, not a claim about missing user financial data.",
+   "reviewer_should_be": "",
+   "classification": "RECORDED — reviewer RIGHT (not classified; its five cases were measured)",
+   "fix_kind": "none",
+   "what_the_code_actually_does": "",
+   "governing_decisions": [],
+   "plain_example": "",
+   "production_callers": "",
+   "note": ""
+  },
+  {
+   "id": "MK-CF-F-018",
+   "name": "equityByMonth",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Allocates a level annual run-rate using all vest months and ignores which calendar year actually vests. It silently puts undated vesting in December.",
+   "reviewer_should_be": "Read year-specific vested values for actual months, or clearly label an illustrative run-rate.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix + NEEDS RULING (undated vest)",
+   "what_the_code_actually_does": "equityByMonth reads only the MONTH of each vest date and spreads the level run-rate rsuAnnual (total / number of vest years) over those months. buildDatedGrid lays this on real dated months: vests Mar 2026 $8,317.43, Jun 2027 $1,321.19, Dec 2027 $4,211.17 give Equity vesting Dec 2026 $2,105.585, Mar 2027 $4,158.715, Jun 2027 $660.595 on the Oct 2026–Sep 2027 table, where only Jun 2027 $1,321.19 vests. An undated vest goes to December (case C05, NEEDS RULING).",
+   "governing_decisions": [
+    "DEC-0003",
+    "DEC-0187",
+    "DEC-0447"
+   ],
+   "plain_example": "Vests Mar 2026 $8,317.43 + Jun 2027 $1,321.19 + Dec 2027 $4,211.17: table shows $4,159 vesting in Mar 2027; right $0 (and $1,321.19 in Jun 2027).",
+   "production_callers": "buildDatedGrid (MK-XS-F-004) via datedGridOf — the Cash flow tab, This month, Home, the Bill calendar, the paycheck year; cashflowYear (no production caller).",
+   "note": "Classified (verdict WRONG / INCOMPLETE). Test: MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › formula verdicts",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): each vest in its own year and month; on the Oct 2026–Sep 2027 table only June 2027's $1,321.19, December 2027 under Later."
+  },
+  {
+   "id": "MK-CF-F-160",
+   "name": "daysBetweenDates",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "low",
+   "reviewer_why": "Elapsed milliseconds rounded to days does not define calendar-day behavior across daylight saving time and non-midnight timestamps.",
+   "reviewer_should_be": "Declare whole local calendar dates versus elapsed 24-hour periods; normalize the former before subtraction.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix + records fix (rule text: calendar days)",
+   "what_the_code_actually_does": "round(elapsed milliseconds / 86,400,000). Its caller compares a bill's local midnight with the clock time now: a bill due today is listed until noon (round(-0.46) = -0) and dropped after noon (round(-0.54) = -1). DST alone is harmless for midnight dates.",
+   "governing_decisions": [
+    "DEC-0189",
+    "DEC-3523 (tenet 1)"
+   ],
+   "plain_example": "Bill due Dec 15, opened Dec 15 at 11:00: listed, 0 days away; at 13:00: gone.",
+   "production_callers": "upcomingBills (filter and daysAway) only.",
+   "note": "Classified (verdict WRONG / INCOMPLETE). Test: MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › formula verdicts",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): calendar days, never elapsed time."
+  },
+  {
+   "id": "MK-CF-F-122",
+   "name": "addDays",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Moves by local calendar days; day and offset must be preserved across DST rather than blindly adding 24-hour milliseconds.",
+   "reviewer_should_be": "",
+   "classification": "RECORDED — reviewer RIGHT (not classified; its five cases were measured)",
+   "fix_kind": "none",
+   "what_the_code_actually_does": "",
+   "governing_decisions": [],
+   "plain_example": "",
+   "production_callers": "",
+   "note": ""
+  },
+  {
+   "id": "MK-CF-F-124",
+   "name": "nextOccurrence",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "low",
+   "reviewer_why": "The revised rule deliberately leaves earlier days in the current month in the past, despite a purpose that says next occurrence on/after now. Leap-day rollover is also unspecified.",
+   "reviewer_should_be": "Name it current-cycle occurrence or implement true next occurrence; settle February 29 in nonleap years. Preserve the owner’s current-month bill rule at its caller.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix + records fix (rule text: \"this cycle's date\", per DEC-7941)",
+   "what_the_code_actually_does": "The current-month rule follows DEC-7941 (case C05 agrees). But new Date(year, month - 1, day) rolls a day past the month's end into the next month: Feb 29 in 2027 is listed 2027-03-01 and a September 31 bill 2027-10-01, while the month table counts both in their own month. The editor's day field is free text (2 digits).",
+   "governing_decisions": [
+    "DEC-7941",
+    "DEC-3523 (tenet 4)"
+   ],
+   "plain_example": "$300 fee, February, day 29: list says due Mar 1 2027; the table has it in February 2027. Right: the month's last day (Feb 28).",
+   "production_callers": "upcomingBills only.",
+   "note": "Classified (verdict WRONG / INCOMPLETE). Test: MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › formula verdicts",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): a day past its month's end is the month's last day — Feb 29 is 2027-02-28, on the list and the table alike."
+  },
+  {
+   "id": "MK-CF-F-019",
+   "name": "upcomingBills",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Undated annual categories are spread over twelve months by the budget reader but placed wholly in January here. The relationship to conservative availability is clear, but bill timing/unknown coverage is inconsistent.",
+   "reviewer_should_be": "Use one dated bill schedule or flag unentered due months; keep same-day bill allocation stable and avoid inventing January.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix",
+   "what_the_code_actually_does": "A once-in-a-while category with no month is listed as due 1 January at its full amount (ms = [1]), while the budget spreads it at a twelfth a month. The month table it reads (buildDatedGrid, same [1] default) then counts it twice when the bill is bigger than the month's plan: $1,200 in January + $100 in each of 11 other months = $2,300 a year (P2). With $2,000 typed a month the year holds ($24,000) but January shows $800 everyday + $1,200 bill (P3). The dated example ($2,000 + $1,200 December) is right everywhere: Sep $2,000, Dec $3,200, year $25,200, one $1,200 bill on Dec 15 (P1). The same-day tie is stable (C03 agrees).",
+   "governing_decisions": [
+    "DEC-7611",
+    "DEC-0447",
+    "DEC-7936",
+    "MK-CF-M-028 recorded decision"
+   ],
+   "plain_example": "Only budget line: $1,200 insurance, no month. Budget $100 a month ($1,200 a year); bill list \"$1,200 due Jan 1 2027\"; month table $2,300 for the year.",
+   "production_callers": "whatsComing → BillCalendarScreen.",
+   "note": "Classified (verdict WRONG / INCOMPLETE). Test: MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › formula verdicts",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): no invented January bill; the table counts it once."
+  },
+  {
+   "id": "MK-CF-F-232",
+   "name": "balanceByDay",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Implements the documented conservative availability policy: prior End plus dated items, counting undated regular money only when negative. It is a conservative projection, not a measured daily balance.",
+   "reviewer_should_be": "",
+   "classification": "RECORDED — reviewer RIGHT (not classified; its five cases were measured)",
+   "fix_kind": "none",
+   "what_the_code_actually_does": "",
+   "governing_decisions": [],
+   "plain_example": "",
+   "production_callers": "",
+   "note": ""
+  },
+  {
+   "id": "MK-CF-F-020",
+   "name": "cashflowYear",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Uses one rate against all taxed income without subtracting 401(k)s, includes reinvested dividends in inflow, and omits debt outflow. Its own take-home promise differs from the current shared grid.",
+   "reviewer_should_be": "Use the same monthly take-home after contributions, dividend cash treatment, and dated debts as datedGridOf.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix (retire it, or make it read the dated grid) + records fix",
+   "what_the_code_actually_does": "cashflowYear: inflow = taxed income x (1 - rate) + untaxed — the 401(k) never comes off, reinvested interest and dividends count as cash in, and it has no input for debts, so outflow is the budget only. It has 0 production callers: of 758 .ts/.tsx files under src/, app/ and MoneyKeel/functions, only 5 test files import it (journeys, edge_extremes, cashflow.test, grid.test, scenarios.test). No guard stops a screen from importing it again. The current household path (buildDatedGrid) gives the reviewer's answers on C01, C02 and C04 exactly, and on C03 under a calculated rate.",
+   "governing_decisions": [
+    "DEC-7938",
+    "DEC-1923",
+    "DEC-0269",
+    "DEC-0283"
+   ],
+   "plain_example": "$5,000 wage, $500 401(k), 10% rate, $2,000 budget: cashflowYear take-home $4,500; right $4,000 (and the dated grid says $4,000).",
+   "production_callers": "none in production (tests only).",
+   "note": "Classified (verdict WRONG / INCOMPLETE). Test: MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › formula verdicts",
+   "fixed_2026_10_25": "RETIRED 2026-10-25 (FIX-BILLS): removed; its number is on the register's retired list."
+  },
+  {
+   "id": "MK-CF-O-006",
+   "name": "theCreditLine",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "The prose rounds the share before describing threshold status, unlike creditUtilization’s explicit pre-rounding classification.",
+   "reviewer_should_be": "Classify on full-precision balance/limit, then round only for display; preserve refusal for absent/nonpositive limit.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix (creditUtilization: stop rounding) + records fix (rule text says \"rounded to three decimals\")",
+   "what_the_code_actually_does": "creditUtilization classifies on the full share (right: $300.10 of $1,000 is caution) and then hands the share out as Math.round(ratio x 1000) / 1000 — 0.300 for 0.3001, 0.556 for 0.556390…. The precision guard's rounding pattern looks only for x 100 / 1e4 / 10000, so it does not see x 1000. A limit of 0 or less refuses (null), right.",
+   "governing_decisions": [
+    "DEC-0264",
+    "Q49 precision standard"
+   ],
+   "plain_example": "$1,731.17 of $3,111.43: share 0.556; right 0.5563904699… (55.64% at display).",
+   "production_callers": "CreditScreen.",
+   "note": "Classified (verdict WRONG / INCOMPLETE). Test: MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts › formula verdicts",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS, MK-CF-F-031): the share is kept at full precision."
+  }
+ ],
+ "rules_held": [
+  {
+   "rule": "DEC-0002",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence)",
+   "what_the_code_actually_does": "",
+   "note": ""
+  },
+  {
+   "rule": "DEC-0078",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence)",
+   "what_the_code_actually_does": "",
+   "note": ""
+  },
+  {
+   "rule": "DEC-0187",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Year-month preservation is present in canonical wage tables,but annualized/converted paths and yearless vest/one-time defaults lose the same dated meaning.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence)",
+   "what_the_code_actually_does": "",
+   "note": "DEC-0187 / DEC-0447: equityByMonth ignores the vest year (MK-CF-F-018 APP WRONG)."
+  },
+  {
+   "rule": "DEC-0443",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence)",
+   "what_the_code_actually_does": "",
+   "note": ""
+  },
+  {
+   "rule": "DEC-0447",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Explicit one-time-year handling is present for dated otherincome,but missingyear still recurs and legacy onboarding fixes signingbonus toJanuary.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence)",
+   "what_the_code_actually_does": "",
+   "note": "DEC-0187 / DEC-0447: equityByMonth ignores the vest year (MK-CF-F-018 APP WRONG)."
+  },
+  {
+   "rule": "DEC-7936",
+   "reviewer_verdict": "HELD",
+   "reviewer_why": "Conservative prior-end plusdateditems policy and same-day priorityare described;actual dailybalance is not inferred.",
+   "classification": "RECORDED — reviewer HELD",
+   "what_the_code_actually_does": "balanceByDay's five cases and upcomingBills' covered / same-day cases agree (End of the month before + items dated by then + the month's regular money only when negative).",
+   "note": ""
+  },
+  {
+   "rule": "DEC-7940",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Explicit one-time-year handling is present for dated otherincome,but missingyear still recurs and legacy onboarding fixes signingbonus toJanuary.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence)",
+   "what_the_code_actually_does": "",
+   "note": ""
+  },
+  {
+   "rule": "DEC-7941",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence)",
+   "what_the_code_actually_does": "",
+   "note": "DEC-7941 settles case MK-CF-F-124-C05 (the app follows it)."
+  },
+  {
+   "rule": "DEC-8153",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. New per-month debt readersrespect inclusive start/payoff bounds and a balloon’s due-month balance.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence)",
+   "what_the_code_actually_does": "",
+   "note": ""
+  }
+ ],
+ "app_wrong_fixes": [
+  {
+   "function_id": "MK-CF-F-019",
+   "function": "upcomingBills (with MK-XS-F-004 buildDatedGrid, the month table it reads)",
+   "owner_file": "src/domain/cashflow/index.ts (upcomingBills); src/domain/grid/index.ts (buildDatedGrid)",
+   "example": "Only budget line: $1,200 insurance, yearly, no month picked (sign-up allows it).",
+   "app_gives": "Bill list: \"$1,200 due Jan 1 2027\". Month table: Jan $1,200 + $100 in each other month = $2,300 a year.",
+   "right": "Budget $100 a month, $1,200 a year; no dated bill on the list; the table counts it once ($100 a month).",
+   "ruling_or_source": "DEC-7611; MK-CF-M-028 recorded decision (no date → not on the calendar, still in the month's total); tenets 3, 4",
+   "items": [
+    "MK-CF-O-008-C05",
+    "MK-CF-F-019-C05",
+    "formula MK-CF-F-019",
+    "probe P2"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS)"
+  },
+  {
+   "function_id": "MK-CF-F-018",
+   "function": "equityByMonth",
+   "owner_file": "src/domain/cashflow/index.ts",
+   "example": "Vests Mar 2026 $8,317.43, Jun 2027 $1,321.19, Dec 2027 $4,211.17; now Oct 24 2026.",
+   "app_gives": "Calendar pattern Mar $4,158.715, Jun $660.595, Dec $2,105.585; on the dated table Dec 2026 / Mar 2027 / Jun 2027.",
+   "right": "Each vest in its own year and month: 2026 = Mar $8,317.43 only; the Oct 2026–Sep 2027 table = Jun 2027 $1,321.19 only (Dec 2027 under Later). A run-rate, if kept, labelled as one.",
+   "ruling_or_source": "DEC-0003; DEC-0187; tenet 1",
+   "items": [
+    "MK-CF-F-018-C03",
+    "MK-CF-F-018-C04",
+    "formula MK-CF-F-018"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS)"
+  },
+  {
+   "function_id": "MK-CF-F-160",
+   "function": "daysBetweenDates",
+   "owner_file": "src/domain/cashflow/index.ts",
+   "example": "Bill due Dec 15; app opened Dec 15 at 13:00.",
+   "app_gives": "Gone from COMING UP (−1 day); at 11:00 it is listed, 0 days away. 23:59 → 00:01 = 0 days.",
+   "right": "Whole local calendar days: due today = 0 days, listed all day; 23:59 → 00:01 = 1.",
+   "ruling_or_source": "DEC-0189; the F-019 card's words \"due from today\"; tenet 1",
+   "items": [
+    "MK-CF-F-160-C05",
+    "formula MK-CF-F-160"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS)"
+  },
+  {
+   "function_id": "MK-CF-F-122",
+   "function": "addDays",
+   "owner_file": "src/domain/cashflow/index.ts",
+   "example": "Bill due Mar 15 2027 (clocks go forward Mar 14), Pacific time.",
+   "app_gives": "Need-by 2027-03-12, ask-by 2027-03-02 (24-hour blocks lose the hour).",
+   "right": "Need-by 2027-03-13, ask-by 2027-03-03 (move by calendar days).",
+   "ruling_or_source": "The reviewer's own RIGHT verdict text (\"day and offset must be preserved across DST\"); tenet 1. Found while measuring — not one of the five cases (they all agree).",
+   "items": [
+    "probe P8"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS)"
+  },
+  {
+   "function_id": "MK-CF-F-124",
+   "function": "nextOccurrence",
+   "owner_file": "src/domain/cashflow/index.ts",
+   "example": "$300 fee in February, day 29 (2027 is not a leap year).",
+   "app_gives": "Listed due 2027-03-01; a September-31 bill 2027-10-01 — while the month table counts both in their own month.",
+   "right": "The month's last day: 2027-02-28, 2027-09-30 (the month the table counts it in).",
+   "ruling_or_source": "tenet 4 (one thing, one number: the list and the table name the same month); DEC-7941 for the current-month rule (already followed)",
+   "items": [
+    "formula MK-CF-F-124"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS)"
+  },
+  {
+   "function_id": "MK-CF-O-008",
+   "function": "whatsComing (and the Bill calendar's starting-balance field)",
+   "owner_file": "MoneyKeel/functions/cashflow/whats-coming.ts; src/screens/BillCalendarScreen.tsx (passes num('') = 0)",
+   "example": "No starting balance entered; $1,200 insurance due Dec 15.",
+   "app_gives": "\"Short $1,200 — set it aside by Dec 13\", read from $0.",
+   "right": "No projection: MK-CF-M-063's refusal \"No balance to start from — nothing is projected\" (or the line says it starts from $0).",
+   "ruling_or_source": "MK-CF-M-063 refusal; tenet 3",
+   "items": [
+    "formula MK-CF-O-008"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS)"
+  },
+  {
+   "function_id": "MK-CF-F-020",
+   "function": "cashflowYear",
+   "owner_file": "src/domain/cashflow/index.ts",
+   "example": "$5,211.17 wage, $611.43 401(k), 20% rate, $1,200 other taxed income, $2,000 budget, $250 debt.",
+   "app_gives": "Take-home $5,128.94, outflow $2,000, net $3,128.94.",
+   "right": "$4,517.51, $2,250, $2,267.51 — what buildDatedGrid already gives.",
+   "ruling_or_source": "DEC-7938; DEC-1923; DEC-0269; DEC-0283. NO production caller (5 test files only) — retire it or make it read the dated grid; move grid.test.ts's agreement test off it.",
+   "items": [
+    "MK-CF-F-020-C01",
+    "MK-CF-F-020-C02",
+    "MK-CF-F-020-C03",
+    "MK-CF-F-020-C04",
+    "formula MK-CF-F-020"
+   ],
+   "fixed_2026_10_25": "RETIRED 2026-10-25 (FIX-BILLS)"
+  },
+  {
+   "function_id": "MK-CF-O-006 (via MK-CF-F-031 creditUtilization)",
+   "function": "creditUtilization",
+   "owner_file": "src/domain/debt/index.ts (line 532)",
+   "example": "$1,731.17 owed of a $3,111.43 limit.",
+   "app_gives": "Share 0.556 (rounded inside the function); status high.",
+   "right": "Share 0.5563904699… (55.64% at display); status high. Also add ×1000 to the precision guard's pattern.",
+   "ruling_or_source": "DEC-0264 / Q49",
+   "items": [
+    "MK-CF-O-006-C03",
+    "MK-CF-O-006-C04",
+    "formula MK-CF-O-006"
+   ]
+  }
+ ],
+ "needs_a_ruling": [
+  {
+   "item": "Where a vest with no date goes",
+   "ids": [
+    "MK-CF-F-018-C05"
+   ],
+   "reading_a": "Refuse to date it: count it in the year's total, keep it off the month table, and say \"vest month not entered\" (the reviewer).",
+   "reading_b": "December, as a bonus with no month (the app today).",
+   "example": "$1,000 vest, date left blank: today the month table shows Equity vesting $1,000 in December 2026.",
+   "recommendation": "Reading A. Tenet 3, and the app's own bill rule on MK-CF-M-028 (\"a date nobody gave would be read as one they did\"). The editor's Vest date is optional, so this happens.",
+   "ruled_2026_10_25": "RULED by the lead, reading A (refuse: \"vest date not entered\"; a year with no month: in that year's total, in no month, \"vest month not entered\") — FIXED the same day (FIX-BILLS)."
+  }
+ ],
+ "blocked": [],
+ "outside_domain": [],
+ "priority_findings": [
+  {
+   "id": "MK-CF-F-020",
+   "finding": "cashflowYear: one rate on all taxed income with the 401(k) left in, reinvested money counted as cash, debt left out",
+   "verdict": "REAL — but only in a retired/legacy reader: 0 production callers (758 files read; 5 test files import it); no guard stops a screen using it again",
+   "evidence": "C01: $4,500 vs $4,000; C02: $5,128.94 / $2,000 vs $4,517.51 / $2,250; C03: $6,328.22 (reinvested counted) vs $5,301.60; C04: $9,325.66 / $6,311.17 vs $7,594.23 / $7,042.60. The live path (buildDatedGrid via datedGridOf) gives the reviewer's numbers on C01, C02, C04 exactly and C03 under a calculated rate (probe P6)."
+  },
+  {
+   "id": "MK-CF-F-019",
+   "finding": "Dated plan for a month; an annual bill never added twice",
+   "verdict": "Dated bills: NOT REAL (right). Undated bills: REAL — live in production",
+   "evidence": "$2,000 + $1,200 December insurance: Sep $2,000, Dec $3,200, year $25,200 on the budget, the month table and cashflowYear; one $1,200 bill on Dec 15; annual average $2,100 is only plannedMonthlySpend (P1). Undated $1,200 alone: the bill list invents Jan 1 2027, and the month table (MK-XS-F-004 buildDatedGrid, read by the Cash flow tab, This month, Home and the Bill calendar) counts it twice: $2,300 a year for a $1,200 bill (P2)."
+  },
+  {
+   "id": "MK-CF-F-018",
+   "finding": "Undated vesting put in December; vest year ignored",
+   "verdict": "REAL — live in production (buildDatedGrid)",
+   "evidence": "Undated $1,000 vest → Equity vesting $1,000 in December 2026 on the month table (P4). Vests in other years are laid on this window's months (formula-verdict test)."
+  }
+ ],
+ "probes": {
+  "P2": {
+   "grid_out_by_month": [
+    [
+     "Oct",
+     100
+    ],
+    [
+     "Nov",
+     100
+    ],
+    [
+     "Dec",
+     100
+    ],
+    [
+     "Jan ’27",
+     1200
+    ],
+    [
+     "Feb ’27",
+     100
+    ],
+    [
+     "Mar ’27",
+     100
+    ],
+    [
+     "Apr ’27",
+     100
+    ],
+    [
+     "May ’27",
+     100
+    ],
+    [
+     "Jun ’27",
+     100
+    ],
+    [
+     "Jul ’27",
+     100
+    ],
+    [
+     "Aug ’27",
+     100
+    ],
+    [
+     "Sep ’27",
+     100
+    ]
+   ],
+   "grid_year": 2300,
+   "fixed_2026_10_25": "FIXED 2026-10-25: $100 every month, $1,200 a year on the table."
+  },
+  "P3": {
+   "jan_items": [
+    [
+     "Insurance",
+     1200
+    ],
+    [
+     "Everyday expenses",
+     800
+    ]
+   ],
+   "grid_year": 24000,
+   "fixed_2026_10_25": "FIXED 2026-10-25: $2,000 every month, $24,000 a year; no bill on a date nobody gave."
+  },
+  "P6-C01": {
+   "take_home": 4000,
+   "outflow": 2000,
+   "net": 2000
+  },
+  "P6-C02": {
+   "take_home": 4517.506000000001,
+   "outflow": 2250,
+   "net": 2267.506000000001
+  },
+  "P6-C03": {
+   "rate": 0.10290322947324977,
+   "take_home": 5813.168733333334,
+   "outflow": 3342.6
+  },
+  "P6-C04": {
+   "take_home": 7594.230680000001,
+   "outflow": 7042.6,
+   "net": 551.6306800000002
+  },
+  "P8": {
+   "due": "2027-03-15",
+   "need_by": "2027-03-12",
+   "ask_by": "2027-03-02",
+   "fixed_2026_10_25": "FIXED 2026-10-25: need-by 2027-03-13, ask-by 2027-03-03 (calendar days)."
+  },
+  "P9": {
+   "files_read": 758,
+   "production_importers": [],
+   "test_importers": [
+    "src/__tests__/edge_extremes.test.ts",
+    "src/__tests__/journeys.test.ts",
+    "src/domain/cashflow/cashflow.test.ts",
+    "src/domain/grid/grid.test.ts",
+    "src/domain/scenarios.test.ts",
+    "MoneyKeel/functions/cashflow/outside_cashflow_openai_part08.test.ts"
+   ]
+  }
+ },
+ "counts": {
+  "cases": {
+   "AGREE": 43,
+   "APP WRONG": 11,
+   "REVIEWER WRONG": 0,
+   "NEEDS RULING": 1,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 0,
+   "total": 55
+  },
+  "formula_checks": {
+   "classified": 7,
+   "APP WRONG": 7,
+   "reviewer_RIGHT_recorded": 4,
+   "total": 11
+  },
+  "rules_not_held": {
+   "total": 0
+  },
+  "rules_held_recorded": {
+   "CANNOT TELL": 8,
+   "HELD": 1,
+   "total": 9
+  }
+ },
+ "coverage": "Part 8: 55 of 55 cases — 43 agree, 11 app wrong, 0 reviewer wrong, 1 needs ruling, 0 blocked, 0 outside domain; 7 of 7 formula verdicts (WRONG / INCOMPLETE) classified — 7 app wrong (4 also need a records fix to the rule text); 4 RIGHT verdicts recorded; 0 of 0 rule verdicts NOT HELD; 9 of 9 rules_held recorded (8 CANNOT TELL, 1 HELD). Found while measuring: MK-CF-F-122 addDays loses a day across the spring clock change (probe P8)."
+}

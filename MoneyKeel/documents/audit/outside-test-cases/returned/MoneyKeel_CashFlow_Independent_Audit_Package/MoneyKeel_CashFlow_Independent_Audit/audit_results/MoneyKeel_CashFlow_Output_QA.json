@@ -1,0 +1,9 @@
+{
+  "row_reconciliations_checked": 29,
+  "errors": [],
+  "cases": 1095,
+  "unique_case_ids": 1095,
+  "all_cases_dated_and_worked": true,
+  "fixed_financial_witnesses_checked": 9,
+  "scope": "Independent output-level arithmetic and coverage checks,not app implementation tests."
+}

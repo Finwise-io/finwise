@@ -17,10 +17,10 @@
  *               MK-NW-F-046 historyCoverage · MK-NW-F-061 bondSummary
  *               MK-NW-F-090 windowStartKey · MK-NW-F-125 isPastMaturity
  *               MK-NW-F-148 lastCloseLabel · MK-NW-O-003 theNetWorth
- *               MK-PF-F-022 factorOverMonths · MK-XS-F-175 uid
- *               MK-XS-F-192 typedValueDatedBack
+ *               MK-PF-F-022 factorOverMonths · MK-ST-F-096 localDay
+ *               MK-XS-F-192 typedValueDatedBack · MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 392 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 393 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -30,7 +30,7 @@
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 374 more — the full list is on functions_from_code
+ *               … and 375 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -39,6 +39,97 @@
  */
 export function isoLocalDate(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/** What it is for: THE DAY A STORED DATE MEANS, WHERE THE PERSON IS — "2026-08-01" (2026-10-25, Cash flow drawing match CF-21).
+ *  A logged expense or income is stored three ways: a calendar day ("2026-08-01", what the Cash flow sheets write), a clock
+ *  time with no zone ("2026-08-01T09:30:00", the Expenses screen), and an instant ("2026-09-01T01:30:00.000Z", what older
+ *  builds wrote). `new Date("2026-08-01")` reads a calendar day as midnight in London, which is still Jul 31 in California —
+ *  so the budget editor dropped every expense dated the 1st out of its rows. Reading the first seven characters of an
+ *  instant files a purchase made on the evening of Aug 31 in September. Every stored day is read here, once:
+ *  a calendar day is that day; a clock time with no zone is the day on its clock; an instant is the day it was where the
+ *  person is. Anything else is no day (''). */
+/* ─ MK-ST-F-096 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * localDay
+ *
+ * Answers ..... What it is for: THE DAY A STORED DATE MEANS, WHERE THE PERSON IS — "2026-08-01" (2026-10-25, Cash flow drawing match CF-21).
+ *
+ * Formula .....
+ *     s = string(stored ?? '').trim()
+ *     s   when ÷ ^\d{4}-\d{2}-\d{2}$ ÷ .test(s)
+ *     the first 10 of s   when ÷ ^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?$ ÷ .test(s)
+ *     ''   when ! ÷ ^\d{4}-\d{2}-\d{2}T ÷ .test(s)
+ *     d = the date s
+ *     the answer:
+ *     ''   if number.is na n(get time())
+ *     iso local date(d)   otherwise
+ *
+ * Called by ... MK-CF-F-014 budgetVsActual · MK-CF-F-148 inMonth
+ *               MK-CF-F-151 actualSpending · MK-CF-F-189 essentialsFromLoggedSpending
+ *               MK-CF-F-212 receivedInMonth · MK-CF-F-220 pastMonthFlow
+ *               MK-ST-F-097 localMoment
+ *
+ * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 369 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-096
+ * Changed ..... not in git yet (—)
+ */
+export function localDay(stored: unknown): string {
+  const s = String(stored ?? '').trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(:\d{2}(\.\d+)?)?$/.test(s)) return s.slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}T/.test(s)) return '';
+  const d = new Date(s);
+  return Number.isNaN(d.getTime()) ? '' : isoLocalDate(d);
+}
+
+/** What it is for: A STORED DATE AS A MOMENT ON THE PERSON'S OWN CLOCK, for sorting and for writing it in words (2026-10-25).
+ *  A calendar day is its own midnight, never London's; a clock time is that time; an instant is that instant. No day → null. */
+/* ─ MK-ST-F-097 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * localMoment
+ *
+ * Answers ..... What it is for: A STORED DATE AS A MOMENT ON THE PERSON'S OWN CLOCK, for sorting and for writing it in words (2026-10-25).
+ *
+ * Formula .....
+ *     day = local day(stored)
+ *     nothing   when day is missing
+ *     s = string(stored ?? '').trim()
+ *     t = the date s
+ *     the answer:
+ *     nothing   if number.is na n(get time())
+ *     t   otherwise
+ *
+ * Called by ... MK-XS-F-176 useMonthlyStats · MK-XS-F-177 useCategorySpend
+ *               MK-XS-F-199 profileOnTheWayIn
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-177 useCategorySpend
+ *               MK-XS-F-176 useMonthlyStats
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-097
+ * Changed ..... not in git yet (—)
+ */
+export function localMoment(stored: unknown): Date | null {
+  const day = localDay(stored);
+  if (!day) return null;
+  const s = String(stored ?? '').trim();
+  if (s.length === 10) { const [y, m, d] = day.split('-').map(Number); return new Date(y, m - 1, d); }
+  const t = new Date(s);
+  return Number.isNaN(t.getTime()) ? null : t;
 }
 
 /** A DAY WRITTEN THE WAY THE APPROVED SCREENS WRITE IT — "Aug 4, 2026".
@@ -62,15 +153,17 @@ const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
  *               MK-NW-F-144 beforeTheRecordSentence · MK-NW-F-148 lastCloseLabel
  *               MK-NW-O-008 thePerformance · MK-PF-F-045 priceHistoryShortSentence
  *
- * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-088 BENCH · MK-NW-F-167 COMPARE
- *               MK-NW-F-140 LEFT_OUT · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-CF-F-202 TAX · MK-CF-F-210 annualOfSource
- *               MK-NW-F-144 beforeTheRecordSentence · MK-CF-F-184 incomeFromAccounts
- *               MK-NW-F-148 lastCloseLabel · MK-PF-F-045 priceHistoryShortSentence
- *               MK-NW-O-008 thePerformance · MK-CF-O-007 theTaxOrganizer
- *               MK-NW-F-105 whyNoReturn
+ * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 368 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -126,7 +219,7 @@ export function monthYearShown(year: number, month1to12: number): string {
  *               MK-PF-F-061 firstClose · MK-PF-F-062 calendarDay
  *               MK-ST-F-011 classifyHoldingClass
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -136,7 +229,7 @@ export function monthYearShown(year: number, month1to12: number): string {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-013 bond maturity date
@@ -158,4 +251,80 @@ export function maturityParts(maturity?: string | null): [number, number, number
   const y = Number(m[1]), mo = Number(m[2]), d = m[3] == null ? 1 : Number(m[3]);
   if (mo < 1 || mo > 12 || d < 1 || d > new Date(Date.UTC(y, mo, 0)).getUTCDate()) return null;
   return [y, mo, d];
+}
+
+/** What it is for: HOW MANY DAYS A CALENDAR MONTH HAS — 28 in February 2027, 29 in February 2028, 30 in September (2026-10-25,
+ *  FIX-BILLS). A bill typed for the 29th, 30th or 31st falls on the last day of a shorter month; it never rolls into the next
+ *  month (tenet 4 — the rule maturityParts keeps for a maturity date, DEC-0332). Counted on the calendar, never in hours. */
+/* ─ MK-ST-F-098 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * daysInMonth
+ *
+ * Answers ..... What it is for: HOW MANY DAYS A CALENDAR MONTH HAS — 28 in February 2027, 29 in February 2028, 30 in September (2026-10-25, FIX-BILLS).
+ *
+ * Formula .....
+ *     the date date.UTC(year, month1to12, 0)).get utcdate(
+ *
+ * Called by ... MK-CF-F-124 nextOccurrence · MK-NW-F-046 historyCoverage
+ *               MK-XS-F-004 buildDatedGrid
+ *
+ * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-237 LATER
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-XS-F-002 dataGaps · MK-CF-O-017 futurePaycheck
+ *               MK-NW-F-046 historyCoverage · MK-CF-F-124 nextOccurrence
+ *               MK-CF-F-212 receivedInMonth · MK-CF-F-019 upcomingBills
+ *               MK-CF-O-008 whatsComing · MK-CF-F-242 workedLineAmount
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-098
+ * Changed ..... not in git yet (—)
+ */
+export function daysInMonth(year: number, month1to12: number): number {
+  return new Date(Date.UTC(year, month1to12, 0)).getUTCDate();
+}
+
+/** What it is for: THE YEAR AND MONTH A TYPED DATE NAMES, AND NOTHING IT DOES NOT (2026-10-25, FIX-BILLS). A vest date is typed
+ *  "YYYY-MM" or as a full day: "2027-06" is June 2027; "2027" is that year with no month; a month that is not 1 to 12 is no
+ *  month; blank, or anything else, is no date (null) — never this year and never December (his DEC-0003 and DEC-0296, tenet 3). */
+/* ─ MK-ST-F-099 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * yearMonthOf
+ *
+ * Answers ..... What it is for: THE YEAR AND MONTH A TYPED DATE NAMES, AND NOTHING IT DOES NOT (2026-10-25, FIX-BILLS).
+ *
+ * Formula .....
+ *     m = ÷ ^(\d{4})(?:-(\d{1,2}))?(?![\d]) ÷ .exec(string(stored ?? '').trim())
+ *     nothing   when m is missing
+ *     month = nothing   if m[2] = nothing
+ *     m[2] read as a number   otherwise
+ *     the answer:
+ *     year = m[1] read as a number
+ *     month = month   if month ≠ nothing and month ≥ 1 and month ≤ 12
+ *     nothing   otherwise
+ *
+ * Called by ... MK-CF-F-063 rowVestYear · MK-CF-F-258 equityVests
+ *               MK-CF-F-270 landsOnce
+ *
+ * Reaches ..... 394 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 376 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-099
+ * Changed ..... not in git yet (—)
+ */
+export function yearMonthOf(stored: unknown): { year: number; month: number | null } | null {
+  const m = /^(\d{4})(?:-(\d{1,2}))?(?![\d])/.exec(String(stored ?? '').trim());
+  if (!m) return null;
+  const month = m[2] == null ? null : Number(m[2]);
+  return { year: Number(m[1]), month: month != null && month >= 1 && month <= 12 ? month : null };
 }

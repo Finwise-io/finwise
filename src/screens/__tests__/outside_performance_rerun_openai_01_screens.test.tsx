@@ -285,6 +285,11 @@ const RENDERS: Record<string, () => Shot> = {
   EMPTY_INV: () => shoot('invest', { assetAccounts: [], transactions: [], snapshotDays: [], priceCache: {} }, '2026-09-28'),
   EF_HOME: () => shoot('home', H_EF, '2026-09-28'),
   CF_CF: () => shoot('cashflow', H_CF, '2026-09-28'),
+  // FIX-MONTH, 2026-10-25 (the lead's ruling on DEC-1923 / DEC-2440, cash-flow_v01's row of that date): H_CF's mortgage is on no property
+  // beside a Rent / Mortgage line, so the line is the mortgage's — planned +$3,450 (7,200 − 2,400 − 250 − 1,100; it read +$1,150) and the
+  // $2,300 logged under it is the mortgage's payment (expenses $698; Mortgage PAID −$2,300; outflow $3,248 and the surplus $3,952 as before).
+  // The witnesses of "an unpaid debt shows $0" read the same household with that $2,300 not logged.
+  CF_UNPAID: () => shoot('cashflow', { ...H_CF, expenses: H_CF.expenses.filter((e: any) => e.id !== 'e1') }, '2026-09-28'),
   CF_HOME: () => shoot('home', H_CF, '2026-09-28'),
   CF_PROMISE: () => shoot('cashflow', { ...H_CF, retirementAssumptions: { commitments: [{ label: 'Emergency fund', monthlyAmount: 300 }] } }, '2026-09-28'),
   CF_NOPAY: () => shoot('cashflow', { ...H_CF, liabilities: [H_CF.liabilities[0], { ...H_CF.liabilities[1], minimum_monthly_payment: undefined }] }, '2026-09-28'),
@@ -360,8 +365,8 @@ const DRAW = {
 };
 const noFalseZero = (k: string, id: string) => { for (const t of printed(k, id)) expect(t).not.toBe('$0'); };
 const FIGS: Record<string, Fig> = {
-  'MK-CF-M-002': { main: 'CF_CF', text: '$1,150', label: '= Planned surplus', drawing: DRAW.cashflow,
-    t4: () => { expect(first('CF_CF', 'MK-CF-M-002')).toBe('$1,150'); expect(R('CF_HOME').lines.join(' ')).not.toMatch(/Planned surplus/); } },
+  'MK-CF-M-002': { main: 'CF_CF', text: '$3,450', label: '= Planned surplus', drawing: DRAW.cashflow,   // $1,150 until FIX-MONTH, 2026-10-25
+    t4: () => { expect(first('CF_CF', 'MK-CF-M-002')).toBe('$3,450'); expect(R('CF_HOME').lines.join(' ')).not.toMatch(/Planned surplus/); } },
   'MK-CF-M-051': { main: 'CF_CF', text: '$7,200', label: 'Actual inflow (income (take-home))', drawing: DRAW.cashflow,
     t3: () => { expect(R('CF_NOINCOME').lines).toContain('SET UP YOUR MONTH — 2 STEPS'); expect(R('CF_NOINCOME').lines.join(' ')).not.toMatch(/Actual inflow/); },
     t4: () => { expect(after('CF_CF', 'Actual inflow (income (take-home))')).toBe('$7,200'); expect(after('CF_HOME', 'Income')).toBe('$7,200'); } },
@@ -369,8 +374,13 @@ const FIGS: Record<string, Fig> = {
     t3: () => { expect(R('CF_NOINCOME').lines.join(' ')).not.toMatch(/Expenses entered by hand/); } },
   'MK-CF-M-053': { main: 'CF_CF', text: '$3,952', label: '= Actual surplus so far', drawing: DRAW.cashflow,
     t2: () => { expect(7200 - 250 - 2998).toBe(dollars(first('CF_CF', 'MK-CF-M-003'))); } },
-  'MK-MN-M-003': { main: 'CR_ROOM', text: '$21,350 left', label: '401(k)', drawing: DRAW.room, estimate: /not from your payroll/,
-    t2: () => { expect(has('CR_ROOM', /That is about \$14,400 of the \$35,750 limit/)).toBe(true); expect(35750 - 14400).toBe(21350); },
+  // RE-MEASURED 2026-10-26 (CLEANUP-TESTS) after FIX-ROOM's words of 2026-10-25 (the lead's ruling 1: the plan arithmetic stays and
+  // is said): "$21,350 left · That is about $14,400 of the $35,750 limit — … not from your payroll" now reads "room for $21,350 ·
+  // At $1,200/month you will put in $14,400 this year — room for $21,350 more. Calculated from the monthly amount you entered —
+  // check it against your latest statement." The figure did not move: born 1965, 61 in 2026, $24,500 + $11,250 (60–63) = $35,750;
+  // $1,200 × 12 = $14,400; $35,750 − $14,400 = $21,350.
+  'MK-MN-M-003': { main: 'CR_ROOM', text: 'room for $21,350', label: '401(k)', drawing: DRAW.room, estimate: /^At \$1,200\/month you will put in \$14,400 this year — room for \$21,350 more\. Calculated from the monthly amount you entered/,
+    t2: () => { expect(has('CR_ROOM', /At \$1,200\/month you will put in \$14,400 this year — room for \$21,350 more/)).toBe(true); expect(24500 + 11250).toBe(35750); expect(35750 - 1200 * 12).toBe(21350); },
     t3: () => { expect(R('CR_NOBIRTH').lines.join(' ')).not.toMatch(/\$NaN|undefined/); expect(R('CR_NOBIRTH').lines.join(' ')).not.toMatch(/\(61\)/); },
     t4: () => { expect(has('CR_HOME', /About \$21,350 of this year's tax-advantaged room looks unused/)).toBe(true); } },
   'MK-NW-M-012': { main: 'NW_NW', text: '$2,650/month', label: /debt payments you cannot stop/, drawing: DRAW.networth,
@@ -399,7 +409,7 @@ const FIGS: Record<string, Fig> = {
     t3: () => { expect(R('B1_NOMAT').lines.join(' ')).toMatch(/maturity date not entered/); expect(printed('B1_NOMAT', 'MK-NW-M-026')).toEqual([]); } },
   'MK-NW-M-026': { main: 'B1', text: '5.69%', label: 'Yield if held to maturity', drawing: DRAW.account, estimate: /^about 5\.69% · estimate$/,
     t3: () => { expect(printed('B1_NOCOUPON', 'MK-NW-M-026')).toEqual([]); expect(printed('B1_NOMAT', 'MK-NW-M-026')).toEqual([]); } },
-  'MK-NW-M-027': { main: 'B1', text: '4.65%', label: "Yield on today's value", drawing: DRAW.account,
+  'MK-NW-M-027': { main: 'B1', text: '4.65%', label: "Yield on today’s value", drawing: DRAW.account,
     t2: () => { expect(Math.round((1125 / 24200) * 10000) / 100).toBe(4.65); },
     t3: () => { expect(printed('B1_NOCOUPON', 'MK-NW-M-027')).toEqual([]); } },
   'MK-NW-M-028': { main: 'B1', text: '$23,300', label: 'Rates rise 1% → value roughly $23,300–$23,800 (down about $600)', drawing: DRAW.account, estimate: /^estimate$/,
@@ -441,7 +451,7 @@ const FIGS: Record<string, Fig> = {
     t3: () => { expect(after('EMPTY_INV', 'Ending value')).toBe('$0'); expect(has('EMPTY_INV', 'Nothing entered yet. Add your accounts ›')).toBe(true); } },
   'MK-PF-M-002': { main: 'PERF_INV', text: '$10,600', label: 'Wealth generated', drawing: DRAW.perf,
     t2: () => { expect(46600 - 30000 - 6000).toBe(dollars(first('PERF_INV', 'MK-PF-M-002'))); },
-    t3: () => { expect(has('FID_INV', "You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices.")).toBe(true); } },
+    t3: () => { expect(has('FID_INV', "You added your accounts today. Figures for 1M, 1Y and longer come from each holding’s past prices.")).toBe(true); } },
   'MK-PF-M-003': { main: 'PERF_INV', text: 'HOW $30,000 BECAME $46,600 · ALL ACCOUNTS', label: 'HOW $30,000 BECAME $46,600 · ALL ACCOUNTS', drawing: DRAW.perf,
     t3: () => { expect(has('FID_INV', 'Every line fills in as days pass — the structure never changes.')).toBe(true); } },
   'MK-PF-M-004': { main: 'PERF_ACC', text: '$46,600', label: 'Ending market value (Sep 28, 2026)', drawing: DRAW.account,
@@ -504,9 +514,10 @@ function t1(id: string) {
   const f = FIGS[id];
   switch (id) {
     case 'MK-CF-M-051': expect(after('CF_CF', 'Actual inflow (income (take-home))')).toBe('$7,200'); return;
-    case 'MK-CF-M-052': expect(after('CF_CF', 'Car loan', 2, 'ACTUAL · SO FAR')).toBe('−$250'); expect(after('CF_CF', 'Expenses entered by hand')).toBe('−$2,998'); return;
+    case 'MK-CF-M-052': expect(after('CF_CF', 'Car loan', 2, 'ACTUAL · SO FAR')).toBe('−$250'); expect(after('CF_CF', 'Expenses entered by hand')).toBe('−$698');   // −$2,998 until FIX-MONTH (the $2,300 is the mortgage's payment)
+      expect(after('CF_CF', 'Mortgage', 2, 'ACTUAL · SO FAR')).toBe('−$2,300'); return;
     case 'MK-CF-M-053': expect(first('CF_CF', 'MK-CF-M-003')).toBe('$3,952'); expect(after('CF_CF', '= Actual surplus so far')).toBe('+$3,952'); return;
-    case 'MK-MN-M-003': expect(has('CR_ROOM', '$21,350 left')).toBe(true); return;
+    case 'MK-MN-M-003': expect(has('CR_ROOM', 'room for $21,350')).toBe(true); return;   // "$21,350 left" until FIX-ROOM's words, 2026-10-25
     case 'MK-NW-M-012': expect(has('NW_NW', 'Both include $2,650/month of debt payments you cannot stop.')).toBe(true); return;
     case 'MK-NW-M-013': expect(first('EF_NW', id)).toBe('5.2 months'); expect(has('EF_STRESS', '5.2')).toBe(true); return;
     case 'MK-NW-M-022': expect(first('FID_ACC', id)).toBe('4'); expect(has('FID_ACC', '4 records')).toBe(true); return;
@@ -583,7 +594,8 @@ const CLASS: Record<string, Item> = {
   // ── Cash flow figures (on Cash flow, and by the register on Home) ────────────────────────────────────────────────
   'MK-CF-M-002#2': { cls: 'REVIEWER WRONG',
     why: 'Settled on screen: the Plan\'s $300 promise is its own row under the planned surplus — "= Planned surplus +$1,150 · Emergency fund · from your Plan −$300 · Surplus after your budget +$850". Every row shown is deducted.',
-    check: () => { expect(after('CF_PROMISE', '= Planned surplus')).toBe('+$1,150'); expect(after('CF_PROMISE', 'Emergency fund · from your Plan')).toBe('−$300'); expect(after('CF_PROMISE', 'Surplus after your budget')).toBe('+$850'); } },
+    // +$1,150 / +$850 until FIX-MONTH, 2026-10-25 (the Rent / Mortgage line is the unplaced mortgage's, counted once): 3,450 − 300 = 3,150
+    check: () => { expect(after('CF_PROMISE', '= Planned surplus')).toBe('+$3,450'); expect(after('CF_PROMISE', 'Emergency fund · from your Plan')).toBe('−$300'); expect(after('CF_PROMISE', 'Surplus after your budget')).toBe('+$3,150'); } },
   'MK-CF-M-002#3': { cls: 'APP WRONG',
     why: 'Missing income: no surplus at all, only the two set-up steps (held). Missing debt payment: the surplus refuses, but reads "+No budget set — there is no planned surplus…" while a $3,400 budget IS set, and the car loan\'s row prints "A section with nothing in it keeps its heading and says so." — the wrong reason, in a sentence written for the master file.',
     fix: 'MoneyKeel/functions/cashflow/this-month.ts plannedMonthFlow + src/screens/CashFlowScreen.tsx: a debt with no payment entered reads "Car loan — payment not entered", and the planned surplus "Not worked out — Car loan\'s payment is not entered", with no "+". Cash flow This month, words only.',
@@ -605,7 +617,7 @@ const CLASS: Record<string, Item> = {
   'MK-CF-M-052#2': { cls: 'APP WRONG', rowWordsOnly: true,
     why: 'The screen is right by the approved drawing (DEC-0440: an unpaid debt shows $0 with its due day): outflow so far = $250 car loan paid + $2,998 logged = $3,248, "Mortgage · NOT PAID YET · $0". The figure\'s own row says the opposite — "Σ of the debt payments due this month… counted in full, logged or not" — and the reviewer\'s $5,648 follows those words. File and code disagree.',
     fix: 'MoneyKeel/functions/cashflow/this-month.ts MK-CF-M-052 row: formula "expenses logged so far this month + the debt payments made so far; an unpaid debt shows $0 with its due day". No figure moves.',
-    check: () => { expect(after('CF_CF', 'Mortgage', 1, 'ACTUAL · SO FAR')).toBe('NOT PAID YET'); expect(after('CF_CF', 'Mortgage', 2, 'ACTUAL · SO FAR')).toBe('$0'); },
+    check: () => { expect(after('CF_UNPAID', 'Mortgage', 1, 'ACTUAL · SO FAR')).toBe('NOT PAID YET'); expect(after('CF_UNPAID', 'Mortgage', 2, 'ACTUAL · SO FAR')).toBe('$0'); },
     wrong: () => { expect(figureSpec('MK-CF-M-052').formula).not.toMatch(/due this month/); },
     fixed: '2026-10-23: the row\'s formula reads "expenses logged so far this month + the debt payments made so far; an unpaid debt shows $0 with its due day" — the drawing (DEC-0440); no figure moves',
     was: () => { expect(figureSpec('MK-CF-M-052').formula).toMatch(/due this month/); } },
@@ -620,7 +632,7 @@ const CLASS: Record<string, Item> = {
   'MK-CF-M-052#8': { cls: 'APP WRONG', rowWordsOnly: true,
     why: 'The screen does not count unpaid debts as gone out (Mortgage NOT PAID YET $0). The row\'s plain words do: "the expenses logged, plus the debt payments due in the month". Same fix as tenet 2.',
     fix: 'MK-CF-M-052 row "answers": "What has actually gone out so far this month: the expenses logged and the debt payments made." No figure moves.',
-    check: () => { expect(after('CF_CF', 'Mortgage', 2, 'ACTUAL · SO FAR')).toBe('$0'); },
+    check: () => { expect(after('CF_UNPAID', 'Mortgage', 2, 'ACTUAL · SO FAR')).toBe('$0'); },
     wrong: () => { expect(figureSpec('MK-CF-M-052').answers).not.toMatch(/due in the month/); },
     fixed: '2026-10-23: the row\'s words read "What has actually gone out so far this month: the expenses logged and the debt payments made." — no figure moves',
     was: () => { expect(figureSpec('MK-CF-M-052').answers).toMatch(/due in the month/); } },
@@ -641,7 +653,10 @@ const CLASS: Record<string, Item> = {
     was: () => { expect(after('CF_HOME', 'Left')).toBe('$4,202'); } },
   'MK-MN-M-003#3': { cls: 'NEEDS A RULING',
     why: 'No ruling says what "has gone in" means. The screen takes a full year at the monthly amount typed: "$21,350 left · That is about $14,400 of the $35,750 limit — calculated from what you entered you contribute each month, not from your payroll" (labelled). On 29 Sep, nine $1,200 payments made, the room open today is $24,950; after the year\'s planned payments it is $21,350. On screen: "$21,350 left" (today) or "$24,950 left" (paid so far).',
-    check: () => { expect(has('CR_ROOM', '$21,350 left')).toBe(true); expect(has('CR_ROOM', /not from your payroll/)).toBe(true); } },
+    // DECIDED 2026-10-25 (FIX-ROOM, the lead's ruling 1, DEC-0013 pattern): the room is the year's plan — what the monthly amount
+    // typed puts in this year — and the screen says so in words. This pins the new words; the check was written before the decision
+    // ("$21,350 left" and "…not from your payroll", re-measured by CLEANUP-TESTS on 2026-10-26).
+    check: () => { expect(has('CR_ROOM', 'room for $21,350')).toBe(true); expect(has('CR_ROOM', /^At \$1,200\/month you will put in \$14,400 this year — room for \$21,350 more\. Calculated from the monthly amount you entered/)).toBe(true); } },
   // ── Net worth figures the register lists ──────────────────────────────────────────────────────────────────────────
   'MK-NW-M-012#3': { cls: 'APP WRONG',
     why: 'A car loan whose payment was never entered counts $0 with no word: Net worth reads "Both include $2,400/month of debt payments you cannot stop" and the emergency fund 7.5 months (6.8 with the $250). His tenet 3: unknown is not zero.',
@@ -684,7 +699,7 @@ const CLASS: Record<string, Item> = {
       // the case his ruling DEC-2748c was made for keeps its answer: a CD bought from the bank, no face, $10,000 × 5.05% = $505
       expect(after('B2_NOFACE', 'Interest payments')).toBe('5.05%/year · $505/year'); },
     wrong: () => { expect(after('B1_NOFACE', 'Interest payments')).toBe('4.50%/year · face value not entered'); expect(printed('B1_NOFACE', 'MK-NW-M-056')).toEqual([]);
-      expect(R('B1_NOFACE').lines).not.toContain("Yield on today's value"); expect(R('B1_NOFACE').lines.join(' ')).not.toMatch(/\$1,089/); },
+      expect(R('B1_NOFACE').lines).not.toContain("Yield on today’s value"); expect(R('B1_NOFACE').lines.join(' ')).not.toMatch(/\$1,089/); },
     fixed: '2026-10-24 (the lead\'s decision under DEC-3523 tenet 3, which outranks tenet 6, over the no-face half of DEC-2748c for a dated bond): no face value, no year\'s interest — 4.50%/year · face value not entered; a bank CD by its balance keeps value × rate',
     was: () => { expect(after('B1_NOFACE', 'Interest payments')).toBe('4.50%/year · $1,089/year'); } },
   'MK-NW-M-026#1': { cls: 'APP WRONG',
@@ -858,7 +873,7 @@ const CLASS: Record<string, Item> = {
   'MK-PF-M-013#2': { cls: 'APP WRONG', rowWordsOnly: true,
     why: 'The screen labels a worked-back beginning (DEC-3656, DEC-5291): "Your daily record does not reach back to Feb 1, 2024 yet, so the beginning is worked back from today\'s values and each holding\'s price history." The row still says "READ… never back-solved" and "the walk is not drawn at all rather than started from a guess".',
     fix: 'MoneyKeel/functions/networth-and-performance/performance.ts MK-PF-M-013 row: "read from the record; where the record does not reach, worked back from each holding\'s price history and said so (DEC-3656, DEC-5291)". No figure moves.',
-    check: () => { expect(has('FID_ACC', /so the beginning is worked back from today's values and each holding's price history\.$/)).toBe(true); },
+    check: () => { expect(has('FID_ACC', /so the beginning is worked back from today’s values and each holding’s price history\.$/)).toBe(true); },
     wrong: () => { expect(figureSpec('MK-PF-M-013').answers).not.toMatch(/never back-solved/i); expect((figureSpec('MK-PF-M-013').decisions ?? []).join(' ')).not.toMatch(/IT IS READ, NOT BACK-SOLVED/); },
     fixed: '2026-10-21: the row says the beginning is read from the record, or worked back from price history and said so (DEC-3656, DEC-5291; no figure moves)' },
   'MK-PF-M-014#1': { cls: 'APP WRONG',
@@ -902,7 +917,7 @@ const CLASS: Record<string, Item> = {
   'MK-PF-M-019#3': { cls: 'REVIEWER WRONG',
     why: 'The screen makes the distinction: when a broker shares no dividend records the walk keeps its "Dividends $0" line (the approved structure) and the amber line above names the gap — "Schwab Brokerage hasn\'t shared dividend records". Re-run 2026-10-24: a dividend with no amount is unknown, not $0 — the return refuses and says why, and the Dividends line keeps the $825 it can count; a record in a word the app does not know refuses the same way and names the word.',
     check: () => {
-      expect(has('BENCH_INV_1M', "Schwab Brokerage hasn't shared dividend records")).toBe(true);
+      expect(has('BENCH_INV_1M', "Schwab Brokerage hasn’t shared dividend records")).toBe(true);
       // a $825 dividend counted, one with no amount on Jul 20: no return across that day, and the line counts only the $825
       expect(after('PERF_NOAMOUNT', 'Return')).toBe('—');
       expect(has('PERF_NOAMOUNT', 'A dividend on Jul 20, 2026 has no amount in your records, so a return cannot be measured across that day. The Dividends line does not count it.')).toBe(true);
@@ -1068,4 +1083,12 @@ test('LB_NOPRICE, settled: the waiting line, then the failure line naming BND an
     expect(figuresPrinted().filter((p) => !p.spoken && /^MK-PF-M-01[012]$/.test(p.id))).toEqual([]);       // none through fig()
     r.unmount();
   } finally { stub.mockRestore(); mockParams = {}; }
+});
+
+
+// FIX-MONTH, 2026-10-25 — the answers before the mortgage was counted once, kept beside the new ones (each fails now, as it should)
+describe('FIX-MONTH 2026-10-25 — H_CF before the Rent / Mortgage line was the mortgage\'s', () => {
+  test.failing('MK-CF-M-002: = Planned surplus $1,150', () => { expect(first('CF_CF', 'MK-CF-M-002')).toBe('$1,150'); });
+  test.failing('MK-CF-M-052: Expenses entered by hand −$2,998 and the mortgage NOT PAID YET', () => { expect(after('CF_CF', 'Expenses entered by hand')).toBe('−$2,998'); });
+  test.failing('MK-CF-M-002#2: + Surplus after your budget +$850', () => { expect(after('CF_PROMISE', 'Surplus after your budget')).toBe('+$850'); });
 });

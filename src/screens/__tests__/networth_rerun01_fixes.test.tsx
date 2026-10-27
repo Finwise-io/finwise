@@ -269,7 +269,9 @@ describe('5 · a holding nothing classes is Unclassified on all three screens (D
     expect(after(acct.lines, '▾ UNCLASSIFIED')).toBe('$1,000');
     expect(after(acct.lines, '▾ STOCKS / FUNDS')).toBe('$4,000');
     expect(after(inv.lines, 'Unclassified')).toBe('$50');
-    expect(inv.lines.indexOf('Stocks / Funds')).toBe(-1);     // nothing earned there: QQ's dividend was its only income
+    // nothing earned there — QQ's dividend was its only income — so Stocks / Funds, held ($4,000), reads $0: every category held is
+    // listed since 2026-10-25 (MM-PF D3; it was left out). The $50 is Unclassified's alone.
+    expect(after(inv.lines, 'Stocks / Funds')).toBe('$0');
   });
   test('the door: the category is keyed as Net worth keys it, and labelled with the one class name', () => {
     const cats = categoryEarnings({ windowStart: '2026-01-01', transactions: H_UNCL.transactions as any,
@@ -348,7 +350,7 @@ describe('9 · a holding with no price is not $0 on the account page — the row
   test('alone: its row is what the total leaves over, $5,000, said as such; Stocks / Funds $45,000 is Net worth\'s figure', () => {
     expect(theAccount({ account: ONE as any, transactions: [] }).unpriced).toEqual({ value: 5000, cls: 'stocks_etf', count: 1 });
     const s = page(ONE);
-    expect(after(s.lines, 'ZZ')).toBe('10 shares · no price today — the rest of Schwab\'s total');
+    expect(after(s.lines, 'ZZ')).toBe('10 shares · no price today — the rest of Schwab’s total');
     expect(after(s.lines, 'ZZ', 2)).toBe('$5,000');
     expect(after(s.lines, '▾ STOCKS / FUNDS')).toBe('$45,000');
     expect(accountClassBreakdown(ONE as any)!.stocks_etf).toBe(45_000);
@@ -358,7 +360,7 @@ describe('9 · a holding with no price is not $0 on the account page — the row
     const s = page(TWO);
     expect(after(s.lines, 'ZZ', 2)).toBe('no price today');
     expect(after(s.lines, 'YY', 2)).toBe('no price today');
-    expect(after(s.lines, 'Holdings with no price today')).toBe('2 holdings · the rest of Schwab\'s total');
+    expect(after(s.lines, 'Holdings with no price today')).toBe('2 holdings · the rest of Schwab’s total');
     expect(after(s.lines, '▾ UNCLASSIFIED')).toBe('$5,000');
     expect(accountClassBreakdown(TWO as any)!.mixed).toBe(5_000);
     expect(rowsSum(s)).toBe(50_000);
@@ -441,13 +443,13 @@ describe('13 · one sentence for what the row shows: the amber box and the accou
   });
   test('no price at all, a total to explain it: the row shows the rest of the total and the box says so', () => {
     const r = both({ ...base, balance: 1000, positions: [xyz(undefined)] });
-    expect(r.box).toMatch(/^Meanwhile it counts as the rest of Schwab's total/);
-    expect(after(r.lines, 'XYZ')).toBe('10 shares · no price today — the rest of Schwab\'s total');
+    expect(r.box).toMatch(/^Meanwhile it counts as the rest of Schwab’s total/);
+    expect(after(r.lines, 'XYZ')).toBe('10 shares · no price today — the rest of Schwab’s total');
     expect(after(r.lines, 'XYZ', 2)).toBe('$1,000');
   });
   test('no price at all, nothing left over: the row gives no figure and the box says it counts for nothing', () => {
     const r = both({ ...base, balance: 0, positions: [xyz(undefined)] });
-    expect(r.box).toMatch(/^Meanwhile it counts for nothing: Schwab's total leaves nothing over for it/);
+    expect(r.box).toMatch(/^Meanwhile it counts for nothing: Schwab’s total leaves nothing over for it/);
     expect(after(r.lines, 'XYZ', 2)).toBe('no price today');
   });
 });

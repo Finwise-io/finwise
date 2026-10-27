@@ -15,12 +15,14 @@ import React, { useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
+import { useIncomeProfile } from '../hooks/useIncomeProfile';   // the one profile income figures read (2026-10-26)
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { taxOwedFor, type FilingStatus } from '../domain/income/tax';
 import { taxableAnnual, stateRateOf, filingStatusOf, over65CountOf } from '../domain/income';
 import { taxedAfterPreTax } from '../domain/income/tax-rate';   // the income every tax figure reads, the 401(k)s out (B05)
 import { incomeSummary } from '../../MoneyKeel/functions/cashflow/income-summary';
 import { money } from '../domain/_shared/num';
+import { SectionBand } from '../components/SectionBand';
 
 const OPTIONS: { v: FilingStatus; label: string }[] = [
   { v: 'single', label: 'Single' },
@@ -44,10 +46,13 @@ export default function FilingStatusScreen({ frame = 'screen', onDone }: {
   const [over65, setOver65] = useState<'me' | 'both' | 'neither' | null>(op.over65Who ?? null);
   const [shown, setShown] = useState(false);
 
-  const gross = useMemo(() => taxableAnnual(op), [op]);
+  // the figures read the profile with the year's interest and dividends from the accounts (useIncomeProfile; 2026-10-26,
+  // FIX-INCOME-A) — the answer is saved on `op`, never on this
+  const incomeOp = useIncomeProfile(op);
+  const gross = useMemo(() => taxableAnnual(incomeOp), [incomeOp]);
   // THE TAX ON WHAT IS TAXED ONCE THE 401(k)s ARE OUT (2026-10-24, CF-FIX; B05): the take-home this compares against is worked
   // that way, so the difference it shows is the one the take-home really moves by. It taxed the whole of what was entered.
-  const taxed = useMemo(() => taxedAfterPreTax(op), [op]);
+  const taxed = useMemo(() => taxedAfterPreTax(incomeOp), [incomeOp]);
   const state = stateRateOf(op);
   // WHAT THE APP WAS SHOWING, AGAINST WHAT IT WILL SHOW (2026-10-24, Cash flow journey E2E-79; tenet 1). "What we were assuming"
   // is the status in force when this screen opened — the answer on record, or the one the app assumed from what they said
@@ -55,7 +60,7 @@ export default function FilingStatusScreen({ frame = 'screen', onDone }: {
   // (over65CountOf). It compared single, with no one over 65, against the status chosen with no one over 65: a 67-year-old with
   // a spouse, already shown ≈$6,600/month filing jointly, read "Taxed as single $9,650/year — what we were assuming … $328/month
   // more" and the take-home did not move.
-  const [before] = useState(() => ({ status: filingStatusOf(op), over65: over65CountOf(op), profile: op }));
+  const [before] = useState(() => ({ status: filingStatusOf(op), over65: over65CountOf(op), profile: incomeOp }));
   const beforeWord = (OPTIONS.find((o) => o.v === before.status)?.label ?? 'Single').toLowerCase();
   const asBefore = taxOwedFor(taxed, before.status, state, before.over65);
   const asChosen = taxOwedFor(taxed, status, state, over65CountOf({ ...op, filingStatus: status, over65Who: over65 ?? undefined }));
@@ -104,21 +109,24 @@ export default function FilingStatusScreen({ frame = 'screen', onDone }: {
             {status === 'married' && (
               <Row label="…and both of you over 65" value={`${money(asChosenBoth65)}/year`} />
             )}
-            <Text style={s.big}>{money(Math.abs(change))}/month {moreLess(change)}</Text>
-            {/* "if you are both over 65" goes with its row, which only a joint return has; it says "more" or "less" itself only
-                where its direction is not the line's above */}
-            <Text style={s.note}>
-              take-home than we were showing you{status === 'married'
-                ? ` — ${money(Math.abs(changeBoth65))}${moreLess(changeBoth65) === moreLess(change) ? '' : ` ${moreLess(changeBoth65)}`} if you are both over 65`
-                : ''}.
-            </Text>
+            {/* the pre-answer box, as drawn (phone 15; IN-15, 2026-10-25) */}
+            <View style={s.pre}>
+              <Text style={s.big}>{money(Math.abs(change))}/month {moreLess(change)}</Text>
+              {/* "if you are both over 65" goes with its row, which only a joint return has; it says "more" or "less" itself only
+                  where its direction is not the line's above */}
+              <Text style={s.preT}>
+                take-home than we were showing you{status === 'married'
+                  ? ` — ${money(Math.abs(changeBoth65))}${moreLess(changeBoth65) === moreLess(change) ? '' : ` ${moreLess(changeBoth65)}`} if you are both over 65`
+                  : ''}.
+              </Text>
+            </View>
           </View>
           {/* SAY WHOSE INCOME THE BRACKET CAME FROM (founder, 2026-08-27) — true only while one wage is entered */}
           {(status === 'married' || status === 'mfs') && incomeSummary(op).wages < 2 && (
-            <>
+            <View style={s.info}>
               <Text style={s.whoseT}>Your tax bracket is calculated from your income only.</Text>
-              <Text style={s.note}>Add your spouse’s income if you want it to be accurate.</Text>
-            </>
+              <Text style={s.infoT}>Add your spouse’s income if you want it to be accurate.</Text>
+            </View>
           )}
         </>
       )}
@@ -142,6 +150,16 @@ export function FilingStatusQuestions({ op, status, onStatus, over65, onOver65 }
   const partnerName = String(op?.partnerName || '').trim();
   const suggested: FilingStatus = partner ? 'married' : 'single';
   const iAmOver65 = op?.birthYear ? new Date().getFullYear() - Number(op.birthYear) >= 65 : false;
+  // THE SENTENCE SAYS WHAT IS TRUE OF WHAT WAS ENTERED (2026-10-25, CF-MMFIX-B; drawing check IN-17; tenet 1). It said "because
+  // you entered it is just you" to someone who had entered nothing (opened from the Tax organizer), and "Set to Single" beside an
+  // answer of Head of household already on record. The drawn sentences (phones 13 and 14) stand wherever they are true.
+  const onRecord = (op?.filingStatus as FilingStatus | undefined) ?? undefined;
+  const setTo: FilingStatus = onRecord ?? suggested;
+  const why = onRecord && !(onRecord === suggested && (partner || op?.hasPartner === 'no'))
+    ? ' because you entered it.'
+    : partner ? ` because you entered ${partnerName || 'a spouse'}.`
+    : op?.hasPartner === 'no' ? ' because you entered it is just you. Change it if that is not right.'
+    : ' because you have not entered a spouse. Change it if that is not right.';
   return (
     <>
       <Text style={s.h1}>How do you file your taxes?</Text>
@@ -155,16 +173,16 @@ export function FilingStatusQuestions({ op, status, onStatus, over65, onOver65 }
         </TouchableOpacity>
       ))}
 
-      <Text style={s.why}>
-        Set to <Text style={s.whyB}>{OPTIONS.find((o) => o.v === suggested)?.label}</Text>
-        {partner
-          ? ` because you entered ${partnerName || 'a spouse'}.`
-          : ' because you entered it is just you. Change it if that is not right.'}
-      </Text>
+      {/* the pre-answer box, as drawn (phones 13 and 14; IN-15, 2026-10-25) */}
+      <View style={s.pre}>
+        <Text style={s.preT}>
+          Set to <Text style={s.whyB}>{OPTIONS.find((o) => o.v === setTo)?.label}</Text>{why}
+        </Text>
+      </View>
 
       {status === 'married' && (
-        <>
-          <Text style={s.q}>Is either of you 65 or older?</Text>
+        <View style={s.group}>
+          <SectionBand inCard light inset={Spacing.base} onRowEdges title="Is either of you 65 or older?" />
           <View style={s.segRow}>
             {([['me', 'Just me'], ['both', 'Both of us'], ['neither', 'Neither']] as const).map(([v, label]) => (
               <TouchableOpacity key={v} accessibilityRole="radio" accessibilityState={{ selected: over65 === v }}
@@ -176,11 +194,13 @@ export function FilingStatusQuestions({ op, status, onStatus, over65, onOver65 }
               </TouchableOpacity>
             ))}
           </View>
-          <Text style={s.note}>
-            Being 65 or older adds to your standard deduction — $1,650 each on a joint return. We know
-            your age from your birth year; we have never asked about {partnerName ? `${partnerName}’s` : 'your spouse’s'}.
-          </Text>
-        </>
+          <View style={s.info}>
+            <Text style={s.infoT}>
+              Being 65 or older adds to your standard deduction — $1,650 each on a joint return. We know
+              your age from your birth year; we have never asked about {partnerName ? `${partnerName}’s` : 'your spouse’s'}.
+            </Text>
+          </View>
+        </View>
       )}
     </>
   );
@@ -209,7 +229,12 @@ const s = StyleSheet.create({
   optOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   optT: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   optTOn: { fontWeight: '800', color: Colors.primaryDark },
-  why: { fontSize: 13, color: Colors.textSecondary, marginTop: 14, lineHeight: 19 },
+  // the drawing's boxes (IN-15, 2026-10-25): the pre-answer on the green tint with a green rule; information on the blue tint
+  pre: { backgroundColor: Colors.primaryLight, borderLeftWidth: 3, borderLeftColor: Colors.primary, paddingVertical: 9, paddingHorizontal: 11, marginTop: 14 },
+  preT: { fontSize: 13, color: Colors.textPrimary, lineHeight: 19 },
+  info: { backgroundColor: Colors.blueLight, borderLeftWidth: 3, borderLeftColor: Colors.blue, paddingVertical: 9, paddingHorizontal: 11, marginTop: 10 },
+  infoT: { fontSize: 13, color: Colors.textPrimary, lineHeight: 19 },
+  group: { backgroundColor: Colors.cardBg, padding: Spacing.base, marginTop: 20 },
   whyB: { fontWeight: '800', color: Colors.textPrimary },
   q: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, marginTop: 24 },
   segRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 },
@@ -219,13 +244,13 @@ const s = StyleSheet.create({
   segTOn: { color: Colors.primaryDark, fontWeight: '800' },
   note: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19, marginTop: 10 },
   segSub: { fontSize: 11, color: Colors.textSecondary, marginTop: 2, textAlign: 'center' },
-  whoseT: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, marginTop: 14 },
+  whoseT: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.base, marginTop: 8, borderWidth: 1, borderColor: Colors.border },
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 8 },
   rowL: { fontSize: 15, color: Colors.textPrimary, fontWeight: '600' },
   rowNote: { fontSize: 11, color: Colors.textTertiary },
   rowV: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
-  big: { fontSize: 24, fontWeight: '800', color: Colors.primaryDark, marginTop: 14, fontVariant: ['tabular-nums'] },
+  big: { fontSize: 24, fontWeight: '800', color: Colors.primaryDark, fontVariant: ['tabular-nums'] },
   cta: { backgroundColor: Colors.primary, borderRadius: Radii.md, minHeight: 52, justifyContent: 'center', alignItems: 'center', marginTop: 24 },
   ctaT: { fontSize: 17, fontWeight: '800', color: Colors.white },
 });

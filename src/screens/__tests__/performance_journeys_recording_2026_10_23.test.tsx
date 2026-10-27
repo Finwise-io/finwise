@@ -302,12 +302,17 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
   });
 
   // ── C · THE FOUNDER'S OWN DATA SHAPE: PERFORMANCE v17 PHONE 1, TWO LINKED ACCOUNTS AND A DAILY RECORD ──────────────────
-  // Vanguard BROKERAGE (300 VTI at $330, $2,000 cash, $101,000) and E*TRADE ACCOUNT 1 (40 VOO at $550, $22,000), both linked;
-  // $15,000 paid in ten months ago, dividends and interest three months ago; a daily record from eleven months ago. The person
-  // records a buy the broker has not sent yet: 5 VTI at $330.00, $1,650 of the $2,000 cash. By hand: a buy is neither money in
-  // nor money earned, and a linked account's total is the broker's — every window figure stays as it was; the Holding page
-  // holds 305 shares, worth 305 × $330 = $100,650; Home's investments rise by the $1,650 that left the cash
-  // ($123,000 − $2,000 = $121,000 → $123,000 − $350 = $122,650).
+  // Vanguard BROKERAGE (200 VTI at $411.50, $18,700 cash, $101,000) and E*TRADE ACCOUNT 1 (40 VOO at $465, $3,400 cash,
+  // $22,000), both linked; $15,000 paid in ten months ago, dividends and interest three months ago; a daily record from eleven
+  // months ago. ONE HOUSEHOLD THAT AGREES WITH ITSELF (2026-10-25, the D17 class): the $15,000 went into VTI's value with no
+  // share bought, and the prices (300 VTI $260 → $330, +$21,000) said what the record ($78,000 → $84,000) did not. The record's
+  // accounts are what v17 phone 1 draws (Vanguard $80,000 → $101,000, $15,000 in, change in investment value $4,300; E*TRADE
+  // $20,000 → $22,000), so every flow now moves the cash and each holding moves only by its price — 200 VTI $390 → $409 last
+  // night → $411.50, 40 VOO $427.50 → $464 → $465, the figure-exact household's shares (perf_mock_match_2026_10_12, phone 1).
+  // The person records a buy the broker has not sent yet: 4 VTI at $411.50, $1,646 of the $18,700 cash. By hand: a buy is
+  // neither money in nor money earned, and a linked account's total is the broker's — every window figure stays as it was but
+  // the two a purchase moves by the start-of-day rule; the Holding page holds 204 shares, worth 204 × $411.50 = $83,946; Home's
+  // investments rise by the $1,646 that left the cash ($123,000 − $22,100 = $100,900 → $123,000 − $20,454 = $102,546).
   const monthsAgo = (m: number) => { const d = new Date(`${TODAY}T12:00:00`); d.setMonth(d.getMonth() - m); return d.toISOString().slice(0, 10); };
   const linked = (id: string, institution: string, label: string, balance: number, positions: any[], cash: number) => ({
     asset_id: id, label, institution, kind: 'brokerage', tax_bucket: 'TAXABLE', balance, target_return: 0.05, source: 'connected', cash_balance: cash,
@@ -318,72 +323,80 @@ describe('E2E-57 · Record a buy from the account page: tap "Add a buy or sale",
     accounts: [...new Set(rows.map((r) => r[0]))].map((accountId) => ({ date, accountId, currency: 'USD', typedValue: null,
       cash: rows.filter((r) => r[0] === accountId && r[1] === 'CASH').reduce((t, r) => t + r[3], 0), statedTotal: rows.filter((r) => r[0] === accountId).reduce((t, r) => t + r[3], 0) })) });
   function phone1() {
-    const start = monthsAgo(11), paid = monthsAgo(10);
+    const start = monthsAgo(11), paid = monthsAgo(10), income = monthsAgo(3);
     const days: any[] = [];
     const a = new Date(`${start}T12:00:00`).getTime(), n = Math.round((new Date(`${TODAY}T12:00:00`).getTime() - a) / 86_400_000);
     for (let i = 0; i <= n; i += 1) {
-      const date = new Date(a + i * 86_400_000).toISOString().slice(0, 10), f = i / n;
-      // VTI's value moves in a straight line $78,000 → $84,000, plus the $15,000 paid in from its day on; VOO $20,000 → $22,000
-      days.push(dayOf(date, [['van', 'VTI', 300, 78_000 + 6_000 * f + (date >= paid ? 15_000 : 0)], ['van', 'CASH', 1, 2_000], ['etr', 'VOO', 40, 20_000 + 2_000 * f]]));
+      const date = new Date(a + i * 86_400_000).toISOString().slice(0, 10);
+      // each holding at that day's price — VTI $390 → $409 in a straight line to last night, $411.50 today; VOO $427.50 → $464
+      // → $465 — and the cash moved by every flow: + $15,000 paid in, + $1,500 + $200 and + $300 + $200 of dividends and interest
+      const g = Math.min(i, n - 1) / (n - 1), last = i === n;
+      const vti = last ? 411.5 : 390 + 19 * g, voo = last ? 465 : 427.5 + 36.5 * g;
+      const vanCash = 2_000 + (date >= paid ? 15_000 : 0) + (date >= income ? 1_700 : 0), etrCash = 2_900 + (date >= income ? 500 : 0);
+      days.push(dayOf(date, [['van', 'VTI', 200, 200 * vti], ['van', 'CASH', 1, vanCash], ['etr', 'VOO', 40, 40 * voo], ['etr', 'CASH', 1, etrCash]]));
     }
     const conn = (id: string, date: string, t: string, account_id: string, amount: number, ticker?: string) => ({ id, date, type: t, account_id, amount, ticker, created_at: 'x', source: 'connected' });
     return {
-      assetAccounts: [linked('van', 'Vanguard', 'BROKERAGE', 101_000, [held('p1', 'VTI', 300, 330, 260, start)], 2_000),
-        linked('etr', 'E*TRADE', 'ACCOUNT 1', 22_000, [held('p2', 'VOO', 40, 550, 500, start)], 0)],
+      assetAccounts: [linked('van', 'Vanguard', 'BROKERAGE', 101_000, [held('p1', 'VTI', 200, 411.5, 390, start)], 18_700),
+        linked('etr', 'E*TRADE', 'ACCOUNT 1', 22_000, [held('p2', 'VOO', 40, 465, 427.5, start)], 3_400)],
       transactions: [conn('d1', paid, 'DEPOSIT', 'van', 15_000), conn('v1', monthsAgo(3), 'DIVIDEND', 'van', 1_500, 'VTI'), conn('i1', monthsAgo(3), 'INTEREST', 'van', 200),
         conn('v2', monthsAgo(3), 'DIVIDEND', 'etr', 300, 'VOO'), conn('i2', monthsAgo(3), 'INTEREST', 'etr', 200)],
       snapshotDays: days, invDaily: { [start]: 100_000, [TODAY]: 123_000 },
-      // daily closes as a price feed gives them: VTI $260 → $329 yesterday → $330 today, VOO $500 → $550, SPY $500 → $560
-      priceCache: { VTI: closes([[start, 260], ['2026-09-29', 329], [TODAY, 330]]), VOO: closes([[start, 500], ['2026-09-29', 549], [TODAY, 550]]),
+      // daily closes as a price feed gives them, the record's own prices: VTI $390 → $409 yesterday → $411.50 today, VOO $427.50
+      // → $464 → $465, SPY $500 → $560
+      priceCache: { VTI: closes([[start, 390], ['2026-09-29', 409], [TODAY, 411.5]]), VOO: closes([[start, 427.5], ['2026-09-29', 464], [TODAY, 465]]),
         SPY: closes([[start, 500], ['2026-09-29', 559], [TODAY, 560]]) },
     };
   }
-  test('C · v17 phone 1 (linked, a daily record): a buy of 5 VTI at $330.00 changes no window figure on the Performance tab, the account page or Home; the Holding page holds 305 shares worth $100,650; the tab reads every line it read before', () => {
+  test('C · v17 phone 1 (linked, a daily record): a buy of 4 VTI at $411.50 changes no window figure on the Performance tab, the account page or Home; the Holding page holds 204 shares worth $83,946; the tab reads every line it read before', () => {
     household(phone1());
     const INV0 = look('invest', {}, pick('1Y'));
     const ACC0 = look('account', { id: 'van', period: '1Y' });
     const HOLD0 = look('holding', { account: 'van', position: 'p1', period: '1Y' });
     open('account', { id: 'van', period: '1Y' });
     press(/^Add a buy or sale for /);
-    expect(readLines(true)).toContain('Available cash: $2,000');
+    expect(readLines(true)).toContain('Available cash: $18,700');
     fireEvent.changeText(screen.getByPlaceholderText('e.g. AAPL'), 'VTI');
     const [shares, price] = screen.getAllByPlaceholderText('0');
-    fireEvent.changeText(shares, '5'); fireEvent.changeText(price, '330');
+    fireEvent.changeText(shares, '4'); fireEvent.changeText(price, '411.50');
     press('Record buy');
     const page = readLines();
-    const at = page.indexOf('Buy · VTI · 5 shares @ $330.00');
-    expect(page.slice(at, at + 3)).toEqual(['Buy · VTI · 5 shares @ $330.00', 'Sep 30 · you entered this', '−$1,650']);
+    const at = page.indexOf('Buy · VTI · 4 shares @ $411.50');
+    expect(page.slice(at, at + 3)).toEqual(['Buy · VTI · 4 shares @ $411.50', 'Sep 30 · you entered this', '−$1,646']);
     screen.unmount();
-    // the broker's total stands; the cash the buy spent left the cash: $2,000 − $1,650 = $350
-    expect([acct('van').balance, acct('van').cash_balance]).toEqual([101_000, 350]);
+    // the broker's total stands; the cash the buy spent left the cash: $18,700 − 4 × $411.50 = $18,700 − $1,646 = $17,054
+    expect([acct('van').balance, acct('van').cash_balance]).toEqual([101_000, 17_054]);
     const INV = look('invest', {}, pick('1Y'));
     const ACC = look('account', { id: 'van', period: '1Y' });
     const HOLD = look('holding', { account: 'van', position: 'p1', period: '1Y' });
     const HOME = look('home');
     // the Performance tab: the same lines, in the same order — the state perf_matches_v17 holds against v17 phone 1 — but for
     // ONE figure, by the decided rule that a purchase counts from the start of its day at what was paid (DEC-7451, 2026-10-22):
-    // WHAT EACH CATEGORY EARNED, Stocks / Funds. The $1,650 counts from this morning, when the 300 VTI held stood at last
-    // night's value; the 5 bought end the day at the $330 paid. Today's part of the year's chain moves from
-    // (VTI + VOO tonight) ÷ (VTI + VOO last night) to (VTI + 5 × $330 + VOO tonight) ÷ (VTI + VOO last night + $1,650), a
-    // hair lower: +23.47% → +23.46%. The summary's Return is the accounts' (cash in them), where a buy moves nothing: +7.06%.
+    // WHAT EACH CATEGORY EARNED, Stocks / Funds. The $1,646 counts from this morning, when the 200 VTI held stood at last
+    // night's $409; the 4 bought end the day at the $411.50 paid. Before: (82,300 + 18,600) ÷ (78,000 + 17,100) − 1 = +6.10%.
+    // After: (81,800 + 18,560) ÷ 95,100 × (82,300 + 1,646 + 18,600) ÷ (81,800 + 18,560 + 1,646) − 1 = 1.055310 × 1.005294 − 1
+    // = +6.09%, a hair lower. The summary's Return is the accounts' (cash in them), where a buy moves nothing: every account
+    // together stood at 200 × $391.71 + 40 × $430.78 + $4,900 = $100,472 the evening before the $15,000 (Nov 29, 2025, 30 of
+    // the 334 days to last night), so (100,472 ÷ 100,000) × (123,000 ÷ 115,472) − 1 = +7.02%.
     expect(INV.lines.length).toBeGreaterThan(40);
     const cat = INV0.lines.indexOf('Stocks / Funds', INV0.lines.indexOf('RETURN'));
-    expect(INV0.lines.slice(cat, cat + 3)).toEqual(['Stocks / Funds', '$1,800', '+23.47%']);
-    expect(INV.lines.slice(cat, cat + 3)).toEqual(['Stocks / Funds', '$1,800', '+23.46%']);
-    expect(INV.lines.filter((l, i) => l !== INV0.lines[i])).toEqual(['+23.46%']);
+    expect(INV0.lines.slice(cat, cat + 3)).toEqual(['Stocks / Funds', '$1,800', '+6.10%']);
+    expect(INV.lines.slice(cat, cat + 3)).toEqual(['Stocks / Funds', '$1,800', '+6.09%']);
+    expect(INV.lines.filter((l, i) => l !== INV0.lines[i])).toEqual(['+6.09%']);
     expect(INV.lines.length).toBe(INV0.lines.length);
-    expect([after(INV, 'Ending value'), after(INV, 'Wealth generated'), after(INV, 'Return')]).toEqual(['$123,000', '$8,000', '+7.06%']);
+    expect([after(INV, 'Ending value'), after(INV, 'Wealth generated'), after(INV, 'Return')]).toEqual(['$123,000', '$8,000', '+7.02%']);
     for (const id of ['MK-PF-M-013', 'MK-PF-M-014', 'MK-PF-M-016', 'MK-PF-M-004']) expect(printed(ACC, id)).toEqual(printed(ACC0, id));
-    // the Holding page: 300 + 5 = 305 shares, 305 × $330 = $100,650; paid 300 × $260 + 5 × $330 = $79,650 → average $261.15
-    expect([after(HOLD, 'Quantity'), after(HOLD, 'Current value')]).toEqual(['305 shares', '$100,650']);
-    expect(after(HOLD, 'Total paid')).toBe('$79,650');
-    expect(HOLD.lines).toContain('$261.15');
-    // its own return over the year: bought inside the window at $260, $329 last night, the 5 bought today at $330 — the
-    // return is the price's, 330 ÷ 260 − 1 = +26.92%, the same before and after the buy
-    expect(after(HOLD, 'Your return since purchase')).toBe(pct(330 / 260 - 1));
-    expect(after(HOLD0, 'Your return since purchase')).toBe(pct(330 / 260 - 1));
-    // Home: the month and its base are the Performance tab's 1M, unmoved; the investments move from cash: $121,000 → $122,650
-    expect(after(HOME, 'YOUR INVESTMENTS', 2)).toBe('$122,650');
+    // the Holding page: 200 + 4 = 204 shares, 204 × $411.50 = $83,946; paid 200 × $390 + 4 × $411.50 = $79,646 → average $390.42
+    expect([after(HOLD, 'Quantity'), after(HOLD, 'Current value')]).toEqual(['204 shares', '$83,946']);
+    expect(after(HOLD, 'Total paid')).toBe('$79,646');
+    expect(HOLD.lines).toContain('$390.42');
+    // its own return since purchase: bought at $390, $409 last night, $411.50 today — before the buy 411.50 ÷ 390 − 1 = +5.51%;
+    // after it, the 4 bought count from this morning at the $411.50 paid and gained nothing today:
+    // 409 ÷ 390 × (204 × 411.50) ÷ (200 × 409 + 1,646) − 1 = 1.048718 × 1.005992 − 1 = +5.50%
+    expect(after(HOLD0, 'Your return since purchase')).toBe(pct(411.5 / 390 - 1));
+    expect(after(HOLD, 'Your return since purchase')).toBe(pct((409 / 390) * (204 * 411.5) / (200 * 409 + 1_646) - 1));
+    // Home: the month and its base are the Performance tab's 1M, unmoved; the investments move from cash: $100,900 → $102,546
+    expect(after(HOME, 'YOUR INVESTMENTS', 2)).toBe('$102,546');
     expect(HOME.lines).toContain("This month's change is on $123,000: your investment accounts with the cash in them.");
   });
 });
@@ -427,7 +440,7 @@ describe('E2E-58 · Record a sale with a $5 fee from the Holding page: the fee c
     expect(after({ printed: [], lines: readLines() }, 'Quantity')).toBe('90 shares');
     expect(after({ printed: [], lines: readLines() }, 'Realized from sales')).toBe('+$175 all time');
     // its Activity sheet: the sale and what it brought in after the fee
-    press("See VTI's activity");
+    press("See VTI’s activity");
     const act = readLines(true);
     expect(act.slice(act.indexOf('Sell VTI · 10 sh @ $98.00'), act.indexOf('Sell VTI · 10 sh @ $98.00') + 3)).toEqual(['Sell VTI · 10 sh @ $98.00', 'Sep 15, 2026 · Fidelity', '+$975']);
     screen.unmount();
@@ -661,7 +674,7 @@ describe('E2E-61 · Edit a record (its price) from the ✎, then delete a record
     expect(HOLD.lines).toContain('$81.64');
     // 3 · deleted from VTI's Activity sheet: every screen is back where it was before the buy
     open('holding', { account: 'fid', position: 'vti', period: '1M' });
-    press("See VTI's activity");
+    press("See VTI’s activity");
     expect(readLines(true).filter((l) => /^(Buy|Opening holding) VTI/.test(l))).toEqual(['Buy VTI · 10 sh @ $98.00', 'Opening holding VTI · 100 sh @ $80.00']);
     press('Delete buy VTI');
     screen.unmount();
@@ -674,7 +687,7 @@ describe('E2E-61 · Edit a record (its price) from the ✎, then delete a record
     // 4 · the opening purchase: a delete the ledger refuses says so, on the Activity sheet and on the account page's ✎
     const alert = jest.spyOn(Alert, 'alert').mockImplementation(() => {});
     open('holding', { account: 'fid', position: 'vti', period: '1M' });
-    press("See VTI's activity");
+    press("See VTI’s activity");
     press('Delete opening holding VTI');
     expect(alert).toHaveBeenLastCalledWith('Can’t remove this entry', expect.stringMatching(/^It was recorded before balance-safe deletes existed/));
     screen.unmount();
@@ -827,6 +840,7 @@ describe('E2E-58 B · a sale\'s realized gain reads what was paid, for a holding
     open('account', { id: 'fid', period: '1M' });
     press(/^Add a buy or sale for /);
     fireEvent.changeText(screen.getByPlaceholderText('e.g. AAPL'), 'AAA');
+    press('Type: Stocks / Funds');   // a ticker the account does not hold yet is asked its type (2026-10-25, trade-sheet v03 row 16)
     const [shares, price] = screen.getAllByPlaceholderText('0');
     fireEvent.changeText(shares, '10'); fireEvent.changeText(price, '90');
     press('Record buy');
@@ -875,7 +889,7 @@ describe('E2E-57 D · an option contract bought and sold by hand moves 100 share
     expect(after({ printed: [], lines: readLines() }, 'Quantity')).toBe('3 contracts');
     expect(after({ printed: [], lines: readLines() }, 'Current value')).toBe('$750');   // 3 × 100 × $2.50
     // its Activity sheet: the record in contracts, and what it took out
-    press(`See ${CALL}'s activity`);
+    press(`See ${CALL}’s activity`);
     const act = readLines(true);
     expect(act.slice(act.indexOf(`Buy ${CALL} · 1 contract @ $2.50`), act.indexOf(`Buy ${CALL} · 1 contract @ $2.50`) + 3)).toEqual([`Buy ${CALL} · 1 contract @ $2.50`, 'Sep 30, 2026 · Fidelity', '−$250']);
     press('Done');
@@ -913,6 +927,10 @@ describe('E2E-57 E · a VTI bought on the trade sheet lists under Stocks / Funds
     open('account', { id: 'fid', period: '1M' });
     press(/^Add a buy or sale for /);
     fireEvent.changeText(screen.getByPlaceholderText('e.g. AAPL'), 'VTI');
+    // Fidelity does not hold VTI yet: the sheet asks its type, nothing chosen, and the buy waits until the person says (2026-10-25,
+    // trade-sheet v03 row 16; DEC-2160) — the class is the person's answer, never the classifier's default
+    expect(screen.getByLabelText('Record buy').props.accessibilityState?.disabled).toBe(true);
+    press('Type: Stocks / Funds');
     const [shares, price] = screen.getAllByPlaceholderText('0');
     fireEvent.changeText(shares, '10'); fireEvent.changeText(price, '100');
     press('Record buy');
@@ -924,7 +942,8 @@ describe('E2E-57 E · a VTI bought on the trade sheet lists under Stocks / Funds
     press('Record dividend');
     const page = readLines();
     screen.unmount();
-    expect((acct('fid').positions as any[]).find((p) => p.ticker === 'VTI')).toMatchObject({ asset_class: 'stock_etf' });
+    // the type chosen, stored as the holding's kind; the one classifier reads it as the class it was given (DEC-7605, 2026-10-25)
+    expect((acct('fid').positions as any[]).find((p) => p.ticker === 'VTI')).toMatchObject({ kind: 'stocks_etf' });
     // the account page: VTI under Stocks / Funds, 10 × $100 = $1,000; nothing under Unclassified
     const band = page.indexOf('▾ STOCKS / FUNDS');
     expect(band).toBeGreaterThan(page.indexOf('BY CATEGORY & HOLDING'));

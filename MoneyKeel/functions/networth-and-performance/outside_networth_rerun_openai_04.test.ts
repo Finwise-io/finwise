@@ -498,7 +498,7 @@ describe('MK-NW-F-133 valueEntered — five cases', () => {
 describe('MK-NW-F-134 carValueNotEnteredNotes — five cases', () => {
   const car = (id: string, o: Record<string, any> = {}) => acct({ asset_id: id, kind: 'vehicle', tax_bucket: 'PROPERTY', label: '', ...o });
   const PICKED = car('zz-car', { label: 'Driven car', balance: 30000 });   // valued, so the app picks it (see the header)
-  const note = (n: string) => `${n}'s value not entered — it may be the car you drive.`;
+  const note = (n: string) => `${n}’s value not entered — it may be the car you drive.`;
   test('easy · Unpicked vehicle missing value gets note', () => {
     expect(carValueNotEnteredNotes([car('car1', { balance: null }), PICKED], new Map([['car1', 'Car A']]))).toEqual([note('Car A')]);
     // as written — the only vehicle, so the app picks it as the car you drive (with none valued every vehicle is a

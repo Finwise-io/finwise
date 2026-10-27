@@ -145,7 +145,7 @@ describe('MK-XS-F-002 · the amber box says what the row shows (tenet 2)', () =>
     // paid — on Net worth and on the account page's row, so the box says that; built by hand it is counted at what was paid
     const g = dataGaps([acct(undefined)] as any).filter((x: any) => x.kind === 'no-price');
     expect(g).toHaveLength(1);
-    expect(g[0].meanwhile).toBe("Meanwhile it counts as the rest of Schwab's total — what the other holdings and the cash leave over. It stays out of the change line, and we say so.");
+    expect(g[0].meanwhile).toBe("Meanwhile it counts as the rest of Schwab’s total — what the other holdings and the cash leave over. It stays out of the change line, and we say so.");
     const byHand = dataGaps([{ ...acct(undefined), source: 'manual', derive_balance: true }] as any, null, Date.now(), [], [], [], () => null).filter((x: any) => x.kind === 'no-price');
     expect(byHand).toHaveLength(1);
     expect(byHand[0].meanwhile).toBe('Meanwhile we show what you paid — it stays out of the change line, and we say so.');
@@ -157,7 +157,8 @@ describe('MK-NW-F-084 · an alternative\'s income is Alternatives\', never Stock
     { position: { ticker: 'VTI', asset_class: 'stock_etf' }, marketValue: 10000, periodReturn: 0.05, periodTotal: 0.05 }];
   test('an alternative\'s $83.27 dividend reads Alternatives earned $83.27 (before: Stocks / Funds earned $83.27)', () => {
     const c = categoryEarnings({ windowStart: '2026-01-01', rows: rows as any, transactions: [{ type: 'DIVIDEND', account_id: 'A', ticker: 'GLD', date: '2026-03-01', amount: 83.27 }] });
-    expect(c.map((b) => [b.label, b.earned])).toEqual([['Alternatives', 83.27]]);
+    // Stocks / Funds is held, so it is listed at $0 (2026-10-25, MM-PF D3); the $83.27 is Alternatives'
+    expect(c.map((b) => [b.label, b.earned])).toEqual([['Stocks / Funds', 0], ['Alternatives', 83.27]]);
   });
   test('day one draws Alternatives only where one is held', () => {
     expect(categoryEarnings({ windowStart: null, rows: rows as any, transactions: [], dayOne: true }).map((b) => b.key)).toContain('alternatives');

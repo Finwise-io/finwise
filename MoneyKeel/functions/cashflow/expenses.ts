@@ -13,7 +13,8 @@
 import { toNum } from '../../../src/domain/_shared/num';
 import { paymentShape, paymentInMonth, type Debt } from '../../../src/domain/debt';
 
-import { inMonth, DEBT_CATEGORY, type LoggedExpense } from './logged-expenses';
+import { inMonth, DEBT_CATEGORY, debtPaymentsMatched, type LoggedExpense } from './logged-expenses';
+import { localDay } from '../../../src/domain/_shared/dates';   // the one reader of a stored day (CF-21, 2026-10-25)
 
 export interface ExpensesInput {
   ym: string;
@@ -39,7 +40,7 @@ export const BIG_BILL_FLOOR = 500;
  *
  * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -49,7 +50,7 @@ export const BIG_BILL_FLOOR = 500;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -78,11 +79,16 @@ export function recurringDebtPayments(s: ExpensesInput): { label: string; monthl
  *
  * Formula .....
  *     out = []
+ *     paid to = debt payments matched(debts as any, expenses, ym)
+ *     counts = (d: debt) => payment shape(d) ! = 'installment' and !purchases captured.has(string(debt id))
+ *     name of = (label: string) => ( ÷ payment$ ÷ test(string(label).trim()) ? label : `${label} payment`)
+ *     paid = paid to.by debt.get(string(debt id)) (or 0 when missing)
+ *     ds = debts (or none when missing) where sh.debt ids.includes(string(debt id))
  *     the answer = out
  *
  * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -92,7 +98,7 @@ export function recurringDebtPayments(s: ExpensesInput): { label: string; monthl
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -106,17 +112,26 @@ export function recurringDebtPayments(s: ExpensesInput): { label: string; monthl
  */
 export function debtPaymentsCountedAsExpenses(
   s: ExpensesInput, purchasesCaptured: Set<string> = new Set(),
-): { label: string; amount: number }[] {
-  const out: { label: string; amount: number }[] = [];
+): { label: string; amount: number; note?: string }[] {
+  const out: { label: string; amount: number; note?: string }[] = [];
+  // EACH PAYMENT ONCE, ON THE DEBT IT WAS PAID ON (2026-10-25, FIX-MONTH; DEC-1923; CFR-2, MK-CF-F-150-C05): the payment was matched
+  // to every debt whose name it carried, so one $250 logged to "Loan" was counted for "Loan" AND for " loan " — $500 of expenses.
+  // The one matcher (debtPaymentsMatched) gives it to the debt it names, or — a name two debts share — to neither, listed once.
+  const paidTo = debtPaymentsMatched(s.debts as any, s.expenses, s.ym);
+  const counts = (d: Debt) => paymentShape(d) !== 'installment' && !purchasesCaptured.has(String(d.debt_id));
+  const nameOf = (label: string) => (/payment$/i.test(String(label).trim()) ? label : `${label} payment`);
   for (const d of s.debts ?? []) {
-    if (paymentShape(d) === 'installment') continue;          // recurring debt is not an expense
-    if (purchasesCaptured.has(String(d.debt_id))) continue;   // its purchases are the expense instead
-    const paid = (s.expenses ?? [])
-      .filter((e) => e.category === DEBT_CATEGORY && inMonth(e, s.ym)
-                     && String(e.store ?? '').trim().toLowerCase() === String(d.label).trim().toLowerCase())
-      .reduce((t, e) => t + toNum(e.amount), 0);
+    if (!counts(d)) continue;          // recurring debt is not an expense; a connected card's purchases are the expense instead
+    const paid = paidTo.byDebt.get(String(d.debt_id)) ?? 0;
     // named as the drawing names it: "HELOC payment"; a debt already called "… payment" keeps its name
-    if (paid > 0) out.push({ label: /payment$/i.test(String(d.label).trim()) ? d.label : `${d.label} payment`, amount: (paid) });
+    if (paid > 0) out.push({ label: nameOf(d.label), amount: (paid) });
+  }
+  // a payment under a name two debts share: counted once when every debt of that name is counted as an expense, never twice
+  for (const sh of paidTo.shared) {
+    const ds = (s.debts ?? []).filter((d) => sh.debtIds.includes(String(d.debt_id)));
+    if (sh.amount > 0 && ds.length && ds.every(counts)) {
+      out.push({ label: nameOf(sh.name), amount: sh.amount, note: `${ds.length === 2 ? 'two' : ds.length} of your debts have that name — counted once` });
+    }
   }
   return out;
 }
@@ -140,7 +155,7 @@ export const SHOW_FIRST = 5;
  *
  * Called by ... MK-CF-O-002 expenses
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -150,7 +165,7 @@ export const SHOW_FIRST = 5;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -165,7 +180,7 @@ export function actualSpending(s: ExpensesInput, origin?: 'by-hand' | 'imported'
   const items = (s.expenses ?? [])
     .filter((e) => inMonth(e, s.ym) && e.category !== DEBT_CATEGORY)
     .filter((e) => !origin || (origin === 'imported') === (e.origin === 'imported'))
-    .sort((a, b) => String(b.date).localeCompare(String(a.date)));
+    .sort((a, b) => localDay(b.date).localeCompare(localDay(a.date)) || String(b.date).localeCompare(String(a.date)));   // newest day first, where the person is (CF-21)
   const shown = items.slice(0, SHOW_FIRST);
   const total = (items.reduce((t, e) => t + toNum(e.amount), 0));
   const shownTotal = (shown.reduce((t, e) => t + toNum(e.amount), 0));
@@ -197,7 +212,7 @@ export interface RadarItem { label: string; amount: number; reason: RadarReason;
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-153 radar
  *               MK-CF-F-156 plannedMonthFlow
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -207,7 +222,7 @@ export interface RadarItem { label: string; amount: number; reason: RadarReason;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -229,17 +244,24 @@ export function isRadarItem(d: Debt): RadarReason | null {
  *
  * Formula .....
  *     out = []
+ *     paid to = debt payments matched(debts as any, expenses, ym)
  *     reason = is radar item(d)
+ *     paid = paid to.by debt.get(string(debt id)) (or 0 when missing)
  *     amount = paid   if paid > 0
  *     payment in month(d, ym)   otherwise
  *     counted = !purchases captured.has(string(debt id))
  *     name = label   if ÷ payment$ ÷ test(string(label).trim())
  *     `${label} payment`   otherwise
+ *     ds = debts (or none when missing) where sh.debt ids.includes(string(debt id))
+ *     reason = is radar item(ds[0])   if count of ds
+ *     nothing   otherwise
+ *     counted = !ds.some((d) => purchases captured.has(string(debt id)))
  *     the answer = out
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-CF-O-002 expenses
+ * Called by ... MK-CF-F-148 inMonth · MK-CF-O-002 expenses
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -249,7 +271,7 @@ export function isRadarItem(d: Debt): RadarReason | null {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -259,13 +281,12 @@ export function isRadarItem(d: Debt): RadarReason | null {
  */
 export function radar(s: ExpensesInput, purchasesCaptured: Set<string> = new Set()): RadarItem[] {
   const out: RadarItem[] = [];
+  const paidTo = debtPaymentsMatched(s.debts as any, s.expenses, s.ym);
   for (const d of s.debts ?? []) {
     const reason = isRadarItem(d);
     if (!reason) continue;
-    const paid = (s.expenses ?? [])
-      .filter((e) => e.category === DEBT_CATEGORY && inMonth(e, s.ym)
-                     && String(e.store ?? '').trim().toLowerCase() === String(d.label).trim().toLowerCase())
-      .reduce((t, e) => t + toNum(e.amount), 0);
+    // what was paid on THIS debt, matched by the debt itself (debtPaymentsMatched, 2026-10-25, FIX-MONTH) — never every debt of a name
+    const paid = paidTo.byDebt.get(String(d.debt_id)) ?? 0;
     const amount = (paid > 0 ? paid : paymentInMonth(d, s.ym));   // a lump due this month at its balance; nothing before a first payment
     if (amount <= 0) continue;
     const counted = !purchasesCaptured.has(String(d.debt_id));
@@ -278,6 +299,15 @@ export function radar(s: ExpensesInput, purchasesCaptured: Set<string> = new Set
                  : reason === 'revolving-debt' && d.debt_type === 'CREDIT_CARD'
                    ? 'entered on the Debts tab · counted as an expense — no receipts to match it to'
                    : 'entered on the Debts tab · counted as an expense' });
+  }
+  // a payment under a name two radar debts share: one item, given to neither (2026-10-25, FIX-MONTH; DEC-1923)
+  for (const sh of paidTo.shared) {
+    const ds = (s.debts ?? []).filter((d) => sh.debtIds.includes(String(d.debt_id)));
+    const reason = ds.length ? isRadarItem(ds[0]) : null;
+    if (!(sh.amount > 0) || !reason || !ds.every((d) => isRadarItem(d))) continue;
+    const counted = !ds.some((d) => purchasesCaptured.has(String(d.debt_id)));
+    out.push({ label: /payment$/i.test(sh.name) ? sh.name : `${sh.name} payment`, amount: sh.amount, reason, countedAsExpense: counted,
+               note: `${ds.length === 2 ? 'two' : ds.length} of your debts have that name — counted once` });
   }
   for (const b of (s.bigBills ?? [])) {
     if ((b.amount) >= BIG_BILL_FLOOR) {
@@ -299,7 +329,7 @@ export interface Expenses {
   /** The same expenses, apart: what was entered by hand, and what a card or a file brought. */
   byHand: SpentList;
   imported: SpentList;
-  debtCountedAsExpense: { label: string; amount: number }[];
+  debtCountedAsExpense: { label: string; amount: number; note?: string }[];
   actualTotal: number;
   radar: RadarItem[];
 }
@@ -315,20 +345,23 @@ export interface Expenses {
  *     act = actual expenses(s)
  *     debt exp = debt payments counted as expenses(s, purchases captured)
  *
- * Called by ... MK-CF-F-044 annualNet · MK-CF-F-067 rentalList
+ * Called by ... MK-CF-F-001 buildBudgetState · MK-CF-F-005 actualMonthFlow
+ *               MK-CF-F-044 annualNet · MK-CF-F-067 rentalList
  *               MK-CF-F-068 rentalNetAnnual · MK-CF-F-079 incomeFromOnboarding
- *               MK-CF-F-124 nextOccurrence · MK-CF-F-153 radar
- *               MK-CF-F-190 essentialsMonthly · MK-CF-F-204 line
- *               MK-CF-F-212 receivedInMonth · MK-CF-F-219 rentEntryMonthly
- *               MK-CF-F-242 workedLineAmount · MK-CF-O-010 theMonth
- *               MK-NW-F-115 liveRent · MK-NW-F-185 valueChanged
- *               MK-PL-F-040 targetAtRetirement · MK-PL-F-049 retirementSpendMonthly
- *               MK-PL-F-050 simulate · MK-PL-F-065 volOf
- *               MK-PL-F-067 willItLastInputs · MK-XS-F-004 buildDatedGrid
- *               MK-XS-F-057 analyzeExpenses · MK-XS-F-176 useMonthlyStats
- *               MK-XS-F-177 useCategorySpend
+ *               MK-CF-F-124 nextOccurrence · MK-CF-F-148 inMonth
+ *               MK-CF-F-150 debtPaymentsCountedAsExpenses · MK-CF-F-153 radar
+ *               MK-CF-F-157 debtPaymentsByDebt · MK-CF-F-190 essentialsMonthly
+ *               MK-CF-F-204 line · MK-CF-F-212 receivedInMonth
+ *               MK-CF-F-219 rentEntryMonthly · MK-CF-F-242 workedLineAmount
+ *               MK-CF-F-256 budgetEditorBuckets · MK-CF-F-257 budgetEntered
+ *               MK-CF-O-010 theMonth · MK-NW-F-115 liveRent
+ *               MK-NW-F-185 valueChanged · MK-PL-F-040 targetAtRetirement
+ *               MK-PL-F-049 retirementSpendMonthly · MK-PL-F-050 simulate
+ *               MK-PL-F-065 volOf · MK-PL-F-067 willItLastInputs
+ *               MK-XS-F-004 buildDatedGrid · MK-XS-F-057 analyzeExpenses
+ *               MK-XS-F-176 useMonthlyStats · MK-XS-F-177 useCategorySpend
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -338,7 +371,7 @@ export interface Expenses {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses

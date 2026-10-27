@@ -21,7 +21,13 @@ const table = (g: Record<string, number>, l?: Record<string, number>): BasePayEn
 
 describe('the tax bracket is read from gross, annualised', () => {
   it('THE LAW: annualised gross is the AVERAGE month times twelve, never the window total', () => {
-    // 14 months from last month to twelve ahead, totalling 103,000
+    // 14 months from last month to twelve ahead, totalling 103,000 — the window as it stands in August 2026, so the clock is set
+    // there. 2026-10-25 (CF-MMFIX-B; the lead's ruling on CFR-5's F7; tenet 4): the year is THIS CALENDAR YEAR's twelve months,
+    // as every Cash flow month reads it, a month with nothing typed at the typical $7,000 — Jan to Jun 2026 6 × 7,000 = 42,000,
+    // Jul 7,000, Aug 7,000, Sep 9,500, Oct to Dec 3 × 7,000 = 21,000: $86,500, the average month ($7,208.33) × 12, and never the
+    // window's $103,000. It read (103,000 ÷ 14) × 12 = $88,286, which blends 2027's months into 2026's year.
+    jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] });
+    jest.setSystemTime(new Date(2026, 7, 20, 12));
     const months: Record<string, number> = {};
     ['2026-07','2026-08','2026-09','2026-10','2026-11','2026-12','2027-01','2027-02','2027-03',
      '2027-04','2027-05','2027-06','2027-07','2027-08'].forEach((k, i) => {
@@ -29,8 +35,37 @@ describe('the tax bracket is read from gross, annualised', () => {
      });
     const total = Object.values(months).reduce((t, v) => t + v, 0);
     expect(total).toBe(103_000);                       // the window
-    expect(annualisedGross(table(months))).toBeCloseTo((103_000 / 14) * 12, 2);
+    expect(annualisedGross(table(months))).toBeCloseTo(6 * 7_000 + 7_000 + 7_000 + 9_500 + 3 * 7_000, 6);
     expect(annualisedGross(table(months))).toBeLessThan(total);   // never the sum
+    jest.useRealTimers();
+  });
+
+  it('a month left blank counts as the typical month, never as nothing (2026-10-25, IN-05; drawing v07 phone 6)', () => {
+    jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] });
+    jest.setSystemTime(new Date(2026, 7, 20, 12));
+    // Sam: $2,077 a fortnight ($2,077 × 26 ÷ 12 = $4,500.17 a month), September 2026 and March 2027 typed at $6,000; 2026's other
+    // eleven months blank: 11 × 4,500.17 + 6,000 = $55,501.83 (March 2027 is next year's) — it read $72,000, every month $6,000
+    const sam: BasePayEntry = { freq: 'biweekly', varies: true, grossTypical: 2077, grossByMonth: { '2026-09': 6000, '2027-03': 6000 }, monthly401k: 400 };
+    expect(annualisedGross(sam)).toBeCloseTo(11 * ((2077 * 26) / 12) + 6000, 6);
+    expect(Math.round(annualisedGross(sam))).toBe(55_502);
+    expect(earnerPay(sam).typicalMonth).toBeCloseTo((2077 * 26) / 12, 9);
+    jest.useRealTimers();
+  });
+
+  it('a month TYPED $0 is an answer and counts $0; a month CLEARED counts as the typical month (the lead’s ruling, 2026-10-25, CFR-5 F7)', () => {
+    jest.useFakeTimers({ doNotFake: ['nextTick', 'setImmediate', 'queueMicrotask', 'setTimeout', 'setInterval', 'clearTimeout', 'clearInterval'] });
+    jest.setSystemTime(new Date(2026, 9, 15, 12));
+    // CFR-5's worker: $12,500 a month from July, every month of 2026 typed — January to June typed $0: 6 × $12,500 = $75,000
+    // (it read $109,091 for one evening, the fourteen months blended into 2026's year; $75,000 at b1c659e8)
+    const year = (v: (i: number) => any) => Object.fromEntries(Array.from({ length: 12 }, (_, i) => [`2026-${String(i + 1).padStart(2, '0')}`, v(i)]));
+    const { entryFromWage } = require('./base-pay');
+    const worker = (byMonth: Record<string, any>) => entryFromWage({ baseSalary: '12500', salaryFreq: 'monthly', salaryMonthMode: 'months', salaryByMonth: byMonth });
+    expect(annualisedGross(worker(year((i) => (i < 6 ? '0' : '12500'))))).toBe(75_000);
+    // the same worker with January to June CLEARED — boxes emptied, '' stored — is a worker whose blank months start from $12,500
+    expect(annualisedGross(worker(year((i) => (i < 6 ? '' : '12500'))))).toBe(150_000);
+    // and with them taken out of the table altogether (the screen takes a cleared box out), the same
+    expect(annualisedGross(worker(Object.fromEntries(Object.entries(year((i) => (i < 6 ? '' : '12500'))).filter(([, v]) => v !== ''))))).toBe(150_000);
+    jest.useRealTimers();
   });
 
   it('THE LAW: a steady month annualises to twelve of it, whatever the pay frequency', () => {
@@ -84,7 +119,8 @@ describe('a typed take-home is a MONTH, whatever the pay frequency (approved dra
   it('THE LAW: it is used exactly as typed', () => {
     const gross: Record<string, number> = { hourly: 45, weekly: 1700, biweekly: 3400, monthly: 7000 };
     for (const freq of Object.keys(gross)) {
-      const e = steady({ freq, grossTypical: gross[freq], landsTypical: 5000 });
+      // an hourly wage carries its hours a week (DEC-0296; 2026-10-26, FIX-INCOME-A)
+      const e = steady({ freq, grossTypical: gross[freq], landsTypical: 5000, ...(freq === 'hourly' ? { hoursPerWeek: 40 } : {}) });
       expect(takeHomeAsEntered(e)).toMatchObject({ monthly: 5000, estimated: false });
       expect(deductionsFromPay(e)).toBeCloseTo(annualisedGross(e) - 800 * 12 - 5000 * 12, 6);
     }
@@ -126,7 +162,8 @@ describe('the three figures reconcile', () => {
     const v = payFiguresAgree({ freq: 'monthly', varies: true, grossTypical: 7000,
       grossByMonth: g, monthly401k: 0, landsByMonth: l });
     expect(v.ok).toBe(false);                                    // and it is still caught
-    expect(v.say).toContain('2026-09');
+    expect(v.say).toContain('in September 2026');               // the month in words (2026-10-25, CFR-5 F6): it read "in 2026-09"
+    expect(v.say).not.toMatch(/\d{4}-\d{2}/);
   });
 
   it('deductions above 60% warn but never block', () => {

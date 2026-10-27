@@ -48,6 +48,11 @@ afterAll(() => jest.useRealTimers());
 const DIR = path.join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance');
 type Line = { t: string; sheet: boolean; size?: number; weight?: string; color?: string; opacity: number };
 const decode = (s: string) => s.replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+/** THE ONE READING OF A DRAWING'S WORDS (2026-10-25): a drawing whose READ THIS FIRST row of that date says its apostrophes are
+ *  drawn straight, copied from the code, is read with ’ inside a word — the app prints ’. The app side is held as printed, and a
+ *  drawing that draws a straight one without the row goes red below. */
+const APOSTROPHE_ROW = /<tr><td>\d+<\/td><td>2026-10-25 · Every apostrophe inside a word is drawn straight here/;
+const curled = (t: string) => t.replace(/([A-Za-z])'([A-Za-z])/g, '$1’$2');
 const clean = (s: string) => s.replace(/\s+/g, ' ').trim();
 const norm = (c?: string) => (c == null ? undefined : String(c).replace(/\s+/g, '').toUpperCase());
 const SKIP = new Set(['sbar', 'state', 'peek']);   // the phone's own parts, not the app's
@@ -71,7 +76,7 @@ function readDrawing(file: string) {
   let label: string | null = null;
   for (const m of phone.matchAll(/<(\/?)([a-z0-9]+)([^>]*)>|([^<]+)/gi)) {
     if (m[4] != null) {
-      const text = decode(m[4]);
+      const text = APOSTROPHE_ROW.test(html) ? curled(decode(m[4])) : decode(m[4]);
       if (label != null) { label += text; continue; }
       if (stack.some((e) => e.cls.some((c) => SKIP.has(c)))) continue;
       const top = stack[stack.length - 1];
@@ -243,4 +248,15 @@ describe('the dark-green bar and the button that waits', () => {
     // count) · recorder A, E, F, H, I (no amount) · edit record B (amount cleared)
     expect(waiting).toBe(13);
   });
+});
+
+test('a sheet drawing that draws a straight apostrophe inside a word says so in its row of 2026-10-25 — and only those do', () => {
+  const files = ['moneykeel_pres_mock_trade-sheet_v03.html', 'moneykeel_pres_mock_holding-editor_v02.html', 'moneykeel_pres_mock_activity-sheet_v01.html',
+    'moneykeel_pres_mock_record-activity-sheet_v01.html', 'moneykeel_pres_mock_edit-record-sheet_v02.html'];
+  const straight = files.filter((f) => {
+    const html = fs.readFileSync(path.join(DIR, f), 'utf8');
+    return /[A-Za-z](?:'|&#39;)[A-Za-z]/.test(html.slice(html.indexOf('<div class="phone">'), html.indexOf('<div class="side">')).replace(/<[^>]+>/g, ' '));
+  });
+  expect(straight).toEqual(['moneykeel_pres_mock_trade-sheet_v03.html', 'moneykeel_pres_mock_holding-editor_v02.html', 'moneykeel_pres_mock_record-activity-sheet_v01.html']);
+  for (const f of files) expect(APOSTROPHE_ROW.test(fs.readFileSync(path.join(DIR, f), 'utf8'))).toBe(straight.includes(f));
 });

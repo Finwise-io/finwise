@@ -5,8 +5,8 @@
 //
 // SAMENESS: this function derives from the SAME canonical helpers the app already trusts —
 // salaryGrossByMonth / equityByMonth / benefitActiveMonths / spendByMonth / effectiveRate — and the
-// grid.test.ts agreement suite pins Σcells to cashflowYear's totals, so promoting screens onto the
-// grid can never change their numbers.
+// grid.test.ts agreement suite pins its bills to spendByMonth to the cent. It is the ONE twelve-month table: the second one,
+// cashflowYear (MK-CF-F-020), was retired on 2026-10-25.
 import type { OnboardingProfile } from '../onboardingProfile';
 import { toNum } from '../_shared/num';
 import {
@@ -14,10 +14,13 @@ import {
   benefitActiveMonths, rentalNetAnnual,
 } from '../income';
 import { wagesLandingByMonth } from '../income/onboarding';   // the wage after tax and the 401(k)s (2026-10-24)
+// money that lands once, whether vests are cash, unemployment pay, and the taxed part of retirement income (FIX-INCOME-B, 2026-10-25)
+import { landsOnce, vestsAreCash, unemploymentMonthly, retirementIncomeTaxedMonthly } from '../income/onboarding';
 import { rateInForce } from '../income/tax-rate';
 import { spendByMonth } from '../budget';
-import { equityByMonth } from '../cashflow';
+import { equityByMonth, equityVests } from '../cashflow';
 import { requiredPayment, paymentShape, paymentInMonth, type Debt } from '../debt';
+import { daysInMonth } from '../_shared/dates';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -53,6 +56,10 @@ export interface DatedGrid {
   lowestBalance: number;
   totalIn: number;
   totalOut: number;
+  /** money the table cannot put in any month, with the reason it says (2026-10-25, FIX-BILLS): a vest whose year is one of these
+   *  twelve months' years but has no month — "vest month not entered" — and a vest with no date at all — "vest date not
+   *  entered". Neither is counted in a month: a month nobody gave would be read as one they did (tenet 3). */
+  notInAMonth?: { label: string; amount: number; year: number | null; reason: 'vest month not entered' | 'vest date not entered' }[];
 }
 export interface GridOptions {
   startBalance?: number;
@@ -94,11 +101,11 @@ export interface GridOptions {
  *               MK-CF-F-237 LATER · MK-CF-F-242 workedLineAmount
  *               MK-CF-O-008 whatsComing
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-205 COMING · MK-CF-F-237 LATER
- *               MK-CF-F-107 buildPaycheckYear · MK-CF-O-017 futurePaycheck
- *               MK-CF-F-212 receivedInMonth · MK-CF-O-008 whatsComing
- *               MK-CF-F-242 workedLineAmount
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-CF-O-017 futurePaycheck · MK-CF-F-212 receivedInMonth
+ *               MK-CF-O-008 whatsComing · MK-CF-F-242 workedLineAmount
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-014 debt balance
@@ -168,7 +175,10 @@ export function buildDatedGrid(op: OnboardingProfile | null, opts: GridOptions =
   const invLands = a.invPaidToBank === 'yes';
   for (let s = 0; s < 12; s++) {
     if (seM > 0) put(s, { source: 'Self-employment', amount: netAt(s, seM), gross: seM, approx: a.seFreq === 'annual' });
-    if (rentalM > 0) put(s, { source: 'Rental (after costs)', amount: theirs ? rentalM : netAt(s, rentalM), gross: rentalM, approx: true });
+    // A RENTAL LOSS IS MONEY OUT OF THE MONTH (2026-10-25, FIX-INCOME-B; FOUND F4 by the outside measurement): the running costs
+    // are paid from the bank, so a rental losing $500/month takes $500 off the month — This month read $7,200 in and a planned
+    // surplus of +$1,150 where it is $6,700 and +$650 (the month grid and the Income summary count it). It was left out (> 0).
+    if (rentalM !== 0) income[s].push({ source: 'Rental (after costs)', amount: theirs ? rentalM : netAt(s, rentalM), gross: rentalM, approx: true });
     if (invM > 0 && invLands) put(s, { source: 'Investment income', amount: theirs ? invM : netAt(s, invM), gross: invM, approx: true });
   }
   // "other" income — every rhythm honored, incl. QUARTERLY (anchored, not hardcoded) and a REAL
@@ -183,20 +193,49 @@ export function buildDatedGrid(op: OnboardingProfile | null, opts: GridOptions =
     if (freq === 'monthly') for (let s = 0; s < 12; s++) put(s, val(s, otherAmt));
     else if (freq === 'annual') { const s = slotForMY(otherIncomeMonth(op), toNum(a.otherIncomeYear) || undefined); if (s >= 0) put(s, val(s, otherAmt)); else laterIn.push({ label: a.otherLabel || 'Other income', amount: otherAmt, month: otherIncomeMonth(op), year: toNum(a.otherIncomeYear) }); }
     else if (freq === 'quarterly') { const anchor = slotOf(otherIncomeMonth(op)); for (let q = 0; q < 4; q++) { const s = (anchor + q * 3) % 12; put(s, val(s, otherAmt)); } }
-    else if (freq === 'onetime') { const s = slotForMY(otherIncomeMonth(op), toNum(a.otherIncomeYear) || undefined); if (s >= 0) put(s, val(s, otherAmt)); else laterIn.push({ label: a.otherLabel || 'One-time income', amount: otherAmt, month: otherIncomeMonth(op), year: toNum(a.otherIncomeYear) }); }
+    // ONE TIME, WITH NO YEAR, IS IN NO MONTH (2026-10-25, FIX-INCOME-B; landsOnce; DEC-0447, DEC-7940): it was put in the next
+    // time its month comes, so it came back every year — "year not entered" is said where the source is listed
+    else if (freq === 'onetime') { const o = landsOnce(op).find((x) => x.kind === 'other'); if (o && o.counts && o.year != null && o.month != null) { const s = slotForMY(o.month, o.year); if (s >= 0) put(s, val(s, otherAmt)); else laterIn.push({ label: a.otherLabel || 'One-time income', amount: otherAmt, month: o.month, year: o.year }); } }
   }
   if (toNum(a.bonusAnnual) > 0) {
     const m = Math.min(12, Math.max(1, toNum(a.bonusMonth) || 12));
     put(slotOf(m), { source: 'Bonus', amount: netAt(slotOf(m), toNum(a.bonusAnnual)), gross: toNum(a.bonusAnnual) });
   }
-  if (toNum(a.signingOnetime) > 0) put(0, { source: 'Signing bonus', amount: netAt(0, toNum(a.signingOnetime)), gross: toNum(a.signingOnetime) });
-  const eq = equityByMonth(a);
-  for (let s = 0; s < 12; s++) {
-    const v = eq[calMonth(s)];
-    if (v > 0) put(s, { source: 'Equity vesting', amount: netAt(s, v), gross: v });
+  // A SIGNING BONUS LANDS ONCE, IN THE MONTH ITS DATE NAMES (2026-10-25, FIX-INCOME-B; landsOnce; DEC-0447): it landed in this
+  // month every time the table was drawn; with no date it is in no month
+  for (const o of landsOnce(op)) {
+    if (o.kind !== 'signing' || o.year == null || o.month == null) continue;
+    const s = slotForMY(o.month, o.year);
+    if (s >= 0) put(s, { source: 'Signing bonus', amount: netAt(s, o.amount), gross: o.amount });
+    else if ((o.year * 12 + (o.month - 1)) - nowIdx > 11) laterIn.push({ label: 'Signing bonus', amount: o.amount, month: o.month, year: o.year });
   }
+  // EACH VEST IN ITS OWN YEAR AND MONTH (2026-10-25, FIX-BILLS; his DEC-0012, DEC-0003): read for each year these twelve months
+  // span. A vest after the window is money coming in LATER, never dropped; one with no month, or no date, is in no month and is
+  // named with its reason (notInAMonth). It was the yearly run-rate laid on the vest months with the year ignored.
+  const yearOfSlot = (s: number) => startYear + Math.floor((startMonth + s) / 12);
+  const eqOf = new Map<number, number[]>();
+  for (let s = 0; s < 12; s++) {
+    const yr = yearOfSlot(s);
+    if (!eqOf.has(yr)) eqOf.set(yr, equityByMonth(a, yr));
+    const v = eqOf.get(yr)![calMonth(s)];
+    // SHARES, NOT CASH, unless sold when they vest (2026-10-25, the lead's ruling, like his DEC-0179; vestsAreCash): a vest kept
+    // as shares moves no month's money (the month grid and the Income summary read it so)
+    if (v > 0 && vestsAreCash(op)) put(s, { source: 'Equity vesting', amount: netAt(s, v), gross: v });
+  }
+  const vests = equityVests(a);
+  for (const v of vests) {
+    if (vestsAreCash(op) && v.year != null && v.month != null && (v.year * 12 + (v.month - 1)) - nowIdx > 11) laterIn.push({ label: 'Equity vesting', amount: v.amount, month: v.month, year: v.year });
+  }
+  const notInAMonth = vests
+    .filter((v) => v.missing === 'vest date not entered' || (v.missing === 'vest month not entered' && v.year != null && v.year >= startYear && v.year <= yearOfSlot(11)))
+    .map((v) => ({ label: 'Equity vesting', amount: v.amount, year: v.year, reason: v.missing! }));
   const benM = toNum(a.benefitMonthly);
-  if (benM > 0) { const set = new Set(benefitActiveMonths(op)); for (let s = 0; s < 12; s++) if (set.has(calMonth(s) + 1)) put(s, { source: 'Benefits', amount: benM }); }
+  // UNEMPLOYMENT PAY IS TAXED (2026-10-25, FIX-INCOME-B; IRC §85(a)): its own line, after tax; the rest of the benefits untaxed
+  const unempM = unemploymentMonthly(op);
+  if (benM > 0) { const set = new Set(benefitActiveMonths(op)); for (let s = 0; s < 12; s++) if (set.has(calMonth(s) + 1)) {
+    put(s, { source: 'Benefits', amount: benM - unempM });
+    if (unempM > 0) put(s, { source: 'Unemployment', amount: netAt(s, unempM), gross: unempM });
+  } }
   if (toNum(a.supportMonthly) > 0) for (let s = 0; s < 12; s++) put(s, { source: 'Family support', amount: toNum(a.supportMonthly) });
   // scholarships / student-loan disbursements keep their dated placement (month + optional year), and the day they land when
   // the person gave one (2026-10-24: what is there by a bill's day counts aid that lands before it, and not aid that lands after)
@@ -221,8 +260,11 @@ export function buildDatedGrid(op: OnboardingProfile | null, opts: GridOptions =
       else laterIn.push({ label: g.source, amount: g.amount, month: g.month, year: g.year ?? 0 });
     }
   } else {
-    const retM = currentRetirementIncomeMonthly(op);
-    if (retM > 0) for (let s = 0; s < 12; s++) put(s, { source: 'Retirement income', amount: netAt(s, retM), gross: retM, approx: true });
+    // the tax comes off the part that is taxed — Social Security in the share IRS Publication 915 taxes (2026-10-25, FIX-INCOME-B;
+    // retirementIncomeTaxedMonthly, read by the month grid and the Income summary too); a "Not yet" Social Security is not here
+    const ret = retirementIncomeTaxedMonthly(op, now);
+    const retM = ret.received;
+    if (retM > 0) for (let s = 0; s < 12; s++) put(s, { source: 'Retirement income', amount: retM - ret.taxed * rates[calMonth(s)], gross: retM, approx: true });
   }
   // the tax on interest and dividends that are reinvested, under a calculated rate: it comes out of the pay (or the first
   // taxed income) that does land that month — the law in dividends.test.ts, as the income grid and the Income summary take it
@@ -242,11 +284,18 @@ export function buildDatedGrid(op: OnboardingProfile | null, opts: GridOptions =
     if (c?.bucket !== 'nonmonthly') continue;
     const amt = toNum(c?.amount); if (amt <= 0) continue;
     const yearly = c?.unit === 'pct' ? (amt / 100) * netMonthlyIncome * 12 : amt;
-    const ms = Array.isArray(c?.months) && c.months.length ? c.months : [1];
+    // A BILL WITH NO MONTH IS A TWELFTH IN EVERY MONTH, as the budget counts it (DEC-7611), carried in the month's regular
+    // expenses below with no date of its own (2026-10-25, FIX-BILLS; MK-CF-M-028 "a date nobody gave would be read as one they
+    // did"). It was named in January for the whole year while the twelfths stayed in every month: $1,200 became $2,300.
+    if (!(Array.isArray(c?.months) && c.months.length)) continue;
+    const ms: number[] = c.months;
     const yr = toNum(c?.year) || undefined;                       // one-time bills may carry a YEAR (v1.1)
     for (const m of ms) {
       const s = slotForMY(m, yr);
-      const item: GridBillItem = { label: c.label ?? c.id ?? 'Bill', amount: yearly / ms.length, day: toNum(c?.dueDay) || undefined, kind: 'bill', critical: (c.tier ?? 'flex') === 'critical' };
+      // a day past the end of a shorter month is its last day — the 29th of February is the 28th in 2027, never 1 March (tenet 4)
+      const due = toNum(c?.dueDay) || undefined;
+      const day = due && s >= 0 ? Math.min(due, daysInMonth(yearOfSlot(s), m)) : due;
+      const item: GridBillItem = { label: c.label ?? c.id ?? 'Bill', amount: yearly / ms.length, day, kind: 'bill', critical: (c.tier ?? 'flex') === 'critical' };
       if (s >= 0) { bills[s].push(item); named[s] += item.amount; }
       else later.push({ label: item.label, amount: item.amount, month: m, year: yr ?? 0 });
     }
@@ -318,6 +367,35 @@ export function buildDatedGrid(op: OnboardingProfile | null, opts: GridOptions =
     cells, later: [...laterIn.filter((l) => !l.year || (l.year * 12 + (l.month - 1)) - nowIdx > 11), ...later], shortMonths,
     lowestBalance: (Math.min(...cells.map((c) => c.runningBalance))),
     totalIn: (totalIn), totalOut: (totalOut),
+    ...(notInAMonth.length ? { notInAMonth } : {}),
   };
+}
+
+/** What it is for: THE MONTH'S BILLS THAT FALL ON A DATE OF THEIR OWN, read off one month of the table (2026-10-25, FIX-BILLS;
+ *  the lead's ruling on the outside review's open case: a large once-a-year bill is on the big-ticket radar in its own month,
+ *  and only there — DEC-0002 gives big one-time bills their own list). A once-in-a-while bill in its month and a one-time item an
+ *  adopted plan created; never the month's regular expenses, a bill with no month (a twelfth a month), or a debt payment —
+ *  a debt is asked of the debts, one rule (paymentInMonth). $1,200 of car insurance due 15 December is December's, not October's. */
+/* ─ MK-XS-F-198 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * datedBillsIn
+ *
+ * Answers ..... What it is for: THE MONTH'S BILLS THAT FALL ON A DATE OF THEIR OWN, read off one month of the table (2026-10-25, FIX-BILLS; the lead's ruling on the outside review's open case: a large once-a-year bill is on the big-ticket radar in its own month, and only there — DEC-0002 gives big one-time bills their own list).
+ *
+ * Formula .....
+ *     cell.bill items (or none when missing) where kind = 'bill' and !regular
+ *
+ * Called by ... MK-CF-F-107 buildPaycheckYear
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-107 buildPaycheckYear · MK-CF-O-017 futurePaycheck
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-198
+ * Changed ..... not in git yet (—)
+ */
+export function datedBillsIn(cell: GridCell | null | undefined): GridBillItem[] {
+  return (cell?.billItems ?? []).filter((b) => b.kind === 'bill' && !b.regular);
 }
 

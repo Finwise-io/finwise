@@ -1657,10 +1657,10 @@
    "status": "CODED, NOT VERIFIED",
    "ref": "src/__tests__/guard_bands_edge_to_edge.test.ts · 15 screen files",
    "date": "2026-09-26",
-   "comments": "B-107. The guard reads each band's enclosing card and its padding.",
+   "comments": "B-107. The guard reads each band's enclosing card and its padding. | 2026-10-25: the guard was rebuilt to read whole tags and count every bar — 144 of 144, 72 inside cards — and 8 more short bars now run edge to edge (DEC-8352); a second guard, guard_band_never_beside_title.test.ts, reads 137 bars (DEC-8335). Still waits for his phone check.",
    "_written": {
     "status": "CODED, NOT VERIFIED",
-    "comments": "B-107. The guard reads each band's enclosing card and its padding."
+    "comments": "B-107. The guard reads each band's enclosing card and its padding. | 2026-10-25: the guard was rebuilt to read whole tags and count every bar — 144 of 144, 72 inside cards — and 8 more short bars now run edge to edge (DEC-8352); a second guard, guard_band_never_beside_title.test.ts, reads 137 bars (DEC-8335). Still waits for his phone check."
    }
   },
   {
@@ -2437,10 +2437,10 @@
    "status": "OPEN — mine.",
    "ref": "MoneyKeel/documents/cashflow/moneykeel_pres_mock_filing-status-question_v03.html · src/screens/__tests__/filing_matches_v07.test.tsx",
    "date": "2026-10-04",
-   "comments": "",
+   "comments": "2026-10-26: v03 now carries a dated READ THIS FIRST row (2026-10-25, CF-MMFIX-B, IN-16) naming income v07 phones 13 to 15 as the filing question’s one phone (DEC-8391). The file is not yet archived, so the row stays open.",
    "_written": {
     "status": "OPEN — mine.",
-    "comments": ""
+    "comments": "2026-10-26: v03 now carries a dated READ THIS FIRST row (2026-10-25, CF-MMFIX-B, IN-16) naming income v07 phones 13 to 15 as the filing question’s one phone (DEC-8391). The file is not yet archived, so the row stays open."
    }
   },
   {
@@ -3634,13 +3634,13 @@
   {
    "task": "Trade sheet: a ticker bought before it is held counts ×1",
    "todo": "The trade sheet should ask the holding's type, so an option bought before it is held counts its shares per contract.",
-   "status": "TO DO",
+   "status": "DONE 2026-10-25 — the trade sheet asks a ticker’s type and an option’s shares per contract before the first buy; 1 contract at $2.50 on $1,000 moves $250 and leaves $750",
    "ref": "MK-CF-F-223 tradeMultiplierOf · the trade sheet in src/screens/AccountPortfolioScreen.tsx",
    "date": "2026-10-23",
-   "comments": "Found by JA, 2026-10-23 (limit of DEC-7602). Example: 1 option contract at $2.50 bought on the trade sheet before the option is held moves $2.50, not $250.",
+   "comments": "Found by JA, 2026-10-23 (limit of DEC-7602). Example: 1 option contract at $2.50 bought on the trade sheet before the option is held moves $2.50, not $250. | 2026-10-26: closed by FIX-TRADES under DEC-8423 (it replaces the Limit sentence of DEC-7602). Test: src/screens/__tests__/trade_sheet_first_buy_and_unknowns_2026_10_25.test.tsx (J1).",
    "_written": {
-    "status": "TO DO",
-    "comments": "Found by JA, 2026-10-23 (limit of DEC-7602). Example: 1 option contract at $2.50 bought on the trade sheet before the option is held moves $2.50, not $250."
+    "status": "DONE 2026-10-25 — the trade sheet asks a ticker’s type and an option’s shares per contract before the first buy; 1 contract at $2.50 on $1,000 moves $250 and leaves $750",
+    "comments": "Found by JA, 2026-10-23 (limit of DEC-7602). Example: 1 option contract at $2.50 bought on the trade sheet before the option is held moves $2.50, not $250. | 2026-10-26: closed by FIX-TRADES under DEC-8423 (it replaces the Limit sentence of DEC-7602). Test: src/screens/__tests__/trade_sheet_first_buy_and_unknowns_2026_10_25.test.tsx (J1)."
    }
   },
   {
@@ -3790,13 +3790,13 @@
   {
    "task": "Plan: the Retirement cockpit's bracket and the will-it-last tax rate on required withdrawals read gross before the 401(k)",
    "todo": "Read both after each earner's 401(k), as the Cash flow screens do since 2026-10-24 (his DEC-0283); userCapGainsRates does the same but nothing calls it.",
-   "status": "TO DO — with the Plan module",
+   "status": "DONE 2026-10-26 — the cockpit reads the Income summary’s band ($70,000 with a $10,000 401(k): 22% → 12%) and the required-withdrawal rate reads the profile with the accounts’ interest (14.64% → 14.77% on $122,000)",
    "ref": "the Retirement cockpit · the will-it-last required-withdrawal tax rate · userCapGainsRates",
    "date": "2026-10-24",
-   "comments": "Found by CF-FIX, 2026-10-24. Example, on the Cash flow screens' own household: single, $70,000 of wages, $10,000 into a 401(k) — the band of the gross is 22% ($53,900 taxed), the band after the 401(k) 12% ($43,900); the cockpit still reads the band of the gross.",
+   "comments": "Found by CF-FIX, 2026-10-24. Example, on the Cash flow screens' own household: single, $70,000 of wages, $10,000 into a 401(k) — the band of the gross is 22% ($53,900 taxed), the band after the 401(k) 12% ($43,900); the cockpit still reads the band of the gross. | 2026-10-26: closed by CLEANUP-LEFT under DEC-8519, DEC-8522. Test: src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx.",
    "_written": {
-    "status": "TO DO — with the Plan module",
-    "comments": "Found by CF-FIX, 2026-10-24. Example, on the Cash flow screens' own household: single, $70,000 of wages, $10,000 into a 401(k) — the band of the gross is 22% ($53,900 taxed), the band after the 401(k) 12% ($43,900); the cockpit still reads the band of the gross."
+    "status": "DONE 2026-10-26 — the cockpit reads the Income summary’s band ($70,000 with a $10,000 401(k): 22% → 12%) and the required-withdrawal rate reads the profile with the accounts’ interest (14.64% → 14.77% on $122,000)",
+    "comments": "Found by CF-FIX, 2026-10-24. Example, on the Cash flow screens' own household: single, $70,000 of wages, $10,000 into a 401(k) — the band of the gross is 22% ($53,900 taxed), the band after the 401(k) 12% ($43,900); the cockpit still reads the band of the gross. | 2026-10-26: closed by CLEANUP-LEFT under DEC-8519, DEC-8522. Test: src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx."
    }
   },
   {
@@ -3937,10 +3937,10 @@
    "status": "TO DO — on the next device build",
    "ref": "the Debts tab mortgage comparison (src/screens/BudgetScreen.tsx) · src/screens/RequiredWithdrawalsScreen.tsx",
    "date": "2026-10-24",
-   "comments": "Found by CJB, 2026-10-24 (DEC-7948). Example: the mortgage comparison on the Debts tab ended its last sentence with the dot; the dot now sits beside the sentence and is said About How we calculate your odds — the layout moves a little, and no test can see it.",
+   "comments": "Found by CJB, 2026-10-24 (DEC-7948). Example: the mortgage comparison on the Debts tab ended its last sentence with the dot; the dot now sits beside the sentence and is said About How we calculate your odds — the layout moves a little, and no test can see it. | 2026-10-25: one info dot on every screen (DEC-8339) — the same phone check covers it.",
    "_written": {
     "status": "TO DO — on the next device build",
-    "comments": "Found by CJB, 2026-10-24 (DEC-7948). Example: the mortgage comparison on the Debts tab ended its last sentence with the dot; the dot now sits beside the sentence and is said About How we calculate your odds — the layout moves a little, and no test can see it."
+    "comments": "Found by CJB, 2026-10-24 (DEC-7948). Example: the mortgage comparison on the Debts tab ended its last sentence with the dot; the dot now sits beside the sentence and is said About How we calculate your odds — the layout moves a little, and no test can see it. | 2026-10-25: one info dot on every screen (DEC-8339) — the same phone check covers it."
    }
   },
   {
@@ -4037,6 +4037,510 @@
    "_written": {
     "status": "DONE 2026-10-24 — 1 of 1 row; the guard is equal to the code only after PF-TOOLS adds the missing Cash flow functions",
     "comments": "Run 2026-10-24 19:32: 2 of 3 pass; the count check reads 200 functions against its floor of 201 until PF-TOOLS's pass, now in flight, adds the 19 missing Cash flow functions and makes the guard equal the code."
+   }
+  },
+  {
+   "task": "Net worth drawing match (MM-NW, 2026-10-25) and its fixes (NW-MMFIX)",
+   "todo": "Compare every Net worth drawing with the build, word by word and look by look, then fix each defect in the app or record it on its drawing.",
+   "status": "DONE 2026-10-25 — 27 of 27 defects handled: 11 fixed in the app, 16 by dated rows (41 rows on 10 drawings); one more bar fault found and fixed; the blank-debt follow-up 4 of 4",
+   "ref": "src/screens/__tests__/networth_matches_v08.test.tsx · src/__tests__/guard_band_never_beside_title.test.ts · src/__tests__/nw_curly_apostrophe_guard.test.ts · src/screens/__tests__/add_account_debt_blank_not_zero_2026_10_25.test.tsx",
+   "date": "2026-10-26",
+   "comments": "Decisions DEC-8333, DEC-8334, DEC-8335, DEC-8336, DEC-8337, DEC-8338, DEC-8339, DEC-8340, DEC-8341, DEC-8342, DEC-8343, DEC-8344. Before: Bonds and Alternatives drew the bar beside the title, 20 points in; 53 strings printed a straight apostrophe; a mortgage payment left blank was saved as $0. Run 2026-10-25: 60 files, 1,887 tests; the 3 red were other agents’.",
+   "_written": {
+    "status": "DONE 2026-10-25 — 27 of 27 defects handled: 11 fixed in the app, 16 by dated rows (41 rows on 10 drawings); one more bar fault found and fixed; the blank-debt follow-up 4 of 4",
+    "comments": "Decisions DEC-8333, DEC-8334, DEC-8335, DEC-8336, DEC-8337, DEC-8338, DEC-8339, DEC-8340, DEC-8341, DEC-8342, DEC-8343, DEC-8344. Before: Bonds and Alternatives drew the bar beside the title, 20 points in; 53 strings printed a straight apostrophe; a mortgage payment left blank was saved as $0. Run 2026-10-25: 60 files, 1,887 tests; the 3 red were other agents’."
+   }
+  },
+  {
+   "task": "Performance drawing match (MM-PF, 2026-10-25) and its fixes (PF-MMFIX)",
+   "todo": "Compare the Performance tab, the Holding page and Look back with their drawings and close every gap D1–D21.",
+   "status": "DONE 2026-10-25 — 21 of 21: 11 by code, 10 by dated rows (23 rows on 4 drawings); the bar guard reads 144 of 144 bars and 8 short bars run edge to edge; 5 of 5 test households agree with themselves; no approved figure moved",
+   "ref": "src/screens/__tests__/perf_matches_v17.test.tsx · src/__tests__/guard_bands_edge_to_edge.test.ts · src/screens/__tests__/perf_mock_match_2026_10_12.test.tsx · src/screens/__tests__/perf_decisions_held_1.test.tsx",
+   "date": "2026-10-26",
+   "comments": "Decisions DEC-8345, DEC-8346, DEC-8347, DEC-8348, DEC-8349, DEC-8350, DEC-8351, DEC-8352, DEC-8353, DEC-8354; DEC-0064 part 3 replaced. Phone 1’s 2Y reads +7.46% over the two years, +3.66%/year (row 36 said +7.05%, +3.46%/year). Run 2026-10-25: 437 of 437 Performance tests.",
+   "_written": {
+    "status": "DONE 2026-10-25 — 21 of 21: 11 by code, 10 by dated rows (23 rows on 4 drawings); the bar guard reads 144 of 144 bars and 8 short bars run edge to edge; 5 of 5 test households agree with themselves; no approved figure moved",
+    "comments": "Decisions DEC-8345, DEC-8346, DEC-8347, DEC-8348, DEC-8349, DEC-8350, DEC-8351, DEC-8352, DEC-8353, DEC-8354; DEC-0064 part 3 replaced. Phone 1’s 2Y reads +7.46% over the two years, +3.66%/year (row 36 said +7.05%, +3.46%/year). Run 2026-10-25: 437 of 437 Performance tests."
+   }
+  },
+  {
+   "task": "Cash flow drawing match (MM-CF, 2026-10-25) and its fixes (CF-MMFIX-A, CF-MMFIX-B)",
+   "todo": "Compare every Cash flow drawing with the build, with real figures, and close every defect; make the drawing tests compare real figures.",
+   "status": "DONE 2026-10-25/26 — CF-MMFIX-A 29 of 29 (25 in the app, 4 by dated rows), 10 of 10 screen items and 4 of 4 follow-ups; CF-MMFIX-B 20 of 20 (16 in the app, 4 by dated rows) and 5 of 5 later items; the $# stand-ins are gone",
+   "ref": "src/screens/__tests__/cashflow_drawing_fixes_2026_10_25.test.tsx · src/screens/__tests__/income_drawing_fixes_2026_10_25.test.tsx · src/screens/__tests__/cashflow_matches_v01.test.tsx",
+   "date": "2026-10-26",
+   "comments": "Decisions DEC-8355, DEC-8356, DEC-8357, DEC-8358, DEC-8359, DEC-8360, DEC-8361, DEC-8362, DEC-8363, DEC-8364, DEC-8365, DEC-8366, DEC-8367, DEC-8368, DEC-8369, DEC-8370, DEC-8371, DEC-8372, DEC-8373, DEC-8374, DEC-8375, DEC-8376, DEC-8377, DEC-8378, DEC-8379 (A) and DEC-8380, DEC-8381, DEC-8382, DEC-8383, DEC-8384, DEC-8385, DEC-8386, DEC-8387, DEC-8388, DEC-8389, DEC-8390, DEC-8391 (B). The drawing rows of CF-MMFIX-A’s first round came after the code (row below).",
+   "_written": {
+    "status": "DONE 2026-10-25/26 — CF-MMFIX-A 29 of 29 (25 in the app, 4 by dated rows), 10 of 10 screen items and 4 of 4 follow-ups; CF-MMFIX-B 20 of 20 (16 in the app, 4 by dated rows) and 5 of 5 later items; the $# stand-ins are gone",
+    "comments": "Decisions DEC-8355, DEC-8356, DEC-8357, DEC-8358, DEC-8359, DEC-8360, DEC-8361, DEC-8362, DEC-8363, DEC-8364, DEC-8365, DEC-8366, DEC-8367, DEC-8368, DEC-8369, DEC-8370, DEC-8371, DEC-8372, DEC-8373, DEC-8374, DEC-8375, DEC-8376, DEC-8377, DEC-8378, DEC-8379 (A) and DEC-8380, DEC-8381, DEC-8382, DEC-8383, DEC-8384, DEC-8385, DEC-8386, DEC-8387, DEC-8388, DEC-8389, DEC-8390, DEC-8391 (B). The drawing rows of CF-MMFIX-A’s first round came after the code (row below)."
+   }
+  },
+  {
+   "task": "OpenAI Cash flow audit, parts 1–4, measured (CFR-1)",
+   "todo": "Measure every case of parts 1–4 against the app; pin each app-wrong case.",
+   "status": "DONE 2026-10-25 — 250 of 250 cases: 219 agree, 24 app wrong, 1 needs a ruling (ruled by the lead), 6 outside domain; every app-wrong case since fixed by FIX-INCOME-A/B",
+   "ref": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part01..04.test.ts · MoneyKeel/documents/audit/outside-test-cases/returned/results/cashflow_openai_part01..04_results.json",
+   "date": "2026-10-26",
+   "comments": "The lead’s rulings on its finds: a cleared month is the typical month (DEC-8381); vests are taxed, not cash, unless sold (DEC-8451); a typed $0 take-home is an answer (DEC-8435).",
+   "_written": {
+    "status": "DONE 2026-10-25 — 250 of 250 cases: 219 agree, 24 app wrong, 1 needs a ruling (ruled by the lead), 6 outside domain; every app-wrong case since fixed by FIX-INCOME-A/B",
+    "comments": "The lead’s rulings on its finds: a cleared month is the typical month (DEC-8381); vests are taxed, not cash, unless sold (DEC-8451); a typed $0 take-home is an answer (DEC-8435)."
+   }
+  },
+  {
+   "task": "OpenAI Cash flow audit, parts 5–8, measured (CFR-2)",
+   "todo": "Measure every case of parts 5–8 against the app.",
+   "status": "DONE 2026-10-25 — 260 of 260 cases: 216 agree, 37 app wrong, 1 reviewer wrong, 1 needs a ruling (ruled by the lead), 5 outside domain",
+   "ref": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part05..08.test.ts · results cashflow_openai_part05..08_results.json",
+   "date": "2026-10-26",
+   "comments": "The lead’s rulings: the radar shows a big dated bill in its month (DEC-8422); a vest with no month is in its year, one with no date refused (DEC-8416).",
+   "_written": {
+    "status": "DONE 2026-10-25 — 260 of 260 cases: 216 agree, 37 app wrong, 1 reviewer wrong, 1 needs a ruling (ruled by the lead), 5 outside domain",
+    "comments": "The lead’s rulings: the radar shows a big dated bill in its month (DEC-8422); a vest with no month is in its year, one with no date refused (DEC-8416)."
+   }
+  },
+  {
+   "task": "OpenAI Cash flow audit, parts 9–12, measured (CFR-3)",
+   "todo": "Measure every case of parts 9–12 against the app.",
+   "status": "DONE 2026-10-25 — 265 of 265 cases: 226 agree, 10 app wrong, 7 reviewer wrong, 1 needs a ruling (ruled by the lead), 9 blocked, 14 outside domain",
+   "ref": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09..12.test.ts · results cashflow_openai_part09..12_results.json",
+   "date": "2026-10-26",
+   "comments": "The lead’s rulings: the mortgage against a Treasury after tax (DEC-8412); imported holdings with no cash read not entered (DEC-8426).",
+   "_written": {
+    "status": "DONE 2026-10-25 — 265 of 265 cases: 226 agree, 10 app wrong, 7 reviewer wrong, 1 needs a ruling (ruled by the lead), 9 blocked, 14 outside domain",
+    "comments": "The lead’s rulings: the mortgage against a Treasury after tax (DEC-8412); imported holdings with no cash read not entered (DEC-8426)."
+   }
+  },
+  {
+   "task": "OpenAI Cash flow audit, parts 13–17 and the source checks, measured (CFR-4)",
+   "todo": "Measure every case and witness of parts 13–17 and the sources file.",
+   "status": "DONE 2026-10-25 — 320 of 320 cases and 100 of 100 witnesses (97 agree, 2 app wrong, 1 split); all 48 band-top witnesses agree",
+   "ref": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part13..17.test.ts · outside_cashflow_openai_sources.test.ts · their results files",
+   "date": "2026-10-26",
+   "comments": "The lead’s rulings: contribution room said as a plan (DEC-8406); the blended return when none is set (DEC-8413); this tax year’s months (DEC-8380); the spouse counted under 65 and said (DEC-8397).",
+   "_written": {
+    "status": "DONE 2026-10-25 — 320 of 320 cases and 100 of 100 witnesses (97 agree, 2 app wrong, 1 split); all 48 band-top witnesses agree",
+    "comments": "The lead’s rulings: contribution room said as a plan (DEC-8406); the blended return when none is set (DEC-8413); this tax year’s months (DEC-8380); the spouse counted under 65 and said (DEC-8397)."
+   }
+  },
+  {
+   "task": "OpenAI Cash flow audit, parts 18–19 (screens), measured (CFR-5)",
+   "todo": "Measure every FAIL of parts 18 and 19 on the rendered screens.",
+   "status": "DONE 2026-10-25 — 197 of 197 FAILs: 72 app wrong, 23 reviewer wrong, 8 need a ruling (ruled by the lead), 94 evidence gaps; 339 PASSes recorded",
+   "ref": "src/screens/__tests__/outside_cashflow_openai_screens.test.tsx · results cashflow_openai_screens_results.json",
+   "date": "2026-10-26",
+   "comments": "The lead’s rulings: cents kept on expenses (DEC-8375); Calculated tax with a state rate (DEC-8389); typed cash on hand kept (DEC-8371); a debt counted once (DEC-8459).",
+   "_written": {
+    "status": "DONE 2026-10-25 — 197 of 197 FAILs: 72 app wrong, 23 reviewer wrong, 8 need a ruling (ruled by the lead), 94 evidence gaps; 339 PASSes recorded",
+    "comments": "The lead’s rulings: cents kept on expenses (DEC-8375); Calculated tax with a state rate (DEC-8389); typed cash on hand kept (DEC-8371); a debt counted once (DEC-8459)."
+   }
+  },
+  {
+   "task": "Fix wave — tax (FIX-TAX)",
+   "todo": "Fix the tax items the measurers found, and the lead’s six follow-ups.",
+   "status": "DONE 2026-10-25/26 — 10 of 10 items and 6 of 6 follow-ups",
+   "ref": "src/screens/__tests__/fix_tax_2026_10_25.test.tsx · src/domain/income/from-accounts.test.ts · MoneyKeel/functions/cashflow/tax-organizer.test.ts",
+   "date": "2026-10-26",
+   "comments": "Decisions DEC-8392, DEC-8393, DEC-8394, DEC-8395, DEC-8396, DEC-8397, DEC-8398, DEC-8399, DEC-8400, DEC-8401, DEC-8402, DEC-8403, DEC-8404. Gains tax stacked: $0 → $295.89. MK-CF-F-048 and F-098 retired.",
+   "_written": {
+    "status": "DONE 2026-10-25/26 — 10 of 10 items and 6 of 6 follow-ups",
+    "comments": "Decisions DEC-8392, DEC-8393, DEC-8394, DEC-8395, DEC-8396, DEC-8397, DEC-8398, DEC-8399, DEC-8400, DEC-8401, DEC-8402, DEC-8403, DEC-8404. Gains tax stacked: $0 → $295.89. MK-CF-F-048 and F-098 retired."
+   }
+  },
+  {
+   "task": "Fix wave — contribution room and the debt maths (FIX-ROOM)",
+   "todo": "Fix contribution room, the safe draw, the 0% growth branch, amortise and the mortgage comparison.",
+   "status": "DONE 2026-10-25 — 10 of 10 items and the amortise follow-up",
+   "ref": "src/screens/__tests__/contribution_room_drawing_v01.test.tsx · src/domain/debt/__tests__/mortgageVsTreasury.test.ts · src/domain/paycheck/paycheck.test.ts",
+   "date": "2026-10-26",
+   "comments": "Decisions DEC-8405, DEC-8406, DEC-8407, DEC-8408, DEC-8409, DEC-8410, DEC-8411, DEC-8412, DEC-8413, DEC-8414. New drawing contribution-room v01, drawn from the build, not approved.",
+   "_written": {
+    "status": "DONE 2026-10-25 — 10 of 10 items and the amortise follow-up",
+    "comments": "Decisions DEC-8405, DEC-8406, DEC-8407, DEC-8408, DEC-8409, DEC-8410, DEC-8411, DEC-8412, DEC-8413, DEC-8414. New drawing contribution-room v01, drawn from the build, not approved."
+   }
+  },
+  {
+   "task": "Fix wave — bills, vests, dates and debt ratios (FIX-BILLS)",
+   "todo": "Fix the bill, vest, date and ratio items.",
+   "status": "DONE 2026-10-25 — 13 of 13 items",
+   "ref": "src/screens/__tests__/payoff_debts_and_plan_agree_2026_10_25.test.tsx · src/__tests__/precision_guard.test.ts · MoneyKeel/functions/cashflow/outside_cashflow_openai_part05.test.ts",
+   "date": "2026-10-26",
+   "comments": "Decisions DEC-8415, DEC-8416, DEC-8417, DEC-8418, DEC-8419, DEC-8420, DEC-8421, DEC-8422; MK-CF-F-020 retired (DEC-8393).",
+   "_written": {
+    "status": "DONE 2026-10-25 — 13 of 13 items",
+    "comments": "Decisions DEC-8415, DEC-8416, DEC-8417, DEC-8418, DEC-8419, DEC-8420, DEC-8421, DEC-8422; MK-CF-F-020 retired (DEC-8393)."
+   }
+  },
+  {
+   "task": "Fix wave — the trade sheet (FIX-TRADES)",
+   "todo": "Fix the first buy of an option, an unknown ticker, a sale against an unknown count, and imported cash.",
+   "status": "DONE 2026-10-25 — 4 of 4 items",
+   "ref": "src/screens/__tests__/trade_sheet_first_buy_and_unknowns_2026_10_25.test.tsx",
+   "date": "2026-10-26",
+   "comments": "Decisions DEC-8423, DEC-8424, DEC-8425, DEC-8426. DEC-7602’s Limit sentence replaced; DEC-7605’s apply step changed.",
+   "_written": {
+    "status": "DONE 2026-10-25 — 4 of 4 items",
+    "comments": "Decisions DEC-8423, DEC-8424, DEC-8425, DEC-8426. DEC-7602’s Limit sentence replaced; DEC-7605’s apply step changed."
+   }
+  },
+  {
+   "task": "Fix wave — holdings (FIX-HOLDINGS)",
+   "todo": "Fix the six items FIX-TRADES found on the account page, the Holding page and the editors.",
+   "status": "DONE 2026-10-25 — 6 of 6 items",
+   "ref": "src/screens/__tests__/holdings_fixes_2026_10_25.test.tsx · src/domain/performance/undated_beside_recorded_buy.test.ts",
+   "date": "2026-10-26",
+   "comments": "Decisions DEC-8427, DEC-8428, DEC-8429, DEC-8430 and DEC-8426; DEC-7216 narrowed.",
+   "_written": {
+    "status": "DONE 2026-10-25 — 6 of 6 items",
+    "comments": "Decisions DEC-8427, DEC-8428, DEC-8429, DEC-8430 and DEC-8426; DEC-7216 narrowed."
+   }
+  },
+  {
+   "task": "Fix wave — wages, the tax rate and base pay (FIX-INCOME-A)",
+   "todo": "Fix part-year pay, hourly pay, the bracket, the pay check and the 401(k) and match years; one profile for every rate reader.",
+   "status": "DONE 2026-10-26 — 12 of 12 items, 3 of 3 follow-ups, Insights 3 of 3, and 13 of 13 callers on one profile",
+   "ref": "MoneyKeel/functions/cashflow/part_year_one_rule_2026_10_26.test.ts · src/screens/__tests__/base_pay_hours_part_year_2026_10_26.test.tsx · src/onboarding/match_year_one_rule_2026_10_26.test.tsx · src/screens/__tests__/account_interest_one_rate_2026_10_26.test.tsx",
+   "date": "2026-10-26",
+   "comments": "Decisions DEC-8431, DEC-8432, DEC-8433, DEC-8434, DEC-8435, DEC-8436, DEC-8437, DEC-8438, DEC-8439, DEC-8440, DEC-8441. A profile already saved with hourly pay reads $0 until its hours are typed (DEC-8433).",
+   "_written": {
+    "status": "DONE 2026-10-26 — 12 of 12 items, 3 of 3 follow-ups, Insights 3 of 3, and 13 of 13 callers on one profile",
+    "comments": "Decisions DEC-8431, DEC-8432, DEC-8433, DEC-8434, DEC-8435, DEC-8436, DEC-8437, DEC-8438, DEC-8439, DEC-8440, DEC-8441. A profile already saved with hourly pay reads $0 until its hours are typed (DEC-8433)."
+   }
+  },
+  {
+   "task": "Fix wave — other income, the Income summary and the manager (FIX-INCOME-B)",
+   "todo": "Fix every source other than wages and the lists that show them.",
+   "status": "DONE 2026-10-25/26 — 16 of 16 items and 4 of 4 follow-ups",
+   "ref": "src/__tests__/income_sources_agree_2026_10_25.test.ts · src/screens/__tests__/income_sources_fix_b_2026_10_25.test.tsx",
+   "date": "2026-10-26",
+   "comments": "Decisions DEC-8442, DEC-8443, DEC-8444, DEC-8445, DEC-8446, DEC-8447, DEC-8448, DEC-8449, DEC-8450, DEC-8451, DEC-8452, DEC-8453, DEC-8454; MK-CF-F-210 retired (DEC-8393).",
+   "_written": {
+    "status": "DONE 2026-10-25/26 — 16 of 16 items and 4 of 4 follow-ups",
+    "comments": "Decisions DEC-8442, DEC-8443, DEC-8444, DEC-8445, DEC-8446, DEC-8447, DEC-8448, DEC-8449, DEC-8450, DEC-8451, DEC-8452, DEC-8453, DEC-8454; MK-CF-F-210 retired (DEC-8393)."
+   }
+  },
+  {
+   "task": "Fix wave — the month, debts and payments (FIX-MONTH)",
+   "todo": "Fix the month’s planned figures, the payoff plan, payments matched to debts and the past-month words.",
+   "status": "DONE 2026-10-25/26 — 11 of 11 items and 5 of 5 follow-ups",
+   "ref": "src/screens/__tests__/fix_month_2026_10_25.test.tsx · MoneyKeel/functions/cashflow/the-debts.test.ts",
+   "date": "2026-10-26",
+   "comments": "Decisions DEC-8455, DEC-8456, DEC-8457, DEC-8458, DEC-8459, DEC-8460, DEC-8461, DEC-8462, DEC-8463, DEC-8464. The September household moved: planned surplus $1,150 → $3,450 (DEC-8459).",
+   "_written": {
+    "status": "DONE 2026-10-25/26 — 11 of 11 items and 5 of 5 follow-ups",
+    "comments": "Decisions DEC-8455, DEC-8456, DEC-8457, DEC-8458, DEC-8459, DEC-8460, DEC-8461, DEC-8462, DEC-8463, DEC-8464. The September household moved: planned surplus $1,150 → $3,450 (DEC-8459)."
+   }
+  },
+  {
+   "task": "Fix wave — the budget functions and the Stress test (FIX-BUDGET)",
+   "todo": "Fix MK-CF-F-001, 004, 010, 013 and 014 and the Stress test.",
+   "status": "DONE 2026-10-26 — 7 of 7 items; 16 of 16 pins and 20 of 20 screen rows re-measured",
+   "ref": "src/domain/budget/spend_agreement.test.ts · src/screens/__tests__/stress_test_no_essentials_2026_10_25.test.tsx",
+   "date": "2026-10-26",
+   "comments": "Decisions DEC-8465, DEC-8466, DEC-8467, DEC-8468, DEC-8469 and DEC-8455. New drawing stresstest v02, phone B drawn before the code, not approved.",
+   "_written": {
+    "status": "DONE 2026-10-26 — 7 of 7 items; 16 of 16 pins and 20 of 20 screen rows re-measured",
+    "comments": "Decisions DEC-8465, DEC-8466, DEC-8467, DEC-8468, DEC-8469 and DEC-8455. New drawing stresstest v02, phone B drawn before the code, not approved."
+   }
+  },
+  {
+   "task": "Closing — every red test settled (CLEANUP-TESTS)",
+   "todo": "Run the full suite, settle every red, fix the ones that are behind a right fix or show the app wrong.",
+   "status": "DONE 2026-10-26 — 17 of 17 starting reds decided: 14 fixed (12 tests behind a right fix, 2 app wrong), 3 left with PF-TOOLS; full run 10,224 pass, 8 fail (none its own)",
+   "ref": "scratchpad cleanup_reds.md · src/domain/_shared/article.test.ts",
+   "date": "2026-10-26",
+   "comments": "Decisions DEC-8470, DEC-8471; the article before the future paycheck’s return (DEC-8369). MK-MN-M-003 T3 settled: room for $21,350 = $24,500 + $11,250 − $1,200 × 12 (DEC-8406).",
+   "_written": {
+    "status": "DONE 2026-10-26 — 17 of 17 starting reds decided: 14 fixed (12 tests behind a right fix, 2 app wrong), 3 left with PF-TOOLS; full run 10,224 pass, 8 fail (none its own)",
+    "comments": "Decisions DEC-8470, DEC-8471; the article before the future paycheck’s return (DEC-8369). MK-MN-M-003 T3 settled: room for $21,350 = $24,500 + $11,250 − $1,200 × 12 (DEC-8406)."
+   }
+  },
+  {
+   "task": "Closing — the left items, round 1 (CLEANUP-LEFT)",
+   "todo": "Goals words, the retired screens with no birth year, the Plan screens’ one-call changes, Base pay and the sign-up recap.",
+   "status": "DONE 2026-10-26 — 5 of 5 items (item 3 in 3 of 3 parts); round 2 (drawings of Roth, Required withdrawals and the cockpit) is running",
+   "ref": "src/screens/__tests__/goals_drawing_v01.test.tsx · src/screens/__tests__/retired_no_birth_year_2026_10_26.test.tsx · src/screens/__tests__/plan_one_call_changes_2026_10_26.test.tsx · src/screens/__tests__/base_pay_band_words_2026_10_26.test.tsx · src/onboarding/signup_recap_one_take_home_2026_10_26.test.tsx",
+   "date": "2026-10-26",
+   "comments": "Decisions DEC-8516, DEC-8517, DEC-8518, DEC-8519, DEC-8520, DEC-8521, DEC-8522, DEC-8523, DEC-8524, DEC-8525. New drawing goals v01, drawn from the build, not approved.",
+   "_written": {
+    "status": "DONE 2026-10-26 — 5 of 5 items (item 3 in 3 of 3 parts); round 2 (drawings of Roth, Required withdrawals and the cockpit) is running",
+    "comments": "Decisions DEC-8516, DEC-8517, DEC-8518, DEC-8519, DEC-8520, DEC-8521, DEC-8522, DEC-8523, DEC-8524, DEC-8525. New drawing goals v01, drawn from the build, not approved."
+   }
+  },
+  {
+   "task": "Mock-first not kept in order: drawing rows written after the code (CF-MMFIX-A, FIX-TAX, FIX-BUDGET)",
+   "todo": "Say it plainly, by name. The rows match what is built; the standing order is that the drawing row comes first.",
+   "status": "RECORDED 2026-10-26 — a breach of the mock-first order, named row by row in the comments",
+   "ref": "MoneyKeel/documents/cashflow/ (cash-flow_v01, bill-calendar_v02, monthly-income_v02, income-end-to-end_v07, filing-status-question_v03) · MoneyKeel/documents/home-screen/moneykeel_pres_mock_ways-to-add-an-account_v10.html",
+   "date": "2026-10-26",
+   "comments": "CF-MMFIX-A, 2026-10-25, after the code: 15 rows on cash-flow v01 — the budget editor’s rows add up; the day read where the person is; PLANNED EXPENSES by category; no sub-lines with no budget; YOUR SOURCES at $0; a person who has entered nothing; the Debts rows; ≈ on a calculated take-home; the appearance; the drawing errors kept as built; a later month with no budget; a payment above the minimum; guaranteed income; the future paycheck card; the budget editor with no limit — plus 2 on bill-calendar v02 (In, Out and End at 800; the first day), 1 on monthly-income v02 (the first day’s boxes) and 1 on ways-to-add v10 (Home’s box). FIX-TAX, 2026-10-25, after the code: 2 rows on income v07 (the Tax organizer’s How you file; Interest & dividends’ payout dated after today), 1 paragraph on filing-status v03 (the Tax organizer’s How you file) and 1 row on cash-flow v01 (the draw sheet’s gains); its follow-up row on v07 (the interest basis, the rate words, the vest line) just before the code. FIX-BUDGET: the lead named its earlier rows; the one FIX-BUDGET drawing found, stresstest v02, says on its face it was drawn before the code, and no other row of FIX-BUDGET’s is on any drawing. Every later round wrote its rows first. | 2026-10-26, CLEANUP-LEFT round 2: three new drawings were drawn from the build after the code, because no drawing existed — roth-conversion v01, required-withdrawals v01 and retirement-cockpit v01 (two phones). Its Goals percent row and its income v07 recap row were written before the code.",
+   "_written": {
+    "status": "RECORDED 2026-10-26 — a breach of the mock-first order, named row by row in the comments",
+    "comments": "CF-MMFIX-A, 2026-10-25, after the code: 15 rows on cash-flow v01 — the budget editor’s rows add up; the day read where the person is; PLANNED EXPENSES by category; no sub-lines with no budget; YOUR SOURCES at $0; a person who has entered nothing; the Debts rows; ≈ on a calculated take-home; the appearance; the drawing errors kept as built; a later month with no budget; a payment above the minimum; guaranteed income; the future paycheck card; the budget editor with no limit — plus 2 on bill-calendar v02 (In, Out and End at 800; the first day), 1 on monthly-income v02 (the first day’s boxes) and 1 on ways-to-add v10 (Home’s box). FIX-TAX, 2026-10-25, after the code: 2 rows on income v07 (the Tax organizer’s How you file; Interest & dividends’ payout dated after today), 1 paragraph on filing-status v03 (the Tax organizer’s How you file) and 1 row on cash-flow v01 (the draw sheet’s gains); its follow-up row on v07 (the interest basis, the rate words, the vest line) just before the code. FIX-BUDGET: the lead named its earlier rows; the one FIX-BUDGET drawing found, stresstest v02, says on its face it was drawn before the code, and no other row of FIX-BUDGET’s is on any drawing. Every later round wrote its rows first. | 2026-10-26, CLEANUP-LEFT round 2: three new drawings were drawn from the build after the code, because no drawing existed — roth-conversion v01, required-withdrawals v01 and retirement-cockpit v01 (two phones). Its Goals percent row and its income v07 recap row were written before the code."
+   }
+  },
+  {
+   "task": "Phone checks owed — Net worth (the 2026-10-25 drawing match and its fixes)",
+   "todo": "Check on a phone what no test can see.",
+   "status": "TO DO — on the next device build (the lead)",
+   "ref": "TestFlight, 390 points",
+   "date": "2026-10-26",
+   "comments": "Bonds and Alternatives: the title then the bar, with data and on the first day, and the ⓘ tap inside the bar · the amber box on Net worth D, the account page D and Performance (corners, padding, 700 in the iPhone font) · the caret’s weight, the plain ·, frame C’s line · the step-by-step bars and the + Add tap target · the curly ’ in the iPhone font · Itemize’s door corners · Save at full colour when a form is filled · the Itemize maturity date in words · the italic info dot · the rows for undrawn states · a mortgage with no payment on the Debts tab and the greyed Save on the debt form.",
+   "_written": {
+    "status": "TO DO — on the next device build (the lead)",
+    "comments": "Bonds and Alternatives: the title then the bar, with data and on the first day, and the ⓘ tap inside the bar · the amber box on Net worth D, the account page D and Performance (corners, padding, 700 in the iPhone font) · the caret’s weight, the plain ·, frame C’s line · the step-by-step bars and the + Add tap target · the curly ’ in the iPhone font · Itemize’s door corners · Save at full colour when a form is filled · the Itemize maturity date in words · the italic info dot · the rows for undrawn states · a mortgage with no payment on the Debts tab and the greyed Save on the debt form."
+   }
+  },
+  {
+   "task": "Phone checks owed — Performance (the 2026-10-25 drawing match and its fixes)",
+   "todo": "Check on a phone what no test can see.",
+   "status": "TO DO — on the next device build (the lead)",
+   "ref": "TestFlight, 390 points",
+   "date": "2026-10-26",
+   "comments": "The Holding page’s market bar meets both edges · square bar corners over rounded cards on Look back and the four Plan screens · the closed-account line wraps cleanly with long names · the 13-point words fit beside the category title · the caret in Look back’s amount box when the comma appears · the gridlines on a real line · real fonts, the pixel right edge, the tab bar and top bar, the graph’s colours, VoiceOver actions.",
+   "_written": {
+    "status": "TO DO — on the next device build (the lead)",
+    "comments": "The Holding page’s market bar meets both edges · square bar corners over rounded cards on Look back and the four Plan screens · the closed-account line wraps cleanly with long names · the 13-point words fit beside the category title · the caret in Look back’s amount box when the comma appears · the gridlines on a real line · real fonts, the pixel right edge, the tab bar and top bar, the graph’s colours, VoiceOver actions."
+   }
+  },
+  {
+   "task": "Phone checks owed — Cash flow and its income screens (the 2026-10-25/26 fixes)",
+   "todo": "Check on a phone what no test can see.",
+   "status": "TO DO — on the next device build (the lead)",
+   "ref": "TestFlight, 390 points, default and largest text",
+   "date": "2026-10-26",
+   "comments": "A ruler from each band total down the rows: one right edge · Debts layout and long rows at the largest text · an expense logged at 6:30pm on a month’s last day stays in that month · a typed cash on hand is still there after leaving the Bill calendar · Home with only expenses logged · the Bill calendar with no accounts (the refusal only) and with a $0 checking account (projected) · the past-the-horizon sentence wraps · typing in $7,000 money boxes and the match box beside % · $400/month · blank and typed month cells · the sign-up base pay and filing steps · the new income rows and the sell-at-vest question · the Hours a week box.",
+   "_written": {
+    "status": "TO DO — on the next device build (the lead)",
+    "comments": "A ruler from each band total down the rows: one right edge · Debts layout and long rows at the largest text · an expense logged at 6:30pm on a month’s last day stays in that month · a typed cash on hand is still there after leaving the Bill calendar · Home with only expenses logged · the Bill calendar with no accounts (the refusal only) and with a $0 checking account (projected) · the past-the-horizon sentence wraps · typing in $7,000 money boxes and the match box beside % · $400/month · blank and typed month cells · the sign-up base pay and filing steps · the new income rows and the sell-at-vest question · the Hours a week box."
+   }
+  },
+  {
+   "task": "The Performance tab still prints a straight apostrophe in two of its own sentences",
+   "todo": "Print ’ as the drawings draw it, as Net worth now does.",
+   "status": "DONE 2026-10-26 — 6 of 6, the whole class: the two day-one sentences, the tap hint printed and spoken, and the two spoken doors",
+   "ref": "src/screens/PerformanceScreen.tsx:372–373",
+   "date": "2026-10-26",
+   "comments": "Found by PF-RECORDS, 2026-10-26, checking NW-MMFIX’s note (DEC-8336) that six Performance strings were left to PF-MMFIX, whose report does not mention them. Example: “…each holding's past prices.” and “We never back-fill a year we didn't see.” | 2026-10-26: CLEANUP-TESTS, drawing row first on performance v17 (DEC-8622). Test: src/__tests__/nw_curly_apostrophe_guard.test.ts — its Performance twin reads 625 strings in the tab’s file.",
+   "_written": {
+    "status": "DONE 2026-10-26 — 6 of 6, the whole class: the two day-one sentences, the tap hint printed and spoken, and the two spoken doors",
+    "comments": "Found by PF-RECORDS, 2026-10-26, checking NW-MMFIX’s note (DEC-8336) that six Performance strings were left to PF-MMFIX, whose report does not mention them. Example: “…each holding's past prices.” and “We never back-fill a year we didn't see.” | 2026-10-26: CLEANUP-TESTS, drawing row first on performance v17 (DEC-8622). Test: src/__tests__/nw_curly_apostrophe_guard.test.ts — its Performance twin reads 625 strings in the tab’s file."
+   }
+  },
+  {
+   "task": "A mortgage’s interest rate is never asked when it is added with its property",
+   "todo": "Ask it on the property form, drawing first; until then the screens read rate not entered.",
+   "status": "TO DO — the next Net worth round, drawing first",
+   "ref": "src/screens/AddAccountScreen.tsx · MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_add-account-by-hand_v02.html",
+   "date": "2026-10-26",
+   "comments": "Found by NW-MMFIX, 2026-10-25; the screens no longer show 0.00% for it (DEC-8462).",
+   "_written": {
+    "status": "TO DO — the next Net worth round, drawing first",
+    "comments": "Found by NW-MMFIX, 2026-10-25; the screens no longer show 0.00% for it (DEC-8462)."
+   }
+  },
+  {
+   "task": "Net worth rows are built at 44 points where the screen standard asks 52",
+   "todo": "Measure it against the drawing of v08 and settle it there.",
+   "status": "TO DO — the next Net worth round",
+   "ref": "src/screens/NetWorthScreen.tsx · moneykeel_pres_spec_screen-design-standard_v01.md",
+   "date": "2026-10-26",
+   "comments": "Found by MM-NW, 2026-10-25, outside the drawings.",
+   "_written": {
+    "status": "TO DO — the next Net worth round",
+    "comments": "Found by MM-NW, 2026-10-25, outside the drawings."
+   }
+  },
+  {
+   "task": "Numbering: the wave’s new functions, inputs and figures (PF-TOOLS)",
+   "todo": "Give each new function, input and figure its ID; then add the IDs to the decision rows that name them by name.",
+   "status": "DONE 2026-10-26 — 59 of 59 functions numbered, 9 of 9 inputs (MK-XS-I-071 to 079), 4 of 4 retired (MK-CF-F-020, 048, 098, 210); the figures a door hands are declared, the rest reserved and carried at the true count",
+   "ref": "Calculation Module code/scripts/moneykeel_function_register.json · moneykeel_figures.json",
+   "date": "2026-10-26",
+   "comments": "Functions (57): localDay, localMoment, spendByMonthByCategory, budgetEditorBuckets, PLANNED_GROUP_WORDS, rentalsHeld, guaranteedReceivedNow, unplacedMortgageSentence, startingCashOnRecord (CF-MMFIX-A); profileOnTheWayIn, MoneyBox, amountInBox, plainAmount, PRE_ANSWERED_STEPS (CF-MMFIX-B); ltcgTaxOnGain, interestAndDividendsForYear, incomeIsTaxedWhenPaid, drawAssumptionsSaid, rateWordsOf (FIX-TAX); paycheckReturn, medicareFromOf, federalBracketForComparison (FIX-ROOM); equityVests, daysInMonth, yearMonthOf, datedBillsIn (FIX-BILLS); recordedBuysExplain (FIX-HOLDINGS); wagePaidMonths, grossCalendarYear, paidMonthsOf, hoursNotEntered, householdEmployerMatchAnnual, payrollMonths, ownK401Annual, useIncomeProfile, incomeProfileNow (FIX-INCOME-A); vestsOf, vestsAreCash, vestsNotEntered, unemploymentMonthly, landsOnce, landsOnceInYear, socialSecurityNotYetMonthly, socialSecurityReceivedMonthly, socialSecurityTaxedAnnual, taxedSourcesAnnual, profileWithAccountIncome, retirementIncomeTaxedMonthly (FIX-INCOME-B); debtPaymentsMatched, rateNotEntered, payoffRefusal, expensesAsCounted (FIX-MONTH); categoriesInForce, budgetEntered (FIX-BUDGET); accountIncomeIn, RMD_NO_AGE, DRAW_COMPARE_NO_AGE (CLEANUP-LEFT). Inputs: signingDate, rsuSoldAtVest, unemploymentMonthly, medicareStart (beside MK-XS-I-062), cash_not_entered, billCalendarStart, ExpenseEntry.debtId, rothConversionYear. Figures wanted: each debt’s interest; the paycheck card’s return and inflation; the paycheck’s assumed return; the draw sheet’s six percents and $49,450; the return on Roth and Required withdrawals; the cockpit’s catch-up; Goals’ amount still owed. Confirm MK-CF-M-079, 080, 081; MK-CF-M-071 is printed nowhere now — retire or re-point it. | 2026-10-26 evening: the register now issues all 58 new names, growthUsed (MK-CF-F-282) included, and my rows name each ID first. MK-CF-M-071 is retired: its line prints under MK-NW-M-012, and the screens results file names it as retired. | PF-TOOLS, 2026-10-26. Figures declared through their orchestrators: MK-CF-M-082 and 083 (MK-CF-O-017), 089 and 096 (MK-CF-O-018), MK-MN-M-031 to 033 (MK-CF-O-005) (DEC-8667, DEC-8668, DEC-8669, DEC-8670, DEC-8671); MK-CF-M-071 retired (DEC-8672); MK-CF-M-084 to 088 and 090 to 095 reserved, no orchestrator hands them (DEC-8673). Tests: src/__tests__/guard_identifiers_match_register.test.ts (895 header pairs), cf_function_trace.test.ts (266 = 266), nw_function_trace and pf_function_trace (170, 68), guard_function_descriptions (903 / 526 / 481); full suite 562 of 562 suites, 0 failing.",
+   "_written": {
+    "status": "DONE 2026-10-26 — 59 of 59 functions numbered, 9 of 9 inputs (MK-XS-I-071 to 079), 4 of 4 retired (MK-CF-F-020, 048, 098, 210); the figures a door hands are declared, the rest reserved and carried at the true count",
+    "comments": "Functions (57): localDay, localMoment, spendByMonthByCategory, budgetEditorBuckets, PLANNED_GROUP_WORDS, rentalsHeld, guaranteedReceivedNow, unplacedMortgageSentence, startingCashOnRecord (CF-MMFIX-A); profileOnTheWayIn, MoneyBox, amountInBox, plainAmount, PRE_ANSWERED_STEPS (CF-MMFIX-B); ltcgTaxOnGain, interestAndDividendsForYear, incomeIsTaxedWhenPaid, drawAssumptionsSaid, rateWordsOf (FIX-TAX); paycheckReturn, medicareFromOf, federalBracketForComparison (FIX-ROOM); equityVests, daysInMonth, yearMonthOf, datedBillsIn (FIX-BILLS); recordedBuysExplain (FIX-HOLDINGS); wagePaidMonths, grossCalendarYear, paidMonthsOf, hoursNotEntered, householdEmployerMatchAnnual, payrollMonths, ownK401Annual, useIncomeProfile, incomeProfileNow (FIX-INCOME-A); vestsOf, vestsAreCash, vestsNotEntered, unemploymentMonthly, landsOnce, landsOnceInYear, socialSecurityNotYetMonthly, socialSecurityReceivedMonthly, socialSecurityTaxedAnnual, taxedSourcesAnnual, profileWithAccountIncome, retirementIncomeTaxedMonthly (FIX-INCOME-B); debtPaymentsMatched, rateNotEntered, payoffRefusal, expensesAsCounted (FIX-MONTH); categoriesInForce, budgetEntered (FIX-BUDGET); accountIncomeIn, RMD_NO_AGE, DRAW_COMPARE_NO_AGE (CLEANUP-LEFT). Inputs: signingDate, rsuSoldAtVest, unemploymentMonthly, medicareStart (beside MK-XS-I-062), cash_not_entered, billCalendarStart, ExpenseEntry.debtId, rothConversionYear. Figures wanted: each debt’s interest; the paycheck card’s return and inflation; the paycheck’s assumed return; the draw sheet’s six percents and $49,450; the return on Roth and Required withdrawals; the cockpit’s catch-up; Goals’ amount still owed. Confirm MK-CF-M-079, 080, 081; MK-CF-M-071 is printed nowhere now — retire or re-point it. | 2026-10-26 evening: the register now issues all 58 new names, growthUsed (MK-CF-F-282) included, and my rows name each ID first. MK-CF-M-071 is retired: its line prints under MK-NW-M-012, and the screens results file names it as retired. | PF-TOOLS, 2026-10-26. Figures declared through their orchestrators: MK-CF-M-082 and 083 (MK-CF-O-017), 089 and 096 (MK-CF-O-018), MK-MN-M-031 to 033 (MK-CF-O-005) (DEC-8667, DEC-8668, DEC-8669, DEC-8670, DEC-8671); MK-CF-M-071 retired (DEC-8672); MK-CF-M-084 to 088 and 090 to 095 reserved, no orchestrator hands them (DEC-8673). Tests: src/__tests__/guard_identifiers_match_register.test.ts (895 header pairs), cf_function_trace.test.ts (266 = 266), nw_function_trace and pf_function_trace (170, 68), guard_function_descriptions (903 / 526 / 481); full suite 562 of 562 suites, 0 failing."
+   }
+  },
+  {
+   "task": "Stale code headers after the wave (write-headers, PF-TOOLS)",
+   "todo": "Regenerate the headers whose formula, Called by or Answers lines changed.",
+   "status": "DONE 2026-10-26 — write-headers --check exit 0: all 887 headers match what the generator writes; no header names a retired function",
+   "ref": "Calculation Module code/scripts/write-headers.py",
+   "date": "2026-10-26",
+   "comments": "MK-PL-F-010, MK-CF-O-007, F-183, F-049, F-104, MK-PL-F-031 (FIX-TAX); F-223, F-138, F-139, F-111, F-135, F-136, F-222 (FIX-TRADES); MK-PF-F-014 (FIX-HOLDINGS); F-188, F-175, F-177, MK-XS-F-030 (FIX-INCOME-A); about 40 lines still naming MK-CF-F-210 (FIX-INCOME-B); F-005, 023, 034, 150, 153, 156, 157, 231, O-018, O-020 and the hand headers of F-225, 226, 227 (FIX-MONTH); F-001, 004, 009, 010, 013, 014, 221 (FIX-BUDGET); the Called by MK-CF-F-020 lines (FIX-BILLS); FIX-ROOM’s formula blocks; MK-PL-F-067 (CLEANUP-LEFT); Called by nothing on F-104, F-057, F-058 and F-085’s Answers line (CFR-4). | PF-TOOLS, 2026-10-26; 9 stale ID-awaiting notes cleared too. Test: src/__tests__/guard_identifiers_match_register.test.ts.",
+   "_written": {
+    "status": "DONE 2026-10-26 — write-headers --check exit 0: all 887 headers match what the generator writes; no header names a retired function",
+    "comments": "MK-PL-F-010, MK-CF-O-007, F-183, F-049, F-104, MK-PL-F-031 (FIX-TAX); F-223, F-138, F-139, F-111, F-135, F-136, F-222 (FIX-TRADES); MK-PF-F-014 (FIX-HOLDINGS); F-188, F-175, F-177, MK-XS-F-030 (FIX-INCOME-A); about 40 lines still naming MK-CF-F-210 (FIX-INCOME-B); F-005, 023, 034, 150, 153, 156, 157, 231, O-018, O-020 and the hand headers of F-225, 226, 227 (FIX-MONTH); F-001, 004, 009, 010, 013, 014, 221 (FIX-BUDGET); the Called by MK-CF-F-020 lines (FIX-BILLS); FIX-ROOM’s formula blocks; MK-PL-F-067 (CLEANUP-LEFT); Called by nothing on F-104, F-057, F-058 and F-085’s Answers line (CFR-4). | PF-TOOLS, 2026-10-26; 9 stale ID-awaiting notes cleared too. Test: src/__tests__/guard_identifiers_match_register.test.ts."
+   }
+  },
+  {
+   "task": "Records-only fixes the measurers found (rule texts, cards, the register)",
+   "todo": "Make each file say what the code does; no figure moves.",
+   "status": "DONE 2026-10-27 — 5 of 5 items: MK-CF-F-187 and MK-CF-F-036 the file was wrong and the code right (both files fixed, no figure moves); 6 of 6 rules (F-175, F-074, F-099, F-100, F-035, F-026); 6 of 6 screen-check words; 9 of 9 screens results entries marked; MK-CF-M-039 already $23,225",
+   "ref": "Calculation Module code/scripts/moneykeel_function_rules.json · moneykeel_code_formula.py · moneykeel_metric_register.json · build-outside-test-cards.py · src/screens/__tests__/outside_cashflow_openai_screens.test.tsx · MoneyKeel/documents/audit/outside-test-cases/returned/results/cashflow_openai_screens_results.json",
+   "date": "2026-10-26",
+   "comments": "MK-CF-F-187’s written formula is the old shared phase-out (moneykeel_code_formula.py:506) — FILE ≠ CODE; MK-CF-F-036’s header says over 10% and 2 decimals, the code 7% and no rounding — FILE ≠ CODE; F-175 and F-074 cards say their domain; F-099/F-100 rules (standard deduction only, income after the 401(k)); F-035 prints its eight kinds; F-026’s name actual; MK-CF-M-003 t1 words against DEC-7607, M-043 t2, M-054 label, M-055 refusal, M-060 lowest month-end, M-066 refusal — 9 entries in the screens results stay unmarked until then; the register’s worked examples still give the September household $1,150 (now $3,450) and MK-CF-M-039 $40,316 (now $23,225, self-employment read yearly); DRAWINGS[MK-CF-O-001] in build-outside-test-cards.py still carries $1,058 and $9,242; brief_figures_guard checks the brief contains its figures rather than recomputing them; the percent guard does not read sentences built outside a screen (DrawSteerSheet at 3). | 2026-10-26, PF-TOOLS: DONE in part — the register’s worked examples count the screens’ way (MK-CF-M-002 $1,150 → $3,450 and six more); DRAWINGS[MK-CF-O-001] reads $873 and $9,427; brief_figures_guard works the mortgage figures out from MK-CF-F-043; the percent guard reads 191 files (DEC-8675); 481 of 481 cards carry a rule read from the function as it stands, and MK-CF-F-007, O-007, O-017, O-018, F-043, F-279 rules were brought to the code. Still to check against this list: F-187’s written formula, F-036’s header, F-175 and F-074 cards, F-099/F-100, F-035, F-026, and the six screen-check words — the row stays open until each is read. | 2026-10-27, PF-TOOLS: DONE. MK-CF-F-187 seniorDeductionFor: the written formula took 6% of the income over $150,000 off the pair’s $12,000 once; the law takes it off each person’s $6,000 (IRC §151(d)(5)(C)(iii)(I); the IRS says the deduction is gone at $250,000 joint, which only the per-person reading gives). Joint, both 65+, $200,000: the file said $9,000, the code and now the file $6,000; at $250,000: $6,000 → $0. MK-CF-F-036 buildDebtState: the header said above 10% and two decimals; the code uses 7% (TOXIC_APR, DEC-3279e) and rounds nothing (Q49). $9,000 at 24% and $5,000 at 8%: the file said $9,000 of high-rate debt, the code and now the file $14,000. Both: moneykeel_code_formula.py, headers rewritten. Rules: F-175 and F-074 state their domain; F-099/F-100 standard deduction only, the income after each earner’s 401(k); F-035 its eight kinds; F-026 (actualDebtPayment) says it is the payment set on each debt, never less than its minimum — not what was paid. Words (no figure moves): MK-CF-M-003 formula \"the month’s take-home …\" ($3,952), M-054 label \"each line of what has happened so far\", M-055 refusal \"No age entered, retirement age already reached, or no pot to project from — the card is not drawn.\", M-043 formula the 401(k) once (22%), M-060 \"The lowest month-end balance …\" ($1,800), M-066 refusal \"the figure is not shown, and the box asks “How much, a year”\" ($420/year). The 9 results entries: those six, MK-CF-M-036 t6 (the drawing’s row was there; the test now reads it as the person does) and M-039 t6, M-071 t6 (already marked). Checks: tsc 0; cards --check 0 (481 of 481, 1,815 figures); write-headers --check 0 (887 of 887); the screens file 488 of 488. Not this row: M-070, M-078, M-024 t6 wait on a drawing of the retired This month. | 2026-10-27, PF-RECORDS: decisions DEC-8767, DEC-8768, DEC-8769, DEC-8770, DEC-8771, DEC-8772. Tests: MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts (F-187), outside_cashflow_openai_part10.test.ts (F-036), src/screens/__tests__/outside_cashflow_openai_screens.test.tsx (488 of 488), write-headers --check 887 of 887, the outside cards --check 481 of 481.",
+   "_written": {
+    "status": "DONE 2026-10-27 — 5 of 5 items: MK-CF-F-187 and MK-CF-F-036 the file was wrong and the code right (both files fixed, no figure moves); 6 of 6 rules (F-175, F-074, F-099, F-100, F-035, F-026); 6 of 6 screen-check words; 9 of 9 screens results entries marked; MK-CF-M-039 already $23,225",
+    "comments": "MK-CF-F-187’s written formula is the old shared phase-out (moneykeel_code_formula.py:506) — FILE ≠ CODE; MK-CF-F-036’s header says over 10% and 2 decimals, the code 7% and no rounding — FILE ≠ CODE; F-175 and F-074 cards say their domain; F-099/F-100 rules (standard deduction only, income after the 401(k)); F-035 prints its eight kinds; F-026’s name actual; MK-CF-M-003 t1 words against DEC-7607, M-043 t2, M-054 label, M-055 refusal, M-060 lowest month-end, M-066 refusal — 9 entries in the screens results stay unmarked until then; the register’s worked examples still give the September household $1,150 (now $3,450) and MK-CF-M-039 $40,316 (now $23,225, self-employment read yearly); DRAWINGS[MK-CF-O-001] in build-outside-test-cards.py still carries $1,058 and $9,242; brief_figures_guard checks the brief contains its figures rather than recomputing them; the percent guard does not read sentences built outside a screen (DrawSteerSheet at 3). | 2026-10-26, PF-TOOLS: DONE in part — the register’s worked examples count the screens’ way (MK-CF-M-002 $1,150 → $3,450 and six more); DRAWINGS[MK-CF-O-001] reads $873 and $9,427; brief_figures_guard works the mortgage figures out from MK-CF-F-043; the percent guard reads 191 files (DEC-8675); 481 of 481 cards carry a rule read from the function as it stands, and MK-CF-F-007, O-007, O-017, O-018, F-043, F-279 rules were brought to the code. Still to check against this list: F-187’s written formula, F-036’s header, F-175 and F-074 cards, F-099/F-100, F-035, F-026, and the six screen-check words — the row stays open until each is read. | 2026-10-27, PF-TOOLS: DONE. MK-CF-F-187 seniorDeductionFor: the written formula took 6% of the income over $150,000 off the pair’s $12,000 once; the law takes it off each person’s $6,000 (IRC §151(d)(5)(C)(iii)(I); the IRS says the deduction is gone at $250,000 joint, which only the per-person reading gives). Joint, both 65+, $200,000: the file said $9,000, the code and now the file $6,000; at $250,000: $6,000 → $0. MK-CF-F-036 buildDebtState: the header said above 10% and two decimals; the code uses 7% (TOXIC_APR, DEC-3279e) and rounds nothing (Q49). $9,000 at 24% and $5,000 at 8%: the file said $9,000 of high-rate debt, the code and now the file $14,000. Both: moneykeel_code_formula.py, headers rewritten. Rules: F-175 and F-074 state their domain; F-099/F-100 standard deduction only, the income after each earner’s 401(k); F-035 its eight kinds; F-026 (actualDebtPayment) says it is the payment set on each debt, never less than its minimum — not what was paid. Words (no figure moves): MK-CF-M-003 formula \"the month’s take-home …\" ($3,952), M-054 label \"each line of what has happened so far\", M-055 refusal \"No age entered, retirement age already reached, or no pot to project from — the card is not drawn.\", M-043 formula the 401(k) once (22%), M-060 \"The lowest month-end balance …\" ($1,800), M-066 refusal \"the figure is not shown, and the box asks “How much, a year”\" ($420/year). The 9 results entries: those six, MK-CF-M-036 t6 (the drawing’s row was there; the test now reads it as the person does) and M-039 t6, M-071 t6 (already marked). Checks: tsc 0; cards --check 0 (481 of 481, 1,815 figures); write-headers --check 0 (887 of 887); the screens file 488 of 488. Not this row: M-070, M-078, M-024 t6 wait on a drawing of the retired This month. | 2026-10-27, PF-RECORDS: decisions DEC-8767, DEC-8768, DEC-8769, DEC-8770, DEC-8771, DEC-8772. Tests: MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts (F-187), outside_cashflow_openai_part10.test.ts (F-036), src/screens/__tests__/outside_cashflow_openai_screens.test.tsx (488 of 488), write-headers --check 887 of 887, the outside cards --check 481 of 481."
+   }
+  },
+  {
+   "task": "Transaction labels other than Buy and Dividend are on no drawing of record",
+   "todo": "Draw them from the build first; no approval of them is on record.",
+   "status": "TO DO — the next Performance round, drawing first",
+   "ref": "MK-CF-F-117 txnLabel · account-page_v01",
+   "date": "2026-10-26",
+   "comments": "Found by CFR-3, 2026-10-25 (MK-CF-F-117 blocked).",
+   "_written": {
+    "status": "TO DO — the next Performance round, drawing first",
+    "comments": "Found by CFR-3, 2026-10-25 (MK-CF-F-117 blocked)."
+   }
+  },
+  {
+   "task": "The trade sheet’s type question and its Not stated sale are described in rows, not drawn",
+   "todo": "Draw both states from the build on the trade sheet drawing.",
+   "status": "TO DO — the next Performance round, drawn from the build, not approved",
+   "ref": "MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_trade-sheet_v03.html (rows 16–18)",
+   "date": "2026-10-26",
+   "comments": "FIX-TRADES, 2026-10-25 (DEC-8423, DEC-8425).",
+   "_written": {
+    "status": "TO DO — the next Performance round, drawn from the build, not approved",
+    "comments": "FIX-TRADES, 2026-10-25 (DEC-8423, DEC-8425)."
+   }
+  },
+  {
+   "task": "The retired This month is on no drawing of record",
+   "todo": "Draw it from the build; no approval of it is on record.",
+   "status": "TO DO — the next Cash flow round, drawn from the build",
+   "ref": "src/screens/CashFlowScreen.tsx (RetiredMain) · MK-CF-M-070 · MK-CF-M-078 · MK-CF-M-024",
+   "date": "2026-10-26",
+   "comments": "Found by CFR-5 (tenet 6 checks). Its card was renamed YOUR PAYCHECK on 2026-10-25 (DEC-8370).",
+   "_written": {
+    "status": "TO DO — the next Cash flow round, drawn from the build",
+    "comments": "Found by CFR-5 (tenet 6 checks). Its card was renamed YOUR PAYCHECK on 2026-10-25 (DEC-8370)."
+   }
+  },
+  {
+   "task": "Contribution room: a combined IRA and HSA family cover have no input",
+   "todo": "Add the inputs, drawing first; the cases stay blocked until then.",
+   "status": "TO DO — the next Cash flow input round, drawing first",
+   "ref": "MK-CF-O-005 theContributionRoom · MoneyKeel/functions/cashflow/outside_cashflow_openai_part13.test.ts (O-005-C03)",
+   "date": "2026-10-26",
+   "comments": "Found by CFR-4, 2026-10-25: only a Roth IRA amount exists, and HSA cover is always self-only.",
+   "_written": {
+    "status": "TO DO — the next Cash flow input round, drawing first",
+    "comments": "Found by CFR-4, 2026-10-25: only a Roth IRA amount exists, and HSA cover is always self-only."
+   }
+  },
+  {
+   "task": "The next outside package must carry what CFR-5 could not see",
+   "todo": "Send the renders, the store before and after, each drawing and its match test, and the simulation contract.",
+   "status": "TO DO — the lead, with the next package",
+   "ref": "MoneyKeel/documents/audit/outside-test-cases/",
+   "date": "2026-10-26",
+   "comments": "CFR-5, 2026-10-25: 94 of 197 FAILs were evidence gaps.",
+   "_written": {
+    "status": "TO DO — the lead, with the next package",
+    "comments": "CFR-5, 2026-10-25: 94 of 197 FAILs were evidence gaps."
+   }
+  },
+  {
+   "task": "The Bill calendar’s typed cash on hand is not checked against the cloud copy",
+   "todo": "Check the new stored field round-trips through sync.",
+   "status": "TO DO — the lead (sync)",
+   "ref": "billCalendarStart (src/store/useStore.ts)",
+   "date": "2026-10-26",
+   "comments": "CF-MMFIX-A, 2026-10-25 (DEC-8371).",
+   "_written": {
+    "status": "TO DO — the lead (sync)",
+    "comments": "CF-MMFIX-A, 2026-10-25 (DEC-8371)."
+   }
+  },
+  {
+   "task": "Sign-up recap with a typed rate does not add up when there is rent or interest",
+   "todo": "The months skip the tax on rent and interest at a typed rate while the year counts it.",
+   "status": "DONE 2026-10-26 — the rows add to the box: $57,600 and $48,000; the year’s tax is said under them",
+   "ref": "src/onboarding/modules.tsx (IncomeRecap)",
+   "date": "2026-10-26",
+   "comments": "Found by CLEANUP-LEFT, 2026-10-26. Example: 20% typed, $1,200/month rent, $3,600 reinvested: rows $54,000 against a $57,600 box. | CLEANUP-LEFT round 2 (DEC-8592). Test: signup_recap_one_take_home_2026_10_26.test.tsx.",
+   "_written": {
+    "status": "DONE 2026-10-26 — the rows add to the box: $57,600 and $48,000; the year’s tax is said under them",
+    "comments": "Found by CLEANUP-LEFT, 2026-10-26. Example: 20% typed, $1,200/month rent, $3,600 reinvested: rows $54,000 against a $57,600 box. | CLEANUP-LEFT round 2 (DEC-8592). Test: signup_recap_one_take_home_2026_10_26.test.tsx."
+   }
+  },
+  {
+   "task": "Will it last: no caller passes the interest records yet",
+   "todo": "Hand the records in, so a year with records reads them, not the calculated interest.",
+   "status": "DONE 2026-10-26 — 16 of 16 callers pass the records: $123,000 taxed at 14.84% (it read $122,000 at 14.77%)",
+   "ref": "willItLastInputs (src/domain/retirement/willItLast.ts) — 16 callers",
+   "date": "2026-10-26",
+   "comments": "Found by CLEANUP-LEFT, 2026-10-26 (DEC-8522). | CLEANUP-LEFT round 2 (DEC-8593). Test: plan_reads_interest_records_2026_10_26.test.tsx.",
+   "_written": {
+    "status": "DONE 2026-10-26 — 16 of 16 callers pass the records: $123,000 taxed at 14.84% (it read $122,000 at 14.77%)",
+    "comments": "Found by CLEANUP-LEFT, 2026-10-26 (DEC-8522). | CLEANUP-LEFT round 2 (DEC-8593). Test: plan_reads_interest_records_2026_10_26.test.tsx."
+   }
+  },
+  {
+   "task": "Three Plan figures found while fixing: a rounded Roth rate, Goals’ whole-number share, a negative return grown at 0%",
+   "todo": "Fix each, drawing first where words change.",
+   "status": "DONE 2026-10-26 — 3 of 3: Roth about $3,750 at 18.75% (it read $3,800 at 19%); Goals 7.50% (it read 8%); a loss is not projected forward, and the line says so",
+   "ref": "src/screens/RothScreen.tsx · src/screens/GoalsScreen.tsx · paycheckReturn",
+   "date": "2026-10-26",
+   "comments": "Found by CLEANUP-LEFT, 2026-10-26: Roth rounds the conversion rate to a whole percent before the tax ($3,800 shown, $3,750 exact); Goals prints debt-to-income as 8% (7.50%); a negative 12-month return grows at 0% while it is stated as negative. | CLEANUP-LEFT round 2 (DEC-8596, DEC-8595, DEC-8594). Tests: plan_one_call_changes_2026_10_26.test.tsx, goals_drawing_v01.test.tsx, growth_floor_said_2026_10_26.test.tsx.",
+   "_written": {
+    "status": "DONE 2026-10-26 — 3 of 3: Roth about $3,750 at 18.75% (it read $3,800 at 19%); Goals 7.50% (it read 8%); a loss is not projected forward, and the line says so",
+    "comments": "Found by CLEANUP-LEFT, 2026-10-26: Roth rounds the conversion rate to a whole percent before the tax ($3,800 shown, $3,750 exact); Goals prints debt-to-income as 8% (7.50%); a negative 12-month return grows at 0% while it is stated as negative. | CLEANUP-LEFT round 2 (DEC-8596, DEC-8595, DEC-8594). Tests: plan_one_call_changes_2026_10_26.test.tsx, goals_drawing_v01.test.tsx, growth_floor_said_2026_10_26.test.tsx."
+   }
+  },
+  {
+   "task": "Results files: the still-open summary lists in parts 1–4 still name items since fixed",
+   "todo": "Re-mark them from the entries they point to.",
+   "status": "DONE 2026-10-26 — 25 of 25 marked by CLEANUP-TESTS, each naming its confirming test: 24 app-wrong entries and MK-CF-F-169, which needed a ruling and is now ruled and fixed; 45 stay open as they should (43 cannot tell, 2 outside domain: MK-CF-F-175, MK-CF-F-074)",
+   "ref": "MoneyKeel/documents/audit/outside-test-cases/returned/results/cashflow_openai_part01..04_results.json (still_open)",
+   "date": "2026-10-26",
+   "comments": "Found by PF-RECORDS, 2026-10-26: 24 summary entries are marked app wrong while the formula and rule entries they point to (same_as) carry FIXED marks. | 2026-10-26: the row said 24; the true number is 25. Tests: parts 01–04, 323 of 323; the evidence parts 05, 06, 11, 14, 15, 17, 593 passing, 2 skipped.",
+   "_written": {
+    "status": "DONE 2026-10-26 — 25 of 25 marked by CLEANUP-TESTS, each naming its confirming test: 24 app-wrong entries and MK-CF-F-169, which needed a ruling and is now ruled and fixed; 45 stay open as they should (43 cannot tell, 2 outside domain: MK-CF-F-175, MK-CF-F-074)",
+    "comments": "Found by PF-RECORDS, 2026-10-26: 24 summary entries are marked app wrong while the formula and rule entries they point to (same_as) carry FIXED marks. | 2026-10-26: the row said 24; the true number is 25. Tests: parts 01–04, 323 of 323; the evidence parts 05, 06, 11, 14, 15, 17, 593 passing, 2 skipped."
+   }
+  },
+  {
+   "task": "CLEANUP-LEFT round 2: drawings of Roth, Required withdrawals and the cockpit",
+   "todo": "Draw the three from the build; then their records.",
+   "status": "DONE 2026-10-26 — 7 of 7 items; 3 of 3 screens drawn from the build, no approval on record",
+   "ref": "MoneyKeel/documents/plan/",
+   "date": "2026-10-26",
+   "comments": "The lead forwards its records when it reports. None of the three has a drawing today. | Decisions DEC-8592, DEC-8593, DEC-8594, DEC-8595, DEC-8596, DEC-8597, DEC-8598, DEC-8599. Tests: plan_drawings_from_build_2026_10_26.test.tsx (4 of 4), growth_floor_said_2026_10_26.test.tsx, plan_reads_interest_records_2026_10_26.test.tsx.",
+   "_written": {
+    "status": "DONE 2026-10-26 — 7 of 7 items; 3 of 3 screens drawn from the build, no approval on record",
+    "comments": "The lead forwards its records when it reports. None of the three has a drawing today. | Decisions DEC-8592, DEC-8593, DEC-8594, DEC-8595, DEC-8596, DEC-8597, DEC-8598, DEC-8599. Tests: plan_drawings_from_build_2026_10_26.test.tsx (4 of 4), growth_floor_said_2026_10_26.test.tsx, plan_reads_interest_records_2026_10_26.test.tsx."
+   }
+  },
+  {
+   "task": "Records of the 2026-10-25/26 Cash flow fix wave (PF-RECORDS)",
+   "todo": "Write every decision, Changelog row, drawing record, workplan row, flow and mark the 21 agents’ reports and the closing agents name, then run the gates and build the master.",
+   "status": "DONE 2026-10-27 — 176 of 176 decision rows (DEC-8333 to DEC-8471, DEC-8516 to DEC-8525, DEC-8592 to DEC-8599, DEC-8622, DEC-8667 to DEC-8677, DEC-8722, DEC-8767, DEC-8768, DEC-8769, DEC-8770, DEC-8771, DEC-8772), 12 of 12 older rows given their dated note, 221 Changelog rows, 33 design-record entries, 42 new workplan rows, 11 closed, 5 commented, 11 flows, 4 ledger notes, 6 results marks and the screens summary recounted, 9 of 9 master entries carried",
+   "ref": "Calculation Module code/scripts/moneykeel_decisions_in_chat.json · moneykeel_decisions.json · docs/FCC-core-55-70/FCC-core-detailed-design-v1.3-2026-10-07.xlsx (Changelog) · MoneyKeel/documents/standards/moneykeel_pres_spec_design-each-screen-was-built-from_v01.md · docs/FCC-core-55-70/FCC-e2e-flow-register.md",
+   "date": "2026-10-26",
+   "comments": "Repeat pairs raised on the new rows: 576 — 51 read one by one; 525 settled by rule, each marked Not a repeat: it shares only the standard lead wording, with its count of own words (fewer than five), settled by rule 2026-10-26 (the lead, 2026-10-26: a record must not claim a reading that did not happen). Three phantom decisions the sweep made from tenet texts quoted on six drawing rows were never written; the quote marks are off (no word changed). The no-path debt fell 331 → 328 (DEC-0016, DEC-0064, DEC-0431 gained their dated notes). 48 of 57 new function names carry their ID; 9 have none issued yet (MoneyBox, amountInBox, plainAmount, PRE_ANSWERED_STEPS, PLANNED_GROUP_WORDS, federalBracketForComparison, accountIncomeIn, RMD_NO_AGE, DRAW_COMPARE_NO_AGE). Proof run 2026-10-26 15:12: 63 files, 2,234 passing, 7 failing in 5 files, all other closing agents’ work in flight. Backups: scratchpad pfr/backup/.",
+   "_written": {
+    "status": "DONE 2026-10-27 — 176 of 176 decision rows (DEC-8333 to DEC-8471, DEC-8516 to DEC-8525, DEC-8592 to DEC-8599, DEC-8622, DEC-8667 to DEC-8677, DEC-8722, DEC-8767, DEC-8768, DEC-8769, DEC-8770, DEC-8771, DEC-8772), 12 of 12 older rows given their dated note, 221 Changelog rows, 33 design-record entries, 42 new workplan rows, 11 closed, 5 commented, 11 flows, 4 ledger notes, 6 results marks and the screens summary recounted, 9 of 9 master entries carried",
+    "comments": "Repeat pairs raised on the new rows: 576 — 51 read one by one; 525 settled by rule, each marked Not a repeat: it shares only the standard lead wording, with its count of own words (fewer than five), settled by rule 2026-10-26 (the lead, 2026-10-26: a record must not claim a reading that did not happen). Three phantom decisions the sweep made from tenet texts quoted on six drawing rows were never written; the quote marks are off (no word changed). The no-path debt fell 331 → 328 (DEC-0016, DEC-0064, DEC-0431 gained their dated notes). 48 of 57 new function names carry their ID; 9 have none issued yet (MoneyBox, amountInBox, plainAmount, PRE_ANSWERED_STEPS, PLANNED_GROUP_WORDS, federalBracketForComparison, accountIncomeIn, RMD_NO_AGE, DRAW_COMPARE_NO_AGE). Proof run 2026-10-26 15:12: 63 files, 2,234 passing, 7 failing in 5 files, all other closing agents’ work in flight. Backups: scratchpad pfr/backup/."
+   }
+  },
+  {
+   "task": "Nine hand-written master entries that reached no row (retired MK-CF-M-018, MK-CF-M-019, MK-MN-M-022, MK-MN-M-023, MK-NW-M-003)",
+   "todo": "Carry each to the row that now holds its figure, the words unchanged under a dated note naming the old ID; a figure retired with no successor goes on a retired-figure record.",
+   "status": "DONE 2026-10-27 — 9 of 9 carried: 4 to MK-CF-M-052 and MK-CF-M-051, 4 to MK-NW-M-049 and MK-NW-M-050, 1 to the Reference tab; the final master build proves the placing",
+   "ref": "Calculation Module code/scripts/moneykeel_overrides.json · MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx",
+   "date": "2026-10-27",
+   "comments": "Why each row was gone, from the metric register’s retired record: MK-CF-M-018 and 019 retired 2026-10-02 as the same figures as MK-CF-M-051 and 052; MK-MN-M-022 and 023 retired 2026-10-01 and re-issued as MK-NW-M-049 and 050 (Alternatives is a Net worth screen); MK-NW-M-003 retired 2026-10-14 with no successor (the trend line left the screen). One entry is his: the 2026-08-27 worked example, already on MK-CF-M-052 word for word since 2026-10-24, so it prints once with a note naming MK-CF-M-019. The rows were absent from the committed master too: an older gap, not this round’s. Backup: scratchpad pfr/backup/moneykeel_overrides_before_carry.json.",
+   "_written": {
+    "status": "DONE 2026-10-27 — 9 of 9 carried: 4 to MK-CF-M-052 and MK-CF-M-051, 4 to MK-NW-M-049 and MK-NW-M-050, 1 to the Reference tab; the final master build proves the placing",
+    "comments": "Why each row was gone, from the metric register’s retired record: MK-CF-M-018 and 019 retired 2026-10-02 as the same figures as MK-CF-M-051 and 052; MK-MN-M-022 and 023 retired 2026-10-01 and re-issued as MK-NW-M-049 and 050 (Alternatives is a Net worth screen); MK-NW-M-003 retired 2026-10-14 with no successor (the trend line left the screen). One entry is his: the 2026-08-27 worked example, already on MK-CF-M-052 word for word since 2026-10-24, so it prints once with a note naming MK-CF-M-019. The rows were absent from the committed master too: an older gap, not this round’s. Backup: scratchpad pfr/backup/moneykeel_overrides_before_carry.json."
    }
   }
  ]

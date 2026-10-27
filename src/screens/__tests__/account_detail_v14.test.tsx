@@ -147,7 +147,7 @@ test('no daily record but activity records → the window opens the first day mo
   // Return "—" (no holding with a history; never 0%), and the sentence below the summary names all three.
   expect(screen.getByText('Beginning market value (Jul 31, 2026)')).toBeOnTheScreen();
   expect(screen.getByText('LCTX, KEYBANK CD 4.00% and US TREASURY 4.25% ($48,704) have no price history, so their gains are not included.')).toBeOnTheScreen();
-  expect(screen.getByText("Your daily record does not reach back to Jul 31, 2026 yet, so the beginning is worked back from today's values and each holding's price history.")).toBeOnTheScreen();
+  expect(screen.getByText("Your daily record does not reach back to Jul 31, 2026 yet, so the beginning is worked back from today’s values and each holding’s price history.")).toBeOnTheScreen();
   expect(screen.queryByText(/can't be worked back/)).toBeNull();
   expect(screen.queryByText(/Day one:/)).toBeNull();
 });

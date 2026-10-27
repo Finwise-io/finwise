@@ -168,7 +168,8 @@ describe('MK-PF-F-023 lookBack — five cases', () => {
   test('pin · Lump sum differs from actual cash-flow path — the app\'s figures, and the caption it prints today', () => {
     const r = lookBack(2871.43, series([['2026-06-30', 83.27], ['2026-09-30', 85.91]]), series([['2026-06-30', 191.73], ['2026-09-30', 187.26]]), 3, NOW)!;
     near(r.difference, -157.98071038843207, 6);
-    expect(fs.readFileSync(path.join(ROOT, 'src/screens/LookBackScreen.tsx'), 'utf8')).toMatch(/<SectionBand title="WHAT ACTUALLY HAPPENED" \/>/);
+    // the bar runs to its card's edges since 2026-10-25 (MM-PF D2): inCard, the card's 12 of padding taken back
+    expect(fs.readFileSync(path.join(ROOT, 'src/screens/LookBackScreen.tsx'), 'utf8')).toMatch(/<SectionBand inCard inset=\{Spacing\.md\} title="WHAT ACTUALLY HAPPENED" \/>/);
   });
   kase('MK-PF-F-023', 'edge', 'One fund has no full-window history', () => {
     refuses(lookBack(10000, series([['2025-09-30', 100], ['2026-09-30', 110]]), series([['2026-01-01', 100], ['2026-09-30', 120]]), 12, NOW));

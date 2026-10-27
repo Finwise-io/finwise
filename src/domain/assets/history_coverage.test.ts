@@ -21,13 +21,13 @@ describe('historyCoverage — does the shared history cover the window a figure 
     expect(c.kind).toBe('partial');
     expect(c.from).toBe('2026-05-04');
     // whole months only — never rounded up (second-round review, 2026-10-07)
-    expect(c.sentence).toBe("E*TRADE shared 2 months of history (from May 4, 2026) — figures before that aren't counted.");
+    expect(c.sentence).toBe("E*TRADE shared 2 months of history (from May 4, 2026) — figures before that aren’t counted.");
   });
 
   test('a connected account that has shared nothing says so — never a false $0', () => {
     const c = historyCoverage(a({ institution: 'Fidelity' }), '2025-08-04', NOW)!;
     expect(c.kind).toBe('none');
-    expect(c.sentence).toMatch(/hasn't shared any activity records yet/);
+    expect(c.sentence).toMatch(/hasn’t shared any activity records yet/);
   });
 
   test('a hand-entered account has no feed at all and says that instead', () => {

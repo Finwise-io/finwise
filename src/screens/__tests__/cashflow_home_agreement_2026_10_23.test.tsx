@@ -150,8 +150,9 @@ describe('nothing entered: no answer where nothing is known', () => {
     expect(cf).toContain('SET UP YOUR MONTH — 2 STEPS');
     expect(cf).not.toContain('= Actual surplus so far');
     const box = homeBox(shoot('home', NOINCOME, '2026-09-28'));
-    expect(box.slice(0, 10)).toEqual(["THIS MONTH'S CASH FLOW", 'day 28 of 30', 'Income', '$0', 'Nothing entered yet. Add your income ›',
-      'Outflow (expenses + debt)', '$0', 'Left', '—', box[9]]);
+    // no pace line at all before income — no word, no share spent, and no "day 28 of 30" (2026-10-25, HM-01)
+    expect(box.slice(0, 9)).toEqual(["THIS MONTH'S CASH FLOW", 'Income', '$0', 'Nothing entered yet. Add your income ›',
+      'Outflow (expenses + debt)', '$0', 'Left', '—', box[8]]);
     for (const w of ['Over', '✓ On pace', 'Expenses running fast']) expect(box).not.toContain(w);
     expect(box.some((l) => /% spent/.test(l))).toBe(false);
   });
@@ -210,8 +211,9 @@ describe('the month\'s planned expenses: This month, the Expenses tab and Home\'
   const expensesTab = () => fireEvent.press(screen.getByLabelText('Expenses tab'));
   const plannedBlock = (L: string[]) => { const i = L.indexOf('PLANNED EXPENSES'); expect(i).toBeGreaterThanOrEqual(0); return L.slice(i, L.indexOf('ACTUAL EXPENSES')); };
   for (const [when, today, total, rows] of [
-    ['September', '2026-09-28', 700, ['Everyday expenses', '$700']],
-    ['December', '2026-12-15', 1900, ['Once in a while', '$1,200', 'Everyday expenses', '$700']],
+    // the budget as entered, by category (2026-10-25, CF-09 — they read Everyday expenses $700, and Once in a while $1,200 before it)
+    ['September', '2026-09-28', 700, ['Groceries', '$700']],
+    ['December', '2026-12-15', 1900, ['Groceries', '$700', 'Car insurance', '$1,200']],
   ] as const) {
     test(`${when}: This month −${money(total)} · Expenses ${money(total)} · Home's record ${money(total)}`, () => {
       const state = PLAN([GROCERIES, INSURANCE]);
@@ -289,12 +291,18 @@ describe("DEC-0333: the outflow Cash flow and Home print is monthOutflow's", () 
  *  settling MK-CF-M-001 to 004). This month's planned surplus (MK-CF-M-002) counted every debt's payment; the dated grid —
  *  the later-month card (MK-CF-M-049) and the Bill calendar — counts a debt from its first payment to its payoff, and a
  *  balance due in full once, in its month. The household, 28 Sep 2026: the worked September (take-home $7,200; a $3,400
- *  budget — the mortgage names no property, so the Rent / Mortgage line stays; mortgage $2,400), and
+ *  budget, $2,300 of it a Rent / Mortgage line; mortgage $2,400 on no property), and
  *    · the $250 car loan's first payment on Oct 28 — next month,
  *    · a $300 personal loan paid off in August,
  *    · a $1,000 tax bill due in full on Sep 20.
  *  September by hand: 7,200 − 3,400 − 2,400 − 1,000 = $400. It read 7,200 − 3,400 − 2,400 − 250 − 300 = +$850 on This month
- *  while the grid's September was $400. October: 7,200 − 3,400 − 2,400 − 250 = $1,150. */
+ *  while the grid's September was $400. October: 7,200 − 3,400 − 2,400 − 250 = $1,150.
+ *  THE MORTGAGE COUNTED ONCE (2026-10-25, FIX-MONTH; the lead's ruling on DEC-1923 / DEC-2440, cash-flow_v01's row of that date): a
+ *  mortgage in Debts on no property, beside a Rent / Mortgage budget line, is that line — the $2,400 mortgage and the $2,300 line were
+ *  the same housing counted twice. The line stands down and the budget counted is 3,400 − 2,300 = $1,100. September by hand:
+ *  7,200 − 1,100 − 2,400 − 1,000 = $2,700 (it read $400); October: 7,200 − 1,100 − 2,400 − 250 = $3,450 (it read $1,150). The rule this
+ *  block holds — a debt counts in a month only if a payment falls in it — is unchanged: the car loan is in October only, the paid-off
+ *  loan in neither, the tax bill in September only. */
 describe('a debt counts in a month only if a payment falls in it: This month\'s planned surplus is the grid\'s month', () => {
   const STARTS = { ...SEPT, liabilities: [
     SEPT.liabilities[0],
@@ -311,23 +319,28 @@ describe('a debt counts in a month only if a payment falls in it: This month\'s 
       return datedGridOf(counted, state.liabilities, undefined, 0);
     } finally { jest.useRealTimers(); }
   };
-  test('September: This month\'s planned surplus +$400 = the grid\'s September; October\'s card $1,150 = the grid\'s October', () => {
+  test('September: This month\'s planned surplus +$2,700 = the grid\'s September; October\'s card $3,450 = the grid\'s October', () => {
     const tm = shoot('cashflow', STARTS, '2026-09-28');
     const planned = tm.slice(tm.indexOf('PLANNED · SEPTEMBER'), tm.indexOf('= Planned surplus') + 2);
-    expect(planned[1]).toBe('+$400');
-    expect(after(tm, '= Planned surplus')).toBe('+$400');
+    expect(planned[1]).toBe('+$2,700');
+    expect(after(tm, '= Planned surplus')).toBe('+$2,700');
+    expect(tm).toContain('Your Rent / Mortgage budget line is not counted here: your mortgage, Mortgage, is in Debts and is counted from there. Place it on your home in Net worth, so we know they are the same.');
     // the rows: the mortgage and the tax bill; no car loan (its first payment is next month) and no personal loan (paid off)
     expect(planned).toContain('Tax bill — due in full');
     expect(planned).toContain('−$1,000');
     expect(planned.filter((l) => /^(Car loan|Personal loan)$/.test(l))).toEqual([]);
     const grid = gridOf(STARTS, '2026-09-28');
-    expect(grid.cells[0].net).toBe(7_200 - 3_400 - 2_400 - 1_000);
+    expect(grid.cells[0].net).toBe(7_200 - (3_400 - 2_300) - 2_400 - 1_000);
     expect(dollars(after(tm, '= Planned surplus'))).toBe(grid.cells[0].net);
     // the later-month card, one tap on: October's plan, from the grid — the car loan's first payment is in it
     const oct = shoot('cashflow', STARTS, '2026-09-28', () => fireEvent.press(screen.getByLabelText('Next month')));
-    expect(after(oct, '= Planned surplus')).toBe('$1,150');
-    expect(grid.cells[1].net).toBe(7_200 - 3_400 - 2_400 - 250);
+    expect(after(oct, '= Planned surplus')).toBe('$3,450');
+    expect(grid.cells[1].net).toBe(7_200 - (3_400 - 2_300) - 2_400 - 250);
     expect(dollars(after(oct, '= Planned surplus'))).toBe(grid.cells[1].net);
+  });
+  test.failing('the answer before 2026-10-25 (FIX-MONTH), kept: September +$400 and October $1,150 — the mortgage and the Rent / Mortgage line both counted', () => {
+    const tm = shoot('cashflow', STARTS, '2026-09-28');
+    expect(after(tm, '= Planned surplus')).toBe('+$400');
   });
   test('the Expenses tab, September: the recurring rows and the radar follow the same rule', () => {
     const ex = shoot('cashflow', STARTS, '2026-09-28', () => fireEvent.press(screen.getByLabelText('Expenses tab')));
@@ -359,10 +372,18 @@ test('retired, this month: the paycheck card and the pace line print one surplus
     ri_ss: '2400', ri_ss_freq: 'monthly', monthlySpending: '1500' }, liabilities: [], assetAccounts: [],
     expenses: [{ id: 'r1', amount: 600, category: 'Groceries', store: 'Grocer', date: '2026-09-10', createdAt: '2026-09-10' }] };
   const L = shoot('cashflow', RETIRED, '2026-09-28');
-  expect(L).toContain('Spent $600 of $2,400 surplus this month');
+  // the retired card's figure is YOUR PAYCHECK, not a surplus (2026-10-25, canon row 26; MK-CF-M-078 tenet 8)
+  expect(L).toContain('Spent $600 of your $2,400 paycheck this month');
   const printed = figuresPrinted().filter((p: any) => !p.spoken);
-  const ours = printed.filter((p: any) => p.id === 'MK-CF-M-078').map((p: any) => p.text);
+  // the figures (each with a value); the paycheck's one line of words under its number — the return its draw assumes (2026-10-25,
+  // FIX-MONTH; the lead's ruling 2: no savings, no return set → the typical 6.00%) — is that figure's own statement, not a second surplus
+  const ours = printed.filter((p: any) => p.id === 'MK-CF-M-078' && p.value != null).map((p: any) => p.text);
   expect(ours.length).toBeGreaterThanOrEqual(2);                     // the guard looked: the hero and the pace line
   expect(new Set(ours)).toEqual(new Set(['$2,400']));
+  // the return line prints under its own number since 2026-10-26 (MK-CF-M-082, PF-TOOLS), written the canon's way (row 14: /year;
+  // cash-flow_v01 READ THIS FIRST 2026-10-26) — the paycheck's number carries no line of words now
+  expect(printed.filter((p: any) => p.id === 'MK-CF-M-078' && p.value == null)).toEqual([]);
+  expect(printed.filter((p: any) => p.id === 'MK-CF-M-082' && p.value == null).map((p: any) => p.text))
+    .toEqual(['The draw assumes 6.00%/year — the typical return, with nothing set aside for retirement.']);
   expect(printed.filter((p: any) => p.id === 'MK-CF-M-049')).toEqual([]);
 });

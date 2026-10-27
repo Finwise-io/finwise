@@ -9,23 +9,34 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { useCashflowModel } from '../hooks/useCashflowModel';
 import { EstimateTag, InfoDot } from './UI';
 import { maskedMoney } from './useMoney';   // every balance masks under hide-balances (the walk test enforces it)
-import { fig } from './figure';   // the surplus prints with its number, MK-CF-M-078 (2026-10-24) — fig masks under hide-balances too
+import { fig, figWords, saidSentence } from './figure';   // the surplus prints with its number, MK-CF-M-078 (2026-10-24) — fig masks under hide-balances too
 import { HeroAmount } from './HeroAmount';
 import { rateBandWords } from '../domain/decumulation';   // his one wording for the band (DEC-0036 · DEC-0215)
 
 export function PaycheckCard() {
   const router = useRouter();
   // ONE model invocation app-wide (hero = bar = month detail, by construction)
-  const { year } = useCashflowModel();
+  const { year, paycheck } = useCashflowModel();
 
+  // NO BIRTH YEAR, NO PAYCHECK (2026-10-25, FIX-MONTH; DEC-0296): it was calculated at age 68. The card says why, in This month's words.
+  if (!year) {
+    return (
+      <View style={styles.card}>
+        <Text style={styles.kicker}>YOUR PAYCHECK</Text>
+        <Text style={styles.yearNote}>{paycheck.refusal}</Text>
+      </View>
+    );
+  }
   const m = year.thisMonth;
   const monthName = m.label.split(' ')[0].toUpperCase();
 
   return (
     <View style={styles.card} accessibilityLabel={m.netSafeToSpend < 0
       ? `${fig('MK-CF-M-078', Math.abs(m.netSafeToSpend))} short this month — ${m.bills[0]?.label ?? 'a big bill'} lands in ${m.label}. An estimate.`
-      : `Surplus in ${m.label}: an estimate. ${fig('MK-CF-M-078', m.netSafeToSpend)}`}>
-      <Text style={styles.kicker}>SURPLUS — {monthName}</Text>
+      : `Your paycheck in ${m.label}: an estimate. ${fig('MK-CF-M-078', m.netSafeToSpend)}`}>
+      {/* YOUR PAYCHECK, NOT A SURPLUS (2026-10-25, MK-CF-M-078 tenet 8; canon row 25): this is what the month brings to spend —
+          everyday expenses and debt payments are paid from it — and Surplus is the one word for what is left after everything */}
+      <Text style={styles.kicker}>YOUR PAYCHECK — {monthName}</Text>
       {/* c5: a big-bill month that exceeds income shows the real minus WITH the word 'short' and
           the bill named — never smoothed, never clipped to zero (edge-case audit E4) */}
       {m.netSafeToSpend < 0 ? (
@@ -64,6 +75,8 @@ export function PaycheckCard() {
       )}
 
       <Text style={styles.year}>This year ~{maskedMoney(year.thisYear)} <EstimateTag /> <Text style={styles.yearNote}>— varies month to month</Text></Text>
+      {/* THE RETURN IT RUNS ON, SAID (2026-10-25, FIX-MONTH; the lead's ruling 2 on CFR-4): the Retirement cockpit's own (paycheckReturn) */}
+      <Text style={styles.yearNote} accessibilityLabel={saidSentence(`The draw assumes ${paycheck.return.said}.`)}>{figWords('MK-CF-M-082', `The draw assumes ${paycheck.return.said}.`)}</Text>
       {year.drawRateFlag === 'high' && (
         <Text style={styles.flag}>Heads-up: this draw is {rateBandWords('high')} — the pace itself is the risk.</Text>
       )}

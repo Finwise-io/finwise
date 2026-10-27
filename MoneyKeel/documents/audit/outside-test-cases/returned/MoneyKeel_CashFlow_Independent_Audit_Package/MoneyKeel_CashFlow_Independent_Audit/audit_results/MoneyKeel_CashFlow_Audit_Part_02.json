@@ -1,0 +1,3484 @@
+{
+  "batch": "cf module — part 2",
+  "written_by": "OpenAI independent specification reviewer",
+  "ready_to_close": false,
+  "still_open": [
+    "MK-CF-F-175: Adding known values is correct, but a missing figure becomes 0 without completeness metadata.",
+    "MK-CF-F-188: Multiplies every monthly contribution by 12 although householdK401ByMonth counts contributions only in paid months.",
+    "MK-CF-F-169: Writing a known amount is correct, but blank becomes an explicit 0 and destroys the distinction between clearing a cell and entering zero.",
+    "DEC-0252: NOT HELD — Subtraction walk is declared,but annual401(k)times12 disagrees with paid-month contributions and oldgross paths can bypass it."
+  ],
+  "scope": "Written formulas,owner decisions and primary publications only. No repository code,existingtests or liveapp outputs were inspected for this review. Attached screen-register worked/app-result fields were excluded from expected-answer derivation.",
+  "formula_checks": [
+    {
+      "id": "MK-CF-F-172",
+      "name": "hasWage",
+      "verdict": "RIGHT",
+      "why": "Presence detector: a stored table is evidence of a wage record even when an explicit row is zero; this does not assert positive pay.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-173",
+      "name": "earnerWages",
+      "verdict": "RIGHT",
+      "why": "Honors the explicit who-earns selection and uses the spouse’s own wage record; no household sum is substituted into a person’s row.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-174",
+      "name": "hasTwoEarners",
+      "verdict": "RIGHT",
+      "why": "True exactly when the selected wage list has two records, rather than from marital status alone.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-175",
+      "name": "sumOverEarners",
+      "verdict": "INCOMPLETE",
+      "why": "Adding known values is correct, but a missing figure becomes 0 without completeness metadata.",
+      "should_be": "Return the known subtotal with missing-item metadata, or refuse the complete total.",
+      "rests_on": "Tenet 3",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-CF-F-176",
+      "name": "sumMonthsOverEarners",
+      "verdict": "RIGHT",
+      "why": "Adds the same calendar slots across the earners; an explicit zero month remains zero.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-188",
+      "name": "householdPreTaxContributionsAnnual",
+      "verdict": "WRONG",
+      "why": "Multiplies every monthly contribution by 12 although householdK401ByMonth counts contributions only in paid months.",
+      "should_be": "Add the twelve values of householdK401ByMonth.",
+      "rests_on": "DEC-0283; DEC-0376; MK-CF-F-206",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-163",
+      "name": "monthKey",
+      "verdict": "RIGHT",
+      "why": "Uses the person’s local calendar month; UTC date conversion must not change it. Cases include offset crossings.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-164",
+      "name": "monthWindow",
+      "verdict": "RIGHT",
+      "why": "Calendar arithmetic across year boundaries; count is a nonnegative integer and back is an integer.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-165",
+      "name": "salaryMonths",
+      "verdict": "RIGHT",
+      "why": "Preserves year-month keys and explicit zero; legacy twelve-cell arrays have the explicitly documented current-year interpretation.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-166",
+      "name": "hasMonthlySalaryTable",
+      "verdict": "RIGHT",
+      "why": "Presence detector for the canonical month map, retaining a zero row.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-167",
+      "name": "salaryCalendarYear",
+      "verdict": "RIGHT",
+      "why": "Reads the requested dated slots, using the explicit fallback only for absent keys; zero is preserved.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-168",
+      "name": "salaryWindow",
+      "verdict": "RIGHT",
+      "why": "Reads the requested dated slots, using the explicit fallback only for absent keys; zero is preserved.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-169",
+      "name": "withSalaryMonth",
+      "verdict": "INCOMPLETE",
+      "why": "Writing a known amount is correct, but blank becomes an explicit 0 and destroys the distinction between clearing a cell and entering zero.",
+      "should_be": "Preserve an empty/unentered cell separately, unless an approved editor contract explicitly makes blank a confirmed zero.",
+      "rests_on": "Tenets 3,5",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-CF-F-170",
+      "name": "salaryYearFromCells",
+      "verdict": "RIGHT",
+      "why": "Maps the first twelve supplied cells to the stated year; does not overwrite another year.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-CF-F-172",
+      "case_id": "MK-CF-F-172-C01",
+      "name": "hasWage",
+      "kind": "easy",
+      "title": "Base salary",
+      "as_of": "2026-10-24",
+      "given": "Base salary",
+      "inputs": {
+        "base": 5000,
+        "table": {}
+      },
+      "expected": true,
+      "working": [
+        "5000 > 0"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-172",
+      "case_id": "MK-CF-F-172-C02",
+      "name": "hasWage",
+      "kind": "easy",
+      "title": "No record",
+      "as_of": "2026-10-24",
+      "given": "No record",
+      "inputs": {
+        "base": 0,
+        "table": {}
+      },
+      "expected": false,
+      "working": [
+        "No positive base and no table rows"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-172",
+      "case_id": "MK-CF-F-172-C03",
+      "name": "hasWage",
+      "kind": "complex",
+      "title": "Dated zero retained",
+      "as_of": "2026-10-24",
+      "given": "Dated zero retained",
+      "inputs": {
+        "base": 0,
+        "table": {
+          "2026-09": 0,
+          "2027-01": "4511.17"
+        }
+      },
+      "expected": true,
+      "working": [
+        "Stored rows identify a wage record"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-172",
+      "case_id": "MK-CF-F-172-C04",
+      "name": "hasWage",
+      "kind": "complex",
+      "title": "Table without typical pay",
+      "as_of": "2026-10-24",
+      "given": "Table without typical pay",
+      "inputs": {
+        "base": null,
+        "table": {
+          "2026-01": "3111.43",
+          "2026-11": 0
+        }
+      },
+      "expected": true,
+      "working": [
+        "Dated table exists"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-172",
+      "case_id": "MK-CF-F-172-C05",
+      "name": "hasWage",
+      "kind": "edge",
+      "title": "Null wage",
+      "as_of": "2026-10-24",
+      "given": "Null wage",
+      "inputs": {
+        "wage": null
+      },
+      "expected": false,
+      "working": [
+        "No wage record"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-173",
+      "case_id": "MK-CF-F-173-C01",
+      "name": "earnerWages",
+      "kind": "easy",
+      "title": "You",
+      "as_of": "2026-10-24",
+      "given": "You",
+      "inputs": {
+        "who_earns": "you",
+        "you": {
+          "base": 5000
+        },
+        "spouse": null
+      },
+      "expected": [
+        "you"
+      ],
+      "working": [
+        "Selection determines included identities; hasWage tests the spouse."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-173",
+      "case_id": "MK-CF-F-173-C02",
+      "name": "earnerWages",
+      "kind": "easy",
+      "title": "Both",
+      "as_of": "2026-10-24",
+      "given": "Both",
+      "inputs": {
+        "who_earns": "both",
+        "you": {
+          "base": 5000
+        },
+        "spouse": {
+          "base": 3000
+        }
+      },
+      "expected": [
+        "you",
+        "spouse"
+      ],
+      "working": [
+        "Selection determines included identities; hasWage tests the spouse."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-173",
+      "case_id": "MK-CF-F-173-C03",
+      "name": "earnerWages",
+      "kind": "complex",
+      "title": "Spouse only",
+      "as_of": "2026-10-24",
+      "given": "Spouse only",
+      "inputs": {
+        "who_earns": "spouse",
+        "you": {
+          "base": "8111.15"
+        },
+        "spouse": {
+          "base": "3999.17"
+        }
+      },
+      "expected": [
+        "spouse"
+      ],
+      "working": [
+        "Selection determines included identities; hasWage tests the spouse."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-173",
+      "case_id": "MK-CF-F-173-C04",
+      "name": "earnerWages",
+      "kind": "complex",
+      "title": "Both with dated spouse",
+      "as_of": "2026-10-24",
+      "given": "Both with dated spouse",
+      "inputs": {
+        "who_earns": "both",
+        "you": {
+          "base": "5111.17"
+        },
+        "spouse": {
+          "base": 0,
+          "table": {
+            "2026-10": "2777.19"
+          }
+        }
+      },
+      "expected": [
+        "you",
+        "spouse"
+      ],
+      "working": [
+        "Selection determines included identities; hasWage tests the spouse."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-173",
+      "case_id": "MK-CF-F-173-C05",
+      "name": "earnerWages",
+      "kind": "edge",
+      "title": "Both but no spouse wage",
+      "as_of": "2026-10-24",
+      "given": "Both but no spouse wage",
+      "inputs": {
+        "who_earns": "both",
+        "you": {
+          "base": 5000
+        },
+        "spouse": null
+      },
+      "expected": [
+        "you"
+      ],
+      "working": [
+        "Selection determines included identities; hasWage tests the spouse."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-174",
+      "case_id": "MK-CF-F-174-C01",
+      "name": "hasTwoEarners",
+      "kind": "easy",
+      "title": "You",
+      "as_of": "2026-10-24",
+      "given": "You",
+      "inputs": {
+        "who_earns": "you",
+        "you": {
+          "base": 5000
+        },
+        "spouse": null
+      },
+      "expected": false,
+      "working": [
+        "earnerWages = ['you']; count 1 > 1"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-174",
+      "case_id": "MK-CF-F-174-C02",
+      "name": "hasTwoEarners",
+      "kind": "easy",
+      "title": "Both",
+      "as_of": "2026-10-24",
+      "given": "Both",
+      "inputs": {
+        "who_earns": "both",
+        "you": {
+          "base": 5000
+        },
+        "spouse": {
+          "base": 3000
+        }
+      },
+      "expected": true,
+      "working": [
+        "earnerWages = ['you', 'spouse']; count 2 > 1"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-174",
+      "case_id": "MK-CF-F-174-C03",
+      "name": "hasTwoEarners",
+      "kind": "complex",
+      "title": "Spouse only",
+      "as_of": "2026-10-24",
+      "given": "Spouse only",
+      "inputs": {
+        "who_earns": "spouse",
+        "you": {
+          "base": "8111.15"
+        },
+        "spouse": {
+          "base": "3999.17"
+        }
+      },
+      "expected": false,
+      "working": [
+        "earnerWages = ['spouse']; count 1 > 1"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-174",
+      "case_id": "MK-CF-F-174-C04",
+      "name": "hasTwoEarners",
+      "kind": "complex",
+      "title": "Both with dated spouse",
+      "as_of": "2026-10-24",
+      "given": "Both with dated spouse",
+      "inputs": {
+        "who_earns": "both",
+        "you": {
+          "base": "5111.17"
+        },
+        "spouse": {
+          "base": 0,
+          "table": {
+            "2026-10": "2777.19"
+          }
+        }
+      },
+      "expected": true,
+      "working": [
+        "earnerWages = ['you', 'spouse']; count 2 > 1"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-174",
+      "case_id": "MK-CF-F-174-C05",
+      "name": "hasTwoEarners",
+      "kind": "edge",
+      "title": "Both but no spouse wage",
+      "as_of": "2026-10-24",
+      "given": "Both but no spouse wage",
+      "inputs": {
+        "who_earns": "both",
+        "you": {
+          "base": 5000
+        },
+        "spouse": null
+      },
+      "expected": false,
+      "working": [
+        "earnerWages = ['you']; count 1 > 1"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-175",
+      "case_id": "MK-CF-F-175-C01",
+      "name": "sumOverEarners",
+      "kind": "easy",
+      "title": "One figure",
+      "as_of": "2026-10-24",
+      "given": "One figure",
+      "inputs": {
+        "figures": [
+          1000
+        ]
+      },
+      "expected": {
+        "exact": "1000",
+        "shown": "$1,000"
+      },
+      "working": [
+        "Sum = 1000"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-175",
+      "case_id": "MK-CF-F-175-C02",
+      "name": "sumOverEarners",
+      "kind": "easy",
+      "title": "Two known figures",
+      "as_of": "2026-10-24",
+      "given": "Two known figures",
+      "inputs": {
+        "figures": [
+          1000,
+          2000
+        ]
+      },
+      "expected": {
+        "exact": "3000",
+        "shown": "$3,000"
+      },
+      "working": [
+        "1000 + 2000 = 3000"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-175",
+      "case_id": "MK-CF-F-175-C03",
+      "name": "sumOverEarners",
+      "kind": "complex",
+      "title": "Unround two earners",
+      "as_of": "2026-10-24",
+      "given": "Unround two earners",
+      "inputs": {
+        "figures": [
+          "923.17",
+          "611.29"
+        ]
+      },
+      "expected": {
+        "exact": "1534.46",
+        "shown": "$1,534"
+      },
+      "working": [
+        "923.17 + 611.29 = 1534.46"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-175",
+      "case_id": "MK-CF-F-175-C04",
+      "name": "sumOverEarners",
+      "kind": "complex",
+      "title": "Three known amounts",
+      "as_of": "2026-10-24",
+      "given": "Three known amounts",
+      "inputs": {
+        "figures": [
+          "923.17",
+          "611.29",
+          "287.43"
+        ]
+      },
+      "expected": {
+        "exact": "1821.89",
+        "shown": "$1,822"
+      },
+      "working": [
+        "923.17 + 611.29 + 287.43 = 1821.89"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-175",
+      "case_id": "MK-CF-F-175-C05",
+      "name": "sumOverEarners",
+      "kind": "edge",
+      "title": "Missing second amount",
+      "as_of": "2026-10-24",
+      "given": "Missing second amount",
+      "inputs": {
+        "figures": [
+          1000,
+          null
+        ]
+      },
+      "expected": {
+        "state": "REFUSES",
+        "reason": "Second amount not entered"
+      },
+      "working": [
+        "Known subtotal 1000 is not a complete total."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "exact": "1000",
+        "shown": "$1,000"
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-176",
+      "case_id": "MK-CF-F-176-C01",
+      "name": "sumMonthsOverEarners",
+      "kind": "easy",
+      "title": "One wage",
+      "as_of": "2026-10-24",
+      "given": "One wage",
+      "inputs": {
+        "earner_1_months": [
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000
+        ],
+        "earner_2_months": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "expected": [
+        {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      ],
+      "working": [
+        "For each January–December slot add earner 1 + earner 2; no annual averaging."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-176",
+      "case_id": "MK-CF-F-176-C02",
+      "name": "sumMonthsOverEarners",
+      "kind": "easy",
+      "title": "Two full-year wages",
+      "as_of": "2026-10-24",
+      "given": "Two full-year wages",
+      "inputs": {
+        "earner_1_months": [
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000
+        ],
+        "earner_2_months": [
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000,
+          2000
+        ]
+      },
+      "expected": [
+        {
+          "exact": "3000",
+          "shown": "$3,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "3000",
+          "shown": "$3,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "3000",
+          "shown": "$3,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "3000",
+          "shown": "$3,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "3000",
+          "shown": "$3,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "3000",
+          "shown": "$3,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "3000",
+          "shown": "$3,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "3000",
+          "shown": "$3,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "3000",
+          "shown": "$3,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "3000",
+          "shown": "$3,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "3000",
+          "shown": "$3,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "3000",
+          "shown": "$3,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      ],
+      "working": [
+        "For each January–December slot add earner 1 + earner 2; no annual averaging."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-176",
+      "case_id": "MK-CF-F-176-C03",
+      "name": "sumMonthsOverEarners",
+      "kind": "complex",
+      "title": "Dated uneven pay",
+      "as_of": "2026-10-24",
+      "given": "Dated uneven pay",
+      "inputs": {
+        "earner_1_months": [
+          "4356.17",
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          "5811.29",
+          0,
+          0
+        ],
+        "earner_2_months": [
+          "1899.42",
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          "6100.71"
+        ]
+      },
+      "expected": [
+        {
+          "exact": "6255.59",
+          "shown": "$6,256",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "5811.29",
+          "shown": "$5,811",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "6100.71",
+          "shown": "$6,101",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      ],
+      "working": [
+        "For each January–December slot add earner 1 + earner 2; no annual averaging."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-176",
+      "case_id": "MK-CF-F-176-C04",
+      "name": "sumMonthsOverEarners",
+      "kind": "complex",
+      "title": "Nonoverlapping jobs",
+      "as_of": "2026-10-24",
+      "given": "Nonoverlapping jobs",
+      "inputs": {
+        "earner_1_months": [
+          "3100.13",
+          "3100.13",
+          "3100.13",
+          "3100.13",
+          "3100.13",
+          "3100.13",
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "earner_2_months": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          "2877.19",
+          "2877.19",
+          "2877.19",
+          "2877.19",
+          "2877.19",
+          "2877.19"
+        ]
+      },
+      "expected": [
+        {
+          "exact": "3100.13",
+          "shown": "$3,100",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "3100.13",
+          "shown": "$3,100",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "3100.13",
+          "shown": "$3,100",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "3100.13",
+          "shown": "$3,100",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "3100.13",
+          "shown": "$3,100",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "3100.13",
+          "shown": "$3,100",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2877.19",
+          "shown": "$2,877",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2877.19",
+          "shown": "$2,877",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2877.19",
+          "shown": "$2,877",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2877.19",
+          "shown": "$2,877",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2877.19",
+          "shown": "$2,877",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2877.19",
+          "shown": "$2,877",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      ],
+      "working": [
+        "For each January–December slot add earner 1 + earner 2; no annual averaging."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-176",
+      "case_id": "MK-CF-F-176-C05",
+      "name": "sumMonthsOverEarners",
+      "kind": "edge",
+      "title": "Known zero year",
+      "as_of": "2026-10-24",
+      "given": "Known zero year",
+      "inputs": {
+        "earner_1_months": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "earner_2_months": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "expected": [
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      ],
+      "working": [
+        "For each January–December slot add earner 1 + earner 2; no annual averaging."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-188",
+      "case_id": "MK-CF-F-188-C01",
+      "name": "householdPreTaxContributionsAnnual",
+      "kind": "easy",
+      "title": "Full-year one",
+      "as_of": "2026-10-24",
+      "given": "Full-year one",
+      "inputs": {
+        "earners": [
+          {
+            "k": 500,
+            "paid_months": 12
+          }
+        ]
+      },
+      "expected": {
+        "exact": "6000",
+        "shown": "$6,000"
+      },
+      "working": [
+        "500 × 12"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-188",
+      "case_id": "MK-CF-F-188-C02",
+      "name": "householdPreTaxContributionsAnnual",
+      "kind": "easy",
+      "title": "Full-year two",
+      "as_of": "2026-10-24",
+      "given": "Full-year two",
+      "inputs": {
+        "earners": [
+          {
+            "k": 500,
+            "paid_months": 12
+          },
+          {
+            "k": 300,
+            "paid_months": 12
+          }
+        ]
+      },
+      "expected": {
+        "exact": "9600",
+        "shown": "$9,600"
+      },
+      "working": [
+        "500 × 12 + 300 × 12"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-188",
+      "case_id": "MK-CF-F-188-C03",
+      "name": "householdPreTaxContributionsAnnual",
+      "kind": "complex",
+      "title": "One starts July",
+      "as_of": "2026-10-24",
+      "given": "One starts July",
+      "inputs": {
+        "earners": [
+          {
+            "k": "713.27",
+            "paid_months": 6
+          },
+          {
+            "k": "398.43",
+            "paid_months": 12
+          }
+        ]
+      },
+      "expected": {
+        "exact": "9060.78",
+        "shown": "$9,061"
+      },
+      "working": [
+        "713.27 × 6 + 398.43 × 12"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "exact": "13340.40",
+        "shown": "$13,340"
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-188",
+      "case_id": "MK-CF-F-188-C04",
+      "name": "householdPreTaxContributionsAnnual",
+      "kind": "complex",
+      "title": "Both part-year",
+      "as_of": "2026-10-24",
+      "given": "Both part-year",
+      "inputs": {
+        "earners": [
+          {
+            "k": "821.15",
+            "paid_months": 3
+          },
+          {
+            "k": "233.19",
+            "paid_months": 4
+          }
+        ]
+      },
+      "expected": {
+        "exact": "3396.21",
+        "shown": "$3,396"
+      },
+      "working": [
+        "821.15 × 3 + 233.19 × 4"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "exact": "12652.08",
+        "shown": "$12,652"
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-188",
+      "case_id": "MK-CF-F-188-C05",
+      "name": "householdPreTaxContributionsAnnual",
+      "kind": "edge",
+      "title": "No paid months",
+      "as_of": "2026-10-24",
+      "given": "No paid months",
+      "inputs": {
+        "earners": [
+          {
+            "k": 1000,
+            "paid_months": 0
+          }
+        ]
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "1000 × 0"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "exact": "12000",
+        "shown": "$12,000"
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-163",
+      "case_id": "MK-CF-F-163-C01",
+      "name": "monthKey",
+      "kind": "easy",
+      "title": "January",
+      "as_of": "2026-10-24",
+      "given": "January",
+      "inputs": {
+        "local_timestamp": "2026-01-01T00:00:00-08:00"
+      },
+      "expected": "2026-01",
+      "working": [
+        "Read the local year and month, without converting to UTC."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-163",
+      "case_id": "MK-CF-F-163-C02",
+      "name": "monthKey",
+      "kind": "easy",
+      "title": "December",
+      "as_of": "2026-10-24",
+      "given": "December",
+      "inputs": {
+        "local_timestamp": "2026-12-31T23:59:00-08:00"
+      },
+      "expected": "2026-12",
+      "working": [
+        "Read the local year and month, without converting to UTC."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-163",
+      "case_id": "MK-CF-F-163-C03",
+      "name": "monthKey",
+      "kind": "complex",
+      "title": "East of UTC",
+      "as_of": "2026-10-24",
+      "given": "East of UTC",
+      "inputs": {
+        "local_timestamp": "2027-01-01T00:15:00+14:00"
+      },
+      "expected": "2027-01",
+      "working": [
+        "Read the local year and month, without converting to UTC."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-163",
+      "case_id": "MK-CF-F-163-C04",
+      "name": "monthKey",
+      "kind": "complex",
+      "title": "West of UTC",
+      "as_of": "2026-10-24",
+      "given": "West of UTC",
+      "inputs": {
+        "local_timestamp": "2026-09-30T23:45:00-10:00"
+      },
+      "expected": "2026-09",
+      "working": [
+        "Read the local year and month, without converting to UTC."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-163",
+      "case_id": "MK-CF-F-163-C05",
+      "name": "monthKey",
+      "kind": "edge",
+      "title": "Leap day",
+      "as_of": "2026-10-24",
+      "given": "Leap day",
+      "inputs": {
+        "local_timestamp": "2028-02-29T00:00:00+05:30"
+      },
+      "expected": "2028-02",
+      "working": [
+        "Read the local year and month, without converting to UTC."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-164",
+      "case_id": "MK-CF-F-164-C01",
+      "name": "monthWindow",
+      "kind": "easy",
+      "title": "One month",
+      "as_of": "2026-10-24",
+      "given": "One month",
+      "inputs": {
+        "from": "2026-10-24",
+        "back": 0,
+        "count": 1
+      },
+      "expected": [
+        "2026-10"
+      ],
+      "working": [
+        "Start at 2026-10; emit 1 successive calendar months."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-164",
+      "case_id": "MK-CF-F-164-C02",
+      "name": "monthWindow",
+      "kind": "easy",
+      "title": "Across January",
+      "as_of": "2026-10-24",
+      "given": "Across January",
+      "inputs": {
+        "from": "2026-01-31",
+        "back": 1,
+        "count": 3
+      },
+      "expected": [
+        "2025-12",
+        "2026-01",
+        "2026-02"
+      ],
+      "working": [
+        "Start at 2025-12; emit 3 successive calendar months."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-164",
+      "case_id": "MK-CF-F-164-C03",
+      "name": "monthWindow",
+      "kind": "complex",
+      "title": "Fourteen cells",
+      "as_of": "2026-10-24",
+      "given": "Fourteen cells",
+      "inputs": {
+        "from": "2026-10-31",
+        "back": 2,
+        "count": 14
+      },
+      "expected": [
+        "2026-08",
+        "2026-09",
+        "2026-10",
+        "2026-11",
+        "2026-12",
+        "2027-01",
+        "2027-02",
+        "2027-03",
+        "2027-04",
+        "2027-05",
+        "2027-06",
+        "2027-07",
+        "2027-08",
+        "2027-09"
+      ],
+      "working": [
+        "Start at 2026-08; emit 14 successive calendar months."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-164",
+      "case_id": "MK-CF-F-164-C04",
+      "name": "monthWindow",
+      "kind": "complex",
+      "title": "Leap-February run",
+      "as_of": "2026-10-24",
+      "given": "Leap-February run",
+      "inputs": {
+        "from": "2028-03-31",
+        "back": 3,
+        "count": 5
+      },
+      "expected": [
+        "2027-12",
+        "2028-01",
+        "2028-02",
+        "2028-03",
+        "2028-04"
+      ],
+      "working": [
+        "Start at 2027-12; emit 5 successive calendar months."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-164",
+      "case_id": "MK-CF-F-164-C05",
+      "name": "monthWindow",
+      "kind": "edge",
+      "title": "Empty window",
+      "as_of": "2026-10-24",
+      "given": "Empty window",
+      "inputs": {
+        "from": "2026-10-24",
+        "back": 0,
+        "count": 0
+      },
+      "expected": [],
+      "working": [
+        "Start at 2026-10; emit 0 successive calendar months."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-165",
+      "case_id": "MK-CF-F-165-C01",
+      "name": "salaryMonths",
+      "kind": "easy",
+      "title": "Dated map",
+      "as_of": "2026-10-24",
+      "given": "Dated map",
+      "inputs": {
+        "stored": {
+          "2026-01": 5000
+        }
+      },
+      "expected": {
+        "2026-01": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Keep canonical dated key."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-165",
+      "case_id": "MK-CF-F-165-C02",
+      "name": "salaryMonths",
+      "kind": "easy",
+      "title": "Legacy array",
+      "as_of": "2026-10-24",
+      "given": "Legacy array",
+      "inputs": {
+        "stored": [
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000
+        ],
+        "year": 2026
+      },
+      "expected": {
+        "2026-01": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-02": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-03": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-04": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-05": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-06": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-07": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-08": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-09": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-10": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-11": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-12": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Map positions 1–12 to this year."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-165",
+      "case_id": "MK-CF-F-165-C03",
+      "name": "salaryMonths",
+      "kind": "complex",
+      "title": "Cross-year rows",
+      "as_of": "2026-10-24",
+      "given": "Cross-year rows",
+      "inputs": {
+        "stored": {
+          "2026-12": "4211.19",
+          "2027-01": "5121.43",
+          "2027-02": 0
+        }
+      },
+      "expected": {
+        "2026-12": {
+          "exact": "4211.19",
+          "shown": "$4,211",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-01": {
+          "exact": "5121.43",
+          "shown": "$5,121",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-02": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Retain each distinct year-month and zero."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-165",
+      "case_id": "MK-CF-F-165-C04",
+      "name": "salaryMonths",
+      "kind": "complex",
+      "title": "Legacy year differs from now",
+      "as_of": "2026-10-24",
+      "given": "Legacy year differs from now",
+      "inputs": {
+        "stored": [
+          "2371.13",
+          "2371.13",
+          "2371.13",
+          "2371.13",
+          "2371.13",
+          "2371.13",
+          "2371.13",
+          "2371.13",
+          "2371.13",
+          "2371.13",
+          "2371.13",
+          "2371.13"
+        ],
+        "as_of_year": 2027
+      },
+      "expected": {
+        "2027-01": {
+          "exact": "2371.13",
+          "shown": "$2,371",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-02": {
+          "exact": "2371.13",
+          "shown": "$2,371",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-03": {
+          "exact": "2371.13",
+          "shown": "$2,371",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-04": {
+          "exact": "2371.13",
+          "shown": "$2,371",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-05": {
+          "exact": "2371.13",
+          "shown": "$2,371",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-06": {
+          "exact": "2371.13",
+          "shown": "$2,371",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-07": {
+          "exact": "2371.13",
+          "shown": "$2,371",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-08": {
+          "exact": "2371.13",
+          "shown": "$2,371",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-09": {
+          "exact": "2371.13",
+          "shown": "$2,371",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-10": {
+          "exact": "2371.13",
+          "shown": "$2,371",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-11": {
+          "exact": "2371.13",
+          "shown": "$2,371",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-12": {
+          "exact": "2371.13",
+          "shown": "$2,371",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Documented legacy current-year mapping, not evidence of original earning year."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Migration must label legacy year assumption; no historic date is established.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-165",
+      "case_id": "MK-CF-F-165-C05",
+      "name": "salaryMonths",
+      "kind": "edge",
+      "title": "No table",
+      "as_of": "2026-10-24",
+      "given": "No table",
+      "inputs": {
+        "stored": null
+      },
+      "expected": {},
+      "working": [
+        "No stored rows: empty map, not an asserted wage year."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-166",
+      "case_id": "MK-CF-F-166-C01",
+      "name": "hasMonthlySalaryTable",
+      "kind": "easy",
+      "title": "One month",
+      "as_of": "2026-10-24",
+      "given": "One month",
+      "inputs": {
+        "canonical_table": {
+          "2026-10": 5000
+        }
+      },
+      "expected": true,
+      "working": [
+        "1 canonical rows; nonempty = True"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-166",
+      "case_id": "MK-CF-F-166-C02",
+      "name": "hasMonthlySalaryTable",
+      "kind": "easy",
+      "title": "Empty",
+      "as_of": "2026-10-24",
+      "given": "Empty",
+      "inputs": {
+        "canonical_table": {}
+      },
+      "expected": false,
+      "working": [
+        "0 canonical rows; nonempty = False"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-166",
+      "case_id": "MK-CF-F-166-C03",
+      "name": "hasMonthlySalaryTable",
+      "kind": "complex",
+      "title": "Cross-year",
+      "as_of": "2026-10-24",
+      "given": "Cross-year",
+      "inputs": {
+        "canonical_table": {
+          "2026-12": "4931.71",
+          "2027-01": "5121.33"
+        }
+      },
+      "expected": true,
+      "working": [
+        "2 canonical rows; nonempty = True"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-166",
+      "case_id": "MK-CF-F-166-C04",
+      "name": "hasMonthlySalaryTable",
+      "kind": "complex",
+      "title": "Zero and paid",
+      "as_of": "2026-10-24",
+      "given": "Zero and paid",
+      "inputs": {
+        "canonical_table": {
+          "2026-02": 0,
+          "2026-09": "2761.17",
+          "2027-02": 0
+        }
+      },
+      "expected": true,
+      "working": [
+        "3 canonical rows; nonempty = True"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-166",
+      "case_id": "MK-CF-F-166-C05",
+      "name": "hasMonthlySalaryTable",
+      "kind": "edge",
+      "title": "Known zero only",
+      "as_of": "2026-10-24",
+      "given": "Known zero only",
+      "inputs": {
+        "canonical_table": {
+          "2026-10": 0
+        }
+      },
+      "expected": true,
+      "working": [
+        "1 canonical rows; nonempty = True"
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-167",
+      "case_id": "MK-CF-F-167-C01",
+      "name": "salaryCalendarYear",
+      "kind": "easy",
+      "title": "Known year",
+      "as_of": "2026-10-24",
+      "given": "Known year",
+      "inputs": {
+        "year": 2026,
+        "table": {
+          "2026-01": 1000
+        },
+        "fallback": 0,
+        "window_keys": [
+          "2026-01",
+          "2026-02",
+          "2026-03",
+          "2026-04",
+          "2026-05",
+          "2026-06",
+          "2026-07",
+          "2026-08",
+          "2026-09",
+          "2026-10",
+          "2026-11",
+          "2026-12"
+        ]
+      },
+      "expected": [
+        {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      ],
+      "working": [
+        "Look up each requested year-month exactly, else use the supplied fallback."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-167",
+      "case_id": "MK-CF-F-167-C02",
+      "name": "salaryCalendarYear",
+      "kind": "easy",
+      "title": "Explicit zero override",
+      "as_of": "2026-10-24",
+      "given": "Explicit zero override",
+      "inputs": {
+        "year": 2026,
+        "table": {
+          "2026-01": 0
+        },
+        "fallback": 5000,
+        "window_keys": [
+          "2026-01",
+          "2026-02",
+          "2026-03",
+          "2026-04",
+          "2026-05",
+          "2026-06",
+          "2026-07",
+          "2026-08",
+          "2026-09",
+          "2026-10",
+          "2026-11",
+          "2026-12"
+        ]
+      },
+      "expected": [
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      ],
+      "working": [
+        "Look up each requested year-month exactly, else use the supplied fallback."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-167",
+      "case_id": "MK-CF-F-167-C03",
+      "name": "salaryCalendarYear",
+      "kind": "complex",
+      "title": "Unround across year",
+      "as_of": "2026-10-24",
+      "given": "Unround across year",
+      "inputs": {
+        "year": 2027,
+        "table": {
+          "2026-12": "4111.17",
+          "2027-01": "5331.29",
+          "2027-03": 0
+        },
+        "fallback": "2991.43",
+        "window_keys": [
+          "2027-01",
+          "2027-02",
+          "2027-03",
+          "2027-04",
+          "2027-05",
+          "2027-06",
+          "2027-07",
+          "2027-08",
+          "2027-09",
+          "2027-10",
+          "2027-11",
+          "2027-12"
+        ]
+      },
+      "expected": [
+        {
+          "exact": "5331.29",
+          "shown": "$5,331",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2991.43",
+          "shown": "$2,991",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2991.43",
+          "shown": "$2,991",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2991.43",
+          "shown": "$2,991",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2991.43",
+          "shown": "$2,991",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2991.43",
+          "shown": "$2,991",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2991.43",
+          "shown": "$2,991",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2991.43",
+          "shown": "$2,991",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2991.43",
+          "shown": "$2,991",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2991.43",
+          "shown": "$2,991",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2991.43",
+          "shown": "$2,991",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      ],
+      "working": [
+        "Look up each requested year-month exactly, else use the supplied fallback."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-167",
+      "case_id": "MK-CF-F-167-C04",
+      "name": "salaryCalendarYear",
+      "kind": "complex",
+      "title": "Different year",
+      "as_of": "2026-10-24",
+      "given": "Different year",
+      "inputs": {
+        "year": 2028,
+        "table": {
+          "2027-02": "2761.17",
+          "2028-02": "3999.13"
+        },
+        "fallback": "2501.19",
+        "window_keys": [
+          "2028-01",
+          "2028-02",
+          "2028-03",
+          "2028-04",
+          "2028-05",
+          "2028-06",
+          "2028-07",
+          "2028-08",
+          "2028-09",
+          "2028-10",
+          "2028-11",
+          "2028-12"
+        ]
+      },
+      "expected": [
+        {
+          "exact": "2501.19",
+          "shown": "$2,501",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "3999.13",
+          "shown": "$3,999",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2501.19",
+          "shown": "$2,501",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2501.19",
+          "shown": "$2,501",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2501.19",
+          "shown": "$2,501",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2501.19",
+          "shown": "$2,501",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2501.19",
+          "shown": "$2,501",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2501.19",
+          "shown": "$2,501",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2501.19",
+          "shown": "$2,501",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2501.19",
+          "shown": "$2,501",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2501.19",
+          "shown": "$2,501",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "2501.19",
+          "shown": "$2,501",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      ],
+      "working": [
+        "Look up each requested year-month exactly, else use the supplied fallback."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-167",
+      "case_id": "MK-CF-F-167-C05",
+      "name": "salaryCalendarYear",
+      "kind": "edge",
+      "title": "No stored overrides",
+      "as_of": "2026-10-24",
+      "given": "No stored overrides",
+      "inputs": {
+        "year": 2026,
+        "table": {},
+        "fallback": 0,
+        "window_keys": [
+          "2026-01",
+          "2026-02",
+          "2026-03",
+          "2026-04",
+          "2026-05",
+          "2026-06",
+          "2026-07",
+          "2026-08",
+          "2026-09",
+          "2026-10",
+          "2026-11",
+          "2026-12"
+        ]
+      },
+      "expected": [
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      ],
+      "working": [
+        "Look up each requested year-month exactly, else use the supplied fallback."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-168",
+      "case_id": "MK-CF-F-168-C01",
+      "name": "salaryWindow",
+      "kind": "easy",
+      "title": "Known year",
+      "as_of": "2026-10-24",
+      "given": "Known year",
+      "inputs": {
+        "year": 2026,
+        "table": {
+          "2026-01": 1000
+        },
+        "fallback": 0,
+        "window_keys": [
+          "2026-01",
+          "2026-02",
+          "2026-03",
+          "2026-04",
+          "2026-05",
+          "2026-06",
+          "2026-07",
+          "2026-08",
+          "2026-09",
+          "2026-10",
+          "2026-11",
+          "2026-12"
+        ]
+      },
+      "expected": {
+        "2026-01": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-02": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-03": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-04": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-05": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-06": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-07": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-08": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-09": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-10": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-11": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-12": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Look up each requested year-month exactly, else use the supplied fallback."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-168",
+      "case_id": "MK-CF-F-168-C02",
+      "name": "salaryWindow",
+      "kind": "easy",
+      "title": "Explicit zero override",
+      "as_of": "2026-10-24",
+      "given": "Explicit zero override",
+      "inputs": {
+        "year": 2026,
+        "table": {
+          "2026-01": 0
+        },
+        "fallback": 5000,
+        "window_keys": [
+          "2026-01",
+          "2026-02",
+          "2026-03",
+          "2026-04",
+          "2026-05",
+          "2026-06",
+          "2026-07",
+          "2026-08",
+          "2026-09",
+          "2026-10",
+          "2026-11",
+          "2026-12"
+        ]
+      },
+      "expected": {
+        "2026-01": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-02": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-03": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-04": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-05": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-06": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-07": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-08": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-09": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-10": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-11": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-12": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Look up each requested year-month exactly, else use the supplied fallback."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-168",
+      "case_id": "MK-CF-F-168-C03",
+      "name": "salaryWindow",
+      "kind": "complex",
+      "title": "Unround across year",
+      "as_of": "2026-10-24",
+      "given": "Unround across year",
+      "inputs": {
+        "year": 2027,
+        "table": {
+          "2026-12": "4111.17",
+          "2027-01": "5331.29",
+          "2027-03": 0
+        },
+        "fallback": "2991.43",
+        "window_keys": [
+          "2026-12",
+          "2027-01",
+          "2027-02",
+          "2027-03"
+        ]
+      },
+      "expected": {
+        "2026-12": {
+          "exact": "4111.17",
+          "shown": "$4,111",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-01": {
+          "exact": "5331.29",
+          "shown": "$5,331",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-02": {
+          "exact": "2991.43",
+          "shown": "$2,991",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-03": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Look up each requested year-month exactly, else use the supplied fallback."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-168",
+      "case_id": "MK-CF-F-168-C04",
+      "name": "salaryWindow",
+      "kind": "complex",
+      "title": "Different year",
+      "as_of": "2026-10-24",
+      "given": "Different year",
+      "inputs": {
+        "year": 2028,
+        "table": {
+          "2027-02": "2761.17",
+          "2028-02": "3999.13"
+        },
+        "fallback": "2501.19",
+        "window_keys": [
+          "2028-01",
+          "2028-02",
+          "2028-03"
+        ]
+      },
+      "expected": {
+        "2028-01": {
+          "exact": "2501.19",
+          "shown": "$2,501",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2028-02": {
+          "exact": "3999.13",
+          "shown": "$3,999",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2028-03": {
+          "exact": "2501.19",
+          "shown": "$2,501",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Look up each requested year-month exactly, else use the supplied fallback."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-168",
+      "case_id": "MK-CF-F-168-C05",
+      "name": "salaryWindow",
+      "kind": "edge",
+      "title": "No stored overrides",
+      "as_of": "2026-10-24",
+      "given": "No stored overrides",
+      "inputs": {
+        "year": 2026,
+        "table": {},
+        "fallback": 0,
+        "window_keys": [
+          "2026-10"
+        ]
+      },
+      "expected": {
+        "2026-10": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Look up each requested year-month exactly, else use the supplied fallback."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-169",
+      "case_id": "MK-CF-F-169-C01",
+      "name": "withSalaryMonth",
+      "kind": "easy",
+      "title": "Add cell",
+      "as_of": "2026-10-24",
+      "given": "Add cell",
+      "inputs": {
+        "table": {},
+        "key": "2026-10",
+        "amount": 5000
+      },
+      "expected": {
+        "2026-10": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Set just October."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-169",
+      "case_id": "MK-CF-F-169-C02",
+      "name": "withSalaryMonth",
+      "kind": "easy",
+      "title": "Replace cell",
+      "as_of": "2026-10-24",
+      "given": "Replace cell",
+      "inputs": {
+        "table": {
+          "2026-10": 5000
+        },
+        "key": "2026-10",
+        "amount": 6000
+      },
+      "expected": {
+        "2026-10": {
+          "exact": "6000",
+          "shown": "$6,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Replace October only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-169",
+      "case_id": "MK-CF-F-169-C03",
+      "name": "withSalaryMonth",
+      "kind": "complex",
+      "title": "Retain adjacent years",
+      "as_of": "2026-10-24",
+      "given": "Retain adjacent years",
+      "inputs": {
+        "table": {
+          "2026-12": "5111.19",
+          "2027-01": "3221.17"
+        },
+        "key": "2027-02",
+        "amount": "4811.33"
+      },
+      "expected": {
+        "2026-12": {
+          "exact": "5111.19",
+          "shown": "$5,111",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-01": {
+          "exact": "3221.17",
+          "shown": "$3,221",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-02": {
+          "exact": "4811.33",
+          "shown": "$4,811",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Add February without touching either existing year."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-169",
+      "case_id": "MK-CF-F-169-C04",
+      "name": "withSalaryMonth",
+      "kind": "complex",
+      "title": "Explicit zero",
+      "as_of": "2026-10-24",
+      "given": "Explicit zero",
+      "inputs": {
+        "table": {
+          "2026-10": "4811.33",
+          "2026-11": "3901.13"
+        },
+        "key": "2026-10",
+        "amount": 0
+      },
+      "expected": {
+        "2026-10": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-11": {
+          "exact": "3901.13",
+          "shown": "$3,901",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Confirmed zero replaces October; November remains."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-169",
+      "case_id": "MK-CF-F-169-C05",
+      "name": "withSalaryMonth",
+      "kind": "edge",
+      "title": "Cleared cell",
+      "as_of": "2026-10-24",
+      "given": "Cleared cell",
+      "inputs": {
+        "table": {
+          "2026-10": 5000
+        },
+        "key": "2026-10",
+        "amount": ""
+      },
+      "expected": {
+        "state": "RULE UNCLEAR",
+        "reason": "Does clearing mean unentered or zero?",
+        "readings": {
+          "unentered": {},
+          "confirmed_zero": {
+            "2026-10": {
+              "exact": "0",
+              "shown": "$0",
+              "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+            }
+          }
+        }
+      },
+      "working": [
+        "Blank and explicit zero require a stated editor contract."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "2026-10": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-170",
+      "case_id": "MK-CF-F-170-C01",
+      "name": "salaryYearFromCells",
+      "kind": "easy",
+      "title": "Full year",
+      "as_of": "2026-10-24",
+      "given": "Full year",
+      "inputs": {
+        "year": 2026,
+        "cells": [
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000,
+          1000
+        ]
+      },
+      "expected": {
+        "2026-01": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-02": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-03": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-04": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-05": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-06": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-07": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-08": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-09": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-10": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-11": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-12": {
+          "exact": "1000",
+          "shown": "$1,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Cell 1 = January of the supplied year; stop after cell 12."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-170",
+      "case_id": "MK-CF-F-170-C02",
+      "name": "salaryYearFromCells",
+      "kind": "easy",
+      "title": "Empty",
+      "as_of": "2026-10-24",
+      "given": "Empty",
+      "inputs": {
+        "year": 2026,
+        "cells": []
+      },
+      "expected": {},
+      "working": [
+        "Cell 1 = January of the supplied year; stop after cell 12."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-170",
+      "case_id": "MK-CF-F-170-C03",
+      "name": "salaryYearFromCells",
+      "kind": "complex",
+      "title": "Unround twelve",
+      "as_of": "2026-10-24",
+      "given": "Unround twelve",
+      "inputs": {
+        "year": 2027,
+        "cells": [
+          "2111.17",
+          "2184.46",
+          "2257.75",
+          "2331.04",
+          "2404.33",
+          "2477.62",
+          "2550.91",
+          "2624.20",
+          "2697.49",
+          "2770.78",
+          "2844.07",
+          "2917.36"
+        ]
+      },
+      "expected": {
+        "2027-01": {
+          "exact": "2111.17",
+          "shown": "$2,111",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-02": {
+          "exact": "2184.46",
+          "shown": "$2,184",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-03": {
+          "exact": "2257.75",
+          "shown": "$2,258",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-04": {
+          "exact": "2331.04",
+          "shown": "$2,331",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-05": {
+          "exact": "2404.33",
+          "shown": "$2,404",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-06": {
+          "exact": "2477.62",
+          "shown": "$2,478",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-07": {
+          "exact": "2550.91",
+          "shown": "$2,551",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-08": {
+          "exact": "2624.20",
+          "shown": "$2,624",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-09": {
+          "exact": "2697.49",
+          "shown": "$2,697",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-10": {
+          "exact": "2770.78",
+          "shown": "$2,771",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-11": {
+          "exact": "2844.07",
+          "shown": "$2,844",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2027-12": {
+          "exact": "2917.36",
+          "shown": "$2,917",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Cell 1 = January of the supplied year; stop after cell 12."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-170",
+      "case_id": "MK-CF-F-170-C04",
+      "name": "salaryYearFromCells",
+      "kind": "complex",
+      "title": "Extra cells ignored",
+      "as_of": "2026-10-24",
+      "given": "Extra cells ignored",
+      "inputs": {
+        "year": 2028,
+        "cells": [
+          "3111.33",
+          "3130.50",
+          "3149.67",
+          "3168.84",
+          "3188.01",
+          "3207.18",
+          "3226.35",
+          "3245.52",
+          "3264.69",
+          "3283.86",
+          "3303.03",
+          "3322.20",
+          "3341.37",
+          "3360.54"
+        ]
+      },
+      "expected": {
+        "2028-01": {
+          "exact": "3111.33",
+          "shown": "$3,111",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2028-02": {
+          "exact": "3130.50",
+          "shown": "$3,131",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2028-03": {
+          "exact": "3149.67",
+          "shown": "$3,150",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2028-04": {
+          "exact": "3168.84",
+          "shown": "$3,169",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2028-05": {
+          "exact": "3188.01",
+          "shown": "$3,188",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2028-06": {
+          "exact": "3207.18",
+          "shown": "$3,207",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2028-07": {
+          "exact": "3226.35",
+          "shown": "$3,226",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2028-08": {
+          "exact": "3245.52",
+          "shown": "$3,246",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2028-09": {
+          "exact": "3264.69",
+          "shown": "$3,265",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2028-10": {
+          "exact": "3283.86",
+          "shown": "$3,284",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2028-11": {
+          "exact": "3303.03",
+          "shown": "$3,303",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2028-12": {
+          "exact": "3322.20",
+          "shown": "$3,322",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Cell 1 = January of the supplied year; stop after cell 12."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-170",
+      "case_id": "MK-CF-F-170-C05",
+      "name": "salaryYearFromCells",
+      "kind": "edge",
+      "title": "Explicit zero cells",
+      "as_of": "2026-10-24",
+      "given": "Explicit zero cells",
+      "inputs": {
+        "year": 2026,
+        "cells": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "expected": {
+        "2026-01": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-02": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-03": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-04": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-05": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-06": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-07": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-08": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-09": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-10": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-11": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "2026-12": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Cell 1 = January of the supplied year; stop after cell 12."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    }
+  ],
+  "could_not_test": [],
+  "rules_held": [
+    {
+      "rule": "DEC-0252",
+      "cards": [
+        "MK-CF-F-188"
+      ],
+      "verdict": "NOT HELD",
+      "why": "Subtraction walk is declared,but annual401(k)times12 disagrees with paid-month contributions and oldgross paths can bypass it.",
+      "decision_in_force": "“the tax organizer shows gross income, 401(k) contribution, standard deduction and taxable income.” The four lines a tax return shows, in order, so the subtraction can be followed by hand.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-188-C03",
+        "MK-CF-F-188-C04",
+        "MK-CF-F-188-C05",
+        "MK-CF-F-230-C04",
+        "MK-CF-O-004-C04",
+        "MK-CF-O-004-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    }
+  ]
+}

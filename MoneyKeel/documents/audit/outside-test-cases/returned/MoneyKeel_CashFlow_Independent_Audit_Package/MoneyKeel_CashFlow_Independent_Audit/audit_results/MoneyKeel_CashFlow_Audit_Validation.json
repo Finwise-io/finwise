@@ -1,0 +1,1904 @@
+{
+  "ready_to_close": false,
+  "formula_verdicts": {
+    "INCOMPLETE": 75,
+    "RIGHT": 114,
+    "WRONG": 26,
+    "CANNOT TELL": 4
+  },
+  "calculation_cards": 219,
+  "cases": 1095,
+  "case_kinds": {
+    "easy": 438,
+    "complex": 438,
+    "edge": 219
+  },
+  "figures": 67,
+  "tenet_checks": 536,
+  "screen_checks": {
+    "PASS": 339,
+    "FAIL": 197
+  },
+  "unique_decisions": 175,
+  "rule_checks_including_repeated_part_scope": {
+    "NOT HELD": 78,
+    "CANNOT TELL": 290,
+    "HELD": 52
+  },
+  "independent_source_topics": 6,
+  "band_top_and_top_plus_one_witnesses": 48,
+  "structural_and_selected_arithmetic_checks": [
+    {
+      "check": "219uniqueformulaids",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "1095cases",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-059",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-059",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-130",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-130",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-060",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-177",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-061",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-080",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-081",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-082",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-083",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-083",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-206",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-233",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-233",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-234",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-234",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-078",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-178",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-079",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-079",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-172",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-173",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-174",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-175",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-175",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-176",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-188",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-188",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-163",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-164",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-165",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-166",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-167",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-168",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-169",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-169",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-170",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-062",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-063",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-063",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-064",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-064",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-065",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-065",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-066",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-066",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-219",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-219",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-067",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-068",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-216",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-217",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-218",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-069",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-070",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-071",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-071",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-072",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-073",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-074",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-074",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-075",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-076",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-077",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-092",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-092",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-O-004",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-O-004",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-O-016",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-O-016",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-O-019",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-O-019",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-210",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-210",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-182",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-183",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-183",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-184",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-184",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-127",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-044",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-045",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-046",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-161",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-049",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-049",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-129",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-052",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-001",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-001",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-002",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-120",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-003",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-004",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-221",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-008",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-O-002",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-O-002",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-149",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-150",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-150",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-151",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-152",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-153",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-153",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-O-020",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-O-020",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-006",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-007",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-009",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-009",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-010",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-010",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-011",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-012",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-013",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-013",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-014",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-014",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-017",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-191",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-189",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-190",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-O-008",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-O-008",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-212",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-121",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-018",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-018",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-160",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-160",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-122",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-124",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-124",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-019",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-019",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-232",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-020",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-020",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-O-006",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-O-006",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-O-018",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-O-018",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-021",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-022",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-023",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-024",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-025",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-026",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-026",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-027",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-028",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-029",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-030",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-034",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-034",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-159",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-235",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-236",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-031",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-031",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-032",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-033",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-033",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-035",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-036",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-036",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-037",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-038",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-041",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-042",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-125",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-125",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-126",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-126",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-229",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-229",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-043",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-043",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-132",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-133",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-133",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-134",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-135",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-135",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-136",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-136",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-137",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-138",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-138",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-139",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-139",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-111",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-111",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-222",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-222",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-223",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-223",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-224",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-112",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-113",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-114",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-115",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-116",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-116",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-117",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-118",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-118",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-119",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-119",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-108",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-131",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-162",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-109",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-109",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-110",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-110",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-O-005",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-O-005",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-197",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-195",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-196",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-053",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-054",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-055",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-055",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-056",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-056",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-057",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-058",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-058",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-O-017",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-105",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-105",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-106",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-106",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-107",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-107",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-O-010",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-O-003",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-227",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-227",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-226",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-226",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-225",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-225",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-156",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-156",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-005",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-220",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-220",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-231",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-231",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-157",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-157",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-155",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-192",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-193",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-194",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-148",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-O-001",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-O-001",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-140",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-141",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-141",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-142",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-142",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-128",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-128",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-143",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-143",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-144",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-144",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-145",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-145",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-146",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-146",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-171",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-171",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-198",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-179",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-180",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-180",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-181",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-181",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-097",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-098",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-098",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-187",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-187",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-099",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-099",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-100",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-100",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-101",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-102",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-103",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-104",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-104",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-185",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-186",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-186",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-O-007",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-O-007",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-084",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-084",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-230",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-230",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-085",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-085",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-086",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-087",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-088",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-088",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-089",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-089",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-090",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "fivecasekinds:MK-CF-F-048",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "counterexample:MK-CF-F-048",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "175uniquedecisions",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "67figures536tenetchecks",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part3",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part4",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part6",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part7",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part8",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part9",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part10",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part11",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part12",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part13",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part14",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part15",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part16",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part17",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part18",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "rulecount:part19",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "sourceboundarywitnesses",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "approvedplanned350",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "approvedactual900",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "approvedexpense2100",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "joint2026tax10472",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "singleadjustedwagetax4444",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "HSAhalfyear2700",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "capitalgainmixed29589",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "partyeartypedshare759834",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "equityoptioncost",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part1",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part2",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part3",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part4",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part5",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part6",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part7",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part8",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part9",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part10",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part11",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part12",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part13",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part14",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part15",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part16",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part17",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part18",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "check": "jsonparse:part19",
+      "passed": true,
+      "detail": ""
+    }
+  ],
+  "app_runs": 0,
+  "code_inspected": false,
+  "existing_tests_inspected": false,
+  "unrounded_decimal_precision": 28,
+  "limits": [
+    "These are specification verdicts,not219 observed app failures.",
+    "Five cases percard include numeric,refusal,missingcontract and relational/composition cases. They are not1095 complete end-to-end app executions.",
+    "Simulations,literal label/icon mappings and some delegated contracts cannot be fully validated from the packet.",
+    "All8tenets were recorded perfigure;FAIL/evidence_gap means no supplied proof of compliance,not an observed UI violation.",
+    "Approveddrawings and latergoverningdecisions are retained;the reviewer did not tuneexpectedanswers toreportedappresults.",
+    "Complex scalar helpers use awkward/boundary inputs or related calls;no-inputzero12hasstructural/freshnessproperties rather than five different financialscenarios."
+  ]
+}

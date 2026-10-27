@@ -33,11 +33,11 @@ import {
   // the screen's return has come from the door since B-97 was fixed. It only showed up now because
   // Home stopped calling it too, so the build recategorised it from DISPLAYED to DEPENDENT and the
   // D1 ratchet saw a screen reaching past a door for a figure it does not even use.
-  buildPerformance, benchmarkTicker, totalShares, paidOnRecord, latestCloseLookup,
+  buildPerformance, benchmarkTicker, totalShares, paidOnRecord, latestCloseLookup, quantityWithUnit,
   type Period, type Position, type Lot,
 } from '../domain/performance';
 import { txnLabel, cashEffect, availableCash, tradeMultiplierOf, type Transaction, type TxnType } from '../domain/transactions';
-import { purchaseQuantityWords } from '../../MoneyKeel/functions/networth-and-performance/holding';   // a quantity in the holding's own unit (DEC-7298)
+import { purchaseQuantityWords, SHARE_COUNT_NOT_STATED } from '../../MoneyKeel/functions/networth-and-performance/holding';   // a quantity in the holding's own unit (DEC-7298); the one sentence for a count not on record
 import { EmptyNote, InfoDot } from '../components/UI';
 import type { GlossaryTerm } from '../domain/glossary';
 import { ADD_ACCOUNT_DOORS, ADD_ACCOUNT_QUESTION } from '../constants/doors';
@@ -369,19 +369,19 @@ export default function PerformanceScreen() {
           /* only where a longer window HAS a figure from price history (2026-10-23, E2E-65): an account typed as one total holds
              nothing with a history, every window reads "—", and the line said its figures came from each holding's past prices */
           <Note term="dayOne">{WINDOWS.some((w) => windowFigures[w.key]?.workedBack && windowFigures[w.key]?.ret != null)
-            ? "You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices."
-            : "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see."}</Note>
+            ? "You added your accounts today. Figures for 1M, 1Y and longer come from each holding’s past prices."
+            : "Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn’t see."}</Note>
         ) : now.recordBegins ? (
           /* a window joined at the record's first day: only the days before it are worked back (DEC-6412, 2026-10-19) */
           <>
-            <Text style={styles.sumNote}>Your daily record begins {dateShown(now.recordBegins)}, so the days before it are worked back from each holding's price history.</Text>
+            <Text style={styles.sumNote}>Your daily record begins {dateShown(now.recordBegins)}, so the days before it are worked back from each holding’s price history.</Text>
             {/* over 2Y, the two years' own total beside the yearly rate (DEC-0237, DEC-0404; 2026-10-22) */}
             {yearlyLine()}
           </>
         ) : now.workedBack ? (
           /* the beginning was worked back, not read: say so, as the account page does (DEC-5068) */
           <>
-            <Text style={styles.sumNote}>Your daily record does not reach back to {dateShown(now.beginningAsOf)} yet, so the beginning is worked back from today's values and each holding's price history.</Text>
+            <Text style={styles.sumNote}>Your daily record does not reach back to {dateShown(now.beginningAsOf)} yet, so the beginning is worked back from today’s values and each holding’s price history.</Text>
             {yearlyLine()}
           </>
         ) : now.sentence ? (
@@ -431,7 +431,8 @@ export default function PerformanceScreen() {
         {walk == null
           ? <Text style={styles.sumNote} accessibilityLabel={spokenDollars(now.sentence ?? '')}>{maskDollars(now.sentence ?? '')}</Text>
           : walkRows(walk, { begin: 'MK-PF-M-018', line: 'MK-PF-M-019', wealth: 'MK-PF-M-002', end: 'MK-PF-M-001' })}
-        {dayOneView
+        {/* nothing entered says it in every window, as phone 5 draws it (2026-10-25, MM-PF D3): it went with any window but Since */}
+        {dayOneView || nothingEntered
           ? <Text style={styles.sumNote}>Every line fills in as days pass — the structure never changes.</Text>
           : !!rebuilt?.who && (
             <Text style={styles.sumNote}>Every line here comes from {rebuilt.who}’s own records. A hand-entered account or a cash balance has none, so it starts the day you enter it — and says so.</Text>
@@ -482,7 +483,7 @@ export default function PerformanceScreen() {
                    the walk), so the name's door and the "›" inside it could not be reached by VoiceOver — the account's page could
                    not be opened at all. It is the bar's action, named as the door is, opening the same page on the same window
                    (the Home hero card's pattern, W-A11Y 2026-10-22). To reverse: remove the two props. */
-                accessibilityActions={[{ name: 'openAccountPage', label: `Open ${label} — this account's own page` }]}
+                accessibilityActions={[{ name: 'openAccountPage', label: `Open ${label} — this account’s own page` }]}
                 onAccessibilityAction={(ev) => { if (ev.nativeEvent.actionName === 'openAccountPage') openPage(); }}>
                 <SectionBand inCard title={`${dayOneView ? '' : isOpen ? '▾ ' : '▸ '}${label}`} value={fig('MK-PF-M-005', acct.balance || 0)}
                   // the page opens on the window picked here (account-page drawing v01, row 18, DEC-6457)
@@ -490,16 +491,24 @@ export default function PerformanceScreen() {
                   /* v17 draws "›" after every account bar: the bar opens that account's page (frame 2). It sits in the
                      right gutter every money row keeps, so the bar total stays on the rows' edge (DEC-0093) */
                   gutter={GUTTER} onChevronPress={openPage}
-                  titleHint={`Open ${label} — this account's own page`} />
+                  titleHint={`Open ${label} — this account’s own page`} />
               </TouchableOpacity>
               {!isOpen ? (
                 /* closed: where its numbers come from, what it made, and its return — one quiet line */
                 <>
                   {/* said with each figure through the one spoken writer, the return with "a year" over a window longer than one (audit row 29) */}
-                  <Text style={styles.sumNote} accessibilityLabel={`${src.text}${w ? `, wealth generated ${figSaid('MK-PF-M-014', walkShown(w).wealthGenerated)}` : ''}${one.ret != null ? `, return ${yearsSaid('MK-PF-M-016', one) ?? figSaid('MK-PF-M-016', one.ret)}` : ''}`}>
+                  {/* THE SOURCE IS THE LABEL, AS ON AN OPEN ACCOUNT (v17 READ THIS FIRST, 2026-10-12 (6): "🔗 Linked" in green on light green,
+                      as Net worth v08 draws it; "✍️ By hand · you update it" the grey label v08 draws — 2026-10-25, MM-PF D4 and D21). The
+                      closed line printed it as plain grey words. Said as one line, as before. To reverse: print src.icon and src.text as words. */}
+                  <View style={styles.closedLine} accessible accessibilityLabel={`${src.text}${w ? `, wealth generated ${figSaid('MK-PF-M-014', walkShown(w).wealthGenerated)}` : ''}${one.ret != null ? `, return ${yearsSaid('MK-PF-M-016', one) ?? figSaid('MK-PF-M-016', one.ret)}` : ''}`}>
+                    <SourceChip account={acct} />
                     {/* over a window longer than a year, the account's own total and the yearly rate it makes (DEC-0237, DEC-0404) */}
-                    {src.icon} {src.text}{w ? ` · wealth generated ${walkShown(w).wealthGenerated < 0 ? '−' : ''}${fig('MK-PF-M-014', Math.abs(walkShown(w).wealthGenerated))}` : ''}{oneReturn ? ` · return ${yearsShown('MK-PF-M-016', one) ?? oneReturn}` : ''}
-                  </Text>
+                    {(!!w || !!oneReturn) && (
+                      <Text style={[styles.sumNote, styles.closedRest]}>
+                        {w ? `· wealth generated ${walkShown(w).wealthGenerated < 0 ? '−' : ''}${fig('MK-PF-M-014', Math.abs(walkShown(w).wealthGenerated))}` : ''}{oneReturn ? `${w ? ' ' : ''}· return ${yearsShown('MK-PF-M-016', one) ?? oneReturn}` : ''}
+                      </Text>
+                    )}
+                  </View>
                   {/* below the figures it qualifies: the holding left out of them (DEC-5068, 2026-10-13) */}
                   {!dayOneView && !!one.notIncluded && <Text style={styles.sumNote} accessibilityLabel={spokenDollars(one.notIncluded)}>{maskDollars(one.notIncluded)}</Text>}
                 </>
@@ -528,7 +537,7 @@ export default function PerformanceScreen() {
                       {!!one.notIncluded && <Text style={styles.sumNote} accessibilityLabel={spokenDollars(one.notIncluded)}>{maskDollars(one.notIncluded)}</Text>}
                       {/* printed because both taps are real: the arrow collapses, the name opens the account */}
                       {/* said in words, without the ▾ and the › a screen reader spells out (2026-10-23, E2E-68) */}
-                      <Text style={styles.sumNote} accessibilityLabel="Tap the arrow to collapse, tap the name to open this account's portfolio">Tap ▾ to collapse · tap the name to open this account's portfolio ›</Text>
+                      <Text style={styles.sumNote} accessibilityLabel="Tap the arrow to collapse, tap the name to open this account’s portfolio">Tap ▾ to collapse · tap the name to open this account’s portfolio ›</Text>
                     </>
                   )}
                 </>
@@ -539,25 +548,28 @@ export default function PerformanceScreen() {
       })()}
 
       {/* WHAT EACH CATEGORY EARNED: dollars received in this window, then the rate WITH ITS NAME.
-          The screen computes nothing — it asks MK-NW-O-008's categoryEarnings and prints. Day one
-          shows every category at $0; after that a category that received nothing is left out, and
-          where nothing at all was received the table is not drawn. */}
+          The screen computes nothing — it asks MK-NW-O-008's categoryEarnings and prints. THE TABLE IS DRAWN IN EVERY
+          WINDOW (Performance v17 draws it on every phone; 2026-10-25, MM-PF D3): every category held is listed, at $0 where
+          it received nothing. It vanished on phone 1's 1M and on phones 4 and 5 outside Since. */}
       {(() => {
         const shown = categoryEarnings({
           transactions: (store.transactions ?? []) as any[],
           windowStart: now.windowStart,
           rows: rows as any,
           bonds: bondAccts as any,
-          dayOne: dayOneView,
+          // nothing entered is day one in every window: the three rows at $0, as phone 5 draws them
+          dayOne: dayOneView || nothingEntered,
+          // the investment accounts this tab lists, so cash sitting in one lists Cash in this account (2026-10-25)
+          accounts: (resolvedNwAccounts as AssetAccount[]).filter((a) => investIds.has(String(a.asset_id))) as any,
           // over a window longer than a year each category's return is the yearly rate it makes, as the summary's is (DEC-7217,
           // 2026-10-23): it printed the two years' own total under "2Y is shown per year" — the window's years, from the door
           years: now.perYear != null ? now.years : undefined,
         });
-        if (!shown.length) return null;
         const total = categoriesEarnedTotal(shown);   // added up by the door, not here (DEC-0346, 2026-10-22)
         return (
           <View style={styles.card}>
-            <SectionBand inCard gutter={GUTTER} title="WHAT EACH CATEGORY EARNED" value={phraseFor(period).toUpperCase()} />
+            {/* the window's words at 13, not at a money total's 15 (v17 .bandv 12, on the one scale 13 — DEC-0059; 2026-10-25, MM-PF D5) */}
+            <SectionBand inCard gutter={GUTTER} title="WHAT EACH CATEGORY EARNED" value={phraseFor(period).toUpperCase()} valueWords />
             <View style={styles.catHead}>
               <Text style={styles.catHeadL}>CATEGORY</Text>
               <Text style={styles.catHeadV}>EARNED</Text>
@@ -574,9 +586,10 @@ export default function PerformanceScreen() {
                   <View style={[styles.catDot, { backgroundColor: (ClassMarkColors as any)[b.key] }]} />
                   <View style={styles.catName}>
                     <Text style={styles.catLabel}>{b.label}</Text>
-                    {b.key === 'cash' && !dayOneView && <InfoDot size={13} term="cashInAccount" />}
+                    {b.key === 'cash' && !dayOneView && !nothingEntered && <InfoDot size={13} term="cashInAccount" />}
                   </View>
-                  <Text style={[styles.catV, !dayOneView && { color: Colors.gainText }]}>{fig('MK-PF-M-007', b.earned)}</Text>
+                  {/* green for money received; $0 in the text colour, as phones 4 and 5 draw it (2026-10-25) */}
+                  <Text style={[styles.catV, !dayOneView && b.earned > 0 && { color: Colors.gainText }]}>{fig('MK-PF-M-007', b.earned)}</Text>
                   <Text style={[styles.catR, b.ret == null && { color: Colors.textSecondary }]}>{ret}</Text>
                   {/* no "›": a category row opens no approved screen (DEC-0128) — the gutter stays empty */}
                   <View testID="right-gutter" style={[styles.gutter, styles.gutterInGap]} />
@@ -589,7 +602,7 @@ export default function PerformanceScreen() {
               <Text style={styles.catR}> </Text>
               <View testID="right-gutter" style={[styles.gutter, styles.gutterInGap]} />
             </View>
-            {dayOneView ? (
+            {dayOneView || nothingEntered ? (
               <Note term="earnedInWindow">Fills in with your first dividend or interest record. A file import carries no activity — that line will say so rather than show a false $0.</Note>
             ) : (
               /* one line with a "·" between, as v17 phones 1 and 3 draw it (drawing check 2026-10-12) */
@@ -649,7 +662,8 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
   const [accountId, setAccountId] = useState<string>('');
   const [ticker, setTicker] = useState('');
   const [label, setLabel] = useState('');
-  const [kind, setKind] = useState<string>('stocks_etf');
+  // null: no type chosen — a holding marked to be asked opens with none (2026-10-25, FIX-HOLDINGS item 4; DEC-2160)
+  const [kind, setKind] = useState<string | null>('stocks_etf');
   const [lots, setLots] = useState<Lot[]>([]);
   // SHARES PER CONTRACT for an option typed by hand (his approval, 2026-10-12, DEC-4646; MK-XS-I-063): 100 unless the
   // person states otherwise — a mini option is 10. Saved to the holding's `multiplier`, which MK-PF-F-031 reads.
@@ -675,7 +689,12 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
     if (!open) return;
     {
       setAccountId(existing.accountId); setTicker(existing.position.ticker); setLabel(existing.position.label ?? '');
-      setKind(existing.position.kind ?? 'stocks_etf'); setLots(existing.position.lots.length ? existing.position.lots : [blankLot()]);
+      // A HOLDING MARKED TO BE ASKED OPENS WITH NO TYPE CHOSEN (2026-10-25, FIX-HOLDINGS item 4; his DEC-2160 "Refuse the line and
+      // ask"; tenets 3 and 5): the app cannot tell what it is, so it never chooses for the person — it opened on Stocks / Funds,
+      // and a linked one on the kind the sync guessed. Saving the type chosen answers the question (updatePosition clears the mark).
+      // To reverse: open on its kind, or Stocks / Funds, again.
+      const asked = existing.position.class_asked === true && existing.position.class_source !== 'user';
+      setKind(asked ? null : existing.position.kind ?? 'stocks_etf'); setLots(existing.position.lots.length ? existing.position.lots : [blankLot()]);
       setPerContract(String(existing.position.multiplier != null && existing.position.multiplier > 0 ? existing.position.multiplier : 100));
       setBondFace(existing.position.face_value != null ? String(existing.position.face_value) : '');
       setBondRate(existing.position.coupon_rate != null ? String(+(existing.position.coupon_rate * 100).toFixed(6)) : '');
@@ -701,7 +720,9 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
   // (without cost we just can't show return-since-purchase — value & vs-benchmark still work).
   const isOption = kind === 'options';
   // classed Bonds & CDs by the one test of a holding's class (holdingClassOf) — a held bond or CD, which this sheet edits
-  const isBondHolding = holdingClassOf({ ...(existing?.position ?? {}), kind } as any) === 'bonds';
+  // a holding marked to be asked is classed by the type chosen here, not the class the sync guessed (2026-10-25, item 4)
+  const askedHolding = existing.position.class_asked === true && existing.position.class_source !== 'user';
+  const isBondHolding = holdingClassOf({ ...(existing?.position ?? {}), kind, ...(askedHolding ? { class_asked: undefined, asset_class: undefined } : {}) } as any) === 'bonds';
   // A CD IS NEVER ASKED HOW OFTEN IT PAYS, as on the two forms: judged by the bonds door (MK-NW-O-001) on the holding's name and
   // kind, the reading the line under it on its account page uses (holdingBondFacts reads the name, else the ticker)
   const isCdHolding = useMemo(() => isBondHolding && !!theBonds({ accounts: [{ asset_id: 'draft', label: label.trim() || ticker.trim(), kind,
@@ -715,7 +736,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
   const allReal = lots.every((l) => real(l.shares) && real(l.cost_per_share))
     && (!isOption || Number.isFinite(perContractN))
     && (!isBondHolding || (real(num(bondFace)) && real(num(bondRate))));
-  const valid = ticker.trim().length > 0 && lots.some((l) => l.shares > 0) && (!isOption || perContractN > 0) && allReal;
+  const valid = kind != null && ticker.trim().length > 0 && lots.some((l) => l.shares > 0) && (!isOption || perContractN > 0) && allReal;
 
   const save = () => {
     // A PURCHASE WHOSE SHARE COUNT IS NOT ON RECORD IS KEPT (2026-10-23, E2E-60; tenet 3): a broker's purchase with no share count
@@ -724,7 +745,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
     const clean = lots.filter((l) => l.shares == null || l.shares > 0).map((l) => ({ ...l, lot_id: l.lot_id || `lot_${Math.random().toString(36).slice(2, 8)}` }));
     const position: Position = {
       position_id: existing?.position.position_id ?? `pos_${Math.random().toString(36).slice(2, 8)}`,
-      ticker: ticker.trim().toUpperCase(), label: label.trim() || undefined, kind, lots: clean,
+      ticker: ticker.trim().toUpperCase(), label: label.trim() || undefined, kind: kind ?? undefined, lots: clean,
       // an option keeps the shares per contract the person typed (default 100); anything else carries none — and a holding
       // changed away from an option has its figure cleared (the store merges, so a key left out kept the old 100: 10 shares at
       // $50 read $50,000) (2026-10-21; outside re-run OpenAI part 3, MK-PF-F-031)
@@ -771,12 +792,12 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
           {/* a broker's security id (9 letters and digits, a bond's or a CD's CUSIP) is not a typo — the account page names such a
               holding by its name for the same reason (Build-43 finding #4); it was warned as one (2026-10-22, gap 24) */}
           {ticker.trim().length > 0 && !isPlausibleTicker(ticker) && !(/^[0-9A-Z]{9}$/.test(ticker.trim()) && /\d/.test(ticker)) && (
-            <Text style={styles.tickerWarn}>That doesn't look like a ticker symbol — check for a typo (e.g. AAPL, VTI).</Text>
+            <Text style={styles.tickerWarn}>That doesn’t look like a ticker symbol — check for a typo (e.g. AAPL, VTI).</Text>
           )}
           <Text style={styles.fieldL}>Name (optional)</Text>
           <TextInput style={styles.input} value={label} onChangeText={setLabel} placeholder="e.g. Apple Inc." placeholderTextColor={Colors.textTertiary} />
 
-          <Text style={styles.fieldL}>Type (sets the benchmark — {benchmarkTicker(kind)})</Text>
+          <Text style={styles.fieldL}>Type (sets the benchmark{kind ? ` — ${benchmarkTicker(kind)}` : ''})</Text>
           <View style={styles.kindWrap}>
             {KIND_OPTIONS.filter((k) => !NOT_OFFERED_KINDS.includes(k.id) || k.id === existing.position.kind).map((k) => (
               <TouchableOpacity key={k.id} style={[styles.kindChip, kind === k.id && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel={`Type: ${k.label}`}
@@ -787,6 +808,8 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
               </TouchableOpacity>
             ))}
           </View>
+          {/* no type chosen (a holding marked to be asked): why Save waits, in the words Net worth asks with (holding-editor v02 row 16) */}
+          {kind == null && <Text style={styles.beginnerHint}>The app cannot tell what {ticker.trim().toUpperCase() || 'this holding'} is — choose its type to save.</Text>}
 
           {isOption && (
             <>
@@ -797,10 +820,11 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
             </>
           )}
           <Text style={styles.fieldL}>{isOption ? 'Contracts you hold' : 'Shares you hold'}</Text>
-          <Text style={styles.beginnerHint}>New to this? Just enter shares — cost &amp; date are optional (add them later for return-since-purchase).</Text>
+          {/* an option's purchases are counted in contracts (2026-10-25, FIX-HOLDINGS items 2 and 6; holding-editor v02 row 17, DEC-0277) */}
+          <Text style={styles.beginnerHint}>New to this? Just enter {isOption ? 'contracts' : 'shares'} — cost &amp; date are optional (add them later for return-since-purchase).</Text>
           {lots.map((l, i) => (
             <View key={i} style={styles.lotRow}>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Shares</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={lotVal(i, 'shares', l.shares)} onChangeText={(t) => setLotNum(i, 'shares', t)} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>{isOption ? 'Contracts' : 'Shares'}</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={lotVal(i, 'shares', l.shares)} onChangeText={(t) => setLotNum(i, 'shares', t)} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Cost / share (opt)</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={lotVal(i, 'cost_per_share', l.cost_per_share)} onChangeText={(t) => setLotNum(i, 'cost_per_share', t)} placeholder="—" placeholderTextColor={Colors.textTertiary} /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Date (opt)</Text><DateField value={l.purchase_date ?? ''} onChange={(iso) => setLot(i, { purchase_date: iso })} label="purchase date" style={styles.lotIn} maximumDate={new Date()} /></View>
               {lots.length > 1 && <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel={`Remove lot ${i + 1}`} onPress={() => setLots((ls) => ls.filter((_, j) => j !== i))}><Text style={styles.lotDel}>✕</Text></TouchableOpacity>}
@@ -853,7 +877,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
                 // performance only (B-60). A position-derived account is built FROM its holdings.
                 if (!sel || sel.derive_balance === true) return null;
                 return (
-                  <Text style={styles.note} accessibilityLabel={`Tracked for performance — this won't change ${sel.institution?.trim() || sel.label}'s ${figSaid('MK-NW-M-018', sel.balance)} total. Edit the account total in Net worth.`}>📊 Tracked for performance — this won't change {sel.institution?.trim() || sel.label}'s {fig('MK-NW-M-018', sel.balance)} total. Edit the account total in Net worth.</Text>
+                  <Text style={styles.note} accessibilityLabel={`Tracked for performance — this won’t change ${sel.institution?.trim() || sel.label}’s ${figSaid('MK-NW-M-018', sel.balance)} total. Edit the account total in Net worth.`}>📊 Tracked for performance — this won’t change {sel.institution?.trim() || sel.label}’s {fig('MK-NW-M-018', sel.balance)} total. Edit the account total in Net worth.</Text>
                 );
               })()}
             </>
@@ -941,7 +965,14 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
   // THE BROKER'S FEE ON A BUY OR A SALE, TYPED BESIDE THE PRICE (2026-10-23, E2E-58; DEC-6873, DEC-7452): left blank it is not on
   // record; typed, it is kept apart from the price, so a sale brings in shares × price less it and a buy costs it on top
   const [fee, setFee] = useState('');
-  useEffect(() => { if (open) { setType('BUY'); setAccountId(prefill?.accountId ?? (accounts.filter(accountAllowsTicker)[0]?.asset_id) ?? accounts[0]?.asset_id ?? ''); setCounterId(''); setTicker(prefill?.ticker ?? ''); setShares(''); setPrice(''); setAmount(''); setFee(''); setReinvest(false); setDate(isoLocalDate(new Date())); } }, [open]);
+  // THE TYPE OF A TICKER THE ACCOUNT DOES NOT HOLD YET, ASKED (2026-10-25; outside review MK-CF-F-223 and MK-CF-F-138; DEC-0274,
+  // DEC-4646, DEC-2160; trade-sheet drawing v03 row 16): in the holding editor's own question, chips and words, nothing chosen for
+  // the person — a first buy of an option counted one share a contract ($2.50 for 1 contract at $2.50, not $250), and a ticker
+  // nothing identifies was filed under Stocks / Funds by the classifier's last-resort default. An option asks its shares per
+  // contract, 100 unless changed, as the editor does. The record carries both (kind, multiplier). To reverse: remove the question.
+  const [buyKind, setBuyKind] = useState<string | null>(null);
+  const [buyPerContract, setBuyPerContract] = useState('100');
+  useEffect(() => { if (open) { setType('BUY'); setAccountId(prefill?.accountId ?? (accounts.filter(accountAllowsTicker)[0]?.asset_id) ?? accounts[0]?.asset_id ?? ''); setCounterId(''); setTicker(prefill?.ticker ?? ''); setShares(''); setPrice(''); setAmount(''); setFee(''); setReinvest(false); setDate(isoLocalDate(new Date())); setBuyKind(null); setBuyPerContract('100'); } }, [open]);
 
   const isTrade = type === 'BUY' || type === 'SELL';
   const isBuy = type === 'BUY';
@@ -963,14 +994,29 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
   // what the buy takes out of the cash — its shares × price and its fee — asked of the one reader of what a record moves
   // (cashEffect, MK-CF-F-118), never calculated here (2026-10-23, E2E-58)
   // an option's contracts at the shares in each, as the record will carry them (tradeMultiplierOf, 2026-10-23; DEC-0274)
-  const perContract = tradeMultiplierOf(accounts, { type: 'BUY', account_id: accountId, ticker: ticker.trim().toUpperCase() });
+  const tickerUp = ticker.trim().toUpperCase();
+  const askType = isBuy && tickerUp !== '' && !held.includes(tickerUp);   // a ticker this account does not hold yet
+  const askOption = askType && buyKind === 'options';
+  const buyPerContractN = num(buyPerContract);
+  const typeOk = !askType || (buyKind != null && (!askOption || (buyPerContractN > 0 && Number.isFinite(buyPerContractN))));
+  const typeAnswer = askType ? { ...(buyKind ? { kind: buyKind } : {}), ...(askOption ? { multiplier: buyPerContractN } : {}) } : {};
+  const perContract = tradeMultiplierOf(accounts, { type: 'BUY', account_id: accountId, ticker: tickerUp, ...typeAnswer });
   const spend = isBuy ? -cashEffect({ type: 'BUY', shares: num(shares), price: num(price), ...(perContract !== 1 ? { multiplier: perContract } : {}), ...(feeTyped ? { fee: feeN, fee_in_price: false } : {}) } as Transaction) : 0;
   const enough = avail == null ? true : isBuy ? spend <= avail : (type === 'WITHDRAWAL' || isTransfer) ? num(amount) <= avail : true;
   const tickerOk = isBuy ? !!ticker.trim() : (isSell || isDiv) ? held.includes(ticker) : true;
   const ownedShares = isSell ? totalShares((acct?.positions ?? []).find((p) => p.ticker === ticker) ?? { lots: [] } as any) : 0;
+  // AN OPTION IS TRADED IN CONTRACTS (2026-10-25, FIX-HOLDINGS items 2 and 6; drawing v03 row 19; DEC-0277): the first box reads
+  // "Contracts", the line under the boxes shows the shares in each contract and what the trade comes to, asked of the one reader
+  // of what a record moves (cashEffect), and Sell names the holding's own unit. The price box stays per share, as an option is
+  // quoted and recorded ("1 contract @ $2.50"): labelled per contract, $250 typed would count $25,000. To reverse: "Shares".
+  const tradedPos = (acct?.positions ?? []).find((p) => p.ticker === tickerUp);
+  // counted in contracts: the unit the one quantity writer gives the holding (quantityWithUnit, MK-PF-F-033) — never re-decided here
+  const inContracts = isTrade && (askType ? buyKind === 'options' : tradedPos != null && quantityWithUnit(tradedPos, 2) === '2 contracts');
+  const tradeGross = inContracts && num(shares) > 0 && num(price) > 0
+    ? -cashEffect({ type: 'BUY', shares: num(shares), price: num(price), multiplier: perContract } as Transaction) : null;
   // a holding whose share count is not on record cannot be checked against, so the sale waits (tenet 3; outside review Claude Performance, 2026-10-11)
   const sellOk = !isSell || (ownedShares != null && num(shares) <= ownedShares);
-  const valid = !!accountId && enough && sellOk && (
+  const valid = !!accountId && enough && sellOk && typeOk && (
     isTrade ? (tickerOk && num(shares) > 0 && num(price) > 0 && Number.isFinite(feeN)) :
     isCash ? num(amount) > 0 :
     isTransfer ? (num(amount) > 0 && !!counterId && counterId !== accountId) :
@@ -979,7 +1025,7 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
   const save = () => {
     const base = { date, type, account_id: accountId };
     // a fee typed is a figure (a typed 0 is $0), kept apart from the price it was typed beside; blank, it is not on record
-    if (isTrade) onSave({ ...base, ticker: ticker.trim().toUpperCase(), shares: num(shares), price: num(price), ...(feeTyped ? { fee: feeN, fee_in_price: false } : {}) });
+    if (isTrade) onSave({ ...base, ticker: ticker.trim().toUpperCase(), shares: num(shares), price: num(price), ...typeAnswer, ...(feeTyped ? { fee: feeN, fee_in_price: false } : {}) });
     else if (isCash) onSave({ ...base, amount: num(amount) });
     else if (isTransfer) onSave({ ...base, counter_account_id: counterId, amount: num(amount) });
     else onSave({ ...base, ticker: ticker.trim().toUpperCase(), reinvested: reinvest, ...(reinvest ? { shares: num(shares), price: num(price) } : { amount: num(amount) }) });
@@ -1059,6 +1105,27 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
           {isBuy && (<><Text style={styles.fieldL}>Ticker</Text>
             <TextInput style={styles.input} value={ticker} onChangeText={setTicker} autoCapitalize="characters" autoCorrect={false} placeholder="e.g. AAPL" placeholderTextColor={Colors.textTertiary} /></>)}
 
+          {/* a ticker this account does not hold yet: its type, in the holding editor's question, chips and words (2026-10-25,
+              drawing v03 row 16) — nothing chosen for the person, and the buy waits until one is */}
+          {askType && (<>
+            <Text style={styles.fieldL}>Type (sets the benchmark{buyKind ? ` — ${benchmarkTicker(buyKind)}` : ''})</Text>
+            <View style={styles.kindWrap}>
+              {KIND_OPTIONS.filter((k) => !NOT_OFFERED_KINDS.includes(k.id)).map((k) => (
+                <TouchableOpacity key={k.id} style={[styles.kindChip, buyKind === k.id && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel={`Type: ${k.label}`}
+                  onPress={() => setBuyKind(k.id)}>
+                  <Text style={[styles.kindChipT, buyKind === k.id && styles.kindChipTOn]}>{k.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            {buyKind == null && <Text style={styles.beginnerHint}>{tickerUp} isn’t held in this account yet — choose its type to record the buy.</Text>}
+            {askOption && (<>
+              <Text style={styles.fieldL}>Shares per contract</Text>
+              <TextInput style={styles.input} keyboardType="number-pad" value={buyPerContract} onChangeText={setBuyPerContract}
+                accessibilityLabel="Shares per contract" placeholder="100" placeholderTextColor={Colors.textTertiary} />
+              <Text style={styles.beginnerHint}>100 for a standard option; 10 for a mini option. Value and cost are multiplied by it.</Text>
+            </>)}
+          </>)}
+
           {(isSell || isDiv) && (<>
             <Text style={styles.fieldL}>Holding</Text>
             {held.length === 0
@@ -1068,7 +1135,11 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
                     <Text style={[styles.kindChipT, ticker === tk && styles.kindChipTOn]}>{tk}</Text>
                   </TouchableOpacity>))}
                 </View>}
-            {isSell && ticker !== '' && <Text style={[styles.note, !sellOk && { color: Colors.red, fontWeight: '700' }]}>You own {ownedShares} shares{!sellOk ? "  ⚠ can't sell more than you own" : ''}</Text>}
+            {/* a purchase whose share count is not on record: the sale cannot be checked or taken from it, and the line says why
+                (2026-10-25, drawing v03 row 17; DEC-3523 tenets 3 and 5) — it read "You own  shares  ⚠ can’t sell more than you own" */}
+            {isSell && ticker !== '' && (ownedShares == null
+              ? <Text style={[styles.note, { color: Colors.red, fontWeight: '700' }]}>You own: {SHARE_COUNT_NOT_STATED}  ⚠ add the share count in Edit holding before recording a sale</Text>
+              : <Text style={[styles.note, !sellOk && { color: Colors.red, fontWeight: '700' }]}>You own {tradedPos ? quantityWithUnit(tradedPos, ownedShares) : `${ownedShares} shares`}{!sellOk ? "  ⚠ can’t sell more than you own" : ''}</Text>)}
           </>)}
 
           {isDiv && (
@@ -1080,10 +1151,14 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
 
           {(isTrade || (isDiv && reinvest)) && (
             <View style={[styles.lotRow, { marginTop: 12 }]}>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Shares</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={shares} onChangeText={setShares} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>{inContracts ? 'Contracts' : 'Shares'}</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={shares} onChangeText={setShares} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Price / share</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={price} onChangeText={setPrice} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><DateField value={date} onChange={setDate} label="transaction date" style={styles.lotIn} maximumDate={new Date()} /></View>
             </View>
+          )}
+          {inContracts && (
+            <Text style={styles.beginnerHint}>{`Each contract is ${perContract.toLocaleString()} shares${tradeGross != null
+              ? `: ${num(shares).toLocaleString()} × ${perContract.toLocaleString()} × ${fig('MK-NW-M-061', num(price))} = ${fig('MK-NW-M-062', tradeGross)}` : ''}.`}</Text>
           )}
           {/* the trade's own fee, optional, in the words and the dash the holding editor gives an optional figure (2026-10-23, E2E-58) */}
           {isTrade && (
@@ -1140,7 +1215,7 @@ export function HistorySheet({ open, transactions, accounts, onClose, onDelete }
             return (
               <View key={t.id} style={styles.hRow}>
                 {/* the record said as one thing, its amount through the one spoken writer (audit row 29, 2026-10-22) */}
-                <View style={{ flex: 1 }} accessible accessibilityLabel={`${txnLabel(t.type)}, ${t.ticker ? `${t.ticker}${t.shares ? `, ${plural(t.shares, 'share')}` : ''}${t.price ? ` at ${figSaid('MK-NW-M-061', t.price)}` : ''}` : acctName(t.account_id)}, ${dateShown(t.date)}`}>
+                <View style={{ flex: 1 }} accessible accessibilityLabel={`${txnLabel(t.type)}, ${t.ticker ? `${t.ticker}${t.shares ? `, ${(heldAs ? quantityWithUnit(heldAs, t.shares) : null) ?? plural(t.shares, 'share')}` : ''}${t.price ? ` at ${figSaid('MK-NW-M-061', t.price)}` : ''}` : acctName(t.account_id)}, ${dateShown(t.date)}`}>
                   <Text style={styles.hType}>{txnLabel(t.type)} <Text style={styles.hDetail}>{detail}</Text></Text>
                   {/* a record's day through the one date writer, "Aug 2, 2026" — it printed "2026-08-02" (2026-10-22, gap 24) */}
                   <Text style={styles.hMeta}>{dateShown(t.date)} · {acctName(t.account_id)}{t.counter_account_id ? ` → ${acctName(t.counter_account_id)}` : ''}{t.reinvested ? ' · reinvested' : ''}</Text>
@@ -1256,6 +1331,9 @@ const styles = StyleSheet.create({
   gutter: { width: GUTTER },
   gutterInGap: { marginLeft: -6 },   // a category row spaces its cells 6 apart; the gutter sits flush, as on every other row
   walkChip: { paddingHorizontal: Spacing.base, paddingTop: 4 },
+  // a closed account's line: its source label, then what it made and its return, wrapping as one line (2026-10-25)
+  closedLine: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', columnGap: 6, marginTop: 1 },
+  closedRest: { flexShrink: 1 },
   // the add-an-account sheet — the same shape Net worth uses, so one question looks like one question
   chooserBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   chooserCard: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 34 },

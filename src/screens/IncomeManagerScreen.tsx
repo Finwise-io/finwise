@@ -21,6 +21,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { EmptyNote } from '../components/UI';
+import { SectionBand } from '../components/SectionBand';
+import { MoneyBox } from '../components/MoneyBox';   // the money box as drawn — "$12,000" while it is typed (IN-06, 2026-10-25)
 import { fig } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { theIncomeManager, incomeSummary, type ManagedSource } from '../../MoneyKeel/functions/cashflow/income-summary';
 import { incomeFromAccounts } from '../domain/income/from-accounts';
@@ -56,12 +58,16 @@ export default function IncomeManagerScreen() {
   // a row on the Cash flow tab opens the source it names
   const { open: openParam } = useLocalSearchParams() as { open?: string };
   React.useEffect(() => {
-    const to: Record<string, View_> = { bonus: 'bonus', equity: 'bonus', rental: 'rental', self: 'self_employment', dividends: 'investment_income', onetime: 'other_income' };
+    // benefits and support open their own questions — the Income tab lists them since 2026-10-25 (incomeSources)
+    const to: Record<string, View_> = { bonus: 'bonus', equity: 'bonus', rental: 'rental', self: 'self_employment', dividends: 'investment_income', onetime: 'other_income', benefits: 'benefits', support: 'support' };
     if (openParam && to[openParam]) setView(to[openParam]);
     if (openParam) (router as any).setParams?.({ open: undefined });
   }, [openParam]);
 
   const m = theIncomeManager(op);
+  // a bonus or stock with no job to hang it on is its own row (MK-CF-O-019-C05, 2026-10-25)
+  const stockOnly = !m.entered.some((x) => x.key === 'employment') && !!m.bonusAndStock && (m.bonusAndStock.amount > 0 || !!m.bonusAndStock.tail);
+  const stockLine = m.bonusAndStock ? [m.bonusAndStock.amount > 0 ? `${fig('MK-CF-M-027', m.bonusAndStock.amount)}/year` : '', m.bonusAndStock.tail].filter(Boolean).join(' ') : '';
   const open = (key: ManagedSource['key']) => {
     if (key === 'employment') router.push('/base-pay' as any);
     else if (key === 'retirement_income') router.push('/monthly-income' as any);
@@ -82,19 +88,19 @@ export default function IncomeManagerScreen() {
         <Text style={s.h1}>Your income</Text>
         <Text style={s.sub}>Add anything that changes</Text>
 
-        <View style={s.bandRow}>
-          <Text style={s.band}>You entered about</Text>
-          <Text style={s.bandNum}>{plural(m.entered.length, 'source')}</Text>
-        </View>
+        {/* Q48 on a fresh account: the one line and its door, and no count of no sources (IN-12, 2026-10-25) */}
         {m.entered.length === 0 && (
-          <View style={s.card}><EmptyNote door="income" onPress={() => router.push('/base-pay' as any)} /></View>   /* Q48 */
+          <View style={s.group}><EmptyNote door="income" onPress={() => router.push('/base-pay' as any)} /></View>
         )}
+        {(m.entered.length > 0 || stockOnly) && (
+        <View style={s.group}>
+        <SectionBand inCard inset={Spacing.base} onRowEdges title="You entered about" value={plural(m.entered.length + (stockOnly ? 1 : 0), 'source')} />
         {m.entered.map((x) => {
           const isJob = x.key === 'employment';
           const expanded = isJob && jobOpen;
           return (
-            <View key={x.key} style={s.section}>
-              <TouchableOpacity accessibilityRole="button" style={s.secHead}
+            <View key={x.key}>
+              <TouchableOpacity accessibilityRole="button" style={[s.secHead, expanded && s.secHeadOpen]}
                 accessibilityLabel={`${x.title}: ${line(x)}. ${expanded ? 'Done' : 'Edit'}`}
                 onPress={() => (isJob ? setJobOpen(!jobOpen) : open(x.key))}>
                 <View style={{ flex: 1 }}>
@@ -108,7 +114,7 @@ export default function IncomeManagerScreen() {
               </TouchableOpacity>
               {/* A JOB HOLDS TWO THINGS — the pay, and what is paid on top of it (frames 2 and 3a). */}
               {expanded && (
-                <View style={s.card}>
+                <View style={s.secBody}>
                   <TouchableOpacity accessibilityRole="button" style={s.linkRow} onPress={() => router.push('/base-pay' as any)}>
                     <Text style={s.linkL}>Your base pay</Text><Text style={s.linkV}>›</Text>
                   </TouchableOpacity>
@@ -125,10 +131,27 @@ export default function IncomeManagerScreen() {
             </View>
           );
         })}
+        {/* STOCK WITH NO JOB IS STILL A SOURCE (2026-10-25, FIX-INCOME-B; the outside review's MK-CF-O-019-C05): vesting that goes on
+            after a job ends was on no row — "about 0 sources". Its row opens Bonus and stock, as the job's does. */}
+        {stockOnly && (
+          <TouchableOpacity accessibilityRole="button" style={s.secHead} onPress={() => setView('bonus')}
+            accessibilityLabel={`Bonus and stock: ${stockLine}. Edit`}>
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={s.who}>Bonus and stock</Text>
+                <Text style={s.tick} accessibilityLabel="entered">✓</Text>
+              </View>
+              <Text style={s.whoSub}>{stockLine}</Text>
+            </View>
+            <Text style={s.chev}>Edit ⌄</Text>
+          </TouchableOpacity>
+        )}
+        </View>
+        )}
 
-        {m.notEntered.length > 0 && <Text style={s.band}>Anything else?</Text>}
         {m.notEntered.length > 0 && (
-          <View style={s.card}>
+          <View style={s.group}>
+            <SectionBand inCard light inset={Spacing.base} onRowEdges title="Anything else?" />
             {m.notEntered.map((x) => (
               <TouchableOpacity key={x.key} accessibilityRole="button" style={s.moreRow} onPress={() => open(x.key)}
                 accessibilityLabel={`Add ${x.title}`}>
@@ -170,20 +193,15 @@ function Frame({ title, sub, onDone, save, children }: { title: string; sub: str
  *  "about 2k" can no longer be typed, so a rent figure is always a number. Every field this component serves
  *  is a plain amount (bonus, stock a year, rent, running costs, mortgage payment, interest and dividends), so
  *  the filter applies to all of them. A change that carries a LETTER is refused whole — the field keeps what it
- *  had — because stripping the letters out of "about 2k" would leave "2", the very $2 the decision forbids. */
-const plainAmount = (v: string): string => {
-  const digits = String(v ?? '').replace(/[^0-9.]/g, '');
-  const dot = digits.indexOf('.');
-  return dot < 0 ? digits : digits.slice(0, dot + 1) + digits.slice(dot + 1).replace(/\./g, '');
-};
-
+ *  had — because stripping the letters out of "about 2k" would leave "2", the very $2 the decision forbids.
+ *  2026-10-25 (IN-06): the box shows the figure as drawn while it is typed — "$12,000" — through the one MoneyBox, which keeps
+ *  that filter; the profile still holds the plain amount. */
 function Money({ label, hint, value, onChangeText, placeholder, a11y }: { label: string; hint?: string; value: any; onChangeText: (v: string) => void; placeholder?: string; a11y?: string }) {
   return (
     <>
       <Text style={s.q}>{label}</Text>
       {!!hint && <Text style={s.qsub}>{hint}</Text>}
-      <TextInput style={s.input} keyboardType="decimal-pad" accessibilityLabel={a11y ?? label} placeholder={placeholder}
-        placeholderTextColor={Colors.textTertiary} value={value != null && value !== '' ? String(value) : ''} onChangeText={(v) => { if (!/[A-Za-z]/.test(v)) onChangeText(plainAmount(v)); }} />
+      <MoneyBox value={value} onChangeText={onChangeText} a11y={a11y ?? label} placeholder={placeholder} />
     </>
   );
 }
@@ -205,6 +223,7 @@ function Seg<T extends string>({ value, options, onChange }: { value: T; options
 // A bonus belongs to a person, so it follows base pay's just-me / just-them / both pattern. The
 // household's bonus (bonusAnnual, the figure every calculation reads) is kept as the sum of the parts.
 function BonusAndStock({ op, set, onDone }: { op: any; set: (p: Record<string, any>) => void; onDone: () => void }) {
+  const store = useStore() as any;
   const partner = String(op.partnerName || '').trim() || 'my spouse';
   const couple = op.hasPartner === 'yes' || op.whoEarns === 'both' || op.whoEarns === 'partner';
   const who: 'you' | 'partner' | 'both' = op.bonusWho ?? 'you';
@@ -217,7 +236,7 @@ function BonusAndStock({ op, set, onDone }: { op: any; set: (p: Record<string, a
   const month = Number(op.bonusMonth) || 12;
   const [grants, setGrants] = useState(false);
   const dated = Array.isArray(op.rsuGrants) && op.rsuGrants.length > 0;
-  const sum = incomeSummary(op);
+  const sum = incomeSummary(op, { accounts: store.assetAccounts, transactions: store.transactions });   // the Income summary's own reading
   const ctx: StepCtx = { status: (op.status ?? null) as any, tracks: [] as any, answers: op, setAnswer: (k, v) => set({ [k]: v }) };
   const people: { key: 'you' | 'partner'; band: string; value: any; on: (v: string) => void }[] = [];
   if (who !== 'partner') people.push({ key: 'you', band: 'Your bonus', value: mine, on: (v) => write(who, v, theirs) });
@@ -225,18 +244,15 @@ function BonusAndStock({ op, set, onDone }: { op: any; set: (p: Record<string, a
   return (
     <Frame title="Bonus and stock" sub="Paid on top of base pay" onDone={onDone}>
       {couple && (
-        <>
-          <Text style={s.band}>Who gets a bonus?</Text>
+        <View style={s.group}>
+          <SectionBand inCard inset={Spacing.base} onRowEdges title="Who gets a bonus?" />
           <Seg value={who} options={[['you', 'Just me'], ['partner', `Just ${partner}`], ['both', 'Both of us']]} onChange={(v) => write(v, mine, theirs)} />
-        </>
+        </View>
       )}
       {people.map((p, i) => (
         <View key={p.key}>
-          <View style={s.bandRow}>
-            <Text style={s.band}>{p.band}</Text>
-            <Text style={s.bandNum}>{fig('MK-CF-M-008', num(p.value))}/year</Text>
-          </View>
-          <View style={s.card}>
+          <View style={s.group}>
+            <SectionBand inCard inset={Spacing.base} onRowEdges title={p.band} value={`${fig('MK-CF-M-008', num(p.value))}/year`} />
             <Money label="How much, a year" hint="Before tax. A typical year if it varies." value={p.value} onChangeText={p.on} a11y={`${p.band}, a year`} />
             {i === 0 && (
               <>
@@ -259,8 +275,19 @@ function BonusAndStock({ op, set, onDone }: { op: any; set: (p: Record<string, a
                     </TouchableOpacity>
                   </>
                 ) : (
-                  <Money label="Stock that vests, a year" hint="Leave blank if you have none."
+                  <Money label="Stock that vests, a year" hint="Leave blank if you have none." placeholder={fig('MK-CF-M-009', 0)}
                     value={num(op.rsuShares) * num(op.rsuPrice) || ''} onChangeText={(v) => set({ rsuShares: v, rsuPrice: '1' })} />
+                )}
+                {/* SHARES ARE NOT MONEY TO SPEND unless sold when they vest (2026-10-25, the lead's ruling, like DEC-0179 and DEC-0198's
+                    "does this reach your bank?"); the grants' own editor asks it too. Dated row on income-end-to-end_v07. */}
+                {(dated || num(op.rsuShares) * num(op.rsuPrice) > 0) && (
+                  <>
+                    <Text style={s.q}>Do you sell the shares when they vest?</Text>
+                    <Seg value={op.rsuSoldAtVest === 'yes' ? 'yes' : 'no'} options={[['no', 'Keep them'], ['yes', 'Sell them']]} onChange={(v) => set({ rsuSoldAtVest: v })} />
+                    <Text style={s.qsub}>{op.rsuSoldAtVest === 'yes'
+                      ? 'Sold, they land as money in the month they vest, after tax.'
+                      : 'Kept, they are shares, not money to spend. They are still taxed in the year they vest.'}</Text>
+                  </>
                 )}
               </>
             )}
@@ -269,11 +296,13 @@ function BonusAndStock({ op, set, onDone }: { op: any; set: (p: Record<string, a
       ))}
       {num(op.bonusAnnual) > 0 && sum.lands.standoutMonth && (
         <>
-          <Text style={s.band}>{sum.lands.standoutMonth.label} will look different</Text>
-          <View style={s.card}>
-            <Row label={sum.lands.totalLabel.replace(/^= /, '')} value={fig('MK-CF-M-037', sum.lands.usualMonth)} />
-            <Row label={sum.lands.standoutMonth.label} note="bonus, after tax" value={fig('MK-CF-M-039', sum.lands.standoutMonth.amount)} strong />
-            <Text style={s.note}>
+          <View style={s.group}>
+            <SectionBand inCard light inset={Spacing.base} onRowEdges title={`${sum.lands.standoutMonth.label} will look different`} />
+            {/* ≈ on a month worked with the calculated rate, as the Income summary prints it (IN-03, 2026-10-25) */}
+            <Row label={sum.lands.totalLabel.replace(/^= /, '')} value={`${sum.lands.approx ? '≈' : ''}${fig('MK-CF-M-037', sum.lands.usualMonth)}`} />
+            <Row label={sum.lands.standoutMonth.label} note="bonus, after tax" strong pos
+                 value={`${sum.lands.standoutMonth.approx ? '≈' : ''}${fig('MK-CF-M-039', sum.lands.standoutMonth.amount)}`} />
+            <Text style={s.info}>
               Cash flow will show that spike where it happens. Spreading it across twelve months would make every month wrong to make one look tidy.
             </Text>
           </View>
@@ -317,7 +346,10 @@ function Rent({ op, set, onDone }: { op: any; set: (p: Record<string, any>) => v
     for (const r of list) {
       const p = properties.find((a) => String(a.asset_id) === String(r.property_id ?? ''));
       if (!p || !(num(r.mortgage) > 0) || mortgageOn(p.asset_id)) continue;
-      store.addLiability?.({ label: `${p.label} mortgage`, debt_type: 'MORTGAGE', remaining_balance: 0, interest_rate_apr: 0,
+      // THE BALANCE AND THE RATE ARE NOT ASKED HERE, SO THEY ARE NOT ENTERED — never $0 and 0% (2026-10-25, FIX-INCOME-B; the
+      // outside review's part 9-12 measurer; tenet 3, DEC-0296): Net worth reads "Value not entered" and the Debts tab "rate not
+      // entered" (rateNotEntered), where they read −$0 and 0.00%. The payment is the one typed.
+      store.addLiability?.({ label: `${p.label} mortgage`, debt_type: 'MORTGAGE', remaining_balance: undefined, interest_rate_apr: undefined,
         minimum_monthly_payment: num(r.mortgage), monthly_payment: num(r.mortgage), payment_type: 'installment', property_id: p.asset_id });
       sent = true;
     }
@@ -335,17 +367,14 @@ function Rent({ op, set, onDone }: { op: any; set: (p: Record<string, any>) => v
         const named = r.property_id != null && String(r.property_id).trim() !== '';
         return (
           <View key={i}>
-            <View style={s.bandRow}>
-              <Text style={s.band}>{list.length > 1 ? `Property ${i + 1}` : 'The property'}</Text>
-              <Text style={s.bandNum}>{fig('MK-CF-M-010', keep)}/month net</Text>
-            </View>
-            <View style={s.card}>
+            <View style={s.group}>
+              <SectionBand inCard inset={Spacing.base} onRowEdges title={list.length > 1 ? `Property ${i + 1}` : 'The property'} value={`${fig('MK-CF-M-010', keep)}/month net`} />
               <Money label="Rent you receive each month" value={r.income} onChangeText={(v) => write(i, { income: v })} a11y={`Rent you receive each month, property ${i + 1}`} />
               <Money label="What it costs to run each month" hint="Tax, insurance, repairs, management."
                 value={r.expenses} onChangeText={(v) => write(i, { expenses: v })} a11y={`What it costs to run each month, property ${i + 1}`} />
-              <Row label="= You keep" value={`${fig('MK-CF-M-010', keep)}/month`} strong />
+              <Row label="= You keep" value={`${fig('MK-CF-M-010', keep)}/month`} strong pos />
               {/* the figure every other screen uses only once the entry names its property (DEC-4059d, 2026-10-10) */}
-              {named && <Text style={s.note}>
+              {named && <Text style={s.info}>
                 {fig('MK-CF-M-027', keep * 12)}/year. This is the figure every other screen uses
                 {num(r.expenses) > 0 ? ` — the rent alone would overstate what reaches you by ${fig('MK-CF-M-027', num(r.expenses))}/month.` : '.'}
               </Text>}
@@ -380,9 +409,10 @@ function Rent({ op, set, onDone }: { op: any; set: (p: Record<string, any>) => v
           </View>
         );
       })}
-      <TouchableOpacity accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}
+      {/* a filled green button, as drawn (phone 10; IN-15, 2026-10-25) */}
+      <TouchableOpacity accessibilityRole="button" style={s.cta}
         onPress={() => set({ rentals: [...list, { type: 'long', income: '', expenses: '' }] })} accessibilityLabel="Add another property">
-        <Text style={s.link}>Add another property</Text>
+        <Text style={s.ctaT}>Add another property</Text>
       </TouchableOpacity>
     </Frame>
   );
@@ -403,11 +433,8 @@ function InterestAndDividends({ op, set, onDone }: { op: any; set: (p: Record<st
     <Frame title="Interest & dividends" sub="What your savings and investments pay you" onDone={onDone}>
       {worked.lines.length > 0 && (
         <>
-          <View style={s.bandRow}>
-            <Text style={s.band}>From your accounts</Text>
-            <Text style={s.bandNum}>{fig('MK-CF-M-066', worked.annual)}/year</Text>
-          </View>
-          <View style={s.card}>
+          <View style={s.group}>
+            <SectionBand inCard inset={Spacing.base} onRowEdges title="From your accounts" value={`${fig('MK-CF-M-066', worked.annual)}/year`} />
             {worked.lines.map((l) => <Row key={l.label} label={l.label} note={l.why} value={fig('MK-CF-M-066', l.annual)} />)}
             <Row label="= We calculate" value={`${fig('MK-CF-M-066', worked.annual)}/year`} strong />
             {!!worked.missing && <Text style={s.note}>{worked.missing}</Text>}
@@ -425,13 +452,13 @@ function InterestAndDividends({ op, set, onDone }: { op: any; set: (p: Record<st
           placeholder={worked.annual > 0 ? `use ${fig('MK-CF-M-066', worked.annual)}` : undefined}
           value={op.invAnnual ?? ''} onChangeText={(v) => set({ invAnnual: v, invAmount: v, invFreq: 'annual' })} a11y="Interest and dividends, a year" />
       </View>
-      <Text style={s.band}>{paid ? 'This reaches your bank' : 'This does not reach your bank'}</Text>
-      <View style={s.card}>
-        <Text style={s.lead}>
+      <View style={s.group}>
+        <SectionBand inCard light inset={Spacing.base} onRowEdges title={paid ? 'This reaches your bank' : 'This does not reach your bank'} />
+        <Text style={s.info}>
           {paid ? 'Interest and dividends are counted as income you are taxed on, and as money you can spend.'
                 : 'Interest and dividends are counted as income you are taxed on, not money you can spend.'}
         </Text>
-        <Text style={s.note}>
+        <Text style={s.info}>
           They are normally reinvested where they are earned, so they never reach your bank account. If you actually take them as cash, tell us and we will count them.
         </Text>
         <Seg value={paid ? 'yes' : 'no'} options={[['no', 'Reinvested'], ['yes', 'Paid to my bank']]} onChange={(v) => set({ invPaidToBank: v })} />
@@ -515,14 +542,14 @@ function AddIncome({ open, onClose, onSave }: { open: boolean; onClose: () => vo
   );
 }
 
-function Row({ label, note, value, strong }: { label: string; note?: string | null; value: string; strong?: boolean }) {
+function Row({ label, note, value, strong, pos }: { label: string; note?: string | null; value: string; strong?: boolean; pos?: boolean }) {
   return (
     <View style={s.row}>
       <View style={{ flex: 1 }}>
         <Text style={[s.rowL, strong && s.rowLStrong]}>{label}</Text>
         {note ? <Text style={s.rowNote}>{note}</Text> : null}
       </View>
-      <Text style={[s.rowV, strong && s.rowVStrong]}>{value}</Text>
+      <Text style={[s.rowV, strong && s.rowVStrong, pos && s.pos]}>{value}</Text>
     </View>
   );
 }
@@ -535,12 +562,16 @@ const s = StyleSheet.create({
   bandRow: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' },
   bandNum: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.base, marginTop: 8, borderWidth: 1, borderColor: Colors.border },
-  section: { marginTop: 8 },
-  secHead: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.base, borderWidth: 1, borderColor: Colors.border, minHeight: 56 },
+  // a banded group: square and white, as drawn; its band runs to its edges (SectionBand inCard) — DEC-0079 (2026-10-25)
+  group: { backgroundColor: Colors.cardBg, padding: Spacing.base, marginTop: 16 },
+  secHead: { flexDirection: 'row', alignItems: 'center', minHeight: 56, paddingVertical: 10, marginHorizontal: -Spacing.base, paddingHorizontal: Spacing.base,
+             borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: Colors.border },
+  secHeadOpen: { backgroundColor: Colors.primaryLight },
+  secBody: { paddingBottom: 4 },
   who: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   tick: { fontSize: 13, fontWeight: '800', color: Colors.primaryDark },
   whoSub: { fontSize: 11, color: Colors.textSecondary, marginTop: 2 },
-  chev: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark },
+  chev: { fontSize: 13, fontWeight: '800', color: Colors.primary },   // brand green at 800, as drawn (IN-15)
   linkRow: { flexDirection: 'row', alignItems: 'center', minHeight: 48, gap: 8 },
   linkL: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, flex: 1 },
   linkV: { fontSize: 17, fontWeight: '700', color: Colors.primaryDark },
@@ -563,7 +594,11 @@ const s = StyleSheet.create({
   rowNote: { fontSize: 11, color: Colors.textTertiary },
   rowV: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   rowVStrong: { fontSize: 17, fontWeight: '800' },
+  pos: { color: Colors.gainText },   // "= You keep" and the December bonus are green, as drawn (IN-15); "= We calculate" is not
   note: { fontSize: 11, color: Colors.textSecondary, lineHeight: 17, marginTop: 8 },
+  // the drawing's information box: ink on the blue tint, a blue rule on its left (IN-15)
+  info: { fontSize: 11, color: Colors.textPrimary, lineHeight: 17, marginTop: 10, backgroundColor: Colors.blueLight,
+          borderLeftWidth: 3, borderLeftColor: Colors.blue, paddingVertical: 8, paddingHorizontal: 10 },
   link: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 12 },
   del: { fontSize: 17, color: Colors.textSecondary, paddingHorizontal: 8, paddingVertical: 8 },
   cta: { backgroundColor: Colors.primary, borderRadius: Radii.md, minHeight: 52, justifyContent: 'center', alignItems: 'center', marginTop: 24 },

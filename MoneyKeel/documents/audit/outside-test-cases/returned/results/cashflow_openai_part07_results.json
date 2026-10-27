@@ -1,0 +1,2232 @@
+{
+ "batch": "cf module — part 7",
+ "reviewer": "OpenAI independent specification reviewer (CashFlow package of 2026-10-24)",
+ "run_by": "Claude Code — CFR-2 measurer (parts 5–8), part 7 fork",
+ "run_on": "2026-10-25",
+ "test_file": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts",
+ "source": "returned/MoneyKeel_CashFlow_Independent_Audit_Package/MoneyKeel_CashFlow_Independent_Audit/audit_results/MoneyKeel_CashFlow_Audit_Part_07.json",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts → 81 passed, 2 skipped (the 2 OUTSIDE DOMAIN cases), 0 failed, 83 total. Each APP WRONG / REVIEWER WRONG item is test.failing on the reviewer's answer with a twin pinning the app's answer. npx tsc --noEmit: clean (exit 0, whole repo).",
+ "working_tree": "Measured at b1c659e8 plus other agents' uncommitted work of 2026-10-25 — notably CF-21's edits to budgetVsActual's spent side (expenses read on their local day, a per-category list) and essentials.ts (localDay); neither touches a planned figure. Nothing changed but these two files.",
+ "mapping": [
+  "surplus / allocated_this_month → allocatableThisMonth(surplus, allocatedThisMonth) (GoalsScreen.tsx:62 calls it).",
+  "nonmonthly_rows {kind, amount} → op.spendCats [{ bucket:'nonmonthly', unit: 'pct' | 'dollar', amount }]; percent_basis → allPct, shown_percent → pct (GoalsScreen.tsx:46).",
+  "categories {monthly, need} → op.spendCats [{ bucket:'fixed' (needs) | 'flexible' (flexible), tier: 'critical' | 'important' | 'flex', amount }]; typed_monthly / planned_monthly_average → op.monthlySpending (the one number onboarding writes, modules.tsx 'monthlySpending'); a dated annual bill → a 'nonmonthly' category with months [bill_month]; \"no categories\" → no spendCats at all.",
+  "emergencyTest cash / shock / essentials → emergencyTest(null, cash, shock, essentials); cash_after → cashAfter, months_after → runwayAfter, months_before → jobLossRunway, covers → coversIt, recommended → recommendedFund, gap → gapToFund. Its one production caller is MK-NW-O-004 theEmergencyFund (emergency-fund.ts:242).",
+  "savingsByMonth take_home[12] / expenses[12] and annualCashflow gross / tax / employee_k / planned_expenses: the two functions' OWN SOURCE TEXT (src/domain/budget/index.ts) is compiled with their two producers handed in under their own names — incomeMonthlyGrid(op, kind) returning the twelve given months, spendByMonth(op) the twelve given expenses — because the reviewer gives the producers' outputs as the inputs. annualCashflow's year is twelve equal income rows and an expense year with a tenth of it as a December bill (its note: \"an annual expense in December to test roll-up\"). gross → grossYr, after_tax → netYr, take_home → availableYr, expenses → spendYr, tax → taxYr, k → k401Yr, saved → saveYr.",
+  "budgetFromOnboarding monthly_spending / fixed / flexible / annual_bill → op.monthlySpending, a 'fixed' and a 'flexible' category, a 'nonmonthly' bill with months [bill_month] (the categories onboarding's SpendingEditor writes; the legacy b_fixed / b_flexible fields have no writer left and are probed separately below); recurring_base → doc.fixed + doc.flexible (the stored every-month parts), annual_average → doc.monthly_spending, annual_total → doc.monthly_spending × 12 (no reader re-reads a stored doc: saveBudget and loadBudget have no callers — the doc goes straight from buildSnapshot into buildBudgetState, snapshot.ts:143).",
+  "budgetVsActual requested_month / recurring_plan / annual_bill / bill_month / actual_non_debt → now = the 15th of that month in 2026; op.spendCats [a 'fixed' category of recurring_plan, a 'nonmonthly' bill with months [bill_month]]; one logged 'Groceries' expense of actual_non_debt on the 10th; planned → planned_total, spent → spent_total, remaining → remaining. Production: BudgetScreen.tsx (`const bva = budgetVsActual(…)`; its planned side is printed in the \"Expenses by bucket\" header `fig('MK-CF-M-015', … ba.planned)` of the budget editor the Cash flow tab opens — CashFlowScreen.tsx BudgetEditor), HomeScreen.tsx and CashFlowScreen.tsx (spent_total only).",
+  "publishSurplus supplied_result → its projectedToSave argument; the answer is the payload it emits on the app's event bus (SURPLUS_CALCULATED), read with the bus's own on(). No production code calls publishSurplus.",
+  "ym local_timestamp → the person's device is IN that offset: ym's own source text (essentials.ts) is run in a child node process whose TZ is that zone, on new Date(local_timestamp). (Jest's sandbox cannot change its own zone.)",
+  "logged_month_totals {YYYY-MM: amount} → one logged expense per month on the 15th; typed_fallback → essentialsMonthly's typed argument (null → 0, the number its caller hands in when nothing is typed); as_of → now = 2026-10-24 12:00 local."
+ ],
+ "cases": [
+  {
+   "case_id": "MK-CF-F-006-C01",
+   "id": "MK-CF-F-006",
+   "name": "allocatableThisMonth",
+   "kind": "easy",
+   "title": "Unallocated",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "1000",
+    "shown": "$1,000"
+   },
+   "actual": 1000,
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "allocatableThisMonth gives max(0, surplus − allocated), at full precision.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-006 allocatableThisMonth — five cases MK-CF-F-006-C01 · easy · Unallocated [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-006-C02",
+   "id": "MK-CF-F-006",
+   "name": "allocatableThisMonth",
+   "kind": "easy",
+   "title": "Part allocated",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "700",
+    "shown": "$700"
+   },
+   "actual": 700,
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "allocatableThisMonth gives max(0, surplus − allocated), at full precision.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-006 allocatableThisMonth — five cases MK-CF-F-006-C02 · easy · Part allocated [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-006-C03",
+   "id": "MK-CF-F-006",
+   "name": "allocatableThisMonth",
+   "kind": "complex",
+   "title": "Unround",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "1119.74",
+    "shown": "$1,120"
+   },
+   "actual": 1119.7400000000002,
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "allocatableThisMonth gives max(0, surplus − allocated), at full precision.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-006 allocatableThisMonth — five cases MK-CF-F-006-C03 · complex · Unround [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-006-C04",
+   "id": "MK-CF-F-006",
+   "name": "allocatableThisMonth",
+   "kind": "complex",
+   "title": "Already overpromised",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "allocatableThisMonth gives max(0, surplus − allocated), at full precision.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-006 allocatableThisMonth — five cases MK-CF-F-006-C04 · complex · Already overpromised [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-006-C05",
+   "id": "MK-CF-F-006",
+   "name": "allocatableThisMonth",
+   "kind": "edge",
+   "title": "Negative surplus",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "allocatableThisMonth gives max(0, surplus − allocated), at full precision.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-006 allocatableThisMonth — five cases MK-CF-F-006-C05 · edge · Negative surplus [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-007-C01",
+   "id": "MK-CF-F-007",
+   "name": "nonMonthlyBasis",
+   "kind": "easy",
+   "title": "All percentage",
+   "classification": "AGREE",
+   "expected": {
+    "percent_basis": true,
+    "shown_percent": {
+     "exact": "15",
+     "shown": "15",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "nonMonthlyBasis returns the percent label only when every positive once-in-a-while category is a percent.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-007 nonMonthlyBasis — five cases MK-CF-F-007-C01 · easy · All percentage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-007-C02",
+   "id": "MK-CF-F-007",
+   "name": "nonMonthlyBasis",
+   "kind": "easy",
+   "title": "Dollar category",
+   "classification": "AGREE",
+   "expected": {
+    "percent_basis": false,
+    "shown_percent": {
+     "exact": "0",
+     "shown": "0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "nonMonthlyBasis returns the percent label only when every positive once-in-a-while category is a percent.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-007 nonMonthlyBasis — five cases MK-CF-F-007-C02 · easy · Dollar category [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-007-C03",
+   "id": "MK-CF-F-007",
+   "name": "nonMonthlyBasis",
+   "kind": "complex",
+   "title": "Unround percentages",
+   "classification": "REVIEWER WRONG",
+   "expected": {
+    "percent_basis": true,
+    "shown_percent": {
+     "exact": "18",
+     "shown": "18",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "nonMonthlyBasis returns the percent label only when every positive once-in-a-while category is a percent.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-007 nonMonthlyBasis — five cases MK-CF-F-007-C03 · complex · Unround percentages [AGREE]",
+   "test_result": "passed",
+   "fixed": "FIXED 2026-10-26 (CLEANUP-LEFT): REVIEWER WRONG by Q49 — the share is kept whole, 17.6, and printed \"17.60% of take-home pay\"; it was rounded to 18 inside nonMonthlyBasis"
+  },
+  {
+   "case_id": "MK-CF-F-007-C04",
+   "id": "MK-CF-F-007",
+   "name": "nonMonthlyBasis",
+   "kind": "complex",
+   "title": "Mixed positive bases",
+   "classification": "AGREE",
+   "expected": {
+    "percent_basis": false,
+    "shown_percent": {
+     "exact": "0",
+     "shown": "0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "nonMonthlyBasis returns the percent label only when every positive once-in-a-while category is a percent.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-007 nonMonthlyBasis — five cases MK-CF-F-007-C04 · complex · Mixed positive bases [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-007-C05",
+   "id": "MK-CF-F-007",
+   "name": "nonMonthlyBasis",
+   "kind": "edge",
+   "title": "No positive row",
+   "classification": "AGREE",
+   "expected": {
+    "percent_basis": false,
+    "shown_percent": {
+     "exact": "0",
+     "shown": "0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "nonMonthlyBasis returns the percent label only when every positive once-in-a-while category is a percent.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-007 nonMonthlyBasis — five cases MK-CF-F-007-C05 · edge · No positive row [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-009-C01",
+   "id": "MK-CF-F-009",
+   "name": "monthlyEssentials",
+   "kind": "easy",
+   "title": "Known needs categories",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "1500",
+    "shown": "$1,500"
+   },
+   "actual": 1500,
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "Needs ($1,000 + $500) counted, the $300 flexible left out.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-009 monthlyEssentials — five cases MK-CF-F-009-C01 · easy · Known needs categories [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-009-C02",
+   "id": "MK-CF-F-009",
+   "name": "monthlyEssentials",
+   "kind": "easy",
+   "title": "No categories fallback",
+   "classification": "REVIEWER WRONG",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Fallback includes nonessential spending",
+    "readings": {
+     "planned_spend_estimate": {
+      "exact": "2000",
+      "shown": "$2,000",
+      "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+     },
+     "strict_essentials": "needs detail missing"
+    }
+   },
+   "formula_gives": {
+    "exact": "2000",
+    "shown": "$2,000"
+   },
+   "actual": 2000,
+   "difference": "reviewer gave no number (RULE UNCLEAR); app gives $2,000",
+   "rests_on": "DEC-0251 (\"The typed plan is the fallback for someone who has logged nothing\"); DEC-7951 (the must-pay figure of a household with no monthly category is its typed $2,000)",
+   "note": "With no categories the must-pay figure is the planned $2,000, which the emergency-fund door labels \"you entered\" — his DEC-0251 settles the reviewer's open rule.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-009 monthlyEssentials — five cases MK-CF-F-009-C02 · easy · No categories fallback [REVIEWER WRONG] — settled by DEC-0251",
+   "test_result": "passed (test.failing on the reviewer's answer: it fails today, as marked; a twin pins the app's answer)"
+  },
+  {
+   "case_id": "MK-CF-F-009-C03",
+   "id": "MK-CF-F-009",
+   "name": "monthlyEssentials",
+   "kind": "complex",
+   "title": "Unround typed remainder",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "1579.76",
+    "shown": "$1,580"
+   },
+   "actual": 1579.7600000000002,
+   "difference": "floating only (1579.7600000000002)",
+   "rests_on": "ordinary arithmetic",
+   "note": "$1,131.17 of needs plus the $448.59 the typed total holds beyond the categories.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-009 monthlyEssentials — five cases MK-CF-F-009-C03 · complex · Unround typed remainder [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-009-C04",
+   "id": "MK-CF-F-009",
+   "name": "monthlyEssentials",
+   "kind": "complex",
+   "title": "Dated annual bill excluded",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "1731.17",
+    "shown": "$1,731"
+   },
+   "actual": 1731.17,
+   "difference": "none",
+   "rests_on": "DEC-7951",
+   "note": "The December bill is left out and the typed total measured against what the plan puts in every month, so no remainder is added.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-009 monthlyEssentials — five cases MK-CF-F-009-C04 · complex · Dated annual bill excluded [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-009-C05",
+   "id": "MK-CF-F-009",
+   "name": "monthlyEssentials",
+   "kind": "edge",
+   "title": "Confirmed zero needs",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "tenet 3",
+   "note": "An all-flexible plan gives a real $0 of must-pay.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-009 monthlyEssentials — five cases MK-CF-F-009-C05 · edge · Confirmed zero needs [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-010-C01",
+   "id": "MK-CF-F-010",
+   "name": "emergencyTest",
+   "kind": "easy",
+   "title": "Covered",
+   "classification": "AGREE",
+   "expected": {
+    "cash_after": {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "months_after": {
+     "exact": "2.5",
+     "shown": "$3",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "months_before": {
+     "exact": "3",
+     "shown": "$3",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "covers": true,
+    "recommended": {
+     "exact": "6000",
+     "shown": "$6,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "gap": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "shock": 1000,
+    "cashAfter": 5000,
+    "monthlyEssentials": 2000,
+    "runwayAfter": 2.5,
+    "jobLossRunway": 3,
+    "coversIt": true,
+    "recommendedFund": 6000,
+    "gapToFund": 0
+   },
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "Cash after, months after and before, covers, three months' fund and the gap all as expected.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-010 emergencyTest — five cases MK-CF-F-010-C01 · easy · Covered [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-010-C02",
+   "id": "MK-CF-F-010",
+   "name": "emergencyTest",
+   "kind": "easy",
+   "title": "Shock exhausts cash",
+   "classification": "AGREE",
+   "expected": {
+    "cash_after": {
+     "exact": "-1000",
+     "shown": "−$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "months_after": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "months_before": {
+     "exact": "0.5",
+     "shown": "$1",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "covers": false,
+    "recommended": {
+     "exact": "6000",
+     "shown": "$6,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "gap": {
+     "exact": "5000",
+     "shown": "$5,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "shock": 2000,
+    "cashAfter": -1000,
+    "monthlyEssentials": 2000,
+    "runwayAfter": 0,
+    "jobLossRunway": 0.5,
+    "coversIt": false,
+    "recommendedFund": 6000,
+    "gapToFund": 5000
+   },
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "Cash after, months after and before, covers, three months' fund and the gap all as expected.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-010 emergencyTest — five cases MK-CF-F-010-C02 · easy · Shock exhausts cash [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-010-C03",
+   "id": "MK-CF-F-010",
+   "name": "emergencyTest",
+   "kind": "complex",
+   "title": "Unround",
+   "classification": "AGREE",
+   "expected": {
+    "cash_after": {
+     "exact": "13319.74",
+     "shown": "$13,320",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "months_after": {
+     "exact": "4.071833186088243116419407005",
+     "shown": "$4",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "months_before": {
+     "exact": "5.634392988484313048156786980",
+     "shown": "$6",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "covers": true,
+    "recommended": {
+     "exact": "9813.57",
+     "shown": "$9,814",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "gap": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "shock": 5111.43,
+    "cashAfter": 13319.739999999998,
+    "monthlyEssentials": 3271.19,
+    "runwayAfter": 4.071833186088242,
+    "jobLossRunway": 5.634392988484312,
+    "coversIt": true,
+    "recommendedFund": 9813.57,
+    "gapToFund": 0
+   },
+   "difference": "floating only",
+   "rests_on": "ordinary arithmetic",
+   "note": "Cash after, months after and before, covers, three months' fund and the gap all as expected.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-010 emergencyTest — five cases MK-CF-F-010-C03 · complex · Unround [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-010-C04",
+   "id": "MK-CF-F-010",
+   "name": "emergencyTest",
+   "kind": "complex",
+   "title": "Exactly covered",
+   "classification": "AGREE",
+   "expected": {
+    "cash_after": {
+     "exact": "0.00",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "months_after": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "months_before": {
+     "exact": "4.210021501840851767087906621",
+     "shown": "$4",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "covers": true,
+    "recommended": {
+     "exact": "6934.29",
+     "shown": "$6,934",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "gap": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "shock": 9731.17,
+    "cashAfter": 0,
+    "monthlyEssentials": 2311.43,
+    "runwayAfter": 0,
+    "jobLossRunway": 4.210021501840852,
+    "coversIt": true,
+    "recommendedFund": 6934.289999999999,
+    "gapToFund": 0
+   },
+   "difference": "floating only",
+   "rests_on": "ordinary arithmetic",
+   "note": "Cash after, months after and before, covers, three months' fund and the gap all as expected.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-010 emergencyTest — five cases MK-CF-F-010-C04 · complex · Exactly covered [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-010-C05",
+   "id": "MK-CF-F-010",
+   "name": "emergencyTest",
+   "kind": "edge",
+   "title": "Zero essentials",
+   "classification": "APP WRONG",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Known zero burn rate has no finite months quotient"
+   },
+   "formula_gives": {
+    "months_before": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "months_after": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "shock": 1000,
+    "cashAfter": 5000,
+    "monthlyEssentials": 0,
+    "runwayAfter": 0,
+    "jobLossRunway": 0,
+    "coversIt": true,
+    "recommendedFund": 0,
+    "gapToFund": 0
+   },
+   "difference": "app gives 0 months after and 0 before; right: no count of months (cash ÷ $0 has no finite answer)",
+   "rests_on": "tenets 1 and 3; the app's own door MK-NW-O-004 (\"never divided by nothing … there is no count of months to state\")",
+   "note": "emergencyTest returns 0 months for $0 of essentials; its only caller refuses its own months (null), and the Stress test screen turns that null back into \"about 0.0 months of essentials\".",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-010 emergencyTest — five cases › MK-CF-F-010-C05 · edge · Zero essentials [AGREE] — FIXED 2026-10-25: no months and no target with $0 of essentials (it read 0 months, a $0 fund and no gap)",
+   "test_result": "passed — FIXED 2026-10-25 (FIX-BUDGET): the reviewer's answer passes as a plain test; the app's old answer is kept as test.failing (\"the app until 2026-10-25, pinned\")",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET): $0 of essentials → runwayAfter, jobLossRunway, recommendedFund and gapToFund are null (no months, no target); cash after $5,000 and covered stand. A handed-in $0 is kept, never replaced by the typed plan. The Stress test no longer prints \"about 0.0 months\" or \"✓ You already have at least 3 months\" on it."
+  },
+  {
+   "case_id": "MK-CF-F-011-C01",
+   "id": "MK-CF-F-011",
+   "name": "savingsByMonth",
+   "kind": "easy",
+   "title": "Steady",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "savingsByMonth's own text, handed the twelve take-home and twelve expense months, subtracts month by month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-011 savingsByMonth — five cases (its own text, its two producers handed in) MK-CF-F-011-C01 · easy · Steady [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-011-C02",
+   "id": "MK-CF-F-011",
+   "name": "savingsByMonth",
+   "kind": "easy",
+   "title": "December bill",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "800",
+     "shown": "$800",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "savingsByMonth's own text, handed the twelve take-home and twelve expense months, subtracts month by month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-011 savingsByMonth — five cases (its own text, its two producers handed in) MK-CF-F-011-C02 · easy · December bill [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-011-C03",
+   "id": "MK-CF-F-011",
+   "name": "savingsByMonth",
+   "kind": "complex",
+   "title": "Unround season",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "1799.98",
+     "shown": "$1,800",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1799.98",
+     "shown": "$1,800",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1799.98",
+     "shown": "$1,800",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1799.98",
+     "shown": "$1,800",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1799.98",
+     "shown": "$1,800",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "1799.98",
+     "shown": "$1,800",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2900.24",
+     "shown": "$2,900",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2900.24",
+     "shown": "$2,900",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2900.24",
+     "shown": "$2,900",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2900.24",
+     "shown": "$2,900",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2900.24",
+     "shown": "$2,900",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "-1099.94",
+     "shown": "−$1,100",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "savingsByMonth's own text, handed the twelve take-home and twelve expense months, subtracts month by month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-011 savingsByMonth — five cases (its own text, its two producers handed in) MK-CF-F-011-C03 · complex · Unround season [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-011-C04",
+   "id": "MK-CF-F-011",
+   "name": "savingsByMonth",
+   "kind": "complex",
+   "title": "Pay gap",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "-2311.17",
+     "shown": "−$2,311",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "-2311.17",
+     "shown": "−$2,311",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "-2311.17",
+     "shown": "−$2,311",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2499.96",
+     "shown": "$2,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2499.96",
+     "shown": "$2,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2499.96",
+     "shown": "$2,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2499.96",
+     "shown": "$2,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2499.96",
+     "shown": "$2,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2499.96",
+     "shown": "$2,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2499.96",
+     "shown": "$2,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2499.96",
+     "shown": "$2,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "2499.96",
+     "shown": "$2,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "savingsByMonth's own text, handed the twelve take-home and twelve expense months, subtracts month by month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-011 savingsByMonth — five cases (its own text, its two producers handed in) MK-CF-F-011-C04 · complex · Pay gap [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-011-C05",
+   "id": "MK-CF-F-011",
+   "name": "savingsByMonth",
+   "kind": "edge",
+   "title": "Known no income",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "-1000",
+     "shown": "−$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "-1000",
+     "shown": "−$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "-1000",
+     "shown": "−$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "-1000",
+     "shown": "−$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "-1000",
+     "shown": "−$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "-1000",
+     "shown": "−$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "-1000",
+     "shown": "−$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "-1000",
+     "shown": "−$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "-1000",
+     "shown": "−$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "-1000",
+     "shown": "−$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "-1000",
+     "shown": "−$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    {
+     "exact": "-1000",
+     "shown": "−$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   ],
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "savingsByMonth's own text, handed the twelve take-home and twelve expense months, subtracts month by month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-011 savingsByMonth — five cases (its own text, its two producers handed in) MK-CF-F-011-C05 · edge · Known no income [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-012-C01",
+   "id": "MK-CF-F-012",
+   "name": "annualCashflow",
+   "kind": "easy",
+   "title": "Simple",
+   "classification": "AGREE",
+   "expected": {
+    "gross": {
+     "exact": "60000",
+     "shown": "$60,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "after_tax": {
+     "exact": "54000",
+     "shown": "$54,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "take_home": {
+     "exact": "48000",
+     "shown": "$48,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "expenses": {
+     "exact": "36000",
+     "shown": "$36,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "tax": {
+     "exact": "6000",
+     "shown": "$6,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "k": {
+     "exact": "6000",
+     "shown": "$6,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "saved": {
+     "exact": "12000",
+     "shown": "$12,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "annualCashflow's own text, handed twelve income rows and a year of expenses with a December bill, rolls them up; saved = take-home − expenses.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-012 annualCashflow — five cases (its own text, its two producers handed in) MK-CF-F-012-C01 · easy · Simple [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-012-C02",
+   "id": "MK-CF-F-012",
+   "name": "annualCashflow",
+   "kind": "easy",
+   "title": "Deficit",
+   "classification": "AGREE",
+   "expected": {
+    "gross": {
+     "exact": "24000",
+     "shown": "$24,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "after_tax": {
+     "exact": "24000",
+     "shown": "$24,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "take_home": {
+     "exact": "24000",
+     "shown": "$24,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "expenses": {
+     "exact": "30000",
+     "shown": "$30,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "tax": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "k": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "saved": {
+     "exact": "-6000",
+     "shown": "−$6,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "annualCashflow's own text, handed twelve income rows and a year of expenses with a December bill, rolls them up; saved = take-home − expenses.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-012 annualCashflow — five cases (its own text, its two producers handed in) MK-CF-F-012-C02 · easy · Deficit [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-012-C03",
+   "id": "MK-CF-F-012",
+   "name": "annualCashflow",
+   "kind": "complex",
+   "title": "Two earners",
+   "classification": "AGREE",
+   "expected": {
+    "gross": {
+     "exact": "138432.60",
+     "shown": "$138,433",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "after_tax": {
+     "exact": "125221.43",
+     "shown": "$125,221",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "take_home": {
+     "exact": "110910.00",
+     "shown": "$110,910",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "expenses": {
+     "exact": "73111.19",
+     "shown": "$73,111",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "tax": {
+     "exact": "13211.17",
+     "shown": "$13,211",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "k": {
+     "exact": "14311.43",
+     "shown": "$14,311",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "saved": {
+     "exact": "37798.81",
+     "shown": "$37,799",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "annualCashflow's own text, handed twelve income rows and a year of expenses with a December bill, rolls them up; saved = take-home − expenses.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-012 annualCashflow — five cases (its own text, its two producers handed in) MK-CF-F-012-C03 · complex · Two earners [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-012-C04",
+   "id": "MK-CF-F-012",
+   "name": "annualCashflow",
+   "kind": "complex",
+   "title": "Seasonal year",
+   "classification": "AGREE",
+   "expected": {
+    "gross": {
+     "exact": "73111.17",
+     "shown": "$73,111",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "after_tax": {
+     "exact": "66999.74",
+     "shown": "$67,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "take_home": {
+     "exact": "62888.55",
+     "shown": "$62,889",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "expenses": {
+     "exact": "63111.37",
+     "shown": "$63,111",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "tax": {
+     "exact": "6111.43",
+     "shown": "$6,111",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "k": {
+     "exact": "4111.19",
+     "shown": "$4,111",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "saved": {
+     "exact": "-222.82",
+     "shown": "−$223",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "annualCashflow's own text, handed twelve income rows and a year of expenses with a December bill, rolls them up; saved = take-home − expenses.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-012 annualCashflow — five cases (its own text, its two producers handed in) MK-CF-F-012-C04 · complex · Seasonal year [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-012-C05",
+   "id": "MK-CF-F-012",
+   "name": "annualCashflow",
+   "kind": "edge",
+   "title": "Known zero",
+   "classification": "AGREE",
+   "expected": {
+    "gross": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "after_tax": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "take_home": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "expenses": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "tax": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "k": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "saved": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "annualCashflow's own text, handed twelve income rows and a year of expenses with a December bill, rolls them up; saved = take-home − expenses.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-012 annualCashflow — five cases (its own text, its two producers handed in) MK-CF-F-012-C05 · edge · Known zero [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-013-C01",
+   "id": "MK-CF-F-013",
+   "name": "budgetFromOnboarding",
+   "kind": "easy",
+   "title": "Monthly-only store",
+   "classification": "AGREE",
+   "expected": {
+    "recurring_base": {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "annual_average": {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "user_id": "u1",
+    "monthly_spending": 2000,
+    "fixed": 1100,
+    "non_monthly": 0,
+    "flexible": 900
+   },
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "Stored total $2,000; the every-month parts $1,100 + $900 = $2,000.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-013 budgetFromOnboarding — five cases MK-CF-F-013-C01 · easy · Monthly-only store [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-013-C02",
+   "id": "MK-CF-F-013",
+   "name": "budgetFromOnboarding",
+   "kind": "easy",
+   "title": "No budget",
+   "classification": "APP WRONG",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "No expense plan entered"
+   },
+   "actual": {
+    "user_id": "u1",
+    "monthly_spending": 0,
+    "fixed": 0,
+    "non_monthly": 0,
+    "flexible": 0
+   },
+   "difference": "app stores $0 of expenses; right: no plan (a refusal), never a $0 that looks like a confirmed plan",
+   "rests_on": "tenet 3 (\"Unknown is not zero\")",
+   "note": "No expense plan is stored exactly like a confirmed $0 plan, and buildBudgetState then calls the whole take-home projected to save (part 6's MK-CF-F-001). Latent: the snapshot's budget reaches no screen today.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-013 budgetFromOnboarding — five cases › MK-CF-F-013-C02 · easy · No budget [AGREE] — FIXED 2026-10-25: no plan entered is stored as no plan (it was a $0 plan; tenet 3)",
+   "test_result": "passed — FIXED 2026-10-25 (FIX-BUDGET): the reviewer's answer passes as a plain test; the app's old answer is kept as test.failing (\"the app until 2026-10-25, pinned\")",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET): no profile → no plan stored (monthly_spending and the three parts null); a typed $0 plan is still stored as $0."
+  },
+  {
+   "case_id": "MK-CF-F-013-C03",
+   "id": "MK-CF-F-013",
+   "name": "budgetFromOnboarding",
+   "kind": "complex",
+   "title": "Roundtrip dated bill",
+   "classification": "AGREE",
+   "expected": {
+    "recurring_base": {
+     "exact": "2731.17",
+     "shown": "$2,731",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "annual_average": {
+     "exact": "2883.769166666666666666666667",
+     "shown": "$2,884",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "annual_total": {
+     "exact": "34605.23",
+     "shown": "$34,605",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "formula_gives": {
+    "state": "RULE UNCLEAR",
+    "reason": "Persisted total may be average or base",
+    "readings": {
+     "if_readded": "1831.19 counted twice",
+     "if_display_only": "correct"
+    }
+   },
+   "actual": {
+    "user_id": "u1",
+    "monthly_spending": 2883.7691666666665,
+    "fixed": 1131.43,
+    "non_monthly": 152.59916666666666,
+    "flexible": 1599.74
+   },
+   "difference": "floating only",
+   "rests_on": "DEC-7951; tenet 4",
+   "note": "Total $2,883.77 = (2,731.17 × 12 + 1,831.19) ÷ 12; parts 1,131.43 + 1,599.74 = 2,731.17. The reviewer's \"if re-added, counted twice\" cannot happen: nothing re-reads a stored budget (saveBudget and loadBudget have no callers).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-013 budgetFromOnboarding — five cases MK-CF-F-013-C03 · complex · Roundtrip dated bill [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-013-C04",
+   "id": "MK-CF-F-013",
+   "name": "budgetFromOnboarding",
+   "kind": "complex",
+   "title": "Only December bill",
+   "classification": "AGREE",
+   "expected": {
+    "recurring_base": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "annual_average": {
+     "exact": "102.5975",
+     "shown": "$103",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "annual_total": {
+     "exact": "1231.17",
+     "shown": "$1,231",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "user_id": "u1",
+    "monthly_spending": 102.59750000000001,
+    "fixed": 0,
+    "non_monthly": 102.59750000000001,
+    "flexible": 0
+   },
+   "difference": "floating only",
+   "rests_on": "DEC-7611",
+   "note": "Only the December bill: every-month parts $0, average $102.60, year $1,231.17.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-013 budgetFromOnboarding — five cases MK-CF-F-013-C04 · complex · Only December bill [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-013-C05",
+   "id": "MK-CF-F-013",
+   "name": "budgetFromOnboarding",
+   "kind": "edge",
+   "title": "Explicit zero plan",
+   "classification": "AGREE",
+   "expected": {
+    "recurring_base": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "annual_average": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "user_id": "u1",
+    "monthly_spending": 0,
+    "fixed": 0,
+    "non_monthly": 0,
+    "flexible": 0
+   },
+   "difference": "none",
+   "rests_on": "tenet 3",
+   "note": "A confirmed $0 plan stores $0 — right here; the defect is that no plan stores the same (C02).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-013 budgetFromOnboarding — five cases MK-CF-F-013-C05 · edge · Explicit zero plan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-014-C01",
+   "id": "MK-CF-F-014",
+   "name": "budgetVsActual",
+   "kind": "easy",
+   "title": "No annual bill",
+   "classification": "AGREE",
+   "expected": {
+    "planned": {
+     "exact": "2000",
+     "shown": "$2,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "spent": {
+     "exact": "500",
+     "shown": "$500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "remaining": {
+     "exact": "1500",
+     "shown": "$1,500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "planned": 2000,
+    "spent": 500,
+    "remaining": 1500
+   },
+   "difference": "none",
+   "rests_on": "ordinary arithmetic",
+   "note": "No annual bill: planned $2,000, spent $500, $1,500 left.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-014 budgetVsActual — five cases MK-CF-F-014-C01 · easy · No annual bill [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-014-C02",
+   "id": "MK-CF-F-014",
+   "name": "budgetVsActual",
+   "kind": "easy",
+   "title": "December bill",
+   "classification": "APP WRONG",
+   "expected": {
+    "planned": {
+     "exact": "3200",
+     "shown": "$3,200",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "spent": {
+     "exact": "500",
+     "shown": "$500",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "remaining": {
+     "exact": "2700",
+     "shown": "$2,700",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "formula_gives": {
+    "planned": {
+     "exact": "2100",
+     "shown": "$2,100",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "remaining": {
+     "exact": "1600",
+     "shown": "$1,600",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "planned": 2100,
+    "spent": 500,
+    "remaining": 1600
+   },
+   "difference": "December: planned $2,100 (the average), right $3,200",
+   "rests_on": "DEC-7611; DEC-7951; tenet 4 (This month and the Expenses tab read the dated plan from spendByMonthByBucket for the same month)",
+   "note": "budgetVsActual plans the monthly average in every month; the budget editor's \"Expenses by bucket\" header prints it as \"spent / planned\".",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-014 budgetVsActual — five cases › MK-CF-F-014-C02 · easy · December bill [AGREE] — FIXED 2026-10-25: the month's own plan (it read the year's average)",
+   "test_result": "passed — FIXED 2026-10-25 (FIX-BUDGET): the reviewer's answer passes as a plain test; the app's old answer is kept as test.failing (\"the app until 2026-10-25, pinned\")",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET): budgetVsActual plans the month from spendByMonthByBucket (MK-CF-F-221), the producer This month and the Expenses tab read — December: $3,200 planned (it read $2,100), $2,700 remaining."
+  },
+  {
+   "case_id": "MK-CF-F-014-C03",
+   "id": "MK-CF-F-014",
+   "name": "budgetVsActual",
+   "kind": "complex",
+   "title": "Unround September",
+   "classification": "APP WRONG",
+   "expected": {
+    "planned": {
+     "exact": "2731.17",
+     "shown": "$2,731",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "spent": {
+     "exact": "911.19",
+     "shown": "$911",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "remaining": {
+     "exact": "1819.98",
+     "shown": "$1,820",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "formula_gives": {
+    "planned": {
+     "exact": "2883.789166666666666666666667",
+     "shown": "$2,884",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "remaining": {
+     "exact": "1972.599166666666666666666667",
+     "shown": "$1,973",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "planned": 2883.789166666667,
+    "spent": 911.19,
+    "remaining": 1972.5991666666669
+   },
+   "difference": "September: planned $2,883.79 (the average), right $2,731.17",
+   "rests_on": "DEC-7611; DEC-7951; tenet 4 (This month and the Expenses tab read the dated plan from spendByMonthByBucket for the same month)",
+   "note": "budgetVsActual plans the monthly average in every month; the budget editor's \"Expenses by bucket\" header prints it as \"spent / planned\".",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-014 budgetVsActual — five cases › MK-CF-F-014-C03 · complex · Unround September [AGREE] — FIXED 2026-10-25: the month's own plan (it read the year's average)",
+   "test_result": "passed — FIXED 2026-10-25 (FIX-BUDGET): the reviewer's answer passes as a plain test; the app's old answer is kept as test.failing (\"the app until 2026-10-25, pinned\")",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET): budgetVsActual plans the month from spendByMonthByBucket (MK-CF-F-221), the producer This month and the Expenses tab read — September: $2,731.17 planned (it read $2,883.79)."
+  },
+  {
+   "case_id": "MK-CF-F-014-C04",
+   "id": "MK-CF-F-014",
+   "name": "budgetVsActual",
+   "kind": "complex",
+   "title": "Unround December",
+   "classification": "APP WRONG",
+   "expected": {
+    "planned": {
+     "exact": "4562.60",
+     "shown": "$4,563",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "spent": {
+     "exact": "3911.19",
+     "shown": "$3,911",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "remaining": {
+     "exact": "651.41",
+     "shown": "$651",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "formula_gives": {
+    "planned": {
+     "exact": "2883.789166666666666666666667",
+     "shown": "$2,884",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "remaining": {
+     "exact": "-1027.400833333333333333333333",
+     "shown": "−$1,027",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "planned": 2883.789166666667,
+    "spent": 3911.19,
+    "remaining": -1027.4008333333331
+   },
+   "difference": "December: planned $2,883.79 (the average), right $4,562.60",
+   "rests_on": "DEC-7611; DEC-7951; tenet 4 (This month and the Expenses tab read the dated plan from spendByMonthByBucket for the same month)",
+   "note": "budgetVsActual plans the monthly average in every month; the budget editor's \"Expenses by bucket\" header prints it as \"spent / planned\".",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-014 budgetVsActual — five cases › MK-CF-F-014-C04 · complex · Unround December [AGREE] — FIXED 2026-10-25: the month's own plan (it read the year's average)",
+   "test_result": "passed — FIXED 2026-10-25 (FIX-BUDGET): the reviewer's answer passes as a plain test; the app's old answer is kept as test.failing (\"the app until 2026-10-25, pinned\")",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET): budgetVsActual plans the month from spendByMonthByBucket (MK-CF-F-221), the producer This month and the Expenses tab read — December: $4,562.60 planned (it read $2,883.79)."
+  },
+  {
+   "case_id": "MK-CF-F-014-C05",
+   "id": "MK-CF-F-014",
+   "name": "budgetVsActual",
+   "kind": "edge",
+   "title": "Only annual bill off-month",
+   "classification": "APP WRONG",
+   "expected": {
+    "planned": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "spent": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "remaining": {
+     "exact": "0",
+     "shown": "$0",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "formula_gives": {
+    "planned": {
+     "exact": "100",
+     "shown": "$100",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "remaining": {
+     "exact": "100",
+     "shown": "$100",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": {
+    "planned": 100,
+    "spent": 0,
+    "remaining": 100
+   },
+   "difference": "October with only a December bill: planned $100, right $0",
+   "rests_on": "DEC-7611; DEC-7951; tenet 4 (This month and the Expenses tab read the dated plan from spendByMonthByBucket for the same month)",
+   "note": "budgetVsActual plans the monthly average in every month; the budget editor's \"Expenses by bucket\" header prints it as \"spent / planned\".",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-014 budgetVsActual — five cases › MK-CF-F-014-C05 · edge · Only annual bill off-month [AGREE] — FIXED 2026-10-25: the month's own plan (it read the year's average)",
+   "test_result": "passed — FIXED 2026-10-25 (FIX-BUDGET): the reviewer's answer passes as a plain test; the app's old answer is kept as test.failing (\"the app until 2026-10-25, pinned\")",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET): budgetVsActual plans the month from spendByMonthByBucket (MK-CF-F-221), the producer This month and the Expenses tab read — October with only a December bill: $0 planned (it read $100)."
+  },
+  {
+   "case_id": "MK-CF-F-017-C01",
+   "id": "MK-CF-F-017",
+   "name": "publishSurplus",
+   "kind": "easy",
+   "title": "Known result",
+   "classification": "AGREE",
+   "expected": {
+    "total": {
+     "exact": "1000",
+     "shown": "$1,000",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": 1000,
+   "difference": "none",
+   "rests_on": "tenet 3 (no object stays no object; a known 0 stays 0)",
+   "note": "publishSurplus emits the figure it is handed, unchanged, on the event bus.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-017 publishSurplus — five cases (the payload on the event bus) MK-CF-F-017-C01 · easy · Known result [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-017-C02",
+   "id": "MK-CF-F-017",
+   "name": "publishSurplus",
+   "kind": "easy",
+   "title": "No stored result",
+   "classification": "AGREE",
+   "expected": null,
+   "actual": null,
+   "difference": "none",
+   "rests_on": "tenet 3 (no object stays no object; a known 0 stays 0)",
+   "note": "publishSurplus emits the figure it is handed, unchanged, on the event bus.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-017 publishSurplus — five cases (the payload on the event bus) MK-CF-F-017-C02 · easy · No stored result [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-017-C03",
+   "id": "MK-CF-F-017",
+   "name": "publishSurplus",
+   "kind": "complex",
+   "title": "Unround payload",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "total": {
+     "exact": "8311.17391",
+     "shown": "$8,311",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "rate": {
+     "exact": "0.173491",
+     "shown": "17.35%",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    }
+   },
+   "actual": 8311.17391,
+   "difference": "the total keeps every digit; the rate cannot be sent",
+   "rests_on": "publishSurplus(uid, projectedToSave: number) — one figure; no production code calls it",
+   "note": "A second field (rate) has no place in the surplus event; the one figure it carries keeps 8311.17391 (checked in a separate test).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-017 publishSurplus — five cases (the payload on the event bus) MK-CF-F-017-C03 · complex · Unround payload [OUTSIDE DOMAIN] — a second field (rate) has no place in publishSurplus(uid, projectedToSave); no caller",
+   "test_result": "pending (skipped: outside domain)"
+  },
+  {
+   "case_id": "MK-CF-F-017-C04",
+   "id": "MK-CF-F-017",
+   "name": "publishSurplus",
+   "kind": "complex",
+   "title": "Signed payload",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "total": {
+     "exact": "-731.1917",
+     "shown": "−$731",
+     "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+    },
+    "known": true
+   },
+   "actual": -731.1917,
+   "difference": "the total keeps sign and digits; the \"known\" flag cannot be sent",
+   "rests_on": "publishSurplus(uid, projectedToSave: number) — one figure; no production code calls it",
+   "note": "A \"known\" flag has no place in the surplus event; the figure keeps −731.1917 (checked in a separate test).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-017 publishSurplus — five cases (the payload on the event bus) MK-CF-F-017-C04 · complex · Signed payload [OUTSIDE DOMAIN] — a \"known\" flag has no place in publishSurplus(uid, projectedToSave); no caller",
+   "test_result": "pending (skipped: outside domain)"
+  },
+  {
+   "case_id": "MK-CF-F-017-C05",
+   "id": "MK-CF-F-017",
+   "name": "publishSurplus",
+   "kind": "edge",
+   "title": "Explicit zero result",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "tenet 3 (no object stays no object; a known 0 stays 0)",
+   "note": "publishSurplus emits the figure it is handed, unchanged, on the event bus.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-017 publishSurplus — five cases (the payload on the event bus) MK-CF-F-017-C05 · edge · Explicit zero result [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-191-C01",
+   "id": "MK-CF-F-191",
+   "name": "ym",
+   "kind": "easy",
+   "title": "January",
+   "classification": "AGREE",
+   "expected": "2026-01",
+   "actual": "2026-01",
+   "difference": "none",
+   "rests_on": "tenet 1 (the person's own calendar month)",
+   "note": "ym, run on a device in the timestamp's own zone, reads the local year and month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-191 ym — five cases (its own text, on a device in the timestamp's zone) MK-CF-F-191-C01 · easy · January [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-191-C02",
+   "id": "MK-CF-F-191",
+   "name": "ym",
+   "kind": "easy",
+   "title": "December",
+   "classification": "AGREE",
+   "expected": "2026-12",
+   "actual": "2026-12",
+   "difference": "none",
+   "rests_on": "tenet 1 (the person's own calendar month)",
+   "note": "ym, run on a device in the timestamp's own zone, reads the local year and month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-191 ym — five cases (its own text, on a device in the timestamp's zone) MK-CF-F-191-C02 · easy · December [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-191-C03",
+   "id": "MK-CF-F-191",
+   "name": "ym",
+   "kind": "complex",
+   "title": "East of UTC",
+   "classification": "AGREE",
+   "expected": "2027-01",
+   "actual": "2027-01",
+   "difference": "none",
+   "rests_on": "tenet 1 (the person's own calendar month)",
+   "note": "ym, run on a device in the timestamp's own zone, reads the local year and month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-191 ym — five cases (its own text, on a device in the timestamp's zone) MK-CF-F-191-C03 · complex · East of UTC [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-191-C04",
+   "id": "MK-CF-F-191",
+   "name": "ym",
+   "kind": "complex",
+   "title": "West of UTC",
+   "classification": "AGREE",
+   "expected": "2026-09",
+   "actual": "2026-09",
+   "difference": "none",
+   "rests_on": "tenet 1 (the person's own calendar month)",
+   "note": "ym, run on a device in the timestamp's own zone, reads the local year and month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-191 ym — five cases (its own text, on a device in the timestamp's zone) MK-CF-F-191-C04 · complex · West of UTC [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-191-C05",
+   "id": "MK-CF-F-191",
+   "name": "ym",
+   "kind": "edge",
+   "title": "Leap day",
+   "classification": "AGREE",
+   "expected": "2028-02",
+   "actual": "2028-02",
+   "difference": "none",
+   "rests_on": "tenet 1 (the person's own calendar month)",
+   "note": "ym, run on a device in the timestamp's own zone, reads the local year and month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-191 ym — five cases (its own text, on a device in the timestamp's zone) MK-CF-F-191-C05 · edge · Leap day [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-189-C01",
+   "id": "MK-CF-F-189",
+   "name": "essentialsFromLoggedSpending",
+   "kind": "easy",
+   "title": "One completed month",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "2000",
+    "shown": "$2,000"
+   },
+   "actual": {
+    "monthly": 2000,
+    "monthsCounted": 1,
+    "label": "1 month average",
+    "from": "2026-09",
+    "to": "2026-09"
+   },
+   "difference": "none",
+   "rests_on": "DEC-0251",
+   "note": "The logged average over the completed months in the twelve before this one, with its count and label.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-189 essentialsFromLoggedSpending — five cases MK-CF-F-189-C01 · easy · One completed month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-189-C02",
+   "id": "MK-CF-F-189",
+   "name": "essentialsFromLoggedSpending",
+   "kind": "easy",
+   "title": "Two completed months",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "2500",
+    "shown": "$2,500"
+   },
+   "actual": {
+    "monthly": 2500,
+    "monthsCounted": 2,
+    "label": "2 month average",
+    "from": "2026-08",
+    "to": "2026-09"
+   },
+   "difference": "none",
+   "rests_on": "DEC-0251",
+   "note": "The logged average over the completed months in the twelve before this one, with its count and label.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-189 essentialsFromLoggedSpending — five cases MK-CF-F-189-C02 · easy · Two completed months [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-189-C03",
+   "id": "MK-CF-F-189",
+   "name": "essentialsFromLoggedSpending",
+   "kind": "complex",
+   "title": "Older than trailing window ignored",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "2511.30",
+    "shown": "$2,511"
+   },
+   "actual": {
+    "monthly": 2511.3,
+    "monthsCounted": 2,
+    "label": "2 month average",
+    "from": "2025-10",
+    "to": "2026-04"
+   },
+   "difference": "none",
+   "rests_on": "DEC-0251",
+   "note": "The logged average over the completed months in the twelve before this one, with its count and label.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-189 essentialsFromLoggedSpending — five cases MK-CF-F-189-C03 · complex · Older than trailing window ignored [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-189-C04",
+   "id": "MK-CF-F-189",
+   "name": "essentialsFromLoggedSpending",
+   "kind": "complex",
+   "title": "Current month only",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "731.19",
+    "shown": "$731"
+   },
+   "actual": {
+    "monthly": 731.19,
+    "monthsCounted": 1,
+    "label": "1 month average — this month so far",
+    "from": "2026-10",
+    "to": "2026-10"
+   },
+   "difference": "none",
+   "rests_on": "DEC-0251",
+   "note": "Only this month logged: this month so far, labelled \"1 month average — this month so far\".",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-189 essentialsFromLoggedSpending — five cases MK-CF-F-189-C04 · complex · Current month only [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-189-C05",
+   "id": "MK-CF-F-189",
+   "name": "essentialsFromLoggedSpending",
+   "kind": "edge",
+   "title": "No logs",
+   "classification": "AGREE",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "No logged months and no typed estimate"
+   },
+   "actual": null,
+   "difference": "none",
+   "rests_on": "DEC-0251",
+   "note": "Nothing logged: no figure (null), never $0.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-189 essentialsFromLoggedSpending — five cases MK-CF-F-189-C05 · edge · No logs [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-190-C01",
+   "id": "MK-CF-F-190",
+   "name": "essentialsMonthly",
+   "kind": "easy",
+   "title": "One completed month",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "2000",
+    "shown": "$2,000"
+   },
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "DEC-0251",
+   "note": "essentialsMonthly uses the logged average before the typed fallback and refuses (null) with neither.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-190 essentialsMonthly — five cases MK-CF-F-190-C01 · easy · One completed month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-190-C02",
+   "id": "MK-CF-F-190",
+   "name": "essentialsMonthly",
+   "kind": "easy",
+   "title": "Two completed months",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "2500",
+    "shown": "$2,500"
+   },
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "DEC-0251",
+   "note": "essentialsMonthly uses the logged average before the typed fallback and refuses (null) with neither.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-190 essentialsMonthly — five cases MK-CF-F-190-C02 · easy · Two completed months [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-190-C03",
+   "id": "MK-CF-F-190",
+   "name": "essentialsMonthly",
+   "kind": "complex",
+   "title": "Older than trailing window ignored",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "2511.30",
+    "shown": "$2,511"
+   },
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "DEC-0251",
+   "note": "essentialsMonthly uses the logged average before the typed fallback and refuses (null) with neither.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-190 essentialsMonthly — five cases MK-CF-F-190-C03 · complex · Older than trailing window ignored [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-190-C04",
+   "id": "MK-CF-F-190",
+   "name": "essentialsMonthly",
+   "kind": "complex",
+   "title": "Current month only",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "731.19",
+    "shown": "$731"
+   },
+   "actual": "same as expected — the test asserts the reviewer's answer and passed",
+   "difference": "none",
+   "rests_on": "DEC-0251",
+   "note": "essentialsMonthly uses the logged average before the typed fallback and refuses (null) with neither.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-190 essentialsMonthly — five cases MK-CF-F-190-C04 · complex · Current month only [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-190-C05",
+   "id": "MK-CF-F-190",
+   "name": "essentialsMonthly",
+   "kind": "edge",
+   "title": "No logs",
+   "classification": "AGREE",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "No logged months and no typed estimate"
+   },
+   "actual": null,
+   "difference": "none",
+   "rests_on": "DEC-0251",
+   "note": "essentialsMonthly uses the logged average before the typed fallback and refuses (null) with neither.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part07.test.ts › MK-CF-F-190 essentialsMonthly — five cases MK-CF-F-190-C05 · edge · No logs [AGREE]",
+   "test_result": "passed"
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-CF-F-009",
+   "name": "monthlyEssentials",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "The algorithm intentionally estimates essentials from recurring categories, but no-category fallback includes all planned spending and ignores the needs distinction. Debts and continuing rent require the higher-level emergency-fund contract.",
+   "reviewer_should_be": "Label fallback as planned spend, preserve known zero essentials, and ensure debts/rent are added once at the emergency-fund door.",
+   "classification": "REVIEWER WRONG",
+   "fix_kind": "records fix (rule text)",
+   "what_the_code_actually_does": "With no categories it returns the whole planned monthly spend; with categories it adds needs (non-flexible, non-monthly) plus the typed total's remainder over what the plan puts in every month (dated bills excluded). A confirmed all-flexible plan gives $0 (kept). Debts are added once, at the emergency-fund door (minimums), and rent is taken off there once.",
+   "governing_decisions": [
+    "DEC-0251",
+    "DEC-7951",
+    "DEC-1923",
+    "DEC-1668"
+   ],
+   "plain_example": "Typed $2,000, no categories: must-pay $2,000, shown \"$2,000/month — you entered\"; with a $250 car loan the door reads $2,250.",
+   "production_callers": "MK-CF-F-010 emergencyTest (fallback); MK-NW-O-004 theEmergencyFund (typed fallback to essentialsMonthly) — Net worth, Job safety, Stress test, Insights",
+   "note": "App right by his DEC-0251 (the typed plan is the fallback). Records: the card could name DEC-0251 as the reason the no-category figure is the whole plan, and say debts and rent are added at MK-NW-O-004, not here."
+  },
+  {
+   "id": "MK-CF-F-010",
+   "name": "emergencyTest",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Returns 0 months when essentials is zero and replaces a supplied zero essentials with another estimate. Neither is a valid cash ÷ zero result.",
+   "reviewer_should_be": "Preserve a confirmed zero denominator; show no finite burn rate/not applicable, or refuse if essentials is unknown.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix + records fix",
+   "what_the_code_actually_does": "Essentials of $0 give runwayAfter 0 and jobLossRunway 0; a handed-in $0 is replaced by monthlyEssentials(profile). Its one caller, theEmergencyFund.afterAShock, reads only cashAfter and coversIt and computes its own months (null at $0). StressTestScreen then writes that null as 0 (`runwayAfter: hit.monthsAfter ?? 0`) and prints \"about 0.0 months of essentials\" (MK-MN-M-025).",
+   "governing_decisions": [
+    "DEC-0251",
+    "DEC-0260",
+    "tenets 1, 3, 4"
+   ],
+   "plain_example": "Cash $6,000, a $1,000 hit, $0 essentials: today \"You'd have $5,000 left — about 0.0 months of essentials ($0/month — )\"; right: no months figure — $0 essentials, so the cash is not being drawn down.",
+   "production_callers": "MK-NW-O-004 theEmergencyFund.afterAShock (emergency-fund.ts) → StressTestScreen",
+   "note": "The written formula says \"Both are 0 when essentials are 0\" — the rule text is wrong too. Smallest change: return null months when essentials ≤ 0 and keep a handed-in 0; and the screen must not turn a null months into 0.0.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET): a handed-in $0 is kept; with $0 of essentials no months and no target (null) — the same answer as its door MK-NW-O-004; the Stress test says \"there is no count of months to state\" and \"No target yet\"."
+  },
+  {
+   "id": "MK-CF-F-013",
+   "name": "budgetFromOnboarding",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Storing an annual-average expense total alongside the same dated categories risks adding the annual bill again on reread. The persisted field meanings are not established.",
+   "reviewer_should_be": "Store recurring monthly base separately from annual-average display; retain category timing and prove a round trip.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix + records fix",
+   "what_the_code_actually_does": "Stores monthly_spending = plannedMonthlySpend (the year ÷ 12, the bill counted once) and fixed / non_monthly / flexible from spendBuckets. Nothing re-reads a stored budget: saveBudget and loadBudget have no callers; the doc goes straight from buildSnapshot into buildBudgetState, which reads monthly_spending once. So the annual bill is never added twice. Two real defects the reviewer did not reach: (1) no plan at all is stored as $0 (case C02, tenet 3); (2) in the typed-split form (b_fixed / b_flexible, his DEC-7951 household) spendBuckets drops the split once any category exists, so the stored parts $0 + $100 + $0 do not add up to the stored $2,100 (tenet 2).",
+   "governing_decisions": [
+    "DEC-7951",
+    "tenets 2, 3, 4"
+   ],
+   "plain_example": "DEC-7951 household ($2,000 typed: $1,100 / $900, $1,200 December bill): stored total $2,100, parts $0 / $100 / $0 — should be $1,100 / $100 / $900.",
+   "production_callers": "MK-XS-F-031 buildSnapshot (HomeScreen) — its budget feeds only goal capacity and the retirement spend fallback inside the snapshot; no screen prints either",
+   "note": "APP WRONG on what is stored (parts that do not add up; no plan stored as $0), both latent — no screen reads the stored budget. The double count the reviewer feared is NOT REAL (no reader). Records: the card should say the doc is never saved or re-read.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET): the stored parts are each group's year ÷ 12 from spendByMonthByBucket, so they add up to the stored total (DEC-7951 household 1,100 + 100 + 900 = 2,100); the average is stored once ($25,200 a year), nothing reads it back into the typed total, so a dated bill is never added twice; no plan entered stores no plan."
+  },
+  {
+   "id": "MK-CF-F-014",
+   "name": "budgetVsActual",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Uses average spendBuckets as the selected month’s budget, which understates dated bill months and overstates other months.",
+   "reviewer_should_be": "Use spendByMonthByBucket for the requested month, the same producer used by This month and Expenses.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix",
+   "what_the_code_actually_does": "planned = spendBuckets(op): the monthly average, the same in every month, and it leaves out the typed total entirely (only categories, or the legacy typed fields when there are none). This month and the Expenses tab read the dated plan (spendByMonthByBucket) for the same month.",
+   "governing_decisions": [
+    "DEC-7611",
+    "DEC-7951",
+    "DEC-0002",
+    "DEC-0447",
+    "tenet 4"
+   ],
+   "plain_example": "Handoff example ($2,000 recurring + $1,200 December insurance): September plans $2,100 (right $2,000), December $2,100 (right $3,200). DEC-7951 household: $100 in every month (right $2,000 / $3,200). Typed $2,000 and no categories: $0 planned, a $500 grocery spend shown red against $0.",
+   "production_callers": "BudgetScreen (budget editor, opened from the Cash flow tab's budget row / \"Set your budget\") prints each bucket's \"spent / planned\" from it; HomeScreen and CashFlowScreen read only spent_total",
+   "note": "Live. Smallest change: planned (total and per bucket) = spendByMonthByBucket(op)[month of now], the producer This month and the Expenses tab already use. Note: another agent (CF-21) has uncommitted edits in budgetVsActual's spent side today.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET): the selected month's plan from spendByMonthByBucket — the handoff's $2,000 a month + $1,200 December insurance plans $2,000 in September and $3,200 in December ($25,200 a year; $2,100 is only the average)."
+  }
+ ],
+ "rules_held": [
+  {
+   "rule": "DEC-0007",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence)",
+   "what_the_code_actually_does": "",
+   "note": ""
+  },
+  {
+   "rule": "DEC-0251",
+   "reviewer_verdict": "HELD",
+   "reviewer_why": "Loggedcompleted-month average precedes typedfallback,with samplecount/current-month basis retained.",
+   "classification": "RECORDED — reviewer HELD",
+   "what_the_code_actually_does": "Measured anyway: MK-CF-F-189 / F-190 cases all agree (logged average first, count and label carried, typed fallback, null with neither).",
+   "note": ""
+  },
+  {
+   "rule": "DEC-0260",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence)",
+   "what_the_code_actually_does": "",
+   "note": "Related: on Stress test a $0 essentials figure shows \"$0/month\" with the door (as DEC-0260 asks), but the hit sentence above it says \"about 0.0 months of essentials\" — see MK-CF-F-010."
+  },
+  {
+   "rule": "DEC-0493",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence)",
+   "what_the_code_actually_does": "",
+   "note": ""
+  },
+  {
+   "rule": "DEC-7611",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Dated budgetreaders honor own-month bills,but budgetVsActual still uses annual-average spendBuckets.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "This month and the Expenses tab hold it (spendByMonthByBucket: September $700, December $1,900, once-in-a-while $0 / $1,200). The budget editor's bucket header still reads budgetVsActual: $800 planned in September and in December (once-in-a-while $100 both months).",
+   "note": "Same fix as MK-CF-F-014.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET): budgetVsActual reads the dated plan — September once in a while $0 / total $700, December $1,200 / $1,900 on the budget editor too."
+  },
+  {
+   "rule": "DEC-7951",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Dated budgetreaders honor own-month bills,but budgetVsActual still uses annual-average spendBuckets.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "The dated producer holds it (September $2,000 = $1,100 + $900, December $3,200; average $2,100; must-pay $2,000). budgetVsActual plans $100 in both months (the typed $2,000 and its split dropped).",
+   "note": "Same fix as MK-CF-F-014; the stored-parts point is MK-CF-F-013.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET): his $2,000 typed ($1,100 / $900) + $1,200 December — the budget editor plans $2,000 in September ($1,100 + $900) and $3,200 in December; the stored budget is $2,100 = 1,100 + 100 + 900; must-pay stays $2,000."
+  }
+ ],
+ "app_wrong_fixes": [
+  {
+   "function_id": "MK-CF-F-014",
+   "function": "budgetVsActual",
+   "owner_file": "src/domain/budget/index.ts",
+   "example": "$2,000 recurring (a fixed category) + $1,200 insurance due in December",
+   "app_gives": "planned $2,100 in September and in December (once-in-a-while $100 both months); with only a typed $2,000 total: planned $0",
+   "right": "September $2,000, December $3,200 (once-in-a-while $0 / $1,200); typed $2,000: $2,000 — the month's row of spendByMonthByBucket, as This month and the Expenses tab show",
+   "ruling_or_source": "DEC-7611, DEC-7951 (under DEC-0002, DEC-0447), tenet 4",
+   "items": [
+    "MK-CF-F-014-C02",
+    "MK-CF-F-014-C03",
+    "MK-CF-F-014-C04",
+    "MK-CF-F-014-C05",
+    "formula MK-CF-F-014",
+    "rule DEC-7611",
+    "rule DEC-7951"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET)"
+  },
+  {
+   "function_id": "MK-CF-F-010",
+   "function": "emergencyTest (and the Stress test screen that prints its months)",
+   "owner_file": "src/domain/budget/index.ts; src/screens/StressTestScreen.tsx (`runwayAfter: hit.monthsAfter ?? 0`)",
+   "example": "Cash $6,000, a $1,000 hit, $0 essentials a month",
+   "app_gives": "0 months after, 0 months before; a handed-in $0 replaced by the typed plan; screen: \"about 0.0 months of essentials\"",
+   "right": "no months figure (null) — cash ÷ $0 has no answer; keep the $0 handed in; the screen says nothing about months",
+   "ruling_or_source": "tenets 1, 3, 4; the door MK-NW-O-004 already returns null months",
+   "items": [
+    "MK-CF-F-010-C05",
+    "formula MK-CF-F-010"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET)"
+  },
+  {
+   "function_id": "MK-CF-F-013",
+   "function": "budgetFromOnboarding",
+   "owner_file": "src/domain/budget/index.ts",
+   "example": "(a) no expense plan at all; (b) his DEC-7951 household: $2,000 typed ($1,100 / $900) + $1,200 December bill",
+   "app_gives": "(a) stored $0 of expenses, identical to a confirmed $0 plan; (b) stored total $2,100 with parts $0 / $100 / $0",
+   "right": "(a) no plan — a refusal (buildBudgetState must then not call the take-home \"projected to save\"); (b) parts $1,100 / $100 / $900, adding up to $2,100",
+   "ruling_or_source": "tenet 3 (a); tenet 2 and DEC-7951 (b). Latent: no screen reads the stored budget today",
+   "items": [
+    "MK-CF-F-013-C02",
+    "formula MK-CF-F-013"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET)"
+  }
+ ],
+ "needs_a_ruling": [],
+ "blocked": [],
+ "outside_domain": [
+  {
+   "ids": [
+    "MK-CF-F-017-C03",
+    "MK-CF-F-017-C04"
+   ],
+   "why": "publishSurplus(uid, projectedToSave: number) publishes one figure; a rate or a \"known\" flag beside it cannot be handed to it. The one figure keeps every digit and its sign (two separate tests pass).",
+   "caller": "none — publishSurplus has no production caller"
+  }
+ ],
+ "priority_findings": [
+  {
+   "id": "MK-CF-F-014",
+   "finding": "budgetVsActual uses the annual-average budget for a selected month",
+   "verdict": "REAL — live in production",
+   "evidence": "Run on the handoff's own household: September planned $2,100 (right $2,000), December $2,100 (right $3,200); the year by the dated producer is $25,200 and its average $2,100. Printed by the budget editor's \"Expenses by bucket\" header (BudgetScreen.tsx, `fig('MK-CF-M-015', Math.round(ba.planned))`), which the Cash flow tab opens. This month and the Expenses tab do NOT use it (thisMonthInputs reads spendByMonthByBucket). Worse than the reviewer saw: the typed monthly total is not in it at all ($0 planned for a typed $2,000 with no categories)."
+  },
+  {
+   "id": "MK-CF-F-013",
+   "finding": "storing an annual-average total beside dated categories could add the annual bill twice on reread",
+   "verdict": "NOT REAL",
+   "evidence": "No reader re-reads a stored budget: saveBudget and loadBudget have no callers anywhere; budgetFromOnboarding's doc goes straight from buildSnapshot (snapshot.ts) into buildBudgetState, which reads doc.monthly_spending once (the only `doc.monthly_spending` in the file) as the monthly average ($2,883.77 = 34,605.23 ÷ 12 in C03; $2,100 in the handoff example). The bill is counted once. Separate real-but-latent defects: no plan stored as $0; typed-split parts not adding to the total."
+  },
+  {
+   "id": "MK-CF-F-010",
+   "finding": "emergencyTest with zero essentials gives 0 months with a favourable status",
+   "verdict": "REAL — live in production (through the Stress test screen)",
+   "evidence": "emergencyTest(null, 6000, 1000, 0) → runwayAfter 0, jobLossRunway 0, coversIt true, recommendedFund $0, gap $0. The door's own months are null (guarded), but StressTestScreen writes `hit.monthsAfter ?? 0` and prints \"You'd have $5,000 left — about 0.0 months of essentials ($0/month — )\". The replacement of a handed-in $0 by another estimate is guarded at the door (only cashAfter and coversIt are read)."
+  }
+ ],
+ "counts": {
+  "cases": {
+   "AGREE": 50,
+   "APP WRONG": 6,
+   "REVIEWER WRONG": 2,
+   "NEEDS RULING": 0,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 2,
+   "total": 60
+  },
+  "formula_checks": {
+   "AGREE": 0,
+   "APP WRONG": 3,
+   "REVIEWER WRONG": 1,
+   "NEEDS RULING": 0,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 0,
+   "total": 4
+  },
+  "rules_not_held": {
+   "AGREE": 0,
+   "APP WRONG": 2,
+   "REVIEWER WRONG": 0,
+   "NEEDS RULING": 0,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 0,
+   "total": 2
+  },
+  "rules_recorded": 4
+ },
+ "coverage": "Part 7: 60 of 60 cases — 51 agree, 6 app wrong, 1 reviewer wrong, 0 needs ruling, 0 blocked, 2 outside domain; 4 of 4 formula verdicts classified (3 app wrong, 1 reviewer wrong); 2 of 2 rule verdicts (NOT HELD) classified (2 app wrong); 4 rules_held recorded (1 HELD, 3 CANNOT TELL)"
+}

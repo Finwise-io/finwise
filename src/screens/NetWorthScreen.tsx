@@ -27,7 +27,7 @@ import { personalFlowTotals } from '../../Calculation Module code/engines/ledger
 import { connectionFreshness } from '../services/sync';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, HELD_IN_CHOICES, sourceWording, CASH_GROUP_LABEL, uberGroupRows, type UberGroup, uberGroupOf, asksCashOrInvestments, CASH_OR_INVESTMENTS_ASK, TAX_TYPE_NOT_STATED } from '../domain/assets';
-import { buildDebtState, debtKind, TOXIC_APR, Debt } from '../domain/debt';
+import { buildDebtState, debtKind, TOXIC_APR, rateNotEntered, Debt } from '../domain/debt';
 // ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1 ruled 2026-09-27). This tab and Home each built
 // their own net worth; they read one answer now.
 import { theNetWorth, ledgerGroups, barSegments, barDrawnWidths, accountsInClasses, isPartOfAccount, valueChanged } from '../../MoneyKeel/functions/networth-and-performance/net-worth';
@@ -47,7 +47,6 @@ import { type GlossaryTerm } from '../domain/glossary';
 import { HeroAmount } from '../components/HeroAmount';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { modalAnimation } from '../hooks/reducedMotion';
-import { DotJoined } from '../components/SepDot';
 import { SourceChip } from '../components/SourceChip';
 import { DebtEditorSheet } from '../components/DebtEditorSheet';   // B47 finding 11: THE one debt editor
 import { isoLocalDate } from '../domain/_shared/dates';
@@ -291,7 +290,7 @@ export default function NetWorthScreen() {
   // ONE class-row renderer — used inside every uber-group (and by the legacy path), so a row can
   // never look different depending on where it is drawn.
   // the retirement line: the SAME function + the SAME approved words as the Plan hub
-  const nwWil = selectWillItLast({ op: op ?? {}, accounts: assets, assumptions: store.retirementAssumptions ?? {}, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, withBand: true });
+  const nwWil = selectWillItLast({ op: op ?? {}, accounts: assets, assumptions: store.retirementAssumptions ?? {}, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, withBand: true, transactions: store.transactions ?? [] });
   const nwSim = nwWil.inputs ? simulate({ ...nwWil.inputs, with_band: true }) : null;
   const nwLens = resolveLens(op ?? {}, store.lensOverride);
   // which of the three answers are still missing (age · what you spend · what you have)
@@ -343,7 +342,7 @@ export default function NetWorthScreen() {
           <View style={[styles.dot, { backgroundColor: r.color }]} />
           <View style={{ flex: 1 }}>
             <Text style={styles.rowTitle}>{r.label}</Text>
-            {r.key === 'mixed' && isOpen && <Text style={styles.rowSub}>tap an account to say what's inside</Text>}
+            {r.key === 'mixed' && isOpen && <Text style={styles.rowSub}>tap an account to say what’s inside</Text>}
           </View>
           <Text style={styles.rowVal}>{(r as any).unvalued ? figWords('MK-NW-M-007', 'Value not entered') : fig('MK-NW-M-007', Math.round(r.total))}</Text>
           {/* the empty arrow column: a row that doesn't navigate still holds the slot open, so its
@@ -409,9 +408,11 @@ export default function NetWorthScreen() {
     const rows = assets.filter((a) => sectionOf(a) === sec);
     const total = totalOf(rows);   // the one total function over this section's accounts — a missing balance is left out (DEC-0343, DEC-3279e)
     const head = (
+      // THE BAR RUNS EDGE TO EDGE, "+ Add" UNDER IT (v08's READ THIS FIRST row of 2026-10-25, DEC-0067): it sat beside "+ Add" in one row,
+      // only as wide as its words and 20 in from each edge
       <View style={styles.secHead}>
-        <SectionBand light title={`${SECTION_ICON[sec]}  ${secLabel(sec).toUpperCase()}`} value={total > 0 ? fig('MK-NW-M-006', total) : undefined} />
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Add to ${secLabel(sec)}`} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => setAssetSheet({ open: true, section: sec })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
+        <View style={styles.bleed}><SectionBand light title={`${SECTION_ICON[sec]}  ${secLabel(sec).toUpperCase()}`} value={total > 0 ? fig('MK-NW-M-006', total) : undefined} /></View>
+        <TouchableOpacity style={styles.secAdd} accessibilityRole="button" accessibilityLabel={`Add to ${secLabel(sec)}`} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => setAssetSheet({ open: true, section: sec })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
       </View>
     );
 
@@ -480,7 +481,7 @@ export default function NetWorthScreen() {
                   // NW-15: an Unclassified account has no holdings set — invite a tap to classify it.
                   // the old sign-up answer "savings or portfolio" is asked about in its own words (DEC-4036g, 2026-10-10)
                   const sub0 = asksCashOrInvestments(a) ? `${CASH_OR_INVESTMENTS_ASK} Tap to say.`
-                    : assetClassOf(a) === 'mixed' && !tickersOf(a).length ? (t ? `${t} · tap to set holdings` : 'Tap to set what\'s inside') : t;
+                    : assetClassOf(a) === 'mixed' && !tickersOf(a).length ? (t ? `${t} · tap to set holdings` : 'Tap to set what’s inside') : t;
                   // by class, an account in several classes shows only its part here, and says which part
                   const part = amountOf[g]?.get(String(a.asset_id)) ?? (a.balance || 0);
                   const isPart = invGroup === 'type' && isPartOfAccount(part, a.balance);
@@ -511,8 +512,8 @@ export default function NetWorthScreen() {
   const renderDebtSection = () => (
     <View>
       <View style={styles.secHead}>
-        <SectionBand light title="💳  DEBTS" value={dState.total_debt_balance > 0 ? fig('MK-NW-M-009', dState.total_debt_balance) : undefined} />
-        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add a debt" hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => setDebtSheet({ open: true })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
+        <View style={styles.bleed}><SectionBand light title="💳  DEBTS" value={dState.total_debt_balance > 0 ? fig('MK-NW-M-009', dState.total_debt_balance) : undefined} /></View>
+        <TouchableOpacity style={styles.secAdd} accessibilityRole="button" accessibilityLabel="Add a debt" hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => setDebtSheet({ open: true })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
       </View>
       <View style={styles.card}>
         {liabilities.length === 0
@@ -529,7 +530,7 @@ export default function NetWorthScreen() {
                       {costliest?.debt_id === d.debt_id && <View style={styles.hotPill}><Text style={styles.hotPillTxt}>pay first</Text></View>}
                     </View>
                     {/* a payment never entered reads so, never a made-up $0/month (2026-10-21, DEC-3523 tenet 3) */}
-                    <Text style={[styles.rowSub, hot && { color: Colors.red }]}>{(d.interest_rate_apr * 100).toFixed(2)}% APR · {worth.debtPaymentsNotEntered.some((x) => x.id === String(d.debt_id)) ? figWords('MK-NW-M-011', 'payment not entered') : figPer('MK-NW-M-011', d.minimum_monthly_payment)}</Text>
+                    <Text style={[styles.rowSub, hot && { color: Colors.red }]}>{rateNotEntered(d) ? 'rate not entered' : `${(d.interest_rate_apr * 100).toFixed(2)}% APR`} · {worth.debtPaymentsNotEntered.some((x) => x.id === String(d.debt_id)) ? figWords('MK-NW-M-011', 'payment not entered') : figPer('MK-NW-M-011', d.minimum_monthly_payment)}</Text>
                   </View>
                   <Text style={styles.rowVal}>{fig('MK-NW-M-010', d.remaining_balance)}</Text>
                 </TouchableOpacity>
@@ -667,7 +668,8 @@ export default function NetWorthScreen() {
           <SectionBand title="EMERGENCY FUND" trailing={RIGHT_SLOT} />
           <View style={styles.ledgerPad}>
             <Text style={styles.cushionEmpty}>— months</Text>
-            <Text style={styles.rowSub}>appears with your first cash account + monthly expenses</Text>
+            {/* 13 points, regular, the secondary grey — the emergency fund's other lines (v08 frame C, .cushMath; its row of 2026-10-25) */}
+            <Text style={styles.cushionMath}>appears with your first cash account + monthly expenses</Text>
           </View>
         </View>
       </ScrollView>
@@ -1119,7 +1121,9 @@ export default function NetWorthScreen() {
                 <Text style={styles.cushionMath}>Both count {figPer('MK-NW-M-064', rentArriving)} of rent from your property, which keeps arriving if your pay stops.</Text>
               )}
               {!!emergencyFund.budgetSentence && <Text style={styles.cushionMath}>{emergencyFund.budgetSentence}</Text>}
-              <DotJoined style={styles.cushionNote} parts={['3–6 months is the usual guide', 'an estimate from your own numbers']} />
+              {/* the · in the line's own grey at regular weight, as v08 draws it (approved 2026-10-01, DEC-0644; its row of 2026-10-25): a drawing
+                  he approved after the darker separator of 2026-07-31 (DEC-0016) is the design (DEC-0808) */}
+              <Text style={styles.cushionNote}>3–6 months is the usual guide · an estimate from your own numbers</Text>
             </View>
           </View>
           );
@@ -1341,7 +1345,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
     if (!editing) { onClose(); return; }
     Alert.alert(
       `Remove ${editing.label}?`,
-      `Its ${fig('MK-NW-M-008', Math.round(editing.balance || 0))} leaves your net worth. This can't be undone.`,
+      `Its ${fig('MK-NW-M-008', Math.round(editing.balance || 0))} leaves your net worth. This can’t be undone.`,
       [
         { text: 'Keep it', style: 'cancel' },
         { text: 'Remove', style: 'destructive', onPress: () => { store.deleteAsset?.(editing.asset_id); onClose(); } },
@@ -1409,7 +1413,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
           </>)}
           {step === 'retirement' && (<>
             <Wrappers opts={RET_OPTS} />
-            <Text style={sh.clsLabel}>What's inside?</Text>
+            <Text style={sh.clsLabel}>What’s inside?</Text>
             <View style={sh.chips}>{INSIDE_OPTS.map((o) => (
               <TouchableOpacity key={o.key} accessibilityRole="button" accessibilityLabel={o.label} style={[sh.chip, inside === o.key && sh.chipOn]} onPress={() => setInside(o.key)}><Text style={sh.chipTxt}>{o.label}</Text></TouchableOpacity>
             ))}</View>
@@ -1423,7 +1427,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
             </>)}
             {/* not asked of a home, real estate, land, a vehicle or other personal property (DEC-4529, 2026-10-11) */}
             {!isProperty && (<>
-            <Text style={sh.clsLabel}>What's it invested in?</Text>
+            <Text style={sh.clsLabel}>What’s it invested in?</Text>
             <View style={sh.chips}>{INSIDE_OPTS.map((o) => (
               <TouchableOpacity key={o.key} accessibilityRole="button" accessibilityLabel={o.label} style={[sh.chip, inside === o.key && sh.chipOn]} onPress={() => setInside(o.key)}><Text style={sh.chipTxt}>{o.label}</Text></TouchableOpacity>
             ))}</View>
@@ -1481,7 +1485,7 @@ const styles = StyleSheet.create({
   compLegendTxt: { fontSize: 11, fontWeight: '600', color: Colors.textSecondary },
   glanceKickerNW: { fontSize: 13, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.6, marginBottom: 2 },
   acctRowNW: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 34, paddingRight: 2, paddingVertical: 8, minHeight: 44 },
-  classCaret: { fontSize: 13, color: Colors.textTertiary, width: 14 },
+  classCaret: { fontSize: 13, fontWeight: '600', color: Colors.textTertiary, width: 14 },   // 600, the category name's weight (v08 .sheetRow .n)
   acctRowLabel: { fontSize: 15, color: Colors.textPrimary },
   acctRowSub: { fontSize: 11, color: Colors.textTertiary, marginTop: 1 },
   acctRowVal: { fontSize: 15, color: Colors.textSecondary, fontVariant: ['tabular-nums'] },
@@ -1568,7 +1572,9 @@ const styles = StyleSheet.create({
   lg: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   dot: { width: 9, height: 9, borderRadius: 5 },
   lgTxt: { fontSize: 11, color: Colors.textSecondary },
-  secHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: Spacing.md, marginBottom: 2 },
+  secHead: { marginTop: Spacing.md, marginBottom: 2 },
+  secAdd: { alignSelf: 'flex-end', paddingVertical: 6 },
+  bleed: { marginHorizontal: -Spacing.lg },   // the step-by-step content's padding, taken back: the bar runs edge to edge
   secTitle: { fontSize: 13, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5 },
   add: { fontSize: 13, fontWeight: '700', color: Colors.primary },
   invToggle: { flexDirection: 'row', backgroundColor: Colors.bgTertiary, borderRadius: Radii.md, padding: 3, marginTop: 6, alignSelf: 'flex-start' },

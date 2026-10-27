@@ -10,7 +10,7 @@
  *      rate its total was not the sum of its own rows.
  * These must hold for every household, not for an example.
  */
-import { incomeMonthlyGrid, taxableAnnual, householdK401ByMonth, filingStatusOf, over65CountOf } from './onboarding';
+import { incomeMonthlyGrid, taxableAnnual, householdK401ByMonth, filingStatusOf, over65CountOf, socialSecurityReceivedMonthly, taxedSourcesAnnual } from './onboarding';
 import { taxOwedFor } from './tax';
 import { rateInForce } from './tax-rate';
 import { incomeSummary } from '../../../MoneyKeel/functions/cashflow/income-summary';
@@ -74,7 +74,10 @@ describe('a calculated rate', () => {
   test.each(CALCULATED)('THE LAW (B05): the year’s tax is the schedule’s tax on what is left after the 401(k) — %s', (_n, op) => {
     const gross = sum(incomeMonthlyGrid(op, 'gross').map((m) => m.amount)) + (op.invAnnual && op.invPaidToBank !== 'yes' ? Number(op.invAnnual) : 0);
     const net = sum(incomeMonthlyGrid(op, 'net').map((m) => m.amount)) + (op.invAnnual && op.invPaidToBank !== 'yes' ? Number(op.invAnnual) : 0);
-    const untaxed = (Number(op.supportMonthly) || 0) * 12;
+    // untaxed: support, and the part of Social Security IRS Publication 915 does not tax (2026-10-25, FIX-INCOME-B — the retired
+    // household's $28,800 is taxed $3,700: $18,000 + $14,400 = $32,400, half of the $7,400 over $25,000)
+    const ssUntaxed = socialSecurityReceivedMonthly(op) * 12 - (taxedSourcesAnnual(op).find((r) => r.key === 'social-security')?.amount ?? 0);
+    const untaxed = (Number(op.supportMonthly) || 0) * 12 + ssUntaxed;
     const k401 = sum(householdK401ByMonth(op));
     expect(gross - untaxed).toBeCloseTo(taxableAnnual(op), 6);
     expect(gross - net).toBeCloseTo(taxOwedFor(taxableAnnual(op) - k401, filingStatusOf(op), 0, over65CountOf(op)), 6);

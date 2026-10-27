@@ -23,7 +23,7 @@ import { buildSnapshot, snapshotFromOnboarding } from '../domain/snapshot';
 import { buildAssetsState } from '../domain/assets';
 import { buildDebtState } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
-import { cashflowYear } from '../domain/cashflow';
+import { buildDatedGrid } from '../domain/grid';   // MK-CF-F-020 cashflowYear was RETIRED 2026-10-25 — the month table answers
 import { ALL_PERSONAS, ECON, retiree75, employedPartner, studentAid } from '../testing/personas';
 import type { OnboardingProfile } from '../domain/onboardingProfile';
 
@@ -95,7 +95,7 @@ describe('Journey: every onboarding answer reaches its consumer screen', () => {
 
   test('student: tuition crunch flows from spendCats to the bill calendar', () => {
     completeOnboarding(studentAid);
-    const cf = cashflowYear(studentAid, 500, new Date(2026, 5, 1));
+    const cf = buildDatedGrid(studentAid, { startBalance: 500, now: new Date(2026, 5, 1) });
     expect(cf.shortMonths.length).toBeGreaterThan(0);              // September tuition tips her short
   });
 });

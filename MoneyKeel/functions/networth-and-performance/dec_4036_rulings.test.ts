@@ -126,12 +126,12 @@ describe('DEC-4036j · the car you drive is picked among vehicles with a value',
     acct({ asset_id: 'B', label: 'Car B', kind: 'vehicle', tax_bucket: 'PROPERTY', balance: 8000 })];
   test('Car B is picked; Car A is named as possibly the one', () => {
     expect(primaryCarIdOf(cars)).toBe('B');
-    expect(carValueNotEnteredNotes(cars)).toEqual(["Car A's value not entered — it may be the car you drive."]);
+    expect(carValueNotEnteredNotes(cars)).toEqual(["Car A’s value not entered — it may be the car you drive."]);
   });
   test('no vehicle valued: one is still picked, and the other is named', () => {
     const none = cars.map((c) => ({ ...c, balance: null as any }));
     expect(primaryCarIdOf(none)).toBe('A');
-    expect(carValueNotEnteredNotes(none)).toEqual(["Car B's value not entered — it may be the car you drive."]);
+    expect(carValueNotEnteredNotes(none)).toEqual(["Car B’s value not entered — it may be the car you drive."]);
   });
 });
 

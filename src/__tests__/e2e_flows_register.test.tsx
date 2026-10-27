@@ -112,7 +112,7 @@ test('E2E-41 Your setup revisit: working → retired flips the Cash flow main to
   fr.unmount();
   const CashFlowScreen = require('../screens/CashFlowScreen').default;
   render(<CashFlowScreen />);
-  expect(screen.getByText(/SURPLUS — [A-Z]/)).toBeOnTheScreen();
+  expect(screen.getByText(/YOUR PAYCHECK — [A-Z]/)).toBeOnTheScreen();
 });
 
 // ── E2E-42 · import classifies crypto as an ALTERNATIVE, correctable before save ──
@@ -162,7 +162,7 @@ test('E2E-44 stale gold: update the value in one tap and the as-of stamp resets 
   mockParams = { id: 'gld' };
   const AccountPortfolioScreen = require('../screens/AccountPortfolioScreen').default;
   render(<AccountPortfolioScreen />);
-  fireEvent.press(screen.getByLabelText("Update this account's value"));
+  fireEvent.press(screen.getByLabelText("Update this account’s value"));
   fireEvent.changeText(screen.getByLabelText('Current value'), '10400');
   fireEvent.press(screen.getByLabelText('Save the updated value'));
   const a = (useStore.getState() as any).assetAccounts[0];

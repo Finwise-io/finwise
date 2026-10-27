@@ -16,11 +16,12 @@ export const PERIODS_PER_YEAR: Record<Frequency, number> = {
  *
  * Called by ... MK-CF-F-044 annualNet · MK-CF-F-161 monthlyGrossOfSource
  *
- * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-044 annualNet · MK-CF-F-049 buildIncomeState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-052 getIncomeState
- *               MK-CF-F-045 grossAnnualBaseline · MK-CF-F-161 monthlyGrossOfSource
- *               MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-186 convertTakeHomeMode
+ *               MK-CF-F-052 getIncomeState · MK-CF-F-045 grossAnnualBaseline
+ *               MK-CF-F-097 grossFromNet · MK-CF-F-161 monthlyGrossOfSource
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -42,10 +43,11 @@ const isRental = (t: string) => t === 'LONG_TERM_RENTAL' || t === 'SHORT_TERM_RE
  *
  * Called by ... MK-CF-F-045 grossAnnualBaseline
  *
- * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-052 getIncomeState · MK-CF-F-045 grossAnnualBaseline
- *               MK-XS-F-032 snapshotFromOnboarding
+ *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-052 getIncomeState
+ *               MK-CF-F-045 grossAnnualBaseline · MK-CF-F-097 grossFromNet
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-039 how often each income arrives
@@ -72,9 +74,11 @@ export function annualNet(s: IncomeSource): number {
  *
  * Called by ... MK-CF-F-049 buildIncomeState
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-052 getIncomeState · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-052 getIncomeState
+ *               MK-CF-F-097 grossFromNet · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -96,9 +100,11 @@ export function grossAnnualBaseline(sources: IncomeSource[]): number {
  *
  * Called by ... MK-CF-F-049 buildIncomeState
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-052 getIncomeState · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-052 getIncomeState
+ *               MK-CF-F-097 grossFromNet · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-039 how often each income arrives
@@ -114,45 +120,19 @@ export function employerMatchAnnual(sources: IncomeSource[]): number {
 }
 
 // ── tax ──────────────────────────────────────────────────────────────────────
-// SYSTEM_CALCULATED default uses the IRS federal bracket schedule (see ./tax.ts).
-// Deliberately federal-single-filer for now — state tax, filing status, deductions deferred.
-import { effectiveRateOnGrossFor, progressiveMonthlyTax } from './tax';
-
-
-/** The share of gross income that goes to tax: the person's own rate where they gave one, otherwise the calculated federal rate for the way they file. */
-/* ─ MK-CF-F-048 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
- * effectiveTaxRate
- *
- * Answers ..... The share of gross income that goes to tax: the person's own rate where they gave one, otherwise the calculated federal rate for the way they file.
- *
- * Formula .....
- *     min(max(tax.manual effective tax rate, 0), 1)
- *
- * Called by ... MK-CF-F-049 buildIncomeState
- *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-052 getIncomeState · MK-XS-F-032 snapshotFromOnboarding
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-030 tax filing status and age
- *
- * Decides .....
- *     · If over65 is missing it uses 0.
- *     · Never lets manual effective tax rate fall below 0.
- *
- * Formula also on the master file · functions_from_code · MK-CF-F-048
- * Changed ..... 2026-06-05 (f742136)
- */
-export function effectiveTaxRate(grossAnnual: number, tax: TaxProfile): number {
-  if (tax.use_manual_tax_override && tax.manual_effective_tax_rate != null) {
-    return Math.min(Math.max(tax.manual_effective_tax_rate, 0), 1);
-  }
-  // The SAME function every other screen reads. Until 2026-08-27 this branch called a second,
-  // single-filer-only one, so a married couple got one rate here and a different rate everywhere
-  // else — from the same profile, on the same day.
-  return effectiveRateOnGrossFor(grossAnnual, tax.filing_status ?? 'single', 0, tax.over65 ?? 0);
-}
+// ONE RATE, THE ONE THE REST OF THE APP READS (2026-10-25, FIX-TAX, outside audit parts 5 and 17). The income state read with
+// the profile takes its rate, its months and its take-home from the household path — MK-CF-F-181 rateInForce and the month
+// grid MK-CF-F-092 incomeMonthlyGrid — the figures every Cash flow screen reads.
+// MK-CF-F-048 effectiveTaxRate — RETIRED 2026-10-25. It was a second producer of the tax rate: never a filing status (the
+// stored record carried none), never a 401(k), never a state rate, no take-home branch. Married on $138,432.60 with a 5% state
+// rate and $14,311.43 into a 401(k) read 15.86% where the rate in force is 10.93% (DEC-0184 one tax function, DEC-0196 one rate
+// everywhere, DEC-0283 the 401(k) is not taxed, DEC-0327 state tax on taxable income). Its one caller now reads the rate in
+// force; the stored-record read below keeps the record's own typed rate or the schedule's share for it. To reverse: restore
+// the function from git (b1c659e8) and have buildIncomeState call it again.
+import { effectiveRateOnGrossFor } from './tax';
+import { rateInForce } from './tax-rate';
+import { incomeMonthlyGrid } from './onboarding';
+import type { OnboardingProfile } from '../onboardingProfile';
 
 // ── monthly cash-flow grid ───────────────────────────────────────────────────
 /** Gross dollars a source delivers in each of the 12 months (lumpy items land on
@@ -172,9 +152,11 @@ export function effectiveTaxRate(grossAnnual: number, tax: TaxProfile): number {
  *
  * Called by ... MK-CF-F-049 buildIncomeState
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-052 getIncomeState · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-052 getIncomeState
+ *               MK-CF-F-097 grossFromNet · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-039 how often each income arrives
@@ -213,40 +195,71 @@ function monthlyGrossOfSource(s: IncomeSource): number[] {
  * Answers ..... The income picture for a year: gross, tax rate and take-home, and the gross, tax and take-home of each of the twelve months.
  *
  * Formula .....
+ *     gross = for each of income monthly grid(op, 'gross'): amount
+ *     take home = for each of income monthly grid(op, 'available'): amount
+ *     gross year = Σ over gross of (each)
+ *     take home year = Σ over take home of (each)
  *     gross = gross annual baseline(sources)
- *     rate = effective tax rate(gross, tax)
  *     net = gross × (1 − rate)
  *     monthly gross = for each of 12 slots, each 0: Σ over sources of (monthly gross of source(each)[i])
- *     grid = []
- *     g = monthly gross[i]
+ *     grid = for each of monthly gross: month = i + 1
+ *     gross = each
+ *     net = each − each × rate
  *
- * Called by ... MK-CF-F-052 getIncomeState · MK-XS-F-031 buildSnapshot
+ * Called by ... MK-CF-F-052 getIncomeState · MK-CF-F-097 grossFromNet
+ *               MK-XS-F-031 buildSnapshot
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-052 getIncomeState
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-052 getIncomeState
+ *               MK-CF-F-097 grossFromNet · MK-XS-F-199 profileOnTheWayIn
  *               MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-030 tax filing status and age
+ *
+ * Decides .....
+ *     · If over65 is missing it uses 0.
+ *     · Treats a year as twelve equal months.
+ *     · Never lets manual effective tax rate fall below 0.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-049
  * Changed ..... 2026-07-14 (cf50737)
  */
-export function buildIncomeState(userId: string, sources: IncomeSource[], tax: TaxProfile): IncomeState {
-  const gross = grossAnnualBaseline(sources);
-  const rate = effectiveTaxRate(gross, tax);
-  const net = gross * (1 - rate);
-
-  // PRD F2#11: per-month net uses progressive bracket-filling (manual override = the user's flat
-  // rate) — the same withholding concept the cash-flow grids use, so months can't disagree
-  const monthlyGross = new Array(12).fill(0).map((_, i) => sources.reduce((t, s) => t + monthlyGrossOfSource(s)[i], 0));
-  const monthlyTax = tax.use_manual_tax_override
-    ? monthlyGross.map((g) => g * rate)
-    : progressiveMonthlyTax(monthlyGross);
-  const grid: MonthlyCell[] = [];
-  for (let i = 0; i < 12; i++) {
-    const g = monthlyGross[i];
-    grid.push({ month: i + 1, gross: (g), net: (g - monthlyTax[i]) });
+export function buildIncomeState(userId: string, sources: IncomeSource[], tax: TaxProfile, op?: OnboardingProfile | null): IncomeState {
+  // WITH THE PROFILE — every caller a person can reach (Income detail, Home's snapshot): THE ONE TAKE-HOME AND THE ONE RATE
+  // (2026-10-25, outside audit part 5, MK-CF-F-049). This read gross × (1 − its own rate) and never took the 401(k) off:
+  // $5,000/month with $500 into a 401(k) at a 10% rate landed $4,500 where the take-home is $4,000; and a married couple on
+  // $138,432.60 with a 5% state rate were taxed $21,957.82 a year, as a single filer with no state tax, where the rate in
+  // force gives $18,106.80. Now each month is the month grid's — gross, the tax at the rate in force, the take-home after tax
+  // and the 401(k) — and the year is the twelve added up, so the months and the year cannot disagree.
+  if (op !== undefined) {
+    const gross = incomeMonthlyGrid(op, 'gross').map((m) => m.amount);
+    const takeHome = incomeMonthlyGrid(op, 'available').map((m) => m.amount);
+    const grossYear = gross.reduce((t, g) => t + g, 0);
+    const takeHomeYear = takeHome.reduce((t, n) => t + n, 0);
+    return {
+      user_id: userId,
+      total_gross_annual: (grossYear),
+      total_net_annual: (takeHomeYear),                    // take-home: after tax AND the 401(k)
+      effective_tax_rate: round4(rateInForce(op).rate),
+      net_monthly_income: (takeHomeYear / 12),
+      monthly_cash_flow_grid: gross.map((g, i) => ({ month: i + 1, gross: (g), net: (takeHome[i]) })),
+      employer_match_annual: (employerMatchAnnual(sources)),
+    };
   }
+
+  // WITHOUT IT — only the stored income record (MK-CF-F-052 getIncomeState), which no screen calls: the record holds its
+  // sources and a typed rate, and nothing about a 401(k) or a state rate, so it is read as it stands — its typed rate, else
+  // the schedule's share of its gross for the filing status it carries — and that one rate on every month (DEC-0196), where
+  // the months used to fill the tax bands as the year went on (MK-CF-F-098, retired 2026-10-25).
+  const gross = grossAnnualBaseline(sources);
+  const rate = tax.use_manual_tax_override && tax.manual_effective_tax_rate != null
+    ? Math.min(Math.max(tax.manual_effective_tax_rate, 0), 1)
+    : effectiveRateOnGrossFor(gross, tax.filing_status ?? 'single', 0, tax.over65 ?? 0);
+  const net = gross * (1 - rate);
+  const monthlyGross = new Array(12).fill(0).map((_, i) => sources.reduce((t, s) => t + monthlyGrossOfSource(s)[i], 0));
+  const grid: MonthlyCell[] = monthlyGross.map((g, i) => ({ month: i + 1, gross: (g), net: (g - g * rate) }));
 
   return {
     user_id: userId,
@@ -270,9 +283,11 @@ export function buildIncomeState(userId: string, sources: IncomeSource[], tax: T
  *
  * Called by ... MK-CF-F-049 buildIncomeState
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
  *               MK-CF-F-049 buildIncomeState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-052 getIncomeState · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-052 getIncomeState
+ *               MK-CF-F-097 grossFromNet · MK-XS-F-199 profileOnTheWayIn
+ *               MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

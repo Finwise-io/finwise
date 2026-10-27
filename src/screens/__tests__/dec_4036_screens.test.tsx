@@ -91,7 +91,7 @@ test('DEC-4036j · the sheet showing the car you drive names a vehicle whose val
     { asset_id: 'B', label: 'Car B', kind: 'vehicle', tax_bucket: 'PROPERTY', balance: 8000, target_return: 0 },
   ] as any[];
   render(<EarmarkSheet open assets={assets} nestEgg={0} onClose={() => {}} onSet={() => {}} onDone={() => {}} />);
-  expect(screen.getByText(/Car A's value not entered — it may be the car you drive\./)).toBeOnTheScreen();
+  expect(screen.getByText(/Car A’s value not entered — it may be the car you drive\./)).toBeOnTheScreen();
 });
 
 test('DEC-4036k · the Plan inputs and the earmark sheet name an account the retirement money leaves out', () => {

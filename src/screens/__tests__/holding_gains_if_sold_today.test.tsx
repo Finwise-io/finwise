@@ -195,7 +195,7 @@ describe('3 · an option on a broad-based index is split 60/40 whatever the hold
       lots: [{ lot_id: 'l1', shares: 2, cost_per_share: 50, purchase_date: '2026-07-01' }] };
     open(account([spx]), { SPX: series('SPX', [['2026-07-01', 50], ['2026-09-30', 78], ['2026-10-01', 80]]), SPY });
     expect(soldToday()).toEqual(['IF YOU SOLD TODAY', 'Gain — long-term (60%)', '+$3,600', 'Gain — short-term (40%)', '+$2,400', SECTION_1256_LINE]);
-    expect(SECTION_1256_LINE).toBe('An index option\'s gain is taxed 60% long-term and 40% short-term, however long it was held (IRS Publication 550).');
+    expect(SECTION_1256_LINE).toBe('An index option’s gain is taxed 60% long-term and 40% short-term, however long it was held (IRS Publication 550).');
   });
 });
 

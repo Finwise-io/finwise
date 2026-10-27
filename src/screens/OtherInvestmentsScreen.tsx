@@ -11,7 +11,7 @@ import { useStore } from '../store/useStore';
 import { DateField } from '../components/DateField';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { fig, figSpoken, figWords } from '../components/figure';
-import { InfoDot, EmptyNote } from '../components/UI';
+import { EmptyNote } from '../components/UI';
 import { assetKind, benchmarkReturn, type AssetAccount, type TaxBucket, type AddWrapper, HELD_IN_CHOICES, heldInOf, wrapperAccount } from '../domain/assets';
 // ONE DOOR (MK-NW-O-003 theNetWorth, Q-NW-1). The share of investable this screen shows is the
 // same investable the Net worth tab shows — one answer, so the two cannot disagree.
@@ -56,8 +56,11 @@ export default function OtherInvestmentsScreen() {
     <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
     <TopBar back />
     <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}><Text style={styles.h1}>Alternatives</Text>
-      <SectionBand title="ALTERNATIVES" /><InfoDot term="alternatives" /></View>
+      {/* THE TITLE, THEN THE BAR (Alternatives v02 phones 1 and 2; the drawing's READ THIS FIRST row of 2026-10-25): the bar runs edge
+          to edge under the title, square corners, the one info dot white inside it. It sat beside the title in one row, as wide as its
+          word and 20 in from each edge, the dot grey outside it. The bleed is the content's own padding (Spacing.lg). */}
+      <Text style={styles.h1}>Alternatives</Text>
+      <View style={styles.bleed}><SectionBand title="ALTERNATIVES" infoTerm="alternatives" /></View>
 
       {outlook.rows.length === 0 ? (
         <View style={styles.card}>
@@ -147,7 +150,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
     Alert.alert(
       full ? 'Sell all of this investment?' : 'Sell part of this investment?',
       full ? `Marks all ${fig('MK-NW-M-052', cur)} as sold and removes it from your holdings.`
-           : `Lowers ${label.trim() || 'this investment'} from ${fig('MK-NW-M-052', cur)} to ${fig('MK-NW-M-052', cur - sold)} — the sale shows in this account's activity.`,
+           : `Lowers ${label.trim() || 'this investment'} from ${fig('MK-NW-M-052', cur)} to ${fig('MK-NW-M-052', cur - sold)} — the sale shows in this account’s activity.`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: full ? 'Sell all' : 'Sell', onPress: () => {
@@ -174,7 +177,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
           <Text style={styles.hint}>{ALT_HINT[kind]} ~{(benchmarkReturn(kind) * 100).toFixed(2)}%/year historical benchmark.</Text>
           <Text style={styles.fieldL}>Name</Text>
           <TextInput style={styles.input} value={label} onChangeText={setLabel} placeholder="e.g. Bitcoin, Fund III, Gold" placeholderTextColor={Colors.textTertiary} />
-          <Text style={styles.fieldL}>Where it's held (institution)</Text>
+          <Text style={styles.fieldL}>Where it’s held (institution)</Text>
           <TextInput style={styles.input} value={inst} onChangeText={setInst} placeholder="e.g. Coinbase, Chase — optional" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Current value</Text>
           <TextInput style={styles.input} keyboardType="decimal-pad" value={value} onChangeText={setValue} placeholder="0" placeholderTextColor={Colors.textTertiary} />
@@ -214,6 +217,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   h1: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 8, marginBottom: 8 },
+  bleed: { marginHorizontal: -Spacing.lg },   // the dark-green bar runs edge to edge: back out through the content's padding
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 10 },
   empty: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
   addBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 13, alignItems: 'center', marginTop: 14 },

@@ -42,6 +42,9 @@ export default function LookBackScreen() {
   const [months, setMonths] = useState<12 | 24 | 36>(12);
 
   const amt = parseFloat(String(amount).replace(/[^0-9.]/g, '')) || 0;
+  // THE AMOUNT BOX READS AS LOOK BACK v01 DRAWS IT, "20,000" WITH ITS SEPARATOR (2026-10-25, MM-PF D16): it read "20000". The
+  // box keeps the digits typed and shows them grouped in threes; typing, deleting and pasting "20,000" all still work.
+  const grouped = (typed: string): string => String(typed ?? '').replace(/[^0-9]/g, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
   // IT FETCHES WHAT IT COMPARES (2026-10-22): on opening, and when the pairing changes, the pairing, SPY and the four
   // yardsticks he asked for (DEC-1624) are fetched by the app's one price refresh (store.maybeRefreshPrices → refreshPrices →
   // fetchPriceSeries: the same source, the same 10-minute freshness rule, the same failure flag). It fetched only what you
@@ -89,7 +92,7 @@ export default function LookBackScreen() {
         <Text style={s.pickLabel}>Amount</Text>
         <View style={s.amtRow}>
           <Text style={s.amtPrefix}>{currencySymbol()}</Text>
-          <TextInput style={s.amtInput} keyboardType="number-pad" value={amount} onChangeText={setAmount}
+          <TextInput style={s.amtInput} keyboardType="number-pad" value={grouped(amount)} onChangeText={(t) => setAmount(t.replace(/[^0-9]/g, ''))}
             accessibilityLabel="Amount to look back on" />
         </View>
         <Picker label="From" value={from} onPick={setFrom} exclude={to} choices={fromChoices} />
@@ -110,7 +113,9 @@ export default function LookBackScreen() {
       {result ? (
         <View style={s.card} accessible
           accessibilityLabel={`What actually happened: left in ${from} it became ${figSaid('MK-PF-M-010', result.stayed.endValue)}, ${figSaid('MK-PF-M-025', result.stayed.pct / 100)}. Moved to ${to} it would be ${figSaid('MK-PF-M-011', result.moved.endValue)}, ${figSaid('MK-PF-M-026', result.moved.pct / 100)}. Difference ${figSaid('MK-PF-M-012', Math.abs(result.difference))} ${result.difference >= 0 ? 'more' : 'less'} if you had moved. Real past prices, not a prediction.`}>
-          <SectionBand title="WHAT ACTUALLY HAPPENED" />
+          {/* the bar runs to both edges of its card, as Look back v01 draws it (.band, margin −16 on a 16 card): it sat 12 short of
+              each edge, inside the card's padding (MM-PF D2, 2026-10-25; the dark-green bar standard, 2026-08-11) */}
+          <SectionBand inCard inset={Spacing.md} title="WHAT ACTUALLY HAPPENED" />
           <Text style={s.legLine}>
             Left in {from} it became <Text style={s.strong}>{fig('MK-PF-M-010', result.stayed.endValue)}</Text>
             {'  '}({result.stayed.delta >= 0 ? 'up' : 'down'} {fig('MK-PF-M-010', Math.abs(result.stayed.delta))}, {fig('MK-PF-M-025', result.stayed.pct / 100)})
@@ -155,7 +160,9 @@ const s = StyleSheet.create({
   pickWrap: { marginTop: 10 },
   pickLabel: { fontSize: 13, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.3 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 },
-  chip: { paddingHorizontal: 12, minHeight: 44, justifyContent: 'center', borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
+  // corners 12, the one corner of a choice in the app (DEC-0231, 2026-09-25: "rounded corners not semicircle ends"; Look back
+  // v01's dated line of 2026-10-25, as Itemize, Bonds and Alternatives carry theirs) — they were 20 (MM-PF D14)
+  chip: { paddingHorizontal: 12, minHeight: 44, justifyContent: 'center', borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   chipTxtOn: { color: Colors.primaryDark },

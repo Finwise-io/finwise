@@ -279,3 +279,34 @@ describe('the price band never names a day after the person\'s own today', () =>
     expect(lines()).toContain('$101,500.00');
   });
 });
+
+// ── THE PERFORMANCE DRAWING CHECK OF 2026-10-24 (MM-PF D1), FIXED 2026-10-25 ───────────────────────────────────────────────
+// Holding detail v02 phone A draws VS THE STOCK MARKET · SAME DATES on the page, its bar out to the phone's edges (.bandPage,
+// margin 0 −20 on the page's 20) and its rows beneath it on the page. It sat in a white card, the bar 20 short of each card edge.
+describe('MM-PF D1 · the market comparison sits on the page, its bar edge to edge, as Holding detail v02 phone A draws it', () => {
+  const { StyleSheet } = require('react-native');
+  const { Colors, Spacing } = require('../../utils/theme');
+  const drawing = fs.readFileSync(require('path').join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_holding-detail_v02.html'), 'utf8');
+  /** the bar's own View, every View between it and the page, and whether a white card is one of them */
+  const around = (title: string) => {
+    let bar: any = screen.getByText(title).parent;
+    while (bar && !(bar.type === 'View' && StyleSheet.flatten(bar.props.style)?.backgroundColor === Colors.primaryDeep)) bar = bar.parent;
+    const up: any[] = []; for (let n = bar?.parent; n; n = n.parent) if (n.type === 'View') up.push(StyleSheet.flatten(n.props.style) ?? {});
+    return { bar, up };
+  };
+  test.each([
+    ['with a comparison (the drawn state)', () => open(holding({ asset_class: 'stock_etf' }), PRICES('VTI', 'SPY')), 'VS THE STOCK MARKET · SAME DATES'],
+    ['with none (not drawn: an Unclassified holding)', () => open(holding({ ticker: 'XYZ', label: 'Something' }), PRICES('XYZ', 'SPY')), 'VS THE MARKET'],
+  ])('%s', (_name, go, title) => {
+    at(new Date('2026-09-28T12:00:00'));
+    expect(drawing).toMatch(/\.bandPage\{[^}]*margin:0 -20px 4px/);                     // the drawing's page bar
+    expect(drawing).toMatch(/<div class="bandPage"><span class="bandT">Vs the stock market · same dates<\/span><\/div>/);
+    (go as () => void)();
+    const { bar, up } = around(title as string);
+    expect(bar).toBeTruthy();
+    const cardsBetween = up.filter((st) => st.backgroundColor === Colors.cardBg && (st.padding != null || st.paddingHorizontal != null));
+    expect(cardsBetween).toEqual([]);                                                  // no white card around it: it is on the page
+    expect(up[0].marginHorizontal).toBe(-Spacing.lg);                                  // the page's 20 taken back on both sides
+    expect(up.length).toBeGreaterThanOrEqual(2);                                       // the guard looked: wrapper, section, page
+  });
+});

@@ -43,7 +43,7 @@ export interface MortgageOddsEffect {
  *     slow = months to clear(balance, annual rate, monthly payment)
  *     fast = months to clear(balance, annual rate, monthly payment + extra monthly)
  *     nothing   when slow = nothing (or fast = nothing (or extra monthly ≤ 0 when missing or zero) when missing or zero)
- *     year of = (months: number) => now year + round down((months − 1) ÷ 12)
+ *     year of = (months: number) => now year + round down((now month − 1 + months − 1) ÷ 12)
  *     payoff year = year of(slow)
  *     faster payoff year = year of(fast)
  *     the answer = { before, after, payoff year, faster payoff year }
@@ -66,8 +66,11 @@ export function mortgageOddsEffect(args: {
   monthlyPayment: number;
   extraMonthly: number;
   nowYear: number;
+  /** this month, 1 to 12 — the first payment is this month's (2026-10-25, FIX-BILLS: it was given the year only, so every count
+   *  started in January and December 2026 with 11 payments left read "2026" where the last falls in October 2027) */
+  nowMonth: number;
 }): MortgageOddsEffect | null {
-  const { base, balance, annualRate, monthlyPayment, extraMonthly, nowYear } = args;
+  const { base, balance, annualRate, monthlyPayment, extraMonthly, nowYear, nowMonth } = args;
   const slow = monthsToClear(balance, annualRate, monthlyPayment);
   const fast = monthsToClear(balance, annualRate, monthlyPayment + extraMonthly);
   if (slow == null || fast == null || extraMonthly <= 0) return null;
@@ -75,7 +78,9 @@ export function mortgageOddsEffect(args: {
   // the calendar year the LAST payment falls in. Rounding up instead put a 338-month loan in 2055
   // when its final payment lands in October 2054 — a year of a payment that does not exist, on the
   // one figure a person will check against their own mortgage statement.
-  const yearOf = (months: number) => nowYear + Math.floor((months - 1) / 12);
+  // Counted from THIS month, not from January: the last of `months` payments falls (nowMonth − 1) + (months − 1) months after
+  // January of this year.
+  const yearOf = (months: number) => nowYear + Math.floor((nowMonth - 1 + months - 1) / 12);
   const payoffYear = yearOf(slow);
   const fasterPayoffYear = yearOf(fast);
 

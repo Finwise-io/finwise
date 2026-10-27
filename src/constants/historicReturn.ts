@@ -7,4 +7,4 @@
  *  "approved.": the Retirement cockpit's "Grow my nest egg using" choice has a "Your 12-mo" option that grows the
  *  savings at this figure, so the line now says so. */
 export const HISTORIC_TTM_TITLE = 'HISTORIC 12-MONTH RETURN';
-export const HISTORIC_TTM_BODY = "Add historic 12-month return on your holdings. For bonds or CDs, enter the yield to maturity if it's different from the coupon rate. The Plan tab compares it with the typical return for this type of account, and can grow your savings at it if you choose that there.";
+export const HISTORIC_TTM_BODY = "Add historic 12-month return on your holdings. For bonds or CDs, enter the yield to maturity if it’s different from the coupon rate. The Plan tab compares it with the typical return for this type of account, and can grow your savings at it if you choose that there.";

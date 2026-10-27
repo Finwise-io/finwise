@@ -24,7 +24,8 @@ test('4a — all four statuses are offered, including married filing separately'
 });
 
 test('4a — just me: pre-answered as Single, and it says why', () => {
-  set(SOLO);
+  // "just me" is an answer: hasPartner 'no'. With nothing entered the sentence says that instead (IN-17, 2026-10-25)
+  set({ ...SOLO, hasPartner: 'no' });
   render(<FilingStatusScreen />);
   expect(screen.getByLabelText('Single').props.accessibilityState.selected).toBe(true);
   expect(screen.getByText(/because you entered it is just you/)).toBeOnTheScreen();

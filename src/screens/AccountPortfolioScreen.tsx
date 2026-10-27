@@ -384,15 +384,24 @@ export default function AccountPortfolioScreen() {
       const mark = markOf(p);
       const noPrice = mark == null && sh !== 0;
       const aloneUnpriced = noPrice && answer.unpriced != null && answer.unpriced.count === 1;
+      // IN AN ACCOUNT BUILT BY HAND, A HOLDING WITH NO PRICE IS WORTH WHAT WAS PAID (2026-10-25, FIX-HOLDINGS item 5; DEC-6926 "Built
+      // by hand: what you paid", DEC-6769; tenets 2 and 4): the figure its balance, Net worth and the amber box count, and its own
+      // Holding page shows (theHolding with no price — DEC-0022). Its row printed "no price today" and its bar $0 while the total
+      // counted it: $1,000 + $3,650 + $0 under $5,650. To reverse: drop paidShown.
+      const paidShown = noPrice && account.source !== 'connected'
+        ? theHolding({ position: p, accountId: String(account.asset_id), price: null, transactions: [] }).value : null;
       const value = mark != null
         ? (theHolding({ position: p, accountId: String(account.asset_id), price: mark, transactions: [] }).value ?? 0)
-        : aloneUnpriced ? answer.unpriced!.value : 0;
+        : aloneUnpriced ? answer.unpriced!.value : paidShown ?? 0;
       const cls2 = holdingClassOf(p);   // the one test — the same one the class figure above these rows was split by
+      // THE QUANTITY IN THE HOLDING'S OWN UNIT (2026-10-25, FIX-HOLDINGS item 2; DEC-0277, tenet 4): an option reads "2 contracts",
+      // as its Holding page and its activity lines do — it read "2 shares · $2.50"
+      const qty = sh == null ? null : quantityWithUnit(p, sh, (n) => n.toLocaleString());
       if (noPrice) return {
         key: p.position_id ?? p.ticker, posId: p.position_id, name: holdingWord(p),
-        sub: `${sh == null ? SHARE_COUNT_NOT_STATED.replace(/\.$/, '') : plural(sh, 'share', sh.toLocaleString())} · no price today${aloneUnpriced ? ` — the rest of ${who}'s total` : ''}`,
+        sub: `${sh == null ? SHARE_COUNT_NOT_STATED.replace(/\.$/, '') : qty} · no price today${aloneUnpriced ? ` — the rest of ${who}’s total` : paidShown != null ? ' — showing what you paid' : ''}`,
         color: ClassMarkColors[cls2], value, cls: cls2, ticker: p.ticker,
-        ...(aloneUnpriced ? {} : { valueWords: 'no price today' }),
+        ...(aloneUnpriced || paidShown != null ? {} : { valueWords: 'no price today' }),
       };
       return {
         key: p.position_id ?? p.ticker,
@@ -407,7 +416,7 @@ export default function AccountPortfolioScreen() {
         sub: sh == null ? SHARE_COUNT_NOT_STATED
           : cls2 === 'bonds' ? bondLine(p, value)
           : cls2 === 'cash' ? 'counts as cash'
-          : sh > 0 ? `${plural(sh, 'share', sh.toLocaleString())}${mark != null ? ` · ${fig('MK-NW-M-029', mark)}` : ''}`
+          : sh > 0 ? `${qty}${mark != null ? ` · ${fig('MK-NW-M-029', mark)}` : ''}`
           : undefined,
         color: ClassMarkColors[cls2], value, cls: cls2, ticker: p.ticker,
         ...(sh == null ? { valueWords: 'not stated', countNotStated: true } : {}),
@@ -415,10 +424,16 @@ export default function AccountPortfolioScreen() {
     }),
     // several holdings with no price share the part of the total the rest leaves over, on one row under their class
     ...(answer.unpriced && answer.unpriced.count > 1 ? [{ key: '__unpriced', name: 'Holdings with no price today',
-      sub: `${plural(answer.unpriced.count, 'holding')} · the rest of ${who}'s total` as string | undefined,
+      sub: `${plural(answer.unpriced.count, 'holding')} · the rest of ${who}’s total` as string | undefined,
       color: ClassMarkColors[answer.unpriced.cls] ?? ClassMarkColors.mixed, value: answer.unpriced.value, cls: answer.unpriced.cls }] : []),
     // the cash sleeve, named and described as both drawings name it: "Cash in this account", "uninvested balance"
-    ...(hasCashRow ? [{ key: '__cash', name: 'Cash in this account', sub: 'uninvested balance' as string | undefined, color: ClassMarkColors.cash, value: cashRowValue, cls: 'cash' }] : []),
+    // CASH NEVER ENTERED SAYS SO (2026-10-25, FIX-HOLDINGS item 3; the lead's ruling, tenet 3; drawing v01 row 81): the figure is
+    // what the activity since the import moved, kept so the rows add up to the total — it read "uninvested balance" beside the
+    // stored −$2,000, as if that were cash the account holds. To reverse: "uninvested balance" for every cash row.
+    ...(hasCashRow ? [{ key: '__cash', name: 'Cash in this account',
+      sub: ((account as any).cash_not_entered === true && account.source !== 'connected'
+        ? `not entered · activity since ${account.source === 'imported' ? 'the import' : 'it was added'}` : 'uninvested balance') as string | undefined,
+      color: ClassMarkColors.cash, value: cashRowValue, cls: 'cash' }] : []),
     ...(((account.option_holdings ?? []) as any[]).map((o) => ({
       key: o.label, name: o.label,
       sub: `option — ${plural(Math.abs(o.contracts), 'contract')}${o.contracts < 0 ? ', short' : ''}`,
@@ -606,7 +621,10 @@ export default function AccountPortfolioScreen() {
    *  the app cannot tell which way they went. It read "Broker adjustment". */
   const unknownAbout = (t: Transaction, word: string): string => {
     const sh = Math.abs(Number((t as any).shares) || 0);
-    return `${word ? `${word} · an activity the app does not know` : 'An activity the app does not know'}${sh ? ` · ${plural(sh, 'share', sh.toLocaleString())}` : ''}`;
+    // in the holding's own unit, as recordAbout writes it (2026-10-25, FIX-HOLDINGS item 2): an option's record reads contracts
+    const q = t.ticker ? positions.find((p: any) => String(p.ticker ?? '').trim().toUpperCase() === String(t.ticker).trim().toUpperCase()) : undefined;
+    const qty = q ? quantityWithUnit(q as any, sh, (n) => n.toLocaleString()) : null;
+    return `${word ? `${word} · an activity the app does not know` : 'An activity the app does not know'}${sh ? ` · ${qty ?? plural(sh, 'share', sh.toLocaleString())}` : ''}`;
   };
 
   /** THE TRIO'S COLOURS (drawing v01): Market value in the deep green; Wealth generated and Return green when measured and
@@ -661,7 +679,8 @@ export default function AccountPortfolioScreen() {
             <Text style={s.linkTxt}>See the whole account ›</Text>
           </TouchableOpacity>
           <View style={s.optBlock}>
-            <SectionBand title={`THE HOLDINGS · ${ASSET_CLASS_LABEL[classView as keyof typeof ASSET_CLASS_LABEL]?.toUpperCase()} ONLY`} />
+            {/* the bar runs to the card's edges (the dark-green bar standard): it sat 12 short of each, inside the card's padding (2026-10-25) */}
+            <View style={s.cardBleed}><SectionBand title={`THE HOLDINGS · ${ASSET_CLASS_LABEL[classView as keyof typeof ASSET_CLASS_LABEL]?.toUpperCase()} ONLY`} /></View>
             {insideRows.filter((rw: any) => rw.cls === classView).map((rw) => (
               <TouchableOpacity key={rw.key} style={s.insideRow} disabled={!(rw as any).posId}
                 accessibilityRole={(rw as any).posId ? 'button' : undefined} accessible
@@ -735,12 +754,12 @@ export default function AccountPortfolioScreen() {
               : now?.sentence
               /* a window joined at the record's first day: only the days before it are worked back (DEC-6412, 2026-10-19) */
               || (now?.recordBegins
-                ? `Your daily record begins ${dateShown(now.recordBegins)}, so the days before it are worked back from each holding's price history.`
+                ? `Your daily record begins ${dateShown(now.recordBegins)}, so the days before it are worked back from each holding’s price history.`
                 : null)
               || (now?.measured == null
                 /* no recorded value on the first day: the beginning is worked back from today's values and each
                    holding's price history, and a return IS shown — of the holdings with a history (DEC-5068, 2026-10-13) */
-                ? `Your daily record does not reach back to ${sinceWords} yet, so the beginning is worked back from today's values and each holding's price history.`
+                ? `Your daily record does not reach back to ${sinceWords} yet, so the beginning is worked back from today’s values and each holding’s price history.`
                 /* A WINDOW LONGER THAN A YEAR IS A YEARLY RATE, AND SAYS SO (his precision order, Q49 and 2026-09-25: "a yearly rate
                    with 'a year' on it, and the window's own total stated beside it"; 2026-10-21, outside re-run OpenAI MK-PF-M-016).
                    2Y printed its yearly rate above "— not a yearly rate"; it now says the Performance tab's own sentence. */
@@ -953,7 +972,7 @@ export default function AccountPortfolioScreen() {
       {maturedOn && (account.balance || 0) > 0 && (
         <View style={s.maturedCard}>
           <Text style={s.maturedTitle}>⏰ This {assetKind(account.kind)?.id === 'cd' ? 'CD' : 'bond'} matured {dateShown(bondOne?.maturity)}.</Text>
-          <Text style={s.maturedBody}>The money isn't growing here anymore — record what happened so your numbers stay true.</Text>
+          <Text style={s.maturedBody}>The money isn’t growing here anymore — record what happened so your numbers stay true.</Text>
           <TouchableOpacity accessibilityRole="button" style={s.maturedOpt}
             accessibilityLabel="Paid out to my bank — records the payout"
             onPress={() => { store.recordTransaction?.({ type: 'SELL', account_id: account.asset_id, amount: account.balance || 0, date: iso(new Date()), note: 'Matured — paid out' }); }}>
@@ -976,7 +995,7 @@ export default function AccountPortfolioScreen() {
             <TouchableOpacity accessibilityRole="button" style={s.staleBtn}
               onPress={() => store.updateAsset?.(account.asset_id, { value_as_of: iso(new Date()) })}
               accessibilityLabel="This value is current — stamp it today">
-              <Text style={s.staleBtnTxt}>It's current</Text>
+              <Text style={s.staleBtnTxt}>It’s current</Text>
             </TouchableOpacity>
             <TouchableOpacity accessibilityRole="button" style={s.staleBtn} onPress={() => setValueSheet(true)}
               accessibilityLabel="Update the value">
@@ -1016,7 +1035,7 @@ export default function AccountPortfolioScreen() {
           </TouchableOpacity>
           {!account.derive_balance && (
             <TouchableOpacity accessibilityRole="button" style={s.secondaryBtn} onPress={() => setValueSheet(true)}
-              accessibilityLabel="Update this account's value">
+              accessibilityLabel="Update this account’s value">
               <Text style={s.secondaryTxt}>Update value</Text>
             </TouchableOpacity>
           )}
@@ -1211,7 +1230,7 @@ function BondDetail({ account }: { account: AssetAccount }) {
           : `${percentDigits(one.couponRate)}%/year · ${one.couponPerYear != null ? `${fig('MK-NW-M-056', one.couponPerYear)}/year` : 'face value not entered'}`)} />
         <FactRow label="Matures" value={figWords('MK-NW-M-025', !one.maturity ? MATURITY_NOT_ENTERED : matured ? `${dateShown(one.maturity)} (matured)` : `${dateShown(one.maturity)} (${plural(Math.round(years), 'year')} away)`)} />
         {!matured && one.yieldToMaturity != null && <FactRow label="Yield if held to maturity" value={`about ${fig('MK-NW-M-026', one.yieldToMaturity)} · estimate`} />}
-        {one.currentYield != null && <FactRow label="Yield on today's value" value={fig('MK-NW-M-027', one.currentYield)} />}
+        {one.currentYield != null && <FactRow label="Yield on today’s value" value={fig('MK-NW-M-027', one.currentYield)} />}
         {!!one.accruedCaveat && <Text style={s.bondNote}>{one.accruedCaveat}</Text>}
       </View>
 
@@ -1239,7 +1258,7 @@ function BondDetail({ account }: { account: AssetAccount }) {
       )}
       {one.ratesMove && (
         <View style={s.card} testID="card-rates" accessible
-          accessibilityLabel={`Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly ${figSaid('MK-NW-M-028', one.ratesMove.ratesUp.low)} to ${figSaid('MK-NW-M-028', one.ratesMove.ratesUp.high)}. If rates fall one percent, roughly ${figSaid('MK-NW-M-028', one.ratesMove.ratesDown.low)} to ${figSaid('MK-NW-M-028', one.ratesMove.ratesDown.high)}. Held to maturity, ${figSaid('MK-NW-M-023', one.face)} comes back if the issuer pays as promised.`}>
+          accessibilityLabel={`Estimate, not a prediction. If interest rates rise one percent, this bond’s market value falls to roughly ${figSaid('MK-NW-M-028', one.ratesMove.ratesUp.low)} to ${figSaid('MK-NW-M-028', one.ratesMove.ratesUp.high)}. If rates fall one percent, roughly ${figSaid('MK-NW-M-028', one.ratesMove.ratesDown.low)} to ${figSaid('MK-NW-M-028', one.ratesMove.ratesDown.high)}. Held to maturity, ${figSaid('MK-NW-M-023', one.face)} comes back if the issuer pays as promised.`}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Text style={s.cardHdr2}>IF INTEREST RATES MOVE</Text>
             {/* the dot is the size of the title it sits beside, 11 (founder 2026-08-14; drawing v01 state E's .idot) — it was 13 */}
@@ -1396,7 +1415,7 @@ function RecordActivitySheet({ account, kinds, onClose }: { account: AssetAccoun
             <Text style={s.sheetNote}>Lands as cash in this account. When you invest it, record the purchase and it moves into that holding.</Text>
           )}
           {action === 'WITHDRAWAL' && (account.positions?.length ?? 0) > 0 && (
-            <Text style={s.sheetNote}>Comes out of the cash in this account — sell a holding first if there isn't enough.</Text>
+            <Text style={s.sheetNote}>Comes out of the cash in this account — sell a holding first if there isn’t enough.</Text>
           )}
           <View style={s.amtRow}>
             <Text style={s.amtPrefix}>{currencySymbol()}</Text>
@@ -1507,7 +1526,8 @@ const s = StyleSheet.create({
   // not green."): the door is a thing the person still has to do, so it wears the app's one amber action box — the
   // exact box of DataGapsBanner (amberLight, a 1-point amber edge, Radii.lg, Spacing.md) — with its title in amber,
   // as this page's own amber box draws it (account-page drawing v01, .warnb).
-  itemizeDoor: { backgroundColor: Colors.amberLight, borderWidth: 1, borderColor: Colors.amber, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.md },
+  // its corners 12, as the drawing's .itemize draws them and as the one amber box now is (2026-10-25); they were 16
+  itemizeDoor: { backgroundColor: Colors.amberLight, borderWidth: 1, borderColor: Colors.amber, borderRadius: Radii.md, padding: Spacing.md, marginTop: Spacing.md },
   itemizeDoorT: { fontSize: 15, fontWeight: '800', color: Colors.amber },
   itemizeDoorS: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 18 },
   optHdr: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.7, marginBottom: 4 },
@@ -1595,6 +1615,7 @@ const s = StyleSheet.create({
   amtInput: { fontSize: 38, fontWeight: '800', color: Colors.textPrimary, minWidth: 80, textAlign: 'center', padding: 0 },
   destWrap: { marginTop: Spacing.sm },
   sheetBleed: { marginHorizontal: -Spacing.lg },   // the sheet's own padding, taken back on both sides
+  cardBleed: { marginHorizontal: -Spacing.md },    // the card's own padding, taken back on both sides (a bar part-way down a card)
   destHdr: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: 4 },
   destRow: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, marginBottom: 6, minHeight: 44, justifyContent: 'center' },
   destOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
@@ -1640,6 +1661,11 @@ function EditRecordSheet({ row, onClose }: { row: Transaction | null; onClose: (
   if (!row) return null;
   const read = (v: string) => parseFloat(String(v).replace(/[^0-9.]/g, ''));
   const trade = (row.type === 'BUY' || row.type === 'SELL') && (Number(row.shares) || 0) > 0;
+  // AN OPTION'S RECORD IS CORRECTED IN CONTRACTS (2026-10-25, FIX-HOLDINGS items 2 and 6; DEC-0277): its holding's own unit, or the
+  // kind the record names — it read "Shares". The price stays per share, as quoted and as recorded (trade-sheet v03 row 19).
+  const heldAs = ((store.assetAccounts ?? []) as any[]).find((a) => a.asset_id === row.account_id)?.positions
+    ?.find((p: any) => String(p.ticker ?? '').trim().toUpperCase() === String(row.ticker ?? '').trim().toUpperCase());
+  const inContracts = quantityWithUnit(heldAs ?? { kind: (row as any).kind }, 2) === '2 contracts';   // the one quantity writer's unit (MK-PF-F-033)
   const n = read(amount);
   const feeN = fee.trim() === '' ? null : read(fee);
   const valid = trade
@@ -1678,7 +1704,7 @@ function EditRecordSheet({ row, onClose }: { row: Transaction | null; onClose: (
               <Text style={sh.note}>{dateShown(row.date)} · correcting it reverses the old record and records the new one, so your balance stays right.</Text>
               {/* the trade sheet's own three figures, in its words (Shares, Price / share, and the fee as an optional figure) */}
               <View style={sh.tradeRow}>
-                <View style={sh.tradeCell}><Text style={sh.tradeL}>Shares</Text><TextInput style={sh.tradeIn} keyboardType="decimal-pad" value={shares} onChangeText={setShares} accessibilityLabel="Shares" placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+                <View style={sh.tradeCell}><Text style={sh.tradeL}>{inContracts ? 'Contracts' : 'Shares'}</Text><TextInput style={sh.tradeIn} keyboardType="decimal-pad" value={shares} onChangeText={setShares} accessibilityLabel={inContracts ? 'Contracts' : 'Shares'} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
                 <View style={sh.tradeCell}><Text style={sh.tradeL}>Price / share</Text><TextInput style={sh.tradeIn} keyboardType="decimal-pad" value={price} onChangeText={setPrice} accessibilityLabel="Price per share" placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
                 <View style={sh.tradeCell}><Text style={sh.tradeL}>Fee (opt)</Text><TextInput style={sh.tradeIn} keyboardType="decimal-pad" value={fee} onChangeText={setFee} accessibilityLabel="Fee" placeholder="—" placeholderTextColor={Colors.textTertiary} /></View>
               </View>

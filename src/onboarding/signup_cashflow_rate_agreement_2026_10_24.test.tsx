@@ -76,22 +76,25 @@ describe('the rate: sign-up and Cash flow give one person one rate', () => {
   });
   test('sign-up\'s taxes step offers the calculated rate Cash flow uses: ~7%, not ~8%', () => {
     const L = signUp('income_tax');
-    expect(L).toContain('Use the calculated rate (~7%)');
-    expect(L.some((l) => /^~7% federal income tax · 12% bracket/.test(l))).toBe(true);
+    // two decimals since 2026-10-26 (MK-CF-M-081, the rate in force; Q49; income-end-to-end_v07 row of that date): $4,444 ÷ $60,000 = 7.4067%
+    expect(L).toContain('Use the calculated rate (~7.41%)');
+    expect(L.some((l) => /^~7\.41% federal income tax · 12% bracket/.test(l))).toBe(true);
   });
   test('sign-up\'s income recap: tax $4,444 at ~7%, take-home $50,756 a year — the same as its own monthly average, ≈ $4,230', () => {
     const L = signUp('recap_income');
     expect(L[L.indexOf('Take-home / year') + 1]).toBe(money(50_756));
     expect(L).toContain(`≈ ${money(4_229.67)}/month average`);
-    expect(L[L.indexOf('Tax (~7% on taxable income)') + 1]).toBe(`-${money(4_444)}`);
+    expect(L[L.indexOf('Tax (~7.41% on taxable income)') + 1]).toBe(`-${money(4_444)}`);
     expect(L[L.indexOf('Available /year') + 1]).toBe(money(50_756));
   });
   test('Cash flow\'s income summary, same person: take-home $4,230 a month and calculated tax ≈$4,444 a year — sign-up\'s two figures', () => {
     const L = cashFlow();
-    expect(L[L.indexOf('TAKE-HOME EACH MONTH') + 1]).toBe(money(4_229.67));   // the band is drawn in capitals
+    // the band is drawn in capitals; a take-home the app works out with its calculated rate wears ≈ there too, as sign-up's own
+    // "≈ $4,230/month average" does (IN-03, 2026-10-25; drawing v07 rule 9)
+    expect(L[L.indexOf('TAKE-HOME EACH MONTH') + 1]).toBe(`≈${money(4_229.67)}`);
     expect(L[L.indexOf('Calculated federal tax') + 2]).toBe(`≈${money(4_444)}/year`);
     const S = signUp('recap_income');
-    expect(S[S.indexOf('Tax (~7% on taxable income)') + 1]).toBe(`-${money(4_444)}`);
+    expect(S[S.indexOf('Tax (~7.41% on taxable income)') + 1]).toBe(`-${money(4_444)}`);
     expect(S).toContain(`≈ ${money(4_229.67)}/month average`);
   });
 });
@@ -145,16 +148,16 @@ describe('sign-up\'s Taxes step reads the income and the bracket Cash flow reads
     expect(C[C.indexOf('WHAT IT IS TAXED ON') + 1]).toBe(money(55_200));   // the $60,000 of wages less the $4,800 401(k) (DEC-0283)
     expect(C[C.indexOf('Federal tax bracket') + 2]).toBe('12%');
     const S = signUpWith(WITH_BENEFITS, 'income_tax');
-    expect(S).toContain('~7% federal income tax · 12% bracket (2026)');
+    expect(S).toContain('~7.41% federal income tax · 12% bracket (2026)');   // $4,444 ÷ $60,000 = 7.4067%
     // what it is taxed on is the gross less the 401(k) (MK-CF-M-041, DEC-0283; 2026-10-24): $60,000 − $4,800 = $55,200
     expect(S).toContain(`On the ~${money(55_200)} it is taxed on — your gross less your 401(k) — from the IRS schedule after the standard deduction. It does NOT include Social Security and Medicare — about another 7.7% of a wage — or any state tax.`);
-    expect(S).toContain('Use the calculated rate (~7%)');
+    expect(S).toContain('Use the calculated rate (~7.41%)');   // $4,444 ÷ $60,000 = 7.4067%
     // what sign-up said until 2026-10-24: the total of every source, called gross, and its bracket
     expect(S.join(' ')).not.toMatch(/68,400|22% bracket/);
   });
   test('the income recap of the same household reads the same rate: tax ~7% on what it is taxed on', () => {
     const S = signUpWith(WITH_BENEFITS, 'recap_income');
-    expect(S[S.indexOf('Tax (~7% on taxable income)') + 1]).toBe(`-${money(4_444)}`);
+    expect(S[S.indexOf('Tax (~7.41% on taxable income)') + 1]).toBe(`-${money(4_444)}`);
   });
 });
 
@@ -185,7 +188,7 @@ describe('the bracket reads the income the tax is worked on — sign-up and Cash
     expect(cf[cf.indexOf('= Gross /year') + 1]).toBe(money(70_000));
     expect(cf[cf.indexOf('Federal tax bracket') + 2]).toBe('12%');
     expect(cf[cf.indexOf('Calculated federal tax') + 2]).toBe(`≈${money(5_020)}/year`);
-    expect(su).toContain('~7% federal income tax · 12% bracket (2026)');
+    expect(su).toContain('~7.17% federal income tax · 12% bracket (2026)');   // $5,020 ÷ $70,000 = 7.1714% (the tax on $60,000 taxed)
     expect(su.join(' ')).not.toMatch(/22% bracket/);   // the gross band, read until 2026-10-24
   });
 });
@@ -199,20 +202,20 @@ describe('DEC-7608 — the Income summary names a typed state rate', () => {
     useStore.setState({ hideBalances: false, onboardingProfile: answers } as any);
     const C = require('../screens/IncomeSummaryScreen').default;
     const r = render(<C />); const L = readLines(); r.unmount();
-    const line = L.find((l) => /every source counted\. Your \d+%/.test(l));
+    const line = L.find((l) => /every source counted\. Your \d+\.\d{2}%/.test(l));   // two decimals since 2026-10-26 (MK-CF-M-081, the rate in force; Q49; income-end-to-end_v07 row of that date)
     expect(line).toBeDefined();
     return line as string;
   };
   const OWN = { ...PAT, taxMode: 'manual', manualTaxRate: '24' };
   test('with a 5% state rate typed: "… federal income tax, plus the 5.00% state rate you entered, assuming the standard deduction."', () => {
     const answers = { ...OWN, stateTaxRate: '5' };
-    const shown = Math.round(rateInForce(answers as any).rate * 100);
-    expect(shown).toBe(24);
+    const shown = (rateInForce(answers as any).rate * 100).toFixed(2);
+    expect(shown).toBe('24.00');
     expect(closingOf(answers)).toBe(`Single, every source counted. Your ${shown}%, used on every figure built from your take-home. `
       + 'Without it we show the calculated rate — federal income tax, plus the 5.00% state rate you entered, assuming the standard deduction.');
   });
   test('with no state rate typed, the line reads as the drawing draws it', () => {
-    expect(closingOf(OWN)).toBe('Single, every source counted. Your 24%, used on every figure built from your take-home. '
+    expect(closingOf(OWN)).toBe('Single, every source counted. Your 24.00%, used on every figure built from your take-home. '
       + 'Without it we show the calculated rate — federal income tax only, assuming the standard deduction.');
   });
 });
@@ -225,7 +228,11 @@ describe('the line under a calculated tax names a state rate entered', () => {
     useStore.setState({ hideBalances: false, onboardingProfile: answers } as any);
     const C = require('../screens/IncomeSummaryScreen').default;
     const r = render(<C />); const L = readLines(); r.unmount();
-    return L[L.indexOf('Calculated federal tax') + 3];
+    // with a state rate entered the row is "Calculated tax" — it is not federal only (the lead's ruling, 2026-10-25; canon row 25)
+    const at = L.indexOf('Calculated federal tax') >= 0 ? L.indexOf('Calculated federal tax') : L.indexOf('Calculated tax');
+    expect(at).toBeGreaterThanOrEqual(0);
+    expect(L[at]).toBe(answers?.stateTaxRate ? 'Calculated tax' : 'Calculated federal tax');
+    return L[at + 3];
   };
   test('5% state rate entered: the rate in force holds it, and the line says so', () => {
     const answers = { ...PAT, stateTaxRate: '5' };

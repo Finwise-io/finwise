@@ -120,15 +120,18 @@ test('no screen builds the Net worth family\'s inputs itself — every door call
   const reading = screens.filter((s) => findings.filter((f) => f.file === s).every((f) => f.reads));
   // printed every run: the screens that ask the family's doors, and how many read the one builder
   console.log(`screens reading the one builder: ${reading.length} of ${screens.length} — door calls examined: ${findings.length}, in ${files.length} files`);
-  expect(screens.length).toBeGreaterThanOrEqual(7);
-  expect(findings.length).toBeGreaterThanOrEqual(13);
+  expect(screens.length).toBeGreaterThanOrEqual(8);
+  expect(findings.length).toBeGreaterThanOrEqual(15);
   expect(unclassified).toEqual([]);
   expect(findings.filter((f) => !f.reads).map((f) => `${f.file}:${f.line} ${f.door} — ${f.why} (read useNetWorthInputs instead, DEC-0345)`)).toEqual([]);
 });
 
-test('the seven screens of 2026-10-20 are all found — if one stops asking a door, this says so rather than shrinking quietly', () => {
+// THE EIGHTH SCREEN (2026-10-25, NW-MMFIX): Cash flow · Debts asks theNetWorth for the one list of debts whose payment was
+// never entered (debtPaymentsNotEntered), handed the builder's answer itself — the sweep above reads it as reading the builder.
+test('the seven screens of 2026-10-20 and the Debts tab of 2026-10-25 are all found — if one stops asking a door, this says so rather than shrinking quietly', () => {
   const { findings } = sweep();
   expect([...new Set(findings.map((f) => f.file))].sort()).toEqual([
+    'src/screens/BudgetScreen.tsx',
     'src/screens/HomeScreen.tsx',
     'src/screens/IncomeManagerScreen.tsx',
     'src/screens/InsightsScreen.tsx',

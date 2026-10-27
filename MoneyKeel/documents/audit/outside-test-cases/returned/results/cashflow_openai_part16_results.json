@@ -1,0 +1,1813 @@
+{
+ "batch": "cf module — part 16 (federal tax — the 2026 tables, deductions, bands): cases, formula checks, rules held, source checks",
+ "reviewer": "OpenAI independent specification reviewer, 2026-10-24",
+ "run_by": "Claude Code, CFR-4 measurer, part 16",
+ "run_on": "2026-10-25",
+ "test_file": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts",
+ "source": "returned/MoneyKeel_CashFlow_Independent_Audit_Package/MoneyKeel_CashFlow_Independent_Audit/audit_results/MoneyKeel_CashFlow_Audit_Part_16.json",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts → 63 passed, 0 failed, 0 skipped, 63 total (55 cases, each APP WRONG item a test.failing on the reviewer's answer with a twin pinning the app; 3 twins, 2 witness tests, 1 tax-year check, 2 coverage guards). npx tsc --noEmit: clean (exit 0).",
+ "working_tree": "Measured on b1c659e8 with no uncommitted change to tax.ts, take-home-mode-migration.ts, tax-rate.ts or decumulation/index.ts during the run. Already changed on 2026-10-23/24 and agreeing on today's code: head-of-household bands, the per-person senior phase-out, the bracket and \"taxed on\" after the 401(k).",
+ "ready_to_close": false,
+ "cases": [
+  {
+   "id": "MK-CF-F-097",
+   "case_id": "MK-CF-F-097-C01",
+   "name": "grossFromNet",
+   "kind": "easy",
+   "title": "Below deduction",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "10000",
+    "shown": "$10,000"
+   },
+   "actual": 10000.00000000001,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-097 grossFromNet — five cases › MK-CF-F-097-C01 · easy · Below deduction [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-097",
+   "case_id": "MK-CF-F-097-C02",
+   "name": "grossFromNet",
+   "kind": "easy",
+   "title": "First bracket",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "20000",
+    "shown": "$20,000"
+   },
+   "actual": 20000.000000000004,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-097 grossFromNet — five cases › MK-CF-F-097-C02 · easy · First bracket [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-097",
+   "case_id": "MK-CF-F-097-C03",
+   "name": "grossFromNet",
+   "kind": "complex",
+   "title": "Joint unround inversion",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "100000.17",
+    "shown": "$100,000"
+   },
+   "actual": 100000.17000000001,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-097 grossFromNet — five cases › MK-CF-F-097-C03 · complex · Joint unround inversion [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-097",
+   "case_id": "MK-CF-F-097-C04",
+   "name": "grossFromNet",
+   "kind": "complex",
+   "title": "Senior phaseout inversion",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "173111.43",
+    "shown": "$173,111"
+   },
+   "actual": 173111.43000000005,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-097 grossFromNet — five cases › MK-CF-F-097-C04 · complex · Senior phaseout inversion [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-097",
+   "case_id": "MK-CF-F-097-C05",
+   "name": "grossFromNet",
+   "kind": "edge",
+   "title": "Zero net",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-097 grossFromNet — five cases › MK-CF-F-097-C05 · edge · Zero net [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-098",
+   "case_id": "MK-CF-F-098-C01",
+   "name": "progressiveMonthlyTax",
+   "kind": "easy",
+   "title": "One earning month",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "months → progressiveMonthlyTax(taxableByMonth Jan→Dec, status, stateRate share, over65 0)",
+   "expected": {
+    "month_tax": [
+     {
+      "exact": "5020.0000",
+      "shown": "$5,020"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    "annual_tax": {
+     "exact": "5020.0000",
+     "shown": "$5,020"
+    }
+   },
+   "actual": [
+    5020,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-098 progressiveMonthlyTax — five cases › MK-CF-F-098-C01 · easy · One earning month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-098",
+   "case_id": "MK-CF-F-098-C02",
+   "name": "progressiveMonthlyTax",
+   "kind": "easy",
+   "title": "Two equal months",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "months → progressiveMonthlyTax(taxableByMonth Jan→Dec, status, stateRate share, over65 0)",
+   "expected": {
+    "month_tax": [
+     {
+      "exact": "1420.0000",
+      "shown": "$1,420"
+     },
+     {
+      "exact": "3600.0000",
+      "shown": "$3,600"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    "annual_tax": {
+     "exact": "5020.0000",
+     "shown": "$5,020"
+    }
+   },
+   "actual": [
+    1420,
+    3600,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-098 progressiveMonthlyTax — five cases › MK-CF-F-098-C02 · easy · Two equal months [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-098",
+   "case_id": "MK-CF-F-098-C03",
+   "name": "progressiveMonthlyTax",
+   "kind": "complex",
+   "title": "Unround joint increments",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "months → progressiveMonthlyTax(taxableByMonth Jan→Dec, status, stateRate share, over65 0)",
+   "expected": {
+    "month_tax": [
+     {
+      "exact": "0.00",
+      "shown": "$0"
+     },
+     {
+      "exact": "6307.8420",
+      "shown": "$6,308"
+     },
+     {
+      "exact": "8688.9023",
+      "shown": "$8,689"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    "annual_tax": {
+     "exact": "14996.7443",
+     "shown": "$14,997"
+    }
+   },
+   "actual": [
+    0,
+    6307.842000000001,
+    8688.902300000002,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-098 progressiveMonthlyTax — five cases › MK-CF-F-098-C03 · complex · Unround joint increments [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-098",
+   "case_id": "MK-CF-F-098-C04",
+   "name": "progressiveMonthlyTax",
+   "kind": "complex",
+   "title": "Loss lowers year base",
+   "classification": "APP WRONG",
+   "status": "FAIL",
+   "mapped": "months → progressiveMonthlyTax(taxableByMonth Jan→Dec, status, stateRate share, over65 0)",
+   "expected": {
+    "annual_income": {
+     "exact": "63110.93",
+     "shown": "$63,111"
+    },
+    "annual_tax": {
+     "exact": "5393.3116",
+     "shown": "$5,393"
+    }
+   },
+   "actual": [
+    7254.457399999999,
+    0,
+    684.461800000001,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "difference": "see note",
+   "rests_on": "tenets 1 and 2 (DEC-3523); the function's own promise that \"the twelve add up to the year's tax exactly\"",
+   "note": "A month's negative income is clipped to $0 (tax.ts:103, Math.max(0, g)), so the year's months add to the tax on $76,222.36 ($7,938.92), not on the year's $63,110.93 ($5,393.31). Reachable in principle — its one caller, buildIncomeState (calc.ts:244), takes a rent month after its running costs (monthlyGrossOfSource, calc.ts:161), which can be negative — but latent: buildIncomeState feeds IncomeDetailScreen (no way in, DEC-0027) and buildSnapshot (Home reads net worth only).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-098 progressiveMonthlyTax — five cases › MK-CF-F-098-C04 · complex · Loss lowers year base [APP WRONG] — a loss month is clipped to $0: the year reads $7,938.92 of tax, not $5,393.31",
+   "test_result": "passed (test.failing: it fails on the reviewer's answer today, as expected; it turns red when fixed)",
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — progressiveMonthlyTax RETIRED (his DEC-0196: one rate every month); the year's tax is the schedule on the year's income — the loss lowers it: $5,393.31 (was $7,938.92). C01–C03, C05 now check the year only."
+  },
+  {
+   "id": "MK-CF-F-098",
+   "case_id": "MK-CF-F-098-C05",
+   "name": "progressiveMonthlyTax",
+   "kind": "edge",
+   "title": "All explicit zero",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "months → progressiveMonthlyTax(taxableByMonth Jan→Dec, status, stateRate share, over65 0)",
+   "expected": {
+    "month_tax": [
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    "annual_tax": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-098 progressiveMonthlyTax — five cases › MK-CF-F-098-C05 · edge · All explicit zero [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-187",
+   "case_id": "MK-CF-F-187-C01",
+   "name": "seniorDeductionFor",
+   "kind": "easy",
+   "title": "Single ordinary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "0.00",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-187 seniorDeductionFor — five cases › MK-CF-F-187-C01 · easy · Single ordinary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-187",
+   "case_id": "MK-CF-F-187-C02",
+   "name": "seniorDeductionFor",
+   "kind": "easy",
+   "title": "Joint ordinary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "0.00",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-187 seniorDeductionFor — five cases › MK-CF-F-187-C02 · easy · Joint ordinary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-187",
+   "case_id": "MK-CF-F-187-C03",
+   "name": "seniorDeductionFor",
+   "kind": "complex",
+   "title": "Both seniors partial phaseout",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "9226.6596",
+    "shown": "$9,227"
+   },
+   "actual": 9226.659599999999,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-187 seniorDeductionFor — five cases › MK-CF-F-187-C03 · complex · Both seniors partial phaseout [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-187",
+   "case_id": "MK-CF-F-187-C04",
+   "name": "seniorDeductionFor",
+   "kind": "complex",
+   "title": "HOH senior",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "5513.3142",
+    "shown": "$5,513"
+   },
+   "actual": 5513.314200000001,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-187 seniorDeductionFor — five cases › MK-CF-F-187-C04 · complex · HOH senior [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-187",
+   "case_id": "MK-CF-F-187-C05",
+   "name": "seniorDeductionFor",
+   "kind": "edge",
+   "title": "MAGI missing",
+   "classification": "OUTSIDE DOMAIN",
+   "status": "RECORDED",
+   "mapped": "magi null → seniorDeductionFor(status, over65, null)",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "MAGI needed to establish senior deduction"
+   },
+   "actual": 0,
+   "difference": "the app returns a number where the reviewer asks for a refusal; no caller sends this input",
+   "rests_on": "callers: taxableIncomeFor passes the gross it was handed (tax.ts:308); taxableIncomeSteps passes max(0, gross − 401(k)) (planning/index.ts:66)",
+   "note": "No caller hands the senior deduction an unknown income, so its $0-for-unknown branch is never reached. What the app does with null: $0. Income never entered is a question for the caller (part 17, MK-CF-O-007-C02).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-187 seniorDeductionFor — five cases › MK-CF-F-187-C05 · edge · MAGI missing [OUTSIDE DOMAIN] — no caller sends an unknown income (tax.ts:308, planning/index.ts:66); the app returns $0 for it",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-099",
+   "case_id": "MK-CF-F-099-C01",
+   "name": "deductionFor",
+   "kind": "easy",
+   "title": "Single ordinary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "16100.00",
+    "shown": "$16,100"
+   },
+   "actual": 16100,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-099 deductionFor — five cases › MK-CF-F-099-C01 · easy · Single ordinary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-099",
+   "case_id": "MK-CF-F-099-C02",
+   "name": "deductionFor",
+   "kind": "easy",
+   "title": "Joint ordinary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "32200.00",
+    "shown": "$32,200"
+   },
+   "actual": 32200,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-099 deductionFor — five cases › MK-CF-F-099-C02 · easy · Joint ordinary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-099",
+   "case_id": "MK-CF-F-099-C03",
+   "name": "deductionFor",
+   "kind": "complex",
+   "title": "Both seniors partial phaseout",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "44726.6596",
+    "shown": "$44,727"
+   },
+   "actual": 44726.6596,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-099 deductionFor — five cases › MK-CF-F-099-C03 · complex · Both seniors partial phaseout [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-099",
+   "case_id": "MK-CF-F-099-C04",
+   "name": "deductionFor",
+   "kind": "complex",
+   "title": "HOH senior",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "31713.3142",
+    "shown": "$31,713"
+   },
+   "actual": 31713.3142,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-099 deductionFor — five cases › MK-CF-F-099-C04 · complex · HOH senior [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-099",
+   "case_id": "MK-CF-F-099-C05",
+   "name": "deductionFor",
+   "kind": "edge",
+   "title": "MAGI missing",
+   "classification": "OUTSIDE DOMAIN",
+   "status": "RECORDED",
+   "mapped": "magi null → deductionFor(status, over65, null)",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "MAGI needed to establish senior deduction"
+   },
+   "actual": 35500,
+   "difference": "the app returns a number where the reviewer asks for a refusal; no caller sends this input",
+   "rests_on": "callers as MK-CF-F-187-C05 (tax.ts:308, planning/index.ts:66)",
+   "note": "No caller hands deductionFor an unknown income. What the app does with null: $35,500 — the joint standard deduction and two age additions, no senior part, never a guessed one.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-099 deductionFor — five cases › MK-CF-F-099-C05 · edge · MAGI missing [OUTSIDE DOMAIN] — no caller sends an unknown income (tax.ts:308, planning/index.ts:66); the app returns $35,500 (no senior part)",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-100",
+   "case_id": "MK-CF-F-100-C01",
+   "name": "taxableIncomeFor",
+   "kind": "easy",
+   "title": "Single ordinary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "43900.00",
+    "shown": "$43,900"
+   },
+   "actual": 43900,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-100 taxableIncomeFor — five cases › MK-CF-F-100-C01 · easy · Single ordinary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-100",
+   "case_id": "MK-CF-F-100-C02",
+   "name": "taxableIncomeFor",
+   "kind": "easy",
+   "title": "Joint ordinary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "105800.00",
+    "shown": "$105,800"
+   },
+   "actual": 105800,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-100 taxableIncomeFor — five cases › MK-CF-F-100-C02 · easy · Joint ordinary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-100",
+   "case_id": "MK-CF-F-100-C03",
+   "name": "taxableIncomeFor",
+   "kind": "complex",
+   "title": "Both seniors partial phaseout",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "128384.5104",
+    "shown": "$128,385"
+   },
+   "actual": 128384.51040000001,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-100 taxableIncomeFor — five cases › MK-CF-F-100-C03 · complex · Both seniors partial phaseout [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-100",
+   "case_id": "MK-CF-F-100-C04",
+   "name": "taxableIncomeFor",
+   "kind": "complex",
+   "title": "HOH senior",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "51398.1158",
+    "shown": "$51,398"
+   },
+   "actual": 51398.11579999999,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-100 taxableIncomeFor — five cases › MK-CF-F-100-C04 · complex · HOH senior [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-100",
+   "case_id": "MK-CF-F-100-C05",
+   "name": "taxableIncomeFor",
+   "kind": "edge",
+   "title": "Gross differs from adjusted income",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "gross_receipts → a profile paid $90,000 a year (salaryFreq annually); above_line_adjustment → c_401k $20,000 ÷ 12; taxedAfterPreTax(profile) handed to taxableIncomeFor and deductionFor",
+   "expected": {
+    "taxable_after_adjustments": {
+     "exact": "45850",
+     "shown": "$45,850"
+    },
+    "deduction": {
+     "exact": "24150",
+     "shown": "$24,150"
+    }
+   },
+   "actual": {
+    "taxedOn": 70000,
+    "taxable": 45850,
+    "deduction": 24150
+   },
+   "difference": "none",
+   "rests_on": "every Cash flow caller hands the tax functions the income after the 401(k): rateInForce → taxedAfterPreTax (tax-rate.ts:164), incomeSummary taxedOn (income-summary.ts:756)",
+   "note": "With the $20,000 adjustment mapped to the one the app holds, a pre-tax 401(k), the real caller hands in $70,000: taxable $45,850, deduction $24,150 (the senior deduction phases on $70,000, not $90,000). Adjustments the app holds no input for (a deductible Traditional IRA, a direct HSA contribution, half the self-employment tax) are not entered anywhere, so they cannot be taken off.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-100 taxableIncomeFor — five cases › MK-CF-F-100-C05 · edge · Gross differs from adjusted income [AGREE] — the adjustment mapped to a $20,000 pre-tax 401(k), the one the app holds; callers hand in the income after it",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-101",
+   "case_id": "MK-CF-F-101-C01",
+   "name": "taxOwedFor",
+   "kind": "easy",
+   "title": "Single ordinary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "5020.0000",
+    "shown": "$5,020"
+   },
+   "actual": 5020,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-101 taxOwedFor — five cases › MK-CF-F-101-C01 · easy · Single ordinary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-101",
+   "case_id": "MK-CF-F-101-C02",
+   "name": "taxOwedFor",
+   "kind": "easy",
+   "title": "Joint ordinary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "12700.0000",
+    "shown": "$12,700"
+   },
+   "actual": 12700,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-101 taxOwedFor — five cases › MK-CF-F-101-C02 · easy · Joint ordinary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-101",
+   "case_id": "MK-CF-F-101-C03",
+   "name": "taxOwedFor",
+   "kind": "complex",
+   "title": "Both seniors partial phaseout",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "24087.817808",
+    "shown": "$24,088"
+   },
+   "actual": 24087.817808000003,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-101 taxOwedFor — five cases › MK-CF-F-101-C03 · complex · Both seniors partial phaseout [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-101",
+   "case_id": "MK-CF-F-101-C04",
+   "name": "taxOwedFor",
+   "kind": "complex",
+   "title": "HOH senior",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "7715.5041806",
+    "shown": "$7,716"
+   },
+   "actual": 7715.504180599998,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-101 taxOwedFor — five cases › MK-CF-F-101-C04 · complex · HOH senior [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-101",
+   "case_id": "MK-CF-F-101-C05",
+   "name": "taxOwedFor",
+   "kind": "edge",
+   "title": "Phaseout boundary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "11974.0000",
+    "shown": "$11,974"
+   },
+   "actual": 11974,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-101 taxOwedFor — five cases › MK-CF-F-101-C05 · edge · Phaseout boundary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-102",
+   "case_id": "MK-CF-F-102-C01",
+   "name": "effectiveRateOnGrossFor",
+   "kind": "easy",
+   "title": "Single ordinary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "0.08366666666666666666666666667",
+    "shown": "8.37%"
+   },
+   "actual": 0.08366666666666667,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-102 effectiveRateOnGrossFor — five cases › MK-CF-F-102-C01 · easy · Single ordinary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-102",
+   "case_id": "MK-CF-F-102-C02",
+   "name": "effectiveRateOnGrossFor",
+   "kind": "easy",
+   "title": "Joint ordinary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "0.09202898550724637681159420290",
+    "shown": "9.20%"
+   },
+   "actual": 0.09202898550724638,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-102 effectiveRateOnGrossFor — five cases › MK-CF-F-102-C02 · easy · Joint ordinary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-102",
+   "case_id": "MK-CF-F-102-C03",
+   "name": "effectiveRateOnGrossFor",
+   "kind": "complex",
+   "title": "Both seniors partial phaseout",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "0.1391465253686402789606239736",
+    "shown": "13.91%"
+   },
+   "actual": 0.13914652536864028,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-102 effectiveRateOnGrossFor — five cases › MK-CF-F-102-C03 · complex · Both seniors partial phaseout [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-102",
+   "case_id": "MK-CF-F-102-C04",
+   "name": "effectiveRateOnGrossFor",
+   "kind": "complex",
+   "title": "HOH senior",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "0.09283325025932052907764912720",
+    "shown": "9.28%"
+   },
+   "actual": 0.09283325025932052,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-102 effectiveRateOnGrossFor — five cases › MK-CF-F-102-C04 · complex · HOH senior [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-102",
+   "case_id": "MK-CF-F-102-C05",
+   "name": "effectiveRateOnGrossFor",
+   "kind": "edge",
+   "title": "Phaseout boundary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "0.07982666666666666666666666667",
+    "shown": "7.98%"
+   },
+   "actual": 0.07982666666666667,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-102 effectiveRateOnGrossFor — five cases › MK-CF-F-102-C05 · edge · Phaseout boundary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-103",
+   "case_id": "MK-CF-F-103-C01",
+   "name": "marginalBracketFor",
+   "kind": "easy",
+   "title": "Single ordinary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "0.12",
+    "shown": "12.00%"
+   },
+   "actual": 0.12,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-103 marginalBracketFor — five cases › MK-CF-F-103-C01 · easy · Single ordinary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-103",
+   "case_id": "MK-CF-F-103-C02",
+   "name": "marginalBracketFor",
+   "kind": "easy",
+   "title": "Joint ordinary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "0.22",
+    "shown": "22.00%"
+   },
+   "actual": 0.22,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-103 marginalBracketFor — five cases › MK-CF-F-103-C02 · easy · Joint ordinary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-103",
+   "case_id": "MK-CF-F-103-C03",
+   "name": "marginalBracketFor",
+   "kind": "complex",
+   "title": "Both seniors partial phaseout",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "0.22",
+    "shown": "22.00%"
+   },
+   "actual": 0.22,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-103 marginalBracketFor — five cases › MK-CF-F-103-C03 · complex · Both seniors partial phaseout [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-103",
+   "case_id": "MK-CF-F-103-C04",
+   "name": "marginalBracketFor",
+   "kind": "complex",
+   "title": "HOH senior",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "0.12",
+    "shown": "12.00%"
+   },
+   "actual": 0.12,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-103 marginalBracketFor — five cases › MK-CF-F-103-C04 · complex · HOH senior [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-103",
+   "case_id": "MK-CF-F-103-C05",
+   "name": "marginalBracketFor",
+   "kind": "edge",
+   "title": "Phaseout boundary",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "exact": "0.22",
+    "shown": "22.00%"
+   },
+   "actual": 0.22,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-103 marginalBracketFor — five cases › MK-CF-F-103-C05 · edge · Phaseout boundary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-104",
+   "case_id": "MK-CF-F-104-C01",
+   "name": "ltcgRateFor",
+   "kind": "easy",
+   "title": "Below0 percent top",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "marginal_baseline_rate": {
+     "exact": "0",
+     "shown": "0.00%"
+    }
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-104 ltcgRateFor — five cases › MK-CF-F-104-C01 · easy · Below0 percent top [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-104",
+   "case_id": "MK-CF-F-104-C02",
+   "name": "ltcgRateFor",
+   "kind": "easy",
+   "title": "Ordinary income above0 top",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "marginal_baseline_rate": {
+     "exact": "0.15",
+     "shown": "15.00%"
+    }
+   },
+   "actual": 0.15,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-104 ltcgRateFor — five cases › MK-CF-F-104-C02 · easy · Ordinary income above0 top [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-104",
+   "case_id": "MK-CF-F-104-C03",
+   "name": "ltcgRateFor",
+   "kind": "complex",
+   "title": "Finite gain spans0 and15",
+   "classification": "APP WRONG",
+   "status": "FAIL",
+   "mapped": "ordinary_taxable_income + the standard deduction → ltcgRateFor (the sheet's rate); a one-year plan drawing a taxable bucket of twice the gain at a 0.5 gain share → drawOrderOutcome.totalTaxes",
+   "expected": {
+    "gain_at_0": {
+     "exact": "1338.83",
+     "shown": "$1,339"
+    },
+    "gain_at_15": {
+     "exact": "1972.60",
+     "shown": "$1,973"
+    },
+    "gain_tax": {
+     "exact": "295.89",
+     "shown": "$296"
+    }
+   },
+   "actual": {
+    "capGainsRate": 0,
+    "tax": 0
+   },
+   "difference": "see note",
+   "rests_on": "IRS Schedule D Tax Worksheet (a gain stacks on ordinary income and is sliced across the bands); IRS Rev. Proc. 2025-32 §4.03 (the tops); tenets 1 and 7",
+   "note": "ltcgRateFor itself is a correct marginal lookup (C01, C02, C05 agree). Its one caller, the draw-order sheet on the Cash flow screen (DrawSteerSheet.tsx:72, opened from CashFlowScreen.tsx:682), hands that ONE rate to MK-PL-F-010 drawOrderOutcome (decumulation/index.ts:615), which taxes every dollar of gain drawn at it — so a gain that crosses a band is mispriced.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-104 ltcgRateFor — five cases › MK-CF-F-104-C03 · complex · Finite gain spans0 and15 [APP WRONG] — the draw-order sheet taxes the whole $3,311.43 gain at 0%: $0, not $295.89",
+   "test_result": "passed (test.failing: it fails on the reviewer's answer today, as expected; it turns red when fixed)",
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — new ltcgTaxOnGain (tax.ts) stacks the gain on the year's income across the 0/15/20 bands (Schedule D worksheet); drawOrderOutcome taxes taxable draws with it, the sheet hands it the income: $295.89 (was $0). ltcgRateFor stays the labelled marginal lookup."
+  },
+  {
+   "id": "MK-CF-F-104",
+   "case_id": "MK-CF-F-104-C04",
+   "name": "ltcgRateFor",
+   "kind": "complex",
+   "title": "Joint finite gain spans15 and20",
+   "classification": "APP WRONG",
+   "status": "FAIL",
+   "mapped": "ordinary_taxable_income + the standard deduction → ltcgRateFor (the sheet's rate); a one-year plan drawing a taxable bucket of twice the gain at a 0.5 gain share → drawOrderOutcome.totalTaxes",
+   "expected": {
+    "gain_at_15": {
+     "exact": "2588.83",
+     "shown": "$2,589"
+    },
+    "gain_at_20": {
+     "exact": "4722.60",
+     "shown": "$4,723"
+    },
+    "gain_tax": {
+     "exact": "1332.8445",
+     "shown": "$1,333"
+    }
+   },
+   "actual": {
+    "capGainsRate": 0.15,
+    "tax": 1096.7145
+   },
+   "difference": "see note",
+   "rests_on": "IRS Schedule D Tax Worksheet (a gain stacks on ordinary income and is sliced across the bands); IRS Rev. Proc. 2025-32 §4.03 (the tops); tenets 1 and 7",
+   "note": "ltcgRateFor itself is a correct marginal lookup (C01, C02, C05 agree). Its one caller, the draw-order sheet on the Cash flow screen (DrawSteerSheet.tsx:72, opened from CashFlowScreen.tsx:682), hands that ONE rate to MK-PL-F-010 drawOrderOutcome (decumulation/index.ts:615), which taxes every dollar of gain drawn at it — so a gain that crosses a band is mispriced.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-104 ltcgRateFor — five cases › MK-CF-F-104-C04 · complex · Joint finite gain spans15 and20 [APP WRONG] — the draw-order sheet taxes the whole $7,311.43 gain at 15%: $1,096.71, not $1,332.84",
+   "test_result": "passed (test.failing: it fails on the reviewer's answer today, as expected; it turns red when fixed)",
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — as C03: $1,332.84 (was $1,096.71)."
+  },
+  {
+   "id": "MK-CF-F-104",
+   "case_id": "MK-CF-F-104-C05",
+   "name": "ltcgRateFor",
+   "kind": "edge",
+   "title": "Exactly0 top",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the case's gross / net / MAGI as the function's argument (a year), status as FilingStatus, over65 as the count, state_rate as a share",
+   "expected": {
+    "marginal_baseline_rate": {
+     "exact": "0",
+     "shown": "0.00%"
+    },
+    "next_positive_gain_rate": {
+     "exact": "0.15",
+     "shown": "15.00%"
+    }
+   },
+   "actual": {
+    "atTop": 0,
+    "oneDollarMore": 0.15
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-104 ltcgRateFor — five cases › MK-CF-F-104-C05 · edge · Exactly0 top [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-185",
+   "case_id": "MK-CF-F-185-C01",
+   "name": "needsTakeHomeConversion",
+   "kind": "easy",
+   "title": "Legacy monthly0percent",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the stored profile: salaryMode takehome/gross, baseSalary as typed, salaryFreq, taxMode manual + manualTaxRate in percent when a rate is given, c_401k a month",
+   "expected": true,
+   "actual": true,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-185 needsTakeHomeConversion — five cases › MK-CF-F-185-C01 · easy · Legacy monthly0percent [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-185",
+   "case_id": "MK-CF-F-185-C02",
+   "name": "needsTakeHomeConversion",
+   "kind": "easy",
+   "title": "Already gross",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the stored profile: salaryMode takehome/gross, baseSalary as typed, salaryFreq, taxMode manual + manualTaxRate in percent when a rate is given, c_401k a month",
+   "expected": false,
+   "actual": false,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-185 needsTakeHomeConversion — five cases › MK-CF-F-185-C02 · easy · Already gross [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-185",
+   "case_id": "MK-CF-F-185-C03",
+   "name": "needsTakeHomeConversion",
+   "kind": "complex",
+   "title": "Legacy weekly with401k",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the stored profile: salaryMode takehome/gross, baseSalary as typed, salaryFreq, taxMode manual + manualTaxRate in percent when a rate is given, c_401k a month",
+   "expected": true,
+   "actual": true,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-185 needsTakeHomeConversion — five cases › MK-CF-F-185-C03 · complex · Legacy weekly with401k [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-185",
+   "case_id": "MK-CF-F-185-C04",
+   "name": "needsTakeHomeConversion",
+   "kind": "complex",
+   "title": "Calculated conversion with401k",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the stored profile: salaryMode takehome/gross, baseSalary as typed, salaryFreq, taxMode manual + manualTaxRate in percent when a rate is given, c_401k a month",
+   "expected": true,
+   "actual": true,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-185 needsTakeHomeConversion — five cases › MK-CF-F-185-C04 · complex · Calculated conversion with401k [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-185",
+   "case_id": "MK-CF-F-185-C05",
+   "name": "needsTakeHomeConversion",
+   "kind": "edge",
+   "title": "Known zero legacy",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "the stored profile: salaryMode takehome/gross, baseSalary as typed, salaryFreq, taxMode manual + manualTaxRate in percent when a rate is given, c_401k a month",
+   "expected": false,
+   "actual": false,
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-185 needsTakeHomeConversion — five cases › MK-CF-F-185-C05 · edge · Known zero legacy [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-186",
+   "case_id": "MK-CF-F-186-C01",
+   "name": "convertTakeHomeMode",
+   "kind": "easy",
+   "title": "Legacy monthly0percent",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "as F-185; outputs read back as baseSalary × pay periods a year, landsTypical, salaryMode, grossWorkedBack, or the same object handed back",
+   "expected": {
+    "annual_gross_estimate": {
+     "exact": "60000",
+     "shown": "$60,000"
+    },
+    "monthly_take_home_preserved": {
+     "exact": "5000",
+     "shown": "$5,000"
+    },
+    "new_mode": "gross",
+    "estimated_gross_label_required": true
+   },
+   "actual": {
+    "annual_gross_estimate": 60000,
+    "monthly_take_home_preserved": 5000,
+    "new_mode": "gross",
+    "grossWorkedBack": true
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-186 convertTakeHomeMode — five cases › MK-CF-F-186-C01 · easy · Legacy monthly0percent [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-186",
+   "case_id": "MK-CF-F-186-C02",
+   "name": "convertTakeHomeMode",
+   "kind": "easy",
+   "title": "Already gross",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "as F-185; outputs read back as baseSalary × pay periods a year, landsTypical, salaryMode, grossWorkedBack, or the same object handed back",
+   "expected": {
+    "unchanged": true
+   },
+   "actual": {
+    "unchanged": true
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-186 convertTakeHomeMode — five cases › MK-CF-F-186-C02 · easy · Already gross [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-186",
+   "case_id": "MK-CF-F-186-C03",
+   "name": "convertTakeHomeMode",
+   "kind": "complex",
+   "title": "Legacy weekly with401k",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "as F-185; outputs read back as baseSalary × pay periods a year, landsTypical, salaryMode, grossWorkedBack, or the same object handed back",
+   "expected": {
+    "annual_gross_estimate": {
+     "exact": "123279.4871794871794871794872",
+     "shown": "$123,279"
+    },
+    "monthly_take_home_preserved": {
+     "exact": "7501.736666666666666666666667",
+     "shown": "$7,502"
+    },
+    "new_mode": "gross",
+    "estimated_gross_label_required": true
+   },
+   "actual": {
+    "annual_gross_estimate": 123279.48717948717,
+    "monthly_take_home_preserved": 7501.736666666667,
+    "new_mode": "gross",
+    "grossWorkedBack": true
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-186 convertTakeHomeMode — five cases › MK-CF-F-186-C03 · complex · Legacy weekly with401k [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-186",
+   "case_id": "MK-CF-F-186-C04",
+   "name": "convertTakeHomeMode",
+   "kind": "complex",
+   "title": "Calculated conversion with401k",
+   "classification": "APP WRONG",
+   "status": "FAIL",
+   "mapped": "as F-185; outputs read back as baseSalary × pay periods a year, landsTypical, salaryMode, grossWorkedBack, or the same object handed back",
+   "expected": {
+    "annual_gross_estimate": {
+     "exact": "61084.9327272727272727272727",
+     "shown": "$61,085"
+    },
+    "monthly_take_home_preserved": {
+     "exact": "4211.17",
+     "shown": "$4,211"
+    },
+    "new_mode": "gross",
+    "estimated_gross_label_required": true
+   },
+   "actual": {
+    "annual_gross_estimate": 54947.77272727272,
+    "monthly_take_home_preserved": 4211.17,
+    "new_mode": "gross",
+    "grossWorkedBack": true
+   },
+   "difference": "see note",
+   "rests_on": "his DEC-0200 (convert once, by the honest reading: the number typed is the take-home) and DEC-0283 (a 401(k) comes off before tax); the lead's DEC-7942 fixed only the typed-rate branch; tenet 5",
+   "note": "The calculated branch works the gross back with grossFromNet and never adds the 401(k) back (take-home-mode-migration.ts:108): $54,947.77 a year where gross − $6,137.16 of 401(k) − tax on the rest = the $50,534.04 typed needs $61,084.93. The take-home typed is kept ($4,211.17), so the card then reads \"your figures, 0%\" (MK-CF-F-181, witness F-186-W1) instead of 7.23%. Reachable: every profile saved before 2026-08-28 in take-home mode without a typed rate is converted on load (useStore.ts:788).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-186 convertTakeHomeMode — five cases › MK-CF-F-186-C04 · complex · Calculated conversion with401k [APP WRONG] — the calculated branch leaves the $6,137.16 of 401(k) out: gross $54,947.77, not $61,084.93",
+   "test_result": "passed (test.failing: it fails on the reviewer's answer today, as expected; it turns red when fixed)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): the calculated branch adds the 401(k) back — grossFromNet(take-home × 12) + 401(k) × 12 = $61,084.93 (it read $54,947.77); the converted profile's rate in force is 7.23% (it read 0%)."
+  },
+  {
+   "id": "MK-CF-F-186",
+   "case_id": "MK-CF-F-186-C05",
+   "name": "convertTakeHomeMode",
+   "kind": "edge",
+   "title": "Known zero legacy",
+   "classification": "AGREE",
+   "status": "PASS",
+   "mapped": "as F-185; outputs read back as baseSalary × pay periods a year, landsTypical, salaryMode, grossWorkedBack, or the same object handed back",
+   "expected": {
+    "unchanged": true
+   },
+   "actual": {
+    "unchanged": true
+   },
+   "difference": "none",
+   "rests_on": "",
+   "note": "",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part16.test.ts › MK-CF-F-186 convertTakeHomeMode — five cases › MK-CF-F-186-C05 · edge · Known zero legacy [AGREE]",
+   "test_result": "passed"
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-CF-F-097",
+   "name": "grossFromNet",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "A monotone federal-schedule inversion on the stated no-payroll/no-state domain; [net,3×net] brackets the 2026 rates, and50 bisections give ample numerical precision.",
+   "reviewer_should_be": "",
+   "classification": "AGREE",
+   "what_the_code_actually_does": "All five cases agree to 1e-6; its one caller is MK-CF-F-186, whose fault is the 401(k) left out, not this inversion.",
+   "governing": []
+  },
+  {
+   "id": "MK-CF-F-098",
+   "name": "progressiveMonthlyTax",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Clipping negative income months to0 breaks the year-tax reconciliation when a legitimate loss lowers cumulative taxable income. This is an allocation illustration, not payroll withholding.",
+   "reviewer_should_be": "Restrict inputs to explicitly nonnegative accruals, or permit negative tax adjustments that telescope to tax on the actual annual base.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "Real but latent: a loss month is clipped to $0, so the months add to the tax on $76,222.36 ($7,938.92), not the year's $63,110.93 ($5,393.31). Its one caller, buildIncomeState, also hands it no filing status or state rate (single, federal only) — the legacy reader the handoff names as MK-CF-F-049 (another part).",
+   "governing": [
+    "tenets 1, 2"
+   ],
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — RETIRED (DEC-0196)."
+  },
+  {
+   "id": "MK-CF-F-187",
+   "name": "seniorDeductionFor",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "Per-person6% phaseout is correct, but unknown MAGI gives an actual0 rather than a missing eligibility result.",
+   "reviewer_should_be": "Keep MAGI unknown distinct from a fully phased-out deduction; disclose conditional estimate.",
+   "classification": "OUTSIDE DOMAIN",
+   "what_the_code_actually_does": "The per-person phase-out is right (C03, C04 and 10 of 10 senior witnesses agree). The unknown-income branch is never reached: no caller sends null (tax.ts:308, planning/index.ts:66). RECORDS FIX, file and code disagree: the hand-read formula in Calculation Module code/scripts/moneykeel_code_formula.py:506, printed into the tax.ts header (lines 192–195) and the master file's functions_from_code, still reads \"full = people × $6,000; the answer = max(0, full − 6% × …)\" — the couple-wide phase-out replaced on 2026-10-23 — while the code (tax.ts:229–231) and the package card are per person.",
+   "governing": [
+    "IRS Schedule 1-A Part V; DEC-0240; DEC-0325"
+   ]
+  },
+  {
+   "id": "MK-CF-F-099",
+   "name": "deductionFor",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "Correct statutory amounts on an eligible standard-deduction return; MAGI/eligibility missing and nonstandard filing constraints are not represented.",
+   "reviewer_should_be": "Declare standard-deduction model scope, provide MAGI for senior phaseout and preserve unknown eligibility.",
+   "classification": "REVIEWER WRONG",
+   "what_the_code_actually_does": "Code right on its domain (C01–C04 and 9 of 9 standard-deduction witnesses agree). The standard-deduction-only model is his DEC-0184 scope and every calculated rate says so on screen (\"assuming the standard deduction\", rateInForce covers, tax-rate.ts:170); MAGI is always handed in by the callers. Records fix only: the card's rule text should state that scope.",
+   "governing": [
+    "DEC-0184",
+    "DEC-0384"
+   ]
+  },
+  {
+   "id": "MK-CF-F-100",
+   "name": "taxableIncomeFor",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Uses gross as MAGI; equivalent only when the caller has already adjusted gross to the statutory MAGI basis. Broad gross income can overphase the senior deduction.",
+   "reviewer_should_be": "Pass a distinct adjusted-income/MAGI value or explicitly constrain the model domain; do not phase the senior amount on unadjusted gross.",
+   "classification": "AGREE",
+   "what_the_code_actually_does": "Code right for what callers send: every Cash flow caller hands it the income after the pre-tax 401(k) (taxedAfterPreTax; incomeSummary taxedOn), so C05 agrees through the real caller. Records fix: the rule text should say \"gross\" is the income after the 401(k), which the caller takes off. Real gap upstream, not here: the income handed in counts Social Security in full (part 17, MK-CF-F-084 APP WRONG), which also over-phases the senior deduction. Also seen: RetirementCockpit.tsx:221 hands marginalBracketFor the total gross before the 401(k) (Plan module, outside the next build's scope).",
+   "governing": [
+    "DEC-0283",
+    "DEC-0185"
+   ]
+  },
+  {
+   "id": "MK-CF-F-101",
+   "name": "taxOwedFor",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Correct2026 band-by-band standard-deduction-model tax, plus the explicitly user-entered flat state assumption on taxable income. Full-return tax treatments and MAGI domain remain outside this primitive.",
+   "reviewer_should_be": "",
+   "classification": "AGREE (reviewer RIGHT, confirmed)",
+   "what_the_code_actually_does": "All five of its cases agree with the reviewer to full precision.",
+   "governing": []
+  },
+  {
+   "id": "MK-CF-F-102",
+   "name": "effectiveRateOnGrossFor",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Divides the same modeled tax by its matching positive gross base; zero-income output is a rate sentinel, not proof of an entered0 tax rate.",
+   "reviewer_should_be": "",
+   "classification": "AGREE (reviewer RIGHT, confirmed)",
+   "what_the_code_actually_does": "All five of its cases agree with the reviewer to full precision.",
+   "governing": []
+  },
+  {
+   "id": "MK-CF-F-103",
+   "name": "marginalBracketFor",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Correct inclusive upper-bound marginal band lookup on the modeled ordinary taxable income; zero taxable income maps to first band by convention, not a positive tax bill.",
+   "reviewer_should_be": "",
+   "classification": "AGREE (reviewer RIGHT, confirmed)",
+   "what_the_code_actually_does": "All five of its cases agree with the reviewer to full precision.",
+   "governing": []
+  },
+  {
+   "id": "MK-CF-F-104",
+   "name": "ltcgRateFor",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Constants are correct, but one marginal rate selected from current ordinary income cannot price a finite gain that crosses the0/15/20% bands.",
+   "reviewer_should_be": "Label marginal baseline rate only; for tax on a gain, stack the gain over ordinary taxable income and slice it across bands.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "ltcgRateFor is a correct, labelled marginal lookup (C01, C02, C05 and 16 of 16 threshold witnesses agree). It has ONE caller and that caller misuses it: DrawSteerSheet.tsx:72 hands its rate to MK-PL-F-010 drawOrderOutcome, which taxes every dollar of gain drawn at it — single $48,111.17 ordinary taxable + a $3,311.43 gain: $0, right $295.89; joint $611,111.17 + $7,311.43: $1,096.71, right $1,332.84. RECORDS FIX too: its header says \"Called by nothing\" (tax.ts, after MK-CF-F-091 was retired) — the header builder does not see component callers.",
+   "governing": [
+    "IRS Schedule D Tax Worksheet",
+    "Rev. Proc. 2025-32 §4.03"
+   ],
+   "fixed": "FIXED 2026-10-25 (FIX-TAX) — the caller stacks the gain (ltcgTaxOnGain); F-104 stays a labelled marginal lookup."
+  },
+  {
+   "id": "MK-CF-F-185",
+   "name": "needsTakeHomeConversion",
+   "reviewer_verdict": "RIGHT",
+   "reviewer_severity": "",
+   "reviewer_why": "Detects only a positive legacy take-home-mode record, without re-running conversion on already migrated data.",
+   "reviewer_should_be": "",
+   "classification": "AGREE (reviewer RIGHT, confirmed)",
+   "what_the_code_actually_does": "All five of its cases agree with the reviewer to full precision.",
+   "governing": []
+  },
+  {
+   "id": "MK-CF-F-186",
+   "name": "convertTakeHomeMode",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "The calculated-rate conversion inverts net to gross without adding back401(k) contributions, so the later gross−tax−401(k) cannot equal the typed take-home. Manual-rate branch handles401(k), calculated branch does not.",
+   "reviewer_should_be": "Solve gross−pre-tax contributions−tax(gross−pre-tax contributions)=entered net; store a labeled estimate once.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "Real: the calculated branch omits the 401(k) from the inverse (take-home-mode-migration.ts:108). $4,211.17 a month typed, $511.43 401(k): gross $54,947.77, right $61,084.93; the converted profile then reads \"your figures, 0%\". The typed-rate branch (DEC-7942) is right (C01, C03 agree).",
+   "governing": [
+    "DEC-0200",
+    "DEC-0283",
+    "DEC-7942"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): gross − 401(k) − tax(gross − 401(k)) = the take-home entered, in both branches."
+  }
+ ],
+ "rules_held": [
+  {
+   "rule": "DEC-0184",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The legacy stored-income path still calculates monthlytax as single without state and differs from rateInForce.",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "One tax engine: effectiveTaxRate (calc.ts:147) now calls the same effectiveRateOnGrossFor with the filing status, but buildIncomeState's monthly tax still calls progressiveMonthlyTax with no status (single) and no state rate (calc.ts:244). Latent (no visible screen reads it, part 17 MK-CF-F-048). Settled by fixing or retiring that legacy reader."
+  },
+  {
+   "rule": "DEC-0200",
+   "cards": [
+    "MK-CF-F-186"
+   ],
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "One-time migration is stated,but its calculated branch omits401(k)from the inverse equation and may not preserve entered landing after deductions.",
+   "classification": "APP WRONG",
+   "measured": "Not held, as the reviewer says: the one-time conversion keeps the take-home typed but works the gross back without the 401(k) in the calculated branch (MK-CF-F-186-C04).",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): the honest conversion now holds with a 401(k) and no rate of their own."
+  },
+  {
+   "rule": "DEC-0240",
+   "cards": [
+    "MK-CF-F-187",
+    "MK-CF-F-099"
+   ],
+   "reviewer_verdict": "HELD",
+   "reviewer_why": "Enhanced senior and ageaddition mechanisms are supplied;MAGI/eligibility completeness is flagged separately.",
+   "classification": "AGREE (HELD)",
+   "measured": "Held: the $6,000 senior deduction, per person, phased out 6% each above $75,000 / $150,000 — F-187 C03/C04 and 10 of 10 senior witnesses agree."
+  },
+  {
+   "rule": "DEC-0253",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "The statutory tables are typed in the file and the loops are code: all four band tables equal the reviewer's Rev. Proc. 2025-32 tables, 48 of 48 band witnesses agree."
+  },
+  {
+   "rule": "DEC-0263",
+   "cards": [],
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "CANNOT TELL — recorded",
+   "measured": "Hand-read formulas for F-057, F-097, F-087, F-101: F-097 and F-101's match the code. The same hand-read mechanism holds a STALE formula for F-187 (moneykeel_code_formula.py:506, couple-wide) — a records fix, named under MK-CF-F-187."
+  },
+  {
+   "rule": "DEC-0325",
+   "cards": [
+    "MK-CF-F-187",
+    "MK-CF-F-099"
+   ],
+   "reviewer_verdict": "HELD",
+   "reviewer_why": "Enhanced senior and ageaddition mechanisms are supplied;MAGI/eligibility completeness is flagged separately.",
+   "classification": "AGREE (HELD)",
+   "measured": "Held: the 65+ additions ($2,050 single and head of household, $1,650 a person married and separate) — F-099 cases and 9 of 9 standard-deduction witnesses agree."
+  },
+  {
+   "rule": "DEC-7942",
+   "cards": [
+    "MK-CF-F-186"
+   ],
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "One-time migration is stated,but its calculated branch omits401(k)from the inverse equation and may not preserve entered landing after deductions.",
+   "classification": "APP WRONG",
+   "measured": "Not held in full: the lead's DEC-7942 fixed the typed-rate branch ((net + 401(k)) ÷ (1 − rate), C01 and C03 agree); the calculated branch beside it still omits the 401(k) (C04).",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-INCOME-A, landed 2026-10-26): carried to the calculated branch."
+  }
+ ],
+ "source_checks": [
+  {
+   "topic": "Federal income tax2026—bands by filing status",
+   "reviewer_verdict": "RIGHT",
+   "classification": "AGREE — measured witness by witness in outside_cashflow_openai_sources.test.ts (cashflow_openai_sources_results.json)"
+  },
+  {
+   "topic": "Standard deduction and age65 additions2026",
+   "reviewer_verdict": "RIGHT",
+   "classification": "AGREE — measured witness by witness in outside_cashflow_openai_sources.test.ts (cashflow_openai_sources_results.json)"
+  },
+  {
+   "topic": "Enhanced senior deduction2025–2028",
+   "reviewer_verdict": "RIGHT",
+   "classification": "AGREE — measured witness by witness in outside_cashflow_openai_sources.test.ts (cashflow_openai_sources_results.json)"
+  },
+  {
+   "topic": "Long-term capital gains2026thresholds",
+   "reviewer_verdict": "RIGHT",
+   "classification": "AGREE — measured witness by witness in outside_cashflow_openai_sources.test.ts (cashflow_openai_sources_results.json)"
+  }
+ ],
+ "app_wrong_fixes": [
+  {
+   "fix": "A · MK-CF-F-186 convertTakeHomeMode: the calculated branch adds the 401(k) back",
+   "function_file": "src/domain/income/take-home-mode-migration.ts:106–108",
+   "example": "A profile saved before 2026-08-28 in take-home mode: $4,211.17 a month typed, $511.43 a month into the 401(k), no rate typed, single",
+   "app_gives": "Gross $54,947.77 a year ($4,578.98 a month); Base pay's rate in force then reads \"your figures, 0%\" (gross − 401(k) − take-home is −$1,723.43, floored to $0)",
+   "right": "Gross $61,084.93 a year = grossFromNet($50,534.04) + $6,137.16; $4,413.73 a year taken out, 7.23%",
+   "rests_on": "DEC-0200, DEC-0283; DEC-7942 (the lead's, typed-rate branch already right); tenet 5",
+   "items": [
+    "case MK-CF-F-186-C04",
+    "formula MK-CF-F-186",
+    "rule DEC-0200",
+    "rule DEC-7942",
+    "witness F-186-W1"
+   ]
+  },
+  {
+   "fix": "B · MK-CF-F-104 ltcgRateFor's one caller: tax a finite gain by stacking it on ordinary income",
+   "function_file": "MK-PL-F-010 drawOrderOutcome, src/domain/decumulation/index.ts:615, fed by src/components/DrawSteerSheet.tsx:72 (on CashFlowScreen.tsx:682); a new stacked-gain function belongs beside MK-CF-F-104 in src/domain/income/tax.ts",
+   "example": "Single, ordinary taxable $48,111.17, a $3,311.43 gain drawn · joint, ordinary taxable $611,111.17, a $7,311.43 gain",
+   "app_gives": "$0 (the whole gain at 0%) · $1,096.71 (the whole gain at 15%)",
+   "right": "$295.89 ($1,338.83 at 0%, $1,972.60 at 15%) · $1,332.84 ($2,588.83 at 15%, $4,722.60 at 20%)",
+   "rests_on": "IRS Schedule D Tax Worksheet; IRS Rev. Proc. 2025-32 §4.03; tenets 1 and 7",
+   "items": [
+    "case MK-CF-F-104-C03",
+    "case MK-CF-F-104-C04",
+    "formula MK-CF-F-104",
+    "source witness gains-17"
+   ]
+  },
+  {
+   "fix": "C · MK-CF-F-098 progressiveMonthlyTax: a loss month lowers the year (latent)",
+   "function_file": "src/domain/income/tax.ts:103 (Math.max(0, g)); caller MK-CF-F-049 buildIncomeState, src/domain/income/calc.ts:244",
+   "example": "Single, months $73,111.17 · −$13,111.43 · $3,111.19 (a rent month whose costs exceed the rent)",
+   "app_gives": "Tax for the year $7,938.92 (on $76,222.36)",
+   "right": "$5,393.31 (on the year's $63,110.93) — the twelve add up to the year's tax, as the function promises",
+   "rests_on": "tenets 1 and 2; the function's own header",
+   "reach": "No visible screen today: buildIncomeState feeds IncomeDetailScreen (no way in, DEC-0027) and buildSnapshot (Home reads net worth only). Fix with, or retire with, the legacy reader MK-CF-F-049.",
+   "items": [
+    "case MK-CF-F-098-C04",
+    "formula MK-CF-F-098"
+   ]
+  }
+ ],
+ "records_fixes": [
+  {
+   "what": "MK-CF-F-187 seniorDeductionFor — the written formula is the old couple-wide phase-out; the code is per person",
+   "where": "Calculation Module code/scripts/moneykeel_code_formula.py:506 → src/domain/income/tax.ts header lines 192–195 → master functions_from_code",
+   "evidence": "formula text \"full = people × $6,000; the answer = max(0, full − 6% × max(0, magi − start))\" vs code tax.ts:229–231 \"each = max(0, 6000 − 6% × excess); return people × each\" (changed 2026-10-23). File and code disagree; no number is wrong."
+  },
+  {
+   "what": "MK-CF-F-104 ltcgRateFor — header says \"Called by nothing\"",
+   "where": "src/domain/income/tax.ts header",
+   "evidence": "src/components/DrawSteerSheet.tsx:72 calls it; the header builder does not see component callers (same class as part 13's MK-CF-F-057 / F-058, called from RetirementCockpit.tsx:223–224)."
+  },
+  {
+   "what": "MK-CF-F-099 / MK-CF-F-100 rule text",
+   "where": "the cards' formula words",
+   "evidence": "say the model is the standard deduction only (DEC-0184; the screen already says it) and that \"gross\" is the income after the pre-tax 401(k), taken off by the caller."
+  },
+  {
+   "what": "MK-CF-F-187 \"income not known → 0\" line",
+   "where": "tax.ts header Decides",
+   "evidence": "no caller reaches it (tax.ts:308, planning/index.ts:66)."
+  }
+ ],
+ "needs_a_ruling": [],
+ "blocked": [],
+ "priority_findings": [
+  {
+   "finding": "MK-CF-F-186 legacy conversion solves gross − contributions − tax(gross − contributions) = entered net",
+   "real": true,
+   "measured": "Real. $4,211.17 a month typed with $511.43 of 401(k) and no rate: the app works back $54,947.77 a year; the right gross is $61,084.93. The typed-rate branch is right."
+  },
+  {
+   "finding": "A finite capital gain across the 0%/15% line (single $48,111.17 ordinary taxable, $3,311.43 gain → $295.89); F-104 may stay a labelled marginal lookup if no caller misuses it",
+   "real": true,
+   "measured": "Real, in the caller. ltcgRateFor is a correct marginal lookup, but its one caller — the draw-order sheet on Cash flow (DrawSteerSheet.tsx:72 → drawOrderOutcome) — taxes the whole gain at that rate: $0 instead of $295.89."
+  }
+ ],
+ "counts": {
+  "cases": {
+   "AGREE": 49,
+   "APP WRONG": 4,
+   "REVIEWER WRONG": 0,
+   "NEEDS RULING": 0,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 2,
+   "total": 55
+  },
+  "formula_checks": {
+   "classified": 6,
+   "of_non_right": 6,
+   "reviewer_right_confirmed": 5,
+   "total": 11
+  },
+  "rules_held": {
+   "not_held_classified": 2,
+   "held_confirmed": 2,
+   "cannot_tell_recorded": 3,
+   "total": 7
+  },
+  "source_checks": {
+   "topics": 4
+  }
+ },
+ "coverage": "Part 16: 55 of 55 cases — 49 agree, 4 app wrong, 0 reviewer wrong, 0 needs ruling, 0 blocked, 2 outside domain; 6 of 6 formula verdicts classified (3 app wrong, 1 reviewer wrong, 1 outside domain, 1 agree with a records fix; the 5 RIGHT confirmed); 2 of 2 NOT HELD rules classified (both app wrong), 2 HELD confirmed, 3 CANNOT TELL recorded; 4 of 4 source topics measured in the sources file. Distinct app fixes: 3; records fixes: 4."
+}

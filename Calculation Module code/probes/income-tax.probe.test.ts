@@ -7,9 +7,10 @@
 // There is one engine now.
 import {
   taxableIncomeFor, taxOwedFor, marginalBracketFor, effectiveRateOnGrossFor, grossFromNet,
-  progressiveMonthlyTax, TAX_BRACKETS, STANDARD_DEDUCTION, TAX_YEAR,
+  TAX_BRACKETS, STANDARD_DEDUCTION, TAX_YEAR,
 } from '../../src/domain/income/tax';
-import { salaryGrossByMonth, salaryAnnual, salaryActiveMonths, grossSalaryMonthly, equityRowValue, rowVestYear } from '../../src/domain/income/onboarding';
+import * as TAX from '../../src/domain/income/tax';
+import { salaryGrossByMonth, salaryAnnual, salaryActiveMonths, grossSalaryMonthly, equityRowValue, rowVestYear, incomeMonthlyGrid } from '../../src/domain/income/onboarding';
 
 // ════════════════════════════════════════════════════════════════════════════════════════════════
 // TAX_OWED · TAXABLE_INCOME
@@ -102,16 +103,24 @@ describe('GROSS_FROM_NET', () => {
 // MONTHLY_TAX — the identity that makes twelve months add to one year
 // ════════════════════════════════════════════════════════════════════════════════════════════════
 describe('MONTHLY_TAX', () => {
+  // 2026-10-25: the band-filling month function (MK-CF-F-098 progressiveMonthlyTax) is RETIRED — his rulings put ONE rate on
+  // every month (DEC-0196), and the month grid reads it (MK-CF-F-087 monthlyTaxRates). The identity it promised still holds
+  // on the grid: the twelve months add exactly to the year's tax.
+  const grid = (op: any, mode: 'gross' | 'net') => incomeMonthlyGrid(op, mode).map((m) => m.amount);
   test('the months add EXACTLY to the year — no drift, by construction', () => {
-    const months = new Array(12).fill(10_000);
-    const sum = progressiveMonthlyTax(months, 'single', 0).reduce((t, x) => t + x, 0);
+    const op: any = { baseSalary: 10_000, salaryFreq: 'monthly', filingStatus: 'single' };
+    const g = grid(op, 'gross'), n = grid(op, 'net');
+    const sum = g.reduce((t, x, i) => t + (x - n[i]), 0);
     expect(sum).toBeCloseTo(taxOwedFor(120_000, 'single', 0), 6);
+    expect((TAX as any).progressiveMonthlyTax).toBeUndefined();
   });
 
-  test('a bonus month withholds at its own higher band, which is what a payslip shows', () => {
-    const even = progressiveMonthlyTax(new Array(12).fill(10_000));
-    const bonus = progressiveMonthlyTax([...new Array(11).fill(10_000), 60_000]);
-    expect(bonus[11]).toBeGreaterThan(even[11]);
+  test('a bonus month is taxed at the one rate of the year, not a band of its own (DEC-0196)', () => {
+    const op: any = { baseSalary: 10_000, salaryFreq: 'monthly', filingStatus: 'single', bonusAnnual: 50_000, bonusMonth: 12 };
+    const g = grid(op, 'gross'), n = grid(op, 'net');
+    const rate = (g[11] - n[11]) / g[11];
+    expect((g[0] - n[0]) / g[0]).toBeCloseTo(rate, 12);
+    expect(g.reduce((t, x, i) => t + (x - n[i]), 0)).toBeCloseTo(taxOwedFor(170_000, 'single', 0), 6);
   });
 });
 
@@ -163,8 +172,9 @@ describe('EQUITY_VALUE', () => {
     expect(equityRowValue({ shares: 100 }, 'option', 60, 50)).toBe(0);
   });
 
-  test('the vesting year is read from the date, falling back to this year when blank', () => {
+  // a blank date is no year — "vest date not entered" (2026-10-25, FIX-INCOME-B; DEC-0296, tenet 3): it was this year, every year
+  test('the vesting year is read from the date; with no date there is none', () => {
     expect(rowVestYear({ date: '2028-03-01' })).toBe(2028);
-    expect(rowVestYear({})).toBe(new Date().getFullYear());
+    expect(rowVestYear({})).toBeNull();
   });
 });

@@ -98,11 +98,20 @@ const namesFor = (accounts: AssetAccount[]) => accountDisplayNames(accounts);
  * Formula .....
  *     the answer = the person's name for the account, else the institution, else the label, else 'this account'
  *
- * Called by ... MK-NW-F-028 classPortionLabel · MK-XS-F-002 dataGaps
+ * Called by ... MK-CF-F-150 debtPaymentsCountedAsExpenses · MK-NW-F-028 classPortionLabel
+ *               MK-XS-F-002 dataGaps
  *
- * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-076 ALT · MK-NW-F-028 classPortionLabel
- *               MK-XS-F-002 dataGaps · MK-NW-O-005 theAlternativesOutlook
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-003 institution name
@@ -246,10 +255,10 @@ export function dataGaps(
           meanwhile: p.last_price === 0
             ? `Meanwhile we show the $0 price ${a.institution?.trim() || 'your broker'} sent — it stays out of the change line, and we say so.`
             : a.source === 'connected' && p.last_price == null && unpricedValueOf(a) != null
-            ? `Meanwhile it counts as the rest of ${a.institution?.trim() || 'your broker'}'s total — what the other holdings and the cash leave over. It stays out of the change line, and we say so.`
+            ? `Meanwhile it counts as the rest of ${a.institution?.trim() || 'your broker'}’s total — what the other holdings and the cash leave over. It stays out of the change line, and we say so.`
             // nothing is left over for it: its row says no price today, with no figure, and so does this
             : a.source === 'connected' && p.last_price == null
-            ? `Meanwhile it counts for nothing: ${a.institution?.trim() || 'your broker'}'s total leaves nothing over for it once the other holdings and the cash are counted. It stays out of the change line, and we say so.`
+            ? `Meanwhile it counts for nothing: ${a.institution?.trim() || 'your broker'}’s total leaves nothing over for it once the other holdings and the cash are counted. It stays out of the change line, and we say so.`
             : 'Meanwhile we show what you paid — it stays out of the change line, and we say so.',
           fixLabel: 'Check ticker or set a price',
           route: `/holding-detail?account=${a.asset_id}&position=${p.position_id}`,
@@ -278,8 +287,8 @@ export function dataGaps(
         // will not fix a connection the broker has dropped (founder finding 2026-08-11).
         gaps.push({
           kind: 'unreachable-account', accountId: a.asset_id,
-          title: `We couldn't reach ${who}`,
-          meanwhile: `Its numbers are the ones from ${d != null ? prettyDate(String(a.last_synced).slice(0, 10)) : 'its last successful update'} — we don't guess at newer ones. This usually means it needs linking again.`,
+          title: `We couldn’t reach ${who}`,
+          meanwhile: `Its numbers are the ones from ${d != null ? prettyDate(String(a.last_synced).slice(0, 10)) : 'its last successful update'} — we don’t guess at newer ones. This usually means it needs linking again.`,
           fixLabel: 'Link again', route: '/connect',   // founder 2026-09-14: linked / link again
           action: 'reconnect',
         });
@@ -300,8 +309,8 @@ export function dataGaps(
       if (!hasActivity && (a.positions ?? []).length > 0) {
         gaps.push({
           kind: 'no-activity', accountId: a.asset_id,
-          title: `${who} hasn't shared dividend records`,
-          onItsPage: `${a.institution?.trim() || who} hasn't shared dividend records for this account`,
+          title: `${who} hasn’t shared dividend records`,
+          onItsPage: `${a.institution?.trim() || who} hasn’t shared dividend records for this account`,
           // corrected 2026-10-12 (DEC-4645): this read "Its return shows price change only", which was false — the
           // return is measured on the account's recorded values, and its prices are dividend-adjusted closes. What is
           // missing without the records is the dividends' own line: they sit inside the change in investment value.
@@ -318,7 +327,7 @@ export function dataGaps(
           kind: 'history-depth', accountId: a.asset_id,
           title: cov.sentence,
           meanwhile: `Figures for this window count from ${prettyDate(String(cov.from))} onward for this account — we say so rather than showing a smaller number as if it were complete.`,
-          fixLabel: "See what's counted", route: `/account-detail?id=${a.asset_id}`,
+          fixLabel: "See what’s counted", route: `/account-detail?id=${a.asset_id}`,
         });
       }
     }
@@ -329,7 +338,7 @@ export function dataGaps(
       if (d != null && d > STALE_VALUE_DAYS) {
         gaps.push({
           kind: 'stale-value', accountId: a.asset_id,
-          title: `${a.label || 'A value'} hasn't been updated in ${plural(Math.floor(d / 365), 'year')}`,
+          title: `${a.label || 'A value'} hasn’t been updated in ${plural(Math.floor(d / 365), 'year')}`,
           meanwhile: 'We still count what you entered — property has no price feed, so only you can refresh it.',
           // the Net worth tab's route key is 'analytics' — '/(tabs)/networth' matches nothing, so this
           // button used to land on an unmatched route and bounce Home. Every fix button must reach the

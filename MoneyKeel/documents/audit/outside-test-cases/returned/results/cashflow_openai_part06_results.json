@@ -1,0 +1,3573 @@
+{
+ "batch": "cf module — part 6",
+ "reviewer": "OpenAI independent specification reviewer (CashFlow package of 2026-10-24)",
+ "run_by": "Claude Code — CFR-2 measurer (parts 5–8), part 6 runner",
+ "run_on": "2026-10-25",
+ "test_file": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts",
+ "source": "returned/MoneyKeel_CashFlow_Independent_Audit_Package/MoneyKeel_CashFlow_Independent_Audit/audit_results/MoneyKeel_CashFlow_Audit_Part_06.json",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts → 1 suite passed; 88 passed, 1 skipped (MK-CF-F-153-C05, OUTSIDE DOMAIN, recorded by the test beside it), 0 failed, 89 total. Each of the 12 APP WRONG items (5 cases, 4 formula verdicts, 3 rules) is test.failing on the reviewer's answer and was checked with CFR_SHOW_FAILS=1 to fail on its assertion with the measured value, not on a crash; each has a twin 'app today' test. npx tsc --noEmit: clean (0 errors).",
+ "working_tree": "Measured at b1c659e8 plus other agents' uncommitted work of 2026-10-25 (src/screens/BudgetScreen.tsx and MoneyKeel/functions/cashflow/this-month.ts changed during the run; the budget editor still reads budgetVsActual's average). Nothing changed but this test file and this results file.",
+ "mapping": [
+  "typed / fixed / everyday / annual_bill / bill_months → monthlySpending + spendCats (a fixed dollar category, a flexible dollar category, a nonmonthly dollar category with months) — what the budget editor writes; no screen writes b_fixed / b_flexible any more",
+  "F-001 expenses null → budgetFromOnboarding(profile with no budget) = monthly_spending 0, the doc its only caller builds",
+  "F-120 take_home_by_month / F-003 take_home_monthly_average → pctBaseMonthly and categoryMonthly run from their own source text with the grid / the average handed in; dollar categories also through the real export",
+  "F-004 monthly_normalized_rows → spendCats (a nonmonthly monthly m = yearly amount 12·m); typed_buckets → b_fixed / b_nonmonthly / b_flexible; categories [] → spendCats []",
+  "debts → Debt {debt_id, label, debt_type, remaining_balance, minimum_monthly_payment, payment_type, first_payment_date, payoff_date}; instalment → installment, due_full → due_in_full; kind → MORTGAGE / CREDIT_CARD / PERSONAL / HELOC",
+  "logs / paid → LoggedExpense {category \"Debt payment\", store = payee, date, amount} (the app stores no debt id with a payment)",
+  "source manual / imported → origin absent / \"imported\"; source_filter manual → actualSpending(s, \"by-hand\")",
+  "purchases_captured → the purchasesCaptured set holding the debt id; big_bills → bigBills {label, amount, dueLabel}",
+  "radar / counted-as-expense \"name\" → the app's label \"<name> payment\" (drawing frame C wording)",
+  "O-020 home / mortgage → real-estate accounts (kind home, the home marked primary) and a MORTGAGE debt with property_id; budget_rent_mortgage → the rent category; typed_total → monthlySpending; O-020-C05 outflow → plannedMonthFlow with plannedExpenses = spendByMonth(counted profile)[October]"
+ ],
+ "cases": [
+  {
+   "case_id": "MK-CF-F-001-C01",
+   "id": "MK-CF-F-001",
+   "name": "buildBudgetState",
+   "kind": "easy",
+   "title": "Known plan",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "3000",
+    "shown": "$3,000"
+   },
+   "actual": {
+    "projected_to_save": 3000,
+    "monthly_spending": 2000
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "buildBudgetState gives take-home − planned expenses at full precision.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-001-C01 · easy · Known plan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-001-C02",
+   "id": "MK-CF-F-001",
+   "name": "buildBudgetState",
+   "kind": "easy",
+   "title": "Deficit",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "-1000",
+    "shown": "−$1,000"
+   },
+   "actual": {
+    "projected_to_save": -1000,
+    "monthly_spending": 3000
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "buildBudgetState gives take-home − planned expenses at full precision.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-001-C02 · easy · Deficit [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-001-C03",
+   "id": "MK-CF-F-001",
+   "name": "buildBudgetState",
+   "kind": "complex",
+   "title": "Unround plan",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "2319.74",
+    "shown": "$2,320"
+   },
+   "actual": {
+    "projected_to_save": 2319.74,
+    "monthly_spending": 4911.43
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "buildBudgetState gives take-home − planned expenses at full precision.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-001-C03 · complex · Unround plan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-001-C04",
+   "id": "MK-CF-F-001",
+   "name": "buildBudgetState",
+   "kind": "complex",
+   "title": "Confirmed zero spend",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "3231.17",
+    "shown": "$3,231"
+   },
+   "actual": {
+    "projected_to_save": 3231.17,
+    "monthly_spending": 0
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "Agrees, but only because a confirmed $0 and a budget never set reach the function as the same 0 — the C05 defect.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-001-C04 · complex · Confirmed zero spend [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-001-C05",
+   "id": "MK-CF-F-001",
+   "name": "buildBudgetState",
+   "kind": "edge",
+   "title": "Budget missing",
+   "classification": "APP WRONG",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Budget not set"
+   },
+   "actual": {
+    "projected_to_save": 5000,
+    "monthly_spending": 0
+   },
+   "difference": "see note",
+   "rests_on": "tenet 3 (unknown is not zero); DEC-7939 (no budget set → no planned surplus)",
+   "note": "A budget never set reaches buildBudgetState as monthly_spending 0 (its only caller, budgetFromOnboarding, hands plannedMonthlySpend = 0), so the projected saving is the whole $5,000 take-home instead of a refusal. No screen prints it today: buildSnapshot (Home) feeds it into goal capacity, and Home reads only net worth from the snapshot.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › MK-CF-F-001 buildBudgetState — five cases › MK-CF-F-001-C05 · edge · Budget missing [AGREE] — FIXED 2026-10-25: no budget set, no projected saving (it was the whole $5,000 take-home; DEC-7939, tenet 3)",
+   "test_result": "passed — FIXED 2026-10-25 (FIX-BUDGET): the reviewer's answer passes as a plain test; the app's old answer is kept as test.failing (\"the app until 2026-10-25, pinned\")",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET): no budget entered → budgetFromOnboarding stores no plan (monthly_spending null) and buildBudgetState gives no projected saving (null); it was the whole $5,000 take-home. A typed $0 plan still gives the take-home ($3,231.17, C04)."
+  },
+  {
+   "case_id": "MK-CF-F-002-C01",
+   "id": "MK-CF-F-002",
+   "name": "plannedMonthlySpend",
+   "kind": "easy",
+   "title": "Monthly categories",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "2000",
+    "shown": "$2,000"
+   },
+   "actual": 2000,
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "plannedMonthlySpend is the twelve dated months added ÷ 12; a dated bill counts once, on top of the typed total (DEC-7951).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-002-C01 · easy · Monthly categories [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-002-C02",
+   "id": "MK-CF-F-002",
+   "name": "plannedMonthlySpend",
+   "kind": "easy",
+   "title": "Dated annual bill",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "2100",
+    "shown": "$2,100"
+   },
+   "actual": 2100,
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "plannedMonthlySpend is the twelve dated months added ÷ 12; a dated bill counts once, on top of the typed total (DEC-7951).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-002-C02 · easy · Dated annual bill [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-002-C03",
+   "id": "MK-CF-F-002",
+   "name": "plannedMonthlySpend",
+   "kind": "complex",
+   "title": "Two annual dates and remainder",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "2883.7675",
+    "shown": "$2,884"
+   },
+   "actual": 2883.7675,
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "plannedMonthlySpend is the twelve dated months added ÷ 12; a dated bill counts once, on top of the typed total (DEC-7951).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-002-C03 · complex · Two annual dates and remainder [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-002-C04",
+   "id": "MK-CF-F-002",
+   "name": "plannedMonthlySpend",
+   "kind": "complex",
+   "title": "Categories exceed typed",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "2315.199166666666666666666667",
+    "shown": "$2,315"
+   },
+   "actual": 2315.199166666666,
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "plannedMonthlySpend is the twelve dated months added ÷ 12; a dated bill counts once, on top of the typed total (DEC-7951).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-002-C04 · complex · Categories exceed typed [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-002-C05",
+   "id": "MK-CF-F-002",
+   "name": "plannedMonthlySpend",
+   "kind": "edge",
+   "title": "Confirmed empty plan",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "plannedMonthlySpend is the twelve dated months added ÷ 12; a dated bill counts once, on top of the typed total (DEC-7951).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-002-C05 · edge · Confirmed empty plan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-120-C01",
+   "id": "MK-CF-F-120",
+   "name": "pctBaseMonthly",
+   "kind": "easy",
+   "title": "Steady",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "5000",
+    "shown": "$5,000"
+   },
+   "actual": 5000,
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "pctBaseMonthly (its own text, the grid handed the case) adds the twelve take-home months ÷ 12.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-120-C01 · easy · Steady [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-120-C02",
+   "id": "MK-CF-F-120",
+   "name": "pctBaseMonthly",
+   "kind": "easy",
+   "title": "Half-year",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "2500",
+    "shown": "$2,500"
+   },
+   "actual": 2500,
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "pctBaseMonthly (its own text, the grid handed the case) adds the twelve take-home months ÷ 12.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-120-C02 · easy · Half-year [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-120-C03",
+   "id": "MK-CF-F-120",
+   "name": "pctBaseMonthly",
+   "kind": "complex",
+   "title": "Uneven",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "4785.276666666666666666666667",
+    "shown": "$4,785"
+   },
+   "actual": 4785.276666666666,
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "pctBaseMonthly (its own text, the grid handed the case) adds the twelve take-home months ÷ 12.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-120-C03 · complex · Uneven [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-120-C04",
+   "id": "MK-CF-F-120",
+   "name": "pctBaseMonthly",
+   "kind": "complex",
+   "title": "Different seasonal",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "3633.5075",
+    "shown": "$3,634"
+   },
+   "actual": 3633.5075,
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "pctBaseMonthly (its own text, the grid handed the case) adds the twelve take-home months ÷ 12.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-120-C04 · complex · Different seasonal [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-120-C05",
+   "id": "MK-CF-F-120",
+   "name": "pctBaseMonthly",
+   "kind": "edge",
+   "title": "Known zero",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "pctBaseMonthly (its own text, the grid handed the case) adds the twelve take-home months ÷ 12.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-120-C05 · edge · Known zero [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-003-C01",
+   "id": "MK-CF-F-003",
+   "name": "categoryMonthly",
+   "kind": "easy",
+   "title": "Monthly dollars",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "300",
+    "shown": "$300"
+   },
+   "actual": 300,
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "categoryMonthly converts a category once: dollars as typed, a yearly one ÷ 12, a percent of the average take-home.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-003-C01 · easy · Monthly dollars [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-003-C02",
+   "id": "MK-CF-F-003",
+   "name": "categoryMonthly",
+   "kind": "easy",
+   "title": "Annual dollars",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "100",
+    "shown": "$100"
+   },
+   "actual": 100,
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "categoryMonthly converts a category once: dollars as typed, a yearly one ÷ 12, a percent of the average take-home.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-003-C02 · easy · Annual dollars [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-003-C03",
+   "id": "MK-CF-F-003",
+   "name": "categoryMonthly",
+   "kind": "complex",
+   "title": "Percent unround",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "700.23303",
+    "shown": "$700"
+   },
+   "actual": 700.2330299999999,
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "categoryMonthly converts a category once: dollars as typed, a yearly one ÷ 12, a percent of the average take-home.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-003-C03 · complex · Percent unround [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-003-C04",
+   "id": "MK-CF-F-003",
+   "name": "categoryMonthly",
+   "kind": "complex",
+   "title": "Annual percent",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "300.11541",
+    "shown": "$300"
+   },
+   "actual": 300.11541,
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "categoryMonthly converts a category once: dollars as typed, a yearly one ÷ 12, a percent of the average take-home.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-003-C04 · complex · Annual percent [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-003-C05",
+   "id": "MK-CF-F-003",
+   "name": "categoryMonthly",
+   "kind": "edge",
+   "title": "Explicit zero",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "categoryMonthly converts a category once: dollars as typed, a yearly one ÷ 12, a percent of the average take-home.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-003-C05 · edge · Explicit zero [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-004-C01",
+   "id": "MK-CF-F-004",
+   "name": "spendBuckets",
+   "kind": "easy",
+   "title": "Three known groups",
+   "classification": "AGREE",
+   "expected": {
+    "fixed": {
+     "exact": "1000",
+     "shown": "$1,000"
+    },
+    "nonmonthly": {
+     "exact": "100",
+     "shown": "$100"
+    },
+    "flexible": {
+     "exact": "900",
+     "shown": "$900"
+    },
+    "total": {
+     "exact": "2000",
+     "shown": "$2,000"
+    }
+   },
+   "actual": {
+    "fixed": 1000,
+    "non_monthly": 100,
+    "flexible": 900,
+    "monthly_total": 2000
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "spendBuckets adds each category into its group; categories replace the typed totals.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-004-C01 · easy · Three known groups [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-004-C02",
+   "id": "MK-CF-F-004",
+   "name": "spendBuckets",
+   "kind": "easy",
+   "title": "Typed fallback",
+   "classification": "APP WRONG",
+   "expected": {
+    "fixed": {
+     "exact": "1000",
+     "shown": "$1,000"
+    },
+    "nonmonthly": {
+     "exact": "100",
+     "shown": "$100"
+    },
+    "flexible": {
+     "exact": "900",
+     "shown": "$900"
+    },
+    "total": {
+     "exact": "2000",
+     "shown": "$2,000"
+    }
+   },
+   "actual": {
+    "fixed": 0,
+    "non_monthly": 0,
+    "flexible": 0,
+    "monthly_total": 0
+   },
+   "difference": "see note",
+   "rests_on": "the card's own rule \"With no categories: the three typed bucket totals\"; DEC-7951 (the typed split stands while no category replaces it); tenet 4",
+   "note": "An empty category list (spendCats []) is read as categories, so the typed totals $1,000 / $100 / $900 become $0. With spendCats absent it agrees. spendByMonthByBucket reads the same profile as $1,000 bills & fixed + $900 everyday a month (it also drops the typed $100 once in a while) — two readers, two answers. Reach is small: no screen writes the typed b_fixed / b_nonmonthly / b_flexible totals any more (legacy profiles only).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › MK-CF-F-004 spendBuckets — five cases › MK-CF-F-004-C02 · easy · Typed fallback [AGREE] — FIXED 2026-10-25: an empty category list keeps the typed totals (it read $0; DEC-7951, tenet 4)",
+   "test_result": "passed — FIXED 2026-10-25 (FIX-BUDGET): the reviewer's answer passes as a plain test; the app's old answer is kept as test.failing (\"the app until 2026-10-25, pinned\")",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET): one rule for when categories replace the typed totals (categoriesInForce) — an empty list, or only $0 categories, is no categories: $1,000 / $100 / $900 on spendBuckets and on every month of spendByMonthByBucket (it read $0 / $0 / $0, and the month table $1,000 / $0 / $900)."
+  },
+  {
+   "case_id": "MK-CF-F-004-C03",
+   "id": "MK-CF-F-004",
+   "name": "spendBuckets",
+   "kind": "complex",
+   "title": "Unknown bucket is flexible",
+   "classification": "AGREE",
+   "expected": {
+    "fixed": {
+     "exact": "1131.17",
+     "shown": "$1,131"
+    },
+    "nonmonthly": {
+     "exact": "213.43",
+     "shown": "$213"
+    },
+    "flexible": {
+     "exact": "931.19",
+     "shown": "$931"
+    },
+    "total": {
+     "exact": "2275.79",
+     "shown": "$2,276"
+    }
+   },
+   "actual": {
+    "fixed": 1131.17,
+    "non_monthly": 213.42999999999998,
+    "flexible": 931.19,
+    "monthly_total": 2275.79
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "spendBuckets adds each category into its group; categories replace the typed totals.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-004-C03 · complex · Unknown bucket is flexible [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-004-C04",
+   "id": "MK-CF-F-004",
+   "name": "spendBuckets",
+   "kind": "complex",
+   "title": "Categories override stale fallback",
+   "classification": "AGREE",
+   "expected": {
+    "fixed": {
+     "exact": "1131.17",
+     "shown": "$1,131"
+    },
+    "nonmonthly": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "flexible": {
+     "exact": "931.19",
+     "shown": "$931"
+    },
+    "total": {
+     "exact": "2062.36",
+     "shown": "$2,062"
+    }
+   },
+   "actual": {
+    "fixed": 1131.17,
+    "non_monthly": 0,
+    "flexible": 931.19,
+    "monthly_total": 2062.36
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "spendBuckets adds each category into its group; categories replace the typed totals.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-004-C04 · complex · Categories override stale fallback [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-004-C05",
+   "id": "MK-CF-F-004",
+   "name": "spendBuckets",
+   "kind": "edge",
+   "title": "Zero categories",
+   "classification": "AGREE",
+   "expected": {
+    "fixed": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "nonmonthly": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "flexible": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "total": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "fixed": 0,
+    "non_monthly": 0,
+    "flexible": 0,
+    "monthly_total": 0
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "spendBuckets adds each category into its group; categories replace the typed totals.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-004-C05 · edge · Zero categories [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-221-C01",
+   "id": "MK-CF-F-221",
+   "name": "spendByMonthByBucket",
+   "kind": "easy",
+   "title": "Monthly categories",
+   "classification": "AGREE",
+   "expected": [
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ]
+   ],
+   "actual": [
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    }
+   ],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "spendByMonthByBucket puts a dated bill only in its months and the typed remainder into everyday, every month (DEC-7611, DEC-7951).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-221-C01 · easy · Monthly categories [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-221-C02",
+   "id": "MK-CF-F-221",
+   "name": "spendByMonthByBucket",
+   "kind": "easy",
+   "title": "Dated annual bill",
+   "classification": "AGREE",
+   "expected": [
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ],
+    [
+     {
+      "exact": "1100",
+      "shown": "$1,100"
+     },
+     {
+      "exact": "1200",
+      "shown": "$1,200"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     }
+    ]
+   ],
+   "actual": [
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 0,
+     "flexible": 900
+    },
+    {
+     "fixed": 1100,
+     "nonmonthly": 1200,
+     "flexible": 900
+    }
+   ],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "spendByMonthByBucket puts a dated bill only in its months and the typed remainder into everyday, every month (DEC-7611, DEC-7951).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-221-C02 · easy · Dated annual bill [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-221-C03",
+   "id": "MK-CF-F-221",
+   "name": "spendByMonthByBucket",
+   "kind": "complex",
+   "title": "Two annual dates and remainder",
+   "classification": "AGREE",
+   "expected": [
+    [
+     {
+      "exact": "1111.43",
+      "shown": "$1,111"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "1619.74",
+      "shown": "$1,620"
+     }
+    ],
+    [
+     {
+      "exact": "1111.43",
+      "shown": "$1,111"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "1619.74",
+      "shown": "$1,620"
+     }
+    ],
+    [
+     {
+      "exact": "1111.43",
+      "shown": "$1,111"
+     },
+     {
+      "exact": "915.585",
+      "shown": "$916"
+     },
+     {
+      "exact": "1619.74",
+      "shown": "$1,620"
+     }
+    ],
+    [
+     {
+      "exact": "1111.43",
+      "shown": "$1,111"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "1619.74",
+      "shown": "$1,620"
+     }
+    ],
+    [
+     {
+      "exact": "1111.43",
+      "shown": "$1,111"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "1619.74",
+      "shown": "$1,620"
+     }
+    ],
+    [
+     {
+      "exact": "1111.43",
+      "shown": "$1,111"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "1619.74",
+      "shown": "$1,620"
+     }
+    ],
+    [
+     {
+      "exact": "1111.43",
+      "shown": "$1,111"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "1619.74",
+      "shown": "$1,620"
+     }
+    ],
+    [
+     {
+      "exact": "1111.43",
+      "shown": "$1,111"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "1619.74",
+      "shown": "$1,620"
+     }
+    ],
+    [
+     {
+      "exact": "1111.43",
+      "shown": "$1,111"
+     },
+     {
+      "exact": "915.585",
+      "shown": "$916"
+     },
+     {
+      "exact": "1619.74",
+      "shown": "$1,620"
+     }
+    ],
+    [
+     {
+      "exact": "1111.43",
+      "shown": "$1,111"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "1619.74",
+      "shown": "$1,620"
+     }
+    ],
+    [
+     {
+      "exact": "1111.43",
+      "shown": "$1,111"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "1619.74",
+      "shown": "$1,620"
+     }
+    ],
+    [
+     {
+      "exact": "1111.43",
+      "shown": "$1,111"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "1619.74",
+      "shown": "$1,620"
+     }
+    ]
+   ],
+   "actual": [
+    {
+     "fixed": 1111.43,
+     "nonmonthly": 0,
+     "flexible": 1619.74
+    },
+    {
+     "fixed": 1111.43,
+     "nonmonthly": 0,
+     "flexible": 1619.74
+    },
+    {
+     "fixed": 1111.43,
+     "nonmonthly": 915.585,
+     "flexible": 1619.74
+    },
+    {
+     "fixed": 1111.43,
+     "nonmonthly": 0,
+     "flexible": 1619.74
+    },
+    {
+     "fixed": 1111.43,
+     "nonmonthly": 0,
+     "flexible": 1619.74
+    },
+    {
+     "fixed": 1111.43,
+     "nonmonthly": 0,
+     "flexible": 1619.74
+    },
+    {
+     "fixed": 1111.43,
+     "nonmonthly": 0,
+     "flexible": 1619.74
+    },
+    {
+     "fixed": 1111.43,
+     "nonmonthly": 0,
+     "flexible": 1619.74
+    },
+    {
+     "fixed": 1111.43,
+     "nonmonthly": 915.585,
+     "flexible": 1619.74
+    },
+    {
+     "fixed": 1111.43,
+     "nonmonthly": 0,
+     "flexible": 1619.74
+    },
+    {
+     "fixed": 1111.43,
+     "nonmonthly": 0,
+     "flexible": 1619.74
+    },
+    {
+     "fixed": 1111.43,
+     "nonmonthly": 0,
+     "flexible": 1619.74
+    }
+   ],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "spendByMonthByBucket puts a dated bill only in its months and the typed remainder into everyday, every month (DEC-7611, DEC-7951).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-221-C03 · complex · Two annual dates and remainder [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-221-C04",
+   "id": "MK-CF-F-221",
+   "name": "spendByMonthByBucket",
+   "kind": "complex",
+   "title": "Categories exceed typed",
+   "classification": "AGREE",
+   "expected": [
+    [
+     {
+      "exact": "1211.17",
+      "shown": "$1,211"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "911.43",
+      "shown": "$911"
+     }
+    ],
+    [
+     {
+      "exact": "1211.17",
+      "shown": "$1,211"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "911.43",
+      "shown": "$911"
+     }
+    ],
+    [
+     {
+      "exact": "1211.17",
+      "shown": "$1,211"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "911.43",
+      "shown": "$911"
+     }
+    ],
+    [
+     {
+      "exact": "1211.17",
+      "shown": "$1,211"
+     },
+     {
+      "exact": "2311.19",
+      "shown": "$2,311"
+     },
+     {
+      "exact": "911.43",
+      "shown": "$911"
+     }
+    ],
+    [
+     {
+      "exact": "1211.17",
+      "shown": "$1,211"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "911.43",
+      "shown": "$911"
+     }
+    ],
+    [
+     {
+      "exact": "1211.17",
+      "shown": "$1,211"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "911.43",
+      "shown": "$911"
+     }
+    ],
+    [
+     {
+      "exact": "1211.17",
+      "shown": "$1,211"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "911.43",
+      "shown": "$911"
+     }
+    ],
+    [
+     {
+      "exact": "1211.17",
+      "shown": "$1,211"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "911.43",
+      "shown": "$911"
+     }
+    ],
+    [
+     {
+      "exact": "1211.17",
+      "shown": "$1,211"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "911.43",
+      "shown": "$911"
+     }
+    ],
+    [
+     {
+      "exact": "1211.17",
+      "shown": "$1,211"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "911.43",
+      "shown": "$911"
+     }
+    ],
+    [
+     {
+      "exact": "1211.17",
+      "shown": "$1,211"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "911.43",
+      "shown": "$911"
+     }
+    ],
+    [
+     {
+      "exact": "1211.17",
+      "shown": "$1,211"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "911.43",
+      "shown": "$911"
+     }
+    ]
+   ],
+   "actual": [
+    {
+     "fixed": 1211.17,
+     "nonmonthly": 0,
+     "flexible": 911.43
+    },
+    {
+     "fixed": 1211.17,
+     "nonmonthly": 0,
+     "flexible": 911.43
+    },
+    {
+     "fixed": 1211.17,
+     "nonmonthly": 0,
+     "flexible": 911.43
+    },
+    {
+     "fixed": 1211.17,
+     "nonmonthly": 2311.19,
+     "flexible": 911.43
+    },
+    {
+     "fixed": 1211.17,
+     "nonmonthly": 0,
+     "flexible": 911.43
+    },
+    {
+     "fixed": 1211.17,
+     "nonmonthly": 0,
+     "flexible": 911.43
+    },
+    {
+     "fixed": 1211.17,
+     "nonmonthly": 0,
+     "flexible": 911.43
+    },
+    {
+     "fixed": 1211.17,
+     "nonmonthly": 0,
+     "flexible": 911.43
+    },
+    {
+     "fixed": 1211.17,
+     "nonmonthly": 0,
+     "flexible": 911.43
+    },
+    {
+     "fixed": 1211.17,
+     "nonmonthly": 0,
+     "flexible": 911.43
+    },
+    {
+     "fixed": 1211.17,
+     "nonmonthly": 0,
+     "flexible": 911.43
+    },
+    {
+     "fixed": 1211.17,
+     "nonmonthly": 0,
+     "flexible": 911.43
+    }
+   ],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "spendByMonthByBucket puts a dated bill only in its months and the typed remainder into everyday, every month (DEC-7611, DEC-7951).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-221-C04 · complex · Categories exceed typed [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-221-C05",
+   "id": "MK-CF-F-221",
+   "name": "spendByMonthByBucket",
+   "kind": "edge",
+   "title": "Confirmed empty plan",
+   "classification": "AGREE",
+   "expected": [
+    [
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    [
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    [
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    [
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    [
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    [
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    [
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    [
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    [
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    [
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    [
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    [
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ]
+   ],
+   "actual": [
+    {
+     "fixed": 0,
+     "nonmonthly": 0,
+     "flexible": 0
+    },
+    {
+     "fixed": 0,
+     "nonmonthly": 0,
+     "flexible": 0
+    },
+    {
+     "fixed": 0,
+     "nonmonthly": 0,
+     "flexible": 0
+    },
+    {
+     "fixed": 0,
+     "nonmonthly": 0,
+     "flexible": 0
+    },
+    {
+     "fixed": 0,
+     "nonmonthly": 0,
+     "flexible": 0
+    },
+    {
+     "fixed": 0,
+     "nonmonthly": 0,
+     "flexible": 0
+    },
+    {
+     "fixed": 0,
+     "nonmonthly": 0,
+     "flexible": 0
+    },
+    {
+     "fixed": 0,
+     "nonmonthly": 0,
+     "flexible": 0
+    },
+    {
+     "fixed": 0,
+     "nonmonthly": 0,
+     "flexible": 0
+    },
+    {
+     "fixed": 0,
+     "nonmonthly": 0,
+     "flexible": 0
+    },
+    {
+     "fixed": 0,
+     "nonmonthly": 0,
+     "flexible": 0
+    },
+    {
+     "fixed": 0,
+     "nonmonthly": 0,
+     "flexible": 0
+    }
+   ],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "spendByMonthByBucket puts a dated bill only in its months and the typed remainder into everyday, every month (DEC-7611, DEC-7951).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-221-C05 · edge · Confirmed empty plan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-008-C01",
+   "id": "MK-CF-F-008",
+   "name": "spendByMonth",
+   "kind": "easy",
+   "title": "Monthly categories",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    }
+   ],
+   "actual": [
+    2000,
+    2000,
+    2000,
+    2000,
+    2000,
+    2000,
+    2000,
+    2000,
+    2000,
+    2000,
+    2000,
+    2000
+   ],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "spendByMonth adds the same three groups per month, with no second allocation.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-008-C01 · easy · Monthly categories [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-008-C02",
+   "id": "MK-CF-F-008",
+   "name": "spendByMonth",
+   "kind": "easy",
+   "title": "Dated annual bill",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    {
+     "exact": "3200",
+     "shown": "$3,200"
+    }
+   ],
+   "actual": [
+    2000,
+    2000,
+    2000,
+    2000,
+    2000,
+    2000,
+    2000,
+    2000,
+    2000,
+    2000,
+    2000,
+    3200
+   ],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "spendByMonth adds the same three groups per month, with no second allocation.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-008-C02 · easy · Dated annual bill [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-008-C03",
+   "id": "MK-CF-F-008",
+   "name": "spendByMonth",
+   "kind": "complex",
+   "title": "Two annual dates and remainder",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "2731.17",
+     "shown": "$2,731"
+    },
+    {
+     "exact": "2731.17",
+     "shown": "$2,731"
+    },
+    {
+     "exact": "3646.755",
+     "shown": "$3,647"
+    },
+    {
+     "exact": "2731.17",
+     "shown": "$2,731"
+    },
+    {
+     "exact": "2731.17",
+     "shown": "$2,731"
+    },
+    {
+     "exact": "2731.17",
+     "shown": "$2,731"
+    },
+    {
+     "exact": "2731.17",
+     "shown": "$2,731"
+    },
+    {
+     "exact": "2731.17",
+     "shown": "$2,731"
+    },
+    {
+     "exact": "3646.755",
+     "shown": "$3,647"
+    },
+    {
+     "exact": "2731.17",
+     "shown": "$2,731"
+    },
+    {
+     "exact": "2731.17",
+     "shown": "$2,731"
+    },
+    {
+     "exact": "2731.17",
+     "shown": "$2,731"
+    }
+   ],
+   "actual": [
+    2731.17,
+    2731.17,
+    3646.755,
+    2731.17,
+    2731.17,
+    2731.17,
+    2731.17,
+    2731.17,
+    3646.755,
+    2731.17,
+    2731.17,
+    2731.17
+   ],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "spendByMonth adds the same three groups per month, with no second allocation.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-008-C03 · complex · Two annual dates and remainder [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-008-C04",
+   "id": "MK-CF-F-008",
+   "name": "spendByMonth",
+   "kind": "complex",
+   "title": "Categories exceed typed",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "2122.60",
+     "shown": "$2,123"
+    },
+    {
+     "exact": "2122.60",
+     "shown": "$2,123"
+    },
+    {
+     "exact": "2122.60",
+     "shown": "$2,123"
+    },
+    {
+     "exact": "4433.79",
+     "shown": "$4,434"
+    },
+    {
+     "exact": "2122.60",
+     "shown": "$2,123"
+    },
+    {
+     "exact": "2122.60",
+     "shown": "$2,123"
+    },
+    {
+     "exact": "2122.60",
+     "shown": "$2,123"
+    },
+    {
+     "exact": "2122.60",
+     "shown": "$2,123"
+    },
+    {
+     "exact": "2122.60",
+     "shown": "$2,123"
+    },
+    {
+     "exact": "2122.60",
+     "shown": "$2,123"
+    },
+    {
+     "exact": "2122.60",
+     "shown": "$2,123"
+    },
+    {
+     "exact": "2122.60",
+     "shown": "$2,123"
+    }
+   ],
+   "actual": [
+    2122.6,
+    2122.6,
+    2122.6,
+    4433.79,
+    2122.6,
+    2122.6,
+    2122.6,
+    2122.6,
+    2122.6,
+    2122.6,
+    2122.6,
+    2122.6
+   ],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "spendByMonth adds the same three groups per month, with no second allocation.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-008-C04 · complex · Categories exceed typed [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-008-C05",
+   "id": "MK-CF-F-008",
+   "name": "spendByMonth",
+   "kind": "edge",
+   "title": "Confirmed empty plan",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    },
+    {
+     "exact": "0",
+     "shown": "$0"
+    }
+   ],
+   "actual": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "spendByMonth adds the same three groups per month, with no second allocation.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-008-C05 · edge · Confirmed empty plan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-O-002-C01",
+   "id": "MK-CF-O-002",
+   "name": "expenses",
+   "kind": "easy",
+   "title": "Simple known expenses",
+   "classification": "AGREE",
+   "expected": {
+    "recurring_total": {
+     "exact": "250",
+     "shown": "$250"
+    },
+    "planned_total": {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    "actual_total": {
+     "exact": "500",
+     "shown": "$500"
+    }
+   },
+   "actual": {
+    "recurringDebtTotal": 250,
+    "plannedTotal": 2000,
+    "actualTotal": 500
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "expenses keeps recurring debt, planned rows and actual expenses as separate totals; actual = logged expenses + debt payments counted as expenses.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-O-002-C01 · easy · Simple known expenses [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-O-002-C02",
+   "id": "MK-CF-O-002",
+   "name": "expenses",
+   "kind": "easy",
+   "title": "No logs",
+   "classification": "AGREE",
+   "expected": {
+    "recurring_total": {
+     "exact": "250",
+     "shown": "$250"
+    },
+    "planned_total": {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    "actual_total": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "recurringDebtTotal": 250,
+    "plannedTotal": 2000,
+    "actualTotal": 0
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "expenses keeps recurring debt, planned rows and actual expenses as separate totals; actual = logged expenses + debt payments counted as expenses.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-O-002-C02 · easy · No logs [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-O-002-C03",
+   "id": "MK-CF-O-002",
+   "name": "expenses",
+   "kind": "complex",
+   "title": "Approved Expenses frameC",
+   "classification": "AGREE",
+   "expected": {
+    "recurring_rows": [
+     {
+      "exact": "2000",
+      "shown": "$2,000"
+     },
+     {
+      "exact": "250",
+      "shown": "$250"
+     }
+    ],
+    "recurring_total": {
+     "exact": "2250",
+     "shown": "$2,250"
+    },
+    "planned_rows": [
+     {
+      "exact": "200",
+      "shown": "$200"
+     },
+     {
+      "exact": "900",
+      "shown": "$900"
+     },
+     {
+      "exact": "200",
+      "shown": "$200"
+     },
+     {
+      "exact": "700",
+      "shown": "$700"
+     }
+    ],
+    "planned_total": {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    "nondebt_actual_rows": [
+     {
+      "exact": "500",
+      "shown": "$500"
+     },
+     {
+      "exact": "1200",
+      "shown": "$1,200"
+     }
+    ],
+    "debt_expense_rows": [
+     {
+      "exact": "200",
+      "shown": "$200"
+     },
+     {
+      "exact": "200",
+      "shown": "$200"
+     }
+    ],
+    "actual_total": {
+     "exact": "2100",
+     "shown": "$2,100"
+    }
+   },
+   "actual": {
+    "recurring_rows": [
+     2000,
+     250
+    ],
+    "recurring_total": 2250,
+    "planned_rows": [
+     200,
+     900,
+     200,
+     700
+    ],
+    "planned_total": 2000,
+    "nondebt_actual_rows": [
+     500,
+     1200
+    ],
+    "debt_expense_rows": [
+     200,
+     200
+    ],
+    "actual_total": 2100,
+    "counts": [
+     9,
+     23
+    ],
+    "debt_labels": [
+     "HELOC payment",
+     "Credit card debt payment"
+    ]
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "The approved drawing's household (cash-flow_v01 frame C) reproduces exactly: recurring $2,000 + $250 = $2,250; planned $200 + $900 + $200 + $700 = $2,000; actual $500 + $1,200 + $200 + $200 = $2,100. Note for the screen auditor: production hands the Expenses tab the budget's three groups (thisMonthInputs → Bills & fixed / Once in a while / Everyday, per the READ THIS FIRST row of 2026-10-23), not the four categories the drawing prints.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-O-002-C03 · complex · Approved Expenses frameC [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-O-002-C04",
+   "id": "MK-CF-O-002",
+   "name": "expenses",
+   "kind": "complex",
+   "title": "Unround linked purchases",
+   "classification": "AGREE",
+   "expected": {
+    "nondebt_actual": {
+     "exact": "2042.60",
+     "shown": "$2,043"
+    },
+    "card_payment_extra_expense": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "actual_total": {
+     "exact": "2042.60",
+     "shown": "$2,043"
+    }
+   },
+   "actual": {
+    "nondebt_actual": 2042.6,
+    "card_payment_extra_expense": 0,
+    "actual_total": 2042.6
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "Agrees when the card is marked captured. No production caller marks one: theMonth calls expenses(input) with the default empty set (\"until a card provider exists it is always empty\").",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-O-002-C04 · complex · Unround linked purchases [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-O-002-C05",
+   "id": "MK-CF-O-002",
+   "name": "expenses",
+   "kind": "edge",
+   "title": "Same-name debts",
+   "classification": "APP WRONG",
+   "expected": {
+    "complete": false,
+    "payment_counted_once": {
+     "exact": "250",
+     "shown": "$250"
+    },
+    "reason": "ambiguous debt match"
+   },
+   "actual": {
+    "actualTotal": 500,
+    "debtCountedAsExpense": [
+     {
+      "label": "Loan payment",
+      "amount": 250
+     },
+     {
+      "label": " loan  payment",
+      "amount": 250
+     }
+    ]
+   },
+   "difference": "see note",
+   "rests_on": "tenet 1 (the same $250 counted twice); tenet 4 (This month and Expenses disagree); DEC-1923",
+   "note": "Two debts named \"Loan\" and \" loan \": the one $250 payment is counted against both, so the Expenses tab's actual total is $500. This month's actual (debtPaymentsByDebt) counts it once, against B only — the two tabs disagree on the same month. A logged payment carries only the payee name (store = the debt's label), no debt id, and no screen stops two debts sharing a name.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-O-002-C05 · edge · Same-name debts [APP WRONG]",
+   "test_result": "passed (test.failing: the reviewer's answer fails today; turns red when fixed) + twin \"app today\" passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-MONTH): the Expenses tab counts the $250 once (was $500). FIXED 2026-10-25 (FIX-MONTH): one matcher, debtPaymentsMatched (logged-expenses.ts) — a payment goes to the debt whose id it names (\"Log a payment\" now writes debtId, BudgetScreen.tsx and MoneySheets.tsx), else to the one debt with its payee's name; a name two debts share is given to neither and listed once (\"Other debt payments · logged as “Loan” — two of your debts have that name, so it is given to neither\"; on Expenses \"Loan payment $250 · two of your debts have that name — counted once\")."
+  },
+  {
+   "case_id": "MK-CF-F-149-C01",
+   "id": "MK-CF-F-149",
+   "name": "recurringDebtPayments",
+   "kind": "easy",
+   "title": "Active instalment",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "name": "A",
+     "payment": {
+      "exact": "250",
+      "shown": "$250"
+     }
+    }
+   ],
+   "actual": [
+    {
+     "label": "A",
+     "monthly": 250
+    }
+   ],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "recurringDebtPayments lists an instalment loan only in a month a payment falls in (paymentInMonth, DEC-8153).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-149-C01 · easy · Active instalment [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-149-C02",
+   "id": "MK-CF-F-149",
+   "name": "recurringDebtPayments",
+   "kind": "easy",
+   "title": "Not started",
+   "classification": "AGREE",
+   "expected": [],
+   "actual": [],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "recurringDebtPayments lists an instalment loan only in a month a payment falls in (paymentInMonth, DEC-8153).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-149-C02 · easy · Not started [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-149-C03",
+   "id": "MK-CF-F-149",
+   "name": "recurringDebtPayments",
+   "kind": "complex",
+   "title": "Ends in month",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "name": "A",
+     "payment": {
+      "exact": "231.43",
+      "shown": "$231"
+     }
+    }
+   ],
+   "actual": [
+    {
+     "label": "A",
+     "monthly": 231.43
+    }
+   ],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "recurringDebtPayments lists an instalment loan only in a month a payment falls in (paymentInMonth, DEC-8153).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-149-C03 · complex · Ends in month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-149-C04",
+   "id": "MK-CF-F-149",
+   "name": "recurringDebtPayments",
+   "kind": "complex",
+   "title": "Balloon month",
+   "classification": "AGREE",
+   "expected": [],
+   "actual": [],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "recurringDebtPayments lists an instalment loan only in a month a payment falls in (paymentInMonth, DEC-8153).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-149-C04 · complex · Balloon month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-149-C05",
+   "id": "MK-CF-F-149",
+   "name": "recurringDebtPayments",
+   "kind": "edge",
+   "title": "Paid off before month",
+   "classification": "AGREE",
+   "expected": [],
+   "actual": [],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "recurringDebtPayments lists an instalment loan only in a month a payment falls in (paymentInMonth, DEC-8153).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-149-C05 · edge · Paid off before month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-150-C01",
+   "id": "MK-CF-F-150",
+   "name": "debtPaymentsCountedAsExpenses",
+   "kind": "easy",
+   "title": "One matching payment",
+   "classification": "AGREE",
+   "expected": {
+    "A": {
+     "exact": "250",
+     "shown": "$250"
+    }
+   },
+   "actual": [
+    {
+     "label": "Loan payment",
+     "amount": 250
+    }
+   ],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "debtPaymentsCountedAsExpenses adds this month's Debt payment logs whose payee matches the debt name (case and outer spaces ignored).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-150-C01 · easy · One matching payment [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-150-C02",
+   "id": "MK-CF-F-150",
+   "name": "debtPaymentsCountedAsExpenses",
+   "kind": "easy",
+   "title": "No payment",
+   "classification": "AGREE",
+   "expected": {},
+   "actual": [],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "debtPaymentsCountedAsExpenses adds this month's Debt payment logs whose payee matches the debt name (case and outer spaces ignored).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-150-C02 · easy · No payment [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-150-C03",
+   "id": "MK-CF-F-150",
+   "name": "debtPaymentsCountedAsExpenses",
+   "kind": "complex",
+   "title": "Two distinct debts",
+   "classification": "AGREE",
+   "expected": {
+    "A": {
+     "exact": "231.17",
+     "shown": "$231"
+    },
+    "B": {
+     "exact": "111.43",
+     "shown": "$111"
+    }
+   },
+   "actual": [
+    {
+     "label": "Auto payment",
+     "amount": 231.17
+    },
+    {
+     "label": "HELOC payment",
+     "amount": 111.43
+    }
+   ],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "debtPaymentsCountedAsExpenses adds this month's Debt payment logs whose payee matches the debt name (case and outer spaces ignored).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-150-C03 · complex · Two distinct debts [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-150-C04",
+   "id": "MK-CF-F-150",
+   "name": "debtPaymentsCountedAsExpenses",
+   "kind": "complex",
+   "title": "Linked card already expensed",
+   "classification": "AGREE",
+   "expected": {},
+   "actual": [],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "Agrees when the card is marked captured; no production caller marks one today.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-150-C04 · complex · Linked card already expensed [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-150-C05",
+   "id": "MK-CF-F-150",
+   "name": "debtPaymentsCountedAsExpenses",
+   "kind": "edge",
+   "title": "Duplicate normalized names",
+   "classification": "APP WRONG",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Payment has two indistinguishable debt matches",
+    "unallocated_payment": {
+     "exact": "250",
+     "shown": "$250"
+    }
+   },
+   "actual": [
+    {
+     "label": "Loan payment",
+     "amount": 250
+    },
+    {
+     "label": " loan  payment",
+     "amount": 250
+    }
+   ],
+   "difference": "see note",
+   "rests_on": "tenets 1 and 3; DEC-1923",
+   "note": "The $250 logged to \"Loan\" is given to both \"Loan\" and \" loan \" ($250 each, $500 counted). The radar (MK-CF-F-153) matches the same way and lists both. Production stores no debt id with a payment (BudgetScreen.tsx addExpense and MoneySheets.tsx log store = d.label), so the name is the only key.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-150-C05 · edge · Duplicate normalized names [APP WRONG]",
+   "test_result": "passed (test.failing: the reviewer's answer fails today; turns red when fixed) + twin \"app today\" passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-MONTH): FIXED 2026-10-25 (FIX-MONTH): one matcher, debtPaymentsMatched (logged-expenses.ts) — a payment goes to the debt whose id it names (\"Log a payment\" now writes debtId, BudgetScreen.tsx and MoneySheets.tsx), else to the one debt with its payee's name; a name two debts share is given to neither and listed once (\"Other debt payments · logged as “Loan” — two of your debts have that name, so it is given to neither\"; on Expenses \"Loan payment $250 · two of your debts have that name — counted once\")."
+  },
+  {
+   "case_id": "MK-CF-F-151-C01",
+   "id": "MK-CF-F-151",
+   "name": "actualSpending",
+   "kind": "easy",
+   "title": "One expense",
+   "classification": "AGREE",
+   "expected": {
+    "shown_ids": [
+     "1"
+    ],
+    "total": {
+     "exact": "100",
+     "shown": "$100"
+    },
+    "hidden_count": {
+     "exact": "0",
+     "shown": "0"
+    },
+    "hidden_total": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "shown_ids": [
+     "1"
+    ],
+    "total": 100,
+    "hidden_count": 0,
+    "hidden_total": 0
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "actualSpending leaves out Debt payment, filters month and origin, newest first, five shown, totals reconcile.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-151-C01 · easy · One expense [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-151-C02",
+   "id": "MK-CF-F-151",
+   "name": "actualSpending",
+   "kind": "easy",
+   "title": "Debt expense excluded",
+   "classification": "AGREE",
+   "expected": {
+    "shown_ids": [],
+    "total": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "hidden_count": {
+     "exact": "0",
+     "shown": "0"
+    },
+    "hidden_total": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "shown_ids": [],
+    "total": 0,
+    "hidden_count": 0,
+    "hidden_total": 0
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "actualSpending leaves out Debt payment, filters month and origin, newest first, five shown, totals reconcile.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-151-C02 · easy · Debt expense excluded [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-151-C03",
+   "id": "MK-CF-F-151",
+   "name": "actualSpending",
+   "kind": "complex",
+   "title": "More than five records",
+   "classification": "AGREE",
+   "expected": {
+    "shown_ids": [
+     "6",
+     "5",
+     "4",
+     "3",
+     "2"
+    ],
+    "total": {
+     "exact": "369.18",
+     "shown": "$369"
+    },
+    "hidden_count": {
+     "exact": "2",
+     "shown": "2"
+    },
+    "hidden_total": {
+     "exact": "69.53",
+     "shown": "$70"
+    }
+   },
+   "actual": {
+    "shown_ids": [
+     "6",
+     "5",
+     "4",
+     "3",
+     "2"
+    ],
+    "total": 369.18000000000006,
+    "hidden_count": 2,
+    "hidden_total": 69.53000000000003
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "actualSpending leaves out Debt payment, filters month and origin, newest first, five shown, totals reconcile.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-151-C03 · complex · More than five records [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-151-C04",
+   "id": "MK-CF-F-151",
+   "name": "actualSpending",
+   "kind": "complex",
+   "title": "Source/month filtering",
+   "classification": "AGREE",
+   "expected": {
+    "shown_ids": [
+     "A"
+    ],
+    "total": {
+     "exact": "731.17",
+     "shown": "$731"
+    },
+    "hidden_count": {
+     "exact": "0",
+     "shown": "0"
+    },
+    "hidden_total": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "shown_ids": [
+     "A"
+    ],
+    "total": 731.17,
+    "hidden_count": 0,
+    "hidden_total": 0
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "actualSpending leaves out Debt payment, filters month and origin, newest first, five shown, totals reconcile.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-151-C04 · complex · Source/month filtering [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-151-C05",
+   "id": "MK-CF-F-151",
+   "name": "actualSpending",
+   "kind": "edge",
+   "title": "Empty month",
+   "classification": "AGREE",
+   "expected": {
+    "shown_ids": [],
+    "total": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "hidden_count": {
+     "exact": "0",
+     "shown": "0"
+    },
+    "hidden_total": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "shown_ids": [],
+    "total": 0,
+    "hidden_count": 0,
+    "hidden_total": 0
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "actualSpending leaves out Debt payment, filters month and origin, newest first, five shown, totals reconcile.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-151-C05 · edge · Empty month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-152-C01",
+   "id": "MK-CF-F-152",
+   "name": "isRadarItem",
+   "kind": "easy",
+   "title": "Mortgage",
+   "classification": "AGREE",
+   "expected": false,
+   "actual": null,
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "isRadarItem: instalment none, due in full a lump, card or line of credit revolving; an explicit payment type wins over the kind.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-152-C01 · easy · Mortgage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-152-C02",
+   "id": "MK-CF-F-152",
+   "name": "isRadarItem",
+   "kind": "easy",
+   "title": "Card",
+   "classification": "AGREE",
+   "expected": "revolving",
+   "actual": "revolving-debt",
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "isRadarItem: instalment none, due in full a lump, card or line of credit revolving; an explicit payment type wins over the kind.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-152-C02 · easy · Card [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-152-C03",
+   "id": "MK-CF-F-152",
+   "name": "isRadarItem",
+   "kind": "complex",
+   "title": "Explicit full balance",
+   "classification": "AGREE",
+   "expected": "lump_sum",
+   "actual": "lump-debt",
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "isRadarItem: instalment none, due in full a lump, card or line of credit revolving; an explicit payment type wins over the kind.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-152-C03 · complex · Explicit full balance [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-152-C04",
+   "id": "MK-CF-F-152",
+   "name": "isRadarItem",
+   "kind": "complex",
+   "title": "Override card loan",
+   "classification": "AGREE",
+   "expected": false,
+   "actual": null,
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "payment_type instalment on a card wins over the kind: not a radar item.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-152-C04 · complex · Override card loan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-152-C05",
+   "id": "MK-CF-F-152",
+   "name": "isRadarItem",
+   "kind": "edge",
+   "title": "HELOC",
+   "classification": "AGREE",
+   "expected": "revolving",
+   "actual": "revolving-debt",
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "isRadarItem: instalment none, due in full a lump, card or line of credit revolving; an explicit payment type wins over the kind.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-152-C05 · edge · HELOC [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-153-C01",
+   "id": "MK-CF-F-153",
+   "name": "radar",
+   "kind": "easy",
+   "title": "Instalment excluded",
+   "classification": "AGREE",
+   "expected": [],
+   "actual": [],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "radar takes what was paid this month, else what falls due; a captured card is not counted; big bills of $500 or more after the debts.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-153-C01 · easy · Instalment excluded [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-153-C02",
+   "id": "MK-CF-F-153",
+   "name": "radar",
+   "kind": "easy",
+   "title": "Revolving amount due",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "name": "Visa",
+     "amount": {
+      "exact": "200",
+      "shown": "$200.00"
+     },
+     "counted_as_expense": true
+    }
+   ],
+   "actual": [
+    {
+     "label": "Visa payment",
+     "amount": 200,
+     "reason": "revolving-debt",
+     "countedAsExpense": true,
+     "note": "entered on the Debts tab · counted as an expense — no receipts to match it to"
+    }
+   ],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "The row is labelled \"Visa payment\" — the drawing's own wording (cash-flow_v01 frame C, \"HELOC payment\"); the amount and counted flag match.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-153-C02 · easy · Revolving amount due [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-153-C03",
+   "id": "MK-CF-F-153",
+   "name": "radar",
+   "kind": "complex",
+   "title": "Unround paid overrides due",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "name": "Visa",
+     "amount": {
+      "exact": "311.43",
+      "shown": "$311.43"
+     },
+     "counted_as_expense": false
+    },
+    {
+     "name": "HELOC",
+     "amount": {
+      "exact": "171.37",
+      "shown": "$171.37"
+     },
+     "counted_as_expense": true
+    }
+   ],
+   "actual": [
+    {
+     "label": "Visa payment",
+     "amount": 311.43,
+     "reason": "revolving-debt",
+     "countedAsExpense": false,
+     "note": "connected card · NOT counted as an expense — the purchases are"
+    },
+    {
+     "label": "HELOC payment",
+     "amount": 171.37,
+     "reason": "revolving-debt",
+     "countedAsExpense": true,
+     "note": "entered on the Debts tab · counted as an expense"
+    }
+   ],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "radar takes what was paid this month, else what falls due; a captured card is not counted; big bills of $500 or more after the debts.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-153-C03 · complex · Unround paid overrides due [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-153-C04",
+   "id": "MK-CF-F-153",
+   "name": "radar",
+   "kind": "complex",
+   "title": "Balloon this month",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "name": "Tax",
+     "amount": {
+      "exact": "7311.17",
+      "shown": "$7,311.17"
+     }
+    },
+    {
+     "name": "Insurance",
+     "amount": {
+      "exact": "831.43",
+      "shown": "$831.43"
+     }
+    }
+   ],
+   "actual": [
+    {
+     "label": "Tax payment",
+     "amount": 7311.17,
+     "reason": "lump-debt",
+     "countedAsExpense": true,
+     "note": "entered on the Debts tab · counted as an expense"
+    },
+    {
+     "label": "Insurance",
+     "amount": 831.43,
+     "reason": "big-bill",
+     "countedAsExpense": true,
+     "note": "due due 2026-10-31"
+    }
+   ],
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "Agrees as handed. The Tax lump is reachable; the $831.43 Insurance big bill is not — no production caller hands bigBills.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-153-C04 · complex · Balloon this month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-F-153-C05",
+   "id": "MK-CF-F-153",
+   "name": "radar",
+   "kind": "edge",
+   "title": "Big bill outside month",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Is bigBills already month-filtered?",
+    "readings": {
+     "filtered": [],
+     "unfiltered": [
+      {
+       "name": "Insurance",
+       "amount": {
+        "exact": "1200",
+        "shown": "$1,200.00"
+       }
+      }
+     ]
+    }
+   },
+   "actual": {
+    "function_handed_the_bill": [
+     {
+      "label": "Insurance",
+      "amount": 1200,
+      "reason": "big-bill",
+      "countedAsExpense": true,
+      "note": "due due 2026-12-15"
+     }
+    ],
+    "production_door_radar": []
+   },
+   "difference": "see note",
+   "rests_on": "caller: MK-CF-O-010 theMonth ← MK-CF-F-227 thisMonthInputs (src/hooks/useCashflowModel.ts)",
+   "note": "The reviewer asks whether bigBills is month-filtered. Measured: radar lists any bill it is handed (it has a due label, no date), so handed a December bill in October it lists it (\"unfiltered\"). But no production caller hands bigBills at all: theMonth → expenses(input), and that input comes from thisMonthInputs, which builds none. Through the real door October's radar is [] — the \"filtered\" reading holds, but only because the radar never shows a non-debt bill.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-F-153-C05 · edge · Big bill outside month [OUTSIDE DOMAIN]",
+   "test_result": "skipped (recorded by the \"recorded\" test beside it, passed)",
+   "fixed_2026_10_25": "DECIDED 2026-10-25 (the lead's ruling, reading A — filtered) and FIXED (FIX-MONTH): thisMonthInputs hands the radar the month's own dated bills (datedBillsIn) — October's radar holds nothing for the December bill, December's reads \"Insurance · due Dec 15 · $1,200\"."
+  },
+  {
+   "case_id": "MK-CF-O-020-C01",
+   "id": "MK-CF-O-020",
+   "name": "theBudgetCounted",
+   "kind": "easy",
+   "title": "Home mortgage duplication",
+   "classification": "AGREE",
+   "expected": {
+    "counted_rent_mortgage": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "counted_typed_total": {
+     "exact": "700",
+     "shown": "$700"
+    },
+    "original_typed_total": {
+     "exact": "3000",
+     "shown": "$3,000"
+    },
+    "named_mortgage": "M"
+   },
+   "actual": {
+    "counted_rent_mortgage": 0,
+    "counted_typed_total": 700,
+    "original_typed_total": 3000,
+    "original_rent": 2300,
+    "named_mortgage": "M",
+    "sentence": "Your Rent / Mortgage budget line is not counted here: your home’s mortgage, M, is in Debts and is counted from there."
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "theBudgetCounted stands the Rent / Mortgage line down only when the home lived in has its mortgage in Debts; the typed figures are never rewritten.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-O-020-C01 · easy · Home mortgage duplication [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-O-020-C02",
+   "id": "MK-CF-O-020",
+   "name": "theBudgetCounted",
+   "kind": "easy",
+   "title": "Renter",
+   "classification": "AGREE",
+   "expected": {
+    "counted_rent_mortgage": {
+     "exact": "2300",
+     "shown": "$2,300"
+    },
+    "counted_typed_total": {
+     "exact": "3000",
+     "shown": "$3,000"
+    }
+   },
+   "actual": {
+    "counted_rent_mortgage": 2300,
+    "counted_typed_total": 3000,
+    "original_typed_total": 3000,
+    "original_rent": 2300,
+    "named_mortgage": null,
+    "sentence": ""
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "theBudgetCounted stands the Rent / Mortgage line down only when the home lived in has its mortgage in Debts; the typed figures are never rewritten.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-O-020-C02 · easy · Renter [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-O-020-C03",
+   "id": "MK-CF-O-020",
+   "name": "theBudgetCounted",
+   "kind": "complex",
+   "title": "Other property mortgage",
+   "classification": "AGREE",
+   "expected": {
+    "counted_rent_mortgage": {
+     "exact": "2311.17",
+     "shown": "$2,311"
+    },
+    "counted_typed_total": {
+     "exact": "3311.43",
+     "shown": "$3,311"
+    }
+   },
+   "actual": {
+    "counted_rent_mortgage": 2311.17,
+    "counted_typed_total": 3311.43,
+    "original_typed_total": 3311.43,
+    "original_rent": 2311.17,
+    "named_mortgage": null,
+    "sentence": ""
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "theBudgetCounted stands the Rent / Mortgage line down only when the home lived in has its mortgage in Debts; the typed figures are never rewritten.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-O-020-C03 · complex · Other property mortgage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-O-020-C04",
+   "id": "MK-CF-O-020",
+   "name": "theBudgetCounted",
+   "kind": "complex",
+   "title": "Zero floor without data mutation",
+   "classification": "AGREE",
+   "expected": {
+    "counted_rent_mortgage": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "counted_typed_total": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "original_typed_total": {
+     "exact": "2311.43",
+     "shown": "$2,311"
+    }
+   },
+   "actual": {
+    "counted_rent_mortgage": 0,
+    "counted_typed_total": 0,
+    "original_typed_total": 2311.43,
+    "original_rent": 2731.17,
+    "named_mortgage": "M",
+    "sentence": "Your Rent / Mortgage budget line is not counted here: your home’s mortgage, M, is in Debts and is counted from there."
+   },
+   "difference": "none",
+   "rests_on": "the card's written rule; ordinary arithmetic",
+   "note": "theBudgetCounted stands the Rent / Mortgage line down only when the home lived in has its mortgage in Debts; the typed figures are never rewritten.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-O-020-C04 · complex · Zero floor without data mutation [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "case_id": "MK-CF-O-020-C05",
+   "id": "MK-CF-O-020",
+   "name": "theBudgetCounted",
+   "kind": "edge",
+   "title": "Other duplicate debt category",
+   "classification": "APP WRONG",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Other debt links not specified",
+    "readings": {
+     "deduplicated_outflow": {
+      "exact": "250",
+      "shown": "$250"
+     },
+     "naive_outflow": {
+      "exact": "500",
+      "shown": "$500"
+     }
+    }
+   },
+   "actual": {
+    "planned_outflow": 500
+   },
+   "difference": "see note",
+   "rests_on": "DEC-1923 (\"Once user enters mortgage or any debt - the app deduct it directly ... instead of leaving it for user to add it to planned expenses\"); tenet 1",
+   "note": "The reviewer wrote RULE UNCLEAR; DEC-1923 settles it — a debt in Debts is counted from Debts, so the $250 car loan counts once. The app counts it twice: planned outflow $500 (the $250 budget line + the $250 from Debts). The same happens with the budget editor's own \"Debt payment\" category (BUDGET_CATEGORIES id debt). Only the home's Rent / Mortgage line stands down.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part06.test.ts › … › MK-CF-O-020-C05 · edge · Other duplicate debt category [APP WRONG]",
+   "test_result": "passed (test.failing: the reviewer's answer fails today; turns red when fixed) + twin \"app today\" passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-MONTH; DEC-1923 \"any debt\"): theBudgetCounted stands down a budget line named as a debt in Debts (\"Car loan\") and the budget's own \"Debt payment\" line — planned outflow $250 (was $500), with the sentence \"Your Car loan budget line is not counted here: Car loan is in Debts and is counted from there.\""
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-CF-F-001",
+   "name": "buildBudgetState",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Missing stored expenses become zero and therefore produce a positive projected saving without a budget.",
+   "reviewer_should_be": "Refuse projected saving until income and budget completeness are known.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix",
+   "what_the_code_actually_does": "spend = doc.monthly_spending || 0. Its only caller, budgetFromOnboarding, hands plannedMonthlySpend, which is 0 when nothing is set — so \"no budget\" and \"a confirmed $0\" both give projected_to_save = the whole take-home.",
+   "governing_decisions": [
+    "DEC-7939",
+    "DEC-3523 (tenet 3)"
+   ],
+   "plain_example": "$5,000 take-home, no budget set: projected saving $5,000; right: no figure (\"not set\").",
+   "production_callers": "MK-XS-F-031 buildSnapshot (HomeScreen) → goal capacity (when no monthlySavingsCapacity is typed) and retire_monthly_spend_today; Home reads only snapshot.networth, so no screen prints it today.",
+   "note": "The income it subtracts from is buildIncomeState's net_monthly_income — the legacy reader MK-CF-F-049 (part 5).",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET): buildBudgetState refuses (null) when no budget is set; budgetFromOnboarding stores no plan when nothing was entered (DEC-7939, tenet 3)."
+  },
+  {
+   "id": "MK-CF-O-002",
+   "name": "expenses",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "The approved drawing and formula can reconcile expenses, but linked-card payment exclusion differs from the actual flow contract, and repeated names can double-assign a payment.",
+   "reviewer_should_be": "Use stable debt identity and one stated treatment for card purchases versus balance payments, preserving section totals.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix + records fix (rule text)",
+   "what_the_code_actually_does": "(a) Name matching gives one logged payment to every debt with the same normalized name (via F-150), so the Expenses tab's actual total counts it twice while This month's actual (F-157 debtPaymentsByDebt, a name→id map) counts it once against the last such debt. (b) The linked-card exclusion exists only in expenses/radar; actualMonthFlow has none — but no production caller marks a card captured (theMonth passes the default empty set), so the two agree today. The card should say so.",
+   "governing_decisions": [
+    "DEC-1923",
+    "DEC-0292",
+    "DEC-8152",
+    "DEC-3523 (tenets 1, 4)"
+   ],
+   "plain_example": "Debts \"Loan\" and \" loan \", one $250 payment: Expenses actual $500, This month actual $250.",
+   "production_callers": "MK-CF-O-010 theMonth (CashFlowScreen Expenses tab and This month; HomeScreen via useThisMonthInputs).",
+   "note": "The approved frame C household reconciles exactly ($2,250 / $2,000 / $2,100).",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-MONTH): FIXED 2026-10-25 (FIX-MONTH): one matcher, debtPaymentsMatched (logged-expenses.ts) — a payment goes to the debt whose id it names (\"Log a payment\" now writes debtId, BudgetScreen.tsx and MoneySheets.tsx), else to the one debt with its payee's name; a name two debts share is given to neither and listed once (\"Other debt payments · logged as “Loan” — two of your debts have that name, so it is given to neither\"; on Expenses \"Loan payment $250 · two of your debts have that name — counted once\")."
+  },
+  {
+   "id": "MK-CF-F-150",
+   "name": "debtPaymentsCountedAsExpenses",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Name-based payment matching can attach one expense to multiple debts with identical normalized names.",
+   "reviewer_should_be": "Require stable debt identity or flag ambiguous matches; a logged amount may be counted once.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix",
+   "what_the_code_actually_does": "For each non-instalment debt it adds every Debt payment log whose payee equals the debt's label (trim, lower case). Two debts with one normalized name each receive the whole payment. Production stores no debt id on a payment (store = d.label in BudgetScreen.tsx and MoneySheets.tsx) and no screen stops duplicate debt names.",
+   "governing_decisions": [
+    "DEC-1923",
+    "DEC-3523 (tenets 1, 3)"
+   ],
+   "plain_example": "\"Loan\" + \" loan \", $250 logged: Loan payment $250 and \" loan  payment\" $250.",
+   "production_callers": "MK-CF-O-002 expenses ← MK-CF-O-010 theMonth.",
+   "note": "MK-CF-F-153 radar uses the same match and lists both; MK-CF-F-157 debtPaymentsByDebt (part 14) gives it to one debt only. One fix should give all three one debt-identity rule.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-MONTH): FIXED 2026-10-25 (FIX-MONTH): one matcher, debtPaymentsMatched (logged-expenses.ts) — a payment goes to the debt whose id it names (\"Log a payment\" now writes debtId, BudgetScreen.tsx and MoneySheets.tsx), else to the one debt with its payee's name; a name two debts share is given to neither and listed once (\"Other debt payments · logged as “Loan” — two of your debts have that name, so it is given to neither\"; on Expenses \"Loan payment $250 · two of your debts have that name — counted once\")."
+  },
+  {
+   "id": "MK-CF-F-153",
+   "name": "radar",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "Known debt due/paid selection is coherent, but the prose does not establish the date window of bigBills or prevent showing a future bill as this month’s expense.",
+   "reviewer_should_be": "Declare bigBills input scope and filter dated bills to the queried month; do not treat a radar forecast as paid.",
+   "classification": "AGREE",
+   "fix_kind": "records fix (rule text)",
+   "what_the_code_actually_does": "radar lists every bigBills entry of $500 or more it is handed; the entry has a due label and no date, so filtering to the month is the caller's job. No production caller hands bigBills (thisMonthInputs builds none), so no future bill can reach this month's radar — and no non-debt bill reaches it at all. The radar never deducts (theMonth's planned surplus is the same with or without it).",
+   "governing_decisions": [
+    "DEC-8153",
+    "DEC-1923",
+    "DEC-0002"
+   ],
+   "plain_example": "October, a $1,200 December insurance bill: through the real door the radar is empty.",
+   "production_callers": "MK-CF-O-002 expenses ← MK-CF-O-010 theMonth.",
+   "note": "The reviewer's point is a gap in the card's words, not a wrong number: the card should say the caller hands the month's bills and that today none is handed. Whether a large once-in-a-while bill should show on its month's radar is raised as a ruling item.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-MONTH): the door hands the month's dated bills; the rule text says so."
+  },
+  {
+   "id": "MK-CF-O-020",
+   "name": "theBudgetCounted",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Suppresses the named home mortgage category correctly, but does not identify any other debt duplicated in a user budget despite the broader any-debt rule.",
+   "reviewer_should_be": "Keep the home rule; require explicit debt links/exclusions for other duplicated debt categories and disclose any unresolved duplicates.",
+   "classification": "APP WRONG",
+   "fix_kind": "app fix",
+   "what_the_code_actually_does": "Only the budget's Rent / Mortgage line (id rent) stands down, and only for the home's mortgage. The budget editor also offers a \"Debt payment\" category (BUDGET_CATEGORIES id debt) and custom lines; either, holding a debt that is also in Debts, is counted twice in the planned outflow.",
+   "governing_decisions": [
+    "DEC-1923",
+    "DEC-2440",
+    "DEC-3523 (tenet 1)"
+   ],
+   "plain_example": "$250 car loan in Debts + a $250 budget line for it: planned outflow $500; right $250.",
+   "production_callers": "useCashflowModel, useThisMonthInputs, CashFlowScreen, BillCalendarScreen, MK-NW-O-004 theEmergencyFund.",
+   "note": "The home-mortgage rule itself agrees in all four drawn cases.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-MONTH): every budget line that is a debt in Debts stands down; a mortgage on no property beside a Rent / Mortgage line is that line (the lead's ruling) — counted once, planned and actual (expensesAsCounted)."
+  }
+ ],
+ "rules_held": [
+  {
+   "rule": "DEC-0292",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. Use the newer approved drawing plus DEC-8152 correction:planned350actual900,not older750/1300.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence)",
+   "what_the_code_actually_does": "",
+   "note": "The reviewer points to the newer drawing plus DEC-8152 (planned $350, actual $900). The Expenses side of that household reconciles exactly (MK-CF-O-002-C03, $2,100)."
+  },
+  {
+   "rule": "DEC-0493",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence)",
+   "what_the_code_actually_does": "",
+   "note": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+  },
+  {
+   "rule": "DEC-2440",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Current actualcounts only loggeddebt and home-mortgage suppressionexists,but legacy cashflowYear omitsdebt and otherduplicatebudgetdebtslacklinks.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "Two claims. (1) \"legacy cashflowYear omits debt\" is MK-CF-F-020's (part 8) and is measured there. (2) \"other duplicate budget debts lack links\" is real: a budget line holding a debt that is also in Debts is counted twice (MK-CF-O-020-C05: $500 planned outflow for one $250 car loan).",
+   "note": "Fix with MK-CF-O-020.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-MONTH): a budget line that is a debt is not counted again; the mortgage on no property beside a Rent / Mortgage line counted once."
+  },
+  {
+   "rule": "DEC-2484",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence)",
+   "what_the_code_actually_does": "",
+   "note": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+  },
+  {
+   "rule": "DEC-7611",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Dated budgetreaders honor own-month bills,but budgetVsActual still uses annual-average spendBuckets.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "The dated readers (spendByMonthByBucket, spendByMonth, thisMonthInputs) hold the bill in its month. budgetVsActual (MK-CF-F-014) still plans each group from spendBuckets, the monthly average: with a $1,200 December bill, once in a while reads $100 in September and in December. Its planned figures reach the budget editor (\"Your budget\": CashFlowScreen BudgetEditor → BudgetScreen embedded, Budget tab), whose group cards print \"spent / planned\" — $0 / $100 in September where This month and the Expenses tab plan nothing for it, and $100 in December where they plan $1,200. Home and the retired view read only its spent total; thisMonthInputs receives it and ignores it.",
+   "note": "BudgetScreen was being edited by another agent during this run (it now hands budgetVsActual the counted profile); the group cards still read the average.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET): budgetVsActual reads the dated plan — September once in a while $0 / total $700, December $1,200 / $1,900 on the budget editor too."
+  },
+  {
+   "rule": "DEC-7951",
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Dated budgetreaders honor own-month bills,but budgetVsActual still uses annual-average spendBuckets.",
+   "classification": "APP WRONG",
+   "what_the_code_actually_does": "Same reader: budgetVsActual's planned total for December is $2,100 (the average) where every dated reader gives $3,200 and the year's average figure (plannedMonthlySpend) gives $2,100. The bill is never added twice anywhere in part 6.",
+   "note": "Fix with DEC-7611 under MK-CF-F-014 budgetVsActual.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET): his $2,000 typed ($1,100 / $900) + $1,200 December — the budget editor plans $2,000 in September ($1,100 + $900) and $3,200 in December; the stored budget is $2,100 = 1,100 + 100 + 900; must-pay stays $2,000."
+  },
+  {
+   "rule": "DEC-8153",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. New per-month debt readersrespect inclusive start/payoff bounds and a balloon’s due-month balance.",
+   "classification": "RECORDED — reviewer CANNOT TELL (no card evidence)",
+   "what_the_code_actually_does": "",
+   "note": "Measured in passing: recurringDebtPayments honours first-payment and payoff months and a balloon's month (MK-CF-F-149 C01–C05 agree)."
+  }
+ ],
+ "app_wrong_fixes": [
+  {
+   "function_id": "MK-CF-F-150",
+   "function": "debtPaymentsCountedAsExpenses (and the same name match in MK-CF-F-153 radar)",
+   "owner_file": "MoneyKeel/functions/cashflow/expenses.ts",
+   "example": "Debts \"Loan\" and \" loan \" (both cards/lines), one $250 payment logged to \"Loan\" in October",
+   "app_gives": "Loan payment $250 + \" loan  payment\" $250 → Expenses actual total $500; radar lists both",
+   "right": "The payment counted once — or refused as ambiguous with $250 unallocated; This month already counts it once",
+   "ruling_or_source": "tenets 1, 3, 4; DEC-1923. Logged payments carry no debt id (store = d.label).",
+   "items": [
+    "MK-CF-F-150-C05",
+    "MK-CF-O-002-C05",
+    "formula MK-CF-F-150",
+    "formula MK-CF-O-002"
+   ]
+  },
+  {
+   "function_id": "MK-CF-O-020",
+   "function": "theBudgetCounted",
+   "owner_file": "MoneyKeel/functions/cashflow/budget-counted.ts",
+   "example": "$250 car loan in Debts and a $250 budget line for it (custom \"Car loan\", or the budget's own \"Debt payment\" category)",
+   "app_gives": "Planned outflow $500",
+   "right": "$250 — the debt counted once, from Debts",
+   "ruling_or_source": "DEC-1923; DEC-2440",
+   "items": [
+    "MK-CF-O-020-C05",
+    "formula MK-CF-O-020",
+    "rule DEC-2440"
+   ]
+  },
+  {
+   "function_id": "MK-CF-F-014",
+   "function": "budgetVsActual (its planned side)",
+   "owner_file": "src/domain/budget/index.ts (read by src/screens/BudgetScreen.tsx group cards)",
+   "example": "$2,000 a month ($1,100 bills, $900 everyday) + $1,200 insurance in December",
+   "app_gives": "Budget editor group cards: once in a while planned $100 in September and in December; December planned total $2,100",
+   "right": "September $0, December $1,200 once in a while; December total $3,200 — what This month and the Expenses tab say",
+   "ruling_or_source": "DEC-7611; DEC-7951; tenet 4",
+   "items": [
+    "rule DEC-7611",
+    "rule DEC-7951"
+   ],
+   "note": "F-014's own cases are part 7's.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET)"
+  },
+  {
+   "function_id": "MK-CF-F-001",
+   "function": "buildBudgetState",
+   "owner_file": "src/domain/budget/index.ts",
+   "example": "$5,000 take-home, no budget set",
+   "app_gives": "projected_to_save $5,000",
+   "right": "No projected saving (\"not set\")",
+   "ruling_or_source": "tenet 3; DEC-7939",
+   "items": [
+    "MK-CF-F-001-C05",
+    "formula MK-CF-F-001"
+   ],
+   "note": "No screen prints it today (Home reads only net worth from the snapshot); fix or retire the field.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET)"
+  },
+  {
+   "function_id": "MK-CF-F-004",
+   "function": "spendBuckets",
+   "owner_file": "src/domain/budget/index.ts",
+   "example": "Typed totals $1,000 / $100 / $900 and an empty category list",
+   "app_gives": "$0 / $0 / $0 (spendByMonthByBucket on the same profile: $1,000 / $0 / $900 a month)",
+   "right": "$1,000 / $100 / $900, total $2,000, and the same in spendByMonthByBucket",
+   "ruling_or_source": "the card's rule; DEC-7951; tenet 4",
+   "items": [
+    "MK-CF-F-004-C02"
+   ],
+   "note": "Legacy profiles only: no screen writes the typed totals now.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BUDGET)"
+  }
+ ],
+ "needs_a_ruling": [
+  {
+   "item": "Does the big-ticket radar show a large once-in-a-while bill in its own month?",
+   "ids": [
+    "MK-CF-F-153",
+    "MK-CF-F-153-C05"
+   ],
+   "reading_a": "Feed the radar this month's dated bills of $500 or more from the month's plan (the later-month plan card already picks them: CashFlowScreen \"incl. <bill>\"), so the $1,200 insurance shows on December's radar and never on October's.",
+   "reading_b": "Keep the radar to card, credit-line and lump-sum debts only, and drop \"or a bill well above its usual size\" from its empty-state sentence (drawing frame D).",
+   "example": "$1,200 car insurance due December: today it is on no month's radar; the drawing's empty radar says a bill well above its usual size would appear.",
+   "recommendation": "Reading A — the drawing's own sentence promises it, DEC-0002 gives big one-off bills their own list, and the month filter comes free from the plan's dated cell.",
+   "ruled_2026_10_25": "RULED by the lead, reading A: a large once-a-year bill is on the radar in its own month. The month table hands each month its dated bills (datedBillsIn, src/domain/grid — FIX-BILLS, 2026-10-25); feeding the radar from it is FIX-MONTH's (expenses.ts, thisMonthInputs)."
+  }
+ ],
+ "blocked": [],
+ "outside_domain": [
+  {
+   "ids": [
+    "MK-CF-F-153-C05"
+   ],
+   "why": "bigBills is never handed to radar in production",
+   "caller": "MK-CF-O-010 theMonth → MK-CF-O-002 expenses(input); input from MK-CF-F-227 thisMonthInputs (src/hooks/useCashflowModel.ts), which builds no bigBills"
+  },
+  {
+   "ids": [
+    "MK-CF-O-002-C04",
+    "MK-CF-F-150-C04",
+    "MK-CF-F-153-C03 (Visa)"
+   ],
+   "why": "a captured card (purchasesCaptured) — the cases agree, but no production caller marks a card captured today; recorded, not counted as outside domain",
+   "caller": "MK-CF-O-010 theMonth calls expenses(input) with the default empty set"
+  }
+ ],
+ "priority_findings": [
+  {
+   "id": "MK-CF-F-008 (with F-013, F-014, F-019)",
+   "finding": "The dated plan for a selected month; an annual bill never added twice",
+   "verdict": "NOT REAL for part 6's readers — but REAL in one live reader (budgetVsActual, part 7's F-014)",
+   "evidence": "$2,000 typed + $1,200 December insurance: spendByMonth gives $2,000 in September, $3,200 in December, $25,200 a year; plannedMonthlySpend $2,100; budgetFromOnboarding stores $2,100 with buckets 1,100 + 100 + 900 = $2,100 and buildBudgetState takes it once. saveBudget / loadBudget have no caller, so the stored average is never re-read into monthlySpending. No reader adds the bill twice. budgetVsActual still spreads it ($100 a month) on the budget editor's group cards (DEC-7611 / DEC-7951 NOT HELD, real)."
+  },
+  {
+   "id": "MK-CF-F-150 (with O-002)",
+   "finding": "Two debts called \"Loan\" each get the same $250",
+   "verdict": "REAL — live in production",
+   "evidence": "debtPaymentsCountedAsExpenses gives $250 to \"Loan\" and to \" loan \"; the Expenses tab's actual total reads $500; the radar lists both. This month's actual counts it once (to the last same-named debt). Production passes no debt id: a payment is logged with store = the debt's label only (BudgetScreen.tsx addExpense, MoneySheets.tsx), and nothing stops two debts sharing a name."
+  },
+  {
+   "id": "DEC-2440 / MK-CF-F-020",
+   "finding": "Legacy cashflowYear omits debt",
+   "verdict": "Part 8's card — measured by the part 8 runner, not here",
+   "evidence": "The other half of the NOT HELD claim (duplicate budget debts) is real: MK-CF-O-020-C05."
+  }
+ ],
+ "counts": {
+  "cases": {
+   "AGREE": 64,
+   "APP WRONG": 5,
+   "OUTSIDE DOMAIN": 1,
+   "total": 70
+  },
+  "formula_checks": {
+   "APP WRONG": 4,
+   "AGREE": 1,
+   "total": 5
+  },
+  "rules_not_held": {
+   "APP WRONG": 3,
+   "total": 3
+  },
+  "rules_recorded": 7
+ },
+ "coverage": "Part 6: 70 of 70 cases — 64 agree, 5 app wrong, 0 reviewer wrong, 0 needs ruling, 0 blocked, 1 outside domain; 5 of 5 formula verdicts classified (4 app wrong, 1 agree with a records fix); 3 of 3 NOT HELD rule verdicts classified (3 app wrong); 7 of 7 rules_held lines recorded; 1 item raised for a ruling"
+}

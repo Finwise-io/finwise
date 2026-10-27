@@ -95,7 +95,7 @@ describe('what the person sees after the move (DEC-4059d: not rent until a prope
     useStore.setState({ hideBalances: false, onboardingComplete: true, assetAccounts: [home, lake] } as any);
     useStore.getState().setOnboardingProfile(OLD as any);
     render(<IncomeManagerScreen />);
-    expect(screen.getByDisplayValue('1500')).toBeOnTheScreen();
+    expect(screen.getByDisplayValue('$1,500')).toBeOnTheScreen();   // the box shows the figure as drawn (IN-06, 2026-10-25); the profile keeps 1500
     expect(screen.getByText('Which property is it?')).toBeOnTheScreen();
     expect(screen.getByText('Not counted as rent until you pick its property.')).toBeOnTheScreen();
   });

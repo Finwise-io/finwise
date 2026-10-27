@@ -26,8 +26,11 @@ import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, primaryCarId
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { CountedTaxableLines } from '../components/CountedTaxableLines';   // (DEC-4105, 2026-10-10)
 import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, rmdDivisorAtAge, rmdStartAgeFor, rateBandWords } from '../domain/decumulation';
-import { k401Headroom, annualIraLimit, rothVsTraditional, rothConversionWindow } from '../domain/income/limits';
+import { k401Headroom, annualIraLimit, rothVsTraditional, rothConversionWindow, IRS_LIMITS } from '../domain/income/limits';
+import { useIncomeProfile } from '../hooks/useIncomeProfile';   // the one profile income and tax figures read (2026-10-26)
+import { ownK401Annual } from '../domain/income/earners';
 import { marginalBracketFor } from '../domain/income/tax';
+import { taxedAfterPreTax } from '../domain/income/tax-rate';   // what the year is taxed on, the 401(k)s out (B05, 2026-10-24)
 import { filingStatusOf, over65CountOf } from '../domain/income';
 import { totalGrossAnnual, retirementIncomeMonthly, guaranteedOutsideStreams } from '../domain/income';
 import { Disclaimer } from '../components/Disclaimer';
@@ -47,6 +50,7 @@ export default function RetirementCockpit() {
   const store = useStore() as any;
   useEffect(() => { store.maybeRefreshPrices?.(); }, []);   // nest egg tracks live market value
   const op = store.onboardingProfile ?? {};
+  const incomeOp = useIncomeProfile(op);   // with the year's interest and dividends from the accounts, read only (2026-10-26, CLEANUP-LEFT)
   const A = store.retirementAssumptions ?? {};
   const setA = store.setRetirementAssumptions as (p: any) => void;
   // Use the SAME seeded source the Home net-worth box uses: when the user hasn't added live accounts
@@ -96,8 +100,10 @@ export default function RetirementCockpit() {
   const flatStreams = outside.filter((st) => st.kind !== 'ss');
   const guaranteedDefault = outside.reduce((t, st) => t + st.monthly, 0);
   const hasPension = num(op.ri_pension) > 0;
-  const contribDefault = Math.round(monthlyContributionsFromOnboarding(op) ?? 0);
-  const spendDefault = Math.round(retirementSpendMonthly(op) || num(op.monthlySpending) || 5000);
+  // kept whole, rounded only when printed (2026-10-26, CLEANUP-LEFT; Q49 — the comment above says the same): both were rounded to
+  // the dollar here, and willItLastInputs did the same; the two stay one rule
+  const contribDefault = monthlyContributionsFromOnboarding(op) ?? 0;
+  const spendDefault = retirementSpendMonthly(op) || num(op.monthlySpending) || 5000;
   // B-37: never default a retiree's "retire age" below their current age (an already-retired 74yo
   // must not be told the plan "assumes age 65"). Use their current age as the floor when retired.
   const retireDefault = num(op.targetRetirementAge) || (store.employmentStatus === 'retired' ? age : 65);
@@ -154,7 +160,7 @@ export default function RetirementCockpit() {
   const retireAtAge = useMemo(() => solveRetireAge(planInputs({ annual_contribution: 0, mean_return: planGrowth })),
     [age, nestEgg, planGrowth, planInfl, planSpend, ssIncome, claimAge, horizon]);
   const spendEscFromAge = isRetired ? age : planRetireAge;
-  const spendHi = Math.round(planSpend * Math.pow(1 + planInfl, Math.max(0, horizon - spendEscFromAge)));
+  const spendHi = planSpend * Math.pow(1 + planInfl, Math.max(0, horizon - spendEscFromAge));   // whole until printed (Q49, 2026-10-26)
 
   // Screen 1 RIGHT hero confidence — Monte Carlo on the PLAN (summary % only; the band chart is gated on Screen 2)
   const [planChance, setPlanChance] = useState<number | null>(null);
@@ -216,9 +222,18 @@ export default function RetirementCockpit() {
   const rateColor = dPlan.rateBand === 'safe' ? Colors.primary : dPlan.rateBand === 'moderate' ? Colors.amber : Colors.red;
 
   // ---- TAX-SMART MOVES ----
-  const annual401k = num(op.c_401k) * 12;
+  const annual401k = ownK401Annual(op);   // your own 401(k) this year, the months you are paid (2026-10-26, FIX-INCOME-A; DEC-7938)
   const k401 = k401Headroom(age, annual401k);
-  const marginalNow = marginalBracketFor(totalGrossAnnual(op), filingStatusOf(op), over65CountOf(op));
+  // THE CATCH-UP IS THE ONE INSIDE THE LIMIT (2026-10-26, CLEANUP-LEFT; IRC §414(v)(2)(E), SECURE 2.0): the line said "$8,000 age-50+"
+  // at every age from 50, but at 60 to 63 the limit holds $11,250 instead. The amount is what the limit adds over the base
+  // (IRS_LIMITS, read through k401Headroom — no second copy), and the words are Contribution room's ("age 60–63" / "age-50+")
+  const k401CatchUp = k401.limit - IRS_LIMITS.elective_deferral_401k;
+  const k401CatchUpWords = k401CatchUp === IRS_LIMITS.super_catch_up_60_63 ? 'age 60–63' : 'age-50+';
+  // THE BRACKET TODAY IS THE INCOME SUMMARY'S (2026-10-26, CLEANUP-LEFT; MK-CF-M-043, one concept one function): the profile every
+  // tax figure reads — the accounts' interest and dividends in it, typed or not (useIncomeProfile, FIX-INCOME-A) — less each earner's
+  // own 401(k) (taxedAfterPreTax, his DEC-0283). It read totalGrossAnnual(op): the interest left out and the 401(k)s left in, so a
+  // $70,000 salary paying $10,000 into a 401(k) read 22% here and 12% on the Income summary
+  const marginalNow = marginalBracketFor(taxedAfterPreTax(incomeOp), filingStatusOf(op), over65CountOf(op));
   const marginalRetire = marginalBracketFor(planSpend * 12, filingStatusOf(op), over65CountOf(op));
   const rvt = rothVsTraditional(marginalNow, marginalRetire);
   const inRothWindow = rothConversionWindow(age, Math.round(planRetireAge), claimAge);
@@ -229,23 +244,25 @@ export default function RetirementCockpit() {
 
   // ---- SCENARIO sandbox (Screen 2 only) — starts from the plan, never writes back unless "Use as my plan" ----
   const [rAge, setRAge] = useState<number>(planRetireAge);
-  const [retPct, setRetPct] = useState<number>(Math.round(planGrowth * 1000) / 10);
+  // the sliders start from the plan's own rates, kept whole (2026-10-26, CLEANUP-LEFT; Q49): they were rounded to a tenth of a point,
+  // so "Use as my plan" untouched wrote back a rate the plan never had
+  const [retPct, setRetPct] = useState<number>(planGrowth * 100);
   const [saveMo, setSaveMo] = useState<number>(planSave);
   const [spendMo, setSpendMo] = useState<number>(planSpend);
-  const [inflPct, setInflPct] = useState<number>(Math.round(planInfl * 1000) / 10);
-  const [salGrow, setSalGrow] = useState<number>(Math.round((A.salaryGrowth ?? 0) * 1000) / 10);   // raises %/year
+  const [inflPct, setInflPct] = useState<number>(planInfl * 100);
+  const [salGrow, setSalGrow] = useState<number>((A.salaryGrowth ?? 0) * 100);   // raises %/year
   const [horizonSand, setHorizonSand] = useState<number>(horizon);   // PRD F11#14 — plan-to age is a dial too
   const [scChance, setScChance] = useState<number | null>(null);
   const [scBand, setScBand] = useState<any>(null);
   const resetSandbox = () => {
-    setRAge(planRetireAge); setRetPct(Math.round(planGrowth * 1000) / 10); setSaveMo(planSave);
-    setSpendMo(planSpend); setInflPct(Math.round(planInfl * 1000) / 10); setHorizonSand(horizon); setScChance(null); setScBand(null);
+    setRAge(planRetireAge); setRetPct(planGrowth * 100); setSaveMo(planSave);
+    setSpendMo(planSpend); setInflPct(planInfl * 100); setHorizonSand(horizon); setScChance(null); setScBand(null);
   };
   const openScenario = () => { resetSandbox(); setScreen('scenario'); };
   const loadScenario = (a: any) => {
-    setRAge(a.retireAge ?? planRetireAge); setRetPct(Math.round((a.expectedReturn ?? planGrowth) * 1000) / 10);
+    setRAge(a.retireAge ?? planRetireAge); setRetPct((a.expectedReturn ?? planGrowth) * 100);
     setSaveMo(a.contribMonthly ?? planSave); setSpendMo(a.spendMonthly ?? planSpend);
-    setInflPct(Math.round((a.inflation ?? planInfl) * 1000) / 10); setSalGrow(Math.round((a.salaryGrowth ?? A.salaryGrowth ?? 0) * 1000) / 10); setHorizonSand(a.horizonAge ?? horizon); setScChance(null); setScBand(null);
+    setInflPct((a.inflation ?? planInfl) * 100); setSalGrow((a.salaryGrowth ?? A.salaryGrowth ?? 0) * 100); setHorizonSand(a.horizonAge ?? horizon); setScChance(null); setScBand(null);
   };
   const scRetired = store.employmentStatus === 'retired' || age >= rAge;
   const scInputs = (over: any = {}) => ({
@@ -285,8 +302,8 @@ export default function RetirementCockpit() {
   const scProjected = scRetired ? (() => {
     let bal = nestEgg; let net = Math.max(0, (spendMo - ssIncome) * 12); const r = retPct / 100, f = inflPct / 100;
     for (let y = 0; y < scHorizonYears; y++) { bal = bal * (1 + r) - net; if (bal <= 0) { bal = 0; break; } net = net * (1 + f); }
-    return Math.round(bal);
-  })() : Math.round(scProj.will_have);
+    return bal;   // whole until printed (Q49, 2026-10-26): the change beside it is worked from it
+  })() : scProj.will_have;
   const scProjLabel = scRetired ? `In ${plural(scHorizonYears, 'year')}` : `At retirement (${rAge})`;
   const scDelta = scProjected - nestEgg;
   const scDeplete = scRetired ? depletionAge({ age, horizon, nestEgg, netWithdrawalNow: Math.max(0, (spendMo - ssIncome) * 12), returnRate: retPct / 100, inflation: inflPct / 100 }) : null;
@@ -327,14 +344,14 @@ export default function RetirementCockpit() {
         </View>
         {scRetired && (
           <Text style={[styles.note, { fontWeight: '700', color: scDeplete == null ? Colors.primaryDark : Colors.red }]}>
-            {scDeplete == null ? `✅ At ${retPct.toFixed(1)}% return, your money lasts past age ${horizon}.` : `⚠️ At ${retPct.toFixed(1)}% return and ${money(spendMo)}/month of expenses, your money runs low around age ${scDeplete}.`}
+            {scDeplete == null ? `✅ At ${retPct.toFixed(2)}% return, your money lasts past age ${horizon}.` : `⚠️ At ${retPct.toFixed(2)}% return and ${money(spendMo)}/month of expenses, your money runs low around age ${scDeplete}.`}
           </Text>
         )}
         {/* the abstract lump-sum framing, demoted from the headline */}
         <Text style={styles.note}>
           {scRetired
-            ? `“${scProjLabel}” rolls your ${big(nestEgg)} forward at ${retPct.toFixed(1)}%/year minus ${money(spendMo)}/month (rising with inflation) — raise the return or trim expenses and it climbs. To fully fund your plan to age ${horizon} you'd need about ${big(scProj.will_need)} today${scProj.shortfall > 0 ? ` (≈${big(scProj.shortfall)} short).` : ' — covered.'}`
-            : `Your ${big(nestEgg)} grows to ${big(scProjected)} by age ${rAge} at ${retPct.toFixed(1)}%/year. To fund ${money(spendMo)}/month to age ${horizon} you'd need about ${big(scProj.will_need)}${scProj.shortfall > 0 ? ` (≈${big(scProj.shortfall)} short).` : ' — covered.'}`}
+            ? `“${scProjLabel}” rolls your ${big(nestEgg)} forward at ${retPct.toFixed(2)}%/year minus ${money(spendMo)}/month (rising with inflation) — raise the return or trim expenses and it climbs. To fully fund your plan to age ${horizon} you'd need about ${big(scProj.will_need)} today${scProj.shortfall > 0 ? ` (≈${big(scProj.shortfall)} short).` : ' — covered.'}`
+            : `Your ${big(nestEgg)} grows to ${big(scProjected)} by age ${rAge} at ${retPct.toFixed(2)}%/year. To fund ${money(spendMo)}/month to age ${horizon} you'd need about ${big(scProj.will_need)}${scProj.shortfall > 0 ? ` (≈${big(scProj.shortfall)} short).` : ' — covered.'}`}
         </Text>
 
         {/* SLIDERS — with benchmark + current-plan reference markers */}
@@ -357,13 +374,13 @@ export default function RetirementCockpit() {
             </TouchableOpacity>
             <Text style={styles.horizonHint}>how long the money must last</Text>
           </View>
-          <SliderRow label="Expected return" valueLabel={`${retPct.toFixed(1)}%`} value={retPct} min={2} max={14} step={0.5} onChange={(v) => { setRetPct(v); invalidateMC(); }}
-            markers={[{ value: benchBlended * 100, label: 'bench' }, ...(actualBlended != null ? [{ value: actualBlended * 100, label: '12mo' }] : []), { value: planGrowth * 100, label: 'plan' }]} fmt={(v) => `${v.toFixed(1)}%`} />
+          <SliderRow label="Expected return" valueLabel={`${retPct.toFixed(2)}%`} value={retPct} min={2} max={14} step={0.5} onChange={(v) => { setRetPct(v); invalidateMC(); }}
+            markers={[{ value: benchBlended * 100, label: 'bench' }, ...(actualBlended != null ? [{ value: actualBlended * 100, label: '12mo' }] : []), { value: planGrowth * 100, label: 'plan' }]} fmt={(v) => `${v.toFixed(2)}%`} />
           {!scRetired && <SliderRow label="Save / month" valueLabel={money(saveMo)} value={saveMo} min={0} max={8000} step={100} onChange={(v) => { setSaveMo(v); invalidateMC(); }} markers={[{ value: planSave, label: 'plan' }]} fmt={(v) => money(v)} />}
-          {!scRetired && <SliderRow label="Pay raises / year" valueLabel={salGrow === 0 ? 'none' : `${salGrow.toFixed(1)}%`} value={salGrow} min={0} max={6} step={0.5} onChange={(v) => { setSalGrow(v); invalidateMC(); }} fmt={(v) => v === 0 ? 'none' : `${v.toFixed(1)}%`} />}
+          {!scRetired && <SliderRow label="Pay raises / year" valueLabel={salGrow === 0 ? 'none' : `${salGrow.toFixed(2)}%`} value={salGrow} min={0} max={6} step={0.5} onChange={(v) => { setSalGrow(v); invalidateMC(); }} fmt={(v) => v === 0 ? 'none' : `${v.toFixed(2)}%`} />}
           <SliderRow label="Planned spend / month" valueLabel={money(spendMo)} value={spendMo} min={1000} max={20000} step={100} onChange={(v) => { setSpendMo(v); invalidateMC(); }} markers={[{ value: planSpend, label: 'plan' }]} fmt={(v) => money(v)} />
-          <SliderRow label="Inflation" valueLabel={`${inflPct.toFixed(1)}%`} value={inflPct} min={0} max={6} step={0.5} onChange={(v) => { setInflPct(v); invalidateMC(); }} markers={[{ value: planInfl * 100, label: inflIsActual ? 'default' : 'plan' }]} fmt={(v) => `${v.toFixed(1)}%`} />
-          <Text style={styles.note}>Inflation default {INFLATION_DEFAULT.percent}% — the {INFLATION_DEFAULT.basis} ({INFLATION_DEFAULT.source}). Yours to change.</Text>
+          <SliderRow label="Inflation" valueLabel={`${inflPct.toFixed(2)}%`} value={inflPct} min={0} max={6} step={0.5} onChange={(v) => { setInflPct(v); invalidateMC(); }} markers={[{ value: planInfl * 100, label: inflIsActual ? 'default' : 'plan' }]} fmt={(v) => `${v.toFixed(2)}%`} />
+          <Text style={styles.note}>Inflation default {INFLATION_DEFAULT.percent.toFixed(2)}% — the {INFLATION_DEFAULT.basis} ({INFLATION_DEFAULT.source}). Yours to change.</Text>
           <Text style={styles.note}>▲ marks your benchmark, current plan, and 12-mo actual where relevant — so you can see how far a what-if drifts from them.</Text>
         </View>
 
@@ -436,7 +453,7 @@ export default function RetirementCockpit() {
               ['Retire at', String(A.assumptions?.retireAge ?? '—'), String(B.assumptions?.retireAge ?? '—')],
               ['Saving / month', maskedMoney(A.assumptions?.contribMonthly ?? 0), maskedMoney(B.assumptions?.contribMonthly ?? 0)],
               ['Expenses /month', maskedMoney(A.assumptions?.spendMonthly ?? 0), maskedMoney(B.assumptions?.spendMonthly ?? 0)],
-              ['Expected return', `${Math.round((A.assumptions?.expectedReturn ?? 0) * 1000) / 10}%`, `${Math.round((B.assumptions?.expectedReturn ?? 0) * 1000) / 10}%`],
+              ['Expected return', `${((A.assumptions?.expectedReturn ?? 0) * 100).toFixed(2)}%`, `${((B.assumptions?.expectedReturn ?? 0) * 100).toFixed(2)}%`],
               ['Odds it lasts', `${displayOdds(rA.chance_of_success)}%`, `${displayOdds(rB.chance_of_success)}%`],
               ['At retirement (median)', maskedMoney(Math.round(rA.projected_at_retirement)), maskedMoney(Math.round(rB.projected_at_retirement))],
             ];
@@ -556,13 +573,13 @@ export default function RetirementCockpit() {
               <Text style={styles.heroSub}>{retireAtAge
                 ? `today's ${big(nestEgg)} alone gets there by ${retireAtAge}`
                 : `today's ${big(nestEgg)} alone doesn't get there — even by 80`}</Text>
-              <Text style={styles.heroRoi}>growing at {(planGrowth * 100).toFixed(1)}%/year</Text>
+              <Text style={styles.heroRoi}>growing at {(planGrowth * 100).toFixed(2)}%/year</Text>
             </View>
             <View style={[styles.heroCardG, { marginLeft: 5 }]}>
               <Text style={styles.heroK}>AT YOUR TARGET, {Math.round(planRetireAge)}</Text>
               <Text style={styles.heroBig}>{big(projEnd)}</Text>
               <Text style={styles.heroSub}>{planChance == null ? 'projected nest egg' : `${planChance}% odds it lasts to ${horizon}`}</Text>
-              <Text style={styles.heroRoi}>at {(planGrowth * 100).toFixed(1)}%/year</Text>
+              <Text style={styles.heroRoi}>at {(planGrowth * 100).toFixed(2)}%/year</Text>
             </View>
           </View>
           {!simple && planChance != null && <Text style={styles.heroExplain}>“{planChance}% odds it lasts to {horizon}” = across 1,000 market simulations, your money doesn't run out before {horizon} in {planChance}% of them.</Text>}
@@ -582,7 +599,7 @@ export default function RetirementCockpit() {
             <View style={[styles.dwRow, styles.dwTotal]}><Text style={[styles.dwL, { fontWeight: '800', color: Colors.textPrimary }]}>From your portfolio</Text><Text style={styles.dwV}>{money(dPlan.netWithdrawal)}/year</Text></View>
             {dPlan.withdrawalRate != null && dPlan.netWithdrawal > 0 && (
               <View style={[styles.rateBox, { backgroundColor: dPlan.rateBand === 'safe' ? Colors.primaryLight : dPlan.rateBand === 'moderate' ? Colors.amberLight : Colors.redLight }]}>
-                <Text style={[styles.ratePct, { color: rateColor }]}>{(dPlan.withdrawalRate * 100).toFixed(1)}%</Text>
+                <Text style={[styles.ratePct, { color: rateColor }]}>{(dPlan.withdrawalRate * 100).toFixed(2)}%</Text>
                 <Text style={styles.rateTxt}>withdrawal rate · {rateBandWords(dPlan.rateBand)}</Text>
               </View>
             )}
@@ -692,24 +709,24 @@ export default function RetirementCockpit() {
                 <TouchableOpacity style={styles.tColNum} onPress={() => setTtmEdit(a)}>
                   {ttm == null
                     ? <Text style={styles.ttmAdd}>+ Add</Text>
-                    : <Text style={[styles.instRet, { color: ttm >= info.ret ? Colors.gainText : Colors.red }]}>{(ttm * 100).toFixed(1)}%</Text>}
+                    : <Text style={[styles.instRet, { color: ttm >= info.ret ? Colors.gainText : Colors.red }]}>{(ttm * 100).toFixed(2)}%</Text>}
                 </TouchableOpacity>
                 {uncategorized
                   ? <Text style={[styles.tColNum, styles.instBench, { color: Colors.textTertiary }]}>—</Text>
-                  : <Text style={[styles.tColNum, styles.instBench]}>{(info.ret * 100).toFixed(1)}%</Text>}
+                  : <Text style={[styles.tColNum, styles.instBench]}>{(info.ret * 100).toFixed(2)}%</Text>}
               </View>
             );
           })}
           {/* weighted-average row (not editable) */}
           <View style={[styles.tRow, styles.tTotal]}>
             <Text style={[styles.instName, { flex: 1 }]}>Weighted average</Text>
-            <Text style={[styles.tColNum, styles.instRet, actualReturn == null && { color: Colors.textTertiary, fontWeight: '700' }]}>{actualReturn == null ? '—' : `${(actualReturn * 100).toFixed(1)}%`}</Text>
-            <Text style={[styles.tColNum, styles.instBench]}>{(benchBlended * 100).toFixed(1)}%</Text>
+            <Text style={[styles.tColNum, styles.instRet, actualReturn == null && { color: Colors.textTertiary, fontWeight: '700' }]}>{actualReturn == null ? '—' : `${(actualReturn * 100).toFixed(2)}%`}</Text>
+            <Text style={[styles.tColNum, styles.instBench]}>{(benchBlended * 100).toFixed(2)}%</Text>
           </View>
           <Text style={styles.tFoot}>
             {actualReturn == null
               ? 'Add historic 12-month return on each holding to see how you compare to the benchmark.'
-              : `You returned ${(actualReturn * 100).toFixed(1)}% over the last 12 months vs a ${(benchBlended * 100).toFixed(1)}% benchmark — ${beatBy! >= 0 ? `${(beatBy! * 100).toFixed(1)} pts ahead` : `${(Math.abs(beatBy!) * 100).toFixed(1)} pts behind`}.`}
+              : `You returned ${(actualReturn * 100).toFixed(2)}% over the last 12 months vs a ${(benchBlended * 100).toFixed(2)}% benchmark — ${beatBy! >= 0 ? `${(beatBy! * 100).toFixed(2)} pts ahead` : `${(Math.abs(beatBy!) * 100).toFixed(2)} pts behind`}.`}
           </Text>
           {!simple && <Text style={styles.tFootMuted}>“Your 12-mo” = the historic 12-month return you enter on each holding. Benchmark = the asset class's historical index return (not editable); past performance isn't a guarantee, and a 12-mo actual vs a ~30-yr average is directional only.</Text>}
           <TouchableOpacity onPress={() => router.push('/performance')}><Text style={[styles.editLink2, { marginTop: 10 }]}>📈 Track live performance vs benchmark ›</Text></TouchableOpacity>
@@ -735,7 +752,7 @@ export default function RetirementCockpit() {
                 style={[styles.basisPill, sel && styles.basisPillOn, disabled && { opacity: 0.4 }]}
                 onPress={() => commit({ returnBasis: o.k })}>
                 <Text style={[styles.basisPillT, sel && styles.basisPillTOn]} numberOfLines={1}>{o.label}{o.warn ? ' ⚠' : ''}</Text>
-                <Text style={[styles.basisPillR, sel && styles.basisPillTOn]}>{o.rate == null ? '— add' : `${(o.rate * 100).toFixed(1)}%`}</Text>
+                <Text style={[styles.basisPillR, sel && styles.basisPillTOn]}>{o.rate == null ? '— add' : `${(o.rate * 100).toFixed(2)}%`}</Text>
               </TouchableOpacity>
             );
           })}
@@ -748,7 +765,7 @@ export default function RetirementCockpit() {
       {!isRetired && nestEgg > 0 && projYears.length > 0 && (
         <View style={styles.card}>
           <View style={styles.li}><Text style={styles.liK}>Projected nest egg</Text><Text style={[styles.liV, { color: Colors.primary }]}>{big(projYears[projYears.length - 1].bal)} by {projYears[projYears.length - 1].year}</Text></View>
-          <Text style={styles.note}>If your {big(nestEgg)} grows at {(planGrowth * 100).toFixed(1)}% ({basisLabel}){planSave > 0 ? ` and you keep saving ${money(planSave)}/month` : ''}.{hasRetireBar ? ` Amber bar = retirement at ${Math.round(planRetireAge)}.` : ''}</Text>
+          <Text style={styles.note}>If your {big(nestEgg)} grows at {(planGrowth * 100).toFixed(2)}% ({basisLabel}){planSave > 0 ? ` and you keep saving ${money(planSave)}/month` : ''}.{hasRetireBar ? ` Amber bar = retirement at ${Math.round(planRetireAge)}.` : ''}</Text>
           <ProjectionChartAuto data={projYears} />
           <View style={styles.breakdown}>
             <View style={styles.bdItem}><Text style={styles.bdV}>{big(nestEgg)}</Text><Text style={styles.bdL}>now</Text></View>
@@ -765,12 +782,12 @@ export default function RetirementCockpit() {
       {/* IN RETIREMENT — spend, anchored to target age */}
       <View style={styles.card}>
         <Text style={styles.liK}>In retirement (from {Math.round(spendEscFromAge)})</Text>
-        <Text style={styles.note}>You plan to spend <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(planSpend)}/month</Text> in today's dollars → about <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{big(spendHi)}/month</Text> by {horizon} as prices rise {(planInfl * 100).toFixed(1)}%/year <Text style={styles.srcTag}>{inflIsActual ? 'actual' : 'your plan'}</Text>.</Text>
+        <Text style={styles.note}>You plan to spend <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(planSpend)}/month</Text> in today's dollars → about <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{big(spendHi)}/month</Text> by {horizon} as prices rise {(planInfl * 100).toFixed(2)}%/year <Text style={styles.srcTag}>{inflIsActual ? 'actual' : 'your plan'}</Text>.</Text>
         {/* B-32: when a recognized retirement location adjusts the figure, say so — don't apply COL silently */}
         {A.spendMonthly == null && (() => {
           const col = colFactor(op.retLocation);
           if (col.factor === 1 || !op.retLocation) return null;
-          return <Text style={[styles.note, { marginTop: 4 }]}>Adjusted for {col.name}'s cost of living ({col.factor < 1 ? `${Math.round((1 - col.factor) * 100)}% lower` : `${Math.round((col.factor - 1) * 100)}% higher`} than the US).</Text>;
+          return <Text style={[styles.note, { marginTop: 4 }]}>Adjusted for {col.name}'s cost of living ({col.factor < 1 ? `${((1 - col.factor) * 100).toFixed(2)}% lower` : `${((col.factor - 1) * 100).toFixed(2)}% higher`} than the US).</Text>;
         })()}
         {/* B-39: the projection doesn't subtract debt separately — make that explicit so a user with a
             mortgage includes its payment in the spend above rather than assuming it's handled. */}
@@ -787,7 +804,7 @@ export default function RetirementCockpit() {
             <InfoDot term="rmd" />
           </View>
           {k401.remaining > 0
-            ? <Text style={styles.note}>💼 You can still add <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(k401.remaining)}</Text> to your 401(k) this year{k401.catchUp ? ' (incl. the $8,000 age-50+ catch-up)' : ''} — up to {money(k401.limit)}.</Text>
+            ? <Text style={styles.note}>💼 You can still add <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(k401.remaining)}</Text> to your 401(k) this year{k401.catchUp ? ` (incl. the ${money(k401CatchUp)} ${k401CatchUpWords} catch-up)` : ''} — up to {money(k401.limit)}.</Text>
             : <Text style={styles.note}>💼 401(k) maxed for the year ✓{k401.catchUp ? ' (incl. catch-up)' : ''}.</Text>}
           <Text style={[styles.note, { marginTop: 6 }]}>🏦 You can also contribute up to <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(annualIraLimit(age))}</Text> to an IRA{age >= 50 ? ' (incl. catch-up)' : ''}.</Text>
           {/* T09: the Roth/Traditional verdict shows in BOTH modes (was hidden in Simple); only the
@@ -1099,7 +1116,7 @@ function TtmEditor({ account, onClose, benchmark, onApply, onClear }: {
 }) {
   const open = account != null;
   const [val, setVal] = useState('');
-  useEffect(() => { if (account) setVal(account.actual_ttm != null ? (account.actual_ttm * 100).toFixed(1) : ''); }, [account]);
+  useEffect(() => { if (account) setVal(account.actual_ttm != null ? (account.actual_ttm * 100).toFixed(2) : ''); }, [account]);
   return (
     <Modal visible={open} transparent animationType="fade" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
@@ -1107,7 +1124,7 @@ function TtmEditor({ account, onClose, benchmark, onApply, onClear }: {
       <View style={styles.dialog}>
         <Text style={styles.sheetT}>{account?.institution?.trim() || account?.label} — historic 12-month return</Text>
         {/* the same words as the account page's card for this one field (DEC-6005, 2026-10-19) */}
-        <Text style={styles.sheetS}>{HISTORIC_TTM_BODY} Benchmark for its type is {(benchmark * 100).toFixed(1)}%.</Text>
+        <Text style={styles.sheetS}>{HISTORIC_TTM_BODY} Benchmark for its type is {(benchmark * 100).toFixed(2)}%.</Text>
         <View style={styles.pctBox}>
           <TextInput style={[styles.pctIn, { width: 90 }]} keyboardType="numbers-and-punctuation" value={val} onChangeText={setVal} placeholder="0.0" placeholderTextColor={Colors.textTertiary} autoFocus />
           <Text style={styles.pctU}>% over 12 months</Text>

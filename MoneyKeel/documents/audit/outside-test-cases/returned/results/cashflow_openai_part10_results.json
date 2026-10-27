@@ -1,0 +1,2297 @@
+{
+ "batch": "cf module — part 10 (cases, formula checks, NOT HELD rules)",
+ "reviewer": "OpenAI independent specification reviewer, CashFlow package of 2026-10-24",
+ "run_by": "Claude Code (CFR-3 measurer: parts 9 and 10; parts 11 and 12 by its fork)",
+ "run_on": "2026-10-25",
+ "test_file": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts",
+ "source": "returned/MoneyKeel_CashFlow_Independent_Audit_Package/MoneyKeel_CashFlow_Independent_Audit/audit_results/MoneyKeel_CashFlow_Audit_Part_10.json",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts → 78 passed, 7 skipped (BLOCKED), 0 failed, 85 total. Each APP WRONG item is test.failing on the reviewer's answer, with a twin test pinning today's answer; each was also run once as a plain test to confirm it fails on its intended line.",
+ "working_tree": "Measured on the working tree of 2026-10-25 at b1c659e8 (branch taxonomy-v1.0.7) while other agents edited other files (the-debts.ts gained a mortgages field and BudgetScreen.tsx was being reworked by the Cash flow screen agents; neither touched a figure measured here). No app code, drawing, record or existing test was changed; only this part's test file and this results file were written.",
+ "ready_to_close": false,
+ "cases": [
+  {
+   "id": "MK-CF-F-031",
+   "case_id": "MK-CF-F-031-C01",
+   "name": "creditUtilization",
+   "kind": "easy",
+   "title": "At 30 percent",
+   "classification": "AGREE",
+   "expected": {
+    "share": {
+     "exact": "0.3",
+     "shown": "30.00%"
+    },
+    "status": "good"
+   },
+   "actual": {
+    "ratio": 0.3,
+    "status": "good"
+   },
+   "difference": "none",
+   "mapped": "creditUtilization(balance, limit); share → ratio, status → status",
+   "rests_on": "ordinary arithmetic",
+   "note": "$300 of $1,000 = 30%: good.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-031 creditUtilization — five cases › MK-CF-F-031-C01 · easy · At 30 percent [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-031",
+   "case_id": "MK-CF-F-031-C02",
+   "name": "creditUtilization",
+   "kind": "easy",
+   "title": "Above half",
+   "classification": "AGREE",
+   "expected": {
+    "share": {
+     "exact": "0.6",
+     "shown": "60.00%"
+    },
+    "status": "high"
+   },
+   "actual": {
+    "ratio": 0.6,
+    "status": "high"
+   },
+   "difference": "none",
+   "mapped": "creditUtilization(balance, limit); share → ratio, status → status",
+   "rests_on": "ordinary arithmetic",
+   "note": "60%: high.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-031 creditUtilization — five cases › MK-CF-F-031-C02 · easy · Above half [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-031",
+   "case_id": "MK-CF-F-031-C03",
+   "name": "creditUtilization",
+   "kind": "complex",
+   "title": "Just above 30 percent",
+   "classification": "APP WRONG",
+   "expected": {
+    "share": {
+     "exact": "0.3001",
+     "shown": "30.01%"
+    },
+    "status": "caution"
+   },
+   "actual": {
+    "ratio": 0.3,
+    "status": "caution"
+   },
+   "difference": "The status is right (caution, judged on 30.01%), but the share comes back rounded inside the function to 0.300 — \"30.00%\" beside a caution that starts above 30%.",
+   "mapped": "creditUtilization(balance, limit); share → ratio, status → status",
+   "rests_on": "CLAUDE.md PRECISION and the precision-and-display standard §1 (Q49): nothing rounds inside a function; a percent shows to two decimals at display",
+   "note": "The status is right (caution, judged on 30.01%), but the share comes back rounded inside the function to 0.300 — \"30.00%\" beside a caution that starts above 30%.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-031 creditUtilization — five cases › MK-CF-F-031-C03 · complex · Just above 30 percent [APP WRONG]",
+   "test_result": "passed (test.failing: fails on the reviewer's answer as expected — turns red when fixed)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): 0.3001 kept, 30.01% where shown."
+  },
+  {
+   "id": "MK-CF-F-031",
+   "case_id": "MK-CF-F-031-C04",
+   "name": "creditUtilization",
+   "kind": "complex",
+   "title": "Unround high",
+   "classification": "APP WRONG",
+   "expected": {
+    "share": {
+     "exact": "0.5563904699768273751940426106",
+     "shown": "55.64%"
+    },
+    "status": "high"
+   },
+   "actual": {
+    "ratio": 0.556,
+    "status": "high"
+   },
+   "difference": "The status is right (high), but the share comes back as 0.556 — \"55.60%\" where 55.64% is right.",
+   "mapped": "creditUtilization(balance, limit); share → ratio, status → status",
+   "rests_on": "CLAUDE.md PRECISION and the precision-and-display standard §1 (Q49): nothing rounds inside a function; a percent shows to two decimals at display",
+   "note": "The status is right (high), but the share comes back as 0.556 — \"55.60%\" where 55.64% is right.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-031 creditUtilization — five cases › MK-CF-F-031-C04 · complex · Unround high [APP WRONG]",
+   "test_result": "passed (test.failing: fails on the reviewer's answer as expected — turns red when fixed)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): 0.55639… kept (it was 0.556)."
+  },
+  {
+   "id": "MK-CF-F-031",
+   "case_id": "MK-CF-F-031-C05",
+   "name": "creditUtilization",
+   "kind": "edge",
+   "title": "Zero limit",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Credit limit not positive"
+   },
+   "reviewer_formula_gives": {
+    "share": {
+     "exact": "0",
+     "shown": "0.00%"
+    },
+    "status": "good"
+   },
+   "actual": {
+    "ratio": 0,
+    "status": "good"
+   },
+   "difference": "Handed a $0 limit the helper says 0% and good, but no caller can hand it one: the door refuses with no ratio and no status, which is the reviewer's answer.",
+   "mapped": "creditUtilization(balance, limit); share → ratio, status → status",
+   "rests_on": "Its only caller, MK-CF-O-006 theCreditLine (credit-line.ts, `if (!(limit > 0)) return { used: null, status: null }`), refuses before calling; CreditScreen.tsx draws nothing without a limit",
+   "note": "Handed a $0 limit the helper says 0% and good, but no caller can hand it one: the door refuses with no ratio and no status, which is the reviewer's answer.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-031 creditUtilization — five cases › MK-CF-F-031-C05 · edge · Zero limit [OUTSIDE DOMAIN]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-032",
+   "case_id": "MK-CF-F-032-C01",
+   "name": "creditScoreBand",
+   "kind": "easy",
+   "title": "Excellent boundary",
+   "classification": "AGREE",
+   "expected": {
+    "band": "Excellent",
+    "good": true
+   },
+   "actual": {
+    "label": "Excellent",
+    "good": true
+   },
+   "difference": "none",
+   "mapped": "creditScoreBand(score); band → label",
+   "rests_on": "the written thresholds",
+   "note": "Excellent 800+, Very good 740+, Good 670+, Fair 580+, Poor below — lower bounds inclusive.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-032 creditScoreBand — five cases › MK-CF-F-032-C01 · easy · Excellent boundary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-032",
+   "case_id": "MK-CF-F-032-C02",
+   "name": "creditScoreBand",
+   "kind": "easy",
+   "title": "Very good",
+   "classification": "AGREE",
+   "expected": {
+    "band": "Very good",
+    "good": true
+   },
+   "actual": {
+    "label": "Very good",
+    "good": true
+   },
+   "difference": "none",
+   "mapped": "creditScoreBand(score); band → label",
+   "rests_on": "the written thresholds",
+   "note": "Excellent 800+, Very good 740+, Good 670+, Fair 580+, Poor below — lower bounds inclusive.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-032 creditScoreBand — five cases › MK-CF-F-032-C02 · easy · Very good [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-032",
+   "case_id": "MK-CF-F-032-C03",
+   "name": "creditScoreBand",
+   "kind": "complex",
+   "title": "Just below good",
+   "classification": "AGREE",
+   "expected": {
+    "band": "Fair",
+    "good": false
+   },
+   "actual": {
+    "label": "Fair",
+    "good": false
+   },
+   "difference": "none",
+   "mapped": "creditScoreBand(score); band → label",
+   "rests_on": "the written thresholds",
+   "note": "Excellent 800+, Very good 740+, Good 670+, Fair 580+, Poor below — lower bounds inclusive.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-032 creditScoreBand — five cases › MK-CF-F-032-C03 · complex · Just below good [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-032",
+   "case_id": "MK-CF-F-032-C04",
+   "name": "creditScoreBand",
+   "kind": "complex",
+   "title": "Lowest good",
+   "classification": "AGREE",
+   "expected": {
+    "band": "Good",
+    "good": true
+   },
+   "actual": {
+    "label": "Good",
+    "good": true
+   },
+   "difference": "none",
+   "mapped": "creditScoreBand(score); band → label",
+   "rests_on": "the written thresholds",
+   "note": "Excellent 800+, Very good 740+, Good 670+, Fair 580+, Poor below — lower bounds inclusive.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-032 creditScoreBand — five cases › MK-CF-F-032-C04 · complex · Lowest good [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-032",
+   "case_id": "MK-CF-F-032-C05",
+   "name": "creditScoreBand",
+   "kind": "edge",
+   "title": "Poor boundary",
+   "classification": "AGREE",
+   "expected": {
+    "band": "Poor",
+    "good": false
+   },
+   "actual": {
+    "label": "Poor",
+    "good": false
+   },
+   "difference": "none",
+   "mapped": "creditScoreBand(score); band → label",
+   "rests_on": "the written thresholds",
+   "note": "Excellent 800+, Very good 740+, Good 670+, Fair 580+, Poor below — lower bounds inclusive.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-032 creditScoreBand — five cases › MK-CF-F-032-C05 · edge · Poor boundary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-033",
+   "case_id": "MK-CF-F-033-C01",
+   "name": "debtToIncome",
+   "kind": "easy",
+   "title": "Homeowner at guide",
+   "classification": "AGREE",
+   "expected": {
+    "share": {
+     "exact": "0.36",
+     "shown": "36.00%"
+    },
+    "guideline": {
+     "exact": "0.36",
+     "shown": "$0"
+    },
+    "status": "good"
+   },
+   "actual": {
+    "ratio": 0.36,
+    "monthlyDebt": 1800,
+    "grossMonthly": 5000,
+    "guideline": 0.36,
+    "status": "good"
+   },
+   "difference": "none",
+   "mapped": "debtToIncome(debt_monthly, gross_monthly, homeowner); share → ratio",
+   "rests_on": "ordinary arithmetic",
+   "note": "At the guideline exactly: good.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-033 debtToIncome — five cases › MK-CF-F-033-C01 · easy · Homeowner at guide [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-033",
+   "case_id": "MK-CF-F-033-C02",
+   "name": "debtToIncome",
+   "kind": "easy",
+   "title": "Renter at guide",
+   "classification": "AGREE",
+   "expected": {
+    "share": {
+     "exact": "0.2",
+     "shown": "20.00%"
+    },
+    "guideline": {
+     "exact": "0.2",
+     "shown": "$0"
+    },
+    "status": "good"
+   },
+   "actual": {
+    "ratio": 0.2,
+    "monthlyDebt": 1000,
+    "grossMonthly": 5000,
+    "guideline": 0.2,
+    "status": "good"
+   },
+   "difference": "none",
+   "mapped": "debtToIncome(debt_monthly, gross_monthly, homeowner); share → ratio",
+   "rests_on": "ordinary arithmetic",
+   "note": "At the guideline exactly: good.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-033 debtToIncome — five cases › MK-CF-F-033-C02 · easy · Renter at guide [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-033",
+   "case_id": "MK-CF-F-033-C03",
+   "name": "debtToIncome",
+   "kind": "complex",
+   "title": "Unround homeowner",
+   "classification": "APP WRONG",
+   "expected": {
+    "share": {
+     "exact": "0.4468954074578290187402948246",
+     "shown": "44.69%"
+    },
+    "guideline": {
+     "exact": "0.36",
+     "shown": "$0"
+    },
+    "status": "caution"
+   },
+   "actual": {
+    "ratio": 0.447,
+    "monthlyDebt": 2731.17,
+    "grossMonthly": 6111.43,
+    "guideline": 0.36,
+    "status": "caution"
+   },
+   "difference": "Status (caution) and guideline agree; the share comes back rounded inside the function to 0.447 where 0.4468954… is right.",
+   "mapped": "debtToIncome(debt_monthly, gross_monthly, homeowner); share → ratio",
+   "rests_on": "CLAUDE.md PRECISION and the precision-and-display standard §1 (Q49): nothing rounds inside a function",
+   "note": "Status (caution) and guideline agree; the share comes back rounded inside the function to 0.447 where 0.4468954… is right.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-033 debtToIncome — five cases › MK-CF-F-033-C03 · complex · Unround homeowner [APP WRONG]",
+   "test_result": "passed (test.failing: fails on the reviewer's answer as expected — turns red when fixed)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): 0.44689… kept (it was 0.447)."
+  },
+  {
+   "id": "MK-CF-F-033",
+   "case_id": "MK-CF-F-033-C04",
+   "name": "debtToIncome",
+   "kind": "complex",
+   "title": "Unround nonhomeowner",
+   "classification": "APP WRONG",
+   "expected": {
+    "share": {
+     "exact": "0.3778140363851211891779795478",
+     "shown": "37.78%"
+    },
+    "guideline": {
+     "exact": "0.2",
+     "shown": "$0"
+    },
+    "status": "high"
+   },
+   "actual": {
+    "ratio": 0.378,
+    "monthlyDebt": 1931.17,
+    "grossMonthly": 5111.43,
+    "guideline": 0.2,
+    "status": "high"
+   },
+   "difference": "Status (high) and guideline agree; the share comes back as 0.378 where 0.3778140… is right.",
+   "mapped": "debtToIncome(debt_monthly, gross_monthly, homeowner); share → ratio",
+   "rests_on": "CLAUDE.md PRECISION and the precision-and-display standard §1 (Q49): nothing rounds inside a function",
+   "note": "Status (high) and guideline agree; the share comes back as 0.378 where 0.3778140… is right.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-033 debtToIncome — five cases › MK-CF-F-033-C04 · complex · Unround nonhomeowner [APP WRONG]",
+   "test_result": "passed (test.failing: fails on the reviewer's answer as expected — turns red when fixed)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): 0.37781… kept (it was 0.378)."
+  },
+  {
+   "id": "MK-CF-F-033",
+   "case_id": "MK-CF-F-033-C05",
+   "name": "debtToIncome",
+   "kind": "edge",
+   "title": "No income",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Positive gross income required"
+   },
+   "reviewer_formula_gives": {
+    "share": {
+     "exact": "0",
+     "shown": "0.00%"
+    },
+    "status": "good"
+   },
+   "actual": {
+    "ratio": 0,
+    "monthlyDebt": 500,
+    "grossMonthly": 0,
+    "guideline": 0.2,
+    "status": "good"
+   },
+   "difference": "With no income the helper says 0% and good, but the one screen that calls it shows no card then.",
+   "mapped": "debtToIncome(debt_monthly, gross_monthly, homeowner); share → ratio",
+   "rests_on": "Its only caller, GoalsScreen.tsx, draws the DEBT-TO-INCOME card only when `liabilities.length > 0 && grossMonthly > 0`",
+   "note": "With no income the helper says 0% and good, but the one screen that calls it shows no card then.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-033 debtToIncome — five cases › MK-CF-F-033-C05 · edge · No income [OUTSIDE DOMAIN]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-035",
+   "case_id": "MK-CF-F-035-C01",
+   "name": "debtKind",
+   "kind": "easy",
+   "title": "Mortgage lookup",
+   "classification": "BLOCKED",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Label/icon lookup table not supplied",
+    "readings": {
+     "known_kind": "requires published mapping",
+     "unknown_kind": null
+    }
+   },
+   "actual": {
+    "id": "MORTGAGE",
+    "label": "Mortgage",
+    "icon": "🏠"
+   },
+   "difference": "The card never carried the kind-to-label table, so the reviewer gave no label to compare (records fix: print DEBT_KINDS on MK-CF-F-035's card). The app's answer is recorded and pinned below.",
+   "mapped": "debtKind(kind) with kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, heloc HELOC, student STUDENT_LOAN)",
+   "rests_on": "missing contract: the published kind-to-label/icon table",
+   "note": "The card never carried the kind-to-label table, so the reviewer gave no label to compare (records fix: print DEBT_KINDS on MK-CF-F-035's card). The app's answer is recorded and pinned below.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-035 debtKind — five cases › MK-CF-F-035-C01 · easy · Mortgage lookup [BLOCKED]",
+   "test_result": "skipped (BLOCKED)"
+  },
+  {
+   "id": "MK-CF-F-035",
+   "case_id": "MK-CF-F-035-C02",
+   "name": "debtKind",
+   "kind": "easy",
+   "title": "Credit card lookup",
+   "classification": "BLOCKED",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Label/icon lookup table not supplied",
+    "readings": {
+     "known_kind": "requires published mapping",
+     "unknown_kind": null
+    }
+   },
+   "actual": {
+    "id": "CREDIT_CARD",
+    "label": "Credit card",
+    "icon": "💳"
+   },
+   "difference": "The card never carried the kind-to-label table, so the reviewer gave no label to compare (records fix: print DEBT_KINDS on MK-CF-F-035's card). The app's answer is recorded and pinned below.",
+   "mapped": "debtKind(kind) with kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, heloc HELOC, student STUDENT_LOAN)",
+   "rests_on": "missing contract: the published kind-to-label/icon table",
+   "note": "The card never carried the kind-to-label table, so the reviewer gave no label to compare (records fix: print DEBT_KINDS on MK-CF-F-035's card). The app's answer is recorded and pinned below.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-035 debtKind — five cases › MK-CF-F-035-C02 · easy · Credit card lookup [BLOCKED]",
+   "test_result": "skipped (BLOCKED)"
+  },
+  {
+   "id": "MK-CF-F-035",
+   "case_id": "MK-CF-F-035-C03",
+   "name": "debtKind",
+   "kind": "complex",
+   "title": "HELOC lookup",
+   "classification": "BLOCKED",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Label/icon lookup table not supplied",
+    "readings": {
+     "known_kind": "requires published mapping",
+     "unknown_kind": null
+    }
+   },
+   "actual": {
+    "id": "HELOC",
+    "label": "HELOC",
+    "icon": "🏡"
+   },
+   "difference": "The card never carried the kind-to-label table, so the reviewer gave no label to compare (records fix: print DEBT_KINDS on MK-CF-F-035's card). The app's answer is recorded and pinned below.",
+   "mapped": "debtKind(kind) with kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, heloc HELOC, student STUDENT_LOAN)",
+   "rests_on": "missing contract: the published kind-to-label/icon table",
+   "note": "The card never carried the kind-to-label table, so the reviewer gave no label to compare (records fix: print DEBT_KINDS on MK-CF-F-035's card). The app's answer is recorded and pinned below.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-035 debtKind — five cases › MK-CF-F-035-C03 · complex · HELOC lookup [BLOCKED]",
+   "test_result": "skipped (BLOCKED)"
+  },
+  {
+   "id": "MK-CF-F-035",
+   "case_id": "MK-CF-F-035-C04",
+   "name": "debtKind",
+   "kind": "complex",
+   "title": "Student loan lookup",
+   "classification": "BLOCKED",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Label/icon lookup table not supplied",
+    "readings": {
+     "known_kind": "requires published mapping",
+     "unknown_kind": null
+    }
+   },
+   "actual": {
+    "id": "STUDENT_LOAN",
+    "label": "Student loan",
+    "icon": "🎓"
+   },
+   "difference": "The card never carried the kind-to-label table, so the reviewer gave no label to compare (records fix: print DEBT_KINDS on MK-CF-F-035's card). The app's answer is recorded and pinned below.",
+   "mapped": "debtKind(kind) with kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, heloc HELOC, student STUDENT_LOAN)",
+   "rests_on": "missing contract: the published kind-to-label/icon table",
+   "note": "The card never carried the kind-to-label table, so the reviewer gave no label to compare (records fix: print DEBT_KINDS on MK-CF-F-035's card). The app's answer is recorded and pinned below.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-035 debtKind — five cases › MK-CF-F-035-C04 · complex · Student loan lookup [BLOCKED]",
+   "test_result": "skipped (BLOCKED)"
+  },
+  {
+   "id": "MK-CF-F-035",
+   "case_id": "MK-CF-F-035-C05",
+   "name": "debtKind",
+   "kind": "edge",
+   "title": "Unknown kind",
+   "classification": "AGREE",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Label/icon lookup table not supplied",
+    "readings": {
+     "known_kind": "requires published mapping",
+     "unknown_kind": null
+    }
+   },
+   "actual": null,
+   "difference": "none",
+   "mapped": "debtKind(kind) with kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, heloc HELOC, student STUDENT_LOAN)",
+   "rests_on": "the written rule (\"nothing for a kind that is not on the list\")",
+   "note": "A kind not on the list gets nothing; its callers fall back (NetWorthScreen 🧾, DebtEditorSheet \"Debt\").",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-035 debtKind — five cases › MK-CF-F-035-C05 · edge · Unknown kind [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-036",
+   "case_id": "MK-CF-F-036-C01",
+   "name": "buildDebtState",
+   "kind": "easy",
+   "title": "Simple state",
+   "classification": "AGREE",
+   "expected": {
+    "balance": {
+     "exact": "10000",
+     "shown": "$10,000"
+    },
+    "minimum": {
+     "exact": "100",
+     "shown": "$100"
+    },
+    "planned_payment": {
+     "exact": "200",
+     "shown": "$200"
+    },
+    "highest_rate": "A",
+    "high_cost_balance": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "user_id": "u",
+    "total_debt_balance": 10000,
+    "total_monthly_debt_service": 100,
+    "total_actual_payment": 200,
+    "debts": [
+     {
+      "debt_id": "A",
+      "label": "A",
+      "debt_type": "OTHER",
+      "remaining_balance": 10000,
+      "interest_rate_apr": 0.06,
+      "minimum_monthly_payment": 100,
+      "monthly_payment": 200
+     }
+    ],
+    "highest_rate_debt": {
+     "debt_id": "A",
+     "label": "A",
+     "debt_type": "OTHER",
+     "remaining_balance": 10000,
+     "interest_rate_apr": 0.06,
+     "minimum_monthly_payment": 100,
+     "monthly_payment": 200
+    },
+    "toxic_debt_balance": 0
+   },
+   "difference": "none",
+   "mapped": "buildDebtState(uid, debts); balance → total_debt_balance, minimum → total_monthly_debt_service, planned_payment → total_actual_payment, highest_rate → highest_rate_debt.label, high_cost_balance → toxic_debt_balance",
+   "rests_on": "ordinary arithmetic; TOXIC_APR 7%",
+   "note": "6% is not above 7%: no high-cost debt.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-036 buildDebtState — five cases › MK-CF-F-036-C01 · easy · Simple state [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-036",
+   "case_id": "MK-CF-F-036-C02",
+   "name": "buildDebtState",
+   "kind": "easy",
+   "title": "At high-cost boundary",
+   "classification": "AGREE",
+   "expected": {
+    "balance": {
+     "exact": "10000",
+     "shown": "$10,000"
+    },
+    "highest_rate": "A",
+    "high_cost_balance": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "user_id": "u",
+    "total_debt_balance": 10000,
+    "total_monthly_debt_service": 100,
+    "total_actual_payment": 100,
+    "debts": [
+     {
+      "debt_id": "A",
+      "label": "A",
+      "debt_type": "OTHER",
+      "remaining_balance": 10000,
+      "interest_rate_apr": 0.07,
+      "minimum_monthly_payment": 100
+     }
+    ],
+    "highest_rate_debt": {
+     "debt_id": "A",
+     "label": "A",
+     "debt_type": "OTHER",
+     "remaining_balance": 10000,
+     "interest_rate_apr": 0.07,
+     "minimum_monthly_payment": 100
+    },
+    "toxic_debt_balance": 0
+   },
+   "difference": "none",
+   "mapped": "buildDebtState(uid, debts); balance → total_debt_balance, minimum → total_monthly_debt_service, planned_payment → total_actual_payment, highest_rate → highest_rate_debt.label, high_cost_balance → toxic_debt_balance",
+   "rests_on": "TOXIC_APR 7% (above, not at)",
+   "note": "Exactly 7% is not above 7%.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-036 buildDebtState — five cases › MK-CF-F-036-C02 · easy · At high-cost boundary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-036",
+   "case_id": "MK-CF-F-036-C03",
+   "name": "buildDebtState",
+   "kind": "complex",
+   "title": "Unround high-rate mix",
+   "classification": "AGREE",
+   "expected": {
+    "balance": {
+     "exact": "11353.79",
+     "shown": "$11,354"
+    },
+    "highest_rate": "B",
+    "high_cost_balance": {
+     "exact": "10422.60",
+     "shown": "$10,423"
+    }
+   },
+   "actual": {
+    "user_id": "u",
+    "total_debt_balance": 11353.79,
+    "total_monthly_debt_service": 0,
+    "total_actual_payment": null,
+    "debts": [
+     {
+      "debt_id": "A",
+      "label": "A",
+      "debt_type": "OTHER",
+      "remaining_balance": 7311.17,
+      "interest_rate_apr": 0.071,
+      "minimum_monthly_payment": null
+     },
+     {
+      "debt_id": "B",
+      "label": "B",
+      "debt_type": "OTHER",
+      "remaining_balance": 3111.43,
+      "interest_rate_apr": 0.12,
+      "minimum_monthly_payment": null
+     },
+     {
+      "debt_id": "C",
+      "label": "C",
+      "debt_type": "OTHER",
+      "remaining_balance": 931.19,
+      "interest_rate_apr": 0.06,
+      "minimum_monthly_payment": null
+     }
+    ],
+    "highest_rate_debt": {
+     "debt_id": "B",
+     "label": "B",
+     "debt_type": "OTHER",
+     "remaining_balance": 3111.43,
+     "interest_rate_apr": 0.12,
+     "minimum_monthly_payment": null
+    },
+    "toxic_debt_balance": 10422.6
+   },
+   "difference": "none",
+   "mapped": "buildDebtState(uid, debts); balance → total_debt_balance, minimum → total_monthly_debt_service, planned_payment → total_actual_payment, highest_rate → highest_rate_debt.label, high_cost_balance → toxic_debt_balance",
+   "rests_on": "ordinary arithmetic",
+   "note": "$11,353.79 owed; B at 12% the highest; A + B above 7% = $10,422.60.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-036 buildDebtState — five cases › MK-CF-F-036-C03 · complex · Unround high-rate mix [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-036",
+   "case_id": "MK-CF-F-036-C04",
+   "name": "buildDebtState",
+   "kind": "complex",
+   "title": "Rate tie stable",
+   "classification": "AGREE",
+   "expected": {
+    "balance": {
+     "exact": "11353.79",
+     "shown": "$11,354"
+    },
+    "highest_rate": "A",
+    "high_cost_balance": {
+     "exact": "10422.60",
+     "shown": "$10,423"
+    }
+   },
+   "actual": {
+    "user_id": "u",
+    "total_debt_balance": 11353.79,
+    "total_monthly_debt_service": 0,
+    "total_actual_payment": null,
+    "debts": [
+     {
+      "debt_id": "A",
+      "label": "A",
+      "debt_type": "OTHER",
+      "remaining_balance": 7311.17,
+      "interest_rate_apr": 0.12,
+      "minimum_monthly_payment": null
+     },
+     {
+      "debt_id": "B",
+      "label": "B",
+      "debt_type": "OTHER",
+      "remaining_balance": 3111.43,
+      "interest_rate_apr": 0.12,
+      "minimum_monthly_payment": null
+     },
+     {
+      "debt_id": "C",
+      "label": "C",
+      "debt_type": "OTHER",
+      "remaining_balance": 931.19,
+      "interest_rate_apr": 0.07,
+      "minimum_monthly_payment": null
+     }
+    ],
+    "highest_rate_debt": {
+     "debt_id": "A",
+     "label": "A",
+     "debt_type": "OTHER",
+     "remaining_balance": 7311.17,
+     "interest_rate_apr": 0.12,
+     "minimum_monthly_payment": null
+    },
+    "toxic_debt_balance": 10422.6
+   },
+   "difference": "none",
+   "mapped": "buildDebtState(uid, debts); balance → total_debt_balance, minimum → total_monthly_debt_service, planned_payment → total_actual_payment, highest_rate → highest_rate_debt.label, high_cost_balance → toxic_debt_balance",
+   "rests_on": "the written rule (the first of equals)",
+   "note": "A and B tie at 12%: A, the first.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-036 buildDebtState — five cases › MK-CF-F-036-C04 · complex · Rate tie stable [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-036",
+   "case_id": "MK-CF-F-036-C05",
+   "name": "buildDebtState",
+   "kind": "edge",
+   "title": "Unknown debt balance",
+   "classification": "REVIEWER WRONG",
+   "expected": {
+    "known_balance_subtotal": {
+     "exact": "1000",
+     "shown": "$1,000"
+    },
+    "complete": false,
+    "unvalued_debts": [
+     "B"
+    ]
+   },
+   "reviewer_formula_gives": {
+    "balance_total": {
+     "exact": "1000",
+     "shown": "$1,000"
+    }
+   },
+   "actual": {
+    "user_id": "u",
+    "total_debt_balance": 1000,
+    "total_monthly_debt_service": 0,
+    "total_actual_payment": null,
+    "debts": [
+     {
+      "debt_id": "A",
+      "label": "A",
+      "debt_type": "OTHER",
+      "remaining_balance": 1000,
+      "interest_rate_apr": 0.06,
+      "minimum_monthly_payment": null
+     },
+     {
+      "debt_id": "B",
+      "label": "B",
+      "debt_type": "OTHER",
+      "remaining_balance": null,
+      "interest_rate_apr": 0.2,
+      "minimum_monthly_payment": null
+     }
+    ],
+    "highest_rate_debt": {
+     "debt_id": "B",
+     "label": "B",
+     "debt_type": "OTHER",
+     "remaining_balance": null,
+     "interest_rate_apr": 0.2,
+     "minimum_monthly_payment": null
+    },
+    "toxic_debt_balance": 0
+   },
+   "difference": "The known $1,000 is the total by DEC-3279e, and Net worth's amber box names B (\"B has no balance — left out of what you owe until it has one\"). The completeness lives in dataGaps, which Net worth reads beside this total.",
+   "mapped": "buildDebtState(uid, debts); balance → total_debt_balance, minimum → total_monthly_debt_service, planned_payment → total_actual_payment, highest_rate → highest_rate_debt.label, high_cost_balance → toxic_debt_balance; balance null → remaining_balance null",
+   "rests_on": "DEC-3279e: \"A missing balance is never $0: it is left out of the total and the amber box names the account\" — the naming is MK-XS-F-002 dataGaps's, one place (tenet 4), not a flag on every sum",
+   "note": "The known $1,000 is the total by DEC-3279e, and Net worth's amber box names B (\"B has no balance — left out of what you owe until it has one\"). The completeness lives in dataGaps, which Net worth reads beside this total.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-036 buildDebtState — five cases › MK-CF-F-036-C05 · edge · Unknown debt balance [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-037",
+   "case_id": "MK-CF-F-037-C01",
+   "name": "inferDebtType",
+   "kind": "easy",
+   "title": "Mortgage",
+   "classification": "AGREE",
+   "expected": "mortgage",
+   "actual": "MORTGAGE",
+   "difference": "none",
+   "mapped": "inferDebtType(name); the app's DebtType read in lower case (STUDENT_LOAN → student_loan)",
+   "rests_on": "the written first-match order",
+   "note": "Lower-cased, the first matching word wins: home equity before mortgage, a card word before medical.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-037 inferDebtType — five cases › MK-CF-F-037-C01 · easy · Mortgage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-037",
+   "case_id": "MK-CF-F-037-C02",
+   "name": "inferDebtType",
+   "kind": "easy",
+   "title": "HELOC precedence",
+   "classification": "AGREE",
+   "expected": "heloc",
+   "actual": "HELOC",
+   "difference": "none",
+   "mapped": "inferDebtType(name); the app's DebtType read in lower case (STUDENT_LOAN → student_loan)",
+   "rests_on": "the written first-match order",
+   "note": "Lower-cased, the first matching word wins: home equity before mortgage, a card word before medical.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-037 inferDebtType — five cases › MK-CF-F-037-C02 · easy · HELOC precedence [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-037",
+   "case_id": "MK-CF-F-037-C03",
+   "name": "inferDebtType",
+   "kind": "complex",
+   "title": "Mixed vehicle case",
+   "classification": "AGREE",
+   "expected": "auto",
+   "actual": "AUTO",
+   "difference": "none",
+   "mapped": "inferDebtType(name); the app's DebtType read in lower case (STUDENT_LOAN → student_loan)",
+   "rests_on": "the written first-match order",
+   "note": "Lower-cased, the first matching word wins: home equity before mortgage, a card word before medical.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-037 inferDebtType — five cases › MK-CF-F-037-C03 · complex · Mixed vehicle case [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-037",
+   "case_id": "MK-CF-F-037-C04",
+   "name": "inferDebtType",
+   "kind": "complex",
+   "title": "Card name",
+   "classification": "AGREE",
+   "expected": "credit_card",
+   "actual": "CREDIT_CARD",
+   "difference": "none",
+   "mapped": "inferDebtType(name); the app's DebtType read in lower case (STUDENT_LOAN → student_loan)",
+   "rests_on": "the written first-match order",
+   "note": "Lower-cased, the first matching word wins: home equity before mortgage, a card word before medical.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-037 inferDebtType — five cases › MK-CF-F-037-C04 · complex · Card name [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-037",
+   "case_id": "MK-CF-F-037-C05",
+   "name": "inferDebtType",
+   "kind": "edge",
+   "title": "Unknown",
+   "classification": "AGREE",
+   "expected": "other",
+   "actual": "OTHER",
+   "difference": "none",
+   "mapped": "inferDebtType(name); the app's DebtType read in lower case (STUDENT_LOAN → student_loan)",
+   "rests_on": "the written first-match order",
+   "note": "Lower-cased, the first matching word wins: home equity before mortgage, a card word before medical.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-037 inferDebtType — five cases › MK-CF-F-037-C05 · edge · Unknown [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-038",
+   "case_id": "MK-CF-F-038-C01",
+   "name": "debtsFromOnboarding",
+   "kind": "easy",
+   "title": "Known debt",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "balance": {
+      "exact": "10000",
+      "shown": "$10,000"
+     },
+     "apr_decimal": {
+      "exact": "0.07",
+      "shown": "$0"
+     },
+     "minimum": {
+      "exact": "200",
+      "shown": "$200"
+     },
+     "name": "Car loan"
+    }
+   ],
+   "actual": [
+    {
+     "debt_id": "debt_mvom45k5j7r4a6",
+     "label": "Car loan",
+     "debt_type": "AUTO",
+     "remaining_balance": 10000,
+     "interest_rate_apr": 0.07,
+     "minimum_monthly_payment": 200,
+     "origin": "onboarding"
+    }
+   ],
+   "difference": "none",
+   "mapped": "debtsFromOnboarding(uid, { debtBalance: balance, debtRate: apr_percent, debtPayment: minimum, debtName: name }); apr_decimal → interest_rate_apr",
+   "rests_on": "the written rule",
+   "note": "A positive balance makes one debt, the rate ÷ 100 once, a blank name reads \"Debt\"; a $0 balance makes none.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-038 debtsFromOnboarding — five cases › MK-CF-F-038-C01 · easy · Known debt [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-038",
+   "case_id": "MK-CF-F-038-C02",
+   "name": "debtsFromOnboarding",
+   "kind": "easy",
+   "title": "Zero balance",
+   "classification": "AGREE",
+   "expected": [],
+   "actual": [],
+   "difference": "none",
+   "mapped": "debtsFromOnboarding(uid, { debtBalance: balance, debtRate: apr_percent, debtPayment: minimum, debtName: name }); apr_decimal → interest_rate_apr",
+   "rests_on": "the written rule",
+   "note": "A positive balance makes one debt, the rate ÷ 100 once, a blank name reads \"Debt\"; a $0 balance makes none.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-038 debtsFromOnboarding — five cases › MK-CF-F-038-C02 · easy · Zero balance [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-038",
+   "case_id": "MK-CF-F-038-C03",
+   "name": "debtsFromOnboarding",
+   "kind": "complex",
+   "title": "Unround card",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "balance": {
+      "exact": "3111.17",
+      "shown": "$3,111"
+     },
+     "apr_decimal": {
+      "exact": "0.229",
+      "shown": "$0"
+     },
+     "minimum": {
+      "exact": "113.43",
+      "shown": "$113"
+     },
+     "name": "Visa"
+    }
+   ],
+   "actual": [
+    {
+     "debt_id": "debt_mvom45k6xx9cqb",
+     "label": "Visa",
+     "debt_type": "CREDIT_CARD",
+     "remaining_balance": 3111.17,
+     "interest_rate_apr": 0.22899999999999998,
+     "minimum_monthly_payment": 113.43,
+     "origin": "onboarding"
+    }
+   ],
+   "difference": "none",
+   "mapped": "debtsFromOnboarding(uid, { debtBalance: balance, debtRate: apr_percent, debtPayment: minimum, debtName: name }); apr_decimal → interest_rate_apr",
+   "rests_on": "the written rule",
+   "note": "A positive balance makes one debt, the rate ÷ 100 once, a blank name reads \"Debt\"; a $0 balance makes none.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-038 debtsFromOnboarding — five cases › MK-CF-F-038-C03 · complex · Unround card [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-038",
+   "case_id": "MK-CF-F-038-C04",
+   "name": "debtsFromOnboarding",
+   "kind": "complex",
+   "title": "Unround named loan",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "balance": {
+      "exact": "7311.19",
+      "shown": "$7,311"
+     },
+     "apr_decimal": {
+      "exact": "0.0673",
+      "shown": "$0"
+     },
+     "minimum": {
+      "exact": "231.17",
+      "shown": "$231"
+     },
+     "name": "Personal"
+    }
+   ],
+   "actual": [
+    {
+     "debt_id": "debt_mvom45k6cpftvp",
+     "label": "Personal",
+     "debt_type": "PERSONAL",
+     "remaining_balance": 7311.19,
+     "interest_rate_apr": 0.0673,
+     "minimum_monthly_payment": 231.17,
+     "origin": "onboarding"
+    }
+   ],
+   "difference": "none",
+   "mapped": "debtsFromOnboarding(uid, { debtBalance: balance, debtRate: apr_percent, debtPayment: minimum, debtName: name }); apr_decimal → interest_rate_apr",
+   "rests_on": "the written rule",
+   "note": "A positive balance makes one debt, the rate ÷ 100 once, a blank name reads \"Debt\"; a $0 balance makes none.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-038 debtsFromOnboarding — five cases › MK-CF-F-038-C04 · complex · Unround named loan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-038",
+   "case_id": "MK-CF-F-038-C05",
+   "name": "debtsFromOnboarding",
+   "kind": "edge",
+   "title": "Blank name",
+   "classification": "AGREE",
+   "expected": [
+    {
+     "balance": {
+      "exact": "1000",
+      "shown": "$1,000"
+     },
+     "apr_decimal": {
+      "exact": "0",
+      "shown": "$0"
+     },
+     "minimum": {
+      "exact": "100",
+      "shown": "$100"
+     },
+     "name": "Debt"
+    }
+   ],
+   "actual": [
+    {
+     "debt_id": "debt_mvom45k7l7c1u3",
+     "label": "Debt",
+     "debt_type": "OTHER",
+     "remaining_balance": 1000,
+     "interest_rate_apr": 0,
+     "minimum_monthly_payment": 100,
+     "origin": "onboarding"
+    }
+   ],
+   "difference": "none",
+   "mapped": "debtsFromOnboarding(uid, { debtBalance: balance, debtRate: apr_percent, debtPayment: minimum, debtName: name }); apr_decimal → interest_rate_apr",
+   "rests_on": "the written rule",
+   "note": "A positive balance makes one debt, the rate ÷ 100 once, a blank name reads \"Debt\"; a $0 balance makes none.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-038 debtsFromOnboarding — five cases › MK-CF-F-038-C05 · edge · Blank name [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-041",
+   "case_id": "MK-CF-F-041-C01",
+   "name": "getDebtState",
+   "kind": "easy",
+   "title": "Known result",
+   "classification": "AGREE",
+   "expected": {
+    "total": {
+     "exact": "1000",
+     "shown": "$1,000"
+    }
+   },
+   "actual": {
+    "user_id": "u",
+    "total_debt_balance": 1000,
+    "total_monthly_debt_service": 10,
+    "total_actual_payment": 10,
+    "debts": [
+     {
+      "debt_id": "d",
+      "label": "D",
+      "debt_type": "OTHER",
+      "remaining_balance": 1000,
+      "interest_rate_apr": 0.05,
+      "minimum_monthly_payment": 10
+     }
+    ],
+    "highest_rate_debt": {
+     "debt_id": "d",
+     "label": "D",
+     "debt_type": "OTHER",
+     "remaining_balance": 1000,
+     "interest_rate_apr": 0.05,
+     "minimum_monthly_payment": 10
+    },
+    "toxic_debt_balance": 0
+   },
+   "difference": "none",
+   "mapped": "supplied_result → the debts document storage returns (getUserDoc stubbed): {total} → one debt with that balance, {rate} → its rate, null → none stored, 0 → a stored document with no debts",
+   "rests_on": "the written rule",
+   "note": "The stored $1,000 comes back as the total.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-041 getDebtState — five cases (storage replaced by a stub; the function is the app's) › MK-CF-F-041-C01 · easy · Known result [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-041",
+   "case_id": "MK-CF-F-041-C02",
+   "name": "getDebtState",
+   "kind": "easy",
+   "title": "No stored result",
+   "classification": "AGREE",
+   "expected": null,
+   "actual": null,
+   "difference": "none",
+   "mapped": "supplied_result → the debts document storage returns (getUserDoc stubbed): {total} → one debt with that balance, {rate} → its rate, null → none stored, 0 → a stored document with no debts",
+   "rests_on": "the written rule",
+   "note": "Nothing stored: no state (null), never a $0 one.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-041 getDebtState — five cases (storage replaced by a stub; the function is the app's) › MK-CF-F-041-C02 · easy · No stored result [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-041",
+   "case_id": "MK-CF-F-041-C03",
+   "name": "getDebtState",
+   "kind": "complex",
+   "title": "Unround payload",
+   "classification": "AGREE",
+   "expected": {
+    "total": {
+     "exact": "8311.17391",
+     "shown": "$8,311"
+    },
+    "rate": {
+     "exact": "0.173491",
+     "shown": "17.35%"
+    }
+   },
+   "actual": {
+    "user_id": "u",
+    "total_debt_balance": 8311.17391,
+    "total_monthly_debt_service": 10,
+    "total_actual_payment": 10,
+    "debts": [
+     {
+      "debt_id": "d",
+      "label": "D",
+      "debt_type": "OTHER",
+      "remaining_balance": 8311.17391,
+      "interest_rate_apr": 0.173491,
+      "minimum_monthly_payment": 10
+     }
+    ],
+    "highest_rate_debt": {
+     "debt_id": "d",
+     "label": "D",
+     "debt_type": "OTHER",
+     "remaining_balance": 8311.17391,
+     "interest_rate_apr": 0.173491,
+     "minimum_monthly_payment": 10
+    },
+    "toxic_debt_balance": 8311.17391
+   },
+   "difference": "none",
+   "mapped": "supplied_result → the debts document storage returns (getUserDoc stubbed): {total} → one debt with that balance, {rate} → its rate, null → none stored, 0 → a stored document with no debts",
+   "rests_on": "the written rule",
+   "note": "Every digit kept: $8,311.17391 at 17.3491%.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-041 getDebtState — five cases (storage replaced by a stub; the function is the app's) › MK-CF-F-041-C03 · complex · Unround payload [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-041",
+   "case_id": "MK-CF-F-041-C04",
+   "name": "getDebtState",
+   "kind": "complex",
+   "title": "Signed payload",
+   "classification": "AGREE",
+   "expected": {
+    "total": {
+     "exact": "-731.1917",
+     "shown": "−$731"
+    },
+    "known": true
+   },
+   "actual": {
+    "user_id": "u",
+    "total_debt_balance": -731.1917,
+    "total_monthly_debt_service": 10,
+    "total_actual_payment": 10,
+    "debts": [
+     {
+      "debt_id": "d",
+      "label": "D",
+      "debt_type": "OTHER",
+      "remaining_balance": -731.1917,
+      "interest_rate_apr": 0.05,
+      "minimum_monthly_payment": 10
+     }
+    ],
+    "highest_rate_debt": {
+     "debt_id": "d",
+     "label": "D",
+     "debt_type": "OTHER",
+     "remaining_balance": -731.1917,
+     "interest_rate_apr": 0.05,
+     "minimum_monthly_payment": 10
+    },
+    "toxic_debt_balance": 0
+   },
+   "difference": "none",
+   "mapped": "supplied_result → the debts document storage returns (getUserDoc stubbed): {total} → one debt with that balance, {rate} → its rate, null → none stored, 0 → a stored document with no debts",
+   "rests_on": "the written rule",
+   "note": "A negative stored balance is passed through with its sign and its record (no editor can save one: DebtEditorSheet needs a balance above $0).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-041 getDebtState — five cases (storage replaced by a stub; the function is the app's) › MK-CF-F-041-C04 · complex · Signed payload [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-041",
+   "case_id": "MK-CF-F-041-C05",
+   "name": "getDebtState",
+   "kind": "edge",
+   "title": "Explicit zero result",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": {
+    "user_id": "u",
+    "total_debt_balance": 0,
+    "total_monthly_debt_service": 0,
+    "total_actual_payment": 0,
+    "debts": [],
+    "highest_rate_debt": null,
+    "toxic_debt_balance": 0
+   },
+   "difference": "none",
+   "mapped": "supplied_result → the debts document storage returns (getUserDoc stubbed): {total} → one debt with that balance, {rate} → its rate, null → none stored, 0 → a stored document with no debts",
+   "rests_on": "the written rule",
+   "note": "A stored document with no debts is a known $0, distinct from nothing stored.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-041 getDebtState — five cases (storage replaced by a stub; the function is the app's) › MK-CF-F-041-C05 · edge · Explicit zero result [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-042",
+   "case_id": "MK-CF-F-042-C01",
+   "name": "mortgageOddsEffect",
+   "kind": "easy",
+   "title": "No extra",
+   "classification": "AGREE",
+   "expected": null,
+   "actual": null,
+   "difference": "none",
+   "mapped": "mortgageOddsEffect({ base: the PAT plan (200 paths), balance, annualRate: apr, monthlyPayment: payment, extraMonthly: extra, nowYear: as_of's year }); C01 gives only extra, so a $10,000 loan at 6% with $300 a month stands in",
+   "rests_on": "the written rule",
+   "note": "No extra: nothing to compare (null).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-042 mortgageOddsEffect — five cases › MK-CF-F-042-C01 · easy · No extra [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-042",
+   "case_id": "MK-CF-F-042-C02",
+   "name": "mortgageOddsEffect",
+   "kind": "easy",
+   "title": "Nonamortizing",
+   "classification": "AGREE",
+   "expected": null,
+   "actual": null,
+   "difference": "none",
+   "mapped": "mortgageOddsEffect({ base: the PAT plan (200 paths), balance, annualRate: apr, monthlyPayment: payment, extraMonthly: extra, nowYear: as_of's year }); C01 gives only extra, so a $10,000 loan at 6% with $300 a month stands in",
+   "rests_on": "the written rule",
+   "note": "$50 and $70 both fall short of the $100 interest: null, no invented payoff year.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-042 mortgageOddsEffect — five cases › MK-CF-F-042-C02 · easy · Nonamortizing [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-042",
+   "case_id": "MK-CF-F-042-C03",
+   "name": "mortgageOddsEffect",
+   "kind": "complex",
+   "title": "Finite extra changes dates",
+   "classification": "AGREE",
+   "expected": {
+    "assertions": [
+     "run two projections with identical market paths",
+     "record separately computed payoff durations",
+     "do not assert after odds always improve"
+    ]
+   },
+   "actual": {
+    "before": 70,
+    "after": 70.5,
+    "payoffYear": 2030,
+    "fasterPayoffYear": 2028
+   },
+   "difference": "none",
+   "mapped": "mortgageOddsEffect({ base: the PAT plan (200 paths), balance, annualRate: apr, monthlyPayment: payment, extraMonthly: extra, nowYear: as_of's year }); C01 gives only extra, so a $10,000 loan at 6% with $300 a month stands in",
+   "rests_on": "the reviewer's relational assertions",
+   "note": "Two runs on one seed (the same market paths), payoff durations worked separately by monthsToClear, and no assumption that the odds rise.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-042 mortgageOddsEffect — five cases › MK-CF-F-042-C03 · complex · Finite extra changes dates [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-042",
+   "case_id": "MK-CF-F-042-C04",
+   "name": "mortgageOddsEffect",
+   "kind": "complex",
+   "title": "Annual boundary timing",
+   "classification": "APP WRONG",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Year-only payoff offset ignores current month",
+    "readings": {
+     "calendar": "use actual payoff month",
+     "written": "uses current year plus floor((months−1)/12)"
+    }
+   },
+   "actual": {
+    "before": 72,
+    "after": 76.5,
+    "payoffYear": 2027,
+    "fasterPayoffYear": 2026
+   },
+   "difference": "In December 2026 the extra clears the loan in 11 payments, the last in October 2027 (or November, counting from January); the app says 2026, a year in which only one payment is left. The function is handed only the year, so it treats every start as January.",
+   "mapped": "mortgageOddsEffect({ base: the PAT plan (200 paths), balance, annualRate: apr, monthlyPayment: payment, extraMonthly: extra, nowYear: as_of's year }); C01 gives only extra, so a $10,000 loan at 6% with $300 a month stands in; as_of 2026-12-24 → nowYear 2026 (the function takes no month)",
+   "rests_on": "Settled by DEC-3523 tenet 1 and the function's own stated purpose (\"the calendar year the LAST payment falls in\", mortgageOdds.ts): the reviewer's calendar reading",
+   "note": "In December 2026 the extra clears the loan in 11 payments, the last in October 2027 (or November, counting from January); the app says 2026, a year in which only one payment is left. The function is handed only the year, so it treats every start as January.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-042 mortgageOddsEffect — five cases › MK-CF-F-042-C04 · complex · Annual boundary timing [APP WRONG]",
+   "test_result": "passed (test.failing: fails on the reviewer's answer as expected — turns red when fixed)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): mortgageOddsEffect is handed the month — December 2026 with 11 payments clears in 2027 (it said 2026)."
+  },
+  {
+   "id": "MK-CF-F-042",
+   "case_id": "MK-CF-F-042-C05",
+   "name": "mortgageOddsEffect",
+   "kind": "edge",
+   "title": "Missing simulation contract",
+   "classification": "BLOCKED",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Independent projection equations not supplied"
+   },
+   "actual": {
+    "before": 72,
+    "after": 70,
+    "payoffYear": 2029,
+    "fasterPayoffYear": 2028
+   },
+   "difference": "The app returns two simulated chances; the reviewer declines to certify them without the simulation's contract. Nothing to compare until that contract is in the package.",
+   "mapped": "mortgageOddsEffect({ base: the PAT plan (200 paths), balance, annualRate: apr, monthlyPayment: payment, extraMonthly: extra, nowYear: as_of's year }); C01 gives only extra, so a $10,000 loan at 6% with $300 a month stands in",
+   "rests_on": "missing contract: the retirement simulation's published equations (MK-PL simulate), which the outside judge did not have",
+   "note": "The app returns two simulated chances; the reviewer declines to certify them without the simulation's contract. Nothing to compare until that contract is in the package.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-042 mortgageOddsEffect — five cases › MK-CF-F-042-C05 · edge · Missing simulation contract [BLOCKED]",
+   "test_result": "skipped (BLOCKED)"
+  },
+  {
+   "id": "MK-CF-F-125",
+   "case_id": "MK-CF-F-125-C01",
+   "name": "amortise",
+   "kind": "easy",
+   "title": "Zero-interest loan",
+   "classification": "AGREE",
+   "expected": {
+    "months": {
+     "exact": "12",
+     "shown": "12"
+    },
+    "interest": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "months": 12,
+    "interest": 0
+   },
+   "difference": "none",
+   "mapped": "amortise(principal, apr_decimal, monthly_payment)",
+   "rests_on": "ordinary amortisation arithmetic",
+   "note": "Month by month: interest = balance × rate ÷ 12, until the balance is gone; the interest added up.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-125 amortise — five cases (compiled from the app's own text) › MK-CF-F-125-C01 · easy · Zero-interest loan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-125",
+   "case_id": "MK-CF-F-125-C02",
+   "name": "amortise",
+   "kind": "easy",
+   "title": "Ordinary loan",
+   "classification": "AGREE",
+   "expected": {
+    "months": {
+     "exact": "58",
+     "shown": "58"
+    },
+    "interest": {
+     "exact": "1536.135663493990663220934953",
+     "shown": "$1,536"
+    }
+   },
+   "actual": {
+    "months": 58,
+    "interest": 1536.13566349399
+   },
+   "difference": "none",
+   "mapped": "amortise(principal, apr_decimal, monthly_payment)",
+   "rests_on": "ordinary amortisation arithmetic",
+   "note": "Month by month: interest = balance × rate ÷ 12, until the balance is gone; the interest added up.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-125 amortise — five cases (compiled from the app's own text) › MK-CF-F-125-C02 · easy · Ordinary loan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-125",
+   "case_id": "MK-CF-F-125-C03",
+   "name": "amortise",
+   "kind": "complex",
+   "title": "Unround loan",
+   "classification": "AGREE",
+   "expected": {
+    "months": {
+     "exact": "45",
+     "shown": "45"
+    },
+    "interest": {
+     "exact": "2735.942083912001321387417232",
+     "shown": "$2,736"
+    }
+   },
+   "actual": {
+    "months": 45,
+    "interest": 2735.942083912
+   },
+   "difference": "none",
+   "mapped": "amortise(principal, apr_decimal, monthly_payment)",
+   "rests_on": "ordinary amortisation arithmetic",
+   "note": "Month by month: interest = balance × rate ÷ 12, until the balance is gone; the interest added up.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-125 amortise — five cases (compiled from the app's own text) › MK-CF-F-125-C03 · complex · Unround loan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-125",
+   "case_id": "MK-CF-F-125-C04",
+   "name": "amortise",
+   "kind": "complex",
+   "title": "Unround second rate",
+   "classification": "AGREE",
+   "expected": {
+    "months": {
+     "exact": "30",
+     "shown": "30"
+    },
+    "interest": {
+     "exact": "1820.160522200193468269005761",
+     "shown": "$1,820"
+    }
+   },
+   "actual": {
+    "months": 30,
+    "interest": 1820.160522200193
+   },
+   "difference": "none",
+   "mapped": "amortise(principal, apr_decimal, monthly_payment)",
+   "rests_on": "ordinary amortisation arithmetic",
+   "note": "Month by month: interest = balance × rate ÷ 12, until the balance is gone; the interest added up.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-125 amortise — five cases (compiled from the app's own text) › MK-CF-F-125-C04 · complex · Unround second rate [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-125",
+   "case_id": "MK-CF-F-125-C05",
+   "name": "amortise",
+   "kind": "edge",
+   "title": "Amortizing beyond iteration cap",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "months": {
+     "exact": "1201",
+     "shown": "1201"
+    },
+    "interest": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "reviewer_formula_gives": {
+    "state": "RULE UNCLEAR",
+    "reason": "Cap exit result not specified",
+    "readings": {
+     "truncated_months": {
+      "exact": "1200",
+      "shown": "$1,200"
+     },
+     "required_remaining_balance": {
+      "exact": "100",
+      "shown": "$100"
+     }
+    }
+   },
+   "actual": {
+    "months": 1200,
+    "interest": 0
+   },
+   "difference": "At 0% the 1,200-month stop gives 1,200 with $100 still owed, but no caller hands it 0%. The same stop IS reachable at a positive rate — see the formula check.",
+   "mapped": "amortise(principal, apr_decimal, monthly_payment)",
+   "rests_on": "Its only caller, MK-CF-F-043 compareMortgageToTreasury, returns null for a rate of 0 or less before calling it (mortgageVsTreasury.ts, `!(annualRate > 0)`); the Debts tab hands it only a loan above 0% (BudgetScreen.tsx bigLoan)",
+   "note": "At 0% the 1,200-month stop gives 1,200 with $100 still owed, but no caller hands it 0%. The same stop IS reachable at a positive rate — see the formula check.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-125 amortise — five cases (compiled from the app's own text) › MK-CF-F-125-C05 · edge · Amortizing beyond iteration cap [OUTSIDE DOMAIN]",
+   "test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-ROOM; tenets 1–2): amortise runs until the loan clears — 1,201 months, $0 interest (was 1,200 with $100 still owed)."
+  },
+  {
+   "id": "MK-CF-F-126",
+   "case_id": "MK-CF-F-126-C01",
+   "name": "futureValue",
+   "kind": "easy",
+   "title": "One month",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "100",
+    "shown": "$100"
+   },
+   "actual": 100.00000000000009,
+   "difference": "none",
+   "mapped": "futureValue(monthly_contribution, annual_rate, months)",
+   "rests_on": "ordinary annuity arithmetic",
+   "note": "m × ((1 + r ÷ 12)^n − 1) ÷ (r ÷ 12), deposits at each month's end.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-126 futureValue — five cases (compiled from the app's own text) › MK-CF-F-126-C01 · easy · One month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-126",
+   "case_id": "MK-CF-F-126-C02",
+   "name": "futureValue",
+   "kind": "easy",
+   "title": "Two months",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "201.00",
+    "shown": "$201"
+   },
+   "actual": 201.00000000000006,
+   "difference": "none",
+   "mapped": "futureValue(monthly_contribution, annual_rate, months)",
+   "rests_on": "ordinary annuity arithmetic",
+   "note": "m × ((1 + r ÷ 12)^n − 1) ÷ (r ÷ 12), deposits at each month's end.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-126 futureValue — five cases (compiled from the app's own text) › MK-CF-F-126-C02 · easy · Two months [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-126",
+   "case_id": "MK-CF-F-126-C03",
+   "name": "futureValue",
+   "kind": "complex",
+   "title": "Unround contributions",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "29064.02398769088898622270958",
+    "shown": "$29,064"
+   },
+   "actual": 29064.023987691395,
+   "difference": "none",
+   "mapped": "futureValue(monthly_contribution, annual_rate, months)",
+   "rests_on": "ordinary annuity arithmetic",
+   "note": "m × ((1 + r ÷ 12)^n − 1) ÷ (r ÷ 12), deposits at each month's end.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-126 futureValue — five cases (compiled from the app's own text) › MK-CF-F-126-C03 · complex · Unround contributions [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-126",
+   "case_id": "MK-CF-F-126-C04",
+   "name": "futureValue",
+   "kind": "complex",
+   "title": "Unround long horizon",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "390193.8650725731113096128714",
+    "shown": "$390,194"
+   },
+   "actual": 390193.86507256544,
+   "difference": "none",
+   "mapped": "futureValue(monthly_contribution, annual_rate, months)",
+   "rests_on": "ordinary annuity arithmetic",
+   "note": "m × ((1 + r ÷ 12)^n − 1) ÷ (r ÷ 12), deposits at each month's end.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-126 futureValue — five cases (compiled from the app's own text) › MK-CF-F-126-C04 · complex · Unround long horizon [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-126",
+   "case_id": "MK-CF-F-126-C05",
+   "name": "futureValue",
+   "kind": "edge",
+   "title": "Zero return",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "exact": "6000",
+    "shown": "$6,000"
+   },
+   "reviewer_formula_gives": {
+    "state": "REFUSES",
+    "reason": "Written expression is 0/0 at zero rate"
+   },
+   "actual": null,
+   "difference": "At 0% the formula is 0 ÷ 0 (NaN) where $6,000 is right; no caller sends 0%. A two-line 0% branch would make the helper safe for any later caller.",
+   "mapped": "futureValue(monthly_contribution, annual_rate, months)",
+   "rests_on": "No caller hands it 0%: sign-up's fv (src/onboarding/modules.tsx RetireOutlook) floors the rate at 1% (`Math.max(0.01, 0.07 − inflation)`), and compareMortgageToTreasury's Treasury yield is the live ten-year yield, refused at 0 or below (src/services/economicData.ts, `rate <= 0` → the 4.35% fallback)",
+   "note": "At 0% the formula is 0 ÷ 0 (NaN) where $6,000 is right; no caller sends 0%. A two-line 0% branch would make the helper safe for any later caller.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-126 futureValue — five cases (compiled from the app's own text) › MK-CF-F-126-C05 · edge · Zero return [OUTSIDE DOMAIN]",
+   "test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25: 0% branch — $500 × 12 = $6,000 (was NaN)."
+  },
+  {
+   "id": "MK-CF-F-229",
+   "case_id": "MK-CF-F-229-C01",
+   "name": "balanceGrownTo",
+   "kind": "easy",
+   "title": "One month",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "1110.00",
+    "shown": "$1,110"
+   },
+   "actual": 1110,
+   "difference": "none",
+   "mapped": "balanceGrownTo(initial_balance, monthly_contribution, annual_rate, months)",
+   "rests_on": "ordinary compound-growth arithmetic",
+   "note": "start × (1 + r ÷ 12)^n + the contributions' future value.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-229 balanceGrownTo — five cases › MK-CF-F-229-C01 · easy · One month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-229",
+   "case_id": "MK-CF-F-229-C02",
+   "name": "balanceGrownTo",
+   "kind": "easy",
+   "title": "Two months",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "1221.1000",
+    "shown": "$1,221"
+   },
+   "actual": 1221.1000000000001,
+   "difference": "none",
+   "mapped": "balanceGrownTo(initial_balance, monthly_contribution, annual_rate, months)",
+   "rests_on": "ordinary compound-growth arithmetic",
+   "note": "start × (1 + r ÷ 12)^n + the contributions' future value.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-229 balanceGrownTo — five cases › MK-CF-F-229-C02 · easy · Two months [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-229",
+   "case_id": "MK-CF-F-229-C03",
+   "name": "balanceGrownTo",
+   "kind": "complex",
+   "title": "Unround contributions",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "51401.19469584674613539953939",
+    "shown": "$51,401"
+   },
+   "actual": 51401.194695847305,
+   "difference": "none",
+   "mapped": "balanceGrownTo(initial_balance, monthly_contribution, annual_rate, months)",
+   "rests_on": "ordinary compound-growth arithmetic",
+   "note": "start × (1 + r ÷ 12)^n + the contributions' future value.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-229 balanceGrownTo — five cases › MK-CF-F-229-C03 · complex · Unround contributions [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-229",
+   "case_id": "MK-CF-F-229-C04",
+   "name": "balanceGrownTo",
+   "kind": "complex",
+   "title": "Unround long horizon",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "1178903.702561631597015574448",
+    "shown": "$1,178,904"
+   },
+   "actual": 1178903.7025616146,
+   "difference": "none",
+   "mapped": "balanceGrownTo(initial_balance, monthly_contribution, annual_rate, months)",
+   "rests_on": "ordinary compound-growth arithmetic",
+   "note": "start × (1 + r ÷ 12)^n + the contributions' future value.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-229 balanceGrownTo — five cases › MK-CF-F-229-C04 · complex · Unround long horizon [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-229",
+   "case_id": "MK-CF-F-229-C05",
+   "name": "balanceGrownTo",
+   "kind": "edge",
+   "title": "Zero return",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "exact": "16000",
+    "shown": "$16,000"
+   },
+   "reviewer_formula_gives": {
+    "state": "REFUSES",
+    "reason": "Written expression is 0/0 at zero rate"
+   },
+   "actual": null,
+   "difference": "At 0% it inherits the 0 ÷ 0 (NaN) where $16,000 is right; its one caller floors the rate at 1%.",
+   "mapped": "balanceGrownTo(initial_balance, monthly_contribution, annual_rate, months)",
+   "rests_on": "No caller hands it 0%: sign-up's fv (src/onboarding/modules.tsx RetireOutlook) floors the rate at 1% (`Math.max(0.01, 0.07 − inflation)`), and compareMortgageToTreasury's Treasury yield is the live ten-year yield, refused at 0 or below (src/services/economicData.ts, `rate <= 0` → the 4.35% fallback)",
+   "note": "At 0% it inherits the 0 ÷ 0 (NaN) where $16,000 is right; its one caller floors the rate at 1%.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-229 balanceGrownTo — five cases › MK-CF-F-229-C05 · edge · Zero return [OUTSIDE DOMAIN]",
+   "test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25: $10,000 + $500 × 12 = $16,000 through futureValue's 0% branch (was NaN)."
+  },
+  {
+   "id": "MK-CF-F-043",
+   "case_id": "MK-CF-F-043-C01",
+   "name": "compareMortgageToTreasury",
+   "kind": "easy",
+   "title": "Mortgage higher",
+   "classification": "AGREE",
+   "expected": {
+    "gap_percentage_points": {
+     "exact": "2",
+     "shown": "2.00 percentage points"
+    },
+    "annual_full_balance_spread": {
+     "exact": "2000",
+     "shown": "$2,000"
+    },
+    "heuristic": "paydown"
+   },
+   "actual": {
+    "mortgagePct": 6,
+    "treasuryPct": 4,
+    "gapPoints": 2,
+    "annualDifference": 1999.9999999999998,
+    "lifetimeDifference": 0,
+    "tooCloseToCall": false,
+    "direction": "paying-down-wins"
+   },
+   "difference": "none",
+   "mapped": "compareMortgageToTreasury({ balance, annualRate: mortgage_rate, monthlyPayment: payment, extraMonthly: extra ?? 0, treasuryYield: treasury_yield }); gap → gapPoints, spread → annualDifference, heuristic → direction",
+   "rests_on": "ordinary arithmetic; DEC-0160 (his: compare the mortgage rate with the ten-year yield)",
+   "note": "Gap in points, the before-tax yearly spread on the whole balance, and which way it points.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-043 compareMortgageToTreasury — five cases › MK-CF-F-043-C01 · easy · Mortgage higher [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-043",
+   "case_id": "MK-CF-F-043-C02",
+   "name": "compareMortgageToTreasury",
+   "kind": "easy",
+   "title": "Treasury higher",
+   "classification": "AGREE",
+   "expected": {
+    "gap_percentage_points": {
+     "exact": "-2",
+     "shown": "-2.00 percentage points"
+    },
+    "annual_full_balance_spread": {
+     "exact": "-2000",
+     "shown": "−$2,000"
+    },
+    "heuristic": "treasury"
+   },
+   "actual": {
+    "mortgagePct": 3,
+    "treasuryPct": 5,
+    "gapPoints": -2,
+    "annualDifference": -2000.0000000000005,
+    "lifetimeDifference": 0,
+    "tooCloseToCall": false,
+    "direction": "treasuries-win"
+   },
+   "difference": "none",
+   "mapped": "compareMortgageToTreasury({ balance, annualRate: mortgage_rate, monthlyPayment: payment, extraMonthly: extra ?? 0, treasuryYield: treasury_yield }); gap → gapPoints, spread → annualDifference, heuristic → direction",
+   "rests_on": "ordinary arithmetic; DEC-0160 (his: compare the mortgage rate with the ten-year yield)",
+   "note": "Gap in points, the before-tax yearly spread on the whole balance, and which way it points.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-043 compareMortgageToTreasury — five cases › MK-CF-F-043-C02 · easy · Treasury higher [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-043",
+   "case_id": "MK-CF-F-043-C03",
+   "name": "compareMortgageToTreasury",
+   "kind": "complex",
+   "title": "Unround pretax spread",
+   "classification": "AGREE",
+   "expected": {
+    "gap_percentage_points": {
+     "exact": "1.42",
+     "shown": "1.42 percentage points"
+    },
+    "annual_full_balance_spread": {
+     "exact": "2458.178614",
+     "shown": "$2,458"
+    },
+    "heuristic": "paydown"
+   },
+   "actual": {
+    "mortgagePct": 6.13,
+    "treasuryPct": 4.71,
+    "gapPoints": 1.42,
+    "annualDifference": 2458.178614,
+    "lifetimeDifference": 0,
+    "tooCloseToCall": false,
+    "direction": "paying-down-wins"
+   },
+   "difference": "none",
+   "mapped": "compareMortgageToTreasury({ balance, annualRate: mortgage_rate, monthlyPayment: payment, extraMonthly: extra ?? 0, treasuryYield: treasury_yield }); gap → gapPoints, spread → annualDifference, heuristic → direction",
+   "rests_on": "ordinary arithmetic; DEC-0160 (his: compare the mortgage rate with the ten-year yield)",
+   "note": "Gap in points, the before-tax yearly spread on the whole balance, and which way it points.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-043 compareMortgageToTreasury — five cases › MK-CF-F-043-C03 · complex · Unround pretax spread [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-043",
+   "case_id": "MK-CF-F-043-C04",
+   "name": "compareMortgageToTreasury",
+   "kind": "complex",
+   "title": "After-tax interpretation changes",
+   "classification": "NEEDS RULING",
+   "expected": {
+    "pretax_gap_pp": {
+     "exact": "-0.2",
+     "shown": "-0.20 percentage points"
+    },
+    "after_tax_treasury_yield": {
+     "exact": "0.03268",
+     "shown": "$0"
+    },
+    "interpretation": "pretax too-close heuristic does not settle after-tax choice"
+   },
+   "reviewer_formula_gives": {
+    "heuristic": "too close to call"
+   },
+   "actual": {
+    "mortgagePct": 4.1,
+    "treasuryPct": 4.3,
+    "gapPoints": -0.2,
+    "annualDifference": -346.2223399999991,
+    "lifetimeDifference": 0,
+    "tooCloseToCall": true,
+    "direction": "too-close"
+   },
+   "difference": "The app compares before tax: −0.20 points, \"too close to call\". After the 24% federal rate the Treasury pays 3.268%, below the 4.10% mortgage, so paying down wins by 0.83 points (about $1,440 a year on $173,111). Pinned as the app gives it.",
+   "mapped": "compareMortgageToTreasury({ balance, annualRate: mortgage_rate, monthlyPayment: payment, extraMonthly: extra ?? 0, treasuryYield: treasury_yield }); gap → gapPoints, spread → annualDifference, heuristic → direction; treasury_federal_tax_rate and mortgage_interest_deductible are not inputs the function takes",
+   "rests_on": "No ruling says before or after tax. DEC-0160 (his) asks for \"the net saving or cost\"; tenet 7 says tax is stated plainly",
+   "note": "The app compares before tax: −0.20 points, \"too close to call\". After the 24% federal rate the Treasury pays 3.268%, below the 4.10% mortgage, so paying down wins by 0.83 points (about $1,440 a year on $173,111). Pinned as the app gives it.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-043 compareMortgageToTreasury — five cases › MK-CF-F-043-C04 · complex · After-tax interpretation changes [NEEDS RULING]",
+   "test_result": "passed",
+   "fixed_2026_10_25": "DECIDED 2026-10-25 (the lead, tenet 7, DEC-0160): after federal tax when the bracket is known — 3.268%, paying down wins by 0.83 points, about $1,440 a year; before tax, and said so, when it is not. Built in compareMortgageToTreasury (federalRate) and MortgageRateCompare.tsx (the Income summary's bracket)."
+  },
+  {
+   "id": "MK-CF-F-043",
+   "case_id": "MK-CF-F-043-C05",
+   "name": "compareMortgageToTreasury",
+   "kind": "edge",
+   "title": "Zero mortgage rate",
+   "classification": "AGREE",
+   "expected": null,
+   "actual": null,
+   "difference": "none",
+   "mapped": "compareMortgageToTreasury({ balance, annualRate: mortgage_rate, monthlyPayment: payment, extraMonthly: extra ?? 0, treasuryYield: treasury_yield }); gap → gapPoints, spread → annualDifference, heuristic → direction",
+   "rests_on": "the written rule (nothing unless the rate is above zero)",
+   "note": "A 0% mortgage: no comparison (null).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › MK-CF-F-043 compareMortgageToTreasury — five cases › MK-CF-F-043-C05 · edge · Zero mortgage rate [AGREE]",
+   "test_result": "passed"
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-CF-F-031",
+   "name": "creditUtilization",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Zero/nonpositive limit yields 0 share and a good status, which confuses an undefined ratio with zero utilization.",
+   "reviewer_should_be": "Refuse an undefined utilization and omit its status; keep exact-ratio threshold classification for known positive limits.",
+   "classification": "OUTSIDE DOMAIN",
+   "records_or_app_fix": "records fix: the card should say a positive limit is the caller's condition (theCreditLine refuses first). Separately, cases C03/C04 found an app fix: the share is rounded to three decimals inside the function (Q49).",
+   "what_the_code_actually_does": "Handed a $0 limit it gives 0% and good; its only caller, MK-CF-O-006 theCreditLine, returns no ratio and no status for a limit of $0 or less before calling it, and the Credit screen then says \"Enter your total limit to see your utilization.\"",
+   "governing_decisions": [
+    "DEC-3523"
+   ],
+   "plain_example": "$500 owed, no limit entered: the Credit screen shows no percent — the reviewer's refusal.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › formula checks — the reviewer’s 9 verdicts that are not RIGHT › MK-CF-F-031 · formula verdict WRONG [OUTSIDE DOMAIN]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-033",
+   "name": "debtToIncome",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Nonpositive gross income gives a zero share and good classification despite an undefined or unbounded debt ratio.",
+   "reviewer_should_be": "Refuse the ratio/status without positive gross income; state the minimum-service numerator and homeowner heuristic.",
+   "classification": "APP WRONG",
+   "records_or_app_fix": "app fix at its one caller, GoalsScreen.tsx (`debtToIncome(totalDebtMonthly(liabilities), …)`): hand it minimumDebtService. The zero-income point is outside the domain (the card is drawn only when grossMonthly > 0). Cases C03/C04 add the three-decimal rounding (Q49).",
+   "what_the_code_actually_does": "The Plan · Goals DEBT-TO-INCOME card divides the payments the person CHOSE (totalDebtMonthly) by gross income. DEC-0641 keeps the minimum for debt-to-income (\"measured on the obligation and not on what someone chooses to pay\"), and debt/index.ts itself marks minimumDebtService \"Use for DEBT-TO-INCOME\".",
+   "governing_decisions": [
+    "DEC-0641"
+   ],
+   "plain_example": "A card with a $200 minimum paid at $600 and $5,000 a month gross: the card reads 12% where the obligation is 4%.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › formula checks — the reviewer’s 9 verdicts that are not RIGHT › MK-CF-F-033 · formula verdict WRONG [APP WRONG]",
+   "test_result": "passed (test.failing: fails on the reviewer's answer as expected — turns red when fixed)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): GoalsScreen hands debtToIncome the minimums (DEC-0641) — a $200 minimum paid at $600 on $5,000/month reads 4% (it read 12%); the share is not rounded inside."
+  },
+  {
+   "id": "MK-CF-F-035",
+   "name": "debtKind",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_severity": "low",
+   "reviewer_why": "The prose refers to a label/icon registry but does not supply its complete mapping.",
+   "reviewer_should_be": "Supply the registry’s stable kind-to-label/icon contract.",
+   "classification": "BLOCKED",
+   "records_or_app_fix": "records fix: print the eight-kind table (DEBT_KINDS) on the card",
+   "what_the_code_actually_does": "debtKind looks a kind up in DEBT_KINDS, eight kinds with a label and an icon, and gives nothing for a kind not on it.",
+   "governing_decisions": [
+    "DEC-0020"
+   ],
+   "plain_example": "AUTO → \"Auto loan\" 🚗; an unknown kind → nothing (the callers print 🧾 / \"Debt\").",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › formula checks — the reviewer’s 9 verdicts that are not RIGHT › MK-CF-F-035 · formula verdict CANNOT TELL [BLOCKED]",
+   "test_result": "skipped (BLOCKED)"
+  },
+  {
+   "id": "MK-CF-F-036",
+   "name": "buildDebtState",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Known-balance subtotal can hide debts whose balances or rates are missing; a highest-rate choice cannot be complete if a missing rate is treated as 0.",
+   "reviewer_should_be": "Return completeness and excluded-debt reasons; restrict rankings to known comparable rates.",
+   "classification": "REVIEWER WRONG",
+   "records_or_app_fix": "records fix: the code header's formula for MK-CF-F-036 says \"rate > 10%\" and \"round(…, 2 dp)\"; the code is rate above TOXIC_APR (7%) with no rounding, as the package card says — the header and the code disagree",
+   "what_the_code_actually_does": "The total is the known balances (DEC-3279e); a debt with no balance is named by MK-XS-F-002 dataGaps on Net worth. A missing rate cannot reach the ranking: the debt editor writes a blank rate as 0 (DebtEditorSheet: num(apr) ÷ 100).",
+   "governing_decisions": [
+    "DEC-3279e"
+   ],
+   "plain_example": "$1,000 known + B with no balance: total $1,000, and Net worth's amber box reads \"B has no balance\".",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › formula checks — the reviewer’s 9 verdicts that are not RIGHT › MK-CF-F-036 · formula verdict INCOMPLETE [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-042",
+   "name": "mortgageOddsEffect",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_severity": "high",
+   "reviewer_why": "The independent retirement projection equations/inputs are not fully specified; exact before/after probabilities cannot be recovered from this wrapper.",
+   "reviewer_should_be": "Provide the simulation’s public mathematical contract, annual cash-flow convention and date-to-payoff mapping.",
+   "classification": "BLOCKED",
+   "records_or_app_fix": "records: the outside judge needs the retirement simulation's published contract (MK-PL simulate). Separately, case C04 is APP WRONG: the payoff year ignores the current month (app fix, mortgageOdds.ts — hand it the month, not only the year).",
+   "what_the_code_actually_does": "Two seeded simulation runs; the payoff year = this year + floor((months − 1) ÷ 12), which is right only when the count starts in January.",
+   "governing_decisions": [
+    "DEC-0364",
+    "DEC-3523"
+   ],
+   "plain_example": "December 2026, 11 payments left with the extra: the screen says the loan clears in 2026; it clears in 2027.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › formula checks — the reviewer’s 9 verdicts that are not RIGHT › MK-CF-F-042 · formula verdict CANNOT TELL [BLOCKED]",
+   "test_result": "skipped (BLOCKED)",
+   "fixed_2026_10_25": "C04 FIXED 2026-10-25 (FIX-BILLS): the month is handed in. The simulation contract (C05) is still BLOCKED — a package matter."
+  },
+  {
+   "id": "MK-CF-F-125",
+   "name": "amortise",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "A 1200-month cap can truncate an amortizing loan without distinguishing horizon exhaustion from complete payoff; zero-balance behavior also is not explicitly stated.",
+   "reviewer_should_be": "Return a distinct horizon-exhausted state with remaining balance; never call it cleared or mathematically never.",
+   "classification": "APP WRONG",
+   "records_or_app_fix": "app fix (amortise: report the 1,200-month stop as not cleared, with what is still owed; compareMortgageToTreasury then gives no lifetime figure) and records (the card)",
+   "what_the_code_actually_does": "At a positive rate a payment just above the interest runs past 1,200 months; amortise stops there and hands back 1,200 as if the loan had cleared, and compareMortgageToTreasury prints a lifetime difference built on it. The 0% case of the package cannot reach it (C05).",
+   "governing_decisions": [
+    "DEC-3523"
+   ],
+   "plain_example": "$100,000 at 6% with $501 a month: 1,247 months (monthsToClear); amortise says 1,200, with about $20,700 still owed.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › formula checks — the reviewer’s 9 verdicts that are not RIGHT › MK-CF-F-125 · formula verdict INCOMPLETE [APP WRONG]",
+   "test_result": "passed (test.failing: fails on the reviewer's answer as expected — turns red when fixed)",
+   "fixed_2026_10_25": "FIXED 2026-10-25: runs to the month the loan clears (1,247 for $100,000 at 6%, $501); never-clears is said on the card."
+  },
+  {
+   "id": "MK-CF-F-126",
+   "name": "futureValue",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "The stated formula divides by the monthly rate without a zero-rate branch: a positive contribution at 0% gives 0/0.",
+   "reviewer_should_be": "At zero rate return monthly contribution × months; otherwise use the annuity formula.",
+   "classification": "OUTSIDE DOMAIN",
+   "records_or_app_fix": "none needed for any screen today; a 0% branch (m × n) is optional hardening, and the card could state the callers' rate floor",
+   "what_the_code_actually_does": "No 0% branch: 0 ÷ 0 at 0%. No caller hands it 0%: sign-up's fv (src/onboarding/modules.tsx RetireOutlook) floors the rate at 1% (`Math.max(0.01, 0.07 − inflation)`), and compareMortgageToTreasury's Treasury yield is the live ten-year yield, refused at 0 or below (src/services/economicData.ts, `rate <= 0` → the 4.35% fallback).",
+   "governing_decisions": [
+    "DEC-7795"
+   ],
+   "plain_example": "$500 a month for 12 months at 0% would be NaN; no screen can ask for it.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › formula checks — the reviewer’s 9 verdicts that are not RIGHT › MK-CF-F-126 · formula verdict WRONG [OUTSIDE DOMAIN]",
+   "test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25: 0% branch."
+  },
+  {
+   "id": "MK-CF-F-229",
+   "name": "balanceGrownTo",
+   "reviewer_verdict": "WRONG",
+   "reviewer_severity": "high",
+   "reviewer_why": "Inherits the zero-rate 0/0 from futureValue even though a zero-return pot has a fully known future balance.",
+   "reviewer_should_be": "Use the corrected annuity reader and preserve principal plus monthly contributions at zero return.",
+   "classification": "OUTSIDE DOMAIN",
+   "records_or_app_fix": "as MK-CF-F-126",
+   "what_the_code_actually_does": "Inherits futureValue's 0 ÷ 0 at 0%. No caller hands it 0%: sign-up's fv (src/onboarding/modules.tsx RetireOutlook) floors the rate at 1% (`Math.max(0.01, 0.07 − inflation)`), and compareMortgageToTreasury's Treasury yield is the live ten-year yield, refused at 0 or below (src/services/economicData.ts, `rate <= 0` → the 4.35% fallback).",
+   "governing_decisions": [
+    "DEC-7795"
+   ],
+   "plain_example": "$10,000 and $500 a month for a year at 0% would be NaN; sign-up's rate is at least 1%.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › formula checks — the reviewer’s 9 verdicts that are not RIGHT › MK-CF-F-229 · formula verdict WRONG [OUTSIDE DOMAIN]",
+   "test_result": "passed",
+   "fixed_2026_10_25": "FIXED 2026-10-25: through futureValue's 0% branch."
+  },
+  {
+   "id": "MK-CF-F-043",
+   "name": "compareMortgageToTreasury",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "The rate gap is a stated pretax heuristic, not a complete recommendation; lifetime comparison lacks an explicit last-payment treatment, taxes, liquidity and Treasury reinvestment assumptions.",
+   "reviewer_should_be": "Label pretax assumptions; compare full cash-flow timelines with actual final payments and disclose liquidity and reinvestment risks.",
+   "classification": "NEEDS RULING",
+   "records_or_app_fix": "ruling first (before or after tax); then app (compareMortgageToTreasury, MortgageRateCompare.tsx) and records",
+   "what_the_code_actually_does": "Compares the two rates before tax and says so nowhere; the lifetime line counts the last payment in full (amortise lets the balance go below $0). Treasury interest is federally taxed and state-free; mortgage interest is deductible only for those who itemise.",
+   "governing_decisions": [
+    "DEC-0160",
+    "DEC-0161",
+    "DEC-3523"
+   ],
+   "plain_example": "4.10% mortgage vs 4.30% Treasury: \"too close to call\" before tax; after a 24% federal rate the Treasury pays 3.27%, so paying down wins by 0.83 points.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › formula checks — the reviewer’s 9 verdicts that are not RIGHT › MK-CF-F-043 · formula verdict INCOMPLETE [NEEDS RULING]",
+   "test_result": "passed",
+   "fixed_2026_10_25": "DECIDED 2026-10-25: after tax at a known bracket, before tax and said otherwise. FIXED 2026-10-25: the last-payment point — each route's last payment is only what is left plus that month's interest ($10,000 at 6%, $501: the 22nd is $40.31, interest $561.31); Pat's lifetime figure $36,577 → $39,618, the 3.1% loan −$40,217 → −$41,295, matched by a month-by-month cash walk."
+  }
+ ],
+ "rules_not_held": [
+  {
+   "rule": "DEC-7795",
+   "cards": [
+    "MK-CF-F-126",
+    "MK-CF-F-229"
+   ],
+   "reviewer_verdict": "NOT HELD",
+   "reviewer_why": "Sharedgrowth F-229still depends on zero-rate-incomplete F-126;one-producer use is not sufficientwithout a valid0%branch.",
+   "classification": "REVIEWER WRONG",
+   "what_the_code_actually_does": "DEC-7795 says sign-up reads one growth formula, balanceGrownTo, and it does (src/onboarding/modules.tsx fv). The 0% gap the reviewer names cannot arise there: the rate is floored at 1%. The decision's own figure — $300,000 and $1,500 a month at 4.6% for 15 years — comes out of balanceGrownTo by the ordinary formula.",
+   "governing_decisions": [
+    "DEC-7795",
+    "DEC-3523"
+   ],
+   "plain_example": "$300,000 and $1,500 a month at 4.6% for 15 years: start × (1 + r/12)^180 + the contributions' future value.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part10.test.ts › rules — the reviewer’s 1 NOT HELD verdict › DEC-7795 · rule verdict NOT HELD [REVIEWER WRONG]",
+   "test_result": "passed"
+  }
+ ],
+ "app_wrong_fixes": [
+  {
+   "function_id": "MK-CF-F-031",
+   "function": "creditUtilization",
+   "owner_file": "src/domain/debt/index.ts (`Math.round(ratio * 1000) / 1000`)",
+   "example": "$300.10 of a $1,000 limit; $1,731.17 of $3,111.43.",
+   "app_gives": "share 0.300 (status caution) and 0.556 — rounded inside the function. On the Credit screen a double rounding moves the whole percent: $364.90 of $1,000 (36.49%) prints 37%.",
+   "right": "0.3001 and 0.5563904699… at full precision, rounded once at display (30.01%, 55.64%).",
+   "ruling_or_source": "CLAUDE.md PRECISION / precision-and-display standard §1 (Q49): nothing rounds inside a function. The precision guard misses this idiom (plain Math.round on a ratio).",
+   "items": [
+    "case MK-CF-F-031-C03",
+    "case MK-CF-F-031-C04"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS)"
+  },
+  {
+   "function_id": "MK-CF-F-033",
+   "function": "debtToIncome, and its one caller GoalsScreen.tsx (the DEBT-TO-INCOME card)",
+   "owner_file": "src/domain/debt/index.ts (`Math.round(ratio * 1000) / 1000`); src/screens/GoalsScreen.tsx (`debtToIncome(totalDebtMonthly(liabilities), …)`)",
+   "example": "(1) $2,731.17 of $6,111.43 gross. (2) A card with a $200 minimum paid at $600, $5,000 a month gross.",
+   "app_gives": "(1) share 0.447 (status caution right). (2) 12% — the payment the person chose, divided by income.",
+   "right": "(1) 0.4468954… at full precision. (2) 4% — the minimum, the obligation.",
+   "ruling_or_source": "(1) Q49 precision standard. (2) DEC-0641 (his): \"The minimum stays on the door for debt-to-income … measured on the obligation and not on what someone chooses to pay\"; debt/index.ts marks minimumDebtService \"Use for DEBT-TO-INCOME\".",
+   "items": [
+    "case MK-CF-F-033-C03",
+    "case MK-CF-F-033-C04",
+    "formula MK-CF-F-033"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS)"
+  },
+  {
+   "function_id": "MK-CF-F-042",
+   "function": "mortgageOddsEffect (its payoff year)",
+   "owner_file": "src/domain/debt/mortgageOdds.ts (`yearOf = nowYear + Math.floor((months − 1) / 12)`; the args carry only nowYear)",
+   "example": "December 2026: $7,311.17 at 3.19%, $611.43 a month plus $113.19 extra = 11 payments. October 2026: $3,000 at 6% with $510 = 6 payments (October to March).",
+   "app_gives": "Faster payoff year 2026 in both — the screen reads \"…once it clears, 2026 instead of 2027\", and the second simulation stops the payment after 2026.",
+   "right": "2027 in both (the last payment falls in October or November 2027, and in March 2027). The function needs the month as well as the year.",
+   "ruling_or_source": "DEC-3523 tenet 1; the function's own stated purpose, \"the calendar year the LAST payment falls in\". It is right only when the count starts in January.",
+   "items": [
+    "case MK-CF-F-042-C04"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS)"
+  },
+  {
+   "function_id": "MK-CF-F-125",
+   "function": "amortise (feeds MK-CF-F-043 compareMortgageToTreasury → MortgageRateCompare on the Debts tab)",
+   "owner_file": "src/domain/debt/mortgageVsTreasury.ts (`while (b > 0 && months < 1200)`)",
+   "example": "A $100,000 mortgage at 6% with a $501 payment, $100 extra, Treasury 4% (in the Debts tab's domain: balance above $50,000, rate between 0% and 12%).",
+   "app_gives": "Stops at 1,200 months with about $20,700 still owed and returns 1,200 as if cleared; the lifetime line \"Over the life of the loan … leaves you around $X better off\" is built on it.",
+   "right": "1,247 months (monthsToClear), or a \"not cleared in 100 years\" state with no lifetime figure.",
+   "ruling_or_source": "DEC-3523 tenets 1–2; ordinary arithmetic. (The reviewer's 0% example cannot reach it: case C05 is outside the domain.)",
+   "items": [
+    "formula MK-CF-F-125"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 by FIX-ROOM."
+  }
+ ],
+ "needs_a_ruling": [
+  {
+   "item": "Mortgage against a Treasury: before tax or after tax",
+   "ids": [
+    "MK-CF-F-043 compareMortgageToTreasury (case C04)",
+    "src/components/MortgageRateCompare.tsx"
+   ],
+   "two_readings": {
+    "before_tax_as_built": "Compare the two rates as quoted. 4.10% mortgage vs 4.30% Treasury: −0.20 points, \"They are close enough that neither choice is clearly better.\"",
+    "after_tax": "Treasury interest is taxed federally (not by the state); mortgage interest saves tax only for someone who itemises. At a 24% federal rate the Treasury pays 3.27%, so paying down wins by 0.83 points — about $1,440 a year on $173,111."
+   },
+   "recommendation": "After tax when the person's federal rate is known (the app holds it: MK-CF-F-181 rateInForce), mortgage interest treated as not deductible unless they itemise; otherwise say \"before tax\" on the sentence. Tenet 7 (tax stated plainly) and his own word \"net saving or cost\" (DEC-0160) both point this way. Pinned as the app gives it today.",
+   "fixed_2026_10_25": "DECIDED 2026-10-25 by the lead: after tax when the bracket is known; built."
+  }
+ ],
+ "blocked": [
+  {
+   "ids": [
+    "MK-CF-F-035-C01",
+    "MK-CF-F-035-C02",
+    "MK-CF-F-035-C03",
+    "MK-CF-F-035-C04",
+    "formula MK-CF-F-035"
+   ],
+   "what_is_missing": "The kind-to-label/icon table on the card. The app has one (DEBT_KINDS, eight kinds: Mortgage, HELOC, Student loan, Credit card, Auto loan, Personal loan, Medical, Other), pinned in the test so the next measurer can compare. Records fix only."
+  },
+  {
+   "ids": [
+    "MK-CF-F-042-C05",
+    "formula MK-CF-F-042"
+   ],
+   "what_is_missing": "The retirement simulation's published contract (MK-PL simulate: paths, seed, yearly cash-flow convention), which the outside judge did not have. Records item, not an app defect. The payoff-year defect the card also carries is APP WRONG (case C04)."
+  }
+ ],
+ "outside_domain": [
+  {
+   "id": "MK-CF-F-031-C05",
+   "caller_cited": "Its only caller, MK-CF-O-006 theCreditLine (credit-line.ts, `if (!(limit > 0)) return { used: null, status: null }`), refuses before calling; CreditScreen.tsx draws nothing without a limit",
+   "app_gives": {
+    "ratio": 0,
+    "status": "good"
+   },
+   "note": "Handed a $0 limit the helper says 0% and good, but no caller can hand it one: the door refuses with no ratio and no status, which is the reviewer's answer."
+  },
+  {
+   "id": "MK-CF-F-033-C05",
+   "caller_cited": "Its only caller, GoalsScreen.tsx, draws the DEBT-TO-INCOME card only when `liabilities.length > 0 && grossMonthly > 0`",
+   "app_gives": {
+    "ratio": 0,
+    "monthlyDebt": 500,
+    "grossMonthly": 0,
+    "guideline": 0.2,
+    "status": "good"
+   },
+   "note": "With no income the helper says 0% and good, but the one screen that calls it shows no card then."
+  },
+  {
+   "id": "MK-CF-F-125-C05",
+   "caller_cited": "Its only caller, MK-CF-F-043 compareMortgageToTreasury, returns null for a rate of 0 or less before calling it (mortgageVsTreasury.ts, `!(annualRate > 0)`); the Debts tab hands it only a loan above 0% (BudgetScreen.tsx bigLoan)",
+   "app_gives": {
+    "months": 1200,
+    "interest": 0
+   },
+   "note": "At 0% the 1,200-month stop gives 1,200 with $100 still owed, but no caller hands it 0%. The same stop IS reachable at a positive rate — see the formula check.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 by FIX-ROOM (no longer outside the domain: the function now answers it)."
+  },
+  {
+   "id": "MK-CF-F-126-C05",
+   "caller_cited": "No caller hands it 0%: sign-up's fv (src/onboarding/modules.tsx RetireOutlook) floors the rate at 1% (`Math.max(0.01, 0.07 − inflation)`), and compareMortgageToTreasury's Treasury yield is the live ten-year yield, refused at 0 or below (src/services/economicData.ts, `rate <= 0` → the 4.35% fallback)",
+   "app_gives": null,
+   "note": "At 0% the formula is 0 ÷ 0 (NaN) where $6,000 is right; no caller sends 0%. A two-line 0% branch would make the helper safe for any later caller.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 by FIX-ROOM (no longer outside the domain: the function now answers it)."
+  },
+  {
+   "id": "MK-CF-F-229-C05",
+   "caller_cited": "No caller hands it 0%: sign-up's fv (src/onboarding/modules.tsx RetireOutlook) floors the rate at 1% (`Math.max(0.01, 0.07 − inflation)`), and compareMortgageToTreasury's Treasury yield is the live ten-year yield, refused at 0 or below (src/services/economicData.ts, `rate <= 0` → the 4.35% fallback)",
+   "app_gives": null,
+   "note": "At 0% it inherits the 0 ÷ 0 (NaN) where $16,000 is right; its one caller floors the rate at 1%.",
+   "fixed_2026_10_25": "FIXED 2026-10-25 by FIX-ROOM (no longer outside the domain: the function now answers it)."
+  },
+  {
+   "id": "MK-CF-F-031",
+   "caller_cited": "Handed a $0 limit it gives 0% and good; its only caller, MK-CF-O-006 theCreditLine, returns no ratio and no status for a limit of $0 or less before calling it, and the Credit screen then says \"Enter your total limit to see your utilization.\"",
+   "note": "records fix: the card should say a positive limit is the caller's condition (theCreditLine refuses first). Separately, cases C03/C04 found an app fix: the share is rounded to three decimals inside the function (Q49)."
+  },
+  {
+   "id": "MK-CF-F-126",
+   "caller_cited": "No 0% branch: 0 ÷ 0 at 0%. No caller hands it 0%: sign-up's fv (src/onboarding/modules.tsx RetireOutlook) floors the rate at 1% (`Math.max(0.01, 0.07 − inflation)`), and compareMortgageToTreasury's Treasury yield is the live ten-year yield, refused at 0 or below (src/services/economicData.ts, `rate <= 0` → the 4.35% fallback).",
+   "note": "none needed for any screen today; a 0% branch (m × n) is optional hardening, and the card could state the callers' rate floor",
+   "fixed_2026_10_25": "FIXED 2026-10-25 by FIX-ROOM (no longer outside the domain: the function now answers it)."
+  },
+  {
+   "id": "MK-CF-F-229",
+   "caller_cited": "Inherits futureValue's 0 ÷ 0 at 0%. No caller hands it 0%: sign-up's fv (src/onboarding/modules.tsx RetireOutlook) floors the rate at 1% (`Math.max(0.01, 0.07 − inflation)`), and compareMortgageToTreasury's Treasury yield is the live ten-year yield, refused at 0 or below (src/services/economicData.ts, `rate <= 0` → the 4.35% fallback).",
+   "note": "as MK-CF-F-126",
+   "fixed_2026_10_25": "FIXED 2026-10-25 by FIX-ROOM (no longer outside the domain: the function now answers it)."
+  }
+ ],
+ "counts": {
+  "cases": {
+   "AGREE": 48,
+   "APP WRONG": 5,
+   "REVIEWER WRONG": 1,
+   "NEEDS RULING": 1,
+   "BLOCKED": 5,
+   "OUTSIDE DOMAIN": 5,
+   "total": 65
+  },
+  "formula_checks": {
+   "AGREE": 0,
+   "APP WRONG": 2,
+   "REVIEWER WRONG": 1,
+   "NEEDS RULING": 1,
+   "BLOCKED": 2,
+   "OUTSIDE DOMAIN": 3,
+   "total": 9
+  },
+  "rules_not_held": {
+   "AGREE": 0,
+   "APP WRONG": 0,
+   "REVIEWER WRONG": 1,
+   "NEEDS RULING": 0,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 0,
+   "total": 1
+  },
+  "tests": {
+   "passed": 78,
+   "skipped": 7,
+   "failed": 0,
+   "total": 85
+  }
+ },
+ "coverage": "Part 10: 65 of 65 cases — 48 agree, 5 app wrong, 1 reviewer wrong, 1 needs ruling, 5 blocked, 5 outside domain; 9 of 9 formula verdicts classified (0 agree, 2 app wrong, 1 reviewer wrong, 1 needs ruling, 2 blocked, 3 outside domain); 1 of 1 rule verdicts classified (0 agree, 0 app wrong, 1 reviewer wrong, 0 needs ruling, 0 blocked, 0 outside domain)"
+}

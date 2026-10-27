@@ -18,8 +18,8 @@ import { datedGridOf } from '../hooks/useCashflowModel';   // the Cash flow tab'
 import { theBudgetCounted } from '../../MoneyKeel/functions/cashflow/budget-counted';
 // ONE DOOR (MK-CF-O-008 whatsComing, Q-CF-3 ruled 2026-09-27: "yes") — this screen, the Cash flow
 // tab, Your paycheck month by month and Worth a look answer one question about what is coming.
-import { whatsComing } from '../../MoneyKeel/functions/cashflow/whats-coming';
-import { monthYearShown } from '../domain/_shared/dates';   // a month as the one date writer writes it: "Sep 2027" (E2E-80)
+import { whatsComing, NO_START_BALANCE, startingCashOnRecord } from '../../MoneyKeel/functions/cashflow/whats-coming';
+import { monthYearShown, dateShown, isoLocalDate } from '../domain/_shared/dates';   // a month as the one date writer writes it: "Sep 2027" (E2E-80)
 import { cashTotal } from '../domain/assets';   // canonical cash — equals Net worth's figure for the same accounts
 import { requiredPayment, paymentShape } from '../domain/debt';
 
@@ -37,7 +37,14 @@ export default function BillCalendarScreen() {
   const accounts = store.assetAccounts ?? [];
   const liabilities = store.liabilities ?? [];
   const cashOnHand = cashTotal(accounts);
-  const [startStr, setStartStr] = useState(cashOnHand > 0 ? String(Math.round(cashOnHand)) : '');
+  // A FIGURE TYPED HERE IS KEPT, WITH ITS DAY, WHEN THE PERSON LEAVES (2026-10-25, the lead's ruling on BC-02): it was a box on the
+  // screen only, so the next visit read the accounts' cash again and a figure entered was gone without a word
+  const kept: { amount: string; date: string } | null = store.billCalendarStart ?? null;
+  // A $0 ON RECORD IS AN ANSWER (2026-10-26, the lead's ruling; tenet 5): a checking account holding $0 fills the box with 0 and is
+  // projected; the box is blank only when no cash balance is on record at all (it was blank for any $0, and refused)
+  const onRecord = startingCashOnRecord(accounts);
+  const [startStr, setStartStrRaw] = useState(kept ? kept.amount : onRecord != null ? String(Math.round(onRecord)) : '');
+  const setStartStr = (v: string) => { setStartStrRaw(v); store.setBillCalendarStart?.(v.trim() === '' ? null : { amount: v, date: isoLocalDate(new Date()) }); };
   const start = num(startStr);
 
   // the ONE dated grid — the Cash flow tab's own (datedGridOf: the budget as counted, the Roth tax), plus this screen's
@@ -45,13 +52,16 @@ export default function BillCalendarScreen() {
   // mortgage in Debts the Rent / Mortgage line was counted beside it — $2,300/month the Cash flow tab stands down (DEC-1923;
   // found 2026-10-24 by the Cash flow journey suite, E2E-72)
   const counted = useMemo(() => theBudgetCounted({ profile: op, accounts, debts: liabilities }).profile, [op, accounts, liabilities]);
-  const grid = useMemo(() => datedGridOf(counted, liabilities, A.rothConversionTax, start), [counted, liabilities, A.rothConversionTax, start]);
+  const grid = useMemo(() => datedGridOf(counted, liabilities, A.rothConversionTax, start, A.rothConversionYear), [counted, liabilities, A.rothConversionTax, start, A.rothConversionYear]);
   const shownRows = useMemo(() => chainShown(start, grid.cells).rows, [grid, start]);
 
   // the budget as counted, as the table above it (2026-10-24, E2E-72); what is there by each bill's day is READ FROM THAT TABLE —
   // the debts in, the wage after tax and the 401(k) — so the COMING UP line and the End column cannot disagree (E2E-81: it read
   // about $10,744 by Dec 13 beside a November End of $4,950)
-  const bills = useMemo(() => whatsComing({ profile: counted, startBalance: start, debts: liabilities, grid }).bills.filter((b) => b.daysAway <= 150).slice(0, 3), [counted, start, liabilities, grid]);
+  // NO BALANCE GIVEN, NOTHING PROJECTED (2026-10-25, FIX-BILLS; tenet 3): with the box blank the door lists the bills and says
+  // MK-CF-M-063's refusal — it read "Short $1,200" worked from a $0 nobody entered. A typed 0 is an answer and is projected.
+  const startGiven = startStr.trim() !== '';
+  const bills = useMemo(() => whatsComing({ profile: counted, startBalance: startGiven ? start : null, debts: liabilities, grid }).bills.filter((b) => b.daysAway <= 150).slice(0, 3), [counted, start, startGiven, liabilities, grid]);
   const deferredDebts = useMemo(() => liabilities.filter((d: any) => {
     if (!d.first_payment_date) return false;
     const m = String(d.first_payment_date).match(/^(\d{4})-(\d{2})/);
@@ -127,11 +137,22 @@ export default function BillCalendarScreen() {
         <Text style={styles.fieldL}>Cash on hand now</Text>
         <TextInput style={styles.input} keyboardType="decimal-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary}
           value={startStr} onChangeText={setStartStr} accessibilityLabel="Cash on hand now, editable" />
-        <Text style={styles.tiny}>Auto-filled from your accounts ({fig('MK-NW-M-005', Math.round(cashOnHand))}) — the starting balance the table carries forward. Edit it and the End column recalculates from there.</Text>
+        {kept
+          ? <Text style={styles.tiny}>You entered this on {dateShown(kept.date)}; your accounts hold {fig('MK-NW-M-005', Math.round(cashOnHand))}. The table carries forward what you entered — edit it and the End column recalculates from there.</Text>
+          : onRecord == null
+            ? <Text style={styles.tiny}>No cash balance on record yet — enter what you have, and the table starts from it.</Text>
+            : <Text style={styles.tiny}>Auto-filled from your accounts ({fig('MK-NW-M-005', Math.round(cashOnHand))}) — the starting balance the table carries forward. Edit it and the End column recalculates from there.</Text>}
       </View>
 
-      {/* verdict (r38) — the flagged months here match the '!' flags on the Cash flow bars */}
-      <View style={[styles.verdict, short ? styles.verdictBad : styles.verdictGood]} accessible
+      {/* verdict (r38) — the flagged months here match the '!' flags on the Cash flow bars. NO VERDICT ON NOTHING (2026-10-25, BC-02;
+          tenet 3): with nothing in and nothing out it read "OK — you stay above zero in all 12 months · Lowest point $0" — the table
+          says "Nothing entered yet" and its door instead (Q48) */}
+      {/* NO BALANCE, NO VERDICT (2026-10-26, the lead's ruling; MK-CF-M-063 tenet 3): with the box blank the verdict was worked from a $0
+          nobody entered ("Careful — short in …"); it says only the refusal COMING UP says */}
+      {!(grid.totalIn === 0 && grid.totalOut === 0) && !startGiven && (
+        <View style={styles.verdict} accessible accessibilityLabel={NO_START_BALANCE}><Text style={styles.verdictSub}>{NO_START_BALANCE}</Text></View>
+      )}
+      {!(grid.totalIn === 0 && grid.totalOut === 0) && startGiven && <View style={[styles.verdict, short ? styles.verdictBad : styles.verdictGood]} accessible
         accessibilityLabel={short
           ? `Careful — short in ${grid.shortMonths.join(' and ')}. ${shortCause}`
           : `OK — you stay above zero in all 12 months. Lowest point ${fig('MK-CF-M-060', Math.round(grid.lowestBalance))} in ${lowestCell?.label}.`}>
@@ -141,7 +162,7 @@ export default function BillCalendarScreen() {
         <Text style={styles.verdictSub}>
           {short ? `Lowest point ${fig('MK-CF-M-060', Math.round(grid.lowestBalance))} (${lowestCell?.label}). ${shortCause}` : `Lowest point ${fig('MK-CF-M-060', Math.round(grid.lowestBalance))} — ${lowestCell?.label}.`}
         </Text>
-      </View>
+      </View>}
 
       {/* the 12-row dated table (r39): In / Out / End, chaining exactly; rows open month detail */}
       <View style={styles.card}>
@@ -157,12 +178,15 @@ export default function BillCalendarScreen() {
           const p = shownRows[slot];
           return (
             <View key={`${c.label}${c.year}`} style={styles.mRow} accessible
-              accessibilityLabel={`${monthYearShown(c.year, c.calendarMonth)}: in ${figSaid('MK-CF-M-051', p.inflow)}, out ${figSaid('MK-CF-M-052', p.outflow)}, ending balance ${figSaid('MK-CF-M-061', p.end)}${neg ? ' — short' : ''}.`}>
+              // said as printed: a month with nothing in or out is "—", never "$0" (2026-10-25, BC-02)
+              accessibilityLabel={`${monthYearShown(c.year, c.calendarMonth)}: in ${c.inflow > 0 ? figSaid('MK-CF-M-051', p.inflow) : '—'}, out ${c.outflow > 0 ? figSaid('MK-CF-M-052', p.outflow) : '—'}, ending balance ${figSaid('MK-CF-M-061', p.end)}${neg ? ' — short' : ''}.`}>
               {/* A MONTH ROW OPENS NOTHING (2026-10-24, Cash flow journey E2E-80): month detail was retired on 2026-10-02 and this
                   row has no tap, so it no longer says "Opens the month's detail" — nor the foot line, "Tap any row …" */}
               <Text style={[styles.mLabel, { flex: 1 }]}>{c.label}{neg ? ' !' : ''}</Text>
-              <Text style={[styles.mNum, styles.numCell, { color: Colors.primary }]}>{c.inflow > 0 ? '+' + fig('MK-CF-M-051', p.inflow) : '—'}</Text>
-              <Text style={[styles.mNum, styles.numCell]}>{c.outflow > 0 ? '−' + fig('MK-CF-M-052', p.outflow) : '—'}</Text>
+              {/* In, Out and End as drawn: black at 800, every colour a token (2026-10-25, BC-01) — In was green at regular weight
+                  and Out regular with no colour of its own */}
+              <Text style={[styles.mNum, styles.numCell, styles.mNumDrawn]}>{c.inflow > 0 ? '+' + fig('MK-CF-M-051', p.inflow) : '—'}</Text>
+              <Text style={[styles.mNum, styles.numCell, styles.mNumDrawn]}>{c.outflow > 0 ? '−' + fig('MK-CF-M-052', p.outflow) : '—'}</Text>
               <Text style={[styles.mNum, styles.numCell, { fontWeight: '800', color: neg ? Colors.red : Colors.textPrimary }]}>{fig('MK-CF-M-061', p.end)}{neg ? ' short' : ''}</Text>
             </View>
           );
@@ -176,9 +200,11 @@ export default function BillCalendarScreen() {
           <SectionBand inCard quiet title="COMING UP" />
           {bills.map((b) => (
             <TouchableOpacity accessibilityRole="button" key={b.id} style={styles.billRow} onPress={() => editBill(b.label)}
-              accessibilityLabel={`${b.label}, ${figSaid('MK-CF-M-028', b.amount)} due ${fmtDate(b.dueDate)}. ${b.shortfall > 0 ? `Short ${figSaid('MK-CF-M-062', b.shortfall)} — set it aside by ${fmtDate(b.needByDate)}, from savings or a backup.` : `Covered: about ${figSaid('MK-CF-M-063', b.availableByNeed)} there by ${fmtDate(b.needByDate)}.`} Opens the editor.`}>
+              accessibilityLabel={`${b.label}, ${figSaid('MK-CF-M-028', b.amount)} due ${fmtDate(b.dueDate)}. ${b.shortfall == null || b.availableByNeed == null ? NO_START_BALANCE : b.shortfall > 0 ? `Short ${figSaid('MK-CF-M-062', b.shortfall)} — set it aside by ${fmtDate(b.needByDate)}, from savings or a backup.` : `Covered: about ${figSaid('MK-CF-M-063', b.availableByNeed)} there by ${fmtDate(b.needByDate)}.`} Opens the editor.`}>
               <Text style={styles.billName}>{b.label} · {fig('MK-CF-M-028', b.amount)} due {fmtDate(b.dueDate)}</Text>
-              {b.shortfall > 0 ? (
+              {b.shortfall == null || b.availableByNeed == null ? (
+                <Text style={styles.billOk}>{NO_START_BALANCE}</Text>
+              ) : b.shortfall > 0 ? (
                 <Text style={styles.billShort}>Short {fig('MK-CF-M-062', b.shortfall)} — set it aside by {fmtDate(b.needByDate)}, from savings or a backup.</Text>
               ) : (
                 <Text style={styles.billOk}>✓ Covered — about {fig('MK-CF-M-063', b.availableByNeed)} there by {fmtDate(b.needByDate)}.</Text>
@@ -318,6 +344,7 @@ const styles = StyleSheet.create({
   mLabel: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
   mChev: { fontSize: 17, color: Colors.textTertiary, marginLeft: 4 },
   mNum: { fontSize: 15, fontVariant: ['tabular-nums'] },
+  mNumDrawn: { fontWeight: '800', color: Colors.textPrimary },
   critItem: { fontSize: 13, color: Colors.textPrimary, marginTop: 4, fontWeight: '600' },
   monthWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   monthChip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 7, paddingHorizontal: 10, minHeight: 44 },

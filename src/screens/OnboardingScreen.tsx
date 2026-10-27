@@ -8,7 +8,7 @@ import { useStore } from '../store/useStore';
 import { Button, Card, ProgressBar } from '../components/UI';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import {
-  Status, Track, STATUS_OPTIONS, goalOptionsFor, goalGroupsFor, buildSteps, isOptional,
+  Status, Track, STATUS_OPTIONS, goalOptionsFor, goalGroupsFor, buildSteps, isOptional, PRE_ANSWERED_STEPS,
 } from '../onboarding/steps';
 import { renderStep, stepValid, StepCtx, setOnboardingProgress, onbProgress, rentStepReady, rentProperties } from '../onboarding/modules';
 import Summary from '../onboarding/Summary';
@@ -263,7 +263,8 @@ export default function OnboardingScreen() {
     return <>{renderStep(current as any, ctx)}</>;
   }
 
-  const primaryLabel = isLast ? 'Enter your dashboard →' : 'Continue →';
+  // the drawn word (income v07, phones 8, 13, 14: "Continue"), on every step — one word for one button (IN-18, 2026-10-25)
+  const primaryLabel = isLast ? 'Enter your dashboard →' : 'Continue';
 
   return (
     // Lift the pinned footer (Back / Continue) above the keyboard so it's never hidden while typing.
@@ -277,7 +278,7 @@ export default function OnboardingScreen() {
         keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator>
         {renderBody()}
 
-        {isOptionalStep && (
+        {isOptionalStep && !PRE_ANSWERED_STEPS.has(current as any) && (
           <TouchableOpacity onPress={advance} style={{ alignSelf: 'center', paddingVertical: Spacing.sm }}>
             <Text style={styles.link}>Skip for now</Text>
           </TouchableOpacity>

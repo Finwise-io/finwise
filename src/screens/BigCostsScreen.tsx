@@ -30,8 +30,8 @@ export default function BigCostsScreen() {
   const { accounts } = resolveNetWorthRows(uid, op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? []);
   // the honest delta: the SAME selector with and without the list — never a separate model
   const withCosts = useMemo(
-    () => selectWillItLast({ op, accounts, assumptions: A, bigCosts: costs, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus }),
-    [op, accounts, A, costs, store.inflationRate, store.employmentStatus]);
+    () => selectWillItLast({ op, accounts, assumptions: A, bigCosts: costs, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, transactions: store.transactions ?? [] }),
+    [op, accounts, A, costs, store.inflationRate, store.employmentStatus, store.transactions]);
   const withoutChance = useMemo(() => {
     if (!withCosts.captured || withCosts.chance == null || !withCosts.inputs || costs.length === 0) return null;
     return displayOdds(simulate({ ...withCosts.inputs, one_off_costs: [] }).chance_of_success);

@@ -64,7 +64,7 @@ describe('hostile numbers on the typed target', () => {
 describe('hostile loans', () => {
   test('a loan bigger than everything they own still produces a real answer or none', () => {
     const e = mortgageOddsEffect({ base: PAT, balance: 5_000_000, annualRate: 0.055,
-      monthlyPayment: 2400, extraMonthly: 500, nowYear: 2026 });
+      monthlyPayment: 2400, extraMonthly: 500, nowYear: 2026, nowMonth: 1 });
     expect(e).toBeNull();          // that payment never clears it — say nothing rather than guess
   });
 
@@ -76,12 +76,12 @@ describe('hostile loans', () => {
 
   test('a zero-interest loan does not divide by zero', () => {
     expect(() => mortgageOddsEffect({ base: PAT, balance: 100_000, annualRate: 0,
-      monthlyPayment: 1000, extraMonthly: 100, nowYear: 2026 })).not.toThrow();
+      monthlyPayment: 1000, extraMonthly: 100, nowYear: 2026, nowMonth: 1 })).not.toThrow();
   });
 
   test('an extra payment larger than the balance does not invent a negative year', () => {
     const e = mortgageOddsEffect({ base: PAT, balance: 10_000, annualRate: 0.055,
-      monthlyPayment: 2400, extraMonthly: 50_000, nowYear: 2026 })!;
+      monthlyPayment: 2400, extraMonthly: 50_000, nowYear: 2026, nowMonth: 1 })!;
     expect(e.fasterPayoffYear).toBeGreaterThanOrEqual(2026);
   });
 

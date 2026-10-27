@@ -23,7 +23,7 @@
 import type { OnboardingProfile } from '../onboardingProfile';
 import { toNum } from '../_shared/num';
 import { earnerWages, type EarnerWage } from './earners';
-import { salaryAnnual, taxableAnnual, filingStatusOf, stateRateOf, over65CountOf, householdK401ByMonth } from './onboarding';
+import { salaryAnnual, taxableAnnual, filingStatusOf, stateRateOf, over65CountOf, householdK401ByMonth, wagePaidMonths } from './onboarding';
 import { taxOwedFor } from './tax';
 
 
@@ -47,13 +47,13 @@ export interface RateInForce {
  *     wages = earner wages(op)
  *     nothing   when count of wages is missing
  *     total = 0
- *     v = (w as any).lands typical read as a number (0 when it is not one)
- *     nothing   when not (v > 0)
+ *     raw = (w as any).lands typical
+ *     nothing   when raw = nothing (or string(raw).trim() = '' when missing or zero)
  *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-CF-F-181 rateInForce
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -63,13 +63,12 @@ export interface RateInForce {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
  *     · Uses a built-in total of 0.
- *     · Turns a monthly figure into a year by multiplying by twelve.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-180
  * Changed ..... not in git yet (—)
@@ -79,9 +78,14 @@ export function enteredLandsAnnual(op: OnboardingProfile | null): number | null 
   if (!wages.length) return null;
   let total = 0;
   for (const w of wages as EarnerWage[]) {
-    const v = toNum((w as any).landsTypical);
-    if (!(v > 0)) return null;                       // one silence and the household figure is a guess
-    total += v * 12;   // the take-home is typed EACH MONTH at every pay frequency (approved drawing v07, frame 2c)
+    const raw = (w as any).landsTypical;
+    // one silence and the household figure is a guess — but a take-home typed as 0 is an answer, not silence (2026-10-26,
+    // FIX-INCOME-A; tenet 5: the person's word outranks the app's guess)
+    if (raw == null || String(raw).trim() === '') return null;
+    // the take-home is typed EACH MONTH at every pay frequency (approved drawing v07, frame 2c) — each month the wage is PAID
+    // (2026-10-26, FIX-INCOME-A; DEC-7938, DEC-0376, tenet 1): the July starter's $3,799.17 is $22,795.02 over six paid months,
+    // where × 12 read $45,590.04
+    total += toNum(raw) * wagePaidMonths(w as any);
   }
   return (total);
 }
@@ -97,17 +101,18 @@ export function enteredLandsAnnual(op: OnboardingProfile | null): number | null 
  *     rate = min(max(to num(manual tax rate) ÷ 100, 0), 1)
  *     gross = salary annual(op)
  *     lands = entered lands annual(op)
- *     k401 = Σ over earner wages(op) of (to num((each as any).c 401k) × 12)
+ *     k401 = Σ over household k401 by month(op) of (each)
  *     out = max(0, gross − k401 − lands)
  *     rate = min(max(out ÷ gross, 0), 1)
  *     taxed = taxable annual(op)
  *     state = state rate of(op)
  *
- * Called by ... MK-CF-F-090 effectiveRate · MK-CF-F-092 incomeMonthlyGrid
+ * Called by ... MK-CF-F-049 buildIncomeState · MK-CF-F-090 effectiveRate
+ *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-F-240 PAY_LANDS_TYPED
  *               MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
- *               MK-XS-F-004 buildDatedGrid
+ *               MK-PL-F-090 rateWordsOf · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -117,15 +122,12 @@ export function enteredLandsAnnual(op: OnboardingProfile | null): number | null 
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
- *               MK-XS-I-043 their own retirement contribution
  *
  * Decides .....
- *     · Turns a monthly figure into a year by multiplying by twelve.
- *     · Rounds the answer to a whole number.
  *     · Shows 2 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-181
@@ -139,18 +141,20 @@ export function rateInForce(op: OnboardingProfile | null): RateInForce {
   if (a.taxMode === 'manual') {
     const rate = Math.min(Math.max(toNum(a.manualTaxRate) / 100, 0), 1);
     return { rate, source: 'typed', mine: true,
-             label: `your rate, ${Math.round(rate * 100)}%`,
+             label: `your rate, ${(rate * 100).toFixed(2)}%`,
              covers: 'everything that comes out of your pay, as you entered' };
   }
 
   const gross = salaryAnnual(op);
   const lands = enteredLandsAnnual(op);
   if (gross > 0 && lands != null) {
-    const k401 = earnerWages(op).reduce((t, w) => t + toNum((w as any).c_401k) * 12, 0);
+    // each earner's 401(k) in the months that earner is paid (MK-CF-F-206), never × 12 (2026-10-26, FIX-INCOME-A; DEC-0376):
+    // the July starter's own figures imply 57.00%, where twelve months of 401(k) and take-home read 14%
+    const k401 = householdK401ByMonth(op).reduce((t, m) => t + m, 0);
     const out = Math.max(0, gross - k401 - lands);
     const rate = Math.min(Math.max(out / gross, 0), 1);
     return { rate, source: 'implied', mine: true,
-             label: `your figures, ${Math.round(rate * 100)}%`,
+             label: `your figures, ${(rate * 100).toFixed(2)}%`,
              covers: 'everything that comes out, calculated from the take-home you entered' };
   }
 
@@ -167,7 +171,7 @@ export function rateInForce(op: OnboardingProfile | null): RateInForce {
   // income (E10), and the words read "federal income tax only" whatever was typed on the Tax organizer
   const state = stateRateOf(op);
   return { rate, source: 'estimated', mine: false,
-           label: `calculated, ${Math.round(rate * 100)}%`,
+           label: `calculated, ${(rate * 100).toFixed(2)}%`,
            covers: state > 0
              ? `federal income tax, plus the ${(state * 100).toFixed(2)}% state rate you entered, assuming the standard deduction`
              : 'federal income tax only, assuming the standard deduction' };
@@ -187,9 +191,10 @@ export function rateInForce(op: OnboardingProfile | null): RateInForce {
  *     k401 = Σ over household k401 by month(op) of (each)
  *     the answer = max(0, taxable annual(op) − k401)
  *
- * Called by ... MK-CF-F-181 rateInForce · MK-CF-O-004 incomeSummary
+ * Called by ... MK-CF-F-181 rateInForce · MK-CF-O-001 basePay
+ *               MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -199,7 +204,7 @@ export function rateInForce(op: OnboardingProfile | null): RateInForce {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

@@ -61,8 +61,9 @@ export default function WhatIfScreen() {
       accounts,
       assumptions: { ...A, retireAge: Math.max(retireAt, age + 1) },
       inflationRate: store.inflationRate, employmentStatus: store.employmentStatus,
+      transactions: store.transactions ?? [],
     }),
-    [op, accounts, A, age, retireAt, store.inflationRate, store.employmentStatus]);
+    [op, accounts, A, age, retireAt, store.inflationRate, store.employmentStatus, store.transactions]);
 
   const result = useMemo(() => {
     if (!inputs || inputs.start_balance <= 0) return null;
@@ -144,7 +145,7 @@ export default function WhatIfScreen() {
       ) : result != null && !result.retired ? (
         <View style={s.card} accessible
           accessibilityLabel={`Estimates at age ${result.retireAge}: nest egg ${spokenMoney(result.before.egg)} becomes ${spokenMoney(result.after.egg)}; the chance your money lasts ${result.before.chance} percent becomes ${result.after.chance} percent.`}>
-          <SectionBand title={`AT ${result.retireAge} (ESTIMATES)`} />
+          <SectionBand inCard inset={Spacing.md} title={`AT ${result.retireAge} (ESTIMATES)`} />
           {/* the payoff leads (audit WI-1): the delta is why the screen exists */}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
             <Text style={s.deltaHero}>{result.after.egg - result.before.egg >= 0 ? '+' : '\u2212'}{maskedMoney(Math.abs(result.after.egg - result.before.egg))}</Text>

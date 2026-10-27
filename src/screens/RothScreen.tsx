@@ -15,7 +15,11 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { taxBucketSplit, rmdAtAge, rmdStartAgeFor } from '../domain/decumulation';
 import { rothConversionCost } from '../domain/planning';
-import { totalGrossAnnual, filingStatusOf, stateRateOf } from '../domain/income';
+import { filingStatusOf, stateRateOf } from '../domain/income';
+import { taxedAfterPreTax } from '../domain/income/tax-rate';   // what the year is taxed on, the 401(k)s out (B05, 2026-10-24)
+import { useIncomeProfile } from '../hooks/useIncomeProfile';   // the one profile income and tax figures read (2026-10-26)
+import { paycheckReturn, growthUsed } from '../domain/paycheck';   // the Plan's one return when none is set (2026-10-25, FIX-ROOM)
+import { figWords, saidSentence } from '../components/figure';   // the return prints under its number, MK-CF-M-082 (2026-10-26)
 import { ageFromProfile } from '../utils/persona';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { resolveNetWorthRows } from '../domain/snapshot';
@@ -41,13 +45,19 @@ export default function RothScreen() {
   const [amount, setAmount] = useState('');
   const amt = Math.min(num(amount), Math.round(preTax));
 
-  // tax estimate (r37): the SAME income figure the Cash flow tab stands on — no second income number
-  const gross = totalGrossAnnual(op);
+  // tax estimate (r37): the SAME income figure the Cash flow tab stands on — no second income number. Since 2026-10-26 (CLEANUP-LEFT)
+  // that is what it says: the Income summary's "what the year is taxed on" (taxedAfterPreTax, MK-CF-M-041) on the profile every tax
+  // figure reads (useIncomeProfile — the accounts' interest and dividends in it, typed or not). It read totalGrossAnnual(op): the
+  // interest left out, each earner's 401(k) and the untaxed income left in, so the conversion was stacked on too much income
+  const incomeOp = useIncomeProfile(op);
+  const gross = taxedAfterPreTax(incomeOp);
   const estRate = useMemo(() => {
     if (amt <= 0) return null;
     const status = filingStatusOf(op), state = stateRateOf(op);
     const cost = rothConversionCost(gross, amt, status, state);   // walk row 6: the ONE helper
-    return Math.max(0, Math.round((cost / amt) * 100) / 100);
+    // THE RATE AT FULL PRECISION (2026-10-26, CLEANUP-LEFT; his Q49): it was rounded to a whole percent here, so $20,000 converted
+    // read about $3,800 where the brackets give $3,750 (18.75%). It is rounded only when printed, to two decimals
+    return Math.max(0, cost / amt);
   }, [gross, amt]);
   const [rateOverride, setRateOverride] = useState<string>('');
   const [rateOpen, setRateOpen] = useState(false);
@@ -56,18 +66,23 @@ export default function RothScreen() {
   // that prints it rounds it on the way out
   const taxCost = amt * rate;
 
-  // later effects (r38): the ONE rmdAtAge path, pre-tax balance projected to 73 with the shared return
+  // later effects (r38): the ONE rmdAtAge path, pre-tax balance projected to the start age with the Plan's one return, stated
+  // (2026-10-26, CLEANUP-LEFT; the lead's ruling 2 of 2026-10-25, as the draw sheet and the paycheck do): it was a flat 5.5% whenever
+  // no return was set, and unstated — paycheckReturn gives a return set on the Plan, else the blended benchmark of the retirement
+  // accounts, else the typical 6%
+  const ret = paycheckReturn(rows.accounts, A, op);
+  const growth = growthUsed(ret);   // never below 0%, and the words say so when the floor is used (2026-10-26, round 2 item 5)
+  const grows = age != null && age < rmdStartAgeFor(age);
   const growTo73 = (bal: number) => {
     if (age == null || age >= rmdStartAgeFor(age)) return bal;
-    const r = Math.max(0, Math.min(0.12, A.expectedReturn ?? 0.055));
-    return bal * Math.pow(1 + r, rmdStartAgeFor(age) - age);
+    return bal * Math.pow(1 + growth.rate, rmdStartAgeFor(age) - age);   // the rate the line states
   };
   const rmdAgeUsed = Math.max(rmdStartAgeFor(age), age ?? rmdStartAgeFor(age));
   const rmdSmaller = Math.max(0, Math.round(rmdAtAge(growTo73(preTax), rmdAgeUsed) - rmdAtAge(growTo73(Math.max(0, preTax - amt)), rmdAgeUsed)));
 
   // will-it-last impact (r39): before = the hub's selector untouched; after = the tax cash leaves
   // the nest egg now (the conversion itself just moves money between buckets)
-  const wilArgs = { op, accounts: rows.accounts, assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus };
+  const wilArgs = { op, accounts: rows.accounts, assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, transactions: store.transactions ?? [] };
   const before = selectWillItLast(wilArgs as any);
   const after = useMemo(() => {
     if (amt <= 0 || !before.captured) return null;
@@ -118,7 +133,7 @@ export default function RothScreen() {
       {amt > 0 && !adopted && (
         <TouchableOpacity accessibilityRole="button" style={s.saveScenarioLink}
           accessibilityLabel={`Save this scenario: convert ${spokenMoney(amt)}`}
-          onPress={() => { store.saveRetirementScenario?.(`Roth: convert ${maskedMoney(amt)}`, { rothConversionThisYear: amt, rothConversionTax: taxCost } as any, Number(A.retireAge) || 0, after?.chance ?? before.chance ?? 0); }}>
+          onPress={() => { store.saveRetirementScenario?.(`Roth: convert ${maskedMoney(amt)}`, { rothConversionThisYear: amt, rothConversionTax: taxCost, rothConversionYear: nowYear } as any, Number(A.retireAge) || 0, after?.chance ?? before.chance ?? 0); }}>
           <Text style={s.saveScenarioTxt}>Save this scenario — compare it later on the Plan hub ›</Text>
         </TouchableOpacity>
       )}
@@ -155,11 +170,11 @@ export default function RothScreen() {
             <SectionBand inCard inset={20} title="THE COST NOW" />
             <Text style={s.bigLine}>Tax bill next April: about {maskedMoney(taxCost)}</Text>
             <TouchableOpacity accessibilityRole="button" onPress={() => setRateOpen(!rateOpen)}
-              accessibilityLabel={`Tax rate used: ${Math.round(rate * 100)} percent, ${rateOverride !== '' ? 'you entered' : 'calculated from your income'}. Tap to change it.`}>
-              <Text style={s.link}>Rate used: {Math.round(rate * 100)}% ({rateOverride !== '' ? 'you entered' : 'calculated from your income'}) · change it ›</Text>
+              accessibilityLabel={`Tax rate used: ${(rate * 100).toFixed(2)} percent, ${rateOverride !== '' ? 'you entered' : 'calculated from your income'}. Tap to change it.`}>
+              <Text style={s.link}>Rate used: {(rate * 100).toFixed(2)}% ({rateOverride !== '' ? 'you entered' : 'calculated from your income'}) · change it ›</Text>
             </TouchableOpacity>
             {rateOpen && (
-              <TextInput style={s.rateInput} keyboardType="decimal-pad" placeholder={`${Math.round((estRate ?? 0.22) * 100)}`}
+              <TextInput style={s.rateInput} keyboardType="decimal-pad" placeholder={`${((estRate ?? 0.22) * 100).toFixed(2)}`}
                 placeholderTextColor={Colors.textTertiary} value={rateOverride} onChangeText={setRateOverride}
                 accessibilityLabel="Tax rate percent" />
             )}
@@ -170,6 +185,8 @@ export default function RothScreen() {
           <View style={s.card}>
             <SectionBand inCard inset={20} title="WHAT IT BUYS LATER" />
             <Text style={s.line}>Required withdrawals at {rmdStartAgeFor(age)}: about <Text style={s.strong}>{maskedMoney(rmdSmaller)}/year smaller</Text></Text>
+            {/* the growth the smaller withdrawal is worked on, said — as the draw sheet says its own (2026-10-26) */}
+            {grows && <Text style={s.note} accessibilityLabel={saidSentence(`Growth used until ${rmdStartAgeFor(age)}: ${growth.said}.`)}>Growth used until {rmdStartAgeFor(age)}: {figWords('MK-CF-M-082', growth.said)}.</Text>}
             <Text style={s.line}>Tax-free bucket: {maskedMoney(Math.round(rothNow))} → <Text style={s.strong}>{maskedMoney(Math.round(rothNow + amt))}</Text></Text>
             <Text style={s.note}>From {rmdStartAgeFor(age)} the government requires yearly withdrawals from pre-tax accounts — converting shrinks that requirement.</Text>
           </View>
@@ -196,7 +213,7 @@ export default function RothScreen() {
         visible={sheetOpen} onClose={() => setSheetOpen(false)}
         title={`Convert ${maskedMoney(amt)} to Roth this year`}
         changes={changes}
-        patch={{ rothConversionThisYear: amt, rothConversionTax: taxCost } as any}
+        patch={{ rothConversionThisYear: amt, rothConversionTax: taxCost, rothConversionYear: nowYear } as any}   // the year it is for: its tax is due the April after (2026-10-25, FIX-MONTH; IRS Pub 590-A)
         adoptionLabel={`before the ${nowYear} Roth conversion`}
         onAdopted={() => setSheetOpen(false)}
       />

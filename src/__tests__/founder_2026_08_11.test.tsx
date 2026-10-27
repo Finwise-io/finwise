@@ -141,10 +141,10 @@ test('an account the sync could NOT reach says so, and offers Link again instead
   const failures = [{ accountId: 'v1', at: '2026-08-11T11:00:00Z', reason: 'connection expired' }];
   const gaps = dataGaps(accounts, null, NOW, [], failures);
   const g = gaps.find((x) => x.kind === 'unreachable-account')!;
-  expect(g.title).toBe("We couldn't reach Vanguard -5738");
+  expect(g.title).toBe("We couldn’t reach Vanguard -5738");
   expect(g.fixLabel).toBe('Link again');   // founder 2026-09-14: linked / link again
   expect(g.action).toBe('reconnect');
-  expect(g.meanwhile).toMatch(/we don't guess at newer ones/);
+  expect(g.meanwhile).toMatch(/we don’t guess at newer ones/);
   // and it REPLACES the plain stale line — one row per problem, never two for the same account
   expect(gaps.some((x) => x.kind === 'stale-account')).toBe(false);
 });

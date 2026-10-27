@@ -11,8 +11,12 @@
 import { declareFigures } from '../_figure-spec';
 import { toNum } from '../../../src/domain/_shared/num';
 import { paymentShape, paysInMonth, paymentInMonth, type Debt } from '../../../src/domain/debt';
-import { inMonth, DEBT_CATEGORY, type LoggedExpense } from './logged-expenses';
+import { inMonth, DEBT_CATEGORY, debtPaymentsMatched, type LoggedExpense } from './logged-expenses';
+import { localDay } from '../../../src/domain/_shared/dates';   // the one reader of a stored day (CF-21, 2026-10-25)
 import { buildDatedGrid } from '../../../src/domain/grid';   // the later-month card's three figures are the grid's (worked examples)
+// the worked months run on the budget AS IT IS COUNTED, as every screen's month does (2026-10-26, PF-TOOLS; FIX-MONTH's finding)
+import { theBudgetCounted, expensesAsCounted } from './budget-counted';
+import { spendByMonthByBucket } from '../../../src/domain/budget';
 // the radar's own rule for which debts are radar items — one place, so the note on a row and the
 // radar list can never disagree about what a HELOC or a card payment is (2026-09-30)
 import { isRadarItem } from './expenses';
@@ -59,7 +63,7 @@ export interface Line { label: string; amount: number; kind: 'in' | 'debt' | 'sp
  *
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-220 pastMonthFlow
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -69,7 +73,7 @@ export interface Line { label: string; amount: number; kind: 'in' | 'debt' | 'sp
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -88,15 +92,14 @@ export function monthOutflow(snap: { spending?: number | null; debt_paid?: numbe
  *  frozen record when there is one (what came in, the expenses and the debt paid, saved while the month was open); without
  *  one, the income recorded as received and everything logged in that month. Home's month-end question ("where did last
  *  month's surplus go?") reads this too: it calculated the month itself, without the debt paid, so it offered a different
- *  surplus from the one Cash flow shows for the same month (outside re-run of Performance, gap list item 38, its class).
- *  ID awaiting the builder. */
+ *  surplus from the one Cash flow shows for the same month (outside re-run of Performance, gap list item 38, its class). */
 /* ─ MK-CF-F-220 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * pastMonthFlow
  *
  * Answers ..... A PAST MONTH — what came in, what went out and the surplus — as the Cash flow tab shows it (2026-10-23).
  *
  * Formula .....
- *     recorded = Σ over incomes (or none when missing) where string(date ?? '').starts with(ym) of (amount read as a number (or 0 when missing or zero))
+ *     recorded = Σ over incomes (or none when missing) where local day(date).starts with(ym) of (amount read as a number (or 0 when missing or zero))
  *     logged = Σ over expenses (or none when missing) where in month(each, ym) of (amount read as a number (0 when it is not one))
  *     inflow = snap.income net (or recorded when missing)   if snap
  *     recorded   otherwise
@@ -118,7 +121,7 @@ export function pastMonthFlow(
   snap: { income_net?: number | null; spending?: number | null; debt_paid?: number | null } | null | undefined,
   incomes: { amount?: unknown; date?: unknown }[] | null | undefined, expenses: LoggedExpense[] | null | undefined, ym: string,
 ): { inflow: number; outflow: number; surplus: number } {
-  const recorded = (incomes ?? []).filter((i) => String(i?.date ?? '').startsWith(ym)).reduce((t, i) => t + (Number(i?.amount) || 0), 0);
+  const recorded = (incomes ?? []).filter((i) => localDay(i?.date).startsWith(ym)).reduce((t, i) => t + (Number(i?.amount) || 0), 0);
   const logged = (expenses ?? []).filter((e) => inMonth(e, ym)).reduce((t, e) => t + toNum(e.amount), 0);
   const inflow = snap ? (snap.income_net ?? recorded) : recorded;
   const outflow = monthOutflow(snap, logged);
@@ -129,7 +132,7 @@ export function pastMonthFlow(
  *  that month but entered after its record was last saved — a statement imported later, say. The record stays as it is (the approved
  *  card's words: "Frozen — past months never change under you"), so the month's card leaves them out while the month's Expenses tab lists them;
  *  this names each one and adds them up, so the tab can say so on the row and under its total and never disagree silently.
- *  No record, or a record that does not say when it was saved: nothing is named. ID awaiting the builder. */
+ *  No record, or a record that does not say when it was saved: nothing is named. */
 /* ─ MK-CF-F-231 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * addedAfterRecord
  *
@@ -139,9 +142,15 @@ export function pastMonthFlow(
  *     saved = string(snap.captured at)   if snap.captured at
  *     ''   otherwise
  *     late = saved ? (expenses ?? []) where in month(each, ym) and !!created at and string(created at) > saved: []
+ *     no saved time = !!snap and !saved
+ *     listed = Σ over expenses (or none when missing) where in month(each, ym) and category ! = DEBT_CATEGORY of (amount read as a number (0 when it is not one))
+ *     more than record = max(0, listed − number(snap.expenses))   if no saved time and snap.expenses ≠ nothing
+ *     0   otherwise
  *     the answer:
  *     ids = a list with no repeats of for each of late: string(id)
  *     total = Σ over late of (amount read as a number (0 when it is not one))
+ *     no saved time = no saved time
+ *     more than record = more than record
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -152,12 +161,19 @@ export function pastMonthFlow(
  * Changed ..... not in git yet (—)
  */
 export function addedAfterRecord(
-  snap: { captured_at?: string | null } | null | undefined,
+  snap: { captured_at?: string | null; spending?: number | null } | null | undefined,
   expenses: (LoggedExpense & { id?: string; createdAt?: string })[] | null | undefined, ym: string,
-): { ids: Set<string>; total: number } {
+): { ids: Set<string>; total: number; noSavedTime: boolean; moreThanRecord: number } {
   const saved = snap?.captured_at ? String(snap.captured_at) : '';
   const late = saved ? (expenses ?? []).filter((e) => inMonth(e, ym) && !!e.createdAt && String(e.createdAt) > saved) : [];
-  return { ids: new Set(late.map((e) => String(e.id))), total: late.reduce((t, e) => t + toNum(e.amount), 0) };
+  // A RECORD THAT DOES NOT SAY WHEN IT WAS SAVED (2026-10-25, FIX-MONTH; CFR-5, DEC-7949 NOT HELD; tenet 2): an older record, read
+  // with no saved time (history.ts), named nothing — August's card read $1,360 and its list $1,510 with nothing said. Which entries
+  // came later cannot be told, so none is named; what can be told is how much more the month's expenses list holds than the
+  // record's expenses: 1,510 − 1,360 = $150. Nought when the two agree, or there is no record.
+  const noSavedTime = !!snap && !saved;
+  const listed = (expenses ?? []).filter((e) => inMonth(e, ym) && e.category !== DEBT_CATEGORY).reduce((t, e) => t + toNum(e.amount), 0);
+  const moreThanRecord = noSavedTime && snap?.spending != null ? Math.max(0, listed - Number(snap.spending)) : 0;
+  return { ids: new Set(late.map((e) => String(e.id))), total: late.reduce((t, e) => t + toNum(e.amount), 0), noSavedTime, moreThanRecord };
 }
 export interface MonthBlock { lines: Line[]; surplus: number;
   /** False on the PLANNED side when no budget is set: there is no planned surplus, and the screen
@@ -188,7 +204,7 @@ export interface MonthBlock { lines: Line[]; surplus: number;
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-156 plannedMonthFlow
  *               MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -198,7 +214,7 @@ export interface MonthBlock { lines: Line[]; surplus: number;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -231,7 +247,7 @@ export function inflowLabel(prefix: 'Inflow' | 'Actual inflow' | 'Planned inflow
  *
  * Called by ... MK-CF-F-192 inflowLabel
  *
- * Reaches ..... 388 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -241,7 +257,7 @@ export function inflowLabel(prefix: 'Inflow' | 'Actual inflow' | 'Planned inflow
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 370 more — the full list is on functions_from_code
+ *               … and 368 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -272,27 +288,28 @@ export function inflowSourceWord(source: string): string {
  *     n   otherwise
  *
  * Called by ... MK-CF-F-005 actualMonthFlow · MK-CF-F-010 emergencyTest
- *               MK-CF-F-111 applyTransaction · MK-CF-F-136 bumpCash
- *               MK-CF-F-156 plannedMonthFlow · MK-CF-F-220 pastMonthFlow
- *               MK-CF-O-010 theMonth · MK-HM-F-006 money0
- *               MK-NW-F-004 portfolioActualReturn · MK-NW-F-005 accountAllowsTicker
- *               MK-NW-F-007 assetKind · MK-NW-F-008 incomeBearingClassOf
- *               MK-NW-F-021 investmentsTotal · MK-NW-F-027 accountClassBreakdown
- *               MK-NW-F-035 blendedVolatility · MK-NW-F-051 itemizedResultTotal
- *               MK-NW-F-052 buildItemizedAccounts · MK-NW-F-075 ACC
- *               MK-NW-F-079 EF · MK-NW-F-120 classEvidenceOf
+ *               MK-CF-F-066 rsuAnnual · MK-CF-F-111 applyTransaction
+ *               MK-CF-F-136 bumpCash · MK-CF-F-156 plannedMonthFlow
+ *               MK-CF-F-220 pastMonthFlow · MK-CF-O-010 theMonth
+ *               MK-HM-F-006 money0 · MK-NW-F-004 portfolioActualReturn
+ *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-007 assetKind
+ *               MK-NW-F-008 incomeBearingClassOf · MK-NW-F-021 investmentsTotal
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-035 blendedVolatility
+ *               MK-NW-F-051 itemizedResultTotal · MK-NW-F-052 buildItemizedAccounts
+ *               MK-NW-F-075 ACC · MK-NW-F-079 EF
+ *               MK-NW-F-084 categoryEarnings · MK-NW-F-120 classEvidenceOf
  *               MK-NW-F-123 holdingNameEvidence · MK-NW-F-142 classReturnOf
  *               MK-NW-F-148 lastCloseLabel · MK-NW-F-151 linkedSplit
  *               MK-NW-F-153 uninvestedCashOf · MK-NW-F-159 settleBondValue
  *               MK-NW-F-160 pricePer100OfFace · MK-NW-F-185 valueChanged
  *               MK-NW-O-004 theEmergencyFund · MK-NW-O-008 thePerformance
- *               MK-PL-F-010 drawOrderOutcome · MK-PL-F-022 goalProgressPct
- *               MK-ST-F-010 nameEvidence · MK-ST-F-072 undo
- *               MK-ST-F-093 typedValueOnItsDate · MK-XS-F-031 buildSnapshot
- *               MK-XS-F-102 ingestSync · MK-XS-F-107 mapActivityType
- *               MK-XS-F-184 theirCost
+ *               MK-PF-F-014 buildPerformance · MK-PL-F-010 drawOrderOutcome
+ *               MK-PL-F-022 goalProgressPct · MK-ST-F-010 nameEvidence
+ *               MK-ST-F-072 undo · MK-ST-F-093 typedValueOnItsDate
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-102 ingestSync
+ *               MK-XS-F-107 mapActivityType · MK-XS-F-184 theirCost
  *
- * Reaches ..... 393 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 397 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -302,7 +319,7 @@ export function inflowSourceWord(source: string): string {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 375 more — the full list is on functions_from_code
+ *               … and 379 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -333,7 +350,7 @@ export const cash = (n: number): number => (n === 0 ? 0 : (n));
  *
  * Called by ... MK-CF-O-003 thisMonth
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -343,7 +360,7 @@ export const cash = (n: number): number => (n === 0 ? 0 : (n));
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
@@ -359,9 +376,11 @@ export function plannedMonthFlow(m: MonthInput): MonthBlock {
   // THE ORDER IS THE DRAWING'S (cash-flow_v01, frame 1): what comes in · the debts that are the same
   // every month · the budget · then the radar's items, the rows a person does not expect and would
   // otherwise hunt for. It ran in the order the debts were entered, with the budget last.
-  const lines: Line[] = [{ label: inflowLabel('Inflow', m.inflowSources), amount: (m.takeHomeMonthly), kind: 'in',
-                           note: 'after tax and 401(k)' }];
   const planSet = m.budgetSet ?? ((m.plannedExpenses ?? 0) > 0);
+  // "after tax and 401(k)" is drawn under the inflow beside a budget (frame A) and not on a fresh account with none (frame B) —
+  // 2026-10-25, the drawing match CF-11
+  const lines: Line[] = [{ label: inflowLabel('Inflow', m.inflowSources), amount: (m.takeHomeMonthly), kind: 'in',
+                           ...(planSet ? { note: 'after tax and 401(k)' } : {}) }];
   const budget: Line = planSet
     ? { label: 'Expenses', amount: cash(-m.plannedExpenses), kind: 'spend', note: 'your budget' }
     : { label: 'Expenses', amount: 0, kind: 'spend', note: 'not set', notSet: true };
@@ -392,9 +411,15 @@ export function plannedMonthFlow(m: MonthInput): MonthBlock {
                  note: radarKind ? 'from big-ticket radar' : 'debt' });
   }
   const missing = lines.filter((l) => l.notEntered).map((l) => l.label);
-  const refusal = missing.length
-    ? `${missing.join(' and ')}${missing.length > 1 ? ' payments are' : '’s payment is'} not entered, so there is no planned surplus — we won’t guess one.`
-    : null;
+  // NO BUDGET, NO PLANNED SURPLUS (2026-10-25, FIX-MONTH; DEC-0296 "an unknown input produces no number and a reason — never a
+  // default", DEC-7939, tenet 3; CFR-4, MK-CF-F-156-C05): with no budget the Expenses row read "— not set" and every screen printed
+  // "—", yet the block handed out 5,000 − 250 = $4,750 as a planned surplus and theMonth's free figure was built on it. It is now no
+  // number, with the screen's own words as the reason.
+  const refusal = !planSet
+    ? 'You haven’t set your budget. Until you do there is no planned surplus — we won’t guess one.'
+    : missing.length
+      ? `${missing.join(' and ')}${missing.length > 1 ? ' payments are' : '’s payment is'} not entered, so there is no planned surplus — we won’t guess one.`
+      : null;
   const inflow = cash(lines.filter((l) => l.kind === 'in').reduce((t, l) => t + l.amount, 0));
   const outflow = cash(-lines.filter((l) => l.kind !== 'in').reduce((t, l) => t + l.amount, 0));
   return { lines, surplus: refusal ? NaN : cash(lines.reduce((t, l) => t + l.amount, 0)), planSet,
@@ -418,16 +443,16 @@ export function plannedMonthFlow(m: MonthInput): MonthBlock {
  *     paid = paid for.get(debt id) (or 0 when missing)
  *     due = (d as any).due day
  *     radar kind = is radar item(d)
- *     matched = Σ over [...paid for.values()] of (each)
- *     unmatched = all debt paid − matched
+ *     paid to = debt payments matched(debts as any, expenses, ym)
  *     expenses = logged where category ! = DEBT_CATEGORY
  *     by hand = expenses where origin ! = 'imported'
  *     brought = expenses where origin = 'imported'
+ *     sum = (xs: typeof expenses) => (xs.reduce((t, e) => t + to num(amount), 0))
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-CF-O-003 thisMonth
+ * Called by ... MK-CF-F-157 debtPaymentsByDebt · MK-CF-O-003 thisMonth
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -437,7 +462,7 @@ export function plannedMonthFlow(m: MonthInput): MonthBlock {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -472,13 +497,16 @@ export function actualMonthFlow(m: MonthInput): MonthBlock {
   // must still be deducted — dropping it was a real leak: this function replaced MK-CF-F-005, which
   // totalled EVERY logged debt payment, and without this line a person who deleted a paid-off debt
   // would have seen their surplus rise by the amount they had just paid.
-  const matched = [...paidFor.values()].reduce((t, v) => t + v, 0);
-  const allDebtPaid = (logged.filter((e) => e.category === DEBT_CATEGORY)
-                                   .reduce((t, e) => t + toNum(e.amount), 0));
-  const unmatched = (allDebtPaid - matched);
-  if (unmatched > 0) {
-    lines.push({ label: 'Other debt payments', amount: cash(-unmatched), kind: 'debt', paid: true,
+  // A PAYMENT IS MATCHED BY THE DEBT ITSELF (2026-10-25, FIX-MONTH; DEC-1923): debtPaymentsMatched puts each logged payment in
+  // exactly one place — the debt it was paid on, a name two debts share (given to neither, said once), or no debt still held.
+  const paidTo = debtPaymentsMatched(m.debts as any, m.expenses, m.ym);
+  if (paidTo.unmatched > 0) {
+    lines.push({ label: 'Other debt payments', amount: cash(-paidTo.unmatched), kind: 'debt', paid: true,
                  note: 'logged, but not against a debt you still hold' });
+  }
+  for (const sh of paidTo.shared) {
+    lines.push({ label: 'Other debt payments', amount: cash(-sh.amount), kind: 'debt', paid: true,
+                 note: `logged as “${sh.name}” — ${sh.debtIds.length === 2 ? 'two' : sh.debtIds.length} of your debts have that name, so it is given to neither` });
   }
   // TWO ROWS, NOT ONE (approved mock cash-flow_v01): "Expenses entered by hand" and "Expenses
   // imported from your card" are drawn apart, because a person checking the month needs to know which
@@ -523,14 +551,12 @@ export function actualMonthFlow(m: MonthInput): MonthBlock {
  * Answers ..... WHICH DEBTS HAVE ACTUALLY BEEN PAID this month, and how much each.
  *
  * Formula .....
- *     out = new map<string, number>()
- *     by label = a lookup of for each of debts (or none when missing): [string(label).trim().to lower case(), debt id]
- *     id = by label.get(string(store ?? '').trim().to lower case())
- *     the answer = out
+ *     the answer = debt payments matched(debts as any, expenses, ym).by debt
+ *     sep = spend by month by bucket(counted)[8]
  *
  * Called by ... MK-CF-F-005 actualMonthFlow
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -540,28 +566,25 @@ export function actualMonthFlow(m: MonthInput): MonthBlock {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-014 debt balance
  *               MK-XS-I-015 debt interest rate
  *               MK-XS-I-016 debt minimum payment
  *               MK-XS-I-024 logged expenses
+ *               MK-XS-I-032 expenses categories the person set up
  *               MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-157
  * Changed ..... not in git yet (—)
  */
 export function debtPaymentsByDebt(m: MonthInput): Map<string, number> {
-  const out = new Map<string, number>();
-  const byLabel = new Map((m.debts ?? []).map((d) => [String(d.label).trim().toLowerCase(), d.debt_id]));
-  for (const e of (m.expenses ?? [])) {
-    if (e.category !== DEBT_CATEGORY || !inMonth(e, m.ym)) continue;
-    const id = byLabel.get(String(e.store ?? '').trim().toLowerCase());
-    if (!id) continue;                       // a payment against a debt that no longer exists
-    out.set(id, ((out.get(id) ?? 0) + toNum(e.amount)));
-  }
-  return out;
+  // BY THE DEBT ITSELF, NEVER BY A NAME TWO DEBTS SHARE (2026-10-25, FIX-MONTH; DEC-1923, CFR-4 MK-CF-F-157-C05): the name lookup
+  // kept the later of two debts called "Loan", so one $250 was credited to B and A read unpaid — a guess shown as fact. The one
+  // matcher (debtPaymentsMatched) credits a payment to the debt it names by id, or to the one debt with its name; a name two
+  // debts share is given to neither and is listed once on its own row (actualMonthFlow).
+  return debtPaymentsMatched(m.debts as any, m.expenses, m.ym).byDebt;
 }
 
 /** ── ORCHESTRATOR ────────────────────────────────────────────────────────────────────────────
@@ -574,13 +597,15 @@ export interface ThisMonth { planned: MonthBlock; actual: MonthBlock; }
 /** THE WORKED EXAMPLE — ONE MONTH, TWICE (six steps, step 6, 2026-09-28).
  *
  *  The same September 2026 as the Cash-flow door uses, because it is the same month: $7,200 of
- *  take-home, a $2,400 mortgage and a $250 car loan due, a $3,400 budget, and $2,998 of expenses
- *  logged with the car loan paid. Every figure runs `thisMonth`, the real door.
+ *  take-home, a $2,400 mortgage (on no property in Net worth) and a $250 car loan due, a $3,400 budget of which $2,300 is the
+ *  Rent / Mortgage line, and $2,998 logged — $2,300 of it under Rent / Mortgage — with the car loan paid. Every figure runs
+ *  `thisMonth`, the real door, on the budget AS IT IS COUNTED (2026-10-26, PF-TOOLS; FIX-MONTH's finding, his DEC-1923 and the
+ *  lead's ruling on DEC-2440): the mortgage on no property is taken as the Rent / Mortgage line, so the line stands down ($1,100
+ *  of budget left) and the $2,300 logged under it is the mortgage's payment. It ran on the budget as typed, mortgage counted twice.
  *
- *  PLANNED AND ACTUAL ARE NEVER MIXED. Planned: 7,200 − 2,400 − 250 − 3,400 = $1,150 — what the month
- *  holds if it goes to plan. Actual so far: 7,200 − 0 − 250 − 2,998 = $3,952 — which reads HIGHER
- *  only because the mortgage has not gone out yet. Both are true; neither is the other, and that is
- *  why the screen labels each one.
+ *  PLANNED AND ACTUAL ARE NEVER MIXED. Planned: 7,200 − 2,400 − 250 − 1,100 = $3,450 — what the month
+ *  holds if it goes to plan. Actual so far: 7,200 − 2,300 − 250 − 698 = $3,952 — the mortgage's $2,300 paid, $100 of its
+ *  $2,400 still to go. Both are true; neither is the other, and that is why the screen labels each one.
  */
 const EXAMPLE: MonthInput = {
   ym: '2026-09', takeHomeMonthly: 7200, inflowSources: ['income (take-home)'],
@@ -588,17 +613,27 @@ const EXAMPLE: MonthInput = {
     { debt_id: 'd1', label: 'Mortgage', debt_type: 'MORTGAGE', remaining_balance: 228000, interest_rate_apr: 0.0625, minimum_monthly_payment: 2400, payment_type: 'installment' },
     { debt_id: 'd2', label: 'Car loan', debt_type: 'AUTO', remaining_balance: 14000, interest_rate_apr: 0.069, minimum_monthly_payment: 250, payment_type: 'installment' },
   ] as any[],
-  plannedExpenses: 3400,
-  expenses: [
-    { amount: 2300, category: 'Rent / Mortgage', date: '2026-09-01' },
-    { amount: 512, category: 'Groceries', date: '2026-09-07' },
-    { amount: 186, category: 'Eating out', date: '2026-09-12' },
-    { amount: 250, category: 'Debt payment', store: 'Car loan', date: '2026-09-12' },
-  ],
+  ...((): any => {
+    const counted = theBudgetCounted({ profile: { monthlySpending: '3400', spendCats: [
+      { id: 'rent', label: 'Rent / Mortgage', amount: 2300, bucket: 'fixed' }, { id: 'groceries', label: 'Groceries', amount: 700, bucket: 'flexible' },
+      { id: 'dining', label: 'Eating out', amount: 400, bucket: 'flexible' }] }, accounts: [], debts: [
+      { debt_id: 'd1', label: 'Mortgage', debt_type: 'MORTGAGE', remaining_balance: 228000, interest_rate_apr: 0.0625, minimum_monthly_payment: 2400, payment_type: 'installment' },
+      { debt_id: 'd2', label: 'Car loan', debt_type: 'AUTO', remaining_balance: 14000, interest_rate_apr: 0.069, minimum_monthly_payment: 250, payment_type: 'installment' }] as any[] }).profile;
+    const sep = spendByMonthByBucket(counted)[8];
+    return {
+      plannedExpenses: sep.fixed + sep.nonmonthly + sep.flexible,
+      expenses: expensesAsCounted([
+        { amount: 2300, category: 'Rent / Mortgage', date: '2026-09-01' },
+        { amount: 512, category: 'Groceries', date: '2026-09-07' },
+        { amount: 186, category: 'Eating out', date: '2026-09-12' },
+        { amount: 250, category: 'Debt payment', store: 'Car loan', date: '2026-09-12' }] as any[], counted),
+    };
+  })(),
 };
 const GIVEN =
-  'September 2026: $7,200 take-home; a $2,400 mortgage and a $250 car loan due; a $3,400 budget. '
-  + 'Logged so far: $2,300 rent, $512 groceries, $186 eating out, and the $250 car loan paid.';
+  'September 2026: $7,200 take-home; a $2,400 mortgage (on no property in Net worth) and a $250 car loan due; a $3,400 budget, '
+  + '$2,300 of it the Rent / Mortgage line, which stands down for the mortgage in Debts. '
+  + 'Logged so far: $2,300 under Rent / Mortgage (the mortgage\u2019s payment), $512 groceries, $186 eating out, and the $250 car loan paid.';
 
 /** Example only: runs thisMonth on the worked example and calculates nothing of its own. */
 /* ─ MK-CF-F-241 ──────────────────────────────────────────────────────────────────── 1 · ACTION
@@ -615,13 +650,19 @@ const GIVEN =
  *               MK-CF-F-242 workedLineAmount
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-014 debt balance
+ *               MK-XS-I-015 debt interest rate
+ *               MK-XS-I-016 debt minimum payment
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-241
  * Changed ..... not in git yet (—)
  */
 const M = () => thisMonth(EXAMPLE);
 /** THE LATER-MONTH CARD'S HOUSEHOLD — the worked September's, one month on: on 15 Sep 2026, October's plan from the dated grid. */
-const GIVEN_LATER = 'On 15 Sep 2026, October’s plan card: $7,200/month take-home; a $3,400/month budget; a $2,400 mortgage and a $250 car loan.';
+const GIVEN_LATER = 'On 15 Sep 2026, October’s plan card: $7,200/month take-home; a $3,400/month budget, $2,300 of it the Rent / Mortgage line, which stands down for the $2,400 mortgage in Debts (on no property); and a $250 car loan.';
+const LATER_DEBTS = [
+  { debt_id: 'm', label: 'Mortgage', debt_type: 'MORTGAGE', remaining_balance: 228_000, interest_rate_apr: 0.0625, minimum_monthly_payment: 2_400 },
+  { debt_id: 'c', label: 'Car loan', debt_type: 'AUTO', remaining_balance: 14_000, interest_rate_apr: 0.069, minimum_monthly_payment: 250 }] as any[];
 /** Example only: builds the later-month card's dated grid for the worked example, and calculates nothing of its own. */
 /* ─ MK-CF-F-237 ──────────────────────────────────────────────────────────────────── 1 · ACTION
  * LATER
@@ -631,15 +672,16 @@ const GIVEN_LATER = 'On 15 Sep 2026, October’s plan card: $7,200/month take-ho
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
- * Called by ... MK-CF-F-242 workedLineAmount
+ * Called by ... MK-CF-F-242 workedLineAmount · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-242 workedLineAmount
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-205 COMING · MK-CF-F-237 LATER
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               MK-CF-O-017 futurePaycheck · MK-CF-F-212 receivedInMonth
+ *               MK-CF-O-008 whatsComing · MK-CF-F-242 workedLineAmount
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-014 debt balance
- *               MK-XS-I-015 debt interest rate
- *               MK-XS-I-016 debt minimum payment
+ * Reads ....... MK-XS-I-032 expenses categories the person set up
  *               MK-XS-I-039 how often each income arrives
  *               MK-XS-I-040 whether a stream is already being received
  *               MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly
@@ -647,10 +689,11 @@ const GIVEN_LATER = 'On 15 Sep 2026, October’s plan card: $7,200/month take-ho
  * Formula also on the master file · functions_from_code · MK-CF-F-237
  * Changed ..... not in git yet (—)
  */
-const LATER = () => buildDatedGrid({ status: 'employed', incomeSources: ['employment'], baseSalary: '7200', salaryMode: 'takehome', salaryFreq: 'monthly',
-  taxMode: 'manual', manualTaxRate: '0', monthlySpending: '3400' } as any, { now: new Date(2026, 8, 15), liabilities: [
-  { debt_id: 'm', label: 'Mortgage', debt_type: 'MORTGAGE', remaining_balance: 228_000, interest_rate_apr: 0.0625, minimum_monthly_payment: 2_400 },
-  { debt_id: 'c', label: 'Car loan', debt_type: 'AUTO', remaining_balance: 14_000, interest_rate_apr: 0.069, minimum_monthly_payment: 250 }] as any }).cells[1];
+const LATER = () => buildDatedGrid(theBudgetCounted({ profile: { status: 'employed', incomeSources: ['employment'], baseSalary: '7200', salaryMode: 'takehome', salaryFreq: 'monthly',
+  taxMode: 'manual', manualTaxRate: '0', monthlySpending: '3400', spendCats: [
+    { id: 'rent', label: 'Rent / Mortgage', amount: 2300, bucket: 'fixed' }, { id: 'groceries', label: 'Groceries', amount: 700, bucket: 'flexible' },
+    { id: 'dining', label: 'Eating out', amount: 400, bucket: 'flexible' }] }, accounts: [], debts: LATER_DEBTS }).profile as any,
+  { now: new Date(2026, 8, 15), liabilities: LATER_DEBTS }).cells[1];
 
 /** Example only: reads one row's amount from the worked example of the month. */
 /* ─ MK-CF-F-242 ──────────────────────────────────────────────────────────────────── 1 · ACTION
@@ -715,7 +758,7 @@ export const FIGURES = declareFigures({
     note: 'Printed by the plan card of a later month only, from the dated grid’s cell for that month.',
     worked: {
       given: GIVEN_LATER,
-      answer: '$6,050/month',
+      answer: '$3,750/month',   // 1,100 of budget (the 2,300 Rent / Mortgage line stood down) + 2,400 mortgage + 250 car loan (2026-10-26; was $6,050)
       run: () => LATER().outflow,
     },
   },
@@ -729,7 +772,7 @@ export const FIGURES = declareFigures({
     note: 'Printed by the plan card of a later month only. This month’s planned surplus is MK-CF-M-002; the retired view’s “Spent $X of $Y surplus” line prints MK-CF-M-078 (until 2026-10-24 it was printed under this number).',
     worked: {
       given: GIVEN_LATER,
-      answer: '$1,150/month',
+      answer: '$3,450/month',   // 7,200 − 3,750: the mortgage counted once, as the screens count it (2026-10-26; was $1,150)
       run: () => LATER().net,
     },
   },
@@ -802,7 +845,10 @@ export const FIGURES = declareFigures({
     },
   },
   'MK-CF-M-054': {
-    label: 'each received line', unit: 'money', per: 'month', screens: ['/cashflow'],
+    // THE LABEL NOW SAYS WHAT THE ROWS ARE (2026-10-27, PF-TOOLS; the screens measurement, MK-CF-M-054 tenet 8): "each received
+    // line" named rows that hold the take-home before anything is received and debts not yet paid at $0. No screen prints this
+    // label (the rows print as MK-CF-M-004) and the identifier is in this file, so nothing else moves. To reverse: the old label.
+    label: 'each line of what has happened so far', unit: 'money', per: 'month', screens: ['/cashflow'],
     // THE ROW'S WORDS NOW SAY WHAT THE CODE DOES (2026-10-23, CF-FIX; the Cash flow package's check of the declarations): its
     // words said each payment recorded as received, its worked answer is the car loan's paid row, −$250. The actual block has
     // no received payments in it (MK-CF-M-051): its lines are the inflow, each debt paid or still due and the expenses — the
@@ -832,7 +878,7 @@ export const FIGURES = declareFigures({
  *
  * Called by ... MK-CF-F-241 M · MK-CF-O-010 theMonth
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -842,7 +888,7 @@ export const FIGURES = declareFigures({
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-047 · MK-CF-M-048 · MK-CF-M-049 · MK-CF-M-050
  *               MK-CF-M-051 · MK-CF-M-052 · MK-CF-M-053 · MK-CF-M-054

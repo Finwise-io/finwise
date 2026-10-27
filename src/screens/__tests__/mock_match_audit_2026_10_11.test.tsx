@@ -31,7 +31,7 @@
  *  FOUNDER RULINGS, same day:
  * 11. DEC-4528 (his words '"Add your debts >"'): with no debt entered, every empty Debts door reads "Add your debts ›".
  *     The first-day Net worth (v08 state C) read "Add a mortgage, card, or loan ›"; the step-by-step walk read "Add a debt →".
- * 12. DEC-4529: the account editor never asks "What's it invested in?" of a home, real estate, land, a vehicle or other
+ * 12. DEC-4529: the account editor never asks "What’s it invested in?" of a home, real estate, land, a vehicle or other
  *     personal property, and saves nothing from that question for one. An investment account still asks it.
  */
 import React from 'react';
@@ -284,10 +284,10 @@ describe('12 · DEC-4529: a property is never asked what it is invested in (DEC-
     render(<NetWorth />);
     return updateAsset;
   };
-  test.each(PROPS)('%s: the editor has no "What\'s it invested in?", and Save writes only the name and value', (_n, acct) => {
+  test.each(PROPS)('%s: the editor has no "What’s it invested in?", and Save writes only the name and value', (_n, acct) => {
     const updateAsset = openEditor(acct);
     expect(screen.getByText('Edit account')).toBeTruthy();
-    expect(screen.queryByText("What's it invested in?")).toBeNull();
+    expect(screen.queryByText("What’s it invested in?")).toBeNull();
     for (const chip of ['Stocks / Funds', 'Bonds', 'Cash']) expect(screen.queryByLabelText(chip)).toBeNull();
     fireEvent.press(screen.getByLabelText('Save account'));
     expect(updateAsset).toHaveBeenCalledTimes(1);
@@ -295,6 +295,6 @@ describe('12 · DEC-4529: a property is never asked what it is invested in (DEC-
   });
   test('an investment account still asks it', () => {
     openEditor({ asset_id: 'b', label: 'Fidelity', institution: 'Fidelity', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 1000 });
-    expect(screen.getByText("What's it invested in?")).toBeTruthy();
+    expect(screen.getByText("What’s it invested in?")).toBeTruthy();
   });
 });

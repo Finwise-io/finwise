@@ -34,19 +34,10 @@ let _locale = 'en-US';
  * Formula .....
  *     c = CURRENCIES.find((x) => code = currency)
  *
- * Called by ... MK-XS-F-175 uid · MK-XS-F-192 typedValueDatedBack
+ * Called by ... MK-XS-F-192 typedValueDatedBack · MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
- *               … and 35 more — the full list is on functions_from_code
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-192 typedValueDatedBack
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -113,7 +104,7 @@ export function balancesHidden(): boolean { return _hide; }
  *
  * Called by ... MK-ST-F-048 currencySymbol
  *
- * Reaches ..... 403 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 400 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -123,7 +114,7 @@ export function balancesHidden(): boolean { return _hide; }
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 385 more — the full list is on functions_from_code
+ *               … and 382 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -144,7 +135,7 @@ export function activeCurrency(): Currency {
  * Called by ... MK-ST-F-049 formatMoney · MK-ST-F-050 formatMoneyCents
  *               MK-ST-F-051 moneyCompact
  *
- * Reaches ..... 402 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 399 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -154,7 +145,7 @@ export function activeCurrency(): Currency {
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 384 more — the full list is on functions_from_code
+ *               … and 381 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -185,7 +176,7 @@ export function currencySymbol(): string {
  *               MK-NW-F-179 balanceWithBondTakenOut · MK-NW-F-185 valueChanged
  *               MK-ST-F-053 money · MK-XS-F-183 writeFigure
  *
- * Reaches ..... 398 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 395 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -195,7 +186,7 @@ export function currencySymbol(): string {
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 380 more — the full list is on functions_from_code
+ *               … and 377 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -236,13 +227,15 @@ export function formatMoney(n: number): string {
  *
  * Called by ... MK-ST-F-054 money2 · MK-XS-F-183 writeFigure
  *
- * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-089 drawAssumptionsSaid
+ *               MK-CF-O-017 futurePaycheck · MK-CF-F-282 growthUsed
  *               MK-ST-F-054 money2 · MK-NW-F-130 notIncludedSentence
- *               MK-NW-O-008 thePerformance · MK-NW-F-105 whyNoReturn
- *               MK-XS-F-183 writeFigure
+ *               MK-CF-F-279 paycheckReturn · MK-NW-O-008 thePerformance
+ *               MK-NW-F-105 whyNoReturn · MK-XS-F-183 writeFigure
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -280,12 +273,15 @@ export function formatMoneyCents(n: number): string {
  *
  * Called by ... MK-XS-F-183 writeFigure
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-140 LEFT_OUT
  *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
  *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
- *               MK-NW-F-130 notIncludedSentence · MK-NW-O-008 thePerformance
- *               MK-NW-F-105 whyNoReturn · MK-XS-F-183 writeFigure
+ *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-089 drawAssumptionsSaid
+ *               MK-CF-O-017 futurePaycheck · MK-CF-F-282 growthUsed
+ *               MK-NW-F-130 notIncludedSentence · MK-CF-F-279 paycheckReturn
+ *               MK-NW-O-008 thePerformance · MK-NW-F-105 whyNoReturn
+ *               MK-XS-F-183 writeFigure
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

@@ -60,7 +60,59 @@ const FUNCTIONS: [string, string, string][] = [
   ['MK-PF-F-044', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-045', 'src/domain/performance/index.ts', 'Calculation Module code/bench/__tests__/bench.test.ts'],
   ['MK-PF-F-046', 'src/domain/performance/realized.ts', 'MoneyKeel/functions/networth-and-performance/outside_performance_claude_02.test.ts'],
+  // 2026-10-26 (PF-TOOLS): the rows the table was missing — numbered after it was printed, and passed by a typed floor
+  ['MK-PF-F-047', 'src/domain/performance/index.ts', 'MoneyKeel/functions/networth-and-performance/dec6212_bond_interest.test.ts'],
+  ['MK-PF-F-048', 'src/domain/performance/index.ts', 'MoneyKeel/functions/networth-and-performance/dec6212_bond_interest.test.ts'],
+  ['MK-PF-F-049', 'src/domain/performance/index.ts', 'src/screens/__tests__/holding_worth_zero_counts.test.tsx'],
+  ['MK-PF-F-050', 'src/domain/performance/index.ts', 'MoneyKeel/functions/networth-and-performance/outside_performance_claude_01.test.ts'],
+  ['MK-PF-F-051', 'src/domain/performance/index.ts', 'src/screens/__tests__/networth_rerun01_fixes.test.tsx'],
+  ['MK-PF-F-052', 'src/domain/performance/index.ts', 'src/screens/__tests__/paid_read_one_way_agreement.test.tsx'],
+  ['MK-PF-F-053', 'src/domain/performance/index.ts', 'src/screens/__tests__/holding_gains_if_sold_today.test.tsx'],
+  ['MK-PF-F-054', 'src/domain/performance/index.ts', 'src/screens/__tests__/no_price_named_on_three_screens.test.tsx'],
+  ['MK-PF-F-055', 'src/domain/performance/index.ts', 'src/domain/scenarios.test.ts'],   // not named by a test: the test runs its file
+  ['MK-PF-F-056', 'src/domain/performance/index.ts', 'src/screens/__tests__/paid_read_one_way_agreement.test.tsx'],
+  ['MK-PF-F-057', 'src/domain/performance/realized.ts', 'src/domain/performance/realized.test.ts'],   // not named by a test: the test runs its file
+  ['MK-PF-F-058', 'src/domain/performance/realized.ts', 'src/screens/__tests__/holding_cost_not_on_record.test.tsx'],
+  ['MK-PF-F-059', 'src/domain/performance/index.ts', 'MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts'],
+  ['MK-PF-F-060', 'src/domain/performance/index.ts', 'MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_03.test.ts'],
+  ['MK-PF-F-061', 'src/domain/performance/index.ts', 'MoneyKeel/functions/networth-and-performance/outside_performance_claude_04.test.ts'],
+  ['MK-PF-F-062', 'src/domain/performance/index.ts', 'src/__tests__/last_close_day_on_persons_calendar.test.ts'],
+  ['MK-PF-F-063', 'src/domain/performance/index.ts', 'src/domain/scenarios.test.ts'],   // not named by a test: the test runs its file
+  ['MK-PF-F-064', 'src/domain/performance/index.ts', 'src/domain/scenarios.test.ts'],   // not named by a test: the test runs its file
+  ['MK-PF-F-065', 'src/domain/performance/index.ts', 'src/domain/scenarios.test.ts'],   // not named by a test: the test runs its file
+  ['MK-PF-F-066', 'src/domain/performance/index.ts', 'src/screens/__tests__/pfb_cross_screen_agreement_2026_10_21.test.tsx'],
+  ['MK-PF-F-067', 'src/domain/performance/index.ts', 'MoneyKeel/functions/networth-and-performance/outside_performance_rerun_openai_04.test.ts'],
+  ['MK-PF-F-068', 'src/domain/performance/index.ts', 'src/domain/scenarios.test.ts'],   // not named by a test: the test runs its file
+  ['MK-PF-F-070', 'src/domain/performance/index.ts', 'src/domain/scenarios.test.ts'],   // not named by a test: the test runs its file
+  ['MK-PF-F-071', 'src/domain/performance/index.ts', 'MoneyKeel/functions/networth-and-performance/dec3656_shares_added_inside_window.test.ts'],
+  ['MK-PF-F-072', 'src/domain/performance/index.ts', 'MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts'],
+  ['MK-PF-F-073', 'src/domain/performance/index.ts', 'src/domain/scenarios.test.ts'],   // not named by a test: the test runs its file
+  ['MK-PF-F-074', 'src/domain/performance/index.ts', 'MoneyKeel/functions/networth-and-performance/dec3656_shares_added_inside_window.test.ts'],
+  ['MK-PF-F-075', 'src/domain/performance/index.ts', 'src/domain/scenarios.test.ts'],   // not named by a test: the test runs its file
+  ['MK-PF-F-076', 'src/domain/performance/index.ts', 'src/domain/scenarios.test.ts'],   // not named by a test: the test runs its file
+  ['MK-PF-F-077', 'src/domain/performance/index.ts', 'src/domain/scenarios.test.ts'],   // not named by a test: the test runs its file
+  ['MK-PF-F-078', 'src/domain/performance/index.ts', 'src/domain/scenarios.test.ts'],   // not named by a test: the test runs its file
+  ['MK-PF-F-079', 'src/domain/performance/index.ts', 'src/domain/scenarios.test.ts'],   // not named by a test: the test runs its file
+  ['MK-PF-F-080', 'src/domain/performance/index.ts', 'src/domain/scenarios.test.ts'],   // not named by a test: the test runs its file
 ];
+
+/** Every MK-PF-F record in the code, read from the code: the header rule printed directly above each function (the one the card
+ *  builder and guard_function_descriptions read), with the file that declares it (2026-10-26, PF-TOOLS — the CF table's fix of
+ *  2026-10-24, carried to this one). */
+function headersInCode(): Map<string, string> {
+  const out = new Map<string, string>();
+  const walk = (dir: string) => {
+    for (const f of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (f.name === 'node_modules') continue;
+      const p = path.join(dir, f.name);
+      if (f.isDirectory()) { walk(p); continue; }
+      if (!/\.tsx?$/.test(f.name) || /\.test\./.test(f.name)) continue;
+      for (const m of fs.readFileSync(p, 'utf8').matchAll(/\/\* ─ (MK-PF-F-\d{3}) ─/g)) if (!out.has(m[1])) out.set(m[1], path.relative(ROOT, p));
+    }
+  };
+  for (const c of ['src', 'MoneyKeel/functions', 'Calculation Module code/engines']) walk(path.join(ROOT, c));
+  return out;
+}
 
 describe('every Performance function traces to its proof in one hop (step 3.c)', () => {
   it('the table covers every Performance function in the code — and says how many', () => {
@@ -68,8 +120,17 @@ describe('every Performance function traces to its proof in one hop (step 3.c)',
     // 35 on 2026-10-12: six unused functions removed (DEC-4642 — MK-PF-F-003, 016, 017, 018, 019, 021), the
     // eleven helpers MK-PF-F-035..044 that were missing from this table added, and MK-PF-F-045 / 046 new
     // (DEC-4641, DEC-4643). MK-PF-F-026 is a retired number the code only mentions in a comment.
-    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(35);
+    expect(FUNCTIONS.length).toBeGreaterThanOrEqual(68);   // 68 on 2026-10-26: 33 rows were missing (MK-PF-F-047 to 080) — the typed floor of 35 passed them
     expect(new Set(FUNCTIONS.map((r) => r[0])).size).toBe(FUNCTIONS.length);
+    // THE GUARD PROVES IT LOOKED (2026-10-26, PF-TOOLS): it read a typed floor and nothing else, so every function numbered after the
+    // table was printed passed unseen — the CF table's fault of 2026-10-24. The table must be exactly the code's MK-PF-F records.
+    const code = headersInCode();
+    console.log(`pf_function_trace: ${code.size} MK-PF-F records in the code, ${FUNCTIONS.length} rows in the table`);
+    expect(code.size).toBeGreaterThanOrEqual(68);
+    const table = new Set(FUNCTIONS.map((r) => r[0]));
+    expect([...code.keys()].filter((id) => !table.has(id)).sort()).toEqual([]);   // in the code, missing from the table
+    expect([...table].filter((id) => !code.has(id)).sort()).toEqual([]);          // in the table, gone from the code
+    expect(FUNCTIONS.filter(([id, src]) => code.get(id) !== src).map(([id, src]) => `${id}: the table says ${src}, the code declares it in ${code.get(id)}`)).toEqual([]);
   });
 
   it('each identifier really is in the file this table names', () => {

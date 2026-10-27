@@ -21,7 +21,7 @@ test('THE LAW: what they typed beats everything', () => {
   expect(r.source).toBe('typed');
   expect(r.mine).toBe(true);
   expect(r.rate).toBeCloseTo(0.24, 6);
-  expect(r.label).toBe('your rate, 24%');
+  expect(r.label).toBe('your rate, 24.00%');   // two decimals since 2026-10-26 (MK-CF-M-081; Q49)
 });
 
 test('THE LAW: 0% is a real answer, not a missing one', () => {
@@ -50,7 +50,7 @@ test('THE LAW: the calculated rate says it is ours, and what it covers', () => {
   expect(r.source).toBe('estimated');
   expect(r.mine).toBe(false);
   expect(r.covers).toMatch(/federal income tax only/);
-  expect(r.label).toMatch(/^calculated, \d+%$/);
+  expect(r.label).toMatch(/^calculated, \d+\.\d{2}%$/);
 });
 
 test('THE LAW: effectiveRate IS the rate in force — never a second opinion', () => {
@@ -77,8 +77,9 @@ test('THE LAW: when they told us what lands, EVERY screen says the same number',
 test('THE LAW: a typed take-home is a MONTH at every pay frequency — the year is twelve of it', () => {
   // approved drawing income-end-to-end v07, frame 2c: paid fortnightly, "Sam’s take-home each month" $3,300
   for (const freq of ['hourly', 'weekly', 'biweekly', 'monthly']) {
+    // an hourly wage carries its hours a week: with none entered it is no number (DEC-0296; 2026-10-26, FIX-INCOME-A)
     const op: any = { baseSalary: freq === 'hourly' ? '26' : freq === 'weekly' ? '1040' : freq === 'biweekly' ? '2077' : '4500',
-                      salaryFreq: freq, c_401k: '400', landsTypical: '3300' };
+                      salaryFreq: freq, c_401k: '400', landsTypical: '3300', ...(freq === 'hourly' ? { hoursPerWeek: '40' } : {}) };
     expect(enteredLandsAnnual(op)).toBe(39_600);
     expect(basePay({ earners: [{ name: 'You', entry: entryFromWage(op) }], profile: op }).landsInBank).toBe(3300);
     expect(incomeMonthlyGrid(op, 'available').reduce((t, g) => t + g.amount, 0) / 12).toBeCloseTo(3300, 2);

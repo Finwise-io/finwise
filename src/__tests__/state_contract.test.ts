@@ -106,12 +106,12 @@ describe('state contract (FCC-state-contract.md)', () => {
     // payslip does that, the base-pay card showed a level "≈/month" beside it, and the Income summary's
     // rows stopped adding up. His rulings since: the rate is used "everywhere your take-home matters —
     // cash flow, budget, the surplus" (G46, 2026-08-28), and a 401(k) comes off before tax (B05).
-    const { progressiveMonthlyTax, taxOwedFor } = require('../domain/income/tax');
+    const TAX = require('../domain/income/tax');
+    const { taxOwedFor } = TAX;
     const { monthlyTaxRates, incomeMonthlyGrid } = require('../domain/income');
-    // the band-filling function itself still sums to the year TO THE CENT (the stored income record uses it)
-    const lumpy = [6000, 6000, 36000, 6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000];
-    const tax = progressiveMonthlyTax(lumpy);
-    expect(Math.abs(tax.reduce((a: number, b: number) => a + b, 0) - taxOwedFor(lumpy.reduce((a, b) => a + b, 0)))).toBeLessThan(0.01);
+    // the band-filling function is RETIRED (2026-10-25, MK-CF-F-098): its last caller, the stored income record, reads the one
+    // rate too, so no month anywhere fills the bands
+    expect(TAX.progressiveMonthlyTax).toBeUndefined();
     // calculated or typed, the rate is one number in all twelve months
     const est = { status: 'employed', baseSalary: '6000', salaryMode: 'gross', salaryFreq: 'monthly', c_401k: '500', bonusAnnual: '30000', bonusMonth: 3 };
     for (const op of [est, { ...est, taxMode: 'manual', manualTaxRate: '20' }]) {

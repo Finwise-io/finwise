@@ -10,17 +10,20 @@ import { CountedTaxableLines } from './CountedTaxableLines';   // (DEC-4105, 202
 import React, { useMemo, useState } from 'react';
 import { Modal, View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useStore } from '../store/useStore';
+import { incomeProfileNow } from '../hooks/useIncomeProfile';   // the one profile income figures read (2026-10-26)
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { maskedMoney, spokenMoney } from './useMoney';
 import { InfoDot } from './UI';
 import {
   taxBucketSplit, withdrawalOrder, drawOrderOutcome, taxableGainShare, rmdAtAge,
-  DEFAULT_DRAW_ORDER, rmdStartAgeFor, type DrawBucket,
+  DEFAULT_DRAW_ORDER, rmdStartAgeFor, drawAssumptionsSaid, RMD_NO_AGE, DRAW_COMPARE_NO_AGE, type DrawBucket,
 } from '../domain/decumulation';
 import { plannedMonthlySpend } from '../domain/budget';
 import { currentRetirementIncomeMonthly, filingStatusOf, over65CountOf } from '../domain/income';
-import { marginalBracketFor, ltcgRateFor } from '../domain/income/tax';
+import { marginalBracketFor } from '../domain/income/tax';
 import { taxedAfterPreTax } from '../domain/income/tax-rate';   // the 401(k)s out before tax (B05, 2026-10-24)
+import { paycheckReturn } from '../domain/paycheck';   // the cockpit's return when none is set (2026-10-25)
+import { inflationRateInForce } from '../domain/retirement/inflation';
 import { latestClose } from '../domain/performance';
 import { ageFromProfile } from '../utils/persona';
 import { modalAnimation } from '../hooks/reducedMotion';
@@ -36,8 +39,11 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
   const op = store.onboardingProfile ?? null;
   const accounts = store.assetAccounts ?? [];
   const A = store.retirementAssumptions ?? {};
-  const age = ageFromProfile(op) ?? 68;
+  // no birth year: no age, never a made-up 68 — the required withdrawal and the comparison turn on age and say they are not
+  // calculated (2026-10-26, CLEANUP-LEFT; tenet 3, DEC-0296; cash-flow_v01's READ THIS FIRST row of that date)
+  const age = ageFromProfile(op);
   const split = useMemo(() => taxBucketSplit(accounts), [accounts]);
+  const rmdFirst = age != null && age >= rmdStartAgeFor(age) && split.preTax > 0;
 
   const saved: DrawBucket[] | null = Array.isArray(store.drawOrder) && store.drawOrder.length === 4 ? store.drawOrder as DrawBucket[] : null;
   const [order, setOrder] = useState<DrawBucket[]>(saved ?? [...DEFAULT_DRAW_ORDER]);
@@ -60,33 +66,44 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
     const spendAnnual = (plannedMonthlySpend(op) || 0) * 12;
     const guaranteedAnnual = currentRetirementIncomeMonthly(op) * 12;
     if (spendAnnual <= 0) return null;
+    if (age == null) return { noAge: true as const };
     const horizon = A.horizonAge ?? 92;
-    const realGrowth = Math.max(-0.02, (A.expectedReturn ?? 0.055) - (A.inflation ?? 0.025));
+    // THE COCKPIT'S RETURN, STATED (2026-10-25, the lead's ruling on CFR-4's second question; tenet 4): with no return set the
+    // sheet grew the money at a flat 5.5% stand-in. It reads the one return the paycheck and the odds read (paycheckReturn —
+    // a return set on the Plan, else the blended benchmark of the retirement accounts, else the typical 6%), less the one
+    // inflation rate (inflationRateInForce), and the sheet says which.
+    const ret = paycheckReturn(accounts, A, op);
+    const inflation = inflationRateInForce(A.inflation ?? null).rate;
+    const realGrowth = Math.max(-0.02, ret.mean_return - inflation);
     // G6 (founder ruling 2026-09-08): the person's OWN rates, never 22% / 15% / 50% built in.
     // Income base = everything they told us is taxable this year plus the guaranteed income they
     // receive now (Social Security counted in full — its untaxed share is not modelled, so the band
     // can read one step high). Gain share = the unrealised gain in their taxable holdings.
-    const incomeBase = taxedAfterPreTax(op) + guaranteedAnnual;   // 2026-10-24: a 401(k) still paid into comes off first (B05)
+    const incomeBase = taxedAfterPreTax(incomeProfileNow(op)) + guaranteedAnnual;   // the accounts' interest in it too (2026-10-26, FIX-INCOME-A; src/hooks/useIncomeProfile.ts)
+    // 2026-10-24: a 401(k) still paid into comes off first (B05)
     const status = filingStatusOf(op), over65 = over65CountOf(op);
     const ordinaryRate = marginalBracketFor(incomeBase, status, over65);
-    const capGainsRate = ltcgRateFor(incomeBase, status, over65);
+    // the gains are taxed stacked on this income, across the 0% / 15% / 20% bands (ltcgTaxOnGain inside drawOrderOutcome,
+    // 2026-10-25), and the sentence of assumptions says so (drawAssumptionsSaid)
     const gainShare = taxableGainShare(accounts, (t) => latestClose(store.priceCache?.[String(t).toUpperCase()]));
-    const base = { age, horizon, spendAnnual, guaranteedAnnual, realGrowth, ordinaryRate, capGainsRate, gainShare };
+    const base = { age, horizon, spendAnnual, guaranteedAnnual, realGrowth, ordinaryRate, gainsOn: { ordinaryIncome: incomeBase, status, over65 }, gainShare };
     return {
       math: drawOrderOutcome(split, DEFAULT_DRAW_ORDER, base),
       mine: drawOrderOutcome(split, order, base),
-      horizon, ordinaryRate, capGainsRate, gainShare,
+      horizon,
+      said: drawAssumptionsSaid({ ordinaryRate, gainsOn: base.gainsOn, gainShare, growthSaid: ret.said, inflation }),
     };
-  }, [op, accounts, split, order, age, A.horizonAge, A.expectedReturn, A.inflation, store.priceCache]);
+  }, [op, accounts, split, order, age, A, store.priceCache]);
 
   const comparison = useMemo(() => {
     if (!outcome) return null;
-    const { math, mine, horizon, ordinaryRate, capGainsRate, gainShare } = outcome;
+    if ('noAge' in outcome) return { text: DRAW_COMPARE_NO_AGE, spoken: DRAW_COMPARE_NO_AGE, rates: null };
+    const { math, mine, horizon, said } = outcome;
     if (math.totalTaxes == null || mine.totalTaxes == null) {
       const why = math.unknown ?? mine.unknown ?? 'the tax on the draw cannot be calculated';
       return { text: `Can't compare the orders yet — ${why}. Add the purchase price of your taxable holdings and this will run.`, spoken: `Cannot compare yet: ${why}.`, rates: null };
     }
-    const rates = `Rates used — yours, calculated: ${Math.round(ordinaryRate * 100)}% on pre-tax draws · ${Math.round(capGainsRate * 100)}% on gains · gains are ${Math.round((gainShare ?? 0) * 100)}% of your taxable holdings' value.`;
+    const rates = said;   // the sentence of assumptions, composed once (drawAssumptionsSaid, 2026-10-25)
     const ageTxt = (r: { lastsToAge: number | null }) => (r.lastsToAge == null ? `past ${horizon}` : `${r.lastsToAge}`);
     const sameAge = (math.lastsToAge ?? horizon + 1) === (mine.lastsToAge ?? horizon + 1);
     const taxDelta = mine.totalTaxes - math.totalTaxes;
@@ -102,7 +119,7 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
   const keep = () => { store.setDrawOrder?.(isDefault ? null : order); onClose(); };
   const reset = () => { setOrder([...DEFAULT_DRAW_ORDER]); setRan(false); };
 
-  const whySteps = useMemo(() => withdrawalOrder(split, age, order), [split, age, order]);
+  const whySteps = useMemo(() => withdrawalOrder(split, age ?? undefined, order), [split, age, order]);
 
   return (
     <Modal visible={visible} transparent animationType={modalAnimation()} onRequestClose={onClose}>
@@ -117,7 +134,7 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
           {projectionMode && <Text style={s.projBanner}>This is how your future draw would work — a projection, not today's money.</Text>}
 
           {/* pinned required-withdrawal step (r48) — law, not preference */}
-          {age >= rmdStartAgeFor(age) && split.preTax > 0 && (
+          {rmdFirst && age != null && (
             <View style={[s.row, s.pinnedRow]} accessible
               accessibilityLabel={`Required withdrawal, first: ${spokenMoney(Math.round(rmdAtAge(split.preTax, age)))}. The law makes you take this from pre-tax accounts whether you need it or not. This step cannot move.`}>
               <Text style={s.rowNum}>⚖</Text>
@@ -128,6 +145,8 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
               <Text style={s.rowVal}>{maskedMoney(Math.round(rmdAtAge(split.preTax, age)))}</Text>
             </View>
           )}
+          {/* no birth year and pre-tax money held: the required withdrawal is not calculated, said in the paycheck card's words */}
+          {age == null && split.preTax > 0 && <Text style={s.note}>{RMD_NO_AGE}</Text>}
 
           {/* the four buckets, reorderable by buttons (r47/r52: $0 buckets shown, grayed) */}
           {order.map((b, i) => {

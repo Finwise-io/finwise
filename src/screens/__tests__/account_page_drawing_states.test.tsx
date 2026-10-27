@@ -16,15 +16,18 @@
  *  The data state of each phone (the account, its records, its daily record and its prices) is seeded here, so the
  *  drawing's figures are the app's own and cannot drift (DEC-6212).
  *
- *  TWO READINGS, NOT DIFFERENCES — the only ones:
- *   · an apostrophe: the drawing writes ’ and the app writes ' in four shared sentences (the worked-back note, the
- *     yield on today's value, the 12-month card's "it's", the amber box's "hasn't"); the words are the same.
+ *  ONE READING, NOT A DIFFERENCE — the only one:
+ *   · (2026-10-25) an apostrophe is held as drawn: the drawing writes ’, and so does the app — it wrote ' in four shared sentences
+ *     (the worked-back note, the yield on today’s value, the 12-month card’s it’s, the amber box’s hasn’t), and this file read
+ *     the two as one. src/__tests__/nw_curly_apostrophe_guard.test.ts holds every sentence a Net worth screen prints.
  *   · the top bar's icons: the drawing draws them as glyphs ("Money"+"Keel", "◉", "⚙"); the app draws the wordmark
  *     image and two icon buttons. Both are read as [wordmark MoneyKeel], [icon Hide balances], [icon Settings].
  *
- *  KNOWN DIFFERENCES (each with its reason) — see KNOWN below. There are none in the words; six are in the
- *  appearance, where the drawing's CSS and one of the app's shared rules disagree (its shared amber box and that box's
- *  headline, its one content padding, its one right edge, its one type scale, its one info dot).
+ *  KNOWN DIFFERENCES (each with its reason) — see KNOWN below. There are none in the words; four are in the appearance,
+ *  where the drawing's CSS and one of the app's shared rules disagree (its one content padding, its one right edge, its one
+ *  type scale, its one info dot), each written on the drawing as a dated READ THIS FIRST row (rows 75, 77, 78 and 74, of
+ *  2026-10-25). The amber box and its headline are no longer among them: since 2026-10-25 the app's one box is drawn as this
+ *  drawing draws it (row 74).
  */
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
@@ -127,7 +130,7 @@ const FID = {
 const VTI = series([['2024-09-29', 250], ['2025-09-29', 312.5 / 1.1], ['2025-12-31', 295], ['2026-08-29', 305], ['2026-09-30', 312.5]]);
 // the day the account is linked. State C is drawn with NO record of it at all (the drawing's row 39: "no day is
 // recorded and no money has moved") — the page opened before today's record holds the account. State D is drawn on the
-// record AS THE APP WRITES IT: Home writes today's values the moment it opens, so the record holds one day, today.
+// record AS THE APP WRITES IT: Home writes today’s values the moment it opens, so the record holds one day, today.
 const FID_TODAY = [linkedDay('fid', TODAY, 50_000)];
 
 // ── STATE E · US Treasury 4.00% 2030, built by hand Jun 2, 2026 at $9,850; $9,700 paid (row 46, 2026-10-20) ─────────
@@ -185,8 +188,8 @@ const HTML = fs.readFileSync(DRAWING, 'utf8');
 type Line = { t: string; g: string };
 const decode = (s: string) => s.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&#39;/g, "'").replace(/&quot;/g, '"');
 const clean = (s: string) => s.replace(/\s+/g, ' ').trim();
-/** The two readings named in the header: an apostrophe is an apostrophe. */
-const norm = (s: string) => s.replace(/[’‘]/g, "'");
+/** No reading of the apostrophe (2026-10-25): ’ is held as drawn — the header says why. */
+const norm = (s: string) => s;
 const GROUP_OF_CLASS: Record<string, string> = { card: 'card', warnb: 'warn', segbar: 'segbar', btnrow: 'btnrow' };
 
 function drawnStates(): { key: string; label: string; lines: Line[] }[] {
@@ -293,10 +296,6 @@ const firstDifference = (drawn: string[], built: string[]): string | null => {
 
 /** KNOWN DIFFERENCES, EACH WITH ITS REASON. Words: none. Appearance (checked in the appearance block below): */
 const KNOWN = {
-  /** the amber box is the app's ONE amber box of missing information (DataGapsBanner, Performance and Net worth): 16
-   *  round and 12 in, where the drawing's CSS writes 12 round and 10 in. The drawing's row 26 calls it "the same box as
-   *  the app’s missing-data banner", and the brief for this build says "build it with the shared amber style". */
-  amberBoxRadiusAndPadding: { app: { borderRadius: 16, padding: 12 }, drawing: { borderRadius: 12, padding: '10px 12px' } },
   /** the page's top padding is the app's one content padding, 20 (every tab and page); the drawing's CSS writes 4 above
    *  the name while its own comment says "content padding Spacing.lg (20)". */
   contentTop: { app: 20, drawing: 4 },
@@ -310,10 +309,15 @@ const KNOWN = {
   /** the info dot is the app's ONE dot (InfoDot, every screen), a ⓘ at 700; this drawing writes its ⓘ at 400. The approved
    *  drawings draw the dot three ways (v08: a 9-point italic i in a ring), so the shared dot stands (2026-10-21, gap 26). */
   infoDotWeight: { app: '700', drawing: '400' },
-  /** the amber box's headline is the shared box's (DataGapsBanner, Net worth and Performance): 800; the drawing writes it
-   *  in a <b>, which a browser draws at 700 (2026-10-21, gap 26; the box is KNOWN above for the same reason). */
-  amberHeadlineWeight: { app: '800', drawing: '700' },
 };
+/** WHAT EACH KNOWN DIFFERENCE IS WRITTEN AS ON THE DRAWING'S FACE (rows of 2026-10-25): the row number and its first words */
+const KNOWN_ROWS: [keyof typeof KNOWN | 'amberBox' | 'totalWeight', number, RegExp][] = [
+  ['amberBox', 74, /^2026-10-25 · State D, the amber box: drawn as here — 12-point corners, 10 points inside above and below and 12 at the sides, the headline at 700\..*The two small doors stay at 13 points/],
+  ['infoDotWeight', 75, /^2026-10-25 · DRAWING ERROR, every state — the ⓘ is drawn at weight 400\. The app draws its one info dot at 700/],
+  ['totalWeight', 76, /^2026-10-25 · DRAWING ERROR, states A, C and D — the Total row’s figure draws at 900/],
+  ['contentTop', 77, /^2026-10-25 · DRAWING ERROR, every state — the account’s name, the page’s first line, sits 4 points under the top bar/],
+  ['gutterFlush', 78, /^2026-10-25 · DRAWING ERROR, every state — the drawing’s style sets each figure 8 points \(on a bar, 6\) left of the narrow column/],
+];
 
 const DRAWN = drawnStates();
 /** The coverage line of every state, written for the audit (the runner cuts console output). */
@@ -512,10 +516,11 @@ describe('APPEARANCE: colours, sizes and weights as rendered, against the drawin
     renderState(STATES[3]);
     const box = nodes().find(({ n }) => n.props?.testID === 'gaps-on-page')!;
     expect(flat(box.n.props.style)).toMatchObject({ backgroundColor: Colors.amberLight, borderWidth: 1, borderColor: Colors.amber, marginBottom: 8 });
-    // KNOWN.amberBoxRadiusAndPadding: the app's one amber box
-    expect(flat(box.n.props.style)).toMatchObject(KNOWN.amberBoxRadiusAndPadding.app);
-    expect(styleOf('⚠ 1 number needs more information ›')).toMatchObject({ fontSize: 13, fontWeight: '800', color: Colors.amber });   // .warnb b
-    expect(styleOf(/^Fidelity hasn't shared dividend records for this account\./)).toMatchObject({ fontSize: 13, color: Colors.textPrimary, flex: 1 });   // .bl2 .w
+    // the app's one amber box, as drawn (row 74, 2026-10-25): .warnb border-radius 12, padding 10px 12px
+    expect(HTML).toMatch(/\.warnb\{background:var\(--amberLight\);border:1px solid var\(--amber\);border-radius:12px;padding:10px 12px;margin:0 0 8px;/);
+    expect(flat(box.n.props.style)).toMatchObject({ borderRadius: 12, paddingVertical: 10, paddingHorizontal: 12 });
+    expect(styleOf('⚠ 1 number needs more information ›')).toMatchObject({ fontSize: 13, fontWeight: '700', color: Colors.amber });   // .warnb b — a <b>, 700
+    expect(styleOf(/^Fidelity hasn’t shared dividend records for this account\./)).toMatchObject({ fontSize: 13, color: Colors.textPrimary, flex: 1 });   // .bl2 .w
     expect(parentStyleOf('·')).toMatchObject({ flexDirection: 'row', alignItems: 'flex-start', gap: 6 });                         // .bl2 (DEC-6078)
     expect(styleOf('Enter dividends yourself ›')).toMatchObject({ fontSize: KNOWN.smallDoorText.app, fontWeight: '800', color: Colors.white });   // .door.fill.sm
     expect(parentStyleOf('Enter dividends yourself ›')).toMatchObject({ backgroundColor: Colors.primaryDeep, minHeight: 36, borderRadius: 12 });
@@ -894,7 +899,7 @@ describe('DEC-6412 · a window that opens before the record begins is joined at 
     renderState({ ...STATES[0], pick: '1Y' });
     const lines = strings();
     expect(trioReturn(lines)).toBe('+8.26%');
-    expect(lines).toContain('Your daily record begins Oct 1, 2025, so the days before it are worked back from each holding\'s price history.');
+    expect(lines).toContain('Your daily record begins Oct 1, 2025, so the days before it are worked back from each holding’s price history.');
     expect(lines.some((l) => /Rebuilt from/.test(l))).toBe(false);   // the record does not reach the window's beginning
     expect(lines.some((l) => /has no price history/.test(l))).toBe(false);   // the bonds had no part in those days
   });
@@ -1002,7 +1007,6 @@ describe('APPEARANCE · every line of every state, F included: size, weight and 
   /** the KNOWN differences of appearance, each the app's one shared rule (see KNOWN at the top of this file) */
   const known = (k: string, d: { t: string; chain: El[] }, w: string, g: string) =>
     (d.t === 'ⓘ' && w.replace(` · ${KNOWN.infoDotWeight.drawing} · `, ` · ${KNOWN.infoDotWeight.app} · `) === g)
-    || (k === 'D' && d.chain.some((e) => e.cls.includes('warnb')) && d.chain[d.chain.length - 1].tag === 'b' && w.replace(` · ${KNOWN.amberHeadlineWeight.drawing} · `, ` · ${KNOWN.amberHeadlineWeight.app} · `) === g)
     || (k === 'D' && d.chain[d.chain.length - 1].cls.includes('sm') && w.replace(/^12 /, `${KNOWN.smallDoorText.app} `) === g);
   test.each(['A', 'B', 'C', 'D', 'E', 'F'])('state %s · every line: the size, weight and colour the drawing\'s CSS gives it are the ones the screen renders', (k) => {
     renderState(STATES['ABCDEF'.indexOf(k)]);
@@ -1019,7 +1023,7 @@ describe('APPEARANCE · every line of every state, F included: size, weight and 
     expect(diffs).toEqual([]);
     // the guard looked: every line compared, and the known ones are the ones it expects to meet
     expect(drawn.length).toBeGreaterThanOrEqual({ A: 120, B: 60, C: 75, D: 80, E: 60, F: 55 }[k]!);
-    expect(knownSeen).toBe(drawn.filter((d) => d.t === 'ⓘ').length + (k === 'D' ? 3 : 0));
+    expect(knownSeen).toBe(drawn.filter((d) => d.t === 'ⓘ').length + (k === 'D' ? 2 : 0));   // the dots, and state D's two small doors
   });
 
   test('state F\'s cards are the page\'s cards, and its three dark-green bars run edge to edge with square corners', () => {
@@ -1038,5 +1042,27 @@ describe('APPEARANCE · every line of every state, F included: size, weight and 
     // the hand-built buttons and the doors, as in state B and state A
     expect(parentStyleOf('Update value')).toMatchObject({ borderWidth: 1.5, borderColor: Colors.border, borderRadius: 16, minHeight: 44, paddingHorizontal: 18, backgroundColor: Colors.cardBg });
     expect(parentStyleOf('Add a buy or sale ›')).toMatchObject({ borderWidth: 1.5, borderColor: Colors.primaryDeep, borderRadius: 12, minHeight: 44 });
+  });
+});
+
+describe('the drawing says, on its face and dated 2026-10-25, every difference of appearance KNOWN holds (rows 74 to 78)', () => {
+  const rows = (() => {
+    const at = HTML.indexOf('READ THIS FIRST — what changed from frame 2');
+    const table = HTML.slice(at, HTML.indexOf('</table>', at));
+    return new Map([...table.matchAll(/<tr><td>(\d+)<\/td><td>([\s\S]*?)<\/td>/g)].map((m) => [Number(m[1]), m[2].replace(/<[^>]+>/g, '').replace(/&amp;/g, '&')]));
+  })();
+  test.each(KNOWN_ROWS.map(([k, n, re]) => [k, n, re] as [string, number, RegExp]))('%s · row %s', (_k, n, re) => {
+    expect(rows.get(n) ?? '').toMatch(re);
+  });
+  test('every KNOWN difference has its row, and the amber box is no longer one of them', () => {
+    expect(Object.keys(KNOWN).sort()).toEqual(['contentTop', 'gutterFlush', 'infoDotWeight', 'smallDoorText']);
+    for (const k of Object.keys(KNOWN)) expect(KNOWN_ROWS.some(([r]) => r === k || (k === 'smallDoorText' && r === 'amberBox'))).toBe(true);
+    expect(rows.size).toBeGreaterThanOrEqual(78);   // the table was read whole: rows 1 to 78 on 2026-10-25
+  });
+  test('the Itemize into holdings door wears the drawn .itemize box: 12-point corners, 12 inside (row 74)', () => {
+    expect(HTML).toMatch(/\.itemize\{background:var\(--amberLight\);border:1px solid var\(--amber\);border-radius:12px;padding:12px;/);
+    const src = fs.readFileSync(path.join(__dirname, '..', 'AccountPortfolioScreen.tsx'), 'utf8');
+    expect(src).toMatch(/itemizeDoor: \{ backgroundColor: Colors\.amberLight, borderWidth: 1, borderColor: Colors\.amber, borderRadius: Radii\.md, padding: Spacing\.md,/);
+    expect([Radii.md]).toEqual([12]);
   });
 });

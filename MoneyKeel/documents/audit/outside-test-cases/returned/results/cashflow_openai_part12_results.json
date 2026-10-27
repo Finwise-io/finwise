@@ -1,0 +1,1447 @@
+{
+ "batch": "cf module — part 12 (cases, formula checks, NOT HELD rules)",
+ "reviewer": "OpenAI independent specification reviewer, CashFlow package of 2026-10-24",
+ "run_by": "Claude Code (CFR-3 measuring fork: parts 11 and 12)",
+ "run_on": "2026-10-25",
+ "test_file": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts",
+ "source": "returned/MoneyKeel_CashFlow_Independent_Audit_Package/MoneyKeel_CashFlow_Independent_Audit/audit_results/MoneyKeel_CashFlow_Audit_Part_12.json",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts → 60 passed, 5 skipped (BLOCKED), 0 failed, 65 total. Each APP WRONG item is test.failing on the reviewer's answer (counted as passed while the app is wrong). npx tsc --noEmit: no error in this file (errors elsewhere belong to other agents' files mid-edit: base-pay.ts, part03 test, CashFlowScreen.tsx).",
+ "working_tree": "Measured on the working tree of 2026-10-25 at b1c659e8 (branch taxonomy-v1.0.7), other agents editing other files. No app code, drawing, record or existing test was changed; only this part's test file and this results file were written.",
+ "ready_to_close": false,
+ "cases": [
+  {
+   "id": "MK-CF-F-114",
+   "case_id": "MK-CF-F-114-C01",
+   "name": "undoSnapshot",
+   "kind": "easy",
+   "title": "One account",
+   "classification": "AGREE",
+   "expected": {
+    "affected_ids": [
+     "A"
+    ],
+    "assertions": [
+     "deep snapshot before mutation",
+     "nested lot data independent from original"
+    ]
+   },
+   "actual": {
+    "affected_ids": [
+     "A"
+    ]
+   },
+   "difference": "none",
+   "mapped": "accounts [{id, balance}] → AssetAccounts with one lot each (10 AAA at $100) so the copy’s depth can be tested; primary → account_id, counter → counter_account_id",
+   "rests_on": "written formula",
+   "note": "Deep copies of the touched accounts only, taken before the change; a transfer to the same account is copied once (a Set).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-114 undoSnapshot — five cases › MK-CF-F-114-C01 · easy · One account [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-114",
+   "case_id": "MK-CF-F-114-C02",
+   "name": "undoSnapshot",
+   "kind": "easy",
+   "title": "Transfer",
+   "classification": "AGREE",
+   "expected": {
+    "affected_ids": [
+     "A",
+     "B"
+    ],
+    "assertions": [
+     "deep snapshot before mutation",
+     "nested lot data independent from original"
+    ]
+   },
+   "actual": {
+    "affected_ids": [
+     "A",
+     "B"
+    ]
+   },
+   "difference": "none",
+   "mapped": "accounts [{id, balance}] → AssetAccounts with one lot each (10 AAA at $100) so the copy’s depth can be tested; primary → account_id, counter → counter_account_id",
+   "rests_on": "written formula",
+   "note": "Deep copies of the touched accounts only, taken before the change; a transfer to the same account is copied once (a Set).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-114 undoSnapshot — five cases › MK-CF-F-114-C02 · easy · Transfer [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-114",
+   "case_id": "MK-CF-F-114-C03",
+   "name": "undoSnapshot",
+   "kind": "complex",
+   "title": "Three-account context",
+   "classification": "AGREE",
+   "expected": {
+    "affected_ids": [
+     "B",
+     "C"
+    ],
+    "assertions": [
+     "deep snapshot before mutation",
+     "nested lot data independent from original"
+    ]
+   },
+   "actual": {
+    "affected_ids": [
+     "B",
+     "C"
+    ]
+   },
+   "difference": "none",
+   "mapped": "accounts [{id, balance}] → AssetAccounts with one lot each (10 AAA at $100) so the copy’s depth can be tested; primary → account_id, counter → counter_account_id",
+   "rests_on": "written formula",
+   "note": "Deep copies of the touched accounts only, taken before the change; a transfer to the same account is copied once (a Set).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-114 undoSnapshot — five cases › MK-CF-F-114-C03 · complex · Three-account context [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-114",
+   "case_id": "MK-CF-F-114-C04",
+   "name": "undoSnapshot",
+   "kind": "complex",
+   "title": "Self-transfer identity",
+   "classification": "AGREE",
+   "expected": {
+    "affected_ids": [
+     "A"
+    ],
+    "assertions": [
+     "deep snapshot before mutation",
+     "nested lot data independent from original"
+    ]
+   },
+   "actual": {
+    "affected_ids": [
+     "A"
+    ]
+   },
+   "difference": "none",
+   "mapped": "accounts [{id, balance}] → AssetAccounts with one lot each (10 AAA at $100) so the copy’s depth can be tested; primary → account_id, counter → counter_account_id",
+   "rests_on": "written formula",
+   "note": "Deep copies of the touched accounts only, taken before the change; a transfer to the same account is copied once (a Set).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-114 undoSnapshot — five cases › MK-CF-F-114-C04 · complex · Self-transfer identity [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-114",
+   "case_id": "MK-CF-F-114-C05",
+   "name": "undoSnapshot",
+   "kind": "edge",
+   "title": "No counter account",
+   "classification": "AGREE",
+   "expected": {
+    "affected_ids": [
+     "C"
+    ],
+    "assertions": [
+     "deep snapshot before mutation",
+     "nested lot data independent from original"
+    ]
+   },
+   "actual": {
+    "affected_ids": [
+     "C"
+    ]
+   },
+   "difference": "none",
+   "mapped": "accounts [{id, balance}] → AssetAccounts with one lot each (10 AAA at $100) so the copy’s depth can be tested; primary → account_id, counter → counter_account_id",
+   "rests_on": "written formula",
+   "note": "Deep copies of the touched accounts only, taken before the change; a transfer to the same account is copied once (a Set).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-114 undoSnapshot — five cases › MK-CF-F-114-C05 · edge · No counter account [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-115",
+   "case_id": "MK-CF-F-115-C01",
+   "name": "restoreUndo",
+   "kind": "easy",
+   "title": "One account",
+   "classification": "AGREE",
+   "expected": {
+    "affected_ids": [
+     "A"
+    ],
+    "assertions": [
+     "exact saved affected records restored",
+     "unaffected accounts retained"
+    ]
+   },
+   "actual": {
+    "affected_ids": [
+     "A"
+    ]
+   },
+   "difference": "none",
+   "mapped": "accounts [{id, balance}] → AssetAccounts with one lot each (10 AAA at $100) so the copy’s depth can be tested; primary → account_id, counter → counter_account_id; the record carries undo_prev = undoSnapshot before; then every account is changed",
+   "rests_on": "written formula",
+   "note": "The touched accounts come back exactly as saved; every other account is left as it now is.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-115 restoreUndo — five cases › MK-CF-F-115-C01 · easy · One account [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-115",
+   "case_id": "MK-CF-F-115-C02",
+   "name": "restoreUndo",
+   "kind": "easy",
+   "title": "Transfer",
+   "classification": "AGREE",
+   "expected": {
+    "affected_ids": [
+     "A",
+     "B"
+    ],
+    "assertions": [
+     "exact saved affected records restored",
+     "unaffected accounts retained"
+    ]
+   },
+   "actual": {
+    "affected_ids": [
+     "A",
+     "B"
+    ]
+   },
+   "difference": "none",
+   "mapped": "accounts [{id, balance}] → AssetAccounts with one lot each (10 AAA at $100) so the copy’s depth can be tested; primary → account_id, counter → counter_account_id; the record carries undo_prev = undoSnapshot before; then every account is changed",
+   "rests_on": "written formula",
+   "note": "The touched accounts come back exactly as saved; every other account is left as it now is.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-115 restoreUndo — five cases › MK-CF-F-115-C02 · easy · Transfer [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-115",
+   "case_id": "MK-CF-F-115-C03",
+   "name": "restoreUndo",
+   "kind": "complex",
+   "title": "Three-account context",
+   "classification": "AGREE",
+   "expected": {
+    "affected_ids": [
+     "B",
+     "C"
+    ],
+    "assertions": [
+     "exact saved affected records restored",
+     "unaffected accounts retained"
+    ]
+   },
+   "actual": {
+    "affected_ids": [
+     "B",
+     "C"
+    ]
+   },
+   "difference": "none",
+   "mapped": "accounts [{id, balance}] → AssetAccounts with one lot each (10 AAA at $100) so the copy’s depth can be tested; primary → account_id, counter → counter_account_id; the record carries undo_prev = undoSnapshot before; then every account is changed",
+   "rests_on": "written formula",
+   "note": "The touched accounts come back exactly as saved; every other account is left as it now is.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-115 restoreUndo — five cases › MK-CF-F-115-C03 · complex · Three-account context [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-115",
+   "case_id": "MK-CF-F-115-C04",
+   "name": "restoreUndo",
+   "kind": "complex",
+   "title": "Self-transfer identity",
+   "classification": "AGREE",
+   "expected": {
+    "affected_ids": [
+     "A"
+    ],
+    "assertions": [
+     "exact saved affected records restored",
+     "unaffected accounts retained"
+    ]
+   },
+   "actual": {
+    "affected_ids": [
+     "A"
+    ]
+   },
+   "difference": "none",
+   "mapped": "accounts [{id, balance}] → AssetAccounts with one lot each (10 AAA at $100) so the copy’s depth can be tested; primary → account_id, counter → counter_account_id; the record carries undo_prev = undoSnapshot before; then every account is changed",
+   "rests_on": "written formula",
+   "note": "The touched accounts come back exactly as saved; every other account is left as it now is.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-115 restoreUndo — five cases › MK-CF-F-115-C04 · complex · Self-transfer identity [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-115",
+   "case_id": "MK-CF-F-115-C05",
+   "name": "restoreUndo",
+   "kind": "edge",
+   "title": "No counter account",
+   "classification": "AGREE",
+   "expected": {
+    "affected_ids": [
+     "C"
+    ],
+    "assertions": [
+     "exact saved affected records restored",
+     "unaffected accounts retained"
+    ]
+   },
+   "actual": {
+    "affected_ids": [
+     "C"
+    ]
+   },
+   "difference": "none",
+   "mapped": "accounts [{id, balance}] → AssetAccounts with one lot each (10 AAA at $100) so the copy’s depth can be tested; primary → account_id, counter → counter_account_id; the record carries undo_prev = undoSnapshot before; then every account is changed",
+   "rests_on": "written formula",
+   "note": "The touched accounts come back exactly as saved; every other account is left as it now is.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-115 restoreUndo — five cases › MK-CF-F-115-C05 · edge · No counter account [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-116",
+   "case_id": "MK-CF-F-116-C01",
+   "name": "inverseOf",
+   "kind": "easy",
+   "title": "Deposit reversal",
+   "classification": "AGREE",
+   "expected": {
+    "kind": "withdrawal",
+    "amount": {
+     "exact": "500",
+     "shown": "$500.00"
+    },
+    "direction": "out"
+   },
+   "actual": {
+    "kind": "withdrawal",
+    "primary": "A",
+    "counter": null,
+    "amount": 500,
+    "direction": "out"
+   },
+   "difference": "none",
+   "mapped": "kind/amount/direction/primary/counter → a record; the undo is inverseOf(record); its signed cash is cashEffect (moneyIntoAccount, the one rule for a stored amount)",
+   "rests_on": "DEC-6993; DEC-6796",
+   "note": "A $500 deposit that came in is undone by a $500 withdrawal going out.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-116 inverseOf — five cases › MK-CF-F-116-C01 · easy · Deposit reversal [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-116",
+   "case_id": "MK-CF-F-116-C02",
+   "name": "inverseOf",
+   "kind": "easy",
+   "title": "Transfer reversal",
+   "classification": "AGREE",
+   "expected": {
+    "kind": "transfer",
+    "primary": "B",
+    "counter": "A",
+    "amount": {
+     "exact": "500",
+     "shown": "$500.00"
+    },
+    "direction": "out"
+   },
+   "actual": {
+    "kind": "transfer",
+    "primary": "B",
+    "counter": "A",
+    "amount": 500,
+    "direction": "out"
+   },
+   "difference": "none",
+   "mapped": "kind/amount/direction/primary/counter → a record; the undo is inverseOf(record); its signed cash is cashEffect (moneyIntoAccount, the one rule for a stored amount)",
+   "rests_on": "DEC-6993",
+   "note": "A transfer is undone by swapping its two accounts and keeping its direction.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-116 inverseOf — five cases › MK-CF-F-116-C02 · easy · Transfer reversal [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-116",
+   "case_id": "MK-CF-F-116-C03",
+   "name": "inverseOf",
+   "kind": "complex",
+   "title": "Fee refund reversal",
+   "classification": "AGREE",
+   "expected": {
+    "signed_cash_effect": {
+     "exact": "-7.31",
+     "shown": "−$7"
+    }
+   },
+   "actual": {
+    "kind": "deposit",
+    "primary": "A",
+    "counter": null,
+    "amount": 7.31,
+    "direction": "out",
+    "signed_cash_effect": -7.31
+   },
+   "difference": "none",
+   "mapped": "kind/amount/direction/primary/counter → a record; the undo is inverseOf(record); its signed cash is cashEffect (moneyIntoAccount, the one rule for a stored amount)",
+   "rests_on": "DEC-6796",
+   "note": "A $7.31 fee refund that came in is undone by $7.31 going out.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-116 inverseOf — five cases › MK-CF-F-116-C03 · complex · Fee refund reversal [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-116",
+   "case_id": "MK-CF-F-116-C04",
+   "name": "inverseOf",
+   "kind": "complex",
+   "title": "Legacy signed negative dividend",
+   "classification": "AGREE",
+   "expected": {
+    "signed_cash_effect": {
+     "exact": "51.43",
+     "shown": "$51"
+    }
+   },
+   "reviewer_formula_gives": {
+    "state": "RULE UNCLEAR",
+    "reason": "Sign normalization on inverse omitted",
+    "readings": {
+     "kind_plus_negative_amount": "may move −51.43 again",
+     "normalized": "moves +51.43"
+    }
+   },
+   "actual": {
+    "kind": "withdrawal",
+    "primary": "A",
+    "counter": null,
+    "amount": -51.43,
+    "direction": null,
+    "signed_cash_effect": 51.43,
+    "cash_after_apply_and_undo": 1000
+   },
+   "difference": "none",
+   "mapped": "kind/amount/direction/primary/counter → a record; the undo is inverseOf(record); its signed cash is cashEffect (moneyIntoAccount, the one rule for a stored amount)",
+   "rests_on": "DEC-6796 (a stored sign is kept); ledger.ts moneyIntoAccount",
+   "note": "The reviewer feared a double reversal. Measured: a −$51.43 dividend with no direction is undone by a −$51.43 withdrawal, which the one rule reads as +$51.43 — once. Applied then undone, the cash is back to the cent.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-116 inverseOf — five cases › MK-CF-F-116-C04 · complex · Legacy signed negative dividend [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-116",
+   "case_id": "MK-CF-F-116-C05",
+   "name": "inverseOf",
+   "kind": "edge",
+   "title": "Buy needs snapshot",
+   "classification": "AGREE",
+   "expected": null,
+   "actual": null,
+   "difference": "none",
+   "mapped": "kind/amount/direction/primary/counter → a record; the undo is inverseOf(record); its signed cash is cashEffect (moneyIntoAccount, the one rule for a stored amount); buy 10 at $100 with a $5 fee",
+   "rests_on": "written formula",
+   "note": "A buy has no made-up opposite; only its saved snapshot can undo it.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-116 inverseOf — five cases › MK-CF-F-116-C05 · edge · Buy needs snapshot [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-117",
+   "case_id": "MK-CF-F-117-C01",
+   "name": "txnLabel",
+   "kind": "easy",
+   "title": "Deposit",
+   "classification": "BLOCKED",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Approved literal label missing",
+    "readings": {
+     "registered": "requires mapping",
+     "fallback": "deposit"
+    }
+   },
+   "actual": "Deposit",
+   "difference": "The missing contract is an approved label list.",
+   "mapped": "transaction_kind → TxnType in capitals",
+   "rests_on": "missing contract: his approval of the activity labels",
+   "note": "The missing contract is an approved label list. txnLabel’s 13 labels are in the code (transactions/index.ts:965); only \"Buy\" and \"Dividend\" print as activity rows on an approved drawing (account page v01, DEC-6457). \"Deposit\" and \"Transfer\" are drawn on the trade sheet v03 and record-activity v01, both NOT APPROVED (design record rows 70 and 73); \"Interest\" as a row only on record-activity v01; \"Opening holding\" on no drawing.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-117 txnLabel — five cases › MK-CF-F-117-C01 · easy · Deposit [BLOCKED]",
+   "test_result": "skipped (BLOCKED)"
+  },
+  {
+   "id": "MK-CF-F-117",
+   "case_id": "MK-CF-F-117-C02",
+   "name": "txnLabel",
+   "kind": "easy",
+   "title": "Transfer",
+   "classification": "BLOCKED",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Approved literal label missing",
+    "readings": {
+     "registered": "requires mapping",
+     "fallback": "transfer"
+    }
+   },
+   "actual": "Transfer",
+   "difference": "The missing contract is an approved label list.",
+   "mapped": "transaction_kind → TxnType in capitals",
+   "rests_on": "missing contract: his approval of the activity labels",
+   "note": "The missing contract is an approved label list. txnLabel’s 13 labels are in the code (transactions/index.ts:965); only \"Buy\" and \"Dividend\" print as activity rows on an approved drawing (account page v01, DEC-6457). \"Deposit\" and \"Transfer\" are drawn on the trade sheet v03 and record-activity v01, both NOT APPROVED (design record rows 70 and 73); \"Interest\" as a row only on record-activity v01; \"Opening holding\" on no drawing.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-117 txnLabel — five cases › MK-CF-F-117-C02 · easy · Transfer [BLOCKED]",
+   "test_result": "skipped (BLOCKED)"
+  },
+  {
+   "id": "MK-CF-F-117",
+   "case_id": "MK-CF-F-117-C03",
+   "name": "txnLabel",
+   "kind": "complex",
+   "title": "Interest",
+   "classification": "BLOCKED",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Approved literal label missing",
+    "readings": {
+     "registered": "requires mapping",
+     "fallback": "interest"
+    }
+   },
+   "actual": "Interest",
+   "difference": "The missing contract is an approved label list.",
+   "mapped": "transaction_kind → TxnType in capitals",
+   "rests_on": "missing contract: his approval of the activity labels",
+   "note": "The missing contract is an approved label list. txnLabel’s 13 labels are in the code (transactions/index.ts:965); only \"Buy\" and \"Dividend\" print as activity rows on an approved drawing (account page v01, DEC-6457). \"Deposit\" and \"Transfer\" are drawn on the trade sheet v03 and record-activity v01, both NOT APPROVED (design record rows 70 and 73); \"Interest\" as a row only on record-activity v01; \"Opening holding\" on no drawing.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-117 txnLabel — five cases › MK-CF-F-117-C03 · complex · Interest [BLOCKED]",
+   "test_result": "skipped (BLOCKED)"
+  },
+  {
+   "id": "MK-CF-F-117",
+   "case_id": "MK-CF-F-117-C04",
+   "name": "txnLabel",
+   "kind": "complex",
+   "title": "Opening holding",
+   "classification": "BLOCKED",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Approved literal label missing",
+    "readings": {
+     "registered": "requires mapping",
+     "fallback": "opening_position"
+    }
+   },
+   "actual": "Opening holding",
+   "difference": "The missing contract is an approved label list.",
+   "mapped": "transaction_kind → TxnType in capitals",
+   "rests_on": "missing contract: his approval of the activity labels",
+   "note": "The missing contract is an approved label list. txnLabel’s 13 labels are in the code (transactions/index.ts:965); only \"Buy\" and \"Dividend\" print as activity rows on an approved drawing (account page v01, DEC-6457). \"Deposit\" and \"Transfer\" are drawn on the trade sheet v03 and record-activity v01, both NOT APPROVED (design record rows 70 and 73); \"Interest\" as a row only on record-activity v01; \"Opening holding\" on no drawing.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-117 txnLabel — five cases › MK-CF-F-117-C04 · complex · Opening holding [BLOCKED]",
+   "test_result": "skipped (BLOCKED)"
+  },
+  {
+   "id": "MK-CF-F-117",
+   "case_id": "MK-CF-F-117-C05",
+   "name": "txnLabel",
+   "kind": "edge",
+   "title": "Unknown",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Approved literal label missing",
+    "readings": {
+     "registered": "requires mapping",
+     "fallback": "mystery_kind"
+    }
+   },
+   "actual": "mystery_kind",
+   "difference": "App gives the kind back as written (the reviewer’s fallback reading); no stored record can carry a kind outside the list..",
+   "mapped": "transaction_kind passed as given",
+   "rests_on": "caller domain: TxnType is a closed list (index.ts:12-23); a broker word the app does not know is stored as ADJUSTMENT with its own word (index.ts:58-60)",
+   "note": "App gives the kind back as written (the reviewer’s fallback reading); no stored record can carry a kind outside the list.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-117 txnLabel — five cases › MK-CF-F-117-C05 · edge · Unknown [OUTSIDE DOMAIN]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-118",
+   "case_id": "MK-CF-F-118-C01",
+   "name": "cashEffect",
+   "kind": "easy",
+   "title": "Cash deposit",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "1000",
+    "shown": "$1,000"
+   },
+   "actual": 1000,
+   "difference": "none",
+   "mapped": "transaction → a record {type, amount (null → absent), shares, price, multiplier (stamped), fee (fee_in_price false), direction}",
+   "rests_on": "DEC-6796; DEC-7596; DEC-7602",
+   "note": "A deposit +$1,000; a −$50 dividend −$50; a mini-option buy −(3.17 × 2.43 × 10 + 1.19); a sale 7.31 × 98.17 − 3.43.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-118 cashEffect — five cases › MK-CF-F-118-C01 · easy · Cash deposit [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-118",
+   "case_id": "MK-CF-F-118-C02",
+   "name": "cashEffect",
+   "kind": "easy",
+   "title": "Signed dividend reversal",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "-50",
+    "shown": "−$50"
+   },
+   "actual": -50,
+   "difference": "none",
+   "mapped": "transaction → a record {type, amount (null → absent), shares, price, multiplier (stamped), fee (fee_in_price false), direction}",
+   "rests_on": "DEC-6796; DEC-7596; DEC-7602",
+   "note": "A deposit +$1,000; a −$50 dividend −$50; a mini-option buy −(3.17 × 2.43 × 10 + 1.19); a sale 7.31 × 98.17 − 3.43.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-118 cashEffect — five cases › MK-CF-F-118-C02 · easy · Signed dividend reversal [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-118",
+   "case_id": "MK-CF-F-118-C03",
+   "name": "cashEffect",
+   "kind": "complex",
+   "title": "Mini option buy with fee",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "-78.2210",
+    "shown": "−$78"
+   },
+   "actual": -78.221,
+   "difference": "none",
+   "mapped": "transaction → a record {type, amount (null → absent), shares, price, multiplier (stamped), fee (fee_in_price false), direction}",
+   "rests_on": "DEC-6796; DEC-7596; DEC-7602",
+   "note": "A deposit +$1,000; a −$50 dividend −$50; a mini-option buy −(3.17 × 2.43 × 10 + 1.19); a sale 7.31 × 98.17 − 3.43.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-118 cashEffect — five cases › MK-CF-F-118-C03 · complex · Mini option buy with fee [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-118",
+   "case_id": "MK-CF-F-118-C04",
+   "name": "cashEffect",
+   "kind": "complex",
+   "title": "Stock sale with fee",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "714.1927",
+    "shown": "$714"
+   },
+   "actual": 714.1927000000001,
+   "difference": "none",
+   "mapped": "transaction → a record {type, amount (null → absent), shares, price, multiplier (stamped), fee (fee_in_price false), direction}",
+   "rests_on": "DEC-6796; DEC-7596; DEC-7602",
+   "note": "A deposit +$1,000; a −$50 dividend −$50; a mini-option buy −(3.17 × 2.43 × 10 + 1.19); a sale 7.31 × 98.17 − 3.43.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-118 cashEffect — five cases › MK-CF-F-118-C04 · complex · Stock sale with fee [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-118",
+   "case_id": "MK-CF-F-118-C05",
+   "name": "cashEffect",
+   "kind": "edge",
+   "title": "Cash amount missing",
+   "classification": "REVIEWER WRONG",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Amount not entered"
+   },
+   "reviewer_formula_gives": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": {
+    "cash_effect": 0,
+    "amount_not_on_record": true
+   },
+   "difference": "cashEffect gives 0 — \"no effect on the totals\" — and the door names the amount as not on record beside it (theAccount’s noAmount, account.ts:195), so the account page shows a dash, never $0 (DEC-6674).",
+   "mapped": "transaction → a record {type, amount (null → absent), shares, price, multiplier (stamped), fee (fee_in_price false), direction}",
+   "rests_on": "DEC-6674 (under his DEC-3523 tenet 3); account.ts:195 (noAmount = amountNotOnRecord)",
+   "note": "cashEffect gives 0 — \"no effect on the totals\" — and the door names the amount as not on record beside it (theAccount’s noAmount, account.ts:195), so the account page shows a dash, never $0 (DEC-6674). The holding’s activity sheet prints no amount for 0 (PerformanceScreen.tsx:1146) and tradesAfter reads 0 as no proceeds (performance/index.ts:2672).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-118 cashEffect — five cases › MK-CF-F-118-C05 · edge · Cash amount missing [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-119",
+   "case_id": "MK-CF-F-119-C01",
+   "name": "investmentIncomeAnnual",
+   "kind": "easy",
+   "title": "One cash payment",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "100",
+    "shown": "$100"
+   },
+   "actual": 100,
+   "difference": "none",
+   "mapped": "records [{date, signed_cash, account, reinvested}] → DIVIDEND records {date, amount = signed_cash, account_id, reinvested}; as_of → now = new Date(as_of) (midnight UTC, the instant a date-only record is read as)",
+   "rests_on": "DEC-6796 (a −$51.43 reversal cancels)",
+   "note": "Cash payouts in the year, reinvested ones left out, a reversal subtracted. investmentIncomeAnnual has no call site: TaxOrganizerScreen.tsx:11 and IncomeDetailScreen.tsx:12 import it and never call it (its own record: \"Called by … nothing\").",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-119 investmentIncomeAnnual — five cases (a function nothing calls) › MK-CF-F-119-C01 · easy · One cash payment [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-119",
+   "case_id": "MK-CF-F-119-C02",
+   "name": "investmentIncomeAnnual",
+   "kind": "easy",
+   "title": "Reinvested omitted",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "mapped": "records [{date, signed_cash, account, reinvested}] → DIVIDEND records {date, amount = signed_cash, account_id, reinvested}; as_of → now = new Date(as_of) (midnight UTC, the instant a date-only record is read as)",
+   "rests_on": "DEC-6796 (a −$51.43 reversal cancels)",
+   "note": "Cash payouts in the year, reinvested ones left out, a reversal subtracted. investmentIncomeAnnual has no call site: TaxOrganizerScreen.tsx:11 and IncomeDetailScreen.tsx:12 import it and never call it (its own record: \"Called by … nothing\").",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-119 investmentIncomeAnnual — five cases (a function nothing calls) › MK-CF-F-119-C02 · easy · Reinvested omitted [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-119",
+   "case_id": "MK-CF-F-119-C03",
+   "name": "investmentIncomeAnnual",
+   "kind": "complex",
+   "title": "Signed mixed accounts",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "472.93",
+    "shown": "$473"
+   },
+   "actual": 472.93,
+   "difference": "none",
+   "mapped": "records [{date, signed_cash, account, reinvested}] → DIVIDEND records {date, amount = signed_cash, account_id, reinvested}; as_of → now = new Date(as_of) (midnight UTC, the instant a date-only record is read as)",
+   "rests_on": "DEC-6796 (a −$51.43 reversal cancels)",
+   "note": "Cash payouts in the year, reinvested ones left out, a reversal subtracted. investmentIncomeAnnual has no call site: TaxOrganizerScreen.tsx:11 and IncomeDetailScreen.tsx:12 import it and never call it (its own record: \"Called by … nothing\").",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-119 investmentIncomeAnnual — five cases (a function nothing calls) › MK-CF-F-119-C03 · complex · Signed mixed accounts [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-119",
+   "case_id": "MK-CF-F-119-C04",
+   "name": "investmentIncomeAnnual",
+   "kind": "complex",
+   "title": "One day outside trailing window",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "424.62",
+    "shown": "$425"
+   },
+   "actual": 424.62,
+   "difference": "none",
+   "mapped": "records [{date, signed_cash, account, reinvested}] → DIVIDEND records {date, amount = signed_cash, account_id, reinvested}; as_of → now = new Date(as_of) (midnight UTC, the instant a date-only record is read as)",
+   "rests_on": "written formula",
+   "note": "With now at the as-of day’s midnight UTC the window starts on 2025-10-24 and the payout of that day counts: $424.62. With the device clock at 3 pm in California the start moves past that payout — the first day depends on the hour. investmentIncomeAnnual has no call site: TaxOrganizerScreen.tsx:11 and IncomeDetailScreen.tsx:12 import it and never call it (its own record: \"Called by … nothing\").",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-119 investmentIncomeAnnual — five cases (a function nothing calls) › MK-CF-F-119-C04 · complex · One day outside trailing window [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-119",
+   "case_id": "MK-CF-F-119-C05",
+   "name": "investmentIncomeAnnual",
+   "kind": "edge",
+   "title": "Future payout",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "reviewer_formula_gives": {
+    "exact": "1000",
+    "shown": "$1,000"
+   },
+   "actual": 1000,
+   "difference": "App counts a payout dated tomorrow, $1,000 — the window has no end at today.",
+   "mapped": "records [{date, signed_cash, account, reinvested}] → DIVIDEND records {date, amount = signed_cash, account_id, reinvested}; as_of → now = new Date(as_of) (midnight UTC, the instant a date-only record is read as)",
+   "rests_on": "no caller (see note)",
+   "note": "App counts a payout dated tomorrow, $1,000 — the window has no end at today. investmentIncomeAnnual has no call site: TaxOrganizerScreen.tsx:11 and IncomeDetailScreen.tsx:12 import it and never call it (its own record: \"Called by … nothing\").",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-119 investmentIncomeAnnual — five cases (a function nothing calls) › MK-CF-F-119-C05 · edge · Future payout [OUTSIDE DOMAIN]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-108",
+   "case_id": "MK-CF-F-108-C01",
+   "name": "isMoneyOut",
+   "kind": "easy",
+   "title": "Withdrawal",
+   "classification": "AGREE",
+   "expected": true,
+   "actual": true,
+   "difference": "none",
+   "mapped": "kind/amount/direction/counter_account → a record",
+   "rests_on": "DEC-6796",
+   "note": "Money out unless the one rule reads money in: a fee refund and a −$51.43 withdrawal are not money out; a transfer between two of the person’s accounts is not; no amount reads by its kind.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-108 isMoneyOut — five cases › MK-CF-F-108-C01 · easy · Withdrawal [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-108",
+   "case_id": "MK-CF-F-108-C02",
+   "name": "isMoneyOut",
+   "kind": "easy",
+   "title": "Fee refund",
+   "classification": "AGREE",
+   "expected": false,
+   "actual": false,
+   "difference": "none",
+   "mapped": "kind/amount/direction/counter_account → a record",
+   "rests_on": "DEC-6796",
+   "note": "Money out unless the one rule reads money in: a fee refund and a −$51.43 withdrawal are not money out; a transfer between two of the person’s accounts is not; no amount reads by its kind.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-108 isMoneyOut — five cases › MK-CF-F-108-C02 · easy · Fee refund [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-108",
+   "case_id": "MK-CF-F-108-C03",
+   "name": "isMoneyOut",
+   "kind": "complex",
+   "title": "Transfer within accounts",
+   "classification": "AGREE",
+   "expected": false,
+   "actual": false,
+   "difference": "none",
+   "mapped": "kind/amount/direction/counter_account → a record",
+   "rests_on": "DEC-6796",
+   "note": "Money out unless the one rule reads money in: a fee refund and a −$51.43 withdrawal are not money out; a transfer between two of the person’s accounts is not; no amount reads by its kind.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-108 isMoneyOut — five cases › MK-CF-F-108-C03 · complex · Transfer within accounts [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-108",
+   "case_id": "MK-CF-F-108-C04",
+   "name": "isMoneyOut",
+   "kind": "complex",
+   "title": "Signed withdrawal reversal",
+   "classification": "AGREE",
+   "expected": false,
+   "actual": false,
+   "difference": "none",
+   "mapped": "kind/amount/direction/counter_account → a record",
+   "rests_on": "DEC-6796",
+   "note": "Money out unless the one rule reads money in: a fee refund and a −$51.43 withdrawal are not money out; a transfer between two of the person’s accounts is not; no amount reads by its kind.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-108 isMoneyOut — five cases › MK-CF-F-108-C04 · complex · Signed withdrawal reversal [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-108",
+   "case_id": "MK-CF-F-108-C05",
+   "name": "isMoneyOut",
+   "kind": "edge",
+   "title": "Withdrawal amount unknown",
+   "classification": "AGREE",
+   "expected": true,
+   "actual": true,
+   "difference": "none",
+   "mapped": "kind/amount/direction/counter_account → a record",
+   "rests_on": "DEC-6796",
+   "note": "Money out unless the one rule reads money in: a fee refund and a −$51.43 withdrawal are not money out; a transfer between two of the person’s accounts is not; no amount reads by its kind.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-108 isMoneyOut — five cases › MK-CF-F-108-C05 · edge · Withdrawal amount unknown [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-131",
+   "case_id": "MK-CF-F-131-C01",
+   "name": "normPayee",
+   "kind": "easy",
+   "title": "Simple",
+   "classification": "AGREE",
+   "expected": "visa",
+   "actual": "visa",
+   "difference": "none",
+   "mapped": "payee → the note",
+   "rests_on": "written formula",
+   "note": "Outer spaces trimmed, lower case, inner spacing kept, nothing becomes empty.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-131 normPayee — five cases › MK-CF-F-131-C01 · easy · Simple [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-131",
+   "case_id": "MK-CF-F-131-C02",
+   "name": "normPayee",
+   "kind": "easy",
+   "title": "Outer spaces",
+   "classification": "AGREE",
+   "expected": "visa",
+   "actual": "visa",
+   "difference": "none",
+   "mapped": "payee → the note",
+   "rests_on": "written formula",
+   "note": "Outer spaces trimmed, lower case, inner spacing kept, nothing becomes empty.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-131 normPayee — five cases › MK-CF-F-131-C02 · easy · Outer spaces [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-131",
+   "case_id": "MK-CF-F-131-C03",
+   "name": "normPayee",
+   "kind": "complex",
+   "title": "Internal spacing",
+   "classification": "AGREE",
+   "expected": "main  street llc",
+   "actual": "main  street llc",
+   "difference": "none",
+   "mapped": "payee → the note",
+   "rests_on": "written formula",
+   "note": "Outer spaces trimmed, lower case, inner spacing kept, nothing becomes empty.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-131 normPayee — five cases › MK-CF-F-131-C03 · complex · Internal spacing [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-131",
+   "case_id": "MK-CF-F-131-C04",
+   "name": "normPayee",
+   "kind": "complex",
+   "title": "Mixed punctuation",
+   "classification": "AGREE",
+   "expected": "café #17 — rent",
+   "actual": "café #17 — rent",
+   "difference": "none",
+   "mapped": "payee → the note",
+   "rests_on": "written formula",
+   "note": "Outer spaces trimmed, lower case, inner spacing kept, nothing becomes empty.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-131 normPayee — five cases › MK-CF-F-131-C04 · complex · Mixed punctuation [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-131",
+   "case_id": "MK-CF-F-131-C05",
+   "name": "normPayee",
+   "kind": "edge",
+   "title": "No payee",
+   "classification": "AGREE",
+   "expected": "",
+   "actual": "",
+   "difference": "none",
+   "mapped": "payee → the note",
+   "rests_on": "written formula",
+   "note": "Outer spaces trimmed, lower case, inner spacing kept, nothing becomes empty.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-131 normPayee — five cases › MK-CF-F-131-C05 · edge · No payee [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-162",
+   "case_id": "MK-CF-F-162-C01",
+   "name": "daysApart",
+   "kind": "easy",
+   "title": "One day",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "1",
+    "shown": "1"
+   },
+   "actual": 1,
+   "difference": "none",
+   "mapped": "from, to → the two dates",
+   "rests_on": "written formula",
+   "note": "Whole calendar days between two dates, whichever comes first (leap day counted).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-162 daysApart — five cases › MK-CF-F-162-C01 · easy · One day [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-162",
+   "case_id": "MK-CF-F-162-C02",
+   "name": "daysApart",
+   "kind": "easy",
+   "title": "Reverse dates",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "1",
+    "shown": "1"
+   },
+   "actual": 1,
+   "difference": "none",
+   "mapped": "from, to → the two dates",
+   "rests_on": "written formula",
+   "note": "Whole calendar days between two dates, whichever comes first (leap day counted).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-162 daysApart — five cases › MK-CF-F-162-C02 · easy · Reverse dates [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-162",
+   "case_id": "MK-CF-F-162-C03",
+   "name": "daysApart",
+   "kind": "complex",
+   "title": "Leap boundary",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "2",
+    "shown": "2"
+   },
+   "actual": 2,
+   "difference": "none",
+   "mapped": "from, to → the two dates",
+   "rests_on": "written formula",
+   "note": "Whole calendar days between two dates, whichever comes first (leap day counted).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-162 daysApart — five cases › MK-CF-F-162-C03 · complex · Leap boundary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-162",
+   "case_id": "MK-CF-F-162-C04",
+   "name": "daysApart",
+   "kind": "complex",
+   "title": "Year boundary",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "5",
+    "shown": "5"
+   },
+   "actual": 5,
+   "difference": "none",
+   "mapped": "from, to → the two dates",
+   "rests_on": "written formula",
+   "note": "Whole calendar days between two dates, whichever comes first (leap day counted).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-162 daysApart — five cases › MK-CF-F-162-C04 · complex · Year boundary [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-162",
+   "case_id": "MK-CF-F-162-C05",
+   "name": "daysApart",
+   "kind": "edge",
+   "title": "Same day",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "mapped": "from, to → the two dates",
+   "rests_on": "written formula",
+   "note": "Whole calendar days between two dates, whichever comes first (leap day counted).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-162 daysApart — five cases › MK-CF-F-162-C05 · edge · Same day [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-109",
+   "case_id": "MK-CF-F-109-C01",
+   "name": "reviewTransactions",
+   "kind": "easy",
+   "title": "Possible duplicate",
+   "classification": "AGREE",
+   "expected": {
+    "flag": "possible_duplicate"
+   },
+   "actual": [
+    {
+     "reason": "possible_duplicate",
+     "comparison": 100,
+     "amount": 100
+    }
+   ],
+   "difference": "none",
+   "mapped": "new / history → WITHDRAWAL records on A with the payee as the note; linked → source connected; prior_money_outs → earlier WITHDRAWALs on A dated 2026-10-01 onward with no payee; known_payees → knownPayees for A",
+   "rests_on": "Build-47 walk row 19 (flags.ts:219-224)",
+   "note": "Same account, same $100, same payee once tidied, a day apart: a possible duplicate — hand-typed rows included.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-109 reviewTransactions — five cases › MK-CF-F-109-C01 · easy · Possible duplicate [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-109",
+   "case_id": "MK-CF-F-109-C02",
+   "name": "reviewTransactions",
+   "kind": "easy",
+   "title": "Large linked without history",
+   "classification": "AGREE",
+   "expected": {
+    "flag": "unusually_large"
+   },
+   "actual": [
+    {
+     "reason": "unusually_large",
+     "comparison": null,
+     "amount": 1200
+    }
+   ],
+   "difference": "none",
+   "mapped": "new / history → WITHDRAWAL records on A with the payee as the note; linked → source connected; prior_money_outs → earlier WITHDRAWALs on A dated 2026-10-01 onward with no payee; known_payees → knownPayees for A",
+   "rests_on": "FCC detailed design v1.1, F10 rule 1",
+   "note": "Under five past withdrawals, the flat $1,000 line: $1,200 is unusually large.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-109 reviewTransactions — five cases › MK-CF-F-109-C02 · easy · Large linked without history [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-109",
+   "case_id": "MK-CF-F-109-C03",
+   "name": "reviewTransactions",
+   "kind": "complex",
+   "title": "Median baseline before new date",
+   "classification": "AGREE",
+   "expected": {
+    "flag": "unusually_large",
+    "median": {
+     "exact": "151.43",
+     "shown": "$151"
+    }
+   },
+   "actual": [
+    {
+     "reason": "unusually_large",
+     "comparison": 151.43,
+     "amount": 831.17
+    }
+   ],
+   "difference": "none",
+   "mapped": "new / history → WITHDRAWAL records on A with the payee as the note; linked → source connected; prior_money_outs → earlier WITHDRAWALs on A dated 2026-10-01 onward with no payee; known_payees → knownPayees for A",
+   "rests_on": "FCC detailed design v1.1, F10 rule 1",
+   "note": "Middle of five is $151.43; $831.17 is at least 3 × that and at least $500.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-109 reviewTransactions — five cases › MK-CF-F-109-C03 · complex · Median baseline before new date [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-109",
+   "case_id": "MK-CF-F-109-C04",
+   "name": "reviewTransactions",
+   "kind": "complex",
+   "title": "New payee after refund exclusion",
+   "classification": "REVIEWER WRONG",
+   "expected": {
+    "flag": "first_time_payee"
+   },
+   "actual": [],
+   "difference": "A hand-typed $311.17 to a new payee gets no flag: his approved F10 design never questions a number the person typed; only a possible duplicate covers hand-typed rows.",
+   "mapped": "new / history → WITHDRAWAL records on A with the payee as the note; linked → source connected; prior_money_outs → earlier WITHDRAWALs on A dated 2026-10-01 onward with no payee; known_payees → knownPayees for A",
+   "rests_on": "FCC detailed design v1.1 (2026-07-06), F10 row: \"MANUAL-ENTRY RULE … transactions the user typed by hand are NEVER flagged\"; DEC-1134 (his) retired the Worth a look screen",
+   "note": "A hand-typed $311.17 to a new payee gets no flag: his approved F10 design never questions a number the person typed; only a possible duplicate covers hand-typed rows. The card’s words (rule 2 \"LINKED account only\", then \"otherwise\") read as if rule 3 covered hand-typed rows — a records fix.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-109 reviewTransactions — five cases › MK-CF-F-109-C04 · complex · New payee after refund exclusion [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-109",
+   "case_id": "MK-CF-F-109-C05",
+   "name": "reviewTransactions",
+   "kind": "edge",
+   "title": "Even baseline median ambiguity",
+   "classification": "AGREE",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Even median convention not stated",
+    "readings": {
+     "mean_middle_250": "no large flag:600<750",
+     "lower_middle_200": "large flag:600≥600"
+    }
+   },
+   "reviewer_formula_gives": {
+    "state": "RULE UNCLEAR",
+    "reason": "Middle value unspecified",
+    "readings": {
+     "lower": {
+      "exact": "200",
+      "shown": "$200"
+     },
+     "mean": {
+      "exact": "250",
+      "shown": "$250"
+     }
+    }
+   },
+   "actual": {
+    "flags": [
+     {
+      "reason": "first_time_payee",
+      "comparison": null,
+      "amount": 600
+     }
+    ],
+    "median_used": 250
+   },
+   "difference": "none",
+   "mapped": "new / history → WITHDRAWAL records on A with the payee as the note; linked → source connected; prior_money_outs → earlier WITHDRAWALs on A dated 2026-10-01 onward with no payee; known_payees → knownPayees for A",
+   "rests_on": "the ordinary median (the mean of the two middle values of an even count — the reviewer’s own \"ordinary median 250\")",
+   "note": "The reviewer wrote RULE UNCLEAR on the even median. The app’s median of 100…500 is $250, so $600 is under 3 × 250 and not unusually large (the reviewer’s \"mean_middle_250\" reading). The record is then flagged as a first-time payee, because the case gives no earlier payee named Known.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-109 reviewTransactions — five cases › MK-CF-F-109-C05 · edge · Even baseline median ambiguity [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-110",
+   "case_id": "MK-CF-F-110-C01",
+   "name": "flagComparisonText",
+   "kind": "easy",
+   "title": "Duplicate text",
+   "classification": "AGREE",
+   "expected": {
+    "assertion": "uses fixed approved duplicate template"
+   },
+   "actual": "Looks like the same charge twice — same amount, same place, within two days. If one was typed by mistake, delete it; if both are real, mark it settled.",
+   "difference": "none",
+   "mapped": "flag → a TxnFlag {reason, comparison = typical, amount, transaction_ids (count of them for odd_pattern)}",
+   "rests_on": "fixed template (flags.ts)",
+   "note": "One fixed sentence for a possible duplicate. flagComparisonText has no caller: the Worth a look screen was retired by his DEC-1134 and its Insights card on 2026-10-02 (insights/index.ts:118).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-110 flagComparisonText — five cases (a function nothing calls) › MK-CF-F-110-C01 · easy · Duplicate text [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-110",
+   "case_id": "MK-CF-F-110-C02",
+   "name": "flagComparisonText",
+   "kind": "easy",
+   "title": "First-time text",
+   "classification": "AGREE",
+   "expected": {
+    "assertion": "uses fixed approved first-payee template"
+   },
+   "actual": "First time we've seen this payee on this account.",
+   "difference": "none",
+   "mapped": "flag → a TxnFlag {reason, comparison = typical, amount, transaction_ids (count of them for odd_pattern)}",
+   "rests_on": "fixed template (flags.ts)",
+   "note": "One fixed sentence for a first-time payee. flagComparisonText has no caller: the Worth a look screen was retired by his DEC-1134 and its Insights card on 2026-10-02 (insights/index.ts:118).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-110 flagComparisonText — five cases (a function nothing calls) › MK-CF-F-110-C02 · easy · First-time text [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-110",
+   "case_id": "MK-CF-F-110-C03",
+   "name": "flagComparisonText",
+   "kind": "complex",
+   "title": "Unround magnitude",
+   "classification": "AGREE",
+   "expected": {
+    "typical_shown": "$173",
+    "times_shown": {
+     "exact": "5",
+     "shown": "5"
+    }
+   },
+   "actual": "Your usual withdrawal from this account is about $173. This one is 5 times that.",
+   "difference": "none",
+   "mapped": "flag → a TxnFlag {reason, comparison = typical, amount, transaction_ids (count of them for odd_pattern)}",
+   "rests_on": "rounding once, at display",
+   "note": "$831.43 ÷ $173.17 = 4.80, said as 5 times about $173. flagComparisonText has no caller: the Worth a look screen was retired by his DEC-1134 and its Insights card on 2026-10-02 (insights/index.ts:118).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-110 flagComparisonText — five cases (a function nothing calls) › MK-CF-F-110-C03 · complex · Unround magnitude [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-110",
+   "case_id": "MK-CF-F-110-C04",
+   "name": "flagComparisonText",
+   "kind": "complex",
+   "title": "Several same day",
+   "classification": "AGREE",
+   "expected": {
+    "count_shown": {
+     "exact": "3",
+     "shown": "$3"
+    },
+    "total_shown": "$1,731"
+   },
+   "actual": "3 withdrawals from this account in one day, $1,731 together.",
+   "difference": "none",
+   "mapped": "flag → a TxnFlag {reason, comparison = typical, amount, transaction_ids (count of them for odd_pattern)}",
+   "rests_on": "rounding once, at display",
+   "note": "3 withdrawals, $1,731 together. flagComparisonText has no caller: the Worth a look screen was retired by his DEC-1134 and its Insights card on 2026-10-02 (insights/index.ts:118).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-110 flagComparisonText — five cases (a function nothing calls) › MK-CF-F-110-C04 · complex · Several same day [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-110",
+   "case_id": "MK-CF-F-110-C05",
+   "name": "flagComparisonText",
+   "kind": "edge",
+   "title": "Exactly threshold",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "text_must_say": "$1,000 or more"
+   },
+   "reviewer_formula_gives": {
+    "text_says": "over $1,000"
+   },
+   "actual": "This account is new to us, so we look twice at anything over $1,000.",
+   "difference": "The words say \"over $1,000\" where the rule flags $1,000 exactly (flags.ts LARGE_COLD_START, amount >= 1000) — wrong words, shown nowhere.",
+   "mapped": "flag → a TxnFlag {reason, comparison = typical, amount, transaction_ids (count of them for odd_pattern)}",
+   "rests_on": "no caller (see note)",
+   "note": "The words say \"over $1,000\" where the rule flags $1,000 exactly (flags.ts LARGE_COLD_START, amount >= 1000) — wrong words, shown nowhere. flagComparisonText has no caller: the Worth a look screen was retired by his DEC-1134 and its Insights card on 2026-10-02 (insights/index.ts:118).",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › MK-CF-F-110 flagComparisonText — five cases (a function nothing calls) › MK-CF-F-110-C05 · edge · Exactly threshold [OUTSIDE DOMAIN]",
+   "test_result": "passed"
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-CF-F-116",
+   "name": "inverseOf",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Direction flipping plus kind switching is clear for explicit in/out records, but legacy signed-negative records without direction can be reversed twice depending on whether amount or kind owns its sign.",
+   "reviewer_should_be": "Normalize to explicit signed cash once, then generate the opposite; preserve exact snapshots when available.",
+   "classification": "REVIEWER WRONG",
+   "records_or_app_fix": "records fix: the rule text",
+   "what_the_code_actually_does": "A record with no direction keeps its stored sign and is read by its kind’s way (moneyIntoAccount); its undo is the opposite kind with the same stored amount, so it moves the money back once. A transfer swaps its accounts and keeps its direction (DEC-6993).",
+   "governing_decisions": [
+    "DEC-6796",
+    "DEC-6993"
+   ],
+   "plain_example": "A −$51.43 dividend on $1,000 cash: $948.57; undone: $1,000.00 — not $896.86.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › formula checks — the reviewer’s 6 card verdicts that are not RIGHT › MK-CF-F-116 · formula verdict INCOMPLETE [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-117",
+   "name": "txnLabel",
+   "reviewer_verdict": "CANNOT TELL",
+   "reviewer_severity": "low",
+   "reviewer_why": "The literal transaction-kind-to-label mapping is absent.",
+   "reviewer_should_be": "Supply approved label mapping, keeping unknown-kind fallback explicit.",
+   "classification": "BLOCKED",
+   "records_or_app_fix": "records fix: the rule text (put the 13 labels on the card) — then his approval of the labels not yet drawn on an approved screen",
+   "what_the_code_actually_does": "txnLabel reads a fixed table of 13 labels (Opening holding, Opening cash, Buy, Sell, Deposit, Withdrawal, Transfer, Transfer shares, Broker adjustment, Dividend, Interest, Coupon, Fee) and gives an unknown kind back as written.",
+   "governing_decisions": [
+    "DEC-6457"
+   ],
+   "plain_example": "DEPOSIT reads \"Deposit\" — on the trade sheet v03 drawing, which is not approved.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › formula checks — the reviewer’s 6 card verdicts that are not RIGHT › MK-CF-F-117 · formula verdict CANNOT TELL [BLOCKED]",
+   "test_result": "skipped (BLOCKED)"
+  },
+  {
+   "id": "MK-CF-F-118",
+   "name": "cashEffect",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "A missing amount returns 0 for a financial display even when its cash effect is unknown. Sale amount fallback also lacks a fee contract.",
+   "reviewer_should_be": "Return unknown effect for unentered amounts; keep confirmed zero distinct and define amount-only fee treatment.",
+   "classification": "REVIEWER WRONG",
+   "records_or_app_fix": "records fix: the rule text (0 is \"no effect on the totals\"; the missing amount is named at the door)",
+   "what_the_code_actually_does": "cashEffect gives 0 for an amount not on record; the account page’s door marks the same row noAmount (amountNotOnRecord) and shows a dash (DEC-6674). An amount-only sale comes only from bond, CD and other-investment sales, which record no fee; a fee on record is taken off where a sale’s proceeds are counted (tradesAfter, DEC-6873).",
+   "governing_decisions": [
+    "DEC-6674",
+    "DEC-3523 tenet 3",
+    "DEC-7596"
+   ],
+   "plain_example": "Interest sent with no amount: the activity row shows a dash, not $0.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › formula checks — the reviewer’s 6 card verdicts that are not RIGHT › MK-CF-F-118 · formula verdict INCOMPLETE [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-119",
+   "name": "investmentIncomeAnnual",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "The trailing window has a lower bound but no stated upper bound at as_of, allowing future-dated payouts. Missing amounts silently disappear from a purported total.",
+   "reviewer_should_be": "Use lower_bound ≤ date ≤ as_of, preserve signed reversals, and expose missing-amount coverage.",
+   "classification": "OUTSIDE DOMAIN",
+   "records_or_app_fix": "records fix: the rule text (and drop the two unused imports, or bound the window at today and name missing amounts before anything calls it)",
+   "what_the_code_actually_does": "It counts cash payouts from a year before now with no end at today and drops a missing amount silently — and nothing calls it.",
+   "governing_decisions": [
+    "DEC-6796",
+    "DEC-7171",
+    "DEC-3523 tenet 3"
+   ],
+   "plain_example": "A $1,000 payout dated tomorrow counts as this year’s income — on no screen.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › formula checks — the reviewer’s 6 card verdicts that are not RIGHT › MK-CF-F-119 · formula verdict INCOMPLETE [OUTSIDE DOMAIN]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-109",
+   "name": "reviewTransactions",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "medium",
+   "reviewer_why": "Flags possible issues appropriately, but earlier-history direction, same-timestamp duplicates, negative reversal magnitudes, median convention, and duplicate normalized payees need explicit definitions.",
+   "reviewer_should_be": "Use prior dated normalized money-outs only; state even-sample median and inclusive boundaries; preserve both possible duplicates for user choice.",
+   "classification": "REVIEWER WRONG",
+   "records_or_app_fix": "records fix: the rule text (rules 2–4 run on linked accounts only; the middle value of an even count is the mean of the two middle ones)",
+   "what_the_code_actually_does": "Duplicates are checked on every record; size, first-time payee and odd pattern on linked records only, as his F10 design says; the middle value is the ordinary median. The flags are stored and shown nowhere since his DEC-1134 retired Worth a look.",
+   "governing_decisions": [
+    "FCC detailed design v1.1 F10",
+    "DEC-1134",
+    "DEC-0317"
+   ],
+   "plain_example": "A hand-typed $311.17 to a new payee: no flag. Earlier $100–$500 withdrawals: middle value $250.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › formula checks — the reviewer’s 6 card verdicts that are not RIGHT › MK-CF-F-109 · formula verdict INCOMPLETE [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-110",
+   "name": "flagComparisonText",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "low",
+   "reviewer_why": "Threshold says at least $1000 while its fallback prose says over $1000; exactly $1000 is described inaccurately.",
+   "reviewer_should_be": "Say $1000 or more and retain human-reviewed templates and amounts.",
+   "classification": "OUTSIDE DOMAIN",
+   "records_or_app_fix": "records fix: the rule text (if the screen returns, the words must say \"$1,000 or more\")",
+   "what_the_code_actually_does": "The cold-start sentence says \"over $1,000\" while the rule flags $1,000 exactly — and nothing calls the function.",
+   "governing_decisions": [
+    "DEC-1134",
+    "DEC-3523 tenet 8"
+   ],
+   "plain_example": "A $1,000 withdrawal flagged with the words \"anything over $1,000\".",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part12.test.ts › formula checks — the reviewer’s 6 card verdicts that are not RIGHT › MK-CF-F-110 · formula verdict INCOMPLETE [OUTSIDE DOMAIN]",
+   "test_result": "passed"
+  }
+ ],
+ "rules_not_held": [],
+ "app_wrong_fixes": [],
+ "needs_a_ruling": [],
+ "blocked": [
+  {
+   "ids": [
+    "MK-CF-F-117-C01",
+    "MK-CF-F-117-C02",
+    "MK-CF-F-117-C03",
+    "MK-CF-F-117-C04",
+    "MK-CF-F-117"
+   ],
+   "what_is_missing": "An approved list of activity labels: txnLabel's 13 labels live in code (transactions/index.ts:965); only \"Buy\" and \"Dividend\" print as rows on an approved drawing (account page v01, DEC-6457). \"Deposit\", \"Transfer\", \"Interest\" are drawn only on the NOT APPROVED trade sheet v03 / record-activity v01; \"Opening holding\" on none."
+  }
+ ],
+ "outside_domain": [
+  {
+   "id": "MK-CF-F-117-C05",
+   "caller_cited": "caller domain: TxnType is a closed list (index.ts:12-23); a broker word the app does not know is stored as ADJUSTMENT with its own word (index.ts:58-60)",
+   "app_gives": "mystery_kind",
+   "note": "App gives the kind back as written (the reviewer’s fallback reading); no stored record can carry a kind outside the list."
+  },
+  {
+   "id": "MK-CF-F-119-C05",
+   "caller_cited": "no caller (see note)",
+   "app_gives": 1000,
+   "note": "App counts a payout dated tomorrow, $1,000 — the window has no end at today. investmentIncomeAnnual has no call site: TaxOrganizerScreen.tsx:11 and IncomeDetailScreen.tsx:12 import it and never call it (its own record: \"Called by … nothing\")."
+  },
+  {
+   "id": "MK-CF-F-110-C05",
+   "caller_cited": "no caller (see note)",
+   "app_gives": "This account is new to us, so we look twice at anything over $1,000.",
+   "note": "The words say \"over $1,000\" where the rule flags $1,000 exactly (flags.ts LARGE_COLD_START, amount >= 1000) — wrong words, shown nowhere. flagComparisonText has no caller: the Worth a look screen was retired by his DEC-1134 and its Insights card on 2026-10-02 (insights/index.ts:118)."
+  },
+  {
+   "id": "MK-CF-F-119",
+   "caller_cited": "It counts cash payouts from a year before now with no end at today and drops a missing amount silently — and nothing calls it.",
+   "note": "records fix: the rule text (and drop the two unused imports, or bound the window at today and name missing amounts before anything calls it)"
+  },
+  {
+   "id": "MK-CF-F-110",
+   "caller_cited": "The cold-start sentence says \"over $1,000\" while the rule flags $1,000 exactly — and nothing calls the function.",
+   "note": "records fix: the rule text (if the screen returns, the words must say \"$1,000 or more\")"
+  }
+ ],
+ "counts": {
+  "cases": {
+   "AGREE": 46,
+   "APP WRONG": 0,
+   "REVIEWER WRONG": 2,
+   "NEEDS RULING": 0,
+   "BLOCKED": 4,
+   "OUTSIDE DOMAIN": 3,
+   "total": 55
+  },
+  "formula_checks": {
+   "AGREE": 0,
+   "APP WRONG": 0,
+   "REVIEWER WRONG": 3,
+   "NEEDS RULING": 0,
+   "BLOCKED": 1,
+   "OUTSIDE DOMAIN": 2,
+   "total": 6
+  },
+  "rules_not_held": {
+   "AGREE": 0,
+   "APP WRONG": 0,
+   "REVIEWER WRONG": 0,
+   "NEEDS RULING": 0,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 0,
+   "total": 0
+  },
+  "tests": {
+   "passed": 60,
+   "skipped": 5,
+   "failed": 0,
+   "total": 65
+  }
+ },
+ "coverage": "Part 12: 55 of 55 cases — 46 agree, 0 app wrong, 2 reviewer wrong, 0 needs ruling, 4 blocked, 3 outside domain; 6 of 6 formula verdicts classified (0 agree, 0 app wrong, 3 reviewer wrong, 0 needs ruling, 1 blocked, 2 outside domain); 0 of 0 rule verdicts classified (the part has no NOT HELD rule)"
+}

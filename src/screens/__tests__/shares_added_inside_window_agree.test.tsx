@@ -147,7 +147,7 @@ describe('1 · DEC-3656 — the beginning and what the holdings gained: one figu
     expect(printed(INV(), 'MK-PF-M-002')[0]).toBe('$4,450');
     expect(after(INV(), 'Return')).toBe(pct(RETURN));
     expect(printed(INV(), 'MK-PF-M-017')[0]).toBe(pct(RETURN));
-    expect(INV().lines).toContain(`🔗 Linked · wealth generated −$4,450 · return ${pct(RETURN)}`);
+    expect(INV().lines.join('\n')).toContain(`🔗 Linked\n· wealth generated −$4,450 · return ${pct(RETURN)}`);   // the label, then the line (2026-10-25)
   });
   test('account page, 1M: the same Beginning, Wealth generated and Return', () => {
     expect(printed(ACC(), 'MK-PF-M-013')[0]).toBe('$21,000');
@@ -304,7 +304,7 @@ describe('6 · DEC-3656 — a holding sold in full inside the window: the same b
     expect(after(INV(), 'Beginning market value (Aug 29, 2026)')).toBe('$12,000');
     expect(after(INV(), 'Wealth generated')).toBe('$100');
     expect(after(INV(), 'Return')).toBe(pct(GONE_RETURN));
-    expect(INV().lines).toContain(`🔗 Linked · wealth generated $100 · return ${pct(GONE_RETURN)}`);
+    expect(INV().lines.join('\n')).toContain(`🔗 Linked\n· wealth generated $100 · return ${pct(GONE_RETURN)}`);
   });
   test('account page, 1M: the same Beginning, Wealth generated and Return', () => {
     expect(printed(ACC(), 'MK-PF-M-013')[0]).toBe('$12,000');

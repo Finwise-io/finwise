@@ -51,7 +51,7 @@ export function ChangeWalkSheet({ visible, onClose, walk }: {
           </View>
           <Text style={s.note}>
             {walk.fromLabel} → {walk.toLabel}, {new Date().getFullYear()} · every line counts only what happened in this window.
-            Contributions are not a gain — that's why Wealth generated is its own section.
+            Contributions are not a gain — that’s why Wealth generated is its own section.
           </Text>
         </ScrollView>
       </View>

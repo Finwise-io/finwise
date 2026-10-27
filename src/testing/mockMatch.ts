@@ -26,6 +26,18 @@ export function norm(lines: string[], names: RegExp[] = []): string {
     .replace(/\s+/g, ' ').trim();
 }
 
+/** THE SAME STREAM WITH EVERY FIGURE AND DATE AS PRINTED (2026-10-25, Cash flow drawing match — the weak guard). `norm` turns
+ *  "$100" and "$900" into one token, so a screen printing the wrong number still matched its drawing: 124 Cash flow match and
+ *  journey checks passed while the budget editor's rows did not add up. This keeps "$1,678", "22.90%" and "18 aug" as written;
+ *  only case, the kinds of quote mark and the glyphs that are not words are levelled. A caller that compares a figure that
+ *  depends on today's date must say so where it does. */
+export function normExact(lines: string[]): string {
+  return lines.join(' ').toLowerCase()
+    .replace(/[’‘]/g, "'").replace(/[“”]/g, '"')
+    .replace(/\p{Extended_Pictographic}|️|\u200D|[\uE000-\uF8FF]|[ⓘ›↺·▮⌁▐＋]/gu, ' ')
+    .replace(/\s+/g, ' ').trim();
+}
+
 /** Every text line of the drawing, tags gone. `strip` removes markup that is not part of the screen
  *  (change-mark badges, the drawing's own "i" for an info dot). */
 export function drawingLines(file: string, strip: RegExp[] = []): string[] {
@@ -90,4 +102,57 @@ export function missingInOrder(drawn: string[], built: string[]): string[] {
     if (i < 0) out.push(line); else at = i + 1;
   }
   return out;
+}
+
+/** THE STREAM AS PRINTED, MARK FOR MARK (2026-10-25, CF-MMFIX-B, the income drawings). Stricter than `normExact`: case, the
+ *  apostrophe's form (the drawing's "We’ll" against a built "We'll", IN-20) and the "·" with its spacing ("·$300", CF-05's
+ *  class) stay as printed, and every figure and date stays. Only icons and the glyphs that are not words are dropped, and
+ *  spacing collapsed. A figure that depends on today's date is the caller's to replace, in the open, saying why. */
+export function normPrinted(lines: string[], names: RegExp[] = []): string {
+  let s = lines.join(' ')
+    .replace(/\p{Extended_Pictographic}|️|‍|[-]|[ⓘ›↺▮⌁▐＋]/gu, ' ');
+  for (const n of names) s = s.replace(n, '<name>');
+  return s.replace(/\s+/g, ' ').trim();
+}
+
+/** Every visible Text AND what every box shows, in order (2026-10-25, CF-MMFIX-B). `builtLines` reads words only, so a box that
+ *  showed "7000" where the drawing draws "$7,000" passed unseen (IN-06). A box reads as its value, or, empty, as its
+ *  placeholder — what a person sees in it. A Text marked testID "box-tail" is printed INSIDE the box after the typed figure
+ *  (the match box: "50", then "% · $400/month"), so it joins the box's own line with no space. */
+export function builtLinesWithBoxes(tree: any): string[] {
+  const out: string[] = [];
+  let lastWasBox = false;
+  const text = (n: any): string => (n == null ? '' : typeof n === 'string' ? n : Array.isArray(n) ? n.map(text).join('') : (n.children ?? []).map(text).join(''));
+  const walk = (n: any) => {
+    if (n == null || typeof n === 'string') return;
+    if (Array.isArray(n)) { n.forEach(walk); return; }
+    if (n.type === 'TextInput') {
+      const shown = String(n.props?.value ?? '') || String(n.props?.placeholder ?? '');
+      if (shown.trim()) { out.push(shown.trim()); lastWasBox = true; } else lastWasBox = false;
+      return;
+    }
+    if (n.type === 'Text') {
+      const t = text(n).replace(/\s+/g, ' ').trim();
+      if (t) {
+        if (n.props?.testID === 'box-tail' && lastWasBox) out[out.length - 1] += t; else out.push(t);
+      }
+      lastWasBox = false;
+      return;
+    }
+    (n.children ?? []).forEach(walk);
+  };
+  walk(tree);
+  return out;
+}
+
+/** A NAMED CHANGE TO A DRAWN STREAM, APPLIED ONLY WHERE IT IS FOUND — exactly `times` times, or the test fails naming the change
+ *  that went missing (A GUARD MUST PROVE IT LOOKED: a correction that stops matching goes red, never quiet). */
+export function applyNamed(stream: string, changes: [from: string, to: string, why: string, times?: number][]): string {
+  let s = stream;
+  for (const [from, to, why, times = 1] of changes) {
+    const found = s.split(from).length - 1;
+    if (found !== times) throw new Error(`the named change "${why}" expected "${from}" ${times} time(s) and found it ${found}`);
+    s = s.split(from).join(to);
+  }
+  return s;
 }

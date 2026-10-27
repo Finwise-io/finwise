@@ -1,5 +1,5 @@
 /** DEC-5291 (owner, 2026-10-13, his word: "approved.") ON THE SCREENS — "Let price history count. When a period
- *  starts before the daily record, work it back from each holding's price history and name what's left out, rather than
+ *  starts before the daily record, work it back from each holding’s price history and name what's left out, rather than
  *  greying it."
  *
  *  THE APPROVED EXAMPLE, end to end, in the state the app is really in: Vanguard linked today (VTI $40,000 = 160 × $250,
@@ -65,9 +65,9 @@ describe('the approved example: Vanguard linked today + Treasury 2031 by hand, t
     render(<PerformanceScreen />);
     // the window picked first is "Since today" — day one — and its line now says where the other windows come from
     // DEC-5425 (2026-10-14, "approved."): his words; the proposed "Day one: your value is real and your daily record …" is gone
-    expect(screen.getByText("You added your accounts today. Figures for 1M, 1Y and longer come from each holding's past prices.")).toBeOnTheScreen();
+    expect(screen.getByText("You added your accounts today. Figures for 1M, 1Y and longer come from each holding’s past prices.")).toBeOnTheScreen();
     expect(screen.queryByText(/your value is real and your daily record/)).toBeNull();
-    expect(screen.queryByText(/We never back-fill a year we didn't see/)).toBeNull();
+    expect(screen.queryByText(/We never back-fill a year we didn’t see/)).toBeNull();
     for (const [k, v] of [['1M', '+2.04%'], ['1Y', '+10.00%']]) {
       const b = screen.getAllByRole('button').find((x) => new RegExp(`^Show ${k}, `).test(x.props.accessibilityLabel ?? ''));
       expect(b!.props.accessibilityLabel).toBe(`Show ${k}, ${v}`);
@@ -100,7 +100,7 @@ describe('the approved example: Vanguard linked today + Treasury 2031 by hand, t
     expect(screen.getAllByText('$3,636').length).toBeGreaterThan(0);
     expect(screen.getAllByText('+10.00%').length).toBeGreaterThan(0);
     expect(screen.getByText('HOW $36,364 BECAME $40,000 · THIS ACCOUNT')).toBeOnTheScreen();
-    expect(screen.getByText(/so the beginning is worked back from today's values and each holding's price history\.$/)).toBeOnTheScreen();
+    expect(screen.getByText(/so the beginning is worked back from today’s values and each holding’s price history\.$/)).toBeOnTheScreen();
     expect(screen.queryByText(/Wealth generated and Return start once the daily record reaches back/)).toBeNull();
     expect(screen.queryByText(SENTENCE)).toBeNull();
     // the broker's records do not reach a worked-back window's beginning, so no "Rebuilt … back to" line claims they do

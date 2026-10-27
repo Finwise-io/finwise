@@ -1,7 +1,9 @@
 import {
-  annualNet, grossAnnualBaseline, effectiveTaxRate,
+  annualNet, grossAnnualBaseline,
   buildIncomeState, employerMatchAnnual,
 } from './calc';
+import * as CALC from './calc';
+import { rateInForce } from './tax-rate';
 import { incomeFromOnboarding, employerMatchMonthly, grossSalaryMonthly, rsuAnnual, incomeMonthlyGrid, extraIncome, salaryAnnual, totalGrossAnnual, taxableAnnual } from './onboarding';
 import { grossFromNet, taxOwedFor, effectiveRateOnGrossFor } from './tax';
 import { IncomeSource } from './types';
@@ -31,10 +33,30 @@ describe('income calc', () => {
     expect(effectiveRateOnGrossFor(0)).toBe(0);
   });
 
-  test('manual tax override wins', () => {
-    expect(effectiveTaxRate(100000, { use_manual_tax_override: true, manual_effective_tax_rate: 0.25 })).toBe(0.25);
-    expect(effectiveTaxRate(100000, { use_manual_tax_override: false, manual_effective_tax_rate: 0.25 }))
+  test('manual tax override wins (the stored record, read without a profile)', () => {
+    // MK-CF-F-048 effectiveTaxRate is RETIRED (2026-10-25); the stored record keeps its own typed rate or the schedule's share
+    expect((CALC as any).effectiveTaxRate).toBeUndefined();
+    const src = [job({ gross_amount: 100000, frequency: 'ANNUAL' })];
+    expect(buildIncomeState('u1', src, { use_manual_tax_override: true, manual_effective_tax_rate: 0.25 }).effective_tax_rate).toBe(0.25);
+    expect(buildIncomeState('u1', src, { use_manual_tax_override: false, manual_effective_tax_rate: 0.25 }).effective_tax_rate)
       .toBeCloseTo(0.1317, 4);
+  });
+
+  test('read with the profile: the one rate (MK-CF-F-181) and the one take-home, after tax AND the 401(k) (MK-CF-F-049, 2026-10-25)', () => {
+    // $5,000 a month, $500 into a 401(k), a 10% rate typed: $4,000 lands — it read $4,500 (gross × (1 − rate), no 401(k))
+    const op: OnboardingProfile = { baseSalary: '5000', salaryFreq: 'monthly', c_401k: '500', taxMode: 'manual', manualTaxRate: '10' } as any;
+    const doc = incomeFromOnboarding('u1', op);
+    const st = buildIncomeState('u1', doc.sources, doc.tax, op);
+    expect(st.effective_tax_rate).toBe(rateInForce(op).rate);
+    expect(st.net_monthly_income).toBeCloseTo(4000, 6);
+    expect(st.monthly_cash_flow_grid[0].gross).toBeCloseTo(5000, 6);
+    expect(st.monthly_cash_flow_grid[0].net).toBeCloseTo(4000, 6);
+    expect(st.total_net_annual).toBeCloseTo(st.monthly_cash_flow_grid.reduce((t, m) => t + m.net, 0), 6);   // months add to the year
+    // married, 5% state, nothing typed: the rate in force's tax, $18,106.80 — it read $21,957.82, single and federal only
+    const married: OnboardingProfile = { baseSalary: '11536.05', salaryFreq: 'monthly', filingStatus: 'married', stateTaxRate: '5' } as any;
+    const m = buildIncomeState('u1', incomeFromOnboarding('u1', married).sources, incomeFromOnboarding('u1', married).tax, married);
+    expect(m.total_gross_annual - m.total_net_annual).toBeCloseTo(18106.802, 6);
+    expect(m.effective_tax_rate).toBeCloseTo(18106.802 / 138432.6, 12);
   });
 
   test('buildIncomeState: totals, smoothed monthly, full grid', () => {
@@ -64,9 +86,13 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
     const doc = incomeFromOnboarding('u1', {
       baseSalary: '6500', employerMatchMode: 'dollar', employerMatchValue: '250',
       bonusAnnual: '12000', rsuShares: '50', rsuPrice: '400', signingOnetime: '10000',
+      // a signing bonus lands once, in the month its date names (2026-10-25, FIX-INCOME-B; landsOnce): January of this year
+      signingDate: `${new Date().getFullYear()}-01`,
       taxMode: 'manual', manualTaxRate: '25',
-    });
+    } as any);
     expect(doc.sources).toHaveLength(4);                                   // salary, bonus, rsu, signing
+    // with no date it is in no year, so it is stored nowhere — "date not entered" (DEC-0447, DEC-7940)
+    expect(incomeFromOnboarding('u1', { baseSalary: '6500', signingOnetime: '10000' } as any).sources.map((x) => x.label)).toEqual(['Base salary']);
     expect(doc.tax).toEqual({ use_manual_tax_override: true, manual_effective_tax_rate: 0.25 });
     const st = buildIncomeState('u1', doc.sources, doc.tax);
     // 6500×12 + 12000 + (50×400) + 10000 = 78000+12000+20000+10000
@@ -83,11 +109,16 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
   });
 
   test('RSUs sum across multiple grants (refreshers stack), with legacy single-grant fallback', () => {
-    expect(rsuAnnual({ rsuGrants: [{ shares: '100', price: '400' }, { shares: '50', price: '380' }] }))
+    // each grant counts in the year its date names (2026-10-25, FIX-INCOME-B; DEC-0012) — two grants vesting this year
+    const Y = new Date().getFullYear();
+    const grantsThisYear = [{ shares: '100', price: '400', date: `${Y}-06` }, { shares: '50', price: '380', date: `${Y}-09` }];
+    expect(rsuAnnual({ rsuGrants: grantsThisYear } as any))
       .toBe(100 * 400 + 50 * 380);                                   // 40,000 + 19,000 = 59,000
     expect(rsuAnnual({ rsuShares: '50', rsuPrice: '400' })).toBe(20000);  // falls back when no grants
     expect(rsuAnnual({})).toBe(0);
-    const doc = incomeFromOnboarding('u1', { rsuGrants: [{ shares: '100', price: '400' }, { shares: '50', price: '380' }] });
+    // grants with no date answer nothing: "vest date not entered" (tenet 3, DEC-0296) — they were counted as this year's
+    expect(rsuAnnual({ rsuGrants: [{ shares: '100', price: '400' }, { shares: '50', price: '380' }] })).toBeNull();
+    const doc = incomeFromOnboarding('u1', { rsuGrants: grantsThisYear } as any);
     expect(doc.sources).toHaveLength(1);                             // one combined RSU source
     expect(doc.sources[0].gross_amount).toBe(59000);
   });
@@ -107,7 +138,7 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
   test('source labels match the income-manager editor mapping', () => {
     const doc = incomeFromOnboarding('u1', {
       baseSalary: '100000', salaryFreq: 'annual',
-      equityType: 'rsu', rsuGrants: [{ shares: '100', price: '400' }],
+      equityType: 'rsu', rsuGrants: [{ shares: '100', price: '400', date: `${new Date().getFullYear()}-06` }],   // a vest of this year (2026-10-25)
       rentals: [{ type: 'long', income: '2000', expenses: '500', property_id: 'p1' }],
       seAmount: '30000', seFreq: 'annual',
     } as any);
@@ -130,8 +161,10 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
     const op: OnboardingProfile = {
       baseSalary: '6000', salaryMode: 'gross', salaryFreq: 'monthly',
       bonusAnnual: '12000', signingOnetime: '10000', taxMode: 'manual', manualTaxRate: '0',
-      equityType: 'rsu', rsuGrants: [{ shares: '100', price: '400', date: '2026-03' }],  // $40k vests in March
-    };
+      // dated this year, and the shares sold when they vest so the vest is money (2026-10-25, FIX-INCOME-B: landsOnce; vestsAreCash)
+      signingDate: `${new Date().getFullYear()}-01`, rsuSoldAtVest: 'yes',
+      equityType: 'rsu', rsuGrants: [{ shares: '100', price: '400', date: `${new Date().getFullYear()}-03` }],  // $40k vests in March
+    } as any;
     const g = incomeMonthlyGrid(op, 'gross');
     expect(g).toHaveLength(12);
     expect(g[0].amount).toBe(6000 + 10000);          // Jan: salary + signing
@@ -146,8 +179,16 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
   test('hourly annualizes by the entered hours/week, not a fixed 40', () => {
     const at20 = incomeMonthlyGrid({ baseSalary: '20', salaryMode: 'gross', salaryFreq: 'hourly', hoursPerWeek: '20', taxMode: 'manual', manualTaxRate: '0' }, 'gross');
     expect(at20[0].amount).toBeCloseTo(20 * 20 * 52 / 12, 2);     // $20/hr × 20 hrs/wk
+    // HOURS A WEEK NOT ENTERED: NO NUMBER, NEVER A 40-HOUR WEEK (2026-10-26, FIX-INCOME-A; his DEC-0296, tenet 3) — it read
+    // $20 × 40 × 52 ÷ 12 = $3,466.67 a month that nobody entered; the wage counts $0 until the hours are typed
+    const blank = incomeMonthlyGrid({ baseSalary: '20', salaryMode: 'gross', salaryFreq: 'hourly', taxMode: 'manual', manualTaxRate: '0' }, 'gross');
+    expect(blank[0].amount).toBe(0);
+    const at40 = incomeMonthlyGrid({ baseSalary: '20', salaryMode: 'gross', salaryFreq: 'hourly', hoursPerWeek: '40', taxMode: 'manual', manualTaxRate: '0' }, 'gross');
+    expect(at40[0].amount).toBeCloseTo(20 * 40 * 52 / 12, 2);     // forty hours, when forty are entered
+  });
+  test.failing('hourly · the app until 2026-10-26, pinned (no longer its answer): blank hours read as a 40-hour week', () => {
     const at40 = incomeMonthlyGrid({ baseSalary: '20', salaryMode: 'gross', salaryFreq: 'hourly', taxMode: 'manual', manualTaxRate: '0' }, 'gross');
-    expect(at40[0].amount).toBeCloseTo(20 * 40 * 52 / 12, 2);     // defaults to 40 when blank
+    expect(at40[0].amount).toBeCloseTo(20 * 40 * 52 / 12, 2);
   });
 
   // per-month base-salary table — set $0 in months you're not paid
@@ -274,8 +315,14 @@ describe('one-time other income: month placement + gift taxability', () => {
   const base: OnboardingProfile = {
     taxMode: 'manual', manualTaxRate: '20',
     baseSalary: '5000', salaryMode: 'gross', salaryFreq: 'monthly',
-    otherAmount: '19000', otherFreq: 'onetime', otherMonth: 9,
+    // its year on record: a one-time payment with no year is counted in no year (2026-10-25, FIX-INCOME-B; DEC-0447, DEC-7940)
+    otherAmount: '19000', otherFreq: 'onetime', otherMonth: 9, otherIncomeYear: new Date().getFullYear(),
   };
+  test('with no year it is in no year, and no month — "year not entered"', () => {
+    const noYear = { ...base, otherIncomeYear: undefined };
+    expect(incomeMonthlyGrid({ ...noYear, manualTaxRate: '0' }, 'gross')[8].amount).toBe(5000);
+    expect(taxableAnnual(noYear)).toBe(5000 * 12);
+  });
   test('lands in ITS month, not January', () => {
     const g = incomeMonthlyGrid({ ...base, manualTaxRate: '0' }, 'gross');
     expect(g[0].amount).toBe(5000);            // Jan: salary only
@@ -316,7 +363,7 @@ describe('future retirement income must not leak into CURRENT income', () => {
 describe('equity vesting months agree across the function (walk row 6)', () => {
   const yr = new Date().getFullYear();
   const op: any = {
-    equityType: 'rsu',
+    equityType: 'rsu', rsuSoldAtVest: 'yes',   // sold when they vest, so the vests are money in their months (2026-10-25)
     rsuGrants: [
       { date: `${yr}-03-15`, shares: 100, price: 120 },   // $12,000 in March
       { date: `${yr}-09-15`, shares: 100, price: 120 },   // $12,000 in September

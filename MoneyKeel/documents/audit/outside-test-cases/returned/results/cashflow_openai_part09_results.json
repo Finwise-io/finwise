@@ -1,0 +1,1980 @@
+{
+ "batch": "cf module — part 9 (cases, formula checks, NOT HELD rules)",
+ "reviewer": "OpenAI independent specification reviewer, CashFlow package of 2026-10-24",
+ "run_by": "Claude Code (CFR-3 measurer: parts 9 and 10; parts 11 and 12 by its fork)",
+ "run_on": "2026-10-25",
+ "test_file": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts",
+ "source": "returned/MoneyKeel_CashFlow_Independent_Audit_Package/MoneyKeel_CashFlow_Independent_Audit/audit_results/MoneyKeel_CashFlow_Audit_Part_09.json",
+ "run": "npx jest --maxWorkers=1 --no-watchman MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts → 85 passed, 0 skipped (BLOCKED), 0 failed, 85 total. Each APP WRONG item is test.failing on the reviewer's answer, with a twin test pinning today's answer; each was also run once as a plain test to confirm it fails on its intended line.",
+ "working_tree": "Measured on the working tree of 2026-10-25 at b1c659e8 (branch taxonomy-v1.0.7) while other agents edited other files (the-debts.ts gained a mortgages field and BudgetScreen.tsx was being reworked by the Cash flow screen agents; neither touched a figure measured here). No app code, drawing, record or existing test was changed; only this part's test file and this results file were written.",
+ "ready_to_close": false,
+ "cases": [
+  {
+   "id": "MK-CF-O-018",
+   "case_id": "MK-CF-O-018-C01",
+   "name": "theDebts",
+   "kind": "easy",
+   "title": "One known debt",
+   "classification": "AGREE",
+   "expected": {
+    "balance": {
+     "exact": "10000",
+     "shown": "$10,000"
+    },
+    "minimum": {
+     "exact": "100",
+     "shown": "$100"
+    },
+    "planned_payment": {
+     "exact": "200",
+     "shown": "$200"
+    },
+    "payoff_budget": {
+     "exact": "150",
+     "shown": "$150"
+    },
+    "monthly_interest": {
+     "exact": "50",
+     "shown": "$50"
+    }
+   },
+   "actual": {
+    "progress": null,
+    "totalBalance": 10000,
+    "minimumMonthly": 100,
+    "paymentsMonthly": 200,
+    "interestMonthly": 50,
+    "planMonthly": 150,
+    "plan": {
+     "months": 82,
+     "totalInterest": 2194.415760360475,
+     "neverPaysOff": false,
+     "order": [
+      {
+       "debt_id": "A",
+       "label": "A",
+       "payoffMonth": 82,
+       "interestPaid": 2194.415760360475
+      }
+     ]
+    },
+    "mortgages": null
+   },
+   "difference": "none",
+   "mapped": "theDebts({ debts, extraMonthly: extra, startOfYearDebt: recorded_start_balance, now: as_of }) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "Balance $10,000, minimum $100, payments $200, plan $150, interest $50 — as the reviewer worked.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-O-018 theDebts — five cases › MK-CF-O-018-C01 · easy · One known debt [AGREE]",
+   "test_result": "passed",
+   "fixed_2026_10_25": "RECLASSIFIED 2026-10-25 (FIX-MONTH): REVIEWER WRONG on the payoff budget under his DEC-0641 (\"what actually leaves\") — the plan pays the $200 set + $50 = $250, not the $100 minimum + $50 = $150; the rest agrees."
+  },
+  {
+   "id": "MK-CF-O-018",
+   "case_id": "MK-CF-O-018-C02",
+   "name": "theDebts",
+   "kind": "easy",
+   "title": "No debts",
+   "classification": "AGREE",
+   "expected": {
+    "balance": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "minimum": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "planned_payment": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "monthly_interest": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "progress": null,
+    "totalBalance": 0,
+    "minimumMonthly": 0,
+    "paymentsMonthly": 0,
+    "interestMonthly": 0,
+    "planMonthly": 0,
+    "plan": {
+     "months": 0,
+     "totalInterest": 0,
+     "neverPaysOff": false,
+     "order": []
+    },
+    "mortgages": null
+   },
+   "difference": "none",
+   "mapped": "theDebts({ debts, extraMonthly: extra, startOfYearDebt: recorded_start_balance, now: as_of }) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "No debts: every total is a known $0.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-O-018 theDebts — five cases › MK-CF-O-018-C02 · easy · No debts [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-O-018",
+   "case_id": "MK-CF-O-018-C03",
+   "name": "theDebts",
+   "kind": "complex",
+   "title": "Approved Debts drawing",
+   "classification": "APP WRONG",
+   "expected": {
+    "balance_rows": [
+     {
+      "exact": "3200",
+      "shown": "$3,200"
+     },
+     {
+      "exact": "9800",
+      "shown": "$9,800"
+     }
+    ],
+    "total": {
+     "exact": "13000",
+     "shown": "$13,000"
+    },
+    "paid_down": {
+     "exact": "4100",
+     "shown": "$4,100"
+    },
+    "paid_down_share": {
+     "exact": "41/171",
+     "shown": "23.98%",
+     "decimal_approximation": "0.2397660818713450292397660819"
+    },
+    "share_shown": "24%",
+    "monthly_interest": {
+     "exact": "113.3333333333333333333333333",
+     "shown": "$113"
+    },
+    "payoff": {
+     "state": "REFUSES",
+     "reason": "Monthly minimums/extra omitted by drawing"
+    }
+   },
+   "actual": {
+    "progress": {
+     "paidDown": 4100,
+     "share": 0.23976608187134502
+    },
+    "totalBalance": 13000,
+    "minimumMonthly": 0,
+    "paymentsMonthly": null,
+    "interestMonthly": 113.33333333333334,
+    "planMonthly": 0,
+    "plan": {
+     "months": 600,
+     "totalInterest": 113.33333333333334,
+     "neverPaysOff": true,
+     "order": []
+    },
+    "mortgages": null
+   },
+   "difference": "Six of seven figures agree ($3,200 + $9,800 = $13,000; $4,100 paid down = 41/171; $113.33 interest). The payoff does not: with no payment entered the plan says \"never\" (neverPaysOff, 600 months), and the Debts tab prints \"never at this rate\" and \"At this payment your balance grows faster than you pay it down\" (BudgetScreen.tsx, debtFreeLabel and the ⚠️ line under the payoff plan) — a claim made from a payment nobody entered.",
+   "mapped": "theDebts({ debts, extraMonthly: extra, startOfYearDebt: recorded_start_balance, now: as_of }) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full); the drawing's debts with no minimum → minimum_monthly_payment undefined (a payment not entered)",
+   "rests_on": "DEC-3523 tenet 3 (unknown is not zero); the same rule DEC-7682 applies to This month (\"we won't guess one\")",
+   "note": "Six of seven figures agree ($3,200 + $9,800 = $13,000; $4,100 paid down = 41/171; $113.33 interest). The payoff does not: with no payment entered the plan says \"never\" (neverPaysOff, 600 months), and the Debts tab prints \"never at this rate\" and \"At this payment your balance grows faster than you pay it down\" (BudgetScreen.tsx, debtFreeLabel and the ⚠️ line under the payoff plan) — a claim made from a payment nobody entered.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-O-018 theDebts — five cases › MK-CF-O-018-C03 · complex · Approved Debts drawing [APP WRONG]",
+   "test_result": "passed (test.failing: fails on the reviewer's answer as expected — turns red when fixed)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-MONTH): payoffPlan refuses for a payment (or rate) never entered and theDebts.plan is null — \"Visa and Car payments are not entered, so there is no payoff date — we won’t guess one.\" (was \"never\", month 1)."
+  },
+  {
+   "id": "MK-CF-O-018",
+   "case_id": "MK-CF-O-018-C04",
+   "name": "theDebts",
+   "kind": "complex",
+   "title": "Unround mixed debt shapes",
+   "classification": "AGREE",
+   "expected": {
+    "balance": {
+     "exact": "10422.60",
+     "shown": "$10,423"
+    },
+    "minimum": {
+     "exact": "231.43",
+     "shown": "$231"
+    },
+    "planned_monthly_payment": {
+     "exact": "311.19",
+     "shown": "$311"
+    },
+    "payoff_budget": {
+     "exact": "302.56",
+     "shown": "$303"
+    },
+    "monthly_interest": {
+     "exact": "55.2457155",
+     "shown": "$55"
+    }
+   },
+   "actual": {
+    "progress": null,
+    "totalBalance": 10422.6,
+    "minimumMonthly": 231.43,
+    "paymentsMonthly": 311.19,
+    "interestMonthly": 55.245715499999996,
+    "planMonthly": 302.56,
+    "plan": {
+     "months": 27,
+     "totalInterest": 675.659856679261,
+     "neverPaysOff": false,
+     "order": [
+      {
+       "debt_id": "B",
+       "label": "B",
+       "payoffMonth": 5,
+       "interestPaid": 53.912346241649885
+      },
+      {
+       "debt_id": "A",
+       "label": "A",
+       "payoffMonth": 27,
+       "interestPaid": 621.7475104376111
+      }
+     ]
+    },
+    "mortgages": null
+   },
+   "difference": "none",
+   "mapped": "theDebts({ debts, extraMonthly: extra, startOfYearDebt: recorded_start_balance, now: as_of }) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "Balance $10,422.60, minimum $231.43 (the lump has none), payments $311.19, plan $302.56, interest $55.2457155.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-O-018 theDebts — five cases › MK-CF-O-018-C04 · complex · Unround mixed debt shapes [AGREE]",
+   "test_result": "passed",
+   "fixed_2026_10_25": "RECLASSIFIED 2026-10-25 (FIX-MONTH): REVIEWER WRONG on the payoff budget under DEC-0641 — $311.19 paid + $71.13 = $382.32, not $302.56; the rest agrees."
+  },
+  {
+   "id": "MK-CF-O-018",
+   "case_id": "MK-CF-O-018-C05",
+   "name": "theDebts",
+   "kind": "edge",
+   "title": "Missing balance excluded",
+   "classification": "OUTSIDE DOMAIN",
+   "expected": {
+    "known_balance_subtotal": {
+     "exact": "1000",
+     "shown": "$1,000"
+    },
+    "complete": false,
+    "unvalued_debts": [
+     "B"
+    ]
+   },
+   "reviewer_formula_gives": {
+    "total": {
+     "exact": "1000",
+     "shown": "$1,000"
+    }
+   },
+   "actual": {
+    "progress": null,
+    "totalBalance": 1000,
+    "minimumMonthly": 0,
+    "paymentsMonthly": null,
+    "interestMonthly": 5,
+    "planMonthly": 0,
+    "plan": {
+     "months": 600,
+     "totalInterest": 5,
+     "neverPaysOff": true,
+     "order": []
+    },
+    "mortgages": null
+   },
+   "difference": "The known $1,000 agrees with DEC-3279e; the Debts tab has no box naming debt B, but no screen can save a debt with no balance, so the \"complete: false\" flag has no reachable input. (A blank balance from AddAccountScreen is saved as $0 — a different writer, recorded in the report.)",
+   "mapped": "theDebts({ debts, extraMonthly: extra, startOfYearDebt: recorded_start_balance, now: as_of }) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full); balance null → remaining_balance null",
+   "rests_on": "No writer saves a debt without a balance: DebtEditorSheet.tsx:126 (ready needs amt > 0), MK-CF-F-038 debtsFromOnboarding (balance > 0), AddAccountScreen.tsx:127 (num() writes a number)",
+   "note": "The known $1,000 agrees with DEC-3279e; the Debts tab has no box naming debt B, but no screen can save a debt with no balance, so the \"complete: false\" flag has no reachable input. (A blank balance from AddAccountScreen is saved as $0 — a different writer, recorded in the report.)",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-O-018 theDebts — five cases › MK-CF-O-018-C05 · edge · Missing balance excluded [OUTSIDE DOMAIN]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-021",
+   "case_id": "MK-CF-F-021-C01",
+   "name": "defaultPaymentType",
+   "kind": "easy",
+   "title": "Mortgage",
+   "classification": "AGREE",
+   "expected": "instalment",
+   "actual": "installment",
+   "difference": "none",
+   "mapped": "defaultPaymentType(kind) · kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, personal PERSONAL, heloc HELOC); payment_type → the debt's payment_type (null = not given); the app's installment/due_in_full read as the reviewer's instalment/due_full",
+   "rests_on": "the written rule",
+   "note": "The kind alone decides: a card or credit line revolves, any other kind is an instalment loan, whatever payment_type says.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-021 defaultPaymentType — five cases › MK-CF-F-021-C01 · easy · Mortgage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-021",
+   "case_id": "MK-CF-F-021-C02",
+   "name": "defaultPaymentType",
+   "kind": "easy",
+   "title": "Card",
+   "classification": "AGREE",
+   "expected": "revolving",
+   "actual": "revolving",
+   "difference": "none",
+   "mapped": "defaultPaymentType(kind) · kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, personal PERSONAL, heloc HELOC); payment_type → the debt's payment_type (null = not given); the app's installment/due_in_full read as the reviewer's instalment/due_full",
+   "rests_on": "the written rule",
+   "note": "The kind alone decides: a card or credit line revolves, any other kind is an instalment loan, whatever payment_type says.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-021 defaultPaymentType — five cases › MK-CF-F-021-C02 · easy · Card [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-021",
+   "case_id": "MK-CF-F-021-C03",
+   "name": "defaultPaymentType",
+   "kind": "complex",
+   "title": "Explicit full balance",
+   "classification": "AGREE",
+   "expected": "instalment",
+   "actual": "installment",
+   "difference": "none",
+   "mapped": "defaultPaymentType(kind) · kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, personal PERSONAL, heloc HELOC); payment_type → the debt's payment_type (null = not given); the app's installment/due_in_full read as the reviewer's instalment/due_full",
+   "rests_on": "the written rule",
+   "note": "The kind alone decides: a card or credit line revolves, any other kind is an instalment loan, whatever payment_type says.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-021 defaultPaymentType — five cases › MK-CF-F-021-C03 · complex · Explicit full balance [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-021",
+   "case_id": "MK-CF-F-021-C04",
+   "name": "defaultPaymentType",
+   "kind": "complex",
+   "title": "Override card loan",
+   "classification": "AGREE",
+   "expected": "revolving",
+   "actual": "revolving",
+   "difference": "none",
+   "mapped": "defaultPaymentType(kind) · kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, personal PERSONAL, heloc HELOC); payment_type → the debt's payment_type (null = not given); the app's installment/due_in_full read as the reviewer's instalment/due_full",
+   "rests_on": "the written rule",
+   "note": "The kind alone decides: a card or credit line revolves, any other kind is an instalment loan, whatever payment_type says.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-021 defaultPaymentType — five cases › MK-CF-F-021-C04 · complex · Override card loan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-021",
+   "case_id": "MK-CF-F-021-C05",
+   "name": "defaultPaymentType",
+   "kind": "edge",
+   "title": "HELOC",
+   "classification": "AGREE",
+   "expected": "revolving",
+   "actual": "revolving",
+   "difference": "none",
+   "mapped": "defaultPaymentType(kind) · kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, personal PERSONAL, heloc HELOC); payment_type → the debt's payment_type (null = not given); the app's installment/due_in_full read as the reviewer's instalment/due_full",
+   "rests_on": "the written rule",
+   "note": "The kind alone decides: a card or credit line revolves, any other kind is an instalment loan, whatever payment_type says.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-021 defaultPaymentType — five cases › MK-CF-F-021-C05 · edge · HELOC [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-022",
+   "case_id": "MK-CF-F-022-C01",
+   "name": "paymentShape",
+   "kind": "easy",
+   "title": "Mortgage",
+   "classification": "AGREE",
+   "expected": "instalment",
+   "actual": "installment",
+   "difference": "none",
+   "mapped": "paymentShape(debt) · kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, personal PERSONAL, heloc HELOC); payment_type → the debt's payment_type (null = not given); the app's installment/due_in_full read as the reviewer's instalment/due_full",
+   "rests_on": "the written rule",
+   "note": "The shape the person chose wins; the kind's default fills in when none was chosen.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-022 paymentShape — five cases › MK-CF-F-022-C01 · easy · Mortgage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-022",
+   "case_id": "MK-CF-F-022-C02",
+   "name": "paymentShape",
+   "kind": "easy",
+   "title": "Card",
+   "classification": "AGREE",
+   "expected": "revolving",
+   "actual": "revolving",
+   "difference": "none",
+   "mapped": "paymentShape(debt) · kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, personal PERSONAL, heloc HELOC); payment_type → the debt's payment_type (null = not given); the app's installment/due_in_full read as the reviewer's instalment/due_full",
+   "rests_on": "the written rule",
+   "note": "The shape the person chose wins; the kind's default fills in when none was chosen.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-022 paymentShape — five cases › MK-CF-F-022-C02 · easy · Card [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-022",
+   "case_id": "MK-CF-F-022-C03",
+   "name": "paymentShape",
+   "kind": "complex",
+   "title": "Explicit full balance",
+   "classification": "AGREE",
+   "expected": "due_full",
+   "actual": "due_in_full",
+   "difference": "none",
+   "mapped": "paymentShape(debt) · kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, personal PERSONAL, heloc HELOC); payment_type → the debt's payment_type (null = not given); the app's installment/due_in_full read as the reviewer's instalment/due_full",
+   "rests_on": "the written rule",
+   "note": "The shape the person chose wins; the kind's default fills in when none was chosen.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-022 paymentShape — five cases › MK-CF-F-022-C03 · complex · Explicit full balance [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-022",
+   "case_id": "MK-CF-F-022-C04",
+   "name": "paymentShape",
+   "kind": "complex",
+   "title": "Override card loan",
+   "classification": "AGREE",
+   "expected": "instalment",
+   "actual": "installment",
+   "difference": "none",
+   "mapped": "paymentShape(debt) · kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, personal PERSONAL, heloc HELOC); payment_type → the debt's payment_type (null = not given); the app's installment/due_in_full read as the reviewer's instalment/due_full",
+   "rests_on": "the written rule",
+   "note": "The shape the person chose wins; the kind's default fills in when none was chosen.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-022 paymentShape — five cases › MK-CF-F-022-C04 · complex · Override card loan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-022",
+   "case_id": "MK-CF-F-022-C05",
+   "name": "paymentShape",
+   "kind": "edge",
+   "title": "HELOC",
+   "classification": "AGREE",
+   "expected": "revolving",
+   "actual": "revolving",
+   "difference": "none",
+   "mapped": "paymentShape(debt) · kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, personal PERSONAL, heloc HELOC); payment_type → the debt's payment_type (null = not given); the app's installment/due_in_full read as the reviewer's instalment/due_full",
+   "rests_on": "the written rule",
+   "note": "The shape the person chose wins; the kind's default fills in when none was chosen.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-022 paymentShape — five cases › MK-CF-F-022-C05 · edge · HELOC [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-159",
+   "case_id": "MK-CF-F-159-C01",
+   "name": "isRecurringDebt",
+   "kind": "easy",
+   "title": "Mortgage",
+   "classification": "AGREE",
+   "expected": true,
+   "actual": true,
+   "difference": "none",
+   "mapped": "isRecurringDebt(debt) · kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, personal PERSONAL, heloc HELOC); payment_type → the debt's payment_type (null = not given); the app's installment/due_in_full read as the reviewer's instalment/due_full",
+   "rests_on": "the written rule",
+   "note": "Only an instalment loan repeats unchanged every month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-159 isRecurringDebt — five cases › MK-CF-F-159-C01 · easy · Mortgage [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-159",
+   "case_id": "MK-CF-F-159-C02",
+   "name": "isRecurringDebt",
+   "kind": "easy",
+   "title": "Card",
+   "classification": "AGREE",
+   "expected": false,
+   "actual": false,
+   "difference": "none",
+   "mapped": "isRecurringDebt(debt) · kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, personal PERSONAL, heloc HELOC); payment_type → the debt's payment_type (null = not given); the app's installment/due_in_full read as the reviewer's instalment/due_full",
+   "rests_on": "the written rule",
+   "note": "Only an instalment loan repeats unchanged every month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-159 isRecurringDebt — five cases › MK-CF-F-159-C02 · easy · Card [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-159",
+   "case_id": "MK-CF-F-159-C03",
+   "name": "isRecurringDebt",
+   "kind": "complex",
+   "title": "Explicit full balance",
+   "classification": "AGREE",
+   "expected": false,
+   "actual": false,
+   "difference": "none",
+   "mapped": "isRecurringDebt(debt) · kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, personal PERSONAL, heloc HELOC); payment_type → the debt's payment_type (null = not given); the app's installment/due_in_full read as the reviewer's instalment/due_full",
+   "rests_on": "the written rule",
+   "note": "Only an instalment loan repeats unchanged every month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-159 isRecurringDebt — five cases › MK-CF-F-159-C03 · complex · Explicit full balance [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-159",
+   "case_id": "MK-CF-F-159-C04",
+   "name": "isRecurringDebt",
+   "kind": "complex",
+   "title": "Override card loan",
+   "classification": "AGREE",
+   "expected": true,
+   "actual": true,
+   "difference": "none",
+   "mapped": "isRecurringDebt(debt) · kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, personal PERSONAL, heloc HELOC); payment_type → the debt's payment_type (null = not given); the app's installment/due_in_full read as the reviewer's instalment/due_full",
+   "rests_on": "the written rule",
+   "note": "Only an instalment loan repeats unchanged every month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-159 isRecurringDebt — five cases › MK-CF-F-159-C04 · complex · Override card loan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-159",
+   "case_id": "MK-CF-F-159-C05",
+   "name": "isRecurringDebt",
+   "kind": "edge",
+   "title": "HELOC",
+   "classification": "AGREE",
+   "expected": false,
+   "actual": false,
+   "difference": "none",
+   "mapped": "isRecurringDebt(debt) · kind → DebtType (mortgage MORTGAGE, credit_card CREDIT_CARD, personal PERSONAL, heloc HELOC); payment_type → the debt's payment_type (null = not given); the app's installment/due_in_full read as the reviewer's instalment/due_full",
+   "rests_on": "the written rule",
+   "note": "Only an instalment loan repeats unchanged every month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-159 isRecurringDebt — five cases › MK-CF-F-159-C05 · edge · HELOC [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-023",
+   "case_id": "MK-CF-F-023-C01",
+   "name": "requiredPayment",
+   "kind": "easy",
+   "title": "One instalment",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "200",
+    "shown": "$200"
+   },
+   "actual": [
+    200
+   ],
+   "difference": "none",
+   "mapped": "requiredPayment(each debt) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full); an empty list → nothing to add (0)",
+   "rests_on": "ordinary arithmetic",
+   "note": "max($100, $200) = $200.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-023 requiredPayment — five cases (one debt at a time) › MK-CF-F-023-C01 · easy · One instalment [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-023",
+   "case_id": "MK-CF-F-023-C02",
+   "name": "requiredPayment",
+   "kind": "easy",
+   "title": "One due in full",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": [
+    0
+   ],
+   "difference": "none",
+   "mapped": "requiredPayment(each debt) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full); an empty list → nothing to add (0)",
+   "rests_on": "ordinary arithmetic",
+   "note": "A debt due in full has no monthly payment: $0.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-023 requiredPayment — five cases (one debt at a time) › MK-CF-F-023-C02 · easy · One due in full [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-023",
+   "case_id": "MK-CF-F-023-C03",
+   "name": "requiredPayment",
+   "kind": "complex",
+   "title": "Two payment choices",
+   "classification": "AGREE",
+   "expected": {
+    "per_debt": [
+     {
+      "exact": "311.19",
+      "shown": "$311"
+     },
+     {
+      "exact": "93.19",
+      "shown": "$93"
+     }
+    ],
+    "sum_for_comparison": {
+     "exact": "404.38",
+     "shown": "$404"
+    }
+   },
+   "actual": [
+    311.19,
+    93.19
+   ],
+   "difference": "none",
+   "mapped": "requiredPayment(each debt) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full); an empty list → nothing to add (0)",
+   "rests_on": "ordinary arithmetic",
+   "note": "Each debt: the larger of minimum and chosen payment; a lump $0; the sum is compared only.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-023 requiredPayment — five cases (one debt at a time) › MK-CF-F-023-C03 · complex · Two payment choices [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-023",
+   "case_id": "MK-CF-F-023-C04",
+   "name": "requiredPayment",
+   "kind": "complex",
+   "title": "Three debts",
+   "classification": "AGREE",
+   "expected": {
+    "per_debt": [
+     {
+      "exact": "311.19",
+      "shown": "$311"
+     },
+     {
+      "exact": "171.13",
+      "shown": "$171"
+     },
+     {
+      "exact": "0",
+      "shown": "$0"
+     }
+    ],
+    "sum_for_comparison": {
+     "exact": "482.32",
+     "shown": "$482"
+    }
+   },
+   "actual": [
+    311.19,
+    171.13,
+    0
+   ],
+   "difference": "none",
+   "mapped": "requiredPayment(each debt) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full); an empty list → nothing to add (0)",
+   "rests_on": "ordinary arithmetic",
+   "note": "Each debt: the larger of minimum and chosen payment; a lump $0; the sum is compared only.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-023 requiredPayment — five cases (one debt at a time) › MK-CF-F-023-C04 · complex · Three debts [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-023",
+   "case_id": "MK-CF-F-023-C05",
+   "name": "requiredPayment",
+   "kind": "edge",
+   "title": "Confirmed empty",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": [],
+   "difference": "none",
+   "mapped": "requiredPayment(each debt) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full); an empty list → nothing to add (0)",
+   "rests_on": "ordinary arithmetic",
+   "note": "No debts: nothing to add.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-023 requiredPayment — five cases (one debt at a time) › MK-CF-F-023-C05 · edge · Confirmed empty [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-024",
+   "case_id": "MK-CF-F-024-C01",
+   "name": "totalDebtMonthly",
+   "kind": "easy",
+   "title": "One instalment",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "200",
+    "shown": "$200"
+   },
+   "actual": 200,
+   "difference": "none",
+   "mapped": "totalDebtMonthly(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "Each debt's required payment added: $200; $0 for a lump; $311.19 + $93.19 = $404.38; + $171.13 = $482.32.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-024 totalDebtMonthly — five cases › MK-CF-F-024-C01 · easy · One instalment [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-024",
+   "case_id": "MK-CF-F-024-C02",
+   "name": "totalDebtMonthly",
+   "kind": "easy",
+   "title": "One due in full",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "mapped": "totalDebtMonthly(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "Each debt's required payment added: $200; $0 for a lump; $311.19 + $93.19 = $404.38; + $171.13 = $482.32.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-024 totalDebtMonthly — five cases › MK-CF-F-024-C02 · easy · One due in full [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-024",
+   "case_id": "MK-CF-F-024-C03",
+   "name": "totalDebtMonthly",
+   "kind": "complex",
+   "title": "Two payment choices",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "404.38",
+    "shown": "$404"
+   },
+   "actual": 404.38,
+   "difference": "none",
+   "mapped": "totalDebtMonthly(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "Each debt's required payment added: $200; $0 for a lump; $311.19 + $93.19 = $404.38; + $171.13 = $482.32.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-024 totalDebtMonthly — five cases › MK-CF-F-024-C03 · complex · Two payment choices [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-024",
+   "case_id": "MK-CF-F-024-C04",
+   "name": "totalDebtMonthly",
+   "kind": "complex",
+   "title": "Three debts",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "482.32",
+    "shown": "$482"
+   },
+   "actual": 482.32,
+   "difference": "none",
+   "mapped": "totalDebtMonthly(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "Each debt's required payment added: $200; $0 for a lump; $311.19 + $93.19 = $404.38; + $171.13 = $482.32.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-024 totalDebtMonthly — five cases › MK-CF-F-024-C04 · complex · Three debts [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-024",
+   "case_id": "MK-CF-F-024-C05",
+   "name": "totalDebtMonthly",
+   "kind": "edge",
+   "title": "Confirmed empty",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "mapped": "totalDebtMonthly(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "No debts: a known $0.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-024 totalDebtMonthly — five cases › MK-CF-F-024-C05 · edge · Confirmed empty [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-025",
+   "case_id": "MK-CF-F-025-C01",
+   "name": "minimumDebtService",
+   "kind": "easy",
+   "title": "One instalment",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "100",
+    "shown": "$100"
+   },
+   "actual": 100,
+   "difference": "none",
+   "mapped": "minimumDebtService(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "The minimums added, a lump counting $0: $100; $0; $231.43 + $93.19 = $324.62.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-025 minimumDebtService — five cases › MK-CF-F-025-C01 · easy · One instalment [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-025",
+   "case_id": "MK-CF-F-025-C02",
+   "name": "minimumDebtService",
+   "kind": "easy",
+   "title": "One due in full",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "mapped": "minimumDebtService(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "The minimums added, a lump counting $0: $100; $0; $231.43 + $93.19 = $324.62.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-025 minimumDebtService — five cases › MK-CF-F-025-C02 · easy · One due in full [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-025",
+   "case_id": "MK-CF-F-025-C03",
+   "name": "minimumDebtService",
+   "kind": "complex",
+   "title": "Two payment choices",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "324.62",
+    "shown": "$325"
+   },
+   "actual": 324.62,
+   "difference": "none",
+   "mapped": "minimumDebtService(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "The minimums added, a lump counting $0: $100; $0; $231.43 + $93.19 = $324.62.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-025 minimumDebtService — five cases › MK-CF-F-025-C03 · complex · Two payment choices [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-025",
+   "case_id": "MK-CF-F-025-C04",
+   "name": "minimumDebtService",
+   "kind": "complex",
+   "title": "Three debts",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "324.62",
+    "shown": "$325"
+   },
+   "actual": 324.62,
+   "difference": "none",
+   "mapped": "minimumDebtService(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "The minimums added, a lump counting $0: $100; $0; $231.43 + $93.19 = $324.62.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-025 minimumDebtService — five cases › MK-CF-F-025-C04 · complex · Three debts [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-025",
+   "case_id": "MK-CF-F-025-C05",
+   "name": "minimumDebtService",
+   "kind": "edge",
+   "title": "Confirmed empty",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "mapped": "minimumDebtService(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "No debts: a known $0.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-025 minimumDebtService — five cases › MK-CF-F-025-C05 · edge · Confirmed empty [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-026",
+   "case_id": "MK-CF-F-026-C01",
+   "name": "actualDebtPayment",
+   "kind": "easy",
+   "title": "One instalment",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "200",
+    "shown": "$200"
+   },
+   "actual": 200,
+   "difference": "none",
+   "mapped": "actualDebtPayment(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "The same as totalDebtMonthly: the chosen payment, else the minimum.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-026 actualDebtPayment — five cases › MK-CF-F-026-C01 · easy · One instalment [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-026",
+   "case_id": "MK-CF-F-026-C02",
+   "name": "actualDebtPayment",
+   "kind": "easy",
+   "title": "One due in full",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "mapped": "actualDebtPayment(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "The same as totalDebtMonthly: the chosen payment, else the minimum.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-026 actualDebtPayment — five cases › MK-CF-F-026-C02 · easy · One due in full [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-026",
+   "case_id": "MK-CF-F-026-C03",
+   "name": "actualDebtPayment",
+   "kind": "complex",
+   "title": "Two payment choices",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "404.38",
+    "shown": "$404"
+   },
+   "actual": 404.38,
+   "difference": "none",
+   "mapped": "actualDebtPayment(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "The same as totalDebtMonthly: the chosen payment, else the minimum.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-026 actualDebtPayment — five cases › MK-CF-F-026-C03 · complex · Two payment choices [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-026",
+   "case_id": "MK-CF-F-026-C04",
+   "name": "actualDebtPayment",
+   "kind": "complex",
+   "title": "Three debts",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "482.32",
+    "shown": "$482"
+   },
+   "actual": 482.32,
+   "difference": "none",
+   "mapped": "actualDebtPayment(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "The same as totalDebtMonthly: the chosen payment, else the minimum.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-026 actualDebtPayment — five cases › MK-CF-F-026-C04 · complex · Three debts [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-026",
+   "case_id": "MK-CF-F-026-C05",
+   "name": "actualDebtPayment",
+   "kind": "edge",
+   "title": "Required but unpaid",
+   "classification": "AGREE",
+   "expected": {
+    "state": "RULE UNCLEAR",
+    "reason": "Legacy planned meaning versus name actually paid",
+    "readings": {
+     "planned_monthly": {
+      "exact": "200",
+      "shown": "$200"
+     },
+     "actually_paid": {
+      "exact": "0",
+      "shown": "$0"
+     }
+    }
+   },
+   "reviewer_formula_gives": {
+    "exact": "200",
+    "shown": "$200"
+   },
+   "actual": 200,
+   "difference": "none",
+   "mapped": "actualDebtPayment(debts) — payments_logged_this_month is not an input the function takes",
+   "rests_on": "Settled by DEC-0641 (\"what actually leaves\" = the payment the person chose, $600 on a $200 minimum) and DEC-1923 (the ACTUAL month counts only a logged payment — MK-CF-F-005 actualMonthFlow does that, not this function)",
+   "note": "The reviewer wrote RULE UNCLEAR with two readings; his rulings settle it: this function is the planned monthly payment ($200), and no actual-month figure reads it (its callers are MK-XS-F-028 surplusByMonth, a plan built from the profile, and buildDebtState.total_actual_payment, which nothing reads). The name \"actual\" is a records fix.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-026 actualDebtPayment — five cases › MK-CF-F-026-C05 · edge · Required but unpaid [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-027",
+   "case_id": "MK-CF-F-027-C01",
+   "name": "totalDebtBalance",
+   "kind": "easy",
+   "title": "One instalment",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "10000",
+    "shown": "$10,000"
+   },
+   "actual": 10000,
+   "difference": "none",
+   "mapped": "totalDebtBalance(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "The known balances added: $10,000; $10,000 for a lump; $15,422.34; $25,133.47.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-027 totalDebtBalance — five cases › MK-CF-F-027-C01 · easy · One instalment [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-027",
+   "case_id": "MK-CF-F-027-C02",
+   "name": "totalDebtBalance",
+   "kind": "easy",
+   "title": "One due in full",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "10000",
+    "shown": "$10,000"
+   },
+   "actual": 10000,
+   "difference": "none",
+   "mapped": "totalDebtBalance(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "The known balances added: $10,000; $10,000 for a lump; $15,422.34; $25,133.47.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-027 totalDebtBalance — five cases › MK-CF-F-027-C02 · easy · One due in full [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-027",
+   "case_id": "MK-CF-F-027-C03",
+   "name": "totalDebtBalance",
+   "kind": "complex",
+   "title": "Two payment choices",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "15422.34",
+    "shown": "$15,422"
+   },
+   "actual": 15422.34,
+   "difference": "none",
+   "mapped": "totalDebtBalance(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "The known balances added: $10,000; $10,000 for a lump; $15,422.34; $25,133.47.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-027 totalDebtBalance — five cases › MK-CF-F-027-C03 · complex · Two payment choices [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-027",
+   "case_id": "MK-CF-F-027-C04",
+   "name": "totalDebtBalance",
+   "kind": "complex",
+   "title": "Three debts",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "25133.47",
+    "shown": "$25,133"
+   },
+   "actual": 25133.47,
+   "difference": "none",
+   "mapped": "totalDebtBalance(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "The known balances added: $10,000; $10,000 for a lump; $15,422.34; $25,133.47.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-027 totalDebtBalance — five cases › MK-CF-F-027-C04 · complex · Three debts [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-027",
+   "case_id": "MK-CF-F-027-C05",
+   "name": "totalDebtBalance",
+   "kind": "edge",
+   "title": "Confirmed empty",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "mapped": "totalDebtBalance(debts) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "No debts: a known $0.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-027 totalDebtBalance — five cases › MK-CF-F-027-C05 · edge · Confirmed empty [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-028",
+   "case_id": "MK-CF-F-028-C01",
+   "name": "loanPayment",
+   "kind": "easy",
+   "title": "Zero-interest loan",
+   "classification": "AGREE",
+   "expected": {
+    "payment": {
+     "exact": "100",
+     "shown": "$100"
+    },
+    "total_paid": {
+     "exact": "1200",
+     "shown": "$1,200"
+    },
+    "interest": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "monthly": 100,
+    "totalInterest": 0,
+    "totalPaid": 1200
+   },
+   "difference": "none",
+   "mapped": "loanPayment(principal, apr_percent, years) — the rate as a percent, as the card says",
+   "rests_on": "ordinary amortisation arithmetic",
+   "note": "P × r ÷ (1 − (1 + r)^−n), or P ÷ n at 0%; total paid = payment × n; interest = total − P — at full precision.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-028 loanPayment — five cases › MK-CF-F-028-C01 · easy · Zero-interest loan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-028",
+   "case_id": "MK-CF-F-028-C02",
+   "name": "loanPayment",
+   "kind": "easy",
+   "title": "Ordinary loan",
+   "classification": "AGREE",
+   "expected": {
+    "payment": {
+     "exact": "193.3280152942791838353043704",
+     "shown": "$193"
+    },
+    "total_paid": {
+     "exact": "11599.68091765675103011826222",
+     "shown": "$11,600"
+    },
+    "interest": {
+     "exact": "1599.68091765675103011826222",
+     "shown": "$1,600"
+    }
+   },
+   "actual": {
+    "monthly": 193.32801529428275,
+    "totalInterest": 1599.680917656966,
+    "totalPaid": 11599.680917656966
+   },
+   "difference": "none",
+   "mapped": "loanPayment(principal, apr_percent, years) — the rate as a percent, as the card says",
+   "rests_on": "ordinary amortisation arithmetic",
+   "note": "P × r ÷ (1 − (1 + r)^−n), or P ÷ n at 0%; total paid = payment × n; interest = total − P — at full precision.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-028 loanPayment — five cases › MK-CF-F-028-C02 · easy · Ordinary loan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-028",
+   "case_id": "MK-CF-F-028-C03",
+   "name": "loanPayment",
+   "kind": "complex",
+   "title": "Unround loan",
+   "classification": "AGREE",
+   "expected": {
+    "payment": {
+     "exact": "464.1341936035343180864471511",
+     "shown": "$464"
+    },
+    "total_paid": {
+     "exact": "22278.44129296964726814946325",
+     "shown": "$22,278"
+    },
+    "interest": {
+     "exact": "2967.27129296964726814946325",
+     "shown": "$2,967"
+    }
+   },
+   "actual": {
+    "monthly": 464.13419360353765,
+    "totalInterest": 2967.27129296981,
+    "totalPaid": 22278.44129296981
+   },
+   "difference": "none",
+   "mapped": "loanPayment(principal, apr_percent, years) — the rate as a percent, as the card says",
+   "rests_on": "ordinary amortisation arithmetic",
+   "note": "P × r ÷ (1 − (1 + r)^−n), or P ÷ n at 0%; total paid = payment × n; interest = total − P — at full precision.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-028 loanPayment — five cases › MK-CF-F-028-C03 · complex · Unround loan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-028",
+   "case_id": "MK-CF-F-028-C04",
+   "name": "loanPayment",
+   "kind": "complex",
+   "title": "Unround second rate",
+   "classification": "AGREE",
+   "expected": {
+    "payment": {
+     "exact": "265.6847641787124979802660696",
+     "shown": "$266"
+    },
+    "total_paid": {
+     "exact": "9564.651510433649927289578506",
+     "shown": "$9,565"
+    },
+    "interest": {
+     "exact": "2253.221510433649927289578506",
+     "shown": "$2,253"
+    }
+   },
+   "actual": {
+    "monthly": 265.6847641787135,
+    "totalInterest": 2253.2215104336865,
+    "totalPaid": 9564.651510433687
+   },
+   "difference": "none",
+   "mapped": "loanPayment(principal, apr_percent, years) — the rate as a percent, as the card says",
+   "rests_on": "ordinary amortisation arithmetic",
+   "note": "P × r ÷ (1 − (1 + r)^−n), or P ÷ n at 0%; total paid = payment × n; interest = total − P — at full precision.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-028 loanPayment — five cases › MK-CF-F-028-C04 · complex · Unround second rate [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-028",
+   "case_id": "MK-CF-F-028-C05",
+   "name": "loanPayment",
+   "kind": "edge",
+   "title": "Zero rate with positive balance",
+   "classification": "AGREE",
+   "expected": {
+    "payment": {
+     "exact": "500",
+     "shown": "$500"
+    },
+    "total_paid": {
+     "exact": "10000",
+     "shown": "$10,000"
+    },
+    "interest": {
+     "exact": "0",
+     "shown": "$0"
+    }
+   },
+   "actual": {
+    "monthly": 500,
+    "totalInterest": 0,
+    "totalPaid": 10000
+   },
+   "difference": "none",
+   "mapped": "loanPayment(principal, apr_percent, years) — the rate as a percent, as the card says",
+   "rests_on": "ordinary amortisation arithmetic",
+   "note": "P × r ÷ (1 − (1 + r)^−n), or P ÷ n at 0%; total paid = payment × n; interest = total − P — at full precision.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-028 loanPayment — five cases › MK-CF-F-028-C05 · edge · Zero rate with positive balance [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-029",
+   "case_id": "MK-CF-F-029-C01",
+   "name": "monthsToClear",
+   "kind": "easy",
+   "title": "Zero-interest loan",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "12",
+    "shown": "12"
+   },
+   "actual": 12,
+   "difference": "none",
+   "mapped": "monthsToClear(principal, apr_decimal, monthly_payment)",
+   "rests_on": "ordinary amortisation arithmetic",
+   "note": "Months = round up(ln(p ÷ (p − P × r)) ÷ ln(1 + r)), or round up(P ÷ p) at 0%.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-029 monthsToClear — five cases › MK-CF-F-029-C01 · easy · Zero-interest loan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-029",
+   "case_id": "MK-CF-F-029-C02",
+   "name": "monthsToClear",
+   "kind": "easy",
+   "title": "Ordinary loan",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "58",
+    "shown": "58"
+   },
+   "actual": 58,
+   "difference": "none",
+   "mapped": "monthsToClear(principal, apr_decimal, monthly_payment)",
+   "rests_on": "ordinary amortisation arithmetic",
+   "note": "Months = round up(ln(p ÷ (p − P × r)) ÷ ln(1 + r)), or round up(P ÷ p) at 0%.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-029 monthsToClear — five cases › MK-CF-F-029-C02 · easy · Ordinary loan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-029",
+   "case_id": "MK-CF-F-029-C03",
+   "name": "monthsToClear",
+   "kind": "complex",
+   "title": "Unround loan",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "45",
+    "shown": "45"
+   },
+   "actual": 45,
+   "difference": "none",
+   "mapped": "monthsToClear(principal, apr_decimal, monthly_payment)",
+   "rests_on": "ordinary amortisation arithmetic",
+   "note": "Months = round up(ln(p ÷ (p − P × r)) ÷ ln(1 + r)), or round up(P ÷ p) at 0%.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-029 monthsToClear — five cases › MK-CF-F-029-C03 · complex · Unround loan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-029",
+   "case_id": "MK-CF-F-029-C04",
+   "name": "monthsToClear",
+   "kind": "complex",
+   "title": "Unround second rate",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "30",
+    "shown": "30"
+   },
+   "actual": 30,
+   "difference": "none",
+   "mapped": "monthsToClear(principal, apr_decimal, monthly_payment)",
+   "rests_on": "ordinary amortisation arithmetic",
+   "note": "Months = round up(ln(p ÷ (p − P × r)) ÷ ln(1 + r)), or round up(P ÷ p) at 0%.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-029 monthsToClear — five cases › MK-CF-F-029-C04 · complex · Unround second rate [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-029",
+   "case_id": "MK-CF-F-029-C05",
+   "name": "monthsToClear",
+   "kind": "edge",
+   "title": "Payment equals interest",
+   "classification": "AGREE",
+   "expected": {
+    "state": "REFUSES",
+    "reason": "Payment equals 100 monthly interest; never clears"
+   },
+   "actual": null,
+   "difference": "none",
+   "mapped": "monthsToClear(principal, apr_decimal, monthly_payment)",
+   "rests_on": "ordinary arithmetic",
+   "note": "A payment equal to the month's $100 interest never clears: no number.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-029 monthsToClear — five cases › MK-CF-F-029-C05 · edge · Payment equals interest [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-030",
+   "case_id": "MK-CF-F-030-C01",
+   "name": "paymentToClearBy",
+   "kind": "easy",
+   "title": "Zero-interest loan",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "100.00",
+    "shown": "$100"
+   },
+   "actual": 100,
+   "difference": "none",
+   "mapped": "paymentToClearBy(principal, apr_decimal, months)",
+   "rests_on": "ordinary amortisation arithmetic; the cent rounded UP is the rule (the stated payment must meet the stated date)",
+   "note": "The amortising payment, rounded up to the next cent.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-030 paymentToClearBy — five cases › MK-CF-F-030-C01 · easy · Zero-interest loan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-030",
+   "case_id": "MK-CF-F-030-C02",
+   "name": "paymentToClearBy",
+   "kind": "easy",
+   "title": "Ordinary loan",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "193.33",
+    "shown": "$193"
+   },
+   "actual": 193.33,
+   "difference": "none",
+   "mapped": "paymentToClearBy(principal, apr_decimal, months)",
+   "rests_on": "ordinary amortisation arithmetic; the cent rounded UP is the rule (the stated payment must meet the stated date)",
+   "note": "The amortising payment, rounded up to the next cent.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-030 paymentToClearBy — five cases › MK-CF-F-030-C02 · easy · Ordinary loan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-030",
+   "case_id": "MK-CF-F-030-C03",
+   "name": "paymentToClearBy",
+   "kind": "complex",
+   "title": "Unround loan",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "464.14",
+    "shown": "$464"
+   },
+   "actual": 464.14,
+   "difference": "none",
+   "mapped": "paymentToClearBy(principal, apr_decimal, months)",
+   "rests_on": "ordinary amortisation arithmetic; the cent rounded UP is the rule (the stated payment must meet the stated date)",
+   "note": "The amortising payment, rounded up to the next cent.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-030 paymentToClearBy — five cases › MK-CF-F-030-C03 · complex · Unround loan [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-030",
+   "case_id": "MK-CF-F-030-C04",
+   "name": "paymentToClearBy",
+   "kind": "complex",
+   "title": "Unround second rate",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "265.69",
+    "shown": "$266"
+   },
+   "actual": 265.69,
+   "difference": "none",
+   "mapped": "paymentToClearBy(principal, apr_decimal, months)",
+   "rests_on": "ordinary amortisation arithmetic; the cent rounded UP is the rule (the stated payment must meet the stated date)",
+   "note": "The amortising payment, rounded up to the next cent.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-030 paymentToClearBy — five cases › MK-CF-F-030-C04 · complex · Unround second rate [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-030",
+   "case_id": "MK-CF-F-030-C05",
+   "name": "paymentToClearBy",
+   "kind": "edge",
+   "title": "Zero rate with positive balance",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "500.00",
+    "shown": "$500"
+   },
+   "actual": 500,
+   "difference": "none",
+   "mapped": "paymentToClearBy(principal, apr_decimal, months)",
+   "rests_on": "ordinary amortisation arithmetic; the cent rounded UP is the rule (the stated payment must meet the stated date)",
+   "note": "The amortising payment, rounded up to the next cent.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-030 paymentToClearBy — five cases › MK-CF-F-030-C05 · edge · Zero rate with positive balance [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-034",
+   "case_id": "MK-CF-F-034-C01",
+   "name": "payoffPlan",
+   "kind": "easy",
+   "title": "One zero-rate debt",
+   "classification": "AGREE",
+   "expected": {
+    "months": {
+     "exact": "10",
+     "shown": "10"
+    },
+    "interest": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "order": [
+     {
+      "name": "A",
+      "month": {
+       "exact": "10",
+       "shown": "10"
+      }
+     }
+    ]
+   },
+   "actual": {
+    "months": 10,
+    "totalInterest": 0,
+    "neverPaysOff": false,
+    "order": [
+     {
+      "debt_id": "A",
+      "label": "A",
+      "payoffMonth": 10,
+      "interestPaid": 0
+     }
+    ]
+   },
+   "difference": "none",
+   "mapped": "payoffPlan(debts, extra, method ?? 'avalanche', as_of at noon) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "$1,000 at 0% and $100 a month: 10 months.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-034 payoffPlan — five cases › MK-CF-F-034-C01 · easy · One zero-rate debt [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-034",
+   "case_id": "MK-CF-F-034-C02",
+   "name": "payoffPlan",
+   "kind": "easy",
+   "title": "Extra halves duration",
+   "classification": "AGREE",
+   "expected": {
+    "months": {
+     "exact": "5",
+     "shown": "5"
+    },
+    "interest": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "order": [
+     {
+      "name": "A",
+      "month": {
+       "exact": "5",
+       "shown": "5"
+      }
+     }
+    ]
+   },
+   "actual": {
+    "months": 5,
+    "totalInterest": 0,
+    "neverPaysOff": false,
+    "order": [
+     {
+      "debt_id": "A",
+      "label": "A",
+      "payoffMonth": 5,
+      "interestPaid": 0
+     }
+    ]
+   },
+   "difference": "none",
+   "mapped": "payoffPlan(debts, extra, method ?? 'avalanche', as_of at noon) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "$100 extra halves it: 5 months.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-034 payoffPlan — five cases › MK-CF-F-034-C02 · easy · Extra halves duration [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-034",
+   "case_id": "MK-CF-F-034-C03",
+   "name": "payoffPlan",
+   "kind": "complex",
+   "title": "Freed minimum rolls over",
+   "classification": "AGREE",
+   "expected": {
+    "months": {
+     "exact": "2",
+     "shown": "2"
+    },
+    "interest": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "order": [
+     {
+      "name": "A",
+      "month": {
+       "exact": "1",
+       "shown": "1"
+      }
+     },
+     {
+      "name": "B",
+      "month": {
+       "exact": "2",
+       "shown": "2"
+      }
+     }
+    ]
+   },
+   "actual": {
+    "months": 2,
+    "totalInterest": 0,
+    "neverPaysOff": false,
+    "order": [
+     {
+      "debt_id": "A",
+      "label": "A",
+      "payoffMonth": 1,
+      "interestPaid": 0
+     },
+     {
+      "debt_id": "B",
+      "label": "B",
+      "payoffMonth": 2,
+      "interestPaid": 0
+     }
+    ]
+   },
+   "difference": "none",
+   "mapped": "payoffPlan(debts, extra, method ?? 'avalanche', as_of at noon) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic",
+   "note": "Snowball: A cleared in month 1, its $100.13 rolls on, B cleared in month 2.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-034 payoffPlan — five cases › MK-CF-F-034-C03 · complex · Freed minimum rolls over [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-034",
+   "case_id": "MK-CF-F-034-C04",
+   "name": "payoffPlan",
+   "kind": "complex",
+   "title": "Delayed start",
+   "classification": "AGREE",
+   "expected": {
+    "months": {
+     "exact": "4",
+     "shown": "4"
+    },
+    "interest": {
+     "exact": "0",
+     "shown": "$0"
+    },
+    "order": [
+     {
+      "name": "A",
+      "month": {
+       "exact": "4",
+       "shown": "4"
+      }
+     }
+    ]
+   },
+   "actual": {
+    "months": 4,
+    "totalInterest": 0,
+    "neverPaysOff": false,
+    "order": [
+     {
+      "debt_id": "A",
+      "label": "A",
+      "payoffMonth": 4,
+      "interestPaid": 0
+     }
+    ]
+   },
+   "difference": "none",
+   "mapped": "payoffPlan(debts, extra, method ?? 'avalanche', as_of at noon) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "ordinary arithmetic; month 1 is the month of as_of",
+   "note": "First payment in December (month 3): $400.13, then $331.04 in month 4.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-034 payoffPlan — five cases › MK-CF-F-034-C04 · complex · Delayed start [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-034",
+   "case_id": "MK-CF-F-034-C05",
+   "name": "payoffPlan",
+   "kind": "edge",
+   "title": "Amortizing after horizon",
+   "classification": "APP WRONG",
+   "expected": {
+    "state": "HORIZON EXHAUSTED",
+    "remaining_at_month_600": {
+     "exact": "100",
+     "shown": "$100"
+    },
+    "actual_payoff_month": {
+     "exact": "601",
+     "shown": "601"
+    }
+   },
+   "reviewer_formula_gives": {
+    "state": "NEVER",
+    "remaining_at_month_600": {
+     "exact": "100",
+     "shown": "$100"
+    }
+   },
+   "actual": {
+    "months": 600,
+    "totalInterest": 0,
+    "neverPaysOff": true,
+    "order": []
+   },
+   "difference": "The app says never (neverPaysOff true, months 600) for a debt that clears in month 601; the Debts tab prints \"never at this rate\" and \"your balance grows faster than you pay it down\" for a balance that falls $100 every month.",
+   "mapped": "payoffPlan(debts, extra, method ?? 'avalanche', as_of at noon) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full)",
+   "rests_on": "Ordinary arithmetic ($60,100 ÷ $100 = 601 months) and DEC-3523 tenet 1: the 600-month stop is reported as \"never pays off\"",
+   "note": "The app says never (neverPaysOff true, months 600) for a debt that clears in month 601; the Debts tab prints \"never at this rate\" and \"your balance grows faster than you pay it down\" for a balance that falls $100 every month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-034 payoffPlan — five cases › MK-CF-F-034-C05 · edge · Amortizing after horizon [APP WRONG]",
+   "test_result": "passed (test.failing: fails on the reviewer's answer as expected — turns red when fixed)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): 601 months, never false — \"never\" is proven (the payments cannot get ahead), never read off a 600-month stop."
+  },
+  {
+   "id": "MK-CF-F-235",
+   "case_id": "MK-CF-F-235-C01",
+   "name": "paysInMonth",
+   "kind": "easy",
+   "title": "Active instalment",
+   "classification": "AGREE",
+   "expected": true,
+   "actual": true,
+   "difference": "none",
+   "mapped": "paysInMonth(debt, month) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full); required_payment → the payment",
+   "rests_on": "DEC-8153 (the lead's, under DEC-1923)",
+   "note": "From its first payment month to its payoff month, inclusive; a lump only in its due month while owed.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-235 paysInMonth — five cases › MK-CF-F-235-C01 · easy · Active instalment [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-235",
+   "case_id": "MK-CF-F-235-C02",
+   "name": "paysInMonth",
+   "kind": "easy",
+   "title": "Not started",
+   "classification": "AGREE",
+   "expected": false,
+   "actual": false,
+   "difference": "none",
+   "mapped": "paysInMonth(debt, month) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full); required_payment → the payment",
+   "rests_on": "DEC-8153 (the lead's, under DEC-1923)",
+   "note": "From its first payment month to its payoff month, inclusive; a lump only in its due month while owed.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-235 paysInMonth — five cases › MK-CF-F-235-C02 · easy · Not started [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-235",
+   "case_id": "MK-CF-F-235-C03",
+   "name": "paysInMonth",
+   "kind": "complex",
+   "title": "Ends in month",
+   "classification": "AGREE",
+   "expected": true,
+   "actual": true,
+   "difference": "none",
+   "mapped": "paysInMonth(debt, month) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full); required_payment → the payment",
+   "rests_on": "DEC-8153 (the lead's, under DEC-1923)",
+   "note": "From its first payment month to its payoff month, inclusive; a lump only in its due month while owed.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-235 paysInMonth — five cases › MK-CF-F-235-C03 · complex · Ends in month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-235",
+   "case_id": "MK-CF-F-235-C04",
+   "name": "paysInMonth",
+   "kind": "complex",
+   "title": "Balloon month",
+   "classification": "AGREE",
+   "expected": true,
+   "actual": true,
+   "difference": "none",
+   "mapped": "paysInMonth(debt, month) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full); required_payment → the payment",
+   "rests_on": "DEC-8153 (the lead's, under DEC-1923)",
+   "note": "From its first payment month to its payoff month, inclusive; a lump only in its due month while owed.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-235 paysInMonth — five cases › MK-CF-F-235-C04 · complex · Balloon month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-235",
+   "case_id": "MK-CF-F-235-C05",
+   "name": "paysInMonth",
+   "kind": "edge",
+   "title": "Paid off before month",
+   "classification": "AGREE",
+   "expected": false,
+   "actual": false,
+   "difference": "none",
+   "mapped": "paysInMonth(debt, month) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full); required_payment → the payment",
+   "rests_on": "DEC-8153 (the lead's, under DEC-1923)",
+   "note": "From its first payment month to its payoff month, inclusive; a lump only in its due month while owed.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-235 paysInMonth — five cases › MK-CF-F-235-C05 · edge · Paid off before month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-236",
+   "case_id": "MK-CF-F-236-C01",
+   "name": "paymentInMonth",
+   "kind": "easy",
+   "title": "Active instalment",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "250",
+    "shown": "$250"
+   },
+   "actual": 250,
+   "difference": "none",
+   "mapped": "paymentInMonth(debt, month) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full); required_payment → the payment",
+   "rests_on": "DEC-8153 (the lead's, under DEC-1923)",
+   "note": "The payment in a month it falls in; a lump's whole balance in its month; $0 otherwise.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-236 paymentInMonth — five cases › MK-CF-F-236-C01 · easy · Active instalment [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-236",
+   "case_id": "MK-CF-F-236-C02",
+   "name": "paymentInMonth",
+   "kind": "easy",
+   "title": "Not started",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "mapped": "paymentInMonth(debt, month) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full); required_payment → the payment",
+   "rests_on": "DEC-8153 (the lead's, under DEC-1923)",
+   "note": "The payment in a month it falls in; a lump's whole balance in its month; $0 otherwise.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-236 paymentInMonth — five cases › MK-CF-F-236-C02 · easy · Not started [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-236",
+   "case_id": "MK-CF-F-236-C03",
+   "name": "paymentInMonth",
+   "kind": "complex",
+   "title": "Ends in month",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "231.43",
+    "shown": "$231"
+   },
+   "actual": 231.43,
+   "difference": "none",
+   "mapped": "paymentInMonth(debt, month) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full); required_payment → the payment",
+   "rests_on": "DEC-8153 (the lead's, under DEC-1923)",
+   "note": "The payment in a month it falls in; a lump's whole balance in its month; $0 otherwise.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-236 paymentInMonth — five cases › MK-CF-F-236-C03 · complex · Ends in month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-236",
+   "case_id": "MK-CF-F-236-C04",
+   "name": "paymentInMonth",
+   "kind": "complex",
+   "title": "Balloon month",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "9111.19",
+    "shown": "$9,111"
+   },
+   "actual": 9111.19,
+   "difference": "none",
+   "mapped": "paymentInMonth(debt, month) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full); required_payment → the payment",
+   "rests_on": "DEC-8153 (the lead's, under DEC-1923)",
+   "note": "The payment in a month it falls in; a lump's whole balance in its month; $0 otherwise.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-236 paymentInMonth — five cases › MK-CF-F-236-C04 · complex · Balloon month [AGREE]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-236",
+   "case_id": "MK-CF-F-236-C05",
+   "name": "paymentInMonth",
+   "kind": "edge",
+   "title": "Paid off before month",
+   "classification": "AGREE",
+   "expected": {
+    "exact": "0",
+    "shown": "$0"
+   },
+   "actual": 0,
+   "difference": "none",
+   "mapped": "paymentInMonth(debt, month) · debt {name, balance, minimum, override, apr, shape, due/payoff/first dates} → Debt (minimum absent = never entered: undefined; shape instalment/revolving/due_full → installment/revolving/due_in_full); required_payment → the payment",
+   "rests_on": "DEC-8153 (the lead's, under DEC-1923)",
+   "note": "The payment in a month it falls in; a lump's whole balance in its month; $0 otherwise.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › MK-CF-F-236 paymentInMonth — five cases › MK-CF-F-236-C05 · edge · Paid off before month [AGREE]",
+   "test_result": "passed"
+  }
+ ],
+ "formula_checks": [
+  {
+   "id": "MK-CF-O-018",
+   "name": "theDebts",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "Known positive balances produce the debt total, but missing balances/rates/payments lack complete-total flags and the payoff horizon can be misreported as never.",
+   "reviewer_should_be": "Expose partial coverage and pass through distinct incomplete/nonamortizing/horizon states.",
+   "classification": "APP WRONG",
+   "records_or_app_fix": "app fix (theDebts / payoffPlan) and records (MK-CF-M-058's refusal words)",
+   "what_the_code_actually_does": "One debt whose payment was never entered (the debt editor saves a blank payment as not entered since 2026-10-21) turns the whole plan into \"never\": the minimums become NaN, the walk stops in month 1 and neverPaysOff is set. The /month min total silently adds nothing for it, and paymentsMonthly (what leaves each month) comes back NaN. A missing BALANCE has no reachable writer (OUTSIDE DOMAIN, case C05).",
+   "governing_decisions": [
+    "DEC-3523",
+    "DEC-7682",
+    "DEC-3279e"
+   ],
+   "plain_example": "Visa $3,200 at 22.90% with $110 entered and a car loan $9,800 at 6.40% with its payment not entered: Debts reads \"debt-free never at this rate\" and \"$110/month in payments\". Right: no payoff date, and the car loan named as having no payment entered.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › formula checks — the reviewer’s 3 verdicts that are not RIGHT › MK-CF-O-018 · formula verdict INCOMPLETE [APP WRONG]",
+   "test_result": "passed (test.failing: fails on the reviewer's answer as expected — turns red when fixed)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-MONTH): no plan and no \"never\" from a payment or a rate never entered (payoffPlan notEntered, theDebts refusal); interest no number for a rate never entered; plan a month = what is paid + extra (DEC-0641)."
+  },
+  {
+   "id": "MK-CF-F-026",
+   "name": "actualDebtPayment",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "The legacy name says actual but the formula is a planned obligation, not logged payments. The owner chose a payment override as the normal monthly plan, but actual-month records must not reuse it.",
+   "reviewer_should_be": "Label this as planned monthly payments, and reserve actually paid for dated logs.",
+   "classification": "REVIEWER WRONG",
+   "records_or_app_fix": "records fix: the rule text — the card and the code header call it \"Σ ACTUAL payments … what actually leaves your account\"; it is the planned monthly payment (the chosen payment, else the minimum)",
+   "what_the_code_actually_does": "Returns totalDebtMonthly, the chosen payment (DEC-0641). Its two readers are planned: MK-XS-F-028 surplusByMonth (a plan from the profile) and buildDebtState.total_actual_payment, which nothing reads (grep of src/, app/, MoneyKeel/functions). The ACTUAL month counts logged payments in MK-CF-F-005 actualMonthFlow (DEC-1923).",
+   "governing_decisions": [
+    "DEC-0641",
+    "DEC-1923"
+   ],
+   "plain_example": "A $200 minimum paid at $600: actualDebtPayment $600 — the plan; a month with no payment logged still shows $0 paid on This month's ACTUAL side.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › formula checks — the reviewer’s 3 verdicts that are not RIGHT › MK-CF-F-026 · formula verdict INCOMPLETE [REVIEWER WRONG]",
+   "test_result": "passed"
+  },
+  {
+   "id": "MK-CF-F-034",
+   "name": "payoffPlan",
+   "reviewer_verdict": "INCOMPLETE",
+   "reviewer_severity": "high",
+   "reviewer_why": "A 600-month cap is called never pays off although an amortizing zero-rate debt can take 601 months. Due-in-full interest/cash funding and exact payoff dates need an explicit contract.",
+   "reviewer_should_be": "Report horizon exhaustion separately; include balloon funding and interest timing in the cash plan.",
+   "classification": "APP WRONG",
+   "records_or_app_fix": "app fix (payoffPlan; its readers the Debts tab, BudgetScreen.tsx debtFreeLabel and its ⚠️ line, and MK-PL-F-036 weighGoals multiGoal.ts:137-140) and records (the card: \"it never pays off when anything is still owed at month 600\")",
+   "what_the_code_actually_does": "Walks at most 600 months and reports anything still owed then as \"never pays off\". A debt that is shrinking every month, at 0% or at a positive rate, is called never. weighGoals then prints a payoff month 600 months out as if it were an answer.",
+   "governing_decisions": [
+    "DEC-3523",
+    "DEC-0454"
+   ],
+   "plain_example": "$60,100 at 0% with $100 a month: 601 months, app says never. $100,000 at 6% with $501 a month: monthsToClear says 1,247 months, payoffPlan says never — and the Debts tab says the balance \"grows faster than you pay it down\" while it falls every month.",
+   "test": "MoneyKeel/functions/cashflow/outside_cashflow_openai_part09.test.ts › formula checks — the reviewer’s 3 verdicts that are not RIGHT › MK-CF-F-034 · formula verdict INCOMPLETE [APP WRONG]",
+   "test_result": "passed (test.failing: fails on the reviewer's answer as expected — turns red when fixed)",
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS): $100,000 at 6% with $501/month clears in 1,247 months; still owed after 12,000 months is \"past the horizon\" with what is still owed; weigh-goals gives no payoff month for a plan that does not clear."
+  }
+ ],
+ "rules_not_held": [],
+ "app_wrong_fixes": [
+  {
+   "function_id": "MK-CF-F-034",
+   "function": "payoffPlan (readers: MK-CF-O-018 theDebts → the Debts tab, BudgetScreen.tsx debtFreeLabel and its warning line; MK-PL-F-036 weighGoals, multiGoal.ts)",
+   "owner_file": "src/domain/debt/index.ts (payoffPlan, the `month < 600` loop and `months: neverPaysOff ? 600 : …`)",
+   "example": "$60,100 at 0% with $100 a month (the reviewer's); $100,000 at 6% with $501 a month (mine: monthsToClear gives 1,247 months).",
+   "app_gives": "neverPaysOff true, months 600. The Debts tab prints \"debt-free never at this rate\" and \"At this payment your balance grows faster than you pay it down\" for a balance that falls every month; weighGoals prints a payoff month 600 months out (Oct 2076) for a plan it calls never.",
+   "right": "601 months (and 1,247), or a stated \"past 50 years\" with what is still owed — never the word \"never\" for a debt that is shrinking.",
+   "ruling_or_source": "DEC-3523 tenet 1; ordinary arithmetic ($60,100 ÷ $100 = 601)",
+   "items": [
+    "case MK-CF-F-034-C05",
+    "formula MK-CF-F-034",
+    "formula MK-CF-O-018 (the horizon part)"
+   ],
+   "fixed_2026_10_25": "FIXED 2026-10-25 (FIX-BILLS)"
+  },
+  {
+   "function_id": "MK-CF-O-018",
+   "function": "theDebts (through MK-CF-F-034 payoffPlan and MK-CF-F-024 totalDebtMonthly)",
+   "owner_file": "MoneyKeel/functions/cashflow/the-debts.ts; the NaN starts in payoffPlan's budgetAt / minimum step, src/domain/debt/index.ts",
+   "example": "Visa $3,200 at 22.90% with $110 entered, car loan $9,800 at 6.40% with its payment not entered (the debt editor saves a blank payment as not entered since 2026-10-21). Also the drawn household with no payments, case C03.",
+   "app_gives": "The whole plan says \"never\" (the minimums turn NaN, the walk stops in month 1); \"$110/month in payments\" with the car loan silently left out; paymentsMonthly NaN.",
+   "right": "No payoff date and no \"never\": the plan refuses and names the car loan as having no payment entered — the rule This month already follows (DEC-7682: \"Car loan's payment is not entered, so there is no planned surplus — we won't guess one\").",
+   "ruling_or_source": "DEC-3523 tenet 3 (unknown is not zero); DEC-7682 (the lead's, same rule on This month); MK-NW-F-147 paymentNotEntered is the one test for it",
+   "items": [
+    "case MK-CF-O-018-C03",
+    "formula MK-CF-O-018"
+   ]
+  }
+ ],
+ "needs_a_ruling": [],
+ "blocked": [],
+ "outside_domain": [
+  {
+   "id": "MK-CF-O-018-C05",
+   "caller_cited": "No writer saves a debt without a balance: DebtEditorSheet.tsx:126 (ready needs amt > 0), MK-CF-F-038 debtsFromOnboarding (balance > 0), AddAccountScreen.tsx:127 (num() writes a number)",
+   "app_gives": {
+    "progress": null,
+    "totalBalance": 1000,
+    "minimumMonthly": 0,
+    "paymentsMonthly": null,
+    "interestMonthly": 5,
+    "planMonthly": 0,
+    "plan": {
+     "months": 600,
+     "totalInterest": 5,
+     "neverPaysOff": true,
+     "order": []
+    },
+    "mortgages": null
+   },
+   "note": "The known $1,000 agrees with DEC-3279e; the Debts tab has no box naming debt B, but no screen can save a debt with no balance, so the \"complete: false\" flag has no reachable input. (A blank balance from AddAccountScreen is saved as $0 — a different writer, recorded in the report.)"
+  }
+ ],
+ "counts": {
+  "cases": {
+   "AGREE": 72,
+   "APP WRONG": 2,
+   "REVIEWER WRONG": 0,
+   "NEEDS RULING": 0,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 1,
+   "total": 75
+  },
+  "formula_checks": {
+   "AGREE": 0,
+   "APP WRONG": 2,
+   "REVIEWER WRONG": 1,
+   "NEEDS RULING": 0,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 0,
+   "total": 3
+  },
+  "rules_not_held": {
+   "AGREE": 0,
+   "APP WRONG": 0,
+   "REVIEWER WRONG": 0,
+   "NEEDS RULING": 0,
+   "BLOCKED": 0,
+   "OUTSIDE DOMAIN": 0,
+   "total": 0
+  },
+  "tests": {
+   "passed": 85,
+   "skipped": 0,
+   "failed": 0,
+   "total": 85
+  }
+ },
+ "coverage": "Part 9: 75 of 75 cases — 72 agree, 2 app wrong, 0 reviewer wrong, 0 needs ruling, 0 blocked, 1 outside domain; 3 of 3 formula verdicts classified (0 agree, 2 app wrong, 1 reviewer wrong, 0 needs ruling, 0 blocked, 0 outside domain); 0 of 0 rule verdicts classified (the part has no NOT HELD rule)"
+}

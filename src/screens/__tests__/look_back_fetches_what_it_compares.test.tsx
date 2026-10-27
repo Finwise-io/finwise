@@ -90,3 +90,35 @@ test('the one freshness rule: everything in hand and refreshed within 10 minutes
   open({ priceCache: noGold, pricesFetchedAt: new Date().toISOString() });
   await waitFor(() => expect(mockFetch).toHaveBeenCalledTimes(1));
 });
+
+// ── THE PERFORMANCE DRAWING CHECK OF 2026-10-24 (MM-PF), ITS LOOK BACK DEFECTS FIXED 2026-10-25 ───────────────────────────────
+describe('Look back v01 — what a word stream cannot see (MM-PF, 2026-10-25)', () => {
+  const { StyleSheet } = require('react-native');
+  const { Colors, Spacing, Radii } = require('../../utils/theme');
+  const SOURCE = require('fs').readFileSync(require('path').join(__dirname, '..', '..', '..', 'MoneyKeel', 'documents', 'networth-and-performance', 'moneykeel_pres_mock_look-back_v01.html'), 'utf8');
+  const answered = async () => {
+    mockFetch.mockImplementation(async () => ({ AGG: series('AGG', 100, 102.5), SPY: series('SPY', 100, 116) }));
+    open({});
+    await waitFor(() => expect(screen.getByText(/^Left in AGG it became/)).toBeOnTheScreen());
+  };
+  test('D2 · WHAT ACTUALLY HAPPENED runs to both edges of its card, as drawn (.band margin −16 on a 16 card); it sat 12 short of each', async () => {
+    await answered();
+    expect(SOURCE).toMatch(/\.band\{[^}]*margin:-16px -16px 8px/);                     // the drawing: the bar out to the card's edges
+    let bar: any = screen.getByText('WHAT ACTUALLY HAPPENED').parent;
+    while (bar && !(bar.type === 'View' && StyleSheet.flatten(bar.props.style)?.backgroundColor === Colors.primaryDeep)) bar = bar.parent;
+    expect(bar).toBeTruthy();
+    let card: any = bar.parent;
+    while (card && !(card.type === 'View' && StyleSheet.flatten(card.props.style)?.backgroundColor === Colors.cardBg)) card = card.parent;
+    const pad = StyleSheet.flatten(card.props.style).padding;
+    const b = StyleSheet.flatten(bar.props.style);
+    expect(pad).toBe(Spacing.md);                                                       // the card's 12 (the drawing's 16: its dated line, D12)
+    expect([b.marginHorizontal, b.marginTop]).toEqual([-pad, -pad]);                    // the bar takes the whole padding back, square
+    expect(b.borderTopLeftRadius ?? 0).toBe(0);
+  });
+  test('D14 · every choice chip has the 12 corner of a choice in the app (DEC-0231), not 20', async () => {
+    await answered();
+    const chips = screen.getAllByRole('button').filter((x: any) => x.props.accessibilityState?.selected != null);
+    expect(chips.length).toBeGreaterThanOrEqual(10);                                    // From, To and When — the guard looked
+    for (const c of chips) expect(StyleSheet.flatten(c.props.style).borderRadius).toBe(Radii.md);
+  });
+});

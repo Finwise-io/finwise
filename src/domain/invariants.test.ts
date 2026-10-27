@@ -18,7 +18,7 @@ describe('ONE-POOL free-cash invariant', () => {
   test('goal capacity = projected_to_save − investing plan (same dollars never fund both)', () => {
     const s = snap(employedPartner);
     const investMo = toNum(employedPartner.c_roth) + toNum(employedPartner.c_invest) + toNum(employedPartner.c_property);
-    expect(s.goals.monthly_capacity).toBeCloseTo(Math.max(0, s.budget.projected_to_save - investMo), 2);
+    expect(s.goals.monthly_capacity).toBeCloseTo(Math.max(0, s.budget.projected_to_save! - investMo), 2);
   });
 
   test('explicit monthlySavingsCapacity overrides the derived pool', () => {
@@ -44,7 +44,7 @@ describe('ONE-POOL free-cash invariant', () => {
     const s = snap(simpleFlat);
     const grid = savingsByMonth(simpleFlat);
     expect(s.budget.projected_to_save).toBeCloseTo(2000, 2);              // 5000 − 3000
-    for (const m of grid) expect(m.amount).toBeCloseTo(s.budget.projected_to_save, 2);
+    for (const m of grid) expect(m.amount).toBeCloseTo(s.budget.projected_to_save!, 2);
   });
 
   test('waterfall routes the pool in priority order and never over-allocates', () => {
@@ -126,7 +126,7 @@ describe('Income/tax invariants (Social-Security leak gate)', () => {
     const withSS: OnboardingProfile = { ...employedPartner, ri_ss: '2500', ri_ss_freq: 'monthly' };
     const a = snap(employedPartner), b = snap(withSS);
     expect(b.income.total_gross_annual).toBeCloseTo(a.income.total_gross_annual, 2);   // cash flow unchanged
-    expect(b.budget.projected_to_save).toBeCloseTo(a.budget.projected_to_save, 2);
+    expect(b.budget.projected_to_save).toBeCloseTo(a.budget.projected_to_save!, 2);
     expect(currentRetirementIncomeMonthly(withSS)).toBe(0);                            // the gate
   });
 
@@ -252,7 +252,7 @@ describe('Budget integrity invariants', () => {
     expect(spendByMonth(retiree75)[5]).toBeCloseTo(3800 + 2400, 2);    // June carries the premium on top
     // both free-cash measures now agree (no uncategorized gap):
     const gridAnnualSavings = savingsByMonth(retiree75).reduce((t, m) => t + m.amount, 0);
-    const smoothedAnnualSavings = s.budget.projected_to_save * 12;
+    const smoothedAnnualSavings = s.budget.projected_to_save! * 12;
     expect(smoothedAnnualSavings).toBeCloseTo(gridAnnualSavings, 0);
   });
 
@@ -269,7 +269,9 @@ describe('Budget integrity invariants', () => {
     expect(bva.spent_total).toBeCloseTo(1700, 2);                        // 500 + 1200 only
     expect(bva.spent_total).toBeCloseTo(bva.buckets.reduce((t, b) => t + b.spent, 0), 2);
     expect(bva.remaining).toBeCloseTo(bva.planned_total - bva.spent_total, 2);
-    expect(bva.planned_total).toBeCloseTo(spendBuckets(employedPartner).monthly_total, 2);
+    // the month's own plan (2026-10-25, FIX-BUDGET, MK-CF-F-014; DEC-7611, DEC-7951): June's planned expenses on the month table —
+    // $2,300 + $900 + $600 = $3,800, the April $3,600 premium not in it — never the year's average (spendBuckets, $4,100), which it read
+    expect(bva.planned_total).toBeCloseTo(spendByMonth(employedPartner)[5], 2);
   });
 });
 

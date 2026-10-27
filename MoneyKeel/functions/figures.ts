@@ -26,6 +26,11 @@ import { WHATS_COMING_FIGURES } from './cashflow/whats-coming';
 import { THE_MONTH_FIGURES } from './cashflow/the-month';
 import { DEBT_FIGURES } from './cashflow/the-debts';
 import { FUTURE_PAYCHECK_FIGURES } from './cashflow/future-paycheck';
+// THE RETURN AND THE INFLATION THE FUTURE PAYCHECK RUNS ON (2026-10-26, PF-TOOLS): futurePaycheck hands both to the card (its
+// `assumes`), so they are declared through that door. Their declarations sit beside the functions that compute them, because those
+// functions write them by their declaration (paycheckReturn's words, the draw sheet's inflation) — the door imports them.
+import { PAYCHECK_RETURN_FIGURES } from '../../src/domain/paycheck';
+import { INFLATION_FIGURES } from '../../src/domain/retirement/inflation';
 
 /** identifier → who declared it, so a clash names both doors. */
 const DOORS: [string, Record<string, FigureSpec>][] = [
@@ -47,6 +52,8 @@ const DOORS: [string, Record<string, FigureSpec>][] = [
   ['MK-CF-O-010 theMonth', THE_MONTH_FIGURES],   // Q-CF-2 — the last of the twelve
   ['MK-CF-O-018 theDebts', DEBT_FIGURES],   // the Debts tab's door, 2026-10-02
   ['MK-CF-O-017 futurePaycheck', FUTURE_PAYCHECK_FIGURES],   // the projection card's door, 2026-10-02
+  ['MK-CF-O-017 futurePaycheck', PAYCHECK_RETURN_FIGURES],   // the return it runs on (its `assumes`), 2026-10-26
+  ['MK-CF-O-017 futurePaycheck', INFLATION_FIGURES],   // the inflation it runs on (its `assumes`), 2026-10-26
 ];
 
 /* ─ MK-XS-F-181 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)

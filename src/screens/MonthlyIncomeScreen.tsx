@@ -6,7 +6,7 @@
 import { retirementIncomeMonthly } from '../domain/income/onboarding';
 import TopBar from '../components/TopBar';
 import { InfoDot } from '../components/UI';
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { fig, figPer, figSaid, figWords } from '../components/figure';   // rule 11: a figure prints with its identifier
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
@@ -27,7 +27,12 @@ export default function MonthlyIncomeScreen() {
   const op = store.onboardingProfile ?? {};
 
   // raw text in state, parse on save (L-9: never round-trip a keystroke through a parser)
-  const [ssReceiving, setSsReceiving] = useState<boolean>(num(op.ri_ss) > 0 || op.ri_ss_receiving !== 'no');
+  // OPEN ON WHAT WAS STORED (2026-10-25, CFR-5 on MK-CF-M-024 and MK-CF-M-069, test 5; tenets 1 and 5): the answer given here, or —
+  // with none — what the app already counts: an amount it does not count as income now (the gate currentRetirementIncomeMonthly
+  // reads, incomeSources without retirement income) is a Plan estimate, so "Not yet". It opened on "I receive it" for any amount.
+  const countedNow = !Array.isArray(op.incomeSources) || op.incomeSources.includes('retirement_income');
+  const [ssReceiving, setSsReceiving] = useState<boolean>(op.ri_ss_receiving === 'yes' ? true : op.ri_ss_receiving === 'no' ? false
+    : num(op.ri_ss) > 0 ? countedNow : true);
   const [ss, setSs] = useState(String(op.ri_ss ?? ''));
   const [ssDay, setSsDay] = useState(String(op.ri_ss_day ?? ''));
   const [pension, setPension] = useState(String(op.ri_pension ?? ''));
@@ -41,7 +46,7 @@ export default function MonthlyIncomeScreen() {
   // running total (display only): the monthly equivalent of the guaranteed set — instant payoff
   /** The fields as typed, in the shape the profile keeps them — saved as they are, and read live. */
   const fields = (): Record<string, any> => ({
-      ri_ss: ssReceiving ? String(num(ss) || '') : '',
+      ri_ss: String(num(ss) || ''),   // "Not yet" keeps the estimate the Plan step entered (it erased it — 2026-10-25, test 5)
       ri_ss_freq: 'monthly',
       ri_ss_day: num(ssDay) >= 1 && num(ssDay) <= 31 ? Math.round(num(ssDay)) : undefined,
       ri_ss_receiving: ssReceiving ? 'yes' : 'no',
@@ -56,10 +61,15 @@ export default function MonthlyIncomeScreen() {
   });
   // MK-CF-M-069 — the one function that reads guaranteed income (retirementIncomeMonthly), on the
   // fields as typed, so the total shown before saving is the total every screen shows after (2026-10-02)
-  const guaranteedMonthly = useMemo(() => retirementIncomeMonthly({ ...op, ...fields() } as any),
+  // what ARRIVES: Social Security not yet received is the Plan's estimate, not income now, so it is left out of this total
+  const guaranteedMonthly = useMemo(() => retirementIncomeMonthly({ ...op, ...fields(), ...(ssReceiving ? {} : { ri_ss: '' }) } as any),
     [op, ssReceiving, ss, ssDay, pension, pensionFreq, pensionMonth, annuity, annuityFreq, annuityMonth, other]);
+  // SAVE WITH NOTHING CHANGED CHANGES NOTHING (2026-10-25, test 5): it wrote "receiving" and made the estimate this month's income
+  const opened = useRef<string | null>(null);
+  if (opened.current == null) opened.current = JSON.stringify(fields());
 
   const save = () => {
+    if (JSON.stringify(fields()) === opened.current) { router.back(); return; }
     const patch: Record<string, any> = { ...op, ...fields() };
     // the received-now gate reads incomeSources — saving an amount here MUST open that gate,
     // or the paycheck function would see nothing (the B-31 lesson, enforced by test)
@@ -119,10 +129,10 @@ export default function MonthlyIncomeScreen() {
           <>
             <Text style={styles.label}>Each month</Text>
             <TextInput style={styles.input} keyboardType="decimal-pad" value={ss} onChangeText={setSs}
-              placeholder="2,600" accessibilityLabel="Social Security amount each month" />
+              placeholder="—" accessibilityLabel="Social Security amount each month" />
             <Text style={styles.label}>Arrives on day (optional)</Text>
             <TextInput style={styles.inputSm} keyboardType="number-pad" value={ssDay} onChangeText={setSsDay}
-              placeholder="3" accessibilityLabel="day of month Social Security arrives" />
+              placeholder="—" accessibilityLabel="day of month Social Security arrives" />
           </>
         ) : (
           <TouchableOpacity accessibilityRole="link" onPress={() => router.push('/retirement')}>
@@ -135,14 +145,14 @@ export default function MonthlyIncomeScreen() {
         <SectionBand inCard quiet title="Pension" />
         <Text style={styles.label}>Amount {pensionFreq === 'monthly' ? 'each month' : pensionFreq === 'quarterly' ? 'each quarter' : 'each year'}</Text>
         <TextInput style={styles.input} keyboardType="decimal-pad" value={pension} onChangeText={setPension}
-          placeholder="1,600" accessibilityLabel="pension amount" />
+          placeholder="—" accessibilityLabel="pension amount" />
         {rhythmChips(pensionFreq, setPensionFreq, pensionMonth, setPensionMonth, 'pension')}
       </View>
 
       <View style={styles.card}>
         <SectionBand inCard quiet title="Annuity" />
         <TextInput style={styles.input} keyboardType="decimal-pad" value={annuity} onChangeText={setAnnuity}
-          placeholder="0" accessibilityLabel="annuity amount" />
+          placeholder="—" accessibilityLabel="annuity amount" />
         {rhythmChips(annuityFreq, setAnnuityFreq, annuityMonth, setAnnuityMonth, 'annuity')}
       </View>
 
@@ -150,7 +160,7 @@ export default function MonthlyIncomeScreen() {
         <SectionBand inCard quiet title="Other steady income" />
         <Text style={styles.label}>Each month (rental, part-time, anything regular)</Text>
         <TextInput style={styles.input} keyboardType="decimal-pad" value={other} onChangeText={setOther}
-          placeholder="0" accessibilityLabel="other steady income each month" />
+          placeholder="—" accessibilityLabel="other steady income each month" />
       </View>
 
       <View style={styles.totalCard}>

@@ -12,29 +12,38 @@ import { toNum } from '../../../src/domain/_shared/num';
 import { salaryAnnual, taxableAnnual, rentalNetAnnual, extraIncome, filingStatusOf,
          over65CountOf, incomeMonthlyGrid } from '../../../src/domain/income';
 // the two sources the YOUR SOURCES list needs, from the one place each is calculated
-import { rsuAnnual, retirementIncomeMonthly, currentRetirementIncomeMonthly, benefitActiveMonths, salaryGrossByMonth, rentalList, stateRateOf } from '../../../src/domain/income/onboarding';
-import { guaranteedOutsideStreams, totalGrossAnnual } from '../../../src/domain/income';
+import { rsuAnnual, retirementIncomeMonthly, benefitActiveMonths, salaryGrossByMonth, rentalList, stateRateOf,
+         taxedSourcesAnnual, profileWithAccountIncome, retirementIncomeTaxedMonthly, unemploymentMonthly, vestsAreCash, vestsNotEntered,
+         landsOnce, socialSecurityNotYetMonthly } from '../../../src/domain/income/onboarding';
+import { guaranteedOutsideStreams } from '../../../src/domain/income';
 import { incomeFromAccounts } from '../../../src/domain/income/from-accounts';
 import { earnerWages } from '../../../src/domain/income/earners';
 import { rateInForce, taxedAfterPreTax } from '../../../src/domain/income/tax-rate';
 import { marginalBracketFor } from '../../../src/domain/income/tax';
 import { basePay, entryFromWage } from './base-pay';
 import { inflowLabel } from './this-month';
+import { rentalsHeld, guaranteedReceivedNow } from './income-tab';   // the Income tab's two readers (CF-MMFIX-A, 2026-10-25)
 
 export interface Line { label: string; note?: string; amount: number;
-  /** On an earner's pay row: true when the take-home is the app's calculation, not theirs — it then wears ≈. */
-  estimated?: boolean; }
+  /** On an earner's pay row only: true when the take-home is the app's own estimate — worked with the CALCULATED rate — and
+   *  it then wears ≈. A take-home worked from their typed rate is theirs (2026-10-25, IN-03). Only pay rows carry it, so a
+   *  screen can find them by it. */
+  estimated?: boolean;
+  /** On any row: the figure is worked with the calculated rate, so it wears ≈ (rule 9; 2026-10-25, IN-03). */
+  approx?: boolean; }
 
 export interface IncomeSummary {
   /** What reaches the bank, per month — the money that can be spent. */
   lands: { lines: Line[]; usualMonth: number;
+    /** Any row is the app's estimate, so the total and its band wear ≈ too (2026-10-25, IN-03). */
+    approx: boolean;
     /** The Rent row's own amount — 0 with no rental. Named so another function can ask for the rent
      *  that arrives without finding a row by its label (the emergency fund counts it, 2026-10-04). */
     rentMonthly: number;
     /** The words on the total — his one wording for money arriving: "Inflow (income (take-home) + rent)". */
     totalLabel: string;
     /** The month that stands apart, named in full, with why: "December · with the bonus". */
-    standoutMonth: { label: string; note: string; amount: number } | null };
+    standoutMonth: { label: string; note: string; amount: number; approx: boolean } | null };
   /** What the year is taxed on — a different number, and said to be one. */
   taxed: {
     lines: Line[];
@@ -52,6 +61,9 @@ export interface IncomeSummary {
     /** THE LINE UNDER A CALCULATED TAX — what the calculated rate holds (2026-10-24): federal only, or federal plus the state
      *  rate the person entered, which the rate in force adds (DEC-7608). */
     calculatedNote: string;
+    /** A state rate entered on the Tax organizer is inside the calculated tax: its row reads "Calculated tax", never "Calculated
+     *  federal tax" (2026-10-25, the lead's ruling on MK-CF-M-044 t8; canon row 25). */
+    holdsState: boolean;
     whose: string;            // 'your rate, 24%' · 'calculated, 9%'
     estimated: boolean;
     /** How the household files, in the words the filing question uses — "Married filing jointly". */
@@ -61,6 +73,15 @@ export interface IncomeSummary {
   };
   /** Money that is taxed but never lands — said on the screen so the gap is never a mystery. */
   taxedNotLanded: number;
+  /** The year's stock that vests and is kept as shares — taxed below, not money to spend (the lead's ruling of 2026-10-25, like
+   *  DEC-0179); 0 when there is none or the shares are sold when they vest. */
+  vestHeldAnnual: number;
+  /** What was entered and is counted nowhere yet, each in one sentence that says why (2026-10-25, tenet 3): a vest with no date,
+   *  a one-time payment or signing bonus with no year. */
+  notCounted: string[];
+  /** YOUR SOURCES — every source entered, in its own period, as typed (MK-CF-O-016 incomeSources; 2026-10-25): the Income tab prints
+   *  these rows, so a screen asks this door, never the list's function itself. */
+  sources: IncomeSource[];
   /** How many earners have a wage entered — so a screen can say whose income a figure rests on. */
   wages: number;
   ready: boolean;             // false on a fresh account: the screen keeps its shape and shows no $0
@@ -107,16 +128,20 @@ const GIVEN =
  * Formula .....
  *     income summary(EXAMPLE)
  *
- * Called by ... MK-CF-F-024 totalDebtMonthly · MK-CF-F-210 annualOfSource
+ * Called by ... MK-CF-F-024 totalDebtMonthly · MK-CF-F-207 SOURCE
+ *               MK-PL-F-010 drawOrderOutcome
  *
- * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-211 DEBTS · MK-NW-F-082 NW
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
- *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-041 getDebtState · MK-XS-F-029 monthlySavings
- *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-028 surplusByMonth
- *               MK-CF-O-018 theDebts · MK-NW-O-003 theNetWorth
- *               MK-CF-F-024 totalDebtMonthly · MK-NW-F-185 valueChanged
+ * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-082 NW · MK-CF-F-207 SOURCE
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-010 drawOrderOutcome
+ *               MK-CF-F-041 getDebtState · MK-CF-O-016 incomeSources
+ *               MK-CF-O-004 incomeSummary · MK-XS-F-029 monthlySavings
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-NW-O-004 theEmergencyFund
+ *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
+ *               … and 1 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -135,7 +160,9 @@ const INCOME = () => incomeSummary(EXAMPLE);
  *  a rental bringing in $2,000/month against $800 of costs, and $2,100/month of Social Security. */
 const SOURCES_EXAMPLE = {
   ...EXAMPLE,
-  seAmount: 24000, seFreq: 'yearly', bonusAnnual: 12000, bonusMonth: 3,
+  // 'annual', the value the self-employment question writes — 'yearly', which no question writes, read the $24,000 as a month
+  // (2026-10-25, FIX-INCOME-B; FOUND F2 by the outside measurement)
+  seAmount: 24000, seFreq: 'annual', bonusAnnual: 12000, bonusMonth: 3,
   rsuShares: '50', rsuPrice: '400',
   // the rent entry names its property — an entry with none is not rent (DEC-4059d, 2026-10-10)
   rentals: [{ type: 'long', income: 2000, expenses: 800, property_id: 'rental-house' }],
@@ -154,62 +181,40 @@ const SOURCES_GIVEN =
  * Formula .....
  *     income sources(SOURCES_EXAMPLE).find((x) => kind = kind)!
  *
- * Called by ... MK-CF-F-201 INCOME · MK-CF-F-210 annualOfSource
- *               MK-CF-O-016 incomeSources
+ * Called by ... MK-CF-F-201 INCOME · MK-CF-O-016 incomeSources
  *
- * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-211 DEBTS · MK-CF-F-201 INCOME
+ * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-082 NW · MK-CF-F-207 SOURCE
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
- *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-010 drawOrderOutcome
  *               MK-CF-F-041 getDebtState · MK-CF-O-016 incomeSources
- *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
- *               MK-XS-F-028 surplusByMonth · MK-CF-O-018 theDebts
+ *               MK-CF-O-004 incomeSummary · MK-XS-F-029 monthlySavings
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-NW-O-004 theEmergencyFund
  *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
- *               MK-NW-F-185 valueChanged
+ *               … and 1 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-040 whether a stream is already being received
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-022 pension monthly amount
+ *               MK-XS-I-035 annuity income
+ *               MK-XS-I-040 whether a stream is already being received
  *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
  *
  * Formula also on the master file · functions_from_code · MK-CF-F-207
  * Changed ..... not in git yet (—)
  */
 const SOURCE = (kind: IncomeSource['kind']) => incomeSources(SOURCES_EXAMPLE).find((x) => x.kind === kind)!;
 
-/** A source's yearly amount: a monthly one × 12, a yearly one as it is, a salary from its pay period. */
-/* ─ MK-CF-F-210 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
- * annualOfSource
- *
- * Answers ..... A source's yearly amount: a monthly one × 12, a yearly one as it is, a salary from its pay period.
- *
- * Formula .....
- *     amount × 12   when per = 'month'
- *     amount   when per = 'year'
- *     salary annual((op ?? {}) as any) (or amount when missing or zero)
- *
- * Called by ... nothing — it is an entry point, or nothing reaches it
- *
- * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-001 account balance
- *               MK-XS-I-004 holding quantity (shares)
- *               MK-XS-I-022 pension monthly amount
- *               MK-XS-I-023 salary and other income
- *               MK-XS-I-035 annuity income
- *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
- *               MK-XS-I-064 the unit beside a quantity — shares, coins, contracts, ounces or units
- *
- * Decides .....
- *     · Turns a monthly figure into a year by multiplying by twelve.
- *
- * Formula also on the master file · functions_from_code · MK-CF-F-210
- * Changed ..... not in git yet (—)
- */
-export function annualOfSource(x: IncomeSource, op?: Record<string, any> | null): number {
-  if (x.per === 'month') return x.amount * 12;
-  if (x.per === 'year') return x.amount;
-  return salaryAnnual((op ?? {}) as any) || x.amount;
-}
+// MK-CF-F-210 annualOfSource — RETIRED 2026-10-25 (FIX-INCOME-B; the outside review's part 5, MK-CF-F-210-C03 to C05). It turned
+// a YOUR SOURCES row into a year, and on every salary row returned the household's salary ($138,432.60 on each of an $84,111.17
+// and a $54,321.43 earner's rows; a $0 row read the spouse's $60,000). Nothing called it, and nothing should: YOUR SOURCES shows
+// each source in the period it was entered, never converted (MK-CF-M-006), and each year figure has its own function
+// (taxedSourcesAnnual, salaryAnnual). The number is never reused. To reverse: restore it from git and fix it to read
+// wageGrossByMonth of the row's own earner.
 
 export const FIGURES = declareFigures({
   'MK-CF-M-037': {
@@ -252,7 +257,10 @@ export const FIGURES = declareFigures({
     ruled: '2026-09-14',
     refusal: 'The line is hidden when no source behaves this way.',
     // the month the $12,000 bonus lands: the usual month plus the bonus, after tax, as one figure
-    worked: { given: SOURCES_GIVEN, answer: '$40,316', run: () => incomeSummary(SOURCES_EXAMPLE).lands.standoutMonth?.amount ?? null },
+    // $23,225 since 2026-10-25 (FIX-INCOME-B): the example's self-employment is $24,000 a YEAR as the question writes it ('annual';
+    // 'yearly', which no question writes, read as a month — $40,316, FOUND F2), and its Social Security is taxed in the share IRS
+    // Publication 915 taxes ($21,420 of $25,200 on this household), so $69 more of it lands each month than at 22% of all of it
+    worked: { given: SOURCES_GIVEN, answer: '$23,225', run: () => incomeSummary(SOURCES_EXAMPLE).lands.standoutMonth?.amount ?? null },
   },
   'MK-CF-M-040': {
     label: 'is not here — it is reinvested where it is earned', unit: 'money', per: 'month', screens: ['/income-summary'],
@@ -281,7 +289,7 @@ export const FIGURES = declareFigures({
     },
   },
   'MK-CF-M-076': {
-    label: '= Gross /year', unit: 'money', per: 'year', screens: ['/income-summary'],
+    label: '= Gross /year', unit: 'money', per: 'year', screens: ['/income-summary', '/base-pay'],   // Base pay names it as what its band is read on (2026-10-25, F3)
     answers: 'The whole year of income before any deductions — every taxable source, wages at gross.',
     formula: 'gross a year = Σ of every taxable source over the year, wages included at gross, before any deductions',
     inputs: ['MK-CF-M-030 gross a year', 'MK-CF-I-006 other income', 'MK-CF-I-007 rental income', 'MK-CF-I-011 interest and dividends'],
@@ -309,7 +317,8 @@ export const FIGURES = declareFigures({
   'MK-CF-M-042': {
     label: 'each taxed source', unit: 'money', per: 'year', screens: ['/income-summary'],
     answers: 'What each source contributes to the year the tax is calculated on.',
-    formula: 'one line per taxable source, at its yearly amount',
+    // (2026-10-25, FIX-INCOME-B; DEC-0376) every source, signed, from taxedSourcesAnnual — the rows add to "= Gross /year"
+    formula: 'one line per source the year is taxed on, at its yearly amount and signed (a rental loss is a loss) — each earner\'s wages, tips, self-employment, a bonus, a signing bonus or one-time payment of this year, the stock that vests this year, the rent net of its costs, interest and dividends, other taxed income, unemployment pay, retirement income received now, and the part of Social Security IRS Publication 915 taxes; the lines add to MK-CF-M-076',
     inputs: ['MK-CF-M-041 gross a year'],
     ruled: '2026-09-14',
     refusal: 'The list is replaced by the door to enter income when nothing is entered.',
@@ -319,12 +328,17 @@ export const FIGURES = declareFigures({
       run: () => INCOME().taxed.lines[0].amount,
     },
   },
+  // ALSO NAMED ON THE DEBTS TAB'S MORTGAGE COMPARISON (2026-10-26, PF-TOOLS): "… after your 24% federal tax bracket" is this figure
+  // (federalBracketForComparison reads it from this door, FIX-ROOM 2026-10-25) — one figure, two screens
   'MK-CF-M-043': {
-    label: 'Federal tax bracket', unit: 'percent', screens: ['/income-summary'],
+    label: 'Federal tax bracket', unit: 'percent', screens: ['/income-summary', '/cashflow'],
     answers: 'What the next dollar costs in federal income tax, with every source counted, not wages alone.',
     // (2026-10-24, CF-FIX) the bracket of the income the tax is worked on — the 401(k)s are out first (B05) — not of the
     // whole year's gross: single, $70,000 of wages and a $10,000 401(k) is 12%, where the gross alone reads 22%
-    formula: 'the published bracket that what the year is taxed on falls in once the 401(k)s are out — every source counted, less each earner’s own 401(k), less the standard deduction — for their filing status',
+    // (2026-10-27, PF-TOOLS; the screens measurement, MK-CF-M-043 tenet 2) the 401(k) comes off ONCE, as in the code
+    // (taxedAfterPreTax MK-CF-F-230, then marginalBracketFor MK-CF-F-103 through deductionFor MK-CF-F-099): the words took it off
+    // twice. No figure moves (22%). To reverse: the old words.
+    formula: 'the published bracket of (every source counted − each earner’s own 401(k) − the standard deduction, with the 65-and-over additions when they apply), for their filing status',
     inputs: ['MK-CF-M-041 gross a year', 'MK-XS-I-024 filing status'],
     ruled: '2026-09-14',
     refusal: 'The row is not shown until income is entered.',
@@ -335,8 +349,9 @@ export const FIGURES = declareFigures({
       run: () => INCOME().taxed.bracket,
     },
   },
+  // ALSO THE SIGN-UP RECAP'S YEAR TAX (2026-10-26, PF-TOOLS): the card read the year's tax with its own arithmetic, the same as this
   'MK-CF-M-044': {
-    label: 'Calculated federal tax', unit: 'money', per: 'year', screens: ['/income-summary'],
+    label: 'Calculated federal tax', unit: 'money', per: 'year', screens: ['/income-summary', '/onboarding'],
     answers: 'The federal income tax for the year, at whichever rate is in force — theirs if they entered one, ours if not.',
     // (2026-10-24, CF-FIX; the fault fixed on MK-CF-M-033) the worked example ran the household with a typed 22% — the row the
     // screen prints as "Tax", not "Calculated federal tax" — and the words taxed the gross, the 401(k) still in it
@@ -385,8 +400,10 @@ export const FIGURES = declareFigures({
   },
   'MK-CF-M-009': {
     label: 'YOUR SOURCES — Stock vesting (equity)', unit: 'money', per: 'year', screens: ['/cashflow', '/income-manager'],
-    answers: 'What vests in a year, valued at the price entered.',
-    formula: 'shares vesting × price per share; with a grant schedule, the total ÷ the years it vests over',
+    answers: 'What vests in this calendar year, valued at the price entered.',
+    // (2026-10-25, FIX-INCOME-B; DEC-0012) the year's vests, never an average of the years — 75 shares in March 2026 and 25 in March
+    // 2027 at $400 read $20,000; 2026 vests $30,000
+    formula: 'the vests whose date names this calendar year, each shares × price per share, added up — a vest with a year and no month counted, one with no date not counted ("vest date not entered"); typed as one yearly figure, that figure',
     inputs: ['MK-CF-I-010 equity vesting', 'MK-XS-I-005 holding price'],
     refusal: 'No equity entered — the row does not appear.', ruled: '2026-10-02',
     worked: { given: SOURCES_GIVEN, answer: '$20,000/year', run: () => SOURCE('equity').amount },
@@ -438,7 +455,9 @@ export const FIGURES = declareFigures({
     answers: 'What your holdings and bonds paid out over the last twelve months, from the records.',
     formula: 'the dividend, interest and coupon records of the last twelve months, added up',
     inputs: ['MK-NW-I-004 the activity records', 'MK-NW-I-001 your accounts'],
-    refusal: 'No record of any — $0, never an estimate.', ruled: '2026-10-02',
+    // (2026-10-27, PF-TOOLS; the screens measurement, MK-CF-M-066 tenet 3) with no record the screen prints no figure: the FROM
+    // YOUR ACCOUNTS block is not drawn and the box asks "How much, a year" — never a $0. To reverse: the old words.
+    refusal: 'No record of any — the figure is not shown, and the box asks “How much, a year”.', ruled: '2026-10-02',
     worked: {
       given: 'One account that recorded a $300 dividend in June and $120 of interest in March.',
       answer: '$420/year',
@@ -479,9 +498,11 @@ export interface IncomeSource {
   note: string;
   /** The amount, and the period it is stated in. Never converted silently. */
   amount: number;
-  per: 'month' | 'year' | 'as entered';
+  per: 'month' | 'year' | 'quarter' | 'once' | 'as entered';
+  /** On a steady salary row: the pay period it was entered in, in words ("every 2 weeks", "monthly"). */
+  every?: string;
   /** Which kind it is, for the row that opens its editor. */
-  kind: 'salary' | 'self-employment' | 'bonus' | 'equity' | 'rental' | 'guaranteed';
+  kind: 'salary' | 'self-employment' | 'bonus' | 'equity' | 'rental' | 'guaranteed' | 'benefits' | 'support' | 'interest' | 'other';
 }
 
 /** Which sources of income has this household entered, and what does each one bring in? */
@@ -494,28 +515,38 @@ export interface IncomeSource {
  *     o = (op ?? {}) as any
  *     out = []
  *     wages = earner wages(o)
+ *     freq word = monthly = 'monthly'
+ *     biweekly = 'every 2 weeks'
+ *     weekly = 'weekly'
+ *     semimonthly = 'twice a month'
+ *     annual = 'yearly'
+ *     annually = 'yearly'
+ *     hourly = 'an hour'
  *     varies = string((w as any).salary mode) = 'varies' (or !!(w as any).salary by month when missing or zero)
  *     whose = 'You'   if w = o
  *     spouse name (or 'Spouse' when missing or zero)   otherwise   if wages.length > 1
  *     nothing   otherwise
+ *     basis = 'take − home'   if string((w as any).salary mode) = 'takehome'
+ *     'before tax'   otherwise
+ *     mo = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
  *     m = bonus month read as a number
- *     vesting = rsu annual(o)
- *     rent = rental net annual(o)
- *     guaranteed = retirement income monthly(o)
- *     the answer = out
+ *     f = other freq (or 'monthly' when missing)
+ *     once = lands once(o).find((x) => kind = 'other')
+ *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-CF-F-207 SOURCE
+ * Called by ... MK-CF-F-207 SOURCE · MK-CF-O-004 incomeSummary
  *
- * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-211 DEBTS · MK-CF-F-201 INCOME
+ * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
  *               MK-NW-F-082 NW · MK-CF-F-207 SOURCE
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
- *               MK-CF-F-036 buildDebtState · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-010 drawOrderOutcome
  *               MK-CF-F-041 getDebtState · MK-CF-O-016 incomeSources
- *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
- *               MK-XS-F-028 surplusByMonth · MK-CF-O-018 theDebts
+ *               MK-CF-O-004 incomeSummary · MK-XS-F-029 monthlySavings
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-NW-O-004 theEmergencyFund
  *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
- *               MK-NW-F-185 valueChanged
+ *               … and 1 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-022 pension monthly amount
@@ -526,6 +557,9 @@ export interface IncomeSource {
  *               MK-XS-I-059 the month a bonus lands
  *               MK-XS-I-060 how a person is paid — weekly, fortnightly, monthly
  *
+ * Decides .....
+ *     · If vesting is missing it uses 0.
+ *
  * Formula also on the master file · functions_from_code · MK-CF-O-016
  * Changed ..... 2026-10-01 (23d5415)
  */
@@ -533,6 +567,7 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
   const o = (op ?? {}) as any;
   const out: IncomeSource[] = [];
   const wages = earnerWages(o);
+  const FREQ_WORD: Record<string, string> = { monthly: 'monthly', biweekly: 'every 2 weeks', weekly: 'weekly', semimonthly: 'twice a month', annual: 'yearly', annually: 'yearly', hourly: 'an hour' };
   for (const w of wages) {
     // NOTHING ENTERED IS NOT A SOURCE (his Q48 rule, 2026-09-09). My first draft pushed a row for every
     // earner whether or not they had typed a figure, so a fresh account showed "Salary — steady $0" —
@@ -541,44 +576,66 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
     if (toNum((w as any).baseSalary) <= 0 && !(w as any).salaryByMonth) continue;
     const varies = String((w as any).salaryMode) === 'varies' || !!(w as any).salaryByMonth;
     const whose = wages.length > 1 ? (w === o ? 'You' : (o.partnerName || 'Spouse')) : null;
+    const basis = String((w as any).salaryMode) === 'takehome' ? 'take-home' : 'before tax';
     out.push({
       label: `${whose ? whose + ' · ' : ''}${varies ? 'Salary — varies' : 'Salary — steady'}`,
-      note: varies ? 'by-month table' : (String((w as any).salaryMode) === 'takehome' ? 'take-home' : 'before tax'),
+      note: varies ? 'by-month table' : basis,
       amount: toNum((w as any).baseSalary), per: 'as entered', kind: 'salary',
+      every: varies ? undefined : FREQ_WORD[String((w as any).salaryFreq ?? 'monthly')] ?? 'monthly',
     });
   }
+  // EVERY ENTERED SOURCE, IN ITS OWN PERIOD, A LOSS INCLUDED, IN THE INCOME TAB'S DRAWN WORDS AND ORDER (2026-10-25, FIX-INCOME-B; the
+  // outside review's MK-CF-O-016-C03/C04; cash-flow_v01 frame 5 and its dated row): the Income tab's YOUR SOURCES reads this list —
+  // it built its own, which had no row for benefits, support or interest and dividends. Self-employment reads anything not
+  // "annual" as monthly, as every calculator does (MK-CF-M-007).
   if (toNum(o.seAmount) > 0) {
-    out.push({ label: 'Self-employment', note: o.seFreq === 'monthly' ? 'net · monthly' : 'net · yearly',
-               amount: toNum(o.seAmount), per: o.seFreq === 'monthly' ? 'month' : 'year', kind: 'self-employment' });
+    out.push({ label: 'Self-employment', note: o.seFreq === 'annual' ? 'net · yearly' : 'net · monthly',
+               amount: toNum(o.seAmount), per: o.seFreq === 'annual' ? 'year' : 'month', kind: 'self-employment' });
   }
+  const MO = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
   if (toNum(o.bonusAnnual) > 0) {
     // a bonus lands in ONE month, and the note says which — never divided by twelve (his ruling)
-    const MO = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August',
-                'September', 'October', 'November', 'December'];
     const m = Number(o.bonusMonth);
-    out.push({ label: 'Bonus',
-               note: m ? `lands in ${MO[(m - 1 + 12) % 12]}` : 'month not set',
+    out.push({ label: 'Bonus', note: m ? `lands in ${MO[(m - 1 + 12) % 12]}` : 'month not set',
                amount: toNum(o.bonusAnnual), per: 'year', kind: 'bonus' });
   }
+  // OTHER INCOME IS A SOURCE TOO (2026-10-24, E2E-70): a one-time payment says when it lands, or that its month or year is not
+  // entered — counted in no year until both are given (landsOnce, 2026-10-25; DEC-0447, DEC-7940)
+  if (toNum(o.otherAmount) > 0) {
+    const f = o.otherFreq ?? 'monthly';
+    const once = landsOnce(o).find((x) => x.kind === 'other');
+    const lands = `lands in ${MO[(Number(o.otherMonth || 1) - 1 + 12) % 12]}`;
+    out.push({ label: String(o.otherLabel ?? '').trim() || 'Other income',
+               note: f === 'onetime' ? (once?.missing ? `one-time · ${once.missing}` : `one-time · ${lands}`) : f === 'annual' ? lands : f === 'quarterly' ? 'every three months' : 'every month',
+               amount: toNum(o.otherAmount), per: f === 'onetime' ? 'once' : f === 'annual' ? 'year' : f === 'quarterly' ? 'quarter' : 'month', kind: 'other' });
+  }
+  // a rental the household HAS is a source whatever it nets — "Rental income · 1 property · −$500" (rentalsHeld)
+  const held = rentalsHeld(o);
+  if (held) {
+    out.push({ label: 'Rental income', note: plural(held.count, 'property'), amount: held.monthlyNet, per: 'month', kind: 'rental' });
+  }
+  // the stock that vests THIS YEAR (rsuAnnual, 2026-10-25), under the drawn name — grants with no value yet read "—" on the tab, and
+  // grants with no date say so: "vest date not entered", never $0
   const vesting = rsuAnnual(o);
-  if (vesting > 0) {
-    out.push({ label: 'Stock vesting (equity)', note: 'vests through the year',
-               amount: vesting, per: 'year', kind: 'equity' });
+  const grants = Array.isArray(o.rsuGrants) ? o.rsuGrants.length : 0;
+  if ((vesting ?? 0) > 0 || grants > 0) {
+    const kindWords = o.equityType === 'option' ? 'option grants' : 'RSU grants';
+    out.push({ label: 'Equity comp', note: vesting == null ? `${kindWords} · vest date not entered` : kindWords,
+               amount: vesting ?? 0, per: 'year', kind: 'equity' });
   }
-  const rent = rentalNetAnnual(o);
-  if (rent > 0) {
-    out.push({ label: 'Rental property', note: 'net, after running costs',
-               amount: rent / 12, per: 'month', kind: 'rental' });
-  }
-  // THE FIGURE THE SCREEN SHOWS, not a second one (found 2026-10-01 building this). The master's row
-  // for this line named currentRetirementIncomeMonthly, which returns 0 unless the person has said
-  // they have retirement income; CashFlowScreen has always used retirementIncomeMonthly, with no such
-  // gate. Two figures under one row. The screen is the one a person reads, so the door reads it too,
-  // and the row on the master now names it.
-  const guaranteed = retirementIncomeMonthly(o);
+  // THE FIGURE THE SCREEN SHOWS, not a second one: guaranteed income received now, from outside the person's savings, each
+  // source answering for itself (guaranteedReceivedNow — a Social Security "Not yet" is not here)
+  const guaranteed = guaranteedReceivedNow(o);
   if (guaranteed > 0) {
-    out.push({ label: 'Social Security · pension', note: 'guaranteed income',
-               amount: guaranteed, per: 'month', kind: 'guaranteed' });
+    out.push({ label: 'Social Security · pension', note: 'guaranteed income', amount: guaranteed, per: 'month', kind: 'guaranteed' });
+  }
+  if (toNum(o.benefitMonthly) > 0) {
+    const n = benefitActiveMonths(o).length;
+    out.push({ label: 'Benefits', note: n < 12 ? `${plural(n, 'month')} of the year` : 'every month', amount: toNum(o.benefitMonthly), per: 'month', kind: 'benefits' });
+  }
+  if (toNum(o.supportMonthly) > 0) out.push({ label: 'Child support or alimony', note: 'not taxed', amount: toNum(o.supportMonthly), per: 'month', kind: 'support' });
+  if (toNum(o.invAnnual) > 0) {
+    out.push({ label: 'Interest & dividends', note: o.invPaidToBank === 'yes' ? 'paid to your bank' : 'reinvested', amount: toNum(o.invAnnual), per: 'year', kind: 'interest' });
   }
   return out;
 }
@@ -590,6 +647,7 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  * Answers ..... What is this household's income: what reaches the bank each month, and what the year is taxed on?
  *
  * Formula .....
+ *     entered = op
  *     a = op (or none when missing)
  *     wages = earner wages(op as any)
  *     inf = rate in force(op as any)
@@ -603,23 +661,22 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *     0   otherwise
  *     self employed = to num(se amount) ÷ 12   if se freq = 'annual'
  *     se amount read as a number (0 when it is not one)   otherwise
- *     rent = rental net annual(op as any) ÷ 12
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-CF-F-201 INCOME · MK-CF-F-210 annualOfSource
+ * Called by ... MK-CF-F-201 INCOME · MK-CF-F-207 SOURCE
  *               MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 63 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
- *               MK-CF-F-201 INCOME · MK-NW-F-082 NW
- *               MK-CF-F-026 actualDebtPayment · MK-CF-F-210 annualOfSource
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               … and 45 more — the full list is on functions_from_code
+ * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-082 NW · MK-CF-F-207 SOURCE
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-010 drawOrderOutcome
+ *               MK-CF-F-041 getDebtState · MK-CF-O-016 incomeSources
+ *               MK-CF-O-004 incomeSummary · MK-XS-F-029 monthlySavings
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-NW-O-004 theEmergencyFund
+ *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
+ *               … and 1 more — the full list is on functions_from_code
  *
  * Serves ...... MK-CF-M-006 · MK-CF-M-007 · MK-CF-M-008 · MK-CF-M-009
  *               MK-CF-M-010 · MK-CF-M-011 · MK-CF-M-024 · MK-CF-M-027
@@ -629,8 +686,11 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *               MK-MN-M-011 · MK-MN-M-012 · MK-MN-M-013
  * Reads ....... MK-XS-I-022 pension monthly amount
  *               MK-XS-I-023 salary and other income
+ *               MK-XS-I-024 logged expenses
  *               MK-XS-I-030 tax filing status and age
  *               MK-XS-I-039 how often each income arrives
+ *               MK-XS-I-040 whether a stream is already being received
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-059 the month a bonus lands
  * Ruled by .... DEC-0078 · DEC-0108 · DEC-0149 · DEC-0152 · DEC-0165 · DEC-0166
  *               DEC-0178 · DEC-0181 · DEC-0182 · DEC-0184 · DEC-0187 · DEC-0188
@@ -640,13 +700,18 @@ export function incomeSources(op: Record<string, any> | null): IncomeSource[] {
  *               Change the arithmetic and one of those stops being obeyed — read them first.
  *
  * Decides .....
- *     · Rounds the answer to a whole number.
  *     · Shows 2 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-CF-O-004
  * Changed ..... not in git yet (—)
  */
-export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
+export function incomeSummary(op: Record<string, any> | null, from?: { accounts?: any[] | null; transactions?: any[] | null } | null): IncomeSummary {
+  // THE ACCOUNTS' INTEREST AND DIVIDENDS ARE COUNTED IN THE TAX (2026-10-25, FIX-INCOME-B; found by CF-MMFIX-B; the lead's ruling
+  // from his DEC-0179 and DEC-0198): with the accounts handed in, the year's interest and dividends are the one figure
+  // (interestAndDividendsForYear — the year's records, else the figure typed, else calculated from the accounts' rates, ≈), read
+  // by every row below; they stay out of the take-home unless they reach the bank. Without them, the figure typed.
+  const entered = op;   // the profile as typed: YOUR SOURCES shows what was entered, never a figure calculated from the accounts
+  op = from ? (profileWithAccountIncome(op as any, from.accounts, from.transactions) as any) : op;
   const a: any = op ?? {};
   const wages = earnerWages(op as any);
   const pay = basePay({
@@ -670,34 +735,46 @@ export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
   const afterTax = (x: number) => x * (1 - r);
   const landsLines: Line[] = pay.earners
     .filter((e) => e.pay.landsInBank > 0)
-    .map((e) => ({ label: e.name, note: 'after tax and 401(k)', amount: (e.pay.landsInBank), estimated: e.pay.landsIsEstimated }));
+    .map((e) => ({ label: e.name, note: 'after tax and 401(k)', amount: (e.pay.landsInBank), estimated: e.approx, approx: e.approx }));
   const steadyPay = salaryGrossByMonth(op as any).every((m) => m > 0);
   const tips = steadyPay ? toNum(a.tipsMonthly) : 0;
-  if (tips > 0) landsLines.push({ label: 'Tips', note: 'after tax', amount: afterTax(tips) });
+  // A ROW WORKED WITH THE CALCULATED RATE IS AN ESTIMATE AND SAYS SO (2026-10-25, IN-03; rule 9): approx = !theirs
+  if (tips > 0) landsLines.push({ label: 'Tips', note: 'after tax', amount: afterTax(tips), approx: !theirs });
   const selfEmployed = a.seFreq === 'annual' ? toNum(a.seAmount) / 12 : toNum(a.seAmount);
-  if (selfEmployed > 0) landsLines.push({ label: 'Self-employment', note: 'after tax', amount: afterTax(selfEmployed) });
+  if (selfEmployed > 0) landsLines.push({ label: 'Self-employment', note: 'after tax', amount: afterTax(selfEmployed), approx: !theirs });
+  // A RENTAL LOSS IS A ROW (2026-10-25, FIX-INCOME-B; the outside review's MK-CF-O-004-C04, MK-CF-M-037/038; tenets 1 and 4;
+  // DEC-0376): the running costs are paid from the bank, so a rental losing $319.76 a month takes $319.76 off the month — $5,111.17
+  // of pay and the rental read $4,791.41, as the month grid and the Cash flow months read it. It was left out (`rent > 0`).
   const rent = (rentalNetAnnual(op as any) / 12);
-  const rentArriving = rent > 0 ? (theirs ? rent : afterTax(rent)) : 0;
-  if (rent > 0) {
-    landsLines.push({ label: 'Rent', note: theirs ? 'after running costs' : 'after running costs and calculated tax', amount: rentArriving });
+  const rentArriving = rent !== 0 ? (theirs ? rent : afterTax(rent)) : 0;
+  if (rent !== 0) {
+    landsLines.push({ label: 'Rent', note: theirs ? 'after running costs' : 'after running costs and calculated tax', amount: rentArriving, approx: !theirs });
   }
   const invMonthly = toNum(a.invAnnual) / 12;
+  const invWorkedOut = !!a.invApprox;   // calculated from the accounts' rates — an estimate, ≈ (2026-10-25)
   if (invMonthly > 0 && a.invPaidToBank === 'yes') {
-    landsLines.push(theirs ? { label: 'Interest & dividends', note: 'paid to your bank', amount: invMonthly }
-                           : { label: 'Interest & dividends', note: 'paid to your bank, after calculated tax', amount: afterTax(invMonthly) });
+    landsLines.push(theirs ? { label: 'Interest & dividends', note: 'paid to your bank', amount: invMonthly, approx: invWorkedOut }
+                           : { label: 'Interest & dividends', note: 'paid to your bank, after calculated tax', amount: afterTax(invMonthly), approx: true });
   } else if (invMonthly > 0 && !theirs && r > 0) {
-    landsLines.push({ label: 'Tax on interest and dividends', note: 'calculated — they are reinvested, and the tax still comes out', amount: -(invMonthly * r) });
+    landsLines.push({ label: 'Tax on interest and dividends', note: 'calculated — they are reinvested, and the tax still comes out', amount: -(invMonthly * r), approx: true });
   }
-  const guaranteed = currentRetirementIncomeMonthly(op as any);
-  if (guaranteed > 0) landsLines.push({ label: 'Social Security · pension', note: 'after tax', amount: afterTax(guaranteed) });
+  // SOCIAL SECURITY IS TAXED IN PART (2026-10-25, FIX-INCOME-B; IRS Publication 915): the tax comes off the part that is taxed,
+  // and the rest lands whole (retirementIncomeTaxedMonthly) — and a Social Security amount answered "Not yet" is not here at all
+  const ret = retirementIncomeTaxedMonthly(op as any);
+  if (ret.received > 0) landsLines.push({ label: 'Social Security · pension', note: 'after tax', amount: ret.received - ret.taxed * r, approx: !theirs });
   const otherFreq = a.otherFreq ?? 'monthly';
   const other = otherFreq === 'annual' ? toNum(a.otherAmount) / 12 : otherFreq === 'monthly' ? toNum(a.otherAmount) : 0;
   if (other > 0) {
-    landsLines.push(a.otherTaxable !== 'no' ? { label: String(a.otherLabel || '').trim() || 'Other income', note: 'after tax', amount: afterTax(other) }
+    landsLines.push(a.otherTaxable !== 'no' ? { label: String(a.otherLabel || '').trim() || 'Other income', note: 'after tax', amount: afterTax(other), approx: !theirs }
                                             : { label: String(a.otherLabel || '').trim() || 'Other income', note: 'not taxed', amount: other });
   }
-  const benefits = benefitActiveMonths(op as any).length === 12 ? toNum(a.benefitMonthly) : 0;   // paid in some months only: those months stand out
+  // benefits paid in some months only: those months stand out. UNEMPLOYMENT PAY IS TAXED (IRC §85(a), IRS Publication 525;
+  // 2026-10-25): its own row, after tax; the rest of the benefits stay "not taxed".
+  const allYear = benefitActiveMonths(op as any).length === 12;
+  const unemployment = allYear ? unemploymentMonthly(op as any) : 0;
+  const benefits = allYear ? toNum(a.benefitMonthly) - unemployment : 0;
   if (benefits > 0) landsLines.push({ label: 'Benefits', note: 'not taxed', amount: benefits });
+  if (unemployment > 0) landsLines.push({ label: 'Unemployment', note: 'after tax', amount: afterTax(unemployment), approx: !theirs });
   const support = toNum(a.supportMonthly);
   if (support > 0) landsLines.push({ label: 'Child support or alimony', note: 'not taxed', amount: support });
   const school = (Array.isArray(a.scholarships) ? a.scholarships : [])
@@ -714,30 +791,41 @@ export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
   const standout = months.length && (months[biggest]) > usual + 1
     ? { label: FULL[biggest] ?? grid[biggest].label,
         note: toNum(a.bonusAnnual) > 0 && biggest === bonusMonth ? 'with the bonus' : 'its own month, never spread',
-        amount: (months[biggest]) } : null;
+        amount: (months[biggest]), approx: !theirs } : null;
   const FILING: Record<string, string> = { single: 'Single', married: 'Married filing jointly', mfs: 'Married filing separately', hoh: 'Head of household' };
   const filing = FILING[String(filingStatusOf(op as any))] ?? 'Single';
 
   // ── what it is taxed on ─────────────────────────────────────────────────────────────────────
-  const taxedLines: Line[] = [];
-  pay.earners.forEach((e) => {
-    if (e.pay.grossAnnualised > 0) {
-      taxedLines.push({ label: e.name.replace('’s pay', '’s gross').replace('Your pay', 'Your gross'),
-                        amount: (e.pay.grossAnnualised) });
-    }
-  });
-  const rentAnnual = (rentalNetAnnual(op as any));
-  if (rentAnnual > 0) taxedLines.push({ label: 'Rent, net', amount: rentAnnual });
-  const inv = (toNum(a.invAnnual));
-  if (inv > 0) taxedLines.push({ label: 'Interest & dividends', amount: inv });
-  const bonus = (toNum(a.bonusAnnual));
-  if (bonus > 0) taxedLines.push({ label: 'Bonus', amount: bonus });
+  // ONE ROW FOR EVERY SOURCE THE YEAR IS TAXED ON, SIGNED, AND THEY ADD TO "= Gross /year" (2026-10-25, FIX-INCOME-B; the outside
+  // review's MK-CF-O-004, MK-CF-M-042, MK-CF-M-076; DEC-0376, tenet 2): the rows are taxedSourcesAnnual's, the very rows
+  // taxableAnnual adds up. They were the wages, the rent above $0, interest and dividends and the bonus — $84,000 of rows under
+  // $126,000 (a wage of $7,000/month, $1,000 of self-employment, $2,000 of Social Security and $500 of other income), $195,600
+  // under $264,800, and a rental losing $500/month gave one $86,400 row over "= Gross /year" $80,400.
+  const taxedLines: Line[] = taxedSourcesAnnual(op as any).map((s) => ({
+    label: s.key === 'wages' ? (s.earner === 0 ? 'Your gross' : `${a.partnerName || 'Spouse'}’s gross`) : s.label,
+    amount: s.amount,
+    ...(s.key === 'interest-dividends' && invWorkedOut ? { approx: true, note: 'calculated from your accounts' } : {}),
+  }));
 
   const grossAnnual = (taxableAnnual(op as any));
   const taxedOn = taxedAfterPreTax(op as any);   // the gross less the year's 401(k)s (DEC-0283; 2026-10-24)
 
+  // ── what is entered and counted nowhere yet, said (tenet 3, 2026-10-25) ───────────────────────────────────────────────
+  const notCounted: string[] = [];
+  // an hourly wage with no hours a week is no number (FIX-INCOME-A, 2026-10-26; DEC-0296) — said here in Your base pay's words
+  if (pay.hoursNotEntered.length) notCounted.push('Hours a week not entered — your hourly pay is not counted until it is.');
+  const undated = vestsNotEntered(op as any).dateNotEntered;
+  if (undated > 0) notCounted.push(`${undated === 1 ? 'A stock grant with no vest date is' : `${undated} stock grants with no vest date are`} not counted — vest date not entered.`);
+  for (const o of landsOnce(op as any)) {
+    if (o.missing === 'year not entered' || (o.kind === 'other' && o.missing === 'month not entered'))
+      notCounted.push(`Your ${o.label.toLowerCase() === 'one-time income' ? 'one-time payment' : o.label} is not counted — ${o.missing}.`);
+    if (o.missing === 'date not entered') notCounted.push('Your signing bonus is not counted — date not entered.');
+  }
+  // SHARES THAT VEST ARE NOT MONEY TO SPEND unless sold when they vest (the lead's ruling of 2026-10-25, like DEC-0179): taxed below
+  const vestHeldAnnual = vestsAreCash(op as any) ? 0 : (rsuAnnual(op as any) ?? 0);
+
   return {
-    lands: { lines: landsLines, usualMonth: usual, standoutMonth: standout,
+    lands: { lines: landsLines, usualMonth: usual, standoutMonth: standout, approx: landsLines.some((l) => l.approx),
              rentMonthly: rentArriving,
              totalLabel: `= ${inflowLabel('Inflow', ['income (take-home)',
                ...landsLines.filter((l) => l.amount > 0 && !pay.earners.some((e) => e.name === l.label)).map((l) => l.label)])}` },
@@ -754,18 +842,24 @@ export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
       calculatedNote: typedState > 0
         ? 'Federal income tax, plus the ' + (typedState * 100).toFixed(2) + '% state rate you entered — it knows nothing about Social Security or Medicare.'
         : 'Federal only — it knows nothing about your state, and nothing about Social Security or Medicare.',
+      holdsState: typedState > 0,
       whose: inf.label,
       estimated: inf.source === 'estimated',
       filing,
-      closing: `${filing}, every source counted. Your ${Math.round(inf.rate * 100)}%, used on every figure built from your take-home. `
+      closing: `${filing}, every source counted. Your ${(inf.rate * 100).toFixed(2)}%, used on every figure built from your take-home. `
         // a state rate typed on the Tax organizer is inside the calculated rate, so the sentence says so (2026-10-23, CF-FIX)
         + 'Without it we show the calculated rate — ' + calculatedCovers + ', assuming the standard deduction.',
     },
     // Taxed, and never landed. The screen says this rather than leaving a gap between two totals
     // that a person would otherwise have to work out for themselves.
     taxedNotLanded: (extraIncome(op as any).reinvestedMonthly),
+    vestHeldAnnual,
+    notCounted,
+    sources: incomeSources(entered),
     wages: pay.earners.filter((e) => e.pay.grossAnnualised > 0).length,
-    ready: salaryAnnual(op as any) > 0 || grossAnnual > 0,
+    // SOMETHING ARRIVING IS SOMETHING ENTERED (2026-10-25, FIX-INCOME-B; the outside review's MK-CF-O-004-C05; tenets 1 and 3):
+    // $1,000/month of child support and nothing else read "not ready", and the screen printed $0 and "Nothing entered yet."
+    ready: salaryAnnual(op as any) > 0 || grossAnnual !== 0 || landsLines.length > 0,
   };
 }
 
@@ -818,18 +912,28 @@ export interface IncomeManager {
  *     'one − time'   if other freq = 'onetime'
  *     'month'   otherwise   otherwise
  *     mo = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
- *     lumps = to num(bonus annual) + rsu annual(op as any)
+ *     lumps = to num(bonus annual) + (rsu annual(op as any) ?? 0)
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-CF-F-210 annualOfSource
+ * Called by ... MK-CF-F-207 SOURCE
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
- *               MK-CF-F-210 annualOfSource
+ * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-CF-F-201 INCOME
+ *               MK-NW-F-082 NW · MK-CF-F-207 SOURCE
+ *               MK-CF-F-026 actualDebtPayment · MK-CF-F-036 buildDebtState
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-010 drawOrderOutcome
+ *               MK-CF-F-041 getDebtState · MK-CF-O-016 incomeSources
+ *               MK-CF-O-004 incomeSummary · MK-XS-F-029 monthlySavings
+ *               MK-XS-F-199 profileOnTheWayIn · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth · MK-NW-O-004 theEmergencyFund
+ *               MK-NW-O-003 theNetWorth · MK-CF-F-024 totalDebtMonthly
+ *               … and 1 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-023 salary and other income
  *               MK-XS-I-030 tax filing status and age
  *               MK-XS-I-039 how often each income arrives
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
  *               MK-XS-I-059 the month a bonus lands
  *
  * Formula also on the master file · functions_from_code · MK-CF-O-019
@@ -855,29 +959,46 @@ export function theIncomeManager(op: Record<string, any> | null): IncomeManager 
     .reduce((t: number, x: any) => t + toNum(x?.amount) * (Array.isArray(x?.months) && x.months.length ? x.months.length : 1), 0);
   const otherPer: 'month' | 'year' | 'one-time' = a.otherFreq === 'annual' ? 'year' : a.otherFreq === 'onetime' ? 'one-time' : 'month';
   const MO = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-  const lumps = toNum(a.bonusAnnual) + rsuAnnual(op as any);
+  const lumps = toNum(a.bonusAnnual) + (rsuAnnual(op as any) ?? 0);
+  // ENTERED MEANS RECORDED, NOT "ABOVE $0" (2026-10-25, FIX-INCOME-B; the outside review's MK-CF-O-019-C04, MK-CF-M-027; tenets 3
+  // and 5): a property whose rent and costs were typed is entered whatever it nets — a rental losing $300.26 a month sat under
+  // "Anything else? · Rent from a property", its −$300.26 never shown. `entered` says so for the row; the others still read their
+  // amount, where a source left at $0 has nothing in it.
   const row = (key: ManagedSource['key'], icon: string, short: string, long: string, amount: number,
-               per: ManagedSource['per'], lead = '', tail = '', estimated = false): ManagedSource =>
-    ({ key, icon, title: amount > 0 ? short : long, entered: amount > 0, lead, amount, per, estimated, tail });
+               per: ManagedSource['per'], lead = '', tail = '', estimated = false, entered = amount > 0): ManagedSource =>
+    ({ key, icon, title: entered ? short : long, entered, lead, amount, per, estimated, tail });
+  // a one-time payment with no year is counted nowhere until it has one (landsOnce, 2026-10-25): its line says so
+  const onceOther = landsOnce(op as any).find((o) => o.kind === 'other');
+  // a Social Security amount answered "Not yet" is the Plan's estimate, not money arriving now (2026-10-25): its line says so
+  const ssNotYet = socialSecurityNotYetMonthly(op as any) > 0;
   const all: ManagedSource[] = [
-    row('employment', '💼', 'A job', 'A job (wages or salary)', pay.landsInBank, 'month', `${who} · take-home`, '', pay.landsEstimated),
+    // an hourly wage with no hours a week is entered and not counted (FIX-INCOME-A's basePay, DEC-0296; 2026-10-26): the row says so in
+    // Your base pay's words, never dropped
+    row('employment', '💼', 'A job', 'A job (wages or salary)', pay.landsInBank, 'month', `${who} · take-home`,
+        pay.hoursNotEntered.length ? '· hours a week not entered' : '', pay.landsEstimated, pay.landsInBank > 0 || pay.hoursNotEntered.length > 0),
     row('self_employment', '🧰', 'Self-employed / side gig', 'Self-employed / side gig', toNum(a.seAmount), selfPer, '', 'net'),
     row('rental', '🏠', 'Rent', 'Rent from a property', rentalNetAnnual(op as any) / 12, 'month',
-        `${plural(rentals.length, 'property', COUNT[rentals.length] ?? rentals.length)} ·`, 'net'),
+        `${plural(rentals.length, 'property', COUNT[rentals.length] ?? rentals.length)} ·`, 'net', false, rentals.length > 0),
     row('investment_income', '💵', 'Interest & dividends', 'Interest & dividends', inv, 'year', '',
         a.invPaidToBank === 'yes' ? '· paid to your bank' : '· reinvested'),
-    row('retirement_income', '📨', 'Retirement income', 'Retirement income', retirementIncomeMonthly(op as any), 'month'),
+    row('retirement_income', '📨', 'Retirement income', 'Retirement income', retirementIncomeMonthly(op as any), 'month', '',
+        ssNotYet ? '· Social Security not received yet' : ''),
     row('benefits', '🛟', 'Benefits', 'Benefits', toNum(a.benefitMonthly), 'month', '',
         benefitMonths < 12 ? `· ${plural(benefitMonths, 'month')} of the year` : ''),
     row('support', '👪', 'Child support or alimony', 'Child support or alimony', toNum(a.supportMonthly), 'month'),
     row('scholarship', '🎓', 'Scholarships, grants, stipend', 'Scholarships, grants, stipend', schoolYear, 'year'),
     row('loans', '🏦', 'Student loans', 'Student loans', loansYear, 'year'),
-    row('other_income', '🧾', 'Something else', 'Something else', toNum(a.otherAmount), otherPer),
+    row('other_income', '🧾', 'Something else', 'Something else', toNum(a.otherAmount), otherPer, '',
+        onceOther?.missing ? `· ${onceOther.missing}` : ''),
   ];
   return {
     entered: all.filter((x) => x.entered), notEntered: all.filter((x) => !x.entered),
-    bonusAndStock: wages.length ? { amount: lumps,
+    // STOCK WITH NO JOB IS STILL STOCK (2026-10-25, FIX-INCOME-B; the outside review's MK-CF-O-019-C05; tenets 2 to 4): $10,000 of
+    // vesting after a job ends appeared nowhere on the manager — "about 0 sources" — while the Cash flow tab listed it. A bonus or
+    // stock is read with the job when there is one, and on its own when there is not.
+    bonusAndStock: wages.length || lumps > 0 || vestsNotEntered(op as any).dateNotEntered > 0 ? { amount: lumps,
       tail: toNum(a.bonusAnnual) > 0 ? `· bonus paid in ${MO[Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1))]}`
+          : vestsNotEntered(op as any).dateNotEntered > 0 && lumps === 0 ? '· vest date not entered'
           : lumps > 0 ? '· vests through the year' : '' } : null,
   };
 }

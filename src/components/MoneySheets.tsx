@@ -208,7 +208,8 @@ export function DebtPaySheet({ state, onClose }: { state: { open: boolean; debt?
   const save = () => {
     if (!d || amt <= 0) return;
     const dt = new Date(); if (day === 'yesterday') dt.setDate(dt.getDate() - 1);
-    store.addExpense?.({ amount: amt, category: 'Debt payment', store: d.label, date: iso(dt), notes: '' });
+    // the payment names its debt by id, so it is matched to that debt and never to another of the same name (2026-10-25, FIX-MONTH; DEC-1923)
+    store.addExpense?.({ amount: amt, category: 'Debt payment', store: d.label, date: iso(dt), notes: '', debtId: String(d.debt_id) });
     store.updateLiability?.(d.debt_id, { remaining_balance: Math.max(0, d.remaining_balance - amt) });
     onClose();
   };

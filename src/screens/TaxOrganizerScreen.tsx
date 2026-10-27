@@ -12,6 +12,8 @@ import { investmentIncomeAnnual } from '../domain/transactions';
 import { interestIncomeAnnual } from '../domain/bonds';
 import { useRouter } from 'expo-router';
 import { theTaxOrganizer } from '../../MoneyKeel/functions/cashflow/tax-organizer';
+import { filingStatusOf } from '../domain/income';
+import { EmptyNote } from '../components/UI';
 
 export default function TaxOrganizerScreen() {
   const router = useRouter();
@@ -65,7 +67,10 @@ export default function TaxOrganizerScreen() {
           accessibilityLabel="How you file your taxes — change it"
           onPress={() => router.push('/filing-status')}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.fileNow}>{FILING_WORDS[(store.onboardingProfile?.filingStatus ?? 'single') as string] ?? 'Single'}</Text>
+            {/* THE STATUS THE TAX IS WORKED ON (2026-10-25, DEC-7944): with a spouse entered and the question never answered the
+                walk below is joint ($32,200), and this line read the blank answer as "Single" above it. It names the status in
+                force — filing jointly when a spouse was entered — and says it is assumed until it is answered. */}
+            <Text style={styles.fileNow}>{FILING_WORDS[filingStatusOf(store.onboardingProfile ?? null)] ?? 'Single'}</Text>
             {!store.onboardingProfile?.filingStatus && (
               <Text style={styles.fileHint}>Assumed — we have never asked</Text>
             )}
@@ -86,17 +91,46 @@ export default function TaxOrganizerScreen() {
       <View style={styles.card}>
         {org.income.map((l) => (
           <View key={l.label} style={styles.row}>
-            <Text style={styles.rowL}>{l.label}{!l.taxable ? <Text style={styles.tag}>  tax-free</Text> : null}</Text>
-            <Text style={styles.rowV}>{money(l.amount)}</Text>
+            {/* the interest line says where its figure came from — the year's records, you entered, or calculated ≈ with its
+                working (the lead's ruling of 2026-10-25: one interest-and-dividends figure) */}
+            <Text style={styles.rowL}>{l.label}{!l.taxable ? <Text style={styles.tag}>  tax-free</Text> : null}{l.note ? <Text style={styles.tag}>  {l.note}</Text> : null}</Text>
+            <Text style={styles.rowV}>{l.approx ? '≈' : ''}{money(l.amount)}</Text>
           </View>
         ))}
+        {!!org.notCounted && <Text style={styles.note}>{org.notCounted}</Text>}
         {/* Q46 (founder ruling 2026-09-08): the four lines a return shows, in order */}
-        <View style={[styles.row, styles.total]}><Text style={styles.totalL}>Gross income</Text><Text style={styles.totalV}>{money(org.steps.grossIncome)}</Text></View>
-        <View style={styles.row}><Text style={styles.rowL}>401(k) contribution</Text><Text style={styles.rowV}>− {money(org.steps.preTaxContributions)}</Text></View>
-        <View style={styles.row}><Text style={styles.rowL}>Standard deduction{org.steps.deductionIncludes.length ? <Text style={styles.tag}>  includes {org.steps.deductionIncludes.join(' and ')}</Text> : null}</Text><Text style={styles.rowV}>− {money(org.steps.standardDeduction)}</Text></View>
-        <View style={[styles.row, styles.total]}><Text style={styles.totalL}>Taxable income</Text><Text style={styles.totalV}>{money(org.steps.taxableIncome)}</Text></View>
+        <View style={[styles.row, styles.total]}><Text style={styles.totalL}>Gross income</Text><Text style={styles.totalV}>{money(org.grossIncome)}</Text></View>
+        {/* NOTHING ENTERED (his Q48, DEC-0431 — the reversal of 2026-10-25): the layout stays, Gross income reads $0, the one line
+            says why and the door sits beneath; the lines that need an assumption stay off — the −$16,100 deduction rests on a
+            filing status nobody answered, and there is no rate (MK-CF-O-007-C02, tenet 3) */}
+        {org.steps == null && <EmptyNote door="income" onPress={() => router.push('/income-manager')} />}
+        {org.steps != null && (
+          <>
+            <View style={styles.row}><Text style={styles.rowL}>401(k) contribution</Text><Text style={styles.rowV}>− {money(org.steps.preTaxContributions)}</Text></View>
+            <View style={styles.row}><Text style={styles.rowL}>Standard deduction{org.steps.deductionIncludes.length ? <Text style={styles.tag}>  includes {org.steps.deductionIncludes.join(' and ')}</Text> : null}</Text><Text style={styles.rowV}>− {money(org.steps.standardDeduction)}</Text></View>
+            {/* the spouse's age never answered on a joint return: counted as under 65, said, with the door to the question
+                (the lead's ruling of 2026-10-25 on CFR-4's needs-ruling 4) */}
+            {org.steps.spouseAgeNotEntered && (
+              <TouchableOpacity accessibilityRole="button" style={styles.spouseRow} onPress={() => router.push('/filing-status')}
+                accessibilityLabel="Your spouse counted as under 65 — not entered. Answer it">
+                <Text style={styles.spouseT}>Your spouse counted as under 65 — not entered ›</Text>
+              </TouchableOpacity>
+            )}
+            <View style={[styles.row, styles.total]}><Text style={styles.totalL}>Taxable income</Text><Text style={styles.totalV}>{money(org.steps.taxableIncome)}</Text></View>
+          </>
+        )}
         {org.nonTaxableTotal > 0 && <View style={styles.row}><Text style={styles.rowL}>Non-taxable</Text><Text style={styles.rowV}>{money(org.nonTaxableTotal)}</Text></View>}
-        <Text style={styles.note}>Est. effective federal rate ~{Math.round(org.estTaxRate * 100)}%. Figures are your entries/estimates — verify against your official forms.</Text>
+        {/* THE RATE IN CANON ROW 25's WORDS (2026-10-25), as Base pay and the Income summary say it: "Calculated federal tax" while
+            it is federal only, "Calculated tax" once it holds the state rate entered, and the person's own rate as theirs — it
+            read "Est. effective federal rate" whatever it held */}
+        {org.estTaxRate != null && org.rate != null && (
+          <Text style={styles.note}>
+            {org.rate.estimated
+              ? `${org.rate.stateWords ? 'Calculated tax' : 'Calculated federal tax'} ≈${(org.estTaxRate * 100).toFixed(2)}% of the year's income — ${org.rate.stateWords ? `federal income tax, plus ${org.rate.stateWords}; assumes` : 'assumes'} you take the standard deduction.`
+              : `Tax · ${org.rate.whose}.`}
+            {' '}Figures are your entries/estimates — verify against your official forms.
+          </Text>
+        )}
       </View>
 
       {/* contributions */}
@@ -144,11 +178,12 @@ function orgToHtml(o: TaxOrganizer): string {
   </style></head><body>
     <h1>Tax Organizer — ${o.year}</h1>
     <div class="sub">Prepared in MoneyKeel · a summary for your accountant, not a tax return</div>
-    <h2>INCOME</h2><table>${rows(o.income)}
+    <h2>INCOME</h2>${o.steps == null ? `<table><tr class="total"><td>Gross income</td><td style="text-align:right">$${Math.round(o.grossIncome).toLocaleString()}</td></tr></table><div>${o.refusal ?? ''}</div><!-- money-mask-ok: generated HTML export document, not an on-screen display -->` : `<table>${rows(o.income)}
       <tr class="total"><td>Gross income</td><td style="text-align:right">$${Math.round(o.steps.grossIncome).toLocaleString()}</td></tr><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
       <tr><td>401(k) contribution</td><td style="text-align:right">− $${Math.round(o.steps.preTaxContributions).toLocaleString()}</td></tr><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
-      <tr><td>Standard deduction${o.steps.deductionIncludes.length ? ` (includes ${o.steps.deductionIncludes.join(' and ')})` : ''}</td><td style="text-align:right">− $${Math.round(o.steps.standardDeduction).toLocaleString()}</td></tr><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
-      <tr class="total"><td>Taxable income</td><td style="text-align:right">$${Math.round(o.steps.taxableIncome).toLocaleString()}</td></tr></table><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
+      <tr><td>Standard deduction${o.steps.deductionIncludes.length ? ` (includes ${o.steps.deductionIncludes.join(' and ')})` : ''}${o.steps.spouseAgeNotEntered ? ' — your spouse counted as under 65, not entered' : ''}</td><td style="text-align:right">− $${Math.round(o.steps.standardDeduction).toLocaleString()}</td></tr><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
+      <tr class="total"><td>Taxable income</td><td style="text-align:right">$${Math.round(o.steps.taxableIncome).toLocaleString()}</td></tr></table>`}<!-- money-mask-ok: generated HTML export document, not an on-screen display -->
+    ${o.notCounted ? `<div>${o.notCounted}</div>` : ''}
     ${o.contributions.length ? `<h2>RETIREMENT CONTRIBUTIONS</h2><table>${rows(o.contributions)}</table>` : ''}
     ${o.accounts.length ? `<h2>ACCOUNTS (YEAR-END)</h2><table>${rows(o.accounts.map((a) => ({ label: `${a.label} (${a.kind})`, amount: a.balance })))}</table>` : ''}
     <h2>DOCUMENTS TO GATHER</h2><ul>${o.documents.map((d) => `<li>${d}</li>`).join('')}</ul>
@@ -167,6 +202,8 @@ const styles = StyleSheet.create({
   fileNow: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   fileHint: { fontSize: 11, color: Colors.textTertiary, marginTop: 2 },
   fileGo: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark },
+  spouseRow: { minHeight: 44, justifyContent: 'center' },
+  spouseT: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark },
   fileChip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 9, paddingHorizontal: 12, minHeight: 42, justifyContent: 'center', backgroundColor: Colors.cardBg },
   fileChipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   fileChipTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },

@@ -4,7 +4,7 @@
  */
 import { snapshotFromOnboarding } from '../domain/snapshot';
 import { simulate, solveRetireAge, projectNestEgg, capitalNeeded } from '../domain/retirement';
-import { cashflowYear } from '../domain/cashflow';
+import { buildDatedGrid } from '../domain/grid';   // MK-CF-F-020 cashflowYear was RETIRED 2026-10-25 — the month table answers
 import { spendByMonth, savingsByMonth, emergencyTest } from '../domain/budget';
 import { taxOwedFor, grossFromNet, marginalBracketFor } from '../domain/income/tax';
 import { loanPayment } from '../domain/debt';
@@ -24,7 +24,7 @@ describe('Data extremes stay finite and sane', () => {
     const s = snap({});
     expectAllFinite(s, 'empty profile');
     expect(s.networth.net_worth).toBe(0);
-    expect(s.budget.projected_to_save).toBe(0);
+    expect(s.budget.projected_to_save).toBeNull();   // no budget entered, no projected saving (2026-10-25, FIX-BUDGET; DEC-7939, tenet 3)
     expect(s.goals.monthly_capacity).toBe(0);
   });
 
@@ -84,13 +84,14 @@ describe('Data extremes stay finite and sane', () => {
 
 describe('Date edges', () => {
   test('rolling 12-month cash flow across the December→January boundary', () => {
-    const dec = cashflowYear(employedPartner, 5000, new Date(2026, 11, 15));
+    const dec = buildDatedGrid(employedPartner, { startBalance: 5000, now: new Date(2026, 11, 15) });
     expectAllFinite(dec, 'Dec window');
-    expect(dec.months).toHaveLength(12);
+    expect(dec.cells).toHaveLength(12);
+    expect(dec.cells.map((c) => `${c.calendarMonth}/${c.year}`).slice(0, 2)).toEqual(['12/2026', '1/2027']);
   });
 
   test('leap day is a valid as-of date', () => {
-    const leap = cashflowYear(employedPartner, 5000, new Date(2028, 1, 29));
+    const leap = buildDatedGrid(employedPartner, { startBalance: 5000, now: new Date(2028, 1, 29) });
     expectAllFinite(leap, 'leap day');
   });
 

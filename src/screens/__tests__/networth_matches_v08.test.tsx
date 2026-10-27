@@ -174,3 +174,111 @@ test('appearance: each gap card on the fix sheet carries the drawn ring — 1px 
   expect(cards).toHaveLength(2);
   for (const c of cards) expect(c).toMatchObject({ borderWidth: 1, borderColor: 'rgba(0,0,0,0.05)', borderRadius: 16, backgroundColor: '#FFFFFF' });
 });
+
+/** APPEARANCE AND THE DATED ROWS OF 2026-10-25 (the line-by-line drawing match of 2026-10-24). Three looks now as v08 draws them,
+ *  the one amber box as the newer account-page drawing draws it, the step-by-step bars edge to edge — each read off the drawing's
+ *  own stylesheet and the rendered styles — and every row of that day read off the drawing's face, its figures worked by the app. */
+describe('v08 · the rows of 2026-10-25, on the drawing and on the screen', () => {
+  const { Colors } = require('../../utils/theme');
+  const st = (n: any) => flat(n?.props?.style);
+  const ROWS = (() => {
+    const html = require('fs').readFileSync(DRAWING, 'utf8') as string;
+    const at = html.indexOf('READ THIS FIRST — ADDED AFTER THIS MOCKUP');
+    return html.slice(at, html.indexOf('</table>', at)).replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ');
+  })();
+
+  test('the drawing carries the ten rows of 2026-10-25', () => {
+    const want = [
+      /2026-10-25 DRAWING ERROR, every frame — the info dot is drawn as a 9-point italic i in a ring/,
+      /2026-10-25 DRAWING ERROR, frame G — the retirement plan line behind the add sheet is drawn without the info dot/,
+      /2026-10-25 Frames A, A2, B and C — three small looks, now as drawn\. \(1\) The · in “3–6 months is the usual guide · an estimate from your own numbers” is in the line’s own grey at regular weight/,
+      /2026-10-25 Frame D — the amber box is drawn with 16-point corners, 12 points inside on every side and its headline at 800/,
+      /2026-10-25 DRAWING ERROR, frames A, A2, B, C and D — the drawing sets the rows, the emergency fund card and the doors 16 points from the edge/,
+      /2026-10-25 DRAWING ERROR, every frame — the top bar’s buttons are drawn 32 points tall\. The app draws them 38 points tall/,
+      /2026-10-25 DRAWING ERROR, every frame — the By category · By institution choice is drawn about 34 points tall\. The app draws it 44 points tall/,
+      /2026-10-25 DRAWING ERROR, frames A and A2 — the bar under What you own draws each part at its true share/,
+      /2026-10-25 Not a drawn state: the step-by-step add \(Step 1 of 5/,
+      // FIX-MONTH, 2026-10-26 (the lead's ruling of 2026-10-25): a rate never entered reads "rate not entered", never "0.00% APR"
+      /2026-10-25 Not a drawn state: the step-by-step add’s last step, Add your debts \(Step 5 of 5\), lists each debt with its rate under its name\. .* reads “rate not entered · \$1,900\/month” under “Lake house mortgage”, never “0\.00% APR · \$1,900\/month”\. A typed 0 reads “0\.00% APR · \$1,900\/month”\./,
+    ];
+    expect(want.filter((w) => !w.test(ROWS))).toEqual([]);
+    const html = require('fs').readFileSync(DRAWING, 'utf8') as string;
+    expect((html.match(/white-space:nowrap">2026-10-25<\/td>/g) ?? []).length).toBe(10);   // ten rows of that date, no more, no fewer
+  });
+
+  test('(10) the step-by-step add’s Debts step: a rate never entered reads “rate not entered”, never “0.00% APR” — a typed 0 is 0.00% (FIX-MONTH, the row of 2026-10-25)', () => {
+    const lake = { debt_id: 'lake', label: 'Lake house mortgage', debt_type: 'MORTGAGE', remaining_balance: 300000, interest_rate_apr: undefined, minimum_monthly_payment: 1900 };
+    const debtsStep = (rate: number | undefined) => {
+      setup({ nwSetupChoice: 'guided', liabilities: [{ ...lake, interest_rate_apr: rate }] }); render(<NetWorth />);
+      for (let k = 0; k < 4; k++) fireEvent.press(screen.getByText('Next →'));
+      expect(screen.getByText('Step 5 of 5')).toBeOnTheScreen();
+      return builtLines(screen.toJSON());
+    };
+    const blank = debtsStep(undefined);
+    expect(blank).toContain('Lake house mortgage');
+    expect(blank).toContain('rate not entered · $1,900/month');   // the row's words, as written on the drawing's row
+    expect(blank.some((l) => /0\.00% APR/.test(l))).toBe(false);
+    expect(debtsStep(0)).toContain('0.00% APR · $1,900/month');
+  });
+
+  test('(1)–(3): the ▸ at 600, the · in the line’s own grey and weight, frame C’s line at 13 regular — as the stylesheet draws them', () => {
+    expect(ruleOf('.sheetRow .n')).toMatch(/font-weight:600/);   // the caret sits in the category's name, at its weight
+    expect(ruleOf('.caret')).toMatch(/font-size:13px;color:var\(--textTertiary\)/);
+    expect(ruleOf('.cushNote')).toMatch(/font-size:11px;color:var\(--textTertiary\)/);
+    expect(ruleOf('.cushMath')).toMatch(/font-size:13px;color:var\(--textSecondary\)/);
+    setup(); render(<NetWorth />);
+    const carets = [...screen.queryAllByText('▸'), ...screen.queryAllByText('▾')].filter((n) => st(n).fontSize === 13);
+    expect(carets.length).toBeGreaterThanOrEqual(2);
+    for (const c of carets) expect(st(c)).toMatchObject({ fontSize: 13, fontWeight: '600', color: Colors.textTertiary });
+    const guide = screen.getByText('3–6 months is the usual guide · an estimate from your own numbers');   // one Text: no darker · inside it
+    expect(st(guide)).toMatchObject({ fontSize: 11, color: Colors.textTertiary });
+    expect(st(guide).fontWeight ?? '400').toBe('400');
+    expect((guide.children as any[]).every((c) => typeof c === 'string')).toBe(true);
+    useStore.getState().resetAll(); useStore.getState().setOnboardingProfile({ ...employedPartner, birthYear: undefined, birthMonth: undefined } as any);
+    render(<NetWorth />);
+    const first = screen.getByText('appears with your first cash account + monthly expenses');
+    expect(st(first)).toMatchObject({ fontSize: 13, color: Colors.textSecondary });
+    expect(st(first).fontWeight ?? '400').toBe('400');
+  });
+
+  test('(4) frame D: the one amber box as the account page draws it — 12-point corners, 10 × 12 inside, its headline at 700', () => {
+    const page = require('fs').readFileSync('MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_account-page_v01.html', 'utf8') as string;
+    expect(page).toMatch(/\.warnb\{background:var\(--amberLight\);border:1px solid var\(--amber\);border-radius:12px;padding:10px 12px;/);
+    expect(ruleOf('.banner')).toMatch(/border-radius:16px;padding:12px/);   // what v08 draws, corrected by its row
+    setup(GAPS); render(<NetWorth />);
+    const head = screen.getByText(/^⚠ .*numbers? needs? more information ›$/);
+    expect(st(head)).toMatchObject({ fontSize: 13, fontWeight: '700' });
+    let box: any = head; while (box && st(box).backgroundColor !== Colors.amberLight) box = box.parent;
+    expect(st(box)).toMatchObject({ borderRadius: 12, paddingVertical: 10, paddingHorizontal: 12, borderWidth: 1, borderColor: Colors.amber });
+  });
+
+  test('(8) the bar’s drawn widths are the ones the row gives: under 1.5% drawn at 1.5%, then the bar scaled back to full', () => {
+    const { barSegments, barDrawnWidths } = require('../../../MoneyKeel/functions/networth-and-performance/net-worth');
+    const bar = (parts: [string, number][]) => barDrawnWidths(barSegments(parts.map(([key, total]) => ({ key, label: key, color: '#000', total }))));
+    const byClass = bar([['Cash', 8_838], ['Stocks / Funds', 348_495], ['Bonds & CDs', 5_819], ['Real estate', 450_000]]);   // of $813,152
+    const byInst = bar([['Home', 450_000], ['Vanguard', 349_333], ['Chase', 8_000], ['E*TRADE', 5_819]]);
+    const pct = (xs: any[], k: string, f: 'exact' | 'drawn') => `${xs.find((x) => x.key === k)[f].toFixed(2)}%`;
+    expect([pct(byClass, 'Cash', 'drawn'), pct(byClass, 'Bonds & CDs', 'drawn'), pct(byClass, 'Stocks / Funds', 'drawn'), pct(byClass, 'Real estate', 'drawn')])
+      .toEqual(['1.48%', '1.48%', '42.35%', '54.69%']);
+    expect([pct(byInst, 'Chase', 'drawn'), pct(byInst, 'E*TRADE', 'drawn'), pct(byInst, 'Vanguard', 'drawn'), pct(byInst, 'Home', 'drawn')])
+      .toEqual(['1.48%', '1.48%', '42.41%', '54.63%']);
+    const row = ROWS.slice(ROWS.indexOf('2026-10-25 DRAWING ERROR, frames A and A2 — the bar under What you own'));
+    for (const f of ['1.09%', '0.72%', '1.48%', '42.86%', '42.35%', '55.34%', '54.69%', '0.98%', '42.96%', '42.41%', '54.63%', '$813,152'])
+      expect(row.slice(0, 900)).toContain(f);
+    expect(pct(byClass, 'Cash', 'exact')).toBe('1.09%'); expect(pct(byClass, 'Bonds & CDs', 'exact')).toBe('0.72%');
+    expect(pct(byInst, 'Chase', 'exact')).toBe('0.98%'); expect(pct(byInst, 'Vanguard', 'exact')).toBe('42.96%');
+  });
+
+  test('(9) the step-by-step add: each step’s bar runs edge to edge, square, with “+ Add” under it — not beside it', () => {
+    setup({ nwSetupChoice: 'guided', assetAccounts: [], liabilities: [] }); render(<NetWorth />);
+    expect(screen.getByText('Step 1 of 5')).toBeOnTheScreen();
+    let band: any = screen.getByText(/^💵 CASH$/);
+    while (band && st(band).backgroundColor !== Colors.bandLight) band = band.parent;
+    expect(st(band)).toMatchObject({ borderTopLeftRadius: 0, borderTopRightRadius: 0, paddingHorizontal: 12 });
+    let wrap: any = band.parent; while (wrap && st(wrap).marginHorizontal == null) wrap = wrap.parent;
+    expect(st(wrap).marginHorizontal).toBe(-20);   // out through the step's 20 of padding: edge to edge
+    const lines = builtLines(screen.toJSON());
+    expect(lines.indexOf('+ Add')).toBeGreaterThan(lines.indexOf('💵 CASH'));
+    for (let a: any = wrap.parent, k = 0; a && k < 2; a = a.parent, k += 1) expect(st(a).flexDirection).not.toBe('row');
+  });
+});

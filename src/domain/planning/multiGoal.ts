@@ -136,11 +136,17 @@ export function weighGoals(w: WeighInputs): WeighResult {
   if (extraDebt > 0 && (w.liabilities ?? []).some((d) => d.remaining_balance > 0)) {
     const withExtra = payoffPlan(w.liabilities!, extraDebt, 'avalanche', now);
     const without = payoffPlan(w.liabilities!, 0, 'avalanche', now);
-    const end = new Date(now.getFullYear(), now.getMonth() + withExtra.months, 1);
-    debtPayoff = {
-      month: `${MONTHS[end.getMonth()]} ${end.getFullYear()}`,
-      interestSaved: (Math.max(0, without.totalInterest - withExtra.totalInterest)),
-    };
+    // A PLAN THAT DOES NOT CLEAR HAS NO PAYOFF MONTH (2026-10-25, FIX-BILLS, MK-CF-F-034): it printed "paid off Oct 2076" — 600
+    // months out, the old walk's stop — for a plan it called never. The line says a payoff month AND the interest saved, so it is
+    // given only when both plans clear: against minimums that never clear there is no interest total to save from.
+    const clears = (p: typeof withExtra) => !p.neverPaysOff && !p.pastHorizon && p.notEntered.length === 0;   // nothing from what was never entered (2026-10-25)
+    if (clears(withExtra) && clears(without)) {
+      const end = new Date(now.getFullYear(), now.getMonth() + withExtra.months, 1);
+      debtPayoff = {
+        month: `${MONTHS[end.getMonth()]} ${end.getFullYear()}`,
+        interestSaved: (Math.max(0, without.totalInterest - withExtra.totalInterest)),
+      };
+    }
   }
 
   // effect on retirement: the shared inputs with the dial as the contribution — same seeded function

@@ -20,6 +20,8 @@ import { CD_BOUGHT_QUESTION, CD_BOUGHT_CHOICES } from '../constants/cdBought';  
 import { COUPONS_PER_YEAR_QUESTION, COUPONS_PER_YEAR_CHOICES, type CouponsPerYear } from '../constants/couponsPerYear';   // the one wording (DEC-3390)
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
+/** A box left blank, or holding no number, is not entered — never 0 (tenet 3, DEC-3523). A typed 0 is 0. */
+const enteredOrNot = (v: string): number | undefined => (/\d/.test(String(v ?? '')) ? num(v) : undefined);
 // native date picker (audit AA-1: no hand-typed YYYY-MM-DD) — same helpers the Bonds editor uses
 const fmtISO = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 const parseISO = (s: string) => { const [y, m, dd] = (s || '').split('-').map(Number); return y ? new Date(y, (m || 1) - 1, dd || 1) : new Date(); };
@@ -109,8 +111,10 @@ export default function AddAccountScreen() {
   // figures use the same one test of what a CD is (DEC-3837, 2026-10-10)
   const isCd = cls === 'bonds' && !!theBonds({ accounts: [{ asset_id: 'draft', label: name, institution, kind: existing?.kind,
     asset_class: 'bonds', tax_bucket: 'TAXABLE', balance: 0, target_return: 0 } as any] }).rows[0]?.isCD;
+  // A DEBT ASKS ITS THREE STARRED BOXES BEFORE IT SAVES (Add an account v02 phone 6 stars all three; its READ THIS FIRST row of
+  // 2026-10-25): the balance, the rate and the payment. The rate was starred and never waited for, so a blank rate was saved as 0%.
   const ready = cls === 'debt'
-    ? name.trim() !== '' && num(balance) > 0 && minPay.trim() !== ''
+    ? name.trim() !== '' && num(balance) > 0 && apr.trim() !== '' && minPay.trim() !== ''
     : name.trim() !== '' && balance.trim() !== '';           // an explicit $0 is allowed (B-21 rule)
 
   const save = () => {
@@ -124,7 +128,11 @@ export default function AddAccountScreen() {
     if (!editMode && !store.nwSeeded && params.from !== 'onboarding') store.seedNetWorth?.(store.onboardingProfile ?? null);
     const today = isoLocalDate(new Date());
     if (cls === 'debt') {
-      store.addLiability?.({ label: name.trim(), debt_type: 'OTHER', remaining_balance: num(balance), interest_rate_apr: num(apr) / 100, minimum_monthly_payment: num(minPay) });
+      // UNKNOWN IS NOT ZERO (tenet 3, DEC-3523; 2026-10-25): a box left blank is written as not entered, never as 0 — Save waits for
+      // all three today, and the writer holds the rule itself so a looser form could never turn a blank into $0 or 0%
+      const rate = enteredOrNot(apr);
+      store.addLiability?.({ label: name.trim(), debt_type: 'OTHER', remaining_balance: enteredOrNot(balance), interest_rate_apr: rate == null ? undefined : rate / 100,
+        minimum_monthly_payment: enteredOrNot(minPay) });
       router.back();
       return;
     }
@@ -166,8 +174,12 @@ export default function AddAccountScreen() {
     // used to be written with no payment at all, so it counted as nothing in every calculation.
     if (cls === 'property' && num(owe) > 0 && !editMode) {
       const added = (useStore.getState() as any).assetAccounts?.[0];   // addAsset puts the new one first
-      store.addLiability?.({ label: `${name.trim()} mortgage`, debt_type: 'MORTGAGE', remaining_balance: num(owe), interest_rate_apr: 0,
-        minimum_monthly_payment: num(owePay), monthly_payment: num(owePay) > 0 ? num(owePay) : undefined,
+      // the payment left blank is NOT ENTERED (2026-10-25, tenet 3; Add an account v02's READ THIS FIRST row of that date): it was
+      // saved as $0, so the Debts tab's payoff read "never at this rate"; now every screen says "payment not entered". A typed 0 is $0.
+      // this form never asks the mortgage's rate, so it is saved as NOT ENTERED, never 0% (2026-10-25, FIX-MONTH; tenet 3): every screen
+      // says "rate not entered" until it is typed in the debt editor
+      store.addLiability?.({ label: `${name.trim()} mortgage`, debt_type: 'MORTGAGE', remaining_balance: num(owe), interest_rate_apr: undefined as any,
+        minimum_monthly_payment: enteredOrNot(owePay), monthly_payment: num(owePay) > 0 ? num(owePay) : undefined,
         property_id: added && added.label === base.label ? added.asset_id : undefined });
     }
     router.back();
@@ -293,7 +305,7 @@ export default function AddAccountScreen() {
         </>
       )}
       {cls === 'property' && !editMode && field('Mortgage balance (optional)', owe, setOwe, { placeholder: '$0', keyboard: 'decimal-pad', a11y: 'Amount still owed' })}
-      {cls === 'property' && !editMode && num(owe) > 0 && field('Monthly mortgage payment', owePay, setOwePay, { placeholder: '$0', keyboard: 'decimal-pad', a11y: 'Monthly mortgage payment' })}
+      {cls === 'property' && !editMode && num(owe) > 0 && field('Monthly mortgage payment', owePay, setOwePay, { placeholder: '$2,400', keyboard: 'decimal-pad', a11y: 'Monthly mortgage payment' })}
       {cls === 'debt' && (
         <>
           {field('Interest rate % *', apr, setApr, { placeholder: '7.0', keyboard: 'decimal-pad', a11y: 'Interest rate percent' })}

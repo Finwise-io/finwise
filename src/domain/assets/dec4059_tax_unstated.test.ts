@@ -35,7 +35,8 @@ describe('MK-NW-F-046 historyCoverage — a start date that cannot be read is re
   });
   test('the person\'s date outranks the sync\'s, readable or not', () => {
     expect(historyCoverage(linked({ history_from: '2099-01-01', history_start_override: '2026-04-10' }), '2025-10-10', NOW)?.sentence)
-      .toBe('Schwab shared 6 months of history (from Apr 10, 2026) — figures before that aren\'t counted.');
+      // the curly apostrophe the Net worth words use since 2026-10-25 (nw_curly_apostrophe_guard; history_coverage.test.ts moved with it)
+      .toBe('Schwab shared 6 months of history (from Apr 10, 2026) — figures before that aren’t counted.');
     expect(historyCoverage(linked({ history_from: '2024-01-01', history_start_override: '2026-04-10' }), '2025-10-10', NOW)?.kind).toBe('partial');
   });
 });

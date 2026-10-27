@@ -1,7 +1,7 @@
 
 // ── TRACK 3 (founder brief 2026-08-20): E8 · E9 · E10, and the expiry gate ──
 describe('the tax tables — dated, explicit, age-aware', () => {
-  const { TAX_TABLES, TAX_YEAR, deductionFor, taxableIncomeFor, taxOwedFor, progressiveMonthlyTax } = require('./tax');
+  const { TAX_TABLES, TAX_YEAR, deductionFor, taxableIncomeFor, taxOwedFor } = require('./tax');
 
   test('EXPIRY GATE: this test FAILS the year the tables go stale — update them, then this line', () => {
     // The brief's rule: a statutory table carries its year, and the build refuses to coast past it.
@@ -30,10 +30,13 @@ describe('the tax tables — dated, explicit, age-aware', () => {
     expect(Math.round(withState - federalOnly)).toBe(Math.round(taxableIncomeFor(50_000, 'single') * 0.05));
   });
 
-  test('E10 monthly: the state part telescopes — twelve months sum to the annual state tax exactly', () => {
-    const months = new Array(12).fill(5_000);        // $60k year
-    const tax = progressiveMonthlyTax(months, 'single', 0.05);
-    const annual = taxOwedFor(60_000, 'single', 0.05);
-    expect(Math.abs(tax.reduce((t: number, m: number) => t + m, 0) - annual)).toBeLessThan(0.01);
+  test('E10 monthly: the state part rides the one rate — twelve months sum to the annual state tax exactly', () => {
+    // 2026-10-25: the band-filling months (MK-CF-F-098) are retired; the month grid lays the one rate on every month (DEC-0196)
+    const { incomeMonthlyGrid } = require('./onboarding');
+    const op = { baseSalary: 5_000, salaryFreq: 'monthly', filingStatus: 'single', stateTaxRate: 5 };   // $60k year, 5% state
+    const g = incomeMonthlyGrid(op, 'gross'), n = incomeMonthlyGrid(op, 'net');
+    const tax = g.reduce((t: number, m: any, i: number) => t + (m.amount - n[i].amount), 0);
+    expect(tax).toBeCloseTo(taxOwedFor(60_000, 'single', 0.05), 6);
+    expect(require('./tax').progressiveMonthlyTax).toBeUndefined();
   });
 });

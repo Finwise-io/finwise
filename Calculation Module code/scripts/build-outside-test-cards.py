@@ -80,12 +80,16 @@ DRAWINGS = {
         'checks': [(1800 + 400 + 5800, 8000), (100000 + 15000 - 0 + 8000, 123000), (80000 + 15000 + 6000, 101000),
                    (20000 + 2000, 22000), (101000 + 22000, 123000), (round(2000 / 20000 * 100, 2), 10.00)],
     },
+    # CORRECTED 2026-10-26 (PF-TOOLS; CF-MMFIX-B's finding): frame 3 draws $1,058 of tax and $9,242 of take-home, worked with the
+    # 401(k)s left in the taxed income. His DEC-0283 takes them off first, and the drawing's own dated READ THIS FIRST row of
+    # 2026-10-25 (income-end-to-end v07, "DRAWING ERRORS, phones 2 to 4", IN-02) corrects the frame to $873 and $9,427 — the figures
+    # the app gives. The card stated the drawn ones.
     'MK-CF-O-001': {
-        'drawing': 'Income end to end v07, frame 3 (approved 2026-09-02)',
-        'household': 'Two wages, $138,000 a year together, so $11,500 gross in a month. Calculated federal tax $1,058 in the month. '
-                     '401(k) contributions $1,200 in the month. No take-home entered by either earner.',
-        'drawn': {'Take-home, household': 9242},
-        'checks': [(138000 / 12, 11500), (11500 - 1058 - 1200, 9242)],
+        'drawing': 'Income end to end v07, frame 3 (approved 2026-09-02), its figures corrected by the dated READ THIS FIRST row of 2026-10-25',
+        'household': 'Two wages, $138,000 a year together, so $11,500 gross in a month. Calculated federal tax $873 in the month, worked '
+                     'after the 401(k)s come off (DEC-0283). 401(k) contributions $1,200 in the month. No take-home entered by either earner.',
+        'drawn': {'Take-home, household': 9427},
+        'checks': [(138000 / 12, 11500), (11500 - 873 - 1200, 9427)],
     },
     'MK-CF-O-002': {
         'drawing': 'Cash flow v01, frame C (approved 2026-09-28)',

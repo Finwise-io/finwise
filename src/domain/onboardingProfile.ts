@@ -31,7 +31,11 @@ export interface OnboardingProfile {
   partnerWage?: import('./income/earners').EarnerWage;
   // bonus / equity
   bonusAnnual?: Money; bonusMonth?: Money; signingOnetime?: Money;
+  /** the month (and year) the signing bonus is paid, 'YYYY-MM' — it lands once, then (2026-10-25, landsOnce; DEC-0447) */
+  signingDate?: string;
   equityType?: 'rsu' | 'option'; rsuGrants?: RsuGrant[]; rsuShares?: Money; rsuPrice?: Money; optStrike?: Money; optMarket?: Money;
+  /** 'yes' = the shares are sold when they vest, so a vest is money in its month; otherwise shares, taxed, not cash (2026-10-25) */
+  rsuSoldAtVest?: 'yes' | 'no';
   // 401(k)
   c_401k?: Money; employerMatchValue?: Money; employerMatchMode?: 'pct' | 'dollar';
   // other income
@@ -44,6 +48,8 @@ export interface OnboardingProfile {
   otherLabel?: string;
   otherMonth?: Money; otherTaxable?: 'yes' | 'no';   // one-time landing month (1-12); gifts = not taxable
   benefitMonthly?: Money; benefitTypes?: string[]; benefitMonths?: number[]; supportMonthly?: Money;
+  /** of benefitMonthly, the unemployment pay (taxed, IRC §85(a)) — asked only when another kind is chosen too (2026-10-25) */
+  unemploymentMonthly?: Money;
   scholarships?: ScholarshipEntry[]; scholarshipAmount?: Money; scholarshipFreq?: 'annual' | 'monthly'; loans?: LoanEntry[];
   // retirement income (also accessed dynamically as ri_<key> / ri_<key>_freq)
   ri_ss?: Money; ri_pension?: Money; ri_withdrawals?: Money; ri_rmd?: Money; ri_annuities?: Money; ri_other?: Money;

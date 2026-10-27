@@ -5,6 +5,8 @@
 import type { UserId } from './_shared/ids';
 import { inflationRateInForce } from './retirement/inflation';
 import { toNum } from './_shared/num';
+import { ownK401Annual, householdEmployerMatchAnnual } from './income/earners';
+import { annual401kLimit, ageAttainedInYear } from './income/limits';
 
 import { profileFromOnboarding, toReadModel, ProfileReadModel } from './profile';
 import { incomeFromOnboarding, buildIncomeState, IncomeState, retirementIncomeMonthly, guaranteedOutsideStreams } from './income';
@@ -40,7 +42,11 @@ export interface FinancialSnapshot {
  *
  * Formula .....
  *     a = op (or none when missing)
- *     stated annual = (monthly contributions from onboarding(op) ?? 0) × 12
+ *     stated = monthly contributions from onboarding(op)
+ *     stated annual = 0
+ *     k401 year = min(own k401 annual(a as any), annual401k limit(age attained in year(to num(birth year) or nothing)))
+ *     match year = (k401 year × to num(employer match value)) ÷ 100   if employer match mode = 'pct'
+ *     household employer match annual(op as any)   otherwise
  *     has spend data = to num(monthly expenses) > 0 (or array.is array(spend cats) and spend cats.length > 0 when missing or zero)
  *     stated annual   when has spend data is missing
  *     free cash annual = Σ over savings by month(a as any) of (amount)
@@ -53,10 +59,14 @@ export interface FinancialSnapshot {
  *               MK-XS-F-031 buildSnapshot · MK-XS-F-032 snapshotFromOnboarding
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
- * Reads ....... MK-XS-I-032 expenses categories the person set up
+ * Reads ....... MK-XS-I-017 birth year
+ *               MK-XS-I-032 expenses categories the person set up
  *               MK-XS-I-043 their own retirement contribution
+ *               MK-XS-I-046 how the employer match is expressed — percent or dollars
+ *               MK-XS-I-048 the person’s own asset-class answer
  *
  * Decides .....
+ *     · Uses a built-in stated annual of 0.
  *     · Turns a monthly figure into a year by multiplying by twelve.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-030
@@ -64,7 +74,18 @@ export interface FinancialSnapshot {
  */
 export function effectiveAnnualContribution(op: Record<string, any> | null): number {
   const a = op ?? {};
-  const statedAnnual = (monthlyContributionsFromOnboarding(op) ?? 0) * 12;
+  // THE PAYROLL PART OF THE YEAR COMES IN THE MONTHS THE WAGE IS PAID (2026-10-26, FIX-INCOME-A; DEC-7938, DEC-0376, tenet 4): the
+  // 401(k) and the employer's match come out of pay cheques, so their year is a month × the months paid (payrollMonths — twelve with
+  // no wage on record), the 401(k) held at the year's elective limit and a percent match taken on it, as MK-NW-F-041 holds a month;
+  // the Roth and taxable saving come from the bank, every month. It took MK-NW-F-041's month × 12: $1,000/month into a 401(k) paid
+  // July to December with a 50% match read $18,000/year where $6,000 + $3,000 = $9,000 went in. A full year is exactly × 12.
+  const stated = monthlyContributionsFromOnboarding(op);   // null: no contribution answered — nothing goes in
+  let statedAnnual = 0;
+  if (stated != null) {
+    const k401Year = Math.min(ownK401Annual(a as any), annual401kLimit(ageAttainedInYear(toNum(a.birthYear) || null)));
+    const matchYear = a.employerMatchMode === 'pct' ? (k401Year * toNum(a.employerMatchValue)) / 100 : householdEmployerMatchAnnual(op as any);
+    statedAnnual = k401Year + matchYear + (toNum(a.c_roth) + toNum(a.c_invest)) * 12;
+  }
   const hasSpendData = toNum(a.monthlySpending) > 0 || (Array.isArray(a.spendCats) && a.spendCats.length > 0);
   if (!hasSpendData) return statedAnnual;          // no cash-flow picture → take contributions at face value
   const freeCashAnnual = savingsByMonth(a as any).reduce((t, m) => t + m.amount, 0);
@@ -88,7 +109,7 @@ export function effectiveAnnualContribution(op: Record<string, any> | null): num
  *     a = op (or none when missing)
  *     profile = to read model(profile from onboarding(uid, op))
  *     income doc = income from onboarding(uid, op)
- *     income = build income state(uid, income doc.sources, income doc.tax)
+ *     income = build income state(uid, income doc.sources, income doc.tax, op)
  *     acct rows = accounts
  *     debt rows = liabilities
  *     assets = build assets state(uid, acct rows)
@@ -117,6 +138,7 @@ export function effectiveAnnualContribution(op: Record<string, any> | null): num
  *     · If current age is missing it uses 35.
  *     · If target retirement age is missing it uses 65.
  *     · If plan to age is missing it uses 90.
+ *     · If monthly expenses is missing it uses 0.
  *
  * Formula also on the master file · functions_from_code · MK-XS-F-031
  * Changed ..... 2026-06-13 (e77e5a3)
@@ -132,7 +154,7 @@ export function buildSnapshot(
   const profile = toReadModel(profileFromOnboarding(uid, op));
 
   const incomeDoc = incomeFromOnboarding(uid, op);
-  const income = buildIncomeState(uid, incomeDoc.sources, incomeDoc.tax);
+  const income = buildIncomeState(uid, incomeDoc.sources, incomeDoc.tax, op);   // the one take-home and rate (MK-CF-F-049, 2026-10-25)
 
   const acctRows = accounts;
   const debtRows = liabilities;
@@ -144,7 +166,8 @@ export function buildSnapshot(
 
   // ONE pool: goal capacity = free cash AFTER the investing plan (same dollars never fund both)
   const investMo = toNum(a.c_roth) + toNum(a.c_invest) + toNum(a.c_property);
-  const capacity = toNum(a.monthlySavingsCapacity) || Math.max(0, budget.projected_to_save - investMo);
+  // no budget set, no projected saving (2026-10-25, FIX-BUDGET; DEC-7939): the goals are given none to plan on — it was the whole take-home
+  const capacity = toNum(a.monthlySavingsCapacity) || (budget.projected_to_save == null ? 0 : Math.max(0, budget.projected_to_save - investMo));
   const goals = buildGoalsState(uid, goalsFromOnboarding(uid, op).goals, capacity);
 
   // B5: the PLAN's guaranteed income is OUTSIDE money only (SS/pension/annuity — never
@@ -162,7 +185,7 @@ export function buildSnapshot(
     // the rent entries decide the home, as Net worth reads it (DEC-4913, 2026-10-13)
     start_balance: retirementEarmarkedValue(acctRows, Array.isArray(a.rentals) ? a.rentals : null),
     annual_contribution: effectiveAnnualContribution(op),
-    retire_monthly_spend_today: retirementSpendMonthly(a) || budget.monthly_spending,
+    retire_monthly_spend_today: retirementSpendMonthly(a) || (budget.monthly_spending ?? 0),
     guaranteed_monthly_income: guaranteedMonthly,
     guaranteed_streams: outsideStreams.map((st) => ({ kind: st.kind, monthly: st.monthly, inflates: st.inflates })),
     inflation: inflationRateInForce(null).rate,   // brief Q-50 (2026-08-20) (G30, 2026-09-08): the dated default, not the feed (was 2.4 here and 2.5 elsewhere)

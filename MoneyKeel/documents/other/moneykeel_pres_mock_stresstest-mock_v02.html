@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>What if…? — mock v02</title>
+<style>
+  /* tokens from src/utils/theme.ts; sizes and weights from StressTestScreen.tsx's StyleSheet */
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,'SF Pro Text',Segoe UI,Roboto,sans-serif;background:#ECEBE4;padding:22px;color:#1A1A18}
+  .row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start}
+  .phone{width:375px;background:#000;border-radius:42px;padding:9px;box-shadow:0 16px 36px rgba(0,0,0,.24)}
+  .screen{background:#F6F7F5;border-radius:34px;overflow:hidden;min-height:760px;display:flex;flex-direction:column}
+  .sbar{display:flex;justify-content:space-between;padding:11px 22px 4px;font-size:13px;font-weight:700}
+  .back{padding:8px 16px;min-height:44px;display:flex;align-items:center;font-size:16px;font-weight:600;color:#178F6B}
+  .c{padding:0 20px 20px;flex:1}
+  .h1{font-size:20px;font-weight:800;color:#1A1A18;margin-top:8px}
+  .sub{font-size:13px;color:#6B6B66;margin:4px 0 6px;line-height:19px}
+  .card{background:#FFFFFF;border-radius:16px;padding:12px;margin-top:10px}
+  .fieldL{font-size:13px;font-weight:700;color:#6B6B66;margin:8px 0 5px}
+  .input{border:1.5px solid rgba(0,0,0,.10);border-radius:12px;padding:12px;font-size:17px;color:#1A1A18}
+  .input.ph{color:#76766F}
+  .presets{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  .preset{padding:0 14px;min-height:44px;display:flex;align-items:center;border-radius:12px;border:1.5px solid rgba(0,0,0,.10);background:#fff;font-size:13px;font-weight:700;color:#6B6B66}
+  .preset.on{border-color:#178F6B;background:#E1F5EE;color:#0F6E56}
+  .verdict{border-radius:16px;padding:12px;margin-top:10px}
+  .verdict.good{background:#E1F5EE}.verdict.bad{background:#FCEBEB}
+  .vTitle{font-size:15px;font-weight:800}.good .vTitle{color:#0F6E56}.bad .vTitle{color:#A32D2D}
+  .vSub{font-size:13px;color:#6B6B66;margin-top:3px;line-height:17px}
+  .cardTitle{font-size:15px;font-weight:800;color:#1A1A18;margin-bottom:6px}
+  .bigRow{display:flex;align-items:baseline;gap:8px}
+  .big{font-size:30px;font-weight:800}
+  .bigUnit{font-size:13px;color:#6B6B66}
+  .note{font-size:13px;color:#6B6B66;margin-top:6px;line-height:18px}
+  .empty{font-size:13px;color:#6B6B66;line-height:18px;padding:4px 0}.empty b{color:#178F6B;font-weight:700}
+  .fundTxt{font-size:13px;color:#1A1A18;line-height:20px}
+  .essDef{font-size:13px;color:#6B6B66;line-height:18px;margin-top:14px}
+  .disc{font-size:11px;line-height:16px;color:#76766F;text-align:center;margin:12px 0 8px;padding:0 16px}
+  .new{outline:2px dashed #185FA5;outline-offset:2px}
+  .cap{font-size:12px;color:#4a4a45;max-width:375px;margin-top:8px;line-height:1.45}
+  .note-doc{max-width:1100px;margin:0 0 14px;padding:12px 14px;border:2px solid #0B5D3B;border-radius:12px;font-size:13px;line-height:1.5;background:#fff;color:#111}
+  .note-doc td,.note-doc th{padding:4px 8px;border:1px solid #ccc;vertical-align:top;text-align:left}
+  .note-doc table{border-collapse:collapse;margin-top:8px;font-size:12.5px}
+</style></head><body>
+
+<div class="note-doc">
+<b>READ THIS FIRST — 2026-10-25. Drawn before the change is built. Where a line here and a phone disagree, this line is the design.</b>
+<br>The Stress test has no approved drawing: DEC-0649 (2026-10-01) put it outside the Net worth work, and its only earlier drawing (archive/2026-07-19_moneykeel_pres_mock_stresstest-mock_v01.html) never drew the screen as built. Both phones below are drawn from the screen as built (StressTestScreen.tsx, its StyleSheet and the navigator's “← Back” bar). Phone A is unchanged by this row. Phone B is the change, marked with a dashed blue outline.
+<table>
+<tr><th>Dated</th><th>What changed</th><th>Why</th><th>Record</th><th>State</th></tr>
+<tr><td style="white-space:nowrap">2026-10-25</td><td>Phone B — <b>no essentials entered</b> ($0/month of essentials), $6,000 of cash, a $3,000 hit. (1) The hit card reads “You'd have $3,000 left. With $0/month of essentials there is no count of months to state.” It read “You'd have $3,000 left — about 0.0 months of essentials ($0/month — ).” (2) The emergency fund card reads “No target yet: your essentials come to $0/month.” It read “✓ You already have at least 3 months of essentials set aside. A strong emergency fund — some stretch toward 6 months — your call.” — a verdict on nothing. Phone A, with essentials, is unchanged.</td><td>$3,000 ÷ $0 has no answer, so it is never printed as 0.0 months, and a $0 target is never called a strong fund. The fund’s door already refuses both (MK-NW-O-004: “never divided by nothing … there is no count of months to state”; a $0 target reads as “you are covered”). The outside audit, MK-CF-F-010: an undefined ratio must not appear as zero with a favourable status. DEC-3523 tenets 1 and 3.</td><td>MK-CF-F-010 emergencyTest · MK-MN-M-025 · FIX-BUDGET</td><td>In the code</td></tr>
+</table>
+</div>
+
+<div class="row">
+<div>
+<div class="phone"><div class="screen">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◔ ▮</span></div>
+  <div class="back">← Back</div>
+  <div class="c">
+    <div class="h1">What if…?</div>
+    <div class="sub">Test a surprise expense against your cash — see if you can absorb it and how long you'd last.</div>
+    <div class="card">
+      <div class="fieldL">Cash you could tap today</div>
+      <div class="input">18000</div>
+      <div class="fieldL">The surprise expense</div>
+      <div class="input">3000</div>
+      <div class="presets"><span class="preset on">🩺 Medical bill</span><span class="preset">🚗 Car repair</span><span class="preset">🦷 Dental</span><span class="preset">💻 New laptop</span></div>
+    </div>
+    <div class="verdict good">
+      <div class="vTitle">✓ You could cover a $3,000 hit</div>
+      <div class="vSub">You'd have $15,000 left — about 4.3 months of essentials ($3,470/month — you entered).</div>
+    </div>
+    <div class="card">
+      <div class="cardTitle">If you lost your income</div>
+      <div class="bigRow"><span class="big" style="color:#854F0B">5.2</span><span class="bigUnit">months your cash would last</span></div>
+      <div class="note">Covering your $3,470/month of essentials (you entered) with no paycheck coming in. 3–6 months of essentials is the range most planners use.</div>
+    </div>
+    <div class="card">
+      <div class="cardTitle">Your emergency fund</div>
+      <div class="fundTxt">✓ You already have at least 3 months of essentials set aside. A strong emergency fund — some stretch toward 6 months — your call.</div>
+    </div>
+    <div class="essDef">“Essentials” are your recurring essential expenses (Critical + Important), not one-time or nice-to-have expenses. A planning estimate.</div>
+    <div class="disc">Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer.</div>
+  </div>
+</div></div>
+<div class="cap"><b>A — with essentials.</b> $18,000 of cash, a $3,000 medical bill, $3,470/month of essentials typed. $18,000 − $3,000 = $15,000; $15,000 ÷ $3,470 = 4.32 → 4.3 months; $18,000 ÷ $3,470 = 5.19 → 5.2 months (amber: 3 to 6); 3 × $3,470 = $10,410, under $18,000, so no gap.</div>
+</div>
+
+<div>
+<div class="phone"><div class="screen">
+  <div class="sbar"><span>9:41</span><span>▮▮▮ ◔ ▮</span></div>
+  <div class="back">← Back</div>
+  <div class="c">
+    <div class="h1">What if…?</div>
+    <div class="sub">Test a surprise expense against your cash — see if you can absorb it and how long you'd last.</div>
+    <div class="card">
+      <div class="fieldL">Cash you could tap today</div>
+      <div class="input">6000</div>
+      <div class="fieldL">The surprise expense</div>
+      <div class="input">3000</div>
+      <div class="presets"><span class="preset on">🩺 Medical bill</span><span class="preset">🚗 Car repair</span><span class="preset">🦷 Dental</span><span class="preset">💻 New laptop</span></div>
+    </div>
+    <div class="verdict good">
+      <div class="vTitle">✓ You could cover a $3,000 hit</div>
+      <div class="vSub new">You'd have $3,000 left. With $0/month of essentials there is no count of months to state.</div>
+    </div>
+    <div class="card">
+      <div class="cardTitle">If you lost your income</div>
+      <div class="note">Your essential expenses come to $0/month.</div>
+      <div class="empty">Nothing entered yet. <b>Log your expenses ›</b></div>
+    </div>
+    <div class="card">
+      <div class="cardTitle">Your emergency fund</div>
+      <div class="fundTxt new">No target yet: your essentials come to $0/month.</div>
+    </div>
+    <div class="essDef">“Essentials” are your recurring essential expenses (Critical + Important), not one-time or nice-to-have expenses. A planning estimate.</div>
+    <div class="disc">Estimates for guidance only — not financial, investment, or tax advice, and projections aren't guaranteed. See Settings for the full disclaimer.</div>
+  </div>
+</div></div>
+<div class="cap"><b>B — no essentials entered</b> (the change, dashed). $6,000 of cash in a checking account, nothing logged and no budget: essentials $0/month. $6,000 − $3,000 = $3,000 left, and the hit is covered — that answer stands. The months and the 3-month target divide by $0, so neither is stated; the “If you lost your income” card keeps its Q48 line and door, unchanged.</div>
+</div>
+</div>
+</body></html>

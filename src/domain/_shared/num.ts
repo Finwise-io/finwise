@@ -16,38 +16,41 @@ export { round2 } from '../../../Calculation Module code/engines/money';
  * Called by ... MK-CF-F-003 categoryMonthly · MK-CF-F-004 spendBuckets
  *               MK-CF-F-005 actualMonthFlow · MK-CF-F-007 nonMonthlyBasis
  *               MK-CF-F-009 monthlyEssentials · MK-CF-F-014 budgetVsActual
- *               MK-CF-F-019 upcomingBills · MK-CF-F-020 cashflowYear
- *               MK-CF-F-038 debtsFromOnboarding · MK-CF-F-059 annualizedEnteredSalary
- *               MK-CF-F-062 equityRowValue · MK-CF-F-066 rsuAnnual
- *               MK-CF-F-070 benefitAnnual · MK-CF-F-071 extraIncome
- *               MK-CF-F-073 otherIncomeMonth · MK-CF-F-074 tipsAnnual
- *               MK-CF-F-075 retirementIncomeMonthly · MK-CF-F-076 guaranteedOutsideStreams
- *               MK-CF-F-077 scholarshipByCalendarMonth · MK-CF-F-079 incomeFromOnboarding
- *               MK-CF-F-083 totalGrossAnnual · MK-CF-F-084 taxableAnnual
- *               MK-CF-F-086 stateRateOf · MK-CF-F-087 monthlyTaxRates
- *               MK-CF-F-088 taxableByCalendarMonth · MK-CF-F-089 over65CountOf
- *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-F-105 guaranteedRows
- *               MK-CF-F-130 enteredMonthlyRaw · MK-CF-F-141 perMonth
- *               MK-CF-F-142 monthsOf · MK-CF-F-144 takeHomeAsEntered
- *               MK-CF-F-145 deductionsFromPay · MK-CF-F-146 payFiguresAgree
- *               MK-CF-F-150 debtPaymentsCountedAsExpenses · MK-CF-F-151 actualSpending
- *               MK-CF-F-153 radar · MK-CF-F-157 debtPaymentsByDebt
+ *               MK-CF-F-019 upcomingBills · MK-CF-F-038 debtsFromOnboarding
+ *               MK-CF-F-059 annualizedEnteredSalary · MK-CF-F-062 equityRowValue
+ *               MK-CF-F-066 rsuAnnual · MK-CF-F-070 benefitAnnual
+ *               MK-CF-F-071 extraIncome · MK-CF-F-073 otherIncomeMonth
+ *               MK-CF-F-074 tipsAnnual · MK-CF-F-075 retirementIncomeMonthly
+ *               MK-CF-F-076 guaranteedOutsideStreams · MK-CF-F-077 scholarshipByCalendarMonth
+ *               MK-CF-F-079 incomeFromOnboarding · MK-CF-F-086 stateRateOf
+ *               MK-CF-F-087 monthlyTaxRates · MK-CF-F-088 taxableByCalendarMonth
+ *               MK-CF-F-089 over65CountOf · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-F-105 guaranteedRows · MK-CF-F-130 enteredMonthlyRaw
+ *               MK-CF-F-141 perMonth · MK-CF-F-142 monthsOf
+ *               MK-CF-F-144 takeHomeAsEntered · MK-CF-F-145 deductionsFromPay
+ *               MK-CF-F-146 payFiguresAgree · MK-CF-F-151 actualSpending
  *               MK-CF-F-165 salaryMonths · MK-CF-F-169 withSalaryMonth
  *               MK-CF-F-170 salaryYearFromCells · MK-CF-F-171 earnerPay
  *               MK-CF-F-178 wageMatchMonthly · MK-CF-F-180 enteredLandsAnnual
  *               MK-CF-F-181 rateInForce · MK-CF-F-185 needsTakeHomeConversion
- *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-188 householdPreTaxContributionsAnnual
- *               MK-CF-F-189 essentialsFromLoggedSpending · MK-CF-F-206 householdK401ByMonth
- *               MK-CF-F-220 pastMonthFlow · MK-CF-F-221 spendByMonthByBucket
- *               MK-CF-F-231 addedAfterRecord · MK-CF-F-233 earnerWageShares
- *               MK-CF-O-004 incomeSummary · MK-CF-O-016 incomeSources
- *               MK-CF-O-019 theIncomeManager · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-041 monthlyContributionsFromOnboarding · MK-PL-F-013 goalsFromOnboarding
- *               MK-PL-F-031 taxOrganizer · MK-PL-F-049 retirementSpendMonthly
- *               MK-XS-F-004 buildDatedGrid · MK-XS-F-030 effectiveAnnualContribution
- *               MK-XS-F-031 buildSnapshot · MK-XS-F-058 parseReceipt
+ *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-189 essentialsFromLoggedSpending
+ *               MK-CF-F-206 householdK401ByMonth · MK-CF-F-220 pastMonthFlow
+ *               MK-CF-F-221 spendByMonthByBucket · MK-CF-F-231 addedAfterRecord
+ *               MK-CF-F-233 earnerWageShares · MK-CF-F-245 hoursNotEntered
+ *               MK-CF-F-251 debtPaymentsMatched · MK-CF-F-254 categoriesInForce
+ *               MK-CF-F-255 spendByMonthByCategory · MK-CF-F-256 budgetEditorBuckets
+ *               MK-CF-F-261 ownK401Annual · MK-CF-F-268 unemploymentMonthly
+ *               MK-CF-F-270 landsOnce · MK-CF-F-271 socialSecurityNotYetMonthly
+ *               MK-CF-F-272 socialSecurityReceivedMonthly · MK-CF-F-274 taxedSourcesAnnual
+ *               MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
+ *               MK-CF-O-016 incomeSources · MK-CF-O-019 theIncomeManager
+ *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-041 monthlyContributionsFromOnboarding
+ *               MK-PL-F-013 goalsFromOnboarding · MK-PL-F-031 taxOrganizer
+ *               MK-PL-F-049 retirementSpendMonthly · MK-XS-F-004 buildDatedGrid
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-XS-F-031 buildSnapshot
+ *               MK-XS-F-058 parseReceipt
  *
- * Reaches ..... 440 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 447 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -57,7 +60,7 @@ export { round2 } from '../../../Calculation Module code/engines/money';
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 422 more — the full list is on functions_from_code
+ *               … and 429 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -94,7 +97,7 @@ export const toNum = (v: any): number => {
  * Called by ... MK-CF-F-067 rentalList · MK-CF-F-219 rentEntryMonthly
  *               MK-NW-F-114 rentAmount · MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 388 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -104,7 +107,7 @@ export const toNum = (v: any): number => {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 370 more — the full list is on functions_from_code
+ *               … and 368 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -138,10 +141,10 @@ export const rentFigure = (v: any): number | null => {
  *               MK-PF-F-020 portfolioBenchReturn · MK-PF-F-041 isoDay
  *               MK-PF-F-046 saleShortOfPurchasesSentence · MK-PF-F-058 gainOnPartSentence
  *               MK-PF-F-070 holdingPath · MK-PL-F-030 onCourseSentence
- *               MK-ST-F-012 toLedgerRow · MK-ST-F-044 setMoneyFormat
- *               MK-XS-F-004 buildDatedGrid
+ *               MK-PL-F-089 drawAssumptionsSaid · MK-ST-F-012 toLedgerRow
+ *               MK-ST-F-044 setMoneyFormat · MK-XS-F-004 buildDatedGrid
  *
- * Reaches ..... 394 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 390 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -151,7 +154,7 @@ export const rentFigure = (v: any): number | null => {
  *               MK-CF-F-237 LATER · MK-NW-F-081 LB
  *               MK-NW-F-097 LEDGER · MK-NW-F-098 LEDGER_BAND
  *               MK-NW-F-140 LEFT_OUT · MK-CF-F-200 LINE
- *               … and 376 more — the full list is on functions_from_code
+ *               … and 372 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -194,17 +197,17 @@ export const money2 = (n: number): string => formatMoneyCents(n);
  *
  * Called by ... MK-CF-F-109 reviewTransactions · MK-PL-F-050 simulate
  *
- * Reaches ..... 78 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-101 PLAN
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-CF-F-107 buildPaycheckYear
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-O-017 futurePaycheck
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               … and 60 more — the full list is on functions_from_code
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

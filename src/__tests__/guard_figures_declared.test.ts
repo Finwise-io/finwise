@@ -13,7 +13,17 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
-const ROOTS = ['src/screens', 'src/components'];
+/** WHERE A FIGURE IS WRITTEN FOR A PERSON TO READ (widened 2026-10-26, PF-TOOLS). The screens and components print most figures,
+ *  but a sentence a function composes — the draw sheet's "Rates used — yours, calculated: 12% on pre-tax draws · on gains, 0% until
+ *  your taxable income passes $49,450 …", built in src/domain/decumulation — puts figures in front of a person the screens never
+ *  format. FIX-TAX moved exactly that sentence out of the sheet on 2026-10-25, and the sheet's count fell from 3 to 0 with not one
+ *  figure declared: the guard had simply stopped seeing them. The sign-up steps (src/onboarding) were never read at all. So it reads
+ *  every place a figure is written: the screens, the components, the sign-up steps, the hooks, the store, the domain and the doors.
+ *  A figure written by its declaration — fig()/figWords() on a screen, writeFigure(DOOR_FIGURES['MK-…'], value) in a door — carries
+ *  its identifier and is not counted. */
+const ROOTS = ['src/screens', 'src/components', 'src/onboarding', 'src/hooks', 'src/store', 'src/domain', 'MoneyKeel/functions'];
+/** The formatters' own modules: they ARE the writers, not places that print (the money test's exemption, widened with the roots). */
+const WRITERS = /useMoney\.ts$|components\/figure\.ts$|domain\/_shared\/(money|num)\.ts$|MoneyKeel\/functions\/_figure-spec\.ts$/;
 /** The formatters that put a number in front of a person without an identifier. */
 const RAW = /\b(money|money2|moneyCompact|maskedMoney|maskedMoney2|maskedPrice|spokenMoney|spokenMoney2|formatMoney|formatMoneyCents)\s*\(/g;
 const BASELINE: Record<string, number> = JSON.parse(fs.readFileSync('Calculation Module code/scripts/moneykeel_undeclared_figures.json', 'utf8')).baseline;
@@ -28,16 +38,22 @@ function walk(dir: string): string[] {
 }
 /** How many places in this file print a figure with no identifier. The formatters' own module is not a screen. */
 export function undeclaredIn(file: string, text: string): number {
-  if (/useMoney\.ts$|figure\.ts$/.test(file)) return 0;
+  if (WRITERS.test(file)) return 0;
   return (text.match(RAW) ?? []).filter((m) => !/^import/.test(m)).length;
 }
 
 test('rule 11: no screen starts printing a figure the file knows nothing about, and the 2026-09-14 debt only shrinks', () => {
   const found: Record<string, number> = {};
+  let files = 0;
   for (const root of ROOTS) for (const f of walk(root)) {
+    files++;
     const n = undeclaredIn(f, fs.readFileSync(f, 'utf8'));
     if (n) found[f] = n;
   }
+  // A GUARD MUST PROVE IT LOOKED: 191 files read on 2026-10-26 once it read past the screens (89 before); the debt it carries is printed
+  const debt = Object.values(found).reduce((a, b) => a + b, 0);
+  console.log(`rule 11: ${files} files read; ${debt} places print a dollar figure with no identifier, in ${Object.keys(found).length} files`);
+  expect(files).toBeGreaterThanOrEqual(185);
   const offences: string[] = [];
   for (const [file, n] of Object.entries(found)) {
     const allowed = BASELINE[file];
@@ -87,7 +103,7 @@ function percentHelpers(t: string): { name: string; from: number; to: number; ex
 }
 /** How many places in this file print a percent with no identifier, and how many percent-writing places it read in all. */
 export function percentsIn(file: string, raw: string, exported: string[]): { undeclared: number; read: number } {
-  if (/figure\.ts$/.test(file)) return { undeclared: 0, read: 0 };
+  if (WRITERS.test(file)) return { undeclared: 0, read: 0 };
   const t = stripComments(raw);
   const hs = percentHelpers(t);
   const inHelper = (i: number) => hs.some((h) => i >= h.from && i < h.to);
@@ -130,10 +146,15 @@ test('rule 11 for percents: no screen prints a percent the file knows nothing ab
     const now = found[file] ?? 0;
     if (now < allowed) offences.push(`${file} is down to ${now} percent(s) from ${allowed} — lower its line in percent_baseline (delete it at zero).`);
   }
-  // A GUARD MUST PROVE IT LOOKED: the files and the percent-writing places it read (89 files and 159 places on 2026-10-21),
-  // and that it still sees a percent written by hand, a helper's call, and the two things it must not count.
-  expect(files.length).toBeGreaterThanOrEqual(85);
-  expect(read).toBeGreaterThanOrEqual(150);
+  // A GUARD MUST PROVE IT LOOKED: the files and the percent-writing places it read (89 files and 159 places on 2026-10-21, in the
+  // screens and components only; widened to every place a figure is written on 2026-10-26), and that it still sees a percent
+  // written by hand, a helper's call, and the two things it must not count.
+  const debt = Object.values(found).reduce((a, b) => a + b, 0);
+  console.log(`rule 11 for percents: ${files.length} files read, ${read} percent-writing places; ${debt} print a percent with no identifier, in ${Object.keys(found).length} files`);
+  expect(files.length).toBeGreaterThanOrEqual(185);   // 191 on 2026-10-26
+  expect(read).toBeGreaterThanOrEqual(220);   // 229 on 2026-10-26
+  // and the sentence that left the guard's sight on 2026-10-25 is in it again: a percent composed in a domain function is counted
+  expect(percentsIn('src/domain/x.ts', 'export function said(r: number) {\n  const pct = (v: number) => `${Math.round(v * 100)}%`;\n  return `${pct(r)} on pre-tax draws`;\n}\n', []).undeclared).toBe(1);
   expect(exported).toContain('maskedPct');
   expect(percentsIn('x.tsx', 'const a = <Text>{(r * 100).toFixed(2)}%</Text>;\nconst pct = (v: number) => `${v}%`;\nconst b = pct(1);\n', []).undeclared).toBe(2);
   expect(percentsIn('x.tsx', 'const a = <View style={{ width: `${w}%` }} />;\nconst b = figWords(\'MK-NW-M-024\', `${r}%`);\n', []).undeclared).toBe(0);

@@ -6,12 +6,12 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-nati
 import { SectionBand } from '../components/SectionBand';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
+import { useIncomeProfile } from '../hooks/useIncomeProfile';   // the one profile income figures read (2026-10-26)
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { incomeFromOnboarding, buildIncomeState, equityCashFlow } from '../domain/income';
 import { investmentIncomeAnnual } from '../domain/transactions';
 import { interestIncomeAnnual } from '../domain/bonds';
-import { incomeFromAccounts } from '../domain/income/from-accounts';
 
 const CADENCE: Record<string, string> = {
   MONTHLY: '/month', ANNUAL: '/year', QUARTERLY: '/quarter', WEEKLY: '/week', BIWEEKLY: '/2 weeks', ONETIME: 'one-time',
@@ -26,17 +26,15 @@ export default function IncomeDetailScreen() {
   const op = store.onboardingProfile;
   const uid = store.user?.uid ?? 'local';
 
-  // Prefer ACTUAL passive income from holdings (recorded dividends/interest + bond coupons) over the
-  // onboarding estimate, so totals reflect real money once the user has holdings.
-  const actualPassive = useMemo(
-    () => Math.round(incomeFromAccounts(store.assetAccounts ?? [], store.transactions ?? []).annual),
-    [store.transactions, store.assetAccounts],
-  );
-  const opLive = useMemo(() => (actualPassive > 0 ? { ...op, invAnnual: actualPassive } : op), [op, actualPassive]);
+  // THE YEAR'S INTEREST AND DIVIDENDS AS EVERY INCOME SCREEN READS THEM (useIncomeProfile; 2026-10-26, FIX-INCOME-A): the year's
+  // records, else the figure typed, else calculated from the accounts' rates. It read the accounts' own total (incomeFromAccounts)
+  // over the figure typed — a second reader of the same fact.
+  const opLive = useIncomeProfile(op);
 
   const { sources, state } = useMemo(() => {
     const doc = incomeFromOnboarding(uid, opLive);
-    return { sources: doc.sources, state: buildIncomeState(uid, doc.sources, doc.tax) };
+    // the profile is handed in: the one take-home and the one rate the rest of the app reads (MK-CF-F-049, 2026-10-25)
+    return { sources: doc.sources, state: buildIncomeState(uid, doc.sources, doc.tax, opLive ?? null) };
   }, [opLive, uid]);
 
   // Equity vesting cash flow (RSUs / options), with a view + amount toggle.

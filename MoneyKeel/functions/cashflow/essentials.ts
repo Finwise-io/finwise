@@ -7,6 +7,7 @@
 // Before this, the same figure was produced four ways (a screen division, the larger-of rule in
 // plannedMonthlySpend, the onboarding buckets, and unnamed) — second verification G21.
 import { toNum } from '../../../src/domain/_shared/num';
+import { localDay } from '../../../src/domain/_shared/dates';   // the one reader of a stored day (CF-21, 2026-10-25)
 
 export interface LoggedSpend { amount: any; date: string; category?: string }
 export interface EssentialsAverage {
@@ -34,10 +35,11 @@ export interface EssentialsMonthly { monthly: number; basis: 'logged' | 'entered
  *               MK-CF-F-157 debtPaymentsByDebt · MK-CF-F-189 essentialsFromLoggedSpending
  *               MK-CF-F-212 receivedInMonth · MK-CF-F-220 pastMonthFlow
  *               MK-CF-F-231 addedAfterRecord · MK-CF-F-235 paysInMonth
- *               MK-CF-F-236 paymentInMonth · MK-XS-F-008 normalizeSnapshot
- *               MK-XS-F-009 readHistory · MK-XS-F-175 uid
+ *               MK-CF-F-236 paymentInMonth · MK-CF-F-251 debtPaymentsMatched
+ *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-009 readHistory
+ *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 393 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 390 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -47,7 +49,7 @@ export interface EssentialsMonthly { monthly: number; basis: 'logged' | 'entered
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 375 more — the full list is on functions_from_code
+ *               … and 372 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -72,17 +74,9 @@ const ym = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
  *
  * Called by ... MK-CF-F-190 essentialsMonthly
  *
- * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-079 EF · MK-NW-F-082 NW
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-190 essentialsMonthly · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               … and 38 more — the full list is on functions_from_code
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-CF-F-190 essentialsMonthly
+ *               MK-XS-F-199 profileOnTheWayIn · MK-NW-O-004 theEmergencyFund
  *
  * Serves ...... MK-MN-M-020 · MK-MN-M-021
  * Reads ....... MK-XS-I-024 logged expenses
@@ -103,7 +97,7 @@ export function essentialsFromLoggedSpending(expenses: LoggedSpend[], now: Date 
   for (let k = 12; k >= 1; k--) window.push(ym(new Date(now.getFullYear(), now.getMonth() - k, 1)));
   const byMonth = new Map<string, number>();
   for (const e of expenses ?? []) {
-    const m = String(e?.date ?? '').slice(0, 7);
+    const m = localDay(e?.date).slice(0, 7);
     if (!/^\d{4}-\d{2}$/.test(m)) continue;
     byMonth.set(m, (byMonth.get(m) ?? 0) + toNum(e.amount));
   }
@@ -131,17 +125,9 @@ export function essentialsFromLoggedSpending(expenses: LoggedSpend[], now: Date 
  *
  * Called by ... MK-NW-F-079 EF · MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 55 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-079 EF · MK-NW-F-082 NW
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 37 more — the full list is on functions_from_code
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-079 EF · MK-XS-F-199 profileOnTheWayIn
+ *               MK-NW-O-004 theEmergencyFund
  *
  * Serves ...... MK-MN-M-024 · MK-MN-M-025 · MK-MN-M-026 · MK-NW-M-013
  *               MK-NW-M-014

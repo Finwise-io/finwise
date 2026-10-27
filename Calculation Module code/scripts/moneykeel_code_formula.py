@@ -409,16 +409,16 @@ OVERRIDES = {
    'The signed cash effect of one transaction on its account, for display: money arriving is positive (a deposit, a sale, a payout that was not reinvested), money leaving is negative (a withdrawal, a fee, a transfer out, a purchase). A reinvested payout moves no cash.'),
  'zero12': ('the answer = twelve zeros, one per month',
    'Twelve zeros, one per calendar month — the empty grid a month-by-month figure is built on. No arithmetic.'),
- 'addDays': ('the answer = d + n × 86,400,000 milliseconds',
-   'The date n days after d — adding whole days in milliseconds.'),
+ 'addDays': ('the answer = the same clock time, n calendar days after d (year, month, day + n)',
+   'The date n calendar days after d, counted on the calendar — never in milliseconds, so a day the clocks change on (23 or 25 hours long) is still one day (2026-10-25).'),
  'findPos': ('the answer = the first holding in the account whose position id matches, or whose ticker matches (case-insensitive)',
    'Finds the holding a transaction refers to — by position identifier first, then by ticker. No arithmetic.'),
  'inMonth': ("the answer = true when the expense date starts with the month text 'YYYY-MM'",
    'Whether a logged expense falls in the given month: its date begins with that year and month. No arithmetic.'),
  'recurringDebtPayments': ("for each debt whose payment shape is 'installment' and whose required payment > 0: { label, monthly = required payment(debt) }",
    'The instalment debts — mortgage, car, loans — each with its required monthly payment (MK-CF-F-023). A debt due in full is not an instalment and is left out; so is one with no payment.'),
- 'daysBetweenDates': ('the answer = round((b − a) in milliseconds ÷ 86,400,000)',
-   'Whole days between two dates, rounded to the nearest day.'),
+ 'daysBetweenDates': ('the answer = the calendar day of b − the calendar day of a (each the local date, counted)',
+   'Whole calendar days between two dates on the person\'s own calendar (DEC-0189): 23:59 to 00:01 is one day, two times on the same day are none — never elapsed time rounded (2026-10-25).'),
  'hasWage': ('the answer = w exists and (base salary > 0 or the salary-by-month table has entries)',
    'Whether an earner record carries a wage at all — a base salary above zero, or a month-by-month salary table with at least one entry. No arithmetic.'),
  'asPercent': ("the answer = (r × 100) followed by '%'",
@@ -503,8 +503,12 @@ OVERRIDES = {
    'Loads the crash reporter if it is installed. Not a calculation.'),
  'inflationRateInForce': ("entered = the person's own rate from the cockpit, when set\nthe answer = { rate: entered, basis 'entered', label 'you entered' }   when entered exists\n             { rate: 2.5%, basis 'default', label '2.5% — the 30-year average of consumer prices (Bureau of Labor Statistics, 1996–2025)' }   otherwise",
    "The person's own inflation rate when they set one on the cockpit; otherwise the dated default — 2.5% a year, the 30-year average of consumer prices — with its source, so the screen can say where the figure came from."),
- 'seniorDeductionFor': ('0   when the tax year is outside 2025–2028, or filing separately, or nobody on the return is 65+, or the income is not known\npeople = min(2, over65)\nfull = people × $6,000\nthe answer = max(0, full − 6% × max(0, magi − start))   start = $75,000 single / head of household · $150,000 married',
-   'Nothing when the year is outside 2025 to 2028, when the person files separately, when nobody on the return is 65 or older, or when the income is not known. Otherwise $6,000 for each person 65 or older (at most two), reduced by six cents for every dollar of income above $75,000 ($150,000 on a joint return), and never below zero.'),
+ # CORRECTED 2026-10-26 (PF-TOOLS; CFR-4's records finding): the formula said the 6% came off the couple's $12,000 once. The law
+ # takes it off EACH person's $6,000 (IRC §151(d)(5)(C)(iii)(I), "the $6,000 amount … shall be reduced"; IRS Schedule 1-A, lines
+ # 35–37), and so has the code since 2026-10-23. Joint, both 65+, $200,000: each 6,000 − 6% × 50,000 = 3,000, so $6,000 (the old
+ # formula read $9,000); at $250,000 each is 0, so $0 (it read $6,000).
+ 'seniorDeductionFor': ('0   when the tax year is outside 2025–2028, or filing separately, or nobody on the return is 65+, or the income is not known\npeople = min(2, over65)\neach = max(0, $6,000 − 6% × max(0, magi − start))   start = $75,000 single / head of household · $150,000 married\nthe answer = people × each',
+   'Nothing when the year is outside 2025 to 2028, when the person files separately, when nobody on the return is 65 or older, or when the income is not known. Otherwise $6,000 for each person 65 or older (at most two), each reduced by six cents for every dollar of income above $75,000 ($150,000 on a joint return), never below zero — the reduction comes off each person\'s $6,000, not off the two together (IRC §151(d)(5)(C)(iii)(I); Schedule 1-A).'),
  'deductionFor': ('t = TAX_TABLES[status]\nthe answer = deduction + min(2, max(0, over65)) × over65 add + senior deduction for(status, over65, magi)',
    'The standard deduction for the filing status, plus the 65-and-over add-on for each person 65+ (at most two), plus the senior deduction calculated by MK-CF-F-187 from the filing status, the number of people 65+ and the income.'),
  'taxableIncomeFor': ('max(0, gross − deduction for(status, over65, gross))   — gross is handed on as the income the senior deduction phases out against',
@@ -557,13 +561,18 @@ OVERRIDES = {
    '401(k) all counted the same way, with no class and no tax treatment applied. Then gives each '
    'account its share of the whole, and blends the target returns weighted by size. With nothing '
    'held at all, the blended return falls back to the built-in default.'),
+ # CORRECTED 2026-10-26 (PF-TOOLS; CFR-3's records finding): the formula said "rate > 10%" and rounded to 2 decimals. The code's
+ # line is 7% (TOXIC_APR, the one high-interest line the debt module, Net worth, Insights and the goals order all read — the goals
+ # order's spec says "toxic debt (>7%)") and nothing is rounded inside a function (his precision ruling Q49); a debt with no balance
+ # is left out of the total (DEC-3279e). $9,000 at 24% and $5,000 at 8%: high-cost $14,000 (the old formula read $9,000).
  'buildDebtState': (
-   'total debt balance = round(Σ over every debt of (remaining balance), 2 dp)\n'
-   'toxic debt         = round(Σ over debts where rate > 10% of (remaining balance), 2 dp)\n'
-   'highest rate debt  = the debt with the largest rate',
-   'Adds up what is still owed on every debt, in full and as of today — no interest accrued since '
-   'the balance was set, no maturity, no distinction between a mortgage and a card. Separately '
-   'totals the debts above the toxic rate, and names the single most expensive one.'),
+   'total debt balance = Σ over the debts whose balance is known of (remaining balance)   — a debt with no balance is left out (totalDebtBalance)\n'
+   'toxic debt         = Σ over debts whose yearly rate is above 7% of (remaining balance)\n'
+   'highest rate debt  = the debt with the largest rate (the first of equals)\n'
+   'minimum a month    = minimum debt service · actual payment a month = actual debt payment',
+   'Adds up what is still owed on the debts whose balance is known, as of today — no interest accrued since '
+   'the balance was set, no distinction between a mortgage and a card; a debt with no balance is left out, never counted as zero. '
+   'Separately totals the debts above 7% a year (the one high-interest line), and names the single most expensive one. Nothing is rounded.'),
  'marketValue': (
    'market value(holding) = round(total shares × price, 2 dp)\n'
    '                      = 0   when no price came back',
@@ -646,7 +655,9 @@ OVERRIDES = {
    '                                              or smallest balance (snowball)\n'
    '             a debt clears when its balance falls to a cent or less, and its payment\n'
    '                 rolls into the budget for the next one\n'
-   'stops at 600 months and reports "never pays off"',
+   'never pays off ONLY when proven: once every payment has started, the budget is no more than\n'
+   '    what the highest-rate debts earn at the lowest of their rates (what they owe can never fall)\n'
+   'walks at most 12,000 months; still owed then and falling = past the horizon, with what is still owed',
    'Rolls every debt forward a month at a time on one constant budget. Interest is charged before '
    'anything is paid. Debts due in full as a lump are taken out of this and settled in their own '
    'month. A loan whose first payment has not arrived still accrues interest but is not paid. The '

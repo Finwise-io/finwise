@@ -1,0 +1,2962 @@
+{
+  "primary_sources": [
+    {
+      "key": "irs_2026",
+      "source": "IRS Revenue Procedure 2025-32",
+      "url": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf",
+      "sections": "4.01,4.03,4.14",
+      "checked_on": "2026-10-24",
+      "scope": "2026 ordinary bands, capital-gain thresholds, standard and aged deductions"
+    },
+    {
+      "key": "retirement_2026",
+      "source": "IRS Notice 2025-67",
+      "url": "https://www.irs.gov/pub/irs-drop/n-25-67.pdf",
+      "sections": "2026 cost-of-living adjusted limitations",
+      "checked_on": "2026-10-24",
+      "scope": "401(k),IRA,catch-up amounts and age60–63 replacement catch-up"
+    },
+    {
+      "key": "hsa_2026",
+      "source": "IRS Revenue Procedure 2025-19",
+      "url": "https://www.irs.gov/pub/irs-drop/rp-25-19.pdf",
+      "sections": "2.01(1)",
+      "checked_on": "2026-10-24",
+      "scope": "2026 HSA self/family bases"
+    },
+    {
+      "key": "senior",
+      "source": "IRS Schedule1-A (2025), statutory phaseout mechanics",
+      "url": "https://www.irs.gov/pub/irs-pdf/f1040s1a.pdf",
+      "sections": "PartI;PartV lines31–37",
+      "checked_on": "2026-10-24",
+      "scope": "MAGI,per-personphaseout,marriedjointeligibility;2025 form used for mechanics,not2026 ordinary bracket values"
+    },
+    {
+      "key": "ssa",
+      "source": "SSA Contribution and Benefit Base",
+      "url": "https://www.ssa.gov/oact/cola/cbb.html",
+      "sections": "2026 base and employee OASDI rate",
+      "checked_on": "2026-10-24"
+    },
+    {
+      "key": "medicare",
+      "source": "IRS Topic560 and Additional Medicare questions/answers",
+      "url": "https://www.irs.gov/taxtopics/tc560",
+      "additional_url": "https://www.irs.gov/businesses/small-businesses-self-employed/questions-and-answers-for-the-additional-medicare-tax",
+      "sections": "Employer withholding versus filing-status liability",
+      "checked_on": "2026-10-24"
+    },
+    {
+      "key": "hsa_eligibility",
+      "source": "IRS Publication969",
+      "url": "https://www.irs.gov/publications/p969",
+      "sections": "Additional contribution;Enrolled in Medicare;employer contributions;last-month rule",
+      "checked_on": "2026-10-24",
+      "scope": "2025 publication used for continuing eligibility mechanics;2026 dollar bases from RP2025-19"
+    },
+    {
+      "key": "social_security",
+      "source": "IRS Publication915",
+      "url": "https://www.irs.gov/publications/p915",
+      "sections": "Whether benefits are taxable;combined-income worksheet",
+      "checked_on": "2026-10-24"
+    },
+    {
+      "key": "gains",
+      "source": "IRS Instructions for ScheduleD",
+      "url": "https://www.irs.gov/instructions/i1040sd",
+      "sections": "ScheduleD Tax Worksheet",
+      "checked_on": "2026-10-24",
+      "scope": "Stacking mechanism only;2026 thresholds fromRP2025-32"
+    },
+    {
+      "key": "age65",
+      "source": "IRS Form1040 instructions",
+      "url": "https://www.irs.gov/instructions/i1040gi",
+      "sections": "Line12d;age attained day before65thbirthday",
+      "checked_on": "2026-10-24",
+      "scope": "Age mechanism;2026 threshold advanced one year from2025 form"
+    }
+  ],
+  "source_checks": [
+    {
+      "topic": "Federal income tax2026—bands by filing status",
+      "verdict": "RIGHT",
+      "why": "All four printed ordinary-income band tables and rates match the2026 primary publication; this verifies constants,not complete return-level tax treatment.",
+      "source": {
+        "key": "irs_2026",
+        "source": "IRS Revenue Procedure 2025-32",
+        "url": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf",
+        "sections": "4.01,4.03,4.14",
+        "checked_on": "2026-10-24",
+        "scope": "2026 ordinary bands, capital-gain thresholds, standard and aged deductions"
+      },
+      "witnesses": [
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 12400
+          },
+          "expected": {
+            "exact": "1240.0",
+            "shown": "$1,240.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 12401
+          },
+          "expected": {
+            "exact": "1240.12",
+            "shown": "$1,240.12"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "1",
+              "rate": "0.12",
+              "tax": "0.12"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 50400
+          },
+          "expected": {
+            "exact": "5800.00",
+            "shown": "$5,800.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 50401
+          },
+          "expected": {
+            "exact": "5800.22",
+            "shown": "$5,800.22"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "1",
+              "rate": "0.22",
+              "tax": "0.22"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 105700
+          },
+          "expected": {
+            "exact": "17966.00",
+            "shown": "$17,966.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 105701
+          },
+          "expected": {
+            "exact": "17966.24",
+            "shown": "$17,966.24"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "1",
+              "rate": "0.24",
+              "tax": "0.24"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 201775
+          },
+          "expected": {
+            "exact": "41024.00",
+            "shown": "$41,024.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 201776
+          },
+          "expected": {
+            "exact": "41024.32",
+            "shown": "$41,024.32"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "1",
+              "rate": "0.32",
+              "tax": "0.32"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 256225
+          },
+          "expected": {
+            "exact": "58448.00",
+            "shown": "$58,448.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 256226
+          },
+          "expected": {
+            "exact": "58448.35",
+            "shown": "$58,448.35"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256225",
+              "slice": "1",
+              "rate": "0.35",
+              "tax": "0.35"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 640600
+          },
+          "expected": {
+            "exact": "192979.25",
+            "shown": "$192,979.25"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256225",
+              "slice": "384375",
+              "rate": "0.35",
+              "tax": "134531.25"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 640601
+          },
+          "expected": {
+            "exact": "192979.62",
+            "shown": "$192,979.62"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256225",
+              "slice": "384375",
+              "rate": "0.35",
+              "tax": "134531.25"
+            },
+            {
+              "lower": "640600",
+              "slice": "1",
+              "rate": "0.37",
+              "tax": "0.37"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 24800
+          },
+          "expected": {
+            "exact": "2480.0",
+            "shown": "$2,480.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 24801
+          },
+          "expected": {
+            "exact": "2480.12",
+            "shown": "$2,480.12"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "1",
+              "rate": "0.12",
+              "tax": "0.12"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 100800
+          },
+          "expected": {
+            "exact": "11600.00",
+            "shown": "$11,600.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 100801
+          },
+          "expected": {
+            "exact": "11600.22",
+            "shown": "$11,600.22"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "1",
+              "rate": "0.22",
+              "tax": "0.22"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 211400
+          },
+          "expected": {
+            "exact": "35932.00",
+            "shown": "$35,932.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "110600",
+              "rate": "0.22",
+              "tax": "24332.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 211401
+          },
+          "expected": {
+            "exact": "35932.24",
+            "shown": "$35,932.24"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "110600",
+              "rate": "0.22",
+              "tax": "24332.00"
+            },
+            {
+              "lower": "211400",
+              "slice": "1",
+              "rate": "0.24",
+              "tax": "0.24"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 403550
+          },
+          "expected": {
+            "exact": "82048.00",
+            "shown": "$82,048.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "110600",
+              "rate": "0.22",
+              "tax": "24332.00"
+            },
+            {
+              "lower": "211400",
+              "slice": "192150",
+              "rate": "0.24",
+              "tax": "46116.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 403551
+          },
+          "expected": {
+            "exact": "82048.32",
+            "shown": "$82,048.32"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "110600",
+              "rate": "0.22",
+              "tax": "24332.00"
+            },
+            {
+              "lower": "211400",
+              "slice": "192150",
+              "rate": "0.24",
+              "tax": "46116.00"
+            },
+            {
+              "lower": "403550",
+              "slice": "1",
+              "rate": "0.32",
+              "tax": "0.32"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 512450
+          },
+          "expected": {
+            "exact": "116896.00",
+            "shown": "$116,896.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "110600",
+              "rate": "0.22",
+              "tax": "24332.00"
+            },
+            {
+              "lower": "211400",
+              "slice": "192150",
+              "rate": "0.24",
+              "tax": "46116.00"
+            },
+            {
+              "lower": "403550",
+              "slice": "108900",
+              "rate": "0.32",
+              "tax": "34848.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 512451
+          },
+          "expected": {
+            "exact": "116896.35",
+            "shown": "$116,896.35"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "110600",
+              "rate": "0.22",
+              "tax": "24332.00"
+            },
+            {
+              "lower": "211400",
+              "slice": "192150",
+              "rate": "0.24",
+              "tax": "46116.00"
+            },
+            {
+              "lower": "403550",
+              "slice": "108900",
+              "rate": "0.32",
+              "tax": "34848.00"
+            },
+            {
+              "lower": "512450",
+              "slice": "1",
+              "rate": "0.35",
+              "tax": "0.35"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 768700
+          },
+          "expected": {
+            "exact": "206583.50",
+            "shown": "$206,583.50"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "110600",
+              "rate": "0.22",
+              "tax": "24332.00"
+            },
+            {
+              "lower": "211400",
+              "slice": "192150",
+              "rate": "0.24",
+              "tax": "46116.00"
+            },
+            {
+              "lower": "403550",
+              "slice": "108900",
+              "rate": "0.32",
+              "tax": "34848.00"
+            },
+            {
+              "lower": "512450",
+              "slice": "256250",
+              "rate": "0.35",
+              "tax": "89687.50"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 768701
+          },
+          "expected": {
+            "exact": "206583.87",
+            "shown": "$206,583.87"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "110600",
+              "rate": "0.22",
+              "tax": "24332.00"
+            },
+            {
+              "lower": "211400",
+              "slice": "192150",
+              "rate": "0.24",
+              "tax": "46116.00"
+            },
+            {
+              "lower": "403550",
+              "slice": "108900",
+              "rate": "0.32",
+              "tax": "34848.00"
+            },
+            {
+              "lower": "512450",
+              "slice": "256250",
+              "rate": "0.35",
+              "tax": "89687.50"
+            },
+            {
+              "lower": "768700",
+              "slice": "1",
+              "rate": "0.37",
+              "tax": "0.37"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 12400
+          },
+          "expected": {
+            "exact": "1240.0",
+            "shown": "$1,240.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 12401
+          },
+          "expected": {
+            "exact": "1240.12",
+            "shown": "$1,240.12"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "1",
+              "rate": "0.12",
+              "tax": "0.12"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 50400
+          },
+          "expected": {
+            "exact": "5800.00",
+            "shown": "$5,800.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 50401
+          },
+          "expected": {
+            "exact": "5800.22",
+            "shown": "$5,800.22"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "1",
+              "rate": "0.22",
+              "tax": "0.22"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 105700
+          },
+          "expected": {
+            "exact": "17966.00",
+            "shown": "$17,966.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 105701
+          },
+          "expected": {
+            "exact": "17966.24",
+            "shown": "$17,966.24"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "1",
+              "rate": "0.24",
+              "tax": "0.24"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 201775
+          },
+          "expected": {
+            "exact": "41024.00",
+            "shown": "$41,024.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 201776
+          },
+          "expected": {
+            "exact": "41024.32",
+            "shown": "$41,024.32"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "1",
+              "rate": "0.32",
+              "tax": "0.32"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 256225
+          },
+          "expected": {
+            "exact": "58448.00",
+            "shown": "$58,448.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 256226
+          },
+          "expected": {
+            "exact": "58448.35",
+            "shown": "$58,448.35"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256225",
+              "slice": "1",
+              "rate": "0.35",
+              "tax": "0.35"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 384350
+          },
+          "expected": {
+            "exact": "103291.75",
+            "shown": "$103,291.75"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256225",
+              "slice": "128125",
+              "rate": "0.35",
+              "tax": "44843.75"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 384351
+          },
+          "expected": {
+            "exact": "103292.12",
+            "shown": "$103,292.12"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256225",
+              "slice": "128125",
+              "rate": "0.35",
+              "tax": "44843.75"
+            },
+            {
+              "lower": "384350",
+              "slice": "1",
+              "rate": "0.37",
+              "tax": "0.37"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 17700
+          },
+          "expected": {
+            "exact": "1770.0",
+            "shown": "$1,770.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 17701
+          },
+          "expected": {
+            "exact": "1770.12",
+            "shown": "$1,770.12"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "1",
+              "rate": "0.12",
+              "tax": "0.12"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 67450
+          },
+          "expected": {
+            "exact": "7740.00",
+            "shown": "$7,740.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 67451
+          },
+          "expected": {
+            "exact": "7740.22",
+            "shown": "$7,740.22"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "1",
+              "rate": "0.22",
+              "tax": "0.22"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 105700
+          },
+          "expected": {
+            "exact": "16155.00",
+            "shown": "$16,155.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "38250",
+              "rate": "0.22",
+              "tax": "8415.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 105701
+          },
+          "expected": {
+            "exact": "16155.24",
+            "shown": "$16,155.24"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "38250",
+              "rate": "0.22",
+              "tax": "8415.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "1",
+              "rate": "0.24",
+              "tax": "0.24"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 201750
+          },
+          "expected": {
+            "exact": "39207.00",
+            "shown": "$39,207.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "38250",
+              "rate": "0.22",
+              "tax": "8415.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96050",
+              "rate": "0.24",
+              "tax": "23052.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 201751
+          },
+          "expected": {
+            "exact": "39207.32",
+            "shown": "$39,207.32"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "38250",
+              "rate": "0.22",
+              "tax": "8415.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96050",
+              "rate": "0.24",
+              "tax": "23052.00"
+            },
+            {
+              "lower": "201750",
+              "slice": "1",
+              "rate": "0.32",
+              "tax": "0.32"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 256200
+          },
+          "expected": {
+            "exact": "56631.00",
+            "shown": "$56,631.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "38250",
+              "rate": "0.22",
+              "tax": "8415.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96050",
+              "rate": "0.24",
+              "tax": "23052.00"
+            },
+            {
+              "lower": "201750",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 256201
+          },
+          "expected": {
+            "exact": "56631.35",
+            "shown": "$56,631.35"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "38250",
+              "rate": "0.22",
+              "tax": "8415.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96050",
+              "rate": "0.24",
+              "tax": "23052.00"
+            },
+            {
+              "lower": "201750",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256200",
+              "slice": "1",
+              "rate": "0.35",
+              "tax": "0.35"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 640600
+          },
+          "expected": {
+            "exact": "191171.00",
+            "shown": "$191,171.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "38250",
+              "rate": "0.22",
+              "tax": "8415.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96050",
+              "rate": "0.24",
+              "tax": "23052.00"
+            },
+            {
+              "lower": "201750",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256200",
+              "slice": "384400",
+              "rate": "0.35",
+              "tax": "134540.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 640601
+          },
+          "expected": {
+            "exact": "191171.37",
+            "shown": "$191,171.37"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "38250",
+              "rate": "0.22",
+              "tax": "8415.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96050",
+              "rate": "0.24",
+              "tax": "23052.00"
+            },
+            {
+              "lower": "201750",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256200",
+              "slice": "384400",
+              "rate": "0.35",
+              "tax": "134540.00"
+            },
+            {
+              "lower": "640600",
+              "slice": "1",
+              "rate": "0.37",
+              "tax": "0.37"
+            }
+          ]
+        }
+      ],
+      "amounts_checked": {
+        "single": [
+          [
+            12400,
+            0.1
+          ],
+          [
+            50400,
+            0.12
+          ],
+          [
+            105700,
+            0.22
+          ],
+          [
+            201775,
+            0.24
+          ],
+          [
+            256225,
+            0.32
+          ],
+          [
+            640600,
+            0.35
+          ],
+          [
+            null,
+            0.37
+          ]
+        ],
+        "married": [
+          [
+            24800,
+            0.1
+          ],
+          [
+            100800,
+            0.12
+          ],
+          [
+            211400,
+            0.22
+          ],
+          [
+            403550,
+            0.24
+          ],
+          [
+            512450,
+            0.32
+          ],
+          [
+            768700,
+            0.35
+          ],
+          [
+            null,
+            0.37
+          ]
+        ],
+        "mfs": [
+          [
+            12400,
+            0.1
+          ],
+          [
+            50400,
+            0.12
+          ],
+          [
+            105700,
+            0.22
+          ],
+          [
+            201775,
+            0.24
+          ],
+          [
+            256225,
+            0.32
+          ],
+          [
+            384350,
+            0.35
+          ],
+          [
+            null,
+            0.37
+          ]
+        ],
+        "hoh": [
+          [
+            17700,
+            0.1
+          ],
+          [
+            67450,
+            0.12
+          ],
+          [
+            105700,
+            0.22
+          ],
+          [
+            201750,
+            0.24
+          ],
+          [
+            256200,
+            0.32
+          ],
+          [
+            640600,
+            0.35
+          ],
+          [
+            null,
+            0.37
+          ]
+        ]
+      }
+    },
+    {
+      "topic": "Standard deduction and age65 additions2026",
+      "verdict": "RIGHT",
+      "why": "All printed amounts match RP2025-32. Joint returns add the age amount once per eligible spouse; eligibility is tested for the taxyear,including the January1 birthday convention.",
+      "source": {
+        "key": "irs_2026",
+        "source": "IRS Revenue Procedure 2025-32",
+        "url": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf",
+        "sections": "4.01,4.03,4.14",
+        "checked_on": "2026-10-24",
+        "scope": "2026 ordinary bands, capital-gain thresholds, standard and aged deductions"
+      },
+      "eligibility_source": {
+        "key": "age65",
+        "source": "IRS Form1040 instructions",
+        "url": "https://www.irs.gov/instructions/i1040gi",
+        "sections": "Line12d;age attained day before65thbirthday",
+        "checked_on": "2026-10-24",
+        "scope": "Age mechanism;2026 threshold advanced one year from2025 form"
+      },
+      "witnesses": [
+        {
+          "input": {
+            "filing_status": "single",
+            "eligible_people65_plus": 0
+          },
+          "expected": {
+            "exact": "16100",
+            "shown": "$16,100"
+          },
+          "working": [
+            "16100 + 2050 × 0; excludes separate enhanced senior deduction."
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "eligible_people65_plus": 1
+          },
+          "expected": {
+            "exact": "18150",
+            "shown": "$18,150"
+          },
+          "working": [
+            "16100 + 2050 × 1; excludes separate enhanced senior deduction."
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "eligible_people65_plus": 0
+          },
+          "expected": {
+            "exact": "32200",
+            "shown": "$32,200"
+          },
+          "working": [
+            "32200 + 1650 × 0; excludes separate enhanced senior deduction."
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "eligible_people65_plus": 1
+          },
+          "expected": {
+            "exact": "33850",
+            "shown": "$33,850"
+          },
+          "working": [
+            "32200 + 1650 × 1; excludes separate enhanced senior deduction."
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "eligible_people65_plus": 2
+          },
+          "expected": {
+            "exact": "35500",
+            "shown": "$35,500"
+          },
+          "working": [
+            "32200 + 1650 × 2; excludes separate enhanced senior deduction."
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "eligible_people65_plus": 0
+          },
+          "expected": {
+            "exact": "16100",
+            "shown": "$16,100"
+          },
+          "working": [
+            "16100 + 1650 × 0; excludes separate enhanced senior deduction."
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "eligible_people65_plus": 1
+          },
+          "expected": {
+            "exact": "17750",
+            "shown": "$17,750"
+          },
+          "working": [
+            "16100 + 1650 × 1; excludes separate enhanced senior deduction."
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "eligible_people65_plus": 0
+          },
+          "expected": {
+            "exact": "24150",
+            "shown": "$24,150"
+          },
+          "working": [
+            "24150 + 2050 × 0; excludes separate enhanced senior deduction."
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "eligible_people65_plus": 1
+          },
+          "expected": {
+            "exact": "26200",
+            "shown": "$26,200"
+          },
+          "working": [
+            "24150 + 2050 × 1; excludes separate enhanced senior deduction."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Enhanced senior deduction2025–2028",
+      "verdict": "RIGHT",
+      "why": "Printed amount,years,6%per-personphaseout and filing restrictions match the law/form. MissingMAGI/SSN/age is an eligibility gap,not a different statutory constant.",
+      "source": {
+        "key": "senior",
+        "source": "IRS Schedule1-A (2025), statutory phaseout mechanics",
+        "url": "https://www.irs.gov/pub/irs-pdf/f1040s1a.pdf",
+        "sections": "PartI;PartV lines31–37",
+        "checked_on": "2026-10-24",
+        "scope": "MAGI,per-personphaseout,marriedjointeligibility;2025 form used for mechanics,not2026 ordinary bracket values"
+      },
+      "witnesses": [
+        {
+          "input": {
+            "status": "married",
+            "eligible_people": 2,
+            "magi": 150000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "12000.00",
+            "shown": "$12,000"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "married",
+            "eligible_people": 2,
+            "magi": 175000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "9000.00",
+            "shown": "$9,000"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "married",
+            "eligible_people": 2,
+            "magi": 200000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "6000.00",
+            "shown": "$6,000"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "married",
+            "eligible_people": 2,
+            "magi": 250000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "0",
+            "shown": "$0"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "single",
+            "eligible_people": 1,
+            "magi": 75000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "6000.00",
+            "shown": "$6,000"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "single",
+            "eligible_people": 1,
+            "magi": 100000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "4500.00",
+            "shown": "$4,500"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "single",
+            "eligible_people": 1,
+            "magi": 125000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "3000.00",
+            "shown": "$3,000"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "single",
+            "eligible_people": 1,
+            "magi": 175000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "0",
+            "shown": "$0"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "mfs",
+            "eligible_people": 1,
+            "magi": 50000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "0",
+            "shown": "$0"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "mfs",
+            "eligible_people": 1,
+            "magi": 150000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "0",
+            "shown": "$0"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Long-term capital gains2026thresholds",
+      "verdict": "RIGHT",
+      "why": "All printed thresholds match. Ordinary income fills lower bands first; a finite gain can cross bands,so a single baseline rate cannot calculate its total tax.",
+      "source": {
+        "key": "irs_2026",
+        "source": "IRS Revenue Procedure 2025-32",
+        "url": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf",
+        "sections": "4.01,4.03,4.14",
+        "checked_on": "2026-10-24",
+        "scope": "2026 ordinary bands, capital-gain thresholds, standard and aged deductions"
+      },
+      "mechanics_source": {
+        "key": "gains",
+        "source": "IRS Instructions for ScheduleD",
+        "url": "https://www.irs.gov/instructions/i1040sd",
+        "sections": "ScheduleD Tax Worksheet",
+        "checked_on": "2026-10-24",
+        "scope": "Stacking mechanism only;2026 thresholds fromRP2025-32"
+      },
+      "witnesses": [
+        {
+          "input": {
+            "status": "single",
+            "taxable_income_at_lookup": 49450
+          },
+          "expected": {
+            "exact": "0",
+            "shown": "0.00%"
+          },
+          "working": [
+            "Compare 49450 with 49450 and 545500; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "single",
+            "taxable_income_at_lookup": 49451
+          },
+          "expected": {
+            "exact": "0.15",
+            "shown": "15.00%"
+          },
+          "working": [
+            "Compare 49451 with 49450 and 545500; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "single",
+            "taxable_income_at_lookup": 545500
+          },
+          "expected": {
+            "exact": "0.15",
+            "shown": "15.00%"
+          },
+          "working": [
+            "Compare 545500 with 49450 and 545500; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "single",
+            "taxable_income_at_lookup": 545501
+          },
+          "expected": {
+            "exact": "0.2",
+            "shown": "20.00%"
+          },
+          "working": [
+            "Compare 545501 with 49450 and 545500; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "married",
+            "taxable_income_at_lookup": 98900
+          },
+          "expected": {
+            "exact": "0",
+            "shown": "0.00%"
+          },
+          "working": [
+            "Compare 98900 with 98900 and 613700; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "married",
+            "taxable_income_at_lookup": 98901
+          },
+          "expected": {
+            "exact": "0.15",
+            "shown": "15.00%"
+          },
+          "working": [
+            "Compare 98901 with 98900 and 613700; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "married",
+            "taxable_income_at_lookup": 613700
+          },
+          "expected": {
+            "exact": "0.15",
+            "shown": "15.00%"
+          },
+          "working": [
+            "Compare 613700 with 98900 and 613700; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "married",
+            "taxable_income_at_lookup": 613701
+          },
+          "expected": {
+            "exact": "0.2",
+            "shown": "20.00%"
+          },
+          "working": [
+            "Compare 613701 with 98900 and 613700; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "mfs",
+            "taxable_income_at_lookup": 49450
+          },
+          "expected": {
+            "exact": "0",
+            "shown": "0.00%"
+          },
+          "working": [
+            "Compare 49450 with 49450 and 306850; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "mfs",
+            "taxable_income_at_lookup": 49451
+          },
+          "expected": {
+            "exact": "0.15",
+            "shown": "15.00%"
+          },
+          "working": [
+            "Compare 49451 with 49450 and 306850; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "mfs",
+            "taxable_income_at_lookup": 306850
+          },
+          "expected": {
+            "exact": "0.15",
+            "shown": "15.00%"
+          },
+          "working": [
+            "Compare 306850 with 49450 and 306850; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "mfs",
+            "taxable_income_at_lookup": 306851
+          },
+          "expected": {
+            "exact": "0.2",
+            "shown": "20.00%"
+          },
+          "working": [
+            "Compare 306851 with 49450 and 306850; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "hoh",
+            "taxable_income_at_lookup": 66200
+          },
+          "expected": {
+            "exact": "0",
+            "shown": "0.00%"
+          },
+          "working": [
+            "Compare 66200 with 66200 and 579600; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "hoh",
+            "taxable_income_at_lookup": 66201
+          },
+          "expected": {
+            "exact": "0.15",
+            "shown": "15.00%"
+          },
+          "working": [
+            "Compare 66201 with 66200 and 579600; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "hoh",
+            "taxable_income_at_lookup": 579600
+          },
+          "expected": {
+            "exact": "0.15",
+            "shown": "15.00%"
+          },
+          "working": [
+            "Compare 579600 with 66200 and 579600; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "hoh",
+            "taxable_income_at_lookup": 579601
+          },
+          "expected": {
+            "exact": "0.2",
+            "shown": "20.00%"
+          },
+          "working": [
+            "Compare 579601 with 66200 and 579600; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "single",
+            "ordinary_taxable": 48111.17,
+            "gain": 3311.43
+          },
+          "expected": {
+            "exact": "295.89",
+            "shown": "$295.89"
+          },
+          "working": [
+            "1338.83 at0%;1972.60 at15%;tax295.89."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Contribution limits2026",
+      "verdict": "RIGHT",
+      "why": "All printed base/catchup amounts match primary sources. Ceilings require plan/compensation/coverage eligibility;usedYTD must not be inferred from a monthly plan.",
+      "source": {
+        "key": "retirement_2026",
+        "source": "IRS Notice 2025-67",
+        "url": "https://www.irs.gov/pub/irs-drop/n-25-67.pdf",
+        "sections": "2026 cost-of-living adjusted limitations",
+        "checked_on": "2026-10-24",
+        "scope": "401(k),IRA,catch-up amounts and age60–63 replacement catch-up"
+      },
+      "hsa_source": {
+        "key": "hsa_2026",
+        "source": "IRS Revenue Procedure 2025-19",
+        "url": "https://www.irs.gov/pub/irs-drop/rp-25-19.pdf",
+        "sections": "2.01(1)",
+        "checked_on": "2026-10-24",
+        "scope": "2026 HSA self/family bases"
+      },
+      "eligibility_source": {
+        "key": "hsa_eligibility",
+        "source": "IRS Publication969",
+        "url": "https://www.irs.gov/publications/p969",
+        "sections": "Additional contribution;Enrolled in Medicare;employer contributions;last-month rule",
+        "checked_on": "2026-10-24",
+        "scope": "2025 publication used for continuing eligibility mechanics;2026 dollar bases from RP2025-19"
+      },
+      "witnesses": [
+        {
+          "input": {
+            "age_attained_in2026": 49,
+            "full_year_eligible": true
+          },
+          "expected": {
+            "k": {
+              "exact": "24500"
+            },
+            "ira": {
+              "exact": "7500"
+            },
+            "hsa_self": {
+              "exact": "4400"
+            },
+            "hsa_family_one_person_catchup": {
+              "exact": "8750"
+            }
+          },
+          "working": [
+            "2026 bases24500,7500,4400,8750;add only applicable catchup;60–63 replaces standard401(k)catchup."
+          ]
+        },
+        {
+          "input": {
+            "age_attained_in2026": 50,
+            "full_year_eligible": true
+          },
+          "expected": {
+            "k": {
+              "exact": "32500"
+            },
+            "ira": {
+              "exact": "8600"
+            },
+            "hsa_self": {
+              "exact": "4400"
+            },
+            "hsa_family_one_person_catchup": {
+              "exact": "8750"
+            }
+          },
+          "working": [
+            "2026 bases24500,7500,4400,8750;add only applicable catchup;60–63 replaces standard401(k)catchup."
+          ]
+        },
+        {
+          "input": {
+            "age_attained_in2026": 54,
+            "full_year_eligible": true
+          },
+          "expected": {
+            "k": {
+              "exact": "32500"
+            },
+            "ira": {
+              "exact": "8600"
+            },
+            "hsa_self": {
+              "exact": "4400"
+            },
+            "hsa_family_one_person_catchup": {
+              "exact": "8750"
+            }
+          },
+          "working": [
+            "2026 bases24500,7500,4400,8750;add only applicable catchup;60–63 replaces standard401(k)catchup."
+          ]
+        },
+        {
+          "input": {
+            "age_attained_in2026": 55,
+            "full_year_eligible": true
+          },
+          "expected": {
+            "k": {
+              "exact": "32500"
+            },
+            "ira": {
+              "exact": "8600"
+            },
+            "hsa_self": {
+              "exact": "5400"
+            },
+            "hsa_family_one_person_catchup": {
+              "exact": "9750"
+            }
+          },
+          "working": [
+            "2026 bases24500,7500,4400,8750;add only applicable catchup;60–63 replaces standard401(k)catchup."
+          ]
+        },
+        {
+          "input": {
+            "age_attained_in2026": 59,
+            "full_year_eligible": true
+          },
+          "expected": {
+            "k": {
+              "exact": "32500"
+            },
+            "ira": {
+              "exact": "8600"
+            },
+            "hsa_self": {
+              "exact": "5400"
+            },
+            "hsa_family_one_person_catchup": {
+              "exact": "9750"
+            }
+          },
+          "working": [
+            "2026 bases24500,7500,4400,8750;add only applicable catchup;60–63 replaces standard401(k)catchup."
+          ]
+        },
+        {
+          "input": {
+            "age_attained_in2026": 60,
+            "full_year_eligible": true
+          },
+          "expected": {
+            "k": {
+              "exact": "35750"
+            },
+            "ira": {
+              "exact": "8600"
+            },
+            "hsa_self": {
+              "exact": "5400"
+            },
+            "hsa_family_one_person_catchup": {
+              "exact": "9750"
+            }
+          },
+          "working": [
+            "2026 bases24500,7500,4400,8750;add only applicable catchup;60–63 replaces standard401(k)catchup."
+          ]
+        },
+        {
+          "input": {
+            "age_attained_in2026": 63,
+            "full_year_eligible": true
+          },
+          "expected": {
+            "k": {
+              "exact": "35750"
+            },
+            "ira": {
+              "exact": "8600"
+            },
+            "hsa_self": {
+              "exact": "5400"
+            },
+            "hsa_family_one_person_catchup": {
+              "exact": "9750"
+            }
+          },
+          "working": [
+            "2026 bases24500,7500,4400,8750;add only applicable catchup;60–63 replaces standard401(k)catchup."
+          ]
+        },
+        {
+          "input": {
+            "age_attained_in2026": 64,
+            "full_year_eligible": true
+          },
+          "expected": {
+            "k": {
+              "exact": "32500"
+            },
+            "ira": {
+              "exact": "8600"
+            },
+            "hsa_self": {
+              "exact": "5400"
+            },
+            "hsa_family_one_person_catchup": {
+              "exact": "9750"
+            }
+          },
+          "working": [
+            "2026 bases24500,7500,4400,8750;add only applicable catchup;60–63 replaces standard401(k)catchup."
+          ]
+        },
+        {
+          "input": {
+            "age_attained": 65,
+            "medicare_start": "2026-07-01",
+            "self_only_eligible_months": 6
+          },
+          "expected": {
+            "exact": "2700",
+            "shown": "$2,700"
+          },
+          "working": [
+            "(4400+1000)×6/12=2700;currentMedicareenrollmentdoesnoterasetheeligiblefirstsixmonths."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Social Security and Medicare2026withholding",
+      "verdict": "RIGHT",
+      "why": "Printed employee rates,wagebase and employer200000threshold match primary sources. Household additional-tax thresholds differ:250000MFJ,125000MFS,200000other.",
+      "source": {
+        "key": "ssa",
+        "source": "SSA Contribution and Benefit Base",
+        "url": "https://www.ssa.gov/oact/cola/cbb.html",
+        "sections": "2026 base and employee OASDI rate",
+        "checked_on": "2026-10-24"
+      },
+      "medicare_source": {
+        "key": "medicare",
+        "source": "IRS Topic560 and Additional Medicare questions/answers",
+        "url": "https://www.irs.gov/taxtopics/tc560",
+        "additional_url": "https://www.irs.gov/businesses/small-businesses-self-employed/questions-and-answers-for-the-additional-medicare-tax",
+        "sections": "Employer withholding versus filing-status liability",
+        "checked_on": "2026-10-24"
+      },
+      "witnesses": [
+        {
+          "input": {
+            "annual_employee_wages": "0"
+          },
+          "expected": {
+            "exact": "0.0000",
+            "shown": "$0.00"
+          },
+          "working": [
+            "6.2%×min(0,184500)+1.45%×0+.9%×max(0,0−200000)."
+          ]
+        },
+        {
+          "input": {
+            "annual_employee_wages": "184500"
+          },
+          "expected": {
+            "exact": "14114.2500",
+            "shown": "$14,114.25"
+          },
+          "working": [
+            "6.2%×min(184500,184500)+1.45%×184500+.9%×max(0,184500−200000)."
+          ]
+        },
+        {
+          "input": {
+            "annual_employee_wages": "184501"
+          },
+          "expected": {
+            "exact": "14114.2645",
+            "shown": "$14,114.26"
+          },
+          "working": [
+            "6.2%×min(184501,184500)+1.45%×184501+.9%×max(0,184501−200000)."
+          ]
+        },
+        {
+          "input": {
+            "annual_employee_wages": "200000"
+          },
+          "expected": {
+            "exact": "14339.0000",
+            "shown": "$14,339.00"
+          },
+          "working": [
+            "6.2%×min(200000,184500)+1.45%×200000+.9%×max(0,200000−200000)."
+          ]
+        },
+        {
+          "input": {
+            "annual_employee_wages": "200001"
+          },
+          "expected": {
+            "exact": "14339.0235",
+            "shown": "$14,339.02"
+          },
+          "working": [
+            "6.2%×min(200001,184500)+1.45%×200001+.9%×max(0,200001−200000)."
+          ]
+        },
+        {
+          "input": {
+            "annual_employee_wages": "231731.17"
+          },
+          "expected": {
+            "exact": "15084.682495",
+            "shown": "$15,084.68"
+          },
+          "working": [
+            "6.2%×min(231731.17,184500)+1.45%×231731.17+.9%×max(0,231731.17−200000)."
+          ]
+        },
+        {
+          "input": {
+            "status": "married",
+            "earner1": 150000,
+            "earner2": 150000
+          },
+          "expected": {
+            "additional_employer_withholding": {
+              "exact": "0"
+            },
+            "additional_household_liability": {
+              "exact": "450"
+            }
+          },
+          "working": [
+            "Eachsalary<200000:0employeradditionalwithholding;(.009)×(300000−250000)=450householdtax."
+          ]
+        }
+      ]
+    }
+  ],
+  "cross_card_checks": [
+    {
+      "id": "X1",
+      "verdict": "HOLDS",
+      "case": {
+        "rows": [
+          5000,
+          -2000,
+          0,
+          -500,
+          -1200,
+          -200,
+          -200
+        ],
+        "inflow": 5000,
+        "outflow": 4100,
+        "surplus": 900
+      },
+      "why": "Declared Home and Cash flow readers share the same actual block;approvedhousehold inflow5000,outflow4100,surplus900. Implementation/rendered equality remains unobserved."
+    },
+    {
+      "id": "X2",
+      "verdict": "HOLDS",
+      "case": {
+        "planned": {
+          "rows": [
+            5000,
+            -2000,
+            -250,
+            -2000,
+            -200,
+            -200
+          ],
+          "inflow": 5000,
+          "outflow": 4650,
+          "surplus": 350
+        },
+        "actual": {
+          "rows": [
+            5000,
+            -2000,
+            0,
+            -500,
+            -1200,
+            -200,
+            -200
+          ],
+          "inflow": 5000,
+          "outflow": 4100,
+          "surplus": 900
+        },
+        "same_across": [
+          "This month",
+          "Home actual surplus900"
+        ],
+        "free_after_goals": 350
+      },
+      "why": "Approved signed planned rows sum350;actual rows sum900. DEC-7937 requires display reconciliation. Missing-data refusal issues remain separately open."
+    },
+    {
+      "id": "X3",
+      "verdict": "DOES NOT HOLD",
+      "case": {
+        "full_year_wage": 60000,
+        "k_annual": 4800,
+        "tax": 4444,
+        "matching_full_year_take_home": "4229.666666666666666666666667",
+        "part_year_witness": "MK-CF-F-233 case3 versus basePay entered monthly amount"
+      },
+      "why": "Complete full-year arithmetic can match,but sixpaidmonths with enteredtake-home fails through earnerWageShares. This is a written-formula discrepancy,not a measured app output."
+    },
+    {
+      "id": "X4",
+      "verdict": "HOLDS",
+      "case": {
+        "month": "2026-10",
+        "food_expense": 500,
+        "car_payment": 250,
+        "debt_paid": 250,
+        "nondebt_spending": 500,
+        "outflow": 750
+      },
+      "why": "For a uniquely identified carloan,Debt payment is excluded from F-151 and counted once by F-157/F-005. Ambiguous names remain an independent counterexample."
+    },
+    {
+      "id": "X5",
+      "verdict": "DOES NOT HOLD",
+      "case": {
+        "monthly_k": 1000,
+        "paid_months": 6,
+        "actual_year_k": 6000,
+        "F188_year_k": 12000
+      },
+      "why": "F-206 counts paidmonths;F-188 multiplies12;the same household has incompatible contribution bases."
+    },
+    {
+      "id": "X6",
+      "verdict": "HOLDS",
+      "case": {
+        "wages": 60000,
+        "k": 4800,
+        "status": "single",
+        "ordinary_taxable": 39100,
+        "bracket": "12%"
+      },
+      "why": "On a complete wages-only year both stated current paths use wages less401(k) and standarddeduction. This does not validate all-income band scope or partialyears."
+    },
+    {
+      "id": "X7",
+      "verdict": "DOES NOT HOLD",
+      "case": {
+        "typed_recurring": 2000,
+        "bill_amount": 1200,
+        "month": 12,
+        "september_plan": 2000,
+        "december_plan": 3200,
+        "undated_bill_conflict": "F-008spreads100permonth;F-019places1200inJanuary"
+      },
+      "why": "Known dated bills agree across new readers,but unentered due-month treatment conflicts and F-014still uses the annual-averagebudget."
+    }
+  ],
+  "source_scope": "2026 dollar amounts independently verified;2025 IRS forms/publications used only for continuing mechanics explicitly noted. No credits,itemization,AMT,NIIT or complete state tax model is certified."
+}

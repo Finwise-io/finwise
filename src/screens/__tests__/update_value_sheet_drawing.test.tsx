@@ -65,7 +65,7 @@ const GOLD = { asset_id: 'gold', label: 'Gold coins', kind: 'commodities', tax_b
 /** Chase, named Checking: an account from before value dates were kept — no source, no value date */
 const CHECKING = { asset_id: 'chk', label: 'Checking', institution: 'Chase', kind: 'checking', tax_bucket: 'CASH', balance: 3_200 };
 
-const UPDATE_BUTTON = "Update this account's value";            // the button under the walk
+const UPDATE_BUTTON = "Update this account’s value";            // the button under the walk
 const UPDATE_IN_BOX = 'Update the value';                       // the button in the age box
 const STILL_RIGHT = 'Still right — keep the amount and re-stamp today';
 const FIELD = 'Current value';
@@ -109,6 +109,10 @@ const HTML = fs.readFileSync(DRAWING, 'utf8');
 /** One line a person reads: its words, whether it is on the sheet, and the size, weight and colour it is drawn in. */
 type Line = { t: string; sheet: boolean; size?: number; weight?: string; color?: string; opacity?: number; row?: number };
 const decode = (s: string) => s.replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+/** THE ONE READING OF THE DRAWING'S WORDS (2026-10-25, its READ THIS FIRST row 11): every apostrophe inside a word is drawn
+ *  straight, copied from the code; the app prints ’. Read as ’ only because the row says so — the app side is held as printed. */
+const APOSTROPHE_ROW = /<tr><td>11<\/td><td>2026-10-25 · Every apostrophe inside a word is drawn straight here/;
+const curled = (t: string) => t.replace(/([A-Za-z])'([A-Za-z])/g, '$1’$2');
 const clean = (s: string) => s.replace(/\s+/g, ' ').trim();
 const ROOT_TOKENS: Record<string, string> = Object.fromEntries(
   [...(/:root\{([^}]*)\}/.exec(HTML)?.[1] ?? '').matchAll(/--([A-Za-z0-9_]+):([^;]+);/g)].map((m) => [m[1], m[2].trim()]));
@@ -134,7 +138,7 @@ function drawnStates(): { key: string; label: string; lines: Line[] }[] {
   let label: string | null = null;
   for (const m of phone.matchAll(/<(\/?)([a-z0-9]+)([^>]*)>|([^<]+)/gi)) {
     if (m[4] != null) {
-      const text = decode(m[4]);
+      const text = curled(decode(m[4]));
       if (label != null) { label += text; continue; }
       if (stack.some((e) => e.cls.some((c) => SKIP.has(c)))) continue;
       const top = stack[stack.length - 1];
@@ -377,4 +381,21 @@ describe('APPEARANCE: every line\'s size, weight and colour as rendered, against
       expect(drawnSheet[4].opacity ?? 1).toBe(disabled ? 0.4 : 1);
     }
   });
+});
+
+test('the drawing carries the row that reads its straight apostrophes as ’ (row 11, 2026-10-25), and draws them straight', () => {
+  expect(HTML).toMatch(APOSTROPHE_ROW);
+  expect((HTML.slice(HTML.indexOf('<div class="phone">'), HTML.indexOf('<div class="side">')).replace(/<[^>]+>/g, ' ').match(/[A-Za-z](?:'|&#39;)[A-Za-z]/g) ?? []).length).toBeGreaterThanOrEqual(4);
+});
+
+test('“choose ›” takes its sentence’s 13 points, as built; the drawing’s 14 comes from its rule for all text, and its row 10 says so', () => {
+  expect(HTML).toMatch(/<tr><td>10<\/td><td>2026-10-25 · DRAWING ERROR, states B and C — choose › after “tax type not stated —” is drawn at 14 points/);
+  expect(HTML).toMatch(/\.t\{display:block;flex-shrink:1;min-width:0;font-size:14px;/);   // the drawing's rule for all text
+  renderState(STATES[1]);
+  const link = screen.getByText('choose ›');
+  const own = StyleSheet.flatten(link.props.style) ?? {};
+  expect(own.fontSize).toBeUndefined();                                                       // no size of its own: the sentence's
+  expect(own).toMatchObject({ color: Colors.primary, fontWeight: '700' });
+  let up: any = link.parent; while (up && (StyleSheet.flatten(up.props?.style) ?? {}).fontSize == null) up = up.parent;
+  expect(StyleSheet.flatten(up.props.style)).toMatchObject({ fontSize: 13, color: Colors.textSecondary });
 });

@@ -32,8 +32,7 @@ import { isoLocalDate } from '../../../src/domain/_shared/dates';
 
 /** A DEBT WHOSE MONTHLY PAYMENT WAS NEVER ENTERED (2026-10-21, DEC-3523 tenet 3: unknown is not zero): neither a minimum
  *  nor a payment is on record as a number. A typed 0 is entered; a balance due in one lump has no monthly payment to
- *  enter. It is the one test the emergency fund and the Net worth door both name such a debt by.
- *  No identifier yet: the build issues one (its rule waits under awaiting_id in moneykeel_function_rules.json). */
+ *  enter. It is the one test the emergency fund and the Net worth door both name such a debt by. */
 /* ─ MK-NW-F-147 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * paymentNotEntered
  *
@@ -47,7 +46,7 @@ import { isoLocalDate } from '../../../src/domain/_shared/dates';
  * Called by ... MK-CF-F-156 plannedMonthFlow · MK-NW-O-003 theNetWorth
  *               MK-NW-O-004 theEmergencyFund
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -57,7 +56,7 @@ import { isoLocalDate } from '../../../src/domain/_shared/dates';
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-001 account balance
@@ -333,19 +332,20 @@ export interface MortgageCheck {
  *     d = on.get(string(asset id))
  *     … the first steps only — the rest of the body needs reading by hand.
  *
- * Called by ... MK-CF-O-020 theBudgetCounted · MK-NW-O-003 theNetWorth
+ * Called by ... MK-CF-O-018 theDebts · MK-CF-O-020 theBudgetCounted
+ *               MK-NW-O-003 theNetWorth
  *
- * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-079 EF · MK-NW-F-082 NW
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 38 more — the full list is on functions_from_code
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -418,17 +418,17 @@ export type PropertyUse = 'home' | 'rental' | 'second';
  *
  * Called by ... MK-CF-O-020 theBudgetCounted
  *
- * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-079 EF · MK-NW-F-082 NW
- *               MK-NW-F-040 assetsFromOnboarding · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               MK-NW-F-065 buildNetWorth · MK-PL-F-053 buildRetirementState
- *               MK-XS-F-031 buildSnapshot · MK-CF-F-038 debtsFromOnboarding
- *               MK-XS-F-072 deleteAccount · MK-XS-F-138 deriveKeyFromSecret
- *               MK-CF-F-041 getDebtState · MK-CF-F-052 getIncomeState
- *               MK-XS-F-023 getProfileReadModel · MK-ST-F-041 getUserDoc
- *               … and 38 more — the full list is on functions_from_code
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses
@@ -781,10 +781,19 @@ const TREND_GIVEN =
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
- * Called by ... MK-NW-F-100 TREND
+ * Called by ... MK-CF-F-070 benefitAnnual · MK-NW-F-100 TREND
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-100 TREND · MK-NW-F-185 valueChanged
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -854,7 +863,20 @@ const PLAN_INPUTS = {
  * Formula .....
  *     sim = simulate({ ...PLAN_INPUTS, with band: true } as any)
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-CF-F-199 ROOM
+ *
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
+ *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
+ *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
+ *               MK-CF-F-205 COMING · MK-NW-F-167 COMPARE
+ *               MK-CF-F-211 DEBTS · MK-NW-F-079 EF
+ *               MK-NW-F-080 HOLD · MK-CF-F-201 INCOME
+ *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
+ *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
+ *               MK-CF-F-200 LINE · MK-CF-F-241 M
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-018 retirement age
@@ -1315,8 +1337,10 @@ export const NET_WORTH_FIGURES = declareFigures({
       run: () => NW().debtLines[0].minimumMonthly,
     },
   },
+  // ALSO THE DEBTS TAB'S "in payments" AND THE BUDGET CARD'S "− Debt payments" (2026-10-26, PF-TOOLS): the same sum of each debt's
+  // required payment (his DEC-0641), printed under this number on Cash flow since 2026-10-25 (CF-MMFIX-A) — one figure, three screens
   'MK-NW-M-012': {
-    label: 'Monthly debt payments', unit: 'money', per: 'month', screens: ['/analytics', '/home'],
+    label: 'Monthly debt payments', unit: 'money', per: 'month', screens: ['/analytics', '/home', '/cashflow'],
     answers: 'What all your debts require of you in a month, together.',
     formula: 'the sum of each debt’s required payment',
     inputs: ['MK-NW-I-002 your debts'],

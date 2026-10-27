@@ -36,8 +36,9 @@ test('a property already held — the rent step asks which property it is, and C
   expect(screen.getByText('Not counted as rent until you pick its property.')).toBeOnTheScreen();
   expect(screen.getByText(/The rent is counted once you pick its property above\./)).toBeOnTheScreen();
   // Continue is blocked: the button says so, and pressing it leaves the person on the rent step
-  expect(screen.getByLabelText('Continue →').props.accessibilityState.disabled).toBe(true);
-  fireEvent.press(screen.getByText('Continue →'));
+  // the button reads the drawn word, "Continue" (income v07 phones 8, 13, 14; IN-18, 2026-10-25 — it read "Continue →")
+  expect(screen.getByLabelText('Continue').props.accessibilityState.disabled).toBe(true);
+  fireEvent.press(screen.getByText('Continue'));
   expect(screen.getByText('Rental property')).toBeOnTheScreen();
   expect(savedRent().property_id).toBeUndefined();
 
@@ -45,8 +46,8 @@ test('a property already held — the rent step asks which property it is, and C
   expect(savedRent().property_id).toBe('lake');                 // saved on the rent entry, as the Income screen does
   expect(screen.queryByText('Not counted as rent until you pick its property.')).toBeNull();
   expect(screen.getByText('About $14,400/year across 1 property after costs.')).toBeOnTheScreen();
-  expect(screen.getByLabelText('Continue →').props.accessibilityState.disabled).toBe(false);
-  fireEvent.press(screen.getByText('Continue →'));
+  expect(screen.getByLabelText('Continue').props.accessibilityState.disabled).toBe(false);
+  fireEvent.press(screen.getByText('Continue'));
   expect(screen.queryByText('Rental property')).toBeNull();     // moved on
 });
 
@@ -72,6 +73,6 @@ test('no property held — today\'s line, no question, Continue open', () => {
   atRentStep([]);
   expect(screen.queryByText('Which property is it?')).toBeNull();
   expect(screen.getByText('About $14,400/year across 1 property after costs. The rent is counted once you pick its property on the Income screen.')).toBeOnTheScreen();
-  fireEvent.press(screen.getByText('Continue →'));
+  fireEvent.press(screen.getByText('Continue'));
   expect(screen.queryByText('Rental property')).toBeNull();
 });

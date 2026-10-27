@@ -97,7 +97,7 @@ export const OPTION_CONTRACT_MULTIPLIER = 100;
  *               MK-PF-F-077 eventPath · MK-PL-F-081 taxableGainShare
  *               MK-XS-F-102 ingestSync
  *
- * Reaches ..... 390 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 388 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -107,7 +107,7 @@ export const OPTION_CONTRACT_MULTIPLIER = 100;
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 372 more — the full list is on functions_from_code
+ *               … and 370 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
@@ -149,7 +149,7 @@ export function contractMultiplier(p: Pick<Position, 'kind' | 'multiplier'> & { 
  *
  * Called by ... MK-NW-F-165 purchaseQuantityWords · MK-PF-F-033 quantityWithUnit
  *
- * Reaches ..... 388 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -159,7 +159,7 @@ export function contractMultiplier(p: Pick<Position, 'kind' | 'multiplier'> & { 
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 370 more — the full list is on functions_from_code
+ *               … and 368 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -191,7 +191,7 @@ export function quantityUnit(p: Pick<Position, 'kind' | 'unit'>): QuantityUnit {
  * Called by ... MK-NW-F-146 undatedGainSentence · MK-NW-F-165 purchaseQuantityWords
  *               MK-PF-F-058 gainOnPartSentence
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -201,7 +201,7 @@ export function quantityUnit(p: Pick<Position, 'kind' | 'unit'>): QuantityUnit {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -252,7 +252,7 @@ export const PERIODS: Period[] = ['1M', '3M', '6M', 'YTD', '1Y', '2Y'];
  *               MK-NW-F-171 listedShares · MK-NW-O-006 theHolding
  *               MK-PF-F-004 marketValue · MK-PF-F-073 sharesThroughWindow
  *
- * Reaches ..... 390 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 388 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -262,7 +262,7 @@ export const PERIODS: Period[] = ['1M', '3M', '6M', 'YTD', '1Y', '2Y'];
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 372 more — the full list is on functions_from_code
+ *               … and 370 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -293,8 +293,9 @@ export function totalShares(p: Position): number | null {
  *
  * Called by ... MK-PF-F-002 costBasis · MK-PF-F-006 capGains
  *               MK-PF-F-051 paidOnRecord · MK-PF-F-073 sharesThroughWindow
+ *               MK-PF-F-080 recordedBuysExplain
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -304,7 +305,7 @@ export function totalShares(p: Position): number | null {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -351,7 +352,7 @@ export { lotCostOnRecord };
  *               MK-PF-F-014 buildPerformance · MK-PL-F-081 taxableGainShare
  *               MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -361,7 +362,7 @@ export { lotCostOnRecord };
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -434,7 +435,7 @@ export function costBasis(p: Position): number | null {
  *               MK-PF-F-014 buildPerformance · MK-PF-F-055 valueAtClose
  *               MK-PL-F-081 taxableGainShare · MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 388 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -444,7 +445,7 @@ export function costBasis(p: Position): number | null {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 370 more — the full list is on functions_from_code
+ *               … and 368 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -478,7 +479,7 @@ export function marketValue(p: Position, price: number | null | undefined): numb
  * Called by ... MK-NW-O-006 theHolding · MK-PF-F-007 totalROI
  *               MK-PF-F-014 buildPerformance
  *
- * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 36 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -488,7 +489,7 @@ export function marketValue(p: Position, price: number | null | undefined): numb
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 16 more — the full list is on functions_from_code
+ *               … and 18 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-063 option contract multiplier — 100 unless the broker or the person states otherwise
@@ -530,19 +531,19 @@ export function unrealizedGain(p: Position, price: number | null | undefined): n
  *               MK-PF-F-053 isBroadIndexOption · MK-PF-F-060 closeDayOnOrBefore
  *               MK-PF-F-063 heldOnDay · MK-PF-F-065 firstDatedPurchase
  *               MK-PF-F-067 purchaseDays · MK-PF-F-073 sharesThroughWindow
- *               MK-XS-F-127 toIsoDate
+ *               MK-PF-F-080 recordedBuysExplain · MK-XS-F-127 toIsoDate
  *
- * Reaches ..... 107 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 56 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
- *               MK-NW-F-082 NW · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-CF-F-111 applyTransaction · MK-NW-F-040 assetsFromOnboarding
- *               MK-NW-F-144 beforeTheRecordSentence · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               … and 89 more — the full list is on functions_from_code
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-CF-F-111 applyTransaction
+ *               MK-NW-F-144 beforeTheRecordSentence · MK-PF-F-014 buildPerformance
+ *               MK-PF-F-006 capGains · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-142 classReturnOf · MK-PF-F-029 closeAsOf
+ *               MK-PF-F-060 closeDayOnOrBefore · MK-PF-F-034 closeOnOrBefore
+ *               … and 38 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -735,7 +736,7 @@ export function capGains(p: Position, price: number | null | undefined, now: Dat
  * Called by ... MK-NW-F-167 COMPARE · MK-NW-O-006 theHolding
  *               MK-PF-F-014 buildPerformance
  *
- * Reaches ..... 33 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 35 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -745,7 +746,7 @@ export function capGains(p: Position, price: number | null | undefined, now: Dat
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 15 more — the full list is on functions_from_code
+ *               … and 17 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -776,7 +777,7 @@ export function totalROI(p: Position, price: number | null | undefined): number 
  * Called by ... MK-NW-F-090 windowStartKey · MK-PF-F-014 buildPerformance
  *               MK-PF-F-039 periodReturnParts · MK-PF-F-045 priceHistoryShortSentence
  *
- * Reaches ..... 40 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 42 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -786,7 +787,7 @@ export function totalROI(p: Position, price: number | null | undefined): number 
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-NW-F-127 gainOfRow
- *               … and 22 more — the full list is on functions_from_code
+ *               … and 24 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -893,7 +894,7 @@ export const WINDOW_MONTHS: Readonly<Record<string, number>> = Object.freeze({ '
  *
  * Called by ... MK-PF-F-008 startDateFor · MK-PF-F-022 factorOverMonths
  *
- * Reaches ..... 45 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 47 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-081 LB
@@ -903,7 +904,7 @@ export const WINDOW_MONTHS: Readonly<Record<string, number>> = Object.freeze({ '
  *               MK-NW-F-084 categoryEarnings · MK-NW-F-142 classReturnOf
  *               MK-PF-F-068 dayAfterDay · MK-PF-F-012 earliestPurchaseDate
  *               MK-PF-F-079 eventDays · MK-PF-F-022 factorOverMonths
- *               … and 27 more — the full list is on functions_from_code
+ *               … and 29 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -930,7 +931,7 @@ export function monthsBefore(now: Date, months: number): Date {
  *
  * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-039 periodReturnParts
  *
- * Reaches ..... 37 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 39 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -940,7 +941,7 @@ export function monthsBefore(now: Date, months: number): Date {
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-NW-F-127 gainOfRow
- *               … and 19 more — the full list is on functions_from_code
+ *               … and 21 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -968,7 +969,7 @@ function dayBefore(d: Date): Date {
  *               MK-PF-F-070 holdingPath · MK-PF-F-077 eventPath
  *               MK-PF-F-078 yardstickOn
  *
- * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 36 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -978,7 +979,7 @@ function dayBefore(d: Date): Date {
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-077 eventPath · MK-PF-F-065 firstDatedPurchase
- *               … and 16 more — the full list is on functions_from_code
+ *               … and 18 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1006,7 +1007,7 @@ function dayBeforeDay(day: string): string | null {
  *               MK-PF-F-070 holdingPath · MK-PF-F-077 eventPath
  *               MK-PF-F-078 yardstickOn
  *
- * Reaches ..... 40 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 42 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -1016,7 +1017,7 @@ function dayBeforeDay(day: string): string | null {
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-077 eventPath · MK-PF-F-065 firstDatedPurchase
- *               … and 22 more — the full list is on functions_from_code
+ *               … and 24 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -1053,19 +1054,19 @@ function closeAsOf(series: PriceSeries | null | undefined, target: Date | string
  *     close day on or before(series, iso date).close (or nothing when missing)
  *
  * Called by ... MK-NW-F-143 gainRowBetween · MK-PF-F-029 closeAsOf
- *               MK-PF-F-070 holdingPath · MK-XS-F-175 uid
+ *               MK-PF-F-070 holdingPath · MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 95 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 45 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
- *               MK-NW-F-082 NW · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-144 beforeTheRecordSentence
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               … and 77 more — the full list is on functions_from_code
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-142 classReturnOf · MK-PF-F-029 closeAsOf
+ *               MK-PF-F-068 dayAfterDay · MK-PF-F-012 earliestPurchaseDate
+ *               MK-PF-F-079 eventDays · MK-PF-F-077 eventPath
+ *               … and 27 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -1094,17 +1095,17 @@ export function closeOnOrBefore(series: PriceSeries | null | undefined, isoDate:
  * Called by ... MK-PF-F-034 closeOnOrBefore · MK-PF-F-056 purchasePieces
  *               MK-PF-F-070 holdingPath · MK-PF-F-077 eventPath
  *
- * Reaches ..... 96 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 46 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
- *               MK-NW-F-082 NW · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-144 beforeTheRecordSentence
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               … and 78 more — the full list is on functions_from_code
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-142 classReturnOf · MK-PF-F-029 closeAsOf
+ *               MK-PF-F-034 closeOnOrBefore · MK-PF-F-068 dayAfterDay
+ *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
+ *               … and 28 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -1145,7 +1146,7 @@ export function closeDayOnOrBefore(series: PriceSeries | null | undefined, isoDa
  * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-029 closeAsOf
  *               MK-PF-F-039 periodReturnParts
  *
- * Reaches ..... 41 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 43 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -1155,7 +1156,7 @@ export function closeDayOnOrBefore(series: PriceSeries | null | undefined, isoDa
  *               MK-NW-F-142 classReturnOf · MK-PF-F-029 closeAsOf
  *               MK-PF-F-068 dayAfterDay · MK-PF-F-012 earliestPurchaseDate
  *               MK-PF-F-079 eventDays · MK-PF-F-077 eventPath
- *               … and 23 more — the full list is on functions_from_code
+ *               … and 25 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -1191,17 +1192,17 @@ export function firstClose(series: PriceSeries | null | undefined): { day: strin
  *               MK-PF-F-060 closeDayOnOrBefore · MK-PF-F-061 firstClose
  *               MK-PF-F-072 tradesAfter · MK-PF-F-075 soldOutPositions
  *
- * Reaches ..... 103 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 52 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
- *               MK-NW-F-082 NW · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-144 beforeTheRecordSentence
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               … and 85 more — the full list is on functions_from_code
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-142 classReturnOf · MK-PF-F-029 closeAsOf
+ *               MK-PF-F-060 closeDayOnOrBefore · MK-PF-F-034 closeOnOrBefore
+ *               MK-PF-F-068 dayAfterDay · MK-PF-F-059 dayBeforeDay
+ *               … and 34 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1225,7 +1226,7 @@ export function calendarDay(d: unknown): string | null {
  *               MK-PF-F-014 buildPerformance · MK-PF-F-039 periodReturnParts
  *               MK-PF-F-054 latestCloseLookup · MK-PF-F-078 yardstickOn
  *
- * Reaches ..... 388 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 386 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1235,7 +1236,7 @@ export function calendarDay(d: unknown): string | null {
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 370 more — the full list is on functions_from_code
+ *               … and 368 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -1260,7 +1261,7 @@ export function latestClose(series: PriceSeries | null | undefined): number | nu
  *
  * Called by ... MK-XS-F-174 recomputeBalances
  *
- * Reaches ..... 387 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 385 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -1270,7 +1271,7 @@ export function latestClose(series: PriceSeries | null | undefined): number | nu
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 369 more — the full list is on functions_from_code
+ *               … and 367 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -1299,7 +1300,7 @@ export function latestCloseLookup(cache: Record<string, PriceSeries> | null | un
  *               MK-NW-O-008 thePerformance · MK-PF-F-014 buildPerformance
  *               MK-PF-F-043 windowTotalOfRow
  *
- * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 36 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -1309,7 +1310,7 @@ export function latestCloseLookup(cache: Record<string, PriceSeries> | null | un
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-NW-F-127 gainOfRow
- *               … and 16 more — the full list is on functions_from_code
+ *               … and 18 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1340,7 +1341,7 @@ export function periodReturn(series: PriceSeries | null | undefined, period: Per
  *
  * Called by ... MK-PF-F-014 buildPerformance
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -1350,7 +1351,7 @@ export function periodReturn(series: PriceSeries | null | undefined, period: Per
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -1389,7 +1390,7 @@ export function periodTotalReturn(series: PriceSeries | null | undefined, period
  * Called by ... MK-PF-F-010 periodReturn · MK-PF-F-014 buildPerformance
  *               MK-PF-F-038 periodTotalReturn
  *
- * Reaches ..... 36 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 38 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -1399,7 +1400,7 @@ export function periodTotalReturn(series: PriceSeries | null | undefined, period
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-NW-F-127 gainOfRow
- *               … and 18 more — the full list is on functions_from_code
+ *               … and 20 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -1466,7 +1467,7 @@ function periodReturnParts(series: PriceSeries | null | undefined, period: Perio
  *
  * Called by ... MK-PF-F-014 buildPerformance
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -1476,7 +1477,7 @@ function periodReturnParts(series: PriceSeries | null | undefined, period: Perio
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -1548,7 +1549,19 @@ export function valueAtClose(p: Position, series: PriceSeries | null | undefined
  *     ...p = ...p
  *     lots = kept   otherwise
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-PF-F-014 buildPerformance
+ *
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
+ *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
+ *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
+ *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
@@ -1576,7 +1589,7 @@ export function heldOnDay(p: Position, lastDay: string): Position {
  *
  * Called by ... MK-PF-F-014 buildPerformance
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -1586,7 +1599,7 @@ export function heldOnDay(p: Position, lastDay: string): Position {
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
@@ -1620,9 +1633,9 @@ export function earliestPurchaseDate(p: Position): string | null {
  *     lots (or none when missing) where not (typeof shares = 'number' and number.is finite(shares) and shares ≤ 0)
  *
  * Called by ... MK-PF-F-012 earliestPurchaseDate · MK-PF-F-065 firstDatedPurchase
- *               MK-PF-F-073 sharesThroughWindow
+ *               MK-PF-F-073 sharesThroughWindow · MK-PF-F-080 recordedBuysExplain
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -1632,7 +1645,7 @@ export function earliestPurchaseDate(p: Position): string | null {
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -1661,7 +1674,7 @@ function purchasesHeld(p: Position): Lot[] {
  *
  * Called by ... MK-PF-F-014 buildPerformance
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -1671,7 +1684,7 @@ function purchasesHeld(p: Position): Lot[] {
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
@@ -1725,19 +1738,19 @@ export const BENCHMARK_TICKER: Record<string, string> = {
  *     … the first steps only — the rest of the body needs reading by hand.
  *
  * Called by ... MK-NW-F-146 undatedGainSentence · MK-PF-F-014 buildPerformance
- *               MK-XS-F-175 uid
+ *               MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 86 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 36 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
- *               MK-NW-F-082 NW · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-144 beforeTheRecordSentence
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               … and 68 more — the full list is on functions_from_code
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
+ *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
+ *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
+ *               … and 18 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-007 purchase price and date (per lot)
@@ -1868,9 +1881,9 @@ export interface PerformanceRow {
  *               MK-NW-F-091 pricedGainOf · MK-NW-F-142 classReturnOf
  *               MK-NW-F-165 purchaseQuantityWords · MK-NW-F-167 COMPARE
  *               MK-NW-F-168 holdingRowsIn · MK-NW-O-008 thePerformance
- *               MK-PF-F-020 portfolioBenchReturn
+ *               MK-PF-F-020 portfolioBenchReturn · MK-PF-F-072 tradesAfter
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -1880,7 +1893,7 @@ export interface PerformanceRow {
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -1932,7 +1945,18 @@ export function buildPerformance(
     // a purchase with no date beside dated ones (2026-10-21, MK-PF-F-012): the day the holding began is not on record, but
     // the window still counts it as bought inside from its first dated purchase — and its return since purchase refuses
     const firstDated = lotDate ?? firstDatedPurchase(p);
-    const bought = firstDated ?? purchaseDateOf?.(p) ?? null;
+    // A PURCHASE WITH NO DATE BESIDE BUYS THIS ACCOUNT RECORDED IS STILL HELD WHEN THE WINDOW BEGAN (2026-10-25, FIX-HOLDINGS item
+    // 1; tenets 2 and 4; DEC-3656: a buy is neither money in nor money earned). Alone, an undated purchase is read as held when
+    // the window began (heldOnDay, sharesThroughWindow). A buy recorded on the trade sheet beside it says nothing new about it,
+    // yet it made the holding "bought inside the window" from that buy, and its return refused (DEC-7216): an imported 100 VTI
+    // ($95 → $100) read Beginning $9,500, Wealth generated $500, +5.26% for one month, and after a buy of 20 at $100 paid from
+    // the account's own cash, $10,000, $0 and "—". Where every dated purchase inside the window is one of this account's own
+    // recorded buys, the undated purchase is read as it was before them: held when the window began, the recorded buys its
+    // trades — 9,900 ÷ 9,500 × 12,000 ÷ (9,900 + 2,000) − 1 = +5.09%, gained 12,000 − 9,500 − 2,000 = $500. Purchases only
+    // typed on the holding, with no record, keep DEC-7216 (their order is not known). To reverse: drop undatedHeld.
+    const undatedHeld = lotDate == null && firstDated != null && income != null && beginISO != null
+      && recordedBuysExplain(p, tradesAfter(p, income.transactions ?? [], income.accounts ?? [], beginISO, isoDay(now)), beginISO);
+    const bought = undatedHeld ? null : firstDated ?? purchaseDateOf?.(p) ?? null;
     // A PURCHASE ON THE PERIOD'S FIRST DAY IS INSIDE IT (DEC-0315, Q3: both boundary days are inside, and the
     // beginning is the close of the day before, when this money was not yet held) — it read '>' (outside
     // review Claude Performance, 2026-10-11)
@@ -2109,7 +2133,7 @@ export function buildPerformance(
  *
  * Called by ... MK-PF-F-048 bondInterestInWindow · MK-XS-F-102 ingestSync
  *
- * Reaches ..... 35 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 37 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -2119,7 +2143,7 @@ export function buildPerformance(
  *               MK-NW-F-084 categoryEarnings · MK-NW-F-142 classReturnOf
  *               MK-PF-F-068 dayAfterDay · MK-PF-F-012 earliestPurchaseDate
  *               MK-PF-F-079 eventDays · MK-PF-F-065 firstDatedPurchase
- *               … and 17 more — the full list is on functions_from_code
+ *               … and 19 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-011 bond face value
@@ -2168,7 +2192,7 @@ export function isIndividualBondOrCD(p: Position | null | undefined): boolean {
  *
  * Called by ... MK-NW-F-143 gainRowBetween · MK-PF-F-014 buildPerformance
  *
- * Reaches ..... 33 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 35 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -2178,7 +2202,7 @@ export function isIndividualBondOrCD(p: Position | null | undefined): boolean {
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-NW-F-143 gainRowBetween
- *               … and 15 more — the full list is on functions_from_code
+ *               … and 17 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-009 transaction date
@@ -2233,7 +2257,7 @@ export function bondInterestInWindow(p: Position, transactions: any[], fromDay: 
  * Called by ... MK-NW-F-088 BENCH · MK-NW-F-143 gainRowBetween
  *               MK-PF-F-014 buildPerformance
  *
- * Reaches ..... 33 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 35 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -2243,7 +2267,7 @@ export function bondInterestInWindow(p: Position, transactions: any[], fromDay: 
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-NW-F-143 gainRowBetween
- *               … and 15 more — the full list is on functions_from_code
+ *               … and 17 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -2270,7 +2294,7 @@ export function returnWithInterest(priceTotal: number | null, valueNow: number |
  * Called by ... MK-NW-F-127 gainOfRow · MK-NW-F-142 classReturnOf
  *               MK-PF-F-014 buildPerformance · MK-PF-F-044 startValues
  *
- * Reaches ..... 33 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 35 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -2280,7 +2304,7 @@ export function returnWithInterest(priceTotal: number | null, valueNow: number |
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-NW-F-127 gainOfRow
- *               … and 15 more — the full list is on functions_from_code
+ *               … and 17 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -2315,7 +2339,7 @@ export function worthWithInterest(r: { marketValue?: number | null; interest?: n
  *
  * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-064 purchasesHeld
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -2325,7 +2349,7 @@ export function worthWithInterest(r: { marketValue?: number | null; interest?: n
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -2362,7 +2386,7 @@ function returnSincePurchases(p: Position, series: PriceSeries | null | undefine
  *
  * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-040 returnSincePurchases
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -2372,7 +2396,7 @@ function returnSincePurchases(p: Position, series: PriceSeries | null | undefine
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2440,7 +2464,7 @@ function purchasePieces(p: Position, series: PriceSeries | null | undefined, fir
  * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-056 purchasePieces
  *               MK-PF-F-070 holdingPath
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -2450,7 +2474,7 @@ function purchasePieces(p: Position, series: PriceSeries | null | undefined, fir
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2496,7 +2520,7 @@ function purchaseDays(p: Position, firstDay: string): { day: string; shares: num
  *
  * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-079 eventDays
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -2506,7 +2530,7 @@ function purchaseDays(p: Position, firstDay: string): { day: string; shares: num
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -2544,7 +2568,7 @@ function dayAfterDay(day: string): string {
  * Called by ... MK-NW-O-008 thePerformance · MK-PF-F-014 buildPerformance
  *               MK-PF-F-072 tradesAfter
  *
- * Reaches ..... 33 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -2554,7 +2578,7 @@ function dayAfterDay(day: string): string {
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 15 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2629,7 +2653,7 @@ type WindowTrades = { sales: { day: string; shares: number; proceeds: number | n
  *
  * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-068 dayAfterDay
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -2639,7 +2663,7 @@ type WindowTrades = { sales: { day: string; shares: number; proceeds: number | n
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2685,6 +2709,55 @@ function tradesAfter(p: Position, transactions: any[], accounts: any[], afterDay
   return out;
 }
 
+/** Are this holding's dated purchases after a day all this account's own recorded buys? (2026-10-25, FIX-HOLDINGS item 1) —
+ *  each such day's purchases are no more shares than the account's buy records of that ticker on that day. At least one dated
+ *  purchase must fall after the day. So an undated purchase beside them was on file before them (buildPerformance). */
+/* ─ MK-PF-F-080 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * recordedBuysExplain
+ *
+ * Answers ..... Are this holding's dated purchases after a day all this account's own recorded buys?
+ *
+ * Formula .....
+ *     by day = new map<string, number>()
+ *     d = purchase date on record(purchase date)
+ *     false   when unknown figure(shares)
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
+ *
+ * Called by ... MK-PF-F-014 buildPerformance
+ *
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
+ *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
+ *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-PF-F-014 buildPerformance · MK-NW-F-084 categoryEarnings
+ *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
+ *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
+ *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
+ *               … and 16 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *
+ * Decides .....
+ *     · If shares is missing it uses 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-080
+ * Changed ..... not in git yet (—)
+ */
+function recordedBuysExplain(p: Position, trades: WindowTrades, afterDay: string): boolean {
+  const byDay = new Map<string, number>();
+  for (const l of purchasesHeld(p)) {
+    const d = purchaseDateOnRecord(l.purchase_date);
+    if (d == null || !(d > afterDay)) continue;
+    if (unknownFigure(l.shares)) return false;
+    byDay.set(d, (byDay.get(d) ?? 0) + (l.shares as number));
+  }
+  return byDay.size > 0 && [...byDay].every(([d, sh]) => (trades.buys.get(d)?.shares ?? 0) >= sh - 1e-9);
+}
+
 type WindowShares = { start: number | null; days: Map<string, { bought: number; paid: number | null; sold: number; proceeds: number | null }> };
 /** WHAT A HOLDING HELD AND TRADED INSIDE ITS WINDOW (2026-10-22; DEC-3656, DEC-7221) — what its gain, its start and its path are
  *  read from. On each day after `fromDay`: the shares bought and what was paid, the shares sold and what they brought in.
@@ -2722,7 +2795,7 @@ type WindowShares = { start: number | null; days: Map<string, { bought: number; 
  *
  * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-068 dayAfterDay
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -2732,7 +2805,7 @@ type WindowShares = { start: number | null; days: Map<string, { bought: number; 
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -2820,7 +2893,7 @@ type WindowEvents = { s0: number; v0: number; from0: string; days: WindowShares[
  *
  * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-070 holdingPath
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -2830,7 +2903,7 @@ type WindowEvents = { s0: number; v0: number; from0: string; days: WindowShares[
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -2859,7 +2932,7 @@ function firstEvent(e: WindowEvents): string | null {
  *
  * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-074 marketSplitAtPurchases
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -2869,7 +2942,7 @@ function firstEvent(e: WindowEvents): string | null {
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -2918,7 +2991,7 @@ function eventDays(days: WindowShares['days']): WindowShares['days'] {
  *
  * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-070 holdingPath
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -2928,7 +3001,7 @@ function eventDays(days: WindowShares['days']): WindowShares['days'] {
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -2986,7 +3059,7 @@ function eventPath(x: { p: Position; series: PriceSeries | null | undefined; eve
  *
  * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-070 holdingPath
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -2996,7 +3069,7 @@ function eventPath(x: { p: Position; series: PriceSeries | null | undefined; eve
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-005 holding price
@@ -3051,7 +3124,7 @@ function yardstickOn(bench: PriceSeries | null | undefined, from: string | null,
  *
  * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-056 purchasePieces
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -3061,7 +3134,7 @@ function yardstickOn(bench: PriceSeries | null | undefined, from: string | null,
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-004 holding quantity (shares)
@@ -3179,17 +3252,17 @@ export type HoldingPath = { start: number; marks: { day: string; before: number;
  * Called by ... MK-NW-F-142 classReturnOf · MK-PF-F-013 benchmarkTicker
  *               MK-PF-F-014 buildPerformance · MK-PF-F-070 holdingPath
  *
- * Reaches ..... 87 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 37 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
- *               MK-NW-F-082 NW · MK-NW-F-083 PERF
- *               MK-NW-F-085 PERF_ONE · MK-NW-F-093 QUIET_PERF
- *               MK-NW-F-040 assetsFromOnboarding · MK-NW-F-144 beforeTheRecordSentence
- *               MK-PF-F-013 benchmarkTicker · MK-CF-F-013 budgetFromOnboarding
- *               MK-NW-F-039 buildAssetsState · MK-CF-F-001 buildBudgetState
- *               MK-CF-F-036 buildDebtState · MK-PL-F-011 buildGoalsState
- *               … and 69 more — the full list is on functions_from_code
+ *               MK-NW-F-083 PERF · MK-NW-F-085 PERF_ONE
+ *               MK-NW-F-093 QUIET_PERF · MK-NW-F-144 beforeTheRecordSentence
+ *               MK-PF-F-013 benchmarkTicker · MK-PF-F-014 buildPerformance
+ *               MK-NW-F-084 categoryEarnings · MK-NW-F-142 classReturnOf
+ *               MK-PF-F-068 dayAfterDay · MK-PF-F-012 earliestPurchaseDate
+ *               MK-PF-F-079 eventDays · MK-PF-F-065 firstDatedPurchase
+ *               … and 19 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -3244,7 +3317,7 @@ export function returnSplitAtPurchases(paths: HoldingPath[]): number | null | un
  * Called by ... MK-PF-F-014 buildPerformance · MK-PF-F-020 portfolioBenchReturn
  *               MK-PF-F-070 holdingPath
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -3254,7 +3327,7 @@ export function returnSplitAtPurchases(paths: HoldingPath[]): number | null | un
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -3303,7 +3376,7 @@ export function marketSplitAtPurchases(paths: HoldingPath[]): number | null | un
  * Called by ... MK-PF-F-011 periodReturnSince · MK-PF-F-014 buildPerformance
  *               MK-PF-F-039 periodReturnParts
  *
- * Reaches ..... 38 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 40 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -3313,7 +3386,7 @@ export function marketSplitAtPurchases(paths: HoldingPath[]): number | null | un
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-NW-F-127 gainOfRow
- *               … and 20 more — the full list is on functions_from_code
+ *               … and 22 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -3593,7 +3666,7 @@ export function portfolioBenchReturn(rows: PerformanceRow[]): number | null {
  * Called by ... MK-NW-F-088 BENCH · MK-NW-F-167 COMPARE
  *               MK-PF-F-014 buildPerformance
  *
- * Reaches ..... 32 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 34 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-088 BENCH · MK-NW-F-087 CAT
  *               MK-NW-F-086 CATS · MK-NW-F-167 COMPARE
  *               MK-NW-F-080 HOLD · MK-NW-F-140 LEFT_OUT
@@ -3603,7 +3676,7 @@ export function portfolioBenchReturn(rows: PerformanceRow[]): number | null {
  *               MK-NW-F-142 classReturnOf · MK-PF-F-068 dayAfterDay
  *               MK-PF-F-012 earliestPurchaseDate · MK-PF-F-079 eventDays
  *               MK-PF-F-065 firstDatedPurchase · MK-PF-F-070 holdingPath
- *               … and 14 more — the full list is on functions_from_code
+ *               … and 16 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *

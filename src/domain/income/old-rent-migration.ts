@@ -26,15 +26,20 @@
  * Formula .....
  *     v ≠ nothing and string(v).trim() ! = ''
  *
- * Called by ... MK-CF-F-067 rentalList · MK-CF-F-143 annualisedGross
- *               MK-CF-F-144 takeHomeAsEntered · MK-CF-F-186 convertTakeHomeMode
- *               MK-CF-F-190 essentialsMonthly · MK-CF-F-218 moveOldRentFigure
- *               MK-CF-O-004 incomeSummary · MK-NW-F-009 maturityClass
- *               MK-NW-F-071 isCertificateOfDeposit · MK-NW-F-108 taxWordsOf
- *               MK-NW-F-124 maturityParts · MK-PF-F-028 realizedFromLedger
- *               MK-PL-F-044 planTarget · MK-XS-F-187 fixStoredMoney
+ * Called by ... MK-CF-F-067 rentalList · MK-CF-F-070 benefitAnnual
+ *               MK-CF-F-072 currentRetirementIncomeMonthly · MK-CF-F-143 annualisedGross
+ *               MK-CF-F-144 takeHomeAsEntered · MK-CF-F-157 debtPaymentsByDebt
+ *               MK-CF-F-186 convertTakeHomeMode · MK-CF-F-190 essentialsMonthly
+ *               MK-CF-F-218 moveOldRentFigure · MK-CF-F-233 earnerWageShares
+ *               MK-CF-F-240 PAY_LANDS_TYPED · MK-CF-F-245 hoursNotEntered
+ *               MK-CF-F-257 budgetEntered · MK-CF-F-264 interestAndDividendsForYear
+ *               MK-CF-O-004 incomeSummary · MK-CF-O-010 theMonth
+ *               MK-NW-F-009 maturityClass · MK-NW-F-071 isCertificateOfDeposit
+ *               MK-NW-F-108 taxWordsOf · MK-NW-F-124 maturityParts
+ *               MK-PF-F-028 realizedFromLedger · MK-PL-F-044 planTarget
+ *               MK-XS-F-187 fixStoredMoney · MK-XS-F-192 typedValueDatedBack
  *
- * Reaches ..... 394 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 390 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-075 ACC · MK-NW-F-077 ALL
  *               MK-NW-F-076 ALT · MK-NW-F-088 BENCH
  *               MK-NW-F-087 CAT · MK-NW-F-086 CATS
@@ -44,7 +49,7 @@
  *               MK-CF-F-237 LATER · MK-NW-F-097 LEDGER
  *               MK-NW-F-098 LEDGER_BAND · MK-NW-F-140 LEFT_OUT
  *               MK-CF-F-200 LINE · MK-CF-F-241 M
- *               … and 376 more — the full list is on functions_from_code
+ *               … and 372 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -54,7 +59,7 @@
 const typed = (v: unknown) => v != null && String(v).trim() !== '';
 
 /** True when this profile still holds the old single rent figure. */
-/* ─ MK-CF-F-217 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-CF-F-217 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * hasOldRentFigure
  *
  * Answers ..... True when this profile still holds the old single rent figure.
@@ -65,17 +70,8 @@ const typed = (v: unknown) => v != null && String(v).trim() !== '';
  *
  * Called by ... MK-CF-F-218 moveOldRentFigure
  *
- * Reaches ..... 54 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
- *               … and 36 more — the full list is on functions_from_code
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-218 moveOldRentFigure · MK-XS-F-199 profileOnTheWayIn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -88,7 +84,7 @@ export function hasOldRentFigure(op: Record<string, any> | null | undefined): bo
 }
 
 /** The profile with its old single rent figure moved into the rent list as an entry with no property. */
-/* ─ MK-CF-F-218 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+/* ─ MK-CF-F-218 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * moveOldRentFigure
  *
  * Answers ..... The profile with its old single rent figure moved into the rent list as an entry with no property.
@@ -107,19 +103,10 @@ export function hasOldRentFigure(op: Record<string, any> | null | undefined): bo
  *     ''   otherwise
  *     the answer = { ...rest, rentals: [entry] } as unknown as T
  *
- * Called by ... MK-XS-F-175 uid
+ * Called by ... MK-XS-F-199 profileOnTheWayIn
  *
- * Reaches ..... 53 functions. Change the arithmetic above and these change with it:
- *               MK-NW-F-082 NW · MK-NW-F-040 assetsFromOnboarding
- *               MK-CF-F-013 budgetFromOnboarding · MK-NW-F-039 buildAssetsState
- *               MK-CF-F-001 buildBudgetState · MK-CF-F-036 buildDebtState
- *               MK-PL-F-011 buildGoalsState · MK-NW-F-065 buildNetWorth
- *               MK-PL-F-053 buildRetirementState · MK-XS-F-031 buildSnapshot
- *               MK-CF-F-038 debtsFromOnboarding · MK-XS-F-072 deleteAccount
- *               MK-XS-F-138 deriveKeyFromSecret · MK-CF-F-041 getDebtState
- *               MK-CF-F-052 getIncomeState · MK-XS-F-023 getProfileReadModel
- *               MK-ST-F-041 getUserDoc · MK-PL-F-013 goalsFromOnboarding
- *               … and 35 more — the full list is on functions_from_code
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-199 profileOnTheWayIn
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-024 logged expenses

@@ -1,0 +1,4598 @@
+{
+  "batch": "cf module — part 16",
+  "written_by": "OpenAI independent specification reviewer",
+  "ready_to_close": false,
+  "still_open": [
+    "MK-CF-F-098: Clipping negative income months to0 breaks the year-tax reconciliation when a legitimate loss lowers cumulative taxable income. This is an allocation illustration, not payroll withholding.",
+    "MK-CF-F-187: Per-person6% phaseout is correct, but unknown MAGI gives an actual0 rather than a missing eligibility result.",
+    "MK-CF-F-099: Correct statutory amounts on an eligible standard-deduction return; MAGI/eligibility missing and nonstandard filing constraints are not represented.",
+    "MK-CF-F-100: Uses gross as MAGI; equivalent only when the caller has already adjusted gross to the statutory MAGI basis. Broad gross income can overphase the senior deduction.",
+    "MK-CF-F-104: Constants are correct, but one marginal rate selected from current ordinary income cannot price a finite gain that crosses the0/15/20% bands.",
+    "MK-CF-F-186: The calculated-rate conversion inverts net to gross without adding back401(k) contributions, so the later gross−tax−401(k) cannot equal the typed take-home. Manual-rate branch handles401(k), calculated branch does not.",
+    "DEC-0184: CANNOT TELL — This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The legacy stored-income path still calculates monthlytax as single without state and differs from rateInForce.",
+    "DEC-0200: NOT HELD — One-time migration is stated,but its calculated branch omits401(k)from the inverse equation and may not preserve entered landing after deductions.",
+    "DEC-0253: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-0263: CANNOT TELL — This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+    "DEC-7942: NOT HELD — One-time migration is stated,but its calculated branch omits401(k)from the inverse equation and may not preserve entered landing after deductions."
+  ],
+  "scope": "Written formulas,owner decisions and primary publications only. No repository code,existingtests or liveapp outputs were inspected for this review. Attached screen-register worked/app-result fields were excluded from expected-answer derivation.",
+  "formula_checks": [
+    {
+      "id": "MK-CF-F-097",
+      "name": "grossFromNet",
+      "verdict": "RIGHT",
+      "why": "A monotone federal-schedule inversion on the stated no-payroll/no-state domain; [net,3×net] brackets the 2026 rates, and50 bisections give ample numerical precision.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-098",
+      "name": "progressiveMonthlyTax",
+      "verdict": "INCOMPLETE",
+      "why": "Clipping negative income months to0 breaks the year-tax reconciliation when a legitimate loss lowers cumulative taxable income. This is an allocation illustration, not payroll withholding.",
+      "should_be": "Restrict inputs to explicitly nonnegative accruals, or permit negative tax adjustments that telescope to tax on the actual annual base.",
+      "rests_on": "Tenets1,2; ordinary telescoping sum",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-187",
+      "name": "seniorDeductionFor",
+      "verdict": "INCOMPLETE",
+      "why": "Per-person6% phaseout is correct, but unknown MAGI gives an actual0 rather than a missing eligibility result.",
+      "should_be": "Keep MAGI unknown distinct from a fully phased-out deduction; disclose conditional estimate.",
+      "rests_on": "IRS Schedule1-A PartV; tenet3",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-CF-F-099",
+      "name": "deductionFor",
+      "verdict": "INCOMPLETE",
+      "why": "Correct statutory amounts on an eligible standard-deduction return; MAGI/eligibility missing and nonstandard filing constraints are not represented.",
+      "should_be": "Declare standard-deduction model scope, provide MAGI for senior phaseout and preserve unknown eligibility.",
+      "rests_on": "IRS Rev.Proc.2025-32; Schedule1-A; tenets2–3",
+      "severity": "medium"
+    },
+    {
+      "id": "MK-CF-F-100",
+      "name": "taxableIncomeFor",
+      "verdict": "INCOMPLETE",
+      "why": "Uses gross as MAGI; equivalent only when the caller has already adjusted gross to the statutory MAGI basis. Broad gross income can overphase the senior deduction.",
+      "should_be": "Pass a distinct adjusted-income/MAGI value or explicitly constrain the model domain; do not phase the senior amount on unadjusted gross.",
+      "rests_on": "IRS Schedule1-A PartI,V",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-101",
+      "name": "taxOwedFor",
+      "verdict": "RIGHT",
+      "why": "Correct2026 band-by-band standard-deduction-model tax, plus the explicitly user-entered flat state assumption on taxable income. Full-return tax treatments and MAGI domain remain outside this primitive.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-102",
+      "name": "effectiveRateOnGrossFor",
+      "verdict": "RIGHT",
+      "why": "Divides the same modeled tax by its matching positive gross base; zero-income output is a rate sentinel, not proof of an entered0 tax rate.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-103",
+      "name": "marginalBracketFor",
+      "verdict": "RIGHT",
+      "why": "Correct inclusive upper-bound marginal band lookup on the modeled ordinary taxable income; zero taxable income maps to first band by convention, not a positive tax bill.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-104",
+      "name": "ltcgRateFor",
+      "verdict": "INCOMPLETE",
+      "why": "Constants are correct, but one marginal rate selected from current ordinary income cannot price a finite gain that crosses the0/15/20% bands.",
+      "should_be": "Label marginal baseline rate only; for tax on a gain, stack the gain over ordinary taxable income and slice it across bands.",
+      "rests_on": "IRS Rev.Proc.2025-32 §4.03; ScheduleD tax worksheet",
+      "severity": "high"
+    },
+    {
+      "id": "MK-CF-F-185",
+      "name": "needsTakeHomeConversion",
+      "verdict": "RIGHT",
+      "why": "Detects only a positive legacy take-home-mode record, without re-running conversion on already migrated data.",
+      "should_be": "",
+      "rests_on": "Written purpose and formula, on the stated valid input domain; ordinary arithmetic",
+      "severity": ""
+    },
+    {
+      "id": "MK-CF-F-186",
+      "name": "convertTakeHomeMode",
+      "verdict": "WRONG",
+      "why": "The calculated-rate conversion inverts net to gross without adding back401(k) contributions, so the later gross−tax−401(k) cannot equal the typed take-home. Manual-rate branch handles401(k), calculated branch does not.",
+      "should_be": "Solve gross−pre-tax contributions−tax(gross−pre-tax contributions)=entered net; store a labeled estimate once.",
+      "rests_on": "DEC-0200; DEC-0283; DEC-7942",
+      "severity": "high"
+    }
+  ],
+  "cases": [
+    {
+      "id": "MK-CF-F-097",
+      "case_id": "MK-CF-F-097-C01",
+      "name": "grossFromNet",
+      "kind": "easy",
+      "title": "Below deduction",
+      "as_of": "2026-10-24",
+      "given": "Below deduction",
+      "inputs": {
+        "net_annual": 10000,
+        "status": "single",
+        "over65": 0
+      },
+      "expected": {
+        "exact": "10000",
+        "shown": "$10,000"
+      },
+      "working": [
+        "Gross10000has0tax;net10000."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-097",
+      "case_id": "MK-CF-F-097-C02",
+      "name": "grossFromNet",
+      "kind": "easy",
+      "title": "First bracket",
+      "as_of": "2026-10-24",
+      "given": "First bracket",
+      "inputs": {
+        "net_annual": 19610,
+        "status": "single",
+        "over65": 0
+      },
+      "expected": {
+        "exact": "20000",
+        "shown": "$20,000"
+      },
+      "working": [
+        "Tax(20000−16100)×.10=390;20000−390=19610."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-097",
+      "case_id": "MK-CF-F-097-C03",
+      "name": "grossFromNet",
+      "kind": "complex",
+      "title": "Joint unround inversion",
+      "as_of": "2026-10-24",
+      "given": "Joint unround inversion",
+      "inputs": {
+        "net_annual": "92360.1496",
+        "status": "married",
+        "over65": 0
+      },
+      "expected": {
+        "exact": "100000.17",
+        "shown": "$100,000"
+      },
+      "working": [
+        "Compute jointtax independently then check gross−tax returns suppliednet;exact inversegross100000.17."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-097",
+      "case_id": "MK-CF-F-097-C04",
+      "name": "grossFromNet",
+      "kind": "complex",
+      "title": "Senior phaseout inversion",
+      "as_of": "2026-10-24",
+      "given": "Senior phaseout inversion",
+      "inputs": {
+        "net_annual": "143349.882208",
+        "status": "single",
+        "over65": 1
+      },
+      "expected": {
+        "exact": "173111.43",
+        "shown": "$173,111"
+      },
+      "working": [
+        "Independent per-personphaseout and bands;gross−tax equals suppliednet;monotonicinverse."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-097",
+      "case_id": "MK-CF-F-097-C05",
+      "name": "grossFromNet",
+      "kind": "edge",
+      "title": "Zero net",
+      "as_of": "2026-10-24",
+      "given": "Zero net",
+      "inputs": {
+        "net_annual": 0,
+        "status": "single"
+      },
+      "expected": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "working": [
+        "Nonpositive net branch returns0;not a missing-input sentinel."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-098",
+      "case_id": "MK-CF-F-098-C01",
+      "name": "progressiveMonthlyTax",
+      "kind": "easy",
+      "title": "One earning month",
+      "as_of": "2026-10-24",
+      "given": "One earning month",
+      "inputs": {
+        "months": [
+          60000,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "status": "single",
+        "state_rate": 0
+      },
+      "expected": {
+        "month_tax": [
+          {
+            "exact": "5020.0000",
+            "shown": "$5,020",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "annual_tax": {
+          "exact": "5020.0000",
+          "shown": "$5,020",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Firstincrement=T(60000)−T(0);others0;sumT(60000)."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-098",
+      "case_id": "MK-CF-F-098-C02",
+      "name": "progressiveMonthlyTax",
+      "kind": "easy",
+      "title": "Two equal months",
+      "as_of": "2026-10-24",
+      "given": "Two equal months",
+      "inputs": {
+        "months": [
+          30000,
+          30000,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "status": "single",
+        "state_rate": 0
+      },
+      "expected": {
+        "month_tax": [
+          {
+            "exact": "1420.0000",
+            "shown": "$1,420",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "3600.0000",
+            "shown": "$3,600",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "annual_tax": {
+          "exact": "5020.0000",
+          "shown": "$5,020",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "T(30000)+[T(60000)−T(30000)]=T(60000)."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-098",
+      "case_id": "MK-CF-F-098-C03",
+      "name": "progressiveMonthlyTax",
+      "kind": "complex",
+      "title": "Unround joint increments",
+      "as_of": "2026-10-24",
+      "given": "Unround joint increments",
+      "inputs": {
+        "months": [
+          "31111.17",
+          "41111.43",
+          "51111.19",
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "status": "married",
+        "state_rate": "0.05"
+      },
+      "expected": {
+        "month_tax": [
+          {
+            "exact": "0.00",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "6307.8420",
+            "shown": "$6,308",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "8688.9023",
+            "shown": "$8,689",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "annual_tax": {
+          "exact": "14996.7443",
+          "shown": "$14,997",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "Runninggross31111.17,72222.60,123333.79;differences telescope."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-098",
+      "case_id": "MK-CF-F-098-C04",
+      "name": "progressiveMonthlyTax",
+      "kind": "complex",
+      "title": "Loss lowers year base",
+      "as_of": "2026-10-24",
+      "given": "Loss lowers year base",
+      "inputs": {
+        "months": [
+          "73111.17",
+          "-13111.43",
+          "3111.19",
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "status": "single",
+        "state_rate": 0
+      },
+      "expected": {
+        "annual_income": {
+          "exact": "63110.93",
+          "shown": "$63,111",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "annual_tax": {
+          "exact": "5393.3116",
+          "shown": "$5,393",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "73111.17−13111.43+3111.19=63110.93;negative increment must reduce tax."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "clipped_income": {
+          "exact": "76222.36",
+          "shown": "$76,222",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "annual_tax": {
+          "exact": "7938.919200",
+          "shown": "$7,939",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-098",
+      "case_id": "MK-CF-F-098-C05",
+      "name": "progressiveMonthlyTax",
+      "kind": "edge",
+      "title": "All explicit zero",
+      "as_of": "2026-10-24",
+      "given": "All explicit zero",
+      "inputs": {
+        "months": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "status": "single",
+        "state_rate": 0
+      },
+      "expected": {
+        "month_tax": [
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          },
+          {
+            "exact": "0",
+            "shown": "$0",
+            "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+          }
+        ],
+        "annual_tax": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "T(0)=0;everydifference0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-187",
+      "case_id": "MK-CF-F-187-C01",
+      "name": "seniorDeductionFor",
+      "kind": "easy",
+      "title": "Single ordinary",
+      "as_of": "2026-10-24",
+      "given": "Single ordinary",
+      "inputs": {
+        "gross_or_magi": 60000,
+        "filing_status": "single",
+        "over65": 0,
+        "state_rate": 0,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "0.00",
+        "shown": "$0"
+      },
+      "working": [
+        "0 × max(0,6000−.06×max(0,60000−75000))."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-187",
+      "case_id": "MK-CF-F-187-C02",
+      "name": "seniorDeductionFor",
+      "kind": "easy",
+      "title": "Joint ordinary",
+      "as_of": "2026-10-24",
+      "given": "Joint ordinary",
+      "inputs": {
+        "gross_or_magi": 138000,
+        "filing_status": "married",
+        "over65": 0,
+        "state_rate": 0,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "0.00",
+        "shown": "$0"
+      },
+      "working": [
+        "0 × max(0,6000−.06×max(0,138000−150000))."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-187",
+      "case_id": "MK-CF-F-187-C03",
+      "name": "seniorDeductionFor",
+      "kind": "complex",
+      "title": "Both seniors partial phaseout",
+      "as_of": "2026-10-24",
+      "given": "Both seniors partial phaseout",
+      "inputs": {
+        "gross_or_magi": "173111.17",
+        "filing_status": "married",
+        "over65": 2,
+        "state_rate": "0.05",
+        "year": 2026
+      },
+      "expected": {
+        "exact": "9226.6596",
+        "shown": "$9,227"
+      },
+      "working": [
+        "2 × max(0,6000−.06×max(0,173111.17−150000))."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-187",
+      "case_id": "MK-CF-F-187-C04",
+      "name": "seniorDeductionFor",
+      "kind": "complex",
+      "title": "HOH senior",
+      "as_of": "2026-10-24",
+      "given": "HOH senior",
+      "inputs": {
+        "gross_or_magi": "83111.43",
+        "filing_status": "hoh",
+        "over65": 1,
+        "state_rate": "0.037",
+        "year": 2026
+      },
+      "expected": {
+        "exact": "5513.3142",
+        "shown": "$5,513"
+      },
+      "working": [
+        "1 × max(0,6000−.06×max(0,83111.43−75000))."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-187",
+      "case_id": "MK-CF-F-187-C05",
+      "name": "seniorDeductionFor",
+      "kind": "edge",
+      "title": "MAGI missing",
+      "as_of": "2026-10-24",
+      "given": "MAGI missing",
+      "inputs": {
+        "magi": null,
+        "filing_status": "married",
+        "over65": 2,
+        "year": 2026
+      },
+      "expected": {
+        "state": "REFUSES",
+        "reason": "MAGI needed to establish senior deduction"
+      },
+      "working": [
+        "Per-person6000amount can phaseout;missingMAGIisnot0deduction."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "exact": "0",
+        "shown": "$0"
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-099",
+      "case_id": "MK-CF-F-099-C01",
+      "name": "deductionFor",
+      "kind": "easy",
+      "title": "Single ordinary",
+      "as_of": "2026-10-24",
+      "given": "Single ordinary",
+      "inputs": {
+        "gross_or_magi": 60000,
+        "filing_status": "single",
+        "over65": 0,
+        "state_rate": 0,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "16100.00",
+        "shown": "$16,100"
+      },
+      "working": [
+        "Standard16100+age-addition2050×0+senior0.00=16100.00."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-099",
+      "case_id": "MK-CF-F-099-C02",
+      "name": "deductionFor",
+      "kind": "easy",
+      "title": "Joint ordinary",
+      "as_of": "2026-10-24",
+      "given": "Joint ordinary",
+      "inputs": {
+        "gross_or_magi": 138000,
+        "filing_status": "married",
+        "over65": 0,
+        "state_rate": 0,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "32200.00",
+        "shown": "$32,200"
+      },
+      "working": [
+        "Standard32200+age-addition1650×0+senior0.00=32200.00."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-099",
+      "case_id": "MK-CF-F-099-C03",
+      "name": "deductionFor",
+      "kind": "complex",
+      "title": "Both seniors partial phaseout",
+      "as_of": "2026-10-24",
+      "given": "Both seniors partial phaseout",
+      "inputs": {
+        "gross_or_magi": "173111.17",
+        "filing_status": "married",
+        "over65": 2,
+        "state_rate": "0.05",
+        "year": 2026
+      },
+      "expected": {
+        "exact": "44726.6596",
+        "shown": "$44,727"
+      },
+      "working": [
+        "Standard32200+age-addition1650×2+senior9226.6596=44726.6596."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-099",
+      "case_id": "MK-CF-F-099-C04",
+      "name": "deductionFor",
+      "kind": "complex",
+      "title": "HOH senior",
+      "as_of": "2026-10-24",
+      "given": "HOH senior",
+      "inputs": {
+        "gross_or_magi": "83111.43",
+        "filing_status": "hoh",
+        "over65": 1,
+        "state_rate": "0.037",
+        "year": 2026
+      },
+      "expected": {
+        "exact": "31713.3142",
+        "shown": "$31,713"
+      },
+      "working": [
+        "Standard24150+age-addition2050×1+senior5513.3142=31713.3142."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-099",
+      "case_id": "MK-CF-F-099-C05",
+      "name": "deductionFor",
+      "kind": "edge",
+      "title": "MAGI missing",
+      "as_of": "2026-10-24",
+      "given": "MAGI missing",
+      "inputs": {
+        "magi": null,
+        "filing_status": "married",
+        "over65": 2,
+        "year": 2026
+      },
+      "expected": {
+        "state": "REFUSES",
+        "reason": "MAGI needed to establish senior deduction"
+      },
+      "working": [
+        "Per-person6000amount can phaseout;missingMAGIisnot0deduction."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "exact": "35500",
+        "shown": "$35,500"
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-100",
+      "case_id": "MK-CF-F-100-C01",
+      "name": "taxableIncomeFor",
+      "kind": "easy",
+      "title": "Single ordinary",
+      "as_of": "2026-10-24",
+      "given": "Single ordinary",
+      "inputs": {
+        "gross_or_magi": 60000,
+        "filing_status": "single",
+        "over65": 0,
+        "state_rate": 0,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "43900.00",
+        "shown": "$43,900"
+      },
+      "working": [
+        "60000−deduction16100.00=43900.00;floor0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-100",
+      "case_id": "MK-CF-F-100-C02",
+      "name": "taxableIncomeFor",
+      "kind": "easy",
+      "title": "Joint ordinary",
+      "as_of": "2026-10-24",
+      "given": "Joint ordinary",
+      "inputs": {
+        "gross_or_magi": 138000,
+        "filing_status": "married",
+        "over65": 0,
+        "state_rate": 0,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "105800.00",
+        "shown": "$105,800"
+      },
+      "working": [
+        "138000−deduction32200.00=105800.00;floor0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-100",
+      "case_id": "MK-CF-F-100-C03",
+      "name": "taxableIncomeFor",
+      "kind": "complex",
+      "title": "Both seniors partial phaseout",
+      "as_of": "2026-10-24",
+      "given": "Both seniors partial phaseout",
+      "inputs": {
+        "gross_or_magi": "173111.17",
+        "filing_status": "married",
+        "over65": 2,
+        "state_rate": "0.05",
+        "year": 2026
+      },
+      "expected": {
+        "exact": "128384.5104",
+        "shown": "$128,385"
+      },
+      "working": [
+        "173111.17−deduction44726.6596=128384.5104;floor0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-100",
+      "case_id": "MK-CF-F-100-C04",
+      "name": "taxableIncomeFor",
+      "kind": "complex",
+      "title": "HOH senior",
+      "as_of": "2026-10-24",
+      "given": "HOH senior",
+      "inputs": {
+        "gross_or_magi": "83111.43",
+        "filing_status": "hoh",
+        "over65": 1,
+        "state_rate": "0.037",
+        "year": 2026
+      },
+      "expected": {
+        "exact": "51398.1158",
+        "shown": "$51,398"
+      },
+      "working": [
+        "83111.43−deduction31713.3142=51398.1158;floor0."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-100",
+      "case_id": "MK-CF-F-100-C05",
+      "name": "taxableIncomeFor",
+      "kind": "edge",
+      "title": "Gross differs from adjusted income",
+      "as_of": "2026-10-24",
+      "given": "Gross differs from adjusted income",
+      "inputs": {
+        "gross_receipts": 90000,
+        "above_line_adjustment": 20000,
+        "actual_magi": 70000,
+        "filing_status": "single",
+        "over65": 1
+      },
+      "expected": {
+        "taxable_after_adjustments": {
+          "exact": "45850",
+          "shown": "$45,850",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "deduction": {
+          "exact": "24150",
+          "shown": "$24,150",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "MAGI70000:senior6000;16100+2050+6000=24150;70000−24150=45850."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "if_unadjusted_gross_is_used": {
+          "exact": "66750.00",
+          "shown": "$66,750",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "senior_deduction": {
+          "exact": "5100.00",
+          "shown": "$5,100",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-101",
+      "case_id": "MK-CF-F-101-C01",
+      "name": "taxOwedFor",
+      "kind": "easy",
+      "title": "Single ordinary",
+      "as_of": "2026-10-24",
+      "given": "Single ordinary",
+      "inputs": {
+        "gross_or_magi": 60000,
+        "filing_status": "single",
+        "over65": 0,
+        "state_rate": 0,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "5020.0000",
+        "shown": "$5,020"
+      },
+      "working": [
+        "Income60000−deduction16100.00;tax each slice at single bands;state0×taxable only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-101",
+      "case_id": "MK-CF-F-101-C02",
+      "name": "taxOwedFor",
+      "kind": "easy",
+      "title": "Joint ordinary",
+      "as_of": "2026-10-24",
+      "given": "Joint ordinary",
+      "inputs": {
+        "gross_or_magi": 138000,
+        "filing_status": "married",
+        "over65": 0,
+        "state_rate": 0,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "12700.0000",
+        "shown": "$12,700"
+      },
+      "working": [
+        "Income138000−deduction32200.00;tax each slice at married bands;state0×taxable only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-101",
+      "case_id": "MK-CF-F-101-C03",
+      "name": "taxOwedFor",
+      "kind": "complex",
+      "title": "Both seniors partial phaseout",
+      "as_of": "2026-10-24",
+      "given": "Both seniors partial phaseout",
+      "inputs": {
+        "gross_or_magi": "173111.17",
+        "filing_status": "married",
+        "over65": 2,
+        "state_rate": "0.05",
+        "year": 2026
+      },
+      "expected": {
+        "exact": "24087.817808",
+        "shown": "$24,088"
+      },
+      "working": [
+        "Income173111.17−deduction44726.6596;tax each slice at married bands;state0.05×taxable only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-101",
+      "case_id": "MK-CF-F-101-C04",
+      "name": "taxOwedFor",
+      "kind": "complex",
+      "title": "HOH senior",
+      "as_of": "2026-10-24",
+      "given": "HOH senior",
+      "inputs": {
+        "gross_or_magi": "83111.43",
+        "filing_status": "hoh",
+        "over65": 1,
+        "state_rate": "0.037",
+        "year": 2026
+      },
+      "expected": {
+        "exact": "7715.5041806",
+        "shown": "$7,716"
+      },
+      "working": [
+        "Income83111.43−deduction31713.3142;tax each slice at hoh bands;state0.037×taxable only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-101",
+      "case_id": "MK-CF-F-101-C05",
+      "name": "taxOwedFor",
+      "kind": "edge",
+      "title": "Phaseout boundary",
+      "as_of": "2026-10-24",
+      "given": "Phaseout boundary",
+      "inputs": {
+        "gross_or_magi": 150000,
+        "filing_status": "married",
+        "over65": 2,
+        "state_rate": 0,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "11974.0000",
+        "shown": "$11,974"
+      },
+      "working": [
+        "Income150000−deduction47500.00;tax each slice at married bands;state0×taxable only."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-102",
+      "case_id": "MK-CF-F-102-C01",
+      "name": "effectiveRateOnGrossFor",
+      "kind": "easy",
+      "title": "Single ordinary",
+      "as_of": "2026-10-24",
+      "given": "Single ordinary",
+      "inputs": {
+        "gross_or_magi": 60000,
+        "filing_status": "single",
+        "over65": 0,
+        "state_rate": 0,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "0.08366666666666666666666666667",
+        "shown": "8.37%"
+      },
+      "working": [
+        "Tax5020.0000 ÷ matching gross60000."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-102",
+      "case_id": "MK-CF-F-102-C02",
+      "name": "effectiveRateOnGrossFor",
+      "kind": "easy",
+      "title": "Joint ordinary",
+      "as_of": "2026-10-24",
+      "given": "Joint ordinary",
+      "inputs": {
+        "gross_or_magi": 138000,
+        "filing_status": "married",
+        "over65": 0,
+        "state_rate": 0,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "0.09202898550724637681159420290",
+        "shown": "9.20%"
+      },
+      "working": [
+        "Tax12700.0000 ÷ matching gross138000."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-102",
+      "case_id": "MK-CF-F-102-C03",
+      "name": "effectiveRateOnGrossFor",
+      "kind": "complex",
+      "title": "Both seniors partial phaseout",
+      "as_of": "2026-10-24",
+      "given": "Both seniors partial phaseout",
+      "inputs": {
+        "gross_or_magi": "173111.17",
+        "filing_status": "married",
+        "over65": 2,
+        "state_rate": "0.05",
+        "year": 2026
+      },
+      "expected": {
+        "exact": "0.1391465253686402789606239736",
+        "shown": "13.91%"
+      },
+      "working": [
+        "Tax24087.817808 ÷ matching gross173111.17."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-102",
+      "case_id": "MK-CF-F-102-C04",
+      "name": "effectiveRateOnGrossFor",
+      "kind": "complex",
+      "title": "HOH senior",
+      "as_of": "2026-10-24",
+      "given": "HOH senior",
+      "inputs": {
+        "gross_or_magi": "83111.43",
+        "filing_status": "hoh",
+        "over65": 1,
+        "state_rate": "0.037",
+        "year": 2026
+      },
+      "expected": {
+        "exact": "0.09283325025932052907764912720",
+        "shown": "9.28%"
+      },
+      "working": [
+        "Tax7715.5041806 ÷ matching gross83111.43."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-102",
+      "case_id": "MK-CF-F-102-C05",
+      "name": "effectiveRateOnGrossFor",
+      "kind": "edge",
+      "title": "Phaseout boundary",
+      "as_of": "2026-10-24",
+      "given": "Phaseout boundary",
+      "inputs": {
+        "gross_or_magi": 150000,
+        "filing_status": "married",
+        "over65": 2,
+        "state_rate": 0,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "0.07982666666666666666666666667",
+        "shown": "7.98%"
+      },
+      "working": [
+        "Tax11974.0000 ÷ matching gross150000."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-103",
+      "case_id": "MK-CF-F-103-C01",
+      "name": "marginalBracketFor",
+      "kind": "easy",
+      "title": "Single ordinary",
+      "as_of": "2026-10-24",
+      "given": "Single ordinary",
+      "inputs": {
+        "gross_or_magi": 60000,
+        "filing_status": "single",
+        "over65": 0,
+        "state_rate": 0,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "0.12",
+        "shown": "12.00%"
+      },
+      "working": [
+        "Taxable43900.00;inclusive upper-bound lookup."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-103",
+      "case_id": "MK-CF-F-103-C02",
+      "name": "marginalBracketFor",
+      "kind": "easy",
+      "title": "Joint ordinary",
+      "as_of": "2026-10-24",
+      "given": "Joint ordinary",
+      "inputs": {
+        "gross_or_magi": 138000,
+        "filing_status": "married",
+        "over65": 0,
+        "state_rate": 0,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "0.22",
+        "shown": "22.00%"
+      },
+      "working": [
+        "Taxable105800.00;inclusive upper-bound lookup."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-103",
+      "case_id": "MK-CF-F-103-C03",
+      "name": "marginalBracketFor",
+      "kind": "complex",
+      "title": "Both seniors partial phaseout",
+      "as_of": "2026-10-24",
+      "given": "Both seniors partial phaseout",
+      "inputs": {
+        "gross_or_magi": "173111.17",
+        "filing_status": "married",
+        "over65": 2,
+        "state_rate": "0.05",
+        "year": 2026
+      },
+      "expected": {
+        "exact": "0.22",
+        "shown": "22.00%"
+      },
+      "working": [
+        "Taxable128384.5104;inclusive upper-bound lookup."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-103",
+      "case_id": "MK-CF-F-103-C04",
+      "name": "marginalBracketFor",
+      "kind": "complex",
+      "title": "HOH senior",
+      "as_of": "2026-10-24",
+      "given": "HOH senior",
+      "inputs": {
+        "gross_or_magi": "83111.43",
+        "filing_status": "hoh",
+        "over65": 1,
+        "state_rate": "0.037",
+        "year": 2026
+      },
+      "expected": {
+        "exact": "0.12",
+        "shown": "12.00%"
+      },
+      "working": [
+        "Taxable51398.1158;inclusive upper-bound lookup."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-103",
+      "case_id": "MK-CF-F-103-C05",
+      "name": "marginalBracketFor",
+      "kind": "edge",
+      "title": "Phaseout boundary",
+      "as_of": "2026-10-24",
+      "given": "Phaseout boundary",
+      "inputs": {
+        "gross_or_magi": 150000,
+        "filing_status": "married",
+        "over65": 2,
+        "state_rate": 0,
+        "year": 2026
+      },
+      "expected": {
+        "exact": "0.22",
+        "shown": "22.00%"
+      },
+      "working": [
+        "Taxable102500.00;inclusive upper-bound lookup."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-104",
+      "case_id": "MK-CF-F-104-C01",
+      "name": "ltcgRateFor",
+      "kind": "easy",
+      "title": "Below0 percent top",
+      "as_of": "2026-10-24",
+      "given": "Below0 percent top",
+      "inputs": {
+        "ordinary_gross": 50000,
+        "status": "single",
+        "over65": 0
+      },
+      "expected": {
+        "marginal_baseline_rate": {
+          "exact": "0",
+          "shown": "0.00%",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "50000−16100=33900≤49450."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-104",
+      "case_id": "MK-CF-F-104-C02",
+      "name": "ltcgRateFor",
+      "kind": "easy",
+      "title": "Ordinary income above0 top",
+      "as_of": "2026-10-24",
+      "given": "Ordinary income above0 top",
+      "inputs": {
+        "ordinary_gross": 70000,
+        "status": "single",
+        "over65": 0
+      },
+      "expected": {
+        "marginal_baseline_rate": {
+          "exact": "0.15",
+          "shown": "15.00%",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "70000−16100=53900;between49450and545500."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-104",
+      "case_id": "MK-CF-F-104-C03",
+      "name": "ltcgRateFor",
+      "kind": "complex",
+      "title": "Finite gain spans0 and15",
+      "as_of": "2026-10-24",
+      "given": "Finite gain spans0 and15",
+      "inputs": {
+        "ordinary_taxable_income": "48111.17",
+        "ordinary_gross": "64211.17",
+        "gain": "3311.43",
+        "status": "single"
+      },
+      "expected": {
+        "gain_at_0": {
+          "exact": "1338.83",
+          "shown": "$1,339",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "gain_at_15": {
+          "exact": "1972.60",
+          "shown": "$1,973",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "gain_tax": {
+          "exact": "295.89",
+          "shown": "$296",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "49450−48111.17=1338.83at0;3311.43−1338.83=1972.60;×.15=295.89."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "single_rate": {
+          "exact": "0",
+          "shown": "0.00%",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "if_applied_to_whole_gain_tax": {
+          "exact": "0",
+          "shown": "$0",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-104",
+      "case_id": "MK-CF-F-104-C04",
+      "name": "ltcgRateFor",
+      "kind": "complex",
+      "title": "Joint finite gain spans15 and20",
+      "as_of": "2026-10-24",
+      "given": "Joint finite gain spans15 and20",
+      "inputs": {
+        "ordinary_taxable_income": "611111.17",
+        "gain": "7311.43",
+        "status": "married"
+      },
+      "expected": {
+        "gain_at_15": {
+          "exact": "2588.83",
+          "shown": "$2,589",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "gain_at_20": {
+          "exact": "4722.60",
+          "shown": "$4,723",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "gain_tax": {
+          "exact": "1332.8445",
+          "shown": "$1,333",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "613700−611111.17=2588.83;rest4722.60;2588.83×.15+4722.60×.20=1332.8445."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "formula_gives": {
+        "one_rate_tax": {
+          "exact": "1096.7145",
+          "shown": "$1,097",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-104",
+      "case_id": "MK-CF-F-104-C05",
+      "name": "ltcgRateFor",
+      "kind": "edge",
+      "title": "Exactly0 top",
+      "as_of": "2026-10-24",
+      "given": "Exactly0 top",
+      "inputs": {
+        "ordinary_gross": 65550,
+        "status": "single",
+        "over65": 0
+      },
+      "expected": {
+        "marginal_baseline_rate": {
+          "exact": "0",
+          "shown": "0.00%",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "next_positive_gain_rate": {
+          "exact": "0.15",
+          "shown": "15.00%",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "working": [
+        "65550−16100=49450exactly;atthreshold0,eachadditionalgain-dollar15%."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-185",
+      "case_id": "MK-CF-F-185-C01",
+      "name": "needsTakeHomeConversion",
+      "kind": "easy",
+      "title": "Legacy monthly0percent",
+      "as_of": "2026-10-24",
+      "given": "Legacy monthly0percent",
+      "inputs": {
+        "mode": "take_home",
+        "amount": 5000,
+        "frequency": "monthly",
+        "manual_rate": 0,
+        "k_monthly": 0
+      },
+      "expected": true,
+      "working": [
+        "Trueonlypositivelegacytake-home-mode;alreadygrossand0donotconvert."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Calculatedinverseexactvaluesaredecimalapproximations;tolerance1e-8dollarissufficient;donotrequirebinaryequality.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-185",
+      "case_id": "MK-CF-F-185-C02",
+      "name": "needsTakeHomeConversion",
+      "kind": "easy",
+      "title": "Already gross",
+      "as_of": "2026-10-24",
+      "given": "Already gross",
+      "inputs": {
+        "mode": "gross",
+        "amount": 5000,
+        "frequency": "monthly",
+        "manual_rate": "0.24",
+        "k_monthly": 500
+      },
+      "expected": false,
+      "working": [
+        "Trueonlypositivelegacytake-home-mode;alreadygrossand0donotconvert."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Calculatedinverseexactvaluesaredecimalapproximations;tolerance1e-8dollarissufficient;donotrequirebinaryequality.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-185",
+      "case_id": "MK-CF-F-185-C03",
+      "name": "needsTakeHomeConversion",
+      "kind": "complex",
+      "title": "Legacy weekly with401k",
+      "as_of": "2026-10-24",
+      "given": "Legacy weekly with401k",
+      "inputs": {
+        "mode": "take_home",
+        "amount": "1731.17",
+        "frequency": "weekly",
+        "manual_rate": "0.22",
+        "k_monthly": "511.43"
+      },
+      "expected": true,
+      "working": [
+        "Trueonlypositivelegacytake-home-mode;alreadygrossand0donotconvert."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Calculatedinverseexactvaluesaredecimalapproximations;tolerance1e-8dollarissufficient;donotrequirebinaryequality.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-185",
+      "case_id": "MK-CF-F-185-C04",
+      "name": "needsTakeHomeConversion",
+      "kind": "complex",
+      "title": "Calculated conversion with401k",
+      "as_of": "2026-10-24",
+      "given": "Calculated conversion with401k",
+      "inputs": {
+        "mode": "take_home",
+        "amount": "4211.17",
+        "frequency": "monthly",
+        "manual_rate": null,
+        "k_monthly": "511.43"
+      },
+      "expected": true,
+      "working": [
+        "Trueonlypositivelegacytake-home-mode;alreadygrossand0donotconvert."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Calculatedinverseexactvaluesaredecimalapproximations;tolerance1e-8dollarissufficient;donotrequirebinaryequality.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-185",
+      "case_id": "MK-CF-F-185-C05",
+      "name": "needsTakeHomeConversion",
+      "kind": "edge",
+      "title": "Known zero legacy",
+      "as_of": "2026-10-24",
+      "given": "Known zero legacy",
+      "inputs": {
+        "mode": "take_home",
+        "amount": 0,
+        "frequency": "monthly",
+        "manual_rate": null,
+        "k_monthly": 0
+      },
+      "expected": false,
+      "working": [
+        "Trueonlypositivelegacytake-home-mode;alreadygrossand0donotconvert."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Calculatedinverseexactvaluesaredecimalapproximations;tolerance1e-8dollarissufficient;donotrequirebinaryequality.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-186",
+      "case_id": "MK-CF-F-186-C01",
+      "name": "convertTakeHomeMode",
+      "kind": "easy",
+      "title": "Legacy monthly0percent",
+      "as_of": "2026-10-24",
+      "given": "Legacy monthly0percent",
+      "inputs": {
+        "mode": "take_home",
+        "amount": 5000,
+        "frequency": "monthly",
+        "manual_rate": 0,
+        "k_monthly": 0
+      },
+      "expected": {
+        "annual_gross_estimate": {
+          "exact": "60000",
+          "shown": "$60,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "monthly_take_home_preserved": {
+          "exact": "5000",
+          "shown": "$5,000",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "new_mode": "gross",
+        "estimated_gross_label_required": true
+      },
+      "working": [
+        "(net60000+annual401k0)/(1−rate0)=60000."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Calculatedinverseexactvaluesaredecimalapproximations;tolerance1e-8dollarissufficient;donotrequirebinaryequality.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-186",
+      "case_id": "MK-CF-F-186-C02",
+      "name": "convertTakeHomeMode",
+      "kind": "easy",
+      "title": "Already gross",
+      "as_of": "2026-10-24",
+      "given": "Already gross",
+      "inputs": {
+        "mode": "gross",
+        "amount": 5000,
+        "frequency": "monthly",
+        "manual_rate": "0.24",
+        "k_monthly": 500
+      },
+      "expected": {
+        "unchanged": true
+      },
+      "working": [
+        "Notlegacypositive:leaveprofileunchanged."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Calculatedinverseexactvaluesaredecimalapproximations;tolerance1e-8dollarissufficient;donotrequirebinaryequality.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-186",
+      "case_id": "MK-CF-F-186-C03",
+      "name": "convertTakeHomeMode",
+      "kind": "complex",
+      "title": "Legacy weekly with401k",
+      "as_of": "2026-10-24",
+      "given": "Legacy weekly with401k",
+      "inputs": {
+        "mode": "take_home",
+        "amount": "1731.17",
+        "frequency": "weekly",
+        "manual_rate": "0.22",
+        "k_monthly": "511.43"
+      },
+      "expected": {
+        "annual_gross_estimate": {
+          "exact": "123279.4871794871794871794872",
+          "shown": "$123,279",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "monthly_take_home_preserved": {
+          "exact": "7501.736666666666666666666667",
+          "shown": "$7,502",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "new_mode": "gross",
+        "estimated_gross_label_required": true
+      },
+      "working": [
+        "(net90020.84+annual401k6137.16)/(1−rate0.22)=123279.4871794871794871794872."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Calculatedinverseexactvaluesaredecimalapproximations;tolerance1e-8dollarissufficient;donotrequirebinaryequality.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-186",
+      "case_id": "MK-CF-F-186-C04",
+      "name": "convertTakeHomeMode",
+      "kind": "complex",
+      "title": "Calculated conversion with401k",
+      "as_of": "2026-10-24",
+      "given": "Calculated conversion with401k",
+      "inputs": {
+        "mode": "take_home",
+        "amount": "4211.17",
+        "frequency": "monthly",
+        "manual_rate": null,
+        "k_monthly": "511.43"
+      },
+      "expected": {
+        "annual_gross_estimate": {
+          "exact": "61084.9327272727272727272727",
+          "shown": "$61,085",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "monthly_take_home_preserved": {
+          "exact": "4211.17",
+          "shown": "$4,211",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        },
+        "new_mode": "gross",
+        "estimated_gross_label_required": true
+      },
+      "working": [
+        "Solvegross−6137.16−T(gross−6137.16)=50534.04;gross=61084.9327272727272727272727."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Calculatedinverseexactvaluesaredecimalapproximations;tolerance1e-8dollarissufficient;donotrequirebinaryequality.",
+      "formula_gives": {
+        "gross_without_k_added_back": {
+          "exact": "54947.7727272727272727272727",
+          "shown": "$54,948",
+          "shown_scope": "Display policy for this component; use the registered unit at the actual adapter boundary."
+        }
+      },
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    },
+    {
+      "id": "MK-CF-F-186",
+      "case_id": "MK-CF-F-186-C05",
+      "name": "convertTakeHomeMode",
+      "kind": "edge",
+      "title": "Known zero legacy",
+      "as_of": "2026-10-24",
+      "given": "Known zero legacy",
+      "inputs": {
+        "mode": "take_home",
+        "amount": 0,
+        "frequency": "monthly",
+        "manual_rate": null,
+        "k_monthly": 0
+      },
+      "expected": {
+        "unchanged": true
+      },
+      "working": [
+        "Notlegacypositive:leaveprofileunchanged."
+      ],
+      "rests_on": "Independent application of the stated purpose, owner rules and arithmetic; see formula_checks for governing references",
+      "confidence": "high",
+      "outside_domain": false,
+      "notes": "Calculatedinverseexactvaluesaredecimalapproximations;tolerance1e-8dollarissufficient;donotrequirebinaryequality.",
+      "display_contract": "Money totals round once to whole dollars,transactions/prices to cents,percentages as the metric declares. Exact decimal/rational strings are authoritative; arrays/objects may assert multiple outputs or related calls. No uncertain result should be coerced to0."
+    }
+  ],
+  "could_not_test": [],
+  "source_checks": [
+    {
+      "topic": "Federal income tax2026—bands by filing status",
+      "verdict": "RIGHT",
+      "why": "All four printed ordinary-income band tables and rates match the2026 primary publication; this verifies constants,not complete return-level tax treatment.",
+      "source": {
+        "key": "irs_2026",
+        "source": "IRS Revenue Procedure 2025-32",
+        "url": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf",
+        "sections": "4.01,4.03,4.14",
+        "checked_on": "2026-10-24",
+        "scope": "2026 ordinary bands, capital-gain thresholds, standard and aged deductions"
+      },
+      "witnesses": [
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 12400
+          },
+          "expected": {
+            "exact": "1240.0",
+            "shown": "$1,240.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 12401
+          },
+          "expected": {
+            "exact": "1240.12",
+            "shown": "$1,240.12"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "1",
+              "rate": "0.12",
+              "tax": "0.12"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 50400
+          },
+          "expected": {
+            "exact": "5800.00",
+            "shown": "$5,800.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 50401
+          },
+          "expected": {
+            "exact": "5800.22",
+            "shown": "$5,800.22"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "1",
+              "rate": "0.22",
+              "tax": "0.22"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 105700
+          },
+          "expected": {
+            "exact": "17966.00",
+            "shown": "$17,966.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 105701
+          },
+          "expected": {
+            "exact": "17966.24",
+            "shown": "$17,966.24"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "1",
+              "rate": "0.24",
+              "tax": "0.24"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 201775
+          },
+          "expected": {
+            "exact": "41024.00",
+            "shown": "$41,024.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 201776
+          },
+          "expected": {
+            "exact": "41024.32",
+            "shown": "$41,024.32"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "1",
+              "rate": "0.32",
+              "tax": "0.32"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 256225
+          },
+          "expected": {
+            "exact": "58448.00",
+            "shown": "$58,448.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 256226
+          },
+          "expected": {
+            "exact": "58448.35",
+            "shown": "$58,448.35"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256225",
+              "slice": "1",
+              "rate": "0.35",
+              "tax": "0.35"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 640600
+          },
+          "expected": {
+            "exact": "192979.25",
+            "shown": "$192,979.25"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256225",
+              "slice": "384375",
+              "rate": "0.35",
+              "tax": "134531.25"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "taxable_income_after_deductions": 640601
+          },
+          "expected": {
+            "exact": "192979.62",
+            "shown": "$192,979.62"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256225",
+              "slice": "384375",
+              "rate": "0.35",
+              "tax": "134531.25"
+            },
+            {
+              "lower": "640600",
+              "slice": "1",
+              "rate": "0.37",
+              "tax": "0.37"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 24800
+          },
+          "expected": {
+            "exact": "2480.0",
+            "shown": "$2,480.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 24801
+          },
+          "expected": {
+            "exact": "2480.12",
+            "shown": "$2,480.12"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "1",
+              "rate": "0.12",
+              "tax": "0.12"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 100800
+          },
+          "expected": {
+            "exact": "11600.00",
+            "shown": "$11,600.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 100801
+          },
+          "expected": {
+            "exact": "11600.22",
+            "shown": "$11,600.22"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "1",
+              "rate": "0.22",
+              "tax": "0.22"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 211400
+          },
+          "expected": {
+            "exact": "35932.00",
+            "shown": "$35,932.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "110600",
+              "rate": "0.22",
+              "tax": "24332.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 211401
+          },
+          "expected": {
+            "exact": "35932.24",
+            "shown": "$35,932.24"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "110600",
+              "rate": "0.22",
+              "tax": "24332.00"
+            },
+            {
+              "lower": "211400",
+              "slice": "1",
+              "rate": "0.24",
+              "tax": "0.24"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 403550
+          },
+          "expected": {
+            "exact": "82048.00",
+            "shown": "$82,048.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "110600",
+              "rate": "0.22",
+              "tax": "24332.00"
+            },
+            {
+              "lower": "211400",
+              "slice": "192150",
+              "rate": "0.24",
+              "tax": "46116.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 403551
+          },
+          "expected": {
+            "exact": "82048.32",
+            "shown": "$82,048.32"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "110600",
+              "rate": "0.22",
+              "tax": "24332.00"
+            },
+            {
+              "lower": "211400",
+              "slice": "192150",
+              "rate": "0.24",
+              "tax": "46116.00"
+            },
+            {
+              "lower": "403550",
+              "slice": "1",
+              "rate": "0.32",
+              "tax": "0.32"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 512450
+          },
+          "expected": {
+            "exact": "116896.00",
+            "shown": "$116,896.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "110600",
+              "rate": "0.22",
+              "tax": "24332.00"
+            },
+            {
+              "lower": "211400",
+              "slice": "192150",
+              "rate": "0.24",
+              "tax": "46116.00"
+            },
+            {
+              "lower": "403550",
+              "slice": "108900",
+              "rate": "0.32",
+              "tax": "34848.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 512451
+          },
+          "expected": {
+            "exact": "116896.35",
+            "shown": "$116,896.35"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "110600",
+              "rate": "0.22",
+              "tax": "24332.00"
+            },
+            {
+              "lower": "211400",
+              "slice": "192150",
+              "rate": "0.24",
+              "tax": "46116.00"
+            },
+            {
+              "lower": "403550",
+              "slice": "108900",
+              "rate": "0.32",
+              "tax": "34848.00"
+            },
+            {
+              "lower": "512450",
+              "slice": "1",
+              "rate": "0.35",
+              "tax": "0.35"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 768700
+          },
+          "expected": {
+            "exact": "206583.50",
+            "shown": "$206,583.50"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "110600",
+              "rate": "0.22",
+              "tax": "24332.00"
+            },
+            {
+              "lower": "211400",
+              "slice": "192150",
+              "rate": "0.24",
+              "tax": "46116.00"
+            },
+            {
+              "lower": "403550",
+              "slice": "108900",
+              "rate": "0.32",
+              "tax": "34848.00"
+            },
+            {
+              "lower": "512450",
+              "slice": "256250",
+              "rate": "0.35",
+              "tax": "89687.50"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "taxable_income_after_deductions": 768701
+          },
+          "expected": {
+            "exact": "206583.87",
+            "shown": "$206,583.87"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "24800",
+              "rate": "0.1",
+              "tax": "2480.0"
+            },
+            {
+              "lower": "24800",
+              "slice": "76000",
+              "rate": "0.12",
+              "tax": "9120.00"
+            },
+            {
+              "lower": "100800",
+              "slice": "110600",
+              "rate": "0.22",
+              "tax": "24332.00"
+            },
+            {
+              "lower": "211400",
+              "slice": "192150",
+              "rate": "0.24",
+              "tax": "46116.00"
+            },
+            {
+              "lower": "403550",
+              "slice": "108900",
+              "rate": "0.32",
+              "tax": "34848.00"
+            },
+            {
+              "lower": "512450",
+              "slice": "256250",
+              "rate": "0.35",
+              "tax": "89687.50"
+            },
+            {
+              "lower": "768700",
+              "slice": "1",
+              "rate": "0.37",
+              "tax": "0.37"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 12400
+          },
+          "expected": {
+            "exact": "1240.0",
+            "shown": "$1,240.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 12401
+          },
+          "expected": {
+            "exact": "1240.12",
+            "shown": "$1,240.12"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "1",
+              "rate": "0.12",
+              "tax": "0.12"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 50400
+          },
+          "expected": {
+            "exact": "5800.00",
+            "shown": "$5,800.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 50401
+          },
+          "expected": {
+            "exact": "5800.22",
+            "shown": "$5,800.22"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "1",
+              "rate": "0.22",
+              "tax": "0.22"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 105700
+          },
+          "expected": {
+            "exact": "17966.00",
+            "shown": "$17,966.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 105701
+          },
+          "expected": {
+            "exact": "17966.24",
+            "shown": "$17,966.24"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "1",
+              "rate": "0.24",
+              "tax": "0.24"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 201775
+          },
+          "expected": {
+            "exact": "41024.00",
+            "shown": "$41,024.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 201776
+          },
+          "expected": {
+            "exact": "41024.32",
+            "shown": "$41,024.32"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "1",
+              "rate": "0.32",
+              "tax": "0.32"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 256225
+          },
+          "expected": {
+            "exact": "58448.00",
+            "shown": "$58,448.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 256226
+          },
+          "expected": {
+            "exact": "58448.35",
+            "shown": "$58,448.35"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256225",
+              "slice": "1",
+              "rate": "0.35",
+              "tax": "0.35"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 384350
+          },
+          "expected": {
+            "exact": "103291.75",
+            "shown": "$103,291.75"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256225",
+              "slice": "128125",
+              "rate": "0.35",
+              "tax": "44843.75"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "taxable_income_after_deductions": 384351
+          },
+          "expected": {
+            "exact": "103292.12",
+            "shown": "$103,292.12"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "12400",
+              "rate": "0.1",
+              "tax": "1240.0"
+            },
+            {
+              "lower": "12400",
+              "slice": "38000",
+              "rate": "0.12",
+              "tax": "4560.00"
+            },
+            {
+              "lower": "50400",
+              "slice": "55300",
+              "rate": "0.22",
+              "tax": "12166.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96075",
+              "rate": "0.24",
+              "tax": "23058.00"
+            },
+            {
+              "lower": "201775",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256225",
+              "slice": "128125",
+              "rate": "0.35",
+              "tax": "44843.75"
+            },
+            {
+              "lower": "384350",
+              "slice": "1",
+              "rate": "0.37",
+              "tax": "0.37"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 17700
+          },
+          "expected": {
+            "exact": "1770.0",
+            "shown": "$1,770.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 17701
+          },
+          "expected": {
+            "exact": "1770.12",
+            "shown": "$1,770.12"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "1",
+              "rate": "0.12",
+              "tax": "0.12"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 67450
+          },
+          "expected": {
+            "exact": "7740.00",
+            "shown": "$7,740.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 67451
+          },
+          "expected": {
+            "exact": "7740.22",
+            "shown": "$7,740.22"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "1",
+              "rate": "0.22",
+              "tax": "0.22"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 105700
+          },
+          "expected": {
+            "exact": "16155.00",
+            "shown": "$16,155.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "38250",
+              "rate": "0.22",
+              "tax": "8415.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 105701
+          },
+          "expected": {
+            "exact": "16155.24",
+            "shown": "$16,155.24"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "38250",
+              "rate": "0.22",
+              "tax": "8415.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "1",
+              "rate": "0.24",
+              "tax": "0.24"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 201750
+          },
+          "expected": {
+            "exact": "39207.00",
+            "shown": "$39,207.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "38250",
+              "rate": "0.22",
+              "tax": "8415.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96050",
+              "rate": "0.24",
+              "tax": "23052.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 201751
+          },
+          "expected": {
+            "exact": "39207.32",
+            "shown": "$39,207.32"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "38250",
+              "rate": "0.22",
+              "tax": "8415.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96050",
+              "rate": "0.24",
+              "tax": "23052.00"
+            },
+            {
+              "lower": "201750",
+              "slice": "1",
+              "rate": "0.32",
+              "tax": "0.32"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 256200
+          },
+          "expected": {
+            "exact": "56631.00",
+            "shown": "$56,631.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "38250",
+              "rate": "0.22",
+              "tax": "8415.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96050",
+              "rate": "0.24",
+              "tax": "23052.00"
+            },
+            {
+              "lower": "201750",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 256201
+          },
+          "expected": {
+            "exact": "56631.35",
+            "shown": "$56,631.35"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "38250",
+              "rate": "0.22",
+              "tax": "8415.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96050",
+              "rate": "0.24",
+              "tax": "23052.00"
+            },
+            {
+              "lower": "201750",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256200",
+              "slice": "1",
+              "rate": "0.35",
+              "tax": "0.35"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 640600
+          },
+          "expected": {
+            "exact": "191171.00",
+            "shown": "$191,171.00"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "38250",
+              "rate": "0.22",
+              "tax": "8415.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96050",
+              "rate": "0.24",
+              "tax": "23052.00"
+            },
+            {
+              "lower": "201750",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256200",
+              "slice": "384400",
+              "rate": "0.35",
+              "tax": "134540.00"
+            }
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "taxable_income_after_deductions": 640601
+          },
+          "expected": {
+            "exact": "191171.37",
+            "shown": "$191,171.37"
+          },
+          "working": [
+            {
+              "lower": "0",
+              "slice": "17700",
+              "rate": "0.1",
+              "tax": "1770.0"
+            },
+            {
+              "lower": "17700",
+              "slice": "49750",
+              "rate": "0.12",
+              "tax": "5970.00"
+            },
+            {
+              "lower": "67450",
+              "slice": "38250",
+              "rate": "0.22",
+              "tax": "8415.00"
+            },
+            {
+              "lower": "105700",
+              "slice": "96050",
+              "rate": "0.24",
+              "tax": "23052.00"
+            },
+            {
+              "lower": "201750",
+              "slice": "54450",
+              "rate": "0.32",
+              "tax": "17424.00"
+            },
+            {
+              "lower": "256200",
+              "slice": "384400",
+              "rate": "0.35",
+              "tax": "134540.00"
+            },
+            {
+              "lower": "640600",
+              "slice": "1",
+              "rate": "0.37",
+              "tax": "0.37"
+            }
+          ]
+        }
+      ],
+      "amounts_checked": {
+        "single": [
+          [
+            12400,
+            0.1
+          ],
+          [
+            50400,
+            0.12
+          ],
+          [
+            105700,
+            0.22
+          ],
+          [
+            201775,
+            0.24
+          ],
+          [
+            256225,
+            0.32
+          ],
+          [
+            640600,
+            0.35
+          ],
+          [
+            null,
+            0.37
+          ]
+        ],
+        "married": [
+          [
+            24800,
+            0.1
+          ],
+          [
+            100800,
+            0.12
+          ],
+          [
+            211400,
+            0.22
+          ],
+          [
+            403550,
+            0.24
+          ],
+          [
+            512450,
+            0.32
+          ],
+          [
+            768700,
+            0.35
+          ],
+          [
+            null,
+            0.37
+          ]
+        ],
+        "mfs": [
+          [
+            12400,
+            0.1
+          ],
+          [
+            50400,
+            0.12
+          ],
+          [
+            105700,
+            0.22
+          ],
+          [
+            201775,
+            0.24
+          ],
+          [
+            256225,
+            0.32
+          ],
+          [
+            384350,
+            0.35
+          ],
+          [
+            null,
+            0.37
+          ]
+        ],
+        "hoh": [
+          [
+            17700,
+            0.1
+          ],
+          [
+            67450,
+            0.12
+          ],
+          [
+            105700,
+            0.22
+          ],
+          [
+            201750,
+            0.24
+          ],
+          [
+            256200,
+            0.32
+          ],
+          [
+            640600,
+            0.35
+          ],
+          [
+            null,
+            0.37
+          ]
+        ]
+      }
+    },
+    {
+      "topic": "Standard deduction and age65 additions2026",
+      "verdict": "RIGHT",
+      "why": "All printed amounts match RP2025-32. Joint returns add the age amount once per eligible spouse; eligibility is tested for the taxyear,including the January1 birthday convention.",
+      "source": {
+        "key": "irs_2026",
+        "source": "IRS Revenue Procedure 2025-32",
+        "url": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf",
+        "sections": "4.01,4.03,4.14",
+        "checked_on": "2026-10-24",
+        "scope": "2026 ordinary bands, capital-gain thresholds, standard and aged deductions"
+      },
+      "eligibility_source": {
+        "key": "age65",
+        "source": "IRS Form1040 instructions",
+        "url": "https://www.irs.gov/instructions/i1040gi",
+        "sections": "Line12d;age attained day before65thbirthday",
+        "checked_on": "2026-10-24",
+        "scope": "Age mechanism;2026 threshold advanced one year from2025 form"
+      },
+      "witnesses": [
+        {
+          "input": {
+            "filing_status": "single",
+            "eligible_people65_plus": 0
+          },
+          "expected": {
+            "exact": "16100",
+            "shown": "$16,100"
+          },
+          "working": [
+            "16100 + 2050 × 0; excludes separate enhanced senior deduction."
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "single",
+            "eligible_people65_plus": 1
+          },
+          "expected": {
+            "exact": "18150",
+            "shown": "$18,150"
+          },
+          "working": [
+            "16100 + 2050 × 1; excludes separate enhanced senior deduction."
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "eligible_people65_plus": 0
+          },
+          "expected": {
+            "exact": "32200",
+            "shown": "$32,200"
+          },
+          "working": [
+            "32200 + 1650 × 0; excludes separate enhanced senior deduction."
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "eligible_people65_plus": 1
+          },
+          "expected": {
+            "exact": "33850",
+            "shown": "$33,850"
+          },
+          "working": [
+            "32200 + 1650 × 1; excludes separate enhanced senior deduction."
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "married",
+            "eligible_people65_plus": 2
+          },
+          "expected": {
+            "exact": "35500",
+            "shown": "$35,500"
+          },
+          "working": [
+            "32200 + 1650 × 2; excludes separate enhanced senior deduction."
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "eligible_people65_plus": 0
+          },
+          "expected": {
+            "exact": "16100",
+            "shown": "$16,100"
+          },
+          "working": [
+            "16100 + 1650 × 0; excludes separate enhanced senior deduction."
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "mfs",
+            "eligible_people65_plus": 1
+          },
+          "expected": {
+            "exact": "17750",
+            "shown": "$17,750"
+          },
+          "working": [
+            "16100 + 1650 × 1; excludes separate enhanced senior deduction."
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "eligible_people65_plus": 0
+          },
+          "expected": {
+            "exact": "24150",
+            "shown": "$24,150"
+          },
+          "working": [
+            "24150 + 2050 × 0; excludes separate enhanced senior deduction."
+          ]
+        },
+        {
+          "input": {
+            "filing_status": "hoh",
+            "eligible_people65_plus": 1
+          },
+          "expected": {
+            "exact": "26200",
+            "shown": "$26,200"
+          },
+          "working": [
+            "24150 + 2050 × 1; excludes separate enhanced senior deduction."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Enhanced senior deduction2025–2028",
+      "verdict": "RIGHT",
+      "why": "Printed amount,years,6%per-personphaseout and filing restrictions match the law/form. MissingMAGI/SSN/age is an eligibility gap,not a different statutory constant.",
+      "source": {
+        "key": "senior",
+        "source": "IRS Schedule1-A (2025), statutory phaseout mechanics",
+        "url": "https://www.irs.gov/pub/irs-pdf/f1040s1a.pdf",
+        "sections": "PartI;PartV lines31–37",
+        "checked_on": "2026-10-24",
+        "scope": "MAGI,per-personphaseout,marriedjointeligibility;2025 form used for mechanics,not2026 ordinary bracket values"
+      },
+      "witnesses": [
+        {
+          "input": {
+            "status": "married",
+            "eligible_people": 2,
+            "magi": 150000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "12000.00",
+            "shown": "$12,000"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "married",
+            "eligible_people": 2,
+            "magi": 175000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "9000.00",
+            "shown": "$9,000"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "married",
+            "eligible_people": 2,
+            "magi": 200000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "6000.00",
+            "shown": "$6,000"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "married",
+            "eligible_people": 2,
+            "magi": 250000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "0",
+            "shown": "$0"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "single",
+            "eligible_people": 1,
+            "magi": 75000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "6000.00",
+            "shown": "$6,000"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "single",
+            "eligible_people": 1,
+            "magi": 100000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "4500.00",
+            "shown": "$4,500"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "single",
+            "eligible_people": 1,
+            "magi": 125000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "3000.00",
+            "shown": "$3,000"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "single",
+            "eligible_people": 1,
+            "magi": 175000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "0",
+            "shown": "$0"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "mfs",
+            "eligible_people": 1,
+            "magi": 50000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "0",
+            "shown": "$0"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        },
+        {
+          "input": {
+            "status": "mfs",
+            "eligible_people": 1,
+            "magi": 150000,
+            "tax_year": 2026
+          },
+          "expected": {
+            "exact": "0",
+            "shown": "$0"
+          },
+          "working": [
+            "Per person=max(0,6000−.06×max(0,MAGI−threshold)); multiply by eligible people after phaseout; no MFS eligibility."
+          ]
+        }
+      ]
+    },
+    {
+      "topic": "Long-term capital gains2026thresholds",
+      "verdict": "RIGHT",
+      "why": "All printed thresholds match. Ordinary income fills lower bands first; a finite gain can cross bands,so a single baseline rate cannot calculate its total tax.",
+      "source": {
+        "key": "irs_2026",
+        "source": "IRS Revenue Procedure 2025-32",
+        "url": "https://www.irs.gov/pub/irs-drop/rp-25-32.pdf",
+        "sections": "4.01,4.03,4.14",
+        "checked_on": "2026-10-24",
+        "scope": "2026 ordinary bands, capital-gain thresholds, standard and aged deductions"
+      },
+      "mechanics_source": {
+        "key": "gains",
+        "source": "IRS Instructions for ScheduleD",
+        "url": "https://www.irs.gov/instructions/i1040sd",
+        "sections": "ScheduleD Tax Worksheet",
+        "checked_on": "2026-10-24",
+        "scope": "Stacking mechanism only;2026 thresholds fromRP2025-32"
+      },
+      "witnesses": [
+        {
+          "input": {
+            "status": "single",
+            "taxable_income_at_lookup": 49450
+          },
+          "expected": {
+            "exact": "0",
+            "shown": "0.00%"
+          },
+          "working": [
+            "Compare 49450 with 49450 and 545500; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "single",
+            "taxable_income_at_lookup": 49451
+          },
+          "expected": {
+            "exact": "0.15",
+            "shown": "15.00%"
+          },
+          "working": [
+            "Compare 49451 with 49450 and 545500; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "single",
+            "taxable_income_at_lookup": 545500
+          },
+          "expected": {
+            "exact": "0.15",
+            "shown": "15.00%"
+          },
+          "working": [
+            "Compare 545500 with 49450 and 545500; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "single",
+            "taxable_income_at_lookup": 545501
+          },
+          "expected": {
+            "exact": "0.2",
+            "shown": "20.00%"
+          },
+          "working": [
+            "Compare 545501 with 49450 and 545500; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "married",
+            "taxable_income_at_lookup": 98900
+          },
+          "expected": {
+            "exact": "0",
+            "shown": "0.00%"
+          },
+          "working": [
+            "Compare 98900 with 98900 and 613700; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "married",
+            "taxable_income_at_lookup": 98901
+          },
+          "expected": {
+            "exact": "0.15",
+            "shown": "15.00%"
+          },
+          "working": [
+            "Compare 98901 with 98900 and 613700; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "married",
+            "taxable_income_at_lookup": 613700
+          },
+          "expected": {
+            "exact": "0.15",
+            "shown": "15.00%"
+          },
+          "working": [
+            "Compare 613700 with 98900 and 613700; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "married",
+            "taxable_income_at_lookup": 613701
+          },
+          "expected": {
+            "exact": "0.2",
+            "shown": "20.00%"
+          },
+          "working": [
+            "Compare 613701 with 98900 and 613700; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "mfs",
+            "taxable_income_at_lookup": 49450
+          },
+          "expected": {
+            "exact": "0",
+            "shown": "0.00%"
+          },
+          "working": [
+            "Compare 49450 with 49450 and 306850; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "mfs",
+            "taxable_income_at_lookup": 49451
+          },
+          "expected": {
+            "exact": "0.15",
+            "shown": "15.00%"
+          },
+          "working": [
+            "Compare 49451 with 49450 and 306850; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "mfs",
+            "taxable_income_at_lookup": 306850
+          },
+          "expected": {
+            "exact": "0.15",
+            "shown": "15.00%"
+          },
+          "working": [
+            "Compare 306850 with 49450 and 306850; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "mfs",
+            "taxable_income_at_lookup": 306851
+          },
+          "expected": {
+            "exact": "0.2",
+            "shown": "20.00%"
+          },
+          "working": [
+            "Compare 306851 with 49450 and 306850; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "hoh",
+            "taxable_income_at_lookup": 66200
+          },
+          "expected": {
+            "exact": "0",
+            "shown": "0.00%"
+          },
+          "working": [
+            "Compare 66200 with 66200 and 579600; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "hoh",
+            "taxable_income_at_lookup": 66201
+          },
+          "expected": {
+            "exact": "0.15",
+            "shown": "15.00%"
+          },
+          "working": [
+            "Compare 66201 with 66200 and 579600; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "hoh",
+            "taxable_income_at_lookup": 579600
+          },
+          "expected": {
+            "exact": "0.15",
+            "shown": "15.00%"
+          },
+          "working": [
+            "Compare 579600 with 66200 and 579600; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "hoh",
+            "taxable_income_at_lookup": 579601
+          },
+          "expected": {
+            "exact": "0.2",
+            "shown": "20.00%"
+          },
+          "working": [
+            "Compare 579601 with 66200 and 579600; equality uses lower band. This lookup is not finite-gain tax."
+          ]
+        },
+        {
+          "input": {
+            "status": "single",
+            "ordinary_taxable": 48111.17,
+            "gain": 3311.43
+          },
+          "expected": {
+            "exact": "295.89",
+            "shown": "$295.89"
+          },
+          "working": [
+            "1338.83 at0%;1972.60 at15%;tax295.89."
+          ]
+        }
+      ]
+    }
+  ],
+  "rules_held": [
+    {
+      "rule": "DEC-0184",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This part does not supply the independent full contract needed to establish this decision. Cross-part findings are referenced,not treated as local measured app behavior. The legacy stored-income path still calculates monthlytax as single without state and differs from rateInForce.",
+      "decision_in_force": "The app carried TWO complete tax engines, both live from the same profile on the same day, and one of them could not read a filing status at all. One is deleted. ZERO numbers moved for a single filer — the two were identical arithmetic there — and it becomes correct for couples the moment the filing-status question lands.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-049-C03",
+        "MK-CF-F-048-C03"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0200",
+      "cards": [
+        "MK-CF-F-186"
+      ],
+      "verdict": "NOT HELD",
+      "why": "One-time migration is stated,but its calculated branch omits401(k)from the inverse equation and may not preserve entered landing after deductions.",
+      "decision_in_force": "When you type your take-home instead of your gross, it is converted ONCE on the way in and stored. The old code re-ran the tax schedule backwards on EVERY read to find a gross that would produce your figure — a guess laid on top of an estimate.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-186-C04"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0240",
+      "cards": [
+        "MK-CF-F-187",
+        "MK-CF-F-099"
+      ],
+      "verdict": "HELD",
+      "why": "Enhanced senior and ageaddition mechanisms are supplied;MAGI/eligibility completeness is flagged separately.",
+      "decision_in_force": "“agree — add the $6,000 senior deduction (65+, 2025–2028).” An extra deduction for people 65 and over, which exists for those tax years and was missing from every tax figure.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-187-C05",
+        "MK-CF-F-099-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-0253",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“ok — the bracket loops written by hand; the statutory tables in the file.” The tax tables are typed in from the law and kept in the file; only the arithmetic over them is code.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0263",
+      "cards": [],
+      "verdict": "CANNOT TELL",
+      "why": "This decision governs a broader UI,sourcecapture,designapproval or delegated calculation not established by this part’s public formula cards. The decision text is retained below so the missing evidence is specific.",
+      "decision_in_force": "“explained and fixed in the file: the four mis-rendered functions written by hand; caps declared.” Four calculations the automatic reader could not render faithfully were written out by hand rather than left as a bad approximation.",
+      "authority": "his",
+      "evidence_case_refs": [],
+      "scope": "written specifications only; UI,storage and implementation unobserved",
+      "missing_evidence": "The approved public behavior/drawing for all clauses of this specific decision,including any delegated input domain and provenance metadata;do not supply app code,existingtests or app answers to the outside reviewer."
+    },
+    {
+      "rule": "DEC-0325",
+      "cards": [
+        "MK-CF-F-187",
+        "MK-CF-F-099"
+      ],
+      "verdict": "HELD",
+      "why": "Enhanced senior and ageaddition mechanisms are supplied;MAGI/eligibility completeness is flagged separately.",
+      "decision_in_force": "“over-65 additional standard deduction.” People 65 and over get an extra amount on top of the standard deduction, and it was missing.",
+      "authority": "his",
+      "evidence_case_refs": [
+        "MK-CF-F-187-C05",
+        "MK-CF-F-099-C05"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    },
+    {
+      "rule": "DEC-7942",
+      "cards": [
+        "MK-CF-F-186"
+      ],
+      "verdict": "NOT HELD",
+      "why": "One-time migration is stated,but its calculated branch omits401(k)from the inverse equation and may not preserve entered landing after deductions.",
+      "decision_in_force": "NOT A DECISION OF HIS — the lead's decision of 2026-10-24 under his rulings DEC-3523 (tenets 3 and 5), made without asking him, as his order of 2026-09-30 says. A $5,000 take-home with the person's own 0% rate: the gross box showed 5475.378787878787, worked back from the federal tables, the card read Everything else taken out $475/month · 0%, and its last line said nothing there was calculated. The gross is now worked back with their own rate, $5,000.00, under the line \"≈ Worked back from the take-home you entered. Type the gross from a payslip to replace it.\", and the card's last line says the take-home is what was entered and the gross was worked back from it. The typed take-home is unchanged ($5,000 on This month). Typing a gross brings back the drawing's words. The drawing's rule 9: every estimate is prefixed ≈ and says what it cannot see. To reverse: work the gross back from the federal schedule and print the drawn words. One word from him reverses it.",
+      "authority": "the lead's decision under his rulings, recorded in his log — not his own",
+      "evidence_case_refs": [
+        "MK-CF-F-186-C04"
+      ],
+      "scope": "written specifications only; UI,storage and implementation unobserved"
+    }
+  ]
+}

@@ -49,7 +49,7 @@
   "proof": "src/domain/income/limits.test.ts · src/screens/__tests__/contribution_room_medicare.test.tsx",
   "coded": "2026-09-08",
   "verified": "",
-  "notes": "He asked for a link to an existing page; none captures Medicare, so the question sits on the HSA card. Placement is his to confirm."
+  "notes": "He asked for a link to an existing page; none captures Medicare, so the question sits on the HSA card. Placement is his to confirm. 2026-10-26: REFINED by DEC-8408 (the lead, 2026-10-25): Contribution room asks the month Medicare started and counts the months before it — 65, self-only, Medicare from July: (4,400 + 1,000) × 6 ÷ 12 = $2,700; with no month, or a start before 2026, the limit stays $0 as this ruling says."
  },
  {
   "id": "G13",
@@ -417,7 +417,7 @@
   "proof": "src/screens/__tests__/empty_state_q48.test.tsx (the mock's screen, frame 1 and frame 2) · empty_state_q48_screens.test.tsx (the other screens)",
   "coded": "2026-09-12",
   "verified": "",
-  "notes": "Not applicable (4 of 58): MK-NW-M-031/032/033/034 — a holding page exists only once a holding was entered, so its $0 means sold, and the screen says so. Not built (8 of 58): MK-NW-M-019/020/021 (Account detail — the classes and income inside one account), MK-CF-M-004 (a past month that predates tracking keeps its own sentence), MK-CF-M-021 (a goal row appears only when a goal is committed), MK-PL-M-023 (the Roth 'Extra tax' row reads '—' until a plan is adopted), MK-MN-M-021 (Job safety asks for the figure in place). Open question: 'Debts' cannot tell an entered none from nothing entered — no 'I have no debts' answer exists; add one (a new input) or accept the line?"
+  "notes": "Not applicable (4 of 58): MK-NW-M-031/032/033/034 — a holding page exists only once a holding was entered, so its $0 means sold, and the screen says so. Not built (8 of 58): MK-NW-M-019/020/021 (Account detail — the classes and income inside one account), MK-CF-M-004 (a past month that predates tracking keeps its own sentence), MK-CF-M-021 (a goal row appears only when a goal is committed), MK-PL-M-023 (the Roth 'Extra tax' row reads '—' until a plan is adopted), MK-MN-M-021 (Job safety asks for the figure in place). Open question: 'Debts' cannot tell an entered none from nothing entered — no 'I have no debts' answer exists; add one (a new input) or accept the line? 2026-10-26: applied to the Tax organizer by DEC-8395 (Gross income $0, the sentence, the door) and to the income screens, the Debts tab and Expenses by DEC-8386, DEC-8362 (one door each, never twice)."
  },
  {
   "id": "G33",
@@ -967,7 +967,7 @@
   "proof": "A46 tests",
   "coded": "2026-09-12 (tallied)",
   "verified": "",
-  "notes": "Still open: the kind-level benchmark returns (ASSET_KINDS ret) act as assumed growth — Q44."
+  "notes": "Still open: the kind-level benchmark returns (ASSET_KINDS ret) act as assumed growth — Q44. 2026-10-26: applied on 2026-10-25/26 where a default stood in for an answer — hourly pay with no hours (DEC-8433), a paycheck with no birth year (DEC-8457), the retired screens with no birth year (DEC-8518), a payoff with a payment not entered (DEC-8460), a debt's rate not entered (DEC-8462), a mortgage payment left blank (DEC-8344), a rent with no number (DEC-8445)."
  },
  {
   "id": "Brief R3",
@@ -1496,7 +1496,7 @@
   "proof": "MoneyKeel/functions/cashflow/month-outflow.test.ts · cashflow_fcc.test.tsx · src/screens/__tests__/cashflow_home_agreement_2026_10_23.test.tsx (DEC-0333: the outflow Cash flow and Home print is monthOutflow's)",
   "coded": "2026-09-12",
   "verified": "",
-  "notes": "MK-CF-M-052 names MK-CF-F-194 as its producer (re-pointed 2026-10-24 from MK-CF-M-004: that number was handed to the month's rows on 2026-10-02, and the outflow it named lives on as MK-CF-M-052 — the metric register's retired key 'CF|M|Out (spent + debt)|out').",
+  "notes": "MK-CF-M-052 names MK-CF-F-194 as its producer (re-pointed 2026-10-24 from MK-CF-M-004: that number was handed to the month's rows on 2026-10-02, and the outflow it named lives on as MK-CF-M-052 — the metric register's retired key 'CF|M|Out (spent + debt)|out'). 2026-10-26: DEC-8459 (the lead, 2026-10-25): what is logged under a budget line that is a debt counts as that debt's payment, so the month's outflow keeps its one function and its dollars ($3,248 in the September household) while its parts move — expenses $2,998 → $698, debt paid $250 → $2,550.",
   "expect": [
    {
     "tab": "cashflow",
@@ -2386,7 +2386,7 @@
   "date": "2026-09-27",
   "source": "orchestrator map, Map tab, Q-CF-2, column YOUR ANSWER",
   "ruling": "yes",
-  "rows": "MK-XS-M-005 Spent so far · Spent $X of $Y left to spend this month · MK-XS-M-007 Left / Over · left to spend this month · MK-HM-M-004 <n>% spent · day n of m · MK-CF-M-001 Expenses · MK-CF-M-002 = Planned surplus · MK-CF-M-003 = Actual surplus so far · MK-CF-M-004 each row of the month — what it is and what it costs · MK-CF-M-013 Actual expenses · MK-CF-M-014 each expense and its amount · MK-CF-M-015 Planned expenses — each category · MK-CF-M-020 THIS MONTH — free to use · MK-MN-M-007 $X of $Y this month · over by $Z · MK-CF-M-047 Expected inflow · MK-CF-M-048 Planned outflow (expenses + debt) · MK-CF-M-049 = Planned surplus · MK-CF-M-050 each planned line · MK-CF-M-051 Inflow · MK-CF-M-052 Outflow (expenses + debt) · MK-CF-M-053 = Surplus · MK-CF-M-054 each received line",
+  "rows": "MK-XS-M-005 Spent so far · Spent $X of $Y left to spend this month · MK-XS-M-007 Left / Over · left to spend this month · MK-HM-M-004 <n>% spent · day n of m · MK-CF-M-001 Expenses · MK-CF-M-002 = Planned surplus · MK-CF-M-003 = Actual surplus so far · MK-CF-M-004 each row of the month — what it is and what it costs · MK-CF-M-013 Actual expenses · MK-CF-M-014 each expense and its amount · MK-CF-M-015 Planned expenses — each category · MK-CF-M-020 THIS MONTH — free to use · MK-MN-M-007 $X of $Y this month · over by $Z · MK-CF-M-047 Planned inflow · MK-CF-M-048 Planned outflow (expenses + debt) · MK-CF-M-049 = Planned surplus · MK-CF-M-050 each planned line · MK-CF-M-051 Inflow · MK-CF-M-052 Outflow (expenses + debt) · MK-CF-M-053 = Surplus · MK-CF-M-054 each received line",
   "status": "RULED",
   "code": "",
   "proof": "",

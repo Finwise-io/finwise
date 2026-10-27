@@ -11,12 +11,36 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { maskedMoney, spokenMoney } from './useMoney';
+import { fig } from './figure';   // the bracket prints under the Income summary's own number, MK-CF-M-043 (2026-10-26)
 import { compareMortgageToTreasury } from '../domain/debt/mortgageVsTreasury';
 import { mortgageOddsEffect } from '../domain/debt/mortgageOdds';
 import type { RetirementInputs } from '../domain/retirement';
 import { InfoDot } from './UI';
+import { useStore } from '../store/useStore';
+import { useIncomeProfile } from '../hooks/useIncomeProfile';   // the one profile income figures read (2026-10-26)
+import { incomeSummary } from '../../MoneyKeel/functions/cashflow/income-summary';
 
-export function MortgageRateCompare({ balance, annualRate, monthlyPayment, extraMonthly, treasuryYield, isFallback, planInputs, nowYear }: {
+/** THE FEDERAL TAX BRACKET THE COMPARISON RUNS ON — the one the Income summary shows as "Federal tax bracket" (MK-CF-O-004
+ *  incomeSummary), so the two screens can never name different brackets; null when no income is entered, and the card then
+ *  compares before tax and says so (2026-10-25, FIX-ROOM; the lead's ruling on MK-CF-F-043). */
+/* ─ MK-CF-F-284 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * federalBracketForComparison
+ *
+ * Answers ..... The federal tax bracket the mortgage comparison runs on: the one the Income summary shows as Federal tax bracket (MK-CF-M-043, handed by MK-CF-O-004 incomeSummary); nothing when no income is entered, and the card then compares before tax.
+ *
+ * Called by ... MortgageRateCompare
+ *
+ * Numbered by hand 2026-10-26 (PF-TOOLS, the lead's instruction): the scan that issues identifiers reads functions in the
+ *               calculation folders only, so this screen helper has no generated record; this one is written by hand in the generated form,
+ *               as MK-NW-F-145's is
+ * Changed ..... not in git yet (—)
+ */
+export function federalBracketForComparison(op: Record<string, any> | null | undefined): number | null {
+  const summary = incomeSummary(op ?? null);
+  return summary.ready ? summary.taxed.bracket : null;
+}
+
+export function MortgageRateCompare({ balance, annualRate, monthlyPayment, extraMonthly, treasuryYield, isFallback, planInputs, nowYear, nowMonth, federalRate }: {
   balance: number;
   annualRate: number;
   monthlyPayment: number;
@@ -29,14 +53,32 @@ export function MortgageRateCompare({ balance, annualRate, monthlyPayment, extra
    *  decision here without that line was the whole risk of moving it (brief §3.3.1) */
   planInputs?: RetirementInputs | null;
   nowYear?: number;
+  /** this month, 1 to 12 — the payoff year counts from it, not from January (2026-10-25, MK-CF-F-042) */
+  nowMonth?: number;
+  /** the federal bracket, decimal; absent → read from the person's income (federalBracketForComparison), null → before tax */
+  federalRate?: number | null;
 }) {
-  const c = compareMortgageToTreasury({ balance, annualRate, monthlyPayment, extraMonthly, treasuryYield });
+  const op = useStore((st: any) => st.onboardingProfile);
+  const incomeOp = useIncomeProfile(op);   // the bracket the Income summary names, the accounts' interest in it (2026-10-26, FIX-INCOME-A; src/hooks/useIncomeProfile.ts)
+  const bracket = React.useMemo(() => (federalRate !== undefined ? federalRate : federalBracketForComparison(incomeOp)), [federalRate, incomeOp]);
+  const c = compareMortgageToTreasury({ balance, annualRate, monthlyPayment, extraMonthly, treasuryYield, federalRate: bracket });
   const effect = planInputs
-    ? mortgageOddsEffect({ base: planInputs, balance, annualRate, monthlyPayment, extraMonthly, nowYear: nowYear ?? new Date().getFullYear() })
+    ? mortgageOddsEffect({ base: planInputs, balance, annualRate, monthlyPayment, extraMonthly, nowYear: nowYear ?? new Date().getFullYear(), nowMonth: nowMonth ?? new Date().getMonth() + 1 })
     : null;
   if (!c) return null;
 
-  const rates = `Your mortgage costs ${c.mortgagePct}%. A ten-year Treasury pays ${c.treasuryPct}% today.`;
+  // THE RATES TO TWO DECIMALS (his precision standard, Q49; cash-flow_v01 READ THIS FIRST 2026-10-26). The card works the comparison
+  // out itself (MK-CF-F-043), so no orchestrator hands these figures and they are not declared: the percent guard counts them here
+  // at their true number. The bracket is the Income summary's (MK-CF-O-004 hands it), so it prints under MK-CF-M-043.
+  const pct2 = (r: number) => `${(r * 100).toFixed(2)}%`;
+  // AFTER FEDERAL TAX WHEN THE BRACKET IS KNOWN, AND SAID EITHER WAY (2026-10-25, FIX-ROOM; drawing cash-flow v01, READ THIS
+  // FIRST row of 2026-10-25): the same sentence shape whichever way it falls (DEC-0161)
+  const rates = c.basis === 'after-tax'
+    ? `Your mortgage costs ${pct2(annualRate)}. A ten-year Treasury pays ${pct2(treasuryYield)} today — ${pct2(c.treasuryAfterTaxPct! / 100)} after your ${fig('MK-CF-M-043', c.federalRatePct! / 100)} federal tax bracket.`
+    : `Your mortgage costs ${pct2(annualRate)}. A ten-year Treasury pays ${pct2(treasuryYield)} today, before tax.`;
+  const taxWords = c.basis === 'after-tax'
+    ? 'The Treasury is shown after federal tax (it pays no state tax), the mortgage without any interest deduction.'
+    : 'Before tax: a Treasury’s interest is taxed, so after tax it pays less than this.';
   const yearly = Math.abs(c.annualDifference);
   const lifetime = Math.abs(c.lifetimeDifference);
 
@@ -61,6 +103,8 @@ export function MortgageRateCompare({ balance, annualRate, monthlyPayment, extra
               <Text style={s.b}>{maskedMoney(lifetime)} {c.lifetimeDifference > 0 ? 'better off' : 'worse off'}</Text>{' '}
               than putting it in Treasuries instead.</>
           )}
+          {/* a payment that never clears the loan has no lifetime figure — said, never silently left out (MK-CF-F-125) */}
+          {c.noLifetimeBecause === 'never-clears' && <> At this payment the loan never clears, so there is no lifetime figure.</>}
         </Text>
       )}
 
@@ -84,8 +128,7 @@ export function MortgageRateCompare({ balance, annualRate, monthlyPayment, extra
           reads the sentence with the ⓘ in it and the dot itself as "ⓘ" — beside it, the dot says "What is …?" like every other */}
       <View style={s.caveatRow}>
         <Text style={[s.caveat, { flex: 1, marginTop: 0 }]}>
-          Shares might earn more than either — or less. Paying the mortgage is the only one that is certain.
-          Tax usually widens this gap rather than closing it, but that depends on your own return.
+          Shares might earn more than either — or less. Paying the mortgage is the only one that is certain. {taxWords}
         </Text>
         <InfoDot term="nestEggMath" size={11} />
       </View>

@@ -44,7 +44,9 @@ test('every "MK-…-… name" in the code names the identifier the register issu
   }
   // A GUARD MUST PROVE IT LOOKED (standing order). This one passes on an empty sweep, so it says how
   // many identifier-and-name pairs it actually read. If the walk stops finding files, it goes red.
-  expect(seen).toBeGreaterThanOrEqual(600);
+  // 10,210 pairs read on 2026-10-26 (PF-TOOLS); the test files that name identifiers move this daily, so the floor sits under it
+  console.log(`guard_identifiers_match_register: ${seen} identifier-and-name pairs read`);
+  expect(seen).toBeGreaterThanOrEqual(10_000);
   expect([...new Set(offences)]).toEqual([]);
 });
 
@@ -74,8 +76,10 @@ test('a doc header claims the number the register issued to the function beneath
         // the first function declared after this header, within the block it heads
         let name: string | null = null;
         for (let j = i + 1; j < Math.min(i + 60, lines.length); j++) {
+          // a header written by hand over a CONSTANT (2026-10-26, PF-TOOLS: the words and step lists the lead had numbered — RMD_NO_AGE,
+          // PLANNED_GROUP_WORDS, PRE_ANSWERED_STEPS) heads that constant, not the next function below it
           const d = lines[j].match(/^\s*(?:export\s+)?(?:async\s+)?function\s+([A-Za-z][A-Za-z0-9_]*)/)
-            ?? lines[j].match(/^\s*(?:export\s+)?const\s+([A-Za-z][A-Za-z0-9_]*)\s*[:=]\s*(?:\([^)]*\)|async)/);
+            ?? lines[j].match(/^\s*(?:export\s+)?const\s+([A-Za-z][A-Za-z0-9_]*)\s*[:=]/);
           if (d) { name = d[1]; break; }
           if (/^\s*(?:export\s+)?(?:interface|type|class)\s/.test(lines[j])) break;
         }
@@ -90,7 +94,10 @@ test('a doc header claims the number the register issued to the function beneath
       }
     }
   }
-  expect(pairs).toBeGreaterThanOrEqual(400);       // it read this many headers, not zero
+  // 886 headers paired with the function beneath them on 2026-10-26 (PF-TOOLS) — it was a floor of 400; numbering raises it,
+  // and a retirement lowers it by its true number, said here
+  console.log(`guard_identifiers_match_register: ${pairs} headers paired with their function`);
+  expect(pairs).toBeGreaterThanOrEqual(895);       // it read this many headers, not zero (895 at the end of 2026-10-26)
   expect([...new Set(offences)]).toEqual([]);
 });
 

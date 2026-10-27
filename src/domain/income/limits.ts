@@ -31,14 +31,15 @@ export const IRS_LIMITS = {
  *     the answer = now.get full year() − y
  *
  * Called by ... MK-CF-O-005 theContributionRoom · MK-NW-F-041 monthlyContributionsFromOnboarding
- *               MK-PL-F-067 willItLastInputs
+ *               MK-PL-F-067 willItLastInputs · MK-XS-F-030 effectiveAnnualContribution
  *
- * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-199 ROOM · MK-XS-F-031 buildSnapshot
+ * Reaches ..... 12 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-CF-F-229 balanceGrownTo
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-043 compareMortgageToTreasury
  *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-O-017 futurePaycheck
- *               MK-NW-F-041 monthlyContributionsFromOnboarding · MK-PL-F-068 selectWillItLast
- *               MK-XS-F-032 snapshotFromOnboarding · MK-CF-O-005 theContributionRoom
- *               MK-PL-F-067 willItLastInputs
+ *               MK-CF-F-126 futureValue · MK-NW-F-041 monthlyContributionsFromOnboarding
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-CF-O-005 theContributionRoom · MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-017 birth year
@@ -69,9 +70,10 @@ export function ageAttainedInYear(birthYear: number | null | undefined, now: Dat
  *
  * Called by ... MK-CF-F-196 perMonthToFill · MK-CF-O-005 theContributionRoom
  *
- * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-199 ROOM · MK-CF-F-196 perMonthToFill
- *               MK-CF-O-005 theContributionRoom
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-CF-F-229 balanceGrownTo
+ *               MK-CF-F-043 compareMortgageToTreasury · MK-CF-F-126 futureValue
+ *               MK-CF-F-196 perMonthToFill · MK-CF-O-005 theContributionRoom
  *
  * Serves ...... MK-MN-M-003 · MK-MN-M-004 · MK-MN-M-005 · MK-MN-M-029
  *
@@ -97,8 +99,10 @@ export function monthsLeftInYear(now: Date = new Date()): number {
  *
  * Called by ... MK-CF-O-005 theContributionRoom
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-199 ROOM · MK-CF-O-005 theContributionRoom
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-CF-F-229 balanceGrownTo
+ *               MK-CF-F-043 compareMortgageToTreasury · MK-CF-F-126 futureValue
+ *               MK-CF-O-005 theContributionRoom
  *
  * Serves ...... MK-MN-M-003 · MK-MN-M-004 · MK-MN-M-005 · MK-MN-M-029
  *
@@ -114,7 +118,7 @@ export function perMonthToFill(roomLeft: number, now: Date = new Date()): number
 }
 
 /** Annual employee 401(k) limit for the user's age (adds the 50+ catch-up). */
-/* ─ MK-CF-F-053 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+/* ─ MK-CF-F-053 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * annual401kLimit
  *
  * Answers ..... Annual employee 401(k) limit for the user's age (adds the 50+ catch-up).
@@ -124,13 +128,16 @@ export function perMonthToFill(roomLeft: number, now: Date = new Date()): number
  *     IRS_LIMITS.elective deferral 401k + (age ≠ nothing and age ≥ 50 ? IRS_LIMITS.catch up 50 : 0)
  *
  * Called by ... MK-CF-F-056 k401Headroom · MK-NW-F-041 monthlyContributionsFromOnboarding
+ *               MK-XS-F-030 effectiveAnnualContribution
  *
- * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-199 ROOM · MK-XS-F-031 buildSnapshot
+ * Reaches ..... 13 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-CF-F-229 balanceGrownTo
+ *               MK-XS-F-031 buildSnapshot · MK-CF-F-043 compareMortgageToTreasury
  *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-O-017 futurePaycheck
- *               MK-CF-F-056 k401Headroom · MK-NW-F-041 monthlyContributionsFromOnboarding
- *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
- *               MK-CF-O-005 theContributionRoom · MK-PL-F-067 willItLastInputs
+ *               MK-CF-F-126 futureValue · MK-CF-F-056 k401Headroom
+ *               MK-NW-F-041 monthlyContributionsFromOnboarding · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-CF-O-005 theContributionRoom
+ *               MK-PL-F-067 willItLastInputs
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -157,10 +164,12 @@ export function annual401kLimit(age: number | null): number {
  * Formula .....
  *     IRS_LIMITS.ira + (age ≠ nothing and age ≥ 50 ? IRS_LIMITS.ira catch up 50 : 0)
  *
- * Called by ... MK-CF-O-005 theContributionRoom
+ * Called by ... MK-CF-F-199 ROOM · MK-CF-O-005 theContributionRoom
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-199 ROOM · MK-CF-O-005 theContributionRoom
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-CF-F-229 balanceGrownTo
+ *               MK-CF-F-043 compareMortgageToTreasury · MK-CF-F-126 futureValue
+ *               MK-CF-O-005 theContributionRoom
  *
  * Serves ...... MK-MN-M-003 · MK-MN-M-004
  *
@@ -173,7 +182,9 @@ export function annual401kLimit(age: number | null): number {
 export function annualIraLimit(age: number | null): number {
   return IRS_LIMITS.ira + (age != null && age >= 50 ? IRS_LIMITS.ira_catch_up_50 : 0);
 }
-/** How much can this person put into a health savings account this year? (Enrolled in Medicare → nothing; founder ruling 2026-09-08, G10.) */
+/** How much can this person put into a health savings account this year? Enrolled in Medicare: the months before its first
+ *  month this year still count — the limit × those months ÷ 12 (IRS Publication 969); with no month given, or enrolled from
+ *  before this year, nothing (founder ruling 2026-09-08, G10). */
 /* ─ MK-CF-F-055 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * annualHsaLimit
  *
@@ -183,10 +194,12 @@ export function annualIraLimit(age: number | null): number {
  *     0   when enrolled in Medicare (no contribution is allowed)
  *     (family ? family limit : self-only limit) + (age ≥ 55 ? the 55+ catch-up : 0)   otherwise
  *
- * Called by ... MK-CF-O-005 theContributionRoom
+ * Called by ... MK-CF-F-199 ROOM · MK-CF-O-005 theContributionRoom
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-199 ROOM · MK-CF-O-005 theContributionRoom
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-CF-F-229 balanceGrownTo
+ *               MK-CF-F-043 compareMortgageToTreasury · MK-CF-F-126 futureValue
+ *               MK-CF-O-005 theContributionRoom
  *
  * Serves ...... MK-MN-M-003 · MK-MN-M-004
  * Reads ....... MK-XS-I-062 enrolled in Medicare (yes / no)
@@ -198,13 +211,21 @@ export function annualIraLimit(age: number | null): number {
  * Formula also on the master file · functions_from_code · MK-CF-F-055
  * Changed ..... 2026-06-05 (7f0d417)
  */
-export function annualHsaLimit(age: number | null, family = false, medicareEnrolled: boolean | null = null): number {
-  if (medicareEnrolled === true) return 0;
-  return (family ? IRS_LIMITS.hsa_family : IRS_LIMITS.hsa_self) + (age != null && age >= 55 ? IRS_LIMITS.hsa_catch_up_55 : 0);
+export function annualHsaLimit(age: number | null, family = false, medicareEnrolled: boolean | null = null, medicareFirstMonth: number | null = null): number {
+  const fullYear = (family ? IRS_LIMITS.hsa_family : IRS_LIMITS.hsa_self) + (age != null && age >= 55 ? IRS_LIMITS.hsa_catch_up_55 : 0);
+  if (medicareEnrolled !== true) return fullYear;
+  // MEDICARE STOPS HSA MONEY FROM ITS FIRST MONTH, NOT FOR THE WHOLE YEAR (2026-10-25, FIX-ROOM; IRS Publication 969, the
+  // limit is worked by the month: the months before the first month of Medicare still count, catch-up included). Enrolled
+  // from July: (4,400 + 1,000) × 6 ÷ 12 = $2,700. Enrolled with no month given, or from before this year: nothing — his
+  // ruling G10 (2026-09-08), the reading that can never let a person put in more than the law allows.
+  const m = Number(medicareFirstMonth);
+  if (!Number.isInteger(m) || m < 1 || m > 12) return 0;
+  return fullYear * (m - 1) / 12;
 }
 
-export interface Headroom { limit: number; used: number; remaining: number; catchUp: boolean; }
-/** How much more you can still put into your 401(k) this year (incl. 50+ catch-up). */
+/** used is what goes in, never cut to the limit; excess is what goes in above it (IRC §402(g)), 0 when nothing is over. */
+export interface Headroom { limit: number; used: number; remaining: number; excess: number; catchUp: boolean; }
+/** How much more you can still put into your 401(k) this year (incl. 50+ catch-up) — and how much goes in above the limit. */
 /* ─ MK-CF-F-056 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
  * k401Headroom
  *
@@ -215,14 +236,17 @@ export interface Headroom { limit: number; used: number; remaining: number; catc
  *     used = max(0, annual401k contribution)
  *     the answer:
  *     limit = limit
- *     used = min(used, limit)
+ *     used = used
  *     remaining = max(0, limit − used)
+ *     excess = max(0, used − limit)
  *     catch up = age ≠ nothing and age ≥ 50
  *
  * Called by ... MK-CF-O-005 theContributionRoom
  *
- * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
- *               MK-CF-F-199 ROOM · MK-CF-O-005 theContributionRoom
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-199 ROOM · MK-CF-F-229 balanceGrownTo
+ *               MK-CF-F-043 compareMortgageToTreasury · MK-CF-F-126 futureValue
+ *               MK-CF-O-005 theContributionRoom
  *
  * Serves ...... MK-MN-M-003 · MK-MN-M-004
  *
@@ -235,7 +259,10 @@ export interface Headroom { limit: number; used: number; remaining: number; catc
 export function k401Headroom(age: number | null, annual401kContribution: number): Headroom {
   const limit = annual401kLimit(age);
   const used = Math.max(0, annual401kContribution);
-  return { limit, used: Math.min(used, limit), remaining: Math.max(0, limit - used), catchUp: age != null && age >= 50 };
+  // WHAT GOES IN IS NEVER CUT TO THE LIMIT (2026-10-25, FIX-ROOM; tenets 1, 5, 7 of DEC-3523; IRC §402(g)): at 60 with $40,000
+  // put in, used is $40,000 and the $4,250 above the $35,750 limit is the excess — it read "$35,750 used" and the excess
+  // vanished, though money over the limit must come out by April 15 or it is taxed twice. Room stays at $0, never below.
+  return { limit, used, remaining: Math.max(0, limit - used), excess: Math.max(0, used - limit), catchUp: age != null && age >= 50 };
 }
 
 /** Roth vs Traditional lean from current vs expected-retirement marginal rate (decimals). */
